@@ -119,7 +119,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detection
 	char buf3[100];
 	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY);
 	scaleDownProgram = Program::create(buf3,buf1,buf2);
-	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
+	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;

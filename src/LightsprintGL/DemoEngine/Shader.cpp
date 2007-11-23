@@ -27,23 +27,25 @@ char* readShader(const char *filename)
 	return buf;
 }
 
-Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
+Shader* Shader::create(const char* defines, const char* filename, GLenum shaderType)
 {
 	const char *source[3];
-	handle = glCreateShader(shaderType);
-
 	source[0] = "#version 110\n";
 	source[1] = defines?defines:"";
 	source[2] = readShader(filename);
 	if(!source[2])
 	{
 		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
-		exit(0);
+		return NULL;
 	}
+	return new Shader(source,shaderType);
+}
+
+Shader::Shader(const GLchar** source, GLenum shaderType)
+{
+	handle = glCreateShader(shaderType);
 	glShaderSource(handle, 3, (const GLchar**)source, NULL);
-  
 	compile();
-  
 	delete[] source[2];
 }
 

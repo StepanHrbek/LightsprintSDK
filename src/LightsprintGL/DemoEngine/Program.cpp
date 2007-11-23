@@ -18,19 +18,23 @@ namespace rr_gl
 bool Program::showLog = false;
 
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
-  :vertex(NULL), fragment(NULL)
 {
 	handle = glCreateProgram();
+	vertex = NULL;
+	fragment = NULL;
+	linked = 0;
 
 	if(vertexShader)
 	{
-		vertex = new Shader(defines, vertexShader, GL_VERTEX_SHADER);
+		vertex = Shader::create(defines, vertexShader, GL_VERTEX_SHADER);
+		if(!vertex) return;
 		glAttachShader(handle, vertex->getHandle());
 	}
 
 	if(fragmentShader)
 	{
-		fragment = new Shader(defines, fragmentShader, GL_FRAGMENT_SHADER);
+		fragment = Shader::create(defines, fragmentShader, GL_FRAGMENT_SHADER);
+		if(!fragment) return;
 		glAttachShader(handle, fragment->getHandle());
 	}
 
