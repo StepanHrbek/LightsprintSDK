@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - RRIlluminationPixelBuffer::lockRGBF() for reading lightmap pixels in native floating point precision
+- sample RealtimeLights supports custom Collada scenes out of the box (use drag&drop or commandline argument)
 
 CHANGES
 

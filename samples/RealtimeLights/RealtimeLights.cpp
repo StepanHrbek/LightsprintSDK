@@ -8,6 +8,8 @@
 // - all lights from file, no hard limit on number of lights
 // - no precalculations
 //
+// Use commandline argument or drag&drop to open custom collada scene.
+//
 // Light types supported: point, spot (not yet directional)
 //
 // Controls:
@@ -396,6 +398,12 @@ int main(int argc, char **argv)
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 	
+	// change current directory to exe directory, necessary when opening custom scene using drag&drop
+	char* exedir = _strdup(argv[0]);
+	for(unsigned i=strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
+	SetCurrentDirectoryA(exedir);
+	free(exedir);
+
 	// init solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
@@ -406,7 +414,7 @@ int main(int argc, char **argv)
 	{
 		collada = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-		collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 		if(!errorHandler.IsSuccessful())
 		{
 			puts(errorHandler.GetErrorString());
