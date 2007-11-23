@@ -267,6 +267,17 @@ const RRColorRGBA8* RRIlluminationPixelBufferInMemory::lock()
 	return (const RRColorRGBA8*)lockedPixels;
 }
 
+const RRColorRGBF* RRIlluminationPixelBufferInMemory::lockRGBF()
+{
+	SAFE_DELETE_ARRAY(lockedPixels);
+	rr_gl::Texture::Format format = texture->getFormat();
+	// TF_RGBF
+	if(format==rr_gl::Texture::TF_RGBF)
+		return (const RRColorRGBF*)texture->lock();
+	// TF_RGBA
+	return NULL;
+}
+
 void RRIlluminationPixelBufferInMemory::unlock()
 {
 	SAFE_DELETE_ARRAY(lockedPixels);

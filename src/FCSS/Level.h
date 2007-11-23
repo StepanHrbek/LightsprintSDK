@@ -5,6 +5,7 @@
 #define SUPPORT_COLLADA
 #define SUPPORT_BSP
 #define SUPPORT_MGF
+//#define SUPPORT_UE3
 
 #ifdef SUPPORT_COLLADA
 	#include "FCollada.h"
@@ -24,6 +25,10 @@
 
 #ifdef SUPPORT_MGF
 	#include "../../samples/ImportMGF/RRObjectMGF.h"
+#endif
+
+#ifdef SUPPORT_UE3
+	#include "../../samples/ImportUE3/RRObjectUE3.h"
 #endif
 
 #include "AnimationEditor.h"

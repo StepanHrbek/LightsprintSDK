@@ -281,8 +281,10 @@ namespace rr
 		virtual unsigned getWidth() const = 0;
 		//! \return Height of pixel buffer in pixels.
 		virtual unsigned getHeight() const = 0;
-		//! Locks the buffer for seeing array of all pixels at once. Not mandatory, may return NULL.
+		//! Locks the buffer for reading array of all pixels at once. Not mandatory, may return NULL.
 		virtual const RRColorRGBA8* lock() {return NULL;};
+		//! Locks the buffer for reading array of all pixels at once. Not mandatory, may return NULL.
+		virtual const RRColorRGBF* lockRGBF() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
 		//! Binds pixel buffer for rendering. Not mandatory,

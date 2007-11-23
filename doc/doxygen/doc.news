@@ -10,6 +10,10 @@ namespace rr
 
 \section news39 ------------------------------------ 2007.11.xx -------------------------------------
 
+NEWS
+
+- RRIlluminationPixelBuffer::lockRGBF() for reading lightmap pixels in native floating point precision
+
 CHANGES
 
 - removed RRStaticSolver and sample HelloStaticSolver

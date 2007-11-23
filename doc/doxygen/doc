@@ -540,14 +540,14 @@ Used by samples:
  is typically enough)
  and calculate average color of rendered image. Follow these steps for each material
 
- -# Create empty scene and place rectangle covered by material in front of camera
-    (so it covers whole viewport, but nothing more).
+ -# Create empty scene and place 1x1m rectangle covered by material in front of camera
+    in 0.5m distance (so it covers whole viewport, but nothing more).
     If it has uv coordinates for textures, use whole texture space from 0,0 to 1,1 in rectangle.
  -# Clear to black and render rectangle.
     Store acquired average color as RRMaterial::diffuseEmittance.
  -# Clear to white and render rectangle.
     Store acquired average color minus emittance as RRMaterial::specularTransmittance.
- -# Add white light without distance attenuation to the same position as camera.
+ -# Add white point light without distance attenuation to the same position as camera.
     Clear to black and render rectangle.
     Store acquired average color minus emittance as RRMaterial::diffuseReflectance.
  -# Call RRMaterial::validate() to clamp values to physically correct bounds.
