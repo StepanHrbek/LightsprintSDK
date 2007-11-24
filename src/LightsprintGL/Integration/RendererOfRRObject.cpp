@@ -257,7 +257,7 @@ void RendererOfRRObject::render()
 
 			if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 			{
-				const rr::RRMaterial* material = params.object->getTriangleMaterial(triangleIdx);
+				const rr::RRMaterial* material = params.object->getTriangleMaterial(triangleIdx,NULL);
 				if(material!=oldMaterial)
 				{
 					oldMaterial = material;

@@ -5,6 +5,7 @@
 #endif
 
 #include "Interpolator.h"
+#include "Lightsprint/RRLight.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 typedef unsigned char u8;

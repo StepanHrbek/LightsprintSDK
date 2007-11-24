@@ -1,8 +1,10 @@
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRLight.h"
 #include "../RRMathPrivate.h"
 
 namespace rr
 {
+
+#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -21,6 +23,7 @@ public:
 		polynom = rr::RRVec3(0);
 		fallOffExponent = 0;
 		fallOffAngleRad = 0;
+		customData = NULL;
 	}
 };
 
@@ -46,7 +49,7 @@ public:
 			color[2] = pow(color[2],2.2222f);
 		}
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		return color;
 	}
@@ -68,7 +71,7 @@ public:
 		position = _position;
 		color = _color;
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		return color / (receiverPosition-position).length2();
 	}
@@ -92,10 +95,10 @@ public:
 		radius = _radius;
 		fallOffExponent = _fallOffExponent;
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
-		RRColor irradiance = color * distanceAttenuation;
+		RRVec3 irradiance = color * distanceAttenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
@@ -118,10 +121,10 @@ public:
 		color = _color;
 		polynom = _polynom;
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = 1/(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
-		RRColor irradiance = color * distanceAttenuation;
+		RRVec3 irradiance = color * distanceAttenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
@@ -147,7 +150,7 @@ public:
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = 1/(receiverPosition-position).length2();
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
@@ -178,13 +181,13 @@ public:
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
-		RRColor irradiance = color * attenuation;
+		RRVec3 irradiance = color * attenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
@@ -210,13 +213,13 @@ public:
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
-	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = 1/(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
-		RRColor irradiance = color * attenuation;
+		RRVec3 irradiance = color * attenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}

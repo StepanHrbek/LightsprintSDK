@@ -18,7 +18,7 @@ namespace rr
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
 {
 	LIMITED_TIMES(1,RRReporter::report(WARN,"Slow RRObject::getPointMaterial path used, but no additional details are available."));
-	const RRMaterial* material = getTriangleMaterial(t);
+	const RRMaterial* material = getTriangleMaterial(t,NULL);
 	if(material)
 	{
 		out = *material;

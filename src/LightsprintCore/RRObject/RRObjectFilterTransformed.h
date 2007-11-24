@@ -37,9 +37,9 @@ public:
 	//  and return triangle vertices in opposite order
 	// way 2 YES
 	//  hook in getTriangleMaterial and return sideBits in opposite order
-	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
 	{
-		const RRMaterial* surf = inherited->getTriangleMaterial(t);
+		const RRMaterial* surf = inherited->getTriangleMaterial(t,light);
 		if(!surf || negScaleMakesOuterInner) return surf;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		if(!m) return surf;

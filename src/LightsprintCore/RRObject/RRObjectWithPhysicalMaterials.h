@@ -3,6 +3,7 @@
 #include <cassert>
 #include <map>
 #include "RRObjectFilter.h"
+#include "Lightsprint/RRLight.h"
 
 namespace rr
 {
@@ -34,9 +35,9 @@ public:
 		return original->getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
 	{
-		const RRMaterial* custom = original->getTriangleMaterial(t);
+		const RRMaterial* custom = original->getTriangleMaterial(t,light);
 		if(!scaler || !custom)
 		{
 			return custom;
@@ -98,7 +99,7 @@ public:
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			const RRMaterial* custom = original->getTriangleMaterial(i);
+			const RRMaterial* custom = original->getTriangleMaterial(i,NULL);
 			if(custom && cache.find(custom)==cache.end())
 			{
 				RRMaterial physical;

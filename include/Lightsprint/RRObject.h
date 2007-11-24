@@ -93,66 +93,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRScaler
-	//! Interface for physical <-> custom space transformer.
-	//
-	//! RRScaler may be used to transform irradiance/emittance/exitance 
-	//! between physical W/m^2 space and custom user defined space.
-	//! Without scaler, all inputs/outputs work with specified physical units.
-	//! With appropriate scaler, you may directly work for example with screen colors
-	//! or photometric units.
-	//!
-	//! For best results, scaler should satisfy following conditions for any x,y,z:
-	//! \n getPhysicalScale(x)*getPhysicalScale(y)=getPhysicalScale(x*y)
-	//! \n getPhysicalScale(x*y)*getPhysicalScale(z)=getPhysicalScale(x)*getPhysicalScale(y*z)
-	//! \n getCustomScale is inverse of getPhysicalScale
-	//!
-	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
-	//! for negative inputs.
-	//!
-	//! Contains built-in support for typical RGB monitor space, see createRgbScaler().
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRScaler : public RRUniformlyAllocated
-	{
-	public:
-		//////////////////////////////////////////////////////////////////////////////
-		// Interface
-		//////////////////////////////////////////////////////////////////////////////
-
-		//! Converts color from physical scale (W/m^2) value to user defined scale.
-		virtual void getCustomScale(RRColor& physicalScale) const = 0;
-
-		//! Converts color from user defined scale to physical scale (W/m^2).
-		virtual void getPhysicalScale(RRColor& customScale) const = 0;
-
-		virtual ~RRScaler() {}
-
-
-		//////////////////////////////////////////////////////////////////////////////
-		// Tools
-		//////////////////////////////////////////////////////////////////////////////
-
-		//
-		// instance factory
-		//
-
-		//! Creates and returns scaler for standard RGB monitor space.
-		//
-		//! Scaler converts between radiometry units (W/m^2) and displayable RGB values.
-		//! It is only approximation, exact conversion would depend on individual monitor 
-		//! and eye attributes.
-		//! \param power Exponent in formula screenSpace = physicalSpace^power.
-		static RRScaler* createRgbScaler(RRReal power=0.45f);
-
-		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
-		static RRScaler* createFastRgbScaler(RRReal power=0.45f);
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	//  RRObject
 	//! Common interface for all proprietary object formats.
 	//
@@ -207,10 +147,13 @@ namespace rr
 		//! Although optional per-pixel material queries may be implemented in getPointMaterial(),
 		//! it's mandatory to implement basic getTriangleMaterial() with average values.
 		//! Returned pointer must stay valid and constant for whole life of object.
-		//! Note that solvers require that returned pointer is not NULL,
-		//! results are undefined for NULL.
-		//! \param t Triangle number.
-		virtual const RRMaterial* getTriangleMaterial(unsigned t) const = 0;
+		//! \param t
+		//!  Triangle number.
+		//! \param light
+		//!  Solver sets light to NULL for unconditional material query, returned material must be non-NULL.
+		//!  When solver sets specific light, returned material may be NULL,
+		//!  it makes this light go through as if triangle doesn't exist, so triangle becomes darker and it doesn't cast shadows.
+		virtual const RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light) const = 0;
 
 		//! Returns material description for point on object's surface.
 		//
@@ -345,7 +288,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used for physical scale <-> custom scale conversions.
 		//!  Provide the same scaler you use for the rest of calculation.
-		class RRObjectWithIllumination* createObjectWithIllumination(const RRScaler* scaler);
+		class RRObjectWithIllumination* createObjectWithIllumination(const class RRScaler* scaler);
 
 		//! Creates and returns object with materials converted to physical space.
 		//
@@ -355,7 +298,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used for custom scale -> physical scale conversion.
 		//!  Provide the same scaler you use for the rest of calculation.
-		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const RRScaler* scaler);
+		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const class RRScaler* scaler);
 
 
 		// collision helper

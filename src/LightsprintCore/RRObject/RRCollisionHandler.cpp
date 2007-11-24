@@ -22,7 +22,7 @@ public:
 	}
 	virtual bool collides(const RRRay* ray)
 	{
-		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle);
+		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle,NULL);
 		if(material)
 		{
 			// per-pixel materials

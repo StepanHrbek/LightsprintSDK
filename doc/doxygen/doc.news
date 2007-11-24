@@ -14,9 +14,13 @@ NEWS
 
 - RRIlluminationPixelBuffer::lockRGBF() for reading lightmap pixels in native floating point precision
 - sample RealtimeLights supports custom Collada scenes out of the box (use drag&drop or commandline argument)
+- added RRLight::customData, may point e.g. to light in third party engine
 
 CHANGES
 
+- RRObject::getTriangleMaterial() has one new parameter
+  \n It is possible to have lights that interact with selected objects (or triangles) only,
+  support UE3's lighting channels.
 - removed RRStaticSolver and sample HelloStaticSolver
 
 \section news38 ------------------------------------ 2007.11.17 -------------------------------------

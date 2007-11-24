@@ -1884,7 +1884,13 @@ Used by samples:
  - FColor = RRColorRGBA8
  - FLinearColor = RRColorRGBAF
 
- 
+ \section ue3_lighting_channels Lighting channels
+
+ To support lighting channels, fill RRLight::customData
+ with lighting channel and make RRObject::getTriangleMaterial(triangle,light)
+ return NULL for objects that don't interact with light.
+
+
    
  
 \page main_conventions Conventions

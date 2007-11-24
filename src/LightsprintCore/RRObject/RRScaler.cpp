@@ -2,7 +2,8 @@
 #include <cfloat>
 #include <cmath>
 
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRLight.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr
 {
@@ -24,15 +25,15 @@ public:
 		gamma = agamma;
 		invGamma = 1/gamma;
 	}
-	virtual void getCustomScale(RRColor& color) const
+	virtual void getCustomScale(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 #ifdef _DEBUG
-		RRColor tmp = color;
+		RRVec3 tmp = color;
 #endif
-		color = RRColor(
+		color = RRVec3(
 			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
 			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
 			(color[2]>=0)?pow(color[2],gamma):-pow(-color[2],gamma)
@@ -41,12 +42,12 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual void getPhysicalScale(RRColor& color) const
+	virtual void getPhysicalScale(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
-		color = RRColor(
+		color = RRVec3(
 			// supports negative colors
 			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
 			(color[1]>=0)?pow(color[1],invGamma):-pow(-color[1],invGamma),
@@ -78,12 +79,12 @@ public:
 		gamma = agamma;
 		invGamma = 1/gamma;
 	}
-	virtual void getCustomScale(RRColor& color) const
+	virtual void getCustomScale(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
-		color = RRColor(
+		color = RRVec3(
 			powf(color[0],gamma),
 			powf(color[1],gamma),
 			powf(color[2],gamma)
@@ -92,12 +93,12 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual void getPhysicalScale(RRColor& color) const
+	virtual void getPhysicalScale(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
-		color = RRColor(
+		color = RRVec3(
 			powf(color[0],invGamma),
 			powf(color[1],invGamma),
 			powf(color[2],invGamma)

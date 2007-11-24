@@ -1383,42 +1383,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRDynamicSolver\RRLight.cpp"
-				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				ExceptionHandling="1"
-			/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				ExceptionHandling="1"
-			/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\include\Lightsprint\RRVector.h"
 				>
 			</File>
@@ -1496,6 +1460,14 @@
 			</File>
 			<File
 				RelativePath=".\RRPackedSolver\RRPackedSolver.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRLight"
+			>
+			<File
+				RelativePath=".\RRLight\RRLight.cpp"
 				>
 			</File>
 		</Filter>

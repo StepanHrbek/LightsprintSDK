@@ -32,9 +32,9 @@ public:
 	{
 		return inherited->getCollider();
 	}
-	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
 	{
-		return inherited->getTriangleMaterial(t);
+		return inherited->getTriangleMaterial(t,light);
 	}
 	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 	{

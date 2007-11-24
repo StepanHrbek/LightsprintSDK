@@ -78,7 +78,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
 		}
 		// material change? -> start new facegroup
-		const rr::RRMaterial* material = object->getTriangleMaterial(t);
+		const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL);
 		if(!t || material!=previousMaterial)
 		{
 			FaceGroup fg;

@@ -351,7 +351,7 @@ class GatheredIrradianceLights
 {
 public:
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights()), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),_pti.tri.triangleIndex,true)
+		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights()), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),NULL,_pti.tri.triangleIndex,true)
 		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 	{
 		irradianceLights = RRColorRGBF(0);
@@ -375,14 +375,14 @@ public:
 	}
 
 	// 1 ray
-	void shotRay(const RRLight* light)
+	void shotRay(const RRLight* _light)
 	{
-			if(!light) return;
+			if(!_light) return;
 			// set dir to light
-			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pti.tri.pos3d);
+			RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-pti.tri.pos3d);
 			RRReal dirsize = dir.length();
 			dir /= dirsize;
-			if(light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
+			if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
 			float normalIncidence = dot(dir,pti.tri.normal);
 			if(normalIncidence<=0)
 			{
@@ -399,10 +399,11 @@ public:
 				pti.ray->rayLengthMax = dirsize;
 				pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
 				pti.ray->collisionHandler = &collisionHandler;
+				collisionHandler.light = _light;
 				if(!tools.collider->intersect(pti.ray))
 				{
 					// direct visibility found (at least partial), add irradiance from light
-					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,tools.scaler) * ( normalIncidence * collisionHandler.getVisibility() );
+					RRVec3 irrad = _light->getIrradiance(pti.tri.pos3d,tools.scaler) * ( normalIncidence * collisionHandler.getVisibility() );
 					irradianceLights += irrad;
 					bentNormalLights += dir * irrad.abs().avg();
 					hitsLight++;

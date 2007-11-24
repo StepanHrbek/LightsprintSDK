@@ -64,7 +64,7 @@ public:
 	{
 		if(ray->hitTriangle!=emitorTriangleNumber)
 		{
-			triangleMaterial = object->getTriangleMaterial(ray->hitTriangle);
+			triangleMaterial = object->getTriangleMaterial(ray->hitTriangle,NULL);
 			if(triangleMaterial)
 			{
 				// per-pixel materials
@@ -129,9 +129,10 @@ private:
 class RRCollisionHandlerVisibility : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerVisibility(const RRObject* _object,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
+	RRCollisionHandlerVisibility(const RRObject* _object,const RRLight* _light,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
 	{
 		object = _object;
+		light = _light;
 		emitorTriangleNumber = _emitorTriangleNumber;
 		allowPointMaterials = _allowPointMaterials;
 	}
@@ -143,7 +144,7 @@ public:
 	{
 		if(ray->hitTriangle!=emitorTriangleNumber)
 		{
-			const RRMaterial* triangleMaterial = object->getTriangleMaterial(ray->hitTriangle);
+			const RRMaterial* triangleMaterial = object->getTriangleMaterial(ray->hitTriangle,light);
 			if(triangleMaterial)
 			{
 				// per-pixel materials
@@ -194,6 +195,7 @@ public:
 	}
 
 
+	const RRLight* light;
 private:
 	const RRObject* object;
 	bool allowPointMaterials;
