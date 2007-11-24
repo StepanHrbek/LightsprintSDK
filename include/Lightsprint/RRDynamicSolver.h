@@ -683,9 +683,6 @@ namespace rr
 		//! As getMultiObjectCustom, but with materials converted to physical space.
 		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
 
-		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
-		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
-
 	protected:
 		//! Autodetects material properties of all materials present in scene.
 		//

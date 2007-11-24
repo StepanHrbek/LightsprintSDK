@@ -22,6 +22,9 @@ CHANGES
   \n It is possible to have lights that interact with selected objects (or triangles) only,
   support UE3's lighting channels.
 - removed RRStaticSolver and sample HelloStaticSolver
+- removed RRObjectWithIllumination
+  and RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
+  and RRObject::createObjectWithIllumination()
 
 \section news38 ------------------------------------ 2007.11.17 -------------------------------------
 

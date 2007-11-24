@@ -6,7 +6,6 @@
 #include "RRObjectFilter.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
-#include "RRObjectWithIllumination.h"
 
 namespace rr
 {
@@ -67,11 +66,6 @@ RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRColli
 RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, char* cacheLocation)
 {
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,cacheLocation);
-}
-
-RRObjectWithIllumination* RRObject::createObjectWithIllumination(const RRScaler* scaler)
-{
-	return new RRObjectWithIlluminationImpl(this,scaler);
 }
 
 } // namespace

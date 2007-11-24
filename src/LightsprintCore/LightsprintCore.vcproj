@@ -1470,6 +1470,10 @@
 				RelativePath=".\RRLight\RRLight.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRLight.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\LicGen\include\LicGen.h"

@@ -245,7 +245,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 			SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
 		}
 	}
-	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),packedSolverFile);
+	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
 	if(priv->packedSolver)
 	{
 		updateVertexLookupTablePackedSolver();
@@ -266,7 +266,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		filename = filenameauto;
 	}
 
-	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
+	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename));
 	if(priv->packedSolver)
 	{
 		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);

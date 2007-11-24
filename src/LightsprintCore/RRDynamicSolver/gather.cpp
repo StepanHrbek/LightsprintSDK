@@ -717,7 +717,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 			return false;
 		}
 	}
-	RRObjectWithIllumination* multiObject = getMultiObjectPhysicalWithIllumination();
+	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
 
@@ -799,7 +799,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	}
 
 	// tmparray -> object
-	RRObjectWithIllumination* multiObject = getMultiObjectPhysicalWithIllumination();
+	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
 		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,updateBentNormals ? finalGather[t].bentNormal : finalGather[t].irradiance);

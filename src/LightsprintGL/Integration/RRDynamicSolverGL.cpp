@@ -108,7 +108,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detection
 	}
 	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
-	rr::RRReporter::report(rr::INF2,"Detection quality = %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
+	rr::RRReporter::report(rr::INF2,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
 	captureUv = new CaptureUv;
 	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);

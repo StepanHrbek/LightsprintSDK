@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cassert>
-#include "Lightsprint/RRObject.h"
+#include "RRObjectFilter.h"
 
 namespace rr
 {
@@ -21,17 +20,16 @@ nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incom
 nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
 -> ukladat irradiance
 
-RRObjectWithIlluminationImpl tedy vse co dostane prevede na irradiance
+RRObjectWithIllumination tedy vse co dostane prevede na irradiance
 */
 
-class RRObjectWithIlluminationImpl : public RRObjectWithIllumination
+class RRObjectWithIllumination : public RRObjectFilter
 {
 public:
-	RRObjectWithIlluminationImpl(RRObject* aoriginal, const RRScaler* ascaler)
+	RRObjectWithIllumination(RRObject* _inherited, const RRScaler* _scaler)
+		: RRObjectFilter(_inherited)
 	{
-		original = aoriginal;
-		scaler = ascaler;
-		RR_ASSERT(original);
+		scaler = _scaler;
 		RR_ASSERT(getCollider());
 		RR_ASSERT(getCollider()->getMesh());
 		numTriangles = getCollider()->getMesh()->getNumTriangles();
@@ -44,19 +42,9 @@ public:
 			triangleInfo[i].area = getCollider()->getMesh()->getTriangleArea(i);
 		}
 	}
-	virtual ~RRObjectWithIlluminationImpl() 
+	virtual ~RRObjectWithIllumination() 
 	{
 		delete[] triangleInfo;
-	}
-
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		original->getChannelSize(channelId,numItems,itemSize);
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		return original->getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 
 	virtual bool setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor power)
@@ -123,35 +111,12 @@ public:
 		out = power;
 	}
 
-	// filter
-	virtual const RRCollider* getCollider() const
-	{
-		return original->getCollider();
-	}
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
-	{
-		return original->getTriangleMaterial(t,light);
-	}
-	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
-	{
-		original->getPointMaterial(t,uv,out);
-	}
-	virtual const RRMatrix3x4* getWorldMatrix()
-	{
-		return original->getWorldMatrix();
-	}
-	virtual const RRMatrix3x4* getInvWorldMatrix()
-	{
-		return original->getInvWorldMatrix();
-	}
-
 private:
 	struct TriangleInfo
 	{
 		RRColor irradiance; // always in physical scale
 		RRReal area;
 	};
-	RRObject* original;
 	const RRScaler* scaler;
 	unsigned numTriangles;
 	TriangleInfo* triangleInfo;

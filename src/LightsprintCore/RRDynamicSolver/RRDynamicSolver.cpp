@@ -110,8 +110,8 @@ void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const SmoothingParam
 	//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
 
 	// add direct illumination
-	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? priv->multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
-		(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
+	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? new RRObjectWithIllumination(priv->multiObjectPhysical,getScaler()) : 
+		(priv->multiObjectCustom ? new RRObjectWithIllumination(priv->multiObjectCustom,getScaler()) : NULL);
 	REPORT(if(priv->multiObjectCustom)
 		RRReporter::report(INF3,"Static scene set: %d objects, optimized %d->%d tris, %d->%d verts\n",priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices()));
 
@@ -144,11 +144,6 @@ const RRObject* RRDynamicSolver::getMultiObjectCustom() const
 const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() const
 {
 	return priv->multiObjectPhysical;
-}
-
-RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
-{
-	return priv->multiObjectPhysicalWithIllumination;
 }
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)

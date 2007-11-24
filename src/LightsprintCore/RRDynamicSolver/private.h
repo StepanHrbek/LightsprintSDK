@@ -2,6 +2,7 @@
 #define PRIVATE_H
 
 #include <vector>
+#include "../RRObject/RRObjectWithIllumination.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "../RRPackedSolver/RRPackedSolver.h"
 #include "Lightsprint/GL/Timer.h"
