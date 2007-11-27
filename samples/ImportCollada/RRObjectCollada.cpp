@@ -806,32 +806,9 @@ private:
 	void                       addNode(const FCDSceneNode* node, float scale, bool swapYZ, int lightmapUvChannel);
 
 	// collider and mesh cache, for instancing
-	// every object is cached exactly once, so destruction is simple,
-	//  no need for our data injected into document, no need for reference counting
 	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
 	Cache                      cache;
 };
-
-// Creates new RRMesh from FCDGeometryMesh.
-// Always creates, no caching.
-static RRMesh* newMesh(const FCDGeometryMesh* mesh, int lightmapUvChannel)
-{
-	if(!mesh)
-	{
-		assert(0);
-		return NULL;
-	}
-	return new RRMeshCollada(mesh, lightmapUvChannel);
-}
-
-// Creates new RRCollider from FCDGeometryMesh.
-// Always creates, no caching.
-static RRCollider* newCollider(const FCDGeometryMesh* amesh, int lightmapUvChannel)
-{
-	RRMesh* mesh = newMesh(amesh, lightmapUvChannel);
-	return RRCollider::create(mesh,RRCollider::IT_LINEAR);
-}
-
 
 // Creates new RRCollider from FCDGeometryMesh.
 // Caching on, first query creates collider, second query reads it from cache.
@@ -849,12 +826,12 @@ RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh, 
 	}
 	else
 	{
-		return cache[mesh] = newCollider(mesh, lightmapUvChannel);
+		return cache[mesh] = RRCollider::create(new RRMeshCollada(mesh, lightmapUvChannel),RRCollider::IT_LINEAR);
 	}
 }
 
 // Creates new RRObject from FCDEntityInstance.
-// Always creates, no caching (only internal caching of colliders).
+// Always creates, no caching (only internal caching of colliders and meshes).
 RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, float scale, bool swapYZ, int lightmapUvChannel)
 {
 	if(!geometryInstance)
@@ -1020,7 +997,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 				rr::RRMatrix3x4 invWorldMatrix;
 				getNodeMatrices(node,scale,swapYZ,worldMatrix,invWorldMatrix);
 				rr::RRVec3 position = invWorldMatrix.transformedPosition(rr::RRVec3(0));
-				rr::RRVec3 direction = invWorldMatrix.transformedPosition(rr::RRVec3(0,0,1));
+				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,1));
 
 				// create RRLight
 				rr::RRColorRGBF color = RRColorRGBF(light->GetColor()[0],light->GetColor()[1],light->GetColor()[2])*light->GetIntensity();

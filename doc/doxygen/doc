@@ -171,6 +171,7 @@ Scene formats
 - Collada 1.4 (.DAE)
 - 3DS Max (.3DS)
 - Quake 3 (.BSP)
+- Unreal Engine 3 (internal structures)
 - framework for custom formats
 - complete source code
 
@@ -604,7 +605,8 @@ Used by samples:
  \section import_with_instancing Import with instancing
 
  For import with instancing, see samples/ImportCollada.
- It is wrapper for scenes loaded by freely available FCollada library.
+ (wrapper for scenes loaded by freely available FCollada library)
+ or samples/ImportUE3 (wrapper for import from Unreal Engine 3).
 
  Wrappers don't duplicate any memory, all data are accessed directly
  in FCollada document.
@@ -1746,6 +1748,9 @@ Used by samples:
   - \subpage inputs_quake3
   - \subpage inputs_images
 
+ \section inputs_engines Engines
+  - \subpage inputs_unreal
+
 \page inputs_light_sources Light sources
 
  Lightsprint supports multiple types of light sources.
@@ -1846,14 +1851,22 @@ Used by samples:
 
  Both 2d and cubemap images are supported.
 
+\page inputs_unreal Unreal Engine 3
+ Unreal Engine 3 is one of the most acclaimed game engines.
+ 
+ Source code of adapter that accesses UE3 scene in memory
+ is in: samples/ImportUE3/*.*
+ \n Scene is loaded by Unreal Engine 3.
 
+ See comments at the beginning of samples/ImportUE3/RRObjectUE3.cpp
+ for more details on features supported.
  
  
 \page main_ue3 Introduction for UE3 users
 
  This page should help you use Lightsprint SDK with Unreal Engine 3.
  \n Work is at the beginning, so you'll find only some details here,
- but more details and bigger picture should be added in next weeks/months.
+ full support will be added in next month(s).
 
  \section ue3_color Color
 
@@ -1959,16 +1972,19 @@ Used by samples:
    see RRObject::createWorldSpaceObject().
 
  \section gowner Ownership
-   Dynamically created objects (using new) are never adopted, ownership never changes.
-   \n This means that parameters that need to be destructed are never destructed inside call,
+   Dynamically created objects (using new, create() etc) are never adopted, ownership never changes.
+   \n This means that parameters that need to be destructed are never destructed inside called function,
    responsibility for object is never passed to someone else.
-   When you create object (using create() etc.), always delete it when it's
-   no longer needed.
+   When you create object, always delete it yourself when no longer needed.
 
  \section gref Reference counting
    There is no internal reference counting, so if you create collider out of mesh,
    you are not allowed to destroy mesh before destroying collider. This danger should be
    mentioned on all appropriate places.
+
+ \section gassign Assignment, Copy constructor
+   Assigning and Copy constructing is forbidden for all classes
+   except for trivial ones like RRVec3.
 
  \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.
@@ -2325,6 +2341,11 @@ Used by samples:
  <b>ImportQuake3</b>
  - source code of Quake3 map loader and adapter
  - \ref inputs_quake3 details
+
+ <hr>
+ <b>ImportUE3</b>
+ - source code of Unreal Engine 3 world adapter
+ - \ref inputs_unreal details
 
 
 */

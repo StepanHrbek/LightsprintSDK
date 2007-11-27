@@ -23,6 +23,7 @@ public:
 		polynom = rr::RRVec3(0);
 		fallOffExponent = 0;
 		fallOffAngleRad = 0;
+		castShadows = true;
 		customData = NULL;
 	}
 };

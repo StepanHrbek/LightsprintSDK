@@ -25,6 +25,7 @@
 //#define WATER // Nvidia only
 
 #include <cassert>
+#include <ctime>
 #include <cmath>
 #include <cstdlib>
 #include <GL/glew.h>

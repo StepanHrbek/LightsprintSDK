@@ -32,7 +32,7 @@ namespace rr_gl
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;
-		setNumInstances((_rrlight.type==rr::RRLight::POINT)?6:1);
+		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:1):0);
 	}
 
 	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)

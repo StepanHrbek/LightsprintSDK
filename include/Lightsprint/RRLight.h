@@ -171,6 +171,14 @@ namespace rr
 		//! changes you make later are accepted without checks.
 		RRReal fallOffAngleRad;
 
+		//! Whether light casts shadows.
+		//
+		//! Shadows are enabled by default, so light behaves realistically.
+		//! You can disable shadows and break realism.
+		//! But then, you should consider what is purpose of disabled shadows.
+		//! Global illumination replaces fill lights, ambient lights and other fakes,
+		//! you should remove such lights.
+		bool castShadows;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

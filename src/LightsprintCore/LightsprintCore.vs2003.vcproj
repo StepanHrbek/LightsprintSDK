@@ -566,7 +566,7 @@
 				RelativePath="RRStaticSolver\RRStaticSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\RRStaticSolver.h">
+				RelativePath="RRStaticSolver\RRStaticSolver.h">
 			</File>
 			<File
 				RelativePath="RRStaticSolver\RRVision.cpp">
@@ -665,21 +665,6 @@
 				RelativePath="..\..\include\Lightsprint\RRDynamicSolver.h">
 			</File>
 			<File
-				RelativePath="RRDynamicSolver\RRLight.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="RRDynamicSolver\vertexBuffer.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
@@ -755,6 +740,30 @@
 		<File
 			RelativePath="RRReporter.cpp">
 		</File>
+		<Filter
+			Name="RRLight"
+			>
+			<File
+				RelativePath=".\RRLight\RRLight.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRLight.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\LicGen\include\LicGenOpt.h"
 			>

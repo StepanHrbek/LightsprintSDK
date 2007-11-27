@@ -351,7 +351,7 @@ class GatheredIrradianceLights
 {
 public:
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights()), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),NULL,_pti.tri.triangleIndex,true)
+		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),NULL,_pti.tri.triangleIndex,true)
 		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 	{
 		irradianceLights = RRColorRGBF(0);
@@ -359,6 +359,12 @@ public:
 		reliabilityLights = 1;
 		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
 		rays = lights.size()*rounds;
+		// filter lights
+		const RRLights& allLights = _pti.context.solver->getLights();
+		const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
+		for(unsigned i=0;i<allLights.size();i++)
+			if(multiObject->getTriangleMaterial(_pti.tri.triangleIndex,allLights[i]))
+				lights.push_back(allLights[i]);
 	}
 
 	// before shooting
@@ -377,59 +383,60 @@ public:
 	// 1 ray
 	void shotRay(const RRLight* _light)
 	{
-			if(!_light) return;
-			// set dir to light
-			RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-pti.tri.pos3d);
-			RRReal dirsize = dir.length();
-			dir /= dirsize;
-			if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-			float normalIncidence = dot(dir,pti.tri.normal);
-			if(normalIncidence<=0)
+		if(!_light) return;
+		// set dir to light
+		RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-pti.tri.pos3d);
+		RRReal dirsize = dir.length();
+		dir /= dirsize;
+		if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
+		float normalIncidence = dot(dir,pti.tri.normal);
+		if(normalIncidence<=0)
+		{
+			// face is not oriented towards light -> reliable black (selfshadowed)
+			hitsScene++;
+			hitsReliable++;
+		}
+		else
+		{
+			// intesect scene
+			pti.ray->rayDirInv[0] = 1/dir[0];
+			pti.ray->rayDirInv[1] = 1/dir[1];
+			pti.ray->rayDirInv[2] = 1/dir[2];
+			pti.ray->rayLengthMax = dirsize;
+			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
+			pti.ray->collisionHandler = &collisionHandler;
+			collisionHandler.light = _light;
+			if(!_light->castShadows || !tools.collider->intersect(pti.ray))
 			{
-				// face is not oriented towards light -> reliable black (selfshadowed)
-				hitsScene++;
+				// direct visibility found (at least partial), add irradiance from light
+				// !_light->castShadows -> direct visibility guaranteed even without raycast
+				RRVec3 irrad = _light->getIrradiance(pti.tri.pos3d,tools.scaler) * ( normalIncidence * (_light->castShadows?collisionHandler.getVisibility():1) );
+				irradianceLights += irrad;
+				bentNormalLights += dir * irrad.abs().avg();
+				hitsLight++;
 				hitsReliable++;
 			}
 			else
+			if(!collisionHandler.isLegal())
 			{
-				// intesect scene
-				pti.ray->rayDirInv[0] = 1/dir[0];
-				pti.ray->rayDirInv[1] = 1/dir[1];
-				pti.ray->rayDirInv[2] = 1/dir[2];
-				pti.ray->rayLengthMax = dirsize;
-				pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
-				pti.ray->collisionHandler = &collisionHandler;
-				collisionHandler.light = _light;
-				if(!tools.collider->intersect(pti.ray))
-				{
-					// direct visibility found (at least partial), add irradiance from light
-					RRVec3 irrad = _light->getIrradiance(pti.tri.pos3d,tools.scaler) * ( normalIncidence * collisionHandler.getVisibility() );
-					irradianceLights += irrad;
-					bentNormalLights += dir * irrad.abs().avg();
-					hitsLight++;
-					hitsReliable++;
-				}
-				else
-				if(!collisionHandler.isLegal())
-				{
-					// illegal side encountered, ray was lost inside object or other harmful situation -> unreliable
-					hitsInside++;
-					hitsUnreliable++;
-				}
-				else
-				if(pti.ray->hitDistance<pti.context.params->rugDistance)
-				{
-					// no visibility, ray hit rug, very close object -> unreliable
-					hitsRug++;
-					hitsUnreliable++;
-				}
-				else
-				{
-					// no visibility, ray hit scene -> reliable black (shadowed)
-					hitsScene++;
-					hitsReliable++;
-				}
+				// illegal side encountered, ray was lost inside object or other harmful situation -> unreliable
+				hitsInside++;
+				hitsUnreliable++;
 			}
+			else
+			if(pti.ray->hitDistance<pti.context.params->rugDistance)
+			{
+				// no visibility, ray hit rug, very close object -> unreliable
+				hitsRug++;
+				hitsUnreliable++;
+			}
+			else
+			{
+				// no visibility, ray hit scene -> reliable black (shadowed)
+				hitsScene++;
+				hitsReliable++;
+			}
+		}
 	}
 
 	// 1 ray per light
@@ -486,7 +493,7 @@ protected:
 	unsigned hitsRug;
 	unsigned hitsScene;
 	unsigned shotRounds;
-	const RRLights& lights;
+	RRLights lights;
 	// collision handler
 	RRCollisionHandlerVisibility collisionHandler;
 };

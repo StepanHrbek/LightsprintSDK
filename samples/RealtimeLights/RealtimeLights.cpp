@@ -25,6 +25,8 @@
 // Hint: hold space to see dynamic object occluding light
 // Hint: press 1 or 2 and left/right arrows to move lights
 //
+// To increase quality and fps, see last comment in this file.
+//
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
 // --------------------------------------------------------------------------
 
@@ -33,6 +35,7 @@
 #include "../../samples/ImportCollada/RRObjectCollada.h"
 
 #include <cassert>
+#include <ctime>
 #include <cmath>
 #include <cstdlib>
 #include <vector>
@@ -233,6 +236,7 @@ void keyboard(unsigned char c, int x, int y)
 			rr::RRReporter::setReporter(NULL);
 			exit(0);
 	}
+	solver->reportInteraction();
 }
 
 void reshape(int w, int h)
@@ -259,6 +263,7 @@ void mouse(int button, int state, int x, int y)
 	{
 		if(eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
+	solver->reportInteraction();
 }
 
 void passive(int x, int y)
@@ -289,12 +294,15 @@ void passive(int x, int y)
 			light->pos -= light->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
+		solver->reportInteraction();
 	}
 }
 
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
+
+	solver->calculate();
 
 	eye.update();
 
@@ -343,9 +351,6 @@ void idle()
 		}
 	}
 	prev = now;
-
-	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
 
 	glutPostRedisplay();
 }
@@ -444,12 +449,11 @@ int main(int argc, char **argv)
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 
-	solver->calculate();
-
-	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
-	// This step is expensive for first time, precalculates fireball file,
-	// so it is suitable if you load the same scene many times.
+	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
+	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+
+	solver->calculate();
 
 	glutMainLoop();
 	return 0;
