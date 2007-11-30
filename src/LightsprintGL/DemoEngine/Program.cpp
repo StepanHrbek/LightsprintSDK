@@ -47,6 +47,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 
 	if(showLog)
 	{
+		if(!alinked) rr::RRReporter::report(rr::INF1,"Shader link failed.\n");
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 		if(debugLength>2)
@@ -84,10 +85,13 @@ bool Program::logLooksSafe()
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 	debug = new GLchar[debugLength];
 	glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
-	// when log contains "software", program probably can't run on GPU
-	if(strstr(debug,"software"))
+	// when log contains "software" but not "hardware",
+	//  program probably can't run on GPU
+	// it's better to fail than render first frame for 30 seconds
+	// Radeon X1250 runs fine, log contains both software and hardware
+	if(strstr(debug,"software") && !strstr(debug,"hardware"))
 	{
-		//printf("Sw shader refused.\n");
+		//rr::RRReporter::report(rr::WARN,"Sw shader detected.\n");
 		result = false;
 	}
 	delete [] debug;
