@@ -354,17 +354,18 @@ public:
 		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),NULL,_pti.tri.triangleIndex,true)
 		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 	{
-		irradianceLights = RRColorRGBF(0);
-		bentNormalLights = RRVec3(0);
-		reliabilityLights = 1;
-		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
-		rays = lights.size()*rounds;
 		// filter lights
 		const RRLights& allLights = _pti.context.solver->getLights();
 		const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
 		for(unsigned i=0;i<allLights.size();i++)
 			if(multiObject->getTriangleMaterial(_pti.tri.triangleIndex,allLights[i]))
 				lights.push_back(allLights[i]);
+		// more init (depends on filtered lights)
+		irradianceLights = RRColorRGBF(0);
+		bentNormalLights = RRVec3(0);
+		reliabilityLights = 1;
+		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
+		rays = lights.size()*rounds;
 	}
 
 	// before shooting
@@ -477,6 +478,11 @@ public:
 		}
 	}
 
+	unsigned getNumMaterialAcceptedLights()
+	{
+		return lights.size();
+	}
+
 	RRColorRGBF irradianceLights;
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
@@ -533,7 +539,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// bail out if no work here
 	if(!hemisphere.rays && !gilights.rays)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources.\n");RR_ASSERT(0));		
+		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, applyLights=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->applyLights,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment);RR_ASSERT(0));
 		return ProcessTexelResult();
 	}
 
