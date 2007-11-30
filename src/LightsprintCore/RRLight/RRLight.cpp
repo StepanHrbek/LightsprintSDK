@@ -41,7 +41,7 @@ public:
 	{
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
-		direction = _direction;
+		direction = _direction.normalized();
 		color = _color;
 		if(!_physicalScale)
 		{
