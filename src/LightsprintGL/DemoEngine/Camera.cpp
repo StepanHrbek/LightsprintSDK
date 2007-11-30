@@ -29,8 +29,15 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 Camera::Camera(const rr::RRLight& light)
 {
 	pos = light.position;
-	angleX = (light.type==rr::RRLight::SPOT) ? asin(light.direction[1]) : 0;
-	angle = (light.type==rr::RRLight::SPOT && fabs(cos(angleX))>0.0001f) ? asin(light.direction[0]/cos(angleX)) : 0;
+	RR_ASSERT(fabs(light.direction.length2()-1)<0.01f); // direction must be normalized
+	angleX = (light.type!=rr::RRLight::POINT) ? asin(light.direction[1]) : 0;
+	if(light.type!=rr::RRLight::POINT && fabs(cos(angleX))>0.0001f)
+	{
+		angle = asin(light.direction[0]/cos(angleX));
+		if(light.direction[2]<0) angle = (rr::RRReal)(M_PI-angle);
+	}
+	else
+		angle = 0;	
 	leanAngle = 0;
 	aspect = 1;
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
