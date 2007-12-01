@@ -185,6 +185,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
 			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
 			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT;
+			uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
 			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -198,6 +199,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.LIGHT_DIRECT = 0;
 			uberProgramSetup.LIGHT_DIRECT_COLOR = 0;
 			uberProgramSetup.LIGHT_DIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_DIRECTIONAL = 0;
 			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
 			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
 			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;

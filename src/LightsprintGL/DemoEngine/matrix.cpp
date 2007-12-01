@@ -84,46 +84,6 @@ GLboolean invertMatrix(GLdouble *inverse, const GLdouble *src)
 	return GL_TRUE;
 }
 
-void buildFrustumMatrix(GLdouble m[16],
-                   GLdouble l, GLdouble r, GLdouble b, GLdouble t,
-                   GLdouble n, GLdouble f)
-{
-  m[0] = (2.0*n) / (r-l);
-  m[1] = 0.0;
-  m[2] = 0.0;
-  m[3] = 0.0;
-
-  m[4] = 0.0;
-  m[5] = (2.0*n) / (t-b);
-  m[6] = 0.0;
-  m[7] = 0.0;
-
-  m[8] = (r+l) / (r-l);
-  m[9] = (t+b) / (t-b);
-  m[10] = -(f+n) / (f-n);
-  m[11] = -1.0;
-
-  m[12] = 0.0;
-  m[13] = 0.0;
-  m[14] = -(2.0*f*n) / (f-n);
-  m[15] = 0.0;
-}
-
-void buildPerspectiveMatrix(GLdouble m[16],
-                       GLdouble fovy, GLdouble aspect,
-                       GLdouble zNear, GLdouble zFar)
-{
-  GLdouble xmin, xmax, ymin, ymax;
-
-  ymax = zNear * tan(fovy * M_PI / 360.0);
-  ymin = -ymax;
-
-  xmin = ymin * aspect;
-  xmax = ymax * aspect;
-
-  buildFrustumMatrix(m, xmin, xmax, ymin, ymax, zNear, zFar);
-}
-
 void buildLookAtMatrix(GLdouble m[16],
                   GLdouble eyex, GLdouble eyey, GLdouble eyez,
                   GLdouble centerx, GLdouble centery, GLdouble centerz,

@@ -55,6 +55,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
 	bool     LIGHT_DIRECT_COLOR     :1; ///< Enables modulation of direct light by constant color.
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by color map. Projects texture.
+	bool     LIGHT_DIRECTIONAL      :1; ///< Switches direct light from positional (with optional dist.atten.) to directional (no atten.).
 	bool     LIGHT_DISTANCE_PHYSICAL   :1; ///< Enables direct light physically correct distance attenuation.
 	bool     LIGHT_DISTANCE_POLYNOMIAL :1; ///< Enables direct light polynomial distance attenuation.
 	bool     LIGHT_DISTANCE_EXPONENTIAL:1; ///< Enables direct light exponential distance attenuation.

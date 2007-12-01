@@ -29,7 +29,7 @@ public:
 
 	//! Position of camera (imaginary frustum apex).
 	rr::RRVec3 pos;
-	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to left/right.
+	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to the left/right.
 	float    angle;
 	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning.
 	float    leanAngle;
@@ -43,6 +43,10 @@ public:
 	float    anear;
 	//! Camera's far plane distance in world units. Must be greater than near.
 	float    afar;
+	//! Whether camera is orthogonal, set for directional lights.
+	bool     orthogonal;
+	//! Only if orthogonal: World space distance between points projected to top and bottom of screen.
+	float    orthoSize;
 
 	// outputs, to be calculated by update() and possibly read by user
 
@@ -67,8 +71,10 @@ public:
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
 	//! Initializes all inputs from RRLight.
 	Camera(const rr::RRLight& light);
-	//! == operator, true when inputs are equal
+	//! == operator, true when inputs are equal.
 	bool operator==(const Camera& a) const;
+	//! != operator, true when inputs differ.
+	bool operator!=(const Camera& a) const;
 	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
 	typedef void (Camera::*Move)(float units);
 	//! Moves camera to given distance in world space.
@@ -89,7 +95,15 @@ public:
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);
 	//! Updates all outputs, recalculates them from inputs.
-	void update(); // converts inputs to outputs
+	//
+	//! \param observer
+	//!  When observer is set, camera is moved to cover area around observer.
+	//!  Typically, observer is player and this is directional (sun) light with shadows;
+	//!  updated sun travels with player.
+	//! \param shadowmapSize
+	//!  Minimum of shadowmap width and height.
+	//!  Must be set when observer is set, ignored otherwise.
+	void update(const Camera* observer=NULL, unsigned shadowmapSize=0);
 	//! Rotates viewMatrix into one of 6 directions of point light. To be called after update().
 	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

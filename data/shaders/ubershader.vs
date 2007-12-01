@@ -8,6 +8,7 @@
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
+//  #define LIGHT_DIRECTIONAL
 //  #define LIGHT_DISTANCE_PHYSICAL
 //  #define LIGHT_DISTANCE_POLYNOMIAL
 //  #define LIGHT_DISTANCE_EXPONENTIAL
@@ -49,7 +50,11 @@
 #endif
 
 #if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
-	uniform vec3 worldLightPos;
+	#ifdef LIGHT_DIRECTIONAL
+		uniform vec3 worldLightDir;
+	#else
+		uniform vec3 worldLightPos;
+	#endif
 	varying float lightDirectVColor;
 #endif
 
@@ -120,16 +125,20 @@ void main()
 	worldPos = worldPos4.xyz;
 
 	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
-		lightDirectVColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
-		float distance = distance(worldPos,worldLightPos);
-		#ifdef LIGHT_DISTANCE_PHYSICAL
-			lightDirectVColor *= pow(distance,-0.9);
-		#endif
-		#ifdef LIGHT_DISTANCE_POLYNOMIAL
-			lightDirectVColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
-		#endif
-		#ifdef LIGHT_DISTANCE_EXPONENTIAL
-			lightDirectVColor *= pow(max(0.0,1.0-distance/lightDistanceRadius),lightDistanceFallOffExponent);
+		#ifdef LIGHT_DIRECTIONAL
+			lightDirectVColor = max(-dot(worldLightDir, worldNormalSmooth),0.0);			
+		#else
+			lightDirectVColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
+			float distance = distance(worldPos,worldLightPos);
+			#ifdef LIGHT_DISTANCE_PHYSICAL
+				lightDirectVColor *= pow(distance,-0.9);
+			#endif
+			#ifdef LIGHT_DISTANCE_POLYNOMIAL
+				lightDirectVColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
+			#endif
+			#ifdef LIGHT_DISTANCE_EXPONENTIAL
+				lightDirectVColor *= pow(max(0.0,1.0-distance/lightDistanceRadius),lightDistanceFallOffExponent);
+			#endif
 		#endif
 	#endif
 

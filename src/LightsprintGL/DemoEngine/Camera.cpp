@@ -23,13 +23,15 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	fieldOfView = _fieldOfView;
 	anear = _anear;
 	afar = _afar;
+	orthogonal = 0;
+	orthoSize = 0;
 	update();
 }
 
 Camera::Camera(const rr::RRLight& light)
 {
 	pos = light.position;
-	RR_ASSERT(fabs(light.direction.length2()-1)<0.01f); // direction must be normalized
+	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
 	angleX = (light.type!=rr::RRLight::POINT) ? asin(light.direction[1]) : 0;
 	if(light.type!=rr::RRLight::POINT && fabs(cos(angleX))>0.0001f)
 	{
@@ -43,6 +45,8 @@ Camera::Camera(const rr::RRLight& light)
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
 	anear = 0.1f;
 	afar = 100;
+	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
+	orthoSize = 100;
 	update();
 }
 
@@ -51,14 +55,20 @@ bool Camera::operator==(const Camera& a) const
 	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2] && angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX && aspect==a.aspect && fieldOfView==a.fieldOfView && anear==a.anear && afar==a.afar;
 }
 
-void Camera::update()
+bool Camera::operator!=(const Camera& a) const
 {
+	return !(*this==a);
+}
+
+void Camera::update(const Camera* observer, unsigned shadowmapSize)
+{
+	// update dir
 	dir[0] = sin(angle)*cos(angleX);
 	dir[1] = sin(angleX);
 	dir[2] = cos(angle)*cos(angleX);
 	dir[3] = 1.0;
 
-	// leaning
+	// - leaning
 	rr::RRVec3 tmpup(0,1,0);
 	rr::RRVec3 tmpright;
 	dir.normalize();
@@ -69,11 +79,50 @@ void Camera::update()
 	up = tmpup*c+tmpright*s;
 	right = tmpup*s-tmpright*c;
 
+	// update pos
+	if(observer)
+	{
+		// update matrices
+		//update(NULL,0);
+		// set new pos
+		pos = observer->pos - dir*((afar-anear)*0.5f);// + observer->dir*(orthoSize*0.5f);
+		/*/ adjust pos
+		RRMatrix4x4 viewProjMatrix = viewMatrix*frustumMatrix;
+		RRVec2 screenPos = pos * viewProjMatrix;
+		RRVec3 rightDir = RRVec3(1,-1,-1)*viewProjMatrix - RRVec3(-1,-1,-1)*viewProjMatrix;
+		RRVec3 upDir = RRVec3(-1,1,-1)*viewProjMatrix - RRVec3(-1,-1,-1)*viewProjMatrix;
+		RRReal tmp;
+		RRReal rightFix = modf(screenPos[0]*(shadowmapSize/2),&tmp)/shadowmapSize;
+		RRReal upFix = modf(-screenPos[1]*(shadowmapSize/2),&tmp)/shadowmapSize;
+		pos += rightFix*rightDir + upFix*upDir;*/
+	}
+
+	// update viewMatrix
 	buildLookAtMatrix(viewMatrix,
 		pos[0],pos[1],pos[2],
 		pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
 		up[0], up[1], up[2]);
-	buildPerspectiveMatrix(frustumMatrix, fieldOfView, aspect, anear, afar);
+
+	// update frustumMatrix
+	for(unsigned i=0;i<16;i++) frustumMatrix[i] = 0;
+	if(orthogonal)
+	{
+		frustumMatrix[0] = 1/(orthoSize*aspect);
+		frustumMatrix[5] = 1/orthoSize;
+		frustumMatrix[10] = -1/(afar-anear);
+		frustumMatrix[14] = -(anear+afar)/(afar-anear);
+		frustumMatrix[15] = 1;
+	}
+	else
+	{
+		frustumMatrix[0] = 1/(tan(fieldOfView*M_PI/360)*aspect);
+		frustumMatrix[5] = 1/tan(fieldOfView*M_PI/360);
+		frustumMatrix[10] = -(afar+anear)/(afar-anear);
+		frustumMatrix[11] = -1;
+		frustumMatrix[14] = -2*anear*afar/(afar-anear);
+	}
+
+	// update inverse matrices
 	invertMatrix(inverseViewMatrix, viewMatrix);
 	invertMatrix(inverseFrustumMatrix, frustumMatrix);
 }

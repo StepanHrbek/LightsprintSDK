@@ -126,6 +126,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detection
 	rendererObject = NULL;
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
+	observer = NULL;
+	oldObserverPos = rr::RRVec3(1e6);
 
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
@@ -142,6 +144,24 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete detectBigMap;
 	delete captureUv;
 	delete uberProgram1;
+}
+
+void RRDynamicSolverGL::calculate(CalculateParameters* params)
+{
+	// after camera change, dirty travelling lights
+	if(observer && observer->pos!=oldObserverPos)
+	{
+		rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
+		oldObserverPos = observer->pos;
+		for(unsigned i=0;i<realtimeLights.size();i++)
+			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
+			{
+				realtimeLights[i]->dirty = true;
+				reportDirectIlluminationChange(true);
+			}
+	}
+
+	RRDynamicSolver::calculate(params);
 }
 
 void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
@@ -174,7 +194,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 	for(unsigned i=0;i<realtimeLights.size();i++)
 	{
 		REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
-		rr_gl::RealtimeLight* light = realtimeLights[i];
+		RealtimeLight* light = realtimeLights[i];
 		if(!light)
 		{
 			RR_ASSERT(0);
@@ -189,6 +209,14 @@ void RRDynamicSolverGL::updateDirtyLights()
 		}
 		if(!light->dirty) continue;
 		light->dirty = 0;
+		// update position
+		if(light->getParent()->orthogonal && light->getNumInstances())
+		{
+			Texture* shadowmap = light->getShadowMap(0);
+			light->getParent()->update(observer,MIN(shadowmap->getWidth(),shadowmap->getHeight()));
+		}
+		else
+			light->getParent()->update(NULL,0);
 		// update shadowmap[s]
 		{
 			glClearDepth(0.9999); // prevents backprojection
@@ -197,10 +225,10 @@ void RRDynamicSolverGL::updateDirtyLights()
 			rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 			for(unsigned i=0;i<light->getNumInstances();i++)
 			{
-				rr_gl::Camera* lightInstance = light->getInstance(i);
+				Camera* lightInstance = light->getInstance(i);
 				lightInstance->setupForRender();
 				delete lightInstance;
-				rr_gl::Texture* shadowmap = light->getShadowMap(i);
+				Texture* shadowmap = light->getShadowMap(i);
 				glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 				shadowmap->renderingToBegin();
 				glClear(GL_DEPTH_BUFFER_BIT);
@@ -246,6 +274,7 @@ void RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
 	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;
+	uberProgramSetup.LIGHT_DIRECTIONAL = setupShaderLight->getParent()->orthogonal;
 	uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 	uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -493,6 +522,68 @@ unsigned RRDynamicSolverGL::saveIllumination(const char* path, unsigned layerNum
 		}
 	}
 	return result;
+}
+
+void drawCamera(Camera* camera)
+{
+	if(camera)
+	{
+		camera->update();//!!! mozna neni nutne
+		glPushMatrix();
+		glMultMatrixd(camera->inverseViewMatrix);
+		glMultMatrixd(camera->inverseFrustumMatrix);
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0,0,0);
+		glVertex3f(1,1,1);
+		glColor3f(1,1,1);
+		glVertex3f(1,1,-1);
+		glVertex3f(-1,1,-1);
+		glColor3f(0,0,0);
+		glVertex3f(-1,1,1);
+		glVertex3f(1,1,1);
+		glVertex3f(1,-1,1);
+		glVertex3f(-1,-1,1);
+		glColor3f(1,1,1);
+		glVertex3f(-1,-1,-1);
+		glVertex3f(1,-1,-1);
+		glColor3f(0,0,0);
+		glVertex3f(1,-1,1);
+		glEnd();
+		glBegin(GL_LINES);
+		glColor3f(1,1,1);
+		glVertex3f(1,1,-1);
+		glVertex3f(1,-1,-1);
+		glVertex3f(-1,1,-1);
+		glVertex3f(-1,-1,-1);
+		glColor3f(0,0,0);
+		glVertex3f(-1,1,1);
+		glVertex3f(-1,-1,1);
+		glEnd();
+		glPopMatrix();
+	}
+}
+
+void drawRealtimeLight(RealtimeLight* light)
+{
+	if(light)
+		for(unsigned i=0;i<light->getNumInstances();i++)
+		{
+			Camera* camera = light->getInstance(i);
+			drawCamera(camera);
+			delete camera;
+		}
+}
+
+void RRDynamicSolverGL::renderLights()
+{
+	UberProgramSetup uberProgramSetup;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
+	uberProgramSetup.MATERIAL_DIFFUSE = 1;
+	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,0,NULL,1);
+	for(unsigned i=0;i<getLights().size();i++)
+	{
+		drawRealtimeLight(realtimeLights[i]);
+	}
 }
 
 }; // namespace

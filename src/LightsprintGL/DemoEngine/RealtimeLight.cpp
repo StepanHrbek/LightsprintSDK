@@ -8,6 +8,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
+#include <GL/glew.h>
 
 namespace rr_gl
 {
@@ -26,7 +27,7 @@ namespace rr_gl
 		dirty = true;
 
 		parent = new Camera(_rrlight);
-		shadowMapSize = 1024;
+		shadowMapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
 		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
 		areaSize = 0.2f;
 		lightDirectMap = NULL;

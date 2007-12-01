@@ -34,7 +34,7 @@
 #include "AnimationEditor.h"
 #include "Autopilot.h"
 #include "Lightsprint/GL/RendererOfScene.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ public:
 	FCDocument* collada;
 #endif
 	rr::RRObjects* objects; // objects adapted from native format
-	rr::RRDynamicSolver* solver;
+	rr_gl::RRDynamicSolverGL* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfScene* rendererOfScene;
 

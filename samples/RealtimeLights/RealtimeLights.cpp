@@ -73,7 +73,7 @@ rr_gl::Texture*	           lightDirectMap = NULL;
 class Solver*              solver = NULL;
 DynamicObject*             robot;
 DynamicObject*             potato;
-rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,100.0);
+rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,1000.0);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -288,7 +288,8 @@ void passive(int x, int y)
 			CLAMP(light->angleX,-M_PI*0.49f,M_PI*0.49f);
 			solver->reportDirectIlluminationChange(true);
 			solver->realtimeLights[selectedLightIndex]->dirty = true;
-			// changes also position a bit, together with rotation
+			// changes position a bit, together with rotation
+			// if we don't call it, solver updates light in a standard way, without position change
 			light->pos += light->dir*0.3f;
 			light->update();
 			light->pos -= light->dir*0.3f;
@@ -302,9 +303,9 @@ void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
 
-	solver->calculate();
-
 	eye.update();
+
+	solver->calculate();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
@@ -320,6 +321,8 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup);
+
+	solver->renderLights();
 
 	glutSwapBuffers();
 }
@@ -419,6 +422,7 @@ int main(int argc, char **argv)
 	{
 		collada = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
+//		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\3planes.dae");
 		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 		if(!errorHandler.IsSuccessful())
 		{
@@ -444,6 +448,11 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init lights
+//	adaptedLights=new rr::RRLights;
+//	rr::RRLight* light = rr::RRLight::createDirectionalLight(rr::RRVec3(-1,-1,-1),rr::RRVec3(1),false);
+//	rr::RRLight* light = rr::RRLight::createSpotLightPoly(rr::RRVec3(5),rr::RRVec3(100),rr::RRVec3(0,0,1),rr::RRVec3(-1),1,0.1f);
+//	adaptedLights->push_back(light);
+//	solver->setLights(*(adaptedLights));
 	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
@@ -453,6 +462,7 @@ int main(int argc, char **argv)
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
+	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->calculate();
 
 	glutMainLoop();

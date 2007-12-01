@@ -56,6 +56,8 @@ namespace rr_gl
 		virtual void updateDirtyLights();
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
 		virtual void renderScene(UberProgramSetup uberProgramSetup) = 0;
+		//! Renders lights (wireframe shadow envelopes).
+		virtual void renderLights();
 
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
@@ -116,6 +118,7 @@ namespace rr_gl
 		//! Calling it makes sense if you detect memory leaks.
 		static void cleanup();
 
+		virtual void calculate(CalculateParameters* params = NULL);
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. Helper function called from detectDirectIllumination().
 		virtual void setupShader(unsigned objectNumber);
@@ -125,8 +128,9 @@ namespace rr_gl
 		virtual unsigned* detectDirectIllumination();
 
 		//! Realtime lights, set by setLights(). You may modify them freely.
-		rr::RRVector<rr_gl::RealtimeLight*> realtimeLights;
-
+		rr::RRVector<RealtimeLight*> realtimeLights;
+		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
+		Camera* observer;
 	private:
 		// for internal rendering
 		char pathToShaders[300];
@@ -139,9 +143,10 @@ namespace rr_gl
 		DDIQuality detectionQuality;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
 		// for GI of multiple lights
-		rr_gl::RealtimeLight* setupShaderLight;
+		RealtimeLight* setupShaderLight;
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
+		rr::RRVec3 oldObserverPos;
 	};
 
 };

@@ -5,7 +5,7 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
-extern rr::RRDynamicSolver* createSolver();
+extern rr_gl::RRDynamicSolverGL* createSolver();
 extern void error(const char* message, bool gfxRelated);
 
 /////////////////////////////////////////////////////////////////////////////

@@ -535,7 +535,7 @@ protected:
 };
 
 // called from Level.cpp
-rr::RRDynamicSolver* createSolver()
+rr_gl::RRDynamicSolverGL* createSolver()
 {
 	return new Solver();
 }
@@ -573,55 +573,6 @@ void updateMatrices(void)
 	currentFrame.eye.update();
 	currentFrame.light.update();
 	needMatrixUpdate = false;
-}
-
-/* drawShadowMapFrustum - Draw dashed lines around the light's view
-   frustum to help visualize the region captured by the depth map. */
-void drawShadowMapFrustum(void)
-{
-	/* Go from light clip space, ie. the cube [-1,1]^3, to world space by
-	transforming each clip space cube corner by the inverse of the light
-	frustum transform, then by the inverse of the light view transform.
-	This results in world space coordinate that can then be transformed
-	by the eye view transform and eye projection matrix and on to the
-	screen. */
-
-	ambientProgram->useIt();
-	glColor3f(1,1,1);
-
-	glEnable(GL_LINE_STIPPLE);
-	glPushMatrix();
-	glMultMatrixd(currentFrame.light.inverseViewMatrix);
-	glMultMatrixd(currentFrame.light.inverseFrustumMatrix);
-	/* Draw a wire frame cube with vertices at the corners
-	of clip space.  Draw the top square, drop down to the
-	bottom square and finish it, then... */
-	glBegin(GL_LINE_STRIP);
-	glVertex3f(1,1,1);
-	glVertex3f(1,1,-1);
-	glVertex3f(-1,1,-1);
-	glVertex3f(-1,1,1);
-	glVertex3f(1,1,1);
-	glVertex3f(1,-1,1);
-	glVertex3f(-1,-1,1);
-	glVertex3f(-1,-1,-1);
-	glVertex3f(1,-1,-1);
-	glVertex3f(1,-1,1);
-	glEnd();
-	/* Draw the final three line segments connecting the top
-	and bottom squares. */
-	glBegin(GL_LINES);
-	glVertex3f(1,1,-1);
-	glVertex3f(1,-1,-1);
-
-	glVertex3f(-1,1,-1);
-	glVertex3f(-1,-1,-1);
-
-	glVertex3f(-1,1,1);
-	glVertex3f(-1,-1,1);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_LINE_STIPPLE);
 }
 
 // callback that feeds 3ds renderer with our vertex illumination
@@ -754,7 +705,9 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 	if(supportEditor)
 		drawLight();
 	if(showLightViewFrustum)
-		drawShadowMapFrustum();
+	{
+		level->solver->renderLights();
+	}
 }
 
 void drawEyeViewSoftShadowed(void)
