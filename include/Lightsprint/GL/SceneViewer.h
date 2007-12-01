@@ -8,13 +8,14 @@
 #ifndef SCENEVIEWER_H
 #define SCENEVIEWER_H
 
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/DemoEngine.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr_gl
 {
 
 //! Runs viewer of scene in newly created window. Doesn't return, for debugging only.
-void sceneViewer(RRDynamicSolverGL* solver, const char* pathToShaders);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 }; // namespace
 

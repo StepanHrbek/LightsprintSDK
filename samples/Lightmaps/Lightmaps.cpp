@@ -170,8 +170,6 @@ protected:
 		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
-	// skipped, material properties were already readen from .dae and never change
-	virtual void detectMaterials() {}
 	// called from RRDynamicSolverGL to update shadowmaps
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	{

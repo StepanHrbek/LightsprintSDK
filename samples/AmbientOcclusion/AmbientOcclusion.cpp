@@ -125,7 +125,6 @@ protected:
 #endif
 	}
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup) {}
-	virtual void detectMaterials() {}
 	virtual unsigned* detectDirectIllumination() {return NULL;}
 	virtual void setupShader(unsigned objectNumber) {}
 };

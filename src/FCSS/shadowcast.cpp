@@ -471,9 +471,6 @@ protected:
 		return rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res);
 	}
 #endif
-	virtual void detectMaterials()
-	{
-	}
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye);

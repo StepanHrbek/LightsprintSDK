@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/Timer.h"
@@ -37,13 +38,15 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Texture*	           lightDirectMap = NULL;
 class Solver*              solver = NULL;
 rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,1000.0);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
+bool                       renderLights = 1;
+bool                       renderAmbient = 0;
 bool                       modeMovingEye = true;
+float                      speedGlobal = 1;
 float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
@@ -81,13 +84,81 @@ public:
 	}
 
 protected:
-	// skipped, material properties were already read from .dae and never change
-	virtual void detectMaterials() {}
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!winWidth) return NULL;
 		return rr_gl::RRDynamicSolverGL::detectDirectIllumination();
 	}
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// menu
+
+class Menu
+{
+public:
+	Menu(Solver* solver)
+	{
+		// select submenu
+		int selectHandle = glutCreateMenu(selectCallback);
+		glutAddMenuEntry("camera", -1);
+		for(unsigned i=0;i<solver->getLights().size();i++)
+			glutAddMenuEntry("light", i);
+		for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+			glutAddMenuEntry("object", 1000+i);
+
+		// speed submenu
+		int speedHandle = glutCreateMenu(speedCallback);
+		glutAddMenuEntry("1/256", 1);
+		glutAddMenuEntry("1/64", 4);
+		glutAddMenuEntry("1/16", 16);
+		glutAddMenuEntry("1/4", 64);
+		glutAddMenuEntry("1", 256);
+		glutAddMenuEntry("4", 1024);
+		glutAddMenuEntry("16", 4096);
+		glutAddMenuEntry("64", 16384);
+		glutAddMenuEntry("256", 65536);
+
+		// main menu
+		glutCreateMenu(mainCallback);
+		glutAddSubMenu("Select...", selectHandle);
+		glutAddSubMenu("Speed...", speedHandle);
+		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
+		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
+		glutAttachMenu(GLUT_RIGHT_BUTTON);
+	}
+	static void mainCallback(int item)
+	{
+		switch(item)
+		{
+			case ME_RENDER_AMBIENT:
+				renderAmbient = !renderAmbient;
+				break;
+			case ME_RENDER_HELPERS:
+				renderLights = !renderLights;
+				break;
+		}
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
+	static void selectCallback(int item)
+	{
+		if(item<0) modeMovingEye = 1;
+		if(item>=0 && item<1000) {modeMovingEye = 0; selectedLightIndex = item;}
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
+	static void speedCallback(int item)
+	{
+		speedGlobal = item/256.f;
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
+protected:
+	enum
+	{
+		ME_RENDER_AMBIENT,
+		ME_RENDER_HELPERS,
+	};
 };
 
 
@@ -133,23 +204,10 @@ void keyboard(unsigned char c, int x, int y)
 		case '/':
 			gamma /= 1.2;
 			break;
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-			selectedLightIndex = MIN(c-'1',(int)solver->getLights().size()-1);
-			if(solver->realtimeLights.size()) modeMovingEye = false;
-			break;
 
-		case 27:
-			delete solver;
-			delete lightDirectMap;
-			exit(0);
+		//case 27:
+		//	delete solver;
+		//	exit(0);
 	}
 	solver->reportInteraction();
 }
@@ -230,6 +288,7 @@ void display(void)
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
@@ -237,7 +296,29 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup);
 
-	solver->renderLights();
+	if(renderLights)
+	{
+		solver->renderLights();
+		glBegin(GL_LINES);
+		enum {LINES=100, SIZE=100};
+		for(unsigned i=0;i<LINES+1;i++)
+		{
+			if(i==LINES/2)
+			{
+				glColor3f(0,0,1);
+				glVertex3f(0,-0.5*SIZE,0);
+				glVertex3f(0,+0.5*SIZE,0);
+			}
+			else
+				glColor3f(0,0,0.3f);
+			float q = (i/float(LINES)-0.5f)*SIZE;
+			glVertex3f(q,0,-0.5*SIZE);
+			glVertex3f(q,0,+0.5*SIZE);
+			glVertex3f(-0.5*SIZE,0,q);
+			glVertex3f(+0.5*SIZE,0,q);
+		}
+		glEnd();
+	}
 
 	glutSwapBuffers();
 }
@@ -253,6 +334,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
+		seconds *= speedGlobal;
 		rr_gl::Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getParent();
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
@@ -273,7 +355,7 @@ void idle()
 	glutPostRedisplay();
 }
 
-void sceneViewer(RRDynamicSolverGL* _solver, const char* pathToShaders)
+void sceneViewer(rr::RRDynamicSolver* _solver, const char* pathToShaders)
 {
 	// init GLUT
 	int argc=1;
@@ -313,6 +395,8 @@ void sceneViewer(RRDynamicSolverGL* _solver, const char* pathToShaders)
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 	solver->calculate();
+
+	Menu menu(solver);
 
 	// run
 	glutMainLoop();

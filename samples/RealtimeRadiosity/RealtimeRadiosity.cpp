@@ -158,8 +158,6 @@ public:
 		setDirectIlluminationBoost(2);
 	}
 protected:
-	// skipped, material properties were already readen from .3ds and never change
-	virtual void detectMaterials() {}
 	// called from RRDynamicSolverGL to update shadowmaps
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	{

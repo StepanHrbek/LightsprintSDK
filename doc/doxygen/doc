@@ -670,20 +670,17 @@ Used by samples:
 
 \page integration_step_4 Subclass RRDynamicSolver
 
- RRDynamicSolver implements generic realtime global illumination,
- without direct access to your renderer.
- Your task is to subclass RRDynamicSolver and implement
+ RRDynamicSolver is global illumination solver.
+ For offline rendering, it is complete and can be immediately used.
+ For realtime rendering, subclass RRDynamicSolver and implement
  tasks specific for your renderer.
 
  \section step4_gl OpenGL
 
- As a helper, there is RRDynamicSolverGL,
- subclass that already implements generic GPU tasks using OpenGL.
- If you plan to use OpenGL renderer (LightsprintGL or any other),
- subclass RRDynamicSolverGL and implement only 2 or 3
- missing member functions:
- - RRDynamicSolver::detectMaterials() - it is often empty,
-   because application rarely modify materials
+ RRDynamicSolverGL, subclass of RRDynamicSolver
+ already implements most of GPU tasks using OpenGL.
+ If you plan to use OpenGL realtime renderer (Lightsprint or any other),
+ subclass RRDynamicSolverGL and implement 2 member functions:
  - rr_gl::RRDynamicSolverGL::setupShader() - set shader so that 
    direct light+shadows+emissivity are rendered, but other
    material properties (diffuse texture etc) are ignored
@@ -709,13 +706,17 @@ Used by samples:
  RRDynamicSolver class is your primary interface to Lightsprint engine.
  To add global illumination to your application,
 
- - Create instance of your RRDynamicSolver subclass.
+ - Create instance of RRDynamicSolver or your subclass.
    (why subclass? described in \ref integration_step_4)
 
  - To start calculation,
    call RRDynamicSolver::setStaticObjects() with set of static objects participating in calculation.
    This call is expensive, design your application to avoid
    frequent changes of static scene.
+
+ - Set lights, call RRDynamicSolver::setLights() with set of lights participating in calculation.
+   Optionally call also RRDynamicSolver::setEnvironment() to add outdoor/sky lighting.
+   These calls are cheap.
 
  - Call RRDynamicSolver::calculate() often. If main loop of your
    application contains rendering of one frame, add one call to RRDynamicSolver::calculate().

@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news40 ------------------------------------ 2007.12.xx -------------------------------------
+
+NEWS
+
+- sceneViewer(), viewer of scene in solver, for debugging
+- realtime directional lights
+
+CHANGES
+
+- RRDynamicSolver can be used without subclassing (for offline), all functions implemented
+
 \section news39 ------------------------------------ 2007.11.27 -------------------------------------
 
 NEWS

@@ -66,7 +66,6 @@ protected:
 		while(res<2048 && res<sizeFactor*sqrtf((float)object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return rr::RRIlluminationPixelBuffer::create(res,res);
 	}
-	virtual void detectMaterials() {}
 	virtual unsigned* detectDirectIllumination() {return NULL;}
 	virtual void setupShader(unsigned objectNumber) {}
 };

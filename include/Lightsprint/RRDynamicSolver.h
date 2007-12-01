@@ -592,7 +592,8 @@ namespace rr
 
 		//! Reports that appearance of one or more materials has changed.
 		//
-		//! Call this when you change material properties in your material editor.
+		//! Call this when you changed material properties of static objects
+		//! (and RRObject::getTriangleMaterial() returns new materials).
 		//! If you use \ref calc_fireball, material changes don't apply
 		//! until you rebuild it (see buildFireball()).
 		void reportMaterialChange();
@@ -686,13 +687,6 @@ namespace rr
 		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
 
 	protected:
-		//! Autodetects material properties of all materials present in scene.
-		//
-		//! To be implemented by you.
-		//! New values must appear in RRObject-s already present in scene.
-		//! \n\n It is perfectly ok to write empty implementation if your application never modifies materials.
-		virtual void detectMaterials() = 0;
-
 		//! Detects direct illumination on all faces in scene and returns it in array of RGBA values.
 		//
 		//! Necessary for realtime solver, rarely needed for offline calculations.
@@ -744,7 +738,7 @@ namespace rr
 		//!  Values are stored in RGBA8 format.
 		//!  Return NULL when direct illumination was not detected for any reason, this
 		//!  function will be called again in next calculate().
-		virtual unsigned* detectDirectIllumination() = 0;
+		virtual unsigned* detectDirectIllumination() {return NULL;}
 
 		//! Sets factor that multiplies intensity of detected direct illumination.
 		//

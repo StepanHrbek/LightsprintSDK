@@ -167,6 +167,7 @@ void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	priv->dirtyMaterials = true;
+	if(priv->multiObjectPhysical) priv->multiObjectPhysical->update();
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(bool strong)
@@ -246,8 +247,6 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->dirtyMaterials = false;
 		dirtyFactors = true;
 		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
-		REPORT(RRReportInterval report(INF3,"Detecting material properties...\n"));
-		detectMaterials();
 	}
 	if(priv->dirtyStaticSolver && !priv->packedSolver)
 	{
