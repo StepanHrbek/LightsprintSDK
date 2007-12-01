@@ -445,18 +445,18 @@
 				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Integration\SceneViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="DemoEngine"
 			>
-			<File
-				RelativePath="DemoEngine\RealtimeLight.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
-				>
-			</File>
 			<File
 				RelativePath="DemoEngine\Camera.cpp"
 				>
@@ -495,6 +495,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\Program.h"
+				>
+			</File>
+			<File
+				RelativePath="DemoEngine\RealtimeLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
 				>
 			</File>
 			<File

@@ -107,7 +107,7 @@ namespace rr
 		//!  It will be used by all data input and output paths in RRDynamicSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		virtual void setScaler(RRScaler* scaler);
+		virtual void setScaler(const RRScaler* scaler);
 
 		//! Returns scaler used by this scene i/o operations, set by setScaler().
 		const RRScaler* getScaler() const;
@@ -123,7 +123,7 @@ namespace rr
 		//!  values in physical scale.
 		//!  Note that environment is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		void setEnvironment(RRIlluminationEnvironmentMap* environment);
+		void setEnvironment(const RRIlluminationEnvironmentMap* environment);
 
 		//! Returns environment around scene, set by setEnvironment().
 		const RRIlluminationEnvironmentMap* getEnvironment() const;
@@ -224,17 +224,19 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setStaticObjects(RRObjects& objects, const SmoothingParameters* smoothing);
+		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing);
+		//! Returns static contents of scene, all static objects at once.
+		const RRObjects& getStaticObjects();
 
-		//! Returns number of static objects in scene.
+		//! Returns number of static objects in scene. Shortcut for getStaticObjects().size().
 		unsigned getNumObjects() const;
 
-		//! Returns i-th static object in scene.
+		//! Returns i-th static object in scene. Shortcut for getStaticObjects()[i].object.
 		RRObject* getObject(unsigned i);
 
-		//! Returns illumination of i-th static object in scene.
+		//! Returns illumination of i-th static object in scene. Shortcut for getStaticObjects()[i].illumination.
 		RRObjectIllumination* getIllumination(unsigned i);
-		//! Returns illumination of i-th static object in scene.
+		//! Returns illumination of i-th static object in scene. Shortcut for getStaticObjects()[i].illumination.
 		const RRObjectIllumination* getIllumination(unsigned i) const;
 
 		//! Optional parameters of calculate(). Currently used only by Fireball.

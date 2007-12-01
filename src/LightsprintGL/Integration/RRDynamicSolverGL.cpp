@@ -67,7 +67,7 @@ public:
 //
 // RRDynamicSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detectionQuality)
+RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _detectionQuality)
 {
 	strncpy(pathToShaders,_pathToShaders,299);
 	pathToShaders[299]=0;

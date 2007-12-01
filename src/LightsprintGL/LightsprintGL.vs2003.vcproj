@@ -316,6 +316,14 @@
 			<File
 				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.h">
 			</File>
+			<File
+				RelativePath="Integration\SceneViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="DemoEngine"

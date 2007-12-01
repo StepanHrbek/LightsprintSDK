@@ -37,14 +37,14 @@ RRDynamicSolver::~RRDynamicSolver()
 	delete priv;
 }
 
-void RRDynamicSolver::setScaler(RRScaler* ascaler)
+void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 {
-	priv->scaler = ascaler;
+	priv->scaler = _scaler;
 	// update fast conversion table for our detectDirectIllumination
 	for(unsigned i=0;i<256;i++)
 	{
 		rr::RRColor c(i*priv->boostDetectedDirectIllumination/255);
-		if(ascaler) ascaler->getPhysicalScale(c);
+		if(_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
 }
@@ -54,9 +54,9 @@ const RRScaler* RRDynamicSolver::getScaler() const
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(RRIlluminationEnvironmentMap* aenvironment)
+void RRDynamicSolver::setEnvironment(const RRIlluminationEnvironmentMap* _environment)
 {
-	priv->environment = aenvironment;
+	priv->environment = _environment;
 }
 
 const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
@@ -64,9 +64,9 @@ const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
 	return priv->environment;
 }
 
-void RRDynamicSolver::setLights(const RRLights& alights)
+void RRDynamicSolver::setLights(const RRLights& _lights)
 {
-	priv->lights = alights;
+	priv->lights = _lights;
 }
 
 const RRLights& RRDynamicSolver::getLights() const
@@ -74,7 +74,7 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const SmoothingParameters* _smoothing)
+void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing)
 {
 	priv->objects = _objects;
 	priv->smoothing = _smoothing ? *_smoothing : SmoothingParameters();
@@ -122,6 +122,11 @@ void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const SmoothingParam
 		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 	}
+}
+
+const RRObjects& RRDynamicSolver::getStaticObjects()
+{
+	return priv->objects;
 }
 
 

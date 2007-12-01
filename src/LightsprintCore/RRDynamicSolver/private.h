@@ -34,7 +34,7 @@ namespace rr
 		unsigned*  detectedCustomRGBA8;
 
 		// scale: inputs
-		RRScaler*  scaler;
+		const RRScaler*  scaler;
 		RRReal     boostDetectedDirectIllumination;
 		// scale: function of inputs
 		RRReal     customToPhysical[256];
