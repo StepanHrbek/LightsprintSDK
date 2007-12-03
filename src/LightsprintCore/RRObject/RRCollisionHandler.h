@@ -50,9 +50,9 @@ private:
 class RRCollisionHandlerFirstReceiver : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerFirstReceiver(const RRObject* _object,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
+	RRCollisionHandlerFirstReceiver(const RRObject* _multiObject,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
 	{
-		object = _object;
+		multiObject = _multiObject;
 		emitorTriangleNumber = _emitorTriangleNumber;
 		allowPointMaterials = _allowPointMaterials;
 	}
@@ -64,7 +64,7 @@ public:
 	{
 		if(ray->hitTriangle!=emitorTriangleNumber)
 		{
-			triangleMaterial = object->getTriangleMaterial(ray->hitTriangle,NULL);
+			triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 			if(triangleMaterial)
 			{
 				// per-pixel materials
@@ -74,7 +74,7 @@ public:
 					// this is satisfied on 2 external places:
 					//   - existing users request 2d to be filled
 					//   - existing colliders fill hitPoint2d even when not requested by user
-					object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 					if(pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 					{
 						return result = pointMaterialValid = true;
@@ -107,7 +107,7 @@ public:
 
 private:
 	bool result;
-	const RRObject* object;
+	const RRObject* multiObject;
 	bool allowPointMaterials;
 	unsigned emitorTriangleNumber;
 
@@ -125,13 +125,16 @@ private:
 //
 //! getVisibility() returns visibility computed from transparency of penetrated materials.
 //! If illegal side is encountered, ray is terminated(=collision found) and isLegal() returns false.
+//!
+//! Used to test direct visibility from light to receiver, with ray shot from receiver to light (for higher precision).
 
 class RRCollisionHandlerVisibility : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerVisibility(const RRObject* _object,const RRLight* _light,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
+	RRCollisionHandlerVisibility(const RRObject* _multiObject,const RRObject* _singleObjectReceiver,const RRLight* _light,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
 	{
-		object = _object;
+		multiObject = _multiObject;
+		singleObjectReceiver = _singleObjectReceiver;
 		light = _light;
 		emitorTriangleNumber = _emitorTriangleNumber;
 		allowPointMaterials = _allowPointMaterials;
@@ -144,7 +147,7 @@ public:
 	{
 		if(ray->hitTriangle!=emitorTriangleNumber)
 		{
-			const RRMaterial* triangleMaterial = object->getTriangleMaterial(ray->hitTriangle,light);
+			const RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 			if(triangleMaterial)
 			{
 				// per-pixel materials
@@ -155,7 +158,7 @@ public:
 					//   - existing users request 2d to be filled
 					//   - existing colliders fill hitPoint2d even when not requested by user
 					RRMaterial pointMaterial;
-					object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 					if(pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 					{
 						legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
@@ -197,7 +200,8 @@ public:
 
 	const RRLight* light;
 private:
-	const RRObject* object;
+	const RRObject* multiObject;
+	const RRObject* singleObjectReceiver;
 	bool allowPointMaterials;
 	unsigned emitorTriangleNumber;
 

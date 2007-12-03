@@ -35,9 +35,9 @@ public:
 		return original->getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
-		const RRMaterial* custom = original->getTriangleMaterial(t,light);
+		const RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);
 		if(!scaler || !custom)
 		{
 			return custom;
@@ -99,7 +99,7 @@ public:
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			const RRMaterial* custom = original->getTriangleMaterial(i,NULL);
+			const RRMaterial* custom = original->getTriangleMaterial(i,NULL,NULL);
 			if(custom && cache.find(custom)==cache.end())
 			{
 				RRMaterial physical;

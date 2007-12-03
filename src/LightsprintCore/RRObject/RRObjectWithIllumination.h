@@ -65,7 +65,7 @@ public:
 		}
 		if(measure.exiting)
 		{
-			const RRMaterial* s = getTriangleMaterial(t,NULL);
+			const RRMaterial* s = getTriangleMaterial(t,NULL,NULL);
 			if(!s)
 			{
 				RR_ASSERT(0);
@@ -89,7 +89,7 @@ public:
 		RRColor power = triangleInfo[t].irradiance;
 		if(measure.exiting)
 		{
-			const RRMaterial* s = getTriangleMaterial(t,NULL);
+			const RRMaterial* s = getTriangleMaterial(t,NULL,NULL);
 			if(!s)
 			{
 				RR_ASSERT(0);

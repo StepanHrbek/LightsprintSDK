@@ -18,6 +18,8 @@ NEWS
 CHANGES
 
 - RRDynamicSolver can be used without subclassing (for offline), all functions implemented
+- RRObject::getTriangleMaterial() has one new parameter
+  \n It is possible to disable direct shadow casting for selected triangle, light and receiver.
 
 \section news39 ------------------------------------ 2007.11.27 -------------------------------------
 

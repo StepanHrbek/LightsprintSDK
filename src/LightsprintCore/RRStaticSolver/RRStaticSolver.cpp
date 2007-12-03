@@ -72,7 +72,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	{
 		RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
-		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL);
+		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
 		RR_ASSERT(s);
 		Triangle *t = &obj->triangle[tbot++];
 		RR_ASSERT(t>=obj->triangle && t<&obj->triangle[obj->triangles]);

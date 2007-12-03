@@ -23,7 +23,7 @@ public:
 
 	// must not change during object lifetime
 	virtual const rr::RRCollider* getCollider() const {return collider;}
-	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light) const;
+	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 	// may change during object lifetime
 	virtual const RRMatrix3x4* getWorldMatrix();
@@ -58,7 +58,7 @@ WorldObjectImporter::~WorldObjectImporter()
 {
 }
 
-const RRMaterial* WorldObjectImporter::getTriangleMaterial(unsigned i, const RRLight* light) const
+const RRMaterial* WorldObjectImporter::getTriangleMaterial(unsigned i, const RRLight* light, const RRObject* receiver) const
 {
 	assert(object);
 	assert(i<(unsigned)object->face_num);

@@ -54,7 +54,7 @@ namespace rr
 	{
 		unsigned char renderFrom:1;  ///< 1=this side of surface is visible. Information only for renderer, not for solver.
 		unsigned char emitTo:1;      ///< 1=this side of surface emits energy according to diffuseEmittance and diffuseReflectance. If both sides emit, 50% to each side is emitted.
-		unsigned char catchFrom:1;   ///< 1=surface catches photons coming from this side. Next life of catched photon depends on receiveFrom/reflect/transmitFrom/errorFrom. For transparent pixels in alpha-keyed textures, simply disable catchFrom, light will come through without regard to other flags.
+		unsigned char catchFrom:1;   ///< 1=surface catches photons coming from this side. Next life of catched photon depends on receiveFrom/reflect/transmitFrom/legal. For transparent pixels in alpha-keyed textures, simply disable catchFrom, light will come through without regard to other flags.
 		unsigned char legal:1;       ///< 0=catched photons are considered harmful, their presence is masked away. It is usually used for back sides of solid 1sided faces.
 		unsigned char receiveFrom:1; ///< 1=catched photons are reflected according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
 		unsigned char reflect:1;     ///< 1=catched photons are reflected according to specularReflectance. Reflected photon leaves to the same side.
@@ -149,10 +149,15 @@ namespace rr
 		//! \param t
 		//!  Triangle number.
 		//! \param light
-		//!  Solver sets light to NULL for unconditional material query, returned material must be non-NULL.
-		//!  When solver sets specific light, returned material may be NULL,
-		//!  it makes this light go through as if triangle doesn't exist, so triangle becomes darker and it doesn't cast shadows.
-		virtual const RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light) const = 0;
+		//!  NULL or one of lights in scene.
+		//!  With light==NULL, returned material must be always the same non-NULL.
+		//!  With light!=NULL, it is allowed to return NULL to disable lighting or shadowing, see receiver for details.
+		//! \param receiver
+		//!  NULL or one of static objects in scene.
+		//!  Used only when light!=NULL, controls properties of given light.
+		//!  When receiver==NULL, you may return NULL to make triangle invisible for given light (disables both direct lighting and shadow-casting).
+		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
+		virtual const RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const = 0;
 
 		//! Returns material description for point on object's surface.
 		//

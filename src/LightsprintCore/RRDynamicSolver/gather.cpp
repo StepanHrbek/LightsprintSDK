@@ -351,14 +351,14 @@ class GatheredIrradianceLights
 {
 public:
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),NULL,_pti.tri.triangleIndex,true)
+		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),_pti.context.singleObjectReceiver,NULL,_pti.tri.triangleIndex,true)
 		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 	{
 		// filter lights
 		const RRLights& allLights = _pti.context.solver->getLights();
 		const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
 		for(unsigned i=0;i<allLights.size();i++)
-			if(multiObject->getTriangleMaterial(_pti.tri.triangleIndex,allLights[i]))
+			if(multiObject->getTriangleMaterial(_pti.tri.triangleIndex,allLights[i],NULL))
 				lights.push_back(allLights[i]);
 		// more init (depends on filtered lights)
 		irradianceLights = RRColorRGBF(0);
@@ -519,6 +519,10 @@ protected:
 //     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
 //      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
 //     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
+// volano z:
+//  updateLightmap->enumerateTexels->processTexel
+//  updateSolverIndirectIllumination->processTexel
+//  updateSolverDirectIllumination->gatherPerTriangle->processTexel
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
@@ -752,6 +756,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.pixelBuffer = NULL;
 	tc.params = &params;
 	tc.bentNormalsPerPixel = NULL;
+	tc.singleObjectReceiver = NULL; // later modified per triangle
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates rays, allocating inside for cycle costs more
@@ -764,6 +769,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
+		tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
 		ProcessTexelParams pti(tc);
 		pti.tri.triangleIndex = (unsigned)t;
 		multiMesh->getTriangleBody(pti.tri.triangleIndex,pti.tri.triangleBody);
@@ -911,6 +917,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			params.quality = benchQuality;
 			tc.params = &params;
 			tc.bentNormalsPerPixel = NULL;
+			tc.singleObjectReceiver = NULL;
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
 
 			// preallocates rays, allocating inside for cycle costs more

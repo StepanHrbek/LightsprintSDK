@@ -356,7 +356,7 @@ public:
 
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
-	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light) const;
+	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	virtual void               getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
 	virtual const RRMatrix3x4* getWorldMatrix();
 	virtual const RRMatrix3x4* getInvWorldMatrix();
@@ -724,7 +724,7 @@ const RRObjectCollada::MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(un
 	return &i->second;
 }
 
-const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light) const
+const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
 	return materialInfo ? &materialInfo->material : NULL;

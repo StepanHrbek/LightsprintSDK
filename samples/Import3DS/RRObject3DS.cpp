@@ -75,7 +75,7 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light) const;
+	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
 	virtual const rr::RRMatrix3x4*  getWorldMatrix();
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 
@@ -343,7 +343,7 @@ const rr::RRCollider* RRObject3DS::getCollider() const
 	return collider;
 }
 
-const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light) const
+const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
 {
 	if(t>=RRObject3DS::getNumTriangles())
 	{

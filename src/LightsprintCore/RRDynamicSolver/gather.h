@@ -22,6 +22,7 @@ struct TexelContext
 	RRIlluminationPixelBuffer* pixelBuffer;
 	const RRDynamicSolver::UpdateParameters* params;
 	RRIlluminationPixelBuffer* bentNormalsPerPixel;
+	RRObject* singleObjectReceiver;
 };
 
 struct ProcessTexelParams

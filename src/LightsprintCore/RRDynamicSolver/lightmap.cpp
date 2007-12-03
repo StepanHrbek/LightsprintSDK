@@ -463,6 +463,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		tc.pixelBuffer = pixelBuffer;
 		tc.params = &params;
 		tc.bentNormalsPerPixel = bentNormalsPerPixel;
+		tc.singleObjectReceiver = getObject(objectNumber);
 		// preallocate lightmap buffer before going parallel
 		unsigned uv[2]={0,0};
 		if(pixelBuffer) pixelBuffer->renderTexel(uv,RRColorRGBAF(0));

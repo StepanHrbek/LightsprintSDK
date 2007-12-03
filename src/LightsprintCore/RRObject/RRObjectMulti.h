@@ -176,11 +176,11 @@ public:
 	//    ktera by pomohla i v ostatnich metodach (ale vyzadala by si prepis RRObjectMulti z puleni intervalu na jedno pole objektu)
 	//    zde by to pak vypadalo:
 	//    return objects[table[t].objectNumber]->getTriangleMaterial(table[t].triangleMidNumber);
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light);
-		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles(),light);
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light,receiver);
+		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles(),light,receiver);
 	}
 
 	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const

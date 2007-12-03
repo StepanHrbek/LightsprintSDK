@@ -79,7 +79,7 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light) const;
+	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
 
 private:
 	TMapQ3* model;
@@ -484,7 +484,7 @@ const rr::RRCollider* RRObjectBSP::getCollider() const
 	return collider;
 }
 
-const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRLight* light) const
+const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
 {
 	if(t>=RRObjectBSP::getNumTriangles())
 	{
