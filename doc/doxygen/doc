@@ -853,6 +853,10 @@ Used by samples:
   - \subpage data_pixel_buffer
   - \subpage data_environment_map
 
+ \section calc_3 or quickly return single value for given
+  - \subpage data_triangle
+  - \subpage data_ray
+
  \section calc_0 Capabilities by speed
   - \subpage calc_realtime
     - \subpage calc_fireball
@@ -1622,6 +1626,74 @@ Used by samples:
 
 
 
+
+\page data_triangle Triangle or Vertex
+
+ Triangle or Vertex illumination query is designed for AI
+ and other subsystems that need very fast access to single value
+ (e.g. AI trying to find dark corner for hiding).
+
+ \section d41 Suitable for
+   - static objects: YES
+   - dynamic objects: NO
+   - realtime calculated illumination: YES
+   - precalculated illumination: YES
+
+ \section d42 Advantages
+   - If you need information only for small subset of scene,
+     querying single triangle is much faster
+     than generating complete lightmap or vertex color buffer for whole object
+     and reading value from it.
+   - Even if you have lightmap or vertex buffer generated,
+     it could be easier to use this query than searching
+     individual value in vertex buffer/lightmap.
+
+ \section d43 Disadvantages
+   - Not demonstrated in samples yet.
+
+ \section d44 Query
+   - Call RRDynamicSolver::getTriangleMeasure with vertex=0,1,2 for triangle vertices
+   - Call RRDynamicSolver::getTriangleMeasure with vertex>2 for whole triangle area
+   - Reading illumination level from triangle is slightly faster than reading
+     it from vertex, but both are very fast.
+
+ \section d45 Returned value
+   - RRColor with single illumination value
+   - see \ref gunits
+
+
+
+
+\page data_ray Ray
+
+ Query for illumination at the end of ray is designed for AI
+ and other subsystems that need very fast access to single value
+ (e.g. AI trying to find dark corner for hiding).
+
+ \section d51 Suitable for
+   - static objects: YES
+   - dynamic objects: NO
+   - realtime calculated illumination: YES
+   - precalculated illumination: YES
+
+ \section d52 Advantages
+   - Fast access to single value.
+
+ \section d53 Disadvantages
+   - Not demonstrated in samples yet.
+
+ \section d54 Query
+   - Call RRDynamicSolver::getMultiObjectCustom()->getCollider()->intersect()
+     to find static triangle at the end of ray.
+   - See \ref data_triangle for access to triangle's illumination.
+
+ \section d55 Returned value
+   - RRColor with single illumination value
+   - see \ref gunits
+
+
+
+
 \page calc_fireball Fireball
 
  \section fb_features Features
@@ -1854,22 +1926,23 @@ Used by samples:
 
 \page inputs_unreal Unreal Engine 3
  Unreal Engine 3 is one of the most acclaimed game engines.
- 
+
  Source code of adapter that accesses UE3 scene in memory
  is in: samples/ImportUE3/*.*
  \n Scene is loaded by Unreal Engine 3.
-
- See comments at the beginning of samples/ImportUE3/RRObjectUE3.cpp
- for more details on features supported.
  
+ See samples/ImportUE3/instructions.txt for more details on using it.
  
 \page main_ue3 Introduction for UE3 users
 
- This page should help you use Lightsprint SDK with Unreal Engine 3.
- \n Work is at the beginning, so you'll find only some details here,
- full support will be added in next month(s).
+ \section ue3_integration Integration
 
- \section ue3_color Color
+ Lightsprint SDK integrated with UE3 editor transparently adds
+ global illumination to Lighting build.
+ \n Realtime global illumination is available from editor for relighting experiments.
+ \n See samples/ImportUE3/instructions.txt for more details.
+
+ \section ue3_color Programming with colors
 
  Concept of color is implemented differently by both engines.
  First take a look at properties of any color type.
@@ -1897,12 +1970,6 @@ Used by samples:
  So with different approach to scale in mind
  - FColor = RRColorRGBA8
  - FLinearColor = RRColorRGBAF
-
- \section ue3_lighting_channels Lighting channels
-
- To support lighting channels, fill RRLight::customData
- with lighting channel and make RRObject::getTriangleMaterial(triangle,light)
- return NULL for objects that don't interact with light.
 
 
    

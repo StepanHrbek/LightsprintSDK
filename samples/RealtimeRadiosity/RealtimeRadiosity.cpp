@@ -159,7 +159,7 @@ public:
 	}
 protected:
 	// called from RRDynamicSolverGL to update shadowmaps
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
 		::renderScene(uberProgramSetup);
 	}

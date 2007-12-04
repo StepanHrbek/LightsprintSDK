@@ -8,12 +8,13 @@ namespace rr
 
 \page main_news What's new
 
-\section news40 ------------------------------------ 2007.12.xx -------------------------------------
+\section news40 ------------------------------------ 2007.12.05 -------------------------------------
 
 NEWS
 
-- sceneViewer(), viewer of scene in solver, for debugging
+- sceneViewer(), single function viewer of scene with movable lights and realtime global illumination
 - realtime directional lights
+- initial Unreal Engine 3 integration, see samples\ImportUE3\instructions.txt
 
 CHANGES
 

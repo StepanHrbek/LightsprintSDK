@@ -163,6 +163,20 @@ const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 	return priv->objects[i].illumination;
 }
 
+bool RRDynamicSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
+{
+	if(priv->packedSolver)
+	{
+		return priv->packedSolver->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
+	}
+	else
+	if(priv->scene)
+	{
+		return priv->scene->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
+	}
+	return false;
+}
+
 void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));

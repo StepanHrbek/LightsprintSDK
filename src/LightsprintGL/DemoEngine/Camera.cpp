@@ -145,6 +145,7 @@ void Camera::rotateViewMatrix(unsigned instance)
 		case 4: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]+up[0],pos[1]+up[1],pos[2]+up[2],-dir[0],-dir[1],-dir[2]); break;
 		case 5: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]-up[0],pos[1]-up[1],pos[2]-up[2],dir[0],dir[1],dir[2]); break;*/
 	}
+	invertMatrix(inverseViewMatrix,viewMatrix);
 }
 
 void Camera::setupForRender()

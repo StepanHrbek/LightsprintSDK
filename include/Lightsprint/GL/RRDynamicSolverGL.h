@@ -54,8 +54,8 @@ namespace rr_gl
 		virtual void setLights(const rr::RRLights& lights);
 		//! Updates shadowmaps and GI from lights with RealtimeLight::dirty set. Called by solver in response to reportDirectIlluminationChange().
 		virtual void updateDirtyLights();
-		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
-		virtual void renderScene(UberProgramSetup uberProgramSetup) = 0;
+		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application. renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
+		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;
 		//! Renders lights (wireframe shadow envelopes).
 		virtual void renderLights();
 

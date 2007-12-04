@@ -590,6 +590,21 @@ namespace rr
 		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
 		unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
 
+		//! Reads illumination of triangle's vertex in units given by measure.
+		//
+		//! Reads results in format suitable for fast vertex based rendering without subdivision.
+		//! \param triangle Index of triangle in multiobject you want to get results for.
+		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
+		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
+		//! \param measure
+		//!  Specifies what to measure, using what units.
+		//! \param out
+		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
+		//! \return
+		//!  True if out was successfully filled. False may be caused by invalid inputs.
+		bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const;
+
+
 		//! Reports that appearance of one or more materials has changed.
 		//
 		//! Call this when you changed material properties of static objects

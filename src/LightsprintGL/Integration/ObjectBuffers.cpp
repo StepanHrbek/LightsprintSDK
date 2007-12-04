@@ -77,7 +77,32 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		{
 			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
 		}
-		// material change? -> start new facegroup
+/*		// material change? -> start new facegroup
+		// a) rendering into shadowmap, check shadowing flags
+		//    -> test t,light,receiver
+		//       kdyz pro aspon 1 receiver true, kreslit, tj.vrhat stiny (muze byt nepresne, ale nebudu delat extra shadowmapu pro kazdy receiver)
+		//       kdyz pro aspon 1 light true, kreslit, tj.vrhat stiny (muze byt nepresne, ale nebudu delat extra ObjectBuffers pro kazde svetlo)
+		// b) rendering lit, check lighting flags
+		//    -> test t,light,NULL
+		//       kdyz pro aspon 1 light true, kreslit, tj.osvitit (muze byt nepresne, ale nebudu delat extra ObjectBuffers pro kazde svetlo)
+		const rr::RRMaterial* material;
+		if(!params.light // rendering indirect, so no skipping, everything is rendered
+			|| !params.renderingShadowCasters) // accumulating lit renders, so skipping render=disabling lighting
+		{
+			material = object->getTriangleMaterial(t,params.light,NULL);
+		}
+		else
+		{
+			// rendering into shadowmap, so skipping render=disabling shadow
+			// kdyz pro aspon 1 receiver true, kreslit, tj.vrhat stiny (muze byt nepresne, ale nebudu delat extra shadowmapu pro kazdy receiver)
+			for(unsigned i=0;i<params.scene->getNumObjects();i++)
+			{
+				if(material = object->getTriangleMaterial(t,params.light,params.scene->getObject(i)))
+					break;
+			}
+		}
+		if(!material) continue; // skip rendering triangles without material
+*/
 		const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 		if(!t || material!=previousMaterial)
 		{

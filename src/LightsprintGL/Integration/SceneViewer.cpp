@@ -39,7 +39,7 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 class Solver*              solver = NULL;
-rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,1000.0);
+Camera                     eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,1000.0);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -51,6 +51,9 @@ float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
+float                      speedUp = 0;
+float                      speedDown = 0;
+float                      speedLean = 0;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 
@@ -59,25 +62,25 @@ float                      gamma = 1;
 //
 // GI solver and renderer
 
-class Solver : public rr_gl::RRDynamicSolverGL
+class Solver : public RRDynamicSolverGL
 {
 public:
-	rr_gl::RendererOfScene* rendererOfScene;
+	RendererOfScene* rendererOfScene;
 
 	Solver(const char* pathToShaders) : RRDynamicSolverGL(pathToShaders)
 	{
-		rendererOfScene = new rr_gl::RendererOfScene(this,pathToShaders);
+		rendererOfScene = new RendererOfScene(this,pathToShaders);
 	}
 	~Solver()
 	{
 		delete rendererOfScene;
 	}
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
-		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
+		const rr::RRVector<RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 		rendererOfScene->useOptimizedScene();
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
@@ -87,7 +90,7 @@ protected:
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!winWidth) return NULL;
-		return rr_gl::RRDynamicSolverGL::detectDirectIllumination();
+		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 };
 
@@ -174,6 +177,8 @@ void special(int c, int x, int y)
 		case GLUT_KEY_DOWN: speedBack = 1; break;
 		case GLUT_KEY_LEFT: speedLeft = 1; break;
 		case GLUT_KEY_RIGHT: speedRight = 1; break;
+		case GLUT_KEY_PAGE_UP: speedUp = 1; break;
+		case GLUT_KEY_PAGE_DOWN: speedDown = 1; break;
 	}
 }
 
@@ -185,6 +190,8 @@ void specialUp(int c, int x, int y)
 		case GLUT_KEY_DOWN: speedBack = 0; break;
 		case GLUT_KEY_LEFT: speedLeft = 0; break;
 		case GLUT_KEY_RIGHT: speedRight = 0; break;
+		case GLUT_KEY_PAGE_UP: speedUp = 0; break;
+		case GLUT_KEY_PAGE_DOWN: speedDown = 0; break;
 	}
 }
 
@@ -205,6 +212,23 @@ void keyboard(unsigned char c, int x, int y)
 			gamma /= 1.2;
 			break;
 
+		case 'a':
+		case 'A': special(GLUT_KEY_LEFT,0,0); break;
+		case 's':
+		case 'S': special(GLUT_KEY_DOWN,0,0); break;
+		case 'd':
+		case 'D': special(GLUT_KEY_RIGHT,0,0); break;
+		case 'w':
+		case 'W': special(GLUT_KEY_UP,0,0); break;
+		case 'q':
+		case 'Q': special(GLUT_KEY_PAGE_UP,0,0); break;
+		case 'z':
+		case 'Z': special(GLUT_KEY_PAGE_DOWN,0,0); break;
+		case 'x':
+		case 'X': speedLean = -1; break;
+		case 'c':
+		case 'C': speedLean = +1; break;
+
 		//case 27:
 		//	delete solver;
 		//	exit(0);
@@ -218,7 +242,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	rr_gl::Texture* texture = rr_gl::Texture::createShadowmap(64,64);
+	Texture* texture = Texture::createShadowmap(64,64);
 	GLint shadowDepthBits = texture->getTexelBits();
 	delete texture;
 	glPolygonOffset(1, 12 << (shadowDepthBits-16) );
@@ -255,7 +279,7 @@ void passive(int x, int y)
 		}
 		else
 		{
-			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
+			Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
 			light->angle -= 0.005*x;
 			light->angleX -= 0.005*y;
 			CLAMP(light->angleX,-M_PI*0.49f,M_PI*0.49f);
@@ -282,7 +306,7 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	rr_gl::UberProgramSetup uberProgramSetup;
+	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -294,7 +318,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(uberProgramSetup);
+	solver->renderScene(uberProgramSetup,NULL);
 
 	if(renderLights)
 	{
@@ -335,12 +359,13 @@ void idle()
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		seconds *= speedGlobal;
-		rr_gl::Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getParent();
+		Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getParent();
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
-		if(speedForward || speedBack || speedRight || speedLeft)
+		if(speedLean) cam->lean(speedLean*seconds);
+		if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 		{
 			if(cam!=&eye) 
 			{
@@ -362,8 +387,13 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* pathToShaders)
 	char* argv[] = {"abc",NULL};
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
-	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Scene Debugger"); // for windowed mode
+	unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+	unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+	unsigned resolutionx = w-128;
+	unsigned resolutiony = h-64;
+	glutInitWindowSize(resolutionx,resolutiony);
+	glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
+	glutCreateWindow("Lightsprint Debug Console");
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);

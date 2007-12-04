@@ -103,10 +103,10 @@ float                      gamma = 1;
 //
 // rendering scene
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 {
 	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights);
+	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();
@@ -171,9 +171,9 @@ protected:
 		return createIlluminationPixelBuffer(res,res);
 	}
 	// called from RRDynamicSolverGL to update shadowmaps
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
-		::renderScene(uberProgramSetup);
+		::renderScene(uberProgramSetup,renderingFromThisLight);
 	}
 	// detects direct illumination irradiances on all faces in scene
 	virtual unsigned* detectDirectIllumination()
@@ -438,7 +438,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	renderScene(uberProgramSetup);
+	renderScene(uberProgramSetup,NULL);
 
 	glutSwapBuffers();
 }

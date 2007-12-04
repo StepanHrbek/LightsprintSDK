@@ -167,6 +167,19 @@ public:
 	//!  RRDynamicSolver::getSolutionVersion() is usually entered here.
 	void setIndirectIlluminationFromSolver(unsigned solutionVersion);
 
+	//! Enables lighting and shadowing flag tests.
+	//
+	//! When light is not specified or set to NULL, all objects are lit and shadows rendered as in real world.
+	//! When light is specified, lighting and shadowing flags are tested (see rr::RRObject::getTriangleMaterial()).
+	//!
+	//! In other words:
+	//! \n Before rendering shadow casters into shadowmap, set light and renderingShadowCasters,
+	//! triangles that don't cast shadows won't be renderd.
+	//! \n Before rendering light receivers, set light and unset renderingShadowCasters,
+	//! triangles that don't receive light won't be renderd.
+	//! \n In other cases, pass light=NULL, all triangles will be rendered.
+	void setLightingShadowingFlags(const rr::RRLight* light, bool renderingShadowCasters);
+
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
 
@@ -206,6 +219,9 @@ private:
 		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors2;
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap2;
+		// set by setLightingShadowingFlags()
+		const rr::RRLight* light;
+		bool renderingShadowCasters;
 	};
 	Params params;
 	// buffers for faster rendering

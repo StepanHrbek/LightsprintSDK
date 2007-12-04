@@ -450,7 +450,7 @@ BackgroundWorker* g_backgroundWorker = NULL;
 //
 // Solver
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera);
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
@@ -471,9 +471,9 @@ protected:
 		return rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res);
 	}
 #endif
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
-		::renderScene(uberProgramSetup,0,&currentFrame.eye);
+		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
 	}
 	virtual unsigned* detectDirectIllumination()
 	{
@@ -586,7 +586,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
-void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, const rr::RRLight* renderingFromThisLight)
 {
 	if(!level) return;
 
@@ -634,16 +634,16 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
-	level->rendererOfScene->setParams(uberProgramSetup,&lights);
+	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight);
 	level->rendererOfScene->render();
 }
 
 // camera must be already set in OpenGL, this one is passed only for frustum culling
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight)
 {
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
-	renderSceneStatic(uberProgramSetup,firstInstance);
+	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
@@ -682,7 +682,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 
 	currentFrame.eye.setupForRender();
 
-	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye);
+	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye,NULL);
 
 #ifdef BUGS
 	if(gameOn)
@@ -719,9 +719,8 @@ void drawEyeViewSoftShadowed(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	// optimized path without accum
-	if(numInstances<=INSTANCES_PER_PASS)
-	{
+	RR_ASSERT(numInstances<=INSTANCES_PER_PASS);
+
 #ifdef SUPPORT_WATER
 		// update water reflection
 		if(water && level->pilot.setup->renderWater)
@@ -765,7 +764,7 @@ void drawEyeViewSoftShadowed(void)
 			// optional but improves fps from 60 to 80
 			rr_gl::UberProgramSetup uberProgramSetup;
 			currentFrame.eye.setupForRender();
-			renderScene(uberProgramSetup,0,&currentFrame.eye);
+			renderScene(uberProgramSetup,0,&currentFrame.eye,NULL);
 		}
 
 		// render everything except water
@@ -802,65 +801,6 @@ void drawEyeViewSoftShadowed(void)
 			water->render(100);
 		}
 #endif
-
-		return;
-	}
-
-	glClear(GL_ACCUM_BUFFER_BIT);
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	// add direct
-	for(unsigned i=0;i<numInstances;i+=INSTANCES_PER_PASS)
-	{
-		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
-		//uberProgramSetup.SHADOW_SAMPLES = ;
-		uberProgramSetup.SHADOW_PENUMBRA = true;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		//uberProgramSetup.MATERIAL_DIFFUSE = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
-		//uberProgramSetup.MATERIAL_SPECULAR = ;
-		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
-		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
-		//uberProgramSetup.OBJECT_SPACE = false;
-		uberProgramSetup.FORCE_2D_POSITION = false;
-		drawEyeViewShadowed(uberProgramSetup,i);
-		glAccum(GL_ACCUM,1./(numInstances/MIN(INSTANCES_PER_PASS,numInstances)));
-	}
-	// add indirect
-	{
-		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = 0;
-		uberProgramSetup.SHADOW_SAMPLES = 0;
-		uberProgramSetup.LIGHT_DIRECT = false;
-		uberProgramSetup.LIGHT_DIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
-		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		//uberProgramSetup.MATERIAL_DIFFUSE = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
-		//uberProgramSetup.MATERIAL_SPECULAR = ;
-		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
-		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
-		//uberProgramSetup.OBJECT_SPACE = false;
-		uberProgramSetup.FORCE_2D_POSITION = false;
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderScene(uberProgramSetup,0,&currentFrame.eye);
-		glAccum(GL_ACCUM,1);
-	}
-
-	glAccum(GL_RETURN,1);
 }
 
 // captures current scene into thumbnail

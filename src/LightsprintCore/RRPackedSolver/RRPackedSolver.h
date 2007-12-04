@@ -27,6 +27,8 @@ public:
 	void getTriangleIrradianceIndirectUpdate();
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
 
+	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const;
+
 	//! Returns version of global illumination solution.
 	//
 	//! You may use this number to avoid unnecessary updates of illumination buffers.
@@ -48,9 +50,6 @@ protected:
 	const RRObject* object;
 	class PackedTriangle* triangles;
 	unsigned numTriangles;
-
-	// mostly constant realtime acquired data
-	RRReal customToPhysical[256];
 
 	// varying data
 	class PackedBests* packedBests;

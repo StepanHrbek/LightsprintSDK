@@ -35,7 +35,14 @@ public:
 	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights);
+	//
+	//! \param uberProgramSetup
+	//!  Set of features for rendering.
+	//! \param lights
+	//!  Set of lights, source of direct illumination in rendered scene.
+	//! \param renderingFromThisLight
+	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -54,6 +61,7 @@ protected:
 		rr::RRDynamicSolver* solver;
 		UberProgramSetup uberProgramSetup;
 		const rr::RRVector<RealtimeLight*>* lights;
+		const rr::RRLight* renderingFromThisLight;
 		rr::RRVec4 brightness;
 		float gamma;
 		Params();
@@ -73,6 +81,9 @@ RendererOfRRDynamicSolver::Params::Params()
 {
 	solver = NULL;
 	lights = NULL;
+	renderingFromThisLight = NULL;
+	brightness = rr::RRVec4(1);
+	gamma = 1;
 }
 
 RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders)
@@ -99,10 +110,11 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
+	params.renderingFromThisLight = renderingFromThisLight;
 }
 
 const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
@@ -175,10 +187,11 @@ void RendererOfRRDynamicSolver::render()
 	PreserveBlend p1;
 	for(unsigned lightIndex=0;lightIndex<numPasses;lightIndex++)
 	{
+		RealtimeLight* light;
 		if(lightIndex<numLights)
 		{
 			// adjust program for n-th light
-			rr_gl::RealtimeLight* light = (*params.lights)[lightIndex];
+			light = (*params.lights)[lightIndex];
 			RR_ASSERT(light);
 			//uberProgramSetup.setLightDirect(light,params.lightDirectMap);
 			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
@@ -194,6 +207,7 @@ void RendererOfRRDynamicSolver::render()
 		{
 			// adjust program for render without lights
 			//uberProgramSetup.setLightDirect(NULL,NULL);
+			light = NULL;
 			uberProgramSetup.SHADOW_MAPS = 0;
 			uberProgramSetup.SHADOW_SAMPLES = 0;
 			uberProgramSetup.LIGHT_DIRECT = 0;
@@ -219,7 +233,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 		}
-		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,&params.brightness,params.gamma))
+		if(!uberProgramSetup.useProgram(uberProgram,light,0,&params.brightness,params.gamma))
 		{
 			rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 			return;
@@ -241,6 +255,7 @@ void RendererOfRRDynamicSolver::render()
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
+		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight?params.renderingFromThisLight:light->origin,params.renderingFromThisLight?true:false);
 
 		// don't cache indirect illumination in vertices, it changes often
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
@@ -378,7 +393,7 @@ void RendererOfOriginalScene::render()
 	Program* program = NULL;
 	unsigned numObjects = params.solver->getNumObjects();
 	if(params.lights && params.lights->size()>1)
-		rr::RRReporter::report(rr::WARN,"Renderer of original scene supports only 1 light (temporarily).\n");
+		rr::RRReporter::report(rr::WARN,"Renderer of original scene supports only 1 light (for now).\n");
 	for(unsigned i=0;i<numObjects;i++)
 	{
 		// - working copy of params.uberProgramSetup
@@ -522,9 +537,9 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight)
 {
-	renderer->setParams(uberProgramSetup,lights);
+	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight);
 }
 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)

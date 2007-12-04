@@ -5,6 +5,7 @@
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
+#include "Lightsprint/RRLight.h" // scaler
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
@@ -301,6 +302,80 @@ const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, u
 		return NULL;
 	}
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
+}
+
+bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
+{
+	RRVec3 irrad;
+
+	if(triangle>=numTriangles)
+	{
+		RR_ASSERT(0);
+		goto zero;
+	}
+
+	// enhanced by smoothing
+	if(vertex<3 && measure.smoothed)
+	{
+		if(!measure.direct && measure.indirect)
+		{
+			const RRVec3* ptr = getTriangleIrradianceIndirect(triangle,vertex);
+			if(!ptr) goto zero;
+			irrad = *ptr;
+		}
+		else
+		{
+			RRReporter::report(WARN,"getTriangleMeasure: fireball doesn't support this measure.\n");
+		}
+	}
+	else
+	// basic, fast
+	if(!measure.direct && !measure.indirect) 
+	{
+		irrad = RRVec3(0);
+	}
+	else
+	if(measure.direct && !measure.indirect) 
+	{
+		irrad = triangles[triangle].incidentFluxDirect*triangles[triangle].areaInv;
+	}
+	else
+	if(measure.direct && measure.indirect) 
+	{
+		irrad = (triangles[triangle].incidentFluxDiffused+triangles[triangle].incidentFluxToDiffuse)*triangles[triangle].areaInv;
+	}
+	else
+	{
+		irrad = (triangles[triangle].incidentFluxDiffused+triangles[triangle].incidentFluxToDiffuse-triangles[triangle].incidentFluxDirect)*triangles[triangle].areaInv;
+	}
+
+	if(measure.exiting)
+	{
+		// diffuse applied on physical scale, not custom scale
+		irrad *= triangles[triangle].diffuseReflectance;
+	}
+	if(measure.scaled)
+	{
+		if(scaler)
+		{
+			// scaler applied on density, not flux
+			scaler->getCustomScale(irrad);
+		}
+		else
+		{
+			// scaling requested but not available
+			RR_ASSERT(0);
+		}
+	}
+	if(measure.flux)
+	{
+		irrad *= triangles[triangle].area;
+	}
+	out = irrad;
+	return true;
+zero:
+	out = RRColor(0);
+	return false;
 }
 
 RRPackedSolver::~RRPackedSolver()

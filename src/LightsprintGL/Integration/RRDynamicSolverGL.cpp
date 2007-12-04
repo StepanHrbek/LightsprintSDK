@@ -232,7 +232,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 				glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 				shadowmap->renderingToBegin();
 				glClear(GL_DEPTH_BUFFER_BIT);
-				renderScene(uberProgramSetup);
+				renderScene(uberProgramSetup,light->origin);
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);
@@ -352,7 +352,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 
 		// clear
 		glViewport(0, 0, width,height);
-		//glClear(GL_COLOR_BUFFER_BIT); // not necessary, old pixels should be overwritten
+		glClear(GL_COLOR_BUFFER_BIT); // old pixels are overwritten, so clear is usually not needed, but individual light-triangle lighting may be disabled by getTriangleMaterial()=triangles are not rendered, and we need to detect 0 rather than uninitialized value
 
 		// setup renderer
 		RendererOfRRObject::RenderedChannels renderedChannels;
@@ -528,7 +528,6 @@ void drawCamera(Camera* camera)
 {
 	if(camera)
 	{
-		camera->update();//!!! mozna neni nutne
 		glPushMatrix();
 		glMultMatrixd(camera->inverseViewMatrix);
 		glMultMatrixd(camera->inverseFrustumMatrix);

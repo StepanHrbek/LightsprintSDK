@@ -44,6 +44,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
+#include "Lightsprint/GL/SceneViewer.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
 
 
@@ -107,12 +108,12 @@ public:
 		delete uberProgram;
 		delete rendererOfScene;
 	}
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
 		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 		rendererOfScene->useOptimizedScene();
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
@@ -151,7 +152,6 @@ public:
 
 protected:
 	// skipped, material properties were already read from .dae and never change
-	virtual void detectMaterials() {}
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!winWidth) return NULL;
@@ -320,7 +320,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(uberProgramSetup);
+	solver->renderScene(uberProgramSetup,NULL);
 
 	solver->renderLights();
 
@@ -461,6 +461,8 @@ int main(int argc, char **argv)
 	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+
+//	sceneViewer(solver,"../../data/shaders/");
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->calculate();

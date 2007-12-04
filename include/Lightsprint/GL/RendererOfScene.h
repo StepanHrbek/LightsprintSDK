@@ -44,8 +44,10 @@ public:
 	//!  vertex colors, ambient maps or none.
 	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
 	//! \param lights
-	//!  Vector of lights.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights);
+	//!  Set of lights, source of direct illumination in rendered scene.
+	//! \param renderingFromThisLight
+	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//
