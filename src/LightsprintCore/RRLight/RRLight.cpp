@@ -1,4 +1,5 @@
 #include "Lightsprint/RRLight.h"
+#include "Lightsprint/RRDebug.h"
 #include "../RRMathPrivate.h"
 
 namespace rr
@@ -28,6 +29,19 @@ public:
 	}
 };
 
+const RRVec3& check(const RRVec3& a)
+{
+	if(a[0]<0 && a[1]<0 && a[2]<0)
+		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative value (%f %f %f).\n",a[0],a[1],a[2]));
+	return a;
+}
+
+RRReal check(RRReal a)
+{
+	if(a<0)
+		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative scalar (%f).\n",a));
+	return a;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -42,7 +56,7 @@ public:
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
 		direction = _direction.normalized();
-		color = _color;
+		color = check(_color);
 		if(!_physicalScale)
 		{
 			color[0] = pow(color[0],2.2222f);
@@ -70,7 +84,7 @@ public:
 		type = POINT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = _color;
+		color = check(_color);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -92,8 +106,8 @@ public:
 		type = POINT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = _color;
-		radius = _radius;
+		color = check(_color);
+		radius = check(_radius);
 		fallOffExponent = _fallOffExponent;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -119,8 +133,8 @@ public:
 		type = POINT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = _color;
-		polynom = _polynom;
+		color = check(_color);
+		polynom = check(_polynom);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -145,7 +159,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = _color;
+		color = check(_color);
 		direction = _direction.normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
@@ -175,8 +189,8 @@ public:
 		type = SPOT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = _color;
-		radius = _radius;
+		color = check(_color);
+		radius = check(_radius);
 		fallOffExponent = _fallOffExponent;
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
@@ -208,7 +222,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = _color;
+		color = check(_color);
 		polynom = _polynom;
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
