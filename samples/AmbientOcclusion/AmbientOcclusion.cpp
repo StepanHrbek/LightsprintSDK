@@ -189,7 +189,7 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.update();
 	eye.setupForRender();
-	rendererOfScene->setParams(uberProgramSetup,NULL,NULL);
+	rendererOfScene->setParams(uberProgramSetup,NULL,NULL,false);
 	rendererOfScene->useOriginalScene(0);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();

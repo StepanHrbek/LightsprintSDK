@@ -106,7 +106,7 @@ float                      gamma = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 {
 	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
+	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight,false);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();

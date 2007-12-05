@@ -47,7 +47,9 @@ public:
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight);
+	//! \param honourExpensiveLightingShadowingFlags
+	//!  Enables slower rendering path that supports lighting or shadowing disabled via RRObject::getTriangleMaterial().
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//

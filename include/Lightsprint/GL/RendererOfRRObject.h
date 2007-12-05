@@ -169,8 +169,9 @@ public:
 
 	//! Enables lighting and shadowing flag tests.
 	//
-	//! When light is not specified or set to NULL, all objects are lit and shadows rendered as in real world.
-	//! When light is specified, lighting and shadowing flags are tested (see rr::RRObject::getTriangleMaterial()).
+	//! When lights are not specified or set to NULL, all objects are lit and shadows rendered as in real world.
+	//! When lights are specified, lighting and shadowing flags are tested (see rr::RRObject::getTriangleMaterial())
+	//! more or less accurately, depending on honourExpensiveLightingShadowingFlags.
 	//!
 	//! In other words:
 	//! \n Before rendering shadow casters into shadowmap, set light and renderingShadowCasters,
@@ -178,7 +179,7 @@ public:
 	//! \n Before rendering light receivers, set light and unset renderingShadowCasters,
 	//! triangles that don't receive light won't be renderd.
 	//! \n In other cases, pass light=NULL, all triangles will be rendered.
-	void setLightingShadowingFlags(const rr::RRLight* light, bool renderingShadowCasters);
+	void setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight, bool honourExpensiveLightingShadowingFlags);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -220,8 +221,9 @@ private:
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap2;
 		// set by setLightingShadowingFlags()
-		const rr::RRLight* light;
-		bool renderingShadowCasters;
+		const rr::RRLight* renderingFromThisLight;
+		const rr::RRLight* renderingLitByThisLight;
+		bool honourExpensiveLightingShadowingFlags;
 	};
 	Params params;
 	// buffers for faster rendering

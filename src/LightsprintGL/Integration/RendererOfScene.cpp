@@ -42,7 +42,7 @@ public:
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -62,6 +62,7 @@ protected:
 		UberProgramSetup uberProgramSetup;
 		const rr::RRVector<RealtimeLight*>* lights;
 		const rr::RRLight* renderingFromThisLight;
+		bool honourExpensiveLightingShadowingFlags;
 		rr::RRVec4 brightness;
 		float gamma;
 		Params();
@@ -82,6 +83,7 @@ RendererOfRRDynamicSolver::Params::Params()
 	solver = NULL;
 	lights = NULL;
 	renderingFromThisLight = NULL;
+	honourExpensiveLightingShadowingFlags = false;
 	brightness = rr::RRVec4(1);
 	gamma = 1;
 }
@@ -110,11 +112,12 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
 	params.renderingFromThisLight = renderingFromThisLight;
+	params.honourExpensiveLightingShadowingFlags = honourExpensiveLightingShadowingFlags;
 }
 
 const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
@@ -255,7 +258,7 @@ void RendererOfRRDynamicSolver::render()
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
-		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight?params.renderingFromThisLight:light->origin,params.renderingFromThisLight?true:false);
+		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
 
 		// don't cache indirect illumination in vertices, it changes often
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
@@ -537,9 +540,9 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
 {
-	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight);
+	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
 }
 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)

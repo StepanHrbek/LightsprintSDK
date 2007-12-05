@@ -16,7 +16,7 @@ namespace rr_gl
 
 //! Runs viewer of scene in newly created window.
 //! Warning: doesn't return, for debugging only. To be fixed.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders, bool honourExpensiveLightingShadowingFlags);
 
 }; // namespace
 

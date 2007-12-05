@@ -58,6 +58,7 @@ float                      speedDown = 0;
 float                      speedLean = 0;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
+bool                       honourExpensiveLightingShadowingFlags = false;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ public:
 		const rr::RRVector<RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
 		rendererOfScene->useOptimizedScene();
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
@@ -139,17 +140,17 @@ public:
 		glutAddSubMenu("Speed...", speedHandle);
 		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
+		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	static void mainCallback(int item)
 	{
 		switch(item)
 		{
-			case ME_RENDER_AMBIENT:
-				renderAmbient = !renderAmbient;
-				break;
-			case ME_RENDER_HELPERS:
-				renderLights = !renderLights;
+			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
+			case ME_RENDER_HELPERS: renderLights = !renderLights; break;
+			case ME_HONOUR_FLAGS: honourExpensiveLightingShadowingFlags = !honourExpensiveLightingShadowingFlags;
+				for(unsigned i=0;i<solver->realtimeLights.size();i++) solver->realtimeLights[i].dirty = true; // update all for new flags
 				break;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -171,6 +172,7 @@ protected:
 	{
 		ME_RENDER_AMBIENT,
 		ME_RENDER_HELPERS,
+		ME_HONOUR_FLAGS,
 	};
 };
 
@@ -455,8 +457,8 @@ void display(void)
 					}
 				}
 			}
-			textOutput(x,y+=18,"light receivers: %d/%d",numLightReceivers,numTrianglesMulti);
-			textOutput(x,y+=18,"shadow casters: %d/%d",numShadowCasters,numTrianglesMulti*numObjects);
+			textOutput(x,y+=18,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
+			textOutput(x,y+=18,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 		}
 		if(selectedObjectIndex<solver->getNumObjects())
 		{
@@ -585,8 +587,10 @@ void idle()
 	glutPostRedisplay();
 }
 
-void sceneViewer(rr::RRDynamicSolver* _solver, const char* pathToShaders)
+void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
 {
+	honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
+
 	// init GLUT
 	int argc=1;
 	char* argv[] = {"abc",NULL};
@@ -623,7 +627,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* pathToShaders)
 	glEnable(GL_DEPTH_TEST);
 
 	// init solver
-	solver = new Solver(pathToShaders);
+	solver = new Solver(_pathToShaders);
 	solver->setScaler(_solver->getScaler());
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);

@@ -113,7 +113,7 @@ public:
 		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,false);
 		rendererOfScene->useOptimizedScene();
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
@@ -462,7 +462,7 @@ int main(int argc, char **argv)
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
-//	sceneViewer(solver,"../../data/shaders/");
+	sceneViewer(solver,"../../data/shaders/",!false);
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->calculate();
