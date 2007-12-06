@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - sceneViewer(), debugging console, single function viewer of scene with movable lights, realtime global illumination
+  \n RRDynamicSolver is usually black box. This viewer shows what's inside solver.
 - realtime directional lights
 - initial Unreal Engine 3 integration, see samples\ImportUE3\instructions.txt
 

@@ -448,11 +448,6 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init lights
-//	adaptedLights=new rr::RRLights;
-//	rr::RRLight* light = rr::RRLight::createDirectionalLight(rr::RRVec3(-1,-1,-1),rr::RRVec3(1),false);
-//	rr::RRLight* light = rr::RRLight::createSpotLightPoly(rr::RRVec3(5),rr::RRVec3(100),rr::RRVec3(0,0,1),rr::RRVec3(-1),1,0.1f);
-//	adaptedLights->push_back(light);
-//	solver->setLights(*(adaptedLights));
 	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
@@ -462,7 +457,7 @@ int main(int argc, char **argv)
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
-	sceneViewer(solver,"../../data/shaders/",!false);
+	//sceneViewer(solver,"../../data/shaders/",false);
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->calculate();

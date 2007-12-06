@@ -152,7 +152,7 @@ void RRDynamicSolverGL::calculate(CalculateParameters* params)
 	// after camera change, dirty travelling lights
 	if(observer && observer->pos!=oldObserverPos)
 	{
-		rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
+		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
 		oldObserverPos = observer->pos;
 		for(unsigned i=0;i<realtimeLights.size();i++)
 			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())

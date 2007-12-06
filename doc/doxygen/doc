@@ -243,6 +243,7 @@ Used by samples:
 \page main_integration Integration
 
  \section integr_tool Precalculations / for toolchain
+  - \ref main_ue3 "Precalculations in Unreal Editor"
   - \subpage integration_tool_1
   - \subpage integration_tool_2
 
@@ -1935,6 +1936,8 @@ Used by samples:
  
 \page main_ue3 Introduction for UE3 users
 
+ This page is for Unreal Engine 3 users.
+
  \section ue3_integration Integration
 
  Lightsprint SDK integrated with UE3 editor transparently adds
@@ -2215,6 +2218,12 @@ Used by samples:
  Full source code comes with commercial licence.
 
  Namespace: rr_gl
+
+ <hr>
+ Header: GL/SceneViewer.h
+
+ - rr_gl::sceneViewer() is single function scene viewer, with movable lights, realtime GI, debugging outputs.
+   RRDynamicSolver is usually black box. This viewer shows what's inside solver.
 
  <hr>
  Header: GL/RRDynamicSolverGL.h
