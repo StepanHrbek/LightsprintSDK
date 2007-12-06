@@ -58,7 +58,6 @@ float                      speedDown = 0;
 float                      speedLean = 0;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
-bool                       honourExpensiveLightingShadowingFlags = false;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -149,8 +148,8 @@ public:
 		{
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_HELPERS: renderLights = !renderLights; break;
-			case ME_HONOUR_FLAGS: honourExpensiveLightingShadowingFlags = !honourExpensiveLightingShadowingFlags;
-				for(unsigned i=0;i<solver->realtimeLights.size();i++) solver->realtimeLights[i].dirty = true; // update all for new flags
+			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags;
+				for(unsigned i=0;i<solver->realtimeLights.size();i++) solver->realtimeLights[i]->dirty = true; // update all for new flags
 				break;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -390,6 +389,8 @@ void display(void)
 		glEnd();
 
 		// render properties
+		winWidth = glutGet(GLUT_WINDOW_WIDTH);
+		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -398,15 +399,9 @@ void display(void)
 		glPushMatrix();
 		glLoadIdentity();
 		gluOrtho2D(0, winWidth, winHeight, 0);
-//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		glEnable(GL_BLEND);
-//		glColor4f(0.0,0.0,0.0,0.6);
-//		unsigned rectWidth = 530;
-//		unsigned rectHeight = 360;
-//		glColor4f(0.0,0.1,0.3,0.6);
-//		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
-//		glDisable(GL_BLEND);
 		glColor3f(1,1,1);
+		glRasterPos2i(winWidth/2-4,winHeight/2+1);
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15,'.');
 		int x = 10;
 		int y = 10;
 		textOutput(x,y+=18,"right mouse button = menu");
@@ -589,8 +584,6 @@ void idle()
 
 void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
 {
-	honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
-
 	// init GLUT
 	int argc=1;
 	char* argv[] = {"abc",NULL};
@@ -628,10 +621,12 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool 
 
 	// init solver
 	solver = new Solver(_pathToShaders);
+	solver->honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
 	solver->setScaler(_solver->getScaler());
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
+	//!!! spotlighty nemaj spotmapy
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 	solver->calculate();

@@ -821,7 +821,7 @@ namespace rr
 		{
 			VALID,       ///< Valid license.
 			EXPIRED,     ///< Expired license.
-			WRONG,       ///< Wrong license.
+			WRONG,       ///< Wrong license. May be also double precision broken by Direct3D, see loadLicense().
 			NO_INET,     ///< No internet connection to verify license.
 			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
 		};

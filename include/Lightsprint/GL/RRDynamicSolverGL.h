@@ -124,13 +124,16 @@ namespace rr_gl
 		virtual void setupShader(unsigned objectNumber);
 		//! Helper function called from detectDirectIllumination().
 		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
-		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
+		//! Detection of direct illumination from lights (see setLights()) implemented using OpenGL 2.0.
 		virtual unsigned* detectDirectIllumination();
 
 		//! Realtime lights, set by setLights(). You may modify them freely.
 		rr::RRVector<RealtimeLight*> realtimeLights;
 		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
 		Camera* observer;
+		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
+		//! Inited to false, you may freely change it.
+		bool honourExpensiveLightingShadowingFlags;
 	private:
 		// for internal rendering
 		char pathToShaders[300];

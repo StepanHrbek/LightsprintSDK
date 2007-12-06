@@ -182,31 +182,16 @@ void RendererOfRRDynamicSolver::render()
 	}
 
 	// render static scene
-	// 0 lights -> render 1x
-	// n lights -> render nx
+	// n lights -> render 1+n times
 	unsigned numLights = params.lights?params.lights->size():0;
-	unsigned numPasses = MAX(1,numLights);
-	UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+	int separatedAmbientPass = (!numLights||params.honourExpensiveLightingShadowingFlags)?1:0;
 	PreserveBlend p1;
-	for(unsigned lightIndex=0;lightIndex<numPasses;lightIndex++)
+	//printf("-------------------------------------------------- %d..%d, honour=%d detect=%d\n",-separatedAmbientPass,numLights,params.honourExpensiveLightingShadowingFlags?1:0,params.uberProgramSetup.FORCE_2D_POSITION?1:0);
+	for(int lightIndex=-separatedAmbientPass;lightIndex<(int)numLights;lightIndex++) // -1 = no direct light
 	{
+		UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 		RealtimeLight* light;
-		if(lightIndex<numLights)
-		{
-			// adjust program for n-th light
-			light = (*params.lights)[lightIndex];
-			RR_ASSERT(light);
-			//uberProgramSetup.setLightDirect(light,params.lightDirectMap);
-			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
-			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
-			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
-			uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
-			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-		}
-		else
+		if(lightIndex<0)
 		{
 			// adjust program for render without lights
 			//uberProgramSetup.setLightDirect(NULL,NULL);
@@ -220,21 +205,35 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
 			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
 			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;
+			//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",lightIndex); else printf(" %d: nothing\n",lightIndex);
 		}
-		if(lightIndex==1)
+		else
 		{
-			// additional passes add to framebuffer
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE,GL_ONE);
-			// additional passes don't include indirect
-			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
+			// adjust program for n-th light (0-th includes indirect, others have it disabled)
+			light = (*params.lights)[lightIndex];
+			RR_ASSERT(light);
+			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
+			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
+			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
+			uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
+			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+			if(lightIndex>-separatedAmbientPass)
+			{
+				// additional passes don't include indirect
+				uberProgramSetup.LIGHT_INDIRECT_auto = 0;
+				uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+				uberProgramSetup.LIGHT_INDIRECT_ENV = 0;
+				uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+				uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
+				//printf(" %d: direct\n",lightIndex);
+			}
+			//else printf(" %d: direct+indirect\n",lightIndex);
 		}
 		if(!uberProgramSetup.useProgram(uberProgram,light,0,&params.brightness,params.gamma))
 		{
@@ -254,7 +253,7 @@ void RendererOfRRDynamicSolver::render()
 		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 		renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 		renderedChannels.MATERIAL_CULLING = (uberProgramSetup.MATERIAL_DIFFUSE || uberProgramSetup.MATERIAL_SPECULAR) && !uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
-		renderedChannels.MATERIAL_BLENDING = lightIndex==0; // material wishes are respected only in first pass, other passes use adding
+		renderedChannels.MATERIAL_BLENDING = lightIndex==-separatedAmbientPass; // material wishes are respected only in first pass, other passes use adding
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
@@ -266,6 +265,10 @@ void RendererOfRRDynamicSolver::render()
 		else
 			// cache everything else, it's constant
 			rendererCaching->render();
+
+		// additional passes add to framebuffer
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE,GL_ONE);
 	}
 }
 

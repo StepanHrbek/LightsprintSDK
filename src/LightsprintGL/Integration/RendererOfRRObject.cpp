@@ -286,7 +286,7 @@ void RendererOfRRObject::render()
 				else
 				{
 					// a) rendering indirect, so no skipping, everything is rendered
-					// b) accumulating lit renders, so skipping render=disabling lighting
+					// b) accumulating lit renders, so skipping render=disabling lighting (skip allowed in detection, background is cleared to black so skip=render unlit)
 					material = params.object->getTriangleMaterial(triangleIdx,params.renderingLitByThisLight,NULL);
 				}
 				//rr::RRMesh::MultiMeshPreImportNumber preTriangle = meshImporter->getPreImportTriangle(triangleIdx);
