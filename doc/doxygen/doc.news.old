@@ -8,6 +8,54 @@ namespace rr
 
 \page main_news What's new
 
+\section news32 ------------------------------------ 2007.9.11 -------------------------------------
+
+NEWS
+
+- RRLight::createPointLightRadiusExp()
+- RRLight::createSpotLightRadiusExp()
+- RRLight::createPointLightPoly()
+- RRLight::createSpotLightPoly()
+  \n new light variants with non-physical distance attenuations
+
+\section news31 ------------------------------------ 2007.8.31 -------------------------------------
+
+NEWS
+
+- sample MultiMeshCollider shows ray test against static scene with multiple meshes
+- RRMesh::createTransformed() creates copy of mesh, transformed by matrix
+- RRMesh::createVertexBufferRuler() creates mesh that look identical,
+  \n but its vertex numbering is directive for vertex buffers created by RRDynamicSolver
+  \n (vertex buffers otherwise use original vertex numbering valid before filters and optimizers
+  were applied to mesh)
+
+
+\section news30 ------------------------------------ 2007.8.24 -------------------------------------
+
+CHANGES
+
+- removed Water sample
+
+\section news29 ------------------------------------ 2007.8.21 -------------------------------------
+
+NEWS
+
+- Support for per-pixel materials for higher quality lighting.
+  \n Suitable for diffuse/specular/transparency textures, even procedural ones.
+  \n Specified by RRObject::getPointMaterial() and RRSideBits::pointDetails.
+  \n Automatically used by solvers.
+- proper reflection and refraction, creates caustics etc (rewritten final gather pass)
+- antialiased shadows (were aliased in scenes lit by RRLight)
+
+CHANGES
+
+- features gone with old final gather, to be removed or reworked
+  \n RRDynamicSolver::UpdateParameters::insideObjectsTreshold
+  \n RRDynamicSolver::UpdateParameters::rugDistance
+  \n RRSideBits::legal
+- stitchDistance renamed to vertexWeldDistance
+- default SmoothingParameters disable minFeatureSize and limit vertex weld to identical vertices
+
 \section news28 ------------------------------------ 2007.8.4 -------------------------------------
 
 CHANGES

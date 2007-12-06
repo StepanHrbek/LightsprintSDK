@@ -8,11 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news40 ------------------------------------ 2007.12.05 -------------------------------------
+\section news40 ------------------------------------ 2007.12.06 -------------------------------------
 
 NEWS
 
-- sceneViewer(), single function viewer of scene with movable lights and realtime global illumination
+- sceneViewer(), debugging console, single function viewer of scene with movable lights, realtime global illumination
 - realtime directional lights
 - initial Unreal Engine 3 integration, see samples\ImportUE3\instructions.txt
 
@@ -26,7 +26,7 @@ CHANGES
 
 NEWS
 
-- added RRLight::castShadows, may be disabled to copy behaviour of old unrealistic lights
+- added RRLight::castShadows, may be disabled to copy behaviour of other engines
 - added RRLight::customData, may point to light in third party engine
 - sample RealtimeLights supports custom Collada scenes out of the box (use drag&drop or commandline argument)
 - added RRIlluminationPixelBuffer::lockRGBF() for reading lightmap pixels in native floating point precision
@@ -123,54 +123,6 @@ NEWS
   \n Demonstrated in:
   \n   RealtimeRadiosity sample
 - RRVector::clear(), similar to std::vector::clear()
-
-\section news32 ------------------------------------ 2007.9.11 -------------------------------------
-
-NEWS
-
-- RRLight::createPointLightRadiusExp()
-- RRLight::createSpotLightRadiusExp()
-- RRLight::createPointLightPoly()
-- RRLight::createSpotLightPoly()
-  \n new light variants with non-physical distance attenuations
-
-\section news31 ------------------------------------ 2007.8.31 -------------------------------------
-
-NEWS
-
-- sample MultiMeshCollider shows ray test against static scene with multiple meshes
-- RRMesh::createTransformed() creates copy of mesh, transformed by matrix
-- RRMesh::createVertexBufferRuler() creates mesh that look identical,
-  \n but its vertex numbering is directive for vertex buffers created by RRDynamicSolver
-  \n (vertex buffers otherwise use original vertex numbering valid before filters and optimizers
-  were applied to mesh)
-
-
-\section news30 ------------------------------------ 2007.8.24 -------------------------------------
-
-CHANGES
-
-- removed Water sample
-
-\section news29 ------------------------------------ 2007.8.21 -------------------------------------
-
-NEWS
-
-- Support for per-pixel materials for higher quality lighting.
-  \n Suitable for diffuse/specular/transparency textures, even procedural ones.
-  \n Specified by RRObject::getPointMaterial() and RRSideBits::pointDetails.
-  \n Automatically used by solvers.
-- proper reflection and refraction, creates caustics etc (rewritten final gather pass)
-- antialiased shadows (were aliased in scenes lit by RRLight)
-
-CHANGES
-
-- features gone with old final gather, to be removed or reworked
-  \n RRDynamicSolver::UpdateParameters::insideObjectsTreshold
-  \n RRDynamicSolver::UpdateParameters::rugDistance
-  \n RRSideBits::legal
-- stitchDistance renamed to vertexWeldDistance
-- default SmoothingParameters disable minFeatureSize and limit vertex weld to identical vertices
 
 */
 

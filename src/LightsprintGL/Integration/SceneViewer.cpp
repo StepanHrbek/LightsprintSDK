@@ -537,6 +537,7 @@ void display(void)
 				textOutput(x,y+=18,"received lights: %d/%d",numReceivedLights,numLights);
 				textOutput(x,y+=18,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 			}
+			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
 		}
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
@@ -626,7 +627,12 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool 
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
-	//!!! spotlighty nemaj spotmapy
+	char buf[1000];
+	_snprintf(buf,999,"%s%s",_pathToShaders,"../maps/spot0.png");
+	buf[999] = 0;
+	Texture* lightDirectMap = Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	for(unsigned i=0;i<solver->realtimeLights.size();i++)
+		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 	solver->calculate();
