@@ -83,7 +83,7 @@ void error(const char* message, bool gfxRelated)
 #ifdef TB
 rr_gl::Camera              eye(-1.416,130.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
 #else
-rr_gl::Camera              eye(0,1.741,-2.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
+rr_gl::Camera              eye(0,1.741f,-2.646f, 12.230f,0,0.05f,1.3f,70,0.3f,300);
 #endif
 rr_gl::RRDynamicSolverGL* solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;
@@ -120,7 +120,7 @@ protected:
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // higher factor = higher map resolution
-		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
+		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 #endif
 	}
@@ -177,9 +177,9 @@ void passive(int x, int y)
 	y -= winHeight/2;
 	if(x || y)
 	{
-		eye.angle -= 0.005*x;
-		eye.angleX -= 0.005*y;
-		CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+		eye.angle -= 0.005f*x;
+		eye.angleX -= 0.005f*y;
+		CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
@@ -227,16 +227,16 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			brightness *= 1.2;
+			brightness *= 1.2f;
 			break;
 		case '-':
-			brightness /= 1.2;
+			brightness /= 1.2f;
 			break;
 		case '*':
-			gamma *= 1.2;
+			gamma *= 1.2f;
 			break;
 		case '/':
-			gamma /= 1.2;
+			gamma /= 1.2f;
 			break;
 		
 #ifdef RR_DEVELOPMENT
@@ -328,7 +328,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		seconds *= 10;
+		seconds *= 3;
 		rr_gl::Camera* cam = &eye;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);

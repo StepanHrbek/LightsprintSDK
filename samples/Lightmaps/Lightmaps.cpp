@@ -80,7 +80,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
+rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0.1f,100);
 rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
@@ -167,7 +167,7 @@ protected:
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
+		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
 	// called from RRDynamicSolverGL to update shadowmaps
@@ -230,16 +230,16 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			brightness *= 1.2;
+			brightness *= 1.2f;
 			break;
 		case '-':
-			brightness /= 1.2;
+			brightness /= 1.2f;
 			break;
 		case '*':
-			gamma *= 1.2;
+			gamma *= 1.2f;
 			break;
 		case '/':
-			gamma /= 1.2;
+			gamma /= 1.2f;
 			break;
 
 		case ' ':
@@ -354,9 +354,9 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = (double) winWidth / (double) winHeight;
+	eye.aspect = winWidth/(float)winHeight;
 	GLint shadowDepthBits = solver->realtimeLights[0]->getShadowMap(0)->getTexelBits();
-	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
+	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -383,15 +383,15 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005*x;
-			eye.angleX -= 0.005*y;
-			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+			eye.angle -= 0.005f*x;
+			eye.angleX -= 0.005f*y;
+			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
-			light->angle -= 0.005*x;
-			light->angleX -= 0.005*y;
-			CLAMP(light->angleX,-M_PI*0.49f,M_PI*0.49f);
+			light->angle -= 0.005f*x;
+			light->angleX -= 0.005f*y;
+			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			solver->reportDirectIlluminationChange(true);
 			// changes also position a bit, together with rotation
 			light->pos += light->dir*0.3f;
@@ -550,7 +550,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr::RRLights lights;
-	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	solver->realtimeLights[0]->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	light = solver->realtimeLights[0]->getParent();

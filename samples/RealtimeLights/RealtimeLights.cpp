@@ -74,7 +74,7 @@ rr_gl::Texture*	           lightDirectMap = NULL;
 class Solver*              solver = NULL;
 DynamicObject*             robot;
 DynamicObject*             potato;
-rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,1000.0);
+rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -191,16 +191,16 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			brightness *= 1.2;
+			brightness *= 1.2f;
 			break;
 		case '-':
-			brightness /= 1.2;
+			brightness /= 1.2f;
 			break;
 		case '*':
-			gamma *= 1.2;
+			gamma *= 1.2f;
 			break;
 		case '/':
-			gamma /= 1.2;
+			gamma /= 1.2f;
 			break;
 		case ' ':
 			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
@@ -244,11 +244,11 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = (double) winWidth / (double) winHeight;
+	eye.aspect = winWidth/(float)winHeight;
 	rr_gl::Texture* texture = rr_gl::Texture::createShadowmap(64,64);
 	GLint shadowDepthBits = texture->getTexelBits();
 	delete texture;
-	glPolygonOffset(1, 12 << (shadowDepthBits-16) );
+	glPolygonOffset(1,(float)(12<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -276,16 +276,16 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005*x;
-			eye.angleX -= 0.005*y;
-			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+			eye.angle -= 0.005f*x;
+			eye.angleX -= 0.005f*y;
+			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
 			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-			light->angle -= 0.005*x;
-			light->angleX -= 0.005*y;
-			CLAMP(light->angleX,-M_PI*0.49f,M_PI*0.49f);
+			light->angle -= 0.005f*x;
+			light->angleX -= 0.005f*y;
+			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			solver->reportDirectIlluminationChange(true);
 			solver->realtimeLights[selectedLightIndex]->dirty = true;
 			// changes position a bit, together with rotation

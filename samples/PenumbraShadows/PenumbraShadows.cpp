@@ -53,7 +53,7 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 Model_3DS              m3ds;
-rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
+rr_gl::Camera          eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*  realtimeLight = NULL;
 rr_gl::Texture*        environmentMap = NULL;
 rr_gl::TextureRenderer*textureRenderer = NULL;
@@ -229,9 +229,9 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = (double) winWidth / (double) winHeight;
+	eye.aspect = winWidth/(float)winHeight;
 	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
-	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
+	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -250,15 +250,15 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005*x;
-			eye.angleX -= 0.005*y;
-			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+			eye.angle -= 0.005f*x;
+			eye.angleX -= 0.005f*y;
+			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
-			realtimeLight->getParent()->angle -= 0.005*x;
-			realtimeLight->getParent()->angleX -= 0.005*y;
-			CLAMP(realtimeLight->getParent()->angleX,-M_PI*0.49f,M_PI*0.49f);
+			realtimeLight->getParent()->angle -= 0.005f*x;
+			realtimeLight->getParent()->angleX -= 0.005f*y;
+			CLAMP(realtimeLight->getParent()->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			// changes also position a bit, together with rotation
 			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
 			realtimeLight->getParent()->update();
@@ -351,7 +351,7 @@ int main(int argc, char **argv)
 	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	// init light
-	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	realtimeLight->setShadowmapSize(512);
 	realtimeLight->setNumInstances(shadowmapsPerPass);

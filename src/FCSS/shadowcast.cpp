@@ -254,7 +254,7 @@ void error(const char* message, bool gfxRelated)
 void updateDepthBias(int delta)
 {
 	depthBias24 += delta;
-	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
+	glPolygonOffset(slopeScale, (GLfloat)(depthBias24*depthScale24));
 	needDepthMapUpdate = 1;
 	//printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
 }
@@ -285,7 +285,7 @@ void setShadowTechnique()
 		depthBias24 = 30;//1;
 		slopeScale = 3;//0.1f;
 	}
-	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
+	glPolygonOffset(slopeScale,(GLfloat)(depthBias24*depthScale24));
 	needDepthMapUpdate = 1;
 }
 
@@ -558,9 +558,9 @@ void drawLight(void)
 {
 	ambientProgram->useIt();
 	glPushMatrix();
-	glTranslatef(currentFrame.light.pos[0]-0.3*currentFrame.light.dir[0], currentFrame.light.pos[1]-0.3*currentFrame.light.dir[1], currentFrame.light.pos[2]-0.3*currentFrame.light.dir[2]);
+	glTranslatef(currentFrame.light.pos[0]-0.3f*currentFrame.light.dir[0], currentFrame.light.pos[1]-0.3f*currentFrame.light.dir[1], currentFrame.light.pos[2]-0.3f*currentFrame.light.dir[2]);
 	glColor3f(1,1,0);
-	gluSphere(quadric, 0.05, 10, 10);
+	gluSphere(quadric, 0.05f, 10, 10);
 	glPopMatrix();
 }
 
@@ -634,7 +634,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
-	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight);
+	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight,false);
 	level->rendererOfScene->render();
 }
 
@@ -1008,14 +1008,14 @@ static void drawHelpMessage(int screen)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	glColor4f(0.0,0.0,0.0,0.6);
+	glColor4f(0,0,0,0.6f);
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
 	if(screen /*|| demoPlayer->getPaused()*/)
 	{
 		unsigned rectWidth = 530;
 		unsigned rectHeight = 360;
-		glColor4f(0.0,0.1,0.3,0.6);
+		glColor4f(0,0.1f,0.3f,0.6f);
 		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
 		glDisable(GL_BLEND);
 		glColor3f(1,1,1);
@@ -1291,7 +1291,7 @@ void toggleWireFrame(void)
 {
 	wireFrame = !wireFrame;
 	if (wireFrame) {
-		glClearColor(0.1,0.2,0.2,0);
+		glClearColor(0.1f,0.2f,0.2f,0);
 	} else {
 		glClearColor(0,0,0,0);
 	}
@@ -1645,28 +1645,28 @@ void keyboard(unsigned char c, int x, int y)
 		case 'k': CHANGE_ROT(+5,0); break;
 		case 'u': CHANGE_ROT(0,-5); break;
 		case 'i': CHANGE_ROT(0,+5); break;
-		case 'f': CHANGE_POS(-0.05,0,0); break;
-		case 'h': CHANGE_POS(+0.05,0,0); break;
-		case 'v': CHANGE_POS(0,-0.05,0); break;
-		case 'r': CHANGE_POS(0,+0.05,0); break;
-		case 'g': CHANGE_POS(0,0,-0.05); break;
-		case 't': CHANGE_POS(0,0,+0.05); break;
+		case 'f': CHANGE_POS(-0.05f,0,0); break;
+		case 'h': CHANGE_POS(+0.05f,0,0); break;
+		case 'v': CHANGE_POS(0,-0.05f,0); break;
+		case 'r': CHANGE_POS(0,+0.05f,0); break;
+		case 'g': CHANGE_POS(0,0,-0.05f); break;
+		case 't': CHANGE_POS(0,0,+0.05f); break;
 
 		case 'm':
 			changeSpotlight();
 			break;
 
 		case '+':
-			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] *= 1.2;
+			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] *= 1.2f;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] /= 1.2;
+			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] /= 1.2f;
 			break;
 		case '*':
-			currentFrame.gamma *= 1.2;
+			currentFrame.gamma *= 1.2f;
 			break;
 		case '/':
-			currentFrame.gamma /= 1.2;
+			currentFrame.gamma /= 1.2f;
 			break;
 
 		case 'b':
@@ -2134,16 +2134,16 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			currentFrame.eye.angle -= 0.005*x;
-			currentFrame.eye.angleX -= 0.005*y;
-			CLAMP(currentFrame.eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+			currentFrame.eye.angle -= 0.005f*x;
+			currentFrame.eye.angleX -= 0.005f*y;
+			CLAMP(currentFrame.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			reportEyeMovement();
 		}
 		else
 		{
-			currentFrame.light.angle -= 0.005*x;
-			currentFrame.light.angleX -= 0.005*y;
-			CLAMP(currentFrame.light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			currentFrame.light.angle -= 0.005f*x;
+			currentFrame.light.angleX -= 0.005f*y;
+			CLAMP(currentFrame.light.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			// changes also position a bit, together with rotation
 			currentFrame.light.pos += currentFrame.light.dir*0.3f;
 			currentFrame.light.update();
