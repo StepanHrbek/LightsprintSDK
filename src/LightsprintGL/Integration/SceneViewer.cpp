@@ -44,11 +44,13 @@ enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
 SelectionType              selectedType = ST_CAMERA;
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 unsigned                   selectedObjectIndex = 0; // index into static objects
-int                        winWidth = 0;
-int                        winHeight = 0;
+int                        winWidth = 0; // current size
+int                        winHeight = 0; // current size
+bool                       fullscreen = 0; // current mode
+int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
 bool                       renderLights = 1;
 bool                       renderAmbient = 0;
-float                      speedGlobal = 1;
+float                      speedGlobal = 1; // speed of movement controlled by user
 float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
@@ -140,6 +142,7 @@ public:
 		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
+		glutAddMenuEntry("Toggle maximize", ME_MAXIMIZE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	static void mainCallback(int item)
@@ -148,8 +151,28 @@ public:
 		{
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_HELPERS: renderLights = !renderLights; break;
-			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags;
+			case ME_HONOUR_FLAGS:
+				solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags;
 				for(unsigned i=0;i<solver->realtimeLights.size();i++) solver->realtimeLights[i]->dirty = true; // update all for new flags
+				break;
+			case ME_MAXIMIZE:
+				if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+				{
+					fullscreen = !fullscreen;
+					if(fullscreen)
+					{
+						windowCoord[0] = glutGet(GLUT_WINDOW_X);
+						windowCoord[1] = glutGet(GLUT_WINDOW_Y);
+						windowCoord[2] = glutGet(GLUT_WINDOW_WIDTH);
+						windowCoord[3] = glutGet(GLUT_WINDOW_HEIGHT);
+						glutFullScreen();
+					}
+					else
+					{
+						glutReshapeWindow(windowCoord[2],windowCoord[3]);
+						glutPositionWindow(windowCoord[0],windowCoord[1]);
+					}
+				}
 				break;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -172,6 +195,7 @@ protected:
 		ME_RENDER_AMBIENT,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
+		ME_MAXIMIZE,
 	};
 };
 
@@ -328,6 +352,7 @@ void passive(int x, int y)
 
 static void textOutput(int x, int y, const char *format, ...)
 {
+	if(y>=winHeight) return; // if we render text below screen, GLUT stops rendering all texts including visible 
 	char text[1000];
 	va_list argptr;
 	va_start (argptr,format);
@@ -389,8 +414,6 @@ void display(void)
 		glEnd();
 
 		// render properties
-		winWidth = glutGet(GLUT_WINDOW_WIDTH);
-		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -583,42 +606,44 @@ void idle()
 	glutPostRedisplay();
 }
 
-void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
+void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
 {
 	// init GLUT
-	int argc=1;
-	char* argv[] = {"abc",NULL};
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	unsigned w = glutGet(GLUT_SCREEN_WIDTH);
-	unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
-	unsigned resolutionx = w-128;
-	unsigned resolutiony = h-64;
-	glutInitWindowSize(resolutionx,resolutiony);
-	glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
-	glutCreateWindow("Lightsprint Debug Console");
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutKeyboardUpFunc(keyboardUp);
-	glutSpecialFunc(special);
-	glutSpecialUpFunc(specialUp);
-	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
-	glutIdleFunc(idle);
+	if(_createWindow)
+	{
+		int argc=1;
+		char* argv[] = {"abc",NULL};
+		glutInit(&argc, argv);
+		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+		unsigned resolutionx = w-128;
+		unsigned resolutiony = h-64;
+		glutInitWindowSize(resolutionx,resolutiony);
+		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
+		glutCreateWindow("Lightsprint Debug Console");
 
-	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+		// init GLEW
+		if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
-	// init GL
-	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("OpenGL 2.0 capable graphics card is required.\n",true);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
+		// init GL
+		int major, minor;
+		if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+			error("OpenGL 2.0 capable graphics card is required.\n",true);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		int viewport[4];
+		glGetIntegerv(GL_VIEWPORT,viewport);
+		winWidth = viewport[2];
+		winHeight = viewport[3];
+		//winWidth = glutGet(GLUT_WINDOW_WIDTH);
+		//winHeight = glutGet(GLUT_WINDOW_HEIGHT);
+	}
 
 	// init solver
 	solver = new Solver(_pathToShaders);
@@ -640,6 +665,16 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, bool 
 	Menu menu(solver);
 
 	// run
+	glutSetCursor(GLUT_CURSOR_NONE);
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
+	glutSpecialFunc(special);
+	glutSpecialUpFunc(specialUp);
+	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(passive);
+	glutIdleFunc(idle);
 	glutMainLoop();
 }
 

@@ -14,13 +14,20 @@
 namespace rr_gl
 {
 
-//! Runs viewer of scene in newly created window.
+//! Runs viewer of scene.
 //
 //! Warning: doesn't return, for debugging only. To be fixed.
 //!
-//! Shaders are loaded from pathToShaders with trailing slash (or backslash).
-//! Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders, bool honourExpensiveLightingShadowingFlags);
+//! \param solver
+//!  Scene to be displayed.
+//! \param createWindow
+//!  True=initializes GL context and creates window. False=expects context and window already exist.
+//! \param pahToShaders
+//!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
+//!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
+//! \param honourExpensiveLightingShadowingFlags
+//!  False=all objects are lit and cast shadows, fast. True=honours lighting or shadowing disabled by rr::RRMesh::getTriangleMaterial(), slower.
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, bool honourExpensiveLightingShadowingFlags);
 
 }; // namespace
 
