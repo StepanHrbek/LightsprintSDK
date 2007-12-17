@@ -162,7 +162,7 @@ public:
 		color = check(_color);
 		direction = _direction.normalized();
 		#define DELTA 0.0001f
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
+		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -193,7 +193,7 @@ public:
 		radius = check(_radius);
 		fallOffExponent = _fallOffExponent;
 		direction = _direction.normalized();
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
+		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -225,7 +225,7 @@ public:
 		color = check(_color);
 		polynom = _polynom;
 		direction = _direction.normalized();
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,1-DELTA);
+		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
