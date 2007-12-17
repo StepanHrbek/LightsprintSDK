@@ -232,11 +232,12 @@ Used by LightsprintCore:
 
 Used by LightsprintGL:
 - <a href="http://glew.sourceforge.net/">GLEW</a>
+- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
+  (with our <a href="http://dee.cz/glut">patch</a>)
 
 Used by samples:
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> by Feeling Software is used under MIT license.
   FCollada internally uses other free open source libraries.
-- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
 
 
 

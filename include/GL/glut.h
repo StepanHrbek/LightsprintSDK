@@ -498,6 +498,7 @@ GLUTAPI void APIENTRY glutInitDisplayString(const char *string);
 GLUTAPI void APIENTRY glutInitWindowPosition(int x, int y);
 GLUTAPI void APIENTRY glutInitWindowSize(int width, int height);
 GLUTAPI void APIENTRY glutMainLoop(void);
+GLUTAPI void APIENTRY glutMainLoopUpdate(void);
 
 /* GLUT window sub-API. */
 GLUTAPI int APIENTRY glutCreateWindow(const char *title);
