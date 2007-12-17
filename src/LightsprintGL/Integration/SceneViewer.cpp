@@ -60,6 +60,8 @@ float                      speedDown = 0;
 float                      speedLean = 0;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
+bool                       exitRequested = 0;
+int                        menuHandle;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -136,7 +138,7 @@ public:
 		glutAddMenuEntry("256", 65536);
 
 		// main menu
-		glutCreateMenu(mainCallback);
+		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
 		glutAddSubMenu("Speed...", speedHandle);
 		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
@@ -144,6 +146,11 @@ public:
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize", ME_MAXIMIZE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
+	}
+	~Menu()
+	{
+		glutDetachMenu(GLUT_RIGHT_BUTTON);
+		glutDestroyMenu(menuHandle);
 	}
 	static void mainCallback(int item)
 	{
@@ -256,9 +263,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'c':
 		case 'C': speedLean = +1; break;
 
-		//case 27:
-		//	delete solver;
-		//	exit(0);
+		case 27: exitRequested = 1; break;
 	}
 	solver->reportInteraction();
 }
@@ -365,7 +370,7 @@ static void textOutput(int x, int y, const char *format, ...)
 
 void display(void)
 {
-	if(!winWidth || !winHeight) return; // can't display without window
+	if(exitRequested || !winWidth || !winHeight) return; // can't display without window
 
 	eye.update();
 
@@ -561,6 +566,7 @@ void display(void)
 				textOutput(x,y+=18,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 			}
 			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
+			delete ray;
 		}
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
@@ -609,6 +615,7 @@ void idle()
 void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
 {
 	// init GLUT
+	int window;
 	if(_createWindow)
 	{
 		int argc=1;
@@ -621,7 +628,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		unsigned resolutiony = h-64;
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
-		glutCreateWindow("Lightsprint Debug Console");
+		window = glutCreateWindow("Lightsprint Debug Console");
 
 		// init GLEW
 		if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
@@ -660,7 +667,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
-	solver->calculate();
 
 	Menu menu(solver);
 
@@ -675,7 +681,27 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
-	glutMainLoop();
+	
+	exitRequested = false;
+	while(!exitRequested)
+		glutMainLoopUpdate();
+
+//	glutDisplayFunc(NULL); forbidden by GLUT
+	glutKeyboardFunc(NULL);
+	glutKeyboardUpFunc(NULL);
+	glutSpecialFunc(NULL);
+	glutSpecialUpFunc(NULL);
+	glutReshapeFunc(NULL);
+	glutMouseFunc(NULL);
+	glutPassiveMotionFunc(NULL);
+	glutIdleFunc(NULL);
+
+	if(_createWindow)
+	{
+		glutDestroyWindow(window);
+	}
+	delete solver;
+	delete lightDirectMap;
 }
 
 }; // namespace

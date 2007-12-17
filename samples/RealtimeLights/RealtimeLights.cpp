@@ -301,7 +301,13 @@ void passive(int x, int y)
 
 void display(void)
 {
-	if(!winWidth || !winHeight) return; // can't display without window
+	if(!winWidth || !winHeight)
+	{
+		winWidth = glutGet(GLUT_WINDOW_WIDTH);
+		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
+		if(!winWidth || !winHeight) return; // can't display without window
+		reshape(winWidth,winHeight);
+	}
 
 	eye.update();
 
@@ -367,7 +373,7 @@ int main(int argc, char **argv)
 {
 	// check that we don't have memory leaks
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = ;
+	//_crtBreakAlloc = 98057;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -384,15 +390,6 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
 	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint RealtimeLights"); // for windowed mode
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(special);
-	glutSpecialUpFunc(specialUp);
-	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
-	glutIdleFunc(idle);
 
 	// init GLEW
 	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
@@ -422,7 +419,6 @@ int main(int argc, char **argv)
 	{
 		collada = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-//		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\3planes.dae");
 		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 		if(!errorHandler.IsSuccessful())
 		{
@@ -457,7 +453,18 @@ int main(int argc, char **argv)
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
-	//sceneViewer(solver,"../../data/shaders/",false);
+	// This would run visual debugger
+	//sceneViewer(solver,false,"../../data/shaders/",false);
+
+	glutSetCursor(GLUT_CURSOR_NONE);
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(special);
+	glutSpecialUpFunc(specialUp);
+	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(passive);
+	glutIdleFunc(idle);
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->calculate();
