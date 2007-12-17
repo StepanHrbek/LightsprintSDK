@@ -22,7 +22,7 @@ namespace rr_gl
 //!  Scene to be displayed.
 //! \param createWindow
 //!  True=initializes GL context and creates window. False=expects context and window already exist.
-//! \param pahToShaders
+//! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
 //!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
 //! \param honourExpensiveLightingShadowingFlags

@@ -51,10 +51,6 @@ namespace rr
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
 
-#ifndef M_PI
- #define M_PI                ((real)3.14159265358979323846)
-#endif
-
 #define SMALL_ENERGY 0.000001f // energy amount small enough to have no impact on scene
 
 // konvence:

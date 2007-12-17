@@ -873,11 +873,38 @@ Used by samples:
  Lightsprint automatically uses all processing power available in a single computer,
  it runs in multiple threads on all CPUs and CPU cores.
 
+ \section calc_distributed Distributed calculation
+
  Lightsprint is ready for distribution of work in network / multiple computers,
  including computers without GPU. Expensive RRDynamicSolver::updateLightmaps() call
  (it is core of all lightmap, ambient occlusion map and bent normal map calculations)
  can be replaced by many small RRDynamicSolver::updateLightmap() calls
  and you are free to execute them in parallel on different computers.
+
+ In more detail, you can run many clients that do
+ \code
+	create solver and load scene;
+	RRDynamicSolver::UpdateParameters params;
+	params.measure = RM_IRRADIANCE_CUSTOM;
+	params.quality = 5000;
+	params.applyCurrentSolution = false;
+	params.applyEnvironment = true;
+	params.applyLights = true;
+	solver->updateVertexBuffers(-1,-1,false,&params,&params);
+	while not done
+	{
+		objectIndex = get object that was not updated yet;
+		create lightmap;
+		params.quality = 1000;
+		params.applyCurrentSolution = true;
+		solver->updateLightmap or updateVertexBuffer
+			(objectIndex,lightmap,,&params);
+		save and delete lightmap;
+	}
+	delete solver;
+ \endcode
+ Note that initial solver->updateVertexBuffers() can't be distributed,
+ it must be run by all clients, but it is relatively fast, it doesn't update any buffers.
 
 
 

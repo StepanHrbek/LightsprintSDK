@@ -122,7 +122,7 @@ namespace rr
 		//! Outer cone angle in radians. Relevant only for SPOT light. Read/write.
 		//
 		//! Light rays go in directions up to outerAngleRad far from direction.
-		//! \n Valid range: (0,1). Out of range values are fixed at construction time,
+		//! \n Valid range: (0,pi/2). Out of range values are fixed at construction time,
 		//! changes you make later are accepted without checks.
 		RRReal outerAngleRad;
 
@@ -268,9 +268,9 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
-		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians. 
+		//!  Angle in radians, (0,innerAngleRad> range.
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
@@ -291,9 +291,9 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
-		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians. 
+		//!  Angle in radians, (0,innerAngleRad> range. 
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
@@ -311,9 +311,9 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
-		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians. 
+		//!  Angle in radians, (0,innerAngleRad> range.
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
