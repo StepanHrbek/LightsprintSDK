@@ -87,7 +87,19 @@ public:
 
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
+
 		rendererOfScene->useOptimizedScene();
+/*
+		// alternative rendering with manual vertex buffer updates
+		rendererOfScene->useOriginalScene(0);
+		// update vertex buffers if they need update
+		static unsigned solutionVersion = 0;
+		if(getSolutionVersion()!=solutionVersion)
+		{
+			solutionVersion = getSolutionVersion();
+			updateVertexBuffers(0,-1,true,NULL,NULL);
+		}
+*/
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
 	}

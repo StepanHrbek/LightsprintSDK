@@ -85,13 +85,14 @@ public:
 
 	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
 	//
-	//! Use standard OpenGL way of setting camera matrices before calling render(), they will be respected
-	//! by render().
+	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),
+	//! they are respected by render().
 	//!
 	//! Note that although color buffer is cleared automatically here, depth buffer is not cleared.
-	//! If you render with single realtime light with realtime shadows, clear depth buffer before rendering.
-	//! If you render multiple lights into accumulation buffer, clear depth buffer only once,
-	//! following render() calls will reuse it.
+	//! You can simply clear it before render(), but you can also prerender depth
+	//! to reduce overdraw in render().
+	//! (Prerender of depth is not automatic because you may want to render also dynamic objects.
+	//! We have access only to static objects.)
 	virtual void render();
 
 	//! For internal use.

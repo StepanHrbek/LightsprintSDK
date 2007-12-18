@@ -73,7 +73,6 @@ protected:
 	UberProgram* uberProgram;
 private:
 	// 1 renderer for 1 scene
-	unsigned solutionVersion;
 	Renderer* rendererCaching;
 	RendererOfRRObject* rendererNonCaching;
 };
@@ -100,7 +99,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	uberProgram = UberProgram::create(buf1,buf2);
 	params.brightness = rr::RRVec4(1);
 	params.gamma = 1;
-	solutionVersion = 0;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 }
@@ -299,42 +297,20 @@ void RendererOfOriginalScene::render()
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
 	}
-/*
-	// update vertex buffer if it needs update
-	if(params.solver->getSolutionVersion()!=solutionVersion)
-	{
-		solutionVersion = params.solver->getSolutionVersion();
-		params.solver->updateVertexBuffers(layerNumber,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
-	}
-*/
-	//!!! ignores lights, uses only first one
 
-	// render static scene
-	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
-	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
-	renderedChannels.LIGHT_INDIRECT_MAP = params.uberProgramSetup.LIGHT_INDIRECT_MAP;
-	renderedChannels.LIGHT_INDIRECT_MAP2 = params.uberProgramSetup.LIGHT_INDIRECT_MAP2;
-	renderedChannels.LIGHT_INDIRECT_ENV = params.uberProgramSetup.LIGHT_INDIRECT_ENV;
-	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
-	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.MATERIAL_CULLING = (params.uberProgramSetup.MATERIAL_DIFFUSE || params.uberProgramSetup.MATERIAL_SPECULAR) && !params.uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
-	renderedChannels.MATERIAL_BLENDING = 1;//!!!lightIndex==0; // material wishes are respected only in first pass, other passes use adding
-	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
-
-	UberProgramSetup uberProgramSetupPrevious;
-	Program* program = NULL;
-	unsigned numObjects = params.solver->getNumObjects();
-	if(params.lights && params.lights->size()>1)
-		rr::RRReporter::report(rr::WARN,"Renderer of original scene supports only 1 light (for now).\n");
-	for(unsigned i=0;i<numObjects;i++)
+	// How we render multiple objects + multiple lights?
+	// for each object
+	//   for each light
+	//     render
+	// - bigger overdraw / bigger need for additional z-only pass
+	// + easily supported by getNextPass()
+	// - many shader changes, reusing shaders already set was removed
+	// + open path for future multi-light passes
+	for(unsigned i=0;i<params.solver->getNumObjects();i++)
 	{
 		// - working copy of params.uberProgramSetup
-		UberProgramSetup uberProgramSetup = params.uberProgramSetup;
-		uberProgramSetup.OBJECT_SPACE = true;
+		UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
+		mainUberProgramSetup.OBJECT_SPACE = params.solver->getObject(i)->getWorldMatrix()!=NULL;
 		// - set shader according to vbuf/pbuf presence
 		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
 		rr::RRIlluminationPixelBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
@@ -346,78 +322,79 @@ void RendererOfOriginalScene::render()
 		if(!pbuffer) pbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
 		if(!vbuffer2) vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
 		if(!pbuffer2) pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
-		if(uberProgramSetup.LIGHT_INDIRECT_auto)
+		if(mainUberProgramSetup.LIGHT_INDIRECT_auto)
 		{
-			renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
-			renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && uberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
-			renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
-			renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && uberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
+			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
+			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
+			mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
+			mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
 		}
-		uberProgramSetup.validate();
-		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
-		{
-			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,&params.brightness,params.gamma);
-			if(!program)
-			{
-				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
-				return;
-			}
-			uberProgramSetupPrevious = uberProgramSetup;
-		}
+		mainUberProgramSetup.validate();
 
-		// - set transformation
-		if(uberProgramSetup.OBJECT_SPACE)
+		PreserveBlend p1;
+		MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+		UberProgramSetup uberProgramSetup;
+		RendererOfRRObject::RenderedChannels renderedChannels;
+		const RealtimeLight* light;
+		Program* program;
+		// here we cached uberProgramSetup and skipped shader+uniforms set when setup didn't change
+		// it had to go, but if performance tests show regression, we will return it back somehow
+		while(program = multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
 		{
-			rr::RRObject* object = params.solver->getObject(i);
-			const rr::RRMatrix3x4* world = object->getWorldMatrix();
-			if(world)
+			// - set transformation
+			if(uberProgramSetup.OBJECT_SPACE)
 			{
-				float worldMatrix[16] =
+				rr::RRObject* object = params.solver->getObject(i);
+				const rr::RRMatrix3x4* world = object->getWorldMatrix();
+				if(world)
 				{
-					world->m[0][0],world->m[1][0],world->m[2][0],0,
-					world->m[0][1],world->m[1][1],world->m[2][1],0,
-					world->m[0][2],world->m[1][2],world->m[2][2],0,
-					world->m[0][3],world->m[1][3],world->m[2][3],1
-				};
-				program->sendUniform("worldMatrix",worldMatrix,false,4);
+					float worldMatrix[16] =
+					{
+						world->m[0][0],world->m[1][0],world->m[2][0],0,
+						world->m[0][1],world->m[1][1],world->m[2][1],0,
+						world->m[0][2],world->m[1][2],world->m[2][2],0,
+						world->m[0][3],world->m[1][3],world->m[2][3],1
+					};
+					program->sendUniform("worldMatrix",worldMatrix,false,4);
+				}
+				else
+				{
+					float worldMatrix[16] =
+					{
+						1,0,0,0,
+						0,1,0,0,
+						0,0,1,0,
+						0,0,0,1
+					};
+					program->sendUniform("worldMatrix",worldMatrix,false,4);
+				}
+			}
+
+			// - create missing renderers
+			if(i>=renderersNonCaching.size())
+			{
+				renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getObject(i),NULL,NULL,true));
+			}
+			if(i>=renderersCaching.size())
+			{
+				renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
+			}
+			// - render
+			renderersNonCaching[i]->setRenderedChannels(renderedChannels);
+			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
+			{
+				renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
+				program->sendUniform("lightIndirectBlend",layerBlend);
 			}
 			else
 			{
-				float worldMatrix[16] =
-				{
-					1,0,0,0,
-					0,1,0,0,
-					0,0,1,0,
-					0,0,0,1
-				};
-				program->sendUniform("worldMatrix",worldMatrix,false,4);
+				renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
 			}
+			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+				renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
+			else
+				renderersCaching[i]->render(); // cache everything else, it's constant
 		}
-
-		// - create missing renderers
-		if(i>=renderersNonCaching.size())
-		{
-			renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getObject(i),NULL,NULL,true));
-		}
-		if(i>=renderersCaching.size())
-		{
-			renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
-		}
-		// - render
-		renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
-		{
-			renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
-			program->sendUniform("lightIndirectBlend",layerBlend);
-		}
-		else
-		{
-			renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
-		}
-		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
-			renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
-		else
-			renderersCaching[i]->render(); // cache everything else, it's constant
 	}
 }
 

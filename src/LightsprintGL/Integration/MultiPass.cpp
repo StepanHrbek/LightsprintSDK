@@ -25,14 +25,14 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	lightIndex = -separatedAmbientPass;
 }
 
-bool MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight)
+Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight)
 {
 	return getPass(lightIndex++,outUberProgramSetup,outRenderedChannels,outLight);
 }
 
 // returns true and all outXxx are set, do render
 // or returns false and outXxx stay unchanged, rendering is done
-bool MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const
+Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	const RealtimeLight* light;
@@ -84,12 +84,13 @@ bool MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, R
 	else
 	{
 		// lightIndex out of range, all passes done
-		return 0;
+		return NULL;
 	}
-	if(!uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma))
+	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+	if(!program)
 	{
 		rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
-		return 0;
+		return NULL;
 	}
 	if(lightIndex==-separatedAmbientPass+1)
 	{
@@ -116,7 +117,7 @@ bool MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, R
 	outUberProgramSetup = uberProgramSetup;
 	outRenderedChannels = renderedChannels;
 	outLight = light;
-	return 1;
+	return program;
 }
 
 }; // namespace

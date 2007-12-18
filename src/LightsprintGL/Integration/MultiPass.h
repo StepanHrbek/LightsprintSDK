@@ -16,7 +16,7 @@ namespace rr_gl
 //
 // MultiPass
 //
-// Splits complex rendering setup (possibly too big for 1 pass) into several simpler setups doable in 1 pass.
+// Splits complex rendering setup (possibly too big for 1 pass) into several simpler setups doable per pass.
 // Inputs: lights, uberProgramSetup and stuff for setting shader
 // Outputs: each getNextPass() sets shader and returns uberProgramSetup, renderedChannels
 // We schedule one light per pass, but it's possible to reimplement here (and in shader) to render multiple lights per pass.
@@ -28,10 +28,10 @@ public:
 
 	// Returns true and all outXxx are set, do render,
 	// or returns false and outXxx stay unchanged, rendering is done.
-	bool getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
+	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
 
 protected:
-	bool getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const;
+	Program* getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const;
 
 	// inputs
 	const RealtimeLights* lights;
