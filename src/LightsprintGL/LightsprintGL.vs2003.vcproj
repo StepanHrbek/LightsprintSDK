@@ -281,6 +281,14 @@
 				RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h">
 			</File>
 			<File
+				RelativePath=".\Integration\MultiPass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Integration\MultiPass.h"
+				>
+			</File>
+			<File
 				RelativePath="Integration\ObjectBuffers.cpp">
 			</File>
 			<File

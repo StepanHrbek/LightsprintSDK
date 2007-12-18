@@ -111,6 +111,8 @@ protected:
 	unsigned shadowMapSize;
 };
 
+typedef rr::RRVector<RealtimeLight*> RealtimeLights;
+
 }; // namespace
 
 #endif

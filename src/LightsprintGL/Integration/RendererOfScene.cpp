@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "../DemoEngine/PreserveState.h"
+#include "MultiPass.h"
 
 #ifdef RR_DEVELOPMENT
 #define DIAGNOSTIC_RAYS // render rays shot by solver (RR_DEVELOPMENT must be on)
@@ -42,7 +43,7 @@ public:
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags);
+	void setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -60,7 +61,7 @@ protected:
 	{
 		rr::RRDynamicSolver* solver;
 		UberProgramSetup uberProgramSetup;
-		const rr::RRVector<RealtimeLight*>* lights;
+		const RealtimeLights* lights;
 		const rr::RRLight* renderingFromThisLight;
 		bool honourExpensiveLightingShadowingFlags;
 		rr::RRVec4 brightness;
@@ -112,7 +113,7 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
@@ -181,80 +182,13 @@ void RendererOfRRDynamicSolver::render()
 		}
 	}
 
-	// render static scene
-	// n lights -> render 1+n times
-	unsigned numLights = params.lights?params.lights->size():0;
-	int separatedAmbientPass = (!numLights||params.honourExpensiveLightingShadowingFlags)?1:0;
 	PreserveBlend p1;
-	//printf("-------------------------------------------------- %d..%d, honour=%d detect=%d\n",-separatedAmbientPass,numLights,params.honourExpensiveLightingShadowingFlags?1:0,params.uberProgramSetup.FORCE_2D_POSITION?1:0);
-	for(int lightIndex=-separatedAmbientPass;lightIndex<(int)numLights;lightIndex++) // -1 = no direct light
+	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+	UberProgramSetup uberProgramSetup;
+	RendererOfRRObject::RenderedChannels renderedChannels;
+	const RealtimeLight* light;
+	while(multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
 	{
-		UberProgramSetup uberProgramSetup = params.uberProgramSetup;
-		RealtimeLight* light;
-		if(lightIndex<0)
-		{
-			// adjust program for render without lights
-			//uberProgramSetup.setLightDirect(NULL,NULL);
-			light = NULL;
-			uberProgramSetup.SHADOW_MAPS = 0;
-			uberProgramSetup.SHADOW_SAMPLES = 0;
-			uberProgramSetup.LIGHT_DIRECT = 0;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = 0;
-			uberProgramSetup.LIGHT_DIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_DIRECTIONAL = 0;
-			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
-			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;
-			//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",lightIndex); else printf(" %d: nothing\n",lightIndex);
-		}
-		else
-		{
-			// adjust program for n-th light (0-th includes indirect, others have it disabled)
-			light = (*params.lights)[lightIndex];
-			RR_ASSERT(light);
-			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
-			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
-			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
-			uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
-			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-			if(lightIndex>-separatedAmbientPass)
-			{
-				// additional passes don't include indirect
-				uberProgramSetup.LIGHT_INDIRECT_auto = 0;
-				uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-				uberProgramSetup.LIGHT_INDIRECT_ENV = 0;
-				uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-				uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
-				//printf(" %d: direct\n",lightIndex);
-			}
-			//else printf(" %d: direct+indirect\n",lightIndex);
-		}
-		if(!uberProgramSetup.useProgram(uberProgram,light,0,&params.brightness,params.gamma))
-		{
-			rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
-			return;
-		}
-
-		rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
-		renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV || uberProgramSetup.POSTPROCESS_NORMALS;
-		renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-		renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-		renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
-		renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
-		renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
-		renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
-		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
-		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-		renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-		renderedChannels.MATERIAL_CULLING = (uberProgramSetup.MATERIAL_DIFFUSE || uberProgramSetup.MATERIAL_SPECULAR) && !uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
-		renderedChannels.MATERIAL_BLENDING = lightIndex==-separatedAmbientPass; // material wishes are respected only in first pass, other passes use adding
-		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
@@ -265,10 +199,6 @@ void RendererOfRRDynamicSolver::render()
 		else
 			// cache everything else, it's constant
 			rendererCaching->render();
-
-		// additional passes add to framebuffer
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE,GL_ONE);
 	}
 }
 
@@ -543,7 +473,7 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
 {
 	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
 }

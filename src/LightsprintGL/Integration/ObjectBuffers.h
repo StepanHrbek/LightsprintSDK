@@ -3,6 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
+#ifndef OBJECTBUFFERS_H
+#define OBJECTBUFFERS_H
+
 #include <vector>
 #include "Lightsprint/RRObject.h"
 #include "Lightsprint/GL/Texture.h"
@@ -67,3 +70,5 @@ private:
 };
 
 }; // namespace
+
+#endif
