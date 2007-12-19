@@ -10,7 +10,6 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 
-#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
 namespace rr

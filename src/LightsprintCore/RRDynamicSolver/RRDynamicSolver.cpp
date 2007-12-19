@@ -25,7 +25,6 @@ namespace rr
 #define MAX(a,b)         (((a)>(b))?(a):(b))
 #define MIN(a,b)         (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
-#define SAFE_DELETE(a)   {delete a;a=NULL;}
 
 RRDynamicSolver::RRDynamicSolver()
 {

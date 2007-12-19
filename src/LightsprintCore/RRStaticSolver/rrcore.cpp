@@ -67,8 +67,6 @@ namespace rr
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
 
-#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // license

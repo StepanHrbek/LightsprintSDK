@@ -12,8 +12,6 @@
 #include <cstdio> // save/load
 #include "RRPackedSolver.h" // THREADED_BEST, RRObject
 
-#define SAFE_DELETE(a)   {delete a;a=NULL;}
-
 namespace rr
 {
 
