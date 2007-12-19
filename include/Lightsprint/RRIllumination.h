@@ -219,33 +219,6 @@ namespace rr
 		//! Used only while calculating pixel buffers, called by RRDynamicSolver.
 		//! \n\n Audience: Used internally by RRDynamicSolver.
 		virtual void renderBegin() {};
-		//! Description of one illuminated vertex.
-		//! \n\n Audience: Used internally by RRDynamicSolver.
-		struct IlluminatedVertex
-		{
-			RRVec2 texCoord; ///< Triangle vertex positions in pixel buffer.
-			RRColorRGBF measure; ///< Triangle vertex illumination.
-		};
-		//! Description of one illuminated triangle.
-		//! \n\n Audience: Used internally by RRDynamicSolver.
-		struct IlluminatedTriangle
-		{
-			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
-		};
-		//! Renders one triangle into pixel buffer. Must be called inside renderBegin() / renderEnd().
-		//
-		//! Used only while realtime calculating pixel buffers, called by RRDynamicSolver.
-		//! \param it
-		//!  Description of single triangle.
-		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
-		//! Renders multiple triangles into pixel buffer. Must be called inside renderBegin() / renderEnd().
-		//
-		//! Used only while realtime calculating pixel buffers, called by RRDynamicSolver.
-		//! \param it
-		//!  Array with description of triangles.
-		//! \param numTriangles
-		//!  Length of it array, number of triangles to be rendered.
-		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
 		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
 		//! Used only while non-realtime calculating pixel buffers, called by RRDynamicSolver.

@@ -35,43 +35,6 @@ How lightmap update works
 namespace rr
 {
 
-struct RenderSubtriangleContext
-{
-	RRIlluminationPixelBuffer* pixelBuffer;
-	RRMesh::TriangleMapping triangleMapping;
-};
-
-void renderSubtriangle(const RRStaticSolver::SubtriangleIllumination& si, void* context)
-{
-	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
-	RRIlluminationPixelBuffer::IlluminatedTriangle si2;
-	for(unsigned i=0;i<3;i++)
-	{
-		si2.iv[i].measure = si.measure[i];
-		RR_ASSERT(context2->triangleMapping.uv[0][0]>=0 && context2->triangleMapping.uv[0][0]<=1);
-		RR_ASSERT(context2->triangleMapping.uv[0][1]>=0 && context2->triangleMapping.uv[0][1]<=1);
-		RR_ASSERT(context2->triangleMapping.uv[1][0]>=0 && context2->triangleMapping.uv[1][0]<=1);
-		RR_ASSERT(context2->triangleMapping.uv[1][1]>=0 && context2->triangleMapping.uv[1][1]<=1);
-		RR_ASSERT(context2->triangleMapping.uv[2][0]>=0 && context2->triangleMapping.uv[2][0]<=1);
-		RR_ASSERT(context2->triangleMapping.uv[2][1]>=0 && context2->triangleMapping.uv[2][1]<=1);
-		RR_ASSERT(si.texCoord[i][0]>=0 && si.texCoord[i][0]<=1);
-		RR_ASSERT(si.texCoord[i][1]>=0 && si.texCoord[i][1]<=1);
-		// si.texCoord 0,0 prevest na context2->triangleMapping.uv[0]
-		// si.texCoord 1,0 prevest na context2->triangleMapping.uv[1]
-		// si.texCoord 0,1 prevest na context2->triangleMapping.uv[2]
-		si2.iv[i].texCoord = context2->triangleMapping.uv[0] + (context2->triangleMapping.uv[1]-context2->triangleMapping.uv[0])*si.texCoord[i][0] + (context2->triangleMapping.uv[2]-context2->triangleMapping.uv[0])*si.texCoord[i][1];
-		RR_ASSERT(si2.iv[i].texCoord[0]>=0 && si2.iv[i].texCoord[0]<=1);
-		RR_ASSERT(si2.iv[i].texCoord[1]>=0 && si2.iv[i].texCoord[1]<=1);
-		for(unsigned j=0;j<3;j++)
-		{
-			RR_ASSERT(_finite(si2.iv[i].measure[j]));
-			RR_ASSERT(si2.iv[i].measure[j]>=0);
-			RR_ASSERT(si2.iv[i].measure[j]<1500000);
-		}
-	}
-	context2->pixelBuffer->renderTriangle(si2);
-}
-
 RRIlluminationPixelBuffer* RRDynamicSolver::newPixelBuffer(RRObject* object)
 {
 	return NULL;
@@ -407,16 +370,25 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
-	bool useGathering = params.applyLights || params.applyEnvironment || (params.applyCurrentSolution && params.quality);
 	unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
 	unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
-	RRReportInterval report(useGathering?INF1:INF3,"Updating lightmap, object %d of %d, res %d*%d ...\n",objectNumber,getNumObjects(),width,height);
+	RRReportInterval report(INF1,"Updating lightmap, object %d of %d, res %d*%d ...\n",objectNumber,getNumObjects(),width,height);
 
 	if(!pixelBuffer && !bentNormalsPerPixel)
 	{
 		RRReporter::report(WARN,"No map, pixelBuffer=bentNormalsPerPixel=NULL.\n");
 		RR_ASSERT(0); // no work, probably error
 		return 0;
+	}
+	if(pixelBuffer && bentNormalsPerPixel)
+	{
+		if(pixelBuffer->getWidth() != bentNormalsPerPixel->getWidth()
+			|| pixelBuffer->getHeight() != bentNormalsPerPixel->getHeight())
+		{
+			RRReporter::report(ERRO,"Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
+			RR_ASSERT(0);
+			return 0;
+		}
 	}
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -444,77 +416,24 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 #endif
 	if(pixelBuffer) pixelBuffer->renderBegin();
 	if(bentNormalsPerPixel) bentNormalsPerPixel->renderBegin();
-	if(useGathering)
-	{
-		// check that map sizes match
-		if(pixelBuffer && bentNormalsPerPixel)
-		{
-			if(pixelBuffer->getWidth() != bentNormalsPerPixel->getWidth()
-				|| pixelBuffer->getHeight() != bentNormalsPerPixel->getHeight())
-			{
-				RRReporter::report(ERRO,"Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
-				RR_ASSERT(0);
-				return 0;
-			}
-		}
 
-		TexelContext tc;
-		tc.solver = this;
-		tc.pixelBuffer = pixelBuffer;
-		tc.params = &params;
-		tc.bentNormalsPerPixel = bentNormalsPerPixel;
-		tc.singleObjectReceiver = getObject(objectNumber);
-		// preallocate lightmap buffer before going parallel
-		unsigned uv[2]={0,0};
-		if(pixelBuffer) pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
-		if(bentNormalsPerPixel) bentNormalsPerPixel->renderTexel(uv,RRColorRGBAF(0));
-		// continue with all texels, possibly in multiple threads
-		enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
-		if(pixelBuffer) pixelBuffer->renderEnd(true);
-		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(true);
+	TexelContext tc;
+	tc.solver = this;
+	tc.pixelBuffer = pixelBuffer;
+	tc.params = &params;
+	tc.bentNormalsPerPixel = bentNormalsPerPixel;
+	tc.singleObjectReceiver = getObject(objectNumber);
+	// preallocate lightmap buffer before going parallel
+	unsigned uv[2]={0,0};
+	if(pixelBuffer) pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
+	if(bentNormalsPerPixel) bentNormalsPerPixel->renderTexel(uv,RRColorRGBAF(0));
+	// continue with all texels, possibly in multiple threads
+	enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
+	if(pixelBuffer) pixelBuffer->renderEnd(true);
+	if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(true);
 #ifdef DIAGNOSTIC
-		logPrint();
+	logPrint();
 #endif
-	}
-	else
-	if(params.applyCurrentSolution)
-	{
-		if(bentNormalsPerPixel)
-		{
-			RRReporter::report(WARN,"Bent normals won't be updated in 'realtime' mode.\n");
-			RR_ASSERT(0);
-			bentNormalsPerPixel->renderEnd(false);
-			bentNormalsPerPixel = NULL; // necessary for correct return value (1 instead of 2)
-			if(!pixelBuffer) return 0; // no work
-		}
-		// for each triangle in multimesh
-		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
-		{
-			// process only triangles belonging to objectHandle
-			RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
-			if(preImportTriangle.object==objectNumber)
-			{
-				// multiObject must preserve mapping (all objects overlap in one map)
-				//!!! this is satisfied now, but it may change in future
-				RenderSubtriangleContext rsc;
-				rsc.pixelBuffer = pixelBuffer;
-				mesh->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-				// render all subtriangles into pixelBuffer using object's unwrap
-				priv->scene->getSubtriangleMeasure(postImportTriangle,params.measure,getScaler(),renderSubtriangle,&rsc);
-			}
-		}
-		pixelBuffer->renderEnd(false);
-#ifdef DIAGNOSTIC
-		logPrint();
-#endif
-	}
-	else
-	{
-		RRReporter::report(WARN,"No lightsources.\n");
-		pixelBuffer->renderEnd(false);
-		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(false);
-		RR_ASSERT(0);
-	}
 	return bentNormalsPerPixel ? 2 : 1;
 }
 

@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+
+\section news41 ------------------------------------ 2007.12.xx -------------------------------------
+
+NEWS
+
+CHANGES
+
+- removed realtime update of lightmaps
+
 \section news40 ------------------------------------ 2007.12.06 -------------------------------------
 
 NEWS

@@ -330,12 +330,6 @@ namespace rr
 			//! and precise antialiasing computed.
 			//! Lower quality is good for tests, with per pixel details, but with artifacts
 			//! and aliasing.
-			//!
-			//! Positive number makes calculation non-realtime.
-			//!
-			//! If applyCurrentSolution is enabled, other applyXxx disabled and quality is zero,
-			//! very fast (milliseconds) realtime technique is used and outputs contains
-			//! nearly no noise, but in case of lightmaps, small per pixel details are missing.
 			unsigned quality;
 
 			//! Deprecated. Only partially supported since 2007.08.21.
@@ -344,8 +338,6 @@ namespace rr
 			//! seeing inside objects (or below rug, see rugDistance)
 			//! are masked away.
 			//! Default value 1 disables any correction.
-			//!
-			//! Not used in realtime calculation (see #quality).
 			RRReal insideObjectsTreshold;
 
 			//! Deprecated. Only partially supported since 2007.08.21.
@@ -354,8 +346,6 @@ namespace rr
 			//! Set it slightly above distance of rug and ground, to prevent darkness
 			//! under the rug leaking half texel outside (instead, light around rug will
 			//! leak under the rug). Set it to zero to disable any corrections.
-			//!
-			//! Not used in realtime calculation (see #quality).
 			RRReal rugDistance;
 
 			//! Distance in world space; illumination never comes from greater distance.
@@ -366,8 +356,6 @@ namespace rr
 			//! (Rays are shot from texel into scene. When scene is not intersected
 			//! in this or lower distance from texel, illumination is read from 
 			//! outer environment/sky.)
-			//!
-			//! Not used in realtime calculation (see #quality).
 			RRReal locality;
 
 			//! Sets default parameters for fast realtime update.
@@ -408,7 +396,7 @@ namespace rr
 		//!  In comparison with updateLightmap(),
 		//!  updateVertexBuffer() is very fast but less general, it always reads lighting from current solver,
 		//!  without final gather. In other words, it assumes that
-		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0; quality=0.
+		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
 		//!  For higher quality final gathered results, use updateVertexBuffers().
 		virtual unsigned updateVertexBuffer(int objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
 

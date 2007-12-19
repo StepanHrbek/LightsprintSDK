@@ -34,18 +34,14 @@ public:
 		if(!filterProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vs");
 		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fs");
-		renderTriangleProgram = Program::create(NULL,buf1,buf2);
-		if(!renderTriangleProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
 	}
 	~Helpers()
 	{
-		delete renderTriangleProgram;
 		delete filterProgram;
 		delete tempTexture;
 	}
 	Texture* tempTexture;
 	Program* filterProgram;
-	Program* renderTriangleProgram;
 };
 
 static Helpers* helpers = NULL;
@@ -81,7 +77,6 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 		return;
 	}
 	rendering = true;
-	renderTriangleProgramSet = false;
 	// backup pipeline
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
@@ -97,26 +92,6 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	// setup pipeline
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-}
-
-void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle& it)
-{
-	RR_ASSERT(rendering);
-	if(!rendering || !helpers->renderTriangleProgram) return;
-
-	if(!renderTriangleProgramSet)
-	{
-		renderTriangleProgramSet = true;
-		helpers->renderTriangleProgram->useIt();
-		glDisable(GL_CULL_FACE);
-	}
-	glBegin(GL_TRIANGLES);
-	for(unsigned v=0;v<3;v++)
-	{
-		glColor3fv(&it.iv[v].measure[0]);
-		glVertex2f(it.iv[v].texCoord[0]*2-1,it.iv[v].texCoord[1]*2-1);
-	}
-	glEnd();
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)

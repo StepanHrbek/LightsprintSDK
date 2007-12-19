@@ -17,7 +17,6 @@ namespace rr
 	public:
 		RRIlluminationPixelBufferInMemory(const char* filename, unsigned width, unsigned height, unsigned spreadForegroundColor, RRColorRGBAF backgroundColor, bool smoothBackground, bool wrap);
 		virtual void renderBegin();
-		virtual void renderTriangle(const IlluminatedTriangle& it);
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color);
 		virtual void renderEnd(bool preferQualityOverSpeed);
 		virtual unsigned getWidth() const;

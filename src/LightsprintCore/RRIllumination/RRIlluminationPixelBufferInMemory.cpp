@@ -45,11 +45,6 @@ void RRIlluminationPixelBufferInMemory::renderBegin()
 	}
 }
 
-void RRIlluminationPixelBufferInMemory::renderTriangle(const IlluminatedTriangle& it)
-{
-	LIMITED_TIMES(1,RRReporter::report(WARN,"RRIlluminationPixelBuffer::renderTriangle() not implemented by this instance."));
-}
-
 void RRIlluminationPixelBufferInMemory::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)
 {
 	if(!renderedTexels)
