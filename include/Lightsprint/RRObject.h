@@ -17,15 +17,12 @@ namespace rr
 	//
 	// material aspects of space and surfaces
 	//
-	// RRColor              - rgb color
+	// RRVec3              - rgb color
 	// RRRadiometricMeasure - radiometric measure
 	// RRSideBits           - 1bit attributes of one side
 	// RRMaterial           - material properties of a surface
 	//
 	//////////////////////////////////////////////////////////////////////////////
-
-	//! Color representation, r,g,b usually in 0..1 or 0..inf range.
-	typedef RRVec3 RRColor; 
 
 	//! Specification of radiometric measure; what is measured and what units are used.
 	struct RRRadiometricMeasure
@@ -83,10 +80,10 @@ namespace rr
 		bool          validate();
 
 		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
-		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
-		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
+		RRVec3       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
+		RRVec3       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
-		RRColor       specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
+		RRVec3       specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 
@@ -188,7 +185,7 @@ namespace rr
 		//! \param measure Specifies requested radiometric measure. Scaled must be 1. Direct/indirect may be ignored.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
+		virtual void                getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const;
 
 		//! Returns object transformation.
 		//

@@ -98,7 +98,7 @@ real getBrightness(real color) // converts 0..infinity radiosity to 0..1 value f
 	return color;
 }
 
-real getAvg(const RRColor* rad)
+real getAvg(const RRVec3* rad)
 {
 	return avg(*rad);
 }
@@ -117,7 +117,7 @@ void drawEngine(rr::RRStaticSolver* scene, unsigned t, Triangle *f)
 	v[0]=f->to3d(0);
 	v[1]=f->to3d(1);
 	v[2]=f->to3d(2);
-	RRColor tmp;
+	RRVec3 tmp;
 	scene->getTriangleMeasure(t,0,RM_IRRADIANCE_PHYSICAL,NULL,tmp); brightness[0]=getBrightness(getAvg(&tmp));
 	scene->getTriangleMeasure(t,1,RM_IRRADIANCE_PHYSICAL,NULL,tmp); brightness[1]=getBrightness(getAvg(&tmp));
 	scene->getTriangleMeasure(t,2,RM_IRRADIANCE_PHYSICAL,NULL,tmp); brightness[2]=getBrightness(getAvg(&tmp));
@@ -423,7 +423,7 @@ void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 {
 	for(unsigned c=0;c<C_INDICES;c++)
 	{
-		RRColor rgb;
+		RRVec3 rgb;
 		xy2rgb(cx,cy,c/255.,rgb);
 		#define FLOAT2BYTE(f) ((unsigned)((f)<0?0:(f)>=1?255:256*(f)))
 		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);

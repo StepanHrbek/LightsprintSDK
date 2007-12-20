@@ -27,7 +27,7 @@ public:
 	void getTriangleIrradianceIndirectUpdate();
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
 
-	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const;
+	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
 
 	//! Returns version of global illumination solution.
 	//

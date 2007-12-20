@@ -160,7 +160,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVer
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectHandle];
-		RRColorRGBF* lock = vertexBuffer->lockWriting();
+		RRVec3* lock = vertexBuffer->lockWriting();
 		if(lock)
 		{
 			// #pragma with if() is broken in VC++2005
@@ -209,7 +209,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVer
 	{
 		unsigned t = (objectHandle<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
 		unsigned v = (objectHandle<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
-		RRColor indirect = RRColor(0);
+		RRVec3 indirect = RRVec3(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);

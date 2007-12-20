@@ -19,7 +19,7 @@ int ldmgf(char *filename,
 C_MATERIAL *c_getmaterial(char *);
 
 // convert mgf color to rgb
-void xy2rgb(double cx,double cy,double intensity,RRColor& cout);
-void mgf2rgb(C_COLOR *cin,double intensity,RRColor& cout);
+void xy2rgb(double cx,double cy,double intensity,RRVec3& cout);
+void mgf2rgb(C_COLOR *cin,double intensity,RRVec3& cout);
 
 #endif

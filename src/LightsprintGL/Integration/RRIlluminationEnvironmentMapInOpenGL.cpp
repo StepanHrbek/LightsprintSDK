@@ -36,7 +36,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 	deleteTexture = true;
 }
 
-void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRColorRGBF* irradiance)
+void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRVec3* irradiance)
 {
 	// not thread safe
 	// OpenGL context is thread specific, so calling this from other than master thread is usually error
@@ -45,11 +45,11 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RR
 	texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
 }
 
-rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction) const
+rr::RRVec3 RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction) const
 {
 	float tmp[4];
 	texture->getPixel(direction[0],direction[1],direction[2],tmp);
-	return rr::RRColorRGBF(tmp[0],tmp[1],tmp[2]);
+	return rr::RRVec3(tmp[0],tmp[1],tmp[2]);
 };
 
 void RRIlluminationEnvironmentMapInOpenGL::bindTexture() const

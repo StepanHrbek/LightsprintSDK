@@ -30,10 +30,10 @@ public:
 	unsigned getDestinationSize() const;
 
 	// High quality interpolation in physical space.
-	void interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const;
+	void interpolate(const RRVec3* src, RRVec3* dst, const RRScaler* scaler) const;
 #ifdef SUPPORT_LDR
 	// Fast interpolation in custom space.
-	void interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void* unused) const;
+	void interpolate(const unsigned* src, unsigned* dst, void* unused) const;
 #endif
 
 private:

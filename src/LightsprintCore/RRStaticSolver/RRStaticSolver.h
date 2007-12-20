@@ -150,7 +150,7 @@ namespace rr
 		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
 		//! \return
 		//!  True if out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const;
+		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
 
 		//! Illumination information for triangle's subtriangle.
 		//
@@ -161,7 +161,7 @@ namespace rr
 		struct SubtriangleIllumination
 		{
 			RRVec2 texCoord[3]; ///< Subtriangle vertices positions in triangle space, triangle vertex0 is in 0,0, vertex1 is in 1,0, vertex2 is in 0,1.
-			RRColor measure[3]; ///< Subtriangle vertices illumination.
+			RRVec3 measure[3]; ///< Subtriangle vertices illumination.
 		};
 		//! Callback for passing multiple SubtriangleIlluminations to you.
 		typedef void (SubtriangleIlluminationEater)(const SubtriangleIllumination& si, void* context);

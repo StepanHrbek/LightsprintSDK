@@ -15,6 +15,11 @@ NEWS
 
 CHANGES
 
+- removed RRColor* abstractions
+  - use RRVec3 instead of RRColor and RRColorRGBF
+  - use RRVec4 instead of RRColorRGBAF
+  - use 32bit unsigned instead of RRColorRGBA8
+  - caveat: RRColor* were zeroed in constructor while RRVec* are not
 - optional lightmap filtering params moved from pixel buffer constructor to updateLightmaps() params
 - removed realtime update of lightmaps
 

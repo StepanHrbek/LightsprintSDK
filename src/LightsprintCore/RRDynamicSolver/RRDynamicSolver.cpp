@@ -42,7 +42,7 @@ void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 	// update fast conversion table for our detectDirectIllumination
 	for(unsigned i=0;i<256;i++)
 	{
-		rr::RRColor c(i*priv->boostDetectedDirectIllumination/255);
+		rr::RRVec3 c(i*priv->boostDetectedDirectIllumination/255);
 		if(_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}

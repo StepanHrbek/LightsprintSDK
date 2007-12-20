@@ -112,7 +112,7 @@ static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 
 	// for diffuse textures provided by 3ds, 
 	// it is sufficient to compute average texture color
-	rr::RRColor avg = rr::RRColor(0);
+	rr::RRVec3 avg = rr::RRVec3(0);
 	if(m->tex)
 	{
 		for(unsigned i=0;i<size;i++)

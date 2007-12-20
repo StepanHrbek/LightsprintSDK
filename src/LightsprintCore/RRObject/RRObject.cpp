@@ -30,7 +30,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
 	}
 }
 
-void RRObject::getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+void RRObject::getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const
 {
 	out[0] = 0;
 	out[1] = 0;

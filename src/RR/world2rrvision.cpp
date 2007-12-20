@@ -94,7 +94,7 @@ static void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 {
 	for(unsigned c=0;c<C_INDICES;c++)
 	{
-		RRColor rgb;
+		RRVec3 rgb;
 		xy2rgb(cx,cy,c/255.,rgb);
 #define FLOAT2BYTE(f) ((unsigned)((f)<0?0:(f)>=1?255:256*(f)))
 		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);
@@ -156,7 +156,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 	s_default.diffuseReflectance[1]=0.3;
 	s_default.diffuseReflectance[2]=0.3;
 	s_default.diffuseReflectanceColorTable=createColorTable(0.3,0.3,0);
-	s_default.diffuseEmittance=RRColor(1);
+	s_default.diffuseEmittance=RRVec3(1);
 	s_default.outside=NULL;
 	s_default.inside=NULL;
 	s_default.texture=NULL;

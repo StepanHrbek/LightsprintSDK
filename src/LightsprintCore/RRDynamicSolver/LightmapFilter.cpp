@@ -134,7 +134,7 @@ const RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParame
 #ifdef DIAGNOSTIC_RED_UNRELIABLE
 		else
 		{
-			renderedTexels[i] = rr::RRColorRGBAF(1,0,0,0);//!!!
+			renderedTexels[i] = RRVec4(1,0,0,0);//!!!
 		}
 #endif
 	}

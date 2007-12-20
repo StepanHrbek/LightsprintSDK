@@ -16,6 +16,6 @@ int ldmgf(const char *filename,
           void  end_object(void));
 
 // convert mgf color to rgb
-void mgf2rgb(C_COLOR *cin,FLOAT intensity,rr::RRColor& cout);
+void mgf2rgb(C_COLOR *cin,FLOAT intensity,rr::RRVec3& cout);
 
 #endif

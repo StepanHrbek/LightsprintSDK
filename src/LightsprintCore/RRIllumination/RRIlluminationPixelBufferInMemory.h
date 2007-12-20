@@ -19,8 +19,8 @@ namespace rr
 		virtual void reset(const RRVec4* data);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
-		virtual const RRColorRGBA8* lock();
-		virtual const RRColorRGBF* lockRGBF();
+		virtual const unsigned* lock(); // RGBA8
+		virtual const RRVec3* lockRGBF();
 		virtual void unlock();
 		virtual void bindTexture() const;
 		virtual bool save(const char* filename);

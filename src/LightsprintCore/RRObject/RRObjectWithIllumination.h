@@ -47,7 +47,7 @@ public:
 		delete[] triangleInfo;
 	}
 
-	virtual bool setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor power)
+	virtual bool setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3 power)
 	{
 		if(t>=numTriangles)
 		{
@@ -56,7 +56,7 @@ public:
 		}
 		if(measure.flux)
 		{
-			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
+			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRVec3(0);
 		}
 		if(measure.scaled && scaler)
 		{
@@ -78,22 +78,22 @@ public:
 		triangleInfo[t].irradiance = power;
 		return true;
 	}
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const
 	{
 		if(t>=numTriangles)
 		{
 			RR_ASSERT(0);
-			out = RRColor(0);
+			out = RRVec3(0);
 			return;
 		}
-		RRColor power = triangleInfo[t].irradiance;
+		RRVec3 power = triangleInfo[t].irradiance;
 		if(measure.exiting)
 		{
 			const RRMaterial* s = getTriangleMaterial(t,NULL,NULL);
 			if(!s)
 			{
 				RR_ASSERT(0);
-				out = RRColor(0);
+				out = RRVec3(0);
 				return;
 			}
 			// diffuse applied on physical scale, not custom scale
@@ -114,7 +114,7 @@ public:
 private:
 	struct TriangleInfo
 	{
-		RRColor irradiance; // always in physical scale
+		RRVec3 irradiance; // always in physical scale
 		RRReal area;
 	};
 	const RRScaler* scaler;

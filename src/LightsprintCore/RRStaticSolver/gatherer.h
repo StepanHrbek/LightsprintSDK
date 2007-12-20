@@ -23,7 +23,7 @@ public:
 	// Returns color visible in given direction, in physical scale.
 	// May reflect/refract internally.
 	// Individual calls to gather() are independent.
-	RRColor gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRColor visibility);
+	RRVec3 gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility);
 
 protected:
 	// helper structures

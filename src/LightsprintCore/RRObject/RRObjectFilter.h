@@ -40,7 +40,7 @@ public:
 	{
 		inherited->getPointMaterial(t,uv,out);
 	}
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const
 	{
 		return inherited->getTriangleIllumination(t,measure,out);
 	}

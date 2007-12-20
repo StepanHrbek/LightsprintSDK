@@ -40,10 +40,10 @@ void RRMaterial::reset(bool twoSided)
 		{{1,1,1,1,1,1,1,0},{1,0,1,1,1,1,1,0}}, // definition of default 2-sided (front side, back side)
 	};
 	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
-	diffuseReflectance             = RRColor(0.5f);
-	diffuseEmittance               = RRColor(0);
+	diffuseReflectance             = RRVec3(0.5f);
+	diffuseEmittance               = RRVec3(0);
 	specularReflectance            = 0;
-	specularTransmittance          = RRColor(0);
+	specularTransmittance          = RRVec3(0);
 	refractionIndex                = 1;
 }
 

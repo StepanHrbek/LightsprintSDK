@@ -19,129 +19,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Float RGB - One of color formats for vertex and pixel buffers.
-	//
-	// All color formats have default constructor that sets black color.
-	// This makes vertex and pixels buffers black after construction.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRColorRGBF : public RRVec3
-	{
-	public:
-		RRColorRGBF(RRReal a = 0)
-		{
-			x = y = z = a;
-		}
-		RRColorRGBF(RRReal r,RRReal g,RRReal b)
-		{
-			x = r;
-			y = g;
-			z = b;
-		}
-		RRColorRGBF(const RRVec3& a)
-		{
-			x = a.x;
-			y = a.y;
-			z = a.z;
-		}
-		RRColorRGBF toRRColorRGBF() const
-		{
-			return *this;
-		}
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! Float RGBA - One of color formats for vertex and pixel buffers.
-	//
-	// All color formats have default constructor that sets black color.
-	// This makes vertex and pixels buffers black after construction.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRColorRGBAF : public RRVec4
-	{
-	public:
-		RRColorRGBAF(RRReal a = 0)
-		{
-			x = y = z = w = a;
-		}
-		RRColorRGBAF(RRReal r,RRReal g,RRReal b,RRReal a)
-		{
-			x = r;
-			y = g;
-			z = b;
-			w = a;
-		}
-		RRColorRGBAF(const RRVec3& a)
-		{
-			x = a.x;
-			y = a.y;
-			z = a.z;
-			w = 0;
-		}
-		RRColorRGBAF(const RRVec3p& a)
-		{
-			x = a.x;
-			y = a.y;
-			z = a.z;
-			w = a.w;
-		}
-		RRColorRGBF toRRColorRGBF() const
-		{
-			return RRColorRGBF(x,y,z);
-		}
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! RGBA8, total 32bits - One of color formats for vertex and pixel buffers.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	struct RRColorRGBA8
-	{
-		RRColorRGBA8()
-		{
-			color = 0;
-		}
-		RRColorRGBA8(RRReal r,RRReal g,RRReal b)
-		{
-			color = (unsigned)CLAMPED(255*r,0,255) + (((unsigned)CLAMPED(255*g,0,255))<<8) + (((unsigned)CLAMPED(255*b,0,255))<<16);
-		}
-		RRColorRGBA8(RRReal r,RRReal g,RRReal b,RRReal a)
-		{
-			color = (unsigned)CLAMPED(255*r,0,255) + (((unsigned)CLAMPED(255*g,0,255))<<8) + (((unsigned)CLAMPED(255*b,0,255))<<16) + (((unsigned)CLAMPED(255*a,0,255))<<24);
-		}
-		const RRColorRGBA8& operator =(const RRColorRGBF& a)
-		{
-			return *this = RRColorRGBA8(a[0],a[1],a[2]);
-		}
-		bool operator ==(const RRColorRGBA8& a)
-		{
-			return color==a.color;
-		}
-		bool operator !=(const RRColorRGBA8& a)
-		{
-			return color!=a.color;
-		}
-		RRReal operator [](int i) const 
-		{
-			return ((color>>(i*8))&255)/255.0f;
-		}
-		RRColorRGBF toRRColorRGBF() const
-		{
-			return RRColorRGBF((*this)[0],(*this)[1],(*this)[2]);
-		}
-		unsigned color;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	//! Interface to illumination storage based on vertex buffer.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -159,14 +36,14 @@ namespace rr
 		virtual unsigned getNumVertices() const = 0;
 		//! Sets value of one element of the buffer.
 		//! Must be thread safe.
-		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
+		virtual void setVertex(unsigned vertex, const RRVec3& color) = 0;
 
 		// Vertex buffer use
 
 		//! Locks the buffer for reading array of all vertices at once. Optional, may return NULL.
-		virtual const RRColorRGBF* lockReading() {return NULL;};
+		virtual const RRVec3* lockReading() {return NULL;};
 		//! Locks the buffer for writing array of all vertices at once. Optional, may return NULL.
-		virtual RRColorRGBF* lockWriting() {return NULL;};
+		virtual RRVec3* lockWriting() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
 
@@ -220,9 +97,9 @@ namespace rr
 		//! \return Height of pixel buffer in pixels.
 		virtual unsigned getHeight() const = 0;
 		//! Locks the buffer for reading array of all pixels at once. Not mandatory, may return NULL.
-		virtual const RRColorRGBA8* lock() {return NULL;};
+		virtual const unsigned* lock() {return NULL;}; // RGBA8
 		//! Locks the buffer for reading array of all pixels at once. Not mandatory, may return NULL.
-		virtual const RRColorRGBF* lockRGBF() {return NULL;};
+		virtual const RRVec3* lockRGBF() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
 		//! Binds pixel buffer for rendering. Not mandatory,
@@ -299,7 +176,7 @@ namespace rr
 		//!  \n size*size values for NEGATIVE_Z side.
 		//!  \n Values are usually interpreted as colors (radiosities in custom scale)
 		//!     of distant points in 6*size*size different directions, possibly with filtering applied.
-		virtual void setValues(unsigned size, const RRColorRGBF* colors) = 0;
+		virtual void setValues(unsigned size, const RRVec3* colors) = 0;
 
 		// Environment map use
 
@@ -307,7 +184,7 @@ namespace rr
 		//! Value is usually interpreted as color (radiosity in custom scale)
 		//! of distant point in given direction, possibly with filtering applied.
 		//! \n Not mandatory, implementation may always return 0.
-		virtual RRColorRGBF getValue(const RRVec3& direction) const;
+		virtual RRVec3 getValue(const RRVec3& direction) const;
 
 		//! Binds texture for use by renderer.
 		//! Not mandatory, implementation may do OpenGL bind, DirectX bind or nothing.
@@ -374,7 +251,7 @@ namespace rr
 		//! \n Color of environment may be changed by setValues(), first values is taken as a new color.
 		//! \param color
 		//!  Color (environment radiosity in custom scale) of environment, the same value is returned by getValue().
-		static RRIlluminationEnvironmentMap* createUniform(const RRColorRGBF color = RRColorRGBF(1));
+		static RRIlluminationEnvironmentMap* createUniform(const RRVec3 color = RRVec3(1));
 
 		//! Creates simple sky environment, with user defined colors in upper and lower hemisphere.
 		//
@@ -387,7 +264,7 @@ namespace rr
 		//! \param lower
 		//!  Color (environment radiosity in custom scale) of lower hemisphere,
 		//!  the same value is returned by getValue(direction_with_zero_or_negative_y).
-		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& upper, const RRColorRGBF& lower);
+		static RRIlluminationEnvironmentMap* createSky(const RRVec3& upper, const RRVec3& lower);
 	};
 
 

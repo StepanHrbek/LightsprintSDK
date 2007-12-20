@@ -148,7 +148,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // outputs:
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
-static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRIlluminationEnvironmentMap* environment, const RRScaler* scaler, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRColorRGBA8* exitanceLdr, RRColorRGBF* exitanceHdr)
+static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRIlluminationEnvironmentMap* environment, const RRScaler* scaler, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, unsigned* exitanceLdr, RRVec3* exitanceHdr)
 {
 	if((!scene && !packedSolver) || !object || (!triangleNumbers && !exitanceHdr))
 	{
@@ -238,7 +238,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRIlluminationEnvironmentMap* environment, unsigned size, unsigned* triangleNumbers, RRColorRGBF* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRIlluminationEnvironmentMap* environment, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
 	if(!scene && !packedSolver)
 	{
@@ -506,8 +506,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 
 	// alloc temp space
-	RRColorRGBF* gatheredExitance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-	RRColorRGBF* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
+	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+	RRVec3* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
 
 	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{

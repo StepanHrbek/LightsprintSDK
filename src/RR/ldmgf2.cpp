@@ -91,7 +91,7 @@ void *add_material(C_MATERIAL *m)
 	assert(mgf_materials_loaded<mgf_materials);
 	int ndx=14*mgf_materials_loaded;
 	mgf_material[ndx++]=m->sided;
-	RRColor col;
+	RRVec3 col;
 
 	mgf2rgb(&m->ed_c,m->ed,col);
 	if(col.m[0]>1) col.m[0]=1;

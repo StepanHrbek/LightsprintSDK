@@ -10,7 +10,6 @@ namespace rr
 	//! Illumination storage in vertex buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in vertex buffer.
-	//! It can be RRColorRGBF, RRColorRGBA8, RRColorI8.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +26,7 @@ namespace rr
 		{
 			return numVertices;
 		}
-		virtual void setVertex(unsigned vertex, const RRColorRGBF& color)
+		virtual void setVertex(unsigned vertex, const RRVec3& color)
 		{
 			if(!vertices)
 			{
@@ -73,23 +72,20 @@ namespace rr
 	//
 	//! Lockable illumination storage in vertex buffer in system memory.
 	//
-	//! Has fixed RRColorRGBF format.
-	//! It is 3 floats per vertex.
-	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRIlluminationVertexBufferRGBFInMemory : public RRIlluminationVertexBufferInMemory<RRColorRGBF>
+	class RRIlluminationVertexBufferRGBFInMemory : public RRIlluminationVertexBufferInMemory<RRVec3>
 	{
 	public:
 		RRIlluminationVertexBufferRGBFInMemory(unsigned anumVertices)
-			: RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices)
+			: RRIlluminationVertexBufferInMemory<RRVec3>(anumVertices)
 		{
 		}
-		virtual const RRColorRGBF* lockReading()
+		virtual const RRVec3* lockReading()
 		{
 			return vertices;
 		}
-		virtual RRColorRGBF* lockWriting()
+		virtual RRVec3* lockWriting()
 		{
 			return vertices;
 		}

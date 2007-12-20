@@ -23,7 +23,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRIll
 	triangles = _object->triangles;
 }
 
-RRColor Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRColor visibility)
+RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -44,7 +44,7 @@ RRColor Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumb
 		// ray left scene
 		if(environment)
 		{
-			RRColor irrad = environment->getValue(direction);
+			RRVec3 irrad = environment->getValue(direction);
 			if(scaler) scaler->getPhysicalScale(irrad);
 			return visibility * irrad;
 		}

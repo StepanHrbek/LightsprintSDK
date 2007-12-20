@@ -193,7 +193,7 @@ public:
 	}
 
 
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRVec3& out) const
 	{
 		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleIllumination(t,format,out);

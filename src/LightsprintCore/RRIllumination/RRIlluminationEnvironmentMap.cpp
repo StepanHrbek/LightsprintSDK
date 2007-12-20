@@ -11,12 +11,12 @@ namespace rr
 class Sky : public RRIlluminationEnvironmentMap
 {
 public:
-	Sky(const RRColorRGBF& _upper, const RRColorRGBF& _lower)
+	Sky(const RRVec3& _upper, const RRVec3& _lower)
 	{
 		upper = _upper;
 		lower = _lower;
 	}
-	virtual void setValues(unsigned size, const RRColorRGBF* irradiance)
+	virtual void setValues(unsigned size, const RRVec3* irradiance)
 	{
 		if(size && irradiance)
 		{
@@ -24,16 +24,16 @@ public:
 			lower = irradiance[1];
 		}
 	}
-	virtual RRColorRGBF getValue(const RRVec3& direction) const
+	virtual RRVec3 getValue(const RRVec3& direction) const
 	{
 		return (direction.y>0)?upper:lower;
 	};
 private:
-	RRColorRGBF upper;
-	RRColorRGBF lower;
+	RRVec3 upper;
+	RRVec3 lower;
 };
 
-RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRColorRGBF& upper, const RRColorRGBF& lower)
+RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRVec3& upper, const RRVec3& lower)
 {
 	return new Sky(upper,lower);
 }
@@ -46,37 +46,37 @@ RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRCo
 class UniformEnvironment : public RRIlluminationEnvironmentMap
 {
 public:
-	UniformEnvironment::UniformEnvironment(const RRColorRGBF& irradiance)
+	UniformEnvironment::UniformEnvironment(const RRVec3& irradiance)
 	{
 		color = irradiance;
 	}
-	virtual void setValues(unsigned size, const RRColorRGBF* irradiance)
+	virtual void setValues(unsigned size, const RRVec3* irradiance)
 	{
 		if(size && irradiance)
 			color = irradiance[0];
 	}
-	virtual RRColorRGBF getValue(const RRVec3& direction) const
+	virtual RRVec3 getValue(const RRVec3& direction) const
 	{
 		return color;
 	};
 private:
-	RRColorRGBF color;
+	RRVec3 color;
 };
 
-RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createUniform(const RRColorRGBF irradiance)
+RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createUniform(const RRVec3 irradiance)
 {
-	return new UniformEnvironment(RRColorRGBF(irradiance));
+	return new UniformEnvironment(irradiance);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRIlluminationEnvironmentMap
 
-RRColorRGBF RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) const
+RRVec3 RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) const
 {
 	RRReporter::report(WARN,"RRIlluminationEnvironmentMap::getValue: Not implemented.");
 	RR_ASSERT(0);
-	return RRColorRGBF(0);
+	return RRVec3(0);
 };
 
 void RRIlluminationEnvironmentMap::bindTexture() const

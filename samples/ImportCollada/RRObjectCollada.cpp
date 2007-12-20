@@ -523,9 +523,9 @@ fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle
 	return NULL;
 }
 
-RRColor colorToColor(FMVector4 color)
+RRVec3 colorToColor(FMVector4 color)
 {
-	return RRColor(color.x,color.y,color.z);
+	return RRVec3(color.x,color.y,color.z);
 }
 
 RRReal colorToFloat(FMVector4 color)
@@ -631,7 +631,7 @@ void RRObjectCollada::updateMaterials()
 								// rgb is diffuse reflectance
 								mi.material.diffuseReflectance = avg;
 								// alpha is transparency
-								mi.material.specularTransmittance = rr::RRColor(1-avg[3]);
+								mi.material.specularTransmittance = rr::RRVec3(1-avg[3]);
 
 								// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
 								// It makes calculation much slower, so enable it only when necessary.
@@ -760,7 +760,7 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 		out.diffuseReflectance[1] = rgba[1];
 		out.diffuseReflectance[2] = rgba[2];
 		// alpha/transparency
-		out.specularTransmittance = rr::RRColor(1-rgba[3]);
+		out.specularTransmittance = rr::RRVec3(1-rgba[3]);
 		if(rgba[3]==0)
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 	}
@@ -1000,7 +1000,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,1));
 
 				// create RRLight
-				rr::RRColorRGBF color = RRColorRGBF(light->GetColor()[0],light->GetColor()[1],light->GetColor()[2])*light->GetIntensity();
+				rr::RRVec3 color = RRVec3(light->GetColor()[0],light->GetColor()[1],light->GetColor()[2])*light->GetIntensity();
 				rr::RRVec3 polynom = rr::RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor()/scale,light->GetQuadraticAttenuationFactor()/scale/scale);
 				switch(light->GetLightType())
 				{

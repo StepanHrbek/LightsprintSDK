@@ -1949,7 +1949,7 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels vi
 		// ray left scene
 		if(environment)
 		, hit environment
-		RRColorRGBF irrad = tools.environment->getValue(dir);
+		RRVec3 irrad = tools.environment->getValue(dir);
 		if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
 		maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
 		irradianceHemisphere += irrad;

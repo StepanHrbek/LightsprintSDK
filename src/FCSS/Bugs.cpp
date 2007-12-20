@@ -23,8 +23,8 @@ public:
 		//if(face!=UINT_MAX)
 		{
 			// get light 1 for old dir
-			RRColor light1 = RRColor(0);
-			RRColor light2 = RRColor(0);
+			RRVec3 light1 = RRVec3(0);
+			RRVec3 light2 = RRVec3(0);
 			if(face!=UINT_MAX)
 				scene->getTriangleMeasure(face,3,RM_IRRADIANCE_PHYSICAL,NULL,light1);
 			// get light 2 for random new dir

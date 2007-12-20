@@ -62,17 +62,17 @@ public:
 			convertToPhysical(out);
 		}
 	}
-	void convertToPhysicalFactor(RRColor& factor) const
+	void convertToPhysicalFactor(RRVec3& factor) const
 	{
-		RRColor tmp1 = RRColor(0.5f)*factor;
-		RRColor tmp2 = RRColor(0.5f);
+		RRVec3 tmp1 = RRVec3(0.5f)*factor;
+		RRVec3 tmp2 = RRVec3(0.5f);
 		scaler->getPhysicalScale(tmp1);
 		scaler->getPhysicalScale(tmp2);
 		factor = tmp1/tmp2;
 	}
 	void convertToPhysicalFactor(RRReal& factor) const
 	{
-		RRColor factor3 = RRColor(factor);
+		RRVec3 factor3 = RRVec3(factor);
 		convertToPhysicalFactor(factor3);
 		factor = factor3[0];
 	}
@@ -114,7 +114,7 @@ public:
 	{
 		return original->getCollider();
 	}
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const
 	{
 		return original->getTriangleIllumination(t,measure,out);
 	}

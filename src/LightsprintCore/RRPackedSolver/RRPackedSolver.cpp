@@ -304,7 +304,7 @@ const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, u
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
 }
 
-bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
+bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
 {
 	RRVec3 irrad;
 
@@ -374,7 +374,7 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	out = irrad;
 	return true;
 zero:
-	out = RRColor(0);
+	out = RRVec3(0);
 	return false;
 }
 

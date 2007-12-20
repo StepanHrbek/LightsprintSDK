@@ -5,13 +5,13 @@
 #include "Lightsprint/RRObject.h"
 
 #define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
-#define Color rr::RRColor
+#define Color rr::RRVec3
 
 struct Material
 {
 	real       transparency;
 	real       lightspeed;
-	RRColor    color;
+	RRVec3    color;
 };
 
 struct Texture;

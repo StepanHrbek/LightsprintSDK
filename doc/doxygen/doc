@@ -1687,7 +1687,7 @@ Used by samples:
      it from vertex, but both are very fast.
 
  \section d45 Returned value
-   - RRColor with single illumination value
+   - RRVec3 with single illumination value
    - see \ref gunits
 
 
@@ -1717,7 +1717,7 @@ Used by samples:
    - See \ref data_triangle for access to triangle's illumination.
 
  \section d55 Returned value
-   - RRColor with single illumination value
+   - RRVec3 with single illumination value
    - see \ref gunits
 
 
@@ -1986,9 +1986,8 @@ Used by samples:
  - FLinearColor (RGBA, float, linear/physical)
 
  Lightsprint implements following types (with properties)
- - RRColor, RRColorRGBF (RGB, float)
- - RRColorRGBA8 (RGBA, byte)
- - RRColorRGBAF (RGBA, float)
+ - RRVec3 (RGB, float)
+ - RRVec4 (RGBA, float)
 
  Scale in Lightsprint is defined by context rather than by type -
  functions working with colors are scale neutral
@@ -1999,8 +1998,8 @@ Used by samples:
  which makes it compatible with FColor of UE3.
 
  So with different approach to scale in mind
- - FColor = RRColorRGBA8
- - FLinearColor = RRColorRGBAF
+ - FColor = unsigned (32bit)
+ - FLinearColor = RRVec4
 
 
    

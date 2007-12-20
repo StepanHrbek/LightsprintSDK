@@ -23,16 +23,16 @@ RRIlluminationEnvironmentMapInMemory::RRIlluminationEnvironmentMapInMemory(unsig
 	texture = rr_gl::Texture::createM(NULL,width,width,true,rr_gl::Texture::TF_RGBF);
 }
 
-void RRIlluminationEnvironmentMapInMemory::setValues(unsigned size, const RRColorRGBF* irradiance)
+void RRIlluminationEnvironmentMapInMemory::setValues(unsigned size, const RRVec3* irradiance)
 {
 	texture->reset(size,size,rr_gl::Texture::TF_RGBF,(const unsigned char*)irradiance,false);
 }
 
-RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction) const
+RRVec3 RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction) const
 {
 	float tmp[4];
 	texture->getPixel(direction[0],direction[1],direction[2],tmp);
-	return rr::RRColorRGBF(tmp[0],tmp[1],tmp[2]);
+	return RRVec3(tmp[0],tmp[1],tmp[2]);
 }
 
 void RRIlluminationEnvironmentMapInMemory::bindTexture() const

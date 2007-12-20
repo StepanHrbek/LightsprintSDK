@@ -43,8 +43,8 @@ struct ProcessTexelParams
 
 struct ProcessTexelResult
 {
-	RRColorRGBAF irradiance; // alpha = 0|1
-	RRColorRGBAF bentNormal; // alpha = 0|1
+	RRVec4 irradiance; // alpha = 0|1
+	RRVec4 bentNormal; // alpha = 0|1
 	ProcessTexelResult() : irradiance(0), bentNormal(0) {}
 };
 

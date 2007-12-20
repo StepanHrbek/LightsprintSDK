@@ -165,7 +165,7 @@ public:
 		gatherer(_pti.ray,_pti.context.solver->priv->scene,_tools.environment,_tools.scaler)
 	{
 		// used by processTexel even when not shooting to hemisphere
-		irradianceHemisphere = RRColorRGBF(0);
+		irradianceHemisphere = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution) ? MAX(1,pti.context.params->quality) : 0;
@@ -206,7 +206,7 @@ public:
 			RRVec3 dir = getRandomExitDir(fillerDir, n3, u3, v3);
 			RRReal dirsize = dir.length();
 
-RRColor irrad = gatherer.gather(pti.ray->rayOrigin,dir,pti.tri.triangleIndex,RRColor(1));
+RRVec3 irrad = gatherer.gather(pti.ray->rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
 irradianceHemisphere += irrad;
 bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
 hitsScene++;
@@ -230,7 +230,7 @@ hitsReliable++;
 				if(tools.environment)
 				{
 					//irradianceIndirect += environment->getValue(dir);
-					RRColorRGBF irrad = tools.environment->getValue(dir);
+					RRVec3 irrad = tools.environment->getValue(dir);
 					if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
 					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
 					irradianceHemisphere += irrad;
@@ -287,10 +287,10 @@ hitsReliable++;
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceHemisphere = RRColorRGBAF(0);
+			irradianceHemisphere = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
-			//irradianceHemisphere = RRColorRGBAF(1,0,0,1);
+			//irradianceHemisphere = RRVec3(1,0,0);
 			//reliabilityHemisphere = 1;
 		}
 		else
@@ -298,7 +298,7 @@ hitsReliable++;
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceHemisphere = RRColorRGBAF(0);
+			irradianceHemisphere = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
@@ -311,7 +311,7 @@ hitsReliable++;
 		}
 	}
 
-	RRColorRGBF irradianceHemisphere;
+	RRVec3 irradianceHemisphere;
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
 	unsigned rays;
@@ -361,7 +361,7 @@ public:
 			if(multiObject->getTriangleMaterial(_pti.tri.triangleIndex,allLights[i],NULL))
 				lights.push_back(allLights[i]);
 		// more init (depends on filtered lights)
-		irradianceLights = RRColorRGBF(0);
+		irradianceLights = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 1;
 		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
@@ -455,7 +455,7 @@ public:
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceLights = RRColorRGBAF(0);
+			irradianceLights = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
@@ -464,7 +464,7 @@ public:
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceLights = RRColorRGBAF(0);
+			irradianceLights = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
@@ -483,7 +483,7 @@ public:
 		return lights.size();
 	}
 
-	RRColorRGBF irradianceLights;
+	RRVec3 irradianceLights;
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
 	unsigned hitsReliable;

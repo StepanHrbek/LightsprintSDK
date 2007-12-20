@@ -1869,8 +1869,8 @@ void mainMenu(int item)
 			{
 				// set lights
 				//rr::RRLights lights;
-				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
-				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
+				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRVec3(0.5f))); //!!! not freed
+				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRVec3(0.7f))); //!!! not freed
 				//level->solver->setLights(lights);
 				// updates maps in high quality
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
