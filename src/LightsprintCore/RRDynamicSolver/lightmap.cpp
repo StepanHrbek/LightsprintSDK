@@ -6,6 +6,7 @@
 #endif
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRDynamicSolver.h"
+#include "LightmapFilter.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
@@ -358,12 +359,12 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 }
 
 
-unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, RRIlluminationPixelBuffer* bentNormalsPerPixel, const UpdateParameters* aparams)
+unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, RRIlluminationPixelBuffer* bentNormalsPerPixel, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	// validate params
 	UpdateParameters params;
-	if(aparams) params = *aparams;
-
+	if(_params) params = *_params;
+	
 	// optimize params
 	if(params.applyLights && !getLights().size())
 		params.applyLights = false;
@@ -414,35 +415,36 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 #ifdef DIAGNOSTIC
 	logReset();
 #endif
-	if(pixelBuffer) pixelBuffer->renderBegin();
-	if(bentNormalsPerPixel) bentNormalsPerPixel->renderBegin();
+
+	LightmapFilter* filteredColors = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
+	LightmapFilter* filteredNormals = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 
 	TexelContext tc;
 	tc.solver = this;
-	tc.pixelBuffer = pixelBuffer;
+	tc.pixelBuffer = filteredColors;
 	tc.params = &params;
-	tc.bentNormalsPerPixel = bentNormalsPerPixel;
+	tc.bentNormalsPerPixel = filteredNormals;
 	tc.singleObjectReceiver = getObject(objectNumber);
-	// preallocate lightmap buffer before going parallel
-	unsigned uv[2]={0,0};
-	if(pixelBuffer) pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
-	if(bentNormalsPerPixel) bentNormalsPerPixel->renderTexel(uv,RRColorRGBAF(0));
-	// continue with all texels, possibly in multiple threads
 	enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
-	if(pixelBuffer) pixelBuffer->renderEnd(true);
-	if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(true);
+
+	if(pixelBuffer) pixelBuffer->reset(filteredColors->getFiltered(filtering));
+	if(bentNormalsPerPixel) bentNormalsPerPixel->reset(filteredNormals->getFiltered(filtering));
+	delete filteredColors;
+	delete filteredNormals;
+
 #ifdef DIAGNOSTIC
 	logPrint();
 #endif
+
 	return bentNormalsPerPixel ? 2 : 1;
 }
 
-unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsIndirect;
 	UpdateParameters paramsDirect;
-	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
-	if(aparamsDirect) paramsDirect = *aparamsDirect;
+	if(_paramsIndirect) paramsIndirect = *_paramsIndirect;
+	if(_paramsDirect) paramsDirect = *_paramsDirect;
 
 	RRReportInterval report(INF1,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
@@ -479,7 +481,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsDirect.applyCurrentSolution = false;
 	}
 
-	if(aparamsIndirect)
+	if(_paramsIndirect)
 	{
 		// auto quality for first gather
 		// shoot 10x less indirect rays than direct
@@ -513,7 +515,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals)->pixelBuffer;
 		if(lightmap || bentNormals)
 		{
-			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect);
+			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
 		}
 	}
 	return updatedBuffers;

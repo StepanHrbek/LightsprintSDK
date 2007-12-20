@@ -28,10 +28,8 @@ namespace rr_gl
 	{
 	public:
 		//! Creates rr::RRIlluminationPixelBuffer implemented using OpenGL 2.0.
-		RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned width, unsigned height, const char* pathToShaders);
-		virtual void renderBegin();
-		virtual void renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color);
-		virtual void renderEnd(bool preferQualityOverSpeed);
+		RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned width, unsigned height);
+		virtual void reset(const rr::RRVec4* data);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
 		virtual void bindTexture() const;
@@ -40,16 +38,6 @@ namespace rr_gl
 	private:
 		friend class RRDynamicSolverGL;
 		Texture* texture;
-		bool rendering;
-		bool renderTriangleProgramSet;
-		rr::RRColorRGBAF* renderedTexels;
-		unsigned numRenderedTexels;
-		// state backup
-		GLint viewport[4];
-		GLboolean depthTest, depthMask;
-		GLfloat clearcolor[4];
-		// static
-		static unsigned numInstances; // number of living instances
 	};
 
 } // namespace

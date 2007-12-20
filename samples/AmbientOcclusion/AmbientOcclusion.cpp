@@ -369,7 +369,7 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 		if(solver->getObject(objectNumber))
 		{
 			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = solver->createIlluminationPixelBuffer(256,256);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel);
+			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel,NULL);
 		}
 	}
 }
@@ -385,7 +385,7 @@ void calculatePerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
-	solver->updateLightmaps(layerNumber,-1,true,&paramsDirect,&paramsIndirect); 
+	solver->updateLightmaps(layerNumber,-1,true,&paramsDirect,&paramsIndirect,NULL);
 }
 
 void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)

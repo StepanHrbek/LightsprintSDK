@@ -15,10 +15,8 @@ namespace rr
 	class RRIlluminationPixelBufferInMemory : public RRIlluminationPixelBuffer
 	{
 	public:
-		RRIlluminationPixelBufferInMemory(const char* filename, unsigned width, unsigned height, unsigned spreadForegroundColor, RRColorRGBAF backgroundColor, bool smoothBackground, bool wrap);
-		virtual void renderBegin();
-		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color);
-		virtual void renderEnd(bool preferQualityOverSpeed);
+		RRIlluminationPixelBufferInMemory(const char* filename, unsigned width, unsigned height);
+		virtual void reset(const RRVec4* data);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
 		virtual const RRColorRGBA8* lock();
@@ -29,14 +27,8 @@ namespace rr
 		virtual ~RRIlluminationPixelBufferInMemory();
 	private:
 		friend RRIlluminationPixelBuffer;
-		RRColorRGBAF* renderedTexels;
-		unsigned numRenderedTexels;
 		rr_gl::Texture* texture;
-		unsigned spreadForegroundColor;
-		RRColorRGBAF backgroundColor;
-		bool smoothBackground;
 		unsigned char* lockedPixels;
-		bool wrap;
 	};
 
 } // namespace

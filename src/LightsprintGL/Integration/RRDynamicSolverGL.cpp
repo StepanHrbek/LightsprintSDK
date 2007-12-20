@@ -415,7 +415,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 
 	return 1;
 }
-
+/*
 bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {
 	rr::RRObject* object = getObject(objectIndex);
@@ -425,34 +425,42 @@ bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminat
 	CaptureUvIntoLightmap captureUv;
 	captureUv.mesh = mesh;
 
-	// prepare render target
-	lightmap->renderBegin();
-
-	// setup shader
-	setupShader(objectIndex);
-
 	// prepare renderer
 	// (could be cached later for higher speed)
 	RendererOfRRObject* renderer = new RendererOfRRObject(object,this,getScaler(),false);
 	renderer->setCapture(&captureUv,0,mesh->getNumTriangles());
-	RendererOfRRObject::RenderedChannels channels;
-	channels.NORMALS = true;
-	channels.LIGHT_DIRECT = true;
-	channels.FORCE_2D_POSITION = true;
-	renderer->setRenderedChannels(channels);
+	//RendererOfRRObject::RenderedChannels channels;
+	//channels.NORMALS = true;
+	//channels.LIGHT_DIRECT = true;
+	//channels.FORCE_2D_POSITION = true;
+	//renderer->setRenderedChannels(channels);
 
-	// render object
-	// - all fragments must be rendered with alpha=1, renderEnd() needs it for correct filtering
-	renderer->render();
+	PreserveBlend p1;
+	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+	UberProgramSetup uberProgramSetup;
+	RendererOfRRObject::RenderedChannels renderedChannels;
+	const RealtimeLight* light;
+	while(multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
+	{
+		rendererNonCaching->setRenderedChannels(renderedChannels);
+		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
+		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
+
+		// render object
+		// - all fragments must be rendered with alpha=1, renderEnd() needs it for correct filtering
+		renderer->render();
+	}
 
 	// cleanup renderer
 	delete renderer;
 
-	// restore render target
-	lightmap->renderEnd(true);
+	// filter
+	LightmapFilter lightmapFilter(...);
+	lightmapFilter->reset(glReadPixels(...));
+	lightmap->reset(lightmapFilter->getFiltered());
 
 	return true;
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////
 //

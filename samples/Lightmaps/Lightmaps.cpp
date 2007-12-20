@@ -280,7 +280,7 @@ void keyboard(unsigned char c, int x, int y)
 				// 2. objects
 				//  a) calculate whole scene at once
 				paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in custom scale (sRGB)
-				solver->updateLightmaps(1,-1,true,&paramsDirect,&paramsIndirect);
+				solver->updateLightmaps(1,-1,true,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
 				//if(!solver->getIllumination(obj)->getLayer(0)->pixelBuffer)

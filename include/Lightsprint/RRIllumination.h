@@ -213,43 +213,8 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		// Pixel buffer creation
-
-		//! Begins rendering of triangles into pixel buffer. Must be paired with renderEnd().
-		//! Used only while calculating pixel buffers, called by RRDynamicSolver.
-		//! \n\n Audience: Used internally by RRDynamicSolver.
-		virtual void renderBegin() {};
-		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
-		//
-		//! Used only while non-realtime calculating pixel buffers, called by RRDynamicSolver.
-		//! \n Must be thread safe, may be called by multiple threads at the same time, with different uv.
-		//! \param uv
-		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
-		//! \param color
-		//!  Color of rendered texel.
-		//!  RRDynamicSolver sets irradiance in custom scale here.
-		//!  With color r,g,b and importance i, RRColorRGBAF(r*i,g*i,b*i,i) is provided.
-		//!  Importance is real number in 0..1 range, 1 for securely detected colors,
-		//!  less than 1 for partially unsecure colors, e.g. texels partially inside object.
-		//!  0 for completely unsecure texels (it's also possible to not render them at all).
-		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
-		//! Finishes rendering into pixel buffer. Must be paired with renderBegin().
-		//
-		//! Used only while calculating pixel buffers, called by RRDynamicSolver.
-		//!
-		//! Colors with low alpha (probability of correctness) should be processed
-		//! and replaced by nearby colors with higher probability.
-		//! Colors in form r*p,g*p,b*p,p should be normalized to r,g,b,1.
-		//! \n\n Changes state of rendering pipeline: could change state related to shader,
-		//!  could reset render target to default backbuffer.
-		//! \n\n Audience: Used internally by RRDynamicSolver.
-		//! \param preferQualityOverSpeed
-		//!  Set true when used in precalculator, for high quality.
-		//!  Set false when used in realtime process, for high speed.
-		virtual void renderEnd(bool preferQualityOverSpeed) {};
-
-		// Pixel buffer use
-
+		//! Sets contents of buffer, all pixels at once.
+		virtual void reset(const RRVec4* data) = 0;
 		//! \return Width of pixel buffer in pixels.
 		virtual unsigned getWidth() const = 0;
 		//! \return Height of pixel buffer in pixels.
@@ -277,21 +242,7 @@ namespace rr
 		//! so bindTexture() doesn't bind it for any 3D API.
 		//! \param width Width of pixel buffer/texture.
 		//! \param height Height of pixel buffer/texture.
-		//! \param spreadForegroundColor
-		//!  How far foreground (used) colors spread into background (unused) regions.
-		//!  For lightmaps that are bilinearly filtered at application time, set 2 or higher
-		//!  to prevent background color leaking into foreground.
-		//!  For lightmaps that are unfiltered at application time, set 1 or higher.
-		//!  Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
-		//! \param backgroundColor
-		//!  Color of unused background pixels.
-		//! \param smoothBackground
-		//!  Smooth foreground-background transition.
-		//! \param wrap
-		//!  Smooth colors between opposite borders.
-		//!  Some mappings need it to prevent seams, e.g. one kind of spherical mapping.
-		//!  Generally, enable wrap if lightmap is to be later applied with wrapping enabled.
-		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height, unsigned spreadForegroundColor=2, RRColorRGBAF backgroundColor=RRColorRGBAF(0), bool smoothBackground = false, bool wrap = true);
+		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height);
 
 		//! Loads pixel buffer stored on disk as 2d image.
 		//

@@ -105,7 +105,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
 			rr::RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
 				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
-			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel);
+			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel,NULL);
 		}
 	}
 }
@@ -123,7 +123,7 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
 	paramsIndirect.applyLights = true;
-	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,true,&paramsDirect,&paramsIndirect); 
+	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,true,&paramsDirect,&paramsIndirect,NULL); 
 }
 
 void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
@@ -155,9 +155,9 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 int main(int argc, char **argv)
 {
 	// this sample properly frees memory, no leaks are reported
-	// (other samples are usually stripped down, they don't free memory)
+	// (some other samples are stripped down, they don't free memory)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 115094;
+//	_crtBreakAlloc = 65549;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)

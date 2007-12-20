@@ -450,6 +450,33 @@ namespace rr
 		//!  - call updateVertexBuffers(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
 		virtual unsigned updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
+		//! Parameters of filtering in updateLightmap()/updateLightmaps().
+		struct FilteringParameters
+		{
+			//! How far foreground (used) colors spread into background (unused) regions.
+			//! For lightmaps that are bilinearly filtered at application time, set 2 or higher
+			//! to prevent background color leaking into foreground.
+			//! For lightmaps that are unfiltered at application time, set 1 or higher.
+			//! Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
+			unsigned spreadForegroundColor;
+			//! Color of unused background pixels.
+			RRVec4 backgroundColor;
+			//! Smooth foreground-background transition.
+			bool smoothBackground;
+			//! Smooth colors between opposite borders.
+			//! Some mappings need it to prevent seams, e.g. one kind of spherical mapping.
+			//! Generally, enable wrap if lightmap is to be later applied with wrapping enabled.
+			bool wrap;
+			//! Sets default parameters.
+			FilteringParameters()
+			{
+				spreadForegroundColor = 2;
+				backgroundColor = RRVec4(0);
+				smoothBackground = false;
+				wrap = true;
+			}
+		};
+
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
 		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping().
@@ -483,6 +510,8 @@ namespace rr
 		//!  specify fast preview update (takes milliseconds).
 		//!  Measure for ambient map in custom scale is RM_IRRADIANCE_CUSTOM_INDIRECT,
 		//!  HDR GI lightmap with baked diffuse color is RM_EXITANCE_PHYSICAL etc.
+		//! \param filtering
+		//!  Parameters of lightmap filtering, set NULL for default ones.
 		//! \return
 		//!  Number of lightmaps and bent normal maps updated.
 		//!  Zero when no update was executed because of invalid inputs.
@@ -491,7 +520,7 @@ namespace rr
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, RRIlluminationPixelBuffer* bentNormals, const UpdateParameters* params);
+		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, RRIlluminationPixelBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
@@ -521,6 +550,8 @@ namespace rr
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
 		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
 		//!  Set to NULL for no indirect illumination.
+		//! \param filtering
+		//!  Parameters of lightmap filtering, set NULL for default ones.
 		//! \return
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
@@ -539,7 +570,7 @@ namespace rr
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps() with createMissingBuffers=false
 		//!  - call updateLightmaps(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
+		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
 		//

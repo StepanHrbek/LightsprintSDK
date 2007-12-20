@@ -68,22 +68,6 @@ namespace rr_gl
 		//! Loads RRIlluminationPixelBuffer stored on disk.
 		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
 
-		//! Captures direct illumination on object's surface into lightmap, using GPU.
-		//
-		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping(),
-		//! the same coordinates are used for ambient map.
-		//!
-		//! This function will be unified with RRDynamicSolver::updateLightmap() in future release.
-		//!
-		//! \param objectNumber
-		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
-		//! \param lightmap
-		//!  Pixel buffer for storing calculated lightmap.
-		//!  Lightmap holds direct irradiance in custom scale, which is light from
-		//!  realtime light sources (point/spot/dir/area lights) coming to object's surface.
-		bool updateLightmap_GPU(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
-
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.

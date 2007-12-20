@@ -15,6 +15,7 @@ NEWS
 
 CHANGES
 
+- optional lightmap filtering params moved from pixel buffer constructor to updateLightmaps() params
 - removed realtime update of lightmaps
 
 \section news40 ------------------------------------ 2007.12.06 -------------------------------------

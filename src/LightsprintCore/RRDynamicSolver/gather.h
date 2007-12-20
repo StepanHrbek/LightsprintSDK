@@ -1,4 +1,5 @@
 #include "Lightsprint/RRDynamicSolver.h"
+#include "LightmapFilter.h"
 
 #define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
 
@@ -19,9 +20,9 @@ struct ProcessTriangleInfo
 struct TexelContext
 {
 	RRDynamicSolver* solver;
-	RRIlluminationPixelBuffer* pixelBuffer;
+	LightmapFilter* pixelBuffer;
 	const RRDynamicSolver::UpdateParameters* params;
-	RRIlluminationPixelBuffer* bentNormalsPerPixel;
+	LightmapFilter* bentNormalsPerPixel;
 	RRObject* singleObjectReceiver;
 };
 
