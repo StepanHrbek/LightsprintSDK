@@ -13,38 +13,6 @@
 namespace rr_gl
 {
 
-	
-/////////////////////////////////////////////////////////////////////////////
-//
-// helper adapter
-
-class TextureFromPixelBuffer : public Texture
-{
-public:
-	TextureFromPixelBuffer(rr::RRIlluminationPixelBuffer* _pixelBuffer)
-	{
-		pixelBuffer = _pixelBuffer;
-	}
-	virtual void bindTexture() const
-	{
-		pixelBuffer->bindTexture();
-	}
-	virtual bool reset(unsigned width, unsigned height, Format format, const unsigned char* data, bool buildMipmaps) {return 0;}
-	virtual const unsigned char* lock() {return NULL;}
-	virtual void unlock() {};
-
-	virtual unsigned getWidth() const {return pixelBuffer->getWidth();}
-	virtual unsigned getHeight() const {return pixelBuffer->getHeight();}
-	virtual Format getFormat() const {return TF_RGBAF;}
-	virtual bool isCube() const {return false;}
-
-	virtual bool renderingToBegin(unsigned side = 0) {return 0;}
-	virtual void renderingToEnd() {}
-private:
-	rr::RRIlluminationPixelBuffer* pixelBuffer;
-};
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // lightmap viewer
@@ -59,6 +27,7 @@ private:
 	static Program* lmapAlphaProgram;
 	static Program* lineProgram;
 	static Texture* lightmap;
+	static rr::RRBuffer* buffer;
 	static rr::RRMesh* mesh;
 
 LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
@@ -66,9 +35,9 @@ LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh, co
 	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh,_pathToShaders) : NULL;
 }
 
-LightmapViewer* LightmapViewer::create(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* _pathToShaders)
+LightmapViewer* LightmapViewer::create(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
-	return (!created && _pixelBuffer) ? new LightmapViewer(new TextureFromPixelBuffer(_pixelBuffer),_mesh,_pathToShaders) : NULL;
+	return (!created && _pixelBuffer) ? new LightmapViewer(new Texture(_pixelBuffer,true),_mesh,_pathToShaders) : NULL;
 }
 
 LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
@@ -87,6 +56,7 @@ LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
 	lightmap = _lightmap;
+	buffer = _lightmap->getBuffer();
 	mesh = _mesh;
 }
 
@@ -157,10 +127,10 @@ void LightmapViewer::display()
 	glDisable(GL_DEPTH_TEST);
 
 	// render lightmap
-	float x = 0.5f + ( center[0] - lightmap->getWidth ()*0.5f )*zoom/winWidth;
-	float y = 0.5f + ( center[1] - lightmap->getHeight()*0.5f )*zoom/winHeight;
-	float w = lightmap->getWidth ()*zoom/winWidth;
-	float h = lightmap->getHeight()*zoom/winHeight;
+	float x = 0.5f + ( center[0] - buffer->getWidth ()*0.5f )*zoom/winWidth;
+	float y = 0.5f + ( center[1] - buffer->getHeight()*0.5f )*zoom/winHeight;
+	float w = buffer->getWidth ()*zoom/winWidth;
+	float h = buffer->getHeight()*zoom/winHeight;
 	Program* prg = alpha?lmapAlphaProgram:lmapProgram;
 	prg->useIt();
 	glActiveTexture(GL_TEXTURE0);
@@ -188,8 +158,8 @@ void LightmapViewer::display()
 		mesh->getTriangleMapping(i,mapping);
 		for(unsigned j=0;j<3;j++)
 		{
-			mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*lightmap->getWidth () )*zoom/winWidth;
-			mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*lightmap->getHeight() )*zoom/winHeight;
+			mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*buffer->getWidth () )*zoom/winWidth;
+			mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*buffer->getHeight() )*zoom/winHeight;
 		}
 		for(unsigned j=0;j<3;j++)
 		{

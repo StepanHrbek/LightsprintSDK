@@ -22,7 +22,7 @@ namespace rr
 		// scene: inputs
 		RRObjects  objects;
 		RRLights   lights;
-		const RRIlluminationEnvironmentMap* environment;
+		const RRBuffer* environment;
 		SmoothingParameters smoothing;
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;

@@ -86,7 +86,7 @@ public:
 		{
 			char name[]="maps\\rrbugs_bug0.tga";
 			name[15] = '0'+i;
-			bugMap[i] = rr_gl::Texture::load(name, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			bugMap[i] = rr::RRBuffer::load(name);
 			if(!bugMap[i])
 			{
 				printf("Texture %s not found or invalid.\n",name);
@@ -137,7 +137,7 @@ public:
 
 		for(unsigned i=0;i<numBugs;i++)
 		{
-			bugMap[rand()%2]->bindTexture();
+			rr_gl::getTexture(bugMap[rand()%2])->bindTexture();
 			bugs[i].render();
 		}
 		
@@ -153,7 +153,7 @@ private:
 	const rr::RRStaticSolver* scene;
 	const rr::RRObject* object;
 	rr::RRRay* ray;
-	rr_gl::Texture* bugMap[2];
+	rr::RRBuffer* bugMap[2];
 	float avgFaceArea;
 };
 

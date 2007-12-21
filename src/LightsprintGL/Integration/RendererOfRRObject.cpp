@@ -73,7 +73,7 @@ void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirs
 	params.lastCapturedTrianglePlus1 = alastCapturedTrianglePlus1;
 }
 
-void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap)
+void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer,const rr::RRBuffer* ambientMap)
 {
 	params.indirectIlluminationSource = BUFFERS;
 	params.indirectIlluminationLayer = 0;
@@ -87,7 +87,7 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRIlluminationVertex
 	solutionVersion = 0;
 }
 
-void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap, rr::RRIlluminationVertexBuffer* vertexBuffer2, const rr::RRIlluminationPixelBuffer* ambientMap2)
+void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2)
 {
 	params.indirectIlluminationSource = BUFFERS;
 	params.indirectIlluminationLayer = 0;
@@ -336,8 +336,8 @@ void RendererOfRRObject::render()
 					// material diffuse map - bind texture
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
-						Texture* tex = NULL;
-						params.object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
+						rr::RRBuffer* tex = NULL;
+						params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -346,7 +346,7 @@ void RendererOfRRObject::render()
 								begun = false;
 							}
 							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-							tex->bindTexture();
+							getTexture(tex)->bindTexture();
 						}
 						else
 						{			
@@ -358,7 +358,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{
 						Texture* tex = NULL;
-						params.object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
+						params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -413,20 +413,14 @@ void RendererOfRRObject::render()
 				//      - trocha prace zde
 				//      - nutne dotahnout sem RRDynamicSolver (jako zdroj orig objektu a ambient map)
 				//        coz vytvari oboustrannou vazbu mezi RRDynamicSolver a nami(DemoEngine)
-				//  Q: Jak bude renderovat klient ktery ma ke hre linkle jen RRIllumination?
-				//  A: Pouzije vlastni unwrap a mnou serializovany RRObjectIllumination
-				//     (nebo si i sam muze ukladat ambient mapy).
-				//  Q: Nemel by tedy Model_3ds (jako priklad externiho rendereru) zaviset jen na RRIllumination?
-				//  A: Ano, mel. RRDynamicSolver pouziva jen pro pristup ke spravnym RRObjectIllumination,
-				//     neni tezke to predelat.
 
 				rr::RRObjectIllumination* objectIllumination = NULL;
-				if(params.object->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
+				if(params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
 					&& objectIllumination!=oldIllumination)
 				{
 					oldIllumination = objectIllumination;
 					// setup light indirect texture
-					rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getLayer(params.indirectIlluminationLayer)->pixelBuffer;
+					rr::RRBuffer* pixelBuffer = objectIllumination->getLayer(params.indirectIlluminationLayer)->pixelBuffer;
 					if(pixelBuffer)
 					{
 						if(begun)
@@ -435,7 +429,7 @@ void RendererOfRRObject::render()
 							begun = false;
 						}
 						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-						pixelBuffer->bindTexture();
+						getTexture(pixelBuffer)->bindTexture();
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 					}
@@ -447,7 +441,7 @@ void RendererOfRRObject::render()
 					// setup light indirect texture2
 					if(params.renderedChannels.LIGHT_INDIRECT_MAP2)
 					{
-						rr::RRIlluminationPixelBuffer* pixelBuffer2 = objectIllumination->getLayer(params.indirectIlluminationLayer2)->pixelBuffer;
+						rr::RRBuffer* pixelBuffer2 = objectIllumination->getLayer(params.indirectIlluminationLayer2)->pixelBuffer;
 						if(pixelBuffer2)
 						{
 							if(begun)
@@ -456,7 +450,7 @@ void RendererOfRRObject::render()
 								begun = false;
 							}
 							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
-							pixelBuffer2->bindTexture();
+							getTexture(pixelBuffer2)->bindTexture();
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 						}
@@ -515,7 +509,7 @@ void RendererOfRRObject::render()
 				{
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
-					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
+					if(params.object->getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
@@ -526,7 +520,7 @@ void RendererOfRRObject::render()
 				{
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
-					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
+					if(params.object->getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing

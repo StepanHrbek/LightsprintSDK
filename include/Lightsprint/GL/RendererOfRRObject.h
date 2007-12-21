@@ -16,18 +16,6 @@
 namespace rr_gl
 {
 
-// Custom channels supported by RendererOfRRObject.
-// (they allocate channel numbers not used by Lightsprint engine)
-enum
-{
-	CHANNEL_TRIANGLE_DIFFUSE_TEX         = rr::RRMesh::INDEXED_BY_TRIANGLE+5, ///< channel contains Texture* for each triangle
-	CHANNEL_TRIANGLE_EMISSIVE_TEX        = rr::RRMesh::INDEXED_BY_TRIANGLE+6, ///< channel contains Texture* for each triangle
-	CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+7, ///< channel contains RRVec2[3] for each triangle
-	CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV= rr::RRMesh::INDEXED_BY_TRIANGLE+8, ///< channel contains RRVec2[3] for each triangle
-	CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = rr::RRMesh::INDEXED_BY_TRIANGLE+9, ///< channel contains RRObjectIllumination* for each triangle
-};
-
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // per vertex data generator
@@ -92,9 +80,9 @@ public:
 	{
 		bool     NORMALS                :1; ///< feeds gl_Normal
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
-		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRIlluminationVertexBuffer.
+		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRBuffer.
 		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< not implemented yet
-		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRIlluminationPixelBuffer.
+		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
 		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
@@ -130,13 +118,13 @@ public:
 	//!  Used by render() with LIGHT_INDIRECT_MAP.
 	//!  Ambient map with indirect illumination values.
 	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
-	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap);
+	void setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap);
 
 	//! Specifies what indirect illumination to render in render(): use blend of these buffers.
 	//
 	//! This is setIndirectIlluminationBuffers() extended with second set of data,
 	//! both sets are pushed into OpenGL pipeline at render time.
-	void setIndirectIlluminationBuffersBlend(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap, rr::RRIlluminationVertexBuffer* vertexBuffer2, const rr::RRIlluminationPixelBuffer* ambientMap2);
+	void setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2);
 
 	//! Specifies what indirect illumination to render in render(): use buffers from this layer.
 	//
@@ -216,10 +204,10 @@ private:
 		unsigned indirectIlluminationLayer2;
 		float indirectIlluminationBlend;
 		unsigned indirectIlluminationLayerFallback;
-		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
-		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors2;
-		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
-		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap2;
+		rr::RRBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
+		rr::RRBuffer* availableIndirectIlluminationVColors2;
+		const rr::RRBuffer* availableIndirectIlluminationMap; ///< ambient map
+		const rr::RRBuffer* availableIndirectIlluminationMap2;
 		// set by setLightingShadowingFlags()
 		const rr::RRLight* renderingFromThisLight;
 		const rr::RRLight* renderingLitByThisLight;

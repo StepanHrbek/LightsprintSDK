@@ -457,13 +457,9 @@ Used by samples:
  </td></tr></table>
 
   - <b> \subpage integration_step_6 </b>
-  - for dynamic objects, implement RRIlluminationEnvironmentMap
-  - for lightmaps, implement RRIlluminationPixelBuffer and reimplement
-    RRDynamicSolver::newPixelBuffer() to return your class
-  - for other than OpenGL API,
-    you may need custom implementation of RRIlluminationVertexBuffer,
-    implement it and reimplement
-    RRDynamicSolver::newVertexBuffer() to return your class
+  - render with computed data stored in RRBuffer lightmaps, environment maps and vertex buffers
+    (see rr_gl::getTexture() as an example how texture buffers are adapted for use in OpenGL,
+    it's basicly glTexImage2D(...,buffer->lock(BL_READ)) call)
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -1060,7 +1056,7 @@ Used by samples:
     Set single object here for single object ambient occlusion.
     If you set scene with multiple objects here, each object will be
     occluded by all other objects.
-  - Set uniform white environment with RRDynamicSolver::setEnvironment(RRIlluminationEnvironmentMap::createUniform())
+  - Set uniform white environment with RRDynamicSolver::setEnvironment(RRBuffer::createSky())
   - Call RRDynamicSolver::updateLightmaps() for per-pixel
     or RRDynamicSolver::updateVertexBuffers() for per-vertex quality, with
     \n paramsDirect.applyCurrentSolution=false
@@ -1145,8 +1141,8 @@ Used by samples:
 
  \section d12 Advantages
    - Compact representation. It requires only few bytes per vertex.
-     Default implementation stores illumination as 3 floats, but you
-     can easily add arbitrary compression.
+     Samples store illumination as 3 floats, but it can be switched to 4 bytes,
+     arbitrary compression can be added.
    - Fast rendering.
      No sampler resources are consumed.
      It can be arbitrarily postprocessed in vertex shader.
@@ -1168,13 +1164,8 @@ Used by samples:
      This is often problem also for physical engine,
      so your 3d artisis probably know they should avoid needles.
 
- \section d15 Interface, implementations
-   - interface: RRIlluminationVertexBuffer
-   - implementations: Platform independent vertex buffer is provided by 
-     RRIlluminationVertexBuffer::createInSystemMemory().
-     However, you are free to implement your own vertex buffer, see RRIlluminationVertexBuffer interface.
-   - RRDynamicSolver::newVertexBuffer() uses
-     RRIlluminationVertexBuffer::createInSystemMemory by default.
+ \section d15 Interface
+   - interface: RRBuffer
 
  \section d14 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer
@@ -1196,6 +1187,11 @@ Used by samples:
      in shader appropriately as light level, ambient occlusion or bent normal.
 
  \section d17 Examples
+   - Generic example:
+     \n Creating vertex buffer.
+     \code
+	vertexBuffer = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,NULL);
+     \endcode
    - OpenGL example:
      \n Rendering with per vertex ambient.
      \code
@@ -1205,12 +1201,12 @@ Used by samples:
 	// set program created from shaders below
 	glUseProgram(program);
 	// get vertex buffer with indirect illumination
-	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
+	rr::RRBuffer* vertexBuffer = dynamicSolver->
 		getIllumination(numberOfObject)->getLayer(0)->vertexBuffer;
 	// enable stream with color values
 	glEnableClientState(GL_COLOR_ARRAY);
 	// set pointer to color data for first vertex
-	glColorPointer(3, GL_FLOAT, 0, &vertexBuffer->lock()->x);
+	glColorPointer(3, GL_FLOAT, 0, vertexBuffer->lock(rr::BL_READ));
 	// render primitives
 	glDrawElements...
 	// cleanup
@@ -1247,11 +1243,11 @@ Used by samples:
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
 	...
 	// create d3d vertex buffer and fill it with vertexBuffer->lock() data
-	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
+	rr::RRBuffer* vertexBuffer = dynamicSolver->
 		getIllumination(numberOfObject)->getLayer(0)->vertexBuffer;
 	IDirect3DVertexBuffer9* d3dBuffer = ...;
-	// to prevent data duplication and copying, implement RRIlluminationVertexBuffer
-	//  that stores data directly into d3d vertex buffer
+	// to prevent data duplication and copying, implement RRBuffer
+	//  that stores vertex data directly into d3d vertex buffer
 	...
 	// set rendering pipeline to use shaders below
 	device->SetPixelShader(vertexShader);
@@ -1326,11 +1322,7 @@ Used by samples:
      Unwraps are often genrated automatically, using existing free or commercial tools.
 
  \section d25 Interface, implementations
-   - interface: RRIlluminationPixelBuffer
-   - implementations: OpenGL pixel buffer is available in
-     rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer().
-     For Direct3D, you are expected to implement
-     your own pixel buffer, see RRIlluminationPixelBuffer interface.
+   - interface: RRBuffer
 
  \section d24 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
@@ -1370,15 +1362,11 @@ Used by samples:
 		}
 	}
      \endcode
-   - OpenGL example:
      \n Creating lightmap.
      \code
-	virtual rr::RRIlluminationPixelBuffer*
-	YourImplementationOfDynamicSolverGL::newPixelBuffer(rr::RRObject* object)
-	{
-		return createIlluminationPixelBuffer(256,256);
-	}
+	lightmap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL);
      \endcode
+   - OpenGL example:
      Rendering with lightmap.
      \code
 	rr::RRDynamicSolver* dynamicSolver;
@@ -1422,15 +1410,6 @@ Used by samples:
 	}
      \endcode
    - Direct3D 9 example:
-     \n Creating lightmap.
-     \code
-	virtual rr::RRIlluminationPixelBuffer*
-	YourImplementationOfRRDynamicSolver::newPixelBuffer(rr::RRObject* object)
-	{
-		// use your implementation of rr::RRIlluminationPixelBuffer
-		return new YourImplementationOfRRIlluminationPixelBuffer(...);
-	}
-     \endcode
      Rendering with lightmap.
      \code
 	IDirect3DDevice9* device;
@@ -1509,14 +1488,10 @@ Used by samples:
      to save time
 
  \section d35 Interface, implementations
-   - interface: RRIlluminationEnvironmentMap
-   - implementations: OpenGL environment map is available in 
-     RRDynamicSolverGL::createIlluminationEnvironmentMap().
-     For Direct3D, you are expected to implement
-     your own environment map, see RRIlluminationEnvironmentMap interface.
+   - interface: RRBuffer
 
  \section d34 Instances
-   - stored in: your arbitrary location
+   - stored in: RRObjectIllumination::diffuseEnvMap and RRObjectIllumination::specularEnvMap or your arbitrary location
    - created by: you
    - updated by: RRDynamicSolver::updateEnvironmentMaps()
 
@@ -1562,8 +1537,8 @@ Used by samples:
      \code
 	rr::RRDynamicSolver* dynamicSolver;
 	rr::RRVec3 center; // object's center position in world
-	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
-	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
+	rr::RRBuffer* diffuseEnvironmentMap;
+	rr::RRBuffer* specularEnvironmentMap;
 	GLuint program;
 	...
 	// update environment maps
@@ -1572,13 +1547,14 @@ Used by samples:
 	// set program created from shader below
 	glUseProgram(program);
 	// bind diffuse environment map to texture0
+	// it calls glBindTexture(GL_TEXTURE_2D,map);
 	glActiveTexture(GL_TEXTURE0);
-	diffuseEnvironmentMap->bindTexture(); // calls glBindTexture(GL_TEXTURE_2D,map);
+	rr_gl::getTexture(diffuseEnvironmentMap)->bindTexture();
 	// set sampler to use texture0
 	glUniform1i(glGetUniformLocation(program,"diffuseEnvironmentMap"),0);
 	// bind specular environment map to texture1
 	glActiveTexture(GL_TEXTURE1);
-	specularEnvironmentMap->bindTexture(); // calls glBindTexture(GL_TEXTURE_2D,map);
+	rr_gl::getTexture(specularEnvironmentMap)->bindTexture();
 	// set sampler to use texture1
 	glUniform1i(glGetUniformLocation(program,"specularEnvironmentMap"),1);
 	// render primitives
@@ -1613,8 +1589,8 @@ Used by samples:
 	IDirect3DPixelShader9* pixelShader;
 	rr::RRDynamicSolver* dynamicSolver;
 	rr::RRVec3 center; // object's center position in world
-	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
-	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
+	rr::RRBuffer* diffuseEnvironmentMap;
+	rr::RRBuffer* specularEnvironmentMap;
 	...
 	// update environment maps
 	dynamicSolver->updateEnvironmentMaps(center,16,
@@ -1622,9 +1598,7 @@ Used by samples:
 	// set rendering pipeline to use shader below
 	device->SetPixelShader(pixelShader);
 	// set samplers to use environment maps
-	// (implement environment map class in d3d)
-	diffuseEnvironmentMap->bindTexture();
-	specularEnvironmentMap->bindTexture();
+	...
 	// render primitives
 	device->DrawPrimitive...
      \endcode
@@ -1877,7 +1851,7 @@ Used by samples:
 
  \section lenv Environment / Sky
   - Area light source, emissive skybox or sphere surrounding whole scene.
-  - Data structure: RRIlluminationEnvironmentMap
+  - Data structure: RRBuffer
   - Data structure container: none, only one environment in scene
   - Setup: RRDynamicSolver::setEnvironment()
   - Supported in offline GI: yes
@@ -2165,20 +2139,19 @@ Used by samples:
 
  Headers: RRIllumination.h
 
- - storage for illumination calculated by RRDynamicSolver
- - illumination storage in lightmap: RRIlluminationPixelBuffer
- - illumination storage in vertex buffer: RRIlluminationVertexBuffer
- - illumination storage in environment map: RRIlluminationEnvironmentMap
  - storage of multiple illumination layers: RRObjectIllumination
- - allows for custom implementation -> smoothly integrates with other engines
-
- Sample Lightmaps shows illumination storage in action (saving/loading lightmaps etc).
 
  <hr>
 
  Header: RRObject.h
 
  - 3d object properties: geometry, materials, position etc
+
+ <hr>
+
+ Header: RRBuffer.h
+
+ - array of colors, used for vertex color buffers, lightmaps, AO maps, normal maps, cubemaps
 
  <hr>
 
@@ -2276,7 +2249,7 @@ Used by samples:
  <hr>
  Other headers (independent to LightsprintCore):
 
- - rr_gl::Texture is OpenGL texture
+ - rr_gl::Texture is OpenGL texture, extension of RRBuffer needed for realtime rendering
  - rr_gl::Program is GLSL program
  - rr_gl::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs

@@ -13,7 +13,6 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectMGF.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "ldmgf.h"
 
 

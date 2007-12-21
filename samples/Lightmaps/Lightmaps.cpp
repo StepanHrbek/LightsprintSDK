@@ -19,7 +19,7 @@
 //   point/spot/dir/programmable lights.
 // - Tweak materials and capture illumination from emissive materials.
 // - Everything is HDR internally, custom scale externally.
-//   Tweak setScaler() and/or RRIlluminationPixelBuffer
+//   Tweak setScaler() and/or RRBuffer
 //   to set your scale and get HDR textures.
 // - Tweak map resolution: search for newPixelBuffer.
 // - Tweak map quality: search for quality =
@@ -159,7 +159,7 @@ public:
 		setDirectIlluminationBoost(2);
 	}
 protected:
-	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// Decide how big ambient map you want for object. 
 		// In this sample, we pick res proportional to number of triangles in object.
@@ -168,7 +168,7 @@ protected:
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		return createIlluminationPixelBuffer(res,res);
+		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
 	}
 	// called from RRDynamicSolverGL to update shadowmaps
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
@@ -307,7 +307,7 @@ void keyboard(unsigned char c, int x, int y)
 				// save all ambient maps (static objects)
 				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 				{
-					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(1)->pixelBuffer;
+					rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(1)->pixelBuffer;
 					if(map)
 					{
 						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -329,7 +329,7 @@ void keyboard(unsigned char c, int x, int y)
 				{
 					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
 					rr::RRObjectIllumination::Layer* illum = solver->getIllumination(objectIndex)->getLayer(1);
-					rr::RRIlluminationPixelBuffer* loaded = solver->loadIlluminationPixelBuffer(filename);
+					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
 					{
@@ -543,7 +543,7 @@ int main(int argc, char **argv)
 	}
 	solver->setStaticObjects(*adaptObjectsFromFCollada(collada),NULL);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
@@ -552,7 +552,7 @@ int main(int argc, char **argv)
 	rr::RRLights lights;
 	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
-	solver->realtimeLights[0]->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	solver->realtimeLights[0]->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	light = solver->realtimeLights[0]->getParent();
 
 	glutMainLoop();

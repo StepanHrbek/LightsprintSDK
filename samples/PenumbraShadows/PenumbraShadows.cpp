@@ -55,7 +55,7 @@ void error(const char* message, bool gfxRelated)
 Model_3DS              m3ds;
 rr_gl::Camera          eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*  realtimeLight = NULL;
-rr_gl::Texture*        environmentMap = NULL;
+rr::RRBuffer*          environmentMap = NULL;
 rr_gl::TextureRenderer*textureRenderer = NULL;
 rr_gl::UberProgram*    uberProgram = NULL;
 #ifdef WATER
@@ -80,7 +80,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if(uberProgramSetup.LIGHT_DIRECT)
-		textureRenderer->renderEnvironment(environmentMap,NULL);
+		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL);
 
 	// render static scene
 	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
@@ -110,7 +110,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV?rr_gl::getTexture(environmentMap):NULL,eye,rotation/2);
 	}
 	if(robot)
 	{
@@ -123,7 +123,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		}
-		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV?rr_gl::getTexture(environmentMap):NULL,eye,rotation);
 	}
 }
 
@@ -134,7 +134,7 @@ void updateShadowmap(unsigned mapIndex)
 	delete lightInstance;
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
-	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -348,11 +348,11 @@ int main(int argc, char **argv)
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	environmentMap = rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init light
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
 	realtimeLight->setNumInstances(shadowmapsPerPass);
 

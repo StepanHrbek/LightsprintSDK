@@ -39,14 +39,14 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	NEW_ARRAY(anormal,RRVec3);
 
 	unsigned hasDiffuseMap = 0;
-	mesh->getChannelSize(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
+	mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
 	if(hasDiffuseMap)
 		NEW_ARRAY(atexcoordDiffuse,RRVec2)
 	else
 		atexcoordDiffuse = NULL;
 
 	unsigned hasEmissiveMap = 0;
-	mesh->getChannelSize(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
+	mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
 	if(hasEmissiveMap)
 		NEW_ARRAY(atexcoordEmissive,RRVec2)
 	else
@@ -54,7 +54,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
-	alightIndirectVcolor = rr::RRIlluminationVertexBuffer::createInSystemMemory(numVerticesMax);
+	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesMax,1,1,rr::BF_RGBF,NULL);
 
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;
@@ -70,12 +70,12 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		rr::RRVec2 diffuseUv[3];
 		if(hasDiffuseMap)
 		{
-			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+			mesh->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
 		}
 		rr::RRVec2 emissiveUv[3];
 		if(hasEmissiveMap)
 		{
-			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
+			mesh->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
 		}
 /*		// material change? -> start new facegroup
 		// a) rendering into shadowmap, check shadowing flags
@@ -124,7 +124,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.diffuseTexture = NULL;
 			if(hasDiffuseMap)
 			{
-				object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
 				if(!fg.diffuseTexture)
 				{
 					// it's still possible that user will render without texture
@@ -134,7 +134,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.emissiveTexture = NULL;
 			if(hasEmissiveMap)
 			{
-				object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
+				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
 			}
 			faceGroups.push_back(fg);
 			previousMaterial = material;
@@ -230,6 +230,36 @@ bool ObjectBuffers::inited()
 	return initedOk;
 }
 
+GLint getBufferNumComponents(rr::RRBuffer* buffer)
+{
+	switch(buffer->getFormat())
+	{
+		case rr::BF_RGB:
+		case rr::BF_RGBF:
+			return 3;
+		case rr::BF_RGBA:
+		case rr::BF_RGBAF:
+			return 4;
+		default:
+			return 1;
+	}
+}
+
+GLenum getBufferComponentType(rr::RRBuffer* buffer)
+{
+	switch(buffer->getFormat())
+	{
+		case rr::BF_RGB:
+		case rr::BF_RGBA:
+			return GL_UNSIGNED_BYTE;
+		case rr::BF_RGBF:
+		case rr::BF_RGBAF:
+			return GL_FLOAT;
+		default:
+			return GL_UNSIGNED_BYTE;
+	}
+}
+
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
 {
 	RR_ASSERT(initedOk);
@@ -271,24 +301,33 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
 				// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-				unsigned bufferSize = params.availableIndirectIlluminationVColors->getNumVertices();
+				unsigned bufferSize = params.availableIndirectIlluminationVColors->getWidth();
 				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, params.availableIndirectIlluminationVColors->lockReading());
+				glColorPointer(
+					getBufferNumComponents(params.availableIndirectIlluminationVColors),
+					getBufferComponentType(params.availableIndirectIlluminationVColors),
+					0, params.availableIndirectIlluminationVColors->lock(rr::BL_READ));
 				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
 					if(params.availableIndirectIlluminationVColors2)
 					{
-						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getNumVertices();
+						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getWidth();
 						RR_ASSERT(bufferSize2==bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)params.availableIndirectIlluminationVColors2->lockReading());
+						glSecondaryColorPointer(
+							getBufferNumComponents(params.availableIndirectIlluminationVColors2),
+							getBufferComponentType(params.availableIndirectIlluminationVColors2),
+							0, (GLvoid*)params.availableIndirectIlluminationVColors2->lock(rr::BL_READ));
 					}
 					else
 					{
 						RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)alightIndirectVcolor->lockReading());
+						glSecondaryColorPointer(
+							getBufferNumComponents(alightIndirectVcolor),
+							getBufferComponentType(alightIndirectVcolor),
+							0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
 					}
 				}
 			}
@@ -299,7 +338,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// -> scene will be rendered with random indirect illumination
 				RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, alightIndirectVcolor->lockReading());
+				glColorPointer(
+					getBufferNumComponents(alightIndirectVcolor),
+					getBufferComponentType(alightIndirectVcolor),
+					0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
 			}
 		}
 		else
@@ -338,7 +380,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			}
 
 			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(3, GL_FLOAT, 0, alightIndirectVcolor->lockReading());
+			glColorPointer(
+				getBufferNumComponents(alightIndirectVcolor),
+				getBufferComponentType(alightIndirectVcolor),
+				0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
 		}
 	}
 	// set indirect illumination texcoords + map
@@ -348,7 +393,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		BIND_VBO(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-		params.availableIndirectIlluminationMap->bindTexture();
+		getTexture(params.availableIndirectIlluminationMap)->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -356,7 +401,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
-		params.availableIndirectIlluminationMap2->bindTexture();
+		getTexture(params.availableIndirectIlluminationMap2)->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -428,10 +473,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-					Texture* tex = faceGroups[fg].diffuseTexture;
+					rr::RRBuffer* tex = faceGroups[fg].diffuseTexture;
 					if(tex)
 					{
-						tex->bindTexture();
+						getTexture(tex)->bindTexture();
 					}
 					else
 					{
@@ -453,10 +498,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
-					Texture* tex = faceGroups[fg].emissiveTexture;
+					rr::RRBuffer* tex = faceGroups[fg].emissiveTexture;
 					if(tex)
 					{
-						tex->bindTexture();
+						getTexture(tex)->bindTexture();
 					}
 					else
 					{

@@ -9,8 +9,8 @@
 AnimationEditor::AnimationEditor(LevelSetup* levelSetup)
 {
 	setup = levelSetup;
-	movieClipMap = rr_gl::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	cursorMap = rr_gl::Texture::load("maps\\cursor.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	movieClipMap = rr::RRBuffer::load("maps\\movie_clip.jpg");
+	cursorMap = rr::RRBuffer::load("maps\\cursor.png");
 	frameCursor = 0;
 }
 
@@ -37,9 +37,9 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 		{
 			float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
 			float color[4] = {intensity,intensity,1,1};
-			renderer->render2D(movieClipMap,color,x,y,w,h);
+			renderer->render2D(rr_gl::getTexture(movieClipMap),color,x,y,w,h);
 			if((*i)->thumbnail)
-				renderer->render2D((*i)->thumbnail,NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
+				renderer->render2D(rr_gl::getTexture((*i)->thumbnail),NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
 		}
 		// cursor
 		if(index==frameCursor)
@@ -48,7 +48,7 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 			glEnable(GL_BLEND);
 			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			float move = fabs((clock()%CLOCKS_PER_SEC)/(float)CLOCKS_PER_SEC-0.5f);
-			renderer->render2D(cursorMap,NULL,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
+			renderer->render2D(rr_gl::getTexture(cursorMap),NULL,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
 			if(!blend)
 				glDisable(GL_BLEND);
 		}

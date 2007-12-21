@@ -36,8 +36,8 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	fscanf(f,"loading_screen = %s\n",buf);
 	if(buf[0])
 	{
-		loadingMap = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-		showImage(loadingMap);
+		loadingMap = rr::RRBuffer::load(buf);
+		showImage(rr_gl::getTexture(loadingMap));
 	}
 
 	// load music - step1
@@ -51,7 +51,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	if(buf[0])
 	{
-		skyMap = rr_gl::RRDynamicSolverGL::loadIlluminationEnvironmentMap(buf,cubeSideNames,true,true);
+		skyMap = rr::RRBuffer::load(buf,cubeSideNames,true,true);
 		if(!skyMap)
 			rr::RRReporter::report(rr::WARN,"Failed to load skybox %s.\n",buf);
 	}
@@ -92,8 +92,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	// load projectors
 	while(1==fscanf(f,"projector = %s\n",buf))
 	{
-		rr_gl::Texture* projector = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-		projectors.push_back(projector);
+		projectors.push_back(rr::RRBuffer::load(buf));
 	}
 	nextSceneIndex = 0;
 
@@ -294,7 +293,7 @@ const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 {
 	if(projectorIndex<projectors.size())
 	{
-		return projectors[projectorIndex];
+		return rr_gl::getTexture(projectors[projectorIndex],true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER);
 	}
 	else
 	{

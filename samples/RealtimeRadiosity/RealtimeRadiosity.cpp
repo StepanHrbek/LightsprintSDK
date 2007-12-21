@@ -62,7 +62,7 @@ void error(const char* message, bool gfxRelated)
 Model_3DS                  m3ds;
 rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.23f,0,0.05f,1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr_gl::Texture*            environmentMap = NULL;
+rr::RRBuffer*                environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
 #ifdef WATER
 rr_gl::Water*              water = NULL;
@@ -84,17 +84,17 @@ float                      speedLeft = 0;
 //
 // rendering scene
 
-// callback that feeds 3ds renderer with our vertex illumination
+// callback that feeds 3ds renderer with our vertex illumination in RGBF format
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
-	return vertexBuffer ? &vertexBuffer->lockReading()->x : NULL;
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
+	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -102,7 +102,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if(uberProgramSetup.LIGHT_DIRECT)
-		textureRenderer->renderEnvironment(environmentMap,NULL);
+		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL);
 
 	// render static scene
 	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
@@ -414,8 +414,7 @@ int main(int argc, char **argv)
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	//environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
+	environmentMap = rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
@@ -439,7 +438,7 @@ int main(int argc, char **argv)
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
-	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
+	solver->setEnvironment(environmentMap);
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
@@ -448,7 +447,7 @@ int main(int argc, char **argv)
 	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
-	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
 	realtimeLight->setNumInstances(shadowmapsPerPass);
 

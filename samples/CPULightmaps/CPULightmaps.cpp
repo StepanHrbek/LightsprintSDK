@@ -16,8 +16,6 @@
 // - map quality depends on unwrap quality,
 //   make sure you have good unwrap in your scenes
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
-// - disable #define OPENGL in RRObjectCollada.cpp to load Collada 
-//   scene textures to system memory, rather than to OpenGL
 // - idle time of all CPUs/cores is used, so other applications don't suffer
 //   from lightmap precalculator running on the background
 //
@@ -56,7 +54,7 @@ class Solver : public rr::RRDynamicSolver
 public:
 	Solver() {}
 protected:
-	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// Decide how big ambient occlusion map you want for object.
 		// In this sample, we pick res proportional to number of triangles in object.
@@ -64,7 +62,7 @@ protected:
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // higher factor = higher map resolution
 		while(res<2048 && res<sizeFactor*sqrtf((float)object->getCollider()->getMesh()->getNumTriangles())) res*=2;
-		return rr::RRIlluminationPixelBuffer::create(res,res);
+		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
 	}
 	virtual unsigned* detectDirectIllumination() {return NULL;}
 	virtual void setupShader(unsigned objectNumber) {}
@@ -101,10 +99,10 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 		unsigned objectNumber = objectNumbers[i];
 		if(solver->getObject(objectNumber))
 		{
-			rr::RRIlluminationPixelBuffer* lightmap = (layerNumberLighting<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
-			rr::RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
+			rr::RRBuffer* lightmap = (layerNumberLighting<0) ? NULL :
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL));
+			rr::RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL));
 			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel,NULL);
 		}
 	}
@@ -133,7 +131,7 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		char filename[1000];
 
 		// save vertex buffer
-		rr::RRIlluminationVertexBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
+		rr::RRBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
 		if(vbuf)
 		{
 			sprintf(filename,"../../data/export/%d_%d.vbu",objectIndex,layerNumber);
@@ -142,7 +140,7 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		}
 
 		// save pixel buffer
-		rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
+		rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
 		if(map)
 		{
 			sprintf(filename,"../../data/export/%d_%d.png",objectIndex,layerNumber);
@@ -175,9 +173,9 @@ int main(int argc, char **argv)
 
 	// load uniform white environment from 6 1x1 textures
 	//const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	//rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
+	//rr::RRBuffer* environmentMap = rr::RRBuffer::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
 	// create uniform white environment
-	rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::createUniform();
+	rr::RRBuffer* environmentMap = rr::RRBuffer::createSky();
 
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)

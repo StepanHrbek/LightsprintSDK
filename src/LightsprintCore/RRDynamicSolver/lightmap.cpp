@@ -36,7 +36,7 @@ How lightmap update works
 namespace rr
 {
 
-RRIlluminationPixelBuffer* RRDynamicSolver::newPixelBuffer(RRObject* object)
+RRBuffer* RRDynamicSolver::newPixelBuffer(RRObject* object)
 {
 	return NULL;
 }
@@ -359,7 +359,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 }
 
 
-unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, RRIlluminationPixelBuffer* bentNormalsPerPixel, const UpdateParameters* _params, const FilteringParameters* filtering)
+unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelBuffer, RRBuffer* bentNormalsPerPixel, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	// validate params
 	UpdateParameters params;
@@ -427,8 +427,8 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	tc.singleObjectReceiver = getObject(objectNumber);
 	enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
 
-	if(pixelBuffer) pixelBuffer->reset(filteredColors->getFiltered(filtering));
-	if(bentNormalsPerPixel) bentNormalsPerPixel->reset(filteredNormals->getFiltered(filtering));
+	if(pixelBuffer) pixelBuffer->reset(BT_2D_TEXTURE,pixelBuffer->getWidth(),pixelBuffer->getHeight(),1,BF_RGBAF,(const unsigned char*)filteredColors->getFiltered(filtering));
+	if(bentNormalsPerPixel) bentNormalsPerPixel->reset(BT_2D_TEXTURE,bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight(),1,BF_RGBAF,(const unsigned char*)filteredNormals->getFiltered(filtering));
 	delete filteredColors;
 	delete filteredNormals;
 
@@ -488,7 +488,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		unsigned numTexels = 0;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRIlluminationPixelBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
+			RRBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
 			if(lmap) numTexels += lmap->getWidth()*lmap->getHeight();
 		}
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
@@ -511,8 +511,8 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	unsigned updatedBuffers = 0;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		RRIlluminationPixelBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
-		RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals)->pixelBuffer;
+		RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
+		RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals)->pixelBuffer;
 		if(lightmap || bentNormals)
 		{
 			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);

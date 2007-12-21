@@ -24,7 +24,6 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObject3DS.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -118,9 +117,7 @@ static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				float tmp[4];
-				m->tex->getPixel(i/(float)size,j/(float)size,0,tmp);
-				avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
+				avg += m->tex->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
 			}
 		avg /= size*size;
 		//avg[0] *= m->color.r/255.0f;
@@ -205,13 +202,13 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr_gl::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr_gl::Texture*);
+			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
 			return;
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -230,8 +227,8 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr_gl::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
@@ -244,7 +241,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0); // illegal
 				return false;
 			}
-			typedef rr_gl::Texture* Out;
+			typedef rr::RRBuffer* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
@@ -254,8 +251,8 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = model->Materials[materialIndex].tex;
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
@@ -278,7 +275,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			}
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{

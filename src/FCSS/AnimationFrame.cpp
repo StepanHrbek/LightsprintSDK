@@ -149,7 +149,7 @@ bool AnimationFrame::loadOver(FILE* f)
 	// load overlay
 	overlayFilename[0] = 0;
 	if(fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==3) loaded = true;
-	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
+	overlayMap = overlayFilename[0] ? rr::RRBuffer::load(overlayFilename) : NULL;
 	// load technique
 	if(fscanf(f,"shadow_type = %d\n",&shadowType)==1) loaded = true;
 	if(fscanf(f,"indirect_type = %d\n",&indirectType)==1) loaded = true;

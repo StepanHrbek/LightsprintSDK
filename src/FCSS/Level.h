@@ -44,7 +44,7 @@
 class Level
 {
 public:
-	Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, bool supportEditor);
+	Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor);
 	~Level();
 
 	Autopilot pilot;

@@ -1059,38 +1059,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRIllumination\RRIlluminationEnvironmentMap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.h"
-				>
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationPixelBuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.h"
-				>
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.h"
-				>
-			</File>
-			<File
 				RelativePath="RRIllumination\RRObjectIllumination.cpp"
 				>
 				<FileConfiguration
@@ -1432,26 +1400,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="DemoEngine"
-			>
-			<File
-				RelativePath="..\LightsprintGL\DemoEngine\Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
-				>
-			</File>
-			<File
-				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="RRPackedSolver"
 			>
 			<File
@@ -1480,6 +1428,26 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRLight.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRBuffer"
+			>
+			<File
+				RelativePath=".\RRBuffer\RRBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRBuffer\RRBufferInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRBuffer\RRBufferInMemory.h"
 				>
 			</File>
 		</Filter>

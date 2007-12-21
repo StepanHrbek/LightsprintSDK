@@ -53,13 +53,13 @@ private:
 	bool preciseTimer;
 
 	// loading_screen
-	rr_gl::Texture* loadingMap;
+	rr::RRBuffer* loadingMap;
 
 	// music
 	class Music* music;
 
 	// sky
-	rr::RRIlluminationEnvironmentMap* skyMap;
+	rr::RRBuffer* skyMap;
 
 	// objects
 	DynamicObjects* dynamicObjects;
@@ -69,7 +69,7 @@ private:
 	std::vector<class Level*> scenes;
 
 	// projectors
-	std::vector<rr_gl::Texture*> projectors;
+	std::vector<rr::RRBuffer*> projectors;
 
 	// brightness/gamma
 	bool bigscreen; // enabled by cmdline param 'bigscreen'

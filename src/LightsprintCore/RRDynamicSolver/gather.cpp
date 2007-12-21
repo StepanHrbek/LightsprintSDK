@@ -141,7 +141,7 @@ public:
 
 	const RRScaler* scaler;
 	const RRCollider* collider;
-	const RRIlluminationEnvironmentMap* environment;
+	const RRBuffer* environment;
 	HomogenousFiller2 fillerPos;
 };
 
@@ -207,6 +207,7 @@ public:
 			RRReal dirsize = dir.length();
 
 RRVec3 irrad = gatherer.gather(pti.ray->rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
+//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 irradianceHemisphere += irrad;
 bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
 hitsScene++;
@@ -309,6 +310,9 @@ hitsReliable++;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
+		RR_ASSERT(irradianceHemisphere[0]>=0);
+		RR_ASSERT(irradianceHemisphere[1]>=0);
+		RR_ASSERT(irradianceHemisphere[2]>=0);
 	}
 
 	RRVec3 irradianceHemisphere;
@@ -716,6 +720,10 @@ shoot_from_center:
 			);
 	}
 
+	RR_ASSERT(result.irradiance[0]>=0);
+	RR_ASSERT(result.irradiance[1]>=0);
+	RR_ASSERT(result.irradiance[2]>=0);
+
 	return result;
 }
 
@@ -785,6 +793,9 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		pti.ray->rayLengthMin = priv->minimalSafeDistance;
 		ProcessTexelResult tr = processTexel(pti);
 		results[t] = tr;
+		RR_ASSERT(results[t].irradiance[0]>=0);
+		RR_ASSERT(results[t].irradiance[1]>=0);
+		RR_ASSERT(results[t].irradiance[2]>=0);
 	}
 
 	delete[] rays;

@@ -9,7 +9,7 @@ extern Vec3 refract(Vec3 N,Vec3 I,real r);
 // inputs:
 //  - ray->rayLengthMin
 //  - ray->rayLengthMax
-Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRIlluminationEnvironmentMap* _environment, const RRScaler* _scaler)
+Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler)
 {
 	ray = _ray;
 	ray->collisionHandler = &skipTriangle;
@@ -44,7 +44,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 		// ray left scene
 		if(environment)
 		{
-			RRVec3 irrad = environment->getValue(direction);
+			RRVec3 irrad = environment->getElement(direction);
 			if(scaler) scaler->getPhysicalScale(irrad);
 			return visibility * irrad;
 		}
@@ -81,6 +81,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 			Channels incidentPower = hitTriangle->totalIncidentFlux;
 			Channels irradiance = incidentPower / hitTriangle->area;
 			exitance += visibility * irradiance * material->diffuseReflectance;
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 			//!!! /2 kdyz emituje do obou stran
 		}
 
@@ -94,6 +95,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 			Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
 			// recursively call this function
 			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance);
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
 		// specular transmittance
@@ -106,8 +108,10 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 			Vec3 newDirection=-refract(hitTriangle->getN3(),direction,material->refractionIndex);
 			// recursively call this function
 			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance);
+			RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0);
 		}
 	}
+	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 	return exitance;
 }
 

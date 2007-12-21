@@ -23,8 +23,8 @@ public:
 	unsigned frameCursor; // cislo snimku nad kterym je kurzor, 0..n
 private:
 	LevelSetup* setup;
-	rr_gl::Texture* movieClipMap;
-	rr_gl::Texture* cursorMap;
+	rr::RRBuffer* movieClipMap;
+	rr::RRBuffer* cursorMap;
 };
 
 #endif

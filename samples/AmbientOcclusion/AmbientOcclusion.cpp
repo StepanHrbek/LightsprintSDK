@@ -109,7 +109,7 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("../../data/shaders/") {}
 protected:
-	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 #ifdef TB
 		RRObjectTB * objectTB = reinterpret_cast<RRObjectTB*>(object);
@@ -121,7 +121,7 @@ protected:
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // higher factor = higher map resolution
 		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		return createIlluminationPixelBuffer(res,res);
+		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
 #endif
 	}
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) {}
@@ -151,7 +151,7 @@ void mouse(int button, int state, int x, int y)
 			if(solver->getIllumination(i)->getLayer(0)->pixelBuffer)
 			{
 				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
-				solver->getIllumination(i)->getLayer(0)->pixelBuffer->bindTexture();
+				rr_gl::getTexture(solver->getIllumination(i)->getLayer(0)->pixelBuffer)->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);
 			}
@@ -368,7 +368,7 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 		unsigned objectNumber = objectNumbers[i];
 		if(solver->getObject(objectNumber))
 		{
-			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = solver->createIlluminationPixelBuffer(256,256);
+			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL);
 			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel,NULL);
 		}
 	}
@@ -395,7 +395,7 @@ void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layer
 		char filename[1000];
 
 		// save vertex buffer
-		rr::RRIlluminationVertexBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
+		rr::RRBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
 		if(vbuf)
 		{
 #ifdef TB
@@ -409,7 +409,7 @@ void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layer
 		}
 
 		// save pixel buffer
-		rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
+		rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
 		if(map)
 		{
 #ifdef TB
@@ -437,8 +437,8 @@ void loadAmbientOcclusionFromDisk(rr_gl::RRDynamicSolverGL* solver, unsigned lay
 #else
 		sprintf(filename,"../../data/export/%d.vbu",objectIndex );
 #endif
-		solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer
-			= rr::RRIlluminationVertexBuffer::load(filename,solver->getObject(objectIndex)->getCollider()->getMesh()->getNumVertices());
+		// temporarily disabled
+		//solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer = rr::RRBuffer::load(filename);
 
 		// load pixel buffer
 #ifdef TB
@@ -446,8 +446,7 @@ void loadAmbientOcclusionFromDisk(rr_gl::RRDynamicSolverGL* solver, unsigned lay
 #else
 		sprintf(filename,"../../data/export/%d.png",objectIndex );
 #endif
-		solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer
-			= solver->loadIlluminationPixelBuffer(filename);
+		solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer = rr::RRBuffer::load(filename);
 	}
 }
 
@@ -528,13 +527,9 @@ int main(int argc, char **argv)
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 	
-	// a) set white non-renderable environment (ok for calculation but invisible for realtime render)
-	//solver->setEnvironment( rr::RRIlluminationEnvironmentMap::createUniform() );
-	// b) set white renderable environment (OpenGL cube texture, ok for both calculation and realtime render)
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	rr_gl::Texture* environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	solver->setEnvironment( solver->adaptIlluminationEnvironmentMap( environmentMap ) );
-
+	// set white environment
+	solver->setEnvironment( rr::RRBuffer::createSky() );
+	
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 
 	{

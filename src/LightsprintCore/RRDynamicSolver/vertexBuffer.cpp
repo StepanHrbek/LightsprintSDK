@@ -139,12 +139,12 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	}
 }
 
-RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertices)
+RRBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertices)
 {
-	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
+	return RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,NULL);
 }
 
-unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
+unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
 	if(!vertexBuffer || objectHandle>=(int)getNumObjects() || objectHandle<-1)
 	{
@@ -160,7 +160,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVer
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectHandle];
-		RRVec3* lock = vertexBuffer->lockWriting();
+		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
 		if(lock)
 		{
 			// #pragma with if() is broken in VC++2005
@@ -185,7 +185,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVer
 		{
 			for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 			{
-				vertexBuffer->setVertex(preImportVertex,*preVertex2Ivertex[preImportVertex]);
+				vertexBuffer->setElement(preImportVertex,*preVertex2Ivertex[preImportVertex]);
 			}
 		}
 		return 1;
@@ -222,13 +222,13 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVer
 				RR_ASSERT(indirect[i]<1500000);
 			}
 		}
-		vertexBuffer->setVertex(preImportVertex,indirect);
+		vertexBuffer->setElement(preImportVertex,indirect);
 	}
 	return 1;
 }
 
 // post import triangly cele sceny -> pre import vertexy jednoho objektu
-unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const
+unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const
 {
 	if(!priv->scene || !vertexBuffer)
 	{
@@ -252,7 +252,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 				RR_ASSERT(data[i]<1500000);
 			}
 		}
-		vertexBuffer->setVertex(preImportVertex,data);
+		vertexBuffer->setElement(preImportVertex,data);
 	}
 	return 1;
 }
@@ -348,12 +348,12 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 		{
 			if(layerNumberLighting>=0)
 			{
-				RRIlluminationVertexBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
+				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
 				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
 			}
 			if(layerNumberBentNormals>=0)
 			{
-				RRIlluminationVertexBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
+				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
 				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
 			}
 		}
@@ -368,13 +368,13 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 		{
 			if(layerNumberLighting>=0)
 			{
-				RRIlluminationVertexBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
+				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
 				if(vertexColors)
 					updatedBuffers += updateVertexBuffer(objectHandle,vertexColors,&paramsDirect);
 			}
 			if(layerNumberBentNormals>=0)
 			{
-				RRIlluminationVertexBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
+				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
 				if(bentNormals)
 					RRReporter::report(WARN,"Bent normals not supported in 'realtime' mode (quality=0).\n");
 			}

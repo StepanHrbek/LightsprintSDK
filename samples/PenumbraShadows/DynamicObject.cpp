@@ -47,15 +47,18 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		glActiveTexture(activeTexture);
 	}
 	// set matrices
-	float m[16];
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-	glRotatef(rot,0,1,0);
-	glTranslatef(-model.localCenter.x,-model.localMinY,-model.localCenter.z);
-	glGetFloatv(GL_MODELVIEW_MATRIX,m);
-	glPopMatrix();
-	program->sendUniform("worldMatrix",m,false,4);
+	if(uberProgramSetup.OBJECT_SPACE)
+	{
+		float m[16];
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
+		glRotatef(rot,0,1,0);
+		glTranslatef(-model.localCenter.x,-model.localMinY,-model.localCenter.z);
+		glGetFloatv(GL_MODELVIEW_MATRIX,m);
+		glPopMatrix();
+		program->sendUniform("worldMatrix",m,false,4);
+	}
 	// render
 	model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 }

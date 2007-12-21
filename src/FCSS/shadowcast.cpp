@@ -176,12 +176,12 @@ err:
 			float y = 0.0f;
 			float wpix = 1/1280.f;
 			float hpix = 1/960.f;
-			skyRenderer->render2dQuad(mapFps,x,y-0.012f,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
+			skyRenderer->render2dQuad(rr_gl::getTexture(mapFps),x,y-0.012f,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
 			x += mapFps->getWidth()*wpix+0.01f;
 			for(char* c=fpsstr;*c;c++)
 			{
-				rr_gl::Texture* digit = mapDigit[*c-'0'];
-				skyRenderer->render2dQuad(digit,x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
+				rr::RRBuffer* digit = mapDigit[*c-'0'];
+				skyRenderer->render2dQuad(rr_gl::getTexture(digit),x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
 				x += digit->getWidth()*wpix - 0.005f;
 			}
 			skyRenderer->render2dEnd();
@@ -211,17 +211,17 @@ err:
 protected:
 	Fps()
 	{
-		mapFps = rr_gl::Texture::load("maps/txt-fps.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		mapFps = rr::RRBuffer::load("maps/txt-fps.png");
 		for(unsigned i=0;i<10;i++)
 		{
 			char buf[40];
 			sprintf(buf,"maps/txt-%d.png",i);
-			mapDigit[i] = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			mapDigit[i] = rr::RRBuffer::load(buf);
 		}
 		frames = 0;
 	}
-	rr_gl::Texture* mapDigit[10];
-	rr_gl::Texture* mapFps;
+	rr::RRBuffer* mapDigit[10];
+	rr::RRBuffer* mapFps;
 	std::queue<TIME> times;
 	unsigned frames; // kolik snimku se stihlo behem 1 prehrani animace
 	unsigned fps;
@@ -463,12 +463,12 @@ public:
 	}
 protected:
 #ifdef SUPPORT_LIGHTMAPS
-	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
 		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res);
+		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
 	}
 #endif
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
@@ -570,20 +570,6 @@ void updateMatrices(void)
 	currentFrame.eye.update();
 	currentFrame.light.update();
 	needMatrixUpdate = false;
-}
-
-// callback that feeds 3ds renderer with our vertex illumination
-const float* lockVertexIllum(void* solver,unsigned object)
-{
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
-	return vertexBuffer ? &vertexBuffer->lockReading()->x : NULL;
-}
-
-// callback that cleans vertex illumination
-void unlockVertexIllum(void* solver,unsigned object)
-{
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
-	if(vertexBuffer) vertexBuffer->unlock();
 }
 
 void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, const rr::RRLight* renderingFromThisLight)
@@ -819,12 +805,12 @@ void updateThumbnail(AnimationFrame& frame)
 	}
 	// render into thumbnail
 	if(!frame.thumbnail)
-		frame.thumbnail = rr_gl::Texture::create(NULL,160,120,false,rr_gl::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,NULL);
 	glViewport(0,0,160,120);
 	//frame.thumbnail->renderingToBegin();
 	drawEyeViewSoftShadowed();
 	//frame.thumbnail->renderingToEnd();
-	frame.thumbnail->bindTexture();
+	rr_gl::getTexture(frame.thumbnail)->bindTexture();
 	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,160,120);
 	glViewport(0,0,winWidth,winHeight);
 }
@@ -1091,24 +1077,24 @@ void showImage(const rr_gl::Texture* tex)
 	glutSwapBuffers();
 }
 
-void showOverlay(const rr_gl::Texture* tex)
+void showOverlay(const rr::RRBuffer* tex)
 {
 	if(!tex) return;
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	float color[4] = {currentFrame.brightness[0],currentFrame.brightness[1],currentFrame.brightness[2],1};
-	skyRenderer->render2D(tex,color,0,0,1,1);
+	skyRenderer->render2D(rr_gl::getTexture(tex),color,0,0,1,1);
 	glDisable(GL_BLEND);
 }
 
-void showOverlay(const rr_gl::Texture* logo,float intensity,float x,float y,float w,float h)
+void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float w,float h)
 {
 	if(!logo) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	float color[4] = {intensity,intensity,intensity,intensity};
-	skyRenderer->render2D(logo,color,x,y,w,h);
+	skyRenderer->render2D(rr_gl::getTexture(logo),color,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
@@ -1222,7 +1208,7 @@ void display()
 		{
 			for(LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
 			{
-				rr_gl::Texture* texture = (*i)->overlayMap;
+				rr::RRBuffer* texture = (*i)->overlayMap;
 				if(texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
 				{
 					switch((*i)->overlayMode)
@@ -1264,9 +1250,9 @@ void display()
 		char buf[100];
 		//sprintf(buf,"Lightsprint3+1_%02d.png",shots);
 		sprintf(buf,"video\\frame%04d.jpg",shots);
-		if(rr_gl::Texture::saveBackbuffer(buf))
+		/*if(rr_gl::Texture::saveBackbuffer(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
-		else
+		else*/
 			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
 		shotRequested = 0;
 	}
@@ -1958,7 +1944,7 @@ void mainMenu(int item)
 				// save all ambient maps (static objects)
 				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
-					rr::RRIlluminationPixelBuffer* map = level->solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
+					rr::RRBuffer* map = level->solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
 					if(map)
 					{
 						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -1996,7 +1982,7 @@ void mainMenu(int item)
 				{
 					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
 					rr::RRObjectIllumination::Layer* illum = level->solver->getIllumination(objectIndex)->getLayer(0);
-					rr::RRIlluminationPixelBuffer* loaded = static_cast<rr_gl::RRDynamicSolverGL*>(level->solver)->loadIlluminationPixelBuffer(filename);
+					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
 					{
@@ -2009,7 +1995,7 @@ void mainMenu(int item)
 				{
 					// diffuse
 					sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
-					rr::RRIlluminationEnvironmentMap* loaded = level->solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
+					rr::RRBuffer* loaded = rr::RRBuffer::load(filename,cubeSideNames);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
 					{
@@ -2018,7 +2004,7 @@ void mainMenu(int item)
 					}
 					// specular
 					sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
-					loaded = level->solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
+					loaded = rr::RRBuffer::load(filename,cubeSideNames);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
 					{

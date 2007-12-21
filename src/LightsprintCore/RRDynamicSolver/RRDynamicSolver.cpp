@@ -53,12 +53,12 @@ const RRScaler* RRDynamicSolver::getScaler() const
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(const RRIlluminationEnvironmentMap* _environment)
+void RRDynamicSolver::setEnvironment(const RRBuffer* _environment)
 {
 	priv->environment = _environment;
 }
 
-const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
+const RRBuffer* RRDynamicSolver::getEnvironment() const
 {
 	return priv->environment;
 }

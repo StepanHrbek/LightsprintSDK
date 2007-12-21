@@ -70,8 +70,8 @@ namespace rr
 	//! - call updateLightmaps() or updateLightmap() with higher quality settings
 	//!   for higher quality results
 	//! - instead of rendering computed illumination,
-	//!   save it to disk using RRIlluminationPixelBuffer::save()
-	//!   or RRIlluminationEnvironmentMap::save() functions.
+	//!   save it to disk using RRBuffer::save()
+	//!   or RRBuffer::save() functions.
 	//!
 	//! Custom access to GPU and your renderer is not implemented here.
 	//! You may implement it in your RRDynamicSolver subclass
@@ -119,14 +119,14 @@ namespace rr
 		//! Environment matters only for updateLightmap() and updateLightmaps(), it is not used by realtime GI solver.
 		//! \param environment
 		//!  HDR map of environment around scene.
-		//!  Its RRIlluminationEnvironmentMap::getValue() should return
+		//!  Its RRBuffer::getValue() should return
 		//!  values in physical scale.
 		//!  Note that environment is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		void setEnvironment(const RRIlluminationEnvironmentMap* environment);
+		void setEnvironment(const RRBuffer* environment);
 
 		//! Returns environment around scene, set by setEnvironment().
-		const RRIlluminationEnvironmentMap* getEnvironment() const;
+		const RRBuffer* getEnvironment() const;
 
 
 		//! Sets lights in scene, all at once.
@@ -398,7 +398,7 @@ namespace rr
 		//!  without final gather. In other words, it assumes that
 		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
 		//!  For higher quality final gathered results, use updateVertexBuffers().
-		virtual unsigned updateVertexBuffer(int objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
+		virtual unsigned updateVertexBuffer(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 
 		//! Updates vertex buffers with direct, indirect or global illumination and bent normals on whole static scene's surface.
 		//
@@ -485,7 +485,7 @@ namespace rr
 		//! If it's not satisfied, contents of created lightmap is undefined.
 		//!
 		//! Thread safe: yes if lightmap is safe.
-		//!  \n Note1: LightsprintGL implementation of RRIlluminationPixelBuffer is not safe.
+		//!  \n Note1: LightsprintGL implementation of RRBuffer is not safe.
 		//!  \n Note2: updateLightmap() uses multiple threads internally.
 		//!
 		//! Not supported if you use \ref calc_fireball.
@@ -520,7 +520,7 @@ namespace rr
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, RRIlluminationPixelBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering);
+		virtual unsigned updateLightmap(unsigned objectNumber, RRBuffer* lightmap, RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
@@ -607,7 +607,7 @@ namespace rr
 		//!  this function, e.g. create illumination->diffuseEnvMap if you want it to be updated here.
 		//! \return
 		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
-		unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
 
 		//! Reads illumination of triangle's vertex in units given by measure.
 		//
@@ -790,13 +790,13 @@ namespace rr
 		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory,
 		//! so reimplement this function and return different vertex buffer class.
 		//! You may even implement monochromatic (1 float or 1 byte) format if you don't need color bleeding.
-		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
+		virtual RRBuffer* newVertexBuffer(unsigned numVertices);
 
 		//! Returns new pixel buffer (for ambient map) in your custom format.
 		//
 		//! If you don't want to use ambient maps, return NULL.
 		//! Default implementation returns NULL.
-		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
+		virtual RRBuffer* newPixelBuffer(RRObject* object);
 
 	private:
 
@@ -816,7 +816,7 @@ namespace rr
 
 		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
-		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
+		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTableDynamicSolver();
 		void       updateVertexLookupTablePackedSolver();
 		struct Private;

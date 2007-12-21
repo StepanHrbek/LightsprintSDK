@@ -39,13 +39,13 @@ struct AnimationFrame
 	unsigned layerNumber;
 
 	// runtime generated
-	rr_gl::Texture* thumbnail;
+	rr::RRBuffer* thumbnail;
 
 	// overlay
 	char overlayFilename[200];
 	float overlaySeconds;
 	unsigned overlayMode;
-	rr_gl::Texture* overlayMap;
+	rr::RRBuffer* overlayMap;
 
 	// volume
 	float volume;

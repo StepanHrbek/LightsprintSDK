@@ -59,48 +59,13 @@ namespace rr_gl
 		//! Renders lights (wireframe shadow envelopes).
 		virtual void renderLights();
 
-		//! Creates 2d texture for indirect illumination storage.
-		//! Used for precomputed global illumination of static objects.
-		//! \param width Width of texture.
-		//! \param height Height of texture.
-		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
-
-		//! Loads RRIlluminationPixelBuffer stored on disk.
-		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
+		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination);
 
 
-		//! Creates cube texture for indirect illumination storage.
-		//! Used for realtime or precomputed global illumination of dynamic objects.
-		static rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
-
-		//! Adapts cube texture for RRIlluminationEnvironmentMap interface.
-		//! Original cube must exist as long as or longer than returned adapter.
-		static rr::RRIlluminationEnvironmentMap* adaptIlluminationEnvironmentMap(Texture* cube);
-
-		//! Loads RRIlluminationEnvironmentMap stored on disk.
-		//! \param filenameMask
-		//!   Name of image file. Must be in supported format.
-		//!   For cube textures, filename may contain \%s wildcard -> 6 images will be loaded with %s replaced by cubeSideName[side].
-		//!   \n Example1: "path/cube.hdr" - cube in 1 image.
-		//!   \n Example2: "path/cube_%s.png" - cube in 6 images.
-		//! \param cubeSideName
-		//!   Array of six unique names of cube sides in following order:
-		//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
-		//!   Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
-		//! \param flipV
-		//!   Flip each image vertically at load time.
-		//! \param flipH
-		//!   Flip each image horizontally at load time.
-		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
-
-		//! Loads illumination layer from disk.
+		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
 		unsigned loadIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
 		//! Saves illumination layer to disk.
 		unsigned saveIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
-
-		//! Deletes helper objects stored permanently to speed up some operations.
-		//! Calling it makes sense if you detect memory leaks.
-		static void cleanup();
 
 		virtual void calculate(CalculateParameters* params = NULL);
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light

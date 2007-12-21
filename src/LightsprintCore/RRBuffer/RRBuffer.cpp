@@ -1,43 +1,84 @@
 // --------------------------------------------------------------------------
-// DemoEngine
-// Generic texture code: load & save using FreeImage.
+// Generic buffer code: load & save using FreeImage.
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include "Lightsprint/GL/Texture.h"
-#include "FreeImage.h"
+#include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include "FreeImage.h"
 
 #pragma comment(lib,"FreeImage.lib")
 
-namespace rr_gl
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
+namespace rr
 {
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Texture
-
-unsigned Texture::getBytesPerPixel(Texture::Format format)
+unsigned getBytesPerPixel(RRBufferFormat format)
 {
 	switch(format)
 	{
-		case Texture::TF_RGB: return 3;
-		case Texture::TF_RGBA: return 4;
-		case Texture::TF_RGBF: return 12;
-		case Texture::TF_RGBAF: return 16;
-		case Texture::TF_NONE: return 4;
+		case BF_RGB: return 3;
+		case BF_RGBA: return 4;
+		case BF_RGBF: return 12;
+		case BF_RGBAF: return 16;
+		case BF_DEPTH: return 4;
 	}
 	return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// RRBuffer
+
+RRBuffer::RRBuffer()
+{
+	customData = NULL;
+}
+
+unsigned RRBuffer::getElementBits() const
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElementBits() called.\n"));
+	return 0;
+}
+
+void RRBuffer::setElement(unsigned index, const RRVec3& element)
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::setElement() called.\n"));
+}
+
+RRVec4 RRBuffer::getElement(unsigned index) const
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElement() called.\n"));
+	return RRVec4(0);
+}
+
+RRVec4 RRBuffer::getElement(const RRVec3& coord) const
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElement() called.\n"));
+	return RRVec4(0);
+}
+
+unsigned char* RRBuffer::lock(RRBufferLock lock)
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::lock() called.\n"));
+	return NULL;
+}
+
+void RRBuffer::unlock()
+{
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::unlock() called.\n"));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // FreeImage
 
-unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,Texture::Format& format)
+unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
@@ -64,7 +105,7 @@ unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flip
 				// read size
 				width = FreeImage_GetWidth(dib1);
 				height = FreeImage_GetHeight(dib1);
-				format = Texture::TF_RGBF;
+				outFormat = BF_RGBF;
 				pixels = new unsigned char[12*width*height];
 				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib1);
 				memcpy(pixels,fipixels,width*height*12);
@@ -82,7 +123,7 @@ unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flip
 					// read size
 					width = FreeImage_GetWidth(dib2);
 					height = FreeImage_GetHeight(dib2);
-					format = Texture::TF_RGBA;
+					outFormat = BF_RGBA;
 					// convert BGRA to RGBA
 					pixels = new unsigned char[4*width*height];
 					BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);
@@ -110,10 +151,10 @@ unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flip
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Texture load
+// RRBuffer load
 //
 // Universal code that loads texture into system memory, using FreeImage,
-// and then calls virtual Texture::reset().
+// and then calls virtual RRBuffer::reset().
 // Handles cube textures in 1 or 6 images.
 
 void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip=false)
@@ -161,12 +202,22 @@ void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned&
 	heightOld = heightNew;
 }
 
+/*/ vertex buffer loader
+bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if(!f) return false;
+	unsigned read = (unsigned)fread(vertices,sizeof(Color),numVertices,f);
+	fclose(f);
+	return read == numVertices;
+}*/
+
 // 2D map loader
-bool reload2d(Texture* texture, const char *filename, bool flipV, bool flipH, bool buildMipmaps)
+bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool flipH)
 {
 	unsigned width = 0;
 	unsigned height = 0;
-	Texture::Format format = Texture::TF_NONE;
+	RRBufferFormat format = BF_DEPTH;
 	unsigned char* pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format);
 	if(!pixels)
 	{
@@ -174,18 +225,18 @@ bool reload2d(Texture* texture, const char *filename, bool flipV, bool flipH, bo
 	}
 	else
 	{
-		texture->reset(width,height,format,pixels,buildMipmaps);
+		texture->reset(BT_2D_TEXTURE,width,height,1,format,pixels);
 		delete[] pixels;
 		return true;
 	}
 }
 
 // cube map loader
-bool reloadCube(Texture* texture, const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH, bool buildMipmaps)
+bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH)
 {
 	unsigned width = 0;
 	unsigned height = 0;
-	Texture::Format format = Texture::TF_NONE;
+	RRBufferFormat format = BF_DEPTH;
 	unsigned char* pixels = NULL;
 	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
 	if(!sixFiles)
@@ -193,7 +244,7 @@ bool reloadCube(Texture* texture, const char *filenameMask, const char *cubeSide
 		// LOAD PIXELS FROM SINGLE FILE.HDR
 		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format);
 		if(!pixels) return false;
-		shuffleCrossToCube(pixels,width,height,Texture::getBytesPerPixel(format));
+		shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format));
 	}
 	else
 	{
@@ -206,7 +257,7 @@ bool reloadCube(Texture* texture, const char *filenameMask, const char *cubeSide
 			buf[999] = 0;
 
 			unsigned tmpWidth, tmpHeight;
-			Texture::Format tmpFormat;
+			RRBufferFormat tmpFormat;
 
 			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat);
 			if(!sides[side])
@@ -231,28 +282,28 @@ bool reloadCube(Texture* texture, const char *filenameMask, const char *cubeSide
 
 		// pack 6 images into 1 array
 		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
-		pixels = new unsigned char[width*height*Texture::getBytesPerPixel(format)*6];
+		pixels = new unsigned char[width*height*getBytesPerPixel(format)*6];
 		for(unsigned side=0;side<6;side++)
 		{
-			memcpy(pixels+width*height*Texture::getBytesPerPixel(format)*side,sides[side],width*height*Texture::getBytesPerPixel(format));
+			memcpy(pixels+width*height*getBytesPerPixel(format)*side,sides[side],width*height*getBytesPerPixel(format));
 			SAFE_DELETE_ARRAY(sides[side]);
 		}
 	}
 
 	// load cube from 1 array
-	texture->reset(width,height,format,pixels,buildMipmaps);
+	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,pixels);
 	delete[] pixels;
 	return true;
 }
 
-bool Texture::reload(const char *filename,const char* cubeSideName[6],bool flipV,bool flipH,bool buildMipmaps)
+bool RRBuffer::reload(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
 	bool reloaded = cubeSideName
-		? reloadCube(this,filename,cubeSideName,flipV,flipH,buildMipmaps)
-		: reload2d(this,filename,flipV,flipH,buildMipmaps);
+		? reloadCube(this,filename,cubeSideName,flipV,flipH)
+		: reload2d(this,filename,flipV,flipH);
 	if(!reloaded)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load %s.\n",filename);
+		rr::RRReporter::report(rr::ERRO,"Failed to reload %s.\n",filename);
 	}
 	return reloaded;
 }
@@ -260,11 +311,11 @@ bool Texture::reload(const char *filename,const char* cubeSideName[6],bool flipV
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Texture save
+// RRBuffer save
 
-bool Texture::save(const char *filename, const char* cubeSideName[6])
+bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 {
-	BOOL bSuccess = FALSE;
+	bool result = false;
 
 	// preliminary, may change due to cubeSideName replacement
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename);
@@ -274,19 +325,32 @@ bool Texture::save(const char *filename, const char* cubeSideName[6])
 	if(!cubeSideName)
 		cubeSideName = cubeSideNameBackup;
 
-	const unsigned char* rawData = lock();
+	const unsigned char* rawData = lock(BL_READ);
 	if(rawData)
 	{
+		// save vertex buffer
+		if(getType()==BT_VERTEX_BUFFER)
+		{
+			FILE* f = fopen(filename,"wb");
+			if(f)
+			{
+				unsigned written = (unsigned)fwrite(rawData,getElementBits()/8,getWidth(),f);
+				fclose(f);
+				result = written == getWidth();
+			}
+			goto ende;
+		}
+
 		// get src format
 		unsigned srcbypp = getBytesPerPixel(getFormat());
 		unsigned srcbipp = 8*srcbypp;
 		FREE_IMAGE_TYPE fit;
 		switch(getFormat())
 		{
-			case TF_RGB: fit = FIT_BITMAP; break;
-			case TF_RGBA: fit = FIT_BITMAP; break;
-			case TF_RGBF: fit = FIT_RGBF; break;
-			case TF_RGBAF: fit = FIT_RGBAF; break;
+			case BF_RGB: fit = FIT_BITMAP; break;
+			case BF_RGBA: fit = FIT_BITMAP; break;
+			case BF_RGBF: fit = FIT_RGBF; break;
+			case BF_RGBAF: fit = FIT_RGBAF; break;
 			default: assert(0); goto ende;
 		}
 
@@ -328,10 +392,10 @@ bool Texture::save(const char *filename, const char* cubeSideName[6])
 				// process all sides
 				for(unsigned side=0;side<6;side++)
 				{
-					if(!side || isCube())
+					if(!side || getType()==BT_CUBE_TEXTURE)
 					{
 						// every one image must succeed
-						bSuccess = false;
+						result = false;
 						// fill it with texture data
 						if(dstbypp==srcbypp)
 						{
@@ -419,9 +483,9 @@ bool Texture::save(const char *filename, const char* cubeSideName[6])
 						filenameCube[999] = 0;
 
 						// save single side
-						bSuccess = FreeImage_Save(fif, dib, filenameCube);
+						result = FreeImage_Save(fif, dib, filenameCube)!=0;
 						// if any one of 6 images fails, don't try other and report fail
-						if(!bSuccess) break;
+						if(!result) break;
 					}
 				}
 			}
@@ -435,7 +499,7 @@ ende:
 		unlock();
 	}
 
-	return (bSuccess == TRUE) ? true : false;
+	return result;
 }
 
 }; // namespace

@@ -12,7 +12,7 @@ extern void error(const char* message, bool gfxRelated);
 //
 // Level body
 
-Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, bool supportEditor) : pilot(levelSetup)
+Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) : pilot(levelSetup)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
 

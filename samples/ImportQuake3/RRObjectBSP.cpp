@@ -23,7 +23,6 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
 //#define MARK_OPENED // mark used textures by read-only attribute
@@ -60,7 +59,7 @@
 class RRObjectBSP : public rr::RRObject, public rr::RRMesh
 {
 public:
-	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr_gl::Texture* missingTexture);
+	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
@@ -104,7 +103,7 @@ private:
 	struct MaterialInfo
 	{
 		rr::RRMaterial material;
-		rr_gl::Texture* texture;
+		rr::RRBuffer* texture;
 	};
 	std::vector<MaterialInfo> materials;
 	
@@ -122,7 +121,7 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,const char* pathToTextures, bool stripPaths, rr_gl::Texture* fallback)
+static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const char* pathToTextures, bool stripPaths, rr::RRBuffer* fallback)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
@@ -140,7 +139,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,strippedName,exts[e]);
 		buf[299]=0;
-		t = rr_gl::Texture::load(buf,NULL,true,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
+		t = rr::RRBuffer::load(buf,NULL,true,false);
 #ifdef MARK_OPENED
 		if(t) _chmod(buf,_S_IREAD); // mark opened files read only
 #endif
@@ -164,9 +163,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				rr::RRVec4 tmp;
-				t->getPixel(i/(float)size,j/(float)size,0,&tmp.x);
-				avg += tmp;
+				avg += t->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha
@@ -190,7 +187,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, rr_gl::Texture* missingTexture)
+RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture)
 {
 	model = amodel;
 
@@ -305,11 +302,11 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr_gl::Texture*);
+			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
 			return;
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -328,7 +325,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -341,7 +338,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0); // illegal
 				return false;
 			}
-			typedef rr_gl::Texture* Out;
+			typedef rr::RRBuffer* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
@@ -351,7 +348,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = materials[materialIndex].texture;
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -378,7 +375,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			}
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -516,7 +513,7 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRL
 class ObjectsFromTMapQ3 : public rr::RRObjects
 {
 public:
-	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr_gl::Texture* missingTexture)
+	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr::RRBuffer* missingTexture)
 	{
 		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,stripPaths,missingTexture);
 		push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
@@ -534,7 +531,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr_gl::Texture* missingTexture)
+rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr::RRBuffer* missingTexture)
 {
 	return new ObjectsFromTMapQ3(model,pathToTextures,stripPaths,missingTexture);
 }

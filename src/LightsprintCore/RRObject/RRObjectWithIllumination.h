@@ -49,6 +49,9 @@ public:
 
 	virtual bool setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3 power)
 	{
+		RR_ASSERT(power[0]>=0);
+		RR_ASSERT(power[1]>=0);
+		RR_ASSERT(power[2]>=0);
 		if(t>=numTriangles)
 		{
 			RR_ASSERT(0);

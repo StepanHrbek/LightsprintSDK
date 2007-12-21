@@ -438,22 +438,6 @@
 				>
 			</File>
 			<File
-				RelativePath="Integration\RRIlluminationEnvironmentMapInOpenGL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Integration\RRIlluminationEnvironmentMapInOpenGL.h"
-				>
-			</File>
-			<File
-				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Integration\SceneViewer.cpp"
 				>
 			</File>
@@ -534,43 +518,11 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Texture.h"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureGL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureGL.h"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureInMemory.cpp"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureInMemory.h"
-				>
-			</File>
-			<File
 				RelativePath="DemoEngine\TextureRenderer.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureShadowMap.cpp"
-				>
-			</File>
-			<File
-				RelativePath="DemoEngine\TextureShadowMap.h"
 				>
 			</File>
 			<File
@@ -602,6 +554,50 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Texture.cpp"
+			>
+			<FileConfiguration
+				Name="Release static|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ObjectFile="$(IntDir)\$(InputName)1.obj"
+					XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug static|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ObjectFile="$(IntDir)\$(InputName)1.obj"
+					XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ObjectFile="$(IntDir)\$(InputName)1.obj"
+					XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug DLL|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ObjectFile="$(IntDir)\$(InputName)1.obj"
+					XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Texture.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

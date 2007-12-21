@@ -439,13 +439,13 @@ int main(int argc, char **argv)
 
 	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init lights
 	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
-	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 

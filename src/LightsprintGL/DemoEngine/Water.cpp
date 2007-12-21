@@ -3,7 +3,7 @@
 // Water with reflection and waves.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
-
+/*
 #include <GL/glew.h>
 #include <cstdio>
 #include "Lightsprint/GL/Water.h"
@@ -107,3 +107,4 @@ void Water::render(float size)
 }
 
 }; // namespace
+*/

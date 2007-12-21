@@ -32,8 +32,6 @@
 
 #if 1 // 0 disables Collada support, 1 enables
 
-#define OPENGL // adapt more information for OpenGL rendering, you may disable it in CPULightmaps sample
-
 #include <cassert>
 #include <cmath>
 #include <map>
@@ -61,11 +59,6 @@
 #include "FUtils/FUFileManager.h"
 
 #include "RRObjectCollada.h"
-#include "Lightsprint/GL/Texture.h"
-#ifdef OPENGL
-#include "GL/glew.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
-#endif
 
 #if _MSC_VER<1400
 #error Third party library FCollada doesn't support VS2003.
@@ -116,10 +109,8 @@ public:
 	RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChannel);
 
 	// RRChanneledData
-#ifdef OPENGL
 	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
 	virtual bool         getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
-#endif
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -201,12 +192,11 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 	return false;
 }
 
-#ifdef OPENGL
 void RRMeshCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			if(numItems) *numItems = RRMeshCollada::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(RRVec2[3]);
 			return;
@@ -226,7 +216,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,0,2,itemIndex,itemData,itemSize);
 
 		default:
@@ -234,7 +224,6 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 			return RRMesh::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -349,10 +338,8 @@ public:
 	virtual ~RRObjectCollada();
 
 	// RRChanneledData
-#ifdef OPENGL
 	virtual void               getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
 	virtual bool               getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
-#endif
 
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
@@ -369,7 +356,7 @@ private:
 	struct MaterialInfo
 	{
 		RRMaterial             material;
-		rr_gl::Texture*        diffuseTexture;
+		rr::RRBuffer*          diffuseTexture;
 	};
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
 	Cache                      cache;
@@ -431,14 +418,13 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	updateMaterials();
 }
 
-#ifdef OPENGL
 void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr_gl::Texture*);
+			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
 			return;
 
 		default:
@@ -456,14 +442,14 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			{
 			if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
-			typedef rr_gl::Texture* Out;
+			typedef rr::RRBuffer* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
@@ -475,7 +461,7 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 			return true;
 			}
 
-		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 			{
 			if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 			{
@@ -498,7 +484,6 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 			return RRObject::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 }
-#endif
 
 const RRCollider* RRObjectCollada::getCollider() const
 {
@@ -610,11 +595,7 @@ void RRObjectCollada::updateMaterials()
 						if(diffuseImage)
 						{
 							const fstring& filename = diffuseImage->GetFilename();
-#ifdef OPENGL
-							mi.diffuseTexture = rr_gl::Texture::load(&filename[0],NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
-#else
-							mi.diffuseTexture = rr_gl::Texture::loadM(&filename[0],NULL,false,false);
-#endif
+							mi.diffuseTexture = rr::RRBuffer::load(&filename[0],NULL);
 							if(mi.diffuseTexture)
 							{
 								// compute average diffuse texture color
@@ -623,9 +604,7 @@ void RRObjectCollada::updateMaterials()
 								for(unsigned i=0;i<size;i++)
 									for(unsigned j=0;j<size;j++)
 									{
-										rr::RRVec4 tmp;
-										mi.diffuseTexture->getPixel(i/(float)size,j/(float)size,0,&tmp.x);
-										avg += tmp;
+										avg += mi.diffuseTexture->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
 									}
 								avg /= size*size;
 								// rgb is diffuse reflectance
@@ -647,16 +626,15 @@ void RRObjectCollada::updateMaterials()
 						}
 					}
 				}
-#ifdef OPENGL
 				if(!mi.diffuseTexture)
 				{
 					// add 1x1 diffuse texture
 					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
 					// not necessary for other renderers
-					mi.diffuseTexture = rr_gl::Texture::create(NULL,1,1,false,rr_gl::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
-					mi.diffuseTexture->reset(1,1,rr_gl::Texture::TF_RGBF,(unsigned char*)&mi.material.diffuseReflectance,false);
+					#define FLOAT2BYTE(f) CLAMPED(unsigned(f*256),0,255)
+					unsigned char color[4] = {FLOAT2BYTE(mi.material.diffuseReflectance[0]),FLOAT2BYTE(mi.material.diffuseReflectance[1]),FLOAT2BYTE(mi.material.diffuseReflectance[2]),0};
+					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,color);
 				}
-#endif
 #ifdef VERIFY
 				if(mi.material.validate())
 					RRReporter::report(WARN,"RRObjectCollada: Material adjusted to physically valid.\n");
@@ -749,21 +727,16 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	}
 	// getting coords for diffuse texture
 	rr::RRVec2 mapping[3];
-	getCollider()->getMesh()->getChannelData(rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
+	getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
 	uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 	// getting pixel from texture
-	float rgba[4];
-	if(materialInfo->diffuseTexture->getPixel(uv[0],uv[1],0,rgba))
-	{
-		// diffuse color
-		out.diffuseReflectance[0] = rgba[0];
-		out.diffuseReflectance[1] = rgba[1];
-		out.diffuseReflectance[2] = rgba[2];
-		// alpha/transparency
-		out.specularTransmittance = rr::RRVec3(1-rgba[3]);
-		if(rgba[3]==0)
-			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
-	}
+	RRVec4 rgba = materialInfo->diffuseTexture->getElement(RRVec3(uv[0],uv[1],0));
+	// diffuse color
+	out.diffuseReflectance = rgba;
+	// alpha/transparency
+	out.specularTransmittance = rr::RRVec3(1-rgba[3]);
+	if(rgba[3]==0)
+		out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 }
 
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()

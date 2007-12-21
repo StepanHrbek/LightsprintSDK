@@ -674,7 +674,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	char buf[1000];
 	_snprintf(buf,999,"%s%s",_pathToShaders,"../maps/spot0.png");
 	buf[999] = 0;
-	Texture* lightDirectMap = Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	Texture* lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load(buf), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
@@ -713,6 +713,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		glutDestroyWindow(window);
 	}
 	delete solver;
+	delete lightDirectMap->getBuffer();
 	delete lightDirectMap;
 }
 

@@ -13,13 +13,25 @@ namespace rr
 
 NEWS
 
+- all scene adapters (Collada/3DS/Quake3) are OpenGL/Direct3D independent
+- all skyboxes are realtime renderable (now including createSky())
+
 CHANGES
 
+- MAJOR CLEANUP, API made simpler, reduced by 10%
+- RRBuffer replaces all RRIlluminationXxx classes
+  - rename RRIlluminationVertexBuffer to RRBuffer
+  - rename RRIlluminationPixelBuffer to RRBuffer
+  - rename RRIlluminationEnvironmentMap to RRBuffer
+  - fix function calls where names or parameters changed due to unification
 - removed RRColor* abstractions
-  - use RRVec3 instead of RRColor and RRColorRGBF
-  - use RRVec4 instead of RRColorRGBAF
-  - use 32bit unsigned instead of RRColorRGBA8
-  - caveat: RRColor* were zeroed in constructor while RRVec* are not
+  - rename RRColor to RRVec3
+  - rename RRColorRGBF to RRVec3
+  - rename RRColorRGBAF to RRVec4
+  - rename RRColorRGBA8 to unsigned
+
+CHANGES [OTHER]
+
 - optional lightmap filtering params moved from pixel buffer constructor to updateLightmaps() params
 - removed realtime update of lightmaps
 

@@ -111,7 +111,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	rr::RRReporter::report(rr::INF2,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
 	captureUv = new CaptureUv;
-	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,BIG_MAP_SIZEX,BIG_MAP_SIZEY,1,rr::BF_RGBA,NULL),false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
@@ -142,6 +142,7 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete rendererCaching;
 	delete rendererNonCaching;
 	delete scaleDownProgram;
+	if(detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
 	delete captureUv;
 	delete uberProgram1;
@@ -214,7 +215,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 		if(light->getParent()->orthogonal && light->getNumInstances())
 		{
 			Texture* shadowmap = light->getShadowMap(0);
-			light->getParent()->update(observer,MIN(shadowmap->getWidth(),shadowmap->getHeight()));
+			light->getParent()->update(observer,MIN(shadowmap->getBuffer()->getWidth(),shadowmap->getBuffer()->getHeight()));
 		}
 		else
 			light->getParent()->update(NULL,0);
@@ -230,7 +231,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 				lightInstance->setupForRender();
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowMap(i);
-				glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 				shadowmap->renderingToBegin();
 				glClear(GL_DEPTH_BUFFER_BIT);
 				renderScene(uberProgramSetup,light->origin);
@@ -416,7 +417,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	return 1;
 }
 /*
-bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
+bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRBuffer* lightmap)
 {
 	rr::RRObject* object = getObject(objectIndex);
 	rr::RRMesh* mesh = object->getCollider()->getMesh();
@@ -491,14 +492,17 @@ unsigned RRDynamicSolverGL::loadIllumination(const char* path, unsigned layerNum
 				if(vertexColors)
 				{
 					delete layer->vertexBuffer;
-					layer->vertexBuffer = rr::RRIlluminationVertexBuffer::load(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber),illumination->getNumPreImportVertices());
+					layer->vertexBuffer = rr::RRBuffer::load(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber),NULL);
 					if(layer->vertexBuffer)
+					{
 						result++;
+						RR_ASSERT(layer->vertexBuffer->getWidth()==illumination->getNumPreImportVertices());
+					}
 				}
 				if(lightmaps)
 				{
 					delete layer->pixelBuffer;
-					layer->pixelBuffer = loadIlluminationPixelBuffer(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber));
+					layer->pixelBuffer = rr::RRBuffer::load(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber),NULL);
 					if(layer->pixelBuffer)
 						result++;
 				}
@@ -522,11 +526,11 @@ unsigned RRDynamicSolverGL::saveIllumination(const char* path, unsigned layerNum
 			{
 				if(vertexColors && layer->vertexBuffer)
 				{
-					result += layer->vertexBuffer->save(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber));
+					result += layer->vertexBuffer->save(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber),NULL);
 				}
 				if(lightmaps && layer->pixelBuffer)
 				{
-					result += layer->pixelBuffer->save(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber));
+					result += layer->pixelBuffer->save(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber),NULL);
 				}
 			}
 		}
@@ -593,6 +597,16 @@ void RRDynamicSolverGL::renderLights()
 	{
 		drawRealtimeLight(realtimeLights[i]);
 	}
+}
+
+unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination)
+{
+	unsigned updated = rr::RRDynamicSolver::updateEnvironmentMap(illumination);
+	if(illumination->diffuseEnvMap)
+		getTexture(illumination->diffuseEnvMap)->reset(false);
+	if(illumination->specularEnvMap)
+		getTexture(illumination->specularEnvMap)->reset(false);
+	return updated;
 }
 
 }; // namespace

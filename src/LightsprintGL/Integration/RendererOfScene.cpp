@@ -165,7 +165,7 @@ void RendererOfRRDynamicSolver::render()
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
-			params.solver->getEnvironment()->bindTexture();
+			getTexture(params.solver->getEnvironment())->bindTexture();
 			glBegin(GL_POLYGON);
 				glVertex3f(-1,-1,1);
 				glVertex3f(1,-1,1);
@@ -283,7 +283,7 @@ void RendererOfOriginalScene::render()
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
-			params.solver->getEnvironment()->bindTexture();
+			getTexture(params.solver->getEnvironment())->bindTexture();
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
 			glVertex3f(1,-1,1);
@@ -312,11 +312,11 @@ void RendererOfOriginalScene::render()
 		UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
 		mainUberProgramSetup.OBJECT_SPACE = params.solver->getObject(i)->getWorldMatrix()!=NULL;
 		// - set shader according to vbuf/pbuf presence
-		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
-		rr::RRIlluminationPixelBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
+		rr::RRBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
+		rr::RRBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
 		//   - second
-		rr::RRIlluminationVertexBuffer* vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->vertexBuffer;
-		rr::RRIlluminationPixelBuffer* pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->pixelBuffer;
+		rr::RRBuffer* vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->vertexBuffer;
+		rr::RRBuffer* pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->pixelBuffer;
 		//   - fallback when buffers are not available
 		if(!vbuffer) vbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
 		if(!pbuffer) pbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;

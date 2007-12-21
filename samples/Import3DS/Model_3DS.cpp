@@ -260,12 +260,12 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	{
 		if (Materials[j].textured == false)
 		{
-			unsigned char rgb[4];
-			rgb[0] = Materials[j].color.r;
-			rgb[1] = Materials[j].color.g;
-			rgb[2] = Materials[j].color.b;
-			rgb[3] = Materials[j].color.a;
-			Materials[j].tex = rr_gl::Texture::create(rgb,1,1,false,rr_gl::Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+			unsigned char rgba[4];
+			rgba[0] = Materials[j].color.r;
+			rgba[1] = Materials[j].color.g;
+			rgba[2] = Materials[j].color.b;
+			rgba[3] = Materials[j].color.a;
+			Materials[j].tex = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,rgba);
 			Materials[j].textured = true;
 		}
 	}
@@ -382,7 +382,7 @@ void Model_3DS::Draw(
 			{
 				// Use the material's texture
 				if ((texturedDiffuse || texturedEmissive) && Objects[i].textured)
-					Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
+					rr_gl::getTexture(Materials[Objects[i].MatFaces[j].MatIndex].tex)->bindTexture();
 
 				/*glPushMatrix();
 
@@ -889,7 +889,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = rr_gl::Texture::load(fullname,NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
+	Materials[matindex].tex = rr::RRBuffer::load(fullname,NULL);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);
