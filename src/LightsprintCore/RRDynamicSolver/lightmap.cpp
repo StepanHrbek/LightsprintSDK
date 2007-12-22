@@ -36,11 +36,6 @@ How lightmap update works
 namespace rr
 {
 
-RRBuffer* RRDynamicSolver::newPixelBuffer(RRObject* object)
-{
-	return NULL;
-}
-
 
 #ifdef DIAGNOSTIC
 unsigned hist[100];
@@ -359,6 +354,15 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 }
 
 
+void flush(RRBuffer* buffer, const RRVec4* data)
+{
+	unsigned numElements = buffer->getWidth()*buffer->getHeight();
+	for(unsigned i=0;i<numElements;i++)
+	{
+		buffer->setElement(i,data[i]);
+	}
+}
+
 unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelBuffer, RRBuffer* bentNormalsPerPixel, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	// validate params
@@ -416,21 +420,24 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelB
 	logReset();
 #endif
 
-	LightmapFilter* filteredColors = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
-	LightmapFilter* filteredNormals = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
-
 	TexelContext tc;
 	tc.solver = this;
-	tc.pixelBuffer = filteredColors;
+	tc.pixelBuffer = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
 	tc.params = &params;
-	tc.bentNormalsPerPixel = filteredNormals;
+	tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 	tc.singleObjectReceiver = getObject(objectNumber);
 	enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
 
-	if(pixelBuffer) pixelBuffer->reset(BT_2D_TEXTURE,pixelBuffer->getWidth(),pixelBuffer->getHeight(),1,BF_RGBAF,(const unsigned char*)filteredColors->getFiltered(filtering));
-	if(bentNormalsPerPixel) bentNormalsPerPixel->reset(BT_2D_TEXTURE,bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight(),1,BF_RGBAF,(const unsigned char*)filteredNormals->getFiltered(filtering));
-	delete filteredColors;
-	delete filteredNormals;
+	if(tc.pixelBuffer)
+	{
+		flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering));
+		delete tc.pixelBuffer;
+	}
+	if(tc.bentNormalsPerPixel)
+	{
+		flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering));
+		delete tc.bentNormalsPerPixel;
+	}
 
 #ifdef DIAGNOSTIC
 	logPrint();
@@ -439,7 +446,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelB
 	return bentNormalsPerPixel ? 2 : 1;
 }
 
-unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
+unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsIndirect;
 	UpdateParameters paramsDirect;
@@ -456,24 +463,6 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
-
-	// 0. create missing buffers
-	if(createMissingBuffers)
-	{
-		for(unsigned object=0;object<getNumObjects();object++)
-		{
-			if(layerNumberLighting>=0)
-			{
-				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberLighting);
-				if(layer && !layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
-			}
-			if(layerNumberBentNormals>=0)
-			{
-				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberBentNormals);
-				if(layer && !layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
-			}
-		}
-	}
 
 	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{

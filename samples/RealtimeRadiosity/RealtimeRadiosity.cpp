@@ -343,7 +343,7 @@ void idle()
 	if(solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateVertexBuffers(0,-1,true,NULL,NULL);
+		solver->updateVertexBuffers(0,-1,NULL,NULL);
 	}
 
 	glutPostRedisplay();
@@ -441,6 +441,12 @@ int main(int argc, char **argv)
 	solver->setEnvironment(environmentMap);
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// create buffers for computed GI
+	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
+			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
 
 	// init light
 	rr::RRLights lights;

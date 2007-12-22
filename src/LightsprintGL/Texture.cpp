@@ -57,7 +57,31 @@ void Texture::reset(bool _buildMipmaps)
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
-
+	/*switch(buffer->getFormat())
+	{
+		case rr::BF_RGBF:
+			if(data && buffer->getType()==rr::BT_2D_TEXTURE)
+			{
+				unsigned group[3]={0,0,0};
+				for(unsigned i=0;i<buffer->getWidth()*buffer->getHeight()*3;i++)
+				{
+					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?2:1)]++;
+				}
+				rr::RRReporter::report(rr::INF1,"RRVec3: (-inf..0)=%d <0..1>=%d (1..inf)=%d\n",group[0],group[1],group[2]);
+			}
+			break;
+		case rr::BF_RGBAF:
+			if(data && buffer->getType()==rr::BT_2D_TEXTURE)
+			{
+				unsigned group[3]={0,0,0};
+				for(unsigned i=0;i<buffer->getWidth()*buffer->getHeight()*4;i++)
+				{
+					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?2:1)]++;
+				}
+				rr::RRReporter::report(rr::INF1,"RRVec4: (-inf..0)=%d <0..1>=%d (1..inf)=%d\n",group[0],group[1],group[2]);
+			}
+			break;
+	}*/
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

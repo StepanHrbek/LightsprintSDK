@@ -83,8 +83,7 @@ namespace rr
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
 	//! Thread safe: Partially.
-	//!  All updateXxxx() functions may be called from multiple threads at the same time,
-	//!  if you don't ask them to create missing buffers.
+	//!  All updateXxxx() functions may be called from multiple threads at the same time.
 	//!  See updateVertexBuffer(), updateVertexBuffers(), updateLightmap(),
 	//!  updateLightmaps() and updateEnvironmentMaps() for important details.
 	//!  Other function may be called from multiple threads, but not at the same time.
@@ -412,8 +411,6 @@ namespace rr
 		//!  \n Negative number disables update of buffers.
 		//!  \n Bent normals are intentionally stored in separated layer, so you can save memory
 		//!  by sharing single bent normal layer with multiple lighting layers.
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
@@ -438,17 +435,16 @@ namespace rr
 		//!  As a byproduct of calculation, internal state of solver (current solution)
 		//!  is updated, so that it holds computed indirect illumination for sources
 		//!  and quality specified in paramsIndirect.
-		//!  Internal state is properly updated even when you don't specify createMissingBuffers
-		//!  and buffers don't exist (so no other output is produced).
+		//!  Internal state is properly updated even when buffers don't exist so no other output is produced.
 		//!  Following updateLightmap() or updateVertexBuffer() will include
 		//!  this indirect lighting into computed lightmap or vertex buffer
 		//!  if you set their params->applyCurrentSolution.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
+		//!  - create vertex buffers for selected objects, make sure other vertex buffers are NULL and call updateVertexBuffers()
 		//!  - for lighting in current solver, simply call updateVertexBuffer() for all selected objects
-		//!  - create vertex buffers for selected objects, make sure other vertex buffers are NULL and call updateVertexBuffers() with createMissingBuffers=false
 		//!  - call updateVertexBuffers(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
+		virtual unsigned updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Parameters of filtering in updateLightmap()/updateLightmaps().
 		struct FilteringParameters
@@ -536,8 +532,6 @@ namespace rr
 		//!  Bent normal maps for individual objects are stored into
 		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer.
 		//!  \n Negative number disables update of buffers.
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
@@ -560,17 +554,16 @@ namespace rr
 		//!  As a byproduct of calculation, internal state of solver (current solution)
 		//!  is updated, so that it holds computed indirect illumination for sources
 		//!  and quality specified in paramsIndirect.
-		//!  Internal state is properly updated even when you don't specify createMissingBuffers
-		//!  and buffers don't exist (so no other output is produced).
+		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
 		//!  Following updateLightmap() or updateVertexBuffer() will include
 		//!  this indirect lighting into computed lightmap or vertex buffer
 		//!  if you set their params->applyCurrentSolution.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
+		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
-		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps() with createMissingBuffers=false
 		//!  - call updateLightmaps(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
+		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
 		//
@@ -783,20 +776,6 @@ namespace rr
 		//! but this way it's for free, without overhead.
 		void setDirectIlluminationBoost(RRReal boost);
 
-
-		//! Returns new vertex buffer (for indirect illumination) in your custom format.
-		//
-		//! Default implementation allocates 3 floats per vertex in RAM.
-		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory,
-		//! so reimplement this function and return different vertex buffer class.
-		//! You may even implement monochromatic (1 float or 1 byte) format if you don't need color bleeding.
-		virtual RRBuffer* newVertexBuffer(unsigned numVertices);
-
-		//! Returns new pixel buffer (for ambient map) in your custom format.
-		//
-		//! If you don't want to use ambient maps, return NULL.
-		//! Default implementation returns NULL.
-		virtual RRBuffer* newPixelBuffer(RRObject* object);
 
 	private:
 

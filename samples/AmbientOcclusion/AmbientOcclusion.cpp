@@ -11,9 +11,8 @@
 // no material colors, so all colors rendered are from color bleeding.
 // You can enable diffuse maps by 'd'.
 //
-// The only lightsource considered is skybox loaded from
-// texture(s), and it is fully white by default.
-// You can quickly change sky maps or add other light sources
+// The only lightsource is white skybox.
+// You can quickly change sky or add other light sources
 // (lights, emissive materials), calculation times won't change.
 //
 // Viewer controls:
@@ -58,7 +57,6 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/LightmapViewer.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,7 +83,7 @@ rr_gl::Camera              eye(-1.416,130.741,-3.646, 12.230,0,0.050,1.3,70.0,0.
 #else
 rr_gl::Camera              eye(0,1.741f,-2.646f, 12.230f,0,0.05f,1.3f,70,0.3f,300);
 #endif
-rr_gl::RRDynamicSolverGL* solver = NULL;
+rr::RRDynamicSolver*    solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;
 float                   speedForward = 0;
 float                   speedBack = 0;
@@ -98,36 +96,6 @@ float                   gamma = 1;
 bool                    shortLines = true;
 unsigned                debugTexelNumber = -1;
 #endif
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// only map creation is implemented here
-
-class Solver : public rr_gl::RRDynamicSolverGL
-{
-public:
-	Solver() : RRDynamicSolverGL("../../data/shaders/") {}
-protected:
-	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
-	{
-#ifdef TB
-		RRObjectTB * objectTB = reinterpret_cast<RRObjectTB*>(object);
-		return createIlluminationPixelBuffer( objectTB->GetMapSize(), objectTB->GetMapSize() );
-#else
-		// Decide how big ambient occlusion map you want for object.
-		// In this sample, we pick res proportional to number of triangles in object.
-		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
-		unsigned res = 16;
-		unsigned sizeFactor = 5; // higher factor = higher map resolution
-		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-#endif
-	}
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) {}
-	virtual unsigned* detectDirectIllumination() {return NULL;}
-	virtual void setupShader(unsigned objectNumber) {}
-};
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -345,22 +313,28 @@ void idle()
 //
 // main
 
-void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
+void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
+	// create buffers for computed GI
+	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+		solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer =
+			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+
 	// calculate per vertex - all objects
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsBoth;
 	paramsBoth.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsBoth.quality = 5000;
+	paramsBoth.quality = 50;
 	paramsBoth.applyCurrentSolution = false;
 	paramsBoth.applyEnvironment = true;
-	solver->updateVertexBuffers(0,-1,true,&paramsBoth,&paramsBoth); 
+	solver->updateVertexBuffers(layerNumber,-1,&paramsBoth,&paramsBoth); 
 
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
 	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
-	paramsDirectPixel.quality = 2000;
+	paramsDirectPixel.quality = 20;
 	paramsDirectPixel.applyEnvironment = true;
 	unsigned objectNumbers[] = {SELECTED_OBJECT_NUMBER};
 	for(unsigned i=0;i<sizeof(objectNumbers)/sizeof(objectNumbers[0]);i++)
@@ -368,14 +342,26 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 		unsigned objectNumber = objectNumbers[i];
 		if(solver->getObject(objectNumber))
 		{
-			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL);
+			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer =
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL);
 			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel,NULL);
 		}
 	}
 }
 
-void calculatePerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
+void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
+	// create buffers for computed GI
+	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+	{
+		unsigned res = 16;
+		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
+		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
+		solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer =
+			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,NULL);
+	}
+
 	// calculate per pixel - all objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
 	paramsDirect.measure.scaled = false;
@@ -385,10 +371,10 @@ void calculatePerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
-	solver->updateLightmaps(layerNumber,-1,true,&paramsDirect,&paramsIndirect,NULL);
+	solver->updateLightmaps(layerNumber,-1,&paramsDirect,&paramsIndirect,NULL);
 }
 
-void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
+void saveAmbientOcclusionToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
 	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 	{
@@ -424,7 +410,7 @@ void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layer
 	}
 }
 
-void loadAmbientOcclusionFromDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
+void loadAmbientOcclusionFromDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
 	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 	{
@@ -491,7 +477,7 @@ int main(int argc, char **argv)
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
-	solver = new Solver();
+	solver = new rr::RRDynamicSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 #ifdef TB

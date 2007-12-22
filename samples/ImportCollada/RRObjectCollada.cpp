@@ -631,7 +631,7 @@ void RRObjectCollada::updateMaterials()
 					// add 1x1 diffuse texture
 					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
 					// not necessary for other renderers
-					#define FLOAT2BYTE(f) CLAMPED(unsigned(f*256),0,255)
+					#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 					unsigned char color[4] = {FLOAT2BYTE(mi.material.diffuseReflectance[0]),FLOAT2BYTE(mi.material.diffuseReflectance[1]),FLOAT2BYTE(mi.material.diffuseReflectance[2]),0};
 					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,color);
 				}

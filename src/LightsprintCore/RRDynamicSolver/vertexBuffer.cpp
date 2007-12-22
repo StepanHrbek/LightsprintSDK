@@ -139,11 +139,6 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	}
 }
 
-RRBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertices)
-{
-	return RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,NULL);
-}
-
 unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
 	if(!vertexBuffer || objectHandle>=(int)getNumObjects() || objectHandle<-1)
@@ -257,7 +252,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 	return 1;
 }
 
-unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
 	UpdateParameters paramsDirect;
 	paramsDirect.applyCurrentSolution = true; // NULL = realtime update, bez final gatheru
@@ -280,24 +275,6 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
-
-	// 0. create missing buffers
-	if(createMissingBuffers)
-	{
-		for(unsigned object=0;object<getNumObjects();object++)
-		{
-			if(layerNumberLighting>=0)
-			{
-				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberLighting);
-				if(layer && !layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
-			}
-			if(layerNumberBentNormals>=0)
-			{
-				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberBentNormals);
-				if(layer && !layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
-			}
-		}
-	}
 
 	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{

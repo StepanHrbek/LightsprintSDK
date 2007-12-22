@@ -15,6 +15,9 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
+#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
+#define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
+
 namespace rr
 {
 
@@ -397,19 +400,19 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 						// every one image must succeed
 						result = false;
 						// fill it with texture data
-						if(dstbypp==srcbypp)
+						/*if(dstbypp==srcbypp)
 						{
 							// use native format
 							memcpy(fipixels,rawData+side*getWidth()*getHeight()*dstbypp,getWidth()*getHeight()*dstbypp);
 						}
-						else
+						else*/
 						{
 							// convert format
 							// FreeImage doesn't support all necessary conversions
 							unsigned char* src = (unsigned char*)(rawData+side*getWidth()*getHeight()*srcbypp);
 							unsigned char* dst = (unsigned char*)fipixels;
 							unsigned numPixels = getWidth()*getHeight();
-							bool swaprb = (srcbipp>32) != (dstbipp>32);
+							bool swaprb = dstbipp<=32;//(srcbipp>32) != (dstbipp>32);
 							for(unsigned i=0;i<numPixels;i++)
 							{
 								// read src pixel
@@ -428,15 +431,15 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 										pixel[2] = ((float*)src)[2];
 										break;
 									case 32:
-										pixel[0] = src[0]*0.00390625f;
-										pixel[1] = src[1]*0.00390625f;
-										pixel[2] = src[2]*0.00390625f;
-										pixel[3] = src[3]*0.00390625f;
+										pixel[0] = BYTE2FLOAT(src[0]);
+										pixel[1] = BYTE2FLOAT(src[1]);
+										pixel[2] = BYTE2FLOAT(src[2]);
+										pixel[3] = BYTE2FLOAT(src[3]);
 										break;
 									case 24:
-										pixel[0] = src[0]*0.00390625f;
-										pixel[1] = src[1]*0.00390625f;
-										pixel[2] = src[2]*0.00390625f;
+										pixel[0] = BYTE2FLOAT(src[0]);
+										pixel[1] = BYTE2FLOAT(src[1]);
+										pixel[2] = BYTE2FLOAT(src[2]);
 										break;
 								}
 								src += srcbypp;
@@ -462,15 +465,15 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 										((float*)dst)[2] = pixel[2];
 										break;
 									case 32:
-										dst[0] = (unsigned char)CLAMPED(pixel[0]*256,0,255);
-										dst[1] = (unsigned char)CLAMPED(pixel[1]*256,0,255);
-										dst[2] = (unsigned char)CLAMPED(pixel[2]*256,0,255);
-										dst[3] = (unsigned char)CLAMPED(pixel[3]*256,0,255);
+										dst[0] = FLOAT2BYTE(pixel[0]);
+										dst[1] = FLOAT2BYTE(pixel[1]);
+										dst[2] = FLOAT2BYTE(pixel[2]);
+										dst[3] = FLOAT2BYTE(pixel[3]);
 										break;
 									case 24:
-										dst[0] = (unsigned char)CLAMPED(pixel[0]*256,0,255);
-										dst[1] = (unsigned char)CLAMPED(pixel[1]*256,0,255);
-										dst[2] = (unsigned char)CLAMPED(pixel[2]*256,0,255);
+										dst[0] = FLOAT2BYTE(pixel[0]);
+										dst[1] = FLOAT2BYTE(pixel[1]);
+										dst[2] = FLOAT2BYTE(pixel[2]);
 										break;
 								}
 								dst += dstbypp;

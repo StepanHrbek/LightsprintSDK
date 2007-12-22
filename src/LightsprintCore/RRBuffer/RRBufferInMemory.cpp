@@ -10,7 +10,7 @@
 #include "RRBufferInMemory.h"
 #include "Lightsprint/RRDebug.h"
 
-#define FLOAT2BYTE(f) CLAMPED(unsigned(f*256),0,255)
+#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
 namespace rr
@@ -89,14 +89,14 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec3& element)
 			data[4*index+0] = FLOAT2BYTE(element[0]);
 			data[4*index+1] = FLOAT2BYTE(element[1]);
 			data[4*index+2] = FLOAT2BYTE(element[2]);
-			data[4*index+3] = 0;
+			data[4*index+3] = 255;
 			break;
 		case BF_RGBF:
 			((RRVec3*)data)[index] = element;
 			break;
 		case BF_RGBAF:
 			((RRVec4*)data)[index] = element;
-			((RRVec4*)data)[index][3] = 0;
+			((RRVec4*)data)[index][3] = 1;
 			break;
 	}
 }

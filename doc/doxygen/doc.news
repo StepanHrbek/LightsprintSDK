@@ -18,7 +18,7 @@ NEWS
 
 CHANGES
 
-- MAJOR CLEANUP, API made simpler, reduced by 10%
+- MAJOR CLEANUP, API made simpler, cleaner, reduced by 10%
 - RRBuffer replaces all RRIlluminationXxx classes
   - rename RRIlluminationVertexBuffer to RRBuffer
   - rename RRIlluminationPixelBuffer to RRBuffer
@@ -29,6 +29,9 @@ CHANGES
   - rename RRColorRGBF to RRVec3
   - rename RRColorRGBAF to RRVec4
   - rename RRColorRGBA8 to unsigned
+- removed newVertexBuffer(), newPixelBuffer(), createMissingBuffers
+  - if you used createMissingBuffers=true, create buffers manually now,
+    see RRBuffer::create in samples
 
 CHANGES [OTHER]
 

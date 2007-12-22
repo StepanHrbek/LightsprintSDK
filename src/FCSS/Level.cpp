@@ -135,6 +135,12 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
+	// create buffers for computed GI
+	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
+			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+
 	// init light
 	//rr::RRLights lights;
 	//lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));

@@ -310,9 +310,7 @@ hitsReliable++;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
-		RR_ASSERT(irradianceHemisphere[0]>=0);
-		RR_ASSERT(irradianceHemisphere[1]>=0);
-		RR_ASSERT(irradianceHemisphere[2]>=0);
+		//RR_ASSERT(irradianceHemisphere[0]>=0 && irradianceHemisphere[1]>=0 && irradianceHemisphere[2]>=0); may be negative by rounding error
 	}
 
 	RRVec3 irradianceHemisphere;

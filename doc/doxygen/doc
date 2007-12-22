@@ -457,9 +457,10 @@ Used by samples:
  </td></tr></table>
 
   - <b> \subpage integration_step_6 </b>
-  - render with computed data stored in RRBuffer lightmaps, environment maps and vertex buffers
-    (see rr_gl::getTexture() as an example how texture buffers are adapted for use in OpenGL,
-    it's basicly glTexImage2D(...,buffer->lock(BL_READ)) call)
+  - render with computed data stored in RRBuffer lightmaps, environment maps and vertex buffers.
+    See rr_gl::getTexture() as an example how texture buffers are adapted for use in OpenGL,
+    it's basicly glTexImage2D(...,buffer->lock(BL_READ)) call. Alternatively, you can subclass
+    RRBuffer so that it stores data directly in your renderable surface.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -1165,20 +1166,11 @@ Used by samples:
      so your 3d artisis probably know they should avoid needles.
 
  \section d15 Interface
-   - interface: RRBuffer
+   - RRBuffer
 
  \section d14 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer
-   - created by: You may manually create an instance and write it to
-     RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer,
-     but you don't have to,
-     you can request RRDynamicSolver::updateVertexBuffers() to create missing buffers.
-     It creates them by calling RRDynamicSolver::newVertexBuffer().
-     Default RRDynamicSolver::newVertexBuffer() creates vertex buffer in system memory,
-     plain array. It is platform independent and perfectly sufficient for OpenGL
-     (glColorPointer accepts plain pointer to vertex color array in system memory).
-     For other API, you may need different implementation, provide it by reimplementing
-     RRDynamicSolver::newVertexBuffer() to return your class.
+   - created by: you
    - updated by: RRDynamicSolver::updateVertexBuffers()
      or RRDynamicSolver::updateVertexBuffer().
 
@@ -1322,21 +1314,12 @@ Used by samples:
      Unwraps are often genrated automatically, using existing free or commercial tools.
 
  \section d25 Interface, implementations
-   - interface: RRBuffer
+   - RRBuffer
 
  \section d24 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
      or your arbitrary location.
-   - created by:
-     You may create pixel buffers manually at any time (and store them
-     into RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
-     or your arbitrary location), but you don't have to,
-     you can request RRDynamicSolver::updateLightmaps() to create missing buffers.
-     It creates them by calling RRDynamicSolver::newPixelBuffer().
-     Default RRDynamicSolver::newPixelBuffer() returns NULL,
-     so no pixel data are created and stored.
-     You may reimplement RRDynamicSolver::newPixelBuffer() to
-     return valid instances.
+   - created by: you
    - updated by: RRDynamicSolver::updateLightmaps()
      or RRDynamicSolver::updateLightmap().
 
@@ -1488,7 +1471,7 @@ Used by samples:
      to save time
 
  \section d35 Interface, implementations
-   - interface: RRBuffer
+   - RRBuffer
 
  \section d34 Instances
    - stored in: RRObjectIllumination::diffuseEnvMap and RRObjectIllumination::specularEnvMap or your arbitrary location

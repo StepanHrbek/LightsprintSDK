@@ -21,7 +21,7 @@
 // - Everything is HDR internally, custom scale externally.
 //   Tweak setScaler() and/or RRBuffer
 //   to set your scale and get HDR textures.
-// - Tweak map resolution: search for newPixelBuffer.
+// - Tweak map resolution: search for rr::RRBuffer::create.
 // - Tweak map quality: search for quality =
 //
 // Controls:
@@ -107,7 +107,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight,false);
-	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
+	rendererOfScene->useOriginalScene(realtimeIllumination?0:(ambientMapsRender?2:1));
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();
 
@@ -159,17 +159,6 @@ public:
 		setDirectIlluminationBoost(2);
 	}
 protected:
-	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
-	{
-		// Decide how big ambient map you want for object. 
-		// In this sample, we pick res proportional to number of triangles in object.
-		// When seams appear, increase res.
-		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
-		unsigned res = 16;
-		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-	}
 	// called from RRDynamicSolverGL to update shadowmaps
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
@@ -280,17 +269,15 @@ void keyboard(unsigned char c, int x, int y)
 				// 2. objects
 				//  a) calculate whole scene at once
 				paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in custom scale (sRGB)
-				solver->updateLightmaps(1,-1,true,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(2,-1,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
-				//if(!solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
-				//	solver->getIllumination(obj)->getLayer(0)->pixelBuffer = solver->createIlluminationPixelBuffer(256,256);
-				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(2)->pixelBuffer,&paramsDirect);
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
 				paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in physical scale (HDR)
-				solver->updateVertexBuffers(1,-1,true,&paramsDirect,&paramsIndirect);
+				solver->updateVertexBuffers(1,-1,&paramsDirect,&paramsIndirect);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -420,7 +407,7 @@ void display(void)
 		if(solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateVertexBuffers(0,-1,true,NULL,NULL);
+			solver->updateVertexBuffers(0,-1,NULL,NULL);
 		}
 	}
 
@@ -547,6 +534,24 @@ int main(int argc, char **argv)
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// create buffers for computed GI
+	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+	{
+		// 0 = realtime per-vertex
+		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
+			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+		// 1 = offline per-vertex
+		solver->getIllumination(i)->getLayer(1)->vertexBuffer =
+			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+		// 2 = offline per-pixel
+		unsigned res = 16;
+		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
+		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
+		solver->getIllumination(i)->getLayer(2)->pixelBuffer =
+			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,NULL);
+	}
 
 	// init light
 	rr::RRLights lights;

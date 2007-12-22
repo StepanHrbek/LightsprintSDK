@@ -462,15 +462,6 @@ public:
 		setDirectIlluminationBoost(2);
 	}
 protected:
-#ifdef SUPPORT_LIGHTMAPS
-	virtual rr::RRBuffer* newPixelBuffer(rr::RRObject* object)
-	{
-		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
-		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
-		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-	}
-#endif
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
@@ -585,7 +576,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 		level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateVertexBuffers(0,-1,true,NULL,NULL);
+		level->solver->updateVertexBuffers(0,-1,NULL,NULL);
 	}
 	if(demoPlayer->getPaused())
 	{
@@ -1851,6 +1842,7 @@ void mainMenu(int item)
 			break;
 
 #ifdef SUPPORT_LIGHTMAPS
+		todo: create buffers for computed lightmaps
 		case ME_UPDATE_LIGHTMAPS_0_ENV:
 			{
 				// set lights
