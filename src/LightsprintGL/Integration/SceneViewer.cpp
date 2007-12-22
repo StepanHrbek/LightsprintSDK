@@ -62,7 +62,7 @@ rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 bool                       exitRequested = 0;
 int                        menuHandle;
-
+bool                       bilinear = 1;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -157,6 +157,7 @@ public:
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize", ME_MAXIMIZE);
+		glutAddMenuEntry("Toggle bilinear", ME_BILINEAR);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	~Menu()
@@ -193,6 +194,19 @@ public:
 					}
 				}
 				break;
+			case ME_BILINEAR:
+				bilinear = !bilinear;
+				for(unsigned i=0;i<solver->getNumObjects();i++)
+				{	
+					if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
+					{
+						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
+						rr_gl::getTexture(solver->getIllumination(i)->getLayer(0))->bindTexture();
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
+					}
+				}
+				break;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -215,6 +229,7 @@ protected:
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
+		ME_BILINEAR,
 	};
 };
 

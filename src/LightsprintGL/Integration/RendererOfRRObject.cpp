@@ -420,8 +420,8 @@ void RendererOfRRObject::render()
 				{
 					oldIllumination = objectIllumination;
 					// setup light indirect texture
-					rr::RRBuffer* pixelBuffer = objectIllumination->getLayer(params.indirectIlluminationLayer)->pixelBuffer;
-					if(pixelBuffer)
+					rr::RRBuffer* pixelBuffer = objectIllumination->getLayer(params.indirectIlluminationLayer);
+					if(pixelBuffer && pixelBuffer->getType()==rr::BT_2D_TEXTURE)
 					{
 						if(begun)
 						{
@@ -441,8 +441,8 @@ void RendererOfRRObject::render()
 					// setup light indirect texture2
 					if(params.renderedChannels.LIGHT_INDIRECT_MAP2)
 					{
-						rr::RRBuffer* pixelBuffer2 = objectIllumination->getLayer(params.indirectIlluminationLayer2)->pixelBuffer;
-						if(pixelBuffer2)
+						rr::RRBuffer* pixelBuffer2 = objectIllumination->getLayer(params.indirectIlluminationLayer2);
+						if(pixelBuffer2 && pixelBuffer2->getType()==rr::BT_2D_TEXTURE)
 						{
 							if(begun)
 							{

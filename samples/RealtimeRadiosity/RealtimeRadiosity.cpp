@@ -87,14 +87,14 @@ float                      speedLeft = 0;
 // callback that feeds 3ds renderer with our vertex illumination in RGBF format
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0);
 	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0);
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -445,7 +445,7 @@ int main(int argc, char **argv)
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
-		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(0) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
 
 	// init light

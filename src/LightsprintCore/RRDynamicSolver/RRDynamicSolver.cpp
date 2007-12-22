@@ -456,6 +456,78 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// save & load
+
+char *bp(const char *fmt, ...)
+{
+	static char msg[1000];
+	va_list argptr;
+	va_start (argptr,fmt);
+	vsprintf (msg,fmt,argptr);
+	va_end (argptr);
+	return msg;
+}
+
+unsigned RRDynamicSolver::loadIllumination(const char* path, unsigned layerNumber)
+{
+	unsigned result = 0;
+	unsigned numObjects = getNumObjects();
+	for(unsigned i=0;i<numObjects;i++)
+	{
+		rr::RRObjectIllumination* illumination = getIllumination(i);
+		if(illumination)
+		{
+			delete illumination->getLayer(layerNumber);
+			const char* filename = bp("%sobj%04d_%02d.png",path?path:"",i,layerNumber);
+			if(illumination->getLayer(layerNumber) = rr::RRBuffer::load(filename,NULL))
+			{
+				result++;
+				rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);
+			}
+			else
+			{
+				if(illumination->getLayer(layerNumber) = rr::RRBuffer::load(bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber),NULL))
+				{
+					result++;
+					rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);
+					RR_ASSERT(illumination->getLayer(layerNumber)->getWidth()==illumination->getNumPreImportVertices());
+				}
+			}
+		}
+	}
+	rr::RRReporter::report(rr::INF2,"Loaded %d/%d buffers.\n",result,numObjects);
+	return result;
+}
+
+unsigned RRDynamicSolver::saveIllumination(const char* path, unsigned layerNumber)
+{
+	rr::RRReportInterval report(rr::INF2,"Saving layer %d...\n",layerNumber);
+	unsigned result = 0;
+	unsigned numObjects = getNumObjects();
+	for(unsigned i=0;i<numObjects;i++)
+	{
+		RRBuffer* buffer = getIllumination(i) ? getIllumination(i)->getLayer(layerNumber) : NULL;
+		if(buffer)
+		{
+			const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.png",path?path:"",i,layerNumber );
+			if(buffer->save(filename,NULL))
+			{
+				result++;
+				rr::RRReporter::report(rr::INF2,"Saved %s.\n",filename);
+			}
+			else
+				rr::RRReporter::report(rr::WARN,"Not saved %s.\n",filename);
+		}
+	}
+	return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// misc
+
 void RRDynamicSolver::verify()
 {
 	RRReporter::report(INF1,"Solver diagnose:\n");

@@ -2,7 +2,7 @@
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/RRCollider.h" // ray6
 
-typedef std::map<unsigned,rr::RRObjectIllumination::Layer*> LayersType;
+typedef std::map<unsigned,rr::RRBuffer*> LayersType;
 #define layers ((LayersType*)hiddenLayers)
 
 namespace rr
@@ -26,22 +26,18 @@ RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 	ray6 = RRRay::create(6);
 }
 
-RRObjectIllumination::Layer* RRObjectIllumination::getLayer(unsigned layerNumber)
+RRBuffer*& RRObjectIllumination::getLayer(unsigned layerNumber)
 {
 	LayersType::iterator i = layers->find(layerNumber);
 	if(i!=layers->end()) return i->second;
-	Layer* tmp = new Layer();
-	(*layers)[layerNumber] = tmp;
-	return tmp;
+	return (*layers)[layerNumber] = NULL;
 }
 
-const RRObjectIllumination::Layer* RRObjectIllumination::getLayer(unsigned layerNumber) const
+RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 {
 	LayersType::iterator i = layers->find(layerNumber);
 	if(i!=layers->end()) return i->second;
-	Layer* tmp = new Layer();
-	(*layers)[layerNumber] = tmp;
-	return tmp;
+	return NULL;
 }
 
 unsigned RRObjectIllumination::getNumPreImportVertices() const

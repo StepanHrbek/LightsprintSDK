@@ -23,7 +23,6 @@
 //  +- = brightness
 //  */ = gamma
 //  d = toggle diffuse maps
-//  left button = toggle bilinear interpolation
 //
 // Remarks:
 // - map quality depends on unwrap quality,
@@ -110,21 +109,6 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		static bool nearest = false;
-		nearest = !nearest;
-		for(unsigned i=0;i<solver->getNumObjects();i++)
-		{	
-			if(solver->getIllumination(i)->getLayer(0)->pixelBuffer)
-			{
-				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
-				rr_gl::getTexture(solver->getIllumination(i)->getLayer(0)->pixelBuffer)->bindTexture();
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);
-			}
-		}
-	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
@@ -271,7 +255,7 @@ void keyboard(unsigned char c, int x, int y)
 				else
 				{
 					lv = rr_gl::LightmapViewer::create(
-						solver->getIllumination(SELECTED_OBJECT_NUMBER)->getLayer(0)->pixelBuffer,
+						solver->getIllumination(SELECTED_OBJECT_NUMBER)->getLayer(0),
 						solver->getObject(SELECTED_OBJECT_NUMBER)->getCollider()->getMesh(),"../../data/shaders/");
 					if(lv)
 					{
@@ -318,7 +302,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
-		solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(layerNumber) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
 
 	// calculate per vertex - all objects
@@ -342,9 +326,9 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 		unsigned objectNumber = objectNumbers[i];
 		if(solver->getObject(objectNumber))
 		{
-			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer =
+			solver->getIllumination(objectNumber)->getLayer(layerNumber) =
 				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel,NULL);
+			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber),NULL,&paramsDirectPixel,NULL);
 		}
 	}
 }
@@ -358,7 +342,7 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer =
+		solver->getIllumination(i)->getLayer(layerNumber) =
 			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,NULL);
 	}
 
@@ -372,68 +356,6 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
 	solver->updateLightmaps(layerNumber,-1,&paramsDirect,&paramsIndirect,NULL);
-}
-
-void saveAmbientOcclusionToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
-{
-	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
-	{
-		char filename[1000];
-
-		// save vertex buffer
-		rr::RRBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
-		if(vbuf)
-		{
-#ifdef TB
-			RRObjectTB * object = reinterpret_cast<RRObjectTB*>(solver->getObject(objectIndex));
-			sprintf(filename,"../../data/export/%s.vbu",object->GetMapName() );
-#else
-			sprintf(filename,"../../data/export/%d.vbu",objectIndex );
-#endif
-			bool saved = vbuf->save(filename);
-			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-		}
-
-		// save pixel buffer
-		rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
-		if(map)
-		{
-#ifdef TB
-			RRObjectTB * object = reinterpret_cast<RRObjectTB*>(solver->getObject(objectIndex));
-			sprintf(filename,"../../data/export/%s.tga",object->GetMapName() );
-#else
-			sprintf(filename,"../../data/export/%d.png",objectIndex );
-#endif
-			bool saved = map->save(filename);
-			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-		}
-	}
-}
-
-void loadAmbientOcclusionFromDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
-{
-	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
-	{
-		char filename[1000];
-
-		// load vertex buffer
-#ifdef TB
-		RRObjectTB * objectTB = reinterpret_cast<RRObjectTB*>(solver->getObject(objectIndex));
-		sprintf(filename,"../../data/export/%s.vbu",objectTB->GetMapName() );
-#else
-		sprintf(filename,"../../data/export/%d.vbu",objectIndex );
-#endif
-		// temporarily disabled
-		//solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer = rr::RRBuffer::load(filename);
-
-		// load pixel buffer
-#ifdef TB
-		sprintf(filename,"../../data/export/%s.tga",objectTB->GetMapName() );
-#else
-		sprintf(filename,"../../data/export/%d.png",objectIndex );
-#endif
-		solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer = rr::RRBuffer::load(filename);
-	}
 }
 
 int main(int argc, char **argv)
@@ -523,10 +445,10 @@ int main(int argc, char **argv)
 
 		// calculate and save it
 		calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
-		saveAmbientOcclusionToDisk(solver,0);
+		solver->saveIllumination("../../data/export/",0);
 
 		// or load it
-		//loadAmbientOcclusionFromDisk(solver,0);
+		//solver->loadIllumination("../../data/export/",0);
 	}
 
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;

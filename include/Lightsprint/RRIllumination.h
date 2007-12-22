@@ -40,37 +40,18 @@ namespace rr
 		// Vertex and pixel buffers, update and render supported for static objects.
 		//
 
-		//! One layer of illumination (irradiance) values for whole object.
+		//! Returns layer of illumination (irradiance) values for whole object.
 		//
-		//! Illumination can be stored in vertex array, ambient map or both.
+		//! Illumination can be stored in vertex color buffer or lightmap.
 		//! Multiple layers (e.g. one layer per light source) can be mixed by renderer.
-		struct Layer
-		{
-			//! Custom vertex array with illumination levels for all object vertices.
-			//! May be NULL in which case vertex arrays are not generated and not used by render.
-			RRBuffer* vertexBuffer;
-			//! Custom ambient map with illumination levels for object surface.
-			//! May be NULL in which case ambient maps are not generated and not used by render.
-			RRBuffer* pixelBuffer;
-			//! Constructs new layer, always empty.
-			//! You can insert vertex array or ambient map or both later.
-			Layer()
-			{
-				vertexBuffer = NULL;
-				pixelBuffer = NULL;
-			}
-			//! Destructs layer, deleting remaining vertex array or ambient map.
-			~Layer()
-			{
-				delete vertexBuffer;
-				delete pixelBuffer;
-			}
-		};
+		//! At the beginning, all layers are NULL. You are free to create them
+		//! (getLayer() = RRBuffer::create()), they will be deleted automatically
+		//! in ~RRObjectIllumination.
 		//! \param layerNumber
-		//!  Index of layer you would like to get. Arbitrary unsigned number.
-		//! \return Layer of layerNumber. If it doesn't exist yet, it is created.
-		Layer* getLayer(unsigned layerNumber);
-		const Layer* getLayer(unsigned layerNumber) const;
+		//!  Index of illumination layer you would like to get. Arbitrary unsigned number.
+		//! \return Illumination layer for given layerNumber. If it doesn't exist yet, it is created.
+		RRBuffer*& getLayer(unsigned layerNumber);
+		RRBuffer* getLayer(unsigned layerNumber) const;
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices() const;
 

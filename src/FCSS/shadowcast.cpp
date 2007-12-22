@@ -1973,13 +1973,12 @@ void mainMenu(int item)
 				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
 					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRObjectIllumination::Layer* illum = level->solver->getIllumination(objectIndex)->getLayer(0);
 					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
 					{
-						delete illum->pixelBuffer;
-						illum->pixelBuffer = loaded;
+						delete level->solver->getIllumination(objectIndex)->getLayer(0);
+						level->solver->getIllumination(objectIndex)->getLayer(0) = loaded;
 					}
 				}
 				/*/ load all environment maps (dynamic objects)

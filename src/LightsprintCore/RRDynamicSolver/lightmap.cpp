@@ -477,8 +477,8 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		unsigned numTexels = 0;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
-			if(lmap) numTexels += lmap->getWidth()*lmap->getHeight();
+			RRBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting);
+			if(lmap && lmap->getType()==BT_2D_TEXTURE) numTexels += lmap->getWidth()*lmap->getHeight();
 		}
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 		paramsIndirect.quality = (unsigned)(paramsDirect.quality*0.1f*numTexels/(numTriangles+1))+1;
@@ -500,8 +500,10 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	unsigned updatedBuffers = 0;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
-		RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals)->pixelBuffer;
+		RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting);
+		if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
+		RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals);
+		if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
 		if(lightmap || bentNormals)
 		{
 			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);

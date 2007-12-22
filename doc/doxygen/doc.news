@@ -30,8 +30,14 @@ CHANGES
   - rename RRColorRGBAF to RRVec4
   - rename RRColorRGBA8 to unsigned
 - removed newVertexBuffer(), newPixelBuffer(), createMissingBuffers
-  - if you used createMissingBuffers=true, create buffers manually now,
-    see RRBuffer::create in samples
+  - delete third parameter from updateVertexBuffers() and updateLightmaps()
+  - if it was true, create buffers manually now, see getLayer(...) = ... in samples
+- RRObjectIllumination::getLayer() returns buffer
+  instead of structure with vertexBuffer and pixelBuffer
+  - change getLayer(n)->vertexBuffer to getLayer(n)
+  - change getLayer(n)->pixelBuffer to getLayer(n)
+  - make sure you don't save both vertex and pixel buffer to single layer,
+    use only one of them or use different layers
 
 CHANGES [OTHER]
 

@@ -62,11 +62,6 @@ namespace rr_gl
 		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination);
 
 
-		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
-		unsigned loadIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
-		//! Saves illumination layer to disk.
-		unsigned saveIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
-
 		virtual void calculate(CalculateParameters* params = NULL);
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. Helper function called from detectDirectIllumination().

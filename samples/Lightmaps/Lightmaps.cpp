@@ -247,7 +247,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1000;
+				paramsDirect.quality = 10;
 				paramsDirect.applyCurrentSolution = false;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
@@ -288,42 +288,13 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
-			{
-				static unsigned captureIndex = 0;
-				char filename[100];
-				// save all ambient maps (static objects)
-				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
-				{
-					rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(1)->pixelBuffer;
-					if(map)
-					{
-						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-						bool saved = map->save(filename);
-						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-					}
-				}
-				captureIndex++;
-				break;
-			}
+			solver->saveIllumination("../../data/export/",2);
+			break;
 
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
-				unsigned captureIndex = 0;
-				char filename[100];
-				// load all ambient maps (static objects)
-				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
-				{
-					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRObjectIllumination::Layer* illum = solver->getIllumination(objectIndex)->getLayer(1);
-					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
-					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if(loaded)
-					{
-						delete illum->pixelBuffer;
-						illum->pixelBuffer = loaded;
-					}
-				}
+				solver->loadIllumination("../../data/export/",2);
 				// start rendering loaded maps
 				ambientMapsRender = true;
 				realtimeIllumination = false;
@@ -539,18 +510,16 @@ int main(int argc, char **argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
 	{
+		unsigned numVertices = solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
 		// 0 = realtime per-vertex
-		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+		solver->getIllumination(i)->getLayer(0) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,NULL);
 		// 1 = offline per-vertex
-		solver->getIllumination(i)->getLayer(1)->vertexBuffer =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
+		solver->getIllumination(i)->getLayer(1) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,NULL);
 		// 2 = offline per-pixel
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getIllumination(i)->getLayer(2)->pixelBuffer =
-			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,NULL);
+		solver->getIllumination(i)->getLayer(2) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,NULL);
 	}
 
 	// init light

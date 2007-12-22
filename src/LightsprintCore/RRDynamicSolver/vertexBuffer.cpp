@@ -325,13 +325,15 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 		{
 			if(layerNumberLighting>=0)
 			{
-				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+				if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
+					updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
 			}
 			if(layerNumberBentNormals>=0)
 			{
-				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
+				if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
+					updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
 			}
 		}
 		delete[] finalGather;
@@ -345,13 +347,13 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 		{
 			if(layerNumberLighting>=0)
 			{
-				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
-				if(vertexColors)
+				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+				if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
 					updatedBuffers += updateVertexBuffer(objectHandle,vertexColors,&paramsDirect);
 			}
 			if(layerNumberBentNormals>=0)
 			{
-				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
+				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
 				if(bentNormals)
 					RRReporter::report(WARN,"Bent normals not supported in 'realtime' mode (quality=0).\n");
 			}

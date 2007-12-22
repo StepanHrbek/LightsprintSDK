@@ -266,6 +266,15 @@ void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned alayer
 	layerNumberFallback = alayerNumberFallback;
 }
 
+rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
+{
+	return (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER) ? buffer : NULL;
+}
+rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
+{
+	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
+}
+
 void RendererOfOriginalScene::render()
 {
 	rr::RRReportInterval report(rr::INF3,"Rendering original scene...\n");
@@ -312,16 +321,16 @@ void RendererOfOriginalScene::render()
 		UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
 		mainUberProgramSetup.OBJECT_SPACE = params.solver->getObject(i)->getWorldMatrix()!=NULL;
 		// - set shader according to vbuf/pbuf presence
-		rr::RRBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
-		rr::RRBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
+		rr::RRBuffer* vbuffer = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumber));
+		rr::RRBuffer* pbuffer = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumber));
 		//   - second
-		rr::RRBuffer* vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->vertexBuffer;
-		rr::RRBuffer* pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->pixelBuffer;
+		rr::RRBuffer* vbuffer2 = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumber2));
+		rr::RRBuffer* pbuffer2 = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumber2));
 		//   - fallback when buffers are not available
-		if(!vbuffer) vbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
-		if(!pbuffer) pbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
-		if(!vbuffer2) vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
-		if(!pbuffer2) pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
+		if(!vbuffer) vbuffer = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
+		if(!pbuffer) pbuffer = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
+		if(!vbuffer2) vbuffer2 = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
+		if(!pbuffer2) pbuffer2 = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
 		if(mainUberProgramSetup.LIGHT_INDIRECT_auto)
 		{
 			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;

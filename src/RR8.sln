@@ -95,11 +95,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsmark2007", "Lightsmar
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Lightsmark2007Setup", "Lightsmark2007Setup\Lightsmark2007Setup.vdproj", "{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF} = {3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LightsprintCore samples", "LightsprintCore samples", "{0835826C-4BA7-43CD-8525-A2553DE5D2C3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LightsprintGL samples", "LightsprintGL samples", "{EC64F9B1-68EC-40FB-AE66-CB39A0955585}"
@@ -501,27 +496,6 @@ Global
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Xbox 360.ActiveCfg = Release static|Win32
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Xbox 360.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug with Release DLL|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug with Release DLL|Win32.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug with Release DLL|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug with Release DLL|Xbox 360.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.GL Debug|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.GL Debug|Win32.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.GL Debug|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.GL Debug|Xbox 360.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release DLL|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release DLL|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release DLL|Xbox 360.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release static|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release static|Win32.Build.0 = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release static|Xbox 360.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Release static|Xbox 360.Build.0 = Release static
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Xbox 360.ActiveCfg = Debug DLL|Win32

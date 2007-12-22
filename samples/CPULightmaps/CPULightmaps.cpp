@@ -44,30 +44,15 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// only map creation is implemented here
-
-class Solver : public rr::RRDynamicSolver
-{
-public:
-	Solver() {}
-protected:
-	virtual unsigned* detectDirectIllumination() {return NULL;}
-	virtual void setupShader(unsigned objectNumber) {}
-};
-
-
 void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
 	{
-		solver->getIllumination(i)->getLayer(layerNumberLighting)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(layerNumberLighting) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
-		solver->getIllumination(i)->getLayer(layerNumberBentNormals)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
 	}
 
@@ -100,9 +85,9 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 		if(solver->getObject(objectNumber))
 		{
 			rr::RRBuffer* lightmap = (layerNumberLighting<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
 			rr::RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
 			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel,NULL);
 		}
 	}
@@ -117,9 +102,9 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // higher factor = higher map resolution
 		while(res<2048 && res<sizeFactor*sqrtf((float)solver->getObject(i)->getCollider()->getMesh()->getNumTriangles())) res*=2;
-		solver->getIllumination(i)->getLayer(layerNumberLighting)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(layerNumberLighting) =
 			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-		solver->getIllumination(i)->getLayer(layerNumberBentNormals)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
 			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
 	}
 
@@ -135,32 +120,6 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int
 	paramsIndirect.applyEnvironment = true;
 	paramsIndirect.applyLights = true;
 	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,&paramsDirect,&paramsIndirect,NULL); 
-}
-
-void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
-{
-	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
-	{
-		char filename[1000];
-
-		// save vertex buffer
-		rr::RRBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
-		if(vbuf)
-		{
-			sprintf(filename,"../../data/export/%d_%d.vbu",objectIndex,layerNumber);
-			bool saved = vbuf->save(filename);
-			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-		}
-
-		// save pixel buffer
-		rr::RRBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
-		if(map)
-		{
-			sprintf(filename,"../../data/export/%d_%d.png",objectIndex,layerNumber);
-			bool saved = map->save(filename);
-			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-		}
-	}
 }
 
 int main(int argc, char **argv)
@@ -187,7 +146,7 @@ int main(int argc, char **argv)
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
-	rr::RRDynamicSolver* solver = new Solver();
+	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
 	solver->setScaler(scaler);
@@ -214,8 +173,8 @@ int main(int argc, char **argv)
 		calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);
 	}
 
-	saveIlluminationToDisk(solver,0); // save GI lightmaps
-	saveIlluminationToDisk(solver,1); // save bent normals
+	solver->saveIllumination("../../data/export/",0); // save GI lightmaps
+	solver->saveIllumination("../../data/export/",1); // save bent normals
 
 	// release memory
 	delete solver;

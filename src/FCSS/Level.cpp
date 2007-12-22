@@ -138,7 +138,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
-		solver->getIllumination(i)->getLayer(0)->vertexBuffer =
+		solver->getIllumination(i)->getLayer(0) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
 
 	// init light
@@ -223,29 +223,27 @@ Level::~Level()
 	delete objects;
 }
 
-unsigned Level::saveIllumination(const char* path, bool vertexColors, bool lightmaps)
+unsigned Level::saveIllumination(const char* path)
 {
 	unsigned result = 0;
 	if(pilot.setup && solver)
 	{
-		rr_gl::RRDynamicSolverGL* solverGL = (rr_gl::RRDynamicSolverGL*)solver; //!!!
 		for(LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
 		{
-			result += solverGL->saveIllumination(path,(*i)->layerNumber,vertexColors,lightmaps);
+			result += solver->saveIllumination(path,(*i)->layerNumber);
 		}
 	}
 	return result;
 }
 
-unsigned Level::loadIllumination(const char* path, bool vertexColors, bool lightmaps)
+unsigned Level::loadIllumination(const char* path)
 {
 	unsigned result = 0;
 	if(pilot.setup && solver)
 	{
-		rr_gl::RRDynamicSolverGL* solverGL = (rr_gl::RRDynamicSolverGL*)solver; //!!!
 		for(LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
 		{
-			result += solverGL->loadIllumination(path,(*i)->layerNumber,vertexColors,lightmaps);
+			result += solver->loadIllumination(path,(*i)->layerNumber);
 		}
 	}
 	return result;

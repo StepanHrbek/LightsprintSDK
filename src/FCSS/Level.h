@@ -73,8 +73,8 @@ public:
 	class Bugs* bugs;
 	rr_gl::RendererOfScene* rendererOfScene;
 
-	unsigned saveIllumination(const char* path, bool vertexColors, bool lightmaps);
-	unsigned loadIllumination(const char* path, bool vertexColors, bool lightmaps);
+	unsigned saveIllumination(const char* path);
+	unsigned loadIllumination(const char* path);
 };
 
 #endif
