@@ -481,7 +481,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsDirect.applyCurrentSolution = false;
 	}
 
-	if(_paramsIndirect)
+	if(_paramsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
 		// auto quality for first gather
 		// shoot 10x less indirect rays than direct
