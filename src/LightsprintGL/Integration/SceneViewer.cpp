@@ -97,7 +97,7 @@ public:
 		if(getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = getSolutionVersion();
-			updateVertexBuffers(0,-1,true,NULL,NULL);
+			updateLightmaps(0,-1,NULL,NULL);
 		}
 */
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);

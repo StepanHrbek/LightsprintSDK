@@ -312,7 +312,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 	paramsBoth.quality = 50;
 	paramsBoth.applyCurrentSolution = false;
 	paramsBoth.applyEnvironment = true;
-	solver->updateVertexBuffers(layerNumber,-1,&paramsBoth,&paramsBoth); 
+	solver->updateLightmaps(layerNumber,-1,&paramsBoth,&paramsBoth,NULL); 
 
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it

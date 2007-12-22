@@ -84,7 +84,7 @@ namespace rr
 	//!
 	//! Thread safe: Partially.
 	//!  All updateXxxx() functions may be called from multiple threads at the same time.
-	//!  See updateVertexBuffer(), updateVertexBuffers(), updateLightmap(),
+	//!  See updateVertexBuffer(), updateLightmap(),
 	//!  updateLightmaps() and updateEnvironmentMaps() for important details.
 	//!  Other function may be called from multiple threads, but not at the same time.
 	//
@@ -282,13 +282,13 @@ namespace rr
 		//
 		//! You may use this number to avoid unnecessary updates of illumination buffers.
 		//! Store version together with your illumination buffers and don't update them
-		//! (updateVertexBuffers(), updateLightmaps()) until this number changes.
+		//! (updateLightmaps()) until this number changes.
 		//!
 		//! Version may be incremented only by calculate().
 		unsigned getSolutionVersion() const;
 
 
-		//! Parameters for updateVertexBuffer(), updateVertexBuffers(), updateLightmap(), updateLightmaps().
+		//! Parameters for updateVertexBuffer(), updateLightmap(), updateLightmaps().
 		//
 		//! If you use \ref calc_fireball, only default parameters are supported,
 		//! use NULL for default parameters.
@@ -313,7 +313,7 @@ namespace rr
 			//! Include current solution as a source of indirect illumination.
 			//
 			//! Current solution in solver is updated by calculate()
-			//! and possibly also by updateVertexBuffers() and updateLightmaps() (depends on parameters).
+			//! and possibly also by updateLightmaps() (depends on parameters).
 			//! \n Note that some functions restrict use of applyCurrentSolution
 			//! and applyLights/applyEnvironment at the same time.
 			bool applyCurrentSolution;
@@ -388,63 +388,16 @@ namespace rr
 		//! \return
 		//!  Number of vertex buffers updated, 0 or 1.
 		//! \remarks
-		//!  In comparison with more general updateVertexBuffers() function, this one
+		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
-		//!  while updating single vertex buffer, see updateVertexBuffers() remarks.
+		//!  while updating single vertex buffer, see updateLightmaps() remarks.
 		//! \remarks
 		//!  In comparison with updateLightmap(),
 		//!  updateVertexBuffer() is very fast but less general, it always reads lighting from current solver,
 		//!  without final gather. In other words, it assumes that
 		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
-		//!  For higher quality final gathered results, use updateVertexBuffers().
+		//!  For higher quality final gathered results, use updateLightmaps().
 		virtual unsigned updateVertexBuffer(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
-
-		//! Updates vertex buffers with direct, indirect or global illumination and bent normals on whole static scene's surface.
-		//
-		//! \param layerNumberLighting
-		//!  Vertex colors for individual objects are stored into
-		//!  getIllumination(objectNumber)->getLayer(layerNumberLighting)->vertexBuffer.
-		//!  \n Negative number disables update of buffers.
-		//! \param layerNumberBentNormals
-		//!  Bent normals for individual objects are stored into
-		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->vertexBuffer.
-		//!  \n Negative number disables update of buffers.
-		//!  \n Bent normals are intentionally stored in separated layer, so you can save memory
-		//!  by sharing single bent normal layer with multiple lighting layers.
-		//! \param paramsDirect
-		//!  Parameters of the update process specific for direct illumination component of final color.
-		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
-		//!  set by setLights() is added to the final value stored into buffer.
-		//!  \n params->measure specifies type of information stored in vertex buffer.
-		//!  Use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster, returns indirect lighting in physical scale,
-		//!  can be cheaply converted to custom scale by shader)
-		//!  or RM_IRRADIANCE_CUSTOM_INDIRECT (slower, returns indirect lighting in custom scale).
-		//!  \n Set both paramsDirect and paramsIndirect to NULL for 'realtime' update
-		//!  that fills buffers with indirect illumination in physical scale, read from current solution.
-		//! \param paramsIndirect
-		//!  Parameters of the update process specific for indirect illumination component of final color.
-		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
-		//!  set by setLights() is added to the final value stored into buffer.
-		//!  For global illumination created by e.g. lights,
-		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
-		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
-		//!  Set to NULL for no indirect illumination.
-		//! \return
-		//!  Number of vertex buffers updated.
-		//! \remarks
-		//!  As a byproduct of calculation, internal state of solver (current solution)
-		//!  is updated, so that it holds computed indirect illumination for sources
-		//!  and quality specified in paramsIndirect.
-		//!  Internal state is properly updated even when buffers don't exist so no other output is produced.
-		//!  Following updateLightmap() or updateVertexBuffer() will include
-		//!  this indirect lighting into computed lightmap or vertex buffer
-		//!  if you set their params->applyCurrentSolution.
-		//! \remarks
-		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
-		//!  - create vertex buffers for selected objects, make sure other vertex buffers are NULL and call updateVertexBuffers()
-		//!  - for lighting in current solver, simply call updateVertexBuffer() for all selected objects
-		//!  - call updateVertexBuffers(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Parameters of filtering in updateLightmap()/updateLightmaps().
 		struct FilteringParameters
@@ -532,14 +485,24 @@ namespace rr
 		//!  Bent normal maps for individual objects are stored into
 		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer.
 		//!  \n Negative number disables update of buffers.
+		//!  \n Bent normals are intentionally stored in separated layer, so you can save memory
+		//!  by sharing single bent normal layer with multiple lighting layers.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
+		//!  \n params->measure specifies type of information stored to buffer.
+		//!  Use RM_IRRADIANCE_PHYSICAL_INDIRECT for faster indirect lighting in physical scale
+		//!  (that should be stored as BF_RGBF or BF_RGBAF floats to avoid clamping,
+		//!  later it can be efficiently converted to custom scale in shader)
+		//!  or RM_IRRADIANCE_CUSTOM_INDIRECT for slightly slower indirect lighting in custom scale
+		//!  (that can be stored in any format including integer BF_RGB or BF_RGBA).
+		//!  \n Set both paramsDirect and paramsIndirect to NULL for 'realtime' update
+		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
-		//!  set by setLights() is added to the final value stored into lightmap.
+		//!  set by setLights() is added to the final value stored into buffer.
 		//!  For global illumination created by e.g. lights,
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
 		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
@@ -560,9 +523,9 @@ namespace rr
 		//!  if you set their params->applyCurrentSolution.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
-		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps()
+		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
-		//!  - call updateLightmaps(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
+		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
 		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
@@ -663,8 +626,8 @@ namespace rr
 		//!
 		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.
-		//! When used, non-realtime functions like updateLightmaps() are not supported,
-		//! but realtime functions like updateVertexBuffers() and updateEnvironmentMaps() are faster
+		//! When used, non-realtime functions like updateLightmaps(some params..) are not supported,
+		//! but realtime functions like updateLightmaps(other params..) and updateEnvironmentMaps() are faster
 		//! and produce better results using less memory.
 		//!
 		//! \param avgRaysPerTriangle
@@ -687,8 +650,8 @@ namespace rr
 		//!
 		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.
-		//! When used, non-realtime functions like updateLightmaps() are not supported,
-		//! but realtime functions like updateVertexBuffers() and updateEnvironmentMaps() are faster
+		//! When used, non-realtime functions like updateLightmaps(some params..) are not supported,
+		//! but realtime functions like updateLightmaps(other params..) and updateEnvironmentMaps() are faster
 		//! and produce better results using less memory.
 		//!
 		//! \param filename

@@ -576,7 +576,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 		level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateVertexBuffers(0,-1,NULL,NULL);
+		level->solver->updateLightmaps(0,-1,NULL,NULL,NULL);
 	}
 	if(demoPlayer->getPaused())
 	{
@@ -1914,7 +1914,7 @@ void mainMenu(int item)
 					printf(")");
 					unsigned layerNumber = (*i)->layerNumber;
 					// update all vbufs
-					level->solver->updateVertexBuffers(layerNumber,-1,true,NULL,NULL);
+					level->solver->updateLightmaps(layerNumber,-1,NULL,NULL);
 					// update 1 lmap
 					static unsigned obj=12;
 					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)

@@ -343,7 +343,7 @@ void idle()
 	if(solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateVertexBuffers(0,-1,NULL,NULL);
+		solver->updateLightmaps(0,-1,NULL,NULL,NULL);
 	}
 
 	glutPostRedisplay();

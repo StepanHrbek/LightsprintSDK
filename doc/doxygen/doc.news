@@ -38,6 +38,8 @@ CHANGES
   - change getLayer(n)->pixelBuffer to getLayer(n)
   - make sure you don't save both vertex and pixel buffer to single layer,
     use only one of them or use different layers
+- updateVertexBuffers() was removed
+  - rename updateVertexBuffers() to updateLightmaps()
 
 CHANGES [OTHER]
 

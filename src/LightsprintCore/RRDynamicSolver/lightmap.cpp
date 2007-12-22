@@ -448,12 +448,37 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelB
 
 unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
-	UpdateParameters paramsIndirect;
 	UpdateParameters paramsDirect;
-	if(_paramsIndirect) paramsIndirect = *_paramsIndirect;
+	paramsDirect.applyCurrentSolution = true; // NULL = realtime update, bez final gatheru
+	paramsDirect.applyEnvironment = false;
+	paramsDirect.applyLights = false;
+	UpdateParameters paramsIndirect;
+	paramsIndirect.applyCurrentSolution = false;
+	paramsIndirect.applyEnvironment = false;
+	paramsIndirect.applyLights = false;
 	if(_paramsDirect) paramsDirect = *_paramsDirect;
+	if(_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
-	RRReportInterval report(INF1,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+	{
+		if(_paramsDirect) // don't report if direct is NULL, silently disable it
+			RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+		paramsDirect.applyCurrentSolution = false;
+	}
+
+	bool containsFirstGather = _paramsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment);
+	bool containsRealtime = !paramsDirect.applyLights && !paramsDirect.applyEnvironment && paramsDirect.applyCurrentSolution && !paramsDirect.quality;
+	bool containsVertexBuffers = false;
+	bool containsLightmaps = false;
+	for(unsigned object=0;object<getNumObjects();object++)
+	{
+		containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberLighting) && getIllumination(object)->getLayer(layerNumberLighting)->getType()==BT_VERTEX_BUFFER;
+		containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberBentNormals) && getIllumination(object)->getLayer(layerNumberBentNormals)->getType()==BT_VERTEX_BUFFER;
+		containsLightmaps     |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberLighting) && getIllumination(object)->getLayer(layerNumberLighting)->getType()==BT_2D_TEXTURE;
+		containsLightmaps     |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberBentNormals) && getIllumination(object)->getLayer(layerNumberBentNormals)->getType()==BT_2D_TEXTURE;
+	}
+
+	RRReportInterval report((containsFirstGather||containsLightmaps||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
@@ -464,28 +489,21 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 
-	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
-	{
-		RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
-		paramsDirect.applyCurrentSolution = false;
-	}
-
-	if(_paramsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+	// 1. first gather: solver+lights+env -> solver.direct
+	// 2. propagate: solver.direct -> solver.indirect
+	if(containsFirstGather)
 	{
 		// auto quality for first gather
-		// shoot 10x less indirect rays than direct
-		unsigned numTexels = 0;
-		for(unsigned object=0;object<getNumObjects();object++)
-		{
-			RRBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting);
-			if(lmap && lmap->getType()==BT_2D_TEXTURE) numTexels += lmap->getWidth()*lmap->getHeight();
-		}
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-		paramsIndirect.quality = (unsigned)(paramsDirect.quality*0.1f*numTexels/(numTriangles+1))+1;
+
+		// shoot 2x less indirect rays than direct
+		// (but only if direct.quality was specified)
+		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
+		unsigned benchTexels = numTriangles;
 
 		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
 		// 2. propagate: solver.direct -> solver.indirect
-		if(!updateSolverIndirectIllumination(&paramsIndirect,numTexels,paramsDirect.quality))
+		if(!updateSolverIndirectIllumination(&paramsIndirect,benchTexels,paramsDirect.quality))
 			return 0;
 
 		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
@@ -496,19 +514,87 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		// ovsem direct musim tez, jedine z nej dostanu prime osvetleni emisivnim facem, prvni odraz od spotlight, lights a env
 	}
 
-	// 3. final gather into buffers (solver not nodified)
 	unsigned updatedBuffers = 0;
-	for(unsigned object=0;object<getNumObjects();object++)
+
+	if(!paramsDirect.applyLights && !paramsDirect.applyEnvironment && !paramsDirect.applyCurrentSolution)
 	{
-		RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting);
-		if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
-		RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals);
-		if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
-		if(lightmap || bentNormals)
+		RRReporter::report(WARN,"No light sources enabled.\n");
+	}
+
+	if(containsVertexBuffers && containsRealtime)
+	{
+		// 3. vertex: realtime copy into buffers (solver not modified)
+
+		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 		{
-			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
+			if(layerNumberLighting>=0)
+			{
+				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+				if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
+					updatedBuffers += updateVertexBuffer(objectHandle,vertexColors,&paramsDirect);
+				//if(vertexColors && vertexColors->getType()!=BT_VERTEX_BUFFER)
+				//	LIMITED_TIMES(1,RRReporter::report(WARN,"Lightmaps not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
+			}
+			if(layerNumberBentNormals>=0)
+			{
+				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
+				if(bentNormals)
+					LIMITED_TIMES(1,RRReporter::report(WARN,"Bent normals not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
+			}
 		}
 	}
+
+	if(containsVertexBuffers && !containsRealtime)
+	{
+		// 4+5. vertex: final gather into buffers (solver not modified)
+
+		if(containsVertexBuffers && (paramsDirect.applyLights || paramsDirect.applyEnvironment || (paramsDirect.applyCurrentSolution && paramsDirect.quality)))
+		{
+			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
+			// for each triangle
+			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
+			gatherPerTriangle(&paramsDirect,finalGather,numTriangles);
+
+			// 5. interpolate: tmparray -> buffer
+			// for each object with vertex buffer
+			for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+			{
+				if(layerNumberLighting>=0)
+				{
+					RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+					if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
+						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+				}
+				if(layerNumberBentNormals>=0)
+				{
+					RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
+					if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
+						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+				}
+			}
+			delete[] finalGather;
+		}
+
+	}
+
+	// 6. pixel: final gather into buffers (solver not modified)
+
+	if(containsLightmaps)
+	{
+		for(unsigned object=0;object<getNumObjects();object++)
+		{
+			RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting);
+			if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
+			RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals);
+			if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
+			if(lightmap || bentNormals)
+			{
+				updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
+			}
+		}
+	}
+
 	return updatedBuffers;
 }
 

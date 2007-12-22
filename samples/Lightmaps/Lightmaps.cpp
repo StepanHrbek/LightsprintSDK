@@ -277,7 +277,7 @@ void keyboard(unsigned char c, int x, int y)
 
 				// update vertex buffers too, for comparison with pixel buffers
 				paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in physical scale (HDR)
-				solver->updateVertexBuffers(1,-1,&paramsDirect,&paramsIndirect);
+				solver->updateLightmaps(1,-1,&paramsDirect,&paramsIndirect,NULL);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -378,7 +378,7 @@ void display(void)
 		if(solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateVertexBuffers(0,-1,NULL,NULL);
+			solver->updateLightmaps(0,-1,NULL,NULL,NULL);
 		}
 	}
 
