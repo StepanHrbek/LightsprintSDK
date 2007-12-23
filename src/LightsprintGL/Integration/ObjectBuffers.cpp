@@ -362,7 +362,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
 						// refill
-						params.scene->updateVertexBuffer(-1,alightIndirectVcolor,NULL);
+						params.scene->updateLightmap(-1,alightIndirectVcolor,NULL,NULL);
 					}
 				}
 				else

@@ -139,22 +139,53 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	}
 }
 
-unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRBuffer* vertexBuffer, const UpdateParameters* params)
+//! Updates vertex buffer with direct, indirect or global illumination on single static object's surface.
+//
+//! \param objectNumber
+//!  Number of object in this scene.
+//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
+//!  -1 for multiobject with whole static scene.
+//! \param vertexBuffer
+//!  Destination vertex buffer for indirect illumination.
+//! \param params
+//!  Parameters of the update process, NULL for the default parameters that
+//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_PHYSICAL_INDIRECT data.
+//!  \n Only subset of all parameters is supported, see remarks.
+//!  \n params->measure specifies type of information stored in vertex buffer.
+//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
+//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+//! \return
+//!  Number of vertex buffers updated, 0 or 1.
+//! \remarks
+//!  In comparison with more general updateLightmaps() function, this one
+//!  lacks paramsIndirect. However, you can still include indirect illumination
+//!  while updating single vertex buffer, see updateLightmaps() remarks.
+//! \remarks
+//!  In comparison with updateLightmap(),
+//!  updateVertexBufferFromSolver() is very fast but less general, it always reads lighting from current solver,
+//!  without final gather. In other words, it assumes that
+//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
+//!  For higher quality final gathered results, use updateLightmaps().
+unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	if(!vertexBuffer || objectHandle>=(int)getNumObjects() || objectHandle<-1)
+	if(!vertexBuffer || objectNumber>=(int)getNumObjects() || objectNumber<-1)
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
-	unsigned numPreImportVertices = (objectHandle>=0)
-		? getIllumination(objectHandle)->getNumPreImportVertices() // elements in original object vertex buffer
+	if(params && (params->applyLights||params->applyEnvironment))
+	{
+		LIMITED_TIMES(1,RRReporter::report(WARN,"updateLightmap(vertex buffer) ignores applyLights and applyEnvironment, use texture or updateLightmaps().\n"));
+	}
+	unsigned numPreImportVertices = (objectNumber>=0)
+		? getIllumination(objectNumber)->getNumPreImportVertices() // elements in original object vertex buffer
 		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
 
 	// packed solver
 	if(priv->packedSolver)
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
-		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectHandle];
+		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectNumber];
 		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
 		if(lock)
 		{
@@ -202,8 +233,8 @@ unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRBuffer* vertexB
 #pragma omp parallel for schedule(static)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
-		unsigned t = (objectHandle<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
-		unsigned v = (objectHandle<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
+		unsigned t = (objectNumber<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].triangleIndex;
+		unsigned v = (objectNumber<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].vertex012;
 		RRVec3 indirect = RRVec3(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{

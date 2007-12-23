@@ -88,7 +88,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
 			rr::RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
 				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
-			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel,NULL);
+			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel);
 		}
 	}
 }

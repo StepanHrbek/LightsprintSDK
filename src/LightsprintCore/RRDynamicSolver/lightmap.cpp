@@ -363,11 +363,58 @@ void flush(RRBuffer* buffer, const RRVec4* data)
 	}
 }
 
-unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelBuffer, RRBuffer* bentNormalsPerPixel, const UpdateParameters* _params, const FilteringParameters* filtering)
+rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
 {
+	return (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER) ? buffer : NULL;
+}
+rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
+{
+	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
+}
+
+unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
+{
+	RRReportInterval report(INF1,"Updating lightmap, object %d/%d, res %d*%d, bentNormals %d*%d...\n",
+		objectNumber,getNumObjects(),
+		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
+		bentNormals?bentNormals->getWidth():0,bentNormals?bentNormals->getHeight():0);
+
 	// validate params
 	UpdateParameters params;
 	if(_params) params = *_params;
+	if(!buffer && !bentNormals)
+	{
+		RRReporter::report(WARN,"No map, pixelBuffer=bentNormalsPerPixel=NULL.\n");
+		RR_ASSERT(0); // no work, probably error
+		return 0;
+	}
+	if(buffer && bentNormals && buffer->getType()==bentNormals->getType())
+	{
+		if(buffer->getWidth() != bentNormals->getWidth()
+			|| buffer->getHeight() != bentNormals->getHeight())
+		{
+			RRReporter::report(ERRO,"Sizes don't match, buffer=%dx%d, bentNormals=%dx%d.\n",buffer->getWidth(),buffer->getHeight(),bentNormals->getWidth(),bentNormals->getHeight());
+			RR_ASSERT(0);
+			return 0;
+		}
+	}
+	if(!priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	{
+		// create objects
+		calculateCore(0);
+		if(!priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		{
+			RRReporter::report(WARN,"Empty scene.\n");
+			RR_ASSERT(0);
+			return 0;
+		}
+	}
+	if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
+	{
+		RRReporter::report(WARN,"updateLightmap() can't generate per-vertex bent normals, use updateLightmaps().\n");
+		RR_ASSERT(0); // error in code
+		return 0;
+	}
 	
 	// optimize params
 	if(params.applyLights && !getLights().size())
@@ -375,75 +422,64 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRBuffer* pixelB
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
-	unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
-	unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
-	RRReportInterval report(INF1,"Updating lightmap, object %d of %d, res %d*%d ...\n",objectNumber,getNumObjects(),width,height);
+	unsigned updatedBuffers = 0;
+	RRBuffer* vertexBuffer = onlyVbuf(buffer);
+	RRBuffer* pixelBuffer = onlyLmap(buffer);
+	RRBuffer* bentNormalsPerVertex = onlyVbuf(bentNormals);
+	RRBuffer* bentNormalsPerPixel = onlyLmap(bentNormals);
 
-	if(!pixelBuffer && !bentNormalsPerPixel)
+	// do per-vertex part
+	if(vertexBuffer||bentNormalsPerVertex)
 	{
-		RRReporter::report(WARN,"No map, pixelBuffer=bentNormalsPerPixel=NULL.\n");
-		RR_ASSERT(0); // no work, probably error
-		return 0;
+		updatedBuffers += updateVertexBufferFromSolver(objectNumber,vertexBuffer,_params);
 	}
-	if(pixelBuffer && bentNormalsPerPixel)
+
+	if(pixelBuffer||bentNormalsPerPixel)
 	{
-		if(pixelBuffer->getWidth() != bentNormalsPerPixel->getWidth()
-			|| pixelBuffer->getHeight() != bentNormalsPerPixel->getHeight())
+		// do per-pixel part
+		const RRObject* object = getMultiObjectCustom();
+		RRMesh* mesh = object->getCollider()->getMesh();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
+
+		if(objectNumber>=(int)getNumObjects() || objectNumber<0)
 		{
-			RRReporter::report(ERRO,"Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
+			RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 			RR_ASSERT(0);
 			return 0;
 		}
-	}
-	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
-	{
-		// create objects
-		calculateCore(0);
-		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+
+#ifdef DIAGNOSTIC
+		logReset();
+#endif
+
+		TexelContext tc;
+		tc.solver = this;
+		tc.pixelBuffer = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
+		tc.params = &params;
+		tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
+		tc.singleObjectReceiver = getObject(objectNumber);
+		RRBuffer* tmp = pixelBuffer?pixelBuffer:bentNormals;
+		enumerateTexels(getMultiObjectCustom(),objectNumber,tmp->getWidth(),tmp->getHeight(),processTexel,tc,priv->minimalSafeDistance);
+
+		if(tc.pixelBuffer)
 		{
-			RRReporter::report(WARN,"Empty scene.\n");
-			RR_ASSERT(0);
-			return 0;
+			flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering));
+			delete tc.pixelBuffer;
+			updatedBuffers++;
 		}
-	}
-	if(objectNumber>=getNumObjects())
-	{
-		RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
-		RR_ASSERT(0);
-		return 0;
-	}
-	const RRObject* object = getMultiObjectCustom();
-	RRMesh* mesh = object->getCollider()->getMesh();
-	unsigned numPostImportTriangles = mesh->getNumTriangles();
+		if(tc.bentNormalsPerPixel)
+		{
+			flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering));
+			delete tc.bentNormalsPerPixel;
+			updatedBuffers++;
+		}
 
 #ifdef DIAGNOSTIC
-	logReset();
+		logPrint();
 #endif
-
-	TexelContext tc;
-	tc.solver = this;
-	tc.pixelBuffer = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
-	tc.params = &params;
-	tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
-	tc.singleObjectReceiver = getObject(objectNumber);
-	enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
-
-	if(tc.pixelBuffer)
-	{
-		flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering));
-		delete tc.pixelBuffer;
-	}
-	if(tc.bentNormalsPerPixel)
-	{
-		flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering));
-		delete tc.bentNormalsPerPixel;
 	}
 
-#ifdef DIAGNOSTIC
-	logPrint();
-#endif
-
-	return bentNormalsPerPixel ? 2 : 1;
+	return updatedBuffers;
 }
 
 unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
@@ -531,7 +567,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			{
 				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
 				if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-					updatedBuffers += updateVertexBuffer(objectHandle,vertexColors,&paramsDirect);
+					updatedBuffers += updateVertexBufferFromSolver(objectHandle,vertexColors,&paramsDirect);
 				//if(vertexColors && vertexColors->getType()!=BT_VERTEX_BUFFER)
 				//	LIMITED_TIMES(1,RRReporter::report(WARN,"Lightmaps not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
 			}
@@ -546,7 +582,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	if(containsVertexBuffers && !containsRealtime)
 	{
-		// 4+5. vertex: final gather into buffers (solver not modified)
+		// 4+5. vertex: final gather into vertex buffers (solver not modified)
 
 		if(containsVertexBuffers && (paramsDirect.applyLights || paramsDirect.applyEnvironment || (paramsDirect.applyCurrentSolution && paramsDirect.quality)))
 		{
@@ -578,7 +614,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	}
 
-	// 6. pixel: final gather into buffers (solver not modified)
+	// 6. pixel: final gather into pixel buffers (solver not modified)
 
 	if(containsLightmaps)
 	{

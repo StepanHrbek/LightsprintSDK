@@ -328,7 +328,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 		{
 			solver->getIllumination(objectNumber)->getLayer(layerNumber) =
 				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber),NULL,&paramsDirectPixel,NULL);
+			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber),NULL,&paramsDirectPixel);
 		}
 	}
 }

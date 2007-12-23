@@ -84,8 +84,7 @@ namespace rr
 	//!
 	//! Thread safe: Partially.
 	//!  All updateXxxx() functions may be called from multiple threads at the same time.
-	//!  See updateVertexBuffer(), updateLightmap(),
-	//!  updateLightmaps() and updateEnvironmentMaps() for important details.
+	//!  See updateLightmap(), updateLightmaps() and updateEnvironmentMap() for important details.
 	//!  Other function may be called from multiple threads, but not at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -288,7 +287,7 @@ namespace rr
 		unsigned getSolutionVersion() const;
 
 
-		//! Parameters for updateVertexBuffer(), updateLightmap(), updateLightmaps().
+		//! Parameters for updateLightmap(), updateLightmaps().
 		//
 		//! If you use \ref calc_fireball, only default parameters are supported,
 		//! use NULL for default parameters.
@@ -371,34 +370,6 @@ namespace rr
 			}
 		};
 
-		//! Updates vertex buffer with direct, indirect or global illumination on single static object's surface.
-		//
-		//! \param objectNumber
-		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
-		//! \param vertexBuffer
-		//!  Destination vertex buffer for indirect illumination.
-		//! \param params
-		//!  Parameters of the update process, NULL for the default parameters that
-		//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_PHYSICAL_INDIRECT data.
-		//!  \n Only subset of all parameters is supported, see remarks.
-		//!  \n params->measure specifies type of information stored in vertex buffer.
-		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
-		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
-		//! \return
-		//!  Number of vertex buffers updated, 0 or 1.
-		//! \remarks
-		//!  In comparison with more general updateLightmaps() function, this one
-		//!  lacks paramsIndirect. However, you can still include indirect illumination
-		//!  while updating single vertex buffer, see updateLightmaps() remarks.
-		//! \remarks
-		//!  In comparison with updateLightmap(),
-		//!  updateVertexBuffer() is very fast but less general, it always reads lighting from current solver,
-		//!  without final gather. In other words, it assumes that
-		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
-		//!  For higher quality final gathered results, use updateLightmaps().
-		virtual unsigned updateVertexBuffer(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
-
 		//! Parameters of filtering in updateLightmap()/updateLightmaps().
 		struct FilteringParameters
 		{
@@ -426,9 +397,14 @@ namespace rr
 			}
 		};
 
-		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
+		//! Updates single per-pixel or per-vertex lightmap, buffer with direct, indirect or global illumination and/or bent normals on static object's surface.
 		//
-		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping().
+		//! This is universal update for both per-pixel and per-vertex buffers.
+		//! Type and format of data produced depends only on type and format of buffer you provide.
+		//! Combinations like per-pixel colors, per-vertex bent normals are supported too.
+		//! Format of buffer is preserved.
+		//!
+		//! For 2d texture buffer (lightmap), uv coordinates provided by RRMesh::getTriangleMapping() are used.
 		//! All uv coordinates must be in 0..1 range and two triangles
 		//! may not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.
@@ -437,23 +413,26 @@ namespace rr
 		//!  \n Note1: LightsprintGL implementation of RRBuffer is not safe.
 		//!  \n Note2: updateLightmap() uses multiple threads internally.
 		//!
-		//! Not supported if you use \ref calc_fireball.
-		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
+		//!  In case of vertex buffer, -1 is allowed for multiobject with whole static scene.
 		//! \param lightmap
-		//!  Pixel buffer for storing calculated illumination.
-		//!  Lightmap holds irradiance in custom scale, which is illumination
-		//!  coming to object's surface, converted from physical W/m^2 units to your scale by RRScaler.
-		//!  Lightmap could contain direct, indirect or global illumination, depending on
-		//!  parameters you set in params.
+		//!  Buffer for storing calculated illumination.
 		//!  May be NULL.
+		//!  \n Types supported: BT_VERTEX_BUFFER, BT_2D_TEXTURE, however with \ref calc_fireball,
+		//!     only vertex buffer is supported.
+		//!  \n Formats supported: Any except for BF_DEPTH. Data are converted to format of buffer,
+		//!     so make sure that you don't request physical scale (HDR) data to be stored to 8bit RGB buffer,
+		//!     values would be clamped and precision lost.
+		//!  \n Lightmap could contain direct, indirect or global illumination, depending on
+		//!     parameters you set in params.
 		//! \param bentNormals
-		//!  Pixel buffer for storing calculated bent normals.
-		//!  RGB values (range 0..1) are calculated from XYZ worldspace normalized normals
-		//!  (range -1..1) by this formula: (XYZ+1)/2.
+		//!  Buffer for storing calculated bent normals.
 		//!  May be NULL.
+		//!  \n RGB values (range 0..1) are calculated from XYZ worldspace normalized normals
+		//!     (range -1..1) by this formula: (XYZ+1)/2.
+		//!  \n Type and format support is the same as for previous parameter.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters that
 		//!  specify fast preview update (takes milliseconds).
@@ -469,7 +448,7 @@ namespace rr
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(unsigned objectNumber, RRBuffer* lightmap, RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering);
+		virtual unsigned updateLightmap(int objectNumber, RRBuffer* lightmap, RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering=NULL);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
@@ -518,7 +497,7 @@ namespace rr
 		//!  is updated, so that it holds computed indirect illumination for sources
 		//!  and quality specified in paramsIndirect.
 		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
-		//!  Following updateLightmap() or updateVertexBuffer() will include
+		//!  Following updateLightmap() will include
 		//!  this indirect lighting into computed lightmap or vertex buffer
 		//!  if you set their params->applyCurrentSolution.
 		//! \remarks
@@ -765,6 +744,7 @@ namespace rr
 
 		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
+		unsigned   updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTableDynamicSolver();
 		void       updateVertexLookupTablePackedSolver();
