@@ -718,9 +718,7 @@ shoot_from_center:
 			);
 	}
 
-	RR_ASSERT(result.irradiance[0]>=0);
-	RR_ASSERT(result.irradiance[1]>=0);
-	RR_ASSERT(result.irradiance[2]>=0);
+	//RR_ASSERT(result.irradiance[0]>=0 && result.irradiance[1]>=0 && result.irradiance[2]>=0); small float error may generate negative value
 
 	return result;
 }

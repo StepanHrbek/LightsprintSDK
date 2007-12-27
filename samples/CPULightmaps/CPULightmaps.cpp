@@ -22,7 +22,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
 // --------------------------------------------------------------------------
 
-#define SELECTED_OBJECT_NUMBER 0 // selected object gets lightmap, others get per-vertex
+#define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel lightmap, others get per-vertex
 
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
@@ -44,82 +44,42 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
+void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
 	{
-		solver->getIllumination(i)->getLayer(layerNumberLighting) =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
-		solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
-	}
-
-	// calculate per vertex - all objects
-	// it is faster and quality is good for some objects
-	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsDirect.quality = 40;
-	paramsDirect.applyCurrentSolution = false;
-	paramsDirect.applyEnvironment = true;
-	paramsDirect.applyLights = true;
-	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-	paramsIndirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyEnvironment = true;
-	paramsIndirect.applyLights = true;
-	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,&paramsDirect,&paramsIndirect,NULL); 
-
-	// calculate per pixel - selected objects
-	// it is slower, but some objects need it
-	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
-	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
-	paramsDirectPixel.quality = 50;
-	paramsDirectPixel.applyEnvironment = true;
-	paramsDirectPixel.applyLights = true;
-	unsigned objectNumbers[] = {SELECTED_OBJECT_NUMBER};
-	for(unsigned i=0;i<sizeof(objectNumbers)/sizeof(objectNumbers[0]);i++)
-	{
-		unsigned objectNumber = objectNumbers[i];
-		if(solver->getObject(objectNumber))
+		rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
+		if(i==SELECTED_OBJECT_NUMBER)
 		{
-			rr::RRBuffer* lightmap = (layerNumberLighting<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
-			rr::RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
-				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL));
-			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel);
+			// allocate lightmaps for selected object
+			unsigned res = 16;
+			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
+			while(res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
+			solver->getIllumination(i)->getLayer(layerNumberLighting) =
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+			solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+		}
+		else
+		{
+			// allocate vertex buffers for other objects
+			solver->getIllumination(i)->getLayer(layerNumberLighting) =
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+			solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}
-}
 
-void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
-{
-	// create buffers for computed GI
-	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for(unsigned i=0;i<solver->getNumObjects();i++)
-	{
-		unsigned res = 16;
-		unsigned sizeFactor = 5; // higher factor = higher map resolution
-		while(res<2048 && res<sizeFactor*sqrtf((float)solver->getObject(i)->getCollider()->getMesh()->getNumTriangles())) res*=2;
-		solver->getIllumination(i)->getLayer(layerNumberLighting) =
-			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-		solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
-			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,NULL);
-	}
-
-	// calculate per pixel - all objects
-	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
-	paramsDirect.quality = 1000;
-	paramsDirect.applyCurrentSolution = false;
-	paramsDirect.applyEnvironment = true;
-	paramsDirect.applyLights = true;
-	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyEnvironment = true;
-	paramsIndirect.applyLights = true;
-	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,&paramsDirect,&paramsIndirect,NULL); 
+	// calculate lightmaps and bent normals
+	rr::RRDynamicSolver::UpdateParameters params;
+	params.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR, lightmaps in custom
+	params.quality = 4;
+	params.applyCurrentSolution = false;
+	params.applyEnvironment = true;
+	params.applyLights = true;
+	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,&params,&params,NULL); 
 }
 
 int main(int argc, char **argv)
@@ -127,7 +87,7 @@ int main(int argc, char **argv)
 	// this sample properly frees memory, no leaks are reported
 	// (some other samples are stripped down, they don't free memory)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-//	_crtBreakAlloc = 65549;
+//	_crtBreakAlloc = 39137;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -170,11 +130,12 @@ int main(int argc, char **argv)
 		rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
 
 		// calculate and save it
-		calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);
+		calculate(solver,0,1);
 	}
 
-	solver->saveIllumination("../../data/export/",0); // save GI lightmaps
-	solver->saveIllumination("../../data/export/",1); // save bent normals
+	// save GI lightmaps, bent normals
+	solver->saveIllumination("../../data/export/",0);
+	solver->saveIllumination("../../data/export/",1);
 
 	// release memory
 	delete solver;

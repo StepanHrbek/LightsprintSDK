@@ -796,7 +796,7 @@ void updateThumbnail(AnimationFrame& frame)
 	}
 	// render into thumbnail
 	if(!frame.thumbnail)
-		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,NULL);
+		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
 	glViewport(0,0,160,120);
 	//frame.thumbnail->renderingToBegin();
 	drawEyeViewSoftShadowed();

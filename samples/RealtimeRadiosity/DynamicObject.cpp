@@ -27,9 +27,9 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		d->specularCubeSize = _specularCubeSize;
 		// create envmaps
 		if(d->material.MATERIAL_DIFFUSE)
-			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBF,NULL);
+			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,NULL);
 		if(d->material.MATERIAL_SPECULAR)
-			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBF,NULL);
+			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,NULL);
 		d->updatePosition();
 
 		// simple renderer

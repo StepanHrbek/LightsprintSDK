@@ -19,21 +19,21 @@ namespace rr
 	//! Buffer type. Implementation is not required to support all of them.
 	enum RRBufferType
 	{
-		BT_VERTEX_BUFFER, ///< vertex buffer, 1d array. Used for realtime indirect lighting, per-vertex lightmaps.
+		BT_VERTEX_BUFFER, ///< Vertex buffer, 1d array. Used for object's realtime indirect lighting, precomputed per-vertex lighting.
 		BT_1D_TEXTURE,    ///< 1d texture, 1d array. Not used.
-		BT_2D_TEXTURE,    ///< 2d texture, 2d array. Used for lightmaps, ambient maps, bent normal maps.
+		BT_2D_TEXTURE,    ///< 2d texture, 2d array. Used for object's precomputed lightmaps, ambient occlusion maps, bent normal maps.
 		BT_3D_TEXTURE,    ///< 3d texture, 3d array. Not used.
-		BT_CUBE_TEXTURE,  ///< cube texture, 3d array. Used for diffuse and specular environment maps.
+		BT_CUBE_TEXTURE,  ///< Cube texture, 3d array of 6*size*size elements. Used for scene environment and for object's diffuse and specular reflection maps.
 	};
 
 	//! Buffer format. Implementation is not required to support all of them.
 	enum RRBufferFormat
 	{
-		BF_RGB,   ///< 8bit rgb, 24bits per pixel
-		BF_RGBA,  ///< 8bit rgba, 32bits per pixel
-		BF_RGBF,  ///< float rgb, 96bits per pixel
-		BF_RGBAF, ///< float rgba, 128bits per pixel
-		BF_DEPTH, ///< depth, implementation defined precision
+		BF_RGB,   ///< Integer RGB, 24bits per pixel. Format of textures natively supported by virtually all hardware. Usually not suitable for vertex buffers in hardware. Ideal for textures in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
+		BF_RGBA,  ///< Integer RGBA, 32bits per pixel. Format natively supported by virtually all hardware. Ideal for data in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
+		BF_RGBF,  ///< Floating point RGB, 96bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format. Ideal for vertex buffers in physical (linear) scale.
+		BF_RGBAF, ///< Floating point RGBA, 128bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format.
+		BF_DEPTH, ///< Depth, implementation defined precision.
 	};
 
 	//! Buffer lock. Implementation is not required to support all of them.
@@ -65,24 +65,27 @@ namespace rr
 
 		//! Sets size and contents of buffer.
 		//
-		//! Textures initialized as cube stay cube textures, 2d stay 2d.
 		//! \param type
 		//!  Requested type of buffer.
 		//! \param width
-		//!  Requested width of buffer.
+		//!  Requested width of buffer. Set to number of vertices for BT_VERTEX_BUFFER.
 		//! \param height
-		//!  Requested height of buffer.
-		//!  Must equal to width for cube texture.
+		//!  Requested height of buffer. Set 1 for BT_VERTEX_BUFFER. Set equal to width for BT_CUBE_TEXTURE.
 		//! \param depth
 		//!  Requested depth of buffer.
-		//!  Must equal to width for cube texture.
+		//!  Set 1 for BT_VERTEX_BUFFER and BT_2D_TEXTURE. Set 6 for BT_CUBE_TEXTURE.
 		//! \param format
 		//!  Format of data.
 		//!  Implementation is not required to support all data formats.
+		//! \param scaled
+		//!  Whether buffer data are in custom scale (usually screen colors, sRGB). False for physical(linear) scale.
+		//!  When buffer gets updated or rendered later, this setting should be respected.
 		//! \param data
 		//!  Data to be loaded(copied) into texture. When set to NULL, contents of texture stays uninitialized.
-		//!  Format of data is specified by format.
-		virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, const unsigned char* data) = 0;
+		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
+		//! \return
+		//!  True on success, false on failure (invalid parameters).
+		virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) = 0;
 		//! Sets single element in buffer. Value is converted to current buffer format (alpha=0 when necessary).
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
@@ -104,6 +107,8 @@ namespace rr
 		virtual unsigned getDepth() const = 0;
 		//! \return Format of buffer, e.g. BF_RGBF.
 		virtual RRBufferFormat getFormat() const = 0;
+		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).
+		virtual bool getScaled() const = 0;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
 		//! Returns value addressed by given integer coordinates as regular 3d array.
@@ -146,14 +151,20 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Creates buffer in system memory.
-		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, const unsigned char* data);
+		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid.
+		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
-		static RRBuffer* createSky(const RRVec4& upper, const RRVec4& lower);
+		//
+		//! Set scaled true for colors in custom (screen) scale,
+		//! false for physical (linear) scale.
+		static RRBuffer* createSky(const RRVec4& upper, const RRVec4& lower, bool scaled);
 
 		//! Creates cube texture with specified color.
-		static RRBuffer* createSky(RRVec4 color = RRVec4(1));
+		//
+		//! Set scaled true for color in custom (screen) scale, false for physical (linear) scale.
+		//! By default, white cube for ambient occlusion is created.
+		static RRBuffer* createSky(RRVec4 color = RRVec4(1), bool scaled = true);
 
 		//! Loads buffer from disk to system memory.
 		//

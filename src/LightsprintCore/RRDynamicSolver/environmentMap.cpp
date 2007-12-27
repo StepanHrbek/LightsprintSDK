@@ -445,7 +445,7 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 	{ \
 		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
 		interpolator->interpolate(gatheredExitance,filteredExitance,priv->scaler); \
-		map->reset(BT_CUBE_TEXTURE,filteredSize,filteredSize,6,BF_RGBF,(const unsigned char*)filteredExitance); \
+		map->reset(BT_CUBE_TEXTURE,filteredSize,filteredSize,6,BF_RGBF,priv->scaler?true:false,(const unsigned char*)filteredExitance); \
 		updatedMaps++; \
 	}
 

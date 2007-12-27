@@ -297,65 +297,37 @@ void idle()
 //
 // main
 
-void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
+void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
-		solver->getIllumination(i)->getLayer(layerNumber) =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,NULL);
-
-	// calculate per vertex - all objects
-	// it is faster and quality is good for some objects
-	rr::RRDynamicSolver::UpdateParameters paramsBoth;
-	paramsBoth.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsBoth.quality = 50;
-	paramsBoth.applyCurrentSolution = false;
-	paramsBoth.applyEnvironment = true;
-	solver->updateLightmaps(layerNumber,-1,&paramsBoth,&paramsBoth,NULL); 
-
-	// calculate per pixel - selected objects
-	// it is slower, but some objects need it
-	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
-	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
-	paramsDirectPixel.quality = 20;
-	paramsDirectPixel.applyEnvironment = true;
-	unsigned objectNumbers[] = {SELECTED_OBJECT_NUMBER};
-	for(unsigned i=0;i<sizeof(objectNumbers)/sizeof(objectNumbers[0]);i++)
 	{
-		unsigned objectNumber = objectNumbers[i];
-		if(solver->getObject(objectNumber))
+		rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
+		if(i==SELECTED_OBJECT_NUMBER)
 		{
-			solver->getIllumination(objectNumber)->getLayer(layerNumber) =
-				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,NULL);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber),NULL,&paramsDirectPixel);
+			// allocate lightmaps for selected object
+			unsigned res = 16;
+			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
+			while(res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
+			solver->getIllumination(i)->getLayer(layerNumber) =
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+		}
+		else
+		{
+			// allocate vertex buffers for other objects
+			solver->getIllumination(i)->getLayer(layerNumber) =
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}
-}
 
-void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
-{
-	// create buffers for computed GI
-	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for(unsigned i=0;i<solver->getNumObjects();i++)
-	{
-		unsigned res = 16;
-		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-		while(res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getIllumination(i)->getLayer(layerNumber) =
-			rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,NULL);
-	}
-
-	// calculate per pixel - all objects
-	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure.scaled = false;
-	paramsDirect.quality = 1000;
-	paramsDirect.applyCurrentSolution = false;
-	paramsDirect.applyEnvironment = true;
-	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyEnvironment = true;
-	solver->updateLightmaps(layerNumber,-1,&paramsDirect,&paramsIndirect,NULL);
+	// calculate ambient occlusion
+	rr::RRDynamicSolver::UpdateParameters params;
+	params.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
+	params.quality = 50;
+	params.applyCurrentSolution = false;
+	params.applyEnvironment = true;
+	solver->updateLightmaps(layerNumber,-1,&params,&params,NULL); 
 }
 
 int main(int argc, char **argv)
@@ -444,7 +416,7 @@ int main(int argc, char **argv)
 		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion ...\n");
 
 		// calculate and save it
-		calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
+		calculate(solver,0);
 		solver->saveIllumination("../../data/export/",0);
 
 		// or load it

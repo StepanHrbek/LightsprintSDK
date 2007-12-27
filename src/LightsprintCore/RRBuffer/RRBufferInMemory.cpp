@@ -22,17 +22,33 @@ unsigned getBytesPerPixel(RRBufferFormat format);
 //
 // RRBufferInMemory
 
-RRBufferInMemory::RRBufferInMemory(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, const unsigned char *_data)
+RRBufferInMemory::RRBufferInMemory()
 {
+	type = BT_VERTEX_BUFFER;
 	width = 0;
 	height = 0;
 	depth = 0;
+	format = BF_RGB;
+	scaled = false;
 	data = NULL;
-	RRBufferInMemory::reset(_type,_width,_height,_depth,_format,_data);
 }
 
-bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, const unsigned char* _data)
+bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
 {
+	// check params
+	if( ((_type==BT_VERTEX_BUFFER || _type==BT_1D_TEXTURE) && !(_width && _height==1 && _depth==1)) ||
+		(_type==BT_2D_TEXTURE && !(_width && _height && _depth==1)) ||
+		(_type==BT_3D_TEXTURE && !(_width && _height && _depth)) ||
+		(_type==BT_CUBE_TEXTURE && !(_width && _height==_width && _depth==6)) )
+	{
+		RRReporter::report(WARN,"Invalid parameters passed to RRBuffer::create().\n");
+		return false;
+	}
+	if((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
+	{
+		RRReporter::report(WARN,"Integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n");
+	}
+
 	unsigned bytesTotal = _width*_height*_depth*getBytesPerPixel(_format);
 
 	// copy data
@@ -55,6 +71,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	height = _height;
 	depth = _depth;
 	format = _format;
+	scaled = _scaled;
 	
 	return true;
 }
@@ -186,18 +203,21 @@ RRBufferInMemory::~RRBufferInMemory()
 //
 // RRBuffer
 
-RRBuffer* RRBuffer::create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, const unsigned char *data)
+RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char *_data)
 {
-	return new RRBufferInMemory(type,width,height,depth,format,data);
+	RRBuffer* buffer = new RRBufferInMemory();
+	if(!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
+		SAFE_DELETE(buffer);
+	return buffer;
 }
 
-RRBuffer* RRBuffer::createSky(RRVec4 color)
+RRBuffer* RRBuffer::createSky(RRVec4 color, bool scaled)
 {
 	RRVec4 data[6] = {color,color,color,color,color,color};
-	return new RRBufferInMemory(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,(unsigned char*)data);
+	return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(unsigned char*)data);
 }
 
-RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower)
+RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
 {
 	RRVec4 data[24] = {
 		upper,upper,lower,lower,
@@ -207,12 +227,12 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower)
 		upper,upper,lower,lower,
 		upper,upper,lower,lower
 		};
-	return new RRBufferInMemory(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,(unsigned char*)data);
+	return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(unsigned char*)data);
 }
 
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	RRBuffer* texture = new RRBufferInMemory(BT_1D_TEXTURE,1,1,1,BF_RGBA,NULL);
+	RRBuffer* texture = create(BT_1D_TEXTURE,1,1,1,BF_RGBA,true,NULL);
 	if(!texture->reload(filename,cubeSideName,flipV,flipH))
 	{
 		SAFE_DELETE(texture);

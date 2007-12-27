@@ -54,7 +54,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
-	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesMax,1,1,rr::BF_RGBF,NULL);
+	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesMax,1,1,rr::BF_RGBF,false,NULL);
 
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;

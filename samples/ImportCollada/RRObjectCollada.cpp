@@ -633,7 +633,7 @@ void RRObjectCollada::updateMaterials()
 					// not necessary for other renderers
 					#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 					unsigned char color[4] = {FLOAT2BYTE(mi.material.diffuseReflectance[0]),FLOAT2BYTE(mi.material.diffuseReflectance[1]),FLOAT2BYTE(mi.material.diffuseReflectance[2]),0};
-					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,color);
+					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,color);
 				}
 #ifdef VERIFY
 				if(mi.material.validate())

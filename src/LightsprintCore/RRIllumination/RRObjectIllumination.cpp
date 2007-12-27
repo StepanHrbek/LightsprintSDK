@@ -54,10 +54,9 @@ RRObjectIllumination::~RRObjectIllumination()
 	delete diffuseEnvMap;
 
 	// static
-	while(layers->begin()!=layers->end())
+	for(LayersType::iterator i=layers->begin();i!=layers->end();i++)
 	{
-		delete layers->begin()->second;
-		layers->erase(layers->begin());
+		delete i->second;
 	}
 	delete layers;
 }

@@ -18,10 +18,10 @@ namespace rr
 class RR_API RRBufferInMemory : public RRBuffer
 {
 public:
-	RRBufferInMemory(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, const unsigned char *data);
+	RRBufferInMemory();
 
 	// setting
-	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, const unsigned char* data);
+	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 	virtual void setElement(unsigned index, const RRVec3& element);
 
 	// reading
@@ -30,6 +30,7 @@ public:
 	virtual unsigned getHeight() const {return height;}
 	virtual unsigned getDepth() const {return depth;}
 	virtual RRBufferFormat getFormat() const {return format;}
+	virtual bool getScaled() const {return scaled;}
 	virtual unsigned getElementBits() const;
 	virtual RRVec4 getElement(unsigned index) const;
 	virtual RRVec4 getElement(const RRVec3& coord) const;
@@ -44,6 +45,7 @@ protected:
 	unsigned height;
 	unsigned depth;
 	RRBufferFormat format;
+	bool scaled;
 	unsigned char* data;
 };
 

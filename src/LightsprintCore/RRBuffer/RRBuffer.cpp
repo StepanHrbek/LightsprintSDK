@@ -18,6 +18,8 @@
 #define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
+#define SCALED_DETECTED_FROM_FILE true // textures are always loaded as custom scale data
+
 namespace rr
 {
 
@@ -228,7 +230,7 @@ bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool flipH)
 	}
 	else
 	{
-		texture->reset(BT_2D_TEXTURE,width,height,1,format,pixels);
+		texture->reset(BT_2D_TEXTURE,width,height,1,format,SCALED_DETECTED_FROM_FILE,pixels);
 		delete[] pixels;
 		return true;
 	}
@@ -294,7 +296,7 @@ bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSid
 	}
 
 	// load cube from 1 array
-	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,pixels);
+	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,SCALED_DETECTED_FROM_FILE,pixels);
 	delete[] pixels;
 	return true;
 }

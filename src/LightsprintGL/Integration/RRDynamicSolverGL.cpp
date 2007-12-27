@@ -111,7 +111,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	rr::RRReporter::report(rr::INF2,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
 	captureUv = new CaptureUv;
-	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,BIG_MAP_SIZEX,BIG_MAP_SIZEY,1,rr::BF_RGBA,NULL),false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,BIG_MAP_SIZEX,BIG_MAP_SIZEY,1,rr::BF_RGBA,true,NULL),false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);

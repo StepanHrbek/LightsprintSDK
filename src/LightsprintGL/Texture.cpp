@@ -7,6 +7,7 @@
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRDebug.h"
 #include "DemoEngine/FBO.h"
+#include <vector>
 
 namespace rr_gl
 {
@@ -192,6 +193,7 @@ void Texture::renderingToEnd()
 
 Texture::~Texture()
 {
+	if(buffer && buffer->customData==this) buffer->customData = NULL;
 	glDeleteTextures(1, &id);
 	numPotentialFBOUsers--;
 	if(!numPotentialFBOUsers)
@@ -221,7 +223,7 @@ static GLenum filtering()
 
 Texture* Texture::createShadowmap(unsigned width, unsigned height)
 {
-	Texture* texture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,NULL),false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	Texture* texture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,NULL),false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	texture->ownBuffer = true;
 	return texture;
 }
@@ -231,12 +233,28 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height)
 //
 // Buffer -> Texture
 
+static std::vector<Texture*> g_textures;
+
 Texture* getTexture(const rr::RRBuffer* _buffer, bool buildMipMaps, int magn, int mini, int wrapS, int wrapT)
 {
 	if(!_buffer) return NULL;
 	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! hack
-	if(!buffer->customData) buffer->customData = new Texture(buffer,buildMipMaps,magn,mini,wrapS,wrapT);
+	if(!buffer->customData)
+	{
+		Texture* texture = new Texture(buffer,buildMipMaps,magn,mini,wrapS,wrapT);
+		buffer->customData = texture;
+		g_textures.push_back(texture);
+	}
 	return (Texture*)(buffer->customData);
+}
+
+void deleteTextures()
+{
+	for(unsigned i=0;i<g_textures.size();i++)
+	{
+		delete g_textures[i];
+	}
+	g_textures.clear();
 }
 
 }; // namespace
