@@ -48,7 +48,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	}
 	else
 	{
-		RRReporter::report(WARN,"Invalid parameters passed to RRBuffer::create(,%d,%d,%d,,,).\n",_width,_height,_depth);
+		RRReporter::report(WARN,"Invalid parameters in RRBuffer::create(,%d,%d,%d,,,)%s\n",_width,_height,_depth,(_type==BT_VERTEX_BUFFER && !_width)?", object with 0 vertices?":".");
 		return false;
 	}
 	if((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
@@ -219,23 +219,25 @@ RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height
 	return buffer;
 }
 
-RRBuffer* RRBuffer::createSky(RRVec4 color, bool scaled)
-{
-	RRVec4 data[6] = {color,color,color,color,color,color};
-	return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(unsigned char*)data);
-}
-
 RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
 {
-	RRVec4 data[24] = {
-		upper,upper,lower,lower,
-		upper,upper,lower,lower,
-		upper,upper,upper,upper,
-		lower,lower,lower,lower,//bottom
-		upper,upper,lower,lower,
-		upper,upper,lower,lower
+	if(upper==lower)
+	{
+		RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
+		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(unsigned char*)data);
+	}
+	else
+	{
+		RRVec4 data[24] = {
+			upper,upper,lower,lower,
+			upper,upper,lower,lower,
+			upper,upper,upper,upper,
+			lower,lower,lower,lower,//bottom
+			upper,upper,lower,lower,
+			upper,upper,lower,lower
 		};
-	return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(unsigned char*)data);
+		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(unsigned char*)data);
+	}
 }
 
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)

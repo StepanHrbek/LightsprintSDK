@@ -156,15 +156,9 @@ namespace rr
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
-		//! Set scaled true for colors in custom scale (screen colors),
-		//! false for physical (linear) scale.
-		static RRBuffer* createSky(const RRVec4& upper, const RRVec4& lower, bool scaled);
-
-		//! Creates cube texture with specified color.
-		//
-		//! Set scaled true for color in custom (screen) scale, false for physical (linear) scale.
+		//! Set scaled true for colors in custom scale (screen colors), false for physical (linear) scale.
 		//! By default, white cube for ambient occlusion is created.
-		static RRBuffer* createSky(RRVec4 color = RRVec4(1), bool scaled = true);
+		static RRBuffer* createSky(const RRVec4& upper = RRVec4(1), const RRVec4& lower = RRVec4(1), bool scaled = true);
 
 		//! Loads buffer from disk to system memory.
 		//

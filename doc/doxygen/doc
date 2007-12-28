@@ -881,28 +881,27 @@ Used by samples:
 
  In more detail, you can run many clients that do
  \code
-	create solver and load scene;
+	RRDynamicSolver solver;
+	solver.setStaticObjects(objects);
+	solver.setLights(lights);
+	solver.setEnvironment(environment);
 	RRDynamicSolver::UpdateParameters params;
-	params.measure = RM_IRRADIANCE_CUSTOM;
-	params.quality = 5000;
+	params.quality = 1000;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
 	params.applyLights = true;
-	solver->updateVertexBuffers(-1,-1,false,&params,&params);
-	while not done
+	solver.updateLightmaps(-1,-1,&params,&params,NULL);
+	params.applyCurrentSolution = true;
+	params.measure_internal.direct = true;
+	while(!done)
 	{
-		objectIndex = get object that was not updated yet;
-		create lightmap;
-		params.quality = 1000;
-		params.applyCurrentSolution = true;
-		solver->updateLightmap or updateVertexBuffer
-			(objectIndex,lightmap,,&params);
-		save and delete lightmap;
+		unsigned objectIndex = ...; //get object that was not updated yet
+		RRBuffer* lightmap = RRBuffer::create(...);
+		solver.updateLightmap(objectIndex,lightmap,NULL,&params);
+		lightmap->save(filename);
+		delete lightmap;
 	}
-	delete solver;
  \endcode
- Note that initial solver->updateVertexBuffers() can't be distributed,
- it must be run by all clients, but it is relatively fast, it doesn't update any buffers.
 
 
 
@@ -1935,16 +1934,17 @@ Used by samples:
  Concept of color is implemented differently by both engines.
  First take a look at properties of any color type.
  - Color has channels (RGB, RGBA)
- - Color channel has precision (byte, float)
+ - Color channel has precision (bytes, floats)
  - Color has scale (linear/physical, screen/sRGB)
 
  UE3 implements following types (with properties)
- - FColor (RGBA, byte, screen/sRGB)
- - FLinearColor (RGBA, float, linear/physical)
+ - FColor (RGBA, bytes, screen/sRGB)
+ - FLinearColor (RGBA, floats, linear/physical)
 
  Lightsprint implements following types (with properties)
- - RRVec3 (RGB, float)
- - RRVec4 (RGBA, float)
+ - RRVec3 (RGB, floats, any of linear/physical, screen/sRGB)
+ - RRVec4 (RGBA, floats, any of linear/physical, screen/sRGB)
+ - RRBuffer (any of RGB, RGBA, any of bytes, floats, any of linear/physical, screen/sRGB)
 
  Scale in Lightsprint is defined by context rather than by type -
  functions working with colors are scale neutral
@@ -2112,29 +2112,29 @@ Used by samples:
  - gives you full control over speed/quality
  - calculated illumination is available in vertex buffers, lightmaps and environment maps
  - communicates completely in custom units, e.g. screen colors
- - purely CPU, GPU based extensions implemented in rr_gl::RRDynamicSolverGL
+ - purely CPU, extensions for realtime rendering on GPU implemented in rr_gl::RRDynamicSolverGL
 
  Samples RealtimeLights and RealtimeRadiosity show the result of integration,
  interactive Collada scene viewer with global illumination immediately responding
- to object and light movements.
+ to free movement of objects and lights.
 
  <hr>
 
  Headers: RRIllumination.h
 
- - storage of multiple illumination layers: RRObjectIllumination
+ - data structure (RRObjectIllumination): object's illumination and more
+
+ <hr>
+
+ Header: RRBuffer.h
+
+ - data structure (RRBuffer): texture, vertex buffer
 
  <hr>
 
  Header: RRObject.h
 
  - 3d object properties: geometry, materials, position etc
-
- <hr>
-
- Header: RRBuffer.h
-
- - array of colors, used for vertex color buffers, lightmaps, AO maps, normal maps, cubemaps
 
  <hr>
 
@@ -2196,24 +2196,36 @@ Used by samples:
 
 \page api_gl LightsprintGL
 
- LightsprintGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
- Advanced renderer with penumbra shadows is included.
- Full source code comes with commercial licence.
+ LightsprintGL implements realtime rendering on top of LightsprintCore.
+
+ Features of LightsprintGL renderer
+   - realtime global illumination
+   - arbitrary number of realtime dynamic point, spot, directional lights
+   - linear and area spotlights with realtime penumbra shadows
+   - separately enabled/disabled light features:
+     - color
+     - projected texture
+     - polynomial, exponential, none or physically correct distance attenuation models
+     - shadows with variable softness, resolution
+   - separately enabled/disabled material features:
+     - diffuse reflection: none, constant, per vertex, per pixel
+     - specular reflection: none, constant, per vertex, per pixel
+     - emissive map
+     - normal map
+   - supports OpenGL 2.0 GPUs (GeForce 5xxx and higher, Radeon 9500 and higher etc)
 
  Namespace: rr_gl
 
  <hr>
  Header: GL/SceneViewer.h
 
- - rr_gl::sceneViewer() is single function scene viewer, with movable lights, realtime GI, debugging outputs.
+ - rr_gl::sceneViewer() is a single function scene viewer, with movable lights, realtime GI, debugging outputs.
    RRDynamicSolver is usually black box. This viewer shows what's inside solver.
 
  <hr>
  Header: GL/RRDynamicSolverGL.h
 
- - rr_gl::RRDynamicSolverGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
- - pixel buffers
- - environment maps
+ - rr_gl::RRDynamicSolverGL extends RRDynamicSolver for realtime rendering in OpenGL 2.0
 
  <hr>
  Header: GL/RendererOfScene.h
@@ -2239,29 +2251,6 @@ Used by samples:
  - rr_gl::Camera is frustum suitable for camera or spotlight
  - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
  - rr_gl::Renderer is generic renderer interface
-
- Features and limitations of LightsprintGL's renderer
-   - for Windows (request support for other platforms)
-   - requires OpenGL 2.0 capable GPU (GeForce 5xxx and higher, Radeon 9500 and higher)
-   - spot and point lights with realtime shadows
-   - linear and area spotlights with realtime penumbra shadows
-   - polynomial, exponential and physically correct distance attenuation models
-   - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
-   - saving 2d and cube textures to jpg, png, tga, tiff, gif and many more
-   - separately enabled/disabled light features:
-     - color
-     - projected texture
-     - several models of distance attenuation
-     - shadows with variable softness, resolution
-     - diffuse environment map with variable resolution
-     - specular environment map with variable resolution
-   - separately enabled/disabled material features:
-     - diffuse color per vertex
-     - diffuse map
-     - specular (enabled for whole object)
-     - specular map (specular modulated by diffuse map)
-     - normal map (normal modulated by diffuse map)
-     - emissive map
 
 
 

@@ -376,9 +376,6 @@
 				RelativePath="RRMesh\RRMatrix3x4.cpp">
 			</File>
 			<File
-				RelativePath="RRMesh\RRMeshFilterTransformed.h">
-			</File>
-			<File
 				RelativePath="RRMesh\RRMesh.cpp">
 			</File>
 			<File
@@ -404,6 +401,9 @@
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshFilter.h">
+			</File>
+			<File
+				RelativePath="RRMesh\RRMeshFilterTransformed.h">
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshIndexedTriList.h">
@@ -436,12 +436,10 @@
 		<Filter
 			Name="RRObject">
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.cpp"
-				>
+				RelativePath=".\RRObject\RRCollisionHandler.cpp">
 			</File>
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.h"
-				>
+				RelativePath=".\RRObject\RRCollisionHandler.h">
 			</File>
 			<File
 				RelativePath="RRObject\RRMaterial.cpp">
@@ -492,30 +490,6 @@
 				RelativePath="..\..\include\Lightsprint\RRIllumination.h">
 			</File>
 			<File
-				RelativePath="RRIllumination\RRIlluminationEnvironmentMap.cpp">
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.cpp">
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.h">
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationPixelBuffer.cpp">
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.cpp">
-			</File>
-			<File
-				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.h">
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.cpp">
-			</File>
-			<File
-				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.h">
-			</File>
-			<File
 				RelativePath="RRIllumination\RRObjectIllumination.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
@@ -537,12 +511,10 @@
 				RelativePath="RRStaticSolver\clusters.h">
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.cpp"
-				>
+				RelativePath=".\RRStaticSolver\gatherer.cpp">
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.h"
-				>
+				RelativePath=".\RRStaticSolver\gatherer.h">
 			</File>
 			<File
 				RelativePath="RRStaticSolver\geometry_v.cpp">
@@ -590,6 +562,24 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="RRDynamicSolver\gather.cpp">
+				<FileConfiguration
+					Name="Release static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\gather.h">
+			</File>
+			<File
 				RelativePath="RRDynamicSolver\Interpolator.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
@@ -608,35 +598,6 @@
 				RelativePath="RRDynamicSolver\Interpolator.h">
 			</File>
 			<File
-				RelativePath="RRDynamicSolver\LightmapFilter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\LightmapFilter.h"
-				>
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\private.h">
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\gather.h">
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\gather.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="RRDynamicSolver\lightmap.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
@@ -650,6 +611,15 @@
 						Name="VCCLCompilerTool"
 						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\LightmapFilter.cpp">
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\LightmapFilter.h">
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\private.h">
 			</File>
 			<File
 				RelativePath="RRDynamicSolver\report.h">
@@ -689,71 +659,24 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="DemoEngine"
-			>
+			Name="RRPackedSolver">
 			<File
-				RelativePath="..\LightsprintGL\DemoEngine\Texture.cpp"
-				>
+				RelativePath="RRPackedSolver\PackedSolverFile.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
-				>
+				RelativePath="RRPackedSolver\PackedSolverFileBuild.cpp">
 			</File>
 			<File
-				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.cpp"
-				>
+				RelativePath="RRPackedSolver\RRPackedSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.h"
-				>
+				RelativePath="RRPackedSolver\RRPackedSolver.h">
 			</File>
 		</Filter>
 		<Filter
-			Name="RRPackedSolver"
-			>
+			Name="RRLight">
 			<File
-				RelativePath="RRPackedSolver\PackedSolverFile.h"
-				>
-			</File>
-			<File
-				RelativePath="RRPackedSolver\PackedSolverFileBuild.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRPackedSolver\RRPackedSolver.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRPackedSolver\RRPackedSolver.h"
-				>
-			</File>
-		</Filter>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRDebug.h">
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRMath.h">
-		</File>
-		<File
-			RelativePath="RRMathPrivate.h">
-		</File>
-		<File
-			RelativePath="RRMemory.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRMemory.h"
-			>
-		</File>
-		<File
-			RelativePath="RRReporter.cpp">
-		</File>
-		<Filter
-			Name="RRLight"
-			>
-			<File
-				RelativePath=".\RRLight\RRLight.cpp"
-				>
+				RelativePath=".\RRLight\RRLight.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
 					<Tool
@@ -768,17 +691,47 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\RRLight.h"
-				>
+				RelativePath="..\..\include\Lightsprint\RRLight.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="RRBuffer">
+			<File
+				RelativePath=".\RRBuffer\RRBuffer.cpp">
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRBuffer.h">
+			</File>
+			<File
+				RelativePath=".\RRBuffer\RRBufferInMemory.cpp">
+			</File>
+			<File
+				RelativePath=".\RRBuffer\RRBufferInMemory.h">
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\LicGen\include\LicGenOpt.h"
-			>
+			RelativePath="..\LicGen\include\LicGen.h">
 		</File>
 		<File
-			RelativePath="..\LicGen\include\LicGen.h"
-			>
+			RelativePath="..\LicGen\include\LicGenOpt.h">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRDebug.h">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRMath.h">
+		</File>
+		<File
+			RelativePath="RRMathPrivate.h">
+		</File>
+		<File
+			RelativePath="RRMemory.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRMemory.h">
+		</File>
+		<File
+			RelativePath="RRReporter.cpp">
 		</File>
 	</Files>
 	<Globals>

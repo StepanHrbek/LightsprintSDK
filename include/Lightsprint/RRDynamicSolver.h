@@ -82,10 +82,8 @@ namespace rr
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
-	//! Thread safe: Partially.
-	//!  All updateXxxx() functions may be called from multiple threads at the same time.
-	//!  See updateLightmap(), updateLightmaps() and updateEnvironmentMap() for important details.
-	//!  Other function may be called from multiple threads, but not at the same time.
+	//! Thread safe: Partially, see functions for more details.
+	//!  All updateXxxx() functions automatically use all cores.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -404,9 +402,8 @@ namespace rr
 		//! may not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.
 		//!
-		//! Thread safe: yes if lightmap is safe.
-		//!  \n Note1: LightsprintGL implementation of RRBuffer is not safe.
-		//!  \n Note2: updateLightmap() uses multiple threads internally.
+		//! Thread safe: no, but there's no need to run it from multiple threads at the same time,
+		//!   all cores are used automatically.
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
@@ -450,6 +447,9 @@ namespace rr
 		//! This is more powerful full scene version of limited single object's updateLightmap().
 		//!
 		//! Not supported if you use \ref calc_fireball.
+		//!
+		//! Thread safe: no, but there's no need to run it from multiple threads at the same time,
+		//!   all cores are used automatically.
 		//!
 		//! \param layerNumberLighting
 		//!  Lightmaps for individual objects are stored into
@@ -528,7 +528,7 @@ namespace rr
 		//! Reads RRObjectIllumination variables with 'envMap' in name, update them before calling this function.
 		//!
 		//! Thread safe: yes, may be called from multiple threads at the same time
-		//!  (but there's no strong need as it uses all cores internally)
+		//!  (but there's no need as it uses all cores internally)
 		//!
 		//! \param illumination
 		//!  Object's illumination to be updated.

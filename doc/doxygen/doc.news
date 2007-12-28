@@ -9,7 +9,7 @@ namespace rr
 \page main_news What's new
 
 
-\section news41 ------------------------------------ 2007.12.xx -------------------------------------
+\section news41 ------------------------------------ 2007.12.28 -------------------------------------
 
 NEWS
 
@@ -23,6 +23,7 @@ CHANGES
   - rename RRIlluminationVertexBuffer to RRBuffer
   - rename RRIlluminationPixelBuffer to RRBuffer
   - rename RRIlluminationEnvironmentMap to RRBuffer
+  - rename createUniform to createSky
   - fix function calls where names or parameters changed due to unification
 - updateLightmap() and updateLightmaps() support all types of buffers,
   updateVertexBuffer() and updateVertexBuffers() removed
@@ -42,7 +43,7 @@ CHANGES
   - delete third parameter from updateLightmaps()
   - if it was true, create buffers manually (example: see getLayer(...) = ... in samples)
   - delete your implementation (if any) of newVertexBuffer(), newPixelBuffer()
-- UpdateParameters::measure removed
+- removed UpdateParameters::measure
   - delete lines where you set it
 - optional lightmap filtering parameters moved from pixel buffer constructor to updateLightmaps()
 - removed realtime update of lightmaps

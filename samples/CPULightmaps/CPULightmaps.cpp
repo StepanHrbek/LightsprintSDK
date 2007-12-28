@@ -74,7 +74,7 @@ void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNu
 
 	// calculate lightmaps and bent normals
 	rr::RRDynamicSolver::UpdateParameters params;
-	params.quality = 4;
+	params.quality = 1000;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
 	params.applyLights = true;

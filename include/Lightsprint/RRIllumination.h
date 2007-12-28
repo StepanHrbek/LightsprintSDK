@@ -19,11 +19,20 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Storage for object's indirect illumination.
+	//! Data structure with object's illumination and more.
 	//
-	//! Editor stores calculated illumination here.
-	//! Renderer reads illumination from here.
-	//! Add one instance to every object in your scene.
+	//! This is collection of various buffers that may contain
+	//! lightmaps, bent normals, reflection cube maps, ambient occlusion.
+	//! This collection belongs to one object in your scene.
+	//!
+	//! Buffers are created by you and deleted by destructor (unless you delete them manually).
+	//!
+	//! RRDynamicSolver::updateXxx() functions store calculated illumination in buffers.
+	//! They usually preserve buffer properties you selected while creating buffer:
+	//! BufferType, BufferFormat and scale. So you are free to select between per-pixel
+	//! and per-vertex lighting etc.
+	//!
+	//! Renderer renders illumination from these buffers.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +51,7 @@ namespace rr
 
 		//! Returns layer of illumination (irradiance) values for whole object.
 		//
-		//! Illumination can be stored in vertex color buffer or lightmap.
+		//! Illumination can be stored in vertex color buffer or lightmap (2d).
 		//! Multiple layers (e.g. one layer per light source) can be mixed by renderer.
 		//! At the beginning, all layers are NULL. You are free to create them
 		//! (getLayer() = RRBuffer::create()), they will be deleted automatically
