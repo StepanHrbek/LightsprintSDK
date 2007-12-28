@@ -24,24 +24,27 @@ CHANGES
   - rename RRIlluminationPixelBuffer to RRBuffer
   - rename RRIlluminationEnvironmentMap to RRBuffer
   - fix function calls where names or parameters changed due to unification
+- updateLightmap() and updateLightmaps() support all types of buffers,
+  updateVertexBuffer() and updateVertexBuffers() removed
+  - rename updateVertexBuffer() to updateLightmap()
+  - rename updateVertexBuffers() to updateLightmaps()
 - removed RRColor* abstractions
   - rename RRColor to RRVec3
   - rename RRColorRGBF to RRVec3
   - rename RRColorRGBAF to RRVec4
   - rename RRColorRGBA8 to unsigned
-- removed newVertexBuffer(), newPixelBuffer(), createMissingBuffers
-  - delete third parameter from updateVertexBuffers() and updateLightmaps()
-  - if it was true, create buffers manually, see getLayer(...) = ... in samples
 - RRObjectIllumination::getLayer() returns buffer instead of structure with two buffers
   - change getLayer(n)->vertexBuffer to getLayer(n)
   - change getLayer(n)->pixelBuffer to getLayer(n)
   - make sure you don't save both vertex and pixel buffer to single layer,
     use only one of them or use different layers
-- updateLightmap() and updateLightmaps() support all types of buffers,
-  updateVertexBuffer() and updateVertexBuffers() removed
-  - rename updateVertexBuffer() to updateLightmap()
-  - rename updateVertexBuffers() to updateLightmaps()
-- optional lightmap filtering params moved from pixel buffer constructor to updateLightmaps() params
+- removed newVertexBuffer(), newPixelBuffer(), createMissingBuffers
+  - delete third parameter from updateLightmaps()
+  - if it was true, create buffers manually (example: see getLayer(...) = ... in samples)
+  - delete your implementation (if any) of newVertexBuffer(), newPixelBuffer()
+- UpdateParameters::measure removed
+  - delete lines where you set it
+- optional lightmap filtering parameters moved from pixel buffer constructor to updateLightmaps()
 - removed realtime update of lightmaps
 
 \section news40 ------------------------------------ 2007.12.06 -------------------------------------

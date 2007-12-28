@@ -101,7 +101,7 @@ void LightmapFilter::renderTexel(const unsigned uv[2], const RRVec4& color)
 	numRenderedTexels++;
 }
 
-const RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* _params)
+RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* _params)
 {
 	RRDynamicSolver::FilteringParameters params;
 	if(_params) params = *_params;

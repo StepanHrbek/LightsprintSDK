@@ -13,7 +13,7 @@ public:
 	unsigned getWidth() {return width;}
 	unsigned getHeight() {return height;}
 	void renderTexel(const unsigned uv[2], const RRVec4& color);
-	const RRVec4* getFiltered(const RRDynamicSolver::FilteringParameters* _params);
+	RRVec4* getFiltered(const RRDynamicSolver::FilteringParameters* _params);
 	~LightmapFilter();
 private:
 	unsigned width;

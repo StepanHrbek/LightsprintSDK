@@ -514,7 +514,7 @@ protected:
 // thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
 //   someone must call us at least once, before multithreading starts.
 // returns:
-//   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
+//   if tc->pixelBuffer is set, physical scale irradiance is rendered and returned
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
 // pozor na:
 //   - bazi pro strileni do hemisfery si vyrabi z normaly
@@ -667,10 +667,6 @@ shoot_from_center:
 		result.bentNormal.RRVec3::normalize();
 	}
 
-	// scale irradiance (full irradiance, not fraction) to custom scale
-	if(pti.context.pixelBuffer && pti.context.params->measure.scaled && tools.scaler)
-		tools.scaler->getCustomScale(result.irradiance);
-
 #ifdef RELIABILITY_FILTERING
 	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
 
@@ -753,8 +749,8 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
-	RRReportInterval report(INF2,"Gathering(%s%s%s%s%s%d) ...\n",
-		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",(params.applyCurrentSolution&&params.measure.direct)?"D":"",(params.applyCurrentSolution&&params.measure.indirect)?"I":"",params.applyCurrentSolution?"cur ":"",params.quality);
+	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
+		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	TexelContext tc;
 	tc.solver = this;
 	tc.pixelBuffer = NULL;
@@ -789,9 +785,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		pti.ray->rayLengthMin = priv->minimalSafeDistance;
 		ProcessTexelResult tr = processTexel(pti);
 		results[t] = tr;
-		RR_ASSERT(results[t].irradiance[0]>=0);
-		RR_ASSERT(results[t].irradiance[1]>=0);
-		RR_ASSERT(results[t].irradiance[2]>=0);
+		//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
 	}
 
 	delete[] rays;
@@ -874,10 +868,8 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	//paramsDirect.applyCurrentSolution = false;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
-	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s%s%s).\n",
+	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
-		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
-		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 
 	if(paramsIndirect.applyCurrentSolution)

@@ -60,7 +60,7 @@ void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNu
 			solver->getIllumination(i)->getLayer(layerNumberLighting) =
 				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 			solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
-				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,false,NULL);
 		}
 		else
 		{
@@ -74,7 +74,6 @@ void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNu
 
 	// calculate lightmaps and bent normals
 	rr::RRDynamicSolver::UpdateParameters params;
-	params.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR, lightmaps in custom
 	params.quality = 4;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
@@ -98,6 +97,7 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	rr::RRReporter::setReporter(reporter);
+	rr::RRReporter::setFilter(true,3,true);
 
 	// decrease priority, so that this task runs on background using only free CPU cycles
 	// good for precalculating lightmaps on workstation

@@ -19,11 +19,9 @@ namespace rr
 	//! Buffer type. Implementation is not required to support all of them.
 	enum RRBufferType
 	{
-		BT_VERTEX_BUFFER, ///< Vertex buffer, 1d array. Used for object's realtime indirect lighting, precomputed per-vertex lighting.
-		BT_1D_TEXTURE,    ///< 1d texture, 1d array. Not used.
-		BT_2D_TEXTURE,    ///< 2d texture, 2d array. Used for object's precomputed lightmaps, ambient occlusion maps, bent normal maps.
-		BT_3D_TEXTURE,    ///< 3d texture, 3d array. Not used.
-		BT_CUBE_TEXTURE,  ///< Cube texture, 3d array of 6*size*size elements. Used for scene environment and for object's diffuse and specular reflection maps.
+		BT_VERTEX_BUFFER, ///< Vertex buffer, 1d array of width elements. Used for object's realtime indirect lighting, precomputed per-vertex lighting.
+		BT_2D_TEXTURE,    ///< 2d texture, 2d array of width*height elements. Used for object's precomputed lightmaps, ambient occlusion maps, bent normal maps.
+		BT_CUBE_TEXTURE,  ///< Cube texture, 3d array of size*size*6 elements. Used for scene environment and for object's diffuse and specular reflection maps.
 	};
 
 	//! Buffer format. Implementation is not required to support all of them.
@@ -143,7 +141,9 @@ namespace rr
 		virtual ~RRBuffer() {};
 
 		//! For your private use, not accessed by LightsprintCore. Initialized to NULL.
-		//! LightsprintGL sets it to Texture*.
+		//
+		//! If you use LightsprintGL, you should not modify it,
+		//! it is set to Texture*.
 		void* customData;
 
 
@@ -156,7 +156,7 @@ namespace rr
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
-		//! Set scaled true for colors in custom (screen) scale,
+		//! Set scaled true for colors in custom scale (screen colors),
 		//! false for physical (linear) scale.
 		static RRBuffer* createSky(const RRVec4& upper, const RRVec4& lower, bool scaled);
 

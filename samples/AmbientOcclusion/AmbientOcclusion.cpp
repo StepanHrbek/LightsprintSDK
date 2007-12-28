@@ -323,8 +323,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 
 	// calculate ambient occlusion
 	rr::RRDynamicSolver::UpdateParameters params;
-	params.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	params.quality = 50;
+	params.quality = 1000;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
 	solver->updateLightmaps(layerNumber,-1,&params,&params,NULL); 

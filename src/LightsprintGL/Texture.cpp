@@ -39,9 +39,9 @@ void Texture::reset(bool _buildMipmaps)
 	const unsigned char* data = buffer->lock(rr::BL_READ);
 	switch(buffer->getType())
 	{
-		case rr::BT_1D_TEXTURE: cubeOr2d = GL_TEXTURE_1D; break;
+		//case rr::BT_1D_TEXTURE: cubeOr2d = GL_TEXTURE_1D; break;
 		case rr::BT_2D_TEXTURE: cubeOr2d = GL_TEXTURE_2D; break;
-		case rr::BT_3D_TEXTURE: cubeOr2d = GL_TEXTURE_3D; break;
+		//case rr::BT_3D_TEXTURE: cubeOr2d = GL_TEXTURE_3D; break;
 		case rr::BT_CUBE_TEXTURE: cubeOr2d = GL_TEXTURE_CUBE_MAP; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of invalid type created.\n"); break;
 	}

@@ -293,14 +293,6 @@ namespace rr
 		//! use NULL for default parameters.
 		struct UpdateParameters
 		{
-			//! Requested type of data stored into updated (external) buffers. Doesn't affect data stored inside solver.
-			//
-			//! Attribute scaled enables conversion to custom scale before data are stored to buffer.
-			//! It's usually set to 1 for 8bit sRGB lightmaps, 0 for float vertex buffers with cheap scaling in shader.
-			//! \n Attributes direct/indirect specify what data are read from solver when applyCurrentSolution=true.
-			//! \n Some attributes may be ignored by some updateXxx() functions.
-			RRRadiometricMeasure measure;
-
 			//! Include lights set by setLights() as a source of illumination.
 			//! True makes calculation non-realtime.
 			bool applyLights;
@@ -356,10 +348,12 @@ namespace rr
 			//! outer environment/sky.)
 			RRReal locality;
 
+			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
+			RRRadiometricMeasure measure_internal;
+
 			//! Sets default parameters for fast realtime update.
 			UpdateParameters()
 			{
-				measure = RM_IRRADIANCE_PHYSICAL_INDIRECT;
 				applyLights = false;
 				applyEnvironment = false;
 				applyCurrentSolution = true;
@@ -367,6 +361,7 @@ namespace rr
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
+				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 			}
 		};
 

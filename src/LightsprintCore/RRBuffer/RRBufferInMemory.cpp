@@ -36,17 +36,28 @@ RRBufferInMemory::RRBufferInMemory()
 bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
 {
 	// check params
-	if( ((_type==BT_VERTEX_BUFFER || _type==BT_1D_TEXTURE) && !(_width && _height==1 && _depth==1)) ||
-		(_type==BT_2D_TEXTURE && !(_width && _height && _depth==1)) ||
-		(_type==BT_3D_TEXTURE && !(_width && _height && _depth)) ||
-		(_type==BT_CUBE_TEXTURE && !(_width && _height==_width && _depth==6)) )
+	if((_format==BF_RGB || _format==BF_RGBA || _format==BF_RGBF || _format==BF_RGBAF || _format==BF_DEPTH) && (
+		(_type==BT_VERTEX_BUFFER && (_width && _height==1 && _depth==1)) ||
+		//(_type==BT_1D_TEXTURE && (_width && _height==1 && _depth==1)) ||
+		(_type==BT_2D_TEXTURE && (_width && _height && _depth==1)) ||
+		//(_type==BT_3D_TEXTURE && (_width && _height && _depth)) ||
+		(_type==BT_CUBE_TEXTURE && (_width && _height==_width && _depth==6))
+		))
 	{
-		RRReporter::report(WARN,"Invalid parameters passed to RRBuffer::create().\n");
+		// ok
+	}
+	else
+	{
+		RRReporter::report(WARN,"Invalid parameters passed to RRBuffer::create(,%d,%d,%d,,,).\n",_width,_height,_depth);
 		return false;
 	}
 	if((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
 	{
-		RRReporter::report(WARN,"Integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n");
+//		LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
+	}
+	if((_format==BF_RGBF || _format==BF_RGBAF) && _scaled && _width>2) // ignore it for tiny buffers like 2*2*6 cube from createSky()
+	{
+//		LIMITED_TIMES(1,RRReporter::report(WARN,"Float buffer used for data in custom scale (screen colors). Maybe you can save space by using integer buffer.\n"));
 	}
 
 	unsigned bytesTotal = _width*_height*_depth*getBytesPerPixel(_format);
@@ -165,16 +176,6 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 	unsigned coord[3];
 	switch(type)
 	{
-		case BT_VERTEX_BUFFER:
-		case BT_1D_TEXTURE:
-		case BT_2D_TEXTURE:
-		case BT_3D_TEXTURE:
-			{
-				coord[0] = (unsigned)(direction[0] * width) % width;
-				coord[1] = (unsigned)(direction[1] * height) % height;
-				coord[2] = (unsigned)(direction[2] * depth) % depth;
-				break;
-			}
 		case BT_CUBE_TEXTURE:
 			{
 				assert(width==height);
@@ -187,6 +188,13 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 				coord[1] = (unsigned) CLAMPED((int)((direction[(axis<2)?2:1]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
 				// find side
 				coord[2] = 2*axis + ((direction[axis]<0)?1:0); // 0..5
+				break;
+			}
+		default:
+			{
+				coord[0] = (unsigned)(direction[0] * width) % width;
+				coord[1] = (unsigned)(direction[1] * height) % height;
+				coord[2] = (unsigned)(direction[2] * depth) % depth;
 				break;
 			}
 	}
@@ -232,7 +240,7 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	RRBuffer* texture = create(BT_1D_TEXTURE,1,1,1,BF_RGBA,true,NULL);
+	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
 	if(!texture->reload(filename,cubeSideName,flipV,flipH))
 	{
 		SAFE_DELETE(texture);

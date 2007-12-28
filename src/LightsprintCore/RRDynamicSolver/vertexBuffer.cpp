@@ -168,6 +168,8 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 //!  For higher quality final gathered results, use updateLightmaps().
 unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
+	RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getNumObjects());
+
 	if(!vertexBuffer || objectNumber>=(int)getNumObjects() || objectNumber<-1)
 	{
 		RR_ASSERT(0);
@@ -228,7 +230,9 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 			return 0;
 		}
 	}
-	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
+	RRRadiometricMeasure measure = params ? params->measure_internal : RM_IRRADIANCE_CUSTOM_INDIRECT;
+	measure.scaled = vertexBuffer->getScaled();
+
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
@@ -256,6 +260,8 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 // post import triangly cele sceny -> pre import vertexy jednoho objektu
 unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const
 {
+	RRReporter::report(INF3,"Updating vertex buffer, object %d/%d.\n",objectHandle,getNumObjects());
+
 	if(!priv->scene || !vertexBuffer)
 	{
 		RR_ASSERT(0);

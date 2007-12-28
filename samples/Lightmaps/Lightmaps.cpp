@@ -268,7 +268,6 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in custom scale (sRGB)
 				solver->updateLightmaps(2,-1,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
@@ -276,7 +275,6 @@ void keyboard(unsigned char c, int x, int y)
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in physical scale (HDR)
 				solver->updateLightmaps(1,-1,&paramsDirect,&paramsIndirect,NULL);
 
 				// start rendering computed maps

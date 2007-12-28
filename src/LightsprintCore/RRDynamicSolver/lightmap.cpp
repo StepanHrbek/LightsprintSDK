@@ -354,12 +354,14 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 }
 
 
-void flush(RRBuffer* buffer, const RRVec4* data)
+void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
 {
-	unsigned numElements = buffer->getWidth()*buffer->getHeight();
+	if(!destBuffer->getScaled()) scaler = NULL;
+	unsigned numElements = destBuffer->getWidth()*destBuffer->getHeight();
 	for(unsigned i=0;i<numElements;i++)
 	{
-		buffer->setElement(i,data[i]);
+		if(scaler) scaler->getCustomScale(srcData[i]);
+		destBuffer->setElement(i,srcData[i]);
 	}
 }
 
@@ -429,7 +431,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	RRBuffer* bentNormalsPerPixel = onlyLmap(bentNormals);
 
 	// do per-vertex part
-	if(vertexBuffer||bentNormalsPerVertex)
+	if(vertexBuffer)
 	{
 		updatedBuffers += updateVertexBufferFromSolver(objectNumber,vertexBuffer,_params);
 	}
@@ -463,13 +465,13 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 
 		if(tc.pixelBuffer)
 		{
-			flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering));
+			flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering),priv->scaler);
 			delete tc.pixelBuffer;
 			updatedBuffers++;
 		}
 		if(tc.bentNormalsPerPixel)
 		{
-			flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering));
+			flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering),priv->scaler);
 			delete tc.bentNormalsPerPixel;
 			updatedBuffers++;
 		}
@@ -514,15 +516,11 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		containsLightmaps     |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberBentNormals) && getIllumination(object)->getLayer(layerNumberBentNormals)->getType()==BT_2D_TEXTURE;
 	}
 
-	RRReportInterval report((containsFirstGather||containsLightmaps||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+	RRReportInterval report((containsFirstGather||containsLightmaps||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
-		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
-		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.indirect)?"I":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
-		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
-		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 
 	// 1. first gather: solver+lights+env -> solver.direct
@@ -532,9 +530,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		// auto quality for first gather
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 
-		// shoot 2x less indirect rays than direct
+		// shoot 4x less indirect rays than direct
 		// (but only if direct.quality was specified)
-		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
+		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/4;
 		unsigned benchTexels = numTriangles;
 
 		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
@@ -543,8 +541,8 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			return 0;
 
 		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
-		paramsDirect.measure.direct = true; // it is stored in direct+indirect (after calculate)
-		paramsDirect.measure.indirect = true;
+		paramsDirect.measure_internal.direct = true; // it is stored in direct+indirect (after calculate)
+		paramsDirect.measure_internal.indirect = true;
 		// musim gathernout direct i indirect.
 		// indirect je jasny, jedine v nem je vysledek spocteny v calculate().
 		// ovsem direct musim tez, jedine z nej dostanu prime osvetleni emisivnim facem, prvni odraz od spotlight, lights a env
@@ -557,10 +555,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		RRReporter::report(WARN,"No light sources enabled.\n");
 	}
 
+	// 3. vertex: realtime copy into buffers (solver not modified)
 	if(containsVertexBuffers && containsRealtime)
 	{
-		// 3. vertex: realtime copy into buffers (solver not modified)
-
 		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 		{
 			if(layerNumberLighting>=0)
@@ -580,10 +577,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		}
 	}
 
+	// 4+5. vertex: final gather into vertex buffers (solver not modified)
 	if(containsVertexBuffers && !containsRealtime)
 	{
-		// 4+5. vertex: final gather into vertex buffers (solver not modified)
-
 		if(containsVertexBuffers && (paramsDirect.applyLights || paramsDirect.applyEnvironment || (paramsDirect.applyCurrentSolution && paramsDirect.quality)))
 		{
 			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
@@ -615,7 +611,6 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	}
 
 	// 6. pixel: final gather into pixel buffers (solver not modified)
-
 	if(containsLightmaps)
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
