@@ -118,9 +118,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 	if(uberProgramSetup.LIGHT_DIRECT)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
@@ -131,7 +128,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 		robot->rotYZ = rr::RRVec2(rotation,0);
 		robot->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		if(uberProgramSetup.LIGHT_INDIRECT_auto)
 			solver->updateEnvironmentMap(robot->illumination);
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
@@ -140,7 +137,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		if(uberProgramSetup.LIGHT_INDIRECT_auto)
 			solver->updateEnvironmentMap(potato->illumination);
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
@@ -247,7 +244,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 10;
+				paramsDirect.quality = 3;
 				paramsDirect.applyCurrentSolution = false;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
@@ -387,9 +384,7 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = ambientMapsRender;
-	uberProgramSetup.LIGHT_INDIRECT_auto = ambientMapsRender; // when map doesn't exist, render vcolors
+	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;

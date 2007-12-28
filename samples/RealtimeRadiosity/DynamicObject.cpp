@@ -135,6 +135,11 @@ void DynamicObject::updatePosition()
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
+	if(uberProgramSetup.LIGHT_INDIRECT_auto)
+	{
+		uberProgramSetup.LIGHT_INDIRECT_auto = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+	}
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
 	// when indirect illum is off, do nothing, it's probably render of shadow into shadowmap.

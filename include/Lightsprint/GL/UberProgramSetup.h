@@ -66,7 +66,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
 	bool     LIGHT_INDIRECT_MAP2    :1; ///< Enables blend between two ambient maps.
 	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
-	bool     LIGHT_INDIRECT_auto    :1; ///< Extension. Makes RendererOfScene automatically set LIGHT_INDIRECT_VCOLOR and LIGHT_INDIRECT_MAP according to available data. If both vertex and pixel buffers are available, pixel is used.
+	bool     LIGHT_INDIRECT_auto    :1; ///< Extension. Makes renderer set all LIGHT_INDIRECT_xxx flags automatically (except _CONST) according to available data.
 	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.
 	bool     MATERIAL_DIFFUSE_CONST :1; ///< Enables material's diffuse reflectance modulated by constant color.
 	bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
