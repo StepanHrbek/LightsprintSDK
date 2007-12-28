@@ -194,7 +194,10 @@ void Texture::renderingToEnd()
 
 Texture::~Texture()
 {
-	if(buffer && buffer->customData==this) buffer->customData = NULL;
+	if(buffer && buffer->customData==this)
+		buffer->customData = NULL;
+	if(ownBuffer)
+		delete buffer;
 	glDeleteTextures(1, &id);
 	numPotentialFBOUsers--;
 	if(!numPotentialFBOUsers)

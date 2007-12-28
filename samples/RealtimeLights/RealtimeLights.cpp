@@ -223,6 +223,7 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case 27:
+			rr_gl::deleteTextures();
 			delete solver->getEnvironment();
 			delete solver->getScaler();
 			delete solver;
@@ -230,6 +231,7 @@ void keyboard(unsigned char c, int x, int y)
 			delete potato;
 			delete adaptedLights;
 			delete adaptedObjects;
+			delete lightDirectMap->getBuffer();
 			delete lightDirectMap;
 			delete collada;
 			delete rr::RRReporter::getReporter();
@@ -372,8 +374,8 @@ void idle()
 int main(int argc, char **argv)
 {
 	// check that we don't have memory leaks
-	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 98057;
+	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 39436;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
