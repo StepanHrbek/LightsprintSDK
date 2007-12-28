@@ -376,9 +376,12 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
-	RRReportInterval report(INF1,"Updating lightmap, object %d/%d, res %d*%d, bentNormals %d*%d...\n",
+	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
+	RRReportInterval report(realtime?INF3:INF1,"Updating object %d/%d, %s %d*%d, bentNormal %s %d*%d...\n",
 		objectNumber,getNumObjects(),
+		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
+		(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"map",
 		bentNormals?bentNormals->getWidth():0,bentNormals?bentNormals->getHeight():0);
 
 	// validate params
