@@ -101,7 +101,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	if(uberProgramSetup.LIGHT_DIRECT)
+	if(uberProgramSetup.LIGHT_DIRECT && environmentMap)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL);
 
 	// render static scene
@@ -450,7 +450,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr::RRLights lights;
-	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);

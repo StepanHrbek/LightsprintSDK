@@ -294,7 +294,7 @@ void init_gl_resources()
 	quadric = gluNewQuadric();
 
 	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
-	//realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	//realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	//realtimeLight->parent = &currentFrame.light;
 
 	// update states, but must be done after initing shadowmaps (inside RealtimeLight)

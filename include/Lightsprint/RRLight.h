@@ -235,6 +235,14 @@ namespace rr
 		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
 		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
 
+		//! Creates omnidirectional point light without distance attenuation.
+		//
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param irradianceAtDistance1
+		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		static RRLight* createPointLightNoAtt(const RRVec3& position, const RRVec3& irradianceAtDistance1);
+
 		//! Creates omnidirectional point light with radius/exponent based distance attenuation (physically incorrect).
 		//
 		//! \param position
@@ -275,6 +283,24 @@ namespace rr
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
 		static RRLight* createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+
+		//! Creates spot light without distance attenuation.
+		//
+		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param irradianceAtDistance1
+		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		//! \param majorDirection
+		//!  Major direction of light in world space.
+		//! \param outerAngleRad
+		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//! \param fallOffAngleRad
+		//!  Angle in radians, (0,innerAngleRad> range.
+		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
+		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
+		static RRLight* createSpotLightNoAtt(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
 		//! Creates spot light with radius/exponent based distance attenuation (physically incorrect).
 		//

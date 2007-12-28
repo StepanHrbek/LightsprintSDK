@@ -95,6 +95,28 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// PointLightNoAtt
+// color is in physical scale
+
+class PointLightNoAtt : public CleanLight
+{
+public:
+	PointLightNoAtt(const RRVec3& _position, const RRVec3& _color)
+	{
+		type = POINT;
+		distanceAttenuationType = NONE;
+		position = _position;
+		color = check(_color);
+	}
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	{
+		return color;
+	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // PointLightRadiusExp
 // color is in custom scale
 
@@ -171,6 +193,34 @@ public:
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		return color * attenuation;
+	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// SpotLightNoAtt
+// color is in physical scale
+
+class SpotLightNoAtt : public CleanLight
+{
+public:
+	SpotLightNoAtt(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	{
+		type = SPOT;
+		distanceAttenuationType = NONE;
+		position = _position;
+		color = check(_color);
+		direction = _direction.normalized();
+		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
+		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+	}
+	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	{
+		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
+		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
+		float attenuation = CLAMPED(angleAttenuation,0,1);
 		return color * attenuation;
 	}
 };
@@ -255,6 +305,11 @@ RRLight* RRLight::createPointLight(const RRVec3& position, const RRVec3& color)
 	return new PointLightPhys(position,color);
 }
 
+RRLight* RRLight::createPointLightNoAtt(const RRVec3& position, const RRVec3& color)
+{
+	return new PointLightNoAtt(position,color);
+}
+
 RRLight* RRLight::createPointLightRadiusExp(const RRVec3& position, const RRVec3& color, RRReal radius, RRReal fallOffExponent)
 {
 	return new PointLightRadiusExp(position,color,radius,fallOffExponent);
@@ -268,6 +323,11 @@ RRLight* RRLight::createPointLightPoly(const RRVec3& position, const RRVec3& col
 RRLight* RRLight::createSpotLight(const RRVec3& position, const RRVec3& color, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
 {
 	return new SpotLightPhys(position,color,majorDirection,outerAngleRad,fallOffAngleRad);
+}
+
+RRLight* RRLight::createSpotLightNoAtt(const RRVec3& position, const RRVec3& color, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
+{
+	return new SpotLightNoAtt(position,color,majorDirection,outerAngleRad,fallOffAngleRad);
 }
 
 RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3& color, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
