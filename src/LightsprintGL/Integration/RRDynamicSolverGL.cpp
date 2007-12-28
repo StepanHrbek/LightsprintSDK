@@ -528,9 +528,9 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 {
 	unsigned updated = rr::RRDynamicSolver::updateEnvironmentMap(illumination);
 	if(illumination->diffuseEnvMap)
-		getTexture(illumination->diffuseEnvMap)->reset(false);
+		getTexture(illumination->diffuseEnvMap,false)->reset(false);
 	if(illumination->specularEnvMap)
-		getTexture(illumination->specularEnvMap)->reset(false);
+		getTexture(illumination->specularEnvMap,false)->reset(false);
 	return updated;
 }
 

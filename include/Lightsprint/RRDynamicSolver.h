@@ -527,8 +527,8 @@ namespace rr
 		//!
 		//! Reads RRObjectIllumination variables with 'envMap' in name, update them before calling this function.
 		//!
-		//! Thread safe: yes if specularMap->setValues() and diffuseMap->setValues() are safe,
-		//!  may be called from multiple threads at the same time if setValues() may be.
+		//! Thread safe: yes, may be called from multiple threads at the same time
+		//!  (but there's no strong need as it uses all cores internally)
 		//!
 		//! \param illumination
 		//!  Object's illumination to be updated.
