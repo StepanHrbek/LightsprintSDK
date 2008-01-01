@@ -50,6 +50,17 @@ namespace rr
 	//! 1d buffers are used for vertex buffers.
 	//! 2d buffers are used for 2d textures.
 	//! 3d buffers are used for cube textures.
+	//!
+	//! DirectX/OpenGL renderers can use buffers in two ways:
+	//! -# Let Lightsprint calculate lighting into buffers. Each time you request Lightsprint
+	//!    to calculate new data, lock() them and copy them to your DirectX/OpenGL buffer, e.g. texture.
+	//!    See rr_gl::Texture::reset() and rr_gl::getTexture() as an example.
+	//!    It is usually easier way and it performs very well.
+	//! -# Implement your own RRBuffer so that computed data are stored directly
+	//!    in DirectX/OpenGL buffer.
+	//!    It is more complicated, but it could be more efficient in some cases.
+	//!    It's possible to simplify subclassing by using helper RRBuffer::create() instance
+	//!    internally in subclass instance.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
