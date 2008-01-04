@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="PenumbraShadows.vs2005"
-	ProjectGUID="{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+	Version="9,00"
+	Name="Water.vs2008"
+	ProjectGUID="{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -38,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName=".\Release/Water.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -57,7 +58,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Release/Water.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -88,6 +89,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -107,9 +110,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName=".\Debug/Water.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -151,7 +151,7 @@
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Debug/Water.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -183,6 +183,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -202,9 +204,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -235,7 +234,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName=".\Release/Water.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -254,7 +253,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Release/Water.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -285,6 +284,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -304,9 +305,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -336,7 +334,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName=".\Debug/Water.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -348,7 +346,7 @@
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Debug/Water.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -380,6 +378,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dd.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -401,9 +401,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -411,36 +408,8 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="3DS"
-			>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.h"
-				>
-			</File>
-		</Filter>
 		<File
-			RelativePath=".\DynamicObject.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\DynamicObject.h"
-			>
-		</File>
-		<File
-			RelativePath=".\PenumbraShadows.cpp"
+			RelativePath=".\Water.cpp"
 			>
 		</File>
 	</Files>

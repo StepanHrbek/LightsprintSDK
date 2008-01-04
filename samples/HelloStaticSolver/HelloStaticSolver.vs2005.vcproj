@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="HelloStaticSolver"
+	Name="HelloStaticSolver.vs2005"
 	ProjectGUID="{2E053151-D333-4091-9D6D-54408A6610DD}"
 	RootNamespace="HelloStaticSolver"
 	Keyword="Win32Proj"

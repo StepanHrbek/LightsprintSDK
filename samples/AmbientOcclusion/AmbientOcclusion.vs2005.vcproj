@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="AmbientOcclusion"
+	Name="AmbientOcclusion.vs2005"
 	ProjectGUID="{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
 	>
 	<Platforms>

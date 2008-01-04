@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="HelloCollider"
+	Name="HelloCollider.vs2005"
 	ProjectGUID="{E2577A53-4812-1091-E37F-794832BA1DFE}"
 	RootNamespace="HelloCollider"
 	Keyword="Win32Proj"

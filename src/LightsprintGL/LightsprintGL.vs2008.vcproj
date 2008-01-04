@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="PenumbraShadows.vs2005"
-	ProjectGUID="{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+	Version="9,00"
+	Name="LightsprintGL.vs2008"
+	ProjectGUID="{2D2907C3-3E69-234A-306C-243C989A3411}"
+	RootNamespace="LightsprintGL"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -15,9 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -38,7 +40,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -47,24 +49,28 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="2"
+				ForceConformanceInForLoopScope="true"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sr.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -72,29 +78,19 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
+				Culture="1029"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
-				IgnoreDefaultLibraryNames="libc.lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
-				SubSystem="1"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
+				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -104,12 +100,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -117,9 +107,9 @@
 		</Configuration>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -139,27 +129,32 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
+				ExceptionHandling="1"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				DisableLanguageExtensions="false"
+				ForceConformanceInForLoopScope="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
-				BrowseInformation="1"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
-				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -167,29 +162,19 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
+				Culture="1029"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
-				IgnoreDefaultLibraryNames="libc.lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
-				SubSystem="1"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
+				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -199,12 +184,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -212,14 +191,13 @@
 		</Configuration>
 		<Configuration
 			Name="Release DLL|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -235,33 +213,35 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_DLL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
-				FloatingPointModel="2"
-				RuntimeTypeInfo="false"
+				EnableEnhancedInstructionSet="1"
+				DisableLanguageExtensions="false"
+				ForceConformanceInForLoopScope="true"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-				CompileAs="0"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -269,23 +249,20 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
+				Culture="1029"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
-				IgnoreDefaultLibraryNames="libc.lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
-				SubSystem="1"
-				TargetMachine="1"
+				LinkLibraryDependencies="false"
+				AdditionalDependencies="opengl32.lib glu32.lib"
+				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
+				AdditionalLibraryDirectories="$(OutDir)"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -306,17 +283,14 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug DLL|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -336,27 +310,32 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_DLL_BUILD"
 				MinimalRebuild="false"
+				ExceptionHandling="1"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				DisableLanguageExtensions="false"
+				ForceConformanceInForLoopScope="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
-				BrowseInformation="1"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_dd.pdb"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -364,23 +343,19 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
+				Culture="1029"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
-				IgnoreDefaultLibraryNames="libc.lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dd.pdb"
-				SubSystem="1"
-				TargetMachine="1"
+				LinkLibraryDependencies="false"
+				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
+				AdditionalLibraryDirectories="$(OutDir)"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -399,9 +374,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -411,36 +383,172 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="3DS"
-			>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.h"
-				>
-			</File>
-		</Filter>
 		<File
-			RelativePath=".\DynamicObject.cpp"
+			RelativePath="Camera.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\DynamicObject.h"
+			RelativePath="..\..\include\Lightsprint\GL\Camera.h"
 			>
 		</File>
 		<File
-			RelativePath=".\PenumbraShadows.cpp"
+			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
+			>
+		</File>
+		<File
+			RelativePath="FBO.cpp"
+			>
+		</File>
+		<File
+			RelativePath="FBO.h"
+			>
+		</File>
+		<File
+			RelativePath="LightmapViewer.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h"
+			>
+		</File>
+		<File
+			RelativePath="matrix.cpp"
+			>
+		</File>
+		<File
+			RelativePath="matrix.h"
+			>
+		</File>
+		<File
+			RelativePath="MultiPass.cpp"
+			>
+		</File>
+		<File
+			RelativePath="MultiPass.h"
+			>
+		</File>
+		<File
+			RelativePath="ObjectBuffers.cpp"
+			>
+		</File>
+		<File
+			RelativePath="ObjectBuffers.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PreserveState.h"
+			>
+		</File>
+		<File
+			RelativePath="Program.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Program.h"
+			>
+		</File>
+		<File
+			RelativePath="RealtimeLight.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Renderer.h"
+			>
+		</File>
+		<File
+			RelativePath="RendererOfRRObject.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h"
+			>
+		</File>
+		<File
+			RelativePath="RendererOfScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
+			>
+		</File>
+		<File
+			RelativePath="RendererWithCache.cpp"
+			>
+		</File>
+		<File
+			RelativePath="RendererWithCache.h"
+			>
+		</File>
+		<File
+			RelativePath="RRDynamicSolverGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
+			>
+		</File>
+		<File
+			RelativePath="SceneViewer.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+			>
+		</File>
+		<File
+			RelativePath="Shader.cpp"
+			>
+		</File>
+		<File
+			RelativePath="Shader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Texture.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Texture.h"
+			>
+		</File>
+		<File
+			RelativePath="TextureRenderer.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Timer.h"
+			>
+		</File>
+		<File
+			RelativePath="UberProgram.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\UberProgram.h"
+			>
+		</File>
+		<File
+			RelativePath="UberProgramSetup.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
+			>
+		</File>
+		<File
+			RelativePath="Water.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Water.h"
 			>
 		</File>
 	</Files>

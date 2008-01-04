@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="PenumbraShadows.vs2005"
-	ProjectGUID="{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+	Version="9,00"
+	Name="Lightmaps.vs2008"
+	ProjectGUID="{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -38,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName=".\Release/Lightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -57,7 +58,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Release/Lightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -88,6 +89,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -107,9 +110,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName=".\Debug/Lightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -151,7 +151,7 @@
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Debug/.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -183,6 +183,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -196,15 +198,13 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile=""
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -235,7 +235,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/PenumbraShadows.tlb"
+				TypeLibraryName=".\Release/Lightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -254,7 +254,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Release/Lightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -276,6 +276,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalDependencies="glut32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
@@ -285,6 +286,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -304,9 +307,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -336,7 +336,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/PenumbraShadows.tlb"
+				TypeLibraryName=".\Debug/Lightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -348,7 +348,7 @@
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/PenumbraShadows.pch"
+				PrecompiledHeaderFile=".\Debug/Lightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -371,6 +371,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
@@ -380,6 +381,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dd.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -399,9 +402,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -430,17 +430,37 @@
 				RelativePath="..\Import3DS\RendererOf3DS.h"
 				>
 			</File>
+			<File
+				RelativePath="..\Import3DS\RRObject3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\RRObject3DS.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="COLLADA"
+			>
+			<File
+				RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ImportCollada\RRObjectCollada.h"
+				>
+			</File>
 		</Filter>
 		<File
-			RelativePath=".\DynamicObject.cpp"
+			RelativePath="..\RealtimeRadiosity\DynamicObject.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\DynamicObject.h"
+			RelativePath="..\RealtimeRadiosity\DynamicObject.h"
 			>
 		</File>
 		<File
-			RelativePath=".\PenumbraShadows.cpp"
+			RelativePath=".\Lightmaps.cpp"
 			>
 		</File>
 	</Files>

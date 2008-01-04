@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="RealtimeRadiosity"
+	Name="RealtimeRadiosity.vs2005"
 	ProjectGUID="{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	>
 	<Platforms>

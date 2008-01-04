@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="Lightsmark2007"
-	ProjectGUID="{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
-	RootNamespace="Lightsmark2007"
+	Name="HelloMesh.vs2008"
+	ProjectGUID="{3E151752-D431-5192-2E7D-4742826B1CDE}"
+	RootNamespace="HelloMesh"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -17,7 +17,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug static|Win32"
+			Name="Debug DLL|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -41,13 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -62,11 +62,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
+				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_sd.pdb"
-				SubSystem="2"
+				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -94,7 +94,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release static|Win32"
+			Name="Release DLL|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -118,11 +118,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -138,9 +138,9 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
@@ -174,23 +174,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\Lightsmark2007.bmp"
-			>
-		</File>
-		<File
-			RelativePath=".\Lightsmark2007.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Lightsmark2007.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\Lightsmark2007.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
+			RelativePath=".\HelloMesh.cpp"
 			>
 		</File>
 	</Files>

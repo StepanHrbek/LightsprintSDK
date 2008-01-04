@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="HelloMesh"
+	Name="HelloMesh.vs2005"
 	ProjectGUID="{3E151752-D431-5192-2E7D-4742826B1CDE}"
 	RootNamespace="HelloMesh"
 	Keyword="Win32Proj"

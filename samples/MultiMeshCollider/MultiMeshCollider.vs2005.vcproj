@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="MultiMeshCollider"
+	Name="MultiMeshCollider.vs2005"
 	ProjectGUID="{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
 	RootNamespace="MultiMeshCollider"
 	Keyword="Win32Proj"

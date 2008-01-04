@@ -25,10 +25,26 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-#		ifdef NDEBUG
-			#pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
+#		if _MSC_VER<1400
+#			ifdef NDEBUG
+#				pragma comment(lib,"LightsprintCore.vs2003_sr.lib")
+#			else
+#				pragma comment(lib,"LightsprintCore.vs2003_sd.lib")
+#			endif
 #		else
-			#pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
+#		if _MSC_VER<1500
+#			ifdef NDEBUG
+#				pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
+#			else
+#				pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
+#			endif
+#		else
+#			ifdef NDEBUG
+#				pragma comment(lib,"LightsprintCore.vs2008_sr.lib")
+#			else
+#				pragma comment(lib,"LightsprintCore.vs2008_sd.lib")
+#			endif
+#		endif
 #		endif
 #	else
 #	ifdef RR_DLL_BUILD
@@ -47,6 +63,7 @@
 		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
 #	endif
 	#else
+	#if _MSC_VER<1500
 #	ifdef NDEBUG
 		#ifdef RR_DEBUG
 			#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
@@ -56,6 +73,17 @@
 #	else
 		#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
 #	endif
+	#else
+#	ifdef NDEBUG
+		#ifdef RR_DEBUG
+			#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
+		#else
+			#pragma comment(lib,"LightsprintCore.vs2008.lib")
+		#endif
+#	else
+		#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
+#	endif
+	#endif
 	#endif
 #	endif
 #	endif
