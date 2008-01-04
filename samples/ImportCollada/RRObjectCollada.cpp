@@ -61,21 +61,37 @@
 #include "RRObjectCollada.h"
 
 #if _MSC_VER<1400
-#error Third party library FCollada doesn't support VS2003.
-#endif
-
-#ifdef _DEBUG
-	#ifdef RR_STATIC
-		#pragma comment(lib,"FColladaSD.lib")
+	#error Third party library FCollada doesn't support VS2003.
+#else
+#if _MSC_VER<1500
+	#ifdef _DEBUG
+		#ifdef RR_STATIC
+			#pragma comment(lib,"FColladaSD.vs2005.lib")
+		#else
+			#pragma comment(lib,"FColladaD.vs2005.lib")
+		#endif
 	#else
-		#pragma comment(lib,"FColladaD.lib")
+		#ifdef RR_STATIC
+			#pragma comment(lib,"FColladaSR.vs2005.lib")
+		#else
+			#pragma comment(lib,"FCollada.vs2005.lib")
+		#endif
 	#endif
 #else
-	#ifdef RR_STATIC
-		#pragma comment(lib,"FColladaSR.lib")
+	#ifdef _DEBUG
+		#ifdef RR_STATIC
+			#pragma comment(lib,"FColladaSD.vs2008.lib")
+		#else
+			#pragma comment(lib,"FColladaD.vs2008.lib")
+		#endif
 	#else
-		#pragma comment(lib,"FCollada.lib")
+		#ifdef RR_STATIC
+			#pragma comment(lib,"FColladaSR.vs2008.lib")
+		#else
+			#pragma comment(lib,"FCollada.vs2008.lib")
+		#endif
 	#endif
+#endif
 #endif
 
 using namespace rr;
