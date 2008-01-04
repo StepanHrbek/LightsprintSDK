@@ -6,7 +6,7 @@
 
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRDebug.h"
-#include "DemoEngine/FBO.h"
+#include "FBO.h"
 #include <vector>
 
 namespace rr_gl

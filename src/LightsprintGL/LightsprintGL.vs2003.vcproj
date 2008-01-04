@@ -271,61 +271,54 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Integration"
-			>
 			<File
-				RelativePath="Integration\LightmapViewer.cpp">
+				RelativePath="LightmapViewer.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h">
 			</File>
 			<File
-				RelativePath=".\Integration\MultiPass.cpp"
+				RelativePath="MultiPass.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Integration\MultiPass.h"
+				RelativePath="MultiPass.h"
 				>
 			</File>
 			<File
-				RelativePath="Integration\ObjectBuffers.cpp">
+				RelativePath="ObjectBuffers.cpp">
 			</File>
 			<File
-				RelativePath="Integration\ObjectBuffers.h">
+				RelativePath="ObjectBuffers.h">
 			</File>
 			<File
-				RelativePath="Integration\RendererOfRRObject.cpp">
+				RelativePath="RendererOfRRObject.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h">
 			</File>
 			<File
-				RelativePath="Integration\RendererOfScene.cpp">
+				RelativePath="RendererOfScene.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h">
 			</File>
 			<File
-				RelativePath="Integration\RRDynamicSolverGL.cpp">
+				RelativePath="RRDynamicSolverGL.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h">
 			</File>
 			<File
-				RelativePath="Integration\SceneViewer.cpp"
+				RelativePath="SceneViewer.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="DemoEngine"
-			>
 			<File
-				RelativePath="DemoEngine\RealtimeLight.cpp"
+				RelativePath="RealtimeLight.cpp"
 				>
 			</File>
 			<File
@@ -333,7 +326,7 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Camera.cpp"
+				RelativePath="Camera.cpp"
 				>
 			</File>
 			<File
@@ -345,27 +338,27 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\FBO.cpp"
+				RelativePath="FBO.cpp"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\FBO.h"
+				RelativePath="FBO.h"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\matrix.cpp"
+				RelativePath="matrix.cpp"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\matrix.h"
+				RelativePath="matrix.h"
 				>
 			</File>
 			<File
-				RelativePath=".\DemoEngine\PreserveState.h"
+				RelativePath="PreserveState.h"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Program.cpp"
+				RelativePath="Program.cpp"
 				>
 			</File>
 			<File
@@ -377,19 +370,19 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\RendererWithCache.cpp"
+				RelativePath="RendererWithCache.cpp"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\RendererWithCache.h"
+				RelativePath="RendererWithCache.h"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Shader.cpp"
+				RelativePath="Shader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Shader.h"
+				RelativePath="Shader.h"
 				>
 			</File>
 			<File
@@ -401,7 +394,7 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\TextureRenderer.cpp"
+				RelativePath="TextureRenderer.cpp"
 				>
 			</File>
 			<File
@@ -413,7 +406,7 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\UberProgram.cpp"
+				RelativePath="UberProgram.cpp"
 				>
 			</File>
 			<File
@@ -421,7 +414,7 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\UberProgramSetup.cpp"
+				RelativePath="UberProgramSetup.cpp"
 				>
 			</File>
 			<File
@@ -429,14 +422,13 @@
 				>
 			</File>
 			<File
-				RelativePath="DemoEngine\Water.cpp"
+				RelativePath="Water.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\Water.h"
 				>
 			</File>
-		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

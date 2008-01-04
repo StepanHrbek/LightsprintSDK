@@ -5,7 +5,7 @@
 
 #include <GL/glew.h>
 #include "MultiPass.h"
-#include "../DemoEngine/PreserveState.h"
+#include "PreserveState.h"
 
 namespace rr_gl
 {

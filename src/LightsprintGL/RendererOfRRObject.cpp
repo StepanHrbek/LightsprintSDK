@@ -10,7 +10,7 @@
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
-#include "../DemoEngine/PreserveState.h"
+#include "PreserveState.h"
 
 namespace rr_gl
 {

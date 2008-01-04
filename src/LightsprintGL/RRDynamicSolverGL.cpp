@@ -10,7 +10,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "../DemoEngine/PreserveState.h"
+#include "PreserveState.h"
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
@@ -363,17 +363,6 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		renderedChannels.FORCE_2D_POSITION = true;
 
 		// setup shader
-#ifdef RR_DEVELOPMENT
-		//!!! no support for per object shaders yet
-		/*
-		per object lighting:
-		-renderovat po objektech je neprijemne, protoze to znamena vic facu (i degenerovany)
-		-slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
-		-renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
-		protoze pak neni garantovane ze pujdou facy pekne za sebou
-		-slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
-		*/
-#endif
 		setupShader(0);
 
 		// render scene
