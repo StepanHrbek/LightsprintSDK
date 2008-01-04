@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="LightsprintCore"
+	Name="LightsprintCore.vs2005"
 	ProjectGUID="{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
 	RootNamespace="LightsprintCore"
 	>

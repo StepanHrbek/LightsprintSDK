@@ -28,9 +28,9 @@
 #	ifdef RR_GL_STATIC
 		// use static library
 #		ifdef NDEBUG
-#			pragma comment(lib,"LightsprintGL_sr.lib")
+#			pragma comment(lib,"LightsprintGL.vs2005_sr.lib")
 #		else
-#			pragma comment(lib,"LightsprintGL_sd.lib")
+#			pragma comment(lib,"LightsprintGL.vs2005_sd.lib")
 #		endif
 #	else // !RR_GL_STATIC
 	#ifdef RR_GL_DLL_BUILD
@@ -52,12 +52,12 @@
 		#else
 #			ifdef NDEBUG
 				#ifdef RR_GL_DEBUG
-					#pragma comment(lib,"LightsprintGL_dd.lib")
+					#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
 				#else
-					#pragma comment(lib,"LightsprintGL.lib")
+					#pragma comment(lib,"LightsprintGL.vs2005.lib")
 				#endif
 #			else
-				#pragma comment(lib,"LightsprintGL_dd.lib")
+				#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
 #			endif
 		#endif
 	#endif

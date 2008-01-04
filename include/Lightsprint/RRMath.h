@@ -26,9 +26,9 @@
 #	ifdef RR_STATIC
 		// use static library
 #		ifdef NDEBUG
-			#pragma comment(lib,"LightsprintCore_sr.lib")
+			#pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
 #		else
-			#pragma comment(lib,"LightsprintCore_sd.lib")
+			#pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
 #		endif
 #	else
 #	ifdef RR_DLL_BUILD
@@ -49,12 +49,12 @@
 	#else
 #	ifdef NDEBUG
 		#ifdef RR_DEBUG
-			#pragma comment(lib,"LightsprintCore_dd.lib")
+			#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
 		#else
-			#pragma comment(lib,"LightsprintCore.lib")
+			#pragma comment(lib,"LightsprintCore.vs2005.lib")
 		#endif
 #	else
-		#pragma comment(lib,"LightsprintCore_dd.lib")
+		#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
 #	endif
 	#endif
 #	endif
