@@ -49,6 +49,13 @@ namespace rr
 	class RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
+		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
+		//! It is shortcut for calling RRBuffer::load() on all buffers.
+		virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const;
+		//! Saves illumination layer to disk.
+		//! It is shortcut for calling RRBuffer::save() on all buffers.
+		virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const;
+
 		virtual ~RRObjects() {};
 	};
 
@@ -649,13 +656,6 @@ namespace rr
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
 		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
-
-		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
-		//! It is shortcut for calling RRBuffer::save() on all buffers.
-		unsigned loadIllumination(const char* path, unsigned layerNumber);
-		//! Saves illumination layer to disk.
-		//! It is shortcut for calling RRBuffer::load() on all buffers.
-		unsigned saveIllumination(const char* path, unsigned layerNumber);
 
 	protected:
 		//! Detects direct illumination on all faces in scene and returns it in array of RGBA values.

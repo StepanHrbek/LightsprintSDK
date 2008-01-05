@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Creates Lightsprint interface for MGF scene
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTMGF_H

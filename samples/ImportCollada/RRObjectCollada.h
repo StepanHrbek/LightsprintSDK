@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Imports Collada model into RRDynamicSolver
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTCOLLADA_H

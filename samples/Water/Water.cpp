@@ -9,7 +9,7 @@
 // Controls:
 //  mouse = look around
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
 // --------------------------------------------------------------------------
 
 #include <cstdio>

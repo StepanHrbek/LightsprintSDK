@@ -470,13 +470,13 @@ char *bp(const char *fmt, ...)
 	return msg;
 }
 
-unsigned RRDynamicSolver::loadIllumination(const char* path, unsigned layerNumber)
+unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) const
 {
 	unsigned result = 0;
-	unsigned numObjects = getNumObjects();
+	unsigned numObjects = size();
 	for(unsigned i=0;i<numObjects;i++)
 	{
-		rr::RRObjectIllumination* illumination = getIllumination(i);
+		rr::RRObjectIllumination* illumination = (*this)[i].illumination;
 		if(illumination)
 		{
 			delete illumination->getLayer(layerNumber);
@@ -501,14 +501,13 @@ unsigned RRDynamicSolver::loadIllumination(const char* path, unsigned layerNumbe
 	return result;
 }
 
-unsigned RRDynamicSolver::saveIllumination(const char* path, unsigned layerNumber)
+unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) const
 {
 	rr::RRReportInterval report(rr::INF2,"Saving layer %d...\n",layerNumber);
 	unsigned result = 0;
-	unsigned numObjects = getNumObjects();
-	for(unsigned i=0;i<numObjects;i++)
+	for(unsigned i=0;i<size();i++)
 	{
-		RRBuffer* buffer = getIllumination(i) ? getIllumination(i)->getLayer(layerNumber) : NULL;
+		RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
 		if(buffer)
 		{
 			const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.png",path?path:"",i,layerNumber );

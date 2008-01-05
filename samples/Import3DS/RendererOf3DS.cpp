@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // RendererOf3DS, Renderer implementation that renders 3DS model.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
 // --------------------------------------------------------------------------
 
 #include <cassert>

@@ -19,7 +19,7 @@
 // - idle time of all CPUs/cores is used, so other applications don't suffer
 //   from lightmap precalculator running on the background
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel lightmap, others get per-vertex
@@ -134,8 +134,8 @@ int main(int argc, char **argv)
 	}
 
 	// save GI lightmaps, bent normals
-	solver->saveIllumination("../../data/export/",0);
-	solver->saveIllumination("../../data/export/",1);
+	solver->getStaticObjects().saveIllumination("../../data/export/",0);
+	solver->getStaticObjects().saveIllumination("../../data/export/",1);
 
 	// release memory
 	delete solver;

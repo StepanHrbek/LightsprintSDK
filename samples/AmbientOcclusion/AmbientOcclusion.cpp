@@ -33,7 +33,7 @@
 //   in mapping between bright and dark part of floor.
 //   seam in floor mapping or thick wall would fix it
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel AO, others get per-vertex AO
@@ -323,7 +323,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 
 	// calculate ambient occlusion
 	rr::RRDynamicSolver::UpdateParameters params;
-	params.quality = 1000;
+	params.quality = 1;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
 	solver->updateLightmaps(layerNumber,-1,&params,&params,NULL); 
@@ -416,10 +416,10 @@ int main(int argc, char **argv)
 
 		// calculate and save it
 		calculate(solver,0);
-		solver->saveIllumination("../../data/export/",0);
+		solver->getStaticObjects().saveIllumination("../../data/export/",0);
 
 		// or load it
-		//solver->loadIllumination("../../data/export/",0);
+		//solver->getObjects()->loadIllumination("../../data/export/",0);
 	}
 
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;

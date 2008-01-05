@@ -5,7 +5,7 @@
 // After quick calculation using RRStaticSolver, exitances of both triangles are displayed.
 // They are higher, light was reflected.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRStaticSolver.h"

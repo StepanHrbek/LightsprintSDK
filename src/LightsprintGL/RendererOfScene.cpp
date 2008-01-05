@@ -332,7 +332,7 @@ void RendererOfOriginalScene::render()
 		{
 			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
 			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
-			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = !vbuffer->getScaled();
+			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = vbuffer && !vbuffer->getScaled();
 			mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 			mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
 		}

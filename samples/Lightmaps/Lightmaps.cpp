@@ -42,7 +42,7 @@
 //   make sure you have good unwrap in your scenes
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
@@ -283,13 +283,13 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
-			solver->saveIllumination("../../data/export/",2);
+			solver->getStaticObjects().saveIllumination("../../data/export/",2);
 			break;
 
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
-				solver->loadIllumination("../../data/export/",2);
+				solver->getStaticObjects().loadIllumination("../../data/export/",2);
 				// start rendering loaded maps
 				ambientMapsRender = true;
 				realtimeIllumination = false;

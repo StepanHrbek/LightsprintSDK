@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DynamicObject, 3d object with dynamic global illumination.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>
@@ -49,7 +49,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 					break;
 				}
 
-			// workaround for Catalyst bug, observed on X1950, HD2xxx, HD3xxx
+			// workaround for Catalyst bug (object disappears), observed on X1950, HD2xxx, HD3xxx
 			if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999) )
 				d->amdBugWorkaround = true;
 		}

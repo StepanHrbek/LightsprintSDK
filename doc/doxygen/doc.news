@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news43 ------------------------------------ 2008.1.x -------------------------------------
+
+CHANGES
+
+- change solver->saveIllumination() to solver->getStaticObjects().saveIllumination()
+- change solver->loadIllumination() to solver->getStaticObjects().loadIllumination()
 
 \section news42 ------------------------------------ 2008.1.5 -------------------------------------
 

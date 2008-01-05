@@ -3,7 +3,7 @@
 //
 // RRMesh is constructed from vertex buffer.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRMesh.h"

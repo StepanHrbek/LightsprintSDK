@@ -14,7 +14,7 @@
 //  arrows = move around
 //  left button = switch between camera and light
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 

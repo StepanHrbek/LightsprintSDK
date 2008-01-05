@@ -117,13 +117,9 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 				break;
 			}
 
-		// workaround for Catalyst bug, observed on X300, X1250
+		// workaround for Catalyst bug (driver crashes on long shader), observed on X300, X1250
 		if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && !(number>=1300 && number<=4999) )
 			if(SHADOW_MAPS>3) SHADOW_MAPS -= 2; // 5->3 (X300 in PenumbraShadows), 4->2 (X300 in Lightmaps)
-
-		// workaround for ForceWare bug, observed on 5xxx, 6xxx, 7xxx, Go 7xxx
-		//if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<=7999) )
-		//	if(SHADOW_MAPS) SHADOW_MAPS--; // 7->6 (6150 in PenumbraShadows)
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;

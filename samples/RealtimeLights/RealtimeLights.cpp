@@ -27,7 +27,7 @@
 //
 // To increase quality and fps, see last comment in this file.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
 #include "FCollada.h" // must be included before LightsprintGL because of fcollada SAFE_DELETE macro
