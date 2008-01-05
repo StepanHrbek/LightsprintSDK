@@ -41,7 +41,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		{
 			// find 4digit number
 			unsigned number = 0;
-#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+			#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
 			for(unsigned i=0;renderer[i];i++)
 				if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
 				{
@@ -50,8 +50,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 				}
 
 			// workaround for Catalyst bug (object disappears), observed on X1950, HD2xxx, HD3xxx
-			if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999) )
-				d->amdBugWorkaround = true;
+			d->amdBugWorkaround = (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999);
 		}
 
 		return d;

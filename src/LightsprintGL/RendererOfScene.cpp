@@ -233,12 +233,31 @@ private:
 	unsigned layerNumberFallback;
 	std::vector<Renderer*> renderersCaching;
 	std::vector<RendererOfRRObject*> renderersNonCaching;
+	bool amdBugWorkaround;
 };
 
 
 RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver, const char* pathToShaders) : RendererOfRRDynamicSolver(asolver,pathToShaders)
 {
 	layerNumber = 0;
+
+	amdBugWorkaround = false;
+	char* renderer = (char*)glGetString(GL_RENDERER);
+	if(renderer)
+	{
+		// find 4digit number
+		unsigned number = 0;
+		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+		for(unsigned i=0;renderer[i];i++)
+			if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+			{
+				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
+				break;
+			}
+
+		// workaround for Catalyst bug (object disappears), observed on X1950, HD2xxx, HD3xxx
+		amdBugWorkaround = (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999);
+	}
 }
 
 RendererOfOriginalScene::~RendererOfOriginalScene()
@@ -397,8 +416,8 @@ void RendererOfOriginalScene::render()
 			{
 				renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
 			}
-			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
-				renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
+			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
+				renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
 			else
 				renderersCaching[i]->render(); // cache everything else, it's constant
 		}
