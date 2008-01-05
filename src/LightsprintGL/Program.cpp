@@ -15,7 +15,11 @@
 namespace rr_gl
 {
 
-bool Program::showLog = false;
+bool showLog = false;
+void Program::logMessages(bool enable)
+{
+	showLog = enable;
+}
 
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
 {

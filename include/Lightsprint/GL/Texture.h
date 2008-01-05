@@ -18,7 +18,7 @@ namespace rr_gl
 //
 //! It's basicly glGenTexture() and glTexImage2D(...,buffer->lock(BL_READ)) for 2d data
 //! or cube map data so you can immediately use them as a texture in OpenGL pipeline.
-class RR_GL_API Texture
+class RR_GL_API Texture : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates texture.
@@ -59,11 +59,6 @@ protected:
 	bool     ownBuffer;
 	unsigned id;
 	GLenum   cubeOr2d; // GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP
-
-	// single FBO instance shared by TextureGL and TextureShadowMap, used by renderingToBegin()
-	// automatically created when needed, destructed with last texture instances
-	static class FBO* globalFBO;
-	static unsigned numPotentialFBOUsers;
 };
 
 //! Converts rr::RRBuffer to Texture so it can be immediately used as a texture in OpenGL.

@@ -12,8 +12,10 @@
 namespace rr_gl
 {
 
-FBO* Texture::globalFBO = NULL;
-unsigned Texture::numPotentialFBOUsers = 0;
+// single FBO instance used by renderingToBegin()
+// automatically created when needed, destructed with last texture instances
+FBO* globalFBO = NULL;
+unsigned numPotentialFBOUsers = 0;
 
 Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, int wrapS, int wrapT)
 {

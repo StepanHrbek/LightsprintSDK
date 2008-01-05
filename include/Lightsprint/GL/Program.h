@@ -77,7 +77,7 @@ public:
 	bool uniformExists(const char* uniformName);
 
 	//! Print OpenGL log to console. False by default. Set true for debugging.
-	static bool showLog;
+	static void logMessages(bool enable);
 private:
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
 	int getLoc(const char *name);

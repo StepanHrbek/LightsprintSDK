@@ -1785,8 +1785,9 @@ Used by samples:
  - Debug DLL
 
  Compilers
+ - Visual C++ 2008 (testing)
  - Visual C++ 2005 SP1
- - Visual C++ 2003 (single threaded, without Collada support)
+ - Visual C++ 2003 (without Collada and threading)
  - ask for more
 
 
