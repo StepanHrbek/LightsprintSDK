@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Renderer.h
 //! \brief LightsprintGL | abstract renderer with access to its parameters
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2008
 //! All rights reserved
 //----------------------------------------------------------------------------
 

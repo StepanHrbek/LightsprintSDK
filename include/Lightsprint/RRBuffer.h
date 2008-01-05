@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRBuffer.h
 //! \brief LightsprintCore | buffer is array of elements (texture, vertex buffer..)
-//! \author Copyright (C) Stepan Hrbek, Lightsprint
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

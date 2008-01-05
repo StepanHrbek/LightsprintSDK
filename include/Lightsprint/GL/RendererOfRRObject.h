@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file RendererOfRRObject.h
 //! \brief LightsprintGL | renderers RRObject instance
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2008
 //! All rights reserved
 //----------------------------------------------------------------------------
 

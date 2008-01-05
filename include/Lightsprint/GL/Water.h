@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Water.h
 //! \brief LightsprintGL | water with reflection and waves
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
 //! All rights reserved
 //----------------------------------------------------------------------------
 

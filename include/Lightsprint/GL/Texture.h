@@ -1,7 +1,8 @@
 // --------------------------------------------------------------------------
-// LightsprintGL
-// Texture, OpenGL extension to RRBuffer.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+//! \file Texture.h
+//! \brief LightsprintGL | Texture in OpenGL 2.0, extension of RRBuffer
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
+//! All rights reserved
 // --------------------------------------------------------------------------
 
 #ifndef TEXTURE_H

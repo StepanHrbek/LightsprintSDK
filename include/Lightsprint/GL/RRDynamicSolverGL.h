@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file RRDynamicSolverGL.h
 //! \brief LightsprintGL | OpenGL based RRDynamicSolver
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2008
 //! All rights reserved
 //----------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@
 #include "Renderer.h"
 #include "UberProgramSetup.h"
 
-//! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
+//! LightsprintGL - OpenGL 2.0 renderer that displays realtime global illumination.
 namespace rr_gl
 {
 

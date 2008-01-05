@@ -228,7 +228,6 @@ You are free to download their sources and rebuild, use them in commercial appli
 Used by LightsprintCore:
 - <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
   FreeImage is used under the FIPL, version 1.0.
-  FreeImage internally uses other free open source libraries.
 
 Used by LightsprintGL:
 - <a href="http://glew.sourceforge.net/">GLEW</a>
@@ -237,7 +236,6 @@ Used by LightsprintGL:
 
 Used by samples:
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> (3.02 with patch) by Feeling Software is used under MIT license.
-  FCollada internally uses other free open source libraries.
 
 
 
