@@ -49,8 +49,8 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 					break;
 				}
 
-			// workaround for Catalyst bug, observed on HD2xxx and HD3xxx
-			if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=2000 && number<=3999) )
+			// workaround for Catalyst bug, observed on X1950, HD2xxx, HD3xxx
+			if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999) )
 				d->amdBugWorkaround = true;
 		}
 
