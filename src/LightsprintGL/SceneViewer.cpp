@@ -695,8 +695,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
-	Menu menu(solver);
-
 	// run
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
@@ -708,11 +706,13 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
+	Menu* menu = new Menu(solver);
 	
 	exitRequested = false;
 	while(!exitRequested)
 		glutMainLoopUpdate();
 
+	delete menu;
 //	glutDisplayFunc(NULL); forbidden by GLUT
 	glutKeyboardFunc(NULL);
 	glutKeyboardUpFunc(NULL);

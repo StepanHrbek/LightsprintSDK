@@ -38,6 +38,8 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, 
 
 void Texture::reset(bool _buildMipmaps)
 {
+	if(!buffer) return;
+
 	const unsigned char* data = buffer->lock(rr::BL_READ);
 	switch(buffer->getType())
 	{
@@ -149,6 +151,8 @@ const rr::RRBuffer* Texture::getBuffer() const
 
 unsigned Texture::getTexelBits() const
 {
+	if(!buffer) return 0;
+
 	if(buffer->getFormat()==rr::BF_DEPTH)
 	{
 		GLint bits = 0;
@@ -169,6 +173,8 @@ unsigned Texture::getTexelBits() const
 
 bool Texture::renderingToBegin(unsigned side)
 {
+	if(!buffer) return false;
+
 	if(!globalFBO) globalFBO = new FBO();
 	if(side>=6 || (cubeOr2d!=GL_TEXTURE_CUBE_MAP && side))
 	{
@@ -184,6 +190,8 @@ bool Texture::renderingToBegin(unsigned side)
 
 void Texture::renderingToEnd()
 {
+	if(!buffer) return;
+
 	if(buffer->getFormat()==rr::BF_DEPTH)
 		globalFBO->setRenderTargetDepth(0);
 	else
@@ -244,7 +252,7 @@ static std::vector<Texture*> g_textures;
 Texture* getTexture(const rr::RRBuffer* _buffer, bool buildMipMaps, int magn, int mini, int wrapS, int wrapT)
 {
 	if(!_buffer) return NULL;
-	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! hack
+	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! hack, removed const (customData is modified)
 	if(!buffer->customData)
 	{
 		Texture* texture = new Texture(buffer,buildMipMaps,magn,mini,wrapS,wrapT);
