@@ -561,7 +561,7 @@ void display(void)
 				}
 				rr::RRMesh::TriangleMapping triangleMapping;
 				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping);
-				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + triangleMapping.uv[1]*ray->hitPoint2d[0] + triangleMapping.uv[2]*ray->hitPoint2d[1];
+				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
 				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,numTrianglesSingle);
