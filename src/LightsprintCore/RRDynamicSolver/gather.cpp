@@ -852,6 +852,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
+		RRReportInterval report(INF2,"Smoothing scene ...\n");
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{

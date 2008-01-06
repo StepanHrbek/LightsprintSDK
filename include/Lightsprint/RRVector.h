@@ -60,7 +60,7 @@ public:
 		if(numUsed==numAllocated)
 		{
 			numAllocated *= 2;
-			c = (C*)realloc(c,sizeof(C)*numAllocated);
+			c = (C*)std::realloc(c,sizeof(C)*numAllocated);
 		}
 		c[numUsed++] = a;
 	}

@@ -670,6 +670,8 @@ begin:
 template IBP
 IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
+	RRReportInterval report(INF3,"Building collider for %d triangles ...\n",aimporter?aimporter->getNumTriangles():0);
+
 #ifdef TEST
 	test = new IntersectLinear(aimporter);
 #endif

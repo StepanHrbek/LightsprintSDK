@@ -46,6 +46,8 @@ void error(const char* message, bool gfxRelated)
 
 void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
 {
+	rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
+
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
@@ -126,12 +128,8 @@ int main(int argc, char **argv)
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
-	{
-		rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
-
-		// calculate and save it
-		calculate(solver,0,1);
-	}
+	// calculate and save it
+	calculate(solver,0,1);
 
 	// save GI lightmaps, bent normals
 	solver->getStaticObjects().saveIllumination("../../data/export/",0);

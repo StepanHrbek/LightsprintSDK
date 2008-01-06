@@ -51,10 +51,10 @@ namespace rr
 	public:
 		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
 		//! It is shortcut for calling RRBuffer::load() on all buffers.
-		virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const;
+		RR_API virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const;
 		//! Saves illumination layer to disk.
 		//! It is shortcut for calling RRBuffer::save() on all buffers.
-		virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const;
+		RR_API virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const;
 
 		virtual ~RRObjects() {};
 	};
