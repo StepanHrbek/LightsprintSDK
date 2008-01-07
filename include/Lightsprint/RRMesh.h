@@ -280,9 +280,9 @@ namespace rr
 		struct TriangleMapping      {RRVec2 uv[3];};
 		//! Writes t-th triangle uv mapping for mesh unwrap into 0..1 x 0..1 space.
 		//
-		//! Unwrap may be used for calculated lightmaps/ambient map.
+		//! Unwrap may be used for calculated lightmaps/ambient maps.
 		//! Note that for good results, all coordinates must be in 0..1 range and two triangles
-		//! may not overlap in texture space. If it's not satisfied, results are undefined.
+		//! must not overlap in texture space. If it's not satisfied, results are undefined.
 		//!
 		//! \n Default implementation automatically generates unwrap of low quality.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.

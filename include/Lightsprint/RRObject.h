@@ -80,10 +80,10 @@ namespace rr
 		bool          validate();
 
 		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
-		RRVec3       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
-		RRVec3       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
+		RRVec3        diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
+		RRVec3        diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
-		RRVec3       specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
+		RRVec3        specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 
