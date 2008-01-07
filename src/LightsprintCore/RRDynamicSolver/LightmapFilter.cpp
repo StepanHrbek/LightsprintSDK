@@ -106,16 +106,20 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 	RRDynamicSolver::FilteringParameters params;
 	if(_params) params = *_params;
 
+	unsigned numTexels = width*height;
+
 	if(!numRenderedTexels)
 	{
 		if(width*height<=64*64 || width<=16 || height<=16)
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, low resolution(%dx%d) or bad unwrap (see RRMesh::getTriangleMapping)?\n",width,height);
 		else
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
-		return NULL;
+		for(int i=0;i<(int)numTexels;i++)
+		{
+			renderedTexels[i] = params.backgroundColor;
+		}
+		return renderedTexels;
 	}
-
-	unsigned numTexels = width*height;
 
 	// normalize texels
 	// texels are always sum of triangle contributions with alpha=1,
