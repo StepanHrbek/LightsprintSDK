@@ -14,10 +14,10 @@
 namespace rr_gl
 {
 
-//! Runs viewer of scene.
+//! Runs interactive scene viewer.
 //
-//! Warning: doesn't return, for debugging only. To be fixed.
-//!
+//! Run it and press right mouse button to open menu with functions.
+//! It renders scene with realtime GI or precomputed GI or your lightmaps/vertex buffers in layer 0.
 //! \param solver
 //!  Scene to be displayed.
 //! \param createWindow

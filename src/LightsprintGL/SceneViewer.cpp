@@ -48,8 +48,9 @@ int                        winWidth = 0; // current size
 int                        winHeight = 0; // current size
 bool                       fullscreen = 0; // current mode
 int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
-bool                       renderLights = 1;
+bool                       renderRealtime = 1;
 bool                       renderAmbient = 0;
+bool                       renderHelpers = 1;
 float                      speedGlobal = 1; // speed of movement controlled by user
 float                      speedForward = 0;
 float                      speedBack = 0;
@@ -88,7 +89,10 @@ public:
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
 
-		rendererOfScene->useOptimizedScene();
+		if(renderRealtime)
+			rendererOfScene->useOptimizedScene();
+		else
+			rendererOfScene->useOriginalScene(0);
 /*
 		// alternative rendering with manual vertex buffer updates
 		rendererOfScene->useOriginalScene(0);
@@ -102,6 +106,10 @@ public:
 */
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
+	}
+	void dirtyLights()
+	{
+		for(unsigned i=0;i<realtimeLights.size();i++) realtimeLights[i]->dirty = true;
 	}
 
 protected:
@@ -149,15 +157,23 @@ public:
 		glutAddMenuEntry("64", 16384);
 		glutAddMenuEntry("256", 65536);
 
+		int calculateHandle = glutCreateMenu(calculateCallback);
+		glutAddMenuEntry("quality 1",1);
+		glutAddMenuEntry("quality 10",10);
+		glutAddMenuEntry("quality 100",100);
+		glutAddMenuEntry("quality 1000",1000);
+
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
-		glutAddSubMenu("Speed...", speedHandle);
+		glutAddSubMenu("Calculate...", calculateHandle);
+		glutAddSubMenu("Movement speed...", speedHandle);
+		glutAddMenuEntry("Toggle render realtime", ME_RENDER_REALTIME);
 		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
-		glutAddMenuEntry("Toggle maximize", ME_MAXIMIZE);
-		glutAddMenuEntry("Toggle bilinear", ME_BILINEAR);
+		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
+		glutAddMenuEntry("Toggle bilinear lightmaps", ME_BILINEAR);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	~Menu()
@@ -169,12 +185,10 @@ public:
 	{
 		switch(item)
 		{
+			case ME_RENDER_REALTIME: renderRealtime = !renderRealtime; solver->dirtyLights(); break;
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
-			case ME_RENDER_HELPERS: renderLights = !renderLights; break;
-			case ME_HONOUR_FLAGS:
-				solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags;
-				for(unsigned i=0;i<solver->realtimeLights.size();i++) solver->realtimeLights[i]->dirty = true; // update all for new flags
-				break;
+			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
+			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
 			case ME_MAXIMIZE:
 				if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 				{
@@ -222,9 +236,21 @@ public:
 		speedGlobal = item/256.f;
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
+	static void calculateCallback(int item)
+	{
+		rr::RRDynamicSolver::UpdateParameters params;
+		params.quality = item;
+		params.applyCurrentSolution = false;
+		params.applyLights = true;
+		params.applyEnvironment = true;
+		solver->updateLightmaps(0,-1,&params,&params,NULL);
+		renderRealtime = false;
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
 protected:
 	enum
 	{
+		ME_RENDER_REALTIME,
 		ME_RENDER_AMBIENT,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
@@ -419,7 +445,7 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup,NULL);
 
-	if(renderLights)
+	if(renderHelpers)
 	{
 		// render light frames
 		solver->renderLights();
@@ -460,12 +486,30 @@ void display(void)
 		int x = 10;
 		int y = 10;
 		textOutput(x,y+=18,"right mouse button = menu");
+		unsigned numObjects = solver->getNumObjects();
+		{
+			if(renderRealtime)
+			{
+				textOutput(x,y+=18,"realtime GI lighting");
+			}
+			else
+			{
+				unsigned vbuf = 0;
+				unsigned lmap = 0;
+				for(unsigned i=0;i<numObjects;i++)
+				{
+					if(solver->getIllumination(i)->getLayer(0))
+						if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
+						if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE) lmap++;
+				}
+				textOutput(x,y+=18,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
+			}
+		}
 		{
 			textOutput(x,y+=18*2,"[camera]");
 			textOutput(x,y+=18,"pos: %f %f %f",eye.pos[0],eye.pos[1],eye.pos[2]);
 			textOutput(x,y+=18,"dir: %f %f %f",eye.dir[0],eye.dir[1],eye.dir[2]);
 		}
-		unsigned numObjects = solver->getNumObjects();
 		unsigned numLights = solver->getLights().size();
 		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
 		const rr::RRObject* singleObject = solver->getObject(selectedObjectIndex);
@@ -515,6 +559,7 @@ void display(void)
 			textOutput(x,y+=18*2,"[static object %d/%d]",selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh->getNumVertices());
+			textOutput(x,y+=18,"lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(selectedObjectIndex)->getLayer(0)?(solver->getIllumination(selectedObjectIndex)->getLayer(0)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
 			static const rr::RRObject* lastObject = NULL;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
@@ -567,6 +612,7 @@ void display(void)
 				rr::RRVec3 norm = triangleNormals.norm[0] + (triangleNormals.norm[1]-triangleNormals.norm[0])*ray->hitPoint2d[0] + (triangleNormals.norm[2]-triangleNormals.norm[0])*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
+				textOutput(x,y+=18,"object lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(0)?(solver->getIllumination(preTriangle.object)->getLayer(0)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
 				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,numTrianglesSingle);
 				textOutput(x,y+=18,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 				textOutput(x,y+=18,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
