@@ -36,9 +36,9 @@ public:
 		inherited->getTriangleNormals(t,out);
 		if(m)
 		{
-			m->transformDirection(out.norm[0]);
-			m->transformDirection(out.norm[1]);
-			m->transformDirection(out.norm[2]);
+			m->transformDirection(out.norm[0]); out.norm[0].normalize();
+			m->transformDirection(out.norm[1]); out.norm[1].normalize();
+			m->transformDirection(out.norm[2]); out.norm[2].normalize();
 		}
 	}
 private:
