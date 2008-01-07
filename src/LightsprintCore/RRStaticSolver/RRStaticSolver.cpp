@@ -162,6 +162,7 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 	RR_ASSERT(questionedVertex012<3);
 	RR_ASSERT(questionedTriangle<scene->object->triangles);
 	IVertex* ivertex = scene->object->triangle[questionedTriangle].topivertex[questionedVertex012];
+	RR_ASSERT(ivertex);
 	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
 }
 

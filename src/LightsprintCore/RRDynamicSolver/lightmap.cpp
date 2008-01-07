@@ -260,8 +260,8 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
 			RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
 			RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-			RR_ASSERT(xmin>=0 && xmax<=mapWidth);
-			RR_ASSERT(ymin>=0 && ymax<=mapHeight);
+			if(!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
+				LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			//  precompute mapping[0]..mapping[1] line and mapping[0]..mapping[2] line equations in 2d map space
 			#define LINE_EQUATION(lineEquation,lineDirection,pointInDistance0,pointInDistance1) \
 				lineEquation = RRVec3((lineDirection)[1],-(lineDirection)[0],0); \
@@ -356,6 +356,11 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
 {
+	if(!srcData || !destBuffer)
+	{
+		RR_ASSERT(0); // invalid inputs
+		return;
+	}
 	if(!destBuffer->getScaled()) scaler = NULL;
 	unsigned numElements = destBuffer->getWidth()*destBuffer->getHeight();
 	for(unsigned i=0;i<numElements;i++)

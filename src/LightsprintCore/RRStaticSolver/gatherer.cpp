@@ -55,7 +55,8 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 	if(!hitTriangle->surface)
 	{
 		// error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
-		RR_ASSERT(0);
+		// sponza-stezka.dae sem leze, nevim proc
+		//RR_ASSERT(0);
 		return Channels(0);
 	}
 	RR_ASSERT(hitTriangle->u2.y==0);

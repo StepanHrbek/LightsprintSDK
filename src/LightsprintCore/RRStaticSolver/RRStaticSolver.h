@@ -189,6 +189,7 @@ namespace rr
 	private:
 		class Scene*  scene;
 		friend class Gatherer;
+		friend class RRDynamicSolver;
 	};
 
 

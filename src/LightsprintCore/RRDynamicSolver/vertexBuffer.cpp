@@ -7,6 +7,7 @@
 #include "report.h"
 #include "private.h"
 #include "gather.h"
+#include "../RRStaticSolver/rrcore.h"
 
 namespace rr
 {
@@ -45,13 +46,27 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 						preVertex = preVertexMulti.index;
 					else
 						continue; // skip asserts
-					if(preVertex<numPreImportVertices)
-						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
+					if(priv->scene && !priv->scene->scene->object->triangle[postImportTriangle].topivertex[v])
+					{
+						// static solver doesn't like this triangle and set surface NULL, probably because it is needle
+						// let it UNDEFINED
+					}
 					else
+					if(preVertex<numPreImportVertices)
+					{
+						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
+					}
+					else
+					{
+						// should not get here. let it UNDEFINED
 						RR_ASSERT(0);
+					}
 				}
 				else
+				{
+					// should not get here. let it UNDEFINED
 					RR_ASSERT(0);
+				}
 			}
 		}
 	}
@@ -275,7 +290,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
 		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
 		RRVec3 data = RRVec3(0);
-		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
+		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
 			for(unsigned i=0;i<3;i++)
