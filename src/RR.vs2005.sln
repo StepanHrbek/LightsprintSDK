@@ -19,33 +19,33 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "LicGen\vs\LicGen8
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA", "..\3rd\RSA\RSA.vs2005.vcproj", "{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA.vs2005", "..\3rd\RSA\RSA.vs2005.vcproj", "{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "bench\bench8.vcproj", "{9B667646-EFF4-42C2-94DA-8F8388A03C47}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS", "FCSS\FCSS.vs2005.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS.vs2005", "FCSS\FCSS.vs2005.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mgflib", "..\3rd\mgflib\vs\mgflib8.vcproj", "{24A70CDD-FF75-4686-B09E-F939F744F94B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL", "LightsprintGL\LightsprintGL.vs2005.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL.vs2005", "LightsprintGL\LightsprintGL.vs2005.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows", "..\samples\PenumbraShadows\PenumbraShadows.vs2005.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows.vs2005", "..\samples\PenumbraShadows\PenumbraShadows.vs2005.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vs2005.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity.vs2005", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vs2005.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps", "..\samples\Lightmaps\Lightmaps.vs2005.vcproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps.vs2005", "..\samples\Lightmaps\Lightmaps.vs2005.vcproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
@@ -55,44 +55,39 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water", "..\samples\Water\W
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmbientOcclusion", "..\samples\AmbientOcclusion\AmbientOcclusion.vs2005.vcproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmbientOcclusion.vs2005", "..\samples\AmbientOcclusion\AmbientOcclusion.vs2005.vcproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps", "..\samples\CPULightmaps\CPULightmaps.vs2005.vcproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps.vs2005", "..\samples\CPULightmaps\CPULightmaps.vs2005.vcproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2005.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2005", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2005.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "LightsprintCore\LightsprintCore.vs2005.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore.vs2005", "LightsprintCore\LightsprintCore.vs2005.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "..\samples\HelloMesh\HelloMesh.vs2005.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh.vs2005", "..\samples\HelloMesh\HelloMesh.vs2005.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "..\samples\HelloCollider\HelloCollider.vs2005.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider.vs2005", "..\samples\HelloCollider\HelloCollider.vs2005.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider", "..\samples\MultiMeshCollider\MultiMeshCollider.vs2005.vcproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider.vs2005", "..\samples\MultiMeshCollider\MultiMeshCollider.vs2005.vcproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsmark2007", "Lightsmark2007\Lightsmark2007.vcproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LightsprintCore samples", "LightsprintCore samples", "{0835826C-4BA7-43CD-8525-A2553DE5D2C3}"
@@ -101,7 +96,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LightsprintGL samples", "Li
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "old RR", "old RR", "{6D3AC815-5EAE-4547-BF40-D8EF926EFB0D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights", "..\samples\RealtimeLights\RealtimeLights.vs2005.vcproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2005", "..\samples\RealtimeLights\RealtimeLights.vs2005.vcproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
@@ -480,22 +475,6 @@ Global
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release DLL|Xbox 360.ActiveCfg = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Win32.ActiveCfg = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Xbox 360.ActiveCfg = Release DLL|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Xbox 360.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.Build.0 = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Xbox 360.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug with Release DLL|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug with Release DLL|Win32.Build.0 = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug with Release DLL|Xbox 360.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Win32.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Win32.Build.0 = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Xbox 360.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Xbox 360.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Xbox 360.ActiveCfg = Release static|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Xbox 360.ActiveCfg = Debug DLL|Win32

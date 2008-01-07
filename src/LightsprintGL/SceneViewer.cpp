@@ -562,6 +562,9 @@ void display(void)
 				rr::RRMesh::TriangleMapping triangleMapping;
 				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping);
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
+				rr::RRMesh::TriangleNormals triangleNormals;
+				multiMesh->getTriangleNormals(ray->hitTriangle,triangleNormals);
+				rr::RRVec3 norm = triangleNormals.norm[0] + (triangleNormals.norm[1]-triangleNormals.norm[0])*ray->hitPoint2d[0] + (triangleNormals.norm[2]-triangleNormals.norm[0])*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
 				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,numTrianglesSingle);
@@ -570,7 +573,8 @@ void display(void)
 				textOutput(x,y+=18,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 				textOutput(x,y+=18,"distance: %f",ray->hitDistance);
 				textOutput(x,y+=18,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
-				textOutput(x,y+=18,"norm: %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2]);
+				textOutput(x,y+=18,"norm.: %f %f %f",norm[0],norm[1],norm[2]);
+				textOutput(x,y+=18,"plane: %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
 				textOutput(x,y+=18,"side: %s",ray->hitFrontSide?"front":"back");
 				textOutput(x,y+=18,"material: %s",(material!=&pointMaterial)?"per-triangle":"per-vertex");
 				textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);

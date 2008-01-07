@@ -105,7 +105,7 @@ namespace rr
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
 		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space defined so that vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1. Barycentric/areal coordinates of hit point are 1-hitPoint2d[0]-hitPoint2d[1],hitPoint2d[0],hitPoint2d[1].
-		RRVec3p         hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normalized.
+		RRVec3p         hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normal, normalized. Result is based on vertex positions rather than normals provided by mesh, so plane is constant for whole triangle.
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
 		RRVec3p         hitPadding[2];  ///< Out. Undefined, never modify.
