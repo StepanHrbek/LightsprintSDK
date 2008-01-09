@@ -418,7 +418,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("materialEmissiveMap", id);
 	}
 
-	if(POSTPROCESS_BRIGHTNESS)
+	if(POSTPROCESS_BRIGHTNESS
+		// sendUniform is crybaby, don't call it if uniform doesn't exist
+		// uniform is unused (and usually removed by shader compiler) when there is no light
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV))
 	{
 		if(!brightness)
 		{
@@ -428,7 +431,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform4fv("postprocessBrightness", &brightness->x);
 	}
 
-	if(POSTPROCESS_GAMMA)
+	if(POSTPROCESS_GAMMA
+		// sendUniform is crybaby, don't call it if uniform doesn't exist
+		// uniform is unused (and usually removed by shader compiler) when there is no light
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV))
 	{
 		program->sendUniform("postprocessGamma", gamma);
 	}
