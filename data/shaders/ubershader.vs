@@ -26,8 +26,10 @@
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_CONST
 //  #define MATERIAL_SPECULAR_MAP
-//  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_EMISSIVE_CONST
+//  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
@@ -94,6 +96,10 @@ varying
 
 #ifdef MATERIAL_DIFFUSE_MAP
 	varying vec2 materialDiffuseCoord;
+#endif
+
+#ifdef MATERIAL_EMISSIVE_VCOLOR
+	varying vec4 materialEmissiveColor;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
@@ -165,6 +171,10 @@ void main()
 
 	#ifdef MATERIAL_DIFFUSE_VCOLOR
 		materialDiffuseColor = gl_SecondaryColor;
+	#endif
+
+	#ifdef MATERIAL_EMISSIVE_VCOLOR
+		materialEmissiveColor = gl_MultiTexCoord4;
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP

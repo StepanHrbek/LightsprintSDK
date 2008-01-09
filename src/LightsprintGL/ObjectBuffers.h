@@ -61,6 +61,7 @@ private:
 		rr::RRBuffer* emissiveTexture;
 		rr::RRVec3 diffuseColor;
 		rr::RRReal transparency;
+		rr::RRVec3 emissiveColor;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)

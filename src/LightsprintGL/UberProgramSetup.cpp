@@ -23,7 +23,7 @@ const char* UberProgramSetup::getSetupString()
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -49,8 +49,10 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
 		MATERIAL_SPECULAR_CONST?"#define MATERIAL_SPECULAR_CONST\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
-		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
+		MATERIAL_EMISSIVE_CONST?"#define MATERIAL_EMISSIVE_CONST\n":"",
+		MATERIAL_EMISSIVE_VCOLOR?"#define MATERIAL_EMISSIVE_VCOLOR\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
+		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
 		POSTPROCESS_BRIGHTNESS?"#define POSTPROCESS_BRIGHTNESS\n":"",
@@ -170,7 +172,7 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
 	}
-	bool black = !(LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV);
+	bool black = !(LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP);
 	if(black)
 	{
 		UberProgramSetup uberProgramSetupBlack;
@@ -411,6 +413,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("materialSpecularConst",.5f,.5f,.5f,1.0f);
 	}
 
+	if(MATERIAL_EMISSIVE_CONST)
+	{
+		// set default value, caller may override it by additional sendUniform call
+		program->sendUniform("materialEmissiveConst",1.0f,1.0f,1.0f,1.0f);
+	}
+
 	if(MATERIAL_EMISSIVE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
@@ -421,7 +429,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	if(POSTPROCESS_BRIGHTNESS
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
 	{
 		if(!brightness)
 		{
@@ -434,7 +442,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	if(POSTPROCESS_GAMMA
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessGamma", gamma);
 	}

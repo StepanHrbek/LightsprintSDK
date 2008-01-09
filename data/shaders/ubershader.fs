@@ -26,8 +26,10 @@
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_CONST
 //  #define MATERIAL_SPECULAR_MAP
-//  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_EMISSIVE_CONST
+//  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
@@ -140,6 +142,14 @@
 
 #if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV) || defined(POSTPROCESS_NORMALS)
 	varying vec3 worldNormalSmooth;
+#endif
+
+#ifdef MATERIAL_EMISSIVE_CONST
+	uniform vec4 materialEmissiveConst;
+#endif
+
+#ifdef MATERIAL_EMISSIVE_VCOLOR
+	varying vec4 materialEmissiveColor;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
@@ -309,7 +319,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
@@ -396,6 +406,12 @@ void main()
 			// emission
 			//
 
+			#ifdef MATERIAL_EMISSIVE_CONST
+				+ materialEmissiveConst
+			#endif
+			#ifdef MATERIAL_EMISSIVE_VCOLOR
+				+ materialEmissiveColor
+			#endif
 			#ifdef MATERIAL_EMISSIVE_MAP
 				+ materialEmissiveMapColor
 			#endif

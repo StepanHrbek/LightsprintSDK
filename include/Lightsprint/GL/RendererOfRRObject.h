@@ -87,6 +87,7 @@ public:
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
+		bool     MATERIAL_EMISSIVE_VCOLOR:1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
 		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     MATERIAL_CULLING       :1; ///< sets face culling according to material (0=defaults in GL pipeline are used)
 		bool     MATERIAL_BLENDING      :1; ///< sets blending according to material (0=defaults in GL pipeline are used)

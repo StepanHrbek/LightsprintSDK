@@ -497,6 +497,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
+	uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup,NULL);

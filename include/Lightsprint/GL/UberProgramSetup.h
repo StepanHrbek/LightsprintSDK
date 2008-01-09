@@ -33,6 +33,7 @@ enum
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for ambient map uv.
 	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
 	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
+	MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR= 4, ///< Emissive material color. (diffuse material color and indirect light color are in gl_Color and gl_SecondaryColor)
 };
 
 
@@ -46,44 +47,56 @@ enum
 //!
 //! All attribute values are converted to "#define ATTRIBUTE [value]" format
 //! and inserted at the beginning of ubershader.
+//!
 //! Some combinations of attributes are not supported and getProgram will return NULL.
+//! Call validate() to get nearest supported combination.
 struct RR_GL_API UberProgramSetup
 {
-	unsigned SHADOW_MAPS            :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
-	unsigned SHADOW_SAMPLES         :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
-	bool     SHADOW_PENUMBRA        :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
-	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
-	bool     LIGHT_DIRECT_COLOR     :1; ///< Enables modulation of direct light by constant color.
-	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by color map. Projects texture.
-	bool     LIGHT_DIRECTIONAL      :1; ///< Switches direct light from positional (with optional dist.atten.) to directional (no atten.).
+	unsigned SHADOW_MAPS               :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
+	unsigned SHADOW_SAMPLES            :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
+	bool     SHADOW_PENUMBRA           :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
+
+	bool     LIGHT_DIRECT              :1; ///< Enables direct light. All enabled LIGHT_DIRECT_XXX are multiplied.
+	bool     LIGHT_DIRECT_COLOR        :1; ///< Enables modulation of direct light by constant color.
+	bool     LIGHT_DIRECT_MAP          :1; ///< Enables modulation of direct light by color map. Projects texture.
+
+	bool     LIGHT_DIRECTIONAL         :1; ///< Switches direct light from positional (with optional dist.atten.) to directional (no dist.atten.).
 	bool     LIGHT_DISTANCE_PHYSICAL   :1; ///< Enables direct light physically correct distance attenuation.
 	bool     LIGHT_DISTANCE_POLYNOMIAL :1; ///< Enables direct light polynomial distance attenuation.
 	bool     LIGHT_DISTANCE_EXPONENTIAL:1; ///< Enables direct light exponential distance attenuation.
-	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
-	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
-	bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< Enables blend between two ambient vertex colors.
-	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL :1; ///< If indirect light per vertex is used, it is expected in physical scale, converted to screen space in shader.
-	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
-	bool     LIGHT_INDIRECT_MAP2    :1; ///< Enables blend between two ambient maps.
-	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
-	bool     LIGHT_INDIRECT_auto    :1; ///< Extension. Makes renderer set all LIGHT_INDIRECT_xxx flags automatically (except _CONST) according to available data.
-	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.
-	bool     MATERIAL_DIFFUSE_CONST :1; ///< Enables material's diffuse reflectance modulated by constant color.
-	bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
-	bool     MATERIAL_DIFFUSE_MAP   :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
-	bool     MATERIAL_SPECULAR      :1; ///< Enables material's specular reflectance.
-	bool     MATERIAL_SPECULAR_CONST:1; ///< Enables material's specular reflectance modulated by constant color.
-	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
-	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
-	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.
-	bool     ANIMATION_WAVE         :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
-	bool     POSTPROCESS_NORMALS    :1; ///< Renders normal values instead of colors.
-	bool     POSTPROCESS_BRIGHTNESS :1; ///< Enables brightness correction of final color (before gamma).
-	bool     POSTPROCESS_GAMMA      :1; ///< Enables gamma correction of final color (after brightness).
-	bool     POSTPROCESS_BIGSCREEN  :1; ///< Simulates effect of party projected bigscreen with ambient light.
-	bool     OBJECT_SPACE           :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix. Without OBJECT_SPACE, objects are rendered in their local spaces, you may get all objects stacked in world center.
-	bool     CLIPPING               :1; ///< Enables clipping in world space. Not supported by ATI.
-	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
+
+	bool     LIGHT_INDIRECT_CONST      :1; ///< Enables indirect light, constant. All enabled LIGHT_INDIRECT_XXX are accumulated.
+	bool     LIGHT_INDIRECT_VCOLOR     :1; ///< Enables indirect light, set per vertex.
+	bool     LIGHT_INDIRECT_VCOLOR2    :1; ///< Enables blend between two ambient vertex colors.
+	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL :1; ///< If indirect light per vertex is used, it is expected in physical/linear scale, converted to sRGB in shader.
+	bool     LIGHT_INDIRECT_MAP        :1; ///< Enables indirect light, set by ambient map.
+	bool     LIGHT_INDIRECT_MAP2       :1; ///< Enables blend between two ambient maps.
+	bool     LIGHT_INDIRECT_ENV        :1; ///< Enables indirect light, set by environment map.
+	bool     LIGHT_INDIRECT_auto       :1; ///< Extension. Makes renderer set all LIGHT_INDIRECT_xxx flags automatically (except _CONST) according to available data.
+
+	bool     MATERIAL_DIFFUSE          :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
+	bool     MATERIAL_DIFFUSE_CONST    :1; ///< Enables material's diffuse reflectance modulated by constant color.
+	bool     MATERIAL_DIFFUSE_VCOLOR   :1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
+	bool     MATERIAL_DIFFUSE_MAP      :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
+
+	bool     MATERIAL_SPECULAR         :1; ///< Enables material's specular reflectance. All enabled MATERIAL_SPECULAR_XXX are multiplied. When only MATERIAL_SPECULAR is enabled, specular color is 1 (white).
+	bool     MATERIAL_SPECULAR_CONST   :1; ///< Enables material's specular reflectance modulated by constant color.
+	bool     MATERIAL_SPECULAR_MAP     :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
+
+	bool     MATERIAL_EMISSIVE_CONST   :1; ///< Enables material's emission stored in constant. All enabled MATERIAL_EMISSIVE_XXX are accumulated.
+	bool     MATERIAL_EMISSIVE_VCOLOR  :1; ///< Enables material's emission stored per vertex.
+	bool     MATERIAL_EMISSIVE_MAP     :1; ///< Enables material's emission stored in sRGB map.
+
+	bool     MATERIAL_NORMAL_MAP       :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
+
+	bool     ANIMATION_WAVE            :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
+	bool     POSTPROCESS_NORMALS       :1; ///< Renders normal values instead of colors.
+	bool     POSTPROCESS_BRIGHTNESS    :1; ///< Enables brightness correction of final color (before gamma).
+	bool     POSTPROCESS_GAMMA         :1; ///< Enables gamma correction of final color (after brightness).
+	bool     POSTPROCESS_BIGSCREEN     :1; ///< Simulates effect of party projected bigscreen with ambient light.
+	bool     OBJECT_SPACE              :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix. Without OBJECT_SPACE, objects are rendered in their local spaces, you may get all objects stacked in world center.
+	bool     CLIPPING                  :1; ///< Enables clipping in world space. Not supported by ATI.
+	bool     FORCE_2D_POSITION         :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
 	//! Creates UberProgramSetup with everything turned off by default.
 	//! It is suitable for rendering into shadowmap, no color is produced, only depth.

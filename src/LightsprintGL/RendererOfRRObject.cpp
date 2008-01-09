@@ -354,6 +354,19 @@ void RendererOfRRObject::render()
 						}
 					}
 
+					// material emissive color
+					if(params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
+					{
+						if(material)
+						{
+							glMultiTexCoord3fv(MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR,&material->diffuseEmittance.x); //!!! vertex shader gets zero (X1950)
+						}
+						else
+						{
+							RR_ASSERT(0); // expected data are missing
+						}
+					}
+
 					// material emissive map - bind texture
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{

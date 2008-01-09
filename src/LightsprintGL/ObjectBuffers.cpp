@@ -121,6 +121,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
 			fg.transparency = material ? material->specularTransmittance.avg() : 0;
+			fg.emissiveColor = material ? material->diffuseEmittance : rr::RRVec3(0);
 			fg.diffuseTexture = NULL;
 			if(hasDiffuseMap)
 			{
@@ -439,7 +440,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// render facegroups (facegroups differ by material)
-	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
@@ -493,6 +494,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 							blendEnabled = transparency;
 						}
 					}
+				}
+				// set emissive color
+				if(params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
+				{
+					glMultiTexCoord3fv(MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR,&faceGroups[fg].emissiveColor[0]); //!!! vertex shader gets zero (X1950)
 				}
 				// set emissive map
 				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)

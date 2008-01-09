@@ -312,7 +312,7 @@ void RendererOfOriginalScene::render()
 	}
 
 	// render skybox
-	if((params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto) && !params.uberProgramSetup.FORCE_2D_POSITION)
+	if((params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto || params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP) && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
 		if(textureRenderer && params.solver->getEnvironment())
 		{
