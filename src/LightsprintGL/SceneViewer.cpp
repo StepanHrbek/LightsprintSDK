@@ -74,13 +74,20 @@ class Solver : public RRDynamicSolverGL
 public:
 	RendererOfScene* rendererOfScene;
 
-	Solver(const char* pathToShaders) : RRDynamicSolverGL(pathToShaders)
+	Solver(const char* _pathToShaders) : RRDynamicSolverGL(_pathToShaders)
 	{
+		pathToShaders = _strdup(_pathToShaders);
 		rendererOfScene = new RendererOfScene(this,pathToShaders);
 	}
 	~Solver()
 	{
+		free(pathToShaders);
 		delete rendererOfScene;
+	}
+	void resetRenderCache()
+	{
+		delete rendererOfScene;
+		rendererOfScene = new RendererOfScene(this,pathToShaders);
 	}
 	virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
@@ -113,6 +120,7 @@ public:
 	}
 
 protected:
+	char* pathToShaders;
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!winWidth) return NULL;
@@ -158,22 +166,31 @@ public:
 		glutAddMenuEntry("256", 65536);
 
 		int calculateHandle = glutCreateMenu(calculateCallback);
-		glutAddMenuEntry("quality 1",1);
-		glutAddMenuEntry("quality 10",10);
-		glutAddMenuEntry("quality 100",100);
-		glutAddMenuEntry("quality 1000",1000);
+		glutAddMenuEntry("Toggle rendering of", ME_STATIC_RENDER);
+		glutAddMenuEntry("Toggle bilinear (lightmaps only)", ME_STATIC_BILINEAR);
+		glutAddMenuEntry("Assign empty vertex buffers",0);
+		glutAddMenuEntry("Assign empty lightmaps 16x16",-16);
+		glutAddMenuEntry("Assign empty lightmaps 64x64",-64);
+		glutAddMenuEntry("Assign empty lightmaps 256x256",-256);
+		glutAddMenuEntry("Assign empty lightmaps 1024x1024",-1024);
+		glutAddMenuEntry("Build, quality 1",1);
+		glutAddMenuEntry("Build, quality 10",10);
+		glutAddMenuEntry("Build, quality 100",100);
+		glutAddMenuEntry("Build, quality 1000",1000);
+		glutAddMenuEntry("Save",ME_STATIC_SAVE);
+		glutAddMenuEntry("Load",ME_STATIC_LOAD);
+
 
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
-		glutAddSubMenu("Calculate...", calculateHandle);
+		glutAddSubMenu("Static lighting...", calculateHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
-		glutAddMenuEntry("Toggle render realtime", ME_RENDER_REALTIME);
 		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
-		glutAddMenuEntry("Toggle bilinear lightmaps", ME_BILINEAR);
+		glutAddMenuEntry("Quit", ME_CLOSE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	~Menu()
@@ -185,7 +202,6 @@ public:
 	{
 		switch(item)
 		{
-			case ME_RENDER_REALTIME: renderRealtime = !renderRealtime; solver->dirtyLights(); break;
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
@@ -208,19 +224,7 @@ public:
 					}
 				}
 				break;
-			case ME_BILINEAR:
-				bilinear = !bilinear;
-				for(unsigned i=0;i<solver->getNumObjects();i++)
-				{	
-					if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
-					{
-						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
-						rr_gl::getTexture(solver->getIllumination(i)->getLayer(0))->bindTexture();
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
-					}
-				}
-				break;
+			case ME_CLOSE: exitRequested = 1; break;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -238,24 +242,76 @@ public:
 	}
 	static void calculateCallback(int item)
 	{
-		rr::RRDynamicSolver::UpdateParameters params;
-		params.quality = item;
-		params.applyCurrentSolution = false;
-		params.applyLights = true;
-		params.applyEnvironment = true;
-		solver->updateLightmaps(0,-1,&params,&params,NULL);
-		renderRealtime = false;
+		switch(item)
+		{
+			case ME_STATIC_LOAD: solver->getStaticObjects().loadIllumination("",0); renderRealtime = false; break;
+			case ME_STATIC_SAVE: solver->getStaticObjects().saveIllumination("",0); break;
+			case ME_STATIC_RENDER: renderRealtime = !renderRealtime; solver->dirtyLights(); break;
+			case ME_STATIC_BILINEAR:
+				bilinear = !bilinear;
+				renderRealtime = false;
+				for(unsigned i=0;i<solver->getNumObjects();i++)
+				{	
+					if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
+					{
+						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
+						rr_gl::getTexture(solver->getIllumination(i)->getLayer(0))->bindTexture();
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
+					}
+				}
+				break;
+			default:
+				if(item>0)
+				{
+					// calculate
+					rr::RRDynamicSolver::UpdateParameters params;
+					params.quality = item;
+					params.applyCurrentSolution = false;
+					params.applyLights = true;
+					params.applyEnvironment = true;
+					solver->updateLightmaps(0,-1,&params,&params,NULL);
+					renderRealtime = false;
+					// propagate computed data from buffers to textures
+					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						if(solver->getIllumination(i)->getLayer(0) && solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
+							getTexture(solver->getIllumination(i)->getLayer(0))->reset(true);
+					}
+					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
+					solver->resetRenderCache();
+				}
+				else
+				{
+					// allocate buffers
+					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						delete solver->getIllumination(i)->getLayer(0);
+						solver->getIllumination(i)->getLayer(0) = item
+							? rr::RRBuffer::create(rr::BT_2D_TEXTURE,-item,-item,1,rr::BF_RGB,true,NULL)
+							: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+					}
+					// reset cache, GL texture ids changed
+					if(item)
+						solver->resetRenderCache();
+				}
+				break;
+		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 protected:
 	enum
 	{
-		ME_RENDER_REALTIME,
 		ME_RENDER_AMBIENT,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
-		ME_BILINEAR,
+		ME_CLOSE,
+		// ME_STATIC must not collide with 1,10,100,1000
+		ME_STATIC_RENDER = 1234,
+		ME_STATIC_BILINEAR,
+		ME_STATIC_LOAD,
+		ME_STATIC_SAVE,
 	};
 };
 
@@ -434,11 +490,11 @@ void display(void)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_DIRECT = renderRealtime;
+	uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
+	uberProgramSetup.LIGHT_DIRECT_MAP = renderRealtime;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
