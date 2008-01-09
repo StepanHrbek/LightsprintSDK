@@ -177,6 +177,16 @@ void RendererOfRRDynamicSolver::render()
 		}
 	}
 
+	if(params.uberProgramSetup.LIGHT_INDIRECT_auto)
+	{
+		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
+		params.uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+	}
+
 	PreserveBlend p1;
 	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
 	UberProgramSetup uberProgramSetup;
