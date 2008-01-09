@@ -207,15 +207,53 @@ void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned&
 	heightOld = heightNew;
 }
 
-/*/ vertex buffer loader
+struct VBUHeader
+{
+	RRBufferFormat format:16; // 3 bytes
+	unsigned scaled:16; // 1 byte
+	unsigned numVertices; // 4 bytes
+	VBUHeader(RRBuffer* buffer)
+	{
+		memset(this,0,sizeof(*this));
+		if(buffer)
+		{
+			format = buffer->getFormat();
+			scaled = buffer->getScaled()?1:0;
+			numVertices = buffer->getWidth();
+		}
+	}
+	unsigned getDataSize()
+	{
+		return getBytesPerPixel(format) * numVertices;
+	}
+};
+
+// vertex buffer loader
 bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
 {
+	// open
 	FILE* f = fopen(filename,"rb");
 	if(!f) return false;
-	unsigned read = (unsigned)fread(vertices,sizeof(Color),numVertices,f);
+	// get filesize
+	fseek(f,0,SEEK_END);
+	unsigned datasize = ftell(f)-sizeof(VBUHeader);
+	fseek(f,0,SEEK_SET);
+	// read header
+	VBUHeader header(NULL);
+	fread(&header,sizeof(header),1,f);
+	if(header.getDataSize()!=datasize)
+	{
+		fclose(f);
+		return false;
+	}
+	// read data
+	unsigned char* data = new unsigned char[datasize];
+	fread(data,1,datasize,f);
 	fclose(f);
-	return read == numVertices;
-}*/
+	texture->reset(BT_VERTEX_BUFFER,header.numVertices,1,1,header.format,header.scaled?true:false,data);
+	delete[] data;
+	return true;
+}
 
 // 2D map loader
 bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool flipH)
@@ -303,9 +341,11 @@ bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSid
 
 bool RRBuffer::reload(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	bool reloaded = cubeSideName
+	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
+		? reloadVertexBuffer(this,filename)
+		: (cubeSideName
 		? reloadCube(this,filename,cubeSideName,flipV,flipH)
-		: reload2d(this,filename,flipV,flipH);
+		: reload2d(this,filename,flipV,flipH) );
 	if(!reloaded)
 	{
 		rr::RRReporter::report(rr::ERRO,"Failed to reload %s.\n",filename);
@@ -336,9 +376,11 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 		// save vertex buffer
 		if(getType()==BT_VERTEX_BUFFER)
 		{
+			VBUHeader header(this);
 			FILE* f = fopen(filename,"wb");
 			if(f)
 			{
+				fwrite(&header,sizeof(header),1,f);
 				unsigned written = (unsigned)fwrite(rawData,getElementBits()/8,getWidth(),f);
 				fclose(f);
 				result = written == getWidth();

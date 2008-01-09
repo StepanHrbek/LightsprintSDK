@@ -173,17 +173,15 @@ namespace rr
 
 		//! Loads buffer from disk to system memory.
 		//
-		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
-		//! it for any 3D API.
-		//! \n Example1: filename="path/cube_%s.png", cubeSideName={"ft","bk","dn","up","rt","lf"} - Cube is loaded from 6 files.
-		//! \n Example2: filename="path/cube.hdr", cubeSideName=NULL - Cube is loaded from 1 file.
-		//!    Note that it is possible to load map from float based fileformat in full float precision,
-		//!    but existing rendering code expects custom scale values in map, so result
-		//!    would be incorrect.
+		//! \n Example1: load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
+		//! \n Example2: load("path/lightmap.vbu") - loads vertex buffer
+		//! \n Example3: load("path/cube_%s.png", {"ft","bk","dn","up","rt","lf"}) - loads cubemap from 6 files
+		//! \n Example4: load("path/cube.hdr", NULL) - loads cubemap from 1 file
 		//! \param filename
-		//!  Filename of 1 image or mask of 6 images to be loaded from disk.
+		//!  Filename of 1 image/vertexbuffer or mask of 6 images (sides of cubemap) to be loaded from disk.
 		//!  All common file formats are supported.
-		//! \param cubeSideName Array of six unique names of cube sides in following order:
+		//!  Proprietary .vbu format is used for vertex buffers.
+		//! \param cubeSideName When cubemap is loaded, array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 		//! \param flipV
@@ -191,7 +189,7 @@ namespace rr
 		//! \param flipH
 		//!  Flip all sides horizontally at load time.
 		//! \return
-		//!  Returns newly created environment map.
+		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.
 		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, bool flipV = false, bool flipH = false);
 
@@ -200,18 +198,16 @@ namespace rr
 
 		//! Saves buffer to disk.
 		//
-		//! Not mandatory, thin implementations may completely skip saving and always return false.
+		//! Save parameters are similar to load, see load() for examples.
 		//! \param filenameMask
-		//!  Filename mask of images to be created on disk.
-		//!  Supported file formats are implementation defined.
-		//!  Implementation is free to create 6 files for 6 cube sides.
-		//!  In such case, filename must contain \%s wildcard, that will be replaced by cubeSideName.
-		//!  Example: "path/cube_%s.png".
-		//! \param cubeSideName Array of six unique names of cube sides in following order:
+		//!  Filename of 1 image/vertexbuffer or mask of 6 images (sides of cubemap) to be saved to disk.
+		//!  All common file formats are supported.
+		//!  Proprietary .vbu format is used for vertex buffers (it consists of 2 bytes RRBufferFormat, 2 bytes bool scaled, 4 bytes num_vertices, data from buffer).
+		//! \param cubeSideName When cubemap is saved, array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 		//! \return
-		//!  True on successful save of complete environment map.
+		//!  True on successful save of complete buffer.
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
 	};
 
