@@ -978,7 +978,7 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 #if CHANNELS == 1
 	#error CHANNELS == 1 not supported here.
 #else
-	Channels newSourceIrradiance = additionalIrradiance + Vec3(surface->diffuseEmittance[0]/MAX(surface->diffuseReflectance[0],0.001f),surface->diffuseEmittance[1]/MAX(surface->diffuseReflectance[1],0.001f),surface->diffuseEmittance[2]/MAX(surface->diffuseReflectance[2],0.001f));
+	Channels newSourceIrradiance = additionalIrradiance;
 	Channels newSourceExitance = surface->diffuseEmittance + additionalIrradiance * surface->diffuseReflectance;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;

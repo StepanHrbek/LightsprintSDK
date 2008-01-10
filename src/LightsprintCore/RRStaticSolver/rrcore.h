@@ -231,7 +231,7 @@ public:
 	real    accuracy();     // shots done per energy unit
 
 	// static energy acumulators
-	Channels totalExitingFlux;   // exitance from energy received directly by this node or his subs (not by parents)
+	Channels totalExitingFlux;   // exitance(irradiance*reflectance+emittance) from energy received directly by this node or his subs (not by parents)
 	Channels totalIncidentFlux;  // irradiance received directly by this node or his subs (not by parents)
 	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
