@@ -121,6 +121,21 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 	}
+
+	// update staticObjectsContainEmissiveMaterials
+	priv->staticObjectsContainEmissiveMaterials = false;
+	if(priv->multiObjectCustom)
+	{
+		for(unsigned t=priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();t--;)
+		{
+			const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
+			if(material && material->diffuseEmittance!=rr::RRVec3(0))
+			{
+				priv->staticObjectsContainEmissiveMaterials = true;
+				break;
+			}
+		}
+	}
 }
 
 const RRObjects& RRDynamicSolver::getStaticObjects()
