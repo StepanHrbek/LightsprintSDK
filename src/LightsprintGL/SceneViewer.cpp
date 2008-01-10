@@ -50,6 +50,8 @@ bool                       fullscreen = 0; // current mode
 int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
 bool                       renderRealtime = 1;
 bool                       renderAmbient = 0;
+bool                       renderEmission = 1;
+bool                       renderDiffuse = 1;
 bool                       renderHelpers = 1;
 float                      speedGlobal = 1; // speed of movement controlled by user
 float                      speedForward = 0;
@@ -186,7 +188,9 @@ public:
 		glutAddSubMenu("Select...", selectHandle);
 		glutAddSubMenu("Static lighting...", calculateHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
-		glutAddMenuEntry("Toggle render ambient", ME_RENDER_AMBIENT);
+		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
+		glutAddMenuEntry("Toggle render emissivity", ME_RENDER_EMISSION);
+		glutAddMenuEntry("Toggle render diffuse color", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
@@ -203,6 +207,8 @@ public:
 		switch(item)
 		{
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
+			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
+			case ME_RENDER_DIFFUSE: renderDiffuse = !renderDiffuse; break;
 			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
 			case ME_MAXIMIZE:
@@ -303,6 +309,8 @@ protected:
 	enum
 	{
 		ME_RENDER_AMBIENT,
+		ME_RENDER_EMISSION,
+		ME_RENDER_DIFFUSE,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
@@ -496,8 +504,8 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
-	uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = renderDiffuse;
+	uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = renderEmission;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup,NULL);
@@ -793,6 +801,12 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
+	/*if(_solver->getLights().size()==0)
+	{
+		rr::RRLights lights;
+		lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1,1,1),rr::RRVec3(0,0,2),rr::RRVec3(0,1,0),1.2,0.1));
+		solver->setLights(lights);
+	}*/
 	char buf[1000];
 	_snprintf(buf,999,"%s%s",_pathToShaders,"../maps/spot0.png");
 	buf[999] = 0;
