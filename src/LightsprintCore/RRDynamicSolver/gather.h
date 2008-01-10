@@ -21,10 +21,10 @@ struct TexelContext
 {
 	RRDynamicSolver* solver;
 	LightmapFilter* pixelBuffer;
-	const RRDynamicSolver::UpdateParameters* params;
+	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	LightmapFilter* bentNormalsPerPixel;
 	RRObject* singleObjectReceiver;
-	bool gatherEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
+	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
 };
 
 struct ProcessTexelParams
@@ -32,14 +32,14 @@ struct ProcessTexelParams
 	ProcessTexelParams(const TexelContext& _context) : context(_context) 
 	{
 		resetFiller = 0;
-		ray = NULL;
+		rays = NULL;
 	}
 	const TexelContext& context;
 	unsigned uv[2]; // texel coord in lightmap in 0..width-1,0..height-1
 	//std::vector<ProcessTriangleInfo> tri; // triangles intersecting texel
 	ProcessTriangleInfo tri; // triangles intersecting texel
 	unsigned resetFiller;
-	RRRay* ray; // rayLengthMin should be initialized
+	RRRay* rays; // pointer to TWO rays. rayLengthMin should be initialized
 };
 
 struct ProcessTexelResult

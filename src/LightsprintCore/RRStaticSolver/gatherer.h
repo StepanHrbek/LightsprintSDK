@@ -18,7 +18,11 @@ class Gatherer
 {
 public:
 	// Initializes helper structures for gather().
-	Gatherer(RRRay* ray, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherEmitors);
+	//! \param gatherDirectEmitors
+	//!  Gather direct exitance from emitors (stored in material).
+	//! \param gatherIndirectLight
+	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
+	Gatherer(RRRay* ray, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight);
 
 	// Returns color visible in given direction, in physical scale.
 	// May reflect/refract internally.
@@ -33,7 +37,8 @@ protected:
 	const RRCollider* collider;
 	const RRBuffer* environment;
 	const RRScaler* scaler;
-	bool gatherEmitors;
+	bool gatherDirectEmitors;
+	bool gatherIndirectLight;
 	class Triangle* triangle;
 	unsigned triangles;
 };

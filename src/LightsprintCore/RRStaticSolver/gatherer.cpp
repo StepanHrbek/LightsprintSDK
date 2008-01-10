@@ -9,14 +9,15 @@ extern Vec3 refract(Vec3 N,Vec3 I,real r);
 // inputs:
 //  - ray->rayLengthMin
 //  - ray->rayLengthMax
-Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherEmitors)
+Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight)
 {
 	ray = _ray;
 	ray->collisionHandler = &skipTriangle;
 	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
-	gatherEmitors = _gatherEmitors;
+	gatherDirectEmitors = _gatherDirectEmitors;
+	gatherIndirectLight = _gatherIndirectLight;
 	Object* _object = _staticSolver->scene->object;
 	object = _object->importer;
 	collider = object->getCollider();
@@ -80,10 +81,21 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 		// diffuse reflection
 		if(side.emitTo)
 		{
-			exitance += visibility / hitTriangle->area * (gatherEmitors
-				? hitTriangle->totalExitingFlux
-				: (hitTriangle->totalIncidentFlux * material->diffuseReflectance)
-				);
+			if(gatherIndirectLight)
+			{
+				// used in GI final gather [per triangle]
+				exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
+			}
+			else
+			if(gatherDirectEmitors)
+			{
+				// used in direct lighting final gather [per pixel emittance]
+				exitance += visibility * material->diffuseEmittance;
+			}
+			else
+			{
+				// used in GI first gather
+			}
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 			//!!! /2 kdyz emituje do obou stran
 		}

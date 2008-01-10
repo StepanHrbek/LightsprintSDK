@@ -155,20 +155,20 @@ class GatheredIrradianceHemisphere
 public:
 	// once before shooting (quick init that computes 'rays')
 	// inputs:
-	//  - pti.ray
+	//  - pti.ray[0]
 	//  - pti.tri.triangleIndex
 	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti) :
 		tools(_tools),
 		pti(_pti),
 		// collisionHandler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
 		collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true),
-		gatherer(_pti.ray,_pti.context.solver->priv->scene,_tools.environment,_tools.scaler,_pti.context.gatherEmitors)
+		gatherer(&_pti.rays[0],_pti.context.solver->priv->scene,_tools.environment,_tools.scaler,_pti.context.gatherDirectEmitors,_pti.context.params->applyCurrentSolution)
 	{
 		// used by processTexel even when not shooting to hemisphere
 		irradianceHemisphere = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
-		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherEmitors) ? MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? MAX(1,pti.context.params->quality) : 0;
 	}
 
 	// once before shooting (full init)
@@ -193,8 +193,8 @@ public:
 		// init watchdogs
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
-		pti.ray->rayLengthMin = 0; // kdybych na to nesahal, bude tam od volajiciho pekne male cislo
-		pti.ray->rayLengthMax = pti.context.params->locality;
+		pti.rays[0].rayLengthMin = 0; // kdybych na to nesahal, bude tam od volajiciho pekne male cislo
+		pti.rays[0].rayLengthMax = pti.context.params->locality;
 	}
 
 	// 1 ray
@@ -206,7 +206,7 @@ public:
 			RRVec3 dir = getRandomExitDir(fillerDir, n3, u3, v3);
 			RRReal dirsize = dir.length();
 
-RRVec3 irrad = gatherer.gather(pti.ray->rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
+RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
 //RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 irradianceHemisphere += irrad;
 bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
@@ -352,6 +352,10 @@ protected:
 class GatheredIrradianceLights
 {
 public:
+	// once before shooting
+	// inputs:
+	//  - pti.ray[1]
+	//  - ...
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
 		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),_pti.context.singleObjectReceiver,NULL,_pti.tri.triangleIndex,true)
 		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
@@ -401,15 +405,16 @@ public:
 		}
 		else
 		{
+			RRRay* ray = &pti.rays[1];
 			// intesect scene
-			pti.ray->rayDirInv[0] = 1/dir[0];
-			pti.ray->rayDirInv[1] = 1/dir[1];
-			pti.ray->rayDirInv[2] = 1/dir[2];
-			pti.ray->rayLengthMax = dirsize;
-			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
-			pti.ray->collisionHandler = &collisionHandler;
+			ray->rayDirInv[0] = 1/dir[0];
+			ray->rayDirInv[1] = 1/dir[1];
+			ray->rayDirInv[2] = 1/dir[2];
+			ray->rayLengthMax = dirsize;
+			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
+			ray->collisionHandler = &collisionHandler;
 			collisionHandler.light = _light;
-			if(!_light->castShadows || !tools.collider->intersect(pti.ray))
+			if(!_light->castShadows || !tools.collider->intersect(ray))
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
@@ -427,7 +432,7 @@ public:
 				hitsUnreliable++;
 			}
 			else
-			if(pti.ray->hitDistance<pti.context.params->rugDistance)
+			if(ray->hitDistance<pti.context.params->rugDistance)
 			{
 				// no visibility, ray hit rug, very close object -> unreliable
 				hitsRug++;
@@ -586,7 +591,7 @@ retry:
 				}
 				else
 				{
-					pti.ray->rayOrigin = pti.tri.pos3d;
+					pti.rays[0].rayOrigin = pti.rays[1].rayOrigin = pti.tri.pos3d;
 					goto shoot_from_center;
 					//break; // stop shooting, result is unreliable
 				}
@@ -603,7 +608,7 @@ retry:
 			}
 		}
 		// fill position in 3d
-		pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
+		pti.rays[0].rayOrigin = pti.rays[1].rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
 shoot_from_center:
 
 
@@ -649,7 +654,6 @@ shoot_from_center:
 
 	hemisphere.done();
 	gilights.done();
-
 	// sum direct and indirect results
 	ProcessTexelResult result;
 	result.irradiance = gilights.irradianceLights + hemisphere.irradianceHemisphere; // [3] = 0
@@ -722,7 +726,7 @@ shoot_from_center:
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherEmitors)
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -758,14 +762,14 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.params = &params;
 	tc.bentNormalsPerPixel = NULL;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
-	tc.gatherEmitors = _gatherEmitors;
+	tc.gatherDirectEmitors = _gatherDirectEmitors;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates rays, allocating inside for cycle costs more
 #ifdef _OPENMP
-	RRRay* rays = RRRay::create(omp_get_max_threads());
+	RRRay* rays = RRRay::create(2*omp_get_max_threads());
 #else
-	RRRay* rays = RRRay::create(1);
+	RRRay* rays = RRRay::create(2);
 #endif
 
 #pragma omp parallel for schedule(dynamic)
@@ -780,11 +784,12 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		pti.tri.pos3d = pti.tri.triangleBody.vertex0+(pti.tri.triangleBody.side1+pti.tri.triangleBody.side2)*0.333333f;
 		pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 #ifdef _OPENMP
-		pti.ray = rays+omp_get_thread_num();
+		pti.rays = rays+2*omp_get_thread_num();
 #else
-		pti.ray = rays;
+		pti.rays = rays;
 #endif
-		pti.ray->rayLengthMin = priv->minimalSafeDistance;
+		pti.rays[0].rayLengthMin = priv->minimalSafeDistance;
+		pti.rays[1].rayLengthMin = priv->minimalSafeDistance;
 		ProcessTexelResult tr = processTexel(pti);
 		results[t] = tr;
 		//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
@@ -920,14 +925,14 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			tc.params = &params;
 			tc.bentNormalsPerPixel = NULL;
 			tc.singleObjectReceiver = NULL;
-			tc.gatherEmitors = priv->staticObjectsContainEmissiveMaterials; // this is simulation of 1% of final gather rays -> gather from emitors
+			tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is simulation of 1% of final gather rays -> gather from emitors
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
 
 			// preallocates rays, allocating inside for cycle costs more
 #ifdef _OPENMP
-			RRRay* rays = RRRay::create(omp_get_max_threads());
+			RRRay* rays = RRRay::create(2*omp_get_max_threads());
 #else
-			RRRay* rays = RRRay::create(1);
+			RRRay* rays = RRRay::create(2);
 #endif
 
 #pragma omp parallel for
@@ -942,11 +947,12 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				pti.tri.pos3d = pti.tri.triangleBody.vertex0+pti.tri.triangleBody.side1*0.33f+pti.tri.triangleBody.side2*0.33f;
 				pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 #ifdef _OPENMP
-				pti.ray = rays+omp_get_thread_num();
+				pti.rays = rays+2*omp_get_thread_num();
 #else
-				pti.ray = rays;
+				pti.rays = rays;
 #endif
-				pti.ray->rayLengthMin = priv->minimalSafeDistance;
+				pti.rays[0].rayLengthMin = priv->minimalSafeDistance;
+				pti.rays[1].rayLengthMin = priv->minimalSafeDistance;
 				processTexel(pti);
 			}
 

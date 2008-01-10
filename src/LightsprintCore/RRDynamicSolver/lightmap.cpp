@@ -223,9 +223,9 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 	// preallocates rays, allocating inside for cycle costs more
 #ifdef _OPENMP
-	RRRay* rays = RRRay::create(omp_get_max_threads());
+	RRRay* rays = RRRay::create(2*omp_get_max_threads());
 #else
-	RRRay* rays = RRRay::create(1);
+	RRRay* rays = RRRay::create(2);
 #endif
 
 #ifndef DIAGNOSTIC_RAYS
@@ -249,11 +249,12 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			RRMesh::TriangleMapping mapping;
 			multiMesh->getTriangleMapping(t,mapping);
 #ifdef _OPENMP
-			pti.ray = rays+omp_get_thread_num();
+			pti.rays = rays+2*omp_get_thread_num();
 #else
-			pti.ray = rays;
+			pti.rays = rays;
 #endif
-			pti.ray->rayLengthMin = minimalSafeDistance;
+			pti.rays[0].rayLengthMin = minimalSafeDistance;
+			pti.rays[1].rayLengthMin = minimalSafeDistance;
 			// rasterize triangle t
 			//  find minimal bounding box
 			RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
@@ -412,7 +413,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		// create objects
 		calculateCore(0);
-		if(!priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if( (!priv->scene && !priv->packedSolver) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"Empty scene.\n");
 			RR_ASSERT(0);
@@ -468,7 +469,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.params = &params;
 		tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 		tc.singleObjectReceiver = getObject(objectNumber);
-		tc.gatherEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
+		tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
 		RRBuffer* tmp = pixelBuffer?pixelBuffer:bentNormals;
 		enumerateTexels(getMultiObjectCustom(),objectNumber,tmp->getWidth(),tmp->getHeight(),processTexel,tc,priv->minimalSafeDistance);
 
@@ -492,6 +493,11 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 
 	return updatedBuffers;
 }
+
+//ve scene je emisivni material:
+// rt update:                  [externi calculate(): OK emis se propagne] OK na vystup se posle jen propagly (ne src)
+// direct light(final gather): OK(slaby vykon) emis se gatherne
+// GI(gather+propag+gather):   OK emis se negatherne, OK emis se propagne, OK(slaby vykon) emis i propagly se gatherne
 
 unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
