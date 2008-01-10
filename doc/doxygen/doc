@@ -2322,14 +2322,14 @@ Used by samples:
  <hr>
  <b>SceneViewer</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/SceneViewer_1.jpg freely move lights
+  \image html samples/SceneViewer_1.jpg move lights, compare realtime/offline GI
   </td><td>
-  \image html samples/SceneViewer_2.jpg build lightmaps
+  \image html samples/SceneViewer_2.jpg made for testing, debugging
   </td></tr></table>
- - realtime GI: freely move all lights
- - precomputed GI: build/load/save lightmaps
+ - single function call: sceneViewer(), you can run it from your code to visualize data
+ - realtime GI: freely move all lights, no precalculations
+ - precomputed GI: test build/load/save lightmaps
  - loads collada scene including all lights
- - uses internal renderer
 
  <hr>
  <b>RealtimeLights</b>
