@@ -52,7 +52,10 @@ namespace rr_gl
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		virtual void setLights(const rr::RRLights& lights);
-		//! Updates shadowmaps and GI from lights with RealtimeLight::dirty set. Called by solver in response to reportDirectIlluminationChange().
+		//! Updates shadowmaps and GI from lights with RealtimeLight::dirty set.
+		//
+		//! It also copies position and direction from dirty RealtimeLight-s to RRLight-s.
+		//! \n Called by solver in response to reportDirectIlluminationChange().
 		virtual void updateDirtyLights();
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application. renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;

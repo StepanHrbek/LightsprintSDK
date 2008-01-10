@@ -211,7 +211,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 		}
 		if(!light->dirty) continue;
 		light->dirty = 0;
-		// update position
+		// update dirlight position
 		if(light->getParent()->orthogonal && light->getNumInstances())
 		{
 			Texture* shadowmap = light->getShadowMap(0);
@@ -219,6 +219,13 @@ void RRDynamicSolverGL::updateDirtyLights()
 		}
 		else
 			light->getParent()->update(NULL,0);
+		// sync RRLight pos/dir with realtimeLight pos/dir
+		// (not necessary for us, but user might want to calculate offline later and he would be surprised, that RRLight is at old position while he moved realtimeLight)
+		if(getLights().size()>i && getLights()[i])
+		{
+			getLights()[i]->position = light->getParent()->pos;
+			getLights()[i]->direction = light->getParent()->dir;
+		}
 		// update shadowmap[s]
 		{
 			glClearDepth(0.9999); // prevents backprojection
