@@ -18,7 +18,7 @@ class Gatherer
 {
 public:
 	// Initializes helper structures for gather().
-	Gatherer(RRRay* ray, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler);
+	Gatherer(RRRay* ray, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherEmitors);
 
 	// Returns color visible in given direction, in physical scale.
 	// May reflect/refract internally.
@@ -33,6 +33,7 @@ protected:
 	const RRCollider* collider;
 	const RRBuffer* environment;
 	const RRScaler* scaler;
+	bool gatherEmitors;
 	class Triangle* triangle;
 	unsigned triangles;
 };

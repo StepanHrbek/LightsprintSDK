@@ -468,6 +468,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.params = &params;
 		tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 		tc.singleObjectReceiver = getObject(objectNumber);
+		tc.gatherEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
 		RRBuffer* tmp = pixelBuffer?pixelBuffer:bentNormals;
 		enumerateTexels(getMultiObjectCustom(),objectNumber,tmp->getWidth(),tmp->getHeight(),processTexel,tc,priv->minimalSafeDistance);
 
@@ -495,13 +496,8 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsDirect;
-	paramsDirect.applyCurrentSolution = true; // NULL = realtime update, bez final gatheru
-	paramsDirect.applyEnvironment = false;
-	paramsDirect.applyLights = false;
 	UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyEnvironment = false;
-	paramsIndirect.applyLights = false;
 	if(_paramsDirect) paramsDirect = *_paramsDirect;
 	if(_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
@@ -594,7 +590,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			// for each triangle
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
-			gatherPerTriangle(&paramsDirect,finalGather,numTriangles);
+			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials); // this is final gather -> gather emissive materials
 
 			// 5. interpolate: tmparray -> buffer
 			// for each object with vertex buffer

@@ -294,7 +294,11 @@ namespace rr
 
 		//! Parameters for updateLightmap(), updateLightmaps().
 		//
-		//! If you use \ref calc_fireball, only default parameters are supported,
+		//! See two constructors for default realtime and default offline parameters.
+		//!
+		//! While some light types can be disabled here, light from emissive materials always enters calculation.
+		//!
+		//! If you use \ref calc_fireball, only default realtime parameters are supported,
 		//! use NULL for default parameters.
 		struct UpdateParameters
 		{
@@ -356,13 +360,25 @@ namespace rr
 			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
 			RRRadiometricMeasure measure_internal;
 
-			//! Sets default parameters for fast realtime update.
+			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::detectDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
 				applyLights = false;
 				applyEnvironment = false;
 				applyCurrentSolution = true;
 				quality = 0;
+				insideObjectsTreshold = 1;
+				rugDistance = 0.001f;
+				locality = 100000;
+				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
+			}
+			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
+			UpdateParameters(unsigned _quality)
+			{
+				applyLights = true;
+				applyEnvironment = true;
+				applyCurrentSolution = false;
+				quality = _quality;
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
@@ -738,7 +754,7 @@ namespace rr
 		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
 		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
-		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
+		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
 		unsigned   updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTableDynamicSolver();

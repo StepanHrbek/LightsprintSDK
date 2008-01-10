@@ -8,7 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news43 ------------------------------------ 2008.1.7 -------------------------------------
+\section news43 ------------------------------------ 2008.1.10 -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::UpdateParameters(quality) sets default parameters for offline rendering
 
 CHANGES
 

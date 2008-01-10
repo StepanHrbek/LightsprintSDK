@@ -162,13 +162,13 @@ public:
 		pti(_pti),
 		// collisionHandler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
 		collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true),
-		gatherer(_pti.ray,_pti.context.solver->priv->scene,_tools.environment,_tools.scaler)
+		gatherer(_pti.ray,_pti.context.solver->priv->scene,_tools.environment,_tools.scaler,_pti.context.gatherEmitors)
 	{
 		// used by processTexel even when not shooting to hemisphere
 		irradianceHemisphere = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
-		rays = (tools.environment || pti.context.params->applyCurrentSolution) ? MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherEmitors) ? MAX(1,pti.context.params->quality) : 0;
 	}
 
 	// once before shooting (full init)
@@ -721,7 +721,8 @@ shoot_from_center:
 
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots)
+// may be called as first gather or final gather
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherEmitors)
 {
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -757,6 +758,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.params = &params;
 	tc.bentNormalsPerPixel = NULL;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
+	tc.gatherEmitors = _gatherEmitors;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates rays, allocating inside for cycle costs more
@@ -812,7 +814,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 	ProcessTexelResult* finalGather = new ProcessTexelResult[numPostImportTriangles];
-	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles))
+	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
 	{
 		delete[] finalGather;
 		return false;
@@ -918,6 +920,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			tc.params = &params;
 			tc.bentNormalsPerPixel = NULL;
 			tc.singleObjectReceiver = NULL;
+			tc.gatherEmitors = priv->staticObjectsContainEmissiveMaterials; // this is simulation of 1% of final gather rays -> gather from emitors
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
 
 			// preallocates rays, allocating inside for cycle costs more

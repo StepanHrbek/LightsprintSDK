@@ -9,13 +9,14 @@ extern Vec3 refract(Vec3 N,Vec3 I,real r);
 // inputs:
 //  - ray->rayLengthMin
 //  - ray->rayLengthMax
-Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler)
+Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherEmitors)
 {
 	ray = _ray;
 	ray->collisionHandler = &skipTriangle;
 	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
+	gatherEmitors = _gatherEmitors;
 	Object* _object = _staticSolver->scene->object;
 	object = _object->importer;
 	collider = object->getCollider();
@@ -55,7 +56,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 	if(!hitTriangle->surface)
 	{
 		// error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
-		// sponza-stezka.dae sem leze, nevim proc
+		// sponza-stezka.dae sem leze i kdyz jsem ho nacet poprve, nevim proc
 		//RR_ASSERT(0);
 		return Channels(0);
 	}
@@ -79,9 +80,10 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 		// diffuse reflection
 		if(side.emitTo)
 		{
-			Channels incidentPower = hitTriangle->totalIncidentFlux;
-			Channels irradiance = incidentPower / hitTriangle->area;
-			exitance += visibility * irradiance * material->diffuseReflectance;
+			exitance += visibility / hitTriangle->area * (gatherEmitors
+				? hitTriangle->totalExitingFlux
+				: (hitTriangle->totalIncidentFlux * material->diffuseReflectance)
+				);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 			//!!! /2 kdyz emituje do obou stran
 		}

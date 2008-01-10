@@ -24,6 +24,7 @@ struct TexelContext
 	const RRDynamicSolver::UpdateParameters* params;
 	LightmapFilter* bentNormalsPerPixel;
 	RRObject* singleObjectReceiver;
+	bool gatherEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
 };
 
 struct ProcessTexelParams
