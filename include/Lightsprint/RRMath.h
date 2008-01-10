@@ -192,7 +192,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		explicit RRVec3p(RRReal a)                       {x=y=z=w=a;}
 		RRVec3p(const RRVec3& a,RRReal aw)               {x=a.x;y=a.y;z=a.z;w=aw;}
 		RRVec3p(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
-		void   operator =(const RRVec3 a)                {x=a.x;y=a.y;z=a.z;}
+		const RRVec3& operator =(const RRVec3 a)         {x=a.x;y=a.y;z=a.z;return *this;}
 	};
 
 	//! Vector of 4 real numbers. Operators use all 4 components.
@@ -202,7 +202,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		explicit RRVec4(RRReal a)                   {x=y=z=w=a;}
 		RRVec4(const RRVec3& a,RRReal aw)           {x=a.x;y=a.y;z=a.z;w=aw;}
 		RRVec4(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
-		void   operator =(const RRVec3 a)           {x=a.x;y=a.y;z=a.z;}
+		const RRVec3& operator =(const RRVec3 a)    {x=a.x;y=a.y;z=a.z;return *this;}
 
 		RRVec4 operator + (const RRVec4& a)   const {return RRVec4(x+a.x,y+a.y,z+a.z,w+a.w);}
 		RRVec4 operator - (const RRVec4& a)   const {return RRVec4(x-a.x,y-a.y,z-a.z,w-a.w);}
