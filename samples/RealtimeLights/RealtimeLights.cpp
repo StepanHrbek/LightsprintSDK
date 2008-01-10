@@ -221,7 +221,7 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case 27:
-			rr_gl::deleteTextures();
+			rr_gl::deleteAllTextures();
 			delete solver->getEnvironment();
 			delete solver->getScaler();
 			delete solver;

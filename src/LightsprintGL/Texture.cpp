@@ -204,8 +204,10 @@ void Texture::renderingToEnd()
 
 Texture::~Texture()
 {
-	if(buffer && buffer->customData==this)
-		buffer->customData = NULL;
+// situace: kdyz smazu buffer, tady zustane dangling pointer.
+// spatne: if(buffer && buffer->customData==this) buffer->customData = NULL;
+// dobre: budu ho tise ignorovat. 
+// jedine co nesmim je smazat buffer a dal pouzivat texturu.
 	if(ownBuffer)
 		delete buffer;
 	glDeleteTextures(1, &id);
@@ -262,7 +264,7 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool buildMipMaps, int magn, in
 	return (Texture*)(buffer->customData);
 }
 
-void deleteTextures()
+void deleteAllTextures()
 {
 	for(unsigned i=0;i<g_textures.size();i++)
 	{
