@@ -80,6 +80,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "Lightsprint/GL/SceneViewer.h"
 #ifdef SUPPORT_WATER
 	#include "Lightsprint/GL/Water.h"
 #endif
@@ -1806,6 +1807,7 @@ void keyboardUp(unsigned char c, int x, int y)
 
 enum
 {
+	ME_SCENE_VIEWER,
 	ME_TOGGLE_VIDEO,
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
@@ -1825,6 +1827,9 @@ void mainMenu(int item)
 {
 	switch (item)
 	{
+		case ME_SCENE_VIEWER:
+			rr_gl::sceneViewer(level->solver,false,"shaders/",false);
+			break;
 		case ME_TOGGLE_VIDEO:
 			captureVideo = !captureVideo;
 			break;
@@ -1851,16 +1856,8 @@ void mainMenu(int item)
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRVec3(0.7f))); //!!! not freed
 				//level->solver->setLights(lights);
 				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.applyCurrentSolution = 0;
-				paramsDirect.applyLights = 1;
-				paramsDirect.applyEnvironment = 1;
-				paramsDirect.quality = LIGHTMAP_QUALITY;
-				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-				paramsIndirect.applyCurrentSolution = 0;
-				paramsIndirect.applyLights = 1;
-				paramsIndirect.applyEnvironment = 1;
-				paramsIndirect.quality = LIGHTMAP_QUALITY/4;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect(LIGHTMAP_QUALITY);
+				rr::RRDynamicSolver::UpdateParameters paramsIndirect(LIGHTMAP_QUALITY/4);
 
 				// update all objects
 				level->solver->updateLightmaps(0,-1,true,&paramsDirect,&paramsIndirect);
@@ -1874,10 +1871,7 @@ void mainMenu(int item)
 		case ME_UPDATE_LIGHTMAPS_0:
 			{
 				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.applyCurrentSolution = 1;
-				paramsDirect.applyLights = 0;
-				paramsDirect.applyEnvironment = 0;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect();
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 
 				// update 1 object
@@ -1899,10 +1893,7 @@ void mainMenu(int item)
 		case ME_UPDATE_LIGHTMAPS_ALL:
 			{
 				// updates all maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.applyCurrentSolution = 1;
-				paramsDirect.applyLights = 0;
-				paramsDirect.applyEnvironment = 0;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect();
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 
 				for(LevelSetup::Frames::const_iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
@@ -2044,6 +2035,7 @@ void initMenu()
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 #endif
 	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
+	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
 #ifdef SUPPORT_LIGHTMAPS
 	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
 	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
@@ -2493,6 +2485,8 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
 	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
+	uberProgramGlobalSetup.MATERIAL_EMISSIVE_CONST = false;
+	uberProgramGlobalSetup.MATERIAL_EMISSIVE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_EMISSIVE_MAP = false;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
