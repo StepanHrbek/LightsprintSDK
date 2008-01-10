@@ -10,8 +10,6 @@
 //
 // Use commandline argument or drag&drop to open custom collada scene.
 //
-// Light types supported: point, spot (not yet directional)
-//
 // Controls:
 //  1..9 = switch to n-th light
 //  arrows = move camera or light
@@ -412,7 +410,7 @@ int main(int argc, char **argv)
 	free(exedir);
 
 	// init solver
-	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
+	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
 	solver = new Solver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
@@ -421,7 +419,7 @@ int main(int argc, char **argv)
 	{
 		collada = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-		collada->LoadFromFile((argc>1)?argv[1]:"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+		collada->LoadFromFile((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
 		if(!errorHandler.IsSuccessful())
 		{
 			puts(errorHandler.GetErrorString());
@@ -433,30 +431,31 @@ int main(int argc, char **argv)
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init lights
 	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
-	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
+
+	// Uncomment to view scene in sceneViewer.
+	// Note: GLUT state is reset by sceneViewer, so we must set glutDisplayFunc etc after sceneViewer.
+	//sceneViewer(solver,false,"../../data/shaders/",false);
 
 	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
-
-	// This would run visual debugger
-	//sceneViewer(solver,false,"../../data/shaders/",false);
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
