@@ -959,7 +959,7 @@ S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,No
 //  pouze zaktualizuje primary illum energie podle surfacu a additionalExitingFlux
 // return new primary exiting radiant flux in watts
 
-Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradiance, bool resetPropagation)
+Channels Triangle::setSurface(const RRMaterial *s, const Vec3& _sourceIrradiance, bool resetPropagation)
 {
 	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
 	RR_ASSERT(s);
@@ -978,8 +978,8 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 #if CHANNELS == 1
 	#error CHANNELS == 1 not supported here.
 #else
-	Channels newSourceIrradiance = additionalIrradiance;
-	Channels newSourceExitance = surface->diffuseEmittance + additionalIrradiance * surface->diffuseReflectance;
+	Channels newSourceIrradiance = _sourceIrradiance;
+	Channels newSourceExitance = surface->diffuseEmittance + _sourceIrradiance * surface->diffuseReflectance;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
 #endif
@@ -987,9 +987,9 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 	RR_ASSERT(surface->diffuseEmittance[1]>=0);
 	RR_ASSERT(surface->diffuseEmittance[2]>=0);
 	RR_ASSERT(area>=0);
-	RR_ASSERT(additionalIrradiance.x>=0); // teoreticky by melo jit i se zapornou
-	RR_ASSERT(additionalIrradiance.y>=0);
-	RR_ASSERT(additionalIrradiance.z>=0);
+	RR_ASSERT(_sourceIrradiance.x>=0); // teoreticky by melo jit i se zapornou
+	RR_ASSERT(_sourceIrradiance.y>=0);
+	RR_ASSERT(_sourceIrradiance.z>=0);
 	// load triangle shooter with energy emited by surface
 	RR_ASSERT(shooter);
 	// set this primary illum
@@ -1003,9 +1003,9 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 	}
 	else
 	{
-		Channels oldSourceExitingFlux = getSourceExitingFlux();
+		Channels oldSourceExitingFlux = getDirectExitingFlux();
 		Channels addSourceExitingFlux = newSourceExitingFlux-oldSourceExitingFlux;
-		Channels oldSourceIncidentFlux = getSourceIncidentFlux();
+		Channels oldSourceIncidentFlux = getDirectIncidentFlux();
 		Channels addSourceIncidentFlux = newSourceIncidentFlux-oldSourceIncidentFlux;
 		// add primary illum
 		shooter->totalExitingFluxToDiffuse += addSourceExitingFlux;

@@ -408,17 +408,35 @@ public:
 		public:
 
 	// surface
+	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
 	const RRMaterial *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(const RRMaterial *s,const Vec3& additionalIrradiance, bool resetPropagation);
-	// source values entered by client app, not calculated by us,
-	// typically direct illumination values
-	Channels getSourceIncidentFlux() {return sourceIncidentFlux;}
-	Channels getSourceExitingFlux() {return getSourceIncidentFlux()*surface->diffuseReflectance;} // source exiting radiant flux in Watts
-	Channels getSourceIrradiance() {return getSourceIncidentFlux()/area;} // source irradiance in W/m^2
-	//Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
 		private:
-		Channels sourceIncidentFlux;   // backup of total incidentFlux in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlySource or onlyReflected".
+		// backup of source incident flux in time 0. Set only by setSurface(). Read only by getSourceXxx().
+		RRVec3 sourceIncidentFlux;
 		public:
+	// get direct light (entered by client, not calculated)
+	RRVec3 getDirectIncidentFlux()   const {return sourceIncidentFlux;}
+	RRVec3 getDirectEmitingFlux()    const {return surface->diffuseEmittance*area;} // emissivity
+	RRVec3 getDirectExitingFlux()    const {return sourceIncidentFlux*surface->diffuseReflectance + surface->diffuseEmittance*area;} // emissivity + reflected light
+	RRVec3 getDirectIrradiance()     const {return sourceIncidentFlux/area;}
+	RRVec3 getDirectEmittance()      const {return surface->diffuseEmittance;}
+	RRVec3 getDirectExitance()       const {return sourceIncidentFlux/area*surface->diffuseReflectance + surface->diffuseEmittance;}
+	// get total light
+	RRVec3 getTotalIncidentFlux()    const {return totalIncidentFlux;}
+	RRVec3 getTotalEmitingFlux()     const {return surface->diffuseEmittance*area;}
+	RRVec3 getTotalExitingFlux()     const {return totalExitingFlux;}
+	RRVec3 getTotalIrradiance()      const {return totalIncidentFlux/area;}
+	RRVec3 getTotalEmittance()       const {return surface->diffuseEmittance;}
+	RRVec3 getTotalExitance()        const {return totalExitingFlux/area;}
+	// get indirect light (computed from direct light)
+	RRVec3 getIndirectIncidentFlux() const {return totalIncidentFlux-sourceIncidentFlux;}
+	RRVec3 getIndirectEmitingFlux()  const {return RRVec3(0);}
+	RRVec3 getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
+	RRVec3 getIndirectIrradiance()   const {return (totalIncidentFlux-sourceIncidentFlux)/area;}
+	RRVec3 getIndirectEmittance()    const {return RRVec3(0);}
+	RRVec3 getIndirectExitance()     const {return totalExitingFlux/area-getDirectExitance();}
+	// get any combination of direc/indirect/exiting light
+	RRVec3 getMeasure(RRRadiometricMeasure measure) const;
 
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits

@@ -449,7 +449,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 			}
 			RR_ASSERT(IS_CHANNELS(a));
 			// s=source incident flux in watts
-			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getSourceIncidentFlux() : Channels(0);
+			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getDirectIncidentFlux() : Channels(0);
 			RR_ASSERT(IS_CHANNELS(s));
 			// r=reflected incident flux in watts
 			Channels r=a-s;

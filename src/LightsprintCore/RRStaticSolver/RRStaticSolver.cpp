@@ -166,6 +166,53 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
 }
 
+// Returns triangle measure, any combination of measure.direct/indirect/exiting.
+// Works as if measure.scaled=0, measure.flux=0.
+RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
+{
+	RR_ASSERT(surface);
+
+	if(!measure.direct && !measure.indirect)
+	{
+		return RRVec3(0);
+	}
+	else
+	if(measure.direct && !measure.indirect)
+	{
+		if(measure.exiting)
+		{
+			return getDirectExitance();
+		}
+		else
+		{
+			return getDirectIrradiance();
+		}
+	}
+	else
+	if(measure.direct && measure.indirect) 
+	{
+		if(measure.exiting)
+		{
+			return getTotalExitance();
+		}
+		else
+		{
+			return getTotalIrradiance();
+		}
+	}
+	else
+	{
+		if(measure.exiting)
+		{
+			return getIndirectExitance();
+		}
+		else
+		{
+			return getIndirectIrradiance();
+		}
+	}
+}
+
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
 {
 	Channels irrad;
@@ -184,6 +231,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		goto zero;
 	}
 	tri = &obj->triangle[triangle];
+
 	if(!tri->surface)
 	{
 		goto zero;
@@ -192,45 +240,20 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	// enhanced by smoothing
 	if(vertex<3 && measure.smoothed)
 	{
+		// measure direct/indirect (without emissivity)
 		irrad = tri->topivertex[vertex]->irradiance(measure);
+		// measure exiting
+		if(measure.exiting)
+		{
+			irrad *= tri->surface->diffuseReflectance;
+		}
 	}
 	else
-
-	// basic, fast
 	{
-		if(!measure.direct && !measure.indirect) 
-		{
-			irrad = Channels(0);
-		}
-		else
-		if(measure.direct && !measure.indirect) 
-		{
-			irrad = tri->getSourceIrradiance();
-		}
-		else
-		if(measure.direct && measure.indirect) 
-		{
-			irrad = tri->totalIncidentFlux / tri->area;
-			// Zde mohl po chvili vypoctu vyplout zaporny vysledek.
-			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
-			// Chyba vznika po chvili vypoctu fcss, ale bez pohybu=resetu, porad se jen zlepsuje,
-			// je chyba nutna, neslo by to numericky zestabilnit?
-		}
-		else
-		{
-			irrad = (tri->totalIncidentFlux - tri->getSourceIncidentFlux()) / tri->area;
-			// Zde mohl zaokrouhlovaci chybou vzniknout zaporny vysledek.
-			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
-			// Chyba vznika podezrele snadno, prakticky okamzite na zacatku vypoctu,
-			// neslo by to numericky zestabilnit?
-		}
+		// measure direct/indirect/exiting (with proper emissivity handling)
+		irrad = tri->getMeasure(measure);
 	}
 
-	if(measure.exiting)
-	{
-		// diffuse applied on physical scale, not custom scale
-		irrad *= tri->surface->diffuseReflectance;
-	}
 	if(measure.scaled)
 	{
 		if(scaler)
