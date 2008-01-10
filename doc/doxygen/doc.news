@@ -8,10 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news43 ------------------------------------ 2008.1.10 -------------------------------------
+\section news43 ------------------------------------ 2008.1.11 -------------------------------------
 
 NEWS
 
+- sample SceneViewer, simple Collada viewer with debugging functions
 - RRDynamicSolver::UpdateParameters(quality) sets default parameters for offline rendering
 
 CHANGES

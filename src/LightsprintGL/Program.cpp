@@ -51,7 +51,8 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 
 	if(showLog)
 	{
-		if(!alinked) rr::RRReporter::report(rr::INF1,"Shader link failed.\n");
+		if(!alinked)
+			rr::RRReporter::report(rr::INF1,"Shader link failed.\n");
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 		if(debugLength>2)

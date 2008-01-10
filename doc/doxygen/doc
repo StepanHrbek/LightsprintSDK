@@ -2320,6 +2320,18 @@ Used by samples:
  \n They are located in samples directory in the SDK, binaries in bin.
 
  <hr>
+ <b>SceneViewer</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/SceneViewer_1.jpg freely move lights
+  </td><td>
+  \image html samples/SceneViewer_2.jpg build lightmaps
+  </td></tr></table>
+ - realtime GI: freely move all lights
+ - precomputed GI: build/load/save lightmaps
+ - loads collada scene including all lights
+ - uses internal renderer
+
+ <hr>
  <b>RealtimeLights</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/RealtimeLights_1.jpg freely move lights and objects
