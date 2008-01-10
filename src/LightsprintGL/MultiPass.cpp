@@ -20,8 +20,10 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	gamma = _gamma;
 	honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
 	// intermediates
+	//  don't put direct+indirect+emissive in one pass, prerender indirect+emissive in separated ambient pass
+	//  (direct pointlight(6 spots)+indirect vcolor+emissive vcolor nezvladnou v jednom passu GF5/6/7 a asi ani Radeony)
 	numLights = lights?lights->size():0;
-	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags)?1:0;
+	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags||mainUberProgramSetup.MATERIAL_EMISSIVE_VCOLOR)?1:0;
 	lightIndex = -separatedAmbientPass;
 }
 
@@ -77,6 +79,9 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
+			uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			//printf(" %d: direct\n",lightIndex);
 		}
 		//else printf(" %d: direct+indirect\n",lightIndex);
