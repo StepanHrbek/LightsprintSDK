@@ -411,12 +411,18 @@ int main(int argc, char **argv)
 	{
 		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion ...\n");
 
+		// decrease priority, so that this task runs on background using only free CPU cycles
+		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
+
 		// calculate and save it
 		calculate(solver,0);
 		solver->getStaticObjects().saveIllumination("../../data/export/",0);
 
 		// or load it
 		//solver->getObjects()->loadIllumination("../../data/export/",0);
+
+		// restore priority
+		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
 	}
 
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;

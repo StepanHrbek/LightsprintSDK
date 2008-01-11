@@ -1,11 +1,21 @@
 #include "LightmapFilter.h"
 #include "../RRMathPrivate.h"
+#include <cstdio>
 
 namespace rr
 {
 
 void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* _changed,bool _wrap)
 {
+	/*
+	RRBuffer* debugBuffer = RRBuffer::create(BT_2D_TEXTURE,width,height,1,BF_RGBAF,false,(const unsigned char*)inputs);
+	static int index = 0;
+	char filename[100];
+	sprintf(filename,"../filter%04d.png",index++);
+	debugBuffer->save(filename);
+	delete debugBuffer;
+	*/
+
 	unsigned size = width*height;
 	bool changed = false;
 	if(_wrap)

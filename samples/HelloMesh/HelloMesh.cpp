@@ -38,7 +38,7 @@ int main()
 		);
 
 	// print mesh size
-	printf("Mesh has been constructed.\n\n");
+	printf("Mesh constructed:\n\n");
 	printf("Triangles in mesh = %d\n",mesh->getNumTriangles());
 	printf("Vertices in mesh = %d\n",mesh->getNumVertices());
 	printf("\nPress enter to end...");
