@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 {
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 57861;
+	//_crtBreakAlloc = 39069;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -94,9 +94,9 @@ int main(int argc, char **argv)
 	rr::RRLights* adaptedLights = adaptLightsFromFCollada(collada);
 	solver->setLights(*adaptedLights);
 
-	rr_gl::Program::logMessages(1);
 	// run interactive scene viewer
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",false);
+	//rr_gl::Program::logMessages(1);
+	rr_gl::sceneViewer(solver,true,"../../data/shaders/",-1,false);
 
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();

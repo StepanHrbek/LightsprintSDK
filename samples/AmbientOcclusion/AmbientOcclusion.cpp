@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
 	}
 
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",false);
+	rr_gl::sceneViewer(solver,true,"../../data/shaders/",0,false);
 
 	return 0;
 }

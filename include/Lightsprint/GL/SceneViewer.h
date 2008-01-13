@@ -32,9 +32,11 @@ namespace rr_gl
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
 //!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
+//! \param layerNumber
+//!  -1 to start in realtime GI mode, 0,1,2... to start displaying existing lightmaps from this layer.
 //! \param honourExpensiveLightingShadowingFlags
 //!  False=all objects are lit and cast shadows, fast. True=honours lighting or shadowing disabled by rr::RRMesh::getTriangleMaterial(), slower.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, bool honourExpensiveLightingShadowingFlags);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, int layerNumber, bool honourExpensiveLightingShadowingFlags);
 
 }; // namespace
 

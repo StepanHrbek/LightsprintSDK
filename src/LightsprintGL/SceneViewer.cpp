@@ -68,9 +68,9 @@ float                      gamma = 1;
 bool                       exitRequested = 0;
 int                        menuHandle = 0;
 bool                       bilinear = 1;
-bool                       ourEnv = 0;
-LightmapViewer*            lv = NULL;
-
+bool                       ourEnv = 0; // whether environment is owned by us
+LightmapViewer*            lv = NULL; // 2d lightmap viewer
+unsigned                   layerNumber = 0; // layer used for all static lighting operations
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -276,10 +276,10 @@ public:
 				renderRealtime = false;
 				for(unsigned i=0;i<solver->getNumObjects();i++)
 				{	
-					if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
+					if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
 					{
 						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
-						rr_gl::getTexture(solver->getIllumination(i)->getLayer(0))->bindTexture();
+						rr_gl::getTexture(solver->getIllumination(i)->getLayer(layerNumber))->bindTexture();
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
 					}
@@ -306,8 +306,8 @@ public:
 					// propagate computed data from buffers to textures
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if(solver->getIllumination(i)->getLayer(0) && solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getIllumination(i)->getLayer(0))->reset(true);
+						if(solver->getIllumination(i)->getLayer(layerNumber) && solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
+							getTexture(solver->getIllumination(i)->getLayer(layerNumber))->reset(true);
 					}
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
@@ -317,8 +317,8 @@ public:
 					// allocate buffers
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						delete solver->getIllumination(i)->getLayer(0);
-						solver->getIllumination(i)->getLayer(0) = item
+						delete solver->getIllumination(i)->getLayer(layerNumber);
+						solver->getIllumination(i)->getLayer(layerNumber) = item
 							? rr::RRBuffer::create(rr::BT_2D_TEXTURE,-item,-item,1,rr::BF_RGB,true,NULL)
 							: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 					}
@@ -548,7 +548,7 @@ void display(void)
 {
 	if(render2d && lv)
 	{
-		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(0),solver->getObject(selectedObjectIndex)->getCollider()->getMesh());
+		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),solver->getObject(selectedObjectIndex)->getCollider()->getMesh());
 		LightmapViewer::display();
 		return;
 	}
@@ -628,9 +628,9 @@ void display(void)
 				unsigned lmap = 0;
 				for(unsigned i=0;i<numObjects;i++)
 				{
-					if(solver->getIllumination(i)->getLayer(0))
-						if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
-						if(solver->getIllumination(i)->getLayer(0)->getType()==rr::BT_2D_TEXTURE) lmap++;
+					if(solver->getIllumination(i)->getLayer(layerNumber))
+						if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
+						if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
 				}
 				textOutput(x,y+=18,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
 			}
@@ -689,7 +689,7 @@ void display(void)
 			textOutput(x,y+=18*2,"[static object %d/%d]",selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh->getNumVertices());
-			textOutput(x,y+=18,"lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(selectedObjectIndex)->getLayer(0)?(solver->getIllumination(selectedObjectIndex)->getLayer(0)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
+			textOutput(x,y+=18,"lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)?(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
 			static const rr::RRObject* lastObject = NULL;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
@@ -742,7 +742,7 @@ void display(void)
 				rr::RRVec3 norm = triangleNormals.norm[0] + (triangleNormals.norm[1]-triangleNormals.norm[0])*ray->hitPoint2d[0] + (triangleNormals.norm[2]-triangleNormals.norm[0])*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
-				textOutput(x,y+=18,"object lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(0)?(solver->getIllumination(preTriangle.object)->getLayer(0)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
+				textOutput(x,y+=18,"object lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)?(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
 				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,numTrianglesSingle);
 				textOutput(x,y+=18,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 				textOutput(x,y+=18,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
@@ -821,7 +821,7 @@ void idle()
 	glutPostRedisplay();
 }
 
-void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, bool _honourExpensiveLightingShadowingFlags)
+void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, int _layerNumber, bool _honourExpensiveLightingShadowingFlags)
 {
 	// init GLUT
 	int window;
@@ -885,6 +885,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);
+	layerNumber = (_layerNumber<0)?0:_layerNumber;
+	renderRealtime = _layerNumber<0;
 	ourEnv = 0;
 
 	// run
