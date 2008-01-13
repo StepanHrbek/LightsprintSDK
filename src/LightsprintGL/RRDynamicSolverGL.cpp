@@ -180,6 +180,7 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 void RRDynamicSolverGL::updateDirtyLights()
 {
 	PreserveViewport p1;
+	PreserveMatrices p2;
 
 	// alloc space for detected direct illum
 	unsigned updated = 0;
