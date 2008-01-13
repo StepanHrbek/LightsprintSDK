@@ -265,7 +265,7 @@ Used by samples:
  </td></tr></table>
 
   - Convert your scene to Collada format,
-    and load it into CPULightmaps, AmbientOcclusion or Lightmaps sample.
+    and load it into CPULightmaps, AmbientOcclusion, SceneViewer or Lightmaps sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -273,8 +273,8 @@ Used by samples:
 
   - CPULightmaps sample 
     is built on top of purely numerical LightsprintCore and scene importers.
-    AmbientOcclusion and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
-    Left: CPULightmaps. Right: AmbientOcclusion, Lightmaps.
+    AmbientOcclusion, SceneViewer and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
+    Left: CPULightmaps. Right: AmbientOcclusion, SceneViewer, Lightmaps.
   <table border=0 width=95%><tr align=top><td>
   \image html Integration1c.png
   </td><td>
@@ -288,7 +288,7 @@ Used by samples:
   - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
   - Convert scenes to Collada 1.4 (.DAE).
   - If you plan to compute maps rather than per-vertex values, include unwrap in second uv channel.
-  - Change name of scene in sample .cpp, so it loads your scene.
+  - Change name of scene in sample .cpp, so it loads your scene. Or drop your scene on SceneViewer*.exe.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -306,20 +306,20 @@ Used by samples:
  Recommended approach:
  </td></tr></table>
 
-  - Modify AmbientOcclusion (or CPULightmaps) to access scenes loaded to memory by your loader.
+  - Modify SceneViewer sample to access scenes loaded to memory by your loader.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
  </td></tr></table>
 
-  - Modified AmbientOcclusion newly depends on your scene loading code.
+  - Modified SceneViewer newly depends on your scene loading code.
   \image html Integration2.png
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Steps:
  </td></tr></table>
 
-  - Open AmbientOcclusion project
+  - Open SceneViewer project
   - Copy RRObjectCollada.* to RRObjectCustom.* and add it to the project
   - Delete all FCollada \#includes from RRObjectCustom.h
   - Build reports errors on all references to FCollada,
@@ -330,18 +330,15 @@ Used by samples:
     - <b> \subpage integration_step_2 </b>
     - <b> \subpage integration_step_3 </b>
     - interfaces of RRMesh and RRObject you implement
-  - Decrease calculation quality for adapter testing,
-    after short calculation
-    you'll see your scene with rough ambient occlusion computed.
-  - If you need GI lightmaps rather than AO, tweak sample to load your skybox,
-    enable lights etc.
-
+  - Done. SceneViewer renders scene in your native format.
+    You can test both realtime and precalculated per-vertex and per-pixel lighting.
+    You can use your new scene adapter in any sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
  </td></tr></table>
 
-  - 2-5 days
+  - 1-4 days
 
 
 
@@ -350,13 +347,14 @@ Used by samples:
 
  You can immediately render realtime global illumination in your 3d scenes
  if you convert them to supported format and load into existing sample application.
+ You can also use \ref integration_tool_2 "your scene loader and adapter".
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
  </td></tr></table>
 
   - Convert your scene to Collada format
-    and load it into Lightmaps (or load .3ds to RealtimeRadiosity) sample.
+    and load it into Lightmaps or RealtimeLights (or load .3ds to RealtimeRadiosity) sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -395,8 +393,9 @@ Used by samples:
  Recommended approach:
  </td></tr></table>
 
-  - Modify RealtimeRadiosity sample to use your renderer,
-    or modify your application/engine to use LightsprintCore and LightsprintGL.
+  - Modify RealtimeRadiosity sample to use your renderer.
+    Or modify your application/engine to use code from RealtimeRadiosity sample
+    that builds realtime GI buffers.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -412,8 +411,6 @@ Used by samples:
 
   - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
     or projected shadows. If it doesn't, add them or contact us for further support.
-    Commercial licence to Lightsprint contains full source code of LightsprintGL,
-    including realtime penumbra shadows.
   - <b> \subpage integration_step_4 </b>
   - <b> \subpage integration_step_5 </b>
   - Render our indirect illumination, see <b> \ref main_data_access </b>
