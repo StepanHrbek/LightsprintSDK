@@ -8,6 +8,7 @@
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/Timer.h"
+#include "Lightsprint/GL/LightmapViewer.h"
 #include <cstdio>
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -49,6 +50,7 @@ int                        winHeight = 0; // current size
 bool                       fullscreen = 0; // current mode
 int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
 bool                       renderRealtime = 1;
+bool                       render2d = 0;
 bool                       renderAmbient = 0;
 bool                       renderEmission = 1;
 bool                       renderDiffuse = 1;
@@ -67,6 +69,7 @@ bool                       exitRequested = 0;
 int                        menuHandle = 0;
 bool                       bilinear = 1;
 bool                       ourEnv = 0;
+LightmapViewer*            lv = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -158,18 +161,20 @@ public:
 		}
 
 		// Static lighting...
-		int calculateHandle = glutCreateMenu(calculateCallback);
-		glutAddMenuEntry("Toggle rendering of", ME_STATIC_RENDER);
-		glutAddMenuEntry("Toggle bilinear (lightmaps only)", ME_STATIC_BILINEAR);
+		int staticHandle = glutCreateMenu(staticCallback);
+		glutAddMenuEntry("Render realtime lighting", ME_STATIC_RTGI);
+		glutAddMenuEntry("       static lighting", ME_STATIC_3D);
+		glutAddMenuEntry("       static lighting in 2D", ME_STATIC_2D);
+		glutAddMenuEntry("Toggle bilinear interpolation", ME_STATIC_BILINEAR);
 		glutAddMenuEntry("Assign empty vertex buffers",0);
-		glutAddMenuEntry("Assign empty lightmaps 16x16",-16);
-		glutAddMenuEntry("Assign empty lightmaps 64x64",-64);
-		glutAddMenuEntry("Assign empty lightmaps 256x256",-256);
-		glutAddMenuEntry("Assign empty lightmaps 1024x1024",-1024);
+		glutAddMenuEntry("       empty lightmaps 16x16",-16);
+		glutAddMenuEntry("       empty lightmaps 64x64",-64);
+		glutAddMenuEntry("       empty lightmaps 256x256",-256);
+		glutAddMenuEntry("       empty lightmaps 1024x1024",-1024);
 		glutAddMenuEntry("Build, quality 1",1);
-		glutAddMenuEntry("Build, quality 10",10);
-		glutAddMenuEntry("Build, quality 100",100);
-		glutAddMenuEntry("Build, quality 1000",1000);
+		glutAddMenuEntry("       quality 10",10);
+		glutAddMenuEntry("       quality 100",100);
+		glutAddMenuEntry("       quality 1000",1000);
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
@@ -194,7 +199,7 @@ public:
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
-		glutAddSubMenu("Static lighting...", calculateHandle);
+		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
@@ -250,13 +255,22 @@ public:
 		if(item>=1000) {selectedType = ST_OBJECT; selectedObjectIndex = item-1000;}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
-	static void calculateCallback(int item)
+	static void staticCallback(int item)
 	{
 		switch(item)
 		{
-			case ME_STATIC_LOAD: solver->getStaticObjects().loadIllumination("",0); renderRealtime = false; break;
-			case ME_STATIC_SAVE: solver->getStaticObjects().saveIllumination("",0); break;
-			case ME_STATIC_RENDER: renderRealtime = !renderRealtime; solver->dirtyLights(); break;
+			case ME_STATIC_RTGI:
+				renderRealtime = 1;
+				render2d = 0;
+				solver->dirtyLights();
+				break;
+			case ME_STATIC_3D:
+				renderRealtime = 0;
+				render2d = 0;
+				break;
+			case ME_STATIC_2D:
+				render2d = 1;
+				break;
 			case ME_STATIC_BILINEAR:
 				bilinear = !bilinear;
 				renderRealtime = false;
@@ -270,6 +284,13 @@ public:
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear?GL_LINEAR:GL_NEAREST);
 					}
 				}
+				break;
+			case ME_STATIC_LOAD:
+				solver->getStaticObjects().loadIllumination("",0);
+				renderRealtime = false;
+				break;
+			case ME_STATIC_SAVE:
+				solver->getStaticObjects().saveIllumination("",0);
 				break;
 			default:
 				if(item>0)
@@ -307,6 +328,7 @@ public:
 				}
 				break;
 		}
+		// leaving menu, mouse is not in the screen center -> center it
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void speedCallback(int item)
@@ -341,7 +363,9 @@ protected:
 		ME_ENV_BLACK,
 		ME_ENV_WHITE_TOP,
 		// ME_STATIC must not collide with 1,10,100,1000
-		ME_STATIC_RENDER = 1234,
+		ME_STATIC_RTGI = 1234,
+		ME_STATIC_3D,
+		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
 		ME_STATIC_LOAD,
 		ME_STATIC_SAVE,
@@ -447,6 +471,11 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
+	if(render2d && lv)
+	{
+		LightmapViewer::mouse(button,state,x,y);
+		return;
+	}
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
 	{
 		if(selectedType!=ST_CAMERA) selectedType = ST_CAMERA;
@@ -465,6 +494,11 @@ void mouse(int button, int state, int x, int y)
 
 void passive(int x, int y)
 {
+	if(render2d && lv)
+	{
+		LightmapViewer::passive(x,y);
+		return;
+	}
 	if(!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
@@ -512,6 +546,12 @@ static void textOutput(int x, int y, const char *format, ...)
 
 void display(void)
 {
+	if(render2d && lv)
+	{
+		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(0),solver->getObject(selectedObjectIndex)->getCollider()->getMesh());
+		LightmapViewer::display();
+		return;
+	}
 	if(exitRequested || !winWidth || !winHeight) return; // can't display without window
 
 	eye.update();
@@ -744,6 +784,8 @@ void display(void)
 	glutSwapBuffers();
 }
 
+		
+
 void idle()
 {
 	if(!winWidth) return; // can't work without window
@@ -826,7 +868,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
-	ourEnv = 0;
 	/*if(_solver->getLights().size()==0)
 	{
 		rr::RRLights lights;
@@ -841,6 +882,10 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+
+	// init rest
+	lv = LightmapViewer::create(_pathToShaders);
+	ourEnv = 0;
 
 	// run
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -875,9 +920,10 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		glutDestroyWindow(window);
 	}
 	if(ourEnv) delete solver->getEnvironment();
-	delete solver;
+	SAFE_DELETE(solver);
 	delete lightDirectMap->getBuffer();
-	delete lightDirectMap;
+	SAFE_DELETE(lightDirectMap);
+	SAFE_DELETE(lv);
 }
 
 }; // namespace

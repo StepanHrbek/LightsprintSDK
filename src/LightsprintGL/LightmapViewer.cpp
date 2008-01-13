@@ -29,12 +29,12 @@ namespace rr_gl
 	static rr::RRBuffer* buffer;
 	static rr::RRMesh* mesh;
 
-LightmapViewer* LightmapViewer::create(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
+LightmapViewer* LightmapViewer::create(const char* _pathToShaders)
 {
-	return (!created) ? new LightmapViewer(_lightmap,_mesh,_pathToShaders) : NULL;
+	return (!created) ? new LightmapViewer(_pathToShaders) : NULL;
 }
 
-LightmapViewer::LightmapViewer(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
+LightmapViewer::LightmapViewer(const char* _pathToShaders)
 {
 	created = true;
 	nearest = false;
@@ -49,7 +49,13 @@ LightmapViewer::LightmapViewer(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
-	buffer = _lightmap;
+	buffer = NULL;
+	mesh = NULL;
+}
+
+void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh)
+{
+	buffer = _pixelBuffer;
 	mesh = _mesh;
 }
 
@@ -62,16 +68,6 @@ LightmapViewer::~LightmapViewer()
 void LightmapViewer::mouse(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		if(buffer)
-		{	
-			getTexture(buffer)->bindTexture();
-			nearest = !nearest;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);
-		}
-	}
-	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
 		alpha = !alpha;
 	}
@@ -146,25 +142,28 @@ void LightmapViewer::display()
 	}
 
 	// render mapping edges
-	lineProgram->useIt();
-	lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
-	glBegin(GL_LINES);
-	for(unsigned i=0;i<mesh->getNumTriangles();i++)
+	if(mesh)
 	{
-		rr::RRMesh::TriangleMapping mapping;
-		mesh->getTriangleMapping(i,mapping);
-		for(unsigned j=0;j<3;j++)
+		lineProgram->useIt();
+		lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+		glBegin(GL_LINES);
+		for(unsigned i=0;i<mesh->getNumTriangles();i++)
 		{
-			mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/winWidth;
-			mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/winHeight;
+			rr::RRMesh::TriangleMapping mapping;
+			mesh->getTriangleMapping(i,mapping);
+			for(unsigned j=0;j<3;j++)
+			{
+				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/winWidth;
+				mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/winHeight;
+			}
+			for(unsigned j=0;j<3;j++)
+			{
+				glVertex2fv(&mapping.uv[j].x);
+				glVertex2fv(&mapping.uv[(j+1)%3].x);
+			}
 		}
-		for(unsigned j=0;j<3;j++)
-		{
-			glVertex2fv(&mapping.uv[j].x);
-			glVertex2fv(&mapping.uv[(j+1)%3].x);
-		}
+		glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 	}
-	glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 
 	// restore states
 	glEnable(GL_DEPTH_TEST);

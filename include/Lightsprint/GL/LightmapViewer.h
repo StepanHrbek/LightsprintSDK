@@ -23,13 +23,13 @@ namespace rr_gl
 //! \n User controls:
 //! - position = passive motion
 //! - wheel = zoom
-//! - left mouse button = toggle interpolation
-//! - right mouse button = toggle special alpha display
+//! - left mouse button = toggle special alpha display
 class RR_GL_API LightmapViewer : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
-	static LightmapViewer* create(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* pathToShaders);
+	static LightmapViewer* create(const char* pathToShaders);
+	static void setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh);
 
 	//! Destructs instance.
 	~LightmapViewer();
@@ -42,7 +42,7 @@ public:
 	static void display();
 
 private:
-	LightmapViewer(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* pathToShaders);
+	LightmapViewer(const char* pathToShaders);
 };
 
 }; // namespace

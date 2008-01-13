@@ -16,8 +16,15 @@ namespace rr_gl
 
 //! Runs interactive scene viewer.
 //
-//! Run it and press right mouse button to open menu with functions.
-//! It renders scene with realtime GI or precomputed GI or your lightmaps/vertex buffers in layer 0.
+//! It renders scene with realtime GI or precomputed GI in layer 0.
+//!
+//! Controls:
+//! - right mouse button ... menu
+//! - mouse and wsadqzxc ... manipulate selected camera or light
+//! - wheel              ... zoom
+//! - + - * /            ... brightness/contrast
+//! - left mouse button  ... toggle selection between camera and light
+//!
 //! \param solver
 //!  Scene to be displayed.
 //! \param createWindow
