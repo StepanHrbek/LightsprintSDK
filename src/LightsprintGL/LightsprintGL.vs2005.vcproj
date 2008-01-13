@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -128,7 +128,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -212,7 +212,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -309,7 +309,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool

@@ -43,7 +43,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -132,7 +132,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -218,7 +218,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -317,7 +317,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -415,7 +415,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -499,7 +499,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -581,7 +581,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -670,7 +670,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
 				HeaderFileName=""
 			/>
 			<Tool
