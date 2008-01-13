@@ -140,7 +140,7 @@ class Menu
 public:
 	Menu(Solver* solver)
 	{
-		// select submenu
+		// Select...
 		int selectHandle = glutCreateMenu(selectCallback);
 		char buf[100];
 		glutAddMenuEntry("camera", -1);
@@ -155,18 +155,7 @@ public:
 			glutAddMenuEntry(buf, 1000+i);
 		}
 
-		// speed submenu
-		int speedHandle = glutCreateMenu(speedCallback);
-		glutAddMenuEntry("1/256", 1);
-		glutAddMenuEntry("1/64", 4);
-		glutAddMenuEntry("1/16", 16);
-		glutAddMenuEntry("1/4", 64);
-		glutAddMenuEntry("1", 256);
-		glutAddMenuEntry("4", 1024);
-		glutAddMenuEntry("16", 4096);
-		glutAddMenuEntry("64", 16384);
-		glutAddMenuEntry("256", 65536);
-
+		// Static lighting...
 		int calculateHandle = glutCreateMenu(calculateCallback);
 		glutAddMenuEntry("Toggle rendering of", ME_STATIC_RENDER);
 		glutAddMenuEntry("Toggle bilinear (lightmaps only)", ME_STATIC_BILINEAR);
@@ -182,12 +171,30 @@ public:
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
+		// Movement speed...
+		int speedHandle = glutCreateMenu(speedCallback);
+		glutAddMenuEntry("1/256", 1);
+		glutAddMenuEntry("1/64", 4);
+		glutAddMenuEntry("1/16", 16);
+		glutAddMenuEntry("1/4", 64);
+		glutAddMenuEntry("1", 256);
+		glutAddMenuEntry("4", 1024);
+		glutAddMenuEntry("16", 4096);
+		glutAddMenuEntry("64", 16384);
+		glutAddMenuEntry("256", 65536);
+
+		// Environment...
+		int envHandle = glutCreateMenu(envCallback);
+		glutAddMenuEntry("Set white", ME_ENV_WHITE);
+		glutAddMenuEntry("Set black", ME_ENV_BLACK);
+		glutAddMenuEntry("Set white top", ME_ENV_WHITE_TOP);
 
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
 		glutAddSubMenu("Static lighting...", calculateHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
+		glutAddSubMenu("Environment...", envHandle);
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry("Toggle render diffuse color", ME_RENDER_DIFFUSE);
@@ -239,11 +246,6 @@ public:
 		if(item<0) selectedType = ST_CAMERA;
 		if(item>=0 && item<1000) {selectedType = ST_LIGHT; selectedLightIndex = item;}
 		if(item>=1000) {selectedType = ST_OBJECT; selectedObjectIndex = item-1000;}
-		glutWarpPointer(winWidth/2,winHeight/2);
-	}
-	static void speedCallback(int item)
-	{
-		speedGlobal = item/256.f;
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void calculateCallback(int item)
@@ -305,6 +307,22 @@ public:
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
+	static void speedCallback(int item)
+	{
+		speedGlobal = item/256.f;
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
+	static void envCallback(int item)
+	{
+		delete solver->getEnvironment();
+		switch(item)
+		{
+			case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
+			case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
+			case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
+		}
+		glutWarpPointer(winWidth/2,winHeight/2);
+	}
 protected:
 	enum
 	{
@@ -315,6 +333,9 @@ protected:
 		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
 		ME_CLOSE,
+		ME_ENV_WHITE,
+		ME_ENV_BLACK,
+		ME_ENV_WHITE_TOP,
 		// ME_STATIC must not collide with 1,10,100,1000
 		ME_STATIC_RENDER = 1234,
 		ME_STATIC_BILINEAR,
