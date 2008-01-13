@@ -16,9 +16,25 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
 
-	memset(this,0,sizeof(*this));
+	// clear all
+	paused = false;
+	pauseMusic = false;
+	partStart = 0;
+	demoPosition = 0;
+	absTimeWhenDemoStarted = 0;
+	absTimeNow = GETSEC;
+	preciseTimer = _preciseTimer;
+	loadingMap = NULL;
+	music = NULL;
+	skyMap = NULL;
+	dynamicObjects = NULL;
+	nextSceneIndex = 0;
+	// scenes have constructor
+	// projectors have constructor
+	bigscreen = false;
 	bigscreenBrightness = 1;
 	bigscreenGamma = 1;
+	// flashes have constructor
 
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
@@ -26,9 +42,6 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		rr::RRReporter::report(rr::ERRO,"Wrong path/filename, doesn't exist.\n");
 		return;
 	}
-
-	preciseTimer = _preciseTimer;
-	absTimeNow = GETSEC;
 
 	// load loading_screen
 	char buf[1000];
