@@ -59,7 +59,7 @@ namespace rr_gl
 		virtual void updateDirtyLights();
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application. renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;
-		//! Renders lights (wireframe shadow envelopes).
+		//! Renders wireframe frustums or boxes of lights.
 		virtual void renderLights();
 
 		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination);

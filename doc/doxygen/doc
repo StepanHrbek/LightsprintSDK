@@ -859,12 +859,14 @@ Used by samples:
     - \subpage calc_fireball
   - \subpage calc_offline
 
- Lightsprint is very flexible, it lets you pick optimal structures 
- for different objects and data types
- to precisely match your quality/memory footprint requirements.
+ Lightsprint is very flexible; for any object, it lets you create optimal
+ structures that precisely match your quality/memory footprint requirements.
  For example, you can use pixel buffers only for objects that benefit from per-pixel details,
- use vertex buffers for the rest. You can mix structures even in single object,
- e.g. use lightmap with per-vertex bent normals.
+ use vertex buffers for the rest. You can mix formats even in single object,
+ e.g. give it per-pixel lightmap with 8bit RGBA channels and sRGB space
+ and per-vertex bent normals with floating point RGB channels and linear space.
+ When (empty) buffers are created, single RRDynamicSolver::updateLightmaps()
+ call fills them.
 
  Lightsprint automatically uses all processing power available in a single computer,
  it runs in multiple threads on all CPUs and CPU cores.

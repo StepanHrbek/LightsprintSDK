@@ -121,8 +121,9 @@ namespace rr
 
 		//! Outer cone angle in radians. Relevant only for SPOT light. Read/write.
 		//
+		//! Insight: This is half width of spot, FOV/2. \n
 		//! Light rays go in directions up to outerAngleRad far from direction.
-		//! \n Valid range: (0,pi/2). Out of range values are fixed at construction time,
+		//! \n Valid range: (0,pi/2). Out of range values are clamped at construction time,
 		//! changes you make later are accepted without checks.
 		RRReal outerAngleRad;
 
@@ -167,7 +168,7 @@ namespace rr
 		//! Light rays with direction diverted less than outerAngleRad from direction,
 		//! but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//! If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
-		//! \n Valid range: (0,innerAngleRad>. Out of range values are fixed at construction time,
+		//! \n Valid range: (0,innerAngleRad>. Out of range values are clamped at construction time,
 		//! changes you make later are accepted without checks.
 		RRReal fallOffAngleRad;
 
@@ -276,9 +277,11 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
+		//!  Insight: This is half width of spot, FOV/2. \n
 		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians, (0,innerAngleRad> range.
+		//!  Insight: This is width of blurry part. \n
+		//!  Angle in radians, (0,outerAngleRad> range.
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
@@ -294,9 +297,11 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
+		//!  Insight: This is half width of spot, FOV/2. \n
 		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians, (0,innerAngleRad> range.
+		//!  Insight: This is width of blurry part. \n
+		//!  Angle in radians, (0,outerAngleRad> range.
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
@@ -317,9 +322,11 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
+		//!  Insight: This is half width of spot, FOV/2. \n
 		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians, (0,innerAngleRad> range. 
+		//!  Insight: This is width of blurry part. \n
+		//!  Angle in radians, (0,outerAngleRad> range. 
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
@@ -337,9 +344,11 @@ namespace rr
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
+		//!  Insight: This is half width of spot, FOV/2. \n
 		//!  Angle in radians, (0,pi/2) range. Light rays go in directions up to outerAngleRad far from major majorDirection.
 		//! \param fallOffAngleRad
-		//!  Angle in radians, (0,innerAngleRad> range.
+		//!  Insight: This is width of blurry part. \n
+		//!  Angle in radians, (0,outerAngleRad> range.
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
