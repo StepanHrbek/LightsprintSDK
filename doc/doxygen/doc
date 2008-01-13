@@ -2220,7 +2220,8 @@ Used by samples:
  <hr>
  Header: GL/SceneViewer.h
 
- - rr_gl::sceneViewer() is a single function scene viewer, with movable lights, realtime GI, debugging outputs.
+ - rr_gl::sceneViewer() is a single function scene viewer, with movable lights, realtime GI,
+   calculating static GI, 2d viewer of lightmaps and mappings, debugging outputs.
    RRDynamicSolver is usually black box. This viewer shows what's inside solver.
 
  <hr>

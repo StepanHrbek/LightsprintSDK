@@ -3,7 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/GL/LightmapViewer.h"
+#include "LightmapViewer.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include <cstdio>
 #include <cstring>

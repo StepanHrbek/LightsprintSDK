@@ -402,7 +402,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h"
+			RelativePath="LightmapViewer.h"
 			>
 		</File>
 		<File

@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news43 ------------------------------------ 2008.1.x -------------------------------------
+
+NEWS
+
+- rr_gl::sceneViewer() supports browsing lightmaps and mappings in 2d
+
 \section news43 ------------------------------------ 2008.1.11 -------------------------------------
 
 NEWS

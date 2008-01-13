@@ -8,7 +8,7 @@
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/Timer.h"
-#include "Lightsprint/GL/LightmapViewer.h"
+#include "LightmapViewer.h"
 #include <cstdio>
 #include <GL/glew.h>
 #include <GL/glut.h>
