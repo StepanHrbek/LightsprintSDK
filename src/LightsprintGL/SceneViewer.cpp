@@ -64,8 +64,10 @@ float                      speedLean = 0;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 bool                       exitRequested = 0;
-int                        menuHandle;
+int                        menuHandle = 0;
 bool                       bilinear = 1;
+bool                       ourEnv = 0;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -314,7 +316,9 @@ public:
 	}
 	static void envCallback(int item)
 	{
-		delete solver->getEnvironment();
+		if(ourEnv)
+			delete solver->getEnvironment();
+		ourEnv = true;
 		switch(item)
 		{
 			case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
@@ -822,6 +826,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
+	ourEnv = 0;
 	/*if(_solver->getLights().size()==0)
 	{
 		rr::RRLights lights;
@@ -869,6 +874,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	{
 		glutDestroyWindow(window);
 	}
+	if(ourEnv) delete solver->getEnvironment();
 	delete solver;
 	delete lightDirectMap->getBuffer();
 	delete lightDirectMap;
