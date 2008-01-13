@@ -65,6 +65,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include <direct.h>
 #include <list>
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
@@ -2405,6 +2406,13 @@ int main(int argc, char **argv)
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
 	}
+
+	// data are in ../../data
+	// solution: change dir [1] rather than expect that caller calls us from data [2]
+	// why?
+	// WINE can't emulate [2]
+	// GPU PerfStudio can't [2]
+	_chdir("../../data");
 
 	parseOptions(argc, argv);
 
