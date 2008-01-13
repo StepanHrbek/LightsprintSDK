@@ -20,7 +20,6 @@
 			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -81,8 +80,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				LinkLibraryDependencies="true"
 				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -122,7 +120,6 @@
 			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="0"
@@ -176,8 +173,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				LinkLibraryDependencies="true"
 				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -217,7 +213,6 @@
 			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -278,7 +273,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				LinkLibraryDependencies="true"
 				OutputFile="$(OutDir)\$(ProjectName)_dr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

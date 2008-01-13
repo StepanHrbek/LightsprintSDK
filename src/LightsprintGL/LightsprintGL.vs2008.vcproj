@@ -20,7 +20,6 @@
 			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -110,7 +109,6 @@
 			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="0"
@@ -194,7 +192,6 @@
 			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -256,8 +253,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
-				AdditionalDependencies="opengl32.lib glu32.lib"
+				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
@@ -293,7 +289,6 @@
 			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="0"
@@ -352,7 +347,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
