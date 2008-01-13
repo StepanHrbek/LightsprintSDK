@@ -26,21 +26,15 @@ namespace rr_gl
 	static Program* lmapProgram;
 	static Program* lmapAlphaProgram;
 	static Program* lineProgram;
-	static Texture* lightmap;
 	static rr::RRBuffer* buffer;
 	static rr::RRMesh* mesh;
 
-LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
+LightmapViewer* LightmapViewer::create(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
-	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh,_pathToShaders) : NULL;
+	return (!created) ? new LightmapViewer(_lightmap,_mesh,_pathToShaders) : NULL;
 }
 
-LightmapViewer* LightmapViewer::create(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* _pathToShaders)
-{
-	return (!created && _pixelBuffer) ? new LightmapViewer(new Texture(_pixelBuffer,true),_mesh,_pathToShaders) : NULL;
-}
-
-LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
+LightmapViewer::LightmapViewer(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
 	created = true;
 	nearest = false;
@@ -55,26 +49,23 @@ LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
-	lightmap = _lightmap;
-	buffer = _lightmap->getBuffer();
+	buffer = _lightmap;
 	mesh = _mesh;
 }
 
 LightmapViewer::~LightmapViewer()
 {
 	created = false;
-	SAFE_DELETE(lineProgram);
-	SAFE_DELETE(lmapProgram);
-	SAFE_DELETE(lmapAlphaProgram);
+	SAFE_DELETE(uberProgram);
 }
 
 void LightmapViewer::mouse(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if(lightmap)
+		if(buffer)
 		{	
-			lightmap->bindTexture();
+			getTexture(buffer)->bindTexture();
 			nearest = !nearest;
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);
@@ -111,7 +102,7 @@ void LightmapViewer::passive(int x, int y)
 
 void LightmapViewer::display()
 {
-	if(!(lightmap && lmapProgram && lmapAlphaProgram && lineProgram))
+	if(!lmapProgram || !lmapAlphaProgram || !lineProgram)
 	{
 		RR_ASSERT(0);
 		return;
@@ -126,27 +117,33 @@ void LightmapViewer::display()
 	// setup states
 	glDisable(GL_DEPTH_TEST);
 
+	unsigned bw = buffer ? buffer->getWidth () : 128;
+	unsigned bh = buffer ? buffer->getHeight() : 128;
+
 	// render lightmap
-	float x = 0.5f + ( center[0] - buffer->getWidth ()*0.5f )*zoom/winWidth;
-	float y = 0.5f + ( center[1] - buffer->getHeight()*0.5f )*zoom/winHeight;
-	float w = buffer->getWidth ()*zoom/winWidth;
-	float h = buffer->getHeight()*zoom/winHeight;
-	Program* prg = alpha?lmapAlphaProgram:lmapProgram;
-	prg->useIt();
-	glActiveTexture(GL_TEXTURE0);
-	lightmap->bindTexture();
-	prg->sendUniform("map",0);
-	prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
-	glBegin(GL_POLYGON);
-	glTexCoord2f(0,0);
-	glVertex2f(2*x-1,2*y-1);
-	glTexCoord2f(1,0);
-	glVertex2f(2*(x+w)-1,2*y-1);
-	glTexCoord2f(1,1);
-	glVertex2f(2*(x+w)-1,2*(y+h)-1);
-	glTexCoord2f(0,1);
-	glVertex2f(2*x-1,2*(y+h)-1);
-	glEnd();
+	if(buffer)
+	{
+		float x = 0.5f + ( center[0] - bw*0.5f )*zoom/winWidth;
+		float y = 0.5f + ( center[1] - bh*0.5f )*zoom/winHeight;
+		float w = bw*zoom/winWidth;
+		float h = bh*zoom/winHeight;
+		Program* prg = alpha?lmapAlphaProgram:lmapProgram;
+		prg->useIt();
+		glActiveTexture(GL_TEXTURE0);
+		getTexture(buffer)->bindTexture();
+		prg->sendUniform("map",0);
+		prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+		glBegin(GL_POLYGON);
+		glTexCoord2f(0,0);
+		glVertex2f(2*x-1,2*y-1);
+		glTexCoord2f(1,0);
+		glVertex2f(2*(x+w)-1,2*y-1);
+		glTexCoord2f(1,1);
+		glVertex2f(2*(x+w)-1,2*(y+h)-1);
+		glTexCoord2f(0,1);
+		glVertex2f(2*x-1,2*(y+h)-1);
+		glEnd();
+	}
 
 	// render mapping edges
 	lineProgram->useIt();
@@ -158,8 +155,8 @@ void LightmapViewer::display()
 		mesh->getTriangleMapping(i,mapping);
 		for(unsigned j=0;j<3;j++)
 		{
-			mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*buffer->getWidth () )*zoom/winWidth;
-			mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*buffer->getHeight() )*zoom/winHeight;
+			mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/winWidth;
+			mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/winHeight;
 		}
 		for(unsigned j=0;j<3;j++)
 		{

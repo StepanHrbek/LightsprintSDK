@@ -29,9 +29,6 @@ class RR_GL_API LightmapViewer : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
-	static LightmapViewer* create(Texture* _lightmap, rr::RRMesh* _mesh, const char* pathToShaders);
-
-	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
 	static LightmapViewer* create(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* pathToShaders);
 
 	//! Destructs instance.
@@ -45,7 +42,7 @@ public:
 	static void display();
 
 private:
-	LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char* pathToShaders);
+	LightmapViewer(rr::RRBuffer* _lightmap, rr::RRMesh* _mesh, const char* pathToShaders);
 };
 
 }; // namespace
