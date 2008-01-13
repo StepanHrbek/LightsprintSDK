@@ -158,11 +158,15 @@ void RendererOfRRDynamicSolver::render()
 	// render skybox
 	if(params.uberProgramSetup.LIGHT_DIRECT && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
-		if(textureRenderer && params.solver->getEnvironment())
+		const rr::RRBuffer* env = params.solver->getEnvironment();
+		if(textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
-			getTexture(params.solver->getEnvironment())->bindTexture();
+			if(env->getWidth()>2)
+				getTexture(env)->bindTexture(); // smooth
+			else
+				getTexture(env,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
 				glVertex3f(-1,-1,1);
 				glVertex3f(1,-1,1);
@@ -314,11 +318,15 @@ void RendererOfOriginalScene::render()
 	// render skybox
 	if((params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto || params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP) && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
-		if(textureRenderer && params.solver->getEnvironment())
+		const rr::RRBuffer* env = params.solver->getEnvironment();
+		if(textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
-			getTexture(params.solver->getEnvironment())->bindTexture();
+			if(env->getWidth()>2)
+				getTexture(env)->bindTexture(); // smooth
+			else
+				getTexture(env,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
 			glVertex3f(1,-1,1);
