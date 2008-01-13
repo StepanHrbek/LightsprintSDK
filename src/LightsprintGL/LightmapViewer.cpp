@@ -113,8 +113,8 @@ void LightmapViewer::display()
 	// setup states
 	glDisable(GL_DEPTH_TEST);
 
-	unsigned bw = buffer ? buffer->getWidth () : 128;
-	unsigned bh = buffer ? buffer->getHeight() : 128;
+	unsigned bw = 512;
+	unsigned bh = 512;
 
 	// render lightmap
 	if(buffer)
