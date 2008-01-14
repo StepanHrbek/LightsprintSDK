@@ -53,10 +53,19 @@ LightmapViewer::LightmapViewer(const char* _pathToShaders)
 	mesh = NULL;
 }
 
-void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh)
+void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, bool _bilinear)
 {
-	buffer = _pixelBuffer;
+	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
 	mesh = _mesh;
+	if(buffer)
+	{
+		getTexture(buffer);
+		glActiveTexture(GL_TEXTURE0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 }
 
 LightmapViewer::~LightmapViewer()
@@ -73,11 +82,11 @@ void LightmapViewer::mouse(int button, int state, int x, int y)
 	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		zoom *= 0.5f;
+		zoom *= 0.625f;
 	}
 	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		zoom *= 2.0f;
+		zoom *= 1.6f;
 	}
 }
 
@@ -113,8 +122,11 @@ void LightmapViewer::display()
 	// setup states
 	glDisable(GL_DEPTH_TEST);
 
-	unsigned bw = 512;
-	unsigned bh = 512;
+	unsigned bw = buffer ? buffer->getWidth() : 1;
+	unsigned bh = buffer ? buffer->getHeight() : 1;
+	float mult = MIN(winWidth/(float)bw,winHeight/float(bh))*0.9f;
+	bw = (unsigned)(mult*bw);
+	bh = (unsigned)(mult*bh);
 
 	// render lightmap
 	if(buffer)

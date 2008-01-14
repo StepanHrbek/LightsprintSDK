@@ -29,7 +29,7 @@ class RR_GL_API LightmapViewer : public rr::RRUniformlyAllocated
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
 	static LightmapViewer* create(const char* pathToShaders);
-	static void setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh);
+	static void setObject(rr::RRBuffer* pixelBuffer, rr::RRMesh* mesh, bool bilinear);
 
 	//! Destructs instance.
 	~LightmapViewer();

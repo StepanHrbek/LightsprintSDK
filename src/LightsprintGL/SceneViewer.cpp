@@ -301,7 +301,9 @@ public:
 					params.applyCurrentSolution = false;
 					params.applyLights = true;
 					params.applyEnvironment = true;
-					solver->updateLightmaps(0,-1,&params,&params,NULL);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.wrap = false;
+					solver->updateLightmaps(0,-1,&params,&params,&filtering);
 					renderRealtime = false;
 					// propagate computed data from buffers to textures
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -411,6 +413,9 @@ void keyboard(unsigned char c, int x, int y)
 		case '-': brightness /= 1.2f; break;
 		case '*': gamma *= 1.2f; break;
 		case '/': gamma /= 1.2f; break;
+
+		case '[': if(solver->getNumObjects()) selectedObjectIndex = (selectedObjectIndex+solver->getNumObjects()-1)%solver->getNumObjects(); break;
+		case ']': if(solver->getNumObjects()) selectedObjectIndex = (selectedObjectIndex+1)%solver->getNumObjects(); break;
 
 		case 'a':
 		case 'A': speedLeft = 1; break;
@@ -548,7 +553,7 @@ void display(void)
 {
 	if(render2d && lv)
 	{
-		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),solver->getObject(selectedObjectIndex)->getCollider()->getMesh());
+		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),solver->getObject(selectedObjectIndex)->getCollider()->getMesh(),bilinear);
 		LightmapViewer::display();
 		return;
 	}
