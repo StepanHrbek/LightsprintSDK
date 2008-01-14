@@ -489,10 +489,12 @@ void mouse(int button, int state, int x, int y)
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+		else eye.fieldOfView /= 1.4f;
 	}
 	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+		if(eye.fieldOfView*1.4f<=3) eye.fieldOfView *= 1.4f;
+		else if(eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
 	solver->reportInteraction();
 }
@@ -512,8 +514,8 @@ void passive(int x, int y)
 	{
 		if(selectedType==ST_CAMERA || selectedType==ST_OBJECT)
 		{
-			eye.angle -= 0.005f*x;
-			eye.angleX -= 0.005f*y;
+			eye.angle -= 0.005f*x*(eye.fieldOfView/90);
+			eye.angleX -= 0.005f*y*(eye.fieldOfView/90);
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
