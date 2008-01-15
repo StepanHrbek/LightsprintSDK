@@ -54,6 +54,7 @@ bool                       render2d = 0;
 bool                       renderAmbient = 0;
 bool                       renderEmission = 1;
 bool                       renderDiffuse = 1;
+bool                       renderWireframe = 0;
 bool                       renderHelpers = 1;
 float                      speedGlobal = 1; // speed of movement controlled by user
 float                      speedForward = 0;
@@ -205,6 +206,7 @@ public:
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry("Toggle render diffuse color", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry("Toggle render wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
@@ -223,6 +225,7 @@ public:
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
 			case ME_RENDER_DIFFUSE: renderDiffuse = !renderDiffuse; break;
+			case ME_RENDER_WIREFRAME: renderWireframe = !renderWireframe; break;
 			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
 			case ME_MAXIMIZE:
@@ -357,6 +360,7 @@ protected:
 		ME_RENDER_AMBIENT,
 		ME_RENDER_EMISSION,
 		ME_RENDER_DIFFUSE,
+		ME_RENDER_WIREFRAME,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
@@ -580,7 +584,9 @@ void display(void)
 	uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = renderEmission;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
+	if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 	solver->renderScene(uberProgramSetup,NULL);
+	if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	if(renderHelpers)
 	{
