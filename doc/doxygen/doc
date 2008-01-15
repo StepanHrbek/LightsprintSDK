@@ -184,7 +184,6 @@ Materials
 - supports all types of materials
 - diffuse maps, specular maps
 - normal maps, emissive maps
-- water with waves and reflection...
 
 Realtime/precomputed
 - supports realtime illumination

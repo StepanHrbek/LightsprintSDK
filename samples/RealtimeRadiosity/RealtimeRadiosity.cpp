@@ -22,8 +22,6 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-//#define WATER // Nvidia only
-
 #include <cassert>
 #include <ctime>
 #include <cmath>
@@ -31,9 +29,6 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/GL/Timer.h"
-#ifdef WATER
-	#include "Lightsprint/GL/Water.h"
-#endif
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
@@ -64,9 +59,6 @@ rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.23f,0,0.05f,1.3f,70,0.
 rr_gl::RealtimeLight*      realtimeLight = NULL;
 rr::RRBuffer*                environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
-#ifdef WATER
-rr_gl::Water*              water = NULL;
-#endif
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 DynamicObject*             robot = NULL;
@@ -203,33 +195,17 @@ void display(void)
 	solver->reportDirectIlluminationChange(false);
 
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
+	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-#ifdef WATER
-	// update water reflection
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	renderScene(uberProgramSetup);
-	water->updateReflectionDone();
-#endif
-
-	// render everything except water
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
-	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.SHADOW_PENUMBRA = true;
 	renderScene(uberProgramSetup);
-
-#ifdef WATER
-	// render water
-	water->render(100);
-#endif
 
 	glutSwapBuffers();
 }
@@ -395,9 +371,6 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-#ifdef WATER
-	water = new rr_gl::Water("..\\..\\data\\shaders\\",false,false);
-#endif
 	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1

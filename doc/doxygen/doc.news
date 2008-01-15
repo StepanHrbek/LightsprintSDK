@@ -8,11 +8,15 @@ namespace rr
 
 \page main_news What's new
 
-\section news43 ------------------------------------ 2008.1.x -------------------------------------
+\section news44 ------------------------------------ 2008.1.15 -------------------------------------
 
 NEWS
 
 - rr_gl::sceneViewer() supports browsing lightmaps and mappings in 2d
+
+CHANGES
+
+- lightmapViewer and Water removed from public API
 
 \section news43 ------------------------------------ 2008.1.11 -------------------------------------
 
