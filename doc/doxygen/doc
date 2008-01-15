@@ -2320,6 +2320,18 @@ Used by samples:
  \n They are located in samples directory in the SDK, binaries in bin.
 
  <hr>
+ <b>Lightsmark 2007</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/Lightsmark2.jpg
+  </td><td>
+  \image html samples/Lightsmark3.jpg
+  </td></tr></table>
+ - realtime GI in scene from real game (World of Padman)
+ - original scene without any modifications is loaded to show engine robustness
+ - complete Lightsmark 2007 is not part of SDK,
+   but you can <a href="http://dee.cz/lightsmark">download it here</a>
+
+ <hr>
  <b>SceneViewer</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/SceneViewer_1.jpg move lights, compare realtime/offline GI
