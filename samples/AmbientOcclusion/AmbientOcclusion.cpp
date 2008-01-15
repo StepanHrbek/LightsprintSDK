@@ -73,7 +73,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	}
 
 	// calculate ambient occlusion
-	rr::RRDynamicSolver::UpdateParameters params(1);
+	rr::RRDynamicSolver::UpdateParameters params(1000);
 	rr::RRDynamicSolver::FilteringParameters filtering;
 	filtering.wrap = false;
 	solver->updateLightmaps(layerNumber,-1,&params,&params,&filtering); 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 	solver->setEnvironment( rr::RRBuffer::createSky() );
 
 	{
-		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion ...\n");
+		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion (takes approx 2 minutes) ...\n");
 
 		// decrease priority, so that this task runs on background using only free CPU cycles
 		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);

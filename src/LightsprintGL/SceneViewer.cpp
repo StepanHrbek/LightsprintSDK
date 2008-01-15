@@ -56,7 +56,7 @@ bool                       renderEmission = 1;
 bool                       renderDiffuse = 1;
 bool                       renderWireframe = 0;
 bool                       renderHelpers = 1;
-float                      speedGlobal = 1; // speed of movement controlled by user
+float                      speedGlobal = 2; // speed of movement controlled by user
 float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
@@ -181,15 +181,14 @@ public:
 
 		// Movement speed...
 		int speedHandle = glutCreateMenu(speedCallback);
-		glutAddMenuEntry("1/256", 1);
-		glutAddMenuEntry("1/64", 4);
-		glutAddMenuEntry("1/16", 16);
-		glutAddMenuEntry("1/4", 64);
-		glutAddMenuEntry("1", 256);
-		glutAddMenuEntry("4", 1024);
-		glutAddMenuEntry("16", 4096);
-		glutAddMenuEntry("64", 16384);
-		glutAddMenuEntry("256", 65536);
+		glutAddMenuEntry("0.001 m/s", 1);
+		glutAddMenuEntry("0.01 m/s", 10);
+		glutAddMenuEntry("0.1 m/s", 100);
+		glutAddMenuEntry("0.5 m/s", 500);
+		glutAddMenuEntry("2 m/s (default)", 2000);
+		glutAddMenuEntry("10 m/s", 10000);
+		glutAddMenuEntry("100 m/s", 100000);
+		glutAddMenuEntry("1000 m/s", 1000000);
 
 		// Environment...
 		int envHandle = glutCreateMenu(envCallback);
@@ -338,7 +337,7 @@ public:
 	}
 	static void speedCallback(int item)
 	{
-		speedGlobal = item/256.f;
+		speedGlobal = item/1000.f;
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void envCallback(int item)
