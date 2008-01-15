@@ -101,21 +101,19 @@ namespace rr
 
   - Greatly improves realism and visual appeal.
 
-  - Requires no level preprocessing, saves time previously spent on infinite levels builds.
+  - Requires zero or minimal level preprocessing, saves time previously spent on infinite levels builds.
 
   - Simplifies integration of mods and other user provided assets.
 
   - Supports arbitrary materials / shaders, even those writen by modders
     after game release.
 
-  - Publicity, be first with this level of realism never seen before.
+  - Publicity, be first with this level of realism in game.
 
-  - See <a href="http://dee.cz/rrb/RRBugs.rar">Realtime Radiosity Bugs</a>
-    as an example. It's not a real game, but it shows innovative use 
-    of realtime radiosity in game. It doesn't have to be just eye candy.
-    
- \image html rrbugs_hint.jpg
+  - See <a href="http://dee.cz/lightsmark">Lightsmark 2007</a>
+    as an example, it's a simple demo based on Lightsprint SDK.
 
+  \image html samples/Lightsmark3.jpg
 
 
 
