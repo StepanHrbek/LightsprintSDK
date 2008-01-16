@@ -19,7 +19,7 @@ namespace rr
 	//  RRScaler
 	//! Interface for physical <-> custom space transformer.
 	//
-	//! RRScaler may be used to transform irradiance/emittance/exitance 
+	//! RRScaler may be used to transform irradiance/emittance/exitance/reflectance/transmittance
 	//! between physical linear W/m^2 space and custom user defined space.
 	//! Without scaler, all inputs/outputs work with specified physical units.
 	//! With appropriate scaler, you may directly work for example with screen colors (sRGB)
@@ -44,11 +44,25 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Converts color from physical scale (W/m^2) value to user defined scale.
-		virtual void getCustomScale(RRVec3& physicalScale) const = 0;
+		//! Converts irradiance/emittance/exitance from physical scale (W/m^2) to user defined scale (usually sRGB, screen colors).
+		virtual void getCustomScale(RRReal& value) const;
+		//! Converts irradiance/emittance/exitance from physical scale (W/m^2) to user defined scale (usually sRGB, screen colors).
+		virtual void getCustomScale(RRVec3& value) const = 0;
 
-		//! Converts color from user defined scale to physical scale (W/m^2).
-		virtual void getPhysicalScale(RRVec3& customScale) const = 0;
+		//! Converts irradiance/emittance/exitance from user defined scale (usually sRGB, screen colors) to physical scale (W/m^2).
+		virtual void getPhysicalScale(RRReal& value) const;
+		//! Converts irradiance/emittance/exitance from user defined scale (usually sRGB, screen colors) to physical scale (W/m^2).
+		virtual void getPhysicalScale(RRVec3& value) const = 0;
+
+		//! Converts reflectance/transmittance from physical scale to user defined scale.
+		virtual void getCustomFactor(RRReal& value) const;
+		//! Converts reflectance/transmittance from physical scale to user defined scale.
+		virtual void getCustomFactor(RRVec3& value) const;
+
+		//! Converts reflectance/transmittance from user defined scale to physical scale.
+		virtual void getPhysicalFactor(RRReal& value) const;
+		//! Converts reflectance/transmittance from user defined scale to physical scale.
+		virtual void getPhysicalFactor(RRVec3& value) const;
 
 		virtual ~RRScaler() {}
 
@@ -61,12 +75,12 @@ namespace rr
 		// instance factory
 		//
 
-		//! Creates and returns scaler for standard RGB monitor space.
+		//! Creates and returns scaler for sRGB space - screen colors.
 		//
-		//! Scaler converts between radiometry units (W/m^2) and displayable RGB values.
-		//! It is only approximation, exact conversion would depend on individual monitor 
-		//! and eye attributes.
-		//! \param power Exponent in formula screenSpace = physicalSpace^power.
+		//! Scaler converts between radiometry units (W/m^2) and screen colors.
+		//! \param power
+		//!  Exponent in formula screenSpace = physicalSpace^power.
+		//!  Use default value for typical screens or tweak it for different contrast.
 		static RRScaler* createRgbScaler(RRReal power=0.45f);
 
 		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
