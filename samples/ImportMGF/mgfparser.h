@@ -1,4 +1,9 @@
-/* Copyright (c) 1995 Regents of the University of California */
+/*
+ * This is part of mgflib, http://radsite.lbl.gov/mgf/HOME.html
+ * Used by Lightsprint SDK samples for testing only.
+ *
+ * Copyright (c) 1994 Regents of the University of California
+ */
 
 /* SCCSid "@(#)mgfparser.h 1.32 1/16/98 LBL" */
 

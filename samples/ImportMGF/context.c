@@ -1,4 +1,9 @@
-/* Copyright (c) 1997 Regents of the University of California */
+/*
+ * This is part of mgflib, http://radsite.lbl.gov/mgf/HOME.html
+ * Used by Lightsprint SDK samples for testing only.
+ *
+ * Copyright (c) 1994 Regents of the University of California
+ */
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244) // conversion from double to float

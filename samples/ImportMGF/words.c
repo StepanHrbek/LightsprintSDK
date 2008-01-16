@@ -1,4 +1,9 @@
-/* Copyright (c) 1994 Regents of the University of California */
+/*
+ * This is part of mgflib, http://radsite.lbl.gov/mgf/HOME.html
+ * Used by Lightsprint SDK samples for testing only.
+ *
+ * Copyright (c) 1994 Regents of the University of California
+ */
 
 #ifndef lint
 static char SCCSid[] = "@(#)words.c 1.2 5/10/95 LBL";
