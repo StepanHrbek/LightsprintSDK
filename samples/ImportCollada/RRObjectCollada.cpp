@@ -653,7 +653,9 @@ void RRObjectCollada::updateMaterials()
 				}
 #ifdef VERIFY
 				if(mi.material.validate())
-					RRReporter::report(WARN,"RRObjectCollada: Material adjusted to physically valid.\n");
+					RRReporter::report(WARN,"Material adjusted to physically valid.\n");
+#else
+				mi.material.validate();
 #endif
 				cache[effectStandard] = mi;
 			}

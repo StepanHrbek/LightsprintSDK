@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news45 ------------------------------------ 2008.1.x -------------------------------------
+
+NEWS
+
+- loader of .mgf scenes in samples/ImportMGF
+- high level loader in samples/Import
+  \n automatically selects appropriate loader (collada, 3ds, quake3, mgf) for given filename
+- RRScaler and RRMaterial have new scaling functions
+
 \section news44 ------------------------------------ 2008.1.15 -------------------------------------
 
 NEWS

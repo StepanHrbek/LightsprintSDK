@@ -169,6 +169,7 @@ Scene formats
 - Collada 1.4 (.DAE)
 - 3DS Max (.3DS)
 - Quake 3 (.BSP)
+- MGF (.MGF)
 - Unreal Engine 3 (internal structures)
 - framework for custom formats
 - complete source code
@@ -580,8 +581,8 @@ Used by samples:
  \section import_without_instancing Import without instancing
 
  For import without geometry instancing,
- see samples/Import3DS or samples/ImportQuake3.
- It is everything necessary to load 3ds or Quake3 scene into 
+ see samples/Import3DS or samples/ImportQuake3 or samples/ImportMGF.
+ It is everything necessary to load 3ds, Quake3 or mgf scene into 
  RRDynamicSolver.
 
  For sake of simplicity, wrappers duplicate some data in memory
@@ -1799,6 +1800,7 @@ Used by samples:
   - \subpage inputs_collada
   - \subpage inputs_3ds
   - \subpage inputs_quake3
+  - \subpage inputs_mgf
   - \subpage inputs_images
 
  \section inputs_engines Engines
@@ -1897,6 +1899,15 @@ Used by samples:
  Source code of Quake 3 adapter is in: samples/ImportQuake3/*.*
  \n It adapts BSP scene with geometry and materials for Lightsprint format.
  \n Scene is loaded by open source BSP loader in the same directory.
+
+\page inputs_mgf MGF (.MGF)
+ Materials and Geometry Format (.mgf) is open but old and rarely used format
+ for describing scenes and objects suitable for physically-based rendering applications.
+ For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">mgf homepage</a>.
+
+ Source code of MGF loader and adapter is in: samples/ImportMGF/*.*
+ \n It loads .mgf scene using source code taken from mgflib (see link above)
+ and makes it available in Lightsprint format.
 
 \page inputs_images Images (jpg, png, dds, hdr, gif, tga...)
  Nearly all standard image formats are supported.
@@ -2410,6 +2421,11 @@ Used by samples:
  <b>ImportQuake3</b>
  - source code of Quake3 map loader and adapter
  - \ref inputs_quake3 details
+
+ <hr>
+ <b>ImportMGF</a>
+ - source code of MGF loader
+ - \ref inputs_mgf details
 
  <hr>
  <b>ImportUE3</b>

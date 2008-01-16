@@ -39,13 +39,6 @@
 
 //#define VERIFY
 
-#ifdef VERIFY
-void reporter(const char* msg, void* context)
-{
-	puts(msg);
-}
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -139,7 +132,7 @@ static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 
 #ifdef VERIFY
 	if(s->validate())
-		reporter("Material adjusted to physically valid.",NULL);
+		rr::RRReporter::report(rr::WARN,"Material adjusted to physically valid.\n");
 #else
 	s->validate();
 #endif
