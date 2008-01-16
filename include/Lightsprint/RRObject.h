@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRCollider.h"
+#include "RRLight.h" // RRScaler
 
 namespace rr
 {
@@ -63,7 +64,10 @@ namespace rr
 	//
 	//! It is minimal set of properties needed by global illumination solver,
 	//! so it not complete material for rendering (no textures).
+	//!
 	//! Values could be in physical or any other scale, depends on who uses it.
+	//! Adapters usually create materials in sRGB scale -> material properties are screen colors.
+	//! Solver always converts materials to physical scale, you can access them via RRDynamicSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial
 	{
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
@@ -76,12 +80,17 @@ namespace rr
 		//! It makes good glass, but bad thin dif.reflecting wall.
 		void          reset(bool twoSided);
 
-		//! Changes material to closest physically valid values. Returns true if any changes were made.
+		//! Changes material to closest physically valid values. Returns true when changes were made.
 		bool          validate();
+
+		//! Converts material properties from physical to custom scale.
+		void          convertToCustomScale(const RRScaler* scaler);
+		//! Converts material properties from custom to physical scale.
+		void          convertToPhysicalScale(const RRScaler* scaler);
 
 		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
 		RRVec3        diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
-		RRVec3        diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
+		RRVec3        diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). (Adapters usually create materials in sRGB scale, so that this is screen color.)
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRVec3        specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>

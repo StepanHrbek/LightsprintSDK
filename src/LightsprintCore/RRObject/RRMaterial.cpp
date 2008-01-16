@@ -94,5 +94,28 @@ bool RRMaterial::validate()
 	return changed;
 }
 
+void RRMaterial::convertToCustomScale(const RRScaler* scaler)
+{
+	if(scaler)
+	{
+		scaler->getCustomFactor(diffuseReflectance);
+		scaler->getCustomScale(diffuseEmittance);
+		scaler->getCustomFactor(specularReflectance);
+		scaler->getCustomFactor(specularTransmittance);
+		validate();
+	}
+}
+
+void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
+{
+	if(scaler)
+	{
+		scaler->getPhysicalFactor(diffuseReflectance);
+		scaler->getPhysicalScale(diffuseEmittance);
+		scaler->getPhysicalFactor(specularReflectance);
+		scaler->getPhysicalFactor(specularTransmittance);
+		validate();
+	}
+}
 
 } // namespace
