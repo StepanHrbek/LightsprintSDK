@@ -411,16 +411,124 @@
 	</References>
 	<Files>
 		<Filter
-			Name="COLLADA"
+			Name="Import"
 			>
 			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+				RelativePath="..\Import\ImportScene.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.h"
+				RelativePath="..\Import\ImportScene.h"
 				>
 			</File>
+			<Filter
+				Name="3DS"
+				>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RRObject3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RRObject3DS.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="COLLADA"
+				>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Quake3"
+				>
+				<File
+					RelativePath="..\ImportQuake3\Q3Loader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportQuake3\Q3Loader.h"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportQuake3\RRObjectBSP.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportQuake3\RRObjectBSP.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="MGF"
+				>
+				<File
+					RelativePath="..\ImportMGF\badarg.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\context.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\fvect.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\lookup.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\lookup.h"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\messages.h"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\mgfparser.h"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\object.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\parser.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\RRObjectMGF.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\RRObjectMGF.h"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\words.c"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportMGF\xf.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\SceneViewerSample.cpp"

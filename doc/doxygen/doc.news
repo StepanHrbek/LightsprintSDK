@@ -12,9 +12,9 @@ namespace rr
 
 NEWS
 
-- loader of .mgf scenes in samples/ImportMGF
-- high level loader in samples/Import
-  \n automatically selects appropriate loader (collada, 3ds, quake3, mgf) for given filename
+- samples/ImportMGF - loader of .mgf scenes
+- samples/Import - universal loader of collada, 3ds, quake3, mgf scenes
+- SceneViewer sample supports collada, 3ds, quake3, mgf
 - RRScaler and RRMaterial have new scaling functions
 
 \section news44 ------------------------------------ 2008.1.15 -------------------------------------
