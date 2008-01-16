@@ -59,36 +59,13 @@ public:
 		original->getPointMaterial(t,uv,out);
 		if(scaler)
 		{
-			convertToPhysical(out);
+			out.convertToPhysicalScale(scaler);
 		}
-	}
-	void convertToPhysicalFactor(RRVec3& factor) const
-	{
-		RRVec3 tmp1 = RRVec3(0.5f)*factor;
-		RRVec3 tmp2 = RRVec3(0.5f);
-		scaler->getPhysicalScale(tmp1);
-		scaler->getPhysicalScale(tmp2);
-		factor = tmp1/tmp2;
-	}
-	void convertToPhysicalFactor(RRReal& factor) const
-	{
-		RRVec3 factor3 = RRVec3(factor);
-		convertToPhysicalFactor(factor3);
-		factor = factor3[0];
-	}
-	void convertToPhysical(RRMaterial& physical) const // input=custom, output=physical
-	{
-		RR_ASSERT(scaler);
-		convertToPhysicalFactor(physical.diffuseReflectance);
-		scaler->getPhysicalScale(physical.diffuseEmittance);
-		convertToPhysicalFactor(physical.specularReflectance);
-		convertToPhysicalFactor(physical.specularTransmittance);
-		physical.validate();
 	}
 	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical) const
 	{
 		physical = custom;
-		convertToPhysical(physical);
+		physical.convertToPhysicalScale(scaler);
 	}
 	virtual void update()
 	{
