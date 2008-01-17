@@ -107,18 +107,8 @@ public:
 		if(renderRealtime)
 			rendererOfScene->useOptimizedScene();
 		else
-			rendererOfScene->useOriginalScene(0);
-/*
-		// alternative rendering with manual vertex buffer updates
-		rendererOfScene->useOriginalScene(0);
-		// update vertex buffers if they need update
-		static unsigned solutionVersion = 0;
-		if(getSolutionVersion()!=solutionVersion)
-		{
-			solutionVersion = getSolutionVersion();
-			updateLightmaps(0,-1,NULL,NULL);
-		}
-*/
+			rendererOfScene->useOriginalScene(layerNumber);
+
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
 	}
@@ -289,11 +279,11 @@ public:
 				}
 				break;
 			case ME_STATIC_LOAD:
-				solver->getStaticObjects().loadIllumination("",0);
+				solver->getStaticObjects().loadIllumination("",layerNumber);
 				renderRealtime = false;
 				break;
 			case ME_STATIC_SAVE:
-				solver->getStaticObjects().saveIllumination("",0);
+				solver->getStaticObjects().saveIllumination("",layerNumber);
 				break;
 			case ME_STATIC_BUILD1:
 				{
