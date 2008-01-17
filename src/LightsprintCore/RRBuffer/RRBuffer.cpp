@@ -402,32 +402,23 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 		}
 
 		// select dst format
-		unsigned dstbipp = srcbipp;
-		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp))
+		unsigned tryTable[4][4] = {
+			{24,32,96,128}, // what dst to try for src=24
+			{32,24,128,96}, // what dst to try for src=32
+			{96,128,24,32}, // what dst to try for src=96
+			{128,96,32,24}, // what dst to try for src=128
+			};
+		unsigned dstbipp;
+		RR_ASSERT(BF_RGB==0 && BF_RGBA==1 && BF_RGBF==2 && BF_RGBAF==3);
+		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[getFormat()][0]))
+		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[getFormat()][1]))
+		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[getFormat()][2]))
+		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[getFormat()][3]))
 		{
-			if(dstbipp>96 && FreeImage_FIFSupportsExportBPP(fif,96))
-			{
-				fit = FIT_RGBF;
-				dstbipp = 96;
-			}
-			else
-			if(dstbipp>32 && FreeImage_FIFSupportsExportBPP(fif,32))
-			{
-				fit = FIT_BITMAP;
-				dstbipp = 32;
-			}
-			else
-			if(dstbipp>24 && FreeImage_FIFSupportsExportBPP(fif,24))
-			{
-				fit = FIT_BITMAP;
-				dstbipp = 24;
-			}
-			else
-			{
-				assert(0); // invalid filename or format not supported or write not supported
-				goto ende;
-			}
+			RRReporter::report(WARN,"Save not supported for %s format.\n",filename);
+			goto ende;
 		}
+		fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
 		unsigned dstbypp = (dstbipp+7)/8;
 
 		FIBITMAP* dib = FreeImage_AllocateT(fit,getWidth(),getHeight(),dstbipp);
@@ -473,6 +464,7 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 										pixel[0] = ((float*)src)[0];
 										pixel[1] = ((float*)src)[1];
 										pixel[2] = ((float*)src)[2];
+										pixel[3] = 1;
 										break;
 									case 32:
 										pixel[0] = BYTE2FLOAT(src[0]);
@@ -484,6 +476,7 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 										pixel[0] = BYTE2FLOAT(src[0]);
 										pixel[1] = BYTE2FLOAT(src[1]);
 										pixel[2] = BYTE2FLOAT(src[2]);
+										pixel[3] = 1;
 										break;
 								}
 								src += srcbypp;
