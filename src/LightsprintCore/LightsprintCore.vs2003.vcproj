@@ -677,18 +677,6 @@
 			Name="RRLight">
 			<File
 				RelativePath=".\RRLight\RRLight.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRLight.h">
