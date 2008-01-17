@@ -395,8 +395,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	if(_params) params = *_params;
 	if(!buffer && !bentNormals)
 	{
-		RRReporter::report(WARN,"No map, pixelBuffer=bentNormalsPerPixel=NULL.\n");
-		RR_ASSERT(0); // no work, probably error
+		RRReporter::report(WARN,"Both output buffers are NULL, no work.\n");
 		return 0;
 	}
 	if(buffer && bentNormals && buffer->getType()==bentNormals->getType())
@@ -404,7 +403,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		if(buffer->getWidth() != bentNormals->getWidth()
 			|| buffer->getHeight() != bentNormals->getHeight())
 		{
-			RRReporter::report(ERRO,"Sizes don't match, buffer=%dx%d, bentNormals=%dx%d.\n",buffer->getWidth(),buffer->getHeight(),bentNormals->getWidth(),bentNormals->getHeight());
+			RRReporter::report(ERRO,"Buffer sizes don't match, buffer=%dx%d, bentNormals=%dx%d.\n",buffer->getWidth(),buffer->getHeight(),bentNormals->getWidth(),bentNormals->getHeight());
 			RR_ASSERT(0);
 			return 0;
 		}
@@ -420,12 +419,6 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			return 0;
 		}
 	}
-	if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
-	{
-		RRReporter::report(WARN,"updateLightmap() can't generate per-vertex bent normals, use updateLightmaps().\n");
-		RR_ASSERT(0); // error in code
-		return 0;
-	}
 	
 	// optimize params
 	if(params.applyLights && !getLights().size())
@@ -439,13 +432,39 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	RRBuffer* bentNormalsPerVertex = onlyVbuf(bentNormals);
 	RRBuffer* bentNormalsPerPixel = onlyLmap(bentNormals);
 
-	// do per-vertex part
-	if(vertexBuffer)
+	// PER-VERTEX
+	if(vertexBuffer || bentNormalsPerVertex)
 	{
-		updatedBuffers += updateVertexBufferFromSolver(objectNumber,vertexBuffer,_params);
+		// REALTIME
+		if(vertexBuffer && !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality)
+		{
+			updatedBuffers += updateVertexBufferFromSolver(objectNumber,vertexBuffer,_params);
+		}
+		else
+		// NON-REALTIME
+		{
+			// final gather: solver.direct+indirect+lights+env -> tmparray
+			// for each triangle
+			// future optimization: gather only triangles necessary for selected object
+			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
+			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials); // this is final gather -> gather emissive materials
+
+			// interpolate: tmparray -> buffer
+			if(vertexBuffer)
+			{
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance,sizeof(finalGather[0]));
+			}
+			if(bentNormalsPerVertex)
+			{
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,bentNormalsPerVertex,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+			}
+			delete[] finalGather;
+		}
 	}
 
-	if(pixelBuffer||bentNormalsPerPixel)
+	// PER-PIXEL (NON-REALTIME)
+	if(pixelBuffer || bentNormalsPerPixel)
 	{
 		// do per-pixel part
 		const RRObject* object = getMultiObjectCustom();

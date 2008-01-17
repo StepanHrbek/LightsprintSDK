@@ -172,10 +172,11 @@ public:
 		glutAddMenuEntry("       empty lightmaps 64x64",-64);
 		glutAddMenuEntry("       empty lightmaps 256x256",-256);
 		glutAddMenuEntry("       empty lightmaps 1024x1024",-1024);
-		glutAddMenuEntry("Build, quality 1",1);
-		glutAddMenuEntry("       quality 10",10);
-		glutAddMenuEntry("       quality 100",100);
-		glutAddMenuEntry("       quality 1000",1000);
+		glutAddMenuEntry("Build all, quality 1",1);
+		glutAddMenuEntry("           quality 10",10);
+		glutAddMenuEntry("           quality 100",100);
+		glutAddMenuEntry("           quality 1000",1000);
+		glutAddMenuEntry("Build selected obj, only direct",ME_STATIC_BUILD1);
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
@@ -294,18 +295,29 @@ public:
 			case ME_STATIC_SAVE:
 				solver->getStaticObjects().saveIllumination("",0);
 				break;
+			case ME_STATIC_BUILD1:
+				{
+					// calculate 1 object, direct lighting
+					rr::RRDynamicSolver::UpdateParameters params(1000);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.wrap = false;
+					solver->updateLightmap(selectedObjectIndex,solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),NULL,&params,&filtering);
+					renderRealtime = false;
+					// propagate computed data from buffers to textures
+					if(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) && solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
+						getTexture(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber))->reset(true);
+					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
+					solver->resetRenderCache();
+				}
+				break;
 			default:
 				if(item>0)
 				{
-					// calculate
-					rr::RRDynamicSolver::UpdateParameters params;
-					params.quality = item;
-					params.applyCurrentSolution = false;
-					params.applyLights = true;
-					params.applyEnvironment = true;
+					// calculate all
+					rr::RRDynamicSolver::UpdateParameters params(item);
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
-					solver->updateLightmaps(0,-1,&params,&params,&filtering);
+					solver->updateLightmaps(layerNumber,-1,&params,&params,&filtering);
 					renderRealtime = false;
 					// propagate computed data from buffers to textures
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -372,6 +384,7 @@ protected:
 		ME_STATIC_3D,
 		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
+		ME_STATIC_BUILD1,
 		ME_STATIC_LOAD,
 		ME_STATIC_SAVE,
 	};
