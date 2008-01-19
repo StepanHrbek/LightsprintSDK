@@ -49,7 +49,7 @@
 #		endif
 #		endif
 #	else // !RR_GL_STATIC
-	#ifdef RR_GL_DLL_BUILD
+	#ifdef RR_GL_BUILD
 		// build dll
 		#undef RR_GL_API
 		#define RR_GL_API __declspec(dllexport)

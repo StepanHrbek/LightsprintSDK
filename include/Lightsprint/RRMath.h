@@ -47,7 +47,7 @@
 #		endif
 #		endif
 #	else
-#	ifdef RR_DLL_BUILD
+#	ifdef RR_BUILD
 		// build dll
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
