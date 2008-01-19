@@ -12,7 +12,7 @@
 
 // define RR_GL_API
 #ifdef _MSC_VER
-	#ifdef RR_STATIC
+	#ifdef RR_GL_STATIC
 		// build or use static library
 		#define RR_GL_API
 	#elif defined(RR_GL_BUILD)
@@ -35,7 +35,7 @@
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
 	#if !defined(RR_GL_MANUAL_LINK) && !defined(RR_GL_BUILD)
-		#ifdef RR_STATIC
+		#ifdef RR_GL_STATIC
 			// use static library
 			#if _MSC_VER<1400
 				#ifdef NDEBUG
