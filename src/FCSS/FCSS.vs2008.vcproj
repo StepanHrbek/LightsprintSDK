@@ -403,14 +403,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\ImportMGF\ldmgf.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\ImportMGF\ldmgf.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\samples\ImportMGF\lookup.c"
 				>
 			</File>
