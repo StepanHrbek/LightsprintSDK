@@ -21,7 +21,7 @@ static char SCCSid[] = "@(#)lookup.c 1.7 9/4/98 LBL";
 #define MEM_PTR		void *
 #endif
 
-extern MEM_PTR	calloc();
+//extern MEM_PTR	calloc();
 
 
 int
