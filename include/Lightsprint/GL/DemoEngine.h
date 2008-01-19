@@ -10,91 +10,76 @@
 
 #include "Lightsprint/RRMemory.h"
 
+// define RR_GL_API
 #ifdef _MSC_VER
-#	ifdef RR_GL_STATIC
-		// use static library
+	#ifdef RR_STATIC
+		// build or use static library
 		#define RR_GL_API
-#	else // use dll
-#define RR_GL_API __declspec(dllimport)
-#pragma warning(disable:4251) // stop MSVC warnings
-#	endif
+	#elif defined(RR_GL_BUILD)
+		// build dll
+		#define RR_GL_API __declspec(dllexport)
+		#pragma warning(disable:4251) // stop MSVC warnings
+	#else
+		// use dll
+		#define RR_GL_API __declspec(dllimport)
+		#pragma warning(disable:4251) // stop MSVC warnings
+	#endif
 #else
-	// use static library
+	// build or use static library
 	#define RR_GL_API
 #endif
 
-#ifndef RR_GL_MANUAL_LINK
-#	ifdef _MSC_VER
-#	ifdef RR_GL_STATIC
-		// use static library
-#		if _MSC_VER<1400
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintGL.vs2003_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintGL.vs2003_sd.lib")
-#			endif
-#		else
-#		if _MSC_VER<1500
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintGL.vs2005_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintGL.vs2005_sd.lib")
-#			endif
-#		else
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintGL.vs2008_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintGL.vs2008_sd.lib")
-#			endif
-#		endif
-#		endif
-#	else // !RR_GL_STATIC
-	#ifdef RR_GL_BUILD
-		// build dll
-		#undef RR_GL_API
-		#define RR_GL_API __declspec(dllexport)
-	#else
-		// use dll
-		#if _MSC_VER<1400
-#			ifdef NDEBUG
-				#ifdef RR_GL_DEBUG
-					#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2003.lib")
-				#endif
-#			else
-				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-#			endif
-		#else
-		#if _MSC_VER<1500
-#			ifdef NDEBUG
-				#ifdef RR_GL_DEBUG
-					#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2005.lib")
-				#endif
-#			else
-				#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
-#			endif
-		#else
-#			ifdef NDEBUG
-				#ifdef RR_GL_DEBUG
-					#pragma comment(lib,"LightsprintGL.vs2008_dd.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2008.lib")
-				#endif
-#			else
-				#pragma comment(lib,"LightsprintGL.vs2008_dd.lib")
-#			endif
-		#endif
-		#endif
-	#endif
-#	endif // !RR_GL_STATIC
+// autolink library when external project includes this header
+#ifdef _MSC_VER
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
-#	endif // _MSC_VER
-#endif // !RR_GL_MANUAL_LINK
+	#if !defined(RR_GL_MANUAL_LINK) && !defined(RR_GL_BUILD)
+		#ifdef RR_STATIC
+			// use static library
+			#if _MSC_VER<1400
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2003_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2003_sd.lib")
+				#endif
+			#elif _MSC_VER<1500
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2005_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2005_sd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2008_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2008_sd.lib")
+				#endif
+			#endif
+		#else
+			// use dll
+			#if _MSC_VER<1400
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2003.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+				#endif
+			#elif _MSC_VER<1500
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2005.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintGL.vs2008.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2008_dd.lib")
+				#endif
+			#endif
+		#endif
+	#endif
+#endif
 
 
 // helper macros

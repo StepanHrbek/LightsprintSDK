@@ -8,86 +8,72 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+// define RR_API
 #ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
+	#ifdef RR_STATIC
+		// build or use static library
 		#define RR_API
-#	else // use dll
-#define RR_API __declspec(dllimport)
-#pragma warning(disable:4251) // stop MSVC warnings
-#	endif
+	#elif defined(RR_BUILD)
+		// build dll
+		#define RR_API __declspec(dllexport)
+		#pragma warning(disable:4251) // stop MSVC warnings
+	#else
+		// use dll
+		#define RR_API __declspec(dllimport)
+		#pragma warning(disable:4251) // stop MSVC warnings
+	#endif
 #else
-	// use static library
+	// build or use static library
 	#define RR_API
 #endif
 
-#ifndef RR_MANUAL_LINK
+// autolink library when external project includes this header
 #ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-#		if _MSC_VER<1400
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintCore.vs2003_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintCore.vs2003_sd.lib")
-#			endif
-#		else
-#		if _MSC_VER<1500
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
-#			endif
-#		else
-#			ifdef NDEBUG
-#				pragma comment(lib,"LightsprintCore.vs2008_sr.lib")
-#			else
-#				pragma comment(lib,"LightsprintCore.vs2008_sd.lib")
-#			endif
-#		endif
-#		endif
-#	else
-#	ifdef RR_BUILD
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-	#if _MSC_VER<1400
-#	ifdef NDEBUG
-		#ifdef RR_DEBUG
-			#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
+	#if !defined(RR_MANUAL_LINK) && !defined(RR_BUILD)
+		#ifdef RR_STATIC
+			// use static library
+			#if _MSC_VER<1400
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2003_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2003_sd.lib")
+				#endif
+			#elif _MSC_VER<1500
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2008_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2008_sd.lib")
+				#endif
+			#endif
 		#else
-			#pragma comment(lib,"LightsprintCore.vs2003.lib")
+			// use dll
+			#if _MSC_VER<1400
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2003.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
+				#endif
+			#elif _MSC_VER<1500
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2005.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintCore.vs2008.lib")
+				#else
+					#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
+				#endif
+			#endif
 		#endif
-#	else
-		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
-#	endif
-	#else
-	#if _MSC_VER<1500
-#	ifdef NDEBUG
-		#ifdef RR_DEBUG
-			#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
-		#else
-			#pragma comment(lib,"LightsprintCore.vs2005.lib")
-		#endif
-#	else
-		#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
-#	endif
-	#else
-#	ifdef NDEBUG
-		#ifdef RR_DEBUG
-			#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
-		#else
-			#pragma comment(lib,"LightsprintCore.vs2008.lib")
-		#endif
-#	else
-		#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
-#	endif
 	#endif
-	#endif
-#	endif
-#	endif
-#endif
 #endif
 
 //#define RR_DEVELOPMENT
