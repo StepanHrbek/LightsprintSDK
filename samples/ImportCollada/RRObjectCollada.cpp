@@ -65,13 +65,13 @@
 #else
 #if _MSC_VER<1500
 	#ifdef _DEBUG
-		#ifdef RR_STATIC
+		#ifndef _DLL
 			#pragma comment(lib,"FColladaSD.vs2005.lib")
 		#else
 			#pragma comment(lib,"FColladaD.vs2005.lib")
 		#endif
 	#else
-		#ifdef RR_STATIC
+		#ifndef _DLL
 			#pragma comment(lib,"FColladaSR.vs2005.lib")
 		#else
 			#pragma comment(lib,"FCollada.vs2005.lib")
@@ -79,13 +79,13 @@
 	#endif
 #else
 	#ifdef _DEBUG
-		#ifdef RR_STATIC
+		#ifndef _DLL
 			#pragma comment(lib,"FColladaSD.vs2008.lib")
 		#else
 			#pragma comment(lib,"FColladaD.vs2008.lib")
 		#endif
 	#else
-		#ifdef RR_STATIC
+		#ifndef _DLL
 			#pragma comment(lib,"FColladaSR.vs2008.lib")
 		#else
 			#pragma comment(lib,"FCollada.vs2008.lib")
