@@ -11,9 +11,6 @@
 		<Platform
 			Name="Win32"
 		/>
-		<Platform
-			Name="Xbox 360"
-		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -389,345 +386,6 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Release static|Xbox 360"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			UseOfATL="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			WholeProgramOptimization="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="XBOX;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;RR_GL_STATIC;RR_GL_MANUAL_LINK"
-				StringPooling="true"
-				ExceptionHandling="0"
-				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				FloatingPointModel="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="false"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile=""
-				AssemblerListingLocation="$(IntDir)/"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sr.pdb"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
-				IgnoreAllDefaultLibraries="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug static|Xbox 360"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			UseOfATL="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="XBOX;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;RR_GL_STATIC;RR_GL_MANUAL_LINK"
-				MinimalRebuild="false"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				BufferSecurityCheck="true"
-				FloatingPointModel="0"
-				DisableLanguageExtensions="false"
-				ForceConformanceInForLoopScope="true"
-				OpenMP="false"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="$(IntDir)/"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
-				BrowseInformation="0"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1029"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
-				IgnoreAllDefaultLibraries="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release DLL|Xbox 360"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			UseOfMFC="0"
-			UseOfATL="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			WholeProgramOptimization="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="XBOX;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL_BUILD;RR_GL_STATIC;RR_GL_MANUAL_LINK"
-				StringPooling="true"
-				ExceptionHandling="0"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				FloatingPointModel="2"
-				DisableLanguageExtensions="false"
-				ForceConformanceInForLoopScope="true"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile=""
-				AssemblerListingLocation="$(IntDir)/"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCX360LinkerTool"
-				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir)"
-				ImportLibrary="$(OutDir)\$(TargetName).lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCX360ImageTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCX360DeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug DLL|Xbox 360"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			UseOfMFC="0"
-			UseOfATL="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="XBOX;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL_BUILD;RR_GL_STATIC;RR_GL_MANUAL_LINK"
-				MinimalRebuild="false"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				BufferSecurityCheck="true"
-				FloatingPointModel="0"
-				DisableLanguageExtensions="false"
-				ForceConformanceInForLoopScope="true"
-				OpenMP="false"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				AssemblerListingLocation="$(IntDir)/"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_dd.pdb"
-				BrowseInformation="0"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1029"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCX360LinkerTool"
-				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir)"
-				ImportLibrary="$(OutDir)\$(TargetName).lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCX360ImageTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCX360DeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -898,22 +556,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshCopy.h"
@@ -1022,22 +664,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h"
@@ -1071,22 +697,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
@@ -1166,22 +776,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\RRDynamicSolver\gather.cpp"
@@ -1199,22 +793,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
@@ -1242,22 +820,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRDynamicSolver\Interpolator.h"
@@ -1279,22 +841,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
@@ -1334,22 +880,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRDynamicSolver.h"
@@ -1375,22 +905,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
