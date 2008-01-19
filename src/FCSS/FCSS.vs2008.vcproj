@@ -104,6 +104,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -197,6 +198,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -297,6 +299,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

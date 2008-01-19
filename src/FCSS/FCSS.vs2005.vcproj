@@ -101,12 +101,16 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -192,12 +196,16 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -290,12 +298,16 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

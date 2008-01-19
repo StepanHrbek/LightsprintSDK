@@ -98,6 +98,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -182,6 +183,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -276,12 +278,16 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -351,7 +357,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="true"
+				LinkLibraryDependencies="false"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
@@ -369,12 +375,16 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
