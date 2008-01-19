@@ -173,7 +173,7 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	if(reporter)
 	{
 		report(ASSE,"%s in %s, file %s, line %d.\n",expression,func,file,line);
-#if defined(RR_STATIC) && defined(WIN32)
+#if defined(_DEBUG) && defined(RR_STATIC) && defined(WIN32)
 		DebugBreak();
 #endif
 	}
