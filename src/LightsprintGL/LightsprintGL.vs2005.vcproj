@@ -547,14 +547,6 @@
 			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
 			>
 		</File>
-		<File
-			RelativePath="Water.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Water.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
