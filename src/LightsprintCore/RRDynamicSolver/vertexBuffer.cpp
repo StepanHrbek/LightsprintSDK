@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Offline and realtime per-vertex lightmaps.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <cassert>
 #include <cfloat>
 #ifdef _OPENMP

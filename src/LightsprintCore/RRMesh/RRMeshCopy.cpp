@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Mesh adapter.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifdef _MSC_VER // this is personal choice: I use Boost only under MSVC
 //#define BOOST // support for load(filename) and save(filename)
 #endif

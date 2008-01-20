@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Realtime update of cube reflection maps.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #include <cassert>
 #include <map>

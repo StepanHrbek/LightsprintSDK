@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Radiosity solver - low level.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <assert.h>
 #ifndef _MSC_VER
 #include <inttypes.h> // intptr_t

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Mesh adapter.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "RRMeshLessVertices.h"
 
 namespace rr

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Trivial math for local use.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef RRVISION_GEOMETRY_H
 #define RRVISION_GEOMETRY_H
 

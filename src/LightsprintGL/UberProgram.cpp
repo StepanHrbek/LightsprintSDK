@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // UberProgram, fully general Program with optional #defines.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cstdlib>

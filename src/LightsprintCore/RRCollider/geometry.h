@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Helper AABB code for ray-mesh intersections.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef COLLIDER_GEOMETRY_H
 #define COLLIDER_GEOMETRY_H
 

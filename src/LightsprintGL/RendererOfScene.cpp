@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Renderer implementation that renders contents of RRDynamicSolver instance.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cassert>

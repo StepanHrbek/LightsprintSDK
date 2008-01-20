@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Ray-mesh intersection traversal - fast.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "IntersectBspFast.h"
 
 #define DBG(a) //a

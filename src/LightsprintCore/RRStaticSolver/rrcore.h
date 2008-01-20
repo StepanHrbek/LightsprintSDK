@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Radiosity solver - low level.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef RRVISION_RRCORE_H
 #define RRVISION_RRCORE_H
 

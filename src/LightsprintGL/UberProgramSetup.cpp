@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // UberProgramSetup, settings specific for our single UberProgram.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cstdio>

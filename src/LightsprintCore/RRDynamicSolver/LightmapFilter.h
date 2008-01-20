@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Offline lightmap filter.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #ifndef LIGHTMAPFILTER_H
 #define LIGHTMAPFILTER_H

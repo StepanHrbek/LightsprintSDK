@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Fireball, lightning fast realtime GI solver.
+// Copyright 2007-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Ray-mesh intersection traversal - linear.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "IntersectLinear.h"
 #include <assert.h>
 #ifndef _MSC_VER

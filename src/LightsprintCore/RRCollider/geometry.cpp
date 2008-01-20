@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Helper AABB code for ray-mesh intersections.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <assert.h>
 #include <math.h>
 #include <memory.h>

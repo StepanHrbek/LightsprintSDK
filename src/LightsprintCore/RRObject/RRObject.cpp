@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Object adapter.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <cassert>
 
 #include "../RRMesh/RRMeshFilter.h"

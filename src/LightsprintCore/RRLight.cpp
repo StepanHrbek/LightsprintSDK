@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Light source (point, spot, dir, but not emissive material, not skybox).
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRDebug.h"
 #include "RRMathPrivate.h"

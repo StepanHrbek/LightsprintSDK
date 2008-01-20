@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Parallel interpolator.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #include <cassert>
 #include <cfloat>

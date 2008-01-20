@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// RRCollider class - generic code for ray-mesh intersections.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "Lightsprint/RRCollider.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
@@ -91,9 +96,6 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRIntersectStats - statistics for library calls
 
 
 

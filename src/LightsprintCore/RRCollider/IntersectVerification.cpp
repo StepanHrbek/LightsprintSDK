@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Ray-mesh intersection traversal - verificator.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "IntersectVerification.h"
 
 #define DBG(a) //a

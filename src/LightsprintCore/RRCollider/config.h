@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Compile-time configuration of ray-mesh intersections.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef COLLIDER_CONFIG_H
 #define COLLIDER_CONFIG_H
 

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Fireball, lightning fast realtime GI solver.
+// Copyright 2007-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #ifndef RRPACKEDSOLVER_H
 #define RRPACKEDSOLVER_H

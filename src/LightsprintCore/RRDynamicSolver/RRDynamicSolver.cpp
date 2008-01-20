@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Dynamic GI solver.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <assert.h>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"

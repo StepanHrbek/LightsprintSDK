@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // RealtimeLight, provides multiple generated instances of light for area light simulation.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cassert>

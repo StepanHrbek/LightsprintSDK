@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Generic buffer code: load & save using FreeImage.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// Copyright 2006-2008 Lightsprint, Stepan Hrbek. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cassert>

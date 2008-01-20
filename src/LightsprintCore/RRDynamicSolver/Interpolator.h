@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Parallel interpolator.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #ifndef INTERPOLATOR_H
 #define INTERPOLATOR_H

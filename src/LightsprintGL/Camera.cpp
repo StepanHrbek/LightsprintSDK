@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // Camera with adjustable pos, dir, aspect, fov, near, far.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cmath>

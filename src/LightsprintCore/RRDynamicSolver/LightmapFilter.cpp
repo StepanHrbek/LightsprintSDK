@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Offline lightmap filter.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #include "LightmapFilter.h"
 #include "../RRMathPrivate.h"

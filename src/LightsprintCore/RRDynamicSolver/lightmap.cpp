@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Offline build of lightmaps and bent normal maps.
+// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #include <cmath> // necessary for mingw gcc4.3
 #include <cassert>

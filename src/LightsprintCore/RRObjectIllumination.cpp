@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Illumination buffers for single object.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <map>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/RRCollider.h" // ray6

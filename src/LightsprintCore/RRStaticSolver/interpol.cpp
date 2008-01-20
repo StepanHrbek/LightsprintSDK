@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Smoothing.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #ifdef _MSC_VER
 #pragma warning(disable:4530) // rucim za mistni operace se std::set a std::list ze nehodi exception. s vypnutymi exceptions je rr o 2.5% rychlejsi

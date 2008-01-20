@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Math for local use.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef RRMATHPRIVATE_H
 #define RRMATHPRIVATE_H
 

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Smoothing.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #ifndef RRVISION_INTERPOL_H
 #define RRVISION_INTERPOL_H

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Final gather support.
+// Copyright 2007-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 
 #include "gatherer.h"
 #include "rrcore.h"

@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Response to ray-mesh collision.
+// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include <cassert>
 
 #include "RRCollisionHandler.h"

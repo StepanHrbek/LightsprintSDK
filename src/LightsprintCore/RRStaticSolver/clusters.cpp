@@ -1,5 +1,6 @@
-#include <cassert>
-#include <cstdlib> // rand
-#include "clusters.h"
+// --------------------------------------------------------------------------
+// Custers.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
 
 

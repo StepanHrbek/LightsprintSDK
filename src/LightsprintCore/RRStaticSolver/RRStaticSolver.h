@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Radiosity solver - high level.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #ifndef RRSTATICSOLVER_H
 #define RRSTATICSOLVER_H
 

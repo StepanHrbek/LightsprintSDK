@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // TextureRenderer, helper for rendering 2D or cube texture in OpenGL 2.0.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007
+// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include <cassert>

@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // Water with reflection and waves.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 /*
 #include <GL/glew.h>

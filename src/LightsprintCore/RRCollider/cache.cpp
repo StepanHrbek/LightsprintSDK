@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Cache of acceleration structures for ray-mesh intersections.
+// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "cache.h"
 #include "sha1.h"
 #include <stdio.h>

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Viewer of lightmap.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #include "LightmapViewer.h"

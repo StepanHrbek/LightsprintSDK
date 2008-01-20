@@ -1,7 +1,6 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // Preserving GL state.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
+// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
 #ifndef PRESERVESTATE_H
