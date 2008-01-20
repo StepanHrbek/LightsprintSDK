@@ -1,6 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL.vs2008", "LightsprintGL\LightsprintGL.vs2008.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows.vs2008", "..\samples\PenumbraShadows\PenumbraShadows.vs2008.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -32,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2008", "..\sa
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore.vs2008", "LightsprintCore\LightsprintCore.vs2008.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -40,8 +45,8 @@ Global
 		Release static|Win32 = Release static|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug DLL|Win32.ActiveCfg = Release DLL|Win32
-		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug DLL|Win32.Build.0 = Release DLL|Win32
+		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug static|Win32.ActiveCfg = Debug static|Win32
 		{2D2907C3-3E69-234A-306C-243C989A3411}.Debug static|Win32.Build.0 = Debug static|Win32
 		{2D2907C3-3E69-234A-306C-243C989A3411}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
@@ -96,6 +101,14 @@ Global
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.ActiveCfg = Release static|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.Build.0 = Release static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.Build.0 = Debug static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.ActiveCfg = Release static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.Build.0 = Release static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
