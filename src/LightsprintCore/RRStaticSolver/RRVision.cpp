@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <stdio.h>
 
-#include "LicGen.h"
+#include "../LicGen.h"
 #include "rrcore.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
 

@@ -14,7 +14,7 @@
 #include <string.h>
 #include <time.h>     // gate
 //#include "libff/ff.h"
-#include "LicGen.h"
+#include "../LicGen.h"
 #include "rrcore.h"
 #include "clusters.h"
 
