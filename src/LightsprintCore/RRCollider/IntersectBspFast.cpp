@@ -15,22 +15,6 @@
 namespace rr
 {
 
-#ifdef TEST
-	bool     watch_tested = true;
-	unsigned watch_triangle;
-	real     watch_distance;
-	Vec3     watch_point3d;
-	#define TEST_RANGE(min,max,cond,tree) if(!watch_tested && min<=watch_distance && watch_distance<=max) \
-		RR_ASSERT(cond && tree->contains(watch_triangle)); // assert when wanted triangle is to be thrown away from tests
-		// If you see many diff_clear_miss in stats (when TEST is on),
-		//  it means that triangle that should be very easily hit is missed,
-		//  which means that something is wrong with bsp.
-		// How does TEST work: 
-		//  1. correct result is precalculated using LINEAR and 
-		//     if it should be easily hit (not close to border), it's stored into watch_triangle
-		//  2. each time subtree is thrown away during bsp traversal, watch_triangle is expected to not be inside
-		//  3. if watch_triangle is inside and thus thrown away, it's error -> this assert is thrown
-#else
 	#define TEST_RANGE(min,max,cond,tree) //RR_ASSERT(min<=max)
 		// disabled, because it happens too often,
 		// probably without causing problems
@@ -39,7 +23,6 @@ namespace rr
 		//  ze zacnu testovat usek, ktery je cely mimo puvodni min-max
 		// neprimy dukaz: pozorovane chyby byly mensi nez DELTA_BSP
 		// zaver: nezpusobuje skody, vypnout asserty
-#endif
 
 #define DBG(a) //a
 
@@ -491,13 +474,6 @@ begin:
 	const void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-#ifdef TEST
-		if(!watch_tested && *triangle == watch_triangle) 
-		{
-			watch_tested = true;
-			watch_point3d = ray->hitPoint3d;
-		}
-#endif
 		if(intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
 		{
 			RR_ASSERT(IS_NUMBER(distancePlane));
@@ -677,9 +653,6 @@ IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique ai
 {
 	RRReportInterval report(INF3,"Building collider for %d triangles ...\n",aimporter?aimporter->getNumTriangles():0);
 
-#ifdef TEST
-	test = new IntersectLinear(aimporter);
-#endif
 	triangleNP = NULL;
 	triangleSRLNP = NULL;
 	intersectTechnique = aintersectTechnique;
@@ -744,12 +717,6 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	DBG(printf("\n"));
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
 
-#ifdef TEST
-	ray->flags |= RRRay::FILL_PLANE + RRRay::FILL_DISTANCE;
-	RRRay& rayOrig = *RRRay::create(); rayOrig = *ray;
-	RRRay& ray2 = *RRRay::create(); ray2 = rayOrig;
-	bool hit2 = test->intersect(&ray2);
-#endif
 	bool hit = false;
 	RR_ASSERT(tree);
 
@@ -798,102 +765,6 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		hit = ray->collisionHandler->done();
 #endif
 test_no:
-#ifdef TEST
-	if(hit!=hit2 || (hit && hit2 && ray->hitTriangle!=ray2.hitTriangle))
-	{
-		const float delta = 0.001f;
-		watch_tested = true;
-		if(hit && hit2 && ray2.hitDistance==ray->hitDistance)
-		{
-			FILL_STATISTIC(intersectStats.diffOverlap++);
-			goto ok;
-		}
-		if(hit && (!hit2 || ray2.hitDistance>ray->hitDistance)) 
-		{
-			bool hitBorder = ray->hitPoint2d[0]<delta || ray->hitPoint2d[1]<delta || ray->hitPoint2d[0]+ray->hitPoint2d[1]>1-delta;
-			real tmp = ray->rayDir[0]*ray->hitPlane[0]+ray->rayDir[1]*ray->hitPlane[1]+ray->rayDir[2]*ray->hitPlane[2];
-			bool hitParallel = fabs(tmp)<delta;
-			/*RRRay ray5 = rayOrig;
-			update_hitPoint3d(&ray5,ray->hitDistance);
-			TriangleBody srl;
-			importer->getTriangleBody(ray->hitTriangle,&srl);
-			bool linearAbleToHit = intersect_triangle(&ray5,&srl);
-			if(!ableToHit)
-			{
-				// precalculated intersect_triangleSRLNP gives different result -> miss
-				FILL_STATISTIC(intersectStats.diffPrecalcMiss++);
-				goto ok;
-			}*/
-			if(hitBorder)
-			{
-				FILL_STATISTIC(intersectStats.diffTightHit++);
-				goto ok;
-			}
-			if(hitParallel)
-			{
-				FILL_STATISTIC(intersectStats.diffParallelHit++);
-				goto ok;
-			}
-			{
-				FILL_STATISTIC(intersectStats.diffClearHit++);
-				goto bad;
-			}
-		}
-		if(hit2 && (!hit || ray->hitDistance>ray2.hitDistance)) 
-		{
-			bool hit2Border = ray2.hitPoint2d[0]<delta || ray2.hitPoint2d[1]<delta || ray2.hitPoint2d[0]+ray2.hitPoint2d[1]>1-delta;
-			real tmp = ray2.rayDir[0]*ray2.hitPlane[0]+ray2.rayDir[1]*ray2.hitPlane[1]+ray2.rayDir[2]*ray2.hitPlane[2];
-			bool hit2Parallel = fabs(tmp)<delta;
-			RRRay& ray5 = *RRRay::create(); ray5 = rayOrig;
-			update_hitPoint3d(&ray5,ray2.hitDistance);
-			bool bspAbleToHit = intersect_triangleSRLNP(&ray5,triangleSRLNP+ray2.hitTriangle);
-			if(!bspAbleToHit)
-			{
-				// precalculated intersect_triangleSRLNP gives different result -> miss
-				FILL_STATISTIC(intersectStats.diffPrecalcMiss++);
-				goto ok;
-			}
-			if(hit2Border)
-			{
-				// extremely small numerical inprecisions -> tight miss
-				FILL_STATISTIC(intersectStats.diffTightMiss++);
-				goto ok;
-			}
-			if(hit2Parallel)
-			{
-				// ray is parallel to plane + extremely small numerical inprecisions -> miss
-				FILL_STATISTIC(intersectStats.diffParallelMiss++);
-				goto ok;
-			}
-			{
-				// unknown problem -> miss
-				FILL_STATISTIC(intersectStats.diffClearMissTested++);
-				watch_tested = false;
-				watch_triangle = ray2.hitTriangle;
-				watch_distance = ray2.hitDistance;
-				goto bad;
-			}
-			delete &ray5;
-		}
-		RR_ASSERT(0);
-	bad:
-		{RRRay& ray3 = *RRRay::create(); ray3 = rayOrig;
-		intersect_bspSRLNP(&ray3,tree,ray3.hitDistanceMax);
-		if(!watch_tested)
-		{
-			FILL_STATISTIC(intersectStats.diffClearMissTested--);
-			FILL_STATISTIC(intersectStats.diffClearMissNotTested++);
-			watch_tested = true;
-		}
-		RRRay& ray4 = *RRRay::create(); ray4 = rayOrig;
-		test->intersect(&ray4);
-		delete &ray3;
-		delete &ray4;}
-	ok:
-		delete &rayOrig;
-		delete &ray2;
-	}
-#endif
 
 	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;
@@ -905,9 +776,6 @@ IntersectBspFast IBP2::~IntersectBspFast()
 	free((void*)tree);
 	delete[] triangleNP;
 	delete[] triangleSRLNP;
-#ifdef TEST
-	delete test;
-#endif
 }
 
 // explicit instantiation

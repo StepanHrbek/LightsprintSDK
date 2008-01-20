@@ -68,9 +68,6 @@ namespace rr
 		TriangleNP*       triangleNP;
 		TriangleSRLNP*    triangleSRLNP;
 		IntersectTechnique intersectTechnique;
-#ifdef TEST
-		IntersectLinear*  test;
-#endif
 	};
 
 }

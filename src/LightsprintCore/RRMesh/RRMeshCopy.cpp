@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #ifdef _MSC_VER // this is personal choice: I use Boost only under MSVC
-//#define BOOST // support for load(filename) and save(filename)
+//#define USE_BOOST // support for load(filename) and save(filename)
 #endif
 
 #include "RRMeshCopy.h"
@@ -13,7 +13,7 @@
 //
 // save/load
 
-#ifdef BOOST
+#ifdef USE_BOOST
 
 #ifdef _MSC_VER
 #pragma warning(disable:4267)
@@ -100,7 +100,7 @@ bool RRMeshCopy::load(const char* filename)
 	return true;
 }
 
-#else // !BOOST
+#else // !USE_BOOST
 
 namespace rr
 {
@@ -115,7 +115,7 @@ bool RRMeshCopy::load(const char* filename)
 	return false;
 }
 
-#endif // !BOOST
+#endif // !USE_BOOST
 
 
 //////////////////////////////////////////////////////////////////////////////

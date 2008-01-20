@@ -15,7 +15,7 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#if defined(USE_SSE) || defined(USE_SSEU)
+#if defined(USE_SSEA) || defined(USE_SSEU)
 	#include <xmmintrin.h>
 #endif
 #include "../RRDynamicSolver/report.h"
@@ -47,7 +47,7 @@ davat mezi degeny i jehly?
 //
 // PackedTriangle
 
-#ifdef USE_SSE
+#ifdef USE_SSEA
 class PackedTriangle : public RRAligned
 {
 public:

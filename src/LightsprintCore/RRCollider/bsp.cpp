@@ -873,15 +873,6 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		t->plane = plane;
 	}
 
-#ifdef TEST
-	printf(kdroot?"KD":"BSP");
-	if(plane) for(int i=0;plane[i];i++) printf(" %d",plane[i]->id);
-	printf(" Front:");
-	if(front) for(int i=0;front[i];i++) printf(" %d",front[i]->id);
-	printf(" Back:");
-	if(back) for(int i=0;back[i];i++) printf(" %d",back[i]->id);
-	printf("\n");
-#endif
 
 	// uncomment to disable havran with wrong bbox
 	// let it commented, havan is fastest even with wrong bbox

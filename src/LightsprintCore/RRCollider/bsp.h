@@ -8,7 +8,7 @@
 
 #include "Lightsprint/RRCollider.h"
 
-//#define TEST // robustness test
+//#define TEST_BSP // robustness test
 
 namespace rr
 {
