@@ -1,3 +1,4 @@
+
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
 
@@ -52,3 +53,4 @@ struct ProcessTexelResult
 ProcessTexelResult processTexel(const ProcessTexelParams& pti);
 
 } // namespace
+

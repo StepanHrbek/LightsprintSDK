@@ -190,10 +190,6 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		RR_ASSERT(0);
 		return 0;
 	}
-	if(params && (params->applyLights||params->applyEnvironment))
-	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"updateLightmap(vertex buffer) ignores applyLights and applyEnvironment, use texture or updateLightmaps().\n"));
-	}
 	unsigned numPreImportVertices = (objectNumber>=0)
 		? getIllumination(objectNumber)->getNumPreImportVertices() // elements in original object vertex buffer
 		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
@@ -277,7 +273,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 {
 	RRReporter::report(INF3,"Updating vertex buffer, object %d/%d.\n",objectHandle,getNumObjects());
 
-	if(!priv->scene || !vertexBuffer)
+	if(!priv->scene || !vertexBuffer || !getIllumination(objectHandle))
 	{
 		RR_ASSERT(0);
 		return 0;

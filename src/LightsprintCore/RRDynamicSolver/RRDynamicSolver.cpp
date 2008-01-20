@@ -276,7 +276,9 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		dirtyFactors = true;
 		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
-	if(priv->dirtyStaticSolver && !priv->packedSolver)
+	if(priv->dirtyStaticSolver
+		&& !priv->packedSolver
+		)
 	{
 		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
 		priv->dirtyStaticSolver = false;

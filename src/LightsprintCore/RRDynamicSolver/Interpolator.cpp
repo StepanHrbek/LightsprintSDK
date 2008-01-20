@@ -1,3 +1,4 @@
+
 #include <cassert>
 #include <cfloat>
 #ifdef _OPENMP
@@ -138,3 +139,4 @@ void Interpolator::interpolate(const unsigned* src, unsigned* dst, void* unused)
 #endif
 
 } // namespace
+

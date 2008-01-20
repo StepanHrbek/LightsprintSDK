@@ -96,13 +96,12 @@ public:
 	U8      important:1;// jen pro ucely grabovani/loadovani fak
 
 	private:
-		friend class RRPackedSolver;
+		friend class Scene;
 		U8       cacheTime:5; // fix __frameNumber&0x1f if you change :5
 		U8       cacheValid:1;
 		U8       cornersAllocatedLn2:7;
 		U8       cacheDirect:1;
 		U8       cacheIndirect:1;
-	public://!!! for night edition
 		U16      corners;
 		Channels cache;	// cached irradiance
 		unsigned cornersAllocated();

@@ -526,6 +526,7 @@ namespace rr
 		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 
+
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
 		//
 		//! Depends on geometry but not on lighting, may be executed before static scene lighting is computed.
@@ -562,6 +563,7 @@ namespace rr
 		//! \return
 		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
 		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
+
 
 		//! Reads illumination of triangle's vertex in units given by measure.
 		//
@@ -612,7 +614,6 @@ namespace rr
 		//! This happens for example in game editor, when level designer stops moving mouse.
 		void reportInteraction();
 
-
 		//! Build and start Fireball. Optionally save it to file.
 		//
 		//! Builds Fireball from scratch, starts it and optionally saves it to file.
@@ -658,7 +659,6 @@ namespace rr
 		//! \return
 		//!  True if successful.
 		bool loadFireball(const char* filename);
-
 
 		//! Verifies data in solver and reports problems found using RRReporter.
 		//
@@ -737,7 +737,6 @@ namespace rr
 		//! but this way it's for free, without overhead.
 		void setDirectIlluminationBoost(RRReal boost);
 
-
 	private:
 
 		//! Detects direct illumination on all faces in scene and sends it to the solver.
@@ -754,10 +753,10 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
-		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
-		unsigned   updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
+		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
+		unsigned   updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void       updateVertexLookupTableDynamicSolver();
 		void       updateVertexLookupTablePackedSolver();
 		struct Private;

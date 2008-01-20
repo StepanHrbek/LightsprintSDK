@@ -1,3 +1,4 @@
+
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 #define BESTS 200 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
@@ -387,3 +388,4 @@ RRPackedSolver::~RRPackedSolver()
 }
 
 } // namespace
+

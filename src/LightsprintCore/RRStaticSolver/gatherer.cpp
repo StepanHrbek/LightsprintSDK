@@ -1,3 +1,4 @@
+
 #include "gatherer.h"
 #include "rrcore.h"
 
@@ -131,3 +132,4 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 }
 
 }; // namespace
+

@@ -1,3 +1,4 @@
+
 #ifndef INTERPOLATOR_H
 #define INTERPOLATOR_H
 
@@ -66,3 +67,4 @@ private:
 }; // namespace
 
 #endif
+

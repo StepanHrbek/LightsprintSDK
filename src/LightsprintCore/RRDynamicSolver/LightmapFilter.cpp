@@ -1,3 +1,4 @@
+
 #include "LightmapFilter.h"
 #include "../RRMathPrivate.h"
 #include <cstdio>
@@ -215,3 +216,4 @@ LightmapFilter::~LightmapFilter()
 }
 
 }; // namespace
+

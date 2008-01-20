@@ -1,3 +1,4 @@
+
 #include <cassert>
 #include <cfloat>
 #ifdef _OPENMP
@@ -863,7 +864,6 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RR_ASSERT(0);
 			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene.\n");
 			return false;
 		}
@@ -982,3 +982,4 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 }
 
 } // namespace
+

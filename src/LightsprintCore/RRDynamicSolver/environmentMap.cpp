@@ -1,3 +1,4 @@
+
 #include <cassert>
 #include <map>
 #ifdef _OPENMP
@@ -543,3 +544,4 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 
 
 } // namespace
+

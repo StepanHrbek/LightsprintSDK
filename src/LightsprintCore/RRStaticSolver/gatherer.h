@@ -1,3 +1,4 @@
+
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -46,3 +47,4 @@ protected:
 }; // namespace
 
 #endif
+

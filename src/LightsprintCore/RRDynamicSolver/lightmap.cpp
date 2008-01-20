@@ -1,3 +1,4 @@
+
 #include <cmath> // necessary for mingw gcc4.3
 #include <cassert>
 #include <cfloat>
@@ -412,10 +413,11 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		// create objects
 		calculateCore(0);
-		if( (!priv->scene && !priv->packedSolver) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if( (!priv->scene
+			&& !priv->packedSolver
+			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"Empty scene.\n");
-			RR_ASSERT(0);
+			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Empty scene.\n");
 			return 0;
 		}
 	}
@@ -659,3 +661,4 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 }
 
 } // namespace
+

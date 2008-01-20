@@ -1,3 +1,4 @@
+
 #ifndef LIGHTMAPFILTER_H
 #define LIGHTMAPFILTER_H
 
@@ -25,3 +26,4 @@ private:
 }; // namespace
 
 #endif // LIGHTMAPFILTER_H
+
