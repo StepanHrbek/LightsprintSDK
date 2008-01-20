@@ -58,8 +58,6 @@ namespace rr
 #ifdef _MSC_VER
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
-//#define GATE_IP
-//#define GATE_IP_DEE // off
 //#define GATE_RAYS // off
 #endif
 
@@ -263,7 +261,6 @@ unsigned Factors::factorsAllocated()
 {
 	return 1<<(factors24_allocated8&0xff);
 }
-
 
 void Factors::insert(Factor afactor)
 {
