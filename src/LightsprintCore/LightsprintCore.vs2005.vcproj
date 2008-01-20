@@ -683,7 +683,7 @@
 				>
 			</File>
 			<File
-				RelativePath="RRIllumination\RRObjectIllumination.cpp"
+				RelativePath="RRObjectIllumination.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -935,7 +935,7 @@
 			Name="RRLight"
 			>
 			<File
-				RelativePath=".\RRLight\RRLight.cpp"
+				RelativePath="RRLight.cpp"
 				>
 			</File>
 			<File
