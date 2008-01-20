@@ -51,4 +51,4 @@ protected:
 
 }; // namespace
 
-#endif RRBUFFERINMEMORY_H
+#endif
