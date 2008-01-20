@@ -591,10 +591,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRMesh\RRMeshMulti.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRMesh\RRMeshMulti.h"
 				>
 			</File>
