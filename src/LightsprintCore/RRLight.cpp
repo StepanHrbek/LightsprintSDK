@@ -1,6 +1,6 @@
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRDebug.h"
-#include "../RRMathPrivate.h"
+#include "RRMathPrivate.h"
 
 namespace rr
 {
