@@ -18,7 +18,7 @@
 #include "bsp.h"
 #include "cache.h"
 #include "IntersectLinear.h"
-#include "LicGenOpt.h"
+#include "LicGen.h"
 #include "sha1.h"
 
 namespace rr
