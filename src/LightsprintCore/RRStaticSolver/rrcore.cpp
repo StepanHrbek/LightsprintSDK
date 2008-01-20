@@ -55,12 +55,6 @@ namespace rr
 //#define EXPENSIVE_CHECKS
 //#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
 
-#ifdef _MSC_VER
-//#define GATE_SHOTS 10000 // max photons from one shooter
-//#define GATE_QUALITY 5000000 // max photons in scene
-//#define GATE_RAYS // off
-#endif
-
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
