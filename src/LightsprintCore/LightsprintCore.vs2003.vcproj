@@ -433,10 +433,10 @@
 		<Filter
 			Name="RRObject">
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.cpp">
+				RelativePath="RRObject\RRCollisionHandler.cpp">
 			</File>
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.h">
+				RelativePath="RRObject\RRCollisionHandler.h">
 			</File>
 			<File
 				RelativePath="RRObject\RRMaterial.cpp">
@@ -457,10 +457,10 @@
 				RelativePath="RRObject\RRObjectMulti.h">
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithIllumination.h">
+				RelativePath="RRObject\RRObjectWithIllumination.h">
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.cpp">
+				RelativePath="RRObject\RRObjectWithPhysicalMaterials.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
 					<Tool
@@ -475,7 +475,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h">
+				RelativePath="RRObject\RRObjectWithPhysicalMaterials.h">
 			</File>
 			<File
 				RelativePath="RRObject\RRScaler.cpp">
@@ -508,10 +508,10 @@
 				RelativePath="RRStaticSolver\clusters.h">
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.cpp">
+				RelativePath="RRStaticSolver\gatherer.cpp">
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.h">
+				RelativePath="RRStaticSolver\gatherer.h">
 			</File>
 			<File
 				RelativePath="RRStaticSolver\geometry_v.cpp">
@@ -682,16 +682,16 @@
 		<Filter
 			Name="RRBuffer">
 			<File
-				RelativePath=".\RRBuffer\RRBuffer.cpp">
+				RelativePath="RRBuffer\RRBuffer.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRBuffer.h">
 			</File>
 			<File
-				RelativePath=".\RRBuffer\RRBufferInMemory.cpp">
+				RelativePath="RRBuffer\RRBufferInMemory.cpp">
 			</File>
 			<File
-				RelativePath=".\RRBuffer\RRBufferInMemory.h">
+				RelativePath="RRBuffer\RRBufferInMemory.h">
 			</File>
 		</Filter>
 		<File

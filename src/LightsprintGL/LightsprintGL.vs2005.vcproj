@@ -440,7 +440,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\PreserveState.h"
+			RelativePath="PreserveState.h"
 			>
 		</File>
 		<File
@@ -512,7 +512,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Texture.cpp"
+			RelativePath="Texture.cpp"
 			>
 		</File>
 		<File

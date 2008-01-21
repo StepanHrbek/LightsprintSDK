@@ -606,11 +606,11 @@
 			Name="RRObject"
 			>
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.cpp"
+				RelativePath="RRObject\RRCollisionHandler.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRCollisionHandler.h"
+				RelativePath="RRObject\RRCollisionHandler.h"
 				>
 			</File>
 			<File
@@ -638,11 +638,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithIllumination.h"
+				RelativePath="RRObject\RRObjectWithIllumination.h"
 				>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.cpp"
+				RelativePath="RRObject\RRObjectWithPhysicalMaterials.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -662,7 +662,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h"
+				RelativePath="RRObject\RRObjectWithPhysicalMaterials.h"
 				>
 			</File>
 			<File
@@ -706,11 +706,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.cpp"
+				RelativePath="RRStaticSolver\gatherer.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\gatherer.h"
+				RelativePath="RRStaticSolver\gatherer.h"
 				>
 			</File>
 			<File
@@ -742,7 +742,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\RRStaticSolver.h"
+				RelativePath="RRStaticSolver\RRStaticSolver.h"
 				>
 			</File>
 			<File
@@ -774,7 +774,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolver\gather.cpp"
+				RelativePath="RRDynamicSolver\gather.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -794,7 +794,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolver\gather.h"
+				RelativePath="RRDynamicSolver\gather.h"
 				>
 			</File>
 			<File
@@ -842,15 +842,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolver\LightmapFilter.cpp"
+				RelativePath="RRDynamicSolver\LightmapFilter.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolver\LightmapFilter.h"
+				RelativePath="RRDynamicSolver\LightmapFilter.h"
 				>
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolver\private.h"
+				RelativePath="RRDynamicSolver\private.h"
 				>
 			</File>
 			<File
@@ -910,19 +910,19 @@
 			Name="RRPackedSolver"
 			>
 			<File
-				RelativePath=".\RRPackedSolver\PackedSolverFile.h"
+				RelativePath="RRPackedSolver\PackedSolverFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\RRPackedSolver\PackedSolverFileBuild.cpp"
+				RelativePath="RRPackedSolver\PackedSolverFileBuild.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRPackedSolver\RRPackedSolver.cpp"
+				RelativePath="RRPackedSolver\RRPackedSolver.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRPackedSolver\RRPackedSolver.h"
+				RelativePath="RRPackedSolver\RRPackedSolver.h"
 				>
 			</File>
 		</Filter>
@@ -942,7 +942,7 @@
 			Name="RRBuffer"
 			>
 			<File
-				RelativePath=".\RRBuffer\RRBuffer.cpp"
+				RelativePath="RRBuffer\RRBuffer.cpp"
 				>
 			</File>
 			<File
@@ -950,11 +950,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRBuffer\RRBufferInMemory.cpp"
+				RelativePath="RRBuffer\RRBufferInMemory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\RRBuffer\RRBufferInMemory.h"
+				RelativePath="RRBuffer\RRBufferInMemory.h"
 				>
 			</File>
 		</Filter>
@@ -975,7 +975,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RRMemory.cpp"
+			RelativePath="RRMemory.cpp"
 			>
 		</File>
 		<File
