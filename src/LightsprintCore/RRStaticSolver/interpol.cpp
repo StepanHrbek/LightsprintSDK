@@ -1215,12 +1215,6 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	delete[] topivertex;
 	check();
 
-	// check vertexIVertex validity
-	for(unsigned v=0;v<vertices;v++)
-	{
-		//!!! happens with generated ball, reason unknown
-		//RR_ASSERT(vertexIVertex[v]);
-	}
 
 	// check triangle.topivertex validity
 	check();

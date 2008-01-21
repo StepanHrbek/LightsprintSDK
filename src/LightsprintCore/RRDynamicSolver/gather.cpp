@@ -212,78 +212,12 @@ public:
 			RRVec3 dir = getRandomExitDir(fillerDir, n3, u3, v3);
 			RRReal dirsize = dir.length();
 
-RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
-//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
-irradianceHemisphere += irrad;
-bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
-hitsScene++;
-hitsReliable++;
-/*return;
-
-			// intersect scene
-			pti.ray->rayDirInv[0] = dirsize/dir[0];
-			pti.ray->rayDirInv[1] = dirsize/dir[1];
-			pti.ray->rayDirInv[2] = dirsize/dir[2];
-			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // 2d is only for point materials
-			pti.ray->collisionHandler = &collisionHandler;
-			bool hit = tools.collider->intersect(pti.ray);
-#ifdef DIAGNOSTIC_RAYS
-			bool unreliable = hit && (!pti.ray->hitFrontSide || pti.ray->hitDistance<pti.context.params->rugDistance);
-			LOG_RAY(pti.ray->rayOrigin,dir,hit?pti.ray->hitDistance:0.2f,!hit,unreliable);
-#endif
-			if(!hit)
-			{
-				// read irradiance on sky
-				if(tools.environment)
-				{
-					//irradianceIndirect += environment->getValue(dir);
-					RRVec3 irrad = tools.environment->getValue(dir);
-					if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
-					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
-					irradianceHemisphere += irrad;
-					bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
-				}
-				hitsSky++;
-				hitsReliable++;
-			}
-			else
-			if(!pti.ray->hitFrontSide) //!!! zde nerespektuje surfaceBits
-			{
-				// ray was lost inside object, 
-				// increase our transparency, so our color doesn't leak outside object
-				hitsInside++;
-				hitsUnreliable++;
-			}
-			else
-			if(pti.ray->hitDistance<pti.context.params->rugDistance)
-			{
-				// ray hit rug, very close object
-				hitsRug++;
-				hitsUnreliable++;
-			}
-			else
-			{
-				//!!! zde chybi odraz od leskleho, refrakce
-				// read texel irradiance as face exitance
-				if(pti.context.params->applyCurrentSolution)
-				{
-					RRVec3 irrad;
-					// muzu do RM_EXITANCE_PHYSICAL dat pti.context.params->measure.direct/indirect?
-					//	-ve 1st gatheru chci direct(emisivita facu a realtime spotlight), indirect je 0
-					//	-ve final gatheru chci direct(emisivita facu a realtime spotlight) i indirect(neco spoctene minulym calculate)
-					// ano ale je to neprakticke, neudelam to.
-					// protoze je pracne vzdy spravne zapnout dir+indir, casto se v tom udela chyba
-					pti.context.solver->priv->scene->getTriangleMeasure(pti.ray->hitTriangle,3,
-						RM_EXITANCE_PHYSICAL,
-						//RRRadiometricMeasure(1,0,0,pti.context.params->measure.direct,pti.context.params->measure.indirect),
-						NULL,irrad);
-					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
-					irradianceHemisphere += irrad;
-					bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
-				}
-				hitsScene++;
-				hitsReliable++;
-			}*/
+			RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,pti.tri.triangleIndex,RRVec3(1));
+			//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
+			irradianceHemisphere += irrad;
+			bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
+			hitsScene++;
+			hitsReliable++;
 	}
 
 	// once after shooting
