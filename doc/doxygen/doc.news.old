@@ -8,6 +8,62 @@ namespace rr
 
 \page main_news What's new
 
+\section news36 ------------------------------------ 2007.10.31 -------------------------------------
+
+NEWS
+
+- GeForce 5xxx support added, other compatibility improvements
+- RRIlluminationEnvironmentMap::createSky()
+  \n creates environment with two uniform colors for upper and lower hemisphere
+- rr_gl::RRDynamicSolverGL works in higher precision, may be changed in constructor
+
+CHANGES
+
+- rr::RRMaterial::specularTransmittance extended from scalar value to rgb
+- removed SmoothingParameters::smoothMode
+- removed RRColorI8
+
+\section news35 ------------------------------------ 2007.10.14 -------------------------------------
+
+NEWS
+
+- extended RRObjectIllumination, reflection maps for dynamic objects added
+- RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
+- RRDynamicSolver::verify(),
+  \n tests data in solver and reports problems, analogous to RRMesh::verify()
+- faster realtime lighting, higher quality penumbra shadows
+- RRIlluminationVertexBuffer::lockWriting(), optional lock for writing
+
+CHANGES
+
+- renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
+- modified RRDynamicSolver::calculate(), takes parameters from
+  \n RRDynamicSolver::CalculateParams, makes realtime lighting quality adjustable
+- renamed and modified RRDynamicSolver::updateEnvironmentMaps() to RRDynamicSolver::updateEnvironmentMap(),
+  \n parameters moved to RRObjectIllumination
+- renamed RRIlluminationVertexBuffer::lock() -> RRIlluminationVertexBuffer::lockReading()
+
+\section news34 ------------------------------------ 2007.9.23 -------------------------------------
+
+CHANGES
+
+- RRDynamicSolver::detectDirectIllumination() returns pointer to array of irradiances,
+  \n rather than directly pushing irradiances into RRObject.
+- RRDynamicSolver::setDirectIlluminationBoost() replaces RRDynamicSolverGL::boostDetectedDirectIllumination
+- RRReportType CONT removed
+
+\section news33 ------------------------------------ 2007.9.20 -------------------------------------
+
+NEWS
+
+- Fireball: faster, higher quality, smaller, realtime solver, recommended for games.
+  \n New functions:
+  \n   RRDynamicSolver::buildFireball() - build from scratch
+  \n   RRDynamicSolver::loadFireball() - load from disk
+  \n Demonstrated in:
+  \n   RealtimeRadiosity sample
+- RRVector::clear(), similar to std::vector::clear()
+
 \section news32 ------------------------------------ 2007.9.11 -------------------------------------
 
 NEWS
