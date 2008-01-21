@@ -15,14 +15,7 @@
 namespace rr
 {
 
-	#define TEST_RANGE(min,max,cond,tree) //RR_ASSERT(min<=max)
-		// disabled, because it happens too often,
-		// probably without causing problems
-		// pravdepodobna pricina: facy vzdycky kvuli floatovym nepresnostem hledam az DELTA_BSP
-		//  pred a za min-max range. kdyz v tom presahu narazim na delici rovinu, muze se treba stat
-		//  ze zacnu testovat usek, ktery je cely mimo puvodni min-max
-		// neprimy dukaz: pozorovane chyby byly mensi nez DELTA_BSP
-		// zaver: nezpusobuje skody, vypnout asserty
+		#define TEST_RANGE(min,max,cond,tree)
 
 #define DBG(a) //a
 
