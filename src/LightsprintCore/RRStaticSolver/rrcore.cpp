@@ -68,8 +68,6 @@ namespace rr
 //
 // license
 
-bool                     licenseStatusValid = false;
-RRLicense::LicenseStatus licenseStatus = RRLicense::WRONG;
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -124,14 +124,12 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 
 RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation)
 {
-	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	return scene->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
 RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(void*), void* context)
 {
-	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	return scene->improveStatic(endfunc, context);
 }
@@ -228,11 +226,6 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	if(triangle>=obj->triangles)
 	{
 		RR_ASSERT(0);
-		goto zero;
-	}
-	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID)
-	{
-		//RR_ASSERT(0);
 		goto zero;
 	}
 	tri = &obj->triangle[triangle];
@@ -362,7 +355,8 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 			if(si.texCoord[i][1]>1.1) {DBG(printf("d%f ",si.texCoord[i][1]));RR_ASSERT(0);}
 			si.texCoord[i][1] = 1;
 		}
-		if(!context2 || licenseStatus!=RRLicense::VALID)
+		if(!context2
+			)
 		{
 			RR_ASSERT(0);
 			return;
@@ -415,11 +409,6 @@ unsigned RRStaticSolver::getSubtriangleMeasure(unsigned triangle, RRRadiometricM
 		si.measure[2] = Vec3(0);
 		if(callback) callback(si,context);
 		return 1;
-	}
-	if(!licenseStatusValid)
-	{
-		RR_ASSERT(0);
-		return 0;
 	}
 
 	SubtriangleIlluminationContext sic(measure);

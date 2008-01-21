@@ -19,21 +19,9 @@ namespace rr
 
 
 
-RRLicense::LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
-{
-	licenseStatusValid = true;
-	licenseStatus = RRLicense::VALID;
-	return RRLicense::VALID;
-}
-
 RRLicense::LicenseStatus RRLicense::loadLicense(const char* filename)
 {
-	RRLicenseCollider::loadLicense(filename);
-	char* owner = NULL;
-	char* number = NULL;
-	RRLicense::LicenseStatus status = registerLicense(owner,number);
-	delete[] owner;
-	return status;
+	return RRLicense::VALID;
 }
 
 } // namespace

@@ -224,7 +224,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;SUPPORT_LICGEN"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
