@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news45 ------------------------------------ 2008.1.x -------------------------------------
+\section news45 ------------------------------------ 2008.1.21 -------------------------------------
 
 NEWS
 
@@ -16,6 +16,11 @@ NEWS
 - samples/Import - universal loader of collada, 3ds, quake3, mgf scenes
 - SceneViewer sample supports collada, 3ds, quake3, mgf
 - RRScaler and RRMaterial have new scaling functions
+
+CHANGES
+
+- by default, debug libraries are used when building debug exe, release when building release
+  \n defining RR_DEBUG or RR_GL_DEBUG has no effect
 
 \section news44 ------------------------------------ 2008.1.15 -------------------------------------
 

@@ -1986,10 +1986,12 @@ Used by samples:
    \n Irradiance values are typically stored in custom scale to fit 
    in 8bit precision, but physical or other HDR scale could be used too.
 
- \section glinking Automatic linking
-   By default, including library header automatically links Release DLL version of library using \#pragma comment(lib,name).
-   \n \#define RR_DEBUG / RR_GL_DEBUG selects Debug DLL instead of Release DLL.
-   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic DLL linking.
+ \section glinking Automatic library linking
+   By default, including library header automatically links Lightsprint DLLs using \#pragma comment(lib,name).
+   Debug library is linked to debug exe, Release library to release exe.
+   \n \#define RR_STATIC / RR_GL_STATIC selects static library instead of DLL.
+   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic library linking,
+      so you can e.g. manually link release library with debug exe.
    \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL)
 
  \section gunits Illumination units (radiometry, photometry, screen)
@@ -2423,7 +2425,7 @@ Used by samples:
  - \ref inputs_quake3 details
 
  <hr>
- <b>ImportMGF</a>
+ <b>ImportMGF</b>
  - source code of MGF loader
  - \ref inputs_mgf details
 

@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
-PROJECT_NUMBER         = 2008.1.15
+PROJECT_NUMBER         = 2008.1.21
 OUTPUT_DIRECTORY       = "C:/Documents and Settings/Dee/Dokumenty/C/rr/doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -81,25 +81,25 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMath.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMemory.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDebug.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRBuffer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRLight.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMesh.h" \
+INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRBuffer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRCollider.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDebug.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RRDynamicSolverGL.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/LightmapViewer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfRRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfScene.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RealtimeLight.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRLight.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMath.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMemory.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMesh.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRObject.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRVector.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/DemoEngine.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Program.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RealtimeLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Renderer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfRRObject.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfScene.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RRDynamicSolverGL.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/SceneViewer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Texture.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/TextureRenderer.h" \
