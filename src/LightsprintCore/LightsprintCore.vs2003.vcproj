@@ -331,18 +331,6 @@
 				RelativePath="RRCollider\RRRay.cpp">
 			</File>
 			<Filter
-				Name="Miniball">
-				<File
-					RelativePath="RRCollider\miniball.h">
-				</File>
-				<File
-					RelativePath="RRCollider\miniball_config.h">
-				</File>
-				<File
-					RelativePath="RRCollider\wrapped_array.h">
-				</File>
-			</Filter>
-			<Filter
 				Name="SHA1">
 				<File
 					RelativePath="RRCollider\sha1.cpp">
