@@ -234,6 +234,8 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	RRRay* rays = RRRay::create(2);
 #endif
 
+
+
 #ifndef DIAGNOSTIC_RAYS
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static,1, static
 #endif

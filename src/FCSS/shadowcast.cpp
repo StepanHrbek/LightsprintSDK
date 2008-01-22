@@ -2468,7 +2468,7 @@ int main(int argc, char **argv)
 	// init GL
 	int major, minor;
 	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("OpenGL 2.0 capable graphics card is required.\n",true);
+		error("Graphics card driver doesn't support OpenGL 2.0.\n",true);
 	init_gl_states();
 	const char* vendor = (const char*)glGetString(GL_VENDOR);
 	const char* renderer = (const char*)glGetString(GL_RENDERER);
