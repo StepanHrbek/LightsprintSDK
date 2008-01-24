@@ -748,17 +748,17 @@ namespace rr
 		//!  Parameters of update process.
 		//! \param updateBentNormals
 		//!  Set it always to false.
-		virtual bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect, bool updateBentNormals);
+		bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect, bool updateBentNormals);
 
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
-		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
+		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
-		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
-		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
-		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
-		unsigned   updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
-		void       updateVertexLookupTableDynamicSolver();
-		void       updateVertexLookupTablePackedSolver();
+		bool gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
+		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
+		void calculateCore(float improveStep,CalculateParameters* params=NULL);
+		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
+		void updateVertexLookupTableDynamicSolver();
+		void updateVertexLookupTablePackedSolver();
 		struct Private;
 		Private* priv;
 		friend class GatheredIrradianceHemisphere;
