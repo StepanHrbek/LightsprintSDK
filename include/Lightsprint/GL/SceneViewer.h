@@ -16,7 +16,7 @@ namespace rr_gl
 
 //! Runs interactive scene viewer.
 //
-//! It renders scene with realtime GI or precomputed GI in layer 0.
+//! It renders scene with realtime or precomputed GI, with interactive options.
 //!
 //! Controls:
 //! - right mouse button ... menu
@@ -28,7 +28,7 @@ namespace rr_gl
 //! \param solver
 //!  Scene to be displayed.
 //! \param createWindow
-//!  True=initializes GL context and creates window. False=expects context and window already exist.
+//!  True=initializes GL context and creates window. False=expects that context and window already exist.
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
 //!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".

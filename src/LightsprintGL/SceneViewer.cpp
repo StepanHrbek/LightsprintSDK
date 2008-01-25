@@ -934,6 +934,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	if(_createWindow)
 	{
+		deleteAllTextures();
 		glutDestroyWindow(window);
 	}
 	if(ourEnv) delete solver->getEnvironment();

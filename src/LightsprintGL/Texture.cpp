@@ -174,7 +174,10 @@ bool Texture::renderingToBegin(unsigned side)
 {
 	if(!buffer) return false;
 
-	if(!globalFBO) globalFBO = new FBO();
+	if(!globalFBO)
+	{
+		globalFBO = new FBO();
+	}
 	if(side>=6 || (cubeOr2d!=GL_TEXTURE_CUBE_MAP && side))
 	{
 		RR_ASSERT(0);
