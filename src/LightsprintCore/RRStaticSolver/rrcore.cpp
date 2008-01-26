@@ -23,11 +23,6 @@
 #include "rrcore.h"
 #include "clusters.h"
 
-/*/ asserts also in release
-#include <windows.h>
-#undef assert
-#define RR_ASSERT(a) {if(!(a)) DebugBreak();}*/
-
 namespace rr
 {
 

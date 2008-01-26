@@ -251,10 +251,8 @@ private:
 			unsigned tris[2] = {0,0};
 			for(unsigned i=0;i<numObjects;i++) 
 			{
-				RR_ASSERT(objects[i]);
-				RR_ASSERT(objects[i]->getCollider());
-				RR_ASSERT(objects[i]->getCollider()->getMesh());
-				tris[(i<num1)?0:1] += objects[i]->getCollider()->getMesh()->getNumTriangles();
+				RR_ASSERT(!objects[i] || (objects[i]->getCollider() && objects[i]->getCollider()->getMesh()));
+				tris[(i<num1)?0:1] += objects[i] ? objects[i]->getCollider()->getMesh()->getNumTriangles() : 0;
 			}
 
 			// create multiobject

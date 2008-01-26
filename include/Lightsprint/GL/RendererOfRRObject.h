@@ -73,7 +73,7 @@ public:
 	//!  If you plan to render object only once,
 	//!  technique without buffers (false) is faster and takes less memory.
 	//!  \n Technique without buffers doesn't support setIndirectIlluminationBuffers().
-	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
+	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RenderedChannels
@@ -181,6 +181,7 @@ public:
 
 private:
 	friend class ObjectBuffers;
+	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
 	enum IndirectIlluminationSource
 	{
 		NONE,

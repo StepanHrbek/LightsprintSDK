@@ -182,6 +182,8 @@ void RRDynamicSolverGL::updateDirtyLights()
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
+	if(!getMultiObjectCustom()) return;
+
 	// alloc space for detected direct illum
 	unsigned updated = 0;
 	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
@@ -317,7 +319,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererObject = getMultiObjectCustom();
 		if(rendererObject)
 		{
-			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),this,getScaler(),true);
+			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this,getScaler(),true);
 			rendererCaching = rendererNonCaching->createDisplayList();
 		}
 	}

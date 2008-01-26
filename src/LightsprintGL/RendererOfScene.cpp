@@ -131,7 +131,7 @@ void RendererOfRRDynamicSolver::setBrightnessGamma(const rr::RRVec4* brightness,
 void RendererOfRRDynamicSolver::render()
 {
 	rr::RRReportInterval report(rr::INF3,"Rendering optimized scene...\n");
-	if(!params.solver || !params.solver->getMultiObjectCustom())
+	if(!params.solver)
 	{
 		RR_ASSERT(0);
 		return;
@@ -139,19 +139,6 @@ void RendererOfRRDynamicSolver::render()
 	if(params.uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
 		rr::RRReporter::report(rr::WARN,"LIGHT_INDIRECT_MAP incompatible with useOptimizedScene().\n");
-		return;
-	}
-
-	// create helper renderers
-	if(!rendererNonCaching)
-	{
-		rendererNonCaching = new RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver,params.solver->getScaler(),true);
-	}
-	if(!rendererCaching && rendererNonCaching)
-		rendererCaching = rendererNonCaching->createDisplayList();
-	if(!rendererCaching)
-	{
-		RR_ASSERT(0);
 		return;
 	}
 
@@ -179,6 +166,25 @@ void RendererOfRRDynamicSolver::render()
 		{
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
+	}
+
+	if(!params.solver->getMultiObjectCustom())
+	{
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering empty static scene.\n"));
+		return;
+	}
+
+	// create helper renderers
+	if(!rendererNonCaching)
+	{
+		rendererNonCaching = RendererOfRRObject::create(params.solver->getMultiObjectCustom(),params.solver,params.solver->getScaler(),true);
+	}
+	if(!rendererCaching && rendererNonCaching)
+		rendererCaching = rendererNonCaching->createDisplayList();
+	if(!rendererCaching)
+	{
+		RR_ASSERT(0);
+		return;
 	}
 
 	if(params.uberProgramSetup.LIGHT_INDIRECT_auto)
@@ -349,7 +355,7 @@ void RendererOfOriginalScene::render()
 	// + easily supported by getNextPass()
 	// - many shader changes, reusing shaders already set was removed
 	// + open path for future multi-light passes
-	for(unsigned i=0;i<params.solver->getNumObjects();i++)
+	for(unsigned i=0;i<params.solver->getNumObjects();i++) if(params.solver->getObject(i))
 	{
 		// - working copy of params.uberProgramSetup
 		UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
@@ -417,27 +423,32 @@ void RendererOfOriginalScene::render()
 			// - create missing renderers
 			if(i>=renderersNonCaching.size())
 			{
-				renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getObject(i),NULL,NULL,true));
+				while(i>renderersNonCaching.size()) renderersNonCaching.push_back(NULL); // renderers with lower i missing? -> must be NULL objects, set NULL renderers
+				renderersNonCaching.push_back(rr_gl::RendererOfRRObject::create(params.solver->getObject(i),NULL,NULL,true));
 			}
 			if(i>=renderersCaching.size())
 			{
+				while(i>renderersCaching.size()) renderersCaching.push_back(NULL); // renderers with lower i missing? -> must be NULL objects, set NULL renderers
 				renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
 			}
 			// - render
-			renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
+			if(renderersNonCaching[i])
 			{
-				renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
-				program->sendUniform("lightIndirectBlend",layerBlend);
+				renderersNonCaching[i]->setRenderedChannels(renderedChannels);
+				if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
+				{
+					renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
+					program->sendUniform("lightIndirectBlend",layerBlend);
+				}
+				else
+				{
+					renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+				}
+				if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
+					renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
+				else
+					renderersCaching[i]->render(); // cache everything else, it's constant
 			}
-			else
-			{
-				renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
-			}
-			if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
-				renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
-			else
-				renderersCaching[i]->render(); // cache everything else, it's constant
 		}
 	}
 }

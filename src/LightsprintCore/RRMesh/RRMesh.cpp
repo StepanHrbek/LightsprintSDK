@@ -290,6 +290,7 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 
 RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform)
 {
+	if(!this) return NULL;
 	//!!! az bude refcounting, muzu pri identite vracet this
 	//return transform ? new RRTransformedMeshFilter(this,transform) : this;
 	return new RRTransformedMeshFilter(this,transform);
@@ -302,6 +303,7 @@ RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes)
 
 RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
 {
+	if(!this) return NULL;
 	if(vertexStitchMaxDistance<0)
 		return this;
 	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
@@ -313,6 +315,7 @@ RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
 
 RRMesh* RRMesh::createOptimizedTriangles()
 {
+	if(!this) return NULL;
 	RRMesh* tmp = new RRLessTrianglesFilter(this);
 	if(tmp->getNumTriangles()<getNumTriangles())
 		return tmp;
@@ -332,6 +335,7 @@ public:
 
 RRMesh* RRMesh::createVertexBufferRuler()
 {
+	if(!this) return NULL;
 	return new RRHidePreImportFilter(this);
 }
 

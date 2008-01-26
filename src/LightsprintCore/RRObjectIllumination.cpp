@@ -47,7 +47,7 @@ RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 
 unsigned RRObjectIllumination::getNumPreImportVertices() const
 {
-	return numPreImportVertices;
+	return this ? numPreImportVertices : 0;
 }
 
 RRObjectIllumination::~RRObjectIllumination()

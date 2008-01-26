@@ -19,19 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*#include <windows.h>
-#undef assert
-#define RR_ASSERT(a) {if(!(a)) DebugBreak();}
-//#define RR_ASSERT(a) {if(!(a) && IsDebuggerPresent()) DebugBreak();}
-char *FS(char *fmt, ...)
-{
-	static char msg[1000];
-	va_list argptr;
-	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
-	va_end (argptr);
-	return msg;
-}*/
 #define TRACE(a) //{if(RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
 
 namespace rr

@@ -19,15 +19,24 @@ namespace rr_gl
 //
 // RendererOfRRObject
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
+RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers)
 {
-	params.object = objectImporter;
-	params.scene = radiositySolver;
-	params.scaler = scaler;
+	if(object)
+		return new RendererOfRRObject(object,solver,scaler,useBuffers);
+	else
+		return NULL;
+}
+
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver, const rr::RRScaler* _scaler, bool _useBuffers)
+{
+	RR_ASSERT(_object);
+	params.object = _object;
+	params.scene = _solver;
+	params.scaler = _scaler;
 	//params.renderedChannels = ... set to default by constructor
 	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
-	params.lastCapturedTrianglePlus1 = objectImporter->getCollider()->getMesh()->getNumTriangles();
+	params.lastCapturedTrianglePlus1 = _object->getCollider()->getMesh()->getNumTriangles();
 	params.indirectIlluminationSource = NONE;
 	params.indirectIlluminationLayer = 0;
 	params.indirectIlluminationLayer2 = 0;
@@ -43,12 +52,12 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, rr::R
 
 	indexedYes = NULL;
 	indexedNo = NULL;
-	if(useBuffers)
+	if(_useBuffers)
 	{
-		indexedYes = new ObjectBuffers(objectImporter,true);
+		indexedYes = new ObjectBuffers(_object,true);
 		if(!indexedYes->inited())
 			SAFE_DELETE(indexedYes);
-		indexedNo = new ObjectBuffers(objectImporter,false);
+		indexedNo = new ObjectBuffers(_object,false);
 		if(!indexedNo->inited())
 			SAFE_DELETE(indexedNo);
 	}

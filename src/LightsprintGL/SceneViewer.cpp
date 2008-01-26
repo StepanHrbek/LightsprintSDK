@@ -269,7 +269,7 @@ public:
 				renderRealtime = false;
 				for(unsigned i=0;i<solver->getNumObjects();i++)
 				{	
-					if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
+					if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(layerNumber) && solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
 					{
 						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
 						rr_gl::getTexture(solver->getIllumination(i)->getLayer(layerNumber))->bindTexture();
@@ -312,7 +312,7 @@ public:
 					// propagate computed data from buffers to textures
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if(solver->getIllumination(i)->getLayer(layerNumber) && solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
+						if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(layerNumber) && solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
 							getTexture(solver->getIllumination(i)->getLayer(layerNumber))->reset(true);
 					}
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
@@ -323,10 +323,13 @@ public:
 					// allocate buffers
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						delete solver->getIllumination(i)->getLayer(layerNumber);
-						solver->getIllumination(i)->getLayer(layerNumber) = item
-							? rr::RRBuffer::create(rr::BT_2D_TEXTURE,-item,-item,1,rr::BF_RGB,true,NULL)
-							: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						if(solver->getIllumination(i))
+						{
+							delete solver->getIllumination(i)->getLayer(layerNumber);
+							solver->getIllumination(i)->getLayer(layerNumber) = item
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,-item,-item,1,rr::BF_RGB,true,NULL)
+								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						}
 					}
 					// reset cache, GL texture ids changed
 					if(item)
@@ -643,9 +646,11 @@ void display(void)
 				unsigned lmap = 0;
 				for(unsigned i=0;i<numObjects;i++)
 				{
-					if(solver->getIllumination(i)->getLayer(layerNumber))
+					if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(layerNumber))
+					{
 						if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
 						if(solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
+					}
 				}
 				textOutput(x,y+=18,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
 			}
@@ -658,10 +663,10 @@ void display(void)
 		unsigned numLights = solver->getLights().size();
 		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
 		const rr::RRObject* singleObject = solver->getObject(selectedObjectIndex);
-		const rr::RRMesh* multiMesh = multiObject->getCollider()->getMesh();
-		const rr::RRMesh* singleMesh = singleObject->getCollider()->getMesh();
-		unsigned numTrianglesMulti = multiMesh->getNumTriangles();
-		unsigned numTrianglesSingle = singleMesh->getNumTriangles();
+		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
+		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
+		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
+		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 		if(selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[selectedLightIndex];
@@ -677,7 +682,7 @@ void display(void)
 				case rr::RRLight::NONE:        textOutput(x,y+=18,"dist att: none"); break;
 				case rr::RRLight::PHYSICAL:    textOutput(x,y+=18,"dist att: physically correct"); break;
 				case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
-				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-distance/%f)^%f)",rrlight->radius,rrlight->fallOffExponent); break;
+				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-distance/%f)^%f",rrlight->radius,rrlight->fallOffExponent); break;
 			}
 			static RealtimeLight* lastLight = NULL;
 			static unsigned numLightReceivers = 0;
@@ -699,7 +704,7 @@ void display(void)
 			textOutput(x,y+=18,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
 			textOutput(x,y+=18,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 		}
-		if(selectedObjectIndex<solver->getNumObjects())
+		if(singleMesh && selectedObjectIndex<solver->getNumObjects())
 		{
 			textOutput(x,y+=18*2,"[static object %d/%d]",selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
@@ -729,6 +734,7 @@ void display(void)
 			textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 			textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 		}
+		if(multiMesh)
 		{
 			rr::RRRay* ray = rr::RRRay::create();
 			rr::RRVec3 dir = eye.dir.RRVec3::normalized();

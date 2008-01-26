@@ -29,48 +29,51 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
-		unsigned numPostImportVertices = mesh->getNumVertices();
-		unsigned numPostImportTriangles = mesh->getNumTriangles();
-		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-
-		priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
-
-		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		if(illumination)
 		{
-			RRMesh::Triangle postImportTriangleVertices;
-			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
-			for(unsigned v=0;v<3;v++)
+			RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
+			unsigned numPostImportVertices = mesh->getNumVertices();
+			unsigned numPostImportTriangles = mesh->getNumTriangles();
+			unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+
+			priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
+
+			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
-				unsigned postImportVertex = postImportTriangleVertices[v];
-				if(postImportVertex<numPostImportVertices)
+				RRMesh::Triangle postImportTriangleVertices;
+				mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
+				for(unsigned v=0;v<3;v++)
 				{
-					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
-					RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
-					if(preVertexMulti.object==objectHandle)
-						preVertex = preVertexMulti.index;
-					else
-						continue; // skip asserts
-					if(priv->scene && !priv->scene->scene->object->triangle[postImportTriangle].topivertex[v])
+					unsigned postImportVertex = postImportTriangleVertices[v];
+					if(postImportVertex<numPostImportVertices)
 					{
-						// static solver doesn't like this triangle and set surface NULL, probably because it is needle
-						// let it UNDEFINED
-					}
-					else
-					if(preVertex<numPreImportVertices)
-					{
-						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
+						unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+						RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
+						if(preVertexMulti.object==objectHandle)
+							preVertex = preVertexMulti.index;
+						else
+							continue; // skip asserts
+						if(priv->scene && !priv->scene->scene->object->triangle[postImportTriangle].topivertex[v])
+						{
+							// static solver doesn't like this triangle and set surface NULL, probably because it is needle
+							// let it UNDEFINED
+						}
+						else
+						if(preVertex<numPreImportVertices)
+						{
+							priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
+						}
+						else
+						{
+							// should not get here. let it UNDEFINED
+							RR_ASSERT(0);
+						}
 					}
 					else
 					{
 						// should not get here. let it UNDEFINED
 						RR_ASSERT(0);
 					}
-				}
-				else
-				{
-					// should not get here. let it UNDEFINED
-					RR_ASSERT(0);
 				}
 			}
 		}

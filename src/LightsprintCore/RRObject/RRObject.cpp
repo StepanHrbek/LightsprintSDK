@@ -59,7 +59,7 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 
 RRMesh* RRObject::createWorldSpaceMesh()
 {
-	return getCollider()->getMesh()->createTransformed(getWorldMatrix());
+	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
 
 RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)

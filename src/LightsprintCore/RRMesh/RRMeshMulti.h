@@ -146,7 +146,6 @@ public:
 
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
-//		RR_ASSERT(0);//!!! just mark that this code was not tested
 		if(postImportVertex<pack[0].getNumVertices()) 
 		{
 			return pack[0].getMesh()->getPreImportVertex(postImportVertex, postImportTriangle);
@@ -164,7 +163,6 @@ public:
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
-		RR_ASSERT(0);//!!! just mark that this code was not tested
 		MultiMeshPreImportNumber preImportV = preImportVertex;
 		MultiMeshPreImportNumber preImportT = preImportTriangle;
 		if(preImportV.object<pack[0].getNumObjects()) 
@@ -246,9 +244,8 @@ private:
 		{
 			packImporter = importer;
 			numObjects = objects;
-			RR_ASSERT(importer);
-			numVertices = importer->getNumVertices();
-			numTriangles = importer->getNumTriangles();
+			numVertices = importer ? importer->getNumVertices() : 0;
+			numTriangles = importer ? importer->getNumTriangles() : 0;
 		}
 		const RRMesh*   getMesh() const {return packImporter;}
 		unsigned        getNumObjects() const {return numObjects;}

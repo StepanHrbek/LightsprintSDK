@@ -80,6 +80,17 @@ const RRLights& RRDynamicSolver::getLights() const
 
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing)
 {
+	// check inputs
+	unsigned nullObjects = 0;
+	unsigned nullIllums = 0;
+	for(unsigned i=0;i<_objects.size();i++)
+	{
+		if(!_objects[i].object) nullObjects++;
+		if(!_objects[i].illumination) nullIllums++;
+	}
+	if(nullObjects) RRReporter::report(WARN,"setStaticObjects: Bad input, object==NULL in %d/%d objects, may crash.\n",nullObjects,_objects.size());
+	if(nullIllums) RRReporter::report(WARN,"setStaticObjects: Bad input, illumination==NULL in %d/%d objects, may crash.\n",nullIllums,_objects.size());
+
 	priv->objects = _objects;
 	priv->smoothing = _smoothing ? *_smoothing : SmoothingParameters();
 	priv->dirtyStaticSolver = true;
@@ -103,8 +114,11 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
 	{
 		importers[i] = priv->objects[i].object;
-		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
-		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
+		if(importers[i])
+		{
+			origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
+			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
+		}
 	}
 	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,NULL);
 	delete[] importers;
@@ -269,6 +283,8 @@ private:
 //  does no timing adjustments
 void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
+	if(!getMultiObjectCustom()) return;
+
 	// replace NULL by default parameters
 	static CalculateParameters s_params;
 	if(!_params) _params = &s_params;

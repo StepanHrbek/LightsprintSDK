@@ -630,17 +630,20 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			// for each object with vertex buffer
 			for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 			{
-				if(layerNumberLighting>=0)
+				if(getIllumination(objectHandle))
 				{
-					RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
-					if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
-				}
-				if(layerNumberBentNormals>=0)
-				{
-					RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
-					if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
-						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+					if(layerNumberLighting>=0)
+					{
+						RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+						if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+					}
+					if(layerNumberBentNormals>=0)
+					{
+						RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
+						if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+					}
 				}
 			}
 			delete[] finalGather;
@@ -653,7 +656,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting);
+			RRBuffer* lightmap = (layerNumberLighting>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberLighting) : NULL;
 			if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
 			RRBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals);
 			if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
