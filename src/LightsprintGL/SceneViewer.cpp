@@ -262,6 +262,7 @@ public:
 				render2d = 0;
 				break;
 			case ME_STATIC_2D:
+				renderRealtime = 0;
 				render2d = 1;
 				break;
 			case ME_STATIC_BILINEAR:
@@ -566,59 +567,64 @@ void display(void)
 	{
 		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),solver->getObject(selectedObjectIndex)->getCollider()->getMesh(),bilinear);
 		LightmapViewer::display();
-		return;
 	}
-	if(exitRequested || !winWidth || !winHeight) return; // can't display without window
+	else
+	{
+		if(exitRequested || !winWidth || !winHeight) return; // can't display without window
 
-	eye.update();
+		eye.update();
 
-	solver->calculate();
+		solver->calculate();
 
-	glClear(GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
-	UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
-	uberProgramSetup.LIGHT_DIRECT = renderRealtime;
-	uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
-	uberProgramSetup.LIGHT_DIRECT_MAP = renderRealtime;
-	uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
-	uberProgramSetup.LIGHT_INDIRECT_auto = true;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = renderDiffuse;
-	uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = renderEmission;
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
-	solver->renderScene(uberProgramSetup,NULL);
-	if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		eye.setupForRender();
+		UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_MAPS = 1;
+		uberProgramSetup.SHADOW_SAMPLES = 1;
+		uberProgramSetup.LIGHT_DIRECT = renderRealtime;
+		uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
+		uberProgramSetup.LIGHT_DIRECT_MAP = renderRealtime;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
+		uberProgramSetup.LIGHT_INDIRECT_auto = true;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = renderDiffuse;
+		uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = renderEmission;
+		uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+		uberProgramSetup.POSTPROCESS_GAMMA = true;
+		if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+		solver->renderScene(uberProgramSetup,NULL);
+		if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		if(renderHelpers)
+		{
+			// render light frames
+			solver->renderLights();
+
+			// render lines
+			glBegin(GL_LINES);
+			enum {LINES=100, SIZE=100};
+			for(unsigned i=0;i<LINES+1;i++)
+			{
+				if(i==LINES/2)
+				{
+					glColor3f(0,0,1);
+					glVertex3f(0,-0.5*SIZE,0);
+					glVertex3f(0,+0.5*SIZE,0);
+				}
+				else
+					glColor3f(0,0,0.3f);
+				float q = (i/float(LINES)-0.5f)*SIZE;
+				glVertex3f(q,0,-0.5*SIZE);
+				glVertex3f(q,0,+0.5*SIZE);
+				glVertex3f(-0.5*SIZE,0,q);
+				glVertex3f(+0.5*SIZE,0,q);
+			}
+			glEnd();
+		}
+	}
 
 	if(renderHelpers)
 	{
-		// render light frames
-		solver->renderLights();
-
-		// render lines
-		glBegin(GL_LINES);
-		enum {LINES=100, SIZE=100};
-		for(unsigned i=0;i<LINES+1;i++)
-		{
-			if(i==LINES/2)
-			{
-				glColor3f(0,0,1);
-				glVertex3f(0,-0.5*SIZE,0);
-				glVertex3f(0,+0.5*SIZE,0);
-			}
-			else
-				glColor3f(0,0,0.3f);
-			float q = (i/float(LINES)-0.5f)*SIZE;
-			glVertex3f(q,0,-0.5*SIZE);
-			glVertex3f(q,0,+0.5*SIZE);
-			glVertex3f(-0.5*SIZE,0,q);
-			glVertex3f(+0.5*SIZE,0,q);
-		}
-		glEnd();
-
 		// render properties
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_MODELVIEW);
@@ -633,7 +639,7 @@ void display(void)
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15,'.');
 		int x = 10;
 		int y = 10;
-		textOutput(x,y+=18,"right mouse button = menu");
+		textOutput(x,y+=18,"controls: right mouse button, wasdqzxc, mouse, +-*/");
 		unsigned numObjects = solver->getNumObjects();
 		{
 			if(renderRealtime)
@@ -655,6 +661,7 @@ void display(void)
 				textOutput(x,y+=18,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
 			}
 		}
+		if(!render2d || !lv)
 		{
 			textOutput(x,y+=18*2,"[camera]");
 			textOutput(x,y+=18,"pos: %f %f %f",eye.pos[0],eye.pos[1],eye.pos[2]);
@@ -667,7 +674,7 @@ void display(void)
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
-		if(selectedLightIndex<solver->realtimeLights.size())
+		if(!render2d || !lv) if(selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[selectedLightIndex];
 			const rr::RRLight* rrlight = rtlight->origin;
@@ -734,7 +741,16 @@ void display(void)
 			textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 			textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 		}
-		if(multiMesh)
+		rr::RRBuffer* buffer = solver->getIllumination(selectedObjectIndex) ? solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) : NULL;
+		if(buffer && !renderRealtime)
+		{
+			textOutput(x,y+=18*2,"[lightmap]");
+			textOutput(x,y+=18,"type: %s",(buffer->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((buffer->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
+			textOutput(x,y+=18,"size: %d*%d*%d",buffer->getWidth(),buffer->getHeight(),buffer->getDepth());
+			textOutput(x,y+=18,"format: %s",(buffer->getFormat()==rr::BF_RGB)?"RGB":((buffer->getFormat()==rr::BF_RGBA)?"RGBA":((buffer->getFormat()==rr::BF_RGBF)?"RGBF":((buffer->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
+			textOutput(x,y+=18,"scale: %s",buffer->getScaled()?"custom(usually sRGB)":"physical(linear)");
+		}
+		if(multiMesh && !render2d || !lv)
 		{
 			rr::RRRay* ray = rr::RRRay::create();
 			rr::RRVec3 dir = eye.dir.RRVec3::normalized();
@@ -795,6 +811,23 @@ void display(void)
 			}
 			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
 			delete ray;
+		}
+		if(multiMesh && render2d && lv)
+		{
+			rr::RRVec2 uv = LightmapViewer::getCenterUv();
+			textOutput(x,y+=18*2,"[point in the middle of viewport]");
+			textOutput(x,y+=18,"uv: %f %f",uv[0],uv[1]);
+			if(buffer && buffer->getType()==rr::BT_2D_TEXTURE)
+			{
+				int i = int(uv[0]*buffer->getWidth());
+				int j = int(uv[1]*buffer->getHeight());
+				textOutput(x,y+=18,"ij: %d %d",i,j);
+				if(i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
+				{
+					rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
+					textOutput(x,y+=18,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
+				}
+			}
 		}
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);

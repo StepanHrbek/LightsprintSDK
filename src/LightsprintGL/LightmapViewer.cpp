@@ -105,6 +105,24 @@ void LightmapViewer::passive(int x, int y)
 	}
 }
 
+rr::RRVec2 LightmapViewer::getCenterUv()
+{
+	// copy of code from display(), could be simplified
+	unsigned winWidth = glutGet(GLUT_WINDOW_WIDTH);
+	unsigned winHeight = glutGet(GLUT_WINDOW_HEIGHT);
+	unsigned bw = buffer ? buffer->getWidth() : 1;
+	unsigned bh = buffer ? buffer->getHeight() : 1;
+	float mult = MIN(winWidth/(float)bw,winHeight/float(bh))*0.9f;
+	bw = (unsigned)(mult*bw);
+	bh = (unsigned)(mult*bh);
+	float x = 0.5f + ( center[0] - bw*0.5f )*zoom/winWidth;
+	float y = 0.5f + ( center[1] - bh*0.5f )*zoom/winHeight;
+	float w = bw*zoom/winWidth;
+	float h = bh*zoom/winHeight;
+	// new code
+	return rr::RRVec2(-(x-0.5f)/w,-(y-0.5f)/h);
+}
+
 void LightmapViewer::display()
 {
 	if(!lmapProgram || !lmapAlphaProgram || !lineProgram)
@@ -180,9 +198,6 @@ void LightmapViewer::display()
 	// restore states
 	glEnable(GL_DEPTH_TEST);
 	glUseProgram(0); // prevents crashes in Radeon driver in AmbientOcclusion sample
-
-	// show it
-	glutSwapBuffers();
 }
 
 }; // namespace

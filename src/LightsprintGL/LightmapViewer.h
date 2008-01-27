@@ -39,6 +39,9 @@ public:
 	//! Callback for glut.
 	static void display();
 
+	//! Returns uv of point in the center of screen. Range: usually 0..1, may be out of range when user moves texture away.
+	static rr::RRVec2 getCenterUv();
+
 private:
 	LightmapViewer(const char* pathToShaders);
 };
