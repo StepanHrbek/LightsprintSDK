@@ -46,6 +46,7 @@ private:
 	LightmapViewer(const char* pathToShaders);
 };
 
+
 }; // namespace
 
 #endif

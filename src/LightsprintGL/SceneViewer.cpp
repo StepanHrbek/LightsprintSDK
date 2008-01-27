@@ -72,6 +72,8 @@ bool                       bilinear = 1;
 bool                       ourEnv = 0; // whether environment is owned by us
 LightmapViewer*            lv = NULL; // 2d lightmap viewer
 unsigned                   layerNumber = 0; // layer used for all static lighting operations
+unsigned                   centerObject = UINT_MAX; // object in the middle of screen
+unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -167,6 +169,12 @@ public:
 		glutAddMenuEntry("           quality 100",100);
 		glutAddMenuEntry("           quality 1000",1000);
 		glutAddMenuEntry("Build selected obj, only direct",ME_STATIC_BUILD1);
+#ifdef DEBUG_TEXEL
+		glutAddMenuEntry("Diagnose texel, quality 1", ME_STATIC_DIAGNOSE1);
+		glutAddMenuEntry("                quality 10", ME_STATIC_DIAGNOSE10);
+		glutAddMenuEntry("                quality 100", ME_STATIC_DIAGNOSE100);
+		glutAddMenuEntry("                quality 1000", ME_STATIC_DIAGNOSE1000);
+#endif
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
@@ -301,6 +309,22 @@ public:
 					solver->resetRenderCache();
 				}
 				break;
+#ifdef DEBUG_TEXEL
+			case ME_STATIC_DIAGNOSE1:
+			case ME_STATIC_DIAGNOSE10:
+			case ME_STATIC_DIAGNOSE100:
+			case ME_STATIC_DIAGNOSE1000:
+				{
+					if(centerObject!=UINT_MAX)
+					{
+						rr::RRDynamicSolver::UpdateParameters params(item+1-ME_STATIC_DIAGNOSE1);
+						params.debugObject = centerObject;
+						params.debugTexel = centerTexel;
+						solver->updateLightmaps(layerNumber,-1,&params,&params,NULL);
+					}
+				}
+				break;
+#endif
 			default:
 				if(item>0)
 				{
@@ -379,6 +403,12 @@ protected:
 		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
 		ME_STATIC_BUILD1,
+#ifdef DEBUG_TEXEL
+		ME_STATIC_DIAGNOSE1    = 10001,
+		ME_STATIC_DIAGNOSE10   = 10010,
+		ME_STATIC_DIAGNOSE100  = 10100,
+		ME_STATIC_DIAGNOSE1000 = 11000,
+#endif
 		ME_STATIC_LOAD,
 		ME_STATIC_SAVE,
 	};
@@ -626,6 +656,8 @@ void display(void)
 	if(renderHelpers)
 	{
 		// render properties
+		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
+		centerTexel = UINT_MAX;
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -716,7 +748,6 @@ void display(void)
 			textOutput(x,y+=18*2,"[static object %d/%d]",selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh->getNumVertices());
-			textOutput(x,y+=18,"lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)?(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
 			static const rr::RRObject* lastObject = NULL;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
@@ -740,15 +771,18 @@ void display(void)
 			}
 			textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 			textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
-		}
-		rr::RRBuffer* buffer = solver->getIllumination(selectedObjectIndex) ? solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) : NULL;
-		if(buffer && !renderRealtime)
-		{
-			textOutput(x,y+=18*2,"[lightmap]");
-			textOutput(x,y+=18,"type: %s",(buffer->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((buffer->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
-			textOutput(x,y+=18,"size: %d*%d*%d",buffer->getWidth(),buffer->getHeight(),buffer->getDepth());
-			textOutput(x,y+=18,"format: %s",(buffer->getFormat()==rr::BF_RGB)?"RGB":((buffer->getFormat()==rr::BF_RGBA)?"RGBA":((buffer->getFormat()==rr::BF_RGBF)?"RGBF":((buffer->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
-			textOutput(x,y+=18,"scale: %s",buffer->getScaled()?"custom(usually sRGB)":"physical(linear)");
+			textOutput(x,y+=18,"lit: %s",renderRealtime?"realtime":"static");
+			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(selectedObjectIndex) ? solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) : NULL;
+			if(bufferSelectedObj)
+			{
+				if(renderRealtime) glColor3f(0.5f,0.5f,0.5f);
+				textOutput(x,y+=18,"[lightmap]");
+				textOutput(x,y+=18,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
+				textOutput(x,y+=18,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
+				textOutput(x,y+=18,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
+				textOutput(x,y+=18,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
+				glColor3f(1,1,1);
+			}
 		}
 		if(multiMesh && !render2d || !lv)
 		{
@@ -784,6 +818,18 @@ void display(void)
 				textOutput(x,y+=18,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 				textOutput(x,y+=18,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 				textOutput(x,y+=18,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
+				rr::RRBuffer* bufferCenter = solver->getIllumination(preTriangle.object) ? solver->getIllumination(preTriangle.object)->getLayer(layerNumber) : NULL;
+				if(bufferCenter)
+				{
+					int i = int(uvInLightmap[0]*bufferCenter->getWidth());
+					int j = int(uvInLightmap[1]*bufferCenter->getHeight());
+					textOutput(x,y+=18,"ij in lightmap: %d %d",i,j);
+					if(i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
+					{
+						centerObject = preTriangle.object;
+						centerTexel = i + j*bufferCenter->getWidth();
+					}
+				}
 				textOutput(x,y+=18,"distance: %f",ray->hitDistance);
 				textOutput(x,y+=18,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
 				textOutput(x,y+=18,"norm.: %f %f %f",norm[0],norm[1],norm[2]);
@@ -817,6 +863,7 @@ void display(void)
 			rr::RRVec2 uv = LightmapViewer::getCenterUv();
 			textOutput(x,y+=18*2,"[point in the middle of viewport]");
 			textOutput(x,y+=18,"uv: %f %f",uv[0],uv[1]);
+			rr::RRBuffer* buffer = solver->getIllumination(selectedObjectIndex) ? solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) : NULL;
 			if(buffer && buffer->getType()==rr::BT_2D_TEXTURE)
 			{
 				int i = int(uv[0]*buffer->getWidth());
@@ -824,6 +871,8 @@ void display(void)
 				textOutput(x,y+=18,"ij: %d %d",i,j);
 				if(i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
 				{
+					centerObject = selectedObjectIndex;
+					centerTexel = i + j*buffer->getWidth();
 					rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
 					textOutput(x,y+=18,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
 				}
@@ -837,8 +886,6 @@ void display(void)
 
 	glutSwapBuffers();
 }
-
-		
 
 void idle()
 {

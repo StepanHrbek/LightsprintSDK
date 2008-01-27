@@ -123,11 +123,11 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 					unsigned polySize = 4;
 					RRVec2 polyVertexInTriangleSpace[7] =
 					{
-						#define MAPSPACE_TO_TRIANGLESPACE(x,y) RRVec2( x*inv[0][0] + y*inv[0][1] + inv[0][2], x*inv[1][0] + y*inv[1][1] + inv[1][2] )
+						#define MAPSPACE_TO_TRIANGLESPACE(x,y) RRVec2( (x)*inv[0][0] + (y)*inv[0][1] + inv[0][2], (x)*inv[1][0] + (y)*inv[1][1] + inv[1][2] )
 						MAPSPACE_TO_TRIANGLESPACE(x,y),
-						MAPSPACE_TO_TRIANGLESPACE(x,y+1),
 						MAPSPACE_TO_TRIANGLESPACE(x+1,y),
-						MAPSPACE_TO_TRIANGLESPACE(x+1,y+1)
+						MAPSPACE_TO_TRIANGLESPACE(x+1,y+1),
+						MAPSPACE_TO_TRIANGLESPACE(x,y+1),
 						#undef MAPSPACE_TO_TRIANGLESPACE
 					};
 					RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[0]));
@@ -218,18 +218,21 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		{
 			if(texels[i+j*mapWidth].size())
 			{
-				ProcessTexelParams ptp(tc);
-				ptp.uv[0] = i;
-				ptp.uv[1] = j;
-				ptp.subTexels = texels+i+j*mapWidth;
+				if(tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) // process only texel selected for debugging
+				{
+					ProcessTexelParams ptp(tc);
+					ptp.uv[0] = i;
+					ptp.uv[1] = j;
+					ptp.subTexels = texels+i+j*mapWidth;
 #ifdef _OPENMP
-				ptp.rays = rays+2*omp_get_thread_num();
+					ptp.rays = rays+2*omp_get_thread_num();
 #else
-				ptp.rays = rays;
+					ptp.rays = rays;
 #endif
-				ptp.rays[0].rayLengthMin = minimalSafeDistance;
-				ptp.rays[1].rayLengthMin = minimalSafeDistance;
-				callback(ptp);
+					ptp.rays[0].rayLengthMin = minimalSafeDistance;
+					ptp.rays[1].rayLengthMin = minimalSafeDistance;
+					callback(ptp);
+				}
 			}
 		}
 	}
@@ -238,7 +241,6 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	delete[] texels;
 	delete[] rays;
 }
-
 
 void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
 {
@@ -376,13 +378,15 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 
 		if(tc.pixelBuffer)
 		{
-			flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering),priv->scaler);
+			if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
+				flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering),priv->scaler);
 			delete tc.pixelBuffer;
 			updatedBuffers++;
 		}
 		if(tc.bentNormalsPerPixel)
 		{
-			flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering),priv->scaler);
+			if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
+				flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering),priv->scaler);
 			delete tc.bentNormalsPerPixel;
 			updatedBuffers++;
 		}
@@ -523,13 +527,16 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRBuffer* lightmap = (layerNumberLighting>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberLighting) : NULL;
-			if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
-			RRBuffer* bentNormals = (layerNumberBentNormals>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberBentNormals) : NULL;
-			if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
-			if(lightmap || bentNormals)
+			if(paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) // skip objects when debugging texel
 			{
-				updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
+				RRBuffer* lightmap = (layerNumberLighting>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberLighting) : NULL;
+				if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
+				RRBuffer* bentNormals = (layerNumberBentNormals>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberBentNormals) : NULL;
+				if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
+				if(lightmap || bentNormals)
+				{
+					updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
+				}
 			}
 		}
 	}

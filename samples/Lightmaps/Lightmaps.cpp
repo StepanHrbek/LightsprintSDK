@@ -99,6 +99,7 @@ bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // rendering scene
@@ -239,7 +240,6 @@ void keyboard(unsigned char c, int x, int y)
 			realtimeIllumination = false;
 			break;
 		
-
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
 			{

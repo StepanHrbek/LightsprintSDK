@@ -360,6 +360,11 @@ namespace rr
 			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
 			RRRadiometricMeasure measure_internal;
 
+			//! For debugging only, to be described later.
+			unsigned debugObject;
+			//! For debugging only, to be described later.
+			unsigned debugTexel;
+
 			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::detectDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
@@ -371,6 +376,8 @@ namespace rr
 				rugDistance = 0.001f;
 				locality = 100000;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
+				debugObject = UINT_MAX;
+				debugTexel = UINT_MAX;
 			}
 			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
 			UpdateParameters(unsigned _quality)
@@ -383,6 +390,8 @@ namespace rr
 				rugDistance = 0.001f;
 				locality = 100000;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
+				debugObject = UINT_MAX;
+				debugTexel = UINT_MAX;
 			}
 		};
 

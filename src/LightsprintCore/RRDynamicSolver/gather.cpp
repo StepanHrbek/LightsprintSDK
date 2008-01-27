@@ -501,6 +501,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	RRVec3 cache_u3;
 	RRVec3 cache_v3;
 
+
 	// shoot
 	while(1)
 	{
