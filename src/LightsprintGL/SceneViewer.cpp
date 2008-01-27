@@ -443,7 +443,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'c':
 		case 'C': speedLean = +1; break;
 
-		case 27: exitRequested = 1; break;
+		case 27: if(render2d) render2d = 0; else exitRequested = 1; break;
 	}
 	solver->reportInteraction();
 }
