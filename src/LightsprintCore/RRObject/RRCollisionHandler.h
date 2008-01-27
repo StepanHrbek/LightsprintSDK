@@ -23,14 +23,14 @@ public:
 	}
 	virtual bool collides(const RRRay* ray)
 	{
-		result = result || (ray->hitTriangle!=skip);
-		return ray->hitTriangle!=skip;
+		result = result || (ray->hitTriangle!=skipTriangleIndex);
+		return ray->hitTriangle!=skipTriangleIndex;
 	}
 	virtual bool done()
 	{
 		return result;
 	}
-	unsigned skip;
+	unsigned skipTriangleIndex;
 private:
 	bool result;
 };
@@ -43,23 +43,21 @@ private:
 //! Creates and returns collision handler, that finds closest receiver for given emitor.
 //
 //! Supports optional point details (e.g. alpha keying) provided by RRObject::getPointMaterial().
-//! \n Finds closest surface with RRMaterial::sideBits::catchFrom && triangleNumber!=emitorTriangleNumber.
+//! \n Finds closest surface with RRMaterial::sideBits::catchFrom && triangleIndex!=emitorTriangleIndex.
 //!
 //! Thread safe: this function yes, but created collision handler no.
 //!  Typical use case is: for n threads, use 1 collider, n rays and n handlers.
-//! \param emitorTriangleNumber
-//!  Number of triangle that never collides, it is skipped. It is usually used for emitor where ray begins.
 //! \param allowPointMaterials
 //!  True to use point materials when available, false to always use only per-triangle materials.
 
 class RRCollisionHandlerFirstReceiver : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerFirstReceiver(const RRObject* _multiObject,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
+	RRCollisionHandlerFirstReceiver(const RRObject* _multiObject,bool _allowPointMaterials)
 	{
 		multiObject = _multiObject;
-		emitorTriangleNumber = _emitorTriangleNumber;
 		allowPointMaterials = _allowPointMaterials;
+		skipTriangleIndex = UINT_MAX; // set manually before intersect
 	}
 	virtual void init()
 	{
@@ -67,7 +65,7 @@ public:
 	}
 	virtual bool collides(const RRRay* ray)
 	{
-		if(ray->hitTriangle!=emitorTriangleNumber)
+		if(ray->hitTriangle!=skipTriangleIndex)
 		{
 			triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 			if(triangleMaterial)
@@ -110,11 +108,11 @@ public:
 		return triangleMaterial;
 	}
 
+	unsigned skipTriangleIndex;
 private:
 	bool result;
 	const RRObject* multiObject;
 	bool allowPointMaterials;
-	unsigned emitorTriangleNumber;
 
 	// when collision is found, contact material is stored here:
 	const RRMaterial* triangleMaterial;
@@ -136,13 +134,13 @@ private:
 class RRCollisionHandlerVisibility : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerVisibility(const RRObject* _multiObject,const RRObject* _singleObjectReceiver,const RRLight* _light,unsigned _emitorTriangleNumber,bool _allowPointMaterials)
+	RRCollisionHandlerVisibility(const RRObject* _multiObject,const RRObject* _singleObjectReceiver,const RRLight* _light,bool _allowPointMaterials)
 	{
 		multiObject = _multiObject;
 		singleObjectReceiver = _singleObjectReceiver;
 		light = _light;
-		emitorTriangleNumber = _emitorTriangleNumber;
 		allowPointMaterials = _allowPointMaterials;
+		skipTriangleIndex = UINT_MAX; // set manually before intersect
 	}
 	virtual void init()
 	{
@@ -150,7 +148,7 @@ public:
 	}
 	virtual bool collides(const RRRay* ray)
 	{
-		if(ray->hitTriangle!=emitorTriangleNumber)
+		if(ray->hitTriangle!=skipTriangleIndex)
 		{
 			const RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 			if(triangleMaterial)
@@ -204,11 +202,11 @@ public:
 
 
 	const RRLight* light;
+	unsigned skipTriangleIndex;
 private:
 	const RRObject* multiObject;
 	const RRObject* singleObjectReceiver;
 	bool allowPointMaterials;
-	unsigned emitorTriangleNumber;
 
 	RRReal visibility;
 	unsigned legal;

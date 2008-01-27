@@ -13,16 +13,6 @@
 namespace rr
 {
 
-struct ProcessTriangleInfo
-{
-	unsigned triangleIndex;
-	RRVec3 normal;
-	RRVec3 pos3d; //!!! to be removed (pouzito pro umisteni shooteru u svetel, odpadne az bude korektni antialias s nahodnym umistenim)
-	RRMesh::TriangleBody triangleBody;
-	RRVec3 line1InMap; // line equation in 0..1,0..1 map space
-	RRVec3 line2InMap;
-};
-
 struct TexelContext
 {
 	RRDynamicSolver* solver;
@@ -33,6 +23,35 @@ struct TexelContext
 	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
 };
 
+// subtexel is triangular intersection of triangle and texel
+struct SubTexel
+{
+	unsigned multiObjPostImportTriIndex;
+	RRVec2 uvInTriangleSpace[3]; // subtexel vertex coords in triangle space, range 0,0..1,0..0,1
+	RRReal areaInMapSpace; // SubTexel area in map space in unknown units
+};
+
+// texel knows its intersection with all triangles
+struct TexelSubTexels : public std::vector<SubTexel>
+{
+	TexelSubTexels()
+	{
+		areaInMapSpace = 0;
+	}
+	void push_back(const SubTexel& subTexel)
+	{
+		std::vector<SubTexel>::push_back(subTexel);
+		RR_ASSERT(_finite(subTexel.areaInMapSpace));
+		areaInMapSpace += subTexel.areaInMapSpace;
+	}
+	RRReal getAreaInMapSpace()
+	{
+		return areaInMapSpace;
+	}
+private:
+	RRReal areaInMapSpace; // sum of subtexel areas in map space, may be greater than texel area when triangles (and consequently subtexels) overlap
+};
+
 struct ProcessTexelParams
 {
 	ProcessTexelParams(const TexelContext& _context) : context(_context) 
@@ -41,9 +60,8 @@ struct ProcessTexelParams
 		rays = NULL;
 	}
 	const TexelContext& context;
+	TexelSubTexels* subTexels;
 	unsigned uv[2]; // texel coord in lightmap in 0..width-1,0..height-1
-	//std::vector<ProcessTriangleInfo> tri; // triangles intersecting texel
-	ProcessTriangleInfo tri; // triangles intersecting texel
 	unsigned resetFiller;
 	RRRay* rays; // pointer to TWO rays. rayLengthMin should be initialized
 };

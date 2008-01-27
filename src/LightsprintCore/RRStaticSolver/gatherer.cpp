@@ -31,7 +31,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuf
 	triangles = _object->triangles;
 }
 
-RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility)
+RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -46,7 +46,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumbe
 	ray->rayDirInv[0] = 1/direction[0];
 	ray->rayDirInv[1] = 1/direction[1];
 	ray->rayDirInv[2] = 1/direction[2];
-	skipTriangle.skip = skipTriangleNumber;
+	skipTriangle.skipTriangleIndex = skipTriangleIndex;
 	if(!collider->intersect(ray))
 	{
 		// ray left scene

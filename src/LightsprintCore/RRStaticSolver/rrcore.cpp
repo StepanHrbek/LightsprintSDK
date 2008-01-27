@@ -1715,7 +1715,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	ray.rayDirInv[0] = 1/direction[0];
 	ray.rayDirInv[1] = 1/direction[1];
 	ray.rayDirInv[2] = 1/direction[2];
-	skipTriangle.skip = (unsigned)(skip-object->triangle);
+	skipTriangle.skipTriangleIndex = (unsigned)(skip-object->triangle);
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	__shot++;
