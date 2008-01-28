@@ -2091,7 +2091,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,unsigned forcedShotsForNewF
 
 real Scene::avgAccuracy()
 {
-	return (1+shotsForFactorsTotal)/sum(abs(staticSourceExitingFlux));
+	return (1+shotsForFactorsTotal)/(1.f+object->triangles);
 }
 
 //////////////////////////////////////////////////////////////////////////////

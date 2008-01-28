@@ -136,7 +136,7 @@ RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(voi
 
 RRReal RRStaticSolver::illuminationAccuracy()
 {
-	return scene->avgAccuracy()/100;
+	return scene->avgAccuracy();
 }
 
 //RRReal RRStaticSolver::illuminationConvergence()
