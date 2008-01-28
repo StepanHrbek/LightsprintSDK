@@ -364,6 +364,10 @@ namespace rr
 			unsigned debugObject;
 			//! For debugging only, to be described later.
 			unsigned debugTexel;
+			//! For debugging only, to be described later. (multiObjPostImport)
+			unsigned debugTriangle;
+			void (*debugRay)(const RRRay* ray, bool hit);
+
 
 			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::detectDirectIllumination() enters calculation.
 			UpdateParameters()
@@ -378,6 +382,8 @@ namespace rr
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
+				debugTriangle = UINT_MAX;
+				debugRay = NULL;
 			}
 			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
 			UpdateParameters(unsigned _quality)
@@ -392,6 +398,8 @@ namespace rr
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
+				debugTriangle = UINT_MAX;
+				debugRay = NULL;
 			}
 		};
 
@@ -760,7 +768,7 @@ namespace rr
 		bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect, bool updateBentNormals);
 
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
-		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
+		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect);
 
 		bool gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
 		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;

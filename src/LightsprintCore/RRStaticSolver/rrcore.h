@@ -494,9 +494,11 @@ public:
 	void    insertObject(Object *o);
 	void    removeSubtriangles();
 	bool    findFactorsTo(Node *n);
+	//real    getConvergence() {return convergence;} // 0..1
 
 	private:
 		unsigned nodesAllocated;
+		//real convergence; // updated by reset() and best()
 	protected:
 		Node **node;
 		void remove(unsigned n);
@@ -625,12 +627,12 @@ public:
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
 	void    draw(RRStaticSolver* scene, real quality);
 
-
 	// get info
 	void    infoScene(char *buf);
 	void    infoStructs(char *buf);
 	void    infoImprovement(char *buf, int infolevel);
 	real    avgAccuracy();
+	//real    getConvergence() {return staticReflectors.getConvergence();} // 0..1
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
@@ -638,8 +640,6 @@ public:
 	class PackedSolverFile* packSolver() const;
 
 	private:
-		friend class Hits; // GATE
-
 		int     phase;
 		Node    *improvingStatic;
 		Triangles hitTriangles;

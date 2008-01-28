@@ -448,20 +448,10 @@ protected:
 //
 // for 1 texel: complete gathering
 
-// thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
-//   someone must call us at least once, before multithreading starts.
+// thread safe: yes
 // returns:
 //   if tc->pixelBuffer is set, physical scale irradiance is rendered and returned
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
-// pozor na:
-//   - bazi pro strileni do hemisfery si vyrabi z normaly
-//     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
-//      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
-//     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
-// volano z:
-//  updateLightmap->enumerateTexels->processTexel
-//  updateSolverIndirectIllumination->processTexel
-//  updateSolverDirectIllumination->gatherPerTriangle->processTexel
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
@@ -503,6 +493,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 
 	// shoot
+	extern void (*g_logRay)(const RRRay* ray,bool hit);
+	g_logRay = pti.context.params->debugRay;
 	while(1)
 	{
 		/////////////////////////////////////////////////////////////////
@@ -576,6 +568,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			&& (!shootLights || gilights.hitsUnreliable>gilights.rays*100))
 			break;
 	}
+	g_logRay = NULL;
 
 //	const RRReal maxError = 0.05f;
 //	if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
@@ -688,38 +681,45 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 
 	// preallocates rays, allocating inside for cycle costs more
 #ifdef _OPENMP
-	RRRay* rays = RRRay::create(2*omp_get_max_threads());
+	int num_threads = omp_get_max_threads();
 #else
-	RRRay* rays = RRRay::create(2);
+	int num_threads = 1;
 #endif
+	RRRay* rays = RRRay::create(2*num_threads);
 
+	// preallocates texels
+	TexelSubTexels* subTexels = new TexelSubTexels[num_threads];
 	SubTexel subTexel;
 	subTexel.areaInMapSpace = 1; // absolute value of area is not important because subtexel is only one
 	subTexel.uvInTriangleSpace[0] = RRVec2(0,0);
 	subTexel.uvInTriangleSpace[1] = RRVec2(1,0);
 	subTexel.uvInTriangleSpace[2] = RRVec2(0,1);
-	TexelSubTexels subTexels;
-	subTexels.push_back(subTexel);
+	for(int i=0;i<num_threads;i++)
+		subTexels[i].push_back(subTexel);
 
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
-		ProcessTexelParams pti(tc);
-		subTexels[0].multiObjPostImportTriIndex = t;
-		pti.subTexels = &subTexels;
+		if(params.debugTriangle==UINT_MAX || params.debugTriangle==t) // skip other triangles when debugging one
+		{
 #ifdef _OPENMP
-		pti.rays = rays+2*omp_get_thread_num();
+			int thread_num = omp_get_thread_num();
 #else
-		pti.rays = rays;
+			int thread_num = 0;
 #endif
-		pti.rays[0].rayLengthMin = priv->minimalSafeDistance;
-		pti.rays[1].rayLengthMin = priv->minimalSafeDistance;
-		ProcessTexelResult tr = processTexel(pti);
-		results[t] = tr;
-		//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
+			tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
+			ProcessTexelParams ptp(tc);
+			ptp.subTexels = subTexels+thread_num;
+			ptp.subTexels->at(0).multiObjPostImportTriIndex = t;
+			ptp.rays = rays+2*thread_num;
+			ptp.rays[0].rayLengthMin = priv->minimalSafeDistance;
+			ptp.rays[1].rayLengthMin = priv->minimalSafeDistance;
+			results[t] = processTexel(ptp);
+			//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
+		}
 	}
 
+	delete[] subTexels;
 	delete[] rays;
 	return true;
 }
@@ -765,21 +765,15 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	return true;
 }
 
-static bool endByTime(void *context)
+RRStaticSolver* endByQuality_solver;
+static bool endByQuality(void *context)
 {
-#if PER_SEC==1
-	// floating point time without overflows
-	return GETTIME>*(TIME*)context;
-#else
-	// fixed point time with overlaps
-	TIME now = GETTIME;
-	TIME end = *(TIME*)context;
-	TIME max = (TIME)(end+ULONG_MAX/2);
-	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now );
-#endif
+	int now = int(endByQuality_solver->illuminationAccuracy());
+	//static int old = -1; if(now!=old) {old=now; printf("%d ",now);}//!!!
+	return now > *(int*)context;
 }
 
-bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect, unsigned benchTexels, unsigned benchQuality)
+bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect)
 {
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -820,78 +814,16 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0);
+		priv->scene->illuminationReset(true,true); // required by endByQuality()
 
 		// first gather
-		TIME t0 = GETTIME;
 		updateSolverDirectIllumination(&paramsIndirect,false);
-		RRReal secondsInGather = (RRReal)((GETTIME-t0)/(RRReal)PER_SEC);
-
-		// auto quality for propagate
-		float secondsInPropagatePlan;
-		if(paramsIndirect.applyEnvironment)
-		{
-			// first gather time is robust measure
-			secondsInPropagatePlan = 2*secondsInGather;
-		}
-		else
-		{
-			// when not doing paramsIndirect.applyEnvironment, first gather is extra fast
-			// benchmark:
-			//  shoot 1% of final gather rays
-			//  set gather time 20x higher
-			TIME benchStart = GETTIME;
-			benchTexels /= 100;
-			TexelContext tc;
-			tc.solver = this;
-			tc.pixelBuffer = NULL;
-			UpdateParameters params;
-			params.quality = benchQuality;
-			tc.params = &params;
-			tc.bentNormalsPerPixel = NULL;
-			tc.singleObjectReceiver = NULL;
-			tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is simulation of 1% of final gather rays -> gather from emitors
-			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
-
-			// preallocates rays, allocating inside for cycle costs more
-#ifdef _OPENMP
-			RRRay* rays = RRRay::create(2*omp_get_max_threads());
-#else
-			RRRay* rays = RRRay::create(2);
-#endif
-//!!!!
-			/*
-#pragma omp parallel for
-			for(int i=0;i<(int)benchTexels;i++)
-			{
-				unsigned triangleIndex = (unsigned)i%multiMesh->getNumTriangles();
-				RRMesh::TriangleNormals normals;
-				multiMesh->getTriangleNormals(triangleIndex,normals);
-				ProcessTexelParams pti(tc);
-				multiMesh->getTriangleBody(triangleIndex,pti.tri.triangleBody);
-				pti.tri.triangleIndex = triangleIndex;
-				pti.tri.pos3d = pti.tri.triangleBody.vertex0+pti.tri.triangleBody.side1*0.33f+pti.tri.triangleBody.side2*0.33f;
-				pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
-#ifdef _OPENMP
-				pti.rays = rays+2*omp_get_thread_num();
-#else
-				pti.rays = rays;
-#endif
-				pti.rays[0].rayLengthMin = priv->minimalSafeDistance;
-				pti.rays[1].rayLengthMin = priv->minimalSafeDistance;
-				processTexel(pti);
-			}
-*/
-			delete[] rays;
-
-			RRReal secondsInBench = (RRReal)((GETTIME-benchStart)/(RRReal)PER_SEC);
-			secondsInPropagatePlan = MAX(0.1f,20*secondsInBench);
-		}
 
 		// propagate
-		RRReportInterval reportProp(INF2,"Propagating (scheduled %sfor %.1fs) ...\n",paramsIndirect.applyEnvironment?"":"by bench ",secondsInPropagatePlan);
-		TIME now = GETTIME;
-		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
-		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByTime,(void*)&end);
+		int targetQuality = MAX(10,2*paramsIndirect.quality);
+		RRReportInterval reportProp(INF2,"Propagating(%d)...\n",targetQuality);
+		endByQuality_solver = priv->scene;
+		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&targetQuality);
 		switch(improvement)
 		{
 			case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;

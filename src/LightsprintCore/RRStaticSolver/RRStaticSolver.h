@@ -129,8 +129,11 @@ namespace rr
 		//! \return Calculation state, see Improvement.
 		Improvement   illuminationImprove(bool endfunc(void*), void* context);
 
-		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate.
+		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate. Fast, reads single number.
 		RRReal        illuminationAccuracy();
+
+		//! Returns illumination accuracy in 0..1 range. Higher is more accurate. Slow, traverses whole scene.
+		//RRReal        illuminationConvergence();
 
 
 		//////////////////////////////////////////////////////////////////////////////

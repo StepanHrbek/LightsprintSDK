@@ -139,6 +139,11 @@ RRReal RRStaticSolver::illuminationAccuracy()
 	return scene->avgAccuracy()/100;
 }
 
+//RRReal RRStaticSolver::illuminationConvergence()
+//{
+//	return scene->getConvergence();
+//}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -418,7 +423,6 @@ unsigned RRStaticSolver::getSubtriangleMeasure(unsigned triangle, RRRadiometricM
 	sic.clientContext = context;
 	return tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
 }
-
 
 
 /////////////////////////////////////////////////////////////////////////////

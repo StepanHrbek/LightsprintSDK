@@ -20,7 +20,7 @@
 namespace rr
 {
 
-RRReal getArea(RRVec2 v0,RRVec2 v1,RRVec2 v2)
+RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 {
 	RRReal a = (v1-v0).length();
 	RRReal b = (v2-v1).length();
@@ -396,10 +396,6 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	return updatedBuffers;
 }
 
-//ve scene je emisivni material:
-// rt update:                  [externi calculate(): OK emis se propagne] OK na vystup se posle jen propagly (ne src)
-// direct light(final gather): OK(slaby vykon) emis se gatherne
-// GI(gather+propag+gather):   OK emis se negatherne, OK emis se propagne, OK(slaby vykon) emis i propagly se gatherne
 
 unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
@@ -439,17 +435,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	// 2. propagate: solver.direct -> solver.indirect
 	if(containsFirstGather)
 	{
-		// auto quality for first gather
-		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-
-		// shoot 4x less indirect rays than direct
+		// shoot 2x less indirect rays than direct
 		// (but only if direct.quality was specified)
-		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/4;
-		unsigned benchTexels = numTriangles;
+		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
 
 		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
 		// 2. propagate: solver.direct -> solver.indirect
-		if(!updateSolverIndirectIllumination(&paramsIndirect,benchTexels,paramsDirect.quality))
+		if(!updateSolverIndirectIllumination(&paramsIndirect))
 			return 0;
 
 		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
@@ -502,19 +494,22 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 			// 5. interpolate: tmparray -> buffer
 			// for each object with vertex buffer
-			for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+			if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 			{
-				if(layerNumberLighting>=0)
+				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 				{
-					RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
-					if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
-				}
-				if(layerNumberBentNormals>=0)
-				{
-					RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
-					if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
-						updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+					if(layerNumberLighting>=0)
+					{
+						RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
+						if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+					}
+					if(layerNumberBentNormals>=0)
+					{
+						RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
+						if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+					}
 				}
 			}
 			delete[] finalGather;

@@ -697,6 +697,9 @@ unsigned IntersectBspFast IBP2::getMemoryOccupied() const
 		+ (triangleSRLNP?sizeof(TriangleSRLNP)*triangles:0);
 }
 
+// debug ray
+void (*g_logRay)(const RRRay* ray,bool hit);
+
 template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
@@ -758,6 +761,9 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		hit = ray->collisionHandler->done();
 #endif
 test_no:
+
+	// debug ray
+	if(g_logRay) g_logRay(ray,hit);
 
 	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;

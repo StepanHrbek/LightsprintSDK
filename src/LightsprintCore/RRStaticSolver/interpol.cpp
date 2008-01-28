@@ -34,7 +34,6 @@ struct IVertexInfo
 	std::set<unsigned> neighbourVertices;          // neighbours of our vertices (na ktere se da od nasich dojet po jedne hrane)
 };
 
-//#define LOG_LOADING_MES
 #define MAX_NEIGHBOUR_DISTANCE 0.01
 
 //////////////////////////////////////////////////////////////////////////////

@@ -13,6 +13,8 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
+#define DEBUG_TEXEL
+
 namespace rr_gl
 {
 
@@ -74,6 +76,38 @@ LightmapViewer*            lv = NULL; // 2d lightmap viewer
 unsigned                   layerNumber = 0; // layer used for all static lighting operations
 unsigned                   centerObject = UINT_MAX; // object in the middle of screen
 unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
+unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// log of rays
+
+namespace ray_log
+{
+	enum {MAX_RAYS=10000};
+	struct Ray
+	{
+		rr::RRVec3 begin;
+		rr::RRVec3 end;
+		bool infinite;
+		bool unreliable;
+	};
+	Ray log[MAX_RAYS];
+	unsigned size = 0;
+	static void push_back(const rr::RRRay* ray, bool hit)
+	{
+		if(size<MAX_RAYS)
+		{
+			log[size].begin = ray->rayOrigin;
+			log[size].end = hit ? ray->hitPoint3d : ray->rayOrigin+rr::RRVec3(1/ray->rayDirInv[0],1/ray->rayDirInv[1],1/ray->rayDirInv[2])*ray->rayLengthMax;
+			log[size].infinite = !hit;
+			log[size].unreliable = false;
+			size++;
+		}
+	}
+};
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -320,7 +354,10 @@ public:
 						rr::RRDynamicSolver::UpdateParameters params(item+1-ME_STATIC_DIAGNOSE1);
 						params.debugObject = centerObject;
 						params.debugTexel = centerTexel;
-						solver->updateLightmaps(layerNumber,-1,&params,&params,NULL);
+						params.debugTriangle = centerTriangle;
+						params.debugRay = ray_log::push_back;
+						ray_log::size = 0;
+						solver->updateLightmaps(layerNumber,-1,&params,NULL,NULL);
 					}
 				}
 				break;
@@ -658,6 +695,7 @@ void display(void)
 		// render properties
 		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 		centerTexel = UINT_MAX;
+		centerTriangle = UINT_MAX;
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -828,6 +866,7 @@ void display(void)
 					{
 						centerObject = preTriangle.object;
 						centerTexel = i + j*bufferCenter->getWidth();
+						centerTriangle = ray->hitTriangle;
 					}
 				}
 				textOutput(x,y+=18,"distance: %f",ray->hitDistance);
@@ -873,6 +912,7 @@ void display(void)
 				{
 					centerObject = selectedObjectIndex;
 					centerTexel = i + j*buffer->getWidth();
+					//!!!centerTriangle = ?;
 					rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
 					textOutput(x,y+=18,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
 				}
@@ -882,6 +922,24 @@ void display(void)
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glEnable(GL_DEPTH_TEST);
+		if((!render2d || !lv) && ray_log::size)
+		{
+			glBegin(GL_LINES);
+			for(unsigned i=0;i<ray_log::size;i++)
+			{
+				if(ray_log::log[i].unreliable)
+					glColor3ub(255,0,0);
+				else
+				if(ray_log::log[i].infinite)
+					glColor3ub(0,0,255);
+				else
+					glColor3ub(0,255,0);
+				glVertex3fv(&ray_log::log[i].begin[0]);
+				glColor3ub(0,0,0);
+				glVertex3fv(&ray_log::log[i].end[0]);
+			}
+			glEnd();
+		}
 	}
 
 	glutSwapBuffers();

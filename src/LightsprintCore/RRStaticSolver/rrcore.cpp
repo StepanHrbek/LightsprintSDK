@@ -38,30 +38,10 @@ namespace rr
 #define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
 #define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
 #define DISTRIB_LEVEL_LOW      0.000003// lower fraction of scene energy found in one node is ignored
-// DISTRIB_LEVEL 0.003 / 0.0001 byl moc velky ve fcss/koupelne.
-//  popis: po spusteni je pod kouli moc svetla.
-//  po resetStaticIllum ve chvili kdy mam jeste primitivni faktory se zas objevi moc svetla.
-//  i kdyz necham dlouho zlepsovat faktory, svetla zustane moc.
-//  po resetStaticIllum ve chvili kdyz uz mam dobry faktory zmizi a uz trvale zustane moc malo svetla.
-//  pokud v resetStaticIllum jen updatuju, nadbytecne svetlo zustane prilepene a zmizi az kdyz hlavni lampou posvitim extremne do cerna.
-// DISTRIB_LEVEL_LOW 0.00003 byl moc velky v sibeniku
-//  popis: po spocitani indirectu a presunu svetla jinam indirect nezmizel, protoze byl asi prilis slaby
-// DISTRIB_LEVEL_HIGH 0.00003 byl moc maly v sibeniku
-//  po kazdem refreshi nasledovala tuna distribu, brutalni zpomaleni
-// !!! nutno resit adaptivne
-//  pri priprave bestu vzdy skouknout refreshe i distriby a rozhodnout se kteri jsou ted lepsi
-//#define DEBUK
-//#define LOG_LOADING_MES
-//#define EXPENSIVE_CHECKS
-//#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// license
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -746,9 +726,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	{
 		splitVertex_rightLeft=rot+(r>0?3:0);
 	}
-#ifdef LOG_LOADING_MES
-	printf(" rot=%i rl=%i\n",rot,(r>0)?1:-1);
-#endif
 
 	DBGLINE
 	splita=splitvector.y/r;
@@ -1044,6 +1021,7 @@ void Reflectors::reset()
 	nodes=0;
 	bests=0;
 	refreshing=1;
+	//convergence=0;
 }
 
 void Reflectors::resetBest()
@@ -1096,71 +1074,7 @@ bool Reflectors::check()
 {
 	return true;
 }
-/*
-best() - vraci nejlepsi node pro dalsi zpracovani (distrib nebo refresh)
 
-Stary system a proc v nem nefunguje reset se zachovanim faktoru
----------------------------------------------------------------
-Kdyz se posune lampa a resetne vse krome faktoru, 
-zustane velka accuracy
-nasledujici refreshe jsou vsechny strasne drahe
-a protoze po pohybu lampy mohou cekat stovky akutnich refreshu aby se obraz dostal z nejhorsiho, muze to trvat i minutu.
-Navic i veci ktere by stacilo pro zacatek jen distribnout se refreshuji.
-Mely by se nejdriv udelat akutni distriby
-a pak zacit refreshovat jako pri nizke accuracy a postupne ji zvysovat.
-Best bude zpocatku vybirat nody s nizkou accuracy a zajisti rychle dostani se z nejhorsiho.
-Po case ale nepujde vybrat nic k refreshi,
-je nutne to zdetekovat a umele zvysit accuracy.
-
-Novy system, navrh 1
---------------------
-(Scene) Accuracy bude nezavisla na mnozstvi nastrilenych fotonu.
-Po resetu se zachovanim faktoru se vynuluje.
-Je nutny kvalitni regulator aby se po posunu lampy bez resetu faktoru zaclo 99% distribuci
-a postupne preslo na 99% refreshe.
-Podle ceho regulovat?
-
-Novy system, navrh 2
---------------------
-(Scene) Accuracy zustane zavisla na mnozstvi nastrilenych fotonu.
-Po resetu se zachovanim faktoru se nezmeni.
-Nebude ale dovolene refreshnout na vic jak 4nasobek i kdyby to podle accuracy vypadalo rozumne.
-Tim se zajisti ze se nezastavi v tune drahych refreshu.
-Jak ale zajistit ze provede rychle sadu distribu?
-
-Optimalizace
-Kdyz mam jednoho ktery chce refreshnout z 0 na 10000 a ostatni jsou proti nemu nedulezity,
-dovolit i vetsi skok nez na 4x.
-
-Novy system, navrh 3 YES
---------------------
-Prestat pouzivat scene accuracy.
-Nechat ji jen pro statistiky a pridat do statistik i min/max facove accuracy.
-
-Pri resetu se zachovanim faktoru vynulovat bestarray.
-
-Distribuovat vzdy okamzite kdyz to pohne s aspon 0.001 energie ve scene.
-Cislo 0.001 pro jistotu nechat nastavitelne zvenci, v supernasekane scene by mohlo byt moc velke.
-(Jak implementovat: kdyz best najde neco pro distrib, zahodit vse pro refresh)
-
-Vsechny ostatni posoudit pro refresh.
-Vse s accuracy vic jak 2x vetsi nez best[0] zahodit, at jsou vsichni pro refresh stejny chudaci.
-To co zustalo refreshnout na 2x. (2x nechat zvenci volitelny)
-
-Jak radit kandidaty na refresh?
-Podle jejich accuracy, cim mensi, tim lepsi kandidat.
-
-Zrusit omezene regulujici hacky vykryvajici kolapsy stareho systemu.
-
-Dotazy a odpovedi
------------------
-Q:
-Co takhle jit s kazdym refreshem na 2x fotonu (proti minulemu refreshi tehoz facu),
-nastrilet jen polovinu a zprumerovat s minulym faktorem?
-A:
-Pravdepodobne problem pri zaplych subtrianglech nebo clusterech.
-
-*/
 
 Node *Reflectors::best(real allEnergyInScene, real subdivisionSpeed)
 {
@@ -1172,6 +1086,8 @@ Node *Reflectors::best(real allEnergyInScene, real subdivisionSpeed)
 		// start accumulating nodes for refresh
 		refreshing=1;
 restart:
+		//RRReal unshot = 0; // accumulators for convergence update
+		//RRReal shot = 0;
 		// search reflector with low accuracy, high totalExitingFluxToDiffuse etc
 		real bestQ[BESTS];
 		for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
@@ -1179,6 +1095,9 @@ restart:
 			// calculate q for node
 			real q;
 			real toDiffuse=sum(abs(node[i]->shooter->totalExitingFluxToDiffuse));
+			// accumulate for convergence update
+			//unshot += toDiffuse;
+			//shot += sum(abs(node[i]->shooter->totalExitingFluxDiffused));
 			// distributor found -> switch from accumulating refreshers to accumulating distributors
 			if(refreshing && node[i]->shooter->factors() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
 			{
@@ -1225,6 +1144,9 @@ restart:
 		{
 			while(bests && bestQ[bests-1]*REFRESH_MULTIPLY*MAX_REFRESH_DISBALANCE<bestQ[0]) bests--;
 		}
+
+		// update convergence
+		//convergence = shot/(shot+unshot);
 
 		//printf(refreshing?"*%d ":">%d ",bests);
 	}
@@ -1618,9 +1540,6 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 	if(resetFactors)
 		resetPropagation = true;
 
-	// probihajici vypocet faktoru nebo probihajici distribuce
-	// teoreticky muze bezet dal pokud neresetuji propagaci,
-	// ale zmeny v primaries je nutne zacit zpracovavat hned, takze v kazdem pripade abort.
 	abortStaticImprovement();
 
 	if(resetFactors)
@@ -1630,17 +1549,6 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 	}
 	staticSourceExitingFlux=Channels(0);
 
-/*	
-proc rusit nejdriv jen suby a pak vsechny? nestaci zrusit vsechny?
-	// subtriangly vznikle behem predchoziho vypoctu zrusim, abych setril pamet a pomohl bidne interpolaci.
-	// pokud ale vypocet nerusim a dal propaguji, necham si je.
-	if(resetPropagation)
-	{
-		staticReflectors.removeSubtriangles();
-	}
-*/
-	// pokud rusim probihajici propagaci, reflektory zanikaji, pozdeji si vyrobim nove z primaries.
-	// pokud nerusim probihajici propagaci, reflektory musi byt dal evidovane. je ale nutne resetnout predpocitany best()
 	if(resetPropagation)
 	{
 		staticReflectors.reset();
@@ -1652,8 +1560,6 @@ proc rusit nejdriv jen suby a pak vsechny? nestaci zrusit vsechny?
 
 	object->resetStaticIllumination(resetFactors,resetPropagation);
 
-	// pokud jsem smazal stare reflektory, vlozim nove.
-	// pokud jsem stare zachoval, vlozim nove. vlozeni jiz vlozeneho nevadi, to je ohlidane.
 	staticReflectors.insertObject(object);
 
 	staticSourceExitingFlux+=object->objSourceExitingFlux;
@@ -1694,15 +1600,6 @@ unsigned __shot=0;
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
 
-// vraci:
-//  celkove mnozstvi z difusnich povrchu ODRAZENE power (power*T1.diffuseReflectance + power*T1.specularReflectance*T2.diffuseReflectance + atd)
-//  s korektnimi materialy by to nikdy nemelo prekrocit vstupni power
-// vedlejsi efekty:
-//  do hitTriangle->hits.insert() nalozi celkove mnozstvi difusnimi povrchy PRIJATE power (power+ power*T1.specularReflectance + atd)
-//  i s korektnimi materialy muze prekrocit vstupni power
-//  obvykle jdou jednotlive kousky do ruznych trianglu, takze do jednoho trianglu se neinsertne vic nez power,
-//   ale nekdy se foton od leskleho povrchu odrazi zpet a do jednoho trianglu se muze naakumulovat vic nez power
-//   to neni chyba, velka je pouze irradiance, exitance (po vynasobeni diffuseReflectance) bude opet mala
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
@@ -1917,91 +1814,6 @@ Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 
 	return source->grandpa;
 }
-/*
-Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels visibility)
-{
-	RR_ASSERT(IS_VEC3(eye));
-	RR_ASSERT(IS_VEC3(direction));
-	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
-	RRRay& ray = *sceneRay;
-	ray.rayOrigin = eye;
-	ray.rayDirInv[0] = 1/direction[0];
-	ray.rayDirInv[1] = 1/direction[1];
-	ray.rayDirInv[2] = 1/direction[2];
-	skipTriangle.skip = (unsigned)(skip-object->triangle);
-	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
-	__shot++;
-	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
-	if(!hitTriangle)
-	{
-		// ray left scene
-		if(environment)
-		, hit environment
-		RRVec3 irrad = tools.environment->getValue(dir);
-		if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
-		maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
-		irradianceHemisphere += irrad;
-		return Channels(0);
-	}
-	if(!hitTriangle->surface)
-	{
-		// error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
-		RR_ASSERT(0);
-		return Channels(0);
-	}
-	RR_ASSERT(hitTriangle->u2.y==0);
-	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-
-	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
-	Channels exitance = Channels(0);
-	if(side.legal && (side.catchFrom || side.emitTo))
-	{
-		// per-pixel material
-		const RRMaterial* material = hitTriangle->surface;
-		RRMaterial pointMaterial;
-		if(side.pointDetails)
-		{
-			material = &pointMaterial;
-			object->importer->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,pointMaterial);
-			side = pointMaterial.sideBits[ray.hitFrontSide?0:1];
-		}
-
-		// diffuse reflection
-		if(side.emitTo)
-		{
-			Channels incidentPower = hitTriangle->totalIncidentFlux;
-			Channels irradiance = incidentPower / hitTriangle->area;
-			exitance += visibility * irradiance * material->diffuseReflectance;
-			//!!! /2 kdyz emituje do obou stran
-		}
-
-		// specular reflection
-		if(side.reflect)
-		if(sum(abs(visibility*material->specularReflectance))>0.1)
-		{
-			// calculate hitpoint
-			Point3 hitPoint3d=eye+direction*ray.hitDistance;
-			// calculate new direction after ideal mirror reflection
-			Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
-			// recursively call this function
-			exitance += getRadiance(hitPoint3d,newDirection,hitTriangle,visibility*material->specularReflectance);
-		}
-	
-		// specular transmittance
-		if(side.transmitFrom)
-		if(sum(abs(visibility*material->specularTransmittance))>0.1)
-		{
-			// calculate hitpoint
-			Point3 hitPoint3d=eye+direction*ray.hitDistance;
-			// calculate new direction after refraction
-			Vec3 newDirection=-refract(hitTriangle->getN3(),direction,material->refractionIndex);
-			// recursively call this function
-			exitance += getRadiance(hitPoint3d,newDirection,hitTriangle,visibility*material->specularTransmittance);
-		}
-	}
-	return exitance;
-}*/
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2449,10 +2261,6 @@ bool Scene::finishStaticImprovement()
 	}
 	return false;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// instant radiosity
 
 
 //////////////////////////////////////////////////////////////////////////////
