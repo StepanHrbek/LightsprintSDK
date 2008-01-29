@@ -63,7 +63,7 @@ public:
 	//! Creates renderer of object.
 	//! \param object
 	//!  Object to be rendered.
-	//! \param radiositySolver
+	//! \param solver
 	//!  Solver used to compute object's indirect illumination.
 	//! \param scaler
 	//!  Scaler used to scale irradiances before rendering from physical scale to custom scale.

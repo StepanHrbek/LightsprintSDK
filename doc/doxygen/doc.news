@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- lightmap building 10x faster
+- lightmap building is 10x faster
 
 \section news45 ------------------------------------ 2008.1.21 -------------------------------------
 

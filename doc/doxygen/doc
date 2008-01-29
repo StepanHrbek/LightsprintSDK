@@ -2351,7 +2351,8 @@ Used by samples:
  - single function call: sceneViewer(), you can run it from your code to visualize data
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
- - loads collada scene including all lights
+ - debugging: see rays shot from individual triangles or texels
+ - loads collada, 3ds, quake3, mgf scenes
 
  <hr>
  <b>RealtimeLights</b>
