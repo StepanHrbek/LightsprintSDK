@@ -276,16 +276,19 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	return 1;
 }
 
-// post import triangly cele sceny -> pre import vertexy jednoho objektu
-unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const
+// Converts data from input array [post import triangles of whole scene]
+// to output array [pre import vertices of single object]
+// Fast, but used only in offline solutions.
+unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool bentNormals) const
 {
-	RRReporter::report(INF3,"Updating vertex buffer, object %d/%d.\n",objectHandle,getNumObjects());
+	RRReporter::report(INF3,"Updating object %d/%d, vertex %s.\n",objectHandle,getNumObjects(),bentNormals?"bent normals":"lightmap");
 
 	if(!priv->scene || !vertexBuffer || !getIllumination(objectHandle))
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
+	const RRScaler* scaler = (vertexBuffer->getScaled() && !bentNormals) ? priv->scaler : NULL;
 	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
@@ -297,6 +300,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
+			if(scaler) scaler->getCustomScale(data);
 			for(unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(_finite(data[i]));

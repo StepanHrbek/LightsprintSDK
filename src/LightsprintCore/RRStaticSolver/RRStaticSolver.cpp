@@ -164,6 +164,8 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	return result/powerTopLevel;
 }
 
+// per-triangle -> per-vertex smoothing
+// works with raw data, no scaling
 RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride) const
 {
 	RR_ASSERT(perTriangleData);

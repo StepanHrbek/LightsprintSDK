@@ -341,11 +341,11 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// interpolate: tmparray -> buffer
 			if(vertexBuffer)
 			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance,sizeof(finalGather[0]));
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance,sizeof(finalGather[0]),false);
 			}
 			if(bentNormalsPerVertex)
 			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,bentNormalsPerVertex,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,bentNormalsPerVertex,&finalGather[0].bentNormal,sizeof(finalGather[0]),true);
 			}
 			delete[] finalGather;
 		}
@@ -502,13 +502,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 					{
 						RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
 						if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]),false);
 					}
 					if(layerNumberBentNormals>=0)
 					{
 						RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
 						if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
-							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]),true);
 					}
 				}
 			}
