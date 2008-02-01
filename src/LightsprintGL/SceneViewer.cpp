@@ -22,7 +22,7 @@ namespace rr_gl
 //
 // termination with error message
 
-void error(const char* message, bool gfxRelated)
+static void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
 	if(gfxRelated)
@@ -41,42 +41,42 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-class Solver*              solver = NULL;
-Camera                     eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f,1000);
-enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
-SelectionType              selectedType = ST_CAMERA;
-unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
-unsigned                   selectedObjectIndex = 0; // index into static objects
-int                        winWidth = 0; // current size
-int                        winHeight = 0; // current size
-bool                       fullscreen = 0; // current mode
-int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
-bool                       renderRealtime = 1;
-bool                       render2d = 0;
-bool                       renderAmbient = 0;
-bool                       renderEmission = 1;
-bool                       renderDiffuse = 1;
-bool                       renderWireframe = 0;
-bool                       renderHelpers = 1;
-float                      speedGlobal = 2; // speed of movement controlled by user
-float                      speedForward = 0;
-float                      speedBack = 0;
-float                      speedRight = 0;
-float                      speedLeft = 0;
-float                      speedUp = 0;
-float                      speedDown = 0;
-float                      speedLean = 0;
-rr::RRVec4                 brightness(1);
-float                      gamma = 1;
-bool                       exitRequested = 0;
-int                        menuHandle = 0;
-bool                       bilinear = 1;
-bool                       ourEnv = 0; // whether environment is owned by us
-LightmapViewer*            lv = NULL; // 2d lightmap viewer
-unsigned                   layerNumber = 0; // layer used for all static lighting operations
-unsigned                   centerObject = UINT_MAX; // object in the middle of screen
-unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
-unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
+static class Solver*              solver = NULL;
+static Camera                     eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f,1000);
+static enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
+static SelectionType              selectedType = ST_CAMERA;
+static unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
+static unsigned                   selectedObjectIndex = 0; // index into static objects
+static int                        winWidth = 0; // current size
+static int                        winHeight = 0; // current size
+static bool                       fullscreen = 0; // current mode
+static int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
+static bool                       renderRealtime = 1;
+static bool                       render2d = 0;
+static bool                       renderAmbient = 0;
+static bool                       renderEmission = 1;
+static bool                       renderDiffuse = 1;
+static bool                       renderWireframe = 0;
+static bool                       renderHelpers = 1;
+static float                      speedGlobal = 2; // speed of movement controlled by user
+static float                      speedForward = 0;
+static float                      speedBack = 0;
+static float                      speedRight = 0;
+static float                      speedLeft = 0;
+static float                      speedUp = 0;
+static float                      speedDown = 0;
+static float                      speedLean = 0;
+static rr::RRVec4                 brightness(1);
+static float                      gamma = 1;
+static bool                       exitRequested = 0;
+static int                        menuHandle = 0;
+static bool                       bilinear = 1;
+static bool                       ourEnv = 0; // whether environment is owned by us
+static LightmapViewer*            lv = NULL; // 2d lightmap viewer
+static unsigned                   layerNumber = 0; // layer used for all static lighting operations
+static unsigned                   centerObject = UINT_MAX; // object in the middle of screen
+static unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
+static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -93,8 +93,8 @@ namespace ray_log
 		bool infinite;
 		bool unreliable;
 	};
-	Ray log[MAX_RAYS];
-	unsigned size = 0;
+	static Ray log[MAX_RAYS];
+	static unsigned size = 0;
 	static void push_back(const rr::RRRay* ray, bool hit)
 	{
 		if(size<MAX_RAYS)
@@ -456,7 +456,7 @@ protected:
 //
 // GLUT callbacks
 
-void special(int c, int x, int y)
+static void special(int c, int x, int y)
 {
 	switch(c) 
 	{
@@ -469,7 +469,7 @@ void special(int c, int x, int y)
 	}
 }
 
-void specialUp(int c, int x, int y)
+static void specialUp(int c, int x, int y)
 {
 	switch(c) 
 	{
@@ -482,7 +482,7 @@ void specialUp(int c, int x, int y)
 	}
 }
 
-void keyboard(unsigned char c, int x, int y)
+static void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
@@ -516,7 +516,7 @@ void keyboard(unsigned char c, int x, int y)
 	solver->reportInteraction();
 }
 
-void keyboardUp(unsigned char c, int x, int y)
+static void keyboardUp(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
@@ -539,7 +539,7 @@ void keyboardUp(unsigned char c, int x, int y)
 	}
 }
 
-void reshape(int w, int h)
+static void reshape(int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
@@ -551,7 +551,7 @@ void reshape(int w, int h)
 	glPolygonOffset(1,(GLfloat)(12<<(shadowDepthBits-16)));
 }
 
-void mouse(int button, int state, int x, int y)
+static void mouse(int button, int state, int x, int y)
 {
 	if(render2d && lv)
 	{
@@ -576,7 +576,7 @@ void mouse(int button, int state, int x, int y)
 	solver->reportInteraction();
 }
 
-void passive(int x, int y)
+static void passive(int x, int y)
 {
 	if(render2d && lv)
 	{
@@ -628,7 +628,7 @@ static void textOutput(int x, int y, const char *format, ...)
 	for(int i=0;i<len;i++) glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[i]);
 }
 
-void display(void)
+static void display(void)
 {
 	if(render2d && lv)
 	{
@@ -945,7 +945,7 @@ void display(void)
 	glutSwapBuffers();
 }
 
-void idle()
+static void idle()
 {
 	if(!winWidth) return; // can't work without window
 
