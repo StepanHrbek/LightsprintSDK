@@ -121,8 +121,6 @@ int main(int argc, char **argv)
 	solver->setStaticObjects( *objects, NULL );
 	rr::RRLights* lights = adaptLightsFromFCollada( collada );
 	solver->setLights( *lights );
-	if(!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
 
 	// calculate and save it
 	calculate(solver,0,1);

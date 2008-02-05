@@ -22,7 +22,7 @@ RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const
 		return this;
 	}
 	*/
-	return new RRObjectWithPhysicalMaterialsImpl(this,scaler);
+	return this ? new RRObjectWithPhysicalMaterialsImpl(this,scaler) : NULL;
 }
 
 } // namespace

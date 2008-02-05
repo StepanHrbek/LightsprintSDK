@@ -785,7 +785,7 @@ static void display(void)
 		{
 			textOutput(x,y+=18*2,"[static object %d/%d]",selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
-			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh->getNumVertices());
+			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
 			static const rr::RRObject* lastObject = NULL;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
