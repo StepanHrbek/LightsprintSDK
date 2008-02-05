@@ -7,9 +7,7 @@
 #define RRVISION_RRCORE_H
 
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
-//#define SUPPORT_CLUSTERS
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
-#define HIT_PTR          & // hits are passed by reference
 #define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
@@ -17,25 +15,25 @@
 #define FACTORCHANNELS   1 // if CLEAN_FACTORS then 1 else CHANNELS
 
 #if CHANNELS==1
-#define Channels         real
+#define Channels         RRReal
 #elif CHANNELS==3
-#define Channels         Vec3
+#define Channels         RRVec3
 #else		    
 #error unsupported CHANNELS
 #endif
 
 #if HITCHANNELS==1
-#define HitChannels      real
+#define HitChannels      RRReal
 #elif HITCHANNELS==3
-#define HitChannels      Vec3
+#define HitChannels      RRVec3
 #else
 #error unsupported HITCHANNELS
 #endif
 
 #if FACTORCHANNELS==1
-#define FactorChannels   real
+#define FactorChannels   RRReal
 #elif FACTORCHANNELS==3
-#define FactorChannels   Vec3
+#define FactorChannels   RRVec3
 #else
 #error unsupported FACTORCHANNELS
 #endif
@@ -52,9 +50,6 @@
 
 namespace rr
 {
-
-#define DBGLINE
-//#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
 
 #define SMALL_ENERGY 0.000001f // energy amount small enough to have no impact on scene
 
@@ -74,77 +69,21 @@ void* realloc(void* p,size_t oldsize,size_t newsize);
 //
 // globals
 
-extern bool __errors; // was there errors during batch work? used to set result
-
 extern unsigned __frameNumber; // frame number increased after each draw
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// hit to subtriangle
-
-struct Hit
-{
-	real    u; // 0..side lengths, multiple of u3,v3 in grandpa triangle
-	real    v;
-	HitChannels power; // -1..1, negative energy is for dynamic shooting. Pozor, muze byt vic nez 1, viz komentar u rayTracePhoton().
-	void    setPower(HitChannels apower);
-	HitChannels getPower();
-};
-
-#define IS_POWER(n) ((n)>=-1 && (n)<=1)
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// hits to one subtriangle
-
-extern unsigned __hitsAllocated;
-class Triangle;
-
-class Hits
-{
-public:
-	unsigned hits;
-	Hit     *hit;
-
-	Hits();
-	~Hits();
-	void    reset();
-	void    compact();
-
-	void    insertWithSubdivision(Hit HIT_PTR ahit);
-	void    insertWithoutSubdivision(HitChannels power);
-	real    difBtwAvgHitAnd(Point2 a,Triangle *base);
-	//real    avgDifBtwHitAnd(Point2 a);
-	bool    doSplit(Point2 centre,real perimeter,Triangle *base);
-	real    totalPower();
-
-	private:
-		void rawInsert(Hit HIT_PTR ahit);
-		void compactImmediate();
-		real sum_u;
-		real sum_v;
-		HitChannels sum_power;
-		unsigned hitsAllocated;
-};
-
-Hits   *allocHitsLevel();
-void    freeHitsLevel();
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // form factor from implicit source to explicit destination
 
-class Node;
-
 class Factor
 {
 public:
-	Node    *destination;
+	class Triangle* destination;
 	FactorChannels power; // this fraction of emited energy reaches destination
 	               // Q: is modulated by destination's material?
 	               // A: CLEAN_FACTORS->NO, !CLEAN_FACTORS->YES
 
-	Factor(Node *destination,FactorChannels apower);
+	Factor(Triangle* destination,FactorChannels apower);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -165,280 +104,85 @@ public:
 	void    insert(Factors *afactors);
 	const Factor* get(unsigned i) {return &factor[i];} // returns i-th factor
 	Factor  get(); // returns one factor and and removes it from container
-	void    remove(Factor *afactor); // O(1)
-	real    contains(Node *destination); // O(n)
 	void    forEach(void (*func)(Factor *factor,va_list ap),...);
-	void    forEachDestination(void (*func)(Node *node,va_list ap),...);
-	void    removeZeroFactors();
-	//void    sortByImportance();
 
 	private:
-		unsigned factors24_allocated8;//high24bits=factors, low8bits=ln2(factors allocated), 0=nothing allocated
+		unsigned factors24:24;
+		unsigned allocatedLn2:8;//ln2(factors allocated), 0=nothing allocated
 		unsigned factorsAllocated();
 		Factor *factor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// thing that shoots and has form factors
-
-class Shooter : public Factors
-{
-public:
-	Shooter();
-	~Shooter();
-	void    reset(bool resetFactors);
-
-	Channels totalExitingFluxDiffused;
-	Channels totalExitingFluxToDiffuse;
-	unsigned shotsForFactors;
-
-
-	real    accuracy();     // shots done per energy unit
-};
-
-//////////////////////////////////////////////////////////////////////////////
+// triangle
 //
-// node in hierarchy of clusters, triangles and subtriangles
-//
-// |clusters|triangles|       |
-// |        |---------|       |
-// |        |     subtriangles|
-// |--------------------------|
-// |       nodes              |
 
-extern unsigned __nodesAllocated;
-
-class Node
-{
-public:
-	Node(Node *aparent,Triangle *agrandpa);
-	~Node();
-
-	// genealogy, parent and triangle ancestor with absolute coordinates
-	Node    *parent;
-	Triangle *grandpa;
-	Node    *brother();
-
-	// geometry
-	real    area; // area in worldspace
-
-	void    reset(bool resetFactors);
-
-	// form factors and how many shots they were calculated with
-	Shooter *shooter;
-	real    accuracy();     // shots done per energy unit
-
-	// static energy acumulators
-	Channels totalExitingFlux;   // exitance(irradiance*reflectance+emittance) from energy received directly by this node or his subs (not by parents)
-	Channels totalIncidentFlux;  // irradiance received directly by this node or his subs (not by parents)
-	Channels radiosityIndirect();// radiosity received by ancestors
-	bool    loadEnergyFromSubs();
-	void    propagateEnergyUp();
-
-	bool    check();
-
-	// subnodes
-	Node    *sub[2];
-	bool    contains(Triangle *t);
-
-	// not aligned rest
-	U16     flags;
-};
-
-#define FLAG_DIRTY_NODE              1
-#define FLAG_DIRTY_IVERTEX           2 // used only when interpolation is turned on
-#define FLAG_DIRTY_ALL_SUBNODES      4
-#define FLAG_DIRTY_SOME_SUBIVERTICES 8 // used only when interpolation is turned on
-#define FLAGS_DIRTY                 15
-#define FLAG_IS_REFLECTOR          128
-#define FLAG_IS_IN_ORA             256
-
-#define IS_CLUSTER(node)     0
-#define IS_TRIANGLE(node)    ((node)==(node)->grandpa)
-#define IS_SUBTRIANGLE(node) ((node)->grandpa && (node)!=(node)->grandpa)
-
-#define TRIANGLE(node)       ((Triangle *)(node))
-#define SUBTRIANGLE(node)    ((SubTriangle *)(node))
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// subtriangle, part of triangle
-//
-// init(a,b,c):
-//  a is stored into s2
-//  b is stored into s2+u2
-//  c is stored into s2+v2
-// ivertex:
-//  ivertex(0) returns ivertex at a
-//  ivertex(1) returns ivertex at b
-//  ivertex(2) returns ivertex at c
-// split:
-//  rot = number of vertex splitted by triangle split (a=0,b=1,c=2)
-//   is calculated from geometry by getSplitVertexSlow()
-//   not stored, later calculated from parent/son relations by getSplitVertex()
-//   (1% cpu time may be saved by storing rot in 2bits)
-//  thus when
-//   rot=0 then sub[0].init(a,b,(b+c)/2) sub[1].init(a,(b+c)/2,c)
-//   rot=1 then sub[0].init(b,c,(a+c)/2) sub[1].init(b,(a+c)/2,a)
-
-extern unsigned __subtrianglesAllocated;
-
-class SubTriangle : public Node
-{
-public:
-	SubTriangle(SubTriangle *aparent,Triangle *agrandpa);
-	~SubTriangle();
-
-	// geometry, SubTriangle position in Triangle space
-	Point2  uv[3]; // uv of our vertices in grandpa->u3,v3 ortogonal space. uv[0]=(0,0) neodpovida vertexu 0 ale rots
-	Vec2    u2,v2; // u2=uv[1]-uv[0], v2=uv[2]-uv[0], helps to speed up some calculations
-	real    perimeter();
-	Point3  to3d(Point2 a);
-	Point3  to3d(int vertex);
-	Point3  to3dlo(int vertex);
-
-	void    makeDirty();
-
-	// subtriangles
-	// if sub[0] then this triangle is splitted into sub[0] and sub[1]
-	//  so that { hit.u,v | splita*u+splitb*v>1 } is sub[0]
-	void    splitGeometry(IVertex *asubvertex);
-	void    splitHits(Hits* phits,Hits *phits2);
-	bool    wishesToSplitReflector();
-	// enumeration of all subtriangles
-	typedef void (EnumSubtrianglesCallback)(SubTriangle* s, IVertex **iv, Channels flatambient, RRReal subarea, void* context);
-	unsigned enumSubtriangles(IVertex **iv, Channels flatambient, RRReal subarea, EnumSubtrianglesCallback* callback, void* context);
-
-	SubTriangle *brotherSub();
-	bool    isRight();
-	bool    isRightLeft();
-	int     getSplitVertex();
-	int     getSplitVertexSlow();
-	S8      splitVertex_rightLeft;//-2=dunno a zatim neulozen do .ora, -1=dunno a ulozen, jinak prikaz pro splitGeometry a cache pro getSplitVertexSlow
-	IVertex *subvertex;
-	private:
-		void    createSubvertex(IVertex *asubvertex,int rot);
-	public:
-	void    removeFromIVertices(Node *node);
-	SubTriangle *getNeighbourSubTriangle(int myside,int *nbsside,IVertex *newVertex);
-	IVertex *ivertex(int i);
-	bool    checkVertices();
-	void    installVertices();
-
-	void    drawGouraud(Channels ambient,IVertex **iv,int df);
-	void    drawFlat(Channels ambient,int df);
-
-	private:
-		real    splita; // sub[0]=subtriangle with splita*u+splitb*v>1
-		real    splitb; // sub[1]=subtriangle with splita*u+splitb*v<=1
-};
-
-// DF=draw flags
-#define DF_REFRESHALL 1
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// scale / scalovani
-//
-// objekt muze byt transformovan matici se scalem, neuniformnim, zapornym
-// scale       - asi funguje
-// neuniformni - asi funguje
-// zaporny     - asi funguje
-//
-// n3/u3/v3 je ortonormalni baze v objectspace
-// u2/v2 jsou v prostoru u3/v3
-// splituje se podle u2/v2, takze pri neuniformnim scalu neoptimalne
-// area je ve worldspace, takze nedochazi k mnozeni/mizeni energie pri distribuci
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// triangle, part of cluster and object
-//
-// init(a,b,c):
-//  rotations 0..2 is calculated form geometry
-//   =1: init(b,c,a) is called
-//   =2: init(c,a,b) is called
-//  vertex[3] is filled by {a,b,c}
-//  s3,r3,l3 is filled by a,b-a,c-a
-
-extern unsigned __trianglesAllocated;
-extern unsigned __trianglesWithBadNormal;
-
-class Triangle : public SubTriangle
+class Triangle
 {
 public:
 	Triangle();
-	~Triangle();
-	void    compact();
 
-	// genealogy
-	class Object *object; // potrebuji ho kvuli subdivisionSpeed
+	void    reset(bool resetFactors);
 
-	// enumeration of all subtriangles
-	unsigned enumSubtriangles(EnumSubtrianglesCallback* callback, void* context);
+	// form factors
+	Factors factors;
 
-	// geometry, all in objectspace
-	const Vec3* getVertex(unsigned i) const {return qvertex[i];}
-	Vec3    getS3() const {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
-	Vec3    getR3() const {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
-	Vec3    getL3() const {return *getVertex(2)-*getVertex(0);}
+	// shooting
+	real    hits; // accumulates hits from current shooter
+	unsigned shotsForFactors:31; // number of shots used for current ff
+	unsigned isReflector:1;
+	real    accuracy(); // shots done per energy unit
+
+	// light acumulators
+	RRVec3  totalExitingFluxToDiffuse;
+	RRVec3  totalExitingFlux;
+	RRVec3  totalIncidentFlux;
+	RRVec3  directIncidentFlux;  // backup of direct incident flux in time 0. Set only by setSurface(). Read only by getSourceXxx().
+	// get direct light (entered by client, not calculated)
+	RRVec3  getDirectIncidentFlux()   const {return directIncidentFlux;}
+	RRVec3  getDirectEmitingFlux()    const {return surface->diffuseEmittance*area;} // emissivity
+	RRVec3  getDirectExitingFlux()    const {return directIncidentFlux*surface->diffuseReflectance + surface->diffuseEmittance*area;} // emissivity + reflected light
+	RRVec3  getDirectIrradiance()     const {return directIncidentFlux/area;}
+	RRVec3  getDirectEmittance()      const {return surface->diffuseEmittance;}
+	RRVec3  getDirectExitance()       const {return directIncidentFlux/area*surface->diffuseReflectance + surface->diffuseEmittance;}
+	// get total light
+	RRVec3  getTotalIncidentFlux()    const {return totalIncidentFlux;}
+	RRVec3  getTotalEmitingFlux()     const {return surface->diffuseEmittance*area;}
+	RRVec3  getTotalExitingFlux()     const {return totalExitingFlux;}
+	RRVec3  getTotalIrradiance()      const {return totalIncidentFlux/area;}
+	RRVec3  getTotalEmittance()       const {return surface->diffuseEmittance;}
+	RRVec3  getTotalExitance()        const {return totalExitingFlux/area;}
+	// get indirect light (computed from direct light)
+	RRVec3  getIndirectIncidentFlux() const {return totalIncidentFlux-directIncidentFlux;}
+	RRVec3  getIndirectEmitingFlux()  const {return RRVec3(0);}
+	RRVec3  getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
+	RRVec3  getIndirectIrradiance()   const {return (totalIncidentFlux-directIncidentFlux)/area;}
+	RRVec3  getIndirectEmittance()    const {return RRVec3(0);}
+	RRVec3  getIndirectExitance()     const {return totalExitingFlux/area-getDirectExitance();}
+	// get any combination of direc/indirect/exiting light
+	RRVec3  getMeasure(RRRadiometricMeasure measure) const;
+
+	// geometry
+	real    area;
+	S8      setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea);
+	const RRVec3* getVertex(unsigned i) const {return qvertex[i];}
+	RRVec3  getS3() const {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
+	RRVec3  getR3() const {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
+	RRVec3  getL3() const {return *getVertex(2)-*getVertex(0);}
 	Normal  getN3() const {return qn3;}
-	Vec3    getU3() const {return qu3;}
-	Vec3    getV3() const {return qv3;}
 		private:
-		Vec3*       qvertex[3];      // 3x vertex
-		Normal      qn3;             // normalized normal vector
-		Vec3        qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
-			// hadam 95% ze je dobre ze jsou ortonormalni v objectspace
-			// hadam 5% ze by se nekomu vic hodilo world2obj(ortonormlani baze ve worldspace)
-		public:
-	struct Edge *edge[3];   // edges
-	U8      isValid      :1;// triangle is not degenerated
-	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea);
-	Vec3    to3d(Point2 a);
-	Vec3    to3d(int vertex);
-	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
-	IVertex *topivertex[3]; // 3x ivertex
-	void    removeFromIVertices(Node *node);
-		private:
-		void    setGeometryCore(Normal *n=NULL);
+		const RRVec3* qvertex[3]; // 3x vertex
+		Normal qn3; // normalized normal vector
 		public:
 
-	// surface
+	// material
 	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
 	const RRMaterial *surface;     // material at outer and inner side of Triangle
-		private:
-		// backup of source incident flux in time 0. Set only by setSurface(). Read only by getSourceXxx().
-		RRVec3 sourceIncidentFlux;
-		public:
-	// get direct light (entered by client, not calculated)
-	RRVec3 getDirectIncidentFlux()   const {return sourceIncidentFlux;}
-	RRVec3 getDirectEmitingFlux()    const {return surface->diffuseEmittance*area;} // emissivity
-	RRVec3 getDirectExitingFlux()    const {return sourceIncidentFlux*surface->diffuseReflectance + surface->diffuseEmittance*area;} // emissivity + reflected light
-	RRVec3 getDirectIrradiance()     const {return sourceIncidentFlux/area;}
-	RRVec3 getDirectEmittance()      const {return surface->diffuseEmittance;}
-	RRVec3 getDirectExitance()       const {return sourceIncidentFlux/area*surface->diffuseReflectance + surface->diffuseEmittance;}
-	// get total light
-	RRVec3 getTotalIncidentFlux()    const {return totalIncidentFlux;}
-	RRVec3 getTotalEmitingFlux()     const {return surface->diffuseEmittance*area;}
-	RRVec3 getTotalExitingFlux()     const {return totalExitingFlux;}
-	RRVec3 getTotalIrradiance()      const {return totalIncidentFlux/area;}
-	RRVec3 getTotalEmittance()       const {return surface->diffuseEmittance;}
-	RRVec3 getTotalExitance()        const {return totalExitingFlux/area;}
-	// get indirect light (computed from direct light)
-	RRVec3 getIndirectIncidentFlux() const {return totalIncidentFlux-sourceIncidentFlux;}
-	RRVec3 getIndirectEmitingFlux()  const {return RRVec3(0);}
-	RRVec3 getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
-	RRVec3 getIndirectIrradiance()   const {return (totalIncidentFlux-sourceIncidentFlux)/area;}
-	RRVec3 getIndirectEmittance()    const {return RRVec3(0);}
-	RRVec3 getIndirectExitance()     const {return totalExitingFlux/area-getDirectExitance();}
-	// get any combination of direc/indirect/exiting light
-	RRVec3 getMeasure(RRRadiometricMeasure measure) const;
 
-	// hits
-	Hits    hits;           // the most memory consuming struct: set of hits
+	// smoothing
+	IVertex *topivertex[3]; // 3x ivertex
+	IVertex *ivertex(int i);
 
 	friend IVertex;
 	friend class Scene;
@@ -458,15 +202,9 @@ public:
 
 	void    insert(Triangle *key);
 	Triangle *get();
-	Triangle *get(real a);
-	void    forEach(void (*func)(Triangle *key,va_list ap),...);
-	void    holdAmulet();
-	void    resurrect();
 
 	private:
 		unsigned trianglesAllocated;
-		unsigned trianglesAfterResurrection;
-	protected:
 		unsigned triangles;
 		Triangle **triangle;
 };
@@ -474,8 +212,6 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //
 // set of reflectors (light sources and things that reflect some light, no dark things)
-
-class Object;
 
 class Reflectors
 {
@@ -487,61 +223,20 @@ public:
 	void    reset(); // remove all reflectors
 	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
 
-	bool    check();
-	Node    *best(real allEnergyInScene,real subdivisionSpeed);
+	Triangle* best(real allEnergyInScene,real subdivisionSpeed);
 	bool    lastBestWantsRefresh() {return refreshing;}
-	bool    insert(Node *anode); // returns true when node was inserted (=appended)
-	void    insertObject(Object *o);
+	bool    insert(Triangle* anode); // returns true when node was inserted (=appended)
+	void    insertObject(class Object *o);
 	void    removeSubtriangles();
-	bool    findFactorsTo(Node *n);
-	//real    getConvergence() {return convergence;} // 0..1
 
 	private:
 		unsigned nodesAllocated;
-		//real convergence; // updated by reset() and best()
 	protected:
-		Node **node;
-		void remove(unsigned n);
+		Triangle** node;
 		// pack of best reflectors (internal cache for best())
 		unsigned bests;
-		Node *bestNode[BESTS];
+		Triangle* bestNode[BESTS];
 		bool refreshing; // false = all nodes were selected for distrib, true = for refresh
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// edge
-
-struct Edge
-{
-	const Vec3 *vertex[2];
-	Triangle   *triangle[2];
-	Angle      angle;
-	bool       free     :1;
-	bool       interpol :1;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// set of edges
-
-extern unsigned __edgesAllocated;
-
-class Edges
-{
-public:
-	unsigned edges;
-
-	Edges();
-	~Edges();
-	void    reset();
-
-	void    insert(Edge *key);
-	Edge    *get();
-
-	private:
-		unsigned edgesAllocated;
-		Edge **edge;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -558,11 +253,8 @@ public:
 	RRObject* importer;
 	unsigned vertices;
 	unsigned triangles;
-	unsigned edges;
-	Vec3    *vertex;
+	RRVec3    *vertex;
 	Triangle*triangle;
-	Edge    *edge;
-	void    buildEdges(float maxSmoothAngle);
 	void    buildTopIVertices(unsigned smoothMode, float minFeatureSize, float maxSmoothAngle);
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
@@ -575,16 +267,11 @@ public:
 	unsigned IVertexPoolItems;
 	unsigned IVertexPoolItemsUsed;
 
-	bool    contains(Triangle *t);
-	bool    contains(Node *n);
-
 	float   subdivisionSpeed;
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
 	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
-
-	bool    check();
 };
 
 
@@ -615,7 +302,7 @@ public:
 
 	Object* object;        // the only object that contains whole static scene
 
-	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
+	HitChannels rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
 
 	void    objInsertStatic(Object *aobject);
 
@@ -625,15 +312,8 @@ public:
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
-	void    draw(RRStaticSolver* scene, real quality);
 
-	// get info
-	void    infoScene(char *buf);
-	void    infoStructs(char *buf);
-	void    infoImprovement(char *buf, int infolevel);
 	real    avgAccuracy();
-	//real    getConvergence() {return staticReflectors.getConvergence();} // 0..1
-	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
 	void    updateFactors(unsigned raysFromTriangle);
@@ -641,12 +321,12 @@ public:
 
 	private:
 		int     phase;
-		Node    *improvingStatic;
+		Triangle* improvingStatic;
 		Triangles hitTriangles;
 		Factors improvingFactors;
-		void    shotFromToHalfspace(Node *sourceNode);
-		void    refreshFormFactorsFromUntil(Node *source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
-		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
+		void    shotFromToHalfspace(Triangle* sourceNode);
+		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
+		bool    energyFromDistributedUntil(Triangle* source,bool endfunc(void *),void *context);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
 		unsigned shotsForNewFactors;
@@ -658,17 +338,13 @@ public:
 		// previously global ray+levels, now allocated per scene
 		// -> multiple independent scenes are legal
 		RRRay*  sceneRay;
-		class LevelHits* sceneLevelHits;
-		Hits*   allocHitsLevel();
-		void    freeHitsLevel();
-		bool    setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots);
 
 		// previously global filler, now allocated per scene
 		// -> multiple independent scenes are legal
 		HomogenousFiller filler;
-		bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir);
+		bool getRandomExitDir(const RRVec3& norm, const RRVec3& u3, const RRVec3& v3, const RRSideBits* sideBits, RRVec3& exitDir);
 	public:
-		Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir);
+		Triangle* getRandomExitRay(Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 	private:
 
 		// previously global skipTriangle, now allocated per scene
@@ -677,8 +353,6 @@ public:
 		//  -> one SkipTriangle per thread must be used if improveStatic() gets parallelized
 		SkipTriangle skipTriangle;
 };
-
-void core_Done(); // print memory statistics
 
 } // namespace
 

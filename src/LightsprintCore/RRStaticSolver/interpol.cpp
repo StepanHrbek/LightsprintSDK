@@ -48,7 +48,7 @@ IVertex *Object::newIVertex()
 		if(!IVertexPoolItems) IVertexPoolItems=128; else IVertexPoolItems*=2;
 		IVertexPool=new IVertex[IVertexPoolItems];
 		IVertexPoolItemsUsed=1;
-		*(IVertex**)IVertexPool=old;
+		IVertexPool->previousAllocBlock=old; // store pointer to old block on safe place (overwrite unimportant float)
 	}
 	return &IVertexPool[IVertexPoolItemsUsed++];
 }
@@ -57,7 +57,7 @@ void Object::deleteIVertices()
 {
 	while(IVertexPool)
 	{
-		IVertex *old=*(IVertex**)IVertexPool;
+		IVertex *old=IVertexPool->previousAllocBlock;
 		delete[] IVertexPool;
 		IVertexPool=old;
 	}
@@ -98,17 +98,10 @@ IVertex::IVertex()
 	cornersAllocatedLn2=3;
 	corner=(Corner *)malloc(cornersAllocated()*sizeof(Corner));
 	powerTopLevel=0;
-#ifdef IV_POINT
-	point=Point3(0,0,0);
-#endif
 	cacheTime=__frameNumber-1;
 	cacheValid=0;
 	__iverticesAllocated++;
 	__cornersAllocated+=cornersAllocated();
-	loaded=false;
-	saved=false;
-	important=false;
-	error=0;//musi nulovat protoze novy ivertexy vznikaj i v dobe kdy se zrovna errory akumulujou
 }
 
 unsigned IVertex::cornersAllocated()
@@ -117,38 +110,10 @@ unsigned IVertex::cornersAllocated()
 	return 1<<cornersAllocatedLn2;
 }
 
-bool IVertex::check()
-{
-	RR_ASSERT(corners!=0xfeee);
-	RR_ASSERT(corners!=0xcdcd);
-	return true;//powerTopLevel>0;
-}
-
-bool IVertex::check(Point3 apoint)
-{
-	// kdyz transformuje objekty misto strel, kontrolni pointy
-	// v ivertexech zustanou neztransformovany a nelze je checkovat
-#ifdef IV_POINT
-	if(size2(point)) RR_ASSERT(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
-#endif
-	return true;
-}
-
-void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
+void IVertex::insert(Triangle* node,bool toplevel,real power,Point3 apoint)
 {
 	RR_ASSERT(this);
-	// new interpolation scheme "power*=node->area" now doesn't work with subdivision
-	if(node->grandpa->object->subdivisionSpeed==0)
-		power *= node->area;
-
-#ifdef IV_POINT
-	if(size2(apoint))
-	{
-		//RR_ASSERT(power<M_PI+0.001); had sense before power*=node->area
-		if(size2(point)==0) point=apoint; else
-		  RR_ASSERT(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
-	}
-#endif
+	power *= node->area;
 	if(corners==cornersAllocated())
 	{
 		size_t oldsize=cornersAllocated()*sizeof(Corner);
@@ -174,21 +139,14 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 	if(toplevel) powerTopLevel+=power;
 }
 
-
-void IVertex::insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint)
-{
-	insert(node,toplevel,power,apoint);
-	while((node=node->parent)) insert(node,false,power);
-}
-
-bool IVertex::contains(Node *node)
+bool IVertex::contains(Triangle* node)
 {
 	for(unsigned i=0;i<corners;i++)
 		if(corner[i].node==node) return true;
 	return false;
 }
 
-unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxSmoothAngle)
+unsigned IVertex::splitTopLevelByAngleOld(RRVec3 *avertex, Object *obj, float maxSmoothAngle)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -204,20 +162,19 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxS
 	for(unsigned i=0;i<corners;i++)
 	{
 		RR_ASSERT(corner[i].node);
-		RR_ASSERT(corner[i].node->grandpa);
-		RR_ASSERT(corner[i].node->grandpa->surface);
+		RR_ASSERT(corner[i].node->surface);
 		unsigned found=0;
 		topivertex[i]=NULL;
 		topivertex[i+corners]=NULL;
 		topivertex[i+2*corners]=NULL;
 		for(int k=0;k<3;k++)
 		{
-			if(TRIANGLE(corner[i].node)->topivertex[k]==this)
+			if(corner[i].node->topivertex[k]==this)
 			{
 #ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size muze ukazovat vic vrcholu na jeden ivertex
 				RR_ASSERT(!found);
 #endif
-				topivertex[i+found*corners]=&TRIANGLE(corner[i].node)->topivertex[k];
+				topivertex[i+found*corners]=&corner[i].node->topivertex[k];
 				found++;
 			}
 		}
@@ -242,12 +199,9 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxS
 		// make new reduction
 		v=obj->newIVertex();
 		numSplitted++;
-#ifdef IV_POINT
-		v->point=point;
-#endif
 		for(unsigned j=0;j<corners;j++)
 			if(INTERPOL_BETWEEN(corner[i].node,corner[j].node))
-				v->insertAlsoToParents(corner[j].node,true,corner[j].power);
+				v->insert(corner[j].node,true,corner[j].power);
 		// install reduction
 		install_v:
 		*topivertex[i]=v;
@@ -261,7 +215,7 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxS
 	return numSplitted;
 }
 
-unsigned IVertex::splitTopLevelByAngleNew(Vec3 *avertex, Object *obj, float maxSmoothAngle)
+unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -284,9 +238,6 @@ unsigned IVertex::splitTopLevelByAngleNew(Vec3 *avertex, Object *obj, float maxS
 		// zaloz ivertex s timto setem corneru
 		IVertex *v = obj->newIVertex();
 		numSplitted++;
-#ifdef IV_POINT
-		v->point = point;
-#endif
 		// for each zbyvajici corner
 restart_iter:
 		for(std::list<Corner*>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
@@ -300,18 +251,12 @@ restart_iter:
 			{
 insert_i:
 				// vloz corner do noveho ivertexu
-				v->insertAlsoToParents((*i)->node,true,(*i)->power);
+				v->insert((*i)->node,true,(*i)->power);
 				// oprav pointery z nodu na stary ivertex
-				Node* node = (*i)->node;
-				if(IS_TRIANGLE(node))
-				{
-					Triangle* triangle = TRIANGLE(node);
-					for(unsigned k=0;k<3;k++)
-						if(triangle->topivertex[k]==this)
-							triangle->topivertex[k] = v;
-				}
-				else
-					RR_ASSERT(0);
+				Triangle* triangle = (*i)->node;
+				for(unsigned k=0;k<3;k++)
+					if(triangle->topivertex[k]==this)
+						triangle->topivertex[k] = v;
 				// odeber z corneru zbyvajicich ke zpracovani
 				cornersLeft.erase(i);
 				// pro jistotu restartni iteraci, iterator muze byt dead
@@ -323,95 +268,6 @@ insert_i:
 	corners=0;
 	powerTopLevel=0;
 	return numSplitted;
-}
-
-/*
-unsigned IVertex::splitTopLevelByNormals(Vec3 *avertex, Object *obj)
-{
-	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
-	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
-	// return: number of new ivertices
-
-	// vsechny cornery vlozi do setu radiciho podle normaly
-	// vzniknou skupinky se stejnou normalou
-	// z kazde skupinky udela jeden ivertex
-
-	// spoleha se tu na to, ze multiObjekt kdyz slouci vic vertexu do jednoho,
-	//  vsem trianglevertexum ktere je sdilely da stejnou normalu, nejlepe vzniklou zprumerovanim starych
-	// multiObjekt to ale nedela
-	// spoleha se tedy na to, ze se vzdy slouci jen vertexy uvnitr roviny
-	//  pro vertexy mimo rovinu (napr na valci) budou vysledky spatne, vznikne nesesmoothovana hrana
-
-	// pro kazdy corner si zjistime jeho normalu
-	struct CornerNormal
-	{
-		Corner* corner;
-		Vec3 normal;
-		int operator <(const CornerNormal& b) const
-		{
-			return memcmp(&normal,&b.normal,sizeof(normal));
-		}
-	};
-	std::set<CornerNormal> cornersLeft;
-	for(unsigned i=0;i<corners;i++) 
-	{
-		CornerNormal tmp;
-		tmp.corner = &corner[i];
-		RRObject::TriangleNormals normals;
-		obj->importer->getTriangleNormals(obj->getTriangleIndex(corner[i].node->grandpa),normals);
-		tmp.normal = normals[?]; nemam u corneru ulozeno ktery vrchol nody to je, zde to uz nelze zjistit, bylo by nutne to sem nekudy pracne protlacit
-		cornersLeft.insert(tmp);
-	}
-	unsigned numSplitted = 0;
-	//while zbyvaji cornery
-	while(cornersLeft.size())
-	{
-		// set=empty
-		// zaloz ivertex s timto setem corneru
-		IVertex *v = obj->newIVertex();
-		Vec3 vNormal;
-		numSplitted++;
-#ifdef IV_POINT
-		v->point = point;
-#endif
-		// for each zbyvajici corner
-restart_iter:
-		for(std::set<CornerNormal>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
-		{
-			if(!v->corners || (*i).normal==vNormal)
-			{
-					vNormal = (*i).normal;
-					// vloz corner do noveho ivertexu
-					v->insertAlsoToParents((*i).corner->node,true,(*i).corner->power);
-					// oprav pointery z nodu na stary ivertex
-					Node* node = (*i).corner->node;
-					if(IS_TRIANGLE(node))
-					{
-						Triangle* triangle = TRIANGLE(node);
-						for(unsigned k=0;k<3;k++)
-							if(triangle->topivertex[k]==this)
-								triangle->topivertex[k] = v;
-					}
-					else
-						RR_ASSERT(0);
-					// odeber z corneru zbyvajicich ke zpracovani
-					cornersLeft.erase(i);
-					// pro jistotu restartni iteraci, iterator muze byt dead
-					goto restart_iter;
-			}
-		}
-	}
-	// make this empty = ready for deletion
-	corners=0;
-	powerTopLevel=0;
-	return numSplitted;
-}
-*/
-
-void IVertex::makeDirty()
-{
-	for(unsigned i=0;i<corners;i++)
-		corner[i].node->flags|=FLAG_DIRTY_IVERTEX+FLAG_DIRTY_SOME_SUBIVERTICES;
 }
 
 // irradiance in W/m^2, incident power density
@@ -428,19 +284,13 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		// full path
 		for(unsigned i=0;i<corners;i++)
 		{
-			Node* node=corner[i].node;
+			Triangle* node=corner[i].node;
 			RR_ASSERT(node);
 			// a=source+reflected incident flux in watts
 			Channels a=node->totalIncidentFlux;
 			RR_ASSERT(IS_CHANNELS(a));
-			if(node->sub[0])
-			{
-				RR_ASSERT(node->sub[1]);
-				a-=node->sub[0]->totalIncidentFlux+node->sub[1]->totalIncidentFlux;
-			}
-			RR_ASSERT(IS_CHANNELS(a));
 			// s=source incident flux in watts
-			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getDirectIncidentFlux() : Channels(0);
+			Channels s=node->getDirectIncidentFlux();
 			RR_ASSERT(IS_CHANNELS(s));
 			// r=reflected incident flux in watts
 			Channels r=a-s;
@@ -466,399 +316,24 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 	return cache;
 }
 
-// exitance in W/m^2, exitting power density
-// differs for different corners, depends on corner material
-Channels IVertex::exitance(Node* corner)
-{
-	return irradiance(
-		RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, scaled or flux
-		)*corner->grandpa->surface->diffuseReflectance;
-}
-
-void IVertex::loadCache(Channels r)
-{
-	cache=r;
-	cacheTime=__frameNumber;
-	cacheValid=1;
-}
-
-bool IVertex::remove(Node *node,bool toplevel)
-// returns true when last corner removed (-> ivertex should be deleted)
-//!!! vsechna volani nastavuji do toplevel false
-{
-	bool removed=false;
-	for(unsigned i=0;i<corners;i++)
-		if(corner[i].node==node)
-		{
-			if(toplevel) powerTopLevel-=corner[i].power;
-			RR_ASSERT(powerTopLevel>-0.0000001);
-			RR_ASSERT(powerTopLevel>-0.00001);
-			corner[i]=corner[--corners];
-			removed=true;
-		}
-//!!!	RR_ASSERT(IS_CLUSTER(node) || removed);// cluster je insertovan a odebiran vickrat (kazdy triangl pridava svou power), prvni odber z IVertexu odebere celou power, ostatni odbery nechame projit naprazdno a nekricime ze je to chyba
-// assertuje pri ruseni sceny ve fcss koupelna4, ale zadny leak to nezpusobuje
-	//if(powerTopLevel<0.00001) corners=0;
-	return corners==0;
-}
-
-bool IVertex::isEmpty()
-{
-	return corners==0;
-}
-
 IVertex::~IVertex()
 {
-	//!!!RR_ASSERT(corners==0);
+	cornersAllocatedLn2++;
+	cornersAllocatedLn2--;
 	free(corner);
 	__cornersAllocated-=cornersAllocated();
 	__iverticesAllocated--;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// subtriangle, part of triangle
-
-IVertex *SubTriangle::ivertex(int i)
+IVertex *Triangle::ivertex(int i)
 {
-/*
-	RR_ASSERT(i>=0 && i<3);
-	if(IS_TRIANGLE(this)) return TRIANGLE(this)->topivertex[i];
-	RR_ASSERT(parent);
-	RR_ASSERT(parent->sub[0]);
-	RR_ASSERT(parent->sub[1]);
-	SubTriangle *pa=SUBTRIANGLE(parent);
-	bool right=isRight();
-	int rot=pa->getSplitVertex();
-	IVertex *tmp;
-	switch(i)
-	{
-	   case 0:tmp = pa->ivertex(rot); break;
-	   case 1:if(right) tmp = pa->ivertex((rot+1)%3); else tmp = pa->subvertex; break;
-	   default:RR_ASSERT(i==2);
-		  if(right) tmp = pa->subvertex; else tmp = pa->ivertex((rot+2)%3);
-	}
-	return tmp;
-*/
 	RR_ASSERT(IS_PTR(this));
 	RR_ASSERT(i>=0 && i<3);
-	IVertex *tmp;
-	if(IS_TRIANGLE(this))
-	{
-		RR_ASSERT(TRIANGLE(this)->surface);
-		tmp = TRIANGLE(this)->topivertex[i];
-		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,RRIntersectStats::getInstance()->intersects));
-		RR_ASSERT(tmp);
-	}
-	else
-	{
-		RR_ASSERT(parent);
-		RR_ASSERT(parent->sub[0]);
-		RR_ASSERT(parent->sub[1]);
-//		SubTriangle *pa=SUBTRIANGLE(parent);
-//		bool right=isRight();
-		switch(i)
-		{
-			case 0:
-				{
-				SubTriangle *pa=SUBTRIANGLE(parent);
-				int rot=pa->getSplitVertex();
-				tmp = pa->ivertex(rot);
-				RR_ASSERT(tmp);
-				break;
-				}
-			case 1:
-				{
-				SubTriangle *pa=SUBTRIANGLE(parent);
-				if(isRight())
-				{
-					int rot=pa->getSplitVertex();
-					tmp = pa->ivertex((rot+1)%3);
-					RR_ASSERT(tmp);
-				}
-				else 
-				{
-					tmp = pa->subvertex;
-					RR_ASSERT(tmp);
-				}
-				break;
-				}
-			default:
-				{
-				RR_ASSERT(i==2);
-				SubTriangle *pa=SUBTRIANGLE(parent);
-				if(isRight())
-				{
-					tmp = pa->subvertex;
-					RR_ASSERT(tmp);
-				}
-				else
-				{
-					int rot=pa->getSplitVertex();
-					tmp = pa->ivertex((rot+2)%3);
-					RR_ASSERT(tmp);
-				}
-				}
-		}
-	}
+	RR_ASSERT(surface);
+	IVertex *tmp = topivertex[i];
+	TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,RRIntersectStats::getInstance()->intersects));
 	RR_ASSERT(tmp);
 	return tmp;
-}
-
-bool SubTriangle::checkVertices()
-{
-	RR_ASSERT(this);
-	if(IS_TRIANGLE(this)) RR_ASSERT(TRIANGLE(this)->surface);
-	IVertex *v;
-
-	TRACE("\n0");
-	v=ivertex(0);
-	TRACE("1\n");
-	RR_ASSERT(this);
-	RR_ASSERT(v);
-	v->check(to3d(0));
-
-	v=ivertex(1);
-	RR_ASSERT(this);
-	RR_ASSERT(v);
-	v->check(to3d(1));
-
-	v=ivertex(2);
-	RR_ASSERT(this);
-	RR_ASSERT(v);
-	v->check(to3d(2));
-
-	return true;
-}
-
-void SubTriangle::installVertices()
-{
-	IVertex *v;
-	v=ivertex(0);RR_ASSERT(v);
-	v->insert(this,false,angleBetween(u2,v2),to3d(0));
-	v=ivertex(1);RR_ASSERT(v);
-	v->insert(this,false,angleBetween(v2-u2,-u2),to3d(1));
-	v=ivertex(2);RR_ASSERT(v);
-	v->insert(this,false,angleBetween(-v2,u2-v2),to3d(2));
-}
-
-SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
-//insertne vsechny pod this az po ten co vraci
-//this ne
-{
-	real sideLength1;
-	switch(*side)
-	{
-		case 0:sideLength1=size(s->u2);break;
-		case 1:sideLength1=size(s->v2-s->u2);break;
-		case 2:sideLength1=size(s->v2);break;
-		default:RR_ASSERT(0);
-	}
-	while(true)
-	{
-		RR_ASSERT(s);
-		int splitVertex=s->getSplitVertexSlow();
-		if(*side==(splitVertex+1)%3) break;
-		s->splitGeometry(NULL);
-		s=SUBTRIANGLE(s->sub[( (*side==splitVertex) == s->isRightLeft() )?0:1]);
-		*side=(*side==splitVertex)?0:2;
-		newVertex->insert(s,false,M_PI);
-	}
-	real sideLength2;
-	switch(*side)
-	{
-		case 0:sideLength2=size(s->u2);break;
-		case 1:sideLength2=size(s->v2-s->u2);break;
-		case 2:sideLength2=size(s->v2);break;
-		default:RR_ASSERT(0);
-	}
-	RR_ASSERT(fabs(sideLength1-sideLength2)<0.0001);
-	RR_ASSERT(*side==(s->getSplitVertexSlow()+1)%3);
-	return s;
-}
-
-SubTriangle *Triangle::getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex)// myside 0=u2, 1=v2-u2, 2=-v2
-//insertne tenhle, to co vraci a vsechno nad nima
-{
-	SubTriangle *neighbourSub=NULL;
-	if(edge[myside] && edge[myside]->interpol)
-	{
-		Triangle *neighbourTri=edge[myside]->triangle[edge[myside]->triangle[0]==this?1:0];
-		newVertex->insertAlsoToParents(neighbourTri,true,M_PI);
-		if(neighbourTri->edge[0]==edge[myside])
-		{
-			*nbsside=0;
-		}
-		else
-		if(neighbourTri->edge[1]==edge[myside])
-		{
-			*nbsside=1;
-		}
-		else
-		{
-			RR_ASSERT(neighbourTri->edge[2]==edge[myside]);
-			*nbsside=2;
-		}
-		RR_ASSERT(getVertex(myside)==neighbourTri->getVertex((*nbsside+1)%3));
-		RR_ASSERT(getVertex((myside+1)%3)==neighbourTri->getVertex(*nbsside));
-		neighbourSub=downWhereSideSplits(neighbourTri,nbsside,newVertex);
-	}
-	newVertex->insertAlsoToParents(this,true,M_PI);
-	return neighbourSub;
-}
-
-SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVertex *newVertex)// myside 0=u2, 1=v2-u2, 2=-v2
-//insertne tenhle, to co vraci a vsechno nad nima
-{
-#ifndef NDEBUG
-	Point3 my_a=to3d(myside);
-	Point3 my_b=to3d((myside+1)%3);
-#endif
-	// is this triangle?
-	if(IS_TRIANGLE(this))
-	{
-		SubTriangle *neighbour=TRIANGLE(this)->getNeighbourTriangle(myside,nbsside,newVertex);
-#ifndef NDEBUG
-		if(neighbour)
-		{
-			Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
-			Point3 nb_b=neighbour->to3d(*nbsside);
-			RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-			RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-			RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
-		}
-#endif
-		return neighbour;
-	}
-	// is brother neighbour?
-	newVertex->insert(this,false,M_PI);
-	bool right=isRight();
-	if((myside==0 && !right) || (myside==2 && right))
-	{
-		*nbsside=right?0:2;
-		newVertex->insertAlsoToParents(parent,true,2*M_PI);
-		SubTriangle *neighbour=brotherSub();
-		newVertex->insert(neighbour,false,M_PI);
-		neighbour=downWhereSideSplits(neighbour,nbsside,newVertex);
-#ifndef NDEBUG
-		Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
-		Point3 nb_b=neighbour->to3d(*nbsside);
-		RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-		RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-		RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
-#endif
-		return neighbour;
-	}
-	// none -> ask parent for help
-	/*
-	myside==0 && !right   brother
-	myside==1 && !right   plus=+1 pulka
-	myside==2 && !right   plus=+2
-	myside==0 &&  right   plus=+0
-	myside==1 &&  right   plus=+1 pulka
-	myside==2 &&  right   brother
-	*/
-	int passide=(SUBTRIANGLE(parent)->getSplitVertex()+myside)%3;
-	SubTriangle *neighbour=SUBTRIANGLE(parent)->getNeighbourSubTriangle(passide,nbsside,newVertex);
-	if(neighbour)
-	{
-		if(myside==1)
-		{
-			RR_ASSERT(neighbour->sub[0]);
-			RR_ASSERT(SUBTRIANGLE(parent)->subvertex==neighbour->subvertex);
-			RR_ASSERT((neighbour->getSplitVertex()+1)%3==*nbsside);
-			neighbour=SUBTRIANGLE(neighbour->sub[(neighbour->isRightLeft()==right)?1:0]);
-			newVertex->insert(neighbour,false,M_PI);
-			*nbsside=1;
-			neighbour=downWhereSideSplits(neighbour,nbsside,newVertex);
-			RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
-		}
-#ifndef NDEBUG
-		Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
-		Point3 nb_b=neighbour->to3d(*nbsside);
-		RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-		RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-		RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
-#endif
-	}
-	return neighbour;
-}
-
-void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
-{
-#ifdef IV_POINT
-	Point3 apoint=(ivertex((rot+1)%3)->point+ivertex((rot+2)%3)->point)/2;
-#endif
-	RR_ASSERT(!subvertex);
-	if(asubvertex)
-	{
-		RR_ASSERT(IS_PTR(asubvertex));
-		subvertex=asubvertex;
-		RR_ASSERT(subvertex->check(to3d(SUBTRIANGLE(sub[0])->uv[isRightLeft()?2:1])));
-#ifdef IV_POINT
-		RR_ASSERT(subvertex->point==apoint);
-#endif
-	}
-	else
-	{
-		subvertex=grandpa->object->newIVertex();
-#ifdef IV_POINT
-		subvertex->point=apoint;
-#endif
-#ifndef NDEBUG
-		RR_ASSERT(rot>=0 && rot<=2);
-		Point3 my_a=to3d((rot+1)%3);
-		Point3 my_b=to3d((rot+2)%3);
-#endif
-		int nbsside;
-		SubTriangle *neighbour=getNeighbourSubTriangle((rot+1)%3,&nbsside,subvertex);
-		if(neighbour)
-		{
-			RR_ASSERT(!neighbour->sub[0]);
-			RR_ASSERT(!neighbour->subvertex);
-			RR_ASSERT(neighbour->checkVertices());
-			RR_ASSERT(nbsside==(neighbour->getSplitVertexSlow()+1)%3);
-			switch((nbsside+2)%3/*==neighbour->getSplitVertexSlow()*/)
-			{
-				case 0:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2+neighbour->v2/2)));break;
-				case 1:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->v2/2)));break;
-				case 2:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2)));break;
-			}
-			neighbour->splitGeometry(subvertex);
-#ifndef NDEBUG
-			RR_ASSERT(nbsside>=0 && nbsside<=2);
-			Point3 nb_a=neighbour->to3d((nbsside+1)%3);
-			Point3 nb_b=neighbour->to3d(nbsside);
-			RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-			RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-#endif
-		}
-	}
-	RR_ASSERT(SUBTRIANGLE(sub[0])->checkVertices());
-	RR_ASSERT(SUBTRIANGLE(sub[1])->checkVertices());
-	// uses subvertex->point, must be called after we set it
-	RR_ASSERT(this);
-	SUBTRIANGLE(sub[1])->installVertices();
-	SUBTRIANGLE(sub[0])->installVertices();
-}
-
-void SubTriangle::removeFromIVertices(Node *node)
-{
-	if(subvertex)
-		subvertex->remove(node,false);
-	if(sub[0])
-	{
-		SUBTRIANGLE(sub[0])->removeFromIVertices(node);
-		SUBTRIANGLE(sub[1])->removeFromIVertices(node);
-	}
-}
-
-void Triangle::removeFromIVertices(Node *node)
-{
-	topivertex[0]->remove(node,false);
-	topivertex[1]->remove(node,false);
-	topivertex[2]->remove(node,false);
-	SubTriangle::removeFromIVertices(node);
 }
 
 #ifdef SUPPORT_MIN_FEATURE_SIZE
@@ -882,9 +357,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	// fill our neighbours
 	for(unsigned c=0;c<corners;c++)
 	{
-		RR_ASSERT(IS_TRIANGLE(corner[c].node));
-		if(!IS_TRIANGLE(corner[c].node)) continue;
-		Triangle* tri = TRIANGLE(corner[c].node);
+		Triangle* tri = corner[c].node;
 		unsigned originalPresent = 0;
 		for(unsigned i=0;i<3;i++)
 		{
@@ -906,16 +379,12 @@ void IVertex::absorb(IVertex* aivertex)
 	// rehook nodes referencing aivertex to us
 	for(unsigned c=0;c<aivertex->corners;c++)
 	{
-		if(IS_TRIANGLE(aivertex->corner[c].node)) // we handle only triangles as we know only triangles get here
+		Triangle* tri = aivertex->corner[c].node;
+		for(unsigned i=0;i<3;i++)
 		{
-			Triangle* tri = TRIANGLE(aivertex->corner[c].node);
-			for(unsigned i=0;i<3;i++)
-			{
-				if(tri->topivertex[i]==aivertex)
-					tri->topivertex[i]=this;
-			}
-
-		} else RR_ASSERT(0);
+			if(tri->topivertex[i]==aivertex)
+				tri->topivertex[i]=this;
+		}
 	}
 	// move corners
 	while(aivertex->corners)
@@ -1088,7 +557,6 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	// check
 	for(unsigned t=0;t<triangles;t++)
 	{
-		RR_ASSERT(!triangle[t].subvertex);
 		for(int v=0;v<3;v++)
 			RR_ASSERT(!triangle[t].topivertex[v]);
 	}
@@ -1119,7 +587,6 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	unsigned numIVertices = vertices;
 	//printf("IVertices loaded: %d\n",numIVertices);
 #ifdef SUPPORT_MIN_FEATURE_SIZE
-	check();
 	// volano jen pokud ma neco delat -> malinka uspora casu
 	if(minFeatureSize>0)
 	{
@@ -1128,29 +595,26 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		// Nevyresena zahada.
 		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
 		numIVertices -= mergeCloseIVertices(topivertex,minFeatureSize);
-		check();
 		//printf("IVertices after merge close: %d\n",numIVertices);
 	}
 #endif
 
 	// split ivertices with too different normals
-	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
 		RRMesh::Vertex vert;
 		meshImporter->getVertex(v,vert);
-		if(!topivertex[v].check(vert)) unusedVertices++;
 		switch(smoothMode)
 		{
 			case 0:
-				numIVertices += topivertex[v].splitTopLevelByAngleOld((Vec3*)&vert,this,maxSmoothAngle);
+				numIVertices += topivertex[v].splitTopLevelByAngleOld((RRVec3*)&vert,this,maxSmoothAngle);
 				break;
 			case 1:
 			default:
-				numIVertices += topivertex[v].splitTopLevelByAngleNew((Vec3*)&vert,this,maxSmoothAngle);
+				numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle);
 				break;
 //			default:
-//				numIVertices += topivertex[v].splitTopLevelByNormals((Vec3*)&vert,this);
+//				numIVertices += topivertex[v].splitTopLevelByNormals((RRVec3*)&vert,this);
 		}
 		// check that splitted topivertex is no more referenced
 		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
@@ -1162,31 +626,6 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		}*/
 	}
 	//printf("IVertices after splitting: %d\n",numIVertices);
-	check();
-
-	// report unused vertices
-	if(unusedVertices)
-	{
-		fprintf(stderr,"Scene contains %i never used vertices.\n",unusedVertices);
-	}
-
-	/*/ for each vertex, store pointer to one of ivertices
-	// helper only for fast approximate render
-	memset(vertexIVertex,0,sizeof(vertexIVertex[0])*vertices);
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
-	{
-		// ro_=rotated, un_=unchanged,original from importer
-		RRMesh::Triangle un_ve;
-		meshImporter->getTriangle(t,un_ve);
-		for(int ro_v=0;ro_v<3;ro_v++)
-		{
-			//RR_ASSERT(triangle[t].topivertex[v]);
-			RR_ASSERT(!triangle[t].topivertex[ro_v] || triangle[t].topivertex[ro_v]->error!=-45);
-			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
-			RR_ASSERT(un_v<vertices);
-			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
-		}
-	}*/
 
 	// delete local array topivertex
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
@@ -1199,24 +638,17 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		}
 	}
 	delete[] topivertex;
-	check();
-
 
 	// check triangle.topivertex validity
-	check();
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{
-			//RR_ASSERT(triangle[t].topivertex[v]); no topivertex allowed for invalid triangles (surface=NULL)
-			RR_ASSERT(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
 			if(triangle[t].topivertex[v])
 			{
 				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xcdcd);
 				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);
 			}
 		}
-
-	check();
 }
 
 } // namespace

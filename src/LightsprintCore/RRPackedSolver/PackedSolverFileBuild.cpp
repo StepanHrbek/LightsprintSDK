@@ -69,7 +69,7 @@ PackedSolverFile* Scene::packSolver() const
 	for(unsigned i=0;i<object->triangles;i++)
 	{
 		//!!! optimize, sort factors
-		numFactors += object->triangle[i].shooter->factors();
+		numFactors += object->triangle[i].factors.factors();
 	}
 
 
@@ -80,11 +80,10 @@ PackedSolverFile* Scene::packSolver() const
 	{
 		// write factors
 		packedSolverFile->packedFactors->newC1(i);
-		for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
+		for(unsigned j=0;j<object->triangle[i].factors.factors();j++)
 		{
-			const Factor* factor = object->triangle[i].shooter->get(j);
-			RR_ASSERT(IS_TRIANGLE(factor->destination));
-			unsigned destinationTriangle = (unsigned)( TRIANGLE(factor->destination)-object->triangle );
+			const Factor* factor = object->triangle[i].factors.get(j);
+			unsigned destinationTriangle = (unsigned)( factor->destination-object->triangle );
 			RR_ASSERT(destinationTriangle<object->triangles);
 			packedSolverFile->packedFactors->newC2()->set(factor->power,destinationTriangle);
 		}
@@ -132,8 +131,7 @@ PackedSolverFile* Scene::packSolver() const
 			{
 				unsigned oldNumWeights = numWeights;
 				for(unsigned k=0;k<ivertex->corners;k++)
-					if(IS_TRIANGLE(ivertex->corner[k].node))
-						numWeights++;
+					numWeights++;
 				if(numWeights>oldNumWeights)
 				{
 					ivertex->packedIndex = numIvertices++;
@@ -171,12 +169,11 @@ PackedSolverFile* Scene::packSolver() const
 				{
 					packedSolverFile->packedIvertices->newC1(numIverticesPacked++);
 					for(unsigned k=0;k<ivertex->corners;k++)
-						if(IS_TRIANGLE(ivertex->corner[k].node))
-						{
-							PackedSmoothTriangleWeight* triangleWeight = packedSolverFile->packedIvertices->newC2();
-							triangleWeight->triangleIndex = (unsigned)(TRIANGLE(ivertex->corner[k].node)-object->triangle);
-							triangleWeight->weight = ivertex->corner[k].power / ivertex->powerTopLevel / TRIANGLE(ivertex->corner[k].node)->area;
-						}
+					{
+						PackedSmoothTriangleWeight* triangleWeight = packedSolverFile->packedIvertices->newC2();
+						triangleWeight->triangleIndex = (unsigned)(ivertex->corner[k].node-object->triangle);
+						triangleWeight->weight = ivertex->corner[k].power / ivertex->powerTopLevel / ivertex->corner[k].node->area;
+					}
 				}
 				RR_ASSERT(ivertex->packedIndex<numIvertices);
 				packedSolverFile->packedSmoothTriangles[t].ivertexIndex[v] = ivertex->packedIndex;

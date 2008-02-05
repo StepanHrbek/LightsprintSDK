@@ -493,9 +493,6 @@
 		<Filter
 			Name="RRStaticSolver">
 			<File
-				RelativePath="RRStaticSolver\clusters.h">
-			</File>
-			<File
 				RelativePath="RRStaticSolver\gatherer.cpp">
 			</File>
 			<File

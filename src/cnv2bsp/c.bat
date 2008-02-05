@@ -1,1 +1,0 @@
--mingw make -f cnv2bsp.mak cnv2bsp

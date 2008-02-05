@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news47 ------------------------------------ 2008.2.x -------------------------------------
+
+NEWS
+
+- 2x lower memory overhead of realtime solver
+
 \section news46 ------------------------------------ 2008.1.28 -------------------------------------
 
 NEWS
