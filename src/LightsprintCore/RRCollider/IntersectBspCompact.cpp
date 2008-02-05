@@ -301,7 +301,6 @@ begin:
 				update_hitPoint3d(ray,distancePlane);
 			}
 #endif
-			DBGLINE
 #ifdef COLLISION_HANDLER
 			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif

@@ -272,7 +272,6 @@ namespace rr
 					fclose(f);
 					if(!ok)
 					{
-						//remove(name);
 						f = fopen(name,"wb");
 						fclose(f);
 						retried = true;

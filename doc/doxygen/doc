@@ -1891,6 +1891,11 @@ Used by samples:
  \n It adapts 3DS scene with geometry and materials for Lightsprint format.
  \n Scene is loaded by open source 3DS loader in the same directory.
 
+ Known limitations of 3ds loader and adapter are
+ - skips lights
+ - skips less frequent material properties
+ - skips non-baked matrices
+
 \page inputs_quake3 Quake 3 (.BSP)
  Quake 3 .BSP is popular 3d scene format used by now open source game Quake 3.
  It supports only one uv coordinates, so it is suitable for realtime lighting and precomputed
@@ -1900,6 +1905,11 @@ Used by samples:
  \n It adapts BSP scene with geometry and materials for Lightsprint format.
  \n Scene is loaded by open source BSP loader in the same directory.
 
+ Known limitations of .bsp loader and adapter are
+ - skips lights
+ - skips script based material properties
+ - skips curved surfaces
+
 \page inputs_mgf MGF (.MGF)
  Materials and Geometry Format (.mgf) is open but old and rarely used format
  for describing scenes and objects suitable for physically-based rendering applications.
@@ -1908,6 +1918,9 @@ Used by samples:
  Source code of MGF loader and adapter is in: samples/ImportMGF/*.*
  \n It loads .mgf scene using source code taken from mgflib (see link above)
  and makes it available in Lightsprint format.
+
+ Known limitations of .mgf loader and adapter are
+ - only convex polygons are triangulated properly
 
 \page inputs_images Images (jpg, png, dds, hdr, gif, tga...)
  Nearly all standard image formats are supported.
@@ -1923,6 +1936,9 @@ Used by samples:
  \n Scene is loaded by Unreal Engine 3.
  
  See samples/ImportUE3/instructions.txt for more details on using it.
+
+ Known limitations of UE3 adapter are
+ - under development, please wait for finished version
  
 \page main_ue3 Introduction for UE3 users
 

@@ -15,9 +15,6 @@
 	#define DIVIDE_BY_RAYDIR /ray->rayDir
 #endif
 
-#define DBGLINE
-//#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);//fgetc(stdin);
-
 namespace rr
 {
 

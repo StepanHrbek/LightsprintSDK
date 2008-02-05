@@ -619,7 +619,6 @@ begin:
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
 #endif
-			DBGLINE
 #ifdef COLLISION_HANDLER
 			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
