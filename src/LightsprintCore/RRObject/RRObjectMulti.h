@@ -35,6 +35,27 @@ public:
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
+			if(numObjects>(1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS))
+			{
+				RRReporter::report(WARN,"Too many objects (%d) for multiobject (supported max=%d).\n",numObjects,1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS);
+				return NULL;
+			}
+			for(unsigned i=0;i<numObjects;i++)
+			{
+				if(objects[i] && objects[i]->getCollider())
+				{
+					if(objects[i]->getCollider()->getMesh()->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+					{
+						RRReporter::report(WARN,"Too many triangles (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+						return NULL;
+					}
+					if(objects[i]->getCollider()->getMesh()->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+					{
+						RRReporter::report(WARN,"Too many vertices (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+						return NULL;
+					}
+				}
+			}
 			// create multimesh
 			transformedMeshes = new RRMesh*[numObjects+3];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat

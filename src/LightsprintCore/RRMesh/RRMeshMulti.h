@@ -28,15 +28,36 @@ public:
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh
 	{
+		if(!mesh)
+		{
+			RR_ASSERT(0);
+			return NULL;
+		}
+		for(unsigned i=0;i<numMeshes;i++)
+		{
+			if(mesh[i] && mesh[i]->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+			{
+				RRReporter::report(WARN,"Too many triangles (%d) in mesh %d (supported max=%d).\n",mesh[i]->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+				return NULL;
+			}
+			if(mesh[i] && mesh[i]->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+			{
+				RRReporter::report(WARN,"Too many vertices (%d) in mesh %d (supported max=%d).\n",mesh[i]->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+				return NULL;
+			}
+		}
 		switch(numMeshes)
 		{
 		case 0: 
 			return NULL;
 		case 1: 
-			RR_ASSERT(mesh);
 			return mesh[0];
-		default: 
-			RR_ASSERT(mesh); 
+		default:
+			if(numMeshes>(1<<MultiMeshPreImportNumber::OBJ_BITS))
+			{
+				RRReporter::report(WARN,"Too many meshes (%d) for multimesh (supported max=%d).\n",numMeshes,1<<MultiMeshPreImportNumber::OBJ_BITS);
+				return NULL;
+			}
 			return new RRMeshMulti(
 				create(mesh,numMeshes/2),numMeshes/2,
 				create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
