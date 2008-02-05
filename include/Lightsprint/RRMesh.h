@@ -356,7 +356,7 @@ namespace rr
 		//! This implies that it is not allowed to create MultiMesh from MultiMeshes.
 		struct MultiMeshPreImportNumber
 		{
-			enum {OBJ_BITS=1, TRI_BITS=sizeof(unsigned)*8-OBJ_BITS};
+			enum {OBJ_BITS=13, TRI_BITS=sizeof(unsigned)*8-OBJ_BITS};
 			//! Original PreImport index of element (vertex or triangle).
 			//! For 32bit int: max 0.5M triangles/vertices in one mesh is supported by multimesh.
 			unsigned index : TRI_BITS;
