@@ -21,7 +21,7 @@ namespace rr_gl
 
 RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers)
 {
-	if(object)
+	if(object && object->getCollider()->getMesh()->getNumTriangles())
 		return new RendererOfRRObject(object,solver,scaler,useBuffers);
 	else
 		return NULL;
