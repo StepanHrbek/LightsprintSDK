@@ -295,7 +295,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			return 0;
 		}
 	}
-	if(!priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if((!priv->scene
+		&& !priv->packedSolver
+		) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);

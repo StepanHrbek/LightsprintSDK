@@ -24,6 +24,8 @@ namespace rr
 
 RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
+	try {
+
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
@@ -84,6 +86,13 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 			RR_ASSERT(importer);
 			if(!importer) return NULL;
 			return IntersectLinear::create(importer);
+	}
+
+	}
+	catch(std::bad_alloc e)
+	{
+		RRReporter::report(ERRO,"Not enough memory, collider not created.\n");
+		return NULL;
 	}
 }
 

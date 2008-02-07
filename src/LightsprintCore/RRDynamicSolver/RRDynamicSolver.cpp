@@ -107,6 +107,8 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 	// create new
 
+	RRReportInterval report(INF2,"Attaching %d static objects...\n",priv->objects.size());
+
 	// create multi in custom scale
 	RRObject** importers = new RRObject*[priv->objects.size()];
 	unsigned origNumVertices = 0;
@@ -306,7 +308,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
 		// create new
-		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
+		priv->scene = RRStaticSolver::create(priv->multiObjectPhysicalWithIllumination,&priv->smoothing);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)

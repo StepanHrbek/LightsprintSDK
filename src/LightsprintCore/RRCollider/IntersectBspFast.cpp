@@ -649,20 +649,17 @@ IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique ai
 	triangleSRLNP = NULL;
 	intersectTechnique = aintersectTechnique;
 
-	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
-	if(!tree) return;
-
 	switch(intersectTechnique)
 	{
-	case IT_BSP_FASTEST:
-	case IT_BSP_FASTER:
-		triangleSRLNP = new TriangleSRLNP[triangles];
-		break;
-	case IT_BSP_FAST:
-		triangleNP = new TriangleNP[triangles];
-		break;
-	default:
-		RR_ASSERT(0);
+		case IT_BSP_FASTEST:
+		case IT_BSP_FASTER:
+			triangleSRLNP = new TriangleSRLNP[triangles];
+			break;
+		case IT_BSP_FAST:
+			triangleNP = new TriangleNP[triangles];
+			break;
+		default:
+			RR_ASSERT(0);
 	}
 	if(triangleNP||triangleSRLNP)
 		for(unsigned i=0;i<triangles;i++)
@@ -673,10 +670,12 @@ IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique ai
 			importer->getVertex(t[0],v[0]);
 			importer->getVertex(t[1],v[1]);
 			importer->getVertex(t[2],v[2]);
-			if(triangleNP) triangleNP[i].setGeometry((Vec3*)&v[0],(Vec3*)&v[1],(Vec3*)&v[2]);
-			if(triangleSRLNP) triangleSRLNP[i].setGeometry(i,(Vec3*)&v[0],(Vec3*)&v[1],(Vec3*)&v[2]);
+			if(triangleNP) triangleNP[i].setGeometry(&v[0],&v[1],&v[2]);
+			if(triangleSRLNP) triangleSRLNP[i].setGeometry(i,&v[0],&v[1],&v[2]);
 		}
 
+	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
+	if(!tree) return;
 }
 
 template IBP

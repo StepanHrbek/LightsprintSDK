@@ -50,16 +50,30 @@ RRStaticSolver::~RRStaticSolver()
 //    -sezere moc vykonu
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
-   
-RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing)
+
+RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing)
+{
+	if(!_object)
+	{
+		return NULL; // no input
+	}
+	RRMesh* mesh = _object->getCollider()->getMesh();
+	Object *obj = Object::create(mesh->getNumVertices(),mesh->getNumTriangles());
+	if(!obj)
+	{
+		return NULL; // not enough memory
+	}
+	return new RRStaticSolver(_object,_smoothing,obj);
+}
+
+RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj)
 {
 	scene=new Scene();
 	RR_ASSERT(importer);
-	if(!importer) return;
+	RR_ASSERT(obj);
 	RRDynamicSolver::SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
 	RRMesh* meshImporter = importer->getCollider()->getMesh();
-	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
 	obj->subdivisionSpeed = smoothing->subdivisionSpeed;
 	obj->importer = importer;
 

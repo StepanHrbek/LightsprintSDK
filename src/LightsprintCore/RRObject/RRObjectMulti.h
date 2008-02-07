@@ -104,6 +104,14 @@ public:
 
 			// create multicollider
 			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+
+			if(!multiCollider)
+			{
+				// not enough memory
+				for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
+				delete[] transformedMeshes;
+				return NULL;
+			}
 		}
 
 		// creates tree of objects

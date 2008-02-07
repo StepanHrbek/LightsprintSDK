@@ -543,19 +543,35 @@ Triangles::~Triangles()
 //
 // object, part of scene
 
-Object::Object(int avertices,int atriangles)
+Object::Object()
 {
-	vertices=avertices;
-	triangles=atriangles;
-	vertex=new RRVec3[vertices];
-	triangle=new Triangle[triangles];
+	vertices=0;
+	triangles=0;
+	vertex=NULL;
+	triangle=NULL;
 	objSourceExitingFlux=Channels(0);
-	//vertexIVertex=new IVertex*[vertices];
-	//memset(vertexIVertex,0,sizeof(void*)*vertices);
 	IVertexPool=NULL;
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
 	subdivisionSpeed = 0;
+}
+
+Object* Object::create(int _vertices,int _triangles)
+{
+	Object* o = new Object();
+	try
+	{
+		o->vertices = _vertices;
+		o->triangles = _triangles;
+		o->vertex=new RRVec3[_vertices];
+		o->triangle=new Triangle[_triangles];
+	}
+	catch(std::bad_alloc e)
+	{
+		RRReporter::report(ERRO,"Not enough memory, solver not created.\n");
+		SAFE_DELETE(o);
+	}
+	return o;
 }
 
 unsigned Object::getTriangleIndex(Triangle* t)
@@ -568,7 +584,6 @@ Object::~Object()
 {
 	delete[] triangle;
 	delete[] vertex;
-	//delete[] vertexIVertex;
 	deleteIVertices();
 }
 

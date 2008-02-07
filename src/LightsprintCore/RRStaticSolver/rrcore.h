@@ -246,7 +246,7 @@ public:
 class Object
 {
 public:
-	Object(int avertices,int atriangles);
+	static Object* create(int avertices,int atriangles);
 	~Object();
 
 	// object data
@@ -272,6 +272,9 @@ public:
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
 	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
+
+private:
+	Object();
 };
 
 
