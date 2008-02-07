@@ -72,9 +72,10 @@ public:
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
 	//! and other optimizations.
 	//! \n Direct illumination: all lights from setParams().
-	//! \n Indirect illumination is always taken directly from static solver, fireball is not supported.
-	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR. Nothing is rendered
-	//!  if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
+	//! \n Indirect illumination is always taken directly from solver.
+	//!    Only LIGHT_INDIRECT_VCOLOR is supported. Nothing is rendered
+	//!    if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
+	//! \n Maps (diffuse etc) are not supported.
 	void useOptimizedScene();
 
 	//! Returns parameters with influence on render().

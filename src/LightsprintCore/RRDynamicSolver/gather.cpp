@@ -700,6 +700,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
+		if((t%10000)==0) RRReporter::report(INF3,"step %d/%d\n",t/10000,(numPostImportTriangles+10000-1)/10000);
 		if(params.debugTriangle==UINT_MAX || params.debugTriangle==t) // skip other triangles when debugging one
 		{
 #ifdef _OPENMP
@@ -769,7 +770,7 @@ RRStaticSolver* endByQuality_solver;
 static bool endByQuality(void *context)
 {
 	int now = int(endByQuality_solver->illuminationAccuracy());
-	//static int old = -1; if(now!=old) {old=now; printf("%d ",now);}//!!!
+	static int old = -1; if(now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,*(int*)context);}
 	return now > *(int*)context;
 }
 
@@ -820,7 +821,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		updateSolverDirectIllumination(&paramsIndirect,false);
 
 		// propagate
-		int targetQuality = MAX(10,2*paramsIndirect.quality);
+		int targetQuality = MAX(5,2*paramsIndirect.quality);
 		RRReportInterval reportProp(INF2,"Propagating(%d)...\n",targetQuality);
 		endByQuality_solver = priv->scene;
 		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&targetQuality);

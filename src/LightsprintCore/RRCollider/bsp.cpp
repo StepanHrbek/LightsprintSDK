@@ -1158,7 +1158,7 @@ unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 template IBP
 bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 {
-//	printf("Building BSP(%d)...",obj->face_num);
+	RRReportInterval report(INF2,"Building acceleration structure (%d triangles)...\n",obj->face_num);
 
 	// create
 	BspBuilder* builder = new BspBuilder();
@@ -1191,7 +1191,6 @@ bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 	builder->free_node(bsp);
 	delete builder;
 
-//	printf(" done.\n");
 	return ok;
 }
 

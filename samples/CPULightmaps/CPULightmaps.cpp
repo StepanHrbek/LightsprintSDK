@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	rr::RRReporter::setReporter(reporter);
-	rr::RRReporter::setFilter(true,3,true);
+	//rr::RRReporter::setFilter(true,3,true);
 
 	// decrease priority, so that this task runs on background using only free CPU cycles
 	// good for precalculating lightmaps on workstation
