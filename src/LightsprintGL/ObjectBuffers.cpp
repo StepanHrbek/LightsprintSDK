@@ -335,14 +335,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			else
 			{
 				// INDEXED FROM VBUFFER THAT IS NULL
-				// vertex buffer not set, but indirect illumination requested
-				// -> scene will be rendered with random indirect illumination
-				RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
-				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(
-					getBufferNumComponents(alightIndirectVcolor),
-					getBufferComponentType(alightIndirectVcolor),
-					0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
+				// scene will be rendered without indirect illumination
+				LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but buffer is NULL.\n"));
+				glDisableClientState(GL_COLOR_ARRAY);
+				glColor3b(0,0,0);
 			}
 		}
 		else
