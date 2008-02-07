@@ -20,61 +20,51 @@ namespace rr
 void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex012] for all objects
 {
+	RRReportInterval reportProp(INF3,"Updating vertex lookup table...\n");
 	if(!getMultiObjectPhysical())
 	{
 		RR_ASSERT(0);
 		return;
 	}
+	// allocate table
 	priv->preVertex2PostTriangleVertex.resize(priv->objects.size());
 	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		if(illumination)
 		{
-			RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
-			unsigned numPostImportVertices = mesh->getNumVertices();
-			unsigned numPostImportTriangles = mesh->getNumTriangles();
-			unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-
-			priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
-
-			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+			unsigned numPreImportSingleVertices = illumination->getNumPreImportVertices();
+			priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportSingleVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
+		}
+	}
+	// fill table
+	RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
+	unsigned numPostImportMultiVertices = multiMesh->getNumVertices();
+	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
+	for(unsigned postImportMultiTriangle=0;postImportMultiTriangle<numPostImportMultiTriangles;postImportMultiTriangle++)
+	{
+		RRMesh::Triangle postImportMultiTriangleVertices;
+		multiMesh->getTriangle(postImportMultiTriangle,postImportMultiTriangleVertices);
+		for(unsigned v=0;v<3;v++)
+		{
+			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
+			if(postImportMultiVertex<numPostImportMultiVertices)
 			{
-				RRMesh::Triangle postImportTriangleVertices;
-				mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
-				for(unsigned v=0;v<3;v++)
+				RRMesh::MultiMeshPreImportNumber preVertexMulti = multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
+				if(priv->scene && !priv->scene->scene->object->triangle[postImportMultiTriangle].topivertex[v])
 				{
-					unsigned postImportVertex = postImportTriangleVertices[v];
-					if(postImportVertex<numPostImportVertices)
-					{
-						unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
-						RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
-						if(preVertexMulti.object==objectHandle)
-							preVertex = preVertexMulti.index;
-						else
-							continue; // skip asserts
-						if(priv->scene && !priv->scene->scene->object->triangle[postImportTriangle].topivertex[v])
-						{
-							// static solver doesn't like this triangle and set surface NULL, probably because it is needle
-							// let it UNDEFINED
-						}
-						else
-						if(preVertex<numPreImportVertices)
-						{
-							priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
-						}
-						else
-						{
-							// should not get here. let it UNDEFINED
-							RR_ASSERT(0);
-						}
-					}
-					else
-					{
-						// should not get here. let it UNDEFINED
-						RR_ASSERT(0);
-					}
+					// static solver doesn't like this triangle and set surface NULL, probably because it is a needle
+					// let it UNDEFINED
 				}
+				else
+				{
+					priv->preVertex2PostTriangleVertex[preVertexMulti.object][preVertexMulti.index] = Private::TriangleVertexPair(postImportMultiTriangle,v);
+				}
+			}
+			else
+			{
+				// should not get here. let it UNDEFINED
+				RR_ASSERT(0);
 			}
 		}
 	}
@@ -83,6 +73,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 // prepare lookup tables preImportVertex -> Ivertex for multiobject and for all singleobjects
 {
+	RRReportInterval reportProp(INF3,"Updating fireball lookup table...\n");
 	if(!priv->packedSolver || !getMultiObjectPhysical())
 	{
 		RR_ASSERT(0);
