@@ -8,11 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news47 ------------------------------------ 2008.2.x -------------------------------------
+\section news47 ------------------------------------ 2008.2.7 -------------------------------------
 
 NEWS
 
-- 2x lower memory overhead of realtime solver
+- non-fireball solvers use 2x less memory
+- non-fireball solvers initialize faster (1000x faster in scene with 6000 meshes)
 
 \section news46 ------------------------------------ 2008.1.28 -------------------------------------
 
