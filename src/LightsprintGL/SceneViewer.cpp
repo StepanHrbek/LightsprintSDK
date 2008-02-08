@@ -822,7 +822,7 @@ static void display(void)
 				glColor3f(1,1,1);
 			}
 		}
-		if(multiMesh && !render2d || !lv)
+		if(multiMesh && (!render2d || !lv))
 		{
 			rr::RRRay* ray = rr::RRRay::create();
 			rr::RRVec3 dir = eye.dir.RRVec3::normalized();
@@ -852,7 +852,7 @@ static void display(void)
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
 				textOutput(x,y+=18,"object lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)?(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
-				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,numTrianglesSingle);
+				textOutput(x,y+=18,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
 				textOutput(x,y+=18,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 				textOutput(x,y+=18,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 				textOutput(x,y+=18,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
@@ -1047,6 +1047,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	layerNumber = (_layerNumber<0)?0:_layerNumber;
 	renderRealtime = _layerNumber<0;
 	ourEnv = 0;
+	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
+	if(selectedObjectIndex>=solver->getNumObjects()) selectedObjectIndex = 0;
 
 	// run
 	glutSetCursor(GLUT_CURSOR_NONE);
