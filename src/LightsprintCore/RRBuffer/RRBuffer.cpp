@@ -446,7 +446,8 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 							// FreeImage doesn't support all necessary conversions
 							unsigned char* src = (unsigned char*)(rawData+side*getWidth()*getHeight()*srcbypp);
 							unsigned char* dst = (unsigned char*)fipixels;
-							unsigned numPixels = getWidth()*getHeight();
+							unsigned width = getWidth();
+							unsigned numPixels = width*getHeight();
 							bool swaprb = dstbipp<=32;//(srcbipp>32) != (dstbipp>32);
 							for(unsigned i=0;i<numPixels;i++)
 							{
@@ -488,6 +489,7 @@ bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
 									pixel[2] = tmp;
 								}
 								// write dst pixel
+								if((i%width)==0) dst += 3-(((unsigned char)dst+3)&3); // compensate for freeimage's scanline padding
 								switch(dstbipp)
 								{
 									case 128:
