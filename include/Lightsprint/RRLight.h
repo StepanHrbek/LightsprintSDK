@@ -174,7 +174,7 @@ namespace rr
 		RRVec3 polynom;
 
 		//! Relevant only for distanceAttenuation==EXPONENTIAL.
-		//!  Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-distance/radius),fallOffExponent).
+		//!  Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
 		RRReal fallOffExponent;
 
 		//! Outer-inner code angle in radians. Relevant only for SPOT light. Read/write.
