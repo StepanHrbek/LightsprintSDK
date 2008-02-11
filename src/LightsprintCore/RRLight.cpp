@@ -139,7 +139,7 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
-		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
+		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
 		RRVec3 irradiance = color * distanceAttenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
@@ -253,7 +253,7 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
-		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
+		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
