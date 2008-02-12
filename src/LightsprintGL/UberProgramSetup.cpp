@@ -314,7 +314,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 			return false;
 		}
 		rr::RRVec3 color = light->origin->color;
-		if(light->origin->distanceAttenuationType==rr::RRLight::NONE || light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL)
+		if(light->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
 			color[0] = pow(color[0],0.45f);
 			color[1] = pow(color[1],0.45f);

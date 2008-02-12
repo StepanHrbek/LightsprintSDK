@@ -759,7 +759,7 @@ static void display(void)
 				case rr::RRLight::NONE:        textOutput(x,y+=18,"dist att: none"); break;
 				case rr::RRLight::PHYSICAL:    textOutput(x,y+=18,"dist att: physically correct"); break;
 				case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
-				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-distance/%f)^%f",rrlight->radius,rrlight->fallOffExponent); break;
+				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
 			}
 			static RealtimeLight* lastLight = NULL;
 			static unsigned numLightReceivers = 0;

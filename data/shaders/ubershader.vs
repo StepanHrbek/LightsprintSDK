@@ -43,6 +43,8 @@
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 
+#define sqr(a) ((a)*(a))
+
 #ifdef OBJECT_SPACE
 	uniform mat4 worldMatrix;
 #endif
@@ -143,7 +145,7 @@ void main()
 				lightDirectVColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
 			#endif
 			#ifdef LIGHT_DISTANCE_EXPONENTIAL
-				lightDirectVColor *= pow(max(0.0,1.0-distance/lightDistanceRadius),lightDistanceFallOffExponent);
+				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
 			#endif
 		#endif
 	#endif
