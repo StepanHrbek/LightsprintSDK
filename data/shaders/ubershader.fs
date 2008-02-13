@@ -10,9 +10,9 @@
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_DIRECTIONAL
 //  #define LIGHT_DIRECT_ATT_SPOT
-//  #define LIGHT_DISTANCE_PHYSICAL
-//  #define LIGHT_DISTANCE_POLYNOMIAL
-//  #define LIGHT_DISTANCE_EXPONENTIAL
+//  #define LIGHT_DIRECT_ATT_PHYSICAL
+//  #define LIGHT_DIRECT_ATT_POLYNOMIAL
+//  #define LIGHT_DIRECT_ATT_EXPONENTIAL
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2
@@ -227,7 +227,7 @@ void main()
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
-		#ifdef LIGHT_DIRECT_MAP
+		#if defined(LIGHT_DIRECT_MAP) || defined(LIGHT_DIRECT_ATT_SPOT)
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index)
 		#else
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index) * step(0.0,shadowCoord[index].z)

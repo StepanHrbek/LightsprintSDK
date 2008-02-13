@@ -50,9 +50,9 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_DIRECTIONAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = 0;
-		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
-		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
-		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 		//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",lightIndex); else printf(" %d: nothing\n",lightIndex);
 	}
 	else
@@ -67,9 +67,9 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->origin && light->origin->type==rr::RRLight::SPOT;
-		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 		if(lightIndex>-separatedAmbientPass)
 		{
 			// additional passes don't include indirect

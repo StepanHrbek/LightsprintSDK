@@ -291,9 +291,10 @@ void RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
 	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;
 	uberProgramSetup.LIGHT_DIRECTIONAL = setupShaderLight->getParent()->orthogonal;
-	uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-	uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-	uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = setupShaderLight->origin && setupShaderLight->origin->type==rr::RRLight::SPOT && !setupShaderLight->lightDirectMap;
+	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.FORCE_2D_POSITION = true;
 	if(!uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1))

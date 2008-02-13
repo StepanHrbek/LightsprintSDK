@@ -59,12 +59,11 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_DIRECT              :1; ///< Enables direct light. All enabled LIGHT_DIRECT_XXX are multiplied.
 	bool     LIGHT_DIRECT_COLOR        :1; ///< Enables modulation of direct light by constant color.
 	bool     LIGHT_DIRECT_MAP          :1; ///< Enables modulation of direct light by color map. Projects texture.
-
 	bool     LIGHT_DIRECTIONAL         :1; ///< Switches direct light from positional (with optional dist.atten.) to directional (no dist.atten.).
-	bool     LIGHT_DIRECT_ATT_SPOT     :1; ///< Enables direct light spot attenuation. (You can get the same effect faster with LIGHT_DIRECT_MAP by projecting spot texture.)
-	bool     LIGHT_DISTANCE_PHYSICAL   :1; ///< Enables direct light physically correct distance attenuation.
-	bool     LIGHT_DISTANCE_POLYNOMIAL :1; ///< Enables direct light polynomial distance attenuation.
-	bool     LIGHT_DISTANCE_EXPONENTIAL:1; ///< Enables direct light exponential distance attenuation.
+	bool     LIGHT_DIRECT_ATT_SPOT       :1; ///< Enables direct light spot attenuation. (You can get the same effect faster with LIGHT_DIRECT_MAP by projecting spot texture.)
+	bool     LIGHT_DIRECT_ATT_PHYSICAL   :1; ///< Enables direct light physically correct distance attenuation.
+	bool     LIGHT_DIRECT_ATT_POLYNOMIAL :1; ///< Enables direct light polynomial distance attenuation.
+	bool     LIGHT_DIRECT_ATT_EXPONENTIAL:1; ///< Enables direct light exponential distance attenuation.
 
 	bool     LIGHT_INDIRECT_CONST      :1; ///< Enables indirect light, constant. All enabled LIGHT_INDIRECT_XXX are accumulated.
 	bool     LIGHT_INDIRECT_VCOLOR     :1; ///< Enables indirect light, set per vertex.

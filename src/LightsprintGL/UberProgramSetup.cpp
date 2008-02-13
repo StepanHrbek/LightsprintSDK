@@ -32,9 +32,9 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_DIRECTIONAL?"#define LIGHT_DIRECTIONAL\n":"",
 		LIGHT_DIRECT_ATT_SPOT?"#define LIGHT_DIRECT_ATT_SPOT\n":"",
-		LIGHT_DISTANCE_PHYSICAL?"#define LIGHT_DISTANCE_PHYSICAL\n":"",
-		LIGHT_DISTANCE_POLYNOMIAL?"#define LIGHT_DISTANCE_POLYNOMIAL\n":"",
-		LIGHT_DISTANCE_EXPONENTIAL?"#define LIGHT_DISTANCE_EXPONENTIAL\n":"",
+		LIGHT_DIRECT_ATT_PHYSICAL?"#define LIGHT_DIRECT_ATT_PHYSICAL\n":"",
+		LIGHT_DIRECT_ATT_POLYNOMIAL?"#define LIGHT_DIRECT_ATT_POLYNOMIAL\n":"",
+		LIGHT_DIRECT_ATT_EXPONENTIAL?"#define LIGHT_DIRECT_ATT_EXPONENTIAL\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
 		LIGHT_INDIRECT_VCOLOR2?"#define LIGHT_INDIRECT_VCOLOR2\n":"",
@@ -149,9 +149,10 @@ void UberProgramSetup::validate()
 		SHADOW_SAMPLES = 0;
 		LIGHT_DIRECT_MAP = 0;
 		LIGHT_DIRECTIONAL = 0;
-		LIGHT_DISTANCE_PHYSICAL = 0;
-		LIGHT_DISTANCE_POLYNOMIAL = 0;
-		LIGHT_DISTANCE_EXPONENTIAL = 0;
+		LIGHT_DIRECT_ATT_SPOT = 0;
+		LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
+		LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 	}
 	if(!LIGHT_INDIRECT_VCOLOR)
 	{
@@ -198,9 +199,9 @@ void UberProgramSetup::setLightDirect(const RealtimeLight* light, const Texture*
 	LIGHT_DIRECT_COLOR = light && light->origin && light->origin->color!=rr::RRVec3(1);
 	LIGHT_DIRECT_MAP = light && light->areaType!=RealtimeLight::POINT && lightDirectMap;
 	LIGHT_DIRECTIONAL = ;
-	LIGHT_DISTANCE_PHYSICAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-	LIGHT_DISTANCE_POLYNOMIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-	LIGHT_DISTANCE_EXPONENTIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+	LIGHT_DIRECT_ATT_PHYSICAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+	LIGHT_DIRECT_ATT_POLYNOMIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+	LIGHT_DIRECT_ATT_EXPONENTIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 }
 
 void UberProgramSetup::setLightIndirect()
@@ -343,12 +344,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDirectSpotFallOffAngleRad",light->origin->fallOffAngleRad);
 	}
 
-	if(LIGHT_DISTANCE_PHYSICAL)
+	if(LIGHT_DIRECT_ATT_PHYSICAL)
 	{
 		RR_ASSERT(light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
 	}
 
-	if(LIGHT_DISTANCE_POLYNOMIAL)
+	if(LIGHT_DIRECT_ATT_POLYNOMIAL)
 	{
 		if(!light->origin)
 		{
@@ -359,7 +360,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z);
 	}
 
-	if(LIGHT_DISTANCE_EXPONENTIAL)
+	if(LIGHT_DIRECT_ATT_EXPONENTIAL)
 	{
 		if(!light->origin)
 		{

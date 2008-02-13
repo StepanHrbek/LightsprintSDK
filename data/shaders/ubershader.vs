@@ -10,9 +10,9 @@
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_DIRECTIONAL
 //  #define LIGHT_DIRECT_ATT_SPOT
-//  #define LIGHT_DISTANCE_PHYSICAL
-//  #define LIGHT_DISTANCE_POLYNOMIAL
-//  #define LIGHT_DISTANCE_EXPONENTIAL
+//  #define LIGHT_DIRECT_ATT_PHYSICAL
+//  #define LIGHT_DIRECT_ATT_POLYNOMIAL
+//  #define LIGHT_DIRECT_ATT_EXPONENTIAL
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2
@@ -63,11 +63,11 @@
 	varying float lightDirectVColor;
 #endif
 
-#ifdef LIGHT_DISTANCE_POLYNOMIAL
+#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
 	uniform vec3 lightDistancePolynom;
 #endif
 
-#ifdef LIGHT_DISTANCE_EXPONENTIAL
+#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
 	uniform float lightDistanceRadius;
 	uniform float lightDistanceFallOffExponent;
 #endif
@@ -139,13 +139,13 @@ void main()
 		#else
 			lightDirectVColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
 			float distance = distance(worldPos,worldLightPos);
-			#ifdef LIGHT_DISTANCE_PHYSICAL
+			#ifdef LIGHT_DIRECT_ATT_PHYSICAL
 				lightDirectVColor *= pow(distance,-0.9);
 			#endif
-			#ifdef LIGHT_DISTANCE_POLYNOMIAL
+			#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
 				lightDirectVColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
 			#endif
-			#ifdef LIGHT_DISTANCE_EXPONENTIAL
+			#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
 				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
 			#endif
 		#endif
