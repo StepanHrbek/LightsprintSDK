@@ -31,8 +31,8 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, 
 	// changes anywhere
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, (_buildMipmaps&&(mini==GL_LINEAR))?GL_LINEAR_MIPMAP_LINEAR:mini);
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MAG_FILTER, magn);
-	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, (buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapS);
-	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, (buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapT);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapS);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapT);
 }
 
 void Texture::reset(bool _buildMipmaps)
