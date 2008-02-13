@@ -416,16 +416,24 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Collada"
+			Name="Import"
 			>
 			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+				RelativePath="..\Import\ImportFreeImage.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.h"
+			<Filter
+				Name="Collada"
 				>
-			</File>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\CPULightmaps.cpp"

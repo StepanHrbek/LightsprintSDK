@@ -328,6 +328,10 @@
 				RelativePath="..\..\samples\RealtimeRadiosity\DynamicObject.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\samples\Import\ImportFreeImage.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="ImportQuake3"

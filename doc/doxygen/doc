@@ -224,8 +224,7 @@ They are included here as .dll files.
 You are free to download their sources and rebuild, use them in commercial applications etc.
 
 Used by LightsprintCore:
-- <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
-  FreeImage is used under the FIPL, version 1.0.
+- none
 
 Used by LightsprintGL:
 - <a href="http://glew.sourceforge.net/">GLEW</a>
@@ -233,6 +232,8 @@ Used by LightsprintGL:
   (with <a href="http://dee.cz/glut">patch</a>)
 
 Used by samples:
+- <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
+  FreeImage is used under the FIPL, version 1.0.
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> (3.02 with patch) by Feeling Software is used under MIT license.
 
 
@@ -1922,11 +1923,13 @@ Used by samples:
  Known limitations of .mgf loader and adapter are
  - only convex polygons are triangulated properly
 
-\page inputs_images Images (jpg, png, dds, hdr, gif, tga...)
+\page inputs_images Images (jpg, png, dds, hdr, gif, tga...), vertex buffers (vbu)
  Nearly all standard image formats are supported.
  \n Images with floating point colors are supported in .hdr format.
-
  Both 2d and cubemap images are supported.
+
+ Source code of image loading/saving is in: samples/Import/ImportFreeImage.cpp.
+ \n It loads/saves vertex buffers directly, textures using FreeImage library.
 
 \page inputs_unreal Unreal Engine 3
  Unreal Engine 3 is one of the most acclaimed game engines.

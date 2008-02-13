@@ -285,6 +285,10 @@
 			Name="Import"
 			>
 			<File
+				RelativePath="..\Import\ImportFreeImage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Import\ImportScene.cpp"
 				>
 			</File>

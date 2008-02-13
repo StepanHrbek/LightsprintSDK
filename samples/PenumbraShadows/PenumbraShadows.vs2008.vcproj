@@ -415,24 +415,32 @@
 	</References>
 	<Files>
 		<Filter
-			Name="3DS"
+			Name="Import"
 			>
 			<File
-				RelativePath="..\Import3DS\Model_3DS.cpp"
+				RelativePath="..\Import\ImportFreeImage.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.h"
+			<Filter
+				Name="3DS"
 				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.h"
-				>
-			</File>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RendererOf3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RendererOf3DS.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\DynamicObject.cpp"

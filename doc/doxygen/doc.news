@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news48 ------------------------------------ 2008.2.x -------------------------------------
+
+CHANGES
+
+- LightsprintCore doesn't depend on FreeImage
+  \n To load textures using FreeImage, simply link samples/Import/ImportFreeImage.cpp to your project.
+
 \section news47 ------------------------------------ 2008.2.7 -------------------------------------
 
 NEWS

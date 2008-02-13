@@ -194,7 +194,7 @@ namespace rr
 		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, bool flipV = false, bool flipH = false);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
-		virtual bool reload(const char *filename, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
+		bool reload(const char *filename, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
 
 		//! Saves buffer to disk.
 		//
@@ -208,7 +208,13 @@ namespace rr
 		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 		//! \return
 		//!  True on successful save of complete buffer.
-		virtual bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
+		bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
+
+		//! Sets functions that load and save buffer, usually by calling external image manipulation library.
+		//
+		//! Example of callbacks: samples/Import/ImportFreeImage.cpp.
+		//! \n If functions are not set, attempts to load/save buffer are silently ignored.
+		static void setLoader(bool (*reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH), bool (*save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]));
 	};
 
 } // namespace

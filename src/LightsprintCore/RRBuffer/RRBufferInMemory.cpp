@@ -16,7 +16,19 @@
 namespace rr
 {
 
-unsigned getBytesPerPixel(RRBufferFormat format);
+
+unsigned getBytesPerPixel(RRBufferFormat format)
+{
+	switch(format)
+	{
+		case BF_RGB: return 3;
+		case BF_RGBA: return 4;
+		case BF_RGBF: return 12;
+		case BF_RGBAF: return 16;
+		case BF_DEPTH: return 4;
+	}
+	return 0;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //

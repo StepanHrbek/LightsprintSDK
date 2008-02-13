@@ -282,34 +282,52 @@
 	</References>
 	<Files>
 		<Filter
-			Name="3DS">
+			Name="Import"
+			>
 			<File
-				RelativePath="..\Import3DS\Model_3DS.cpp">
+				RelativePath="..\Import\ImportFreeImage.cpp"
+				>
 			</File>
-			<File
-				RelativePath="..\Import3DS\Model_3DS.h">
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.cpp">
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.h">
-			</File>
-			<File
-				RelativePath="..\Import3DS\RRObject3DS.cpp">
-			</File>
-			<File
-				RelativePath="..\Import3DS\RRObject3DS.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="COLLADA">
-			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.cpp">
-			</File>
-			<File
-				RelativePath="..\ImportCollada\RRObjectCollada.h">
-			</File>
+			<Filter
+				Name="COLLADA"
+				>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportCollada\RRObjectCollada.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="3DS"
+				>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\Model_3DS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RendererOf3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RendererOf3DS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RRObject3DS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Import3DS\RRObject3DS.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath="..\RealtimeRadiosity\DynamicObject.cpp">
