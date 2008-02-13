@@ -22,7 +22,7 @@ const char* UberProgramSetup::getSetupString()
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -31,6 +31,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_DIRECT_COLOR?"#define LIGHT_DIRECT_COLOR\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_DIRECTIONAL?"#define LIGHT_DIRECTIONAL\n":"",
+		LIGHT_DIRECT_ATT_SPOT?"#define LIGHT_DIRECT_ATT_SPOT\n":"",
 		LIGHT_DISTANCE_PHYSICAL?"#define LIGHT_DISTANCE_PHYSICAL\n":"",
 		LIGHT_DISTANCE_POLYNOMIAL?"#define LIGHT_DISTANCE_POLYNOMIAL\n":"",
 		LIGHT_DISTANCE_EXPONENTIAL?"#define LIGHT_DISTANCE_EXPONENTIAL\n":"",
@@ -291,11 +292,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 			return false;
 		}
 
-		if(LIGHT_DIRECTIONAL)
+		if(LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
 			program->sendUniform("worldLightDir",light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);
 		}
-		else
+		if(!LIGHT_DIRECTIONAL)
 		{
 			program->sendUniform("worldLightPos",light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
 		}
@@ -334,6 +335,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		glActiveTexture(GL_TEXTURE0+id);
 		light->lightDirectMap->bindTexture();
 		program->sendUniform("lightDirectMap", id);
+	}
+
+	if(LIGHT_DIRECT_ATT_SPOT)
+	{
+		program->sendUniform("lightDirectSpotOuterAngleRad",light->origin->outerAngleRad);
+		program->sendUniform("lightDirectSpotFallOffAngleRad",light->origin->fallOffAngleRad);
 	}
 
 	if(LIGHT_DISTANCE_PHYSICAL)

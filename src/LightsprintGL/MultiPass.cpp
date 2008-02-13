@@ -49,6 +49,7 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_COLOR = 0;
 		uberProgramSetup.LIGHT_DIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_DIRECTIONAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = 0;
 		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
 		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;
@@ -65,6 +66,7 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->origin && light->origin->type==rr::RRLight::SPOT;
 		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;

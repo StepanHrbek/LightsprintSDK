@@ -9,6 +9,7 @@
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_DIRECTIONAL
+//  #define LIGHT_DIRECT_ATT_SPOT
 //  #define LIGHT_DISTANCE_PHYSICAL
 //  #define LIGHT_DISTANCE_POLYNOMIAL
 //  #define LIGHT_DISTANCE_EXPONENTIAL
@@ -83,7 +84,7 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-#ifdef MATERIAL_SPECULAR
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
 varying
 #endif
 	vec3 worldPos;

@@ -650,7 +650,7 @@ static void display(void)
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = renderRealtime;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
-		uberProgramSetup.LIGHT_DIRECT_MAP = renderRealtime;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 		uberProgramSetup.LIGHT_INDIRECT_auto = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
@@ -1027,18 +1027,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->setEnvironment(_solver->getEnvironment());
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
 	solver->setLights(_solver->getLights());
-	/*if(_solver->getLights().size()==0)
-	{
-		rr::RRLights lights;
-		lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1,1,1),rr::RRVec3(0,0,2),rr::RRVec3(0,1,0),1.2,0.1));
-		solver->setLights(lights);
-	}*/
-	char buf[1000];
-	_snprintf(buf,999,"%s%s",_pathToShaders,"../maps/spot0.png");
-	buf[999] = 0;
-	Texture* lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load(buf), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	for(unsigned i=0;i<solver->realtimeLights.size();i++)
-		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
@@ -1085,8 +1073,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	}
 	if(ourEnv) delete solver->getEnvironment();
 	SAFE_DELETE(solver);
-	delete lightDirectMap->getBuffer();
-	SAFE_DELETE(lightDirectMap);
 	SAFE_DELETE(lv);
 }
 

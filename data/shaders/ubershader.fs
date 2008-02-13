@@ -9,6 +9,7 @@
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_DIRECTIONAL
+//  #define LIGHT_DIRECT_ATT_SPOT
 //  #define LIGHT_DISTANCE_PHYSICAL
 //  #define LIGHT_DISTANCE_POLYNOMIAL
 //  #define LIGHT_DISTANCE_EXPONENTIAL
@@ -88,6 +89,12 @@
 	#endif
 #endif
 
+#ifdef LIGHT_DIRECT_ATT_SPOT
+	uniform vec3 worldLightDir;
+	uniform float lightDirectSpotOuterAngleRad;
+	uniform float lightDirectSpotFallOffAngleRad;
+#endif
+
 #ifdef LIGHT_DIRECT_COLOR
 	uniform vec4 lightDirectColor;
 #endif
@@ -132,7 +139,7 @@
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#ifdef MATERIAL_SPECULAR
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
 	varying vec3 worldPos;
 #endif
 
@@ -289,12 +296,12 @@ void main()
 	// light direct
 
 	#ifdef LIGHT_DIRECT
-		#if defined(MATERIAL_NORMAL_MAP) || defined(MATERIAL_SPECULAR)
-			vec3 worldLightDir = normalize(worldLightPos - worldPos);
+		#if defined(MATERIAL_NORMAL_MAP) || defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
+			vec3 worldLightDirToPixel = normalize(worldLightPos - worldPos);
 		#endif
 		vec4 lightDirect =
 			#ifdef MATERIAL_NORMAL_MAP
-				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
+				max(0.0,dot(worldLightDirToPixel, worldNormal)) // per pixel
 			#else
 				vec4(lightDirectVColor,lightDirectVColor,lightDirectVColor,lightDirectVColor) // per vertex
 			#endif
@@ -303,6 +310,9 @@ void main()
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
+			#endif
+			#ifdef LIGHT_DIRECT_ATT_SPOT
+				* clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirToPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 )
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				#ifdef SHADOW_PENUMBRA
@@ -389,7 +399,7 @@ void main()
 				#endif
 				(
 					#ifdef LIGHT_DIRECT
-						+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10.0)*2.0
+						+ pow(max(0.0,dot(worldLightDirToPixel,normalize(worldViewReflected))),10.0)*2.0
 						* lightDirect
 					#endif
 					#ifdef LIGHT_INDIRECT_CONST
