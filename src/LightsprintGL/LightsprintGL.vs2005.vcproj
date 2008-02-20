@@ -400,6 +400,14 @@
 			>
 		</File>
 		<File
+			RelativePath="dialog.cpp"
+			>
+		</File>
+		<File
+			RelativePath="dialog.h"
+			>
+		</File>
+		<File
 			RelativePath="FBO.cpp"
 			>
 		</File>

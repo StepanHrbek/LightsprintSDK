@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news49 ------------------------------------ 2008.2.20 -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::aborting
+  \n lets you abort running calculation
+- rr_gl::updateLightmapsWithDialog()
+  \n enhanced RRDynamicSolver::updateLightmaps(), with abort button, adjustable quality, log, scene viewer
+
 \section news48 ------------------------------------ 2008.2.17 -------------------------------------
 
 CHANGES

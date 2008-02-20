@@ -81,6 +81,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2008", "..\sa
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32dlg", "win32dlg\win32dlg.vcproj", "{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -206,6 +208,14 @@ Global
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.ActiveCfg = Release static|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.Build.0 = Release static|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.ActiveCfg = Debug|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.Build.0 = Debug|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.ActiveCfg = Debug|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.Build.0 = Debug|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.ActiveCfg = Release|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.Build.0 = Release|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.ActiveCfg = Release|Win32
+		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
