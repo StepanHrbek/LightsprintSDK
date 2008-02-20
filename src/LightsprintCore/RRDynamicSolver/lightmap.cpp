@@ -218,7 +218,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		{
 			if(texels[i+j*mapWidth].size())
 			{
-				if(tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) // process only texel selected for debugging
+				if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 				{
 					ProcessTexelParams ptp(tc);
 					ptp.uv[0] = i;
@@ -464,7 +464,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	// 3. vertex: realtime copy into buffers (solver not modified)
 	if(containsVertexBuffers && containsRealtime)
 	{
-		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
+		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++) if(!aborting)
 		{
 			if(layerNumberLighting>=0)
 			{
@@ -498,7 +498,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			// for each object with vertex buffer
 			if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 			{
-				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++) if(!aborting)
 				{
 					if(layerNumberLighting>=0)
 					{
@@ -524,7 +524,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			if(paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) // skip objects when debugging texel
+			if((paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) && !aborting) // skip objects when debugging texel
 			{
 				RRBuffer* lightmap = (layerNumberLighting>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberLighting) : NULL;
 				if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;

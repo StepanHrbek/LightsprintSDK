@@ -542,6 +542,12 @@ namespace rr
 		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
 		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
+		
+		//! Makes other solver functions abort, returning quickly with bogus results.
+		//
+		//! You may set/unset it asynchronously, from other threads.
+		//! Solver only reads it, never modifies it, so don't forget to clear it after abort.
+		bool aborting;
 
 
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
@@ -571,6 +577,8 @@ namespace rr
 		//!
 		//! Thread safe: yes, may be called from multiple threads at the same time
 		//!  (but there's no need as it uses all cores internally)
+		//!
+		//! Warning: destination buffer format is automatically reset to BF_RGBF. Future versions will preserve your buffer format.
 		//!
 		//! \param illumination
 		//!  Object's illumination to be updated.

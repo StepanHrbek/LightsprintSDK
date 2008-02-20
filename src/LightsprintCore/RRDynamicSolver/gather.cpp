@@ -642,6 +642,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 // may be called as first gather or final gather
 bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
+	if(aborting)
+		return false;
 	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
@@ -701,7 +703,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
 		if((t%10000)==0) RRReporter::report(INF3,"step %d/%d\n",t/10000,(numPostImportTriangles+10000-1)/10000);
-		if(params.debugTriangle==UINT_MAX || params.debugTriangle==t) // skip other triangles when debugging one
+		if((params.debugTriangle==UINT_MAX || params.debugTriangle==t) && !aborting) // skip other triangles when debugging one
 		{
 #ifdef _OPENMP
 			int thread_num = omp_get_thread_num();
@@ -766,12 +768,18 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	return true;
 }
 
-RRStaticSolver* endByQuality_solver;
+struct EBQContext
+{
+	RRStaticSolver* staticSolver;
+	int targetQuality;
+	bool* aborting;
+};
 static bool endByQuality(void *context)
 {
-	int now = int(endByQuality_solver->illuminationAccuracy());
-	static int old = -1; if(now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,*(int*)context);}
-	return now > *(int*)context;
+	EBQContext* c = (EBQContext*)context;
+	int now = int(c->staticSolver->illuminationAccuracy());
+	static int old = -1; if(now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,c->targetQuality);}
+	return (now > c->targetQuality) || *c->aborting;
 }
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect)
@@ -821,20 +829,25 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		updateSolverDirectIllumination(&paramsIndirect,false);
 
 		// propagate
-		int targetQuality = MAX(5,2*paramsIndirect.quality);
-		RRReportInterval reportProp(INF2,"Propagating(%d)...\n",targetQuality);
-		endByQuality_solver = priv->scene;
-		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&targetQuality);
-		switch(improvement)
+		if(!aborting)
 		{
-			case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
-			case RRStaticSolver::NOT_IMPROVED: RRReporter::report(INF2,"Not improved.\n");break;
-			case RRStaticSolver::FINISHED: RRReporter::report(WARN,"No light in scene.\n");break;
-			case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
+			EBQContext context;
+			context.staticSolver = priv->scene;
+			context.targetQuality = MAX(5,2*paramsIndirect.quality);
+			context.aborting = &aborting;
+			RRReportInterval reportProp(INF2,"Propagating(%d)...\n",context.targetQuality);
+			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&context);
+			switch(improvement)
+			{
+				case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
+				case RRStaticSolver::NOT_IMPROVED: RRReporter::report(INF2,"Not improved.\n");break;
+				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"No light in scene.\n");break;
+				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
+			}
+			// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
+			//  before further realtime rendering
+			//reportDirectIlluminationChange(true);
 		}
-		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
-		//  before further realtime rendering
-//		reportDirectIlluminationChange(true);
 	}
 	return true;
 }

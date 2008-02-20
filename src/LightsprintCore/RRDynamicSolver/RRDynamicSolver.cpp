@@ -33,6 +33,7 @@ namespace rr
 
 RRDynamicSolver::RRDynamicSolver()
 {
+	aborting = false;
 	priv = new Private;
 }
 
@@ -236,17 +237,23 @@ void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 	priv->boostDetectedDirectIllumination = boost;
 }
 
+struct EBTContext
+{
+	bool* aborting;
+	TIME endTime;
+};
 static bool endByTime(void *context)
 {
+	EBTContext* c = (EBTContext*)context;
 #if PER_SEC==1
 	// floating point time without overflows
-	return GETTIME>*(TIME*)context;
+	return (GETTIME>c->time) || c->aborting;
 #else
 	// fixed point time with overlaps
 	TIME now = GETTIME;
-	TIME end = *(TIME*)context;
+	TIME end = c->endTime;
 	TIME max = (TIME)(end+ULONG_MAX/2);
-	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now );
+	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now ) || *c->aborting;
 #endif
 }
 
@@ -405,8 +412,10 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	else
 	if(priv->scene)
 	{
-		TIME end = (TIME)(now+improveStep*PER_SEC);
-		if(priv->scene->illuminationImprove(endByTime,(void*)&end)==RRStaticSolver::IMPROVED)
+		EBTContext context;
+		context.aborting = &aborting;
+		context.endTime = (TIME)(now+improveStep*PER_SEC);
+		if(priv->scene->illuminationImprove(endByTime,(void*)&context)==RRStaticSolver::IMPROVED)
 			priv->dirtyResults = true;
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
