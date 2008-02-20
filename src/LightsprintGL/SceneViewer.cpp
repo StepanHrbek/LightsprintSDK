@@ -997,6 +997,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
 		window = glutCreateWindow("Lightsprint Debug Console");
+		glutPopWindow();
 
 		// init GLEW
 		if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
@@ -1032,7 +1033,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);
-	layerNumber = (_layerNumber<0)?0:_layerNumber;
+	layerNumber = (_layerNumber<0)?-1-_layerNumber:_layerNumber;
 	renderRealtime = _layerNumber<0;
 	ourEnv = 0;
 	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
@@ -1052,7 +1053,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	Menu* menu = new Menu(solver);
 	
 	exitRequested = false;
-	while(!exitRequested)
+	while(!exitRequested && !_solver->aborting)
 		glutMainLoopUpdate();
 
 	delete menu;
@@ -1068,10 +1069,18 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	if(_createWindow)
 	{
+		// delete all textures created by us
 		deleteAllTextures();
+		if(solver->getEnvironment())
+			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
+		for(unsigned i=0;i<solver->getNumObjects();i++)
+			if(solver->getIllumination(i)->getLayer(layerNumber))
+				solver->getIllumination(i)->getLayer(layerNumber)->customData = NULL;
+
 		glutDestroyWindow(window);
 	}
-	if(ourEnv) delete solver->getEnvironment();
+	if(ourEnv)
+		delete solver->getEnvironment();
 	SAFE_DELETE(solver);
 	SAFE_DELETE(lv);
 }
