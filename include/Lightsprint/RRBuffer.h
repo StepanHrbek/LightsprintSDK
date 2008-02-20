@@ -61,6 +61,11 @@ namespace rr
 	//!    It is more complicated, but it could be more efficient in some cases.
 	//!    It's possible to simplify subclassing by using helper RRBuffer::create() instance
 	//!    internally in subclass instance.
+	//!
+	//! Functions used by LightsprintCore to update buffers
+	//! - vertex buffers by lock(); or setElement() when lock() returns NULL
+	//! - environment maps by reset(), but future version will use lock() too to avoid memcpy
+	//! - lightmaps by setElement()
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

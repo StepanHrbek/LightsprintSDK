@@ -211,8 +211,9 @@ Texture::~Texture()
 // dobre: budu ho tise ignorovat. 
 // jedine co nesmim je smazat buffer a dal pouzivat texturu.
 	if(ownBuffer)
-		delete buffer;
+		SAFE_DELETE(buffer);
 	glDeleteTextures(1, &id);
+	id = UINT_MAX;
 	numPotentialFBOUsers--;
 	if(!numPotentialFBOUsers)
 	{
@@ -256,7 +257,7 @@ static std::vector<Texture*> g_textures;
 Texture* getTexture(const rr::RRBuffer* _buffer, bool buildMipMaps, int magn, int mini, int wrapS, int wrapT)
 {
 	if(!_buffer) return NULL;
-	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! hack, removed const (customData is modified)
+	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! customData is modified in const object
 	if(!buffer->customData)
 	{
 		Texture* texture = new Texture(buffer,buildMipMaps,magn,mini,wrapS,wrapT);

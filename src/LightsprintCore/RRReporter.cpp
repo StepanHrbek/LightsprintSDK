@@ -184,9 +184,9 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	}
 }
 
-void RRReporter::setReporter(RRReporter* areporter)
+void RRReporter::setReporter(RRReporter* _reporter)
 {
-	reporter = areporter;
+	reporter = _reporter;
 }
 
 RRReporter* RRReporter::getReporter()
