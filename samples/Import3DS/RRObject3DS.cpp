@@ -3,12 +3,12 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
 // --------------------------------------------------------------------------
 
-// This code implements data wrappers for access to Model_3DS meshes, objects, materials.
+// This code implements data adapters for access to Model_3DS meshes, objects, materials.
 // You can replace Model_3DS with your internal format and adapt this code
 // so it works with your data.
 //
 // For sake of simplicity, instancing is not used here and some data are duplicated.
-// See RRObjectCollada as an example of wrapper with instancing and
+// See RRObjectCollada as an example of adapter with instancing and
 // nearly zero memory requirements.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
@@ -30,8 +30,8 @@
 //
 // Verificiation
 //
-// Helps during development of new wrappers.
-// Define VERIFY to enable verification of wrappers and data.
+// Helps during development of new adapters.
+// Define VERIFY to enable verification of adapters and data.
 // Once your code/data are verified and don't emit messages via reporter(),
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
@@ -360,9 +360,10 @@ void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	RRObject3DS::getTriangle(t,triangle);
 	for(unsigned v=0;v<3;v++)
 	{
-		out.norm[v][0] = object->Normals[3*triangle[v]];
-		out.norm[v][1] = object->Normals[3*triangle[v]+1];
-		out.norm[v][2] = object->Normals[3*triangle[v]+2];
+		out.vertex[v].normal[0] = object->Normals[3*triangle[v]];
+		out.vertex[v].normal[1] = object->Normals[3*triangle[v]+1];
+		out.vertex[v].normal[2] = object->Normals[3*triangle[v]+2];
+		out.vertex[v].buildBasisFromNormal();
 	}
 }
 

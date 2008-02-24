@@ -246,7 +246,7 @@ S8 Triangle::setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2wo
 	qvertex[1]=b;
 	qvertex[2]=c;
 
-	// set u3,v3,n3
+	// set n3
 	qn3=normalized(ortogonalTo(getR3(),getL3()));
 	qn3.w=-dot(getS3(),getN3());
 	if(!IS_VEC3(getN3())) return -3; // throw out degenerated triangle
@@ -907,7 +907,7 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 
 	RRVec3 n3 = source->getN3();
 	RRVec3 u3 = normalized(source->getR3());
-	RRVec3 v3 = normalized(ortogonalTo(n3,u3));
+	RRVec3 v3 = ortogonalTo(n3,u3);
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;

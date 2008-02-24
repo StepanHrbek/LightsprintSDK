@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news50 ------------------------------------ 2008.2.x -------------------------------------
+
+NEWS
+
+- lightmap building 2x faster
+
+CHANGES
+
+- RRMesh::TriangleNormals newly contains also tangents and binormals
+
 \section news49 ------------------------------------ 2008.2.20 -------------------------------------
 
 NEWS

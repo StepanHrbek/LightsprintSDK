@@ -3,12 +3,12 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
-// This code implements data wrappers for access to TMapQ3 meshes, objects, materials.
+// This code implements data adapters for access to TMapQ3 meshes, objects, materials.
 // You can replace TMapQ3 with your internal format and adapt this code
 // so it works with your data.
 //
 // For sake of simplicity, some data are duplicated here.
-// See RRObjectCollada as an example of wrapper with
+// See RRObjectCollada as an example of adapter with
 // nearly zero memory requirements, no duplications.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
@@ -38,8 +38,8 @@
 //
 // Verificiation
 //
-// Helps during development of new wrappers.
-// Define VERIFY to enable verification of wrappers and data.
+// Helps during development of new adapters.
+// Define VERIFY to enable verification of adapters and data.
 // Display system messages using RRReporter.
 // Once your code/data are verified and don't emit messages via RRReporter,
 // turn verifications off.

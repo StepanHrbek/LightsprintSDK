@@ -41,9 +41,13 @@ public:
 		inherited->getTriangleNormals(t,out);
 		if(m)
 		{
-			m->transformDirection(out.norm[0]); out.norm[0].normalize();
-			m->transformDirection(out.norm[1]); out.norm[1].normalize();
-			m->transformDirection(out.norm[2]); out.norm[2].normalize();
+			for(unsigned v=0;v<3;v++)
+			{
+				// nonuniform scale breaks orthogonality
+				out.vertex[v].normal = m->transformedDirection(out.vertex[v].normal).normalized();
+				out.vertex[v].tangent = m->transformedDirection(out.vertex[v].tangent).normalized();
+				out.vertex[v].bitangent = m->transformedDirection(out.vertex[v].bitangent).normalized();
+			}
 		}
 	}
 private:

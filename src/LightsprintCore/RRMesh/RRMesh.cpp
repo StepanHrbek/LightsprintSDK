@@ -46,6 +46,12 @@ void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
 	out.side2[2]=v[2][2]-v[0][2];
 }
 
+void RRMesh::TangentBasis::buildBasisFromNormal()
+{
+	tangent = ortogonalTo(normal).normalized();
+	bitangent = ortogonalTo(normal,tangent);
+}
+
 void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	unsigned numTriangles = getNumTriangles();
@@ -56,11 +62,10 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 	RRMesh::TriangleBody tb;
 	getTriangleBody(t,tb);
-	RRVec3 norm = ortogonalTo(tb.side1,tb.side2);
-	norm *= 1/size(norm);
-	out.norm[0] = norm;
-	out.norm[1] = norm;
-	out.norm[2] = norm;
+	out.vertex[0].normal = ortogonalTo(tb.side1,tb.side2).normalized();
+	out.vertex[0].buildBasisFromNormal();
+	out.vertex[1] = out.vertex[0];
+	out.vertex[2] = out.vertex[0];
 }
 
 void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
@@ -459,27 +464,44 @@ unsigned RRMesh::verify()
 		bool nanOrInf = false;
 		bool denormalized = false;
 		bool badDirection = false;
+		bool notOrtogonal = false;
 		for(unsigned j=0;j<3;j++)
 		{
-			if(!IS_VEC3(triangleNormals.norm[j])) nanOrInf = true;
-			if(fabs(size2(triangleNormals.norm[j])-1)>0.1f) denormalized = true;
-			if(size2(triangleNormals.norm[j]-triangleNormalsFlat.norm[0])>2) badDirection = true;
+			if(!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
+			if(!IS_VEC3(triangleNormals.vertex[j].tangent)) nanOrInf = true;
+			if(!IS_VEC3(triangleNormals.vertex[j].bitangent)) nanOrInf = true;
+			if(fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
+			if(fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
+			if(fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
+			if(size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
+			if(abs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrtogonal = true;
+			if(abs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
+			if(abs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
 		}
 		if(nanOrInf)
 		{
-			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths %f %f %f.\n",
-				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
+			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths v0 %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
+				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
+				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
+				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
 		} 
 		else
 		if(denormalized)
 		{
-			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths %f %f %f.\n",
-				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
+			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths v0 %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
+				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
+				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
+				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
 		}
 		else
 		if(badDirection)
 		{
 			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
+		}
+		else
+		if(notOrtogonal)
+		{
+			RRReporter::report(WARN,"getTriangleNormals(%d) are not ortogonal (normal,tangent,bitangent).\n",i);
 		}
 
 		// triangleMapping

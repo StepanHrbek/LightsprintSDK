@@ -848,7 +848,9 @@ static void display(void)
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 				rr::RRMesh::TriangleNormals triangleNormals;
 				multiMesh->getTriangleNormals(ray->hitTriangle,triangleNormals);
-				rr::RRVec3 norm = triangleNormals.norm[0] + (triangleNormals.norm[1]-triangleNormals.norm[0])*ray->hitPoint2d[0] + (triangleNormals.norm[2]-triangleNormals.norm[0])*ray->hitPoint2d[1];
+				rr::RRVec3 normal = triangleNormals.vertex[0].normal + (triangleNormals.vertex[1].normal-triangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].normal-triangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
+				rr::RRVec3 tangent = triangleNormals.vertex[0].tangent + (triangleNormals.vertex[1].tangent-triangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].tangent-triangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
+				rr::RRVec3 bitangent = triangleNormals.vertex[0].bitangent + (triangleNormals.vertex[1].bitangent-triangleNormals.vertex[0].bitangent)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].bitangent-triangleNormals.vertex[0].bitangent)*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,"[point in the middle of viewport]");
 				textOutput(x,y+=18,"object: %d/%d",preTriangle.object,numObjects);
 				textOutput(x,y+=18,"object lit: %s",renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)?(solver->getIllumination(preTriangle.object)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
@@ -871,8 +873,10 @@ static void display(void)
 				}
 				textOutput(x,y+=18,"distance: %f",ray->hitDistance);
 				textOutput(x,y+=18,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
-				textOutput(x,y+=18,"norm.: %f %f %f",norm[0],norm[1],norm[2]);
-				textOutput(x,y+=18,"plane: %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
+				textOutput(x,y+=18,"plane:  %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
+				textOutput(x,y+=18,"normal: %f %f %f",normal[0],normal[1],normal[2]);
+				textOutput(x,y+=18,"tangent: %f %f %f",tangent[0],tangent[1],tangent[2]);
+				textOutput(x,y+=18,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
 				textOutput(x,y+=18,"side: %s",ray->hitFrontSide?"front":"back");
 				textOutput(x,y+=18,"material: %s",(material!=&pointMaterial)?"per-triangle":"per-vertex");
 				textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);

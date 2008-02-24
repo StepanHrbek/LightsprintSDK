@@ -264,13 +264,25 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
-		//! Three normals for three vertices in triangle. In object space, normalized.
-		struct TriangleNormals      {RRVec3 norm[3];};
-		//! Writes to out vertex normalized normals of triangle.
+		//! Orthonormal tangent basis in object space.
+		struct TangentBasis
+		{
+			RRVec3 normal;
+			RRVec3 tangent;
+			RRVec3 bitangent;
+			void buildBasisFromNormal();
+		};
+		//! Orthonormal tangent bases in object space, for three vertices in triangle.
+		struct TriangleNormals
+		{
+			TangentBasis vertex[3];
+		};
+		//! Writes tangent bases in triangle vertices to out. Normals are part of bases.
 		//
-		//! Normals are used by global illumination solver and renderer.
+		//! Tangent bases are used by global illumination solver and renderer.
 		//! Normals should point to front side hemisphere, see \ref s5_frontback.
-		//! \n Default implementation writes all vertex normals equal to triangle plane normal.
+		//! \n Default implementation writes all vertex normals equal to triangle plane normal
+		//! and constructs appropriate tangent space.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
@@ -417,7 +429,9 @@ namespace rr
 		//! Usually used when mesh in world space is needed and we have mesh in local space.
 		//! In this case, world space matrix (the one that transforms from local to world) should be passed in transform.
 		//!
-		//! Only positions and normals are transformed, custom channels are left untouched.
+		//! Only positions/normals/tangent space are transformed, custom channels are left untouched.
+		//!
+		//! Non-uniform transformations break tangent space ortogonality.
 		RRMesh* createTransformed(const RRMatrix3x4* transform);
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).

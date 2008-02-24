@@ -103,21 +103,20 @@ public:
 //
 // random exiting ray
 
-static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRVec3& norm, const RRVec3& u3, const RRVec3& v3)
-// ortonormal space: norm, u3, v3
+static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRMesh::TangentBasis& basis)
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
 #ifdef HOMOGENOUS_FILL
 	RRReal x,y;
 	RRReal cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
-	return norm*cosa + u3*x + v3*y;
+	return basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
 #else
 	// select random vector from srcPoint3 to one halfspace
 	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
 	RRReal cosa=sqrt(1-tmp);
 	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
 	RRReal b=rand()*2*3.14159265f/RAND_MAX;         // b = rotation angle around normal
-	return norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
+	return basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
 #endif
 }
 
@@ -195,10 +194,10 @@ public:
 	// 1 ray
 	// inputs:
 	//  - pti.rays[0].rayOrigin
-	void shotRay(const RRVec3& cache_n3, const RRVec3& cache_u3, const RRVec3& cache_v3, unsigned _skipTriangleIndex)
+	void shotRay(const RRMesh::TangentBasis& basis, unsigned _skipTriangleIndex)
 	{
 		// random exit dir
-		RRVec3 dir = getRandomExitDir(fillerDir, cache_n3, cache_u3, cache_v3);
+		RRVec3 dir = getRandomExitDir(fillerDir, basis);
 		RRReal dirsize = dir.length();
 
 		// gather 1 ray
@@ -319,7 +318,7 @@ public:
 	// 1 ray
 	// inputs:
 	// - pti.rays[1].rayOrigin
-	void shotRay(const RRLight* _light, const RRVec3& _norm)
+	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basis)
 	{
 		if(!_light) return;
 		RRRay* ray = &pti.rays[1];
@@ -328,7 +327,7 @@ public:
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-		float normalIncidence = dot(dir,_norm);
+		float normalIncidence = dot(dir,_basis.normal);
 		if(normalIncidence<=0)
 		{
 			// face is not oriented towards light -> reliable black (selfshadowed)
@@ -379,11 +378,11 @@ public:
 	}
 
 	// 1 ray per light
-	void shotRayPerLight(const RRVec3& _norm, unsigned _skipTriangleIndex)
+	void shotRayPerLight(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
 	{
 		collisionHandler.skipTriangleIndex = _skipTriangleIndex;
 		for(unsigned i=0;i<lights.size();i++)
-			shotRay(lights[i],_norm);
+			shotRay(lights[i],_basis);
 		shotRounds++;
 	}
 
@@ -484,13 +483,19 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	hemisphere.init();
 	gilights.init();
 
-	// cached ortonormal base computed from triangleIndex
+	// cached data reused for all rays from one triangleIndex
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
-	RRVec3 cache_n3; // normal
-	RRVec3 cache_u3;
-	RRVec3 cache_v3;
+	RRMesh::TriangleNormals cache_bases;
+	RRMesh::TangentBasis cache_basis;
 
+
+
+	// init subtexel selector
+	unsigned subTexelIndex = 0;
+	RRReal areaAccu = -pti.subTexels->at(0).areaInMapSpace;
+	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
+	RRReal areaStep = areaMax/(MAX(hemisphere.rays,gilights.rays)+0.91f);
 
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
@@ -501,15 +506,32 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		//
 		// get random position in texel
 
-		// random subtexel
-		RRReal r = pti.subTexels->getAreaInMapSpace()*rand()/(RAND_MAX+1);
-		int subTexelIndex = -1;
-		do { r -= pti.subTexels->at(++subTexelIndex).areaInMapSpace; } while(r>0);
+		// select subtexel
+		areaAccu += areaStep;
+		while(areaAccu>0) areaAccu -= pti.subTexels->at(++subTexelIndex%=pti.subTexels->size()).areaInMapSpace;
 		SubTexel* subTexel = &pti.subTexels->at(subTexelIndex);
 
+		// update cache (tb + ortonormal base)
+		// (simplification: average base is used for all rays from texel)
+//static unsigned q=0;q++;static unsigned w=0;if(q>10000){printf("%d ",w);q=0;w=0;}
+		if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
+		{
+//w++;
+			cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
+			RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+			mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
+			mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+			RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
+			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
+			// tangent basis for center of texel, used for all rays from subtexel
+			// this simplification saves 6% of time in lightmap build
+			// higher precision: simply move following code 10 lines down
+			cache_basis.normal = normalized( cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1] );
+			cache_basis.tangent = normalized( cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1] );
+			cache_basis.bitangent = normalized( cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1] );
+		}
+
 		// random 2d pos in subtexel
-		//RRVec2 uvInTexel; // 0..1 in texel
-		//tools.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
 		unsigned u=rand();
 		unsigned v=rand();
 		if(u+v>RAND_MAX)
@@ -519,22 +541,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		}
 		RRVec2 uvInTriangleSpace = subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u/(RRReal)RAND_MAX) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v/(RRReal)RAND_MAX);
 
-		// update cache (tb + ortonormal base)
-		// (simplification: average base is used for all rays from texel)
-		if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
-		{
-			cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
-			RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
-			mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
-			RRMesh::TriangleNormals normals;
-			mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,normals);
-			RRVec2 averageUvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] ) * 0.33333f;
-			cache_n3 = normalized(normals.norm[0] + (normals.norm[1]-normals.norm[0])*averageUvInTriangleSpace[0] + (normals.norm[2]-normals.norm[0])*averageUvInTriangleSpace[1]);
-			cache_u3 = normalized(ortogonalTo(cache_n3));
-			cache_v3 = normalized(ortogonalTo(cache_n3,cache_u3));
-		}
-
-		// 3d pos
+		// 3d pos, norm
 		pti.rays[1].rayOrigin = pti.rays[0].rayOrigin = cache_tb.vertex0 + cache_tb.side1*uvInTriangleSpace[0] + cache_tb.side2*uvInTriangleSpace[1];
 
 
@@ -545,7 +552,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		bool shootHemisphere = hemisphere.rays && (hemisphere.hitsReliable<=hemisphere.rays/10 || hemisphere.hitsReliable+hemisphere.hitsUnreliable<=hemisphere.rays);
 		if(shootHemisphere)
 		{
-			hemisphere.shotRay(cache_n3,cache_u3,cache_v3,subTexel->multiObjPostImportTriIndex);
+			hemisphere.shotRay(cache_basis,subTexel->multiObjPostImportTriIndex);
 		}
 		
 
@@ -556,7 +563,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		bool shootLights = gilights.rays && (gilights.hitsReliable<=gilights.rays/10 || gilights.hitsReliable+gilights.hitsUnreliable<=gilights.rays);
 		if(shootLights)
 		{
-			gilights.shotRayPerLight(cache_n3,subTexel->multiObjPostImportTriIndex);
+			gilights.shotRayPerLight(cache_basis,subTexel->multiObjPostImportTriIndex);
 		}
 
 

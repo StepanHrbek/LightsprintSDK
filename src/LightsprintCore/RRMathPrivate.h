@@ -53,12 +53,12 @@ namespace rr
 		return a.x*b.x+a.y*b.y+a.z*b.z;
 	}
 
+	// doesn't preserve length (would be slower)
+	// is not continuous (such function doesn't exist)
 	inline RRVec3 ortogonalTo(const RRVec3& a)
 	{
-		if(!a.x)
-			return RRVec3(0,a.z,-a.y);
-		else
-			return RRVec3(-a.y,a.x,0);
+		//if(!a.x) return RRVec3(0,a.z,-a.y); else return RRVec3(-a.y,a.x,0); // plane of discontinuity
+		if(!a.x && !a.y) return RRVec3(0,1,0); else return RRVec3(-a.y,a.x,0); // line of discontinuity
 	}
 
 // dohoda:

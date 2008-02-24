@@ -22,8 +22,8 @@
 //
 // Verificiation
 //
-// Helps during development of new wrappers.
-// Define VERIFY to enable verification of wrappers and data.
+// Helps during development of new adapters.
+// Define VERIFY to enable verification of adapters and data.
 // Once your code/data are verified and don't emit messages via reporter(),
 // turn verifications off.
 // If you encounter strange behaviour with new data later,

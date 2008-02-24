@@ -496,7 +496,7 @@ void RendererOfRRObject::render()
 				// mesh normals - set
 				if(setNormals)
 				{
-					glNormal3fv(&triangleNormals.norm[v].x);
+					glNormal3fv(&triangleNormals.vertex[v].normal.x);
 				}
 
 				// light indirect color

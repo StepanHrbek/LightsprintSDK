@@ -172,7 +172,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				return;
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
-			anormal[currentVertex] = triangleNormals.norm[v];
+			anormal[currentVertex] = triangleNormals.vertex[v].normal;
 			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
 			if(hasDiffuseMap)
 				atexcoordDiffuse[currentVertex] = diffuseUv[v];
