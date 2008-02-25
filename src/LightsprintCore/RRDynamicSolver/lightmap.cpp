@@ -151,6 +151,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 						unsigned numOutside = 0;
 						for(unsigned i=0;i<polySize;i++)
 						{
+#define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
 							RRReal dist = POINT_LINE_DISTANCE_2D(polyVertexInTriangleSpace[i],triLineInTriangleSpace);
 							if(dist<0)
 							{
@@ -343,7 +344,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// interpolate: tmparray -> buffer
 			if(vertexBuffer)
 			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance,sizeof(finalGather[0]),false);
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance[0],sizeof(finalGather[0]),false);
 			}
 			if(bentNormalsPerVertex)
 			{
@@ -370,19 +371,22 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 
 		TexelContext tc;
 		tc.solver = this;
-		tc.pixelBuffer = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
+		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			tc.pixelBuffers[i] = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
 		tc.params = &params;
 		tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 		tc.singleObjectReceiver = getObject(objectNumber);
 		tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
+		tc.gatherAllDirections = false;
 		RRBuffer* tmp = pixelBuffer?pixelBuffer:bentNormals;
 		enumerateTexels(getMultiObjectCustom(),objectNumber,tmp->getWidth(),tmp->getHeight(),processTexel,tc,priv->minimalSafeDistance);
 
-		if(tc.pixelBuffer)
+		if(tc.pixelBuffers[0])
 		{
 			if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
-				flush(pixelBuffer,tc.pixelBuffer->getFiltered(filtering),priv->scaler);
-			delete tc.pixelBuffer;
+				flush(pixelBuffer,tc.pixelBuffers[0]->getFiltered(filtering),priv->scaler); //!!!! ukladat i dalsi diry
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				delete tc.pixelBuffers[i];
 			updatedBuffers++;
 		}
 		if(tc.bentNormalsPerPixel)
@@ -504,7 +508,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 					{
 						RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
 						if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]),false);
+							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance[0],sizeof(finalGather[0]),false);
 					}
 					if(layerNumberBentNormals>=0)
 					{

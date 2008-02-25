@@ -12,6 +12,7 @@
 namespace rr
 {
 
+// no scaling, operates on raw unknown-scale data
 class LightmapFilter
 {
 public:

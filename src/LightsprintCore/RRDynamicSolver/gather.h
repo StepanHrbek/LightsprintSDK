@@ -7,7 +7,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
 
-#define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
+#define MAX_LIGHTMAP_DIRECTIONS 4
 
 
 namespace rr
@@ -16,11 +16,12 @@ namespace rr
 struct TexelContext
 {
 	RRDynamicSolver* solver;
-	LightmapFilter* pixelBuffer;
+	LightmapFilter* pixelBuffers[MAX_LIGHTMAP_DIRECTIONS];
 	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	LightmapFilter* bentNormalsPerPixel;
 	RRObject* singleObjectReceiver;
 	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
+	bool gatherAllDirections; // MAX_LIGHTMAP_DIRECTIONS irradiances are gathered rather than 1
 };
 
 // subtexel is triangular intersection of triangle and texel
@@ -68,9 +69,13 @@ struct ProcessTexelParams
 
 struct ProcessTexelResult
 {
-	RRVec4 irradiance; // alpha = 0|1
+	RRVec4 irradiance[MAX_LIGHTMAP_DIRECTIONS]; // alpha = 0|1
 	RRVec4 bentNormal; // alpha = 0|1
-	ProcessTexelResult() : irradiance(0), bentNormal(0) {}
+	ProcessTexelResult()
+	{
+		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++) irradiance[i] = RRVec4(0);
+		bentNormal = RRVec4(0);
+	}
 };
 
 ProcessTexelResult processTexel(const ProcessTexelParams& pti);

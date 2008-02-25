@@ -39,6 +39,19 @@ unsigned logTexelIndex = 0;
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// directional lightmaps, compatible with Unreal Engine 3
+
+static RRVec3 g_lightmapDirections[MAX_LIGHTMAP_DIRECTIONS] =
+{
+	RRVec3(0,sqrtf(6.0f)/3,1/sqrtf(3.0f)),
+	RRVec3(-1/sqrtf(2.0f),-1/sqrtf(6.0f),1/sqrtf(3.0f)),
+	RRVec3(1/sqrtf(2.0f),-1/sqrtf(6.0f),1/sqrtf(3.0f)),
+	RRVec3(0,0,1)
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // homogenous filling:
 //   generates points that nearly homogenously (low density fluctuations) fill 2d area
 
@@ -103,8 +116,9 @@ public:
 //
 // random exiting ray
 
+// returns random exit direction from diffuse surface
+// result is normalized only if base is ortonormal
 static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRMesh::TangentBasis& basis)
-// returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
 #ifdef HOMOGENOUS_FILL
 	RRReal x,y;
@@ -163,7 +177,8 @@ public:
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
-		irradianceHemisphere = RRVec3(0);
+		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			irradianceHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? MAX(1,pti.context.params->quality) : 0;
@@ -194,17 +209,35 @@ public:
 	// 1 ray
 	// inputs:
 	//  - pti.rays[0].rayOrigin
-	void shotRay(const RRMesh::TangentBasis& basis, unsigned _skipTriangleIndex)
+	void shotRay(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
 	{
 		// random exit dir
-		RRVec3 dir = getRandomExitDir(fillerDir, basis);
-		RRReal dirsize = dir.length();
+		RRVec3 dir = getRandomExitDir(fillerDir,_basis).normalized(); // basis not ortonormal, result normalized manually
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
-		irradianceHemisphere += irrad;
-		bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
+		if(!pti.context.gatherAllDirections)
+		{
+			// single irradiance is computed
+			// no need to compute dot(dir,normal), it is already compensated by picking dirs close to normal more often
+			irradianceHemisphere[0] += irrad;
+		}
+		else
+		{
+			// 4 irradiance values are computed for different normal directions
+			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
+			float normalIncidence1Inv = 1/dot(dir,_basis.normal.normalized());
+			RR_ASSERT(normalIncidence1Inv>0 && _finite(normalIncidence1Inv)); // dir was selected so that this must be positive
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			{
+				RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
+				float normalIncidence2 = dot(dir,lightmapDirection.normalized());
+				if(normalIncidence2>0)
+					irradianceHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
+			}
+		}
+		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
 	}
@@ -217,32 +250,33 @@ public:
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceHemisphere = RRVec3(0);
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
-			//irradianceHemisphere = RRVec3(1,0,0);
-			//reliabilityHemisphere = 1;
 		}
 		else
 		if(hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsTreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceHemisphere = RRVec3(0);
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
 		else
 		{
 			// get average hit, hemisphere hits don't accumulate
-			irradianceHemisphere /= (RRReal)hitsReliable;
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceHemisphere[i] /= (RRReal)hitsReliable;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
 		//RR_ASSERT(irradianceHemisphere[0]>=0 && irradianceHemisphere[1]>=0 && irradianceHemisphere[2]>=0); may be negative by rounding error
 	}
 
-	RRVec3 irradianceHemisphere;
+	RRVec3 irradianceHemisphere[MAX_LIGHTMAP_DIRECTIONS];
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
 	unsigned rays;
@@ -295,7 +329,8 @@ public:
 			if(multiObject->getTriangleMaterial(_pti.subTexels->at(0).multiObjPostImportTriIndex,allLights[i],NULL))
 				lights.push_back(allLights[i]);
 		// more init (depends on filtered lights)
-		irradianceLights = RRVec3(0);
+		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			irradianceLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 1;
 		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
@@ -327,7 +362,7 @@ public:
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-		float normalIncidence = dot(dir,_basis.normal);
+		float normalIncidence = dot(dir,_basis.normal.normalized());
 		if(normalIncidence<=0)
 		{
 			// face is not oriented towards light -> reliable black (selfshadowed)
@@ -348,9 +383,22 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler) * ( normalIncidence * (_light->castShadows?collisionHandler.getVisibility():1) );
-				irradianceLights += irrad;
-				bentNormalLights += dir * irrad.abs().avg();
+				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler) * (_light->castShadows?collisionHandler.getVisibility():1);
+				if(!pti.context.gatherAllDirections)
+				{
+					irradianceLights[0] += irrad * normalIncidence;
+				}
+				else
+				{
+					for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+					{
+						RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
+						float normalIncidence = dot( dir, lightmapDirection.normalized() );
+						if(normalIncidence>0)
+							irradianceLights[i] += irrad * normalIncidence;
+					}
+				}
+				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence);
 				hitsLight++;
 				hitsReliable++;
 			}
@@ -393,7 +441,8 @@ public:
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceLights = RRVec3(0);
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
@@ -402,14 +451,16 @@ public:
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceLights = RRVec3(0);
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
 		else
 		{
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
-			irradianceLights /= (RRReal)shotRounds;
+			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+				irradianceLights[i] /= (RRReal)shotRounds;
 			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
 			reliabilityLights = hitsReliable/(RRReal)rays;
@@ -421,7 +472,7 @@ public:
 		return lights.size();
 	}
 
-	RRVec3 irradianceLights;
+	RRVec3 irradianceLights[MAX_LIGHTMAP_DIRECTIONS];
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
 	unsigned hitsReliable;
@@ -477,8 +528,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	}
 
 	// prepare map info
-	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
-	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
+	unsigned mapWidth = pti.context.pixelBuffers[0] ? pti.context.pixelBuffers[0]->getWidth() : 0;
+	unsigned mapHeight = pti.context.pixelBuffers[0] ? pti.context.pixelBuffers[0]->getHeight() : 0;
 
 	hemisphere.init();
 	gilights.init();
@@ -521,14 +572,15 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
 			mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 			mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+			// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
 			RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
 			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-			// tangent basis for center of texel, used for all rays from subtexel
-			// this simplification saves 6% of time in lightmap build
-			// higher precision: simply move following code 10 lines down
-			cache_basis.normal = normalized( cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1] );
-			cache_basis.tangent = normalized( cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1] );
-			cache_basis.bitangent = normalized( cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1] );
+			cache_basis.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
+			cache_basis.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
+			cache_basis.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
+			// tangent basis for point in triangle was computed as linear interpolation of vertex bases
+			// -> result is not ortogonal, lengths are not unit
+			//    compatibility with Unreal Engine 3 is secured
 		}
 
 		// random 2d pos in subtexel
@@ -588,46 +640,33 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	hemisphere.done();
 	gilights.done();
-	// sum direct and indirect results
+
+	// sum and store irradiance
 	ProcessTexelResult result;
-	result.irradiance = gilights.irradianceLights + hemisphere.irradianceHemisphere; // [3] = 0
-	if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+	for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
 	{
-		result.irradiance[3] = 1; // only completely unreliable results stay at 0, others get 1 here
+		result.irradiance[i] = gilights.irradianceLights[i] + hemisphere.irradianceHemisphere[i]; // [3] = 0
+		if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+			result.irradiance[i][3] = 1; // only completely unreliable results stay at 0, others get 1 here
+		// store irradiance (no scaling yet)
+		if(pti.context.pixelBuffers[i])
+			pti.context.pixelBuffers[i]->renderTexel(pti.uv,result.irradiance[i]);
 	}
+
+	// sum bent normals
 	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
 	if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
-	{
 		result.bentNormal[3] = 1; // only completely unreliable results stay at 0, others get 1 here
-	}
 	if(result.bentNormal[0] || result.bentNormal[1] || result.bentNormal[2]) // avoid NaN
 	{
 		result.bentNormal.RRVec3::normalize();
 	}
-
-	// diagnostic output
-	//if(pti.context.params->diagnosticOutput)
-	//{
-	//	//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
-	//	irradiance[0] = hitsInside/(float)rays;
-	//	irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
-	//	irradiance[2] = hitsSky/(float)rays;
-	//	irradiance[3] = 1;
-	//}
-//	irradiance[1]=(irradiance[0]+irradiance[1]+irradiance[2])/3;
-//	irradiance[0]=1-reliability;
-//	irradiance[2]=0;
-
-	// store irradiance in custom scale
-	if(pti.context.pixelBuffer)
-		pti.context.pixelBuffer->renderTexel(pti.uv,result.irradiance);
-
-	// store bent normal
+	// store bent normal (no scaling)
 	if(pti.context.bentNormalsPerPixel)
 	{
-		if(pti.context.pixelBuffer &&
-			(pti.context.bentNormalsPerPixel->getWidth()!=pti.context.pixelBuffer->getWidth()
-			|| pti.context.bentNormalsPerPixel->getHeight()!=pti.context.pixelBuffer->getHeight()))
+		if(pti.context.pixelBuffers[0] &&
+			(pti.context.bentNormalsPerPixel->getWidth()!=pti.context.pixelBuffers[0]->getWidth()
+			|| pti.context.bentNormalsPerPixel->getHeight()!=pti.context.pixelBuffers[0]->getHeight()))
 		{
 			LIMITED_TIMES(1,RRReporter::report(ERRO,"processTexel: Lightmap and BentNormalMap sizes must be equal.\n"));
 			RR_ASSERT(0);
@@ -681,11 +720,12 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	TexelContext tc;
 	tc.solver = this;
-	tc.pixelBuffer = NULL;
+	for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++) tc.pixelBuffers[i] = NULL;
 	tc.params = &params;
 	tc.bentNormalsPerPixel = NULL;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherDirectEmitors = _gatherDirectEmitors;
+	tc.gatherAllDirections = false;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates rays, allocating inside for cycle costs more
@@ -764,7 +804,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,updateBentNormals ? finalGather[t].bentNormal : finalGather[t].irradiance);
+		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,updateBentNormals ? finalGather[t].bentNormal : finalGather[t].irradiance[0]);
 	}
 	delete[] finalGather;
 
