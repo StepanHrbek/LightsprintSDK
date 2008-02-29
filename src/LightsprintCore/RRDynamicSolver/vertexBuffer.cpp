@@ -223,7 +223,9 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		{
 			for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 			{
-				vertexBuffer->setElement(preImportVertex,*preVertex2Ivertex[preImportVertex]);
+				RRVec4 tmp;
+				tmp = *preVertex2Ivertex[preImportVertex];
+				vertexBuffer->setElement(preImportVertex,tmp);
 			}
 		}
 		return 1;
@@ -249,7 +251,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	{
 		unsigned t = (objectNumber<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].triangleIndex;
 		unsigned v = (objectNumber<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].vertex012;
-		RRVec3 indirect = RRVec3(0);
+		RRVec4 indirect = RRVec4(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
@@ -287,7 +289,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 	{
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
 		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
-		RRVec3 data = RRVec3(0);
+		RRVec4 data = RRVec4(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleData,stride);

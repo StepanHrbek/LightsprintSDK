@@ -106,7 +106,7 @@ unsigned RRBufferInMemory::getElementBits() const
 	return getBytesPerPixel(format)*8;
 }
 
-void RRBufferInMemory::setElement(unsigned index, const RRVec3& element)
+void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 {
 	if(!data)
 	{
@@ -129,14 +129,13 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec3& element)
 			data[4*index+0] = FLOAT2BYTE(element[0]);
 			data[4*index+1] = FLOAT2BYTE(element[1]);
 			data[4*index+2] = FLOAT2BYTE(element[2]);
-			data[4*index+3] = 255;
+			data[4*index+3] = FLOAT2BYTE(element[3]);
 			break;
 		case BF_RGBF:
 			((RRVec3*)data)[index] = element;
 			break;
 		case BF_RGBAF:
 			((RRVec4*)data)[index] = element;
-			((RRVec4*)data)[index][3] = 1;
 			break;
 	}
 }

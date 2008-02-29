@@ -22,7 +22,7 @@ public:
 
 	// setting
 	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
-	virtual void setElement(unsigned index, const RRVec3& element);
+	virtual void setElement(unsigned index, const RRVec4& element);
 
 	// reading
 	virtual RRBufferType getType() const {return type;}

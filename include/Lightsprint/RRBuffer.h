@@ -91,20 +91,22 @@ namespace rr
 		//! \param format
 		//!  Format of data.
 		//!  Implementation is not required to support all data formats.
+		//!  \n For physical(linear) scale data, it's recommended to use floating point format to avoid clamping.
+		//!  For scaled (sRGB) data, more compact 8bit format is usually sufficient, although it clamps values to 0..1 range.
 		//! \param scaled
 		//!  Whether buffer data are in custom scale (usually screen colors, sRGB). False for physical(linear) scale.
-		//!  When buffer gets updated or rendered later, this setting should be respected.
+		//!  When buffer is updated or rendered later, this setting is respected.
 		//! \param data
 		//!  Data to be loaded(copied) into texture. When set to NULL, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
 		//! \return
 		//!  True on success, false on failure (invalid parameters).
 		virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) = 0;
-		//! Sets single element in buffer. Value is converted to current buffer format (alpha=0 when necessary).
+		//! Sets single element in buffer. Value is converted to current buffer format.
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
 		//! \n Not mandatory, implementation may be empty.
-		virtual void setElement(unsigned index, const RRVec3& element);
+		virtual void setElement(unsigned index, const RRVec4& element);
 
 
 		//////////////////////////////////////////////////////////////////////////////

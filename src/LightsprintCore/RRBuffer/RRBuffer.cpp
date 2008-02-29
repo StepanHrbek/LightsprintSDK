@@ -27,7 +27,7 @@ unsigned RRBuffer::getElementBits() const
 	return 0;
 }
 
-void RRBuffer::setElement(unsigned index, const RRVec3& element)
+void RRBuffer::setElement(unsigned index, const RRVec4& element)
 {
 	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::setElement() called.\n"));
 }
