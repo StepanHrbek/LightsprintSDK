@@ -24,7 +24,7 @@ namespace rr
 class RRMultiObjectImporter : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
 	{
 		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -57,16 +57,14 @@ public:
 				}
 			}
 			// create multimesh
-			transformedMeshes = new RRMesh*[numObjects+3];
+			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
-			transformedMeshes[numObjects] = NULL;
-			transformedMeshes[numObjects+1] = NULL;
-			transformedMeshes[numObjects+2] = NULL;
+			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
 			RRMesh* oldMesh = transformedMeshes[0];
 			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects);
-			if(multiMesh!=oldMesh) transformedMeshes[numObjects] = multiMesh; // remember for freeing time
+			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
@@ -78,14 +76,21 @@ public:
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(vertexWeldDistance);
-				if(multiMesh!=oldMesh) transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
 			if(optimizeTriangles)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
-				if(multiMesh!=oldMesh) transformedMeshes[numObjects+2] = multiMesh; // remember for freeing time
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
+			}
+			// accelerate (saves time but needs more memory)
+			if(accelerate)
+			{
+				oldMesh = multiMesh;
+				multiMesh = multiMesh->createAccelerated();
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_ACCELERATED] = multiMesh; // remember for freeing time
 			}
 			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
 
@@ -108,7 +113,7 @@ public:
 			if(!multiCollider)
 			{
 				// not enough memory
-				for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
+				for(unsigned i=0;i<numObjects+MI_MAX;i++) delete transformedMeshes[i];
 				delete[] transformedMeshes;
 				return NULL;
 			}
@@ -144,9 +149,10 @@ public:
 		if(!transformedMeshes) return;
 		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
 		RRMesh* unoptimizedMesh;
-		if(transformedMeshes[numObjects+1]) unoptimizedMesh = transformedMeshes[numObjects+1]; else
-			if(transformedMeshes[numObjects+2]) unoptimizedMesh = transformedMeshes[numObjects+2]; else
-				return;
+		if(transformedMeshes[numObjects+MI_OPTI_VERTICES]) unoptimizedMesh = transformedMeshes[numObjects+MI_OPTI_VERTICES]; else
+			if(transformedMeshes[numObjects+MI_OPTI_VERTICES]) unoptimizedMesh = transformedMeshes[numObjects+MI_OPTI_VERTICES]; else
+				if(transformedMeshes[numObjects+MI_ACCELERATED]) unoptimizedMesh = transformedMeshes[numObjects+MI_ACCELERATED]; else
+					return;
 		// <unoptimized> is mesh after concatenation of multiple meshes/objects
 		// <this> is after concatenation and optimizations
 		// convert t from "post" to "pre"
@@ -248,7 +254,7 @@ public:
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
 			RR_ASSERT(transformedMeshes[0]!=transformedMeshes[1]);
-			for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
+			for(unsigned i=0;i<numObjects+MI_MAX;i++) delete transformedMeshes[i];
 			delete[] transformedMeshes;
 		}
 	}
@@ -318,6 +324,15 @@ private:
 		RRObject* packImporter;
 		unsigned  numObjects;
 		unsigned  numTriangles;
+	};
+
+	enum MeshIndex // for access to helper meshes transformedMeshes[numObjects+MeshIndex]
+	{
+		MI_MULTI = 0,
+		MI_OPTI_VERTICES,
+		MI_OPTI_TRIANGLES,
+		MI_ACCELERATED,
+		MI_MAX
 	};
 
 	ObjectPack    pack[2];

@@ -538,6 +538,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RRMesh\RRMeshAccelerated.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="RRMesh\RRMeshCopy.cpp"
 				>
 				<FileConfiguration

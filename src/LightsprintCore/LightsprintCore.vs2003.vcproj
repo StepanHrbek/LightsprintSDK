@@ -433,6 +433,26 @@
 			<File
 				RelativePath="RRMesh\RRMeshTriStrip.h">
 			</File>
+			<File
+				RelativePath="RRMesh\RRMeshAccelerated.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="RRObject">

@@ -475,6 +475,18 @@ namespace rr
 		//! If 'this' is already optimal, 'this' is returned.
 		RRMesh* createOptimizedTriangles();
 
+		//! Creates and returns accelerated mesh.
+		//
+		//! Created instance caches all TriangleBase and TriangleNormals for whole mesh,
+		//! so it allocates 144 bytes per triangle.
+		//! It still depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//!
+		//! It is very efficient when applied on multimesh made of hundreds of smaller meshes.
+		//! Accelerated functions are getTriangleBase() and getTriangleNormals().
+		//! They are critical for performance of BSP_COMPACT and BSP_FAST colliders
+		//! and for building lightmaps.
+		RRMesh* createAccelerated();
+
 		//! Creates and returns identical mesh with all optimizations and filters previously applied baked.
 		//
 		//! Created instance doesn't require additional memory, 

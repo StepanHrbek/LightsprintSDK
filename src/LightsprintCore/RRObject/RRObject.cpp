@@ -68,9 +68,9 @@ RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRColli
 	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
 }
 
-RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
 {
-	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,cacheLocation);
+	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,accelerate,cacheLocation);
 }
 
 } // namespace
