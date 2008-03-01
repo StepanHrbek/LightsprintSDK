@@ -719,7 +719,7 @@ Used by samples:
 
  - If you use vertex/pixel buffers for rendering:
    \n When RRDynamicSolver::getSolutionVersion() changes,
-   call RRDynamicSolver::updateVertexBuffers() or RRDynamicSolver::updateLightmaps()
+   call RRDynamicSolver::updateLightmaps()
    to update illumination values stored in vertex/pixel buffers.
 
  - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
@@ -905,7 +905,16 @@ Used by samples:
 
  \section di1 Directional lightmaps / vertex colors
 
-  Optional directional component of lightmap or vertex color is stored separately 
+  While building lightmaps, Lightsprint gathers information about light directions.
+  This information is optionally returned in two formats.
+
+  1. Directional component is stored as 3 separated lightmaps or vertex buffers
+  built as if surface normals are modified in 3 different directions.
+  Result is compatible with Unreal Engine 3 directional lightmaps.
+  3 lightmaps are sufficient for rendering, but together with standard non-directional
+  lightmap (=fourth direction), all 4 lightmaps can be used for even higher precision.
+
+  2. Directional component of lightmap or vertex buffer is stored separately 
   from irradiance component. See \ref data_bent_normals for
   details on directional component.
 
@@ -1031,9 +1040,9 @@ Used by samples:
 
  \section da3 Directional ambient occlusion
 
-  Optional directional component of direct or global ambient occlusion is stored separately 
-  from AO component. See \ref data_bent_normals for
-  details on directional component.
+  Information about direction of incoming light can be precomputed and used
+  in the same way as in case of classical lightmaps.
+  See \ref di1 for more details.
 
  \section da3 Data structures
 
@@ -1053,8 +1062,7 @@ Used by samples:
     If you set scene with multiple objects here, each object will be
     occluded by all other objects.
   - Set uniform white environment with RRDynamicSolver::setEnvironment(RRBuffer::createSky())
-  - Call RRDynamicSolver::updateLightmaps() for per-pixel
-    or RRDynamicSolver::updateVertexBuffers() for per-vertex quality, with
+  - Call RRDynamicSolver::updateLightmaps() with
     \n paramsDirect.applyCurrentSolution=false
     \n paramsDirect.applyLights=false
     \n paramsDirect.applyEnvironment=true
@@ -1101,8 +1109,7 @@ Used by samples:
  \section db3 Calculation
 
   Calculation of bent normals is non-realtime process.
-  To calculate bent normals, use RRDynamicSolver::updateVertexBuffers()
-  or RRDynamicSolver::updateLightmaps()
+  To calculate bent normals, use RRDynamicSolver::updateLightmaps()
   and set bent normal layer accordingly.
 
   Bent normals are intentionally stored in different layer than ilumination,
@@ -1166,8 +1173,8 @@ Used by samples:
  \section d14 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()
    - created by: you
-   - updated by: RRDynamicSolver::updateVertexBuffers()
-     or RRDynamicSolver::updateVertexBuffer().
+   - updated by: RRDynamicSolver::updateLightmaps()
+     or RRDynamicSolver::updateLightmap().
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them

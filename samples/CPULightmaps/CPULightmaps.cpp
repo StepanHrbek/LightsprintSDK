@@ -44,7 +44,7 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
+void calculate(rr::RRDynamicSolver* solver)
 {
 	rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
 
@@ -59,24 +59,26 @@ void calculate(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNu
 			unsigned res = 16;
 			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 			while(res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
-			solver->getIllumination(i)->getLayer(layerNumberLighting) =
-				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
-			solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
-				rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,false,NULL);
+			for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+				solver->getIllumination(i)->getLayer(layerNumber) =
+					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 		}
 		else
 		{
 			// allocate vertex buffers for other objects
-			solver->getIllumination(i)->getLayer(layerNumberLighting) =
-				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
-			solver->getIllumination(i)->getLayer(layerNumberBentNormals) =
-				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+			for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+				solver->getIllumination(i)->getLayer(layerNumber) =
+					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}
 
-	// calculate lightmaps and bent normals
+	// calculate lightmaps(layer0), directional lightmaps(layer1,2,3), bent normals(layer4)
 	rr::RRDynamicSolver::UpdateParameters params(1000);
-	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,&params,&params,NULL); 
+	solver->updateLightmaps(0,1,4,&params,&params,NULL);
+
+	// save GI lightmaps, bent normals
+	for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+		solver->getStaticObjects().saveIllumination("../../data/export/",layerNumber);
 }
 
 int main(int argc, char **argv)
@@ -118,16 +120,14 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	rr::RRObjects* objects = adaptObjectsFromFCollada( collada );
-	solver->setStaticObjects( *objects, NULL );
+	rr::RRDynamicSolver::SmoothingParameters smoothing;
+	//smoothing.intersectTechnique = rr::RRCollider::IT_BSP_FAST;
+	solver->setStaticObjects( *objects, &smoothing );
 	rr::RRLights* lights = adaptLightsFromFCollada( collada );
 	solver->setLights( *lights );
 
-	// calculate and save it
-	calculate(solver,0,1);
-
-	// save GI lightmaps, bent normals
-	solver->getStaticObjects().saveIllumination("../../data/export/",0);
-	solver->getStaticObjects().saveIllumination("../../data/export/",1);
+	// calculate and save results
+	calculate(solver);
 
 	// release memory
 	delete solver;

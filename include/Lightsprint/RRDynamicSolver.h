@@ -451,20 +451,24 @@ namespace rr
 		//!  In case of vertex buffer, -1 is allowed for multiobject with whole static scene.
 		//! \param lightmap
 		//!  Buffer for storing calculated illumination.
-		//!  May be NULL.
+		//!  \n May be NULL.
 		//!  \n Types supported: BT_VERTEX_BUFFER, BT_2D_TEXTURE, however with \ref calc_fireball,
 		//!     only vertex buffer is supported.
-		//!  \n Formats supported: Any except for BF_DEPTH. Data are converted to format of buffer,
-		//!     so make sure that you don't request physical scale (HDR) data to be stored to 8bit RGB buffer,
-		//!     values would be clamped and precision lost.
+		//!  \n Formats supported: All color formats, RGB, RGBA, bytes, floats.
+		//!     Data are converted to format of buffer.
 		//!  \n Lightmap could contain direct, indirect or global illumination, depending on
 		//!     parameters you set in params.
+		//! \param directionalLightmap
+		//!  Pointer to array of three lightmaps for storing calculated directional illumination.
+		//!  \n Compatible with Unreal Engine 3 directional lightmaps.
+		//!  \n May be NULL.
+		//!  \n Supports the same types and formats as parameter 'lightmap'.
 		//! \param bentNormals
-		//!  Buffer for storing calculated bent normals.
-		//!  May be NULL.
+		//!  Buffer for storing calculated bent normals, compact representation of directional information.
+		//!  \n May be NULL.
 		//!  \n RGB values (range 0..1) are calculated from XYZ worldspace normalized normals
 		//!     (range -1..1) by this formula: (XYZ+1)/2.
-		//!  \n Type and format support is the same as for previous parameter.
+		//!  \n Supports the same types and formats as parameter 'lightmap'.
 		//! \param params
 		//!  Parameters of the update process. Set NULL for default parameters that
 		//!  specify very fast realtime/preview update.
@@ -477,7 +481,7 @@ namespace rr
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(int objectNumber, RRBuffer* lightmap, RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering=NULL);
+		virtual unsigned updateLightmap(int objectNumber, RRBuffer* lightmap, RRBuffer* directionalLightmap[3], RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering=NULL);
 
 		//! For all static objects, calculates and updates lightmap and/or bent normal; in per-pixel or per-vertex; with direct, indirect or global illumination.
 		//
@@ -499,15 +503,17 @@ namespace rr
 		//!   all cores are used automatically.
 		//!
 		//! \param layerNumberLighting
-		//!  Lightmaps for individual objects will be expected in
+		//!  1 lightmap per object will be computed into existing buffers in this layer,
 		//!  getIllumination(objectNumber)->getLayer(layerNumber).
 		//!  \n Negative number disables update of lightmaps.
+		//! \param layerNumberDirectionalLighting
+		//!  3 directional lightmaps per object will be computed into existing buffers in this layer and two successive layers,
+		//!  getIllumination(objectNumber)->getLayer(layerNumber).
+		//!  \n Negative number disables update of directional lightmaps.
 		//! \param layerNumberBentNormals
-		//!  Bent normal maps for individual objects will be expected in
+		//!  Bent normals will be computed into existing buffers in this layer,
 		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals).
 		//!  \n Negative number disables update of bent normals.
-		//!  \n Bent normals are intentionally stored in separated layer, so you can save memory
-		//!  by sharing single bent normal layer with multiple lighting layers.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
@@ -541,7 +547,7 @@ namespace rr
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
 		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
-		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
+		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 		
 		//! Makes other solver functions abort, returning quickly with bogus results.
 		//
@@ -771,15 +777,13 @@ namespace rr
 		//! It supports all light sources: current solver, environment, lights.
 		//! \param paramsDirect
 		//!  Parameters of update process.
-		//! \param updateBentNormals
-		//!  Set it always to false.
-		bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect, bool updateBentNormals);
+		bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect);
 
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect);
 
-		bool gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
-		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool bentNormals) const;
+		bool gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials, bool gatherAllDirections);
+		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool allowScaling) const;
 		void calculateCore(float improveStep,CalculateParameters* params=NULL);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();

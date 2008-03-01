@@ -12,11 +12,21 @@ namespace rr
 
 NEWS
 
-- lightmap building 2x faster
+- supports another type of directional lightmaps
+  \n for 3 or 4 normal directions, 3 or 4 lightmaps are generated per object
+  \n compatible with Unreal Engine 3
+  \n see additional parameter in RRDynamicSolver::updateLightmap()
+     and RRDynamicSolver::updateLightmaps()
+- lightmap building 1.8x faster
+- RRMesh::createAccelerated()
+  \n creates faster mesh, duplicating most frequently accessed data
+  \n new parameter in RRObject::createMultiObject() enables it
+- when lightmap with alpha channel is built, unused texels/vertices get alpha=0, used alpha=1
 
 CHANGES
 
-- RRMesh::TriangleNormals newly contains also tangents and binormals
+- RRMesh::TriangleNormals newly contains also tangents
+- RRBuffer::setElement accepts RRVec4 rather than RRVec3
 
 \section news49 ------------------------------------ 2008.2.20 -------------------------------------
 

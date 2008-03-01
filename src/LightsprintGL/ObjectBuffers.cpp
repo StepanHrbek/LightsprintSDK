@@ -25,6 +25,8 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	initedOk = false;
 	rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
+	// numVerticesMax is only estimate of numPreImportVertices
+	// we have enough time in constructor, what about computing it precisely? (to save memory)
 	unsigned numVerticesMax = numTriangles*3; // *3 is usual worst case.. additional *2 covers uncommon situation in WoP maps without BB
 	numIndices = 0;
 	indices = NULL;
@@ -359,7 +361,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
 						// refill
-						params.scene->updateLightmap(-1,alightIndirectVcolor,NULL,NULL);
+						params.scene->updateLightmap(-1,alightIndirectVcolor,NULL,NULL,NULL);
 					}
 				}
 				else

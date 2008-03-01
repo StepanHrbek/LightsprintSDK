@@ -7,7 +7,17 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
 
-#define MAX_LIGHTMAP_DIRECTIONS 4
+// defines order of lightmaps in array
+enum LightmapSemantic
+{
+	LS_LIGHTMAP = 0,
+	LS_DIRECTION1,
+	LS_DIRECTION2,
+	LS_DIRECTION3,
+	LS_BENT_NORMALS,
+	NUM_LIGHTMAPS = LS_DIRECTION3+1,
+	NUM_BUFFERS = LS_BENT_NORMALS+1,
+};
 
 
 namespace rr
@@ -16,12 +26,11 @@ namespace rr
 struct TexelContext
 {
 	RRDynamicSolver* solver;
-	LightmapFilter* pixelBuffers[MAX_LIGHTMAP_DIRECTIONS];
+	LightmapFilter* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
 	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
-	LightmapFilter* bentNormalsPerPixel;
 	RRObject* singleObjectReceiver;
 	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
-	bool gatherAllDirections; // MAX_LIGHTMAP_DIRECTIONS irradiances are gathered rather than 1
+	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 };
 
 // subtexel is triangular intersection of triangle and texel
@@ -69,11 +78,11 @@ struct ProcessTexelParams
 
 struct ProcessTexelResult
 {
-	RRVec4 irradiance[MAX_LIGHTMAP_DIRECTIONS]; // alpha = 0|1
+	RRVec4 irradiance[NUM_LIGHTMAPS]; // alpha = 0|1
 	RRVec4 bentNormal; // alpha = 0|1
 	ProcessTexelResult()
 	{
-		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++) irradiance[i] = RRVec4(0);
+		for(unsigned i=0;i<NUM_LIGHTMAPS;i++) irradiance[i] = RRVec4(0);
 		bentNormal = RRVec4(0);
 	}
 };

@@ -334,7 +334,7 @@ public:
 					rr::RRDynamicSolver::UpdateParameters params(1000);
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
-					solver->updateLightmap(selectedObjectIndex,solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),NULL,&params,&filtering);
+					solver->updateLightmap(selectedObjectIndex,solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),NULL,NULL,&params,&filtering);
 					renderRealtime = false;
 					// propagate computed data from buffers to textures
 					if(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) && solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
@@ -354,10 +354,10 @@ public:
 						rr::RRDynamicSolver::UpdateParameters params(item+1-ME_STATIC_DIAGNOSE1);
 						params.debugObject = centerObject;
 						params.debugTexel = centerTexel;
-						params.debugTriangle = centerTriangle;
+						params.debugTriangle = UINT_MAX;//centerTriangle;
 						params.debugRay = ray_log::push_back;
 						ray_log::size = 0;
-						solver->updateLightmaps(layerNumber,-1,&params,NULL,NULL);
+						solver->updateLightmaps(layerNumber,-1,-1,&params,&params,NULL);
 					}
 				}
 				break;
@@ -369,7 +369,7 @@ public:
 					rr::RRDynamicSolver::UpdateParameters params(item);
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
-					solver->updateLightmaps(layerNumber,-1,&params,&params,&filtering);
+					solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering);
 					renderRealtime = false;
 					// propagate computed data from buffers to textures
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -940,7 +940,8 @@ static void display(void)
 					glColor3ub(0,255,0);
 				glVertex3fv(&ray_log::log[i].begin[0]);
 				glColor3ub(0,0,0);
-				glVertex3fv(&ray_log::log[i].end[0]);
+				//glVertex3fv(&ray_log::log[i].end[0]);
+				glVertex3f(ray_log::log[i].end[0]+rand()/(100.0f*RAND_MAX),ray_log::log[i].end[1]+rand()/(100.0f*RAND_MAX),ray_log::log[i].end[2]+rand()/(100.0f*RAND_MAX));
 			}
 			glEnd();
 		}

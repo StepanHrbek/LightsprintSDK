@@ -138,7 +138,7 @@ public:
 };
 
 rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver,
-				  int layerNumberLighting, int layerNumberBentNormals, rr::RRDynamicSolver::UpdateParameters* paramsDirect, rr::RRDynamicSolver::UpdateParameters* paramsIndirect, const rr::RRDynamicSolver::FilteringParameters* filtering,
+				  int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, rr::RRDynamicSolver::UpdateParameters* paramsDirect, rr::RRDynamicSolver::UpdateParameters* paramsIndirect, const rr::RRDynamicSolver::FilteringParameters* filtering,
 				  bool createWindow, const char* pathToShaders,
 				  const char* customButton)
 {
@@ -166,7 +166,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,WM_GETTEXT,99,(LPARAM)buf);
 			if(paramsDirect) paramsDirect->quality = atoi(buf);
 			if(paramsIndirect) paramsIndirect->quality = atoi(buf);
-			g_solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,paramsDirect,paramsIndirect,filtering);
+			g_solver->updateLightmaps(layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,paramsDirect,paramsIndirect,filtering);
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)false,0);
 			ShowWindow(GetDlgItem(g_hDlg,IDOK),SW_SHOWNORMAL);
 			if(customButton)

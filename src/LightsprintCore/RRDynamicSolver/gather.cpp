@@ -41,12 +41,12 @@ unsigned logTexelIndex = 0;
 //
 // directional lightmaps, compatible with Unreal Engine 3
 
-static RRVec3 g_lightmapDirections[MAX_LIGHTMAP_DIRECTIONS] =
+static RRVec3 g_lightmapDirections[NUM_LIGHTMAPS] =
 {
+	RRVec3(0,0,1),
 	RRVec3(0,sqrtf(6.0f)/3,1/sqrtf(3.0f)),
 	RRVec3(-1/sqrtf(2.0f),-1/sqrtf(6.0f),1/sqrtf(3.0f)),
-	RRVec3(1/sqrtf(2.0f),-1/sqrtf(6.0f),1/sqrtf(3.0f)),
-	RRVec3(0,0,1)
+	RRVec3(1/sqrtf(2.0f),-1/sqrtf(6.0f),1/sqrtf(3.0f))
 };
 
 
@@ -177,10 +177,10 @@ public:
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
-		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			irradianceHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
-		reliabilityHemisphere = 1;
+		reliabilityHemisphere = 0;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? MAX(1,pti.context.params->quality) : 0;
 	}
 
@@ -221,20 +221,25 @@ public:
 		{
 			// single irradiance is computed
 			// no need to compute dot(dir,normal), it is already compensated by picking dirs close to normal more often
-			irradianceHemisphere[0] += irrad;
+			irradianceHemisphere[LS_LIGHTMAP] += irrad;
 		}
 		else
 		{
 			// 4 irradiance values are computed for different normal directions
 			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
-			float normalIncidence1Inv = 1/dot(dir,_basis.normal.normalized());
-			RR_ASSERT(normalIncidence1Inv>0 && _finite(normalIncidence1Inv)); // dir was selected so that this must be positive
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			float normalIncidence1 = dot(dir,_basis.normal.normalized());
+			// dir je spocteny z neortogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
+			if(normalIncidence1>0)
 			{
-				RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
-				float normalIncidence2 = dot(dir,lightmapDirection.normalized());
-				if(normalIncidence2>0)
-					irradianceHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
+				float normalIncidence1Inv = 1/normalIncidence1;
+				for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+				{
+					RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
+					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
+					if(normalIncidence2>0)
+						irradianceHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
+					//!!! pocita jako reliable i kdyz irradianceHemisphere vubec nezmenim
+				}
 			}
 		}
 		bentNormalHemisphere += dir * irrad.abs().avg();
@@ -250,7 +255,7 @@ public:
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
@@ -260,7 +265,7 @@ public:
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
@@ -268,7 +273,7 @@ public:
 		else
 		{
 			// get average hit, hemisphere hits don't accumulate
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceHemisphere[i] /= (RRReal)hitsReliable;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
@@ -276,7 +281,7 @@ public:
 		//RR_ASSERT(irradianceHemisphere[0]>=0 && irradianceHemisphere[1]>=0 && irradianceHemisphere[2]>=0); may be negative by rounding error
 	}
 
-	RRVec3 irradianceHemisphere[MAX_LIGHTMAP_DIRECTIONS];
+	RRVec3 irradianceHemisphere[NUM_LIGHTMAPS];
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
 	unsigned rays;
@@ -329,10 +334,10 @@ public:
 			if(multiObject->getTriangleMaterial(_pti.subTexels->at(0).multiObjPostImportTriIndex,allLights[i],NULL))
 				lights.push_back(allLights[i]);
 		// more init (depends on filtered lights)
-		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			irradianceLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
-		reliabilityLights = 1;
+		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
 		rays = lights.size()*rounds;
 	}
@@ -386,11 +391,12 @@ public:
 				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler) * (_light->castShadows?collisionHandler.getVisibility():1);
 				if(!pti.context.gatherAllDirections)
 				{
-					irradianceLights[0] += irrad * normalIncidence;
+					irradianceLights[LS_LIGHTMAP] += irrad * normalIncidence;
+//RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradianceLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}
 				else
 				{
-					for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+					for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 					{
 						RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
@@ -441,7 +447,7 @@ public:
 		if(hitsReliable==0)
 		{
 			// completely unreliable
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
@@ -451,7 +457,7 @@ public:
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
@@ -459,7 +465,7 @@ public:
 		else
 		{
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradianceLights[i] /= (RRReal)shotRounds;
 			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
@@ -472,7 +478,7 @@ public:
 		return lights.size();
 	}
 
-	RRVec3 irradianceLights[MAX_LIGHTMAP_DIRECTIONS];
+	RRVec3 irradianceLights[NUM_LIGHTMAPS];
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
 	unsigned hitsReliable;
@@ -527,19 +533,15 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		return ProcessTexelResult();
 	}
 
-	// prepare map info
-	unsigned mapWidth = pti.context.pixelBuffers[0] ? pti.context.pixelBuffers[0]->getWidth() : 0;
-	unsigned mapHeight = pti.context.pixelBuffers[0] ? pti.context.pixelBuffers[0]->getHeight() : 0;
-
 	hemisphere.init();
 	gilights.init();
 
 	// cached data reused for all rays from one triangleIndex
+	unsigned cache_subTexelIndex = UINT_MAX;
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
 	RRMesh::TriangleNormals cache_bases;
 	RRMesh::TangentBasis cache_basis;
-
 
 
 	// init subtexel selector
@@ -547,12 +549,45 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	RRReal areaAccu = -pti.subTexels->at(0).areaInMapSpace;
 	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
 	RRReal areaStep = areaMax/(MAX(hemisphere.rays,gilights.rays)+0.91f);
+/*
+//!!!! 1. kdyz chci 10 do svetel a 100 do hemisfery, paprsky do svetel jdou jen z krajnich 10% subtexelu
+//!!!! 2. kdyz nahrazuju unreliable (pridavam raye), musim vzdy dostrilet cely dalsi kolo abych je nepridal jen z kraje
 
+A) vratit plnou randomizaci
+ a) kazdy texel by cachoval jen svoje subtexely
+    - cache nutne alokovat predem spolu s rays[2] (kazdy kdo nas vola)
+    . cache typicky mala, max velikost zjistim snadno
+ b) udelat si pole vsech tbody a tnormals a sdilet ho vsemi texely, 144MB/mil trianglu
+    - cache nutne alokovat predem spolu s rays[2] (kazdy kdo nas vola)
+    +zrychleni gatheru
+	-dal bych pouzival FASTER (vic zabrane pameti,tbody duplikovane v collideru i gatheru)
+ c) zapnout v multimeshi accelerate
+    +zrychleni gatheru
+	.misto FASTER pouzit FAST (jen o neco vic pameti, jen o neco pomalejsi)
+	  +COMPACT,FAST jsou ted rychlejsi, muzu si je dovolit
+	   FASTER a FASTEST duplikuji pamet, nepouzivat
+	*dalsi zrychleni mozne kdyby gather i collider dostali primy pristup k poli v meshi
+B) YES projizdet po kolech, pokud jedno nestaci, projet cele dalsi
+ -- rozptyleni mene castych glight mezi castejsi hemi (nebo naopak) = slozity kod nachylny k chybam
+ - kazde kolo by melo byt trochu jine, jinak vznikne bias u svetel, nektere subtexely pouzije mockrat, jine 0x
+ - muze o par % zpomalit, protoze pri 99% reliabilite vystrili zbytecne 2x tolik rayu
+*/
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
 	g_logRay = pti.context.params->debugRay;
 	while(1)
 	{
+		/////////////////////////////////////////////////////////////////
+		//
+		// break when no shooting is requested or too many failures were detected
+
+		bool shootHemisphere = hemisphere.hitsReliable+hemisphere.hitsUnreliable<hemisphere.rays || hemisphere.hitsReliable<hemisphere.rays/10;
+		bool shootLights = gilights.hitsReliable+gilights.hitsUnreliable<gilights.rays || gilights.hitsReliable<gilights.rays/10;
+		if((!shootHemisphere || hemisphere.hitsUnreliable>hemisphere.rays*100)
+			&& (!shootLights || gilights.hitsUnreliable>gilights.rays*100))
+			break;
+
+
 		/////////////////////////////////////////////////////////////////
 		//
 		// get random position in texel
@@ -562,8 +597,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		while(areaAccu>0) areaAccu -= pti.subTexels->at(++subTexelIndex%=pti.subTexels->size()).areaInMapSpace;
 		SubTexel* subTexel = &pti.subTexels->at(subTexelIndex);
 
-		// update cache (tb + ortonormal base)
-		// (simplification: average base is used for all rays from texel)
+		// update cached triangle data
 //static unsigned q=0;q++;static unsigned w=0;if(q>10000){printf("%d ",w);q=0;w=0;}
 		if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
 		{
@@ -572,6 +606,12 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
 			mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 			mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+		}
+		// update cached subtexel data
+		// (simplification: average tangent base is used for all rays from subtexel)
+		if(subTexelIndex!=cache_subTexelIndex)
+		{
+			cache_subTexelIndex = subTexelIndex;
 			// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
 			RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
 			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
@@ -601,7 +641,6 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		//
 		// shoot into hemisphere
 
-		bool shootHemisphere = hemisphere.rays && (hemisphere.hitsReliable<=hemisphere.rays/10 || hemisphere.hitsReliable+hemisphere.hitsUnreliable<=hemisphere.rays);
 		if(shootHemisphere)
 		{
 			hemisphere.shotRay(cache_basis,subTexel->multiObjPostImportTriIndex);
@@ -612,20 +651,10 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		//
 		// shoot into lights
 
-		bool shootLights = gilights.rays && (gilights.hitsReliable<=gilights.rays/10 || gilights.hitsReliable+gilights.hitsUnreliable<=gilights.rays);
 		if(shootLights)
 		{
 			gilights.shotRayPerLight(cache_basis,subTexel->multiObjPostImportTriIndex);
 		}
-
-
-		/////////////////////////////////////////////////////////////////
-		//
-		// break when no shooting is requested or too many failures were detected
-
-		if((!shootHemisphere || hemisphere.hitsUnreliable>hemisphere.rays*100)
-			&& (!shootLights || gilights.hitsUnreliable>gilights.rays*100))
-			break;
 	}
 	g_logRay = NULL;
 
@@ -643,7 +672,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	// sum and store irradiance
 	ProcessTexelResult result;
-	for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+	for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 	{
 		result.irradiance[i] = gilights.irradianceLights[i] + hemisphere.irradianceHemisphere[i]; // [3] = 0
 		if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
@@ -652,6 +681,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		if(pti.context.pixelBuffers[i])
 			pti.context.pixelBuffers[i]->renderTexel(pti.uv,result.irradiance[i]);
 	}
+//RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradianceLights[LS_LIGHTMAP][0],hemisphere.irradianceHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
 	// sum bent normals
 	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
@@ -662,16 +692,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		result.bentNormal.RRVec3::normalize();
 	}
 	// store bent normal (no scaling)
-	if(pti.context.bentNormalsPerPixel)
+	if(pti.context.pixelBuffers[LS_BENT_NORMALS])
 	{
-		if(pti.context.pixelBuffers[0] &&
-			(pti.context.bentNormalsPerPixel->getWidth()!=pti.context.pixelBuffers[0]->getWidth()
-			|| pti.context.bentNormalsPerPixel->getHeight()!=pti.context.pixelBuffers[0]->getHeight()))
-		{
-			LIMITED_TIMES(1,RRReporter::report(ERRO,"processTexel: Lightmap and BentNormalMap sizes must be equal.\n"));
-			RR_ASSERT(0);
-		}
-		pti.context.bentNormalsPerPixel->renderTexel(pti.uv,
+		pti.context.pixelBuffers[LS_BENT_NORMALS]->renderTexel(pti.uv,
 			// instead of result.bentNormal
 			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
 			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1)
@@ -686,7 +709,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherDirectEmitors)
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherDirectEmitors, bool _gatherAllDirections)
 {
 	if(aborting)
 		return false;
@@ -720,12 +743,11 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	TexelContext tc;
 	tc.solver = this;
-	for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++) tc.pixelBuffers[i] = NULL;
+	for(unsigned i=0;i<NUM_BUFFERS;i++) tc.pixelBuffers[i] = NULL;
 	tc.params = &params;
-	tc.bentNormalsPerPixel = NULL;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherDirectEmitors = _gatherDirectEmitors;
-	tc.gatherAllDirections = false;
+	tc.gatherAllDirections = _gatherAllDirections;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates rays, allocating inside for cycle costs more
@@ -775,7 +797,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 }
 
 // CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
-bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams, bool updateBentNormals)
+bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
@@ -794,7 +816,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 	ProcessTexelResult* finalGather = new ProcessTexelResult[numPostImportTriangles];
-	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
+	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false,false)) // this is first gather -> don't gather emitors, don't gather directions
 	{
 		delete[] finalGather;
 		return false;
@@ -804,7 +826,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,updateBentNormals ? finalGather[t].bentNormal : finalGather[t].irradiance[0]);
+		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,finalGather[t].irradiance[LS_LIGHTMAP]);
 	}
 	delete[] finalGather;
 
@@ -848,7 +870,15 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	paramsIndirect.applyLights = false;
 	paramsIndirect.applyEnvironment = false;
 	//paramsDirect.applyCurrentSolution = false;
-	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
+	if(aparamsIndirect)
+	{
+		paramsIndirect = *aparamsIndirect;
+		// disable debugging in first gather
+		paramsIndirect.debugObject = UINT_MAX;
+		paramsIndirect.debugTexel = UINT_MAX;
+		paramsIndirect.debugTriangle = UINT_MAX;
+		paramsIndirect.debugRay = NULL;
+	}
 
 	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
@@ -873,7 +903,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		priv->scene->illuminationReset(true,true); // required by endByQuality()
 
 		// first gather
-		updateSolverDirectIllumination(&paramsIndirect,false);
+		updateSolverDirectIllumination(&paramsIndirect);
 
 		// propagate
 		if(!aborting)

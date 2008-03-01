@@ -272,16 +272,16 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 // Converts data from input array [post import triangles of whole scene]
 // to output array [pre import vertices of single object]
 // Fast, but used only in offline solutions.
-unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool bentNormals) const
+unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool allowScaling) const
 {
-	RRReporter::report(INF3,"Updating object %d/%d, vertex %s.\n",objectHandle,getNumObjects(),bentNormals?"bent normals":"lightmap");
+	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getNumObjects());
 
 	if(!priv->scene || !vertexBuffer || !getIllumination(objectHandle))
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
-	const RRScaler* scaler = (vertexBuffer->getScaled() && !bentNormals) ? priv->scaler : NULL;
+	const RRScaler* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
 	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)

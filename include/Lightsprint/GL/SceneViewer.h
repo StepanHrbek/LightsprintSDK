@@ -58,7 +58,7 @@ enum UpdateResult
 //! - depends on LightsprintGL library (because of sceneViewer)
 //! - it's forbidden to run this function from multiple threads at the same time
 UpdateResult RR_GL_API updateLightmapsWithDialog(rr::RRDynamicSolver* solver,
-					int layerNumberLighting, int layerNumberBentNormals, rr::RRDynamicSolver::UpdateParameters* paramsDirect, rr::RRDynamicSolver::UpdateParameters* paramsIndirect, const rr::RRDynamicSolver::FilteringParameters* filtering,
+					int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, rr::RRDynamicSolver::UpdateParameters* paramsDirect, rr::RRDynamicSolver::UpdateParameters* paramsIndirect, const rr::RRDynamicSolver::FilteringParameters* filtering,
 					bool createWindowForSceneViewer, const char* pathToShaders,
 					const char* customButtonCaption);
 

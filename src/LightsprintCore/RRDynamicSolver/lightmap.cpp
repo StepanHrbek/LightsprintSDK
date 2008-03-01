@@ -119,91 +119,94 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			{
 				for(int x=MAX((int)xmin,0);x<(int)MIN((unsigned)xmax+1,mapWidth);x++)
 				{
-					// start with full texel, 4 vertices
-					unsigned polySize = 4;
-					RRVec2 polyVertexInTriangleSpace[7] =
+					if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 					{
-						#define MAPSPACE_TO_TRIANGLESPACE(x,y) RRVec2( (x)*inv[0][0] + (y)*inv[0][1] + inv[0][2], (x)*inv[1][0] + (y)*inv[1][1] + inv[1][2] )
-						MAPSPACE_TO_TRIANGLESPACE(x,y),
-						MAPSPACE_TO_TRIANGLESPACE(x+1,y),
-						MAPSPACE_TO_TRIANGLESPACE(x+1,y+1),
-						MAPSPACE_TO_TRIANGLESPACE(x,y+1),
-						#undef MAPSPACE_TO_TRIANGLESPACE
-					};
-					RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[0]));
-					RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[1]));
-					RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[2]));
-					RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[3]));
-					// calculate texel-triangle intersection (=polygon) in 2d 0..1 map space
-					// cut it three times by triangle side
-					for(unsigned triSide=0;triSide<3;triSide++)
-					{
-						RRVec3 triLineInTriangleSpace = (triSide==0) ? RRVec3(0,1,0) : ((triSide==1) ? RRVec3(-1,-1,1) : RRVec3(1,0,0) );
-						// are poly vertices inside or outside halfplane defined by triLine?
-						enum InsideOut
+						// start with full texel, 4 vertices
+						unsigned polySize = 4;
+						RRVec2 polyVertexInTriangleSpace[7] =
 						{
-							INSIDE, // distance is +, potentially inside triangle
-							EDGE, // distance is 0, potentially touches triangle
-							OUTSIDE // distance is -, outside triangle and this is for sure
+							#define MAPSPACE_TO_TRIANGLESPACE(x,y) RRVec2( (x)*inv[0][0] + (y)*inv[0][1] + inv[0][2], (x)*inv[1][0] + (y)*inv[1][1] + inv[1][2] )
+							MAPSPACE_TO_TRIANGLESPACE(x,y),
+							MAPSPACE_TO_TRIANGLESPACE(x+1,y),
+							MAPSPACE_TO_TRIANGLESPACE(x+1,y+1),
+							MAPSPACE_TO_TRIANGLESPACE(x,y+1),
+							#undef MAPSPACE_TO_TRIANGLESPACE
 						};
-						InsideOut inside[7];
-						unsigned numInside = 0;
-						unsigned numOutside = 0;
-						for(unsigned i=0;i<polySize;i++)
+						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[0]));
+						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[1]));
+						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[2]));
+						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[3]));
+						// calculate texel-triangle intersection (=polygon) in 2d 0..1 map space
+						// cut it three times by triangle side
+						for(unsigned triSide=0;triSide<3;triSide++)
 						{
+							RRVec3 triLineInTriangleSpace = (triSide==0) ? RRVec3(0,1,0) : ((triSide==1) ? RRVec3(-1,-1,1) : RRVec3(1,0,0) );
+							// are poly vertices inside or outside halfplane defined by triLine?
+							enum InsideOut
+							{
+								INSIDE, // distance is +, potentially inside triangle
+								EDGE, // distance is 0, potentially touches triangle
+								OUTSIDE // distance is -, outside triangle and this is for sure
+							};
+							InsideOut inside[7];
+							unsigned numInside = 0;
+							unsigned numOutside = 0;
+							for(unsigned i=0;i<polySize;i++)
+							{
 #define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
-							RRReal dist = POINT_LINE_DISTANCE_2D(polyVertexInTriangleSpace[i],triLineInTriangleSpace);
-							if(dist<0)
-							{
-								inside[i] = OUTSIDE;
-								numOutside++;
+								RRReal dist = POINT_LINE_DISTANCE_2D(polyVertexInTriangleSpace[i],triLineInTriangleSpace);
+								if(dist<0)
+								{
+									inside[i] = OUTSIDE;
+									numOutside++;
+								}
+								else
+								if(dist>0)
+								{
+									inside[i] = INSIDE;
+									numInside++;
+								}
+								else
+								{
+									inside[i] = EDGE;
+								}
 							}
-							else
-							if(dist>0)
-							{
-								inside[i] = INSIDE;
-								numInside++;
-							}
-							else
-							{
-								inside[i] = EDGE;
-							}
+							// none OUTSIDE -> don't modify poly, go to next triangle side
+							if(!numOutside) continue;
+							// none INSIDE -> empty poly, go to next texel
+							if(!numInside) {polySize = 0; break;}
+							// part INSIDE, part OUTSIDE -> cut off all OUTSIDE and EDGE, add 2 new vertices
+							unsigned firstPreserved = 1;
+							while(inside[(firstPreserved-1)%polySize]==INSIDE || inside[firstPreserved%polySize]!=INSIDE) firstPreserved++;
+							RRVec2 polyVertexInTriangleSpaceOrig[7];
+							memcpy(polyVertexInTriangleSpaceOrig,polyVertexInTriangleSpace,sizeof(polyVertexInTriangleSpace));
+							unsigned src = firstPreserved;
+							unsigned dst = 0;
+							while(inside[src%polySize]==INSIDE) polyVertexInTriangleSpace[dst++] = polyVertexInTriangleSpaceOrig[src++%polySize]; // copy preserved vertices
+							#define INTERSECTION_POINTA_POINTB_LINE(pointA,pointB,line) \
+								((pointA) - ((pointB)-(pointA)) * POINT_LINE_DISTANCE_2D(pointA,line) / ( (line)[0]*((pointB)[0]-(pointA)[0]) + (line)[1]*((pointB)[1]-(pointA)[1]) ) )
+							polyVertexInTriangleSpace[dst++] =
+								INTERSECTION_POINTA_POINTB_LINE(polyVertexInTriangleSpaceOrig[(src-1)%polySize],polyVertexInTriangleSpaceOrig[src%polySize],triLineInTriangleSpace); // append new vertex
+							polyVertexInTriangleSpace[dst++] =
+								INTERSECTION_POINTA_POINTB_LINE(polyVertexInTriangleSpaceOrig[(firstPreserved-1)%polySize],polyVertexInTriangleSpaceOrig[firstPreserved%polySize],triLineInTriangleSpace); // append new vertex
+							RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-2]));
+							RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-1]));
+							polySize = dst;
 						}
-						// none OUTSIDE -> don't modify poly, go to next triangle side
-						if(!numOutside) continue;
-						// none INSIDE -> empty poly, go to next texel
-						if(!numInside) {polySize = 0; break;}
-						// part INSIDE, part OUTSIDE -> cut off all OUTSIDE and EDGE, add 2 new vertices
-						unsigned firstPreserved = 1;
-						while(inside[(firstPreserved-1)%polySize]==INSIDE || inside[firstPreserved%polySize]!=INSIDE) firstPreserved++;
-						RRVec2 polyVertexInTriangleSpaceOrig[7];
-						memcpy(polyVertexInTriangleSpaceOrig,polyVertexInTriangleSpace,sizeof(polyVertexInTriangleSpace));
-						unsigned src = firstPreserved;
-						unsigned dst = 0;
-						while(inside[src%polySize]==INSIDE) polyVertexInTriangleSpace[dst++] = polyVertexInTriangleSpaceOrig[src++%polySize]; // copy preserved vertices
-						#define INTERSECTION_POINTA_POINTB_LINE(pointA,pointB,line) \
-							((pointA) - ((pointB)-(pointA)) * POINT_LINE_DISTANCE_2D(pointA,line) / ( (line)[0]*((pointB)[0]-(pointA)[0]) + (line)[1]*((pointB)[1]-(pointA)[1]) ) )
-						polyVertexInTriangleSpace[dst++] =
-							INTERSECTION_POINTA_POINTB_LINE(polyVertexInTriangleSpaceOrig[(src-1)%polySize],polyVertexInTriangleSpaceOrig[src%polySize],triLineInTriangleSpace); // append new vertex
-						polyVertexInTriangleSpace[dst++] =
-							INTERSECTION_POINTA_POINTB_LINE(polyVertexInTriangleSpaceOrig[(firstPreserved-1)%polySize],polyVertexInTriangleSpaceOrig[firstPreserved%polySize],triLineInTriangleSpace); // append new vertex
-						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-2]));
-						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-1]));
-						polySize = dst;
-					}
-					// triangulate polygon into subtexels
-					if(polySize)
-					{
-						SubTexel subTexel;
-						subTexel.multiObjPostImportTriIndex = t;
-						subTexel.uvInTriangleSpace[0] = polyVertexInTriangleSpace[0];
-						subTexel.uvInTriangleSpace[1] = polyVertexInTriangleSpace[1];
-						for(unsigned i=0;i<polySize-2;i++)
+						// triangulate polygon into subtexels
+						if(polySize)
 						{
-							subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
-							RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
-							subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
-							texels[x+y*mapWidth].push_back(subTexel);
+							SubTexel subTexel;
+							subTexel.multiObjPostImportTriIndex = t;
+							subTexel.uvInTriangleSpace[0] = polyVertexInTriangleSpace[0];
+							for(unsigned i=0;i<polySize-2;i++)
+							{
+								subTexel.uvInTriangleSpace[1] = polyVertexInTriangleSpace[i+1];
+								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
+								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
+								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
+								texels[x+y*mapWidth].push_back(subTexel);
+							}
 						}
 					}
 				}
@@ -268,7 +271,7 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
 }
 
-unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
+unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
 	RRReportInterval report(realtime?INF3:INF1,"Updating object %d/%d, %s %d*%d, bentNormal %s %d*%d...\n",
@@ -277,25 +280,17 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
 		(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"map",
 		bentNormals?bentNormals->getWidth():0,bentNormals?bentNormals->getHeight():0);
-
-	// validate params
+	
+	// init params
 	UpdateParameters params;
 	if(_params) params = *_params;
-	if(!buffer && !bentNormals)
-	{
-		RRReporter::report(WARN,"Both output buffers are NULL, no work.\n");
-		return 0;
-	}
-	if(buffer && bentNormals && buffer->getType()==bentNormals->getType())
-	{
-		if(buffer->getWidth() != bentNormals->getWidth()
-			|| buffer->getHeight() != bentNormals->getHeight())
-		{
-			RRReporter::report(ERRO,"Buffer sizes don't match, buffer=%dx%d, bentNormals=%dx%d.\n",buffer->getWidth(),buffer->getHeight(),bentNormals->getWidth(),bentNormals->getHeight());
-			RR_ASSERT(0);
-			return 0;
-		}
-	}
+	if(params.applyLights && !getLights().size())
+		params.applyLights = false;
+	if(params.applyEnvironment && !getEnvironment())
+		params.applyEnvironment = false;
+	bool paramsAllowRealtime = !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality;
+
+	// init solver
 	if((!priv->scene
 		&& !priv->packedSolver
 		) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
@@ -310,26 +305,95 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			return 0;
 		}
 	}
-	
-	// optimize params
-	if(params.applyLights && !getLights().size())
-		params.applyLights = false;
-	if(params.applyEnvironment && !getEnvironment())
-		params.applyEnvironment = false;
+
+	// init buffers
+	unsigned numVertexBuffers = 0;
+	unsigned numPixelBuffers = 0;
+	RRBuffer* allVertexBuffers[NUM_BUFFERS];
+	RRBuffer* allPixelBuffers[NUM_BUFFERS];
+	unsigned pixelBufferWidth = 0;
+	unsigned pixelBufferHeight = 0;
+	unsigned vertexBufferWidth = 0;
+	{
+		if(paramsAllowRealtime && objectNumber==-1)
+		{
+			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices();
+		}
+		else
+		{
+			if(objectNumber>=(int)getNumObjects() || objectNumber<0)
+			{
+				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+				return 0;
+			}
+			if(!getIllumination(objectNumber))
+			{
+				RRReporter::report(WARN,"getIllumination(%d) is NULL.\n",objectNumber);
+				return 0;
+			}
+			vertexBufferWidth = getIllumination(objectNumber)->getNumPreImportVertices();
+		}
+
+		RRBuffer* allBuffers[NUM_BUFFERS];
+		allBuffers[LS_LIGHTMAP] = buffer;
+		allBuffers[LS_DIRECTION1] = directionalLightmaps?directionalLightmaps[0]:NULL;
+		allBuffers[LS_DIRECTION2] = directionalLightmaps?directionalLightmaps[1]:NULL;
+		allBuffers[LS_DIRECTION3] = directionalLightmaps?directionalLightmaps[2]:NULL;
+		allBuffers[LS_BENT_NORMALS] = bentNormals;
+
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		{
+			allVertexBuffers[i] = onlyVbuf(allBuffers[i]); if(allVertexBuffers[i]) numVertexBuffers++;
+			allPixelBuffers[i] = onlyLmap(allBuffers[i]); if(allPixelBuffers[i]) numPixelBuffers++;
+		}
+		if(numVertexBuffers+numPixelBuffers==0)
+		{
+			RRReporter::report(WARN,"No output buffers, no work to do.\n");
+			return 0;
+		}
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		{
+			if(allVertexBuffers[i])
+			{
+				if(allBuffers[i]->getWidth()<vertexBufferWidth) // only smaller buffer is problem, bigger buffer is sometimes created by ObjectBuffers
+				{
+					RRReporter::report(WARN,"Insufficient vertex buffer size %d, should be %d.\n",allBuffers[i]->getWidth(),vertexBufferWidth);
+					return 0;
+				}
+			}
+		}
+		bool filled = false;
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		{
+			if(allPixelBuffers[i])
+			{
+				if(!filled)
+				{
+					filled = true;
+					pixelBufferWidth = allBuffers[i]->getWidth();
+					pixelBufferHeight = allBuffers[i]->getHeight();
+				}
+				else
+				{
+					if(pixelBufferWidth!=allBuffers[i]->getWidth() || pixelBufferHeight!=allBuffers[i]->getHeight())
+					{
+						RRReporter::report(WARN,"Pixel buffer sizes don't match, %dx%d != %dx%d.\n",pixelBufferWidth,pixelBufferHeight,allBuffers[i]->getWidth(),allBuffers[i]->getHeight());
+						return 0;
+					}
+				}
+			}
+		}
+	}
 
 	unsigned updatedBuffers = 0;
-	RRBuffer* vertexBuffer = onlyVbuf(buffer);
-	RRBuffer* pixelBuffer = onlyLmap(buffer);
-	RRBuffer* bentNormalsPerVertex = onlyVbuf(bentNormals);
-	RRBuffer* bentNormalsPerPixel = onlyLmap(bentNormals);
 
 	// PER-VERTEX
-	if(vertexBuffer || bentNormalsPerVertex)
+	if(numVertexBuffers)
 	{
 		// REALTIME
-		if(vertexBuffer && !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality)
+		if(allVertexBuffers[0] && paramsAllowRealtime)
 		{
-			updatedBuffers += updateVertexBufferFromSolver(objectNumber,vertexBuffer,_params);
+			updatedBuffers += updateVertexBufferFromSolver(objectNumber,allVertexBuffers[0],_params);
 		}
 		else
 		// NON-REALTIME
@@ -339,71 +403,59 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// future optimization: gather only triangles necessary for selected object
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
-			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials); // this is final gather -> gather emissive materials
+			bool gatherAllDirections = allVertexBuffers[LS_DIRECTION1] || allVertexBuffers[LS_DIRECTION2] || allVertexBuffers[LS_DIRECTION3];
+			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
 
 			// interpolate: tmparray -> buffer
-			if(vertexBuffer)
+			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,vertexBuffer,&finalGather[0].irradiance[0],sizeof(finalGather[0]),false);
+				if(allVertexBuffers[i])
+				{
+					updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,allVertexBuffers[i],&finalGather[0].irradiance[i],sizeof(finalGather[0]),true);
+				}
 			}
-			if(bentNormalsPerVertex)
+			if(allVertexBuffers[LS_BENT_NORMALS])
 			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,bentNormalsPerVertex,&finalGather[0].bentNormal,sizeof(finalGather[0]),true);
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,allVertexBuffers[LS_BENT_NORMALS],&finalGather[0].bentNormal,sizeof(finalGather[0]),false);
 			}
 			delete[] finalGather;
 		}
 	}
 
 	// PER-PIXEL (NON-REALTIME)
-	if(pixelBuffer || bentNormalsPerPixel)
+	if(numPixelBuffers)
 	{
-		// do per-pixel part
-		const RRObject* object = getMultiObjectCustom();
-		RRMesh* mesh = object->getCollider()->getMesh();
-		unsigned numPostImportTriangles = mesh->getNumTriangles();
-
-		if(objectNumber>=(int)getNumObjects() || objectNumber<0)
-		{
-			RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
-			RR_ASSERT(0);
-			return 0;
-		}
-
 		TexelContext tc;
 		tc.solver = this;
-		for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
-			tc.pixelBuffers[i] = pixelBuffer?new LightmapFilter(pixelBuffer->getWidth(),pixelBuffer->getHeight()):NULL;
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		{
+			tc.pixelBuffers[i] = allPixelBuffers[i]?new LightmapFilter(pixelBufferWidth,pixelBufferHeight):NULL;
+		}
 		tc.params = &params;
-		tc.bentNormalsPerPixel = bentNormalsPerPixel?new LightmapFilter(bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight()):NULL;
 		tc.singleObjectReceiver = getObject(objectNumber);
 		tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
-		tc.gatherAllDirections = false;
-		RRBuffer* tmp = pixelBuffer?pixelBuffer:bentNormals;
-		enumerateTexels(getMultiObjectCustom(),objectNumber,tmp->getWidth(),tmp->getHeight(),processTexel,tc,priv->minimalSafeDistance);
+		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
+		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
-		if(tc.pixelBuffers[0])
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
-				flush(pixelBuffer,tc.pixelBuffers[0]->getFiltered(filtering),priv->scaler); //!!!! ukladat i dalsi diry
-			for(unsigned i=0;i<MAX_LIGHTMAP_DIRECTIONS;i++)
+			if(allPixelBuffers[i])
+			{
+				if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
+				{
+					flush(allPixelBuffers[i],tc.pixelBuffers[i]->getFiltered(filtering),(i==LS_BENT_NORMALS)?NULL:priv->scaler);
+					updatedBuffers++;
+				}
 				delete tc.pixelBuffers[i];
-			updatedBuffers++;
+			}
 		}
-		if(tc.bentNormalsPerPixel)
-		{
-			if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
-				flush(bentNormalsPerPixel,tc.bentNormalsPerPixel->getFiltered(filtering),priv->scaler);
-			delete tc.bentNormalsPerPixel;
-			updatedBuffers++;
-		}
-
 	}
 
 	return updatedBuffers;
 }
 
 
-unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
+unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsDirect;
 	UpdateParameters paramsIndirect;
@@ -418,19 +470,29 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsDirect.applyCurrentSolution = false;
 	}
 
+	int allLayers[NUM_BUFFERS];
+	allLayers[LS_LIGHTMAP] = layerNumberLighting;
+	allLayers[LS_DIRECTION1] = layerNumberDirectionalLighting;
+	allLayers[LS_DIRECTION2] = layerNumberDirectionalLighting+((layerNumberDirectionalLighting>=0)?1:0);
+	allLayers[LS_DIRECTION3] = layerNumberDirectionalLighting+((layerNumberDirectionalLighting>=0)?2:0);
+	allLayers[LS_BENT_NORMALS] = layerNumberBentNormals;
+
 	bool containsFirstGather = _paramsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment);
 	bool containsRealtime = !paramsDirect.applyLights && !paramsDirect.applyEnvironment && paramsDirect.applyCurrentSolution && !paramsDirect.quality;
 	bool containsVertexBuffers = false;
-	bool containsLightmaps = false;
+	bool containsPixelBuffers = false;
+	bool containsDirectionalVertexBuffers = false;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberLighting) && getIllumination(object)->getLayer(layerNumberLighting)->getType()==BT_VERTEX_BUFFER;
-		containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberBentNormals) && getIllumination(object)->getLayer(layerNumberBentNormals)->getType()==BT_VERTEX_BUFFER;
-		containsLightmaps     |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberLighting) && getIllumination(object)->getLayer(layerNumberLighting)->getType()==BT_2D_TEXTURE;
-		containsLightmaps     |= getIllumination(object) && getIllumination(object)->getLayer(layerNumberBentNormals) && getIllumination(object)->getLayer(layerNumberBentNormals)->getType()==BT_2D_TEXTURE;
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		{
+			containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
+			containsPixelBuffers  |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_2D_TEXTURE;
+			containsDirectionalVertexBuffers |= i>=LS_DIRECTION1 && i<=LS_DIRECTION3 && getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
+		}
 	}
 
-	RRReportInterval report((containsFirstGather||containsLightmaps||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
+	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
@@ -470,73 +532,77 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	{
 		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++) if(!aborting)
 		{
-			if(layerNumberLighting>=0)
+			for(unsigned i=0;i<NUM_BUFFERS;i++)
 			{
-				RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
-				if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-					updatedBuffers += updateVertexBufferFromSolver(objectHandle,vertexColors,&paramsDirect);
-				//if(vertexColors && vertexColors->getType()!=BT_VERTEX_BUFFER)
-				//	LIMITED_TIMES(1,RRReporter::report(WARN,"Lightmaps not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
-			}
-			if(layerNumberBentNormals>=0)
-			{
-				RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
-				if(bentNormals)
-					LIMITED_TIMES(1,RRReporter::report(WARN,"Bent normals not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
+				if(allLayers[i]>=0)
+				{
+					RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
+					if(vertexBuffer)
+					{
+						if(i==LS_LIGHTMAP)
+						{
+							updatedBuffers += updateVertexBufferFromSolver(objectHandle,vertexBuffer,&paramsDirect);
+						}
+						else
+						{
+							LIMITED_TIMES(1,RRReporter::report(WARN,"Directional buffers not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
+						}
+					}
+				}
 			}
 		}
 	}
 
 	// 4+5. vertex: final gather into vertex buffers (solver not modified)
 	if(containsVertexBuffers && !containsRealtime)
+	if(!(paramsDirect.debugTexel!=UINT_MAX && paramsDirect.debugTriangle==UINT_MAX)) // skip triangle-gathering when debugging texel
 	{
-		if(containsVertexBuffers && (paramsDirect.applyLights || paramsDirect.applyEnvironment || (paramsDirect.applyCurrentSolution && paramsDirect.quality)))
-		{
 			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
 			// for each triangle
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
-			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials); // this is final gather -> gather emissive materials
+			bool gatherAllDirections = containsDirectionalVertexBuffers;
+			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
 
 			// 5. interpolate: tmparray -> buffer
 			// for each object with vertex buffer
 			if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 			{
-				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++) if(!aborting)
+				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 				{
-					if(layerNumberLighting>=0)
+					for(unsigned i=0;i<NUM_BUFFERS;i++)
 					{
-						RRBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting);
-						if(vertexColors && vertexColors->getType()==BT_VERTEX_BUFFER)
-							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance[0],sizeof(finalGather[0]),false);
-					}
-					if(layerNumberBentNormals>=0)
-					{
-						RRBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals);
-						if(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)
-							updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]),true);
+						if(allLayers[i]>=0 && !aborting)
+						{
+							RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
+							if(vertexBuffer)
+								updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexBuffer,(i!=LS_BENT_NORMALS) ? &finalGather[0].irradiance[i] : &finalGather[0].bentNormal,sizeof(finalGather[0]),i!=LS_BENT_NORMALS);
+						}
 					}
 				}
 			}
 			delete[] finalGather;
-		}
-
 	}
 
 	// 6. pixel: final gather into pixel buffers (solver not modified)
-	if(containsLightmaps)
+	if(containsPixelBuffers)
+	if(!(paramsDirect.debugTexel==UINT_MAX && paramsDirect.debugTriangle!=UINT_MAX)) // skip pixel-gathering when debugging triangle
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
 			if((paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) && !aborting) // skip objects when debugging texel
 			{
-				RRBuffer* lightmap = (layerNumberLighting>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberLighting) : NULL;
-				if(lightmap && lightmap->getType()!=BT_2D_TEXTURE) lightmap = NULL;
-				RRBuffer* bentNormals = (layerNumberBentNormals>=0 && getIllumination(object)) ? getIllumination(object)->getLayer(layerNumberBentNormals) : NULL;
-				if(bentNormals && bentNormals->getType()!=BT_2D_TEXTURE) bentNormals = NULL;
-				if(lightmap || bentNormals)
+				RRBuffer* allPixelBuffers[NUM_BUFFERS];
+				unsigned numPixelBuffers = 0;
+				for(unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect,_filtering);
+					allPixelBuffers[i] = (allLayers[i]>=0 && getIllumination(object)) ? onlyLmap(getIllumination(object)->getLayer(allLayers[i])) : NULL;
+					if(allPixelBuffers[i]) numPixelBuffers++;
+				}
+
+				if(numPixelBuffers)
+				{
+					updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
 				}
 			}
 		}
