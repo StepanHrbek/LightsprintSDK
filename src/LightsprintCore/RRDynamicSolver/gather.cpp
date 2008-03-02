@@ -548,30 +548,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	unsigned subTexelIndex = 0;
 	RRReal areaAccu = -pti.subTexels->at(0).areaInMapSpace;
 	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
-	RRReal areaStep = areaMax/(MAX(hemisphere.rays,gilights.rays)+0.91f);
-/*
-//!!!! 1. kdyz chci 10 do svetel a 100 do hemisfery, paprsky do svetel jdou jen z krajnich 10% subtexelu
-//!!!! 2. kdyz nahrazuju unreliable (pridavam raye), musim vzdy dostrilet cely dalsi kolo abych je nepridal jen z kraje
 
-A) vratit plnou randomizaci
- a) kazdy texel by cachoval jen svoje subtexely
-    - cache nutne alokovat predem spolu s rays[2] (kazdy kdo nas vola)
-    . cache typicky mala, max velikost zjistim snadno
- b) udelat si pole vsech tbody a tnormals a sdilet ho vsemi texely, 144MB/mil trianglu
-    - cache nutne alokovat predem spolu s rays[2] (kazdy kdo nas vola)
-    +zrychleni gatheru
-	-dal bych pouzival FASTER (vic zabrane pameti,tbody duplikovane v collideru i gatheru)
- c) zapnout v multimeshi accelerate
-    +zrychleni gatheru
-	.misto FASTER pouzit FAST (jen o neco vic pameti, jen o neco pomalejsi)
-	  +COMPACT,FAST jsou ted rychlejsi, muzu si je dovolit
-	   FASTER a FASTEST duplikuji pamet, nepouzivat
-	*dalsi zrychleni mozne kdyby gather i collider dostali primy pristup k poli v meshi
-B) YES projizdet po kolech, pokud jedno nestaci, projet cele dalsi
- -- rozptyleni mene castych glight mezi castejsi hemi (nebo naopak) = slozity kod nachylny k chybam
- - kazde kolo by melo byt trochu jine, jinak vznikne bias u svetel, nektere subtexely pouzije mockrat, jine 0x
- - muze o par % zpomalit, protoze pri 99% reliabilite vystrili zbytecne 2x tolik rayu
-*/
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
 	g_logRay = pti.context.params->debugRay;
@@ -581,91 +558,103 @@ B) YES projizdet po kolech, pokud jedno nestaci, projet cele dalsi
 		//
 		// break when no shooting is requested or too many failures were detected
 
-		bool shootHemisphere = hemisphere.hitsReliable+hemisphere.hitsUnreliable<hemisphere.rays || hemisphere.hitsReliable<hemisphere.rays/10;
-		bool shootLights = gilights.hitsReliable+gilights.hitsUnreliable<gilights.rays || gilights.hitsReliable<gilights.rays/10;
-		if((!shootHemisphere || hemisphere.hitsUnreliable>hemisphere.rays*100)
-			&& (!shootLights || gilights.hitsUnreliable>gilights.rays*100))
+		bool shootHemisphere = (hemisphere.hitsReliable+hemisphere.hitsUnreliable<hemisphere.rays || hemisphere.hitsReliable*10<hemisphere.rays) && hemisphere.hitsUnreliable<hemisphere.rays*100;
+		bool shootLights = (gilights.hitsReliable+gilights.hitsUnreliable<gilights.rays || gilights.hitsReliable*10<gilights.rays) && gilights.hitsUnreliable<gilights.rays*100;
+		if(!shootHemisphere && !shootLights)
 			break;
 
-
 		/////////////////////////////////////////////////////////////////
 		//
-		// get random position in texel
+		// shoot 1 series
 
-		// select subtexel
-		areaAccu += areaStep;
-		while(areaAccu>0) areaAccu -= pti.subTexels->at(++subTexelIndex%=pti.subTexels->size()).areaInMapSpace;
-		SubTexel* subTexel = &pti.subTexels->at(subTexelIndex);
+		// update subtexel selector
+		unsigned seriesNumShootersTotal = MAX(shootHemisphere?hemisphere.rays:0,shootLights?gilights.rounds:0);
+		RRReal areaStep = areaMax/(seriesNumShootersTotal+0.91f);
 
-		// update cached triangle data
-//static unsigned q=0;q++;static unsigned w=0;if(q>10000){printf("%d ",w);q=0;w=0;}
-		if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
+		unsigned seriesNumHemisphereShootersShot = 0;
+		unsigned seriesNumGilightsShootersShot = 0;
+		for(unsigned seriesShooterNum=0;seriesShooterNum<seriesNumShootersTotal;seriesShooterNum++)
 		{
-//w++;
-			cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
-			RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
-			mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
-			mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
-		}
-		// update cached subtexel data
-		// (simplification: average tangent base is used for all rays from subtexel)
-		if(subTexelIndex!=cache_subTexelIndex)
-		{
-			cache_subTexelIndex = subTexelIndex;
-			// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
-			RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
-			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-			cache_basis.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
-			cache_basis.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
-			cache_basis.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
-			// tangent basis for point in triangle was computed as linear interpolation of vertex bases
-			// -> result is not ortogonal, lengths are not unit
-			//    compatibility with Unreal Engine 3 is secured
-		}
+			/////////////////////////////////////////////////////////////////
+			//
+			// get random position in texel
 
-		// random 2d pos in subtexel
-		unsigned u=rand();
-		unsigned v=rand();
-		if(u+v>RAND_MAX)
-		{
-			u=RAND_MAX-u;
-			v=RAND_MAX-v;
-		}
-		RRVec2 uvInTriangleSpace = subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u/(RRReal)RAND_MAX) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v/(RRReal)RAND_MAX);
+			// select subtexel
+			areaAccu += areaStep;
+			while(areaAccu>0) areaAccu -= pti.subTexels->at(++subTexelIndex%=pti.subTexels->size()).areaInMapSpace;
+			SubTexel* subTexel = &pti.subTexels->at(subTexelIndex);
 
-		// 3d pos, norm
-		pti.rays[1].rayOrigin = pti.rays[0].rayOrigin = cache_tb.vertex0 + cache_tb.side1*uvInTriangleSpace[0] + cache_tb.side2*uvInTriangleSpace[1];
+			// update cached triangle data
+			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
+			{
+				cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
+				RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+				mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
+				mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+			}
+			// update cached subtexel data
+			// (simplification: average tangent base is used for all rays from subtexel)
+			if(subTexelIndex!=cache_subTexelIndex)
+			{
+				cache_subTexelIndex = subTexelIndex;
+				// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
+				RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
+				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
+				cache_basis.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
+				cache_basis.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
+				cache_basis.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
+				// tangent basis for point in triangle was computed as linear interpolation of vertex bases
+				// -> result is not ortogonal, lengths are not unit
+				//    compatibility with Unreal Engine 3 is secured
+			}
+
+			// random 2d pos in subtexel
+			unsigned u=rand();
+			unsigned v=rand();
+			if(u+v>RAND_MAX)
+			{
+				u=RAND_MAX-u;
+				v=RAND_MAX-v;
+			}
+			RRVec2 uvInTriangleSpace = subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u/(RRReal)RAND_MAX) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v/(RRReal)RAND_MAX);
+
+			// shooter 3d pos, norm
+			pti.rays[1].rayOrigin = pti.rays[0].rayOrigin = cache_tb.vertex0 + cache_tb.side1*uvInTriangleSpace[0] + cache_tb.side2*uvInTriangleSpace[1];
 
 
-		/////////////////////////////////////////////////////////////////
-		//
-		// shoot into hemisphere
+			/////////////////////////////////////////////////////////////////
+			//
+			// shoot into hemisphere
 
-		if(shootHemisphere)
-		{
-			hemisphere.shotRay(cache_basis,subTexel->multiObjPostImportTriIndex);
-		}
-		
+			if(shootHemisphere)
+			{
+				if(!shootLights // shooting only hemisphere
+					|| hemisphere.rays>=gilights.rounds // shooting both, always hemisphere
+					|| seriesNumHemisphereShootersShot*(seriesNumShootersTotal-1)<hemisphere.rays*seriesShooterNum) // shooting both, sometimes hemisphere
+				{
+					seriesNumHemisphereShootersShot++;
+					hemisphere.shotRay(cache_basis,subTexel->multiObjPostImportTriIndex);
+				}
+			}
+			
 
-		/////////////////////////////////////////////////////////////////
-		//
-		// shoot into lights
+			/////////////////////////////////////////////////////////////////
+			//
+			// shoot into lights
 
-		if(shootLights)
-		{
-			gilights.shotRayPerLight(cache_basis,subTexel->multiObjPostImportTriIndex);
+			if(shootLights)
+			{
+				if(!shootHemisphere // shooting only into lights
+					|| gilights.rounds>=hemisphere.rays // shoting both, always into lights
+					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
+				{
+					seriesNumGilightsShootersShot++;
+					gilights.shotRayPerLight(cache_basis,subTexel->multiObjPostImportTriIndex);
+				}
+			}
 		}
 	}
 	g_logRay = NULL;
-
-//	const RRReal maxError = 0.05f;
-//	if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
-	{
-		// get error below maxError, but do no more than rays*10 attempts
-//		printf(":");
-//		goto shoot_new_batch;
-	}
-//	printf(" ");
 
 	hemisphere.done();
 	gilights.done();
