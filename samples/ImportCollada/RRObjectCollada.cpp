@@ -47,6 +47,7 @@
 #include "FCDocument/FCDGeometryInstance.h"
 #include "FCDocument/FCDGeometryMesh.h"
 #include "FCDocument/FCDGeometryPolygons.h"
+#include "FCDocument/FCDGeometryPolygonsInput.h"
 #include "FCDocument/FCDGeometryPolygonsTools.h"
 #include "FCDocument/FCDGeometrySource.h"
 #include "FCDocument/FCDImage.h"
@@ -60,38 +61,12 @@
 
 #include "RRObjectCollada.h"
 
-#if _MSC_VER<1400
-	#error Third party library FCollada doesn't support VS2003.
-#else
-#if _MSC_VER<1500
-	#ifdef _DEBUG
-		#ifndef _DLL
-			#pragma comment(lib,"FColladaSD.vs2005.lib")
-		#else
-			#pragma comment(lib,"FColladaD.vs2005.lib")
-		#endif
+#ifdef _MSC_VER
+	#if _MSC_VER<1400
+		#error Third party library FCollada doesn't support VS2003.
 	#else
-		#ifndef _DLL
-			#pragma comment(lib,"FColladaSR.vs2005.lib")
-		#else
-			#pragma comment(lib,"FCollada.vs2005.lib")
-		#endif
+		#pragma comment(lib,"FCollada.lib")
 	#endif
-#else
-	#ifdef _DEBUG
-		#ifndef _DLL
-			#pragma comment(lib,"FColladaSD.vs2008.lib")
-		#else
-			#pragma comment(lib,"FColladaD.vs2008.lib")
-		#endif
-	#else
-		#ifndef _DLL
-			#pragma comment(lib,"FColladaSR.vs2008.lib")
-		#else
-			#pragma comment(lib,"FCollada.vs2008.lib")
-		#endif
-	#endif
-#endif
 #endif
 
 using namespace rr;
@@ -176,30 +151,33 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 	{
 		return false;
 	}
-	const FloatList& data = source->GetSourceData();
+	const float* data = source->GetData();
 	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
 		if(polygons)
 		{
-			LIMITED_TIMES(10,assert(polygons->IsTriangles())); // this is expensive check, do it only few times
-			size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
-			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
+			if(polygonsInput)
 			{
-				const UInt32List* indices = polygons->FindIndices(source);
-				if(indices)
+				LIMITED_TIMES(10,assert(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
+				size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
+				if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 				{
-					float* out = (float*)itemData;
-					size_t s = indices->size();
-					for(unsigned j=0;j<3;j++)
+					const uint32* indices = polygonsInput->GetIndices();
+					if(indices)
 					{
-						assert(relativeIndex*3+j<s);
-						for(unsigned k=0;k<floatsPerVertex;k++)
+						RR_ASSERT(relativeIndex*3+2<polygonsInput->GetIndexCount());
+						float* out = (float*)itemData;
+						for(unsigned j=0;j<3;j++)
 						{
-							*out++ = data[(*indices)[relativeIndex*3+j]*3+k];
+							for(unsigned k=0;k<floatsPerVertex;k++)
+							{
+								*out++ = data[indices[relativeIndex*3+j]*3+k];
+							}
 						}
+						return true;
 					}
-					return true;
 				}
 			}
 		}
@@ -265,7 +243,7 @@ void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
 		RR_ASSERT(0);
 		return;
 	}
-	RR_ASSERT(source->GetSourceStride()==3);
+	//RR_ASSERT(source->GetSourceStride()==3);
 	memcpy(&out,source->GetValue(v),sizeof(out));
 }
 
@@ -299,16 +277,20 @@ void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 		}
 		if(t<polygons->GetFaceCount())
 		{
-			const UInt32List* indices = polygons->FindIndices(source);
-			if(!indices)
+			const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
+			if(polygonsInput)
 			{
-				RR_ASSERT(0);
-				return;
+				const uint32* indices = polygonsInput->GetIndices();
+				if(indices)
+				{
+					RR_ASSERT(3*t+2<polygonsInput->GetIndexCount());
+					out[0] = indices[3*t+0];
+					out[1] = indices[3*t+1];
+					out[2] = indices[3*t+2];
+					return;
+				}
 			}
-			RR_ASSERT(3*t<indices->size());
-			out[0] = (*indices)[3*t+0];
-			out[1] = (*indices)[3*t+1];
-			out[2] = (*indices)[3*t+2];
+			RR_ASSERT(0);
 			return;
 		}
 		t -= polygons->GetFaceCount();
@@ -933,8 +915,8 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 	}
 
 	// import data
-	const FCDSceneNode* root = document->GetVisualSceneRoot();
-	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene root found.\n");
+	const FCDSceneNode* root = document->GetVisualSceneInstance();
+	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
 	addNode(root, scale, swapYZ, lightmapUvChannel);
 }
 
@@ -976,6 +958,7 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 		return;
 
 	// normalize geometry
+	//FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,0,1),1);
 	bool swapYZ = false;
 	RRReal scale = 1;
 	FCDAsset* asset = document->GetAsset();
@@ -987,7 +970,7 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 	}
 
 	// import all lights
-	const FCDSceneNode* root = document->GetVisualSceneRoot();
+	const FCDSceneNode* root = document->GetVisualSceneInstance();
 	addNode(root, scale, swapYZ);
 }
 
@@ -1012,7 +995,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,1));
 
 				// create RRLight
-				rr::RRVec3 color = RRVec3(light->GetColor()[0],light->GetColor()[1],light->GetColor()[2])*light->GetIntensity();
+				rr::RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
 				rr::RRVec3 polynom = rr::RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor()/scale,light->GetQuadraticAttenuationFactor()/scale/scale);
 				switch(light->GetLightType())
 				{

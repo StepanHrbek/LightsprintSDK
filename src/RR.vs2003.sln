@@ -18,11 +18,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity.vs2003", 
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water.vs2003", "..\samples\Water\Water.vs2003.vcproj", "{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2003", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2003.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
@@ -83,14 +78,6 @@ Global
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release DLL.Build.0 = Release DLL|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static.ActiveCfg = Release static|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static.Build.0 = Release static|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.ActiveCfg = Debug DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.Build.0 = Debug DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug static.ActiveCfg = Debug static|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug static.Build.0 = Debug static|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL.ActiveCfg = Release DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL.Build.0 = Release DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release static.ActiveCfg = Release static|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release static.Build.0 = Release static|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL.ActiveCfg = Debug DLL|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL.Build.0 = Debug DLL|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug static.ActiveCfg = Debug static|Win32
@@ -110,19 +97,15 @@ Global
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL.ActiveCfg = Debug DLL|Win32
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL.Build.0 = Debug DLL|Win32
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug static.ActiveCfg = Debug DLL|Win32
-		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug static.Build.0 = Debug DLL|Win32
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL.ActiveCfg = Release DLL|Win32
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL.Build.0 = Release DLL|Win32
 		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release static.ActiveCfg = Release DLL|Win32
-		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release static.Build.0 = Release DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL.ActiveCfg = Debug DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL.Build.0 = Debug DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug static.ActiveCfg = Debug DLL|Win32
-		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug static.Build.0 = Debug DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL.ActiveCfg = Release DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL.Build.0 = Release DLL|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release static.ActiveCfg = Release DLL|Win32
-		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release static.Build.0 = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

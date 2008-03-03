@@ -29,6 +29,7 @@
 #include "../ImportCollada/RRObjectCollada.h"
 
 #include <cassert>
+#include <crtdbg.h>
 #include <cstdlib>
 
 
@@ -86,7 +87,7 @@ int main(int argc, char **argv)
 	// this sample properly frees memory, no leaks are reported
 	// (some other samples are stripped down, they don't free memory)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-//	_crtBreakAlloc = 39137;
+	//_crtBreakAlloc = 39137;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -111,9 +112,10 @@ int main(int argc, char **argv)
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
 	solver->setScaler(scaler);
 
+	FCollada::Initialize();
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
-	collada->LoadFromFile("../../data/scenes/koupelna/koupelna4-windows.dae");
+	FCollada::LoadDocumentFromFile(collada,"../../data/scenes/koupelna/koupelna4-windows.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());
@@ -133,7 +135,8 @@ int main(int argc, char **argv)
 	delete solver;
 	delete lights;
 	delete objects;
-	delete collada;
+	collada->Release();
+	FCollada::Release();
 	delete scaler;
 	rr::RRReporter::setReporter(NULL);
 	delete reporter;

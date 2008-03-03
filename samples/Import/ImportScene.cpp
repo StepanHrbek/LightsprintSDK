@@ -87,9 +87,10 @@ ImportScene::ImportScene(const char* filename, float scale3ds)
 	scene_dae = NULL;
 	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".dae")==0)
 	{
+		FCollada::Initialize();
 		scene_dae = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-		scene_dae->LoadFromFile(filename);
+		FCollada::LoadDocumentFromFile(scene_dae,filename);
 		if(!errorHandler.IsSuccessful())
 		{
 			rr::RRReporter::report(rr::ERRO,"%s\n",errorHandler.GetErrorString());
@@ -132,6 +133,7 @@ ImportScene::~ImportScene()
 #endif
 
 #ifdef SUPPORT_DAE
-	delete scene_dae;
+	scene_dae->Release();
+	FCollada::Release();
 #endif
 }

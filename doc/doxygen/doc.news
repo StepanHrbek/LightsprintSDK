@@ -8,25 +8,26 @@ namespace rr
 
 \page main_news What's new
 
-\section news50 ------------------------------------ 2008.2.x -------------------------------------
+\section news50 ------------------------------------ 2008.3.x -------------------------------------
 
 NEWS
 
-- supports another type of directional lightmaps
+- directional lightmaps support new format
   \n for 3 or 4 normal directions, 3 or 4 lightmaps are generated per object
   \n compatible with Unreal Engine 3
   \n see additional parameter in RRDynamicSolver::updateLightmap()
      and RRDynamicSolver::updateLightmaps()
-- lightmap building 1.8x faster
+- lightmap building 50% faster
 - RRMesh::createAccelerated()
   \n creates faster mesh, duplicating most frequently accessed data
   \n new parameter in RRObject::createMultiObject() enables it
-- when lightmap with alpha channel is built, unused texels/vertices get alpha=0, used alpha=1
+- alpha in lightmaps with alpha channel is set to 0/1 for unused/used texels or vertices
 
 CHANGES
 
 - RRMesh::TriangleNormals newly contains also tangents
 - RRBuffer::setElement accepts RRVec4 rather than RRVec3
+- newer FCollada 3.05B is used in samples accessing Collada files
 
 \section news49 ------------------------------------ 2008.2.20 -------------------------------------
 
@@ -42,7 +43,7 @@ NEWS
 CHANGES
 
 - LightsprintCore doesn't depend on FreeImage
-  \n To load textures using FreeImage, simply link samples/Import/ImportFreeImage.cpp to your project.
+  \n To load textures using FreeImage, include samples/Import/ImportFreeImage.cpp in your project.
 
 \section news47 ------------------------------------ 2008.2.7 -------------------------------------
 

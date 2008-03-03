@@ -1,10 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "LicGen\vs\LicGen8.vcproj", "{CC592789-E5B9-4302-943E-E11BA53E0C5F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA.vs2005", "..\3rd\RSA\RSA.vs2005.vcproj", "{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS.vs2005", "FCSS\FCSS.vs2005.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
@@ -96,12 +91,6 @@ Global
 		Release static|Win32 = Release static|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug static|Win32.Build.0 = Debug static|Win32
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release static|Win32.ActiveCfg = Release static|Win32
-		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release static|Win32.Build.0 = Release static|Win32
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|Win32.ActiveCfg = Debug static|Win32
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|Win32.Build.0 = Debug static|Win32

@@ -265,7 +265,7 @@ namespace rr
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
 		//! Orthonormal tangent basis in object space.
-		struct TangentBasis
+		struct RR_API TangentBasis
 		{
 			RRVec3 normal;
 			RRVec3 tangent;
