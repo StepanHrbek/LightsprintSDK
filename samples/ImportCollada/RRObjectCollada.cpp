@@ -38,6 +38,7 @@
 
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
+#include "FCDocument/FCDocumentTools.h"
 #include "FCDocument/FCDAsset.h"
 #include "FCDocument/FCDEffect.h"
 #include "FCDocument/FCDEffectProfile.h"
@@ -352,7 +353,7 @@ void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, float scale, bool swapYZ);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider);
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
@@ -393,25 +394,9 @@ private:
 	RRObjectIllumination*      illumination;
 };
 
-void getNodeMatrices(const FCDSceneNode* node, float scale, bool swapYZ, rr::RRMatrix3x4& worldMatrix, rr::RRMatrix3x4& invWorldMatrix)
+void getNodeMatrices(const FCDSceneNode* node, rr::RRMatrix3x4& worldMatrix, rr::RRMatrix3x4& invWorldMatrix)
 {
 	FMMatrix44 world = node->CalculateWorldTransform();
-	if(swapYZ)
-	{
-		// although it is not requirement,
-		//  it makes things simpler if all scenes have the same 'up' vector
-		// Lightsprint uses 0,1,0 (positive Y) as up 
-		// scenes from 3DS MAX are transformed here:
-		for(unsigned j=0;j<4;j++)
-		{
-			float tmp = world[j][1];
-			world[j][1] = world[j][2];
-			world[j][2] = -tmp;
-		}
-	}
-	for(unsigned i=0;i<3;i++)
-		for(unsigned j=0;j<4;j++)
-			world[j][i] *= scale;
 	for(unsigned i=0;i<3;i++)
 		for(unsigned j=0;j<4;j++)
 			worldMatrix.m[i][j] = world.m[j][i];
@@ -421,7 +406,7 @@ void getNodeMatrices(const FCDSceneNode* node, float scale, bool swapYZ, rr::RRM
 			invWorldMatrix.m[i][j] = world.m[j][i];
 }
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, float scale, bool swapYZ)
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider)
 {
 	node = anode;
 	geometryInstance = ageometryInstance;
@@ -431,7 +416,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
 
 	// create transformation matrices
-	getNodeMatrices(node,scale,swapYZ,worldMatrix,invWorldMatrix);
+	getNodeMatrices(node,worldMatrix,invWorldMatrix);
 
 	// create material cache
 	updateMaterials();
@@ -796,8 +781,8 @@ public:
 
 private:
 	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel);
-	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, float scale, bool swapYZ, int lightmapUvChannel);
-	void                       addNode(const FCDSceneNode* node, float scale, bool swapYZ, int lightmapUvChannel);
+	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel);
+	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel);
 
 	// collider and mesh cache, for instancing
 	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
@@ -826,7 +811,7 @@ RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh, 
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders and meshes).
-RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, float scale, bool swapYZ, int lightmapUvChannel)
+RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel)
 {
 	if(!geometryInstance)
 	{
@@ -847,11 +832,11 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 	{
 		return NULL;
 	}
-	return new RRObjectCollada(node,geometryInstance,collider,scale,swapYZ);
+	return new RRObjectCollada(node,geometryInstance,collider);
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ObjectsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swapYZ, int lightmapUvChannel)
+void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChannel)
 {
 	if(!node)
 		return;
@@ -862,7 +847,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool sw
 		if(entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
-			RRObjectCollada* object = newObject(node,geometryInstance,scale,swapYZ,lightmapUvChannel);
+			RRObjectCollada* object = newObject(node,geometryInstance,lightmapUvChannel);
 			if(object)
 			{
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
@@ -875,7 +860,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool sw
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(child, scale, swapYZ, lightmapUvChannel);
+			addNode(child, lightmapUvChannel);
 		}
 	}
 }
@@ -886,15 +871,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 		return;
 
 	// normalize geometry
-	bool swapYZ = false;
-	RRReal scale = 1;
-	FCDAsset* asset = document->GetAsset();
-	if(asset)
-	{
-		scale = asset->GetUnitConversionFactor();
-		FMVector3 up = asset->GetUpAxis();
-		swapYZ = up==FMVector3(0,0,1);
-	}
+	FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
 
 	// guess where is mapping for lightmaps
 	//  has textures -> lmaps in second uv channel, doesn't have textures -> lmaps in first uv channel
@@ -917,7 +894,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 	// import data
 	const FCDSceneNode* root = document->GetVisualSceneInstance();
 	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
-	addNode(root, scale, swapYZ, lightmapUvChannel);
+	addNode(root, lightmapUvChannel);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
@@ -948,7 +925,7 @@ class LightsFromFCollada : public rr::RRLights
 {
 public:
 	LightsFromFCollada(FCDocument* document);
-	void addNode(const FCDSceneNode* node, float scale, bool swapYZ);
+	void addNode(const FCDSceneNode* node);
 	virtual ~LightsFromFCollada();
 };
 
@@ -958,23 +935,14 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 		return;
 
 	// normalize geometry
-	//FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,0,1),1);
-	bool swapYZ = false;
-	RRReal scale = 1;
-	FCDAsset* asset = document->GetAsset();
-	if(asset)
-	{
-		scale = asset->GetUnitConversionFactor();
-		FMVector3 up = asset->GetUpAxis();
-		swapYZ = up==FMVector3(0,0,1);
-	}
+	FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
 
 	// import all lights
 	const FCDSceneNode* root = document->GetVisualSceneInstance();
-	addNode(root, scale, swapYZ);
+	addNode(root);
 }
 
-void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swapYZ)
+void LightsFromFCollada::addNode(const FCDSceneNode* node)
 {
 	if(!node)
 		return;
@@ -990,13 +958,13 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 				// get position and direction
 				rr::RRMatrix3x4 worldMatrix;
 				rr::RRMatrix3x4 invWorldMatrix;
-				getNodeMatrices(node,scale,swapYZ,worldMatrix,invWorldMatrix);
+				getNodeMatrices(node,worldMatrix,invWorldMatrix);
 				rr::RRVec3 position = invWorldMatrix.transformedPosition(rr::RRVec3(0));
 				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,1));
 
 				// create RRLight
 				rr::RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
-				rr::RRVec3 polynom = rr::RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor()/scale,light->GetQuadraticAttenuationFactor()/scale/scale);
+				rr::RRVec3 polynom = rr::RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor());
 				switch(light->GetLightType())
 				{
 				case FCDLight::POINT:
@@ -1018,7 +986,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(child, scale, swapYZ);
+			addNode(child);
 		}
 	}
 }
