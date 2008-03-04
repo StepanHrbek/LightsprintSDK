@@ -326,20 +326,30 @@ public:
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// filter lights
-		//  lights that don't illuminate subTexel[0] shall not illuminate other texels too
-		//  (because other texels are from the same object and for now, users turn off lighting per-object, not per triangle)
-		const RRLights& allLights = _pti.context.solver->getLights();
-		const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
-		for(unsigned i=0;i<allLights.size();i++)
-			if(multiObject->getTriangleMaterial(_pti.subTexels->at(0).multiObjPostImportTriIndex,allLights[i],NULL))
-				lights.push_back(allLights[i]);
+		//  lights that don't illuminate subTexel[0] shall not illuminate other subtexels too
+		//  (because other subtexels are from the same object and for now, users turn off lighting per-object, not per triangle)
+		if(pti.relevantLightsFilled)
+		{
+			numRelevantLights = _pti.numRelevantLights;
+		}
+		else
+		{
+			numRelevantLights = 0;
+			const RRLights& allLights = _pti.context.solver->getLights();
+			const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
+			for(unsigned i=0;i<allLights.size();i++)
+				if(multiObject->getTriangleMaterial((*_pti.subTexels)[0].multiObjPostImportTriIndex,allLights[i],NULL))
+				{
+					pti.relevantLights[numRelevantLights++] = allLights[i];
+				}
+		}
 		// more init (depends on filtered lights)
 		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			irradianceLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
-		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
-		rays = lights.size()*rounds;
+		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
+		rays = numRelevantLights*rounds;
 	}
 
 	// before shooting
@@ -435,8 +445,8 @@ public:
 	void shotRayPerLight(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
 	{
 		collisionHandler.skipTriangleIndex = _skipTriangleIndex;
-		for(unsigned i=0;i<lights.size();i++)
-			shotRay(lights[i],_basis);
+		for(unsigned i=0;i<numRelevantLights;i++)
+			shotRay(pti.relevantLights[i],_basis);
 		shotRounds++;
 	}
 
@@ -475,7 +485,7 @@ public:
 
 	unsigned getNumMaterialAcceptedLights()
 	{
-		return lights.size();
+		return numRelevantLights;
 	}
 
 	RRVec3 irradianceLights[NUM_LIGHTMAPS];
@@ -489,12 +499,12 @@ public:
 protected:
 	const GatheringTools& tools;
 	const ProcessTexelParams& pti;
+	unsigned numRelevantLights; // lights are in pti.relevantLights
 	unsigned hitsLight;
 	unsigned hitsInside;
 	unsigned hitsRug;
 	unsigned hitsScene;
 	unsigned shotRounds;
-	RRLights lights;
 	// collision handler
 	RRCollisionHandlerVisibility collisionHandler;
 };
@@ -546,7 +556,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	// init subtexel selector
 	unsigned subTexelIndex = 0;
-	RRReal areaAccu = -pti.subTexels->at(0).areaInMapSpace;
+	RRReal areaAccu = -(*pti.subTexels)[0].areaInMapSpace;
 	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
 
 	// shoot
@@ -581,8 +591,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 			// select subtexel
 			areaAccu += areaStep;
-			while(areaAccu>0) areaAccu -= pti.subTexels->at(++subTexelIndex%=pti.subTexels->size()).areaInMapSpace;
-			SubTexel* subTexel = &pti.subTexels->at(subTexelIndex);
+			while(areaAccu>0) areaAccu -= (*pti.subTexels)[++subTexelIndex%=pti.subTexels->size()].areaInMapSpace;
+			SubTexel* subTexel = &(*pti.subTexels)[subTexelIndex];
 
 			// update cached triangle data
 			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
@@ -739,23 +749,27 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.gatherAllDirections = _gatherAllDirections;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
-	// preallocates rays, allocating inside for cycle costs more
+	// preallocates rays
 #ifdef _OPENMP
-	int num_threads = omp_get_max_threads();
+	int numThreads = omp_get_max_threads();
 #else
-	int num_threads = 1;
+	int numThreads = 1;
 #endif
-	RRRay* rays = RRRay::create(2*num_threads);
+	RRRay* rays = RRRay::create(2*numThreads);
 
 	// preallocates texels
-	TexelSubTexels* subTexels = new TexelSubTexels[num_threads];
+	TexelSubTexels* subTexels = new TexelSubTexels[numThreads];
 	SubTexel subTexel;
 	subTexel.areaInMapSpace = 1; // absolute value of area is not important because subtexel is only one
 	subTexel.uvInTriangleSpace[0] = RRVec2(0,0);
 	subTexel.uvInTriangleSpace[1] = RRVec2(1,0);
 	subTexel.uvInTriangleSpace[2] = RRVec2(0,1);
-	for(int i=0;i<num_threads;i++)
+	for(int i=0;i<numThreads;i++)
 		subTexels[i].push_back(subTexel);
+
+	// preallocates relevantLights
+	unsigned numAllLights = getLights().size();
+	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
 
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
@@ -764,22 +778,26 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		if((params.debugTriangle==UINT_MAX || params.debugTriangle==t) && !aborting) // skip other triangles when debugging one
 		{
 #ifdef _OPENMP
-			int thread_num = omp_get_thread_num();
+			int threadNum = omp_get_thread_num();
 #else
-			int thread_num = 0;
+			int threadNum = 0;
 #endif
 			tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
 			ProcessTexelParams ptp(tc);
-			ptp.subTexels = subTexels+thread_num;
-			ptp.subTexels->at(0).multiObjPostImportTriIndex = t;
-			ptp.rays = rays+2*thread_num;
+			ptp.subTexels = subTexels+threadNum;
+			(*ptp.subTexels)[0].multiObjPostImportTriIndex = t;
+			ptp.rays = rays+2*threadNum;
 			ptp.rays[0].rayLengthMin = priv->minimalSafeDistance;
 			ptp.rays[1].rayLengthMin = priv->minimalSafeDistance;
+			ptp.relevantLights = relevantLights+numAllLights*threadNum;
+			ptp.numRelevantLights = 0;
+			ptp.relevantLightsFilled = false;
 			results[t] = processTexel(ptp);
 			//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
 		}
 	}
 
+	delete[] relevantLights;
 	delete[] subTexels;
 	delete[] rays;
 	return true;

@@ -6,6 +6,7 @@
 
 static rr::RRDynamicSolver* g_solver;
 static rr::RRDynamicSolver::UpdateParameters* g_updateParams;
+static rr::RRReporter* g_oldReporter;
 static HWND g_hDlg;
 static bool g_cmdBuild;
 static bool g_cmdCustom;
@@ -134,6 +135,8 @@ public:
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,EM_SETSEL,(pos>29000)?0:pos,pos);
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,WM_VSCROLL,SB_BOTTOM,0);
+		// send the most important stuff also to old reporter
+		if(type!=rr::INF2 && type!=rr::INF3) g_oldReporter->customReport(type,indentation,message);
 	}
 };
 
@@ -152,7 +155,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 	bool updated = false;
 
 	RRReporterDialog newReporter;
-	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+	g_oldReporter = rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(&newReporter);
 
 	_beginthread(dialog,0,NULL);
@@ -199,6 +202,6 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 		Sleep(1);
 	}
 	g_solver->aborting = false;
-	rr::RRReporter::setReporter(oldReporter);
+	rr::RRReporter::setReporter(g_oldReporter);
 	return g_cmdCustom?UR_CUSTOM:(updated?UR_UPDATED:UR_ABORTED);
 }

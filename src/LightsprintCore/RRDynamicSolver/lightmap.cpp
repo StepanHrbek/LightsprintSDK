@@ -72,14 +72,21 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		numTriangles = 1;
 	}
 
-	// 1. allocate space for texels and rays
+	// 1. preallocate texels, rays, relevantLights
 	int numTexelsInMap = mapWidth*mapHeight;
 	TexelSubTexels* texels = new TexelSubTexels[numTexelsInMap];
+
 #ifdef _OPENMP
-	RRRay* rays = RRRay::create(2*omp_get_max_threads());
+	int numThreads = omp_get_max_threads();
 #else
-	RRRay* rays = RRRay::create(2);
+	int numThreads = 1;
 #endif
+	RRRay* rays = RRRay::create(2*numThreads);
+
+	unsigned numAllLights = tc.solver->getLights().size();
+	unsigned numRelevantLights = 0;
+	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
+	unsigned multiPostImportTriangleNumber = 0; // filled in next step
 
 	// 2. populate texels with subtexels
 	for(int tint=firstTriangle;tint<(int)(firstTriangle+numTriangles);tint++)
@@ -88,6 +95,8 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		RRMesh::MultiMeshPreImportNumber preImportNumber = multiMesh->getPreImportTriangle(t);
 		if(preImportNumber.object==objectNumber)
 		{
+			// remember any triangle in selected object, for relevantLights
+			multiPostImportTriangleNumber = t;
 			// gather data about triangle t
 			//  prepare mapspace -> trianglespace matrix
 			RRMesh::TriangleMapping mapping;
@@ -214,10 +223,27 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		}
 	}
 
-	// 3. gather, shoot rays from texels
+	// 3. populate relevantLights
+	for(unsigned i=0;i<numAllLights;i++)
+	{
+		RRLight* light = tc.solver->getLights()[i];
+		if(multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
+		{
+			for(int k=0;k<numThreads;k++)
+				relevantLights[k*numAllLights+numRelevantLights] = light;
+			numRelevantLights++;
+		}
+	}
+
+	// 4. gather, shoot rays from texels
 	#pragma omp parallel for schedule(dynamic)
 	for(int j=0;j<(int)mapHeight;j++)
 	{
+#ifdef _OPENMP
+		int threadNum = omp_get_thread_num();
+#else
+		int threadNum = 0;
+#endif
 		for(int i=0;i<(int)mapWidth;i++)
 		{
 			if(texels[i+j*mapWidth].size())
@@ -228,20 +254,20 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 					ptp.uv[0] = i;
 					ptp.uv[1] = j;
 					ptp.subTexels = texels+i+j*mapWidth;
-#ifdef _OPENMP
-					ptp.rays = rays+2*omp_get_thread_num();
-#else
-					ptp.rays = rays;
-#endif
+					ptp.rays = rays+2*threadNum;
 					ptp.rays[0].rayLengthMin = minimalSafeDistance;
 					ptp.rays[1].rayLengthMin = minimalSafeDistance;
+					ptp.relevantLights = relevantLights+numAllLights*threadNum;
+					ptp.numRelevantLights = numRelevantLights;
+					ptp.relevantLightsFilled = true;
 					callback(ptp);
 				}
 			}
 		}
 	}
 
-	// 4. cleanup
+	// 5. cleanup
+	delete[] relevantLights;
 	delete[] texels;
 	delete[] rays;
 }
