@@ -231,10 +231,10 @@ Used by LightsprintGL:
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
   (with <a href="http://dee.cz/glut">patch</a>)
 
-Used by samples:
-- <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
+Used by some samples:
+- <a href="http://freeimage.sourceforge.net">FreeImage</a> 3.10.0 This software uses the FreeImage open source image library.
   FreeImage is used under the FIPL, version 1.0.
-- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> (3.02 with patch) by Feeling Software is used under MIT license.
+- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> 3.05B by Feeling Software is used under MIT license.
 
 
 
