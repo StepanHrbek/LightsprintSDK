@@ -564,7 +564,7 @@ Used by some samples:
 
 
 
-\page integration_step_3 Create object wrappers
+\page integration_step_3 Create object adapters
 
  Lightsprint transports light between object surfaces,
  so it needs to know everything
@@ -573,7 +573,7 @@ Used by some samples:
  Lightsprint is designed to access your structures in arbitrary format,
  so you don't have to duplicate any data.
  This may save you huge amounts of memory, however,
- you must provide wrappers that access your structures.
+ you must provide adapters that access your structures.
 
  Further saving is possible thanks to geometry instancing.
  Multiple objects with different materials and different illumination
@@ -586,7 +586,7 @@ Used by some samples:
  It is everything necessary to load 3ds, Quake3 or mgf scene into 
  RRDynamicSolver.
 
- For sake of simplicity, wrappers duplicate some data in memory
+ For sake of simplicity, adapters duplicate some data in memory
  and don't support geometry instancing.
  On the other hand, support for custom data is demonstrated
  on diffuse textures and uv coordinates.
@@ -598,10 +598,10 @@ Used by some samples:
  \section import_with_instancing Import with instancing
 
  For import with instancing, see samples/ImportCollada.
- (wrapper for scenes loaded by freely available FCollada library)
- or samples/ImportUE3 (wrapper for import from Unreal Engine 3).
+ (adapter for scenes loaded by freely available FCollada library)
+ or samples/ImportUE3 (adapter for import from Unreal Engine 3).
 
- Wrappers don't duplicate any memory, all data are accessed directly
+ Adapters don't duplicate any memory, all data are accessed directly
  in FCollada document.
 
  RRMesh and RRObject interfaces are implemented in two separated classes,
@@ -622,7 +622,7 @@ Used by some samples:
     For other formats ask for our support or implement your own RRMesh,
     which is very simple.
     \n\n
-    Note that these wrappers don't duplicate your data
+    Note that these adapters don't duplicate your data
     and they support mesh optimizations and mesh aggregation,
     see RRMesh for details.
     \n\n
@@ -1462,7 +1462,7 @@ Used by some samples:
 
  \section d32 Advantages
    - offers global illumination with both specular and diffuse reflections
-   - object doesn't have to be part of static scene, no RRObject wrapper is required
+   - object doesn't have to be part of static scene, no RRObject adapter is required
    - calculation is independent to object complexity, quick even for extremely complex objects
 
  \section d33 Disadvantages
@@ -1947,49 +1947,14 @@ Used by some samples:
  
  See samples/ImportUE3/instructions.txt for more details on using it.
 
- Known limitations of UE3 adapter are
- - under development, please wait for finished version
- 
+
 \page main_ue3 Introduction for UE3 users
 
- This page is for Unreal Engine 3 users.
+ Lightsprint SDK integrated with UE3 editor transparently makes
+ "Lighting build" produce global illumination lightmaps.
 
- \section ue3_integration Integration
-
- Lightsprint SDK integrated with UE3 editor transparently adds
- global illumination to Lighting build.
- \n Realtime global illumination is available from editor for relighting experiments.
- \n See samples/ImportUE3/instructions.txt for more details.
-
- \section ue3_color Programming with colors
-
- Concept of color is implemented differently by both engines.
- First take a look at properties of any color type.
- - Color has channels (RGB, RGBA)
- - Color channel has precision (bytes, floats)
- - Color has scale (linear/physical, screen/sRGB)
-
- UE3 implements following types (with properties)
- - FColor (RGBA, bytes, screen/sRGB)
- - FLinearColor (RGBA, floats, linear/physical)
-
- Lightsprint implements following types (with properties)
- - RRVec3 (RGB, floats, any of linear/physical, screen/sRGB)
- - RRVec4 (RGBA, floats, any of linear/physical, screen/sRGB)
- - RRBuffer (any of RGB, RGBA, any of bytes, floats, any of linear/physical, screen/sRGB)
-
- Scale in Lightsprint is defined by context rather than by type -
- functions working with colors are scale neutral
- or they specify what scale they use.
- Two major scales exist in Lightsprint, linear/physical and custom.
- Custom scale is user-defined via RRDynamicSolver::setScale()
- and it is typically set to screen/sRGB RRScaler::createRgbScaler()
- which makes it compatible with FColor of UE3.
-
- So with different approach to scale in mind
- - FColor = unsigned (32bit)
- - FLinearColor = RRVec4
-
+ If you are UE3 licensee, please request integration files from Lightsprint.
+ Then see samples/ImportUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
 
    
  
