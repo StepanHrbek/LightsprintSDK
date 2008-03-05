@@ -17,6 +17,9 @@
 #include "private.h"
 #include "gather.h"
 
+//#define PARALLEL_POPULATE // newer version, but no speedup, something blocks parallelism (default memory allocator in std::vector?)
+//#define ITERATE_MULTIMESH // older version with very small inefficiency
+
 namespace rr
 {
 
@@ -50,30 +53,15 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 //!  Context is passed unchanged to callback.
 void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
-	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
-	// Advantages:
-	//  + vertices and normals in world space
-	//  + no degenerated faces
-	//!!! Warning: mapping must be preserved by multiobject.
-	//    Current multiobject lets object mappings overlap, but it could change in future.
-
 	if(!multiObject)
 	{
 		RR_ASSERT(0);
 		return;
 	}
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
-	unsigned numTriangles = multiMesh->getNumTriangles();
-
-	int firstTriangle = 0;
-	if(onlyTriangleNumber>=0)
-	{
-		firstTriangle = onlyTriangleNumber;
-		numTriangles = 1;
-	}
 
 	// 1. preallocate texels, rays, relevantLights
-	int numTexelsInMap = mapWidth*mapHeight;
+	unsigned numTexelsInMap = mapWidth*mapHeight;
 	TexelSubTexels* texels = new TexelSubTexels[numTexelsInMap];
 
 #ifdef _OPENMP
@@ -89,18 +77,64 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	unsigned multiPostImportTriangleNumber = 0; // filled in next step
 
 	// 2. populate texels with subtexels
-	for(int tint=firstTriangle;tint<(int)(firstTriangle+numTriangles);tint++)
+	unsigned threadYMin = 0;
+	unsigned threadYMax = mapHeight; // our thread will process lines min..max-1
+#ifdef PARALLEL_POPULATE
 	{
-		unsigned t = (unsigned)tint;
-		RRMesh::MultiMeshPreImportNumber preImportNumber = multiMesh->getPreImportTriangle(t);
-		if(preImportNumber.object==objectNumber)
+	RRReportInterval report(INF1,"populating texels...\n");
+	#pragma omp parallel
+	{
+		// find out what rectangle belongs to our thread
+		unsigned threadYMin = 0;
+		unsigned threadYMax = mapHeight; // our thread will process lines min..max-1
+		#ifdef _OPENMP
 		{
+			int threadNum = omp_get_thread_num();
+			int numThreads = omp_get_num_threads();
+			threadYMin = threadYMax*threadNum/numThreads;
+			threadYMax = threadYMax*(threadNum+1)/numThreads;
+		}
+		#endif
+		if(threadYMax>threadYMin)
+		{
+#endif
+
+	// iterate only triangles in singlemesh
+	RRObject* singleObject = tc.solver->getObject(objectNumber);
+	RRMesh* singleMesh = singleObject->getCollider()->getMesh();
+	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
+	for(unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
+	{
+		RRMesh::MultiMeshPreImportNumber multiPreImportTriangle;
+		multiPreImportTriangle.object = objectNumber;
+		multiPreImportTriangle.index = singleMesh->getPreImportTriangle(singlePostImportTriangle);
+		unsigned multiPostImportTriangle = multiMesh->getPostImportTriangle(multiPreImportTriangle);
+		if(multiPostImportTriangle!=UINT_MAX && (onlyTriangleNumber<0 || onlyTriangleNumber==multiPostImportTriangle))
+		{
+			unsigned t = multiPostImportTriangle;
+			// gather data about triangle t
+			RRMesh::TriangleMapping mapping;
+			singleMesh->getTriangleMapping(singlePostImportTriangle,mapping);
 			// remember any triangle in selected object, for relevantLights
 			multiPostImportTriangleNumber = t;
-			// gather data about triangle t
+
+			// rasterize triangle t
+			//  find minimal bounding box
+			unsigned xminu, xmaxu, yminu, ymaxu;
+			{
+				RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
+				RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
+				yminu = (unsigned)MAX(ymin,threadYMin); // !negative
+				ymaxu = (unsigned)CLAMPED(ymax+1,0,threadYMax); // !negative
+				if(yminu>=ymaxu) continue; // early exit from triangle belonging to other thread
+				RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
+				RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
+				xminu = (unsigned)MAX(xmin,0); // !negative
+				xmaxu = (unsigned)CLAMPED(xmax+1,0,mapWidth); // !negative
+				if(!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
+					LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
+			}
 			//  prepare mapspace -> trianglespace matrix
-			RRMesh::TriangleMapping mapping;
-			multiMesh->getTriangleMapping(t,mapping);
 			RRReal m[3][3] = {
 				{ mapping.uv[1][0]-mapping.uv[0][0], mapping.uv[2][0]-mapping.uv[0][0], mapping.uv[0][0] },
 				{ mapping.uv[1][1]-mapping.uv[0][1], mapping.uv[2][1]-mapping.uv[0][1], mapping.uv[0][1] },
@@ -114,19 +148,10 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 				//{ (m[1][0]*m[2][1]-m[1][1]*m[2][0])*invdet, (m[0][1]*m[2][0]-m[0][0]*m[2][1])*invdet, (m[0][0]*m[1][1]-m[0][1]*m[1][0])*invdet }
 				};
 			RRReal triangleAreaInMapSpace = getArea(mapping.uv[0],mapping.uv[1],mapping.uv[2]);
-
-			// rasterize triangle t
-			//  find minimal bounding box
-			RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
-			RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
-			RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
-			RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-			if(!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
-				LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			//  for all texels in bounding box
-			for(int y=MAX((int)ymin,0);y<(int)MIN((unsigned)ymax+1,mapHeight);y++)
+			for(unsigned y=yminu;y<ymaxu;y++)
 			{
-				for(int x=MAX((int)xmin,0);x<(int)MIN((unsigned)xmax+1,mapWidth);x++)
+				for(unsigned x=xminu;x<xmaxu;x++)
 				{
 					if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 					{
@@ -222,6 +247,9 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			}
 		}
 	}
+#ifdef PARALLEL_POPULATE
+	}}}
+#endif
 
 	// 3. populate relevantLights
 	for(unsigned i=0;i<numAllLights;i++)

@@ -338,7 +338,7 @@ public:
 			const RRLights& allLights = _pti.context.solver->getLights();
 			const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
 			for(unsigned i=0;i<allLights.size();i++)
-				if(multiObject->getTriangleMaterial((*_pti.subTexels)[0].multiObjPostImportTriIndex,allLights[i],NULL))
+				if(multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
 				{
 					pti.relevantLights[numRelevantLights++] = allLights[i];
 				}
@@ -547,7 +547,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	gilights.init();
 
 	// cached data reused for all rays from one triangleIndex
-	unsigned cache_subTexelIndex = UINT_MAX;
+	const SubTexel* cache_subTexelPtr = NULL;
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
 	RRMesh::TriangleNormals cache_bases;
@@ -555,8 +555,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 
 	// init subtexel selector
-	unsigned subTexelIndex = 0;
-	RRReal areaAccu = -(*pti.subTexels)[0].areaInMapSpace;
+	TexelSubTexels::const_iterator subTexelIterator = pti.subTexels->begin();
+	RRReal areaAccu = -pti.subTexels->begin()->areaInMapSpace;
 	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
 
 	// shoot
@@ -591,8 +591,14 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 			// select subtexel
 			areaAccu += areaStep;
-			while(areaAccu>0) areaAccu -= (*pti.subTexels)[++subTexelIndex%=pti.subTexels->size()].areaInMapSpace;
-			SubTexel* subTexel = &(*pti.subTexels)[subTexelIndex];
+			while(areaAccu>0)
+			{
+				subTexelIterator++;
+				if(subTexelIterator==pti.subTexels->end())
+					subTexelIterator = pti.subTexels->begin();
+				areaAccu -= subTexelIterator->areaInMapSpace;
+			}
+			const SubTexel* subTexel = &*subTexelIterator;
 
 			// update cached triangle data
 			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
@@ -604,9 +610,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			}
 			// update cached subtexel data
 			// (simplification: average tangent base is used for all rays from subtexel)
-			if(subTexelIndex!=cache_subTexelIndex)
+			if(subTexel!=cache_subTexelPtr)
 			{
-				cache_subTexelIndex = subTexelIndex;
+				cache_subTexelPtr = subTexel;
 				// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
 				RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
 				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
@@ -785,7 +791,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 			tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;
-			(*ptp.subTexels)[0].multiObjPostImportTriIndex = t;
+			ptp.subTexels->begin()->multiObjPostImportTriIndex = t;
 			ptp.rays = rays+2*threadNum;
 			ptp.rays[0].rayLengthMin = priv->minimalSafeDistance;
 			ptp.rays[1].rayLengthMin = priv->minimalSafeDistance;
