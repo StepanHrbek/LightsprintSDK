@@ -265,14 +265,14 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				solver->updateLightmaps(2,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(2,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
 				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(2)->pixelBuffer,&paramsDirect);
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				solver->updateLightmaps(1,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(1,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -373,7 +373,7 @@ void display(void)
 		if(solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateLightmaps(0,-1,NULL,NULL,NULL);
+			solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
 		}
 	}
 
@@ -484,9 +484,10 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
+	FCollada::Initialize();
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
-	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	FCollada::LoadDocumentFromFile(collada,"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());

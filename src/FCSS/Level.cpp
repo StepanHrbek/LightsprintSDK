@@ -91,9 +91,10 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		case TYPE_DAE:
 		{
 			// load collada document
+			FCollada::Initialize();
 			collada = FCollada::NewTopDocument();
 			FUErrorSimpleHandler errorHandler;
-			collada->LoadFromFile(pilot.setup->filename);
+			FCollada::LoadDocumentFromFile(collada,pilot.setup->filename);
 			if(!errorHandler.IsSuccessful())
 			{
 				puts(errorHandler.GetErrorString());
@@ -204,7 +205,8 @@ Level::~Level()
 #endif
 #ifdef SUPPORT_COLLADA
 		case TYPE_DAE:
-			delete collada;
+			collada->Release();
+			FCollada::Release();
 			break;
 #endif
 #ifdef SUPPORT_MGF

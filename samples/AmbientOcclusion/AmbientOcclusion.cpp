@@ -79,7 +79,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	// a) update lightmaps 
 	//solver->updateLightmaps(layerNumber,-1,&params,&params,&filtering); 
 	// b) the same with dialog that lets you abort, change quality, view scene...
-	rr_gl::updateLightmapsWithDialog(solver,layerNumber,-1,&params,&params,&filtering,true,"../../data/shaders/",NULL);
+	rr_gl::updateLightmapsWithDialog(solver,layerNumber,-1,-1,&params,&params,&filtering,true,"../../data/shaders/",NULL);
 }
 
 int main(int argc, char **argv)
@@ -119,9 +119,10 @@ int main(int argc, char **argv)
 	//mapNames.push_back( "1_14" );
 	solver->setStaticObjects( *adaptObjectsFromTB( mapNames ), NULL );
 #else
+	FCollada::Initialize();
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
-	collada->LoadFromFile("../../data/scenes/koupelna/koupelna4-windows.dae");
+	FCollada::LoadDocumentFromFile(collada,"../../data/scenes/koupelna/koupelna4-windows.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());

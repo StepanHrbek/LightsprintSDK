@@ -417,9 +417,10 @@ int main(int argc, char **argv)
 
 	// init static objects
 	{
+		FCollada::Initialize();
 		collada = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-		collada->LoadFromFile((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
+		FCollada::LoadDocumentFromFile(collada,(argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
 		if(!errorHandler.IsSuccessful())
 		{
 			puts(errorHandler.GetErrorString());

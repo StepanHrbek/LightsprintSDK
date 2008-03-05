@@ -578,7 +578,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 		level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateLightmaps(0,-1,NULL,NULL,NULL);
+		level->solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
 	}
 	if(demoPlayer->getPaused())
 	{

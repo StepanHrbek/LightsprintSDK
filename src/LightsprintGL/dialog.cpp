@@ -112,6 +112,10 @@ class RRReporterDialog : public rr::RRReporter
 public:
 	virtual void customReport(rr::RRReportType type, int indentation, const char* message)
 	{
+		// send it also to old reporter
+		//if(type!=rr::INF2 && type!=rr::INF3) // attempt to send only most important messages, but it can't distinguish important and less important timing reports
+		//	g_oldReporter->customReport(type,indentation,message);
+
 		// indentation
 		char space[1000];
 		space[0] = 0;
@@ -135,8 +139,6 @@ public:
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,EM_SETSEL,(pos>29000)?0:pos,pos);
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
 		SendDlgItemMessageA(g_hDlg,IDC_LOG,WM_VSCROLL,SB_BOTTOM,0);
-		// send the most important stuff also to old reporter
-		if(type!=rr::INF2 && type!=rr::INF3) g_oldReporter->customReport(type,indentation,message);
 	}
 };
 

@@ -886,14 +886,14 @@ Used by some samples:
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
 	params.applyLights = true;
-	solver.updateLightmaps(-1,-1,&params,&params,NULL);
+	solver.updateLightmaps(-1,-1,-1,&params,&params,NULL);
 	params.applyCurrentSolution = true;
 	params.measure_internal.direct = true;
 	while(!done)
 	{
 		unsigned objectIndex = ...; //get object that was not updated yet
 		RRBuffer* lightmap = RRBuffer::create(...);
-		solver.updateLightmap(objectIndex,lightmap,NULL,&params);
+		solver.updateLightmap(objectIndex,lightmap,NULL,NULL,&params);
 		lightmap->save(filename);
 		delete lightmap;
 	}
@@ -1944,8 +1944,8 @@ Used by some samples:
  Source code of adapter that accesses UE3 scene in memory
  is in: samples/ImportUE3/*.*
  \n Scene is loaded by Unreal Engine 3.
- 
- See samples/ImportUE3/instructions.txt for more details on using it.
+
+ \ref main_ue3
 
 
 \page main_ue3 Introduction for UE3 users
