@@ -587,7 +587,9 @@ void RRObjectCollada::updateMaterials()
 				mi.material.diffuseReflectance = colorToColor(effectStandard->GetDiffuseColor());
 				mi.material.diffuseEmittance = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 				mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
-				mi.material.specularTransmittance = colorToColor(effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor());
+				mi.material.specularTransmittance = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
+					? RRVec3( effectStandard->GetTranslucencyFactor() * (1-effectStandard->GetTranslucencyColor().w) )
+					: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 				mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
 				mi.diffuseTexture = NULL;
 				if(effectStandard->GetTextureCount(FUDaeTextureChannel::DIFFUSE))
