@@ -242,6 +242,7 @@ public:
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
+		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
 		glutAddMenuEntry("Quit", ME_CLOSE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
@@ -277,6 +278,14 @@ public:
 						glutReshapeWindow(windowCoord[2],windowCoord[3]);
 						glutPositionWindow(windowCoord[0],windowCoord[1]);
 					}
+				}
+				break;
+			case ME_RANDOM_CAMERA:
+				{
+					rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
+					unsigned numVertices = multiMesh->getNumVertices();
+					multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
+					eye.pos -= eye.dir*30;
 				}
 				break;
 			case ME_CLOSE: exitRequested = 1; break;
@@ -434,6 +443,7 @@ protected:
 		ME_ENV_WHITE,
 		ME_ENV_BLACK,
 		ME_ENV_WHITE_TOP,
+		ME_RANDOM_CAMERA,
 		// ME_STATIC must not collide with 1,10,100,1000
 		ME_STATIC_RTGI = 1234,
 		ME_STATIC_3D,
@@ -467,6 +477,7 @@ static void special(int c, int x, int y)
 		case GLUT_KEY_PAGE_UP: speedUp = 1; break;
 		case GLUT_KEY_PAGE_DOWN: speedDown = 1; break;
 	}
+	glutPostRedisplay();
 }
 
 static void specialUp(int c, int x, int y)
@@ -514,6 +525,7 @@ static void keyboard(unsigned char c, int x, int y)
 		case 27: if(render2d) render2d = 0; else exitRequested = 1; break;
 	}
 	solver->reportInteraction();
+	glutPostRedisplay();
 }
 
 static void keyboardUp(unsigned char c, int x, int y)
@@ -739,7 +751,7 @@ static void display(void)
 		}
 		unsigned numLights = solver->getLights().size();
 		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
-		const rr::RRObject* singleObject = solver->getObject(selectedObjectIndex);
+		rr::RRObject* singleObject = solver->getObject(selectedObjectIndex);
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
@@ -761,25 +773,28 @@ static void display(void)
 				case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
 				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
 			}
-			static RealtimeLight* lastLight = NULL;
-			static unsigned numLightReceivers = 0;
-			static unsigned numShadowCasters = 0;
-			if(rtlight!=lastLight)
+			if(numTrianglesMulti<100000) // skip this expensive step for big scenes
 			{
-				lastLight = rtlight;
-				numLightReceivers = 0;
-				numShadowCasters = 0;
-				for(unsigned t=0;t<numTrianglesMulti;t++)
+				static RealtimeLight* lastLight = NULL;
+				static unsigned numLightReceivers = 0;
+				static unsigned numShadowCasters = 0;
+				if(rtlight!=lastLight)
 				{
-					if(multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
-					for(unsigned j=0;j<numObjects;j++)
+					lastLight = rtlight;
+					numLightReceivers = 0;
+					numShadowCasters = 0;
+					for(unsigned t=0;t<numTrianglesMulti;t++)
 					{
-						if(multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+						if(multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
+						for(unsigned j=0;j<numObjects;j++)
+						{
+							if(multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+						}
 					}
 				}
+				textOutput(x,y+=18,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
+				textOutput(x,y+=18,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 			}
-			textOutput(x,y+=18,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
-			textOutput(x,y+=18,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 		}
 		if(singleMesh && selectedObjectIndex<solver->getNumObjects())
 		{
@@ -787,11 +802,21 @@ static void display(void)
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 			textOutput(x,y+=18,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
 			static const rr::RRObject* lastObject = NULL;
+			static rr::RRVec3 bboxMinL;
+			static rr::RRVec3 bboxMaxL;
+			static rr::RRVec3 centerL;
+			static rr::RRVec3 bboxMinW;
+			static rr::RRVec3 bboxMaxW;
+			static rr::RRVec3 centerW;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
 			if(singleObject!=lastObject)
 			{
 				lastObject = singleObject;
+				singleObject->getCollider()->getMesh()->getAABB(&bboxMinL,&bboxMaxL,&centerL);
+				rr::RRMesh* singleWorldMesh = singleObject->createWorldSpaceMesh();
+				singleWorldMesh->getAABB(&bboxMinW,&bboxMaxW,&centerW);
+				delete singleWorldMesh;
 				numReceivedLights = 0;
 				numShadowsCast = 0;
 				for(unsigned i=0;i<numLights;i++)
@@ -807,6 +832,11 @@ static void display(void)
 					}
 				}
 			}
+
+			textOutput(x,y+=18,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
+			textOutput(x,y+=18,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
+			textOutput(x,y+=18,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
+			textOutput(x,y+=18,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
 			textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 			textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 			textOutput(x,y+=18,"lit: %s",renderRealtime?"realtime":"static");
