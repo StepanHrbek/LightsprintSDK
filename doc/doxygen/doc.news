@@ -17,11 +17,11 @@ NEWS
   \n compatible with Unreal Engine 3
   \n see additional parameter in RRDynamicSolver::updateLightmap()
      and RRDynamicSolver::updateLightmaps()
-- lightmap building 50% faster
+- 1.2-10x faster lightmap build
+- alpha in lightmaps with alpha channel is set to 0/1 for unused/used texels or vertices
 - RRMesh::createAccelerated()
   \n creates faster mesh, duplicating most frequently accessed data
   \n new parameter in RRObject::createMultiObject() enables it
-- alpha in lightmaps with alpha channel is set to 0/1 for unused/used texels or vertices
 
 CHANGES
 

@@ -557,7 +557,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// init subtexel selector
 	TexelSubTexels::const_iterator subTexelIterator = pti.subTexels->begin();
 	RRReal areaAccu = -pti.subTexels->begin()->areaInMapSpace;
-	RRReal areaMax = pti.subTexels->getAreaInMapSpace();
+	RRReal areaMax = 0;
+	for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();i++) areaMax += i->areaInMapSpace;
 
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);

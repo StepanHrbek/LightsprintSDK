@@ -4,8 +4,18 @@
 // --------------------------------------------------------------------------
 
 
+#define USE_BOOST // simply undef it if you don't have boost headers. lightmap building will be slightly slower
+
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
+#ifdef USE_BOOST
+#include <boost/pool/pool_alloc.hpp>
+#include <list>
+#endif
+
+
+namespace rr
+{
 
 // defines order of lightmaps in array
 enum LightmapSemantic
@@ -18,10 +28,6 @@ enum LightmapSemantic
 	NUM_LIGHTMAPS = LS_DIRECTION3+1,
 	NUM_BUFFERS = LS_BENT_NORMALS+1,
 };
-
-
-namespace rr
-{
 
 struct TexelContext
 {
@@ -42,25 +48,11 @@ struct SubTexel
 };
 
 // texel knows its intersection with all triangles
-struct TexelSubTexels : public std::vector<SubTexel>
-{
-	TexelSubTexels()
-	{
-		areaInMapSpace = 0;
-	}
-	void push_back(const SubTexel& subTexel)
-	{
-		std::vector<SubTexel>::push_back(subTexel);
-		RR_ASSERT(_finite(subTexel.areaInMapSpace));
-		areaInMapSpace += subTexel.areaInMapSpace;
-	}
-	RRReal getAreaInMapSpace()
-	{
-		return areaInMapSpace;
-	}
-private:
-	RRReal areaInMapSpace; // sum of subtexel areas in map space, may be greater than texel area when triangles (and consequently subtexels) overlap
-};
+#ifdef USE_BOOST
+typedef std::list<SubTexel,boost::fast_pool_allocator<SubTexel> > TexelSubTexels;
+#else
+typedef std::vector<SubTexel> TexelSubTexels;
+#endif
 
 struct ProcessTexelParams
 {
