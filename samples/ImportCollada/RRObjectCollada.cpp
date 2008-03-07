@@ -588,7 +588,7 @@ void RRObjectCollada::updateMaterials()
 				mi.material.diffuseEmittance = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 				mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
 				mi.material.specularTransmittance = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
-					? RRVec3( effectStandard->GetTranslucencyFactor() * (1-effectStandard->GetTranslucencyColor().w) )
+					? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 					: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 				mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
 				/* disable light paths not supported by lighting model (but is it what user expects?)
