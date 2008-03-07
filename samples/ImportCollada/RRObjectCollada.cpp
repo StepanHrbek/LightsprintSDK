@@ -640,10 +640,6 @@ void RRObjectCollada::updateMaterials()
 								if(mi.material.specularTransmittance.avg()>0.01f)
 									mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 							}
-							else
-							{
-								RRReporter::report(ERRO,"RRObjectCollada: Image %s not found.\n",&filename[0]);
-							}
 						}
 					}
 				}
