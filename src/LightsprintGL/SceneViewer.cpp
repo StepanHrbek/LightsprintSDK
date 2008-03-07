@@ -429,7 +429,6 @@ public:
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
-protected:
 	enum
 	{
 		ME_RENDER_AMBIENT,
@@ -868,7 +867,7 @@ static void display(void)
 				rr::RRMesh::MultiMeshPreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 				const rr::RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 				rr::RRMaterial pointMaterial;
-				if(material->sideBits[ray->hitFrontSide?0:1].pointDetails)
+				if(material && material->sideBits[ray->hitFrontSide?0:1].pointDetails)
 				{
 					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 					material = &pointMaterial;
@@ -908,12 +907,15 @@ static void display(void)
 				textOutput(x,y+=18,"tangent: %f %f %f",tangent[0],tangent[1],tangent[2]);
 				textOutput(x,y+=18,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
 				textOutput(x,y+=18,"side: %s",ray->hitFrontSide?"front":"back");
-				textOutput(x,y+=18,"material: %s",(material!=&pointMaterial)?"per-triangle":"per-vertex");
-				textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);
-				textOutput(x,y+=18,"specular refl: %f",material->specularReflectance);
-				textOutput(x,y+=18,"transmittance: %f %f %f",material->specularTransmittance[0],material->specularTransmittance[1],material->specularTransmittance[2]);
-				textOutput(x,y+=18,"refraction index: %f",material->refractionIndex);
-				textOutput(x,y+=18,"dif.emittance: %f %f %f",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2]);
+				textOutput(x,y+=18,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-vertex"):"NULL!!!");
+				if(material)
+				{
+					textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);
+					textOutput(x,y+=18,"specular refl: %f",material->specularReflectance);
+					textOutput(x,y+=18,"transmittance: %f %f %f",material->specularTransmittance[0],material->specularTransmittance[1],material->specularTransmittance[2]);
+					textOutput(x,y+=18,"refraction index: %f",material->refractionIndex);
+					textOutput(x,y+=18,"dif.emittance: %f %f %f",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2]);
+				}
 				unsigned numReceivedLights = 0;
 				unsigned numShadowsCast = 0;
 				for(unsigned i=0;i<numLights;i++)
@@ -1086,6 +1088,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
 	Menu* menu = new Menu(solver);
+	menu->mainCallback(Menu::ME_RANDOM_CAMERA);
 	
 	exitRequested = false;
 	while(!exitRequested && !_solver->aborting)
