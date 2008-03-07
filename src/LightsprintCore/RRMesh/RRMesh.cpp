@@ -15,7 +15,6 @@
 #include "../RRMathPrivate.h"
 
 #include <cassert>
-#include <cfloat>
 #include <cstdio>
 #if defined(_MSC_VER)
 	#include "stdint.vs2003.h" // replacement for missing standard C99 header
@@ -170,8 +169,8 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter)
 {
 	RRVec3 center = RRVec3(0);
-	RRVec3 mini = RRVec3(FLT_MAX);
-	RRVec3 maxi = RRVec3(FLT_MIN);
+	RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
+	RRVec3 maxi = RRVec3(-1e37f);
 	unsigned numVertices = getNumVertices();
 	for(unsigned i=0;i<numVertices;i++)
 	{
