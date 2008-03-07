@@ -910,6 +910,8 @@ static void display(void)
 				textOutput(x,y+=18,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-vertex"):"NULL!!!");
 				if(material)
 				{
+					if(material->name)
+						textOutput(x,y+=18,"name: %s",material->name);
 					textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);
 					textOutput(x,y+=18,"specular refl: %f",material->specularReflectance);
 					textOutput(x,y+=18,"transmittance: %f %f %f",material->specularTransmittance[0],material->specularTransmittance[1],material->specularTransmittance[2]);

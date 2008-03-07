@@ -94,6 +94,7 @@ namespace rr
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRVec3        specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		const char*   name;                          ///< Optional name of material, may be NULL.
 	};
 
 

@@ -656,6 +656,7 @@ void RRObjectCollada::updateMaterials()
 					unsigned char color[4] = {FLOAT2BYTE(mi.material.diffuseReflectance[0]),FLOAT2BYTE(mi.material.diffuseReflectance[1]),FLOAT2BYTE(mi.material.diffuseReflectance[2]),0};
 					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,color);
 				}
+				mi.material.name = _strdup(effect->GetName().c_str());
 #ifdef VERIFY
 				if(mi.material.validate())
 					RRReporter::report(WARN,"Material adjusted to physically valid.\n");
@@ -780,7 +781,13 @@ RRObjectIllumination* RRObjectCollada::getIllumination()
 RRObjectCollada::~RRObjectCollada()
 {
 	for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+	{
+		// we created it in updateMaterials() and stored in const char* so no one can edit it
+		// now it's time to free it
+		free((char*)(i->second.material.name));
+
 		SAFE_DELETE(i->second.diffuseTexture);
+	}
 	delete illumination;
 	// don't delete collider and mesh, we haven't created them
 }
