@@ -591,6 +591,21 @@ void RRObjectCollada::updateMaterials()
 					? RRVec3( effectStandard->GetTranslucencyFactor() * (1-effectStandard->GetTranslucencyColor().w) )
 					: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 				mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
+				/* disable light paths not supported by lighting model (but is it what user expects?)
+				switch(effectStandard->GetLightingType())
+				{
+					case FCDEffectStandard::CONSTANT:
+						mi.material.diffuseReflectance = rr::RRVec3(0);
+						mi.material.specularReflectance = 0;
+						break;
+					case FCDEffectStandard::LAMBERT:
+						mi.material.specularReflectance = rr::RRVec3(0);
+						break;
+					case FCDEffectStandard::PHONG:
+						break;
+					case FCDEffectStandard::BLINN:
+						break;
+				}*/
 				mi.diffuseTexture = NULL;
 				if(effectStandard->GetTextureCount(FUDaeTextureChannel::DIFFUSE))
 				{
@@ -940,8 +955,7 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 	FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
 
 	// import all lights
-	const FCDSceneNode* root = document->GetVisualSceneInstance();
-	addNode(root);
+	addNode(document->GetVisualSceneInstance());
 }
 
 void LightsFromFCollada::addNode(const FCDSceneNode* node)
@@ -962,7 +976,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 				rr::RRMatrix3x4 invWorldMatrix;
 				getNodeMatrices(node,worldMatrix,invWorldMatrix);
 				rr::RRVec3 position = invWorldMatrix.transformedPosition(rr::RRVec3(0));
-				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,1));
+				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,-1));
 
 				// create RRLight
 				rr::RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
