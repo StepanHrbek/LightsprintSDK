@@ -283,9 +283,11 @@ public:
 			case ME_RANDOM_CAMERA:
 				{
 					rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
+					rr::RRVec3 mini,maxi;
+					multiMesh->getAABB(&mini,&maxi,NULL);
 					unsigned numVertices = multiMesh->getNumVertices();
 					multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
-					eye.pos -= eye.dir*30;
+					eye.pos -= eye.dir*(maxi-mini).avg()*0.8f;
 				}
 				break;
 			case ME_CLOSE: exitRequested = 1; break;
