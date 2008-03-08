@@ -42,7 +42,7 @@ static void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 static class Solver*              solver = NULL;
-static Camera                     eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f,1000);
+static Camera                     eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000);
 static enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
 static SelectionType              selectedType = ST_CAMERA;
 static unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
