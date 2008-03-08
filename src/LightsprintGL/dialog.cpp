@@ -8,12 +8,13 @@ static rr::RRDynamicSolver* g_solver;
 static rr::RRDynamicSolver::UpdateParameters* g_updateParams;
 static rr::RRReporter* g_oldReporter;
 static HWND g_hDlg;
+static bool g_shown;
 static bool g_cmdBuild;
 static bool g_cmdCustom;
 static bool g_cmdViewer;
 static bool g_cmdEnd;
 static unsigned char g_dialogResource[] = {
-1,0,255,255,0,0,0,0,0,0,0,0,200,8,200,128,7,0,0,0,0,0,60,1,134,
+1,0,255,255,0,0,0,0,0,0,0,0,200,10,200,128,7,0,0,0,0,0,60,1,134,
 0,0,0,0,0,76,0,105,0,103,0,104,0,116,0,115,0,112,0,114,0,105,0,110,0,
 116,0,32,0,108,0,105,0,103,0,104,0,116,0,109,0,97,0,112,0,32,0,98,0,117,
 0,105,0,108,0,100,0,0,0,8,0,144,1,0,1,77,0,83,0,32,0,83,0,104,0,
@@ -51,12 +52,17 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		}
 		// init custom button
 		ShowWindow(GetDlgItem(hDlg,IDC_UEBUILD),SW_HIDE);
-		// auto start building, intentionally no return here
-		wParam = IDOK;
+		// auto start building
+		goto build;
+
+	case WM_SHOWWINDOW:
+		g_shown = true;
+		break;
 
 	case WM_COMMAND:
 		if(LOWORD(wParam)==IDOK)
 		{
+build:
 			rr::RRReporter::report(rr::INF1,"--- BUILD ---\n");
 			SendDlgItemMessageA(hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)true,0);
 			ShowWindow(GetDlgItem(hDlg,IDOK),SW_HIDE);
@@ -96,6 +102,18 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			return (INT_PTR)TRUE;
 		}
 		break;
+	}
+	return (INT_PTR)FALSE;
+}
+
+static INT_PTR CALLBACK BringMainThreadToForeground(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+		case WM_INITDIALOG:
+			return (INT_PTR)TRUE;
+		case WM_SHOWWINDOW:
+			EndDialog(hDlg, LOWORD(wParam));
 	}
 	return (INT_PTR)FALSE;
 }
@@ -160,7 +178,16 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 	g_oldReporter = rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(&newReporter);
 
+	g_shown = false;
 	_beginthread(dialog,0,NULL);
+
+	// When helper thread opens dialog, main thread loses right to create foreground windows.
+	// Temporary fix: Main thread opens dialog that closes itself immediately.
+	// Tested: XP SP2 32bit
+	// If you know proper fix, please help.
+	while(!g_shown) Sleep(10);
+	DialogBoxIndirect(GetModuleHandle(NULL),(LPDLGTEMPLATE)g_dialogResource,NULL,BringMainThreadToForeground);
+
 	while(!g_cmdEnd)
 	{
 		if(g_cmdBuild)
@@ -203,6 +230,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 		}
 		Sleep(1);
 	}
+
 	g_solver->aborting = false;
 	rr::RRReporter::setReporter(g_oldReporter);
 	return g_cmdCustom?UR_CUSTOM:(updated?UR_UPDATED:UR_ABORTED);
