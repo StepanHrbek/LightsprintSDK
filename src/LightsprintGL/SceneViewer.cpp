@@ -523,7 +523,14 @@ static void keyboard(unsigned char c, int x, int y)
 		case 'c':
 		case 'C': speedLean = +1; break;
 
-		case 27: if(render2d) render2d = 0; else exitRequested = 1; break;
+		case 27: if(render2d) render2d = 0;
+			//else exitRequested = 1;
+			// Exit by esc is disabled because of GLUT error:
+			//  If you create menu by right click and then press esc, menu disappears, mouse is locked.
+			//  The only way to fix it is to press any mouse button.
+			//  However, if you exit viewer (by hotkey) when mouse is locked, GLUT crashes or calls exit().
+			//  So it's safer to don't offer any 'quit' hotkey, use menu.
+			break;
 	}
 	solver->reportInteraction();
 	glutPostRedisplay();
