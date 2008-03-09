@@ -131,8 +131,8 @@ public:
 	virtual void customReport(rr::RRReportType type, int indentation, const char* message)
 	{
 		// send it also to old reporter
-		//if(type!=rr::INF2 && type!=rr::INF3) // attempt to send only most important messages, but it can't distinguish important and less important timing reports
-		//	g_oldReporter->customReport(type,indentation,message);
+		if(type!=rr::INF2 && type!=rr::INF3 && type!=rr::TIMI) // send only most important messages
+			g_oldReporter->customReport(type,indentation,message);
 
 		// indentation
 		char space[1000];
