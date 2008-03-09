@@ -328,11 +328,16 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
-	RRReportInterval report(realtime?INF3:INF1,"Updating object %d/%d, %s %d*%d, bentNormal %s %d*%d...\n",
+	RRReportInterval report(realtime?INF3:INF1,"Updating object %d/%d, %s %d*%d, directional %d*%d %d*%d %d*%d, bent normals %d*%d...\n",
 		objectNumber,getNumObjects(),
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
-		(bentNormals && bentNormals->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"map",
+		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getWidth():0,
+		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getHeight():0,
+		(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getWidth():0,
+		(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getHeight():0,
+		(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getWidth():0,
+		(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getHeight():0,
 		bentNormals?bentNormals->getWidth():0,bentNormals?bentNormals->getHeight():0);
 	
 	// init params
@@ -546,8 +551,8 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		}
 	}
 
-	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
-		layerNumberLighting,layerNumberBentNormals,
+	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
+		layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
