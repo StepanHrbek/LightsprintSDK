@@ -836,7 +836,16 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-	ProcessTexelResult* finalGather = new ProcessTexelResult[numPostImportTriangles];
+	ProcessTexelResult* finalGather = NULL;
+	try
+	{
+		finalGather = new ProcessTexelResult[numPostImportTriangles];
+	}
+	catch(std::bad_alloc e)
+	{
+		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
+		return false;
+	}
 	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false,false)) // this is first gather -> don't gather emitors, don't gather directions
 	{
 		delete[] finalGather;
@@ -924,7 +933,11 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		priv->scene->illuminationReset(true,true); // required by endByQuality()
 
 		// first gather
-		updateSolverDirectIllumination(&paramsIndirect);
+		if(!updateSolverDirectIllumination(&paramsIndirect))
+		{
+			// aborting or not enough memory
+			return false;
+		}
 
 		// propagate
 		if(!aborting)

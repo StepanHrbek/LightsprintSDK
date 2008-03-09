@@ -529,6 +529,26 @@
 		<Filter
 			Name="RRStaticSolver">
 			<File
+				RelativePath="RRStaticSolver\exceptions.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="RRStaticSolver\gatherer.cpp">
 			</File>
 			<File

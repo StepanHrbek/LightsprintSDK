@@ -539,6 +539,26 @@
 				>
 			</File>
 			<File
+				RelativePath="RRMesh\RRMeshAccelerated.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="RRMesh\RRMeshCopy.cpp"
 				>
 				<FileConfiguration
@@ -601,26 +621,6 @@
 			<File
 				RelativePath="RRMesh\RRMeshTriStrip.h"
 				>
-			</File>
-			<File
-				RelativePath="RRMesh\RRMeshAccelerated.cpp"
-				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -722,6 +722,26 @@
 		<Filter
 			Name="RRStaticSolver"
 			>
+			<File
+				RelativePath=".\RRStaticSolver\exceptions.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="RRStaticSolver\gatherer.cpp"
 				>
