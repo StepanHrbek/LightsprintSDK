@@ -211,8 +211,15 @@ public:
 	//  - pti.rays[0].rayOrigin
 	void shotRay(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
 	{
+		// build ortonormal basis (so that probabilities of exit directions are correct)
+		// don't use _basis, because it's not ortonormal, it's made for compatibility with UE3
+		RRMesh::TangentBasis ortonormalBasis;
+		ortonormalBasis.normal = _basis.normal.normalized();
+		ortonormalBasis.tangent = ortogonalTo(ortonormalBasis.normal).normalized();
+		ortonormalBasis.bitangent = ortogonalTo(ortonormalBasis.normal,ortonormalBasis.tangent);
+
 		// random exit dir
-		RRVec3 dir = getRandomExitDir(fillerDir,_basis).normalized(); // basis not ortonormal, result normalized manually
+		RRVec3 dir = getRandomExitDir(fillerDir,ortonormalBasis);
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
