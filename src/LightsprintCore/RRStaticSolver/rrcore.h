@@ -223,7 +223,7 @@ public:
 	void    reset(); // remove all reflectors
 	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
 
-	Triangle* best(real allEnergyInScene,real subdivisionSpeed);
+	Triangle* best(real allEnergyInScene);
 	bool    lastBestWantsRefresh() {return refreshing;}
 	bool    insert(Triangle* anode); // returns true when node was inserted (=appended)
 	void    insertObject(class Object *o);
@@ -255,7 +255,7 @@ public:
 	unsigned triangles;
 	RRVec3    *vertex;
 	Triangle*triangle;
-	void    buildTopIVertices(unsigned smoothMode, float minFeatureSize, float maxSmoothAngle);
+	bool     buildTopIVertices(float minFeatureSize, float maxSmoothAngle); // false when out of memory
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
 		public:
@@ -266,8 +266,6 @@ public:
 	IVertex *IVertexPool;
 	unsigned IVertexPoolItems;
 	unsigned IVertexPoolItemsUsed;
-
-	float   subdivisionSpeed;
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts

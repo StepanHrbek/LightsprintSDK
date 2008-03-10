@@ -37,7 +37,6 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 
 	if(raysFromTriangle)
 	{
-		RR_ASSERT(object->subdivisionSpeed==0);
 		abortStaticImprovement();
 		RRReal sceneArea = 0;
 		for(unsigned t=0;t<object->triangles;t++)
@@ -171,8 +170,8 @@ PackedSolverFile* Scene::packSolver() const
 					for(unsigned k=0;k<ivertex->corners;k++)
 					{
 						PackedSmoothTriangleWeight* triangleWeight = packedSolverFile->packedIvertices->newC2();
-						triangleWeight->triangleIndex = (unsigned)(ivertex->corner[k].node-object->triangle);
-						triangleWeight->weight = ivertex->corner[k].power / ivertex->powerTopLevel / ivertex->corner[k].node->area;
+						triangleWeight->triangleIndex = (unsigned)(ivertex->getCorner(k).node-object->triangle);
+						triangleWeight->weight = ivertex->getCorner(k).power / ivertex->powerTopLevel / ivertex->getCorner(k).node->area;
 					}
 				}
 				RR_ASSERT(ivertex->packedIndex<numIvertices);

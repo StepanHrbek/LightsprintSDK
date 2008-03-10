@@ -1,4 +1,3 @@
-#define SUBDIVISION                0
 #define QUAKE_DIR_STRUCTURE        false
 
 #include "Level.h"
@@ -122,7 +121,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	}
 
 	rr::RRDynamicSolver::SmoothingParameters sp;
-	sp.subdivisionSpeed = SUBDIVISION;
 	//zapnuti techto 2 radek zrychli sponzu o 15% 
 	//sp.minFeatureSize = 0.15f;
 	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3

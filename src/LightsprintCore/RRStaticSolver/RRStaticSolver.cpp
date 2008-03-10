@@ -63,7 +63,17 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 	{
 		return NULL; // not enough memory
 	}
-	return new RRStaticSolver(_object,_smoothing,obj);
+	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj); // obj is filled but not yet adopted
+	   
+	if(!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle))
+	{
+		delete solver;
+		delete obj;
+		return NULL; // not enough memory
+	}
+
+	solver->scene->objInsertStatic(obj); // obj is adopted
+	return solver;
 }
 
 RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj)
@@ -74,7 +84,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	RRDynamicSolver::SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
 	RRMesh* meshImporter = importer->getCollider()->getMesh();
-	obj->subdivisionSpeed = smoothing->subdivisionSpeed;
 	obj->importer = importer;
 
 	// import vertices
@@ -114,14 +123,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 			t->area=0; // just to have consistency through all invalid triangles
 		}
 	}
-	   
-	// preprocessuje objekt
-	DBG(printf(" ivertices...\n"));
-	obj->buildTopIVertices(
-		1,
-		smoothing->minFeatureSize,smoothing->maxSmoothAngle);
-	// vlozi objekt do sceny
-	scene->objInsertStatic(obj);
 }
 
 
@@ -161,9 +162,9 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	RRVec3 result = RRVec3(0);
 	for(unsigned i=0;i<corners;i++)
 	{
-		unsigned triangleIndex = (unsigned)(corner[i].node-triangles);
+		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);
 		RR_ASSERT(triangleIndex<numTriangles);
-		result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * corner[i].power;
+		result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * getCorner(i).power;
 	}
 	return result/powerTopLevel;
 }
@@ -293,11 +294,5 @@ unsigned RRStaticSolver::getSubtriangleMeasure(unsigned triangle, RRRadiometricM
 {
 	return 0;
 }
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// misc settings
-
 
 } // namespace

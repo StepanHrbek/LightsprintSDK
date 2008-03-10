@@ -403,7 +403,7 @@ void Reflectors::insertObject(Object *o)
 }
 
 
-Triangle* Reflectors::best(real allEnergyInScene, real subdivisionSpeed)
+Triangle* Reflectors::best(real allEnergyInScene)
 {
 	STATISTIC_INC(numCallsBest);
 	// if cache empty, fill cache
@@ -553,7 +553,6 @@ Object::Object()
 	IVertexPool=NULL;
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
-	subdivisionSpeed = 0;
 }
 
 unsigned Object::getTriangleIndex(Triangle* t)
@@ -585,7 +584,6 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
 	RRReal tmpz = 0;
-	bool propagateUp = resetPropagation && subdivisionSpeed; // no subdivision -> propagateEnergyUp is no op
 #pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
 	for(int t=0;(unsigned)t<triangles;t++) if(triangle[t].surface) 
 	{
@@ -1094,7 +1092,7 @@ bool Scene::distribute(real maxError)
 	int rezerva=20;
 	while(1)
 	{
-		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)),object->subdivisionSpeed);
+		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 		source->factors.forEach(distributeEnergyViaFactor,&source->totalExitingFluxToDiffuse,&staticReflectors);
 		source->totalExitingFluxToDiffuse=Channels(0);
@@ -1117,7 +1115,7 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 	do
 	{
 		if(improvingStatic==NULL)
-			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)),object->subdivisionSpeed);
+			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(improvingStatic==NULL) 
 		{
 			improved = RRStaticSolver::FINISHED;

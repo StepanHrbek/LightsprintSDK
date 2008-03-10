@@ -40,19 +40,6 @@ struct IVertexInfo
 //
 // ivertex pool
 
-IVertex *Object::newIVertex()
-{
-	if(IVertexPoolItemsUsed>=IVertexPoolItems) 
-	{
-		IVertex *old=IVertexPool;
-		if(!IVertexPoolItems) IVertexPoolItems=128; else IVertexPoolItems*=2;
-		IVertexPool=new IVertex[IVertexPoolItems];
-		IVertexPoolItemsUsed=1;
-		IVertexPool->previousAllocBlock=old; // store pointer to old block on safe place (overwrite unimportant float)
-	}
-	return &IVertexPool[IVertexPoolItemsUsed++];
-}
-
 void Object::deleteIVertices()
 {
 	while(IVertexPool)
@@ -95,8 +82,8 @@ IVertex::IVertex()
 {
 	RR_ASSERT(this);
 	corners=0;
-	cornersAllocatedLn2=3;
-	corner=(Corner *)malloc(cornersAllocated()*sizeof(Corner));
+	cornersAllocatedLn2=STATIC_CORNERS_LN2;
+	dynamicCorner=NULL;
 	powerTopLevel=0;
 	cacheTime=__frameNumber-1;
 	cacheValid=0;
@@ -110,112 +97,55 @@ unsigned IVertex::cornersAllocated()
 	return 1<<cornersAllocatedLn2;
 }
 
-void IVertex::insert(Triangle* node,bool toplevel,real power,Point3 apoint)
+const Corner& IVertex::getCorner(unsigned c) const
+{
+	RR_ASSERT(c<corners);
+	return (c<STATIC_CORNERS)?staticCorner[c]:dynamicCorner[c-STATIC_CORNERS];
+}
+
+Corner& IVertex::getCorner(unsigned c)
+{
+	RR_ASSERT(c<corners);
+	return (c<STATIC_CORNERS)?staticCorner[c]:dynamicCorner[c-STATIC_CORNERS];
+}
+
+void IVertex::insert(Triangle* node,bool toplevel,real power)
 {
 	RR_ASSERT(this);
 	power *= node->area;
 	if(corners==cornersAllocated())
 	{
-		size_t oldsize=cornersAllocated()*sizeof(Corner);
+		size_t oldsize=(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner);
 		__cornersAllocated+=cornersAllocated();
 		cornersAllocatedLn2++;
 		//__cornersAllocated+=3*cornersAllocated();
 		//cornersAllocatedLn2+=2;
-		corner=(Corner *)realloc(corner,oldsize,cornersAllocated()*sizeof(Corner));
+		dynamicCorner=(Corner *)realloc(dynamicCorner,oldsize,(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner));
 	}
 	for(unsigned i=0;i<corners;i++)
-		if(corner[i].node==node)
+		if(getCorner(i).node==node)
 		{
 #ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size se i triangly smej insertovat vickrat
 			RR_ASSERT(!node->grandpa);// pouze clustery se smej insertovat vickrat, power se akumuluje
 #endif
-			corner[i].power+=power;
+			getCorner(i).power+=power;
 			goto label;
 		}
-	corner[corners].node=node;
-	corner[corners].power=power;
 	corners++;
-      label:
+	getCorner(corners-1).node=node;
+	getCorner(corners-1).power=power;
+label:
 	if(toplevel) powerTopLevel+=power;
 }
 
 bool IVertex::contains(Triangle* node)
 {
 	for(unsigned i=0;i<corners;i++)
-		if(corner[i].node==node) return true;
+		if(getCorner(i).node==node) return true;
 	return false;
 }
 
-unsigned IVertex::splitTopLevelByAngleOld(RRVec3 *avertex, Object *obj, float maxSmoothAngle)
-{
-	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
-	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
-	// return: number of new ivertices
-
-	// stara verze s chybou projevujici se na gaucich v IS
-	// pokud je chyba jen pri min feature size>0,
-	// znamena to ze tento alg neni pripraveny na nodu ktera ma v ivertexu vic nez jeden corner
-
-	unsigned numSplitted = 0;
-	// remember all places this ivertex is installed in
-	IVertex ***topivertex=new IVertex**[3*corners];
-	for(unsigned i=0;i<corners;i++)
-	{
-		RR_ASSERT(corner[i].node);
-		RR_ASSERT(corner[i].node->surface);
-		unsigned found=0;
-		topivertex[i]=NULL;
-		topivertex[i+corners]=NULL;
-		topivertex[i+2*corners]=NULL;
-		for(int k=0;k<3;k++)
-		{
-			if(corner[i].node->topivertex[k]==this)
-			{
-#ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size muze ukazovat vic vrcholu na jeden ivertex
-				RR_ASSERT(!found);
-#endif
-				topivertex[i+found*corners]=&corner[i].node->topivertex[k];
-				found++;
-			}
-		}
-		RR_ASSERT(found);
-	}
-	// for each vertex, reduce it (remove corners with too different normal) and reinstall
-	for(unsigned i=0;i<corners;i++)
-	{
-		IVertex *v;
-		// search corner[j] with the same reduction as corner[i]
-		// this is slowest code if we open sponza, complexity corners^3 where corners~=30
-		for(unsigned j=0;j<i;j++)
-		{
-			for(unsigned k=0;k<corners;k++)
-				if(INTERPOL_BETWEEN(corner[i].node,corner[k].node)
-				   !=((*topivertex[j])->contains(corner[k].node)) )
-					goto j_differs_i;
-			v=*topivertex[j];
-			goto install_v;
-			j_differs_i:;
-		}
-		// make new reduction
-		v=obj->newIVertex();
-		numSplitted++;
-		for(unsigned j=0;j<corners;j++)
-			if(INTERPOL_BETWEEN(corner[i].node,corner[j].node))
-				v->insert(corner[j].node,true,corner[j].power);
-		// install reduction
-		install_v:
-		*topivertex[i]=v;
-		if(topivertex[i+corners]) *topivertex[i+corners]=v;
-		if(topivertex[i+2*corners]) *topivertex[i+2*corners]=v;
-	}
-	// make this empty = ready for deletion
-	corners=0;
-	powerTopLevel=0;
-	delete[] topivertex;
-	return numSplitted;
-}
-
-unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle)
+unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle, bool& outOfMemory)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -231,12 +161,17 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 	unsigned numSplitted = 0;
 	//while zbyvaji cornery
 	std::list<Corner*> cornersLeft;
-	for(unsigned i=0;i<corners;i++) cornersLeft.push_back(&corner[i]);
+	for(unsigned i=0;i<corners;i++) cornersLeft.push_back(&getCorner(i));
 	while(cornersLeft.size())
 	{
 		// set=empty
 		// zaloz ivertex s timto setem corneru
 		IVertex *v = obj->newIVertex();
+		if(!v)
+		{
+			outOfMemory = true;
+			break;
+		}
 		numSplitted++;
 		// for each zbyvajici corner
 restart_iter:
@@ -247,7 +182,7 @@ restart_iter:
 			if(!v->corners)
 				goto insert_i;
 			for(j=0;j<v->corners;j++)
-				if(INTERPOL_BETWEEN((*i)->node,v->corner[j].node))
+				if(INTERPOL_BETWEEN((*i)->node,v->getCorner(j).node))
 			{
 insert_i:
 				// vloz corner do noveho ivertexu
@@ -284,7 +219,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		// full path
 		for(unsigned i=0;i<corners;i++)
 		{
-			Triangle* node=corner[i].node;
+			Triangle* node=getCorner(i).node;
 			RR_ASSERT(node);
 			// a=source+reflected incident flux in watts
 			Channels a=node->totalIncidentFlux;
@@ -297,7 +232,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 			RR_ASSERT(IS_CHANNELS(r));
 			// w=wanted incident flux in watts
 			Channels w=(measure.direct&&measure.indirect)?a:( measure.direct?s: ( measure.indirect?r:Channels(0) ) );
-			irrad+=w*(corner[i].power/corner[i].node->area);
+			irrad+=w*(getCorner(i).power/node->area);
 			RR_ASSERT(IS_CHANNELS(irrad));
 		}
 
@@ -320,7 +255,7 @@ IVertex::~IVertex()
 {
 	cornersAllocatedLn2++;
 	cornersAllocatedLn2--;
-	free(corner);
+	free(dynamicCorner);
 	__cornersAllocated-=cornersAllocated();
 	__iverticesAllocated--;
 }
@@ -357,7 +292,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	// fill our neighbours
 	for(unsigned c=0;c<corners;c++)
 	{
-		Triangle* tri = corner[c].node;
+		Triangle* tri = getCorner(c).node;
 		unsigned originalPresent = 0;
 		for(unsigned i=0;i<3;i++)
 		{
@@ -379,7 +314,7 @@ void IVertex::absorb(IVertex* aivertex)
 	// rehook nodes referencing aivertex to us
 	for(unsigned c=0;c<aivertex->corners;c++)
 	{
-		Triangle* tri = aivertex->corner[c].node;
+		Triangle* tri = aivertex->getCorner(c).node;
 		for(unsigned i=0;i<3;i++)
 		{
 			if(tri->topivertex[i]==aivertex)
@@ -389,7 +324,7 @@ void IVertex::absorb(IVertex* aivertex)
 	// move corners
 	while(aivertex->corners)
 	{
-		Corner* c = &aivertex->corner[--aivertex->corners];
+		Corner* c = &aivertex->getCorner(--aivertex->corners);
 		insert(c->node,false,c->power);
 	}
 }
@@ -552,7 +487,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 }
 #endif
 
-void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float maxSmoothAngle)
+bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 {
 	// check
 	for(unsigned t=0;t<triangles;t++)
@@ -576,9 +511,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 			Angle angle=angleBetween(
 			  *triangle[t].getVertex((ro_v+1)%3)-*triangle[t].getVertex(ro_v),
 			  *triangle[t].getVertex((ro_v+2)%3)-*triangle[t].getVertex(ro_v));
-			topivertex[un_v].insert(&triangle[t],true,angle,
-			  *triangle[t].getVertex(ro_v)
-			  );
+			topivertex[un_v].insert(&triangle[t],true,angle);
 		}
 	}
 
@@ -600,22 +533,13 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 #endif
 
 	// split ivertices with too different normals
+	bool outOfMemory = false;
 	for(unsigned v=0;v<vertices;v++)
 	{
 		RRMesh::Vertex vert;
 		meshImporter->getVertex(v,vert);
-		switch(smoothMode)
-		{
-			case 0:
-				numIVertices += topivertex[v].splitTopLevelByAngleOld((RRVec3*)&vert,this,maxSmoothAngle);
-				break;
-			case 1:
-			default:
-				numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle);
-				break;
-//			default:
-//				numIVertices += topivertex[v].splitTopLevelByNormals((RRVec3*)&vert,this);
-		}
+		numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
+		if(outOfMemory) break;
 		// check that splitted topivertex is no more referenced
 		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 		{
@@ -649,6 +573,8 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);
 			}
 		}
+
+	return !outOfMemory;
 }
 
 } // namespace

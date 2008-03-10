@@ -10,22 +10,6 @@
 namespace rr
 {
 
-/*
-INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
- when to not interpol?
-   obsoleted: different surface
-     was good in time when exitances were interpolated. now we interpolate irradiances
-   obsoleted: (angle too big) * (areas of too different size)
-     had following explanation:
-     "If we interpolate between areas of too different size, small dark tri + large lit tri would
-     go both to grey which makes scene much darker than it should be."
-     Now problem is solved by power*=node->area which means that smaller face makes smaller 
-	 contribution to ivertex color.
-   used: (angle too big)
-*/
-// ver1 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
-// ver2 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE)
-// all #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=/*(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)**/MAX_INTERPOL_ANGLE /*&& t1->grandpa->surface==t2->grandpa->surface*/)
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->getN3(),t2->getN3()))
 
@@ -45,11 +29,7 @@ class Object;
 struct Corner
 {
 	Triangle *node;
-	real power; // libovolne cislo, vaha corneru (soucet vah neni 1, je ulozen v powerTopLevel)
-	// nikdo nesmi zaviset na absolutni hodnote power, vzdy je to jen vaha vuci osttanim cornerum
-	// ciste pro zajimavost ale absolutni hodnoty jsou:
-	//   subdivisionSpeed==0 -> power je velikost uhlu * node->area     (lepe interpoluje, ale neumi subtriangly)
-	//   subdivisionSpeed!=0 -> power je velikost uhlu
+	real power;
 };
 
 class IVertex
@@ -58,12 +38,13 @@ public:
 	IVertex();
 	~IVertex();
 
-	void    insert(Triangle* node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
+	void    insert(Triangle* node,bool toplevel,real power);
 	bool    contains(Triangle* node);
-	unsigned splitTopLevelByAngleOld(RRVec3 *avertex, Object *obj, float maxSmoothAngle);
-	unsigned splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle);
-	unsigned splitTopLevelByNormals(RRVec3 *avertex, Object *obj);
+	unsigned splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle, bool& outOfMemory);
 	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
+
+	const Corner& getCorner(unsigned c) const;
+	Corner& getCorner(unsigned c);
 
 	// used by: merge close ivertices
 	void    fillInfo(Object* object, unsigned originalVertexIndex, struct IVertexInfo& info);
@@ -77,20 +58,26 @@ public:
 		friend class Scene;
 		friend class Object; // previousAllocBlock
 
-		U8       cacheTime:5; // fix __frameNumber&0x1f if you change :5
-		U8       cacheValid:1;
-		U8       cacheDirect:1;
-		U8       cacheIndirect:1;
-		U8       cornersAllocatedLn2;
-		U16      corners;
-		unsigned cornersAllocated();
-		Corner   *corner; // pole corneru tvoricich tento ivertex
+		U16      cacheTime          :5; // fix __frameNumber&0x1f if you change :5
+		U16      cacheValid         :1;
+		U16      cacheDirect        :1;
+		U16      cacheIndirect      :1;
+		U16      cornersAllocatedLn2:8;
+		U16      corners; // static+dynamic
+		unsigned cornersAllocated(); // static+dynamic
+		enum
+		{
+			STATIC_CORNERS_LN2 = 3,
+			STATIC_CORNERS     = 1<<STATIC_CORNERS_LN2,
+		};
+		Corner   staticCorner[STATIC_CORNERS];
+		Corner*  dynamicCorner;
 		Channels cache;	// cached irradiance
 
 		union
 		{
 			real     powerTopLevel;
-			IVertex* previousAllocBlock; // used by newIVertex() allocator, must be 
+			IVertex* previousAllocBlock; // used by newIVertex() allocator 
 		};
 
 		unsigned packedIndex; // night edition: index ivertexu v PackedSmoothing

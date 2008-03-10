@@ -193,7 +193,6 @@ namespace rr
 		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle);
 
-
 	private:
 		class Scene*  scene;
 		friend class Gatherer;

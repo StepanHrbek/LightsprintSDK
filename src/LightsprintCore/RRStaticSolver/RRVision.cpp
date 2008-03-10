@@ -17,8 +17,6 @@ namespace rr
 {
 
 
-
-
 RRLicense::LicenseStatus RRLicense::loadLicense(const char* filename)
 {
 	return RRLicense::VALID;
