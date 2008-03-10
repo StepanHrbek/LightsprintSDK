@@ -541,10 +541,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
 	bool containsDirectionalVertexBuffers = false;
+	unsigned sizeOfAllBuffers = 0;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
 		for(unsigned i=0;i<NUM_BUFFERS;i++)
 		{
+			if(getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]))
+				sizeOfAllBuffers += getIllumination(object)->getLayer(allLayers[i])->getMemoryOccupied();
 			containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
 			containsPixelBuffers  |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_2D_TEXTURE;
 			containsDirectionalVertexBuffers |= i>=LS_DIRECTION1 && i<=LS_DIRECTION3 && getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
@@ -557,6 +560,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsDirect.applyCurrentSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
+	
+	if(sizeOfAllBuffers>10000000)
+		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1000000);
 
 	// 1. first gather: solver+lights+env -> solver.direct
 	// 2. propagate: solver.direct -> solver.indirect

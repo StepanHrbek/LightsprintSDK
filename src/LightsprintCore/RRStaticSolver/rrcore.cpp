@@ -257,8 +257,8 @@ S8 Triangle::setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2wo
 	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
 	real psqr=size2(getR3()/rsize-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
-	if(psqr<=0) {psqr=0.0001f;LIMITED_TIMES(5,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
-	if(psqr>=4) {psqr=3.9999f;LIMITED_TIMES(5,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
+	if(psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
+	if(psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
 	#endif
 	real cosa=1-psqr/2;
 	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(cosa)); //first is probably faster

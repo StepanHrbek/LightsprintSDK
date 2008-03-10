@@ -106,6 +106,11 @@ unsigned RRBufferInMemory::getElementBits() const
 	return getBytesPerPixel(format)*8;
 }
 
+unsigned RRBufferInMemory::getMemoryOccupied() const
+{
+	return sizeof(*this)+getWidth()*getHeight()*getDepth()*(getElementBits()/8);
+}
+
 void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 {
 	if(!data)

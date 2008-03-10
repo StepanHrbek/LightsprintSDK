@@ -35,6 +35,10 @@ IVertex *Object::newIVertex()
 Object* Object::create(int _vertices,int _triangles)
 {
 	Object* o = new Object();
+	unsigned size1 = (sizeof(RRVec3)*_vertices+sizeof(Triangle)*_triangles);
+	unsigned size2 = sizeof(IVertex)*_vertices;
+	if(size1+size2>10000000)
+		RRReporter::report(INF1,"Memory taken by static solver: %d+%dMB\n",size1/1000000,size2/1000000);
 	try
 	{
 		o->vertices = _vertices;

@@ -55,6 +55,12 @@ void RRBuffer::unlock()
 	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::unlock() called.\n"));
 }
 
+unsigned RRBuffer::getMemoryOccupied() const
+{
+	return getWidth()*getHeight()*getDepth()*((getElementBits()+7)/8);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // save & load

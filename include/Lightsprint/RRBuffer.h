@@ -125,6 +125,8 @@ namespace rr
 		virtual RRBufferFormat getFormat() const = 0;
 		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).
 		virtual bool getScaled() const = 0;
+		//! \return Total amount of system memory occupied by buffer.
+		virtual unsigned getMemoryOccupied() const;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
 		//! Returns value addressed by given integer coordinates as regular 3d array.

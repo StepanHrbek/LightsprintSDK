@@ -31,6 +31,7 @@ public:
 	virtual unsigned getDepth() const {return depth;}
 	virtual RRBufferFormat getFormat() const {return format;}
 	virtual bool getScaled() const {return scaled;}
+	virtual unsigned getMemoryOccupied() const;
 	virtual unsigned getElementBits() const;
 	virtual RRVec4 getElement(unsigned index) const;
 	virtual RRVec4 getElement(const RRVec3& coord) const;
