@@ -400,6 +400,7 @@ namespace rr
 				applyEnvironment = true;
 				applyCurrentSolution = false;
 				quality = _quality;
+				qualityFactorRadiosity = 1;
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
