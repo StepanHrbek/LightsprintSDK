@@ -133,7 +133,7 @@ ImportScene::~ImportScene()
 #endif
 
 #ifdef SUPPORT_DAE
-	scene_dae->Release();
+	SAFE_RELEASE(scene_dae);
 	FCollada::Release();
 #endif
 }
