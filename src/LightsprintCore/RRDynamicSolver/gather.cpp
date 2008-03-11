@@ -944,9 +944,9 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		{
 			EBQContext context;
 			context.staticSolver = priv->scene;
-			context.targetQuality = MAX(5,2*paramsIndirect.quality);
+			context.targetQuality = (int)MAX(5,(2*paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
 			context.aborting = &aborting;
-			RRReportInterval reportProp(INF2,"Propagating(%d)...\n",context.targetQuality);
+			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",context.targetQuality);
 			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&context);
 			switch(improvement)
 			{

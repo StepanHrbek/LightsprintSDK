@@ -94,8 +94,17 @@ namespace rr
 		//!  \n For physical(linear) scale data, it's recommended to use floating point format to avoid clamping.
 		//!  For scaled (sRGB) data, more compact 8bit format is usually sufficient, although it clamps values to 0..1 range.
 		//! \param scaled
-		//!  Whether buffer data are in custom scale (usually screen colors, sRGB). False for physical(linear) scale.
+		//!  Whether buffer data are scaled to custom scale (usually screen colors, sRGB). False for physical(linear) scale.
 		//!  When buffer is updated or rendered later, this setting is respected.
+		//!  \n\n In greater detail: GI is internally calculated in physical scale, while displays work in sRGB,
+		//!  so data must be converted at some point in pipeline.
+		//!  True = data are scaled by RRDynamicSolver::updateLightmaps(), increasing CPU load;
+		//!  positive sideeffect is that scaled data are suitable even for smaller RGB/RGBA buffers.
+		//!  False = data should be scaled later, for example in renderer, thus increasing GPU load.
+		//!  In both cases, scaling to sRGB is simple x=pow(x,0.45) operation.
+		//!  If you precompute lightmaps once and render them many times, you can save time by setting true,
+		//!  data are scaled once. In case of realtime GI where lightmaps are computed once and rendered once,
+		//!  you can save time by setting false and scaling data in renderer/shader (GPU is usually faster).
 		//! \param data
 		//!  Data to be loaded(copied) into texture. When set to NULL, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.

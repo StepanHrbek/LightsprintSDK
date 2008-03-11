@@ -994,12 +994,6 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			shotsTotal++;
 			if(shotsTotal%10==0) if(endfunc(context)) return;
 		}
-		phase=2;
-	}
-	if(phase==2)
-	{
-		// kontrola ze jsou flagy opravdu vsude ciste
-		RR_ASSERT(improvingFactors.factors()==0);
 		phase=3;
 	}
 	if(phase==3)

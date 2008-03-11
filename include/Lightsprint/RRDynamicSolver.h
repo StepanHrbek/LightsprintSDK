@@ -331,6 +331,13 @@ namespace rr
 			//! and aliasing.
 			unsigned quality;
 
+			//! Adjusts quality in radiosity step, small part of whole calculation.
+			//
+			//! Time spent in all steps, including radiosity, is set automatically based on single 'quality' parameter.
+			//! However, it's possible to tweak time spent in radiosity step,
+			//! value x makes radiosity step x times longer. Example: 0.5 makes it 2x faster.
+			float qualityFactorRadiosity;
+
 			//! Deprecated. Only partially supported since 2007.08.21.
 			//
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
@@ -376,6 +383,7 @@ namespace rr
 				applyEnvironment = false;
 				applyCurrentSolution = true;
 				quality = 0;
+				qualityFactorRadiosity = 1;
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;

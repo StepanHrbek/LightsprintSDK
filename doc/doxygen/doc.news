@@ -22,6 +22,8 @@ NEWS
 - RRMesh::createAccelerated()
   \n creates faster mesh, duplicating most frequently accessed data
   \n new parameter in RRObject::createMultiObject() enables it
+- RRDynamicSolver::UpdateParameters::qualityFactorRadiosity
+  \n finer quality control
 
 CHANGES
 
