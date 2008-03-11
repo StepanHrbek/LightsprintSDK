@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 
 	// load scene
 	ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
-	//ImportScene scene("../../data/mgf/erw5/scene5.mgf");
 
 	// init solver
 	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)

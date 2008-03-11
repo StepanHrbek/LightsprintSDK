@@ -47,8 +47,6 @@ void error(const char* message, bool gfxRelated)
 
 void calculate(rr::RRDynamicSolver* solver)
 {
-	rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
-
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
@@ -87,7 +85,7 @@ int main(int argc, char **argv)
 	// this sample properly frees memory, no leaks are reported
 	// (some other samples are stripped down, they don't free memory)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 39137;
+	//_crtBreakAlloc = 30351;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
