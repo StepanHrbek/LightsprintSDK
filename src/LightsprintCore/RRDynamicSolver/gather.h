@@ -4,14 +4,10 @@
 // --------------------------------------------------------------------------
 
 
-#define USE_BOOST // simply undef it if you don't have boost headers. lightmap building will be slightly slower
+//error : inserted by sunifdef: "#define USE_BOOST_POOL // simply undef it if you don't have boost headers. lightmap building will be slightly slower" contradicts -U at R:\work2\.git-rewrite\t\src\LightsprintCore\RRDynamicSolver\gather.h~(8)
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
-#ifdef USE_BOOST
-#include <boost/pool/pool_alloc.hpp>
-#include <list>
-#endif
 
 
 namespace rr
@@ -48,11 +44,7 @@ struct SubTexel
 };
 
 // texel knows its intersection with all triangles
-#ifdef USE_BOOST
-typedef std::list<SubTexel,boost::fast_pool_allocator<SubTexel> > TexelSubTexels;
-#else
 typedef std::vector<SubTexel> TexelSubTexels;
-#endif
 
 struct ProcessTexelParams
 {

@@ -73,7 +73,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	}
 
 	// calculate ambient occlusion
-	rr::RRDynamicSolver::UpdateParameters params(1000);
+	rr::RRDynamicSolver::UpdateParameters params(2000);
 	rr::RRDynamicSolver::FilteringParameters filtering;
 	filtering.wrap = false;
 	// a) update lightmaps 
