@@ -374,7 +374,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if(LIGHT_INDIRECT_CONST)
 	{
-		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,0.0f);
+		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,1.0f);
 	}
 
 	if(LIGHT_INDIRECT_MAP)

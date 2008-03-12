@@ -487,7 +487,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						bool transparency = faceGroups[fg].transparency>0;
 						if(transparency!=blendEnabled || !blendKnown)
 						{
-							if(transparency) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+							if(transparency)
+							{
+								glEnable(GL_BLEND);
+								// current blendfunc is used, caller is responsible for setting it
+							}
+							else
+							{
+								glDisable(GL_BLEND);
+							}
 							blendKnown = true;
 							blendEnabled = transparency;
 						}

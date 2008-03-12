@@ -198,6 +198,8 @@ void RendererOfRRDynamicSolver::render()
 	}
 
 	PreserveBlend p1;
+	PreserveBlendFunc p2;
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
@@ -347,7 +349,7 @@ void RendererOfOriginalScene::render()
 		}
 	}
 
-	// How we render multiple objects + multiple lights?
+	// How do we render multiple objects + multiple lights?
 	// for each object
 	//   for each light
 	//     render
@@ -382,6 +384,8 @@ void RendererOfOriginalScene::render()
 		mainUberProgramSetup.validate();
 
 		PreserveBlend p1;
+		PreserveBlendFunc p2;
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 		MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
 		UberProgramSetup uberProgramSetup;
 		RendererOfRRObject::RenderedChannels renderedChannels;

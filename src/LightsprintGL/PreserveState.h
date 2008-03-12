@@ -40,6 +40,7 @@ DECLARE_PRESERVE_STATE( PreserveDepthMask ,unsigned char depthMask,glGetBooleanv
 DECLARE_PRESERVE_STATE( PreserveCullFace  ,GLboolean cullFace     ,cullFace=glIsEnabled(GL_CULL_FACE)          ,if(cullFace) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE));
 DECLARE_PRESERVE_STATE( PreserveCullMode  ,int cullMode           ,glGetIntegerv(GL_CULL_FACE_MODE,&cullMode)  ,glCullFace(cullMode));
 DECLARE_PRESERVE_STATE( PreserveBlend     ,GLboolean blend        ,blend=glIsEnabled(GL_BLEND)                 ,if(blend) glEnable(GL_BLEND); else glDisable(GL_BLEND));
+DECLARE_PRESERVE_STATE( PreserveBlendFunc ,GLint src;GLint dst    ,glGetIntegerv(GL_BLEND_SRC_RGB,&src);glGetIntegerv(GL_BLEND_DST_RGB,&dst) ,glBlendFunc(src,dst));
 // current matrix only
 DECLARE_PRESERVE_STATE( PreserveMatrix    ,                       ,glPushMatrix()                              ,glPopMatrix(););
 // projection and modelview matrices only
