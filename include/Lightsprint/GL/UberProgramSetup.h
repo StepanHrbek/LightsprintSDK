@@ -33,7 +33,6 @@ enum
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for ambient map uv.
 	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
 	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
-	MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR= 4, ///< Emissive material color. (diffuse material color and indirect light color are in gl_Color and gl_SecondaryColor)
 };
 
 

@@ -674,8 +674,8 @@ static void display(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 		uberProgramSetup.LIGHT_INDIRECT_auto = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = renderDiffuse;
-		uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = renderEmission;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse;
+		uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;
 		uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 		uberProgramSetup.POSTPROCESS_GAMMA = true;
 		if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
