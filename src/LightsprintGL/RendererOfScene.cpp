@@ -143,7 +143,10 @@ void RendererOfRRDynamicSolver::render()
 	}
 
 	// render skybox
-	if(params.uberProgramSetup.LIGHT_DIRECT && !params.uberProgramSetup.FORCE_2D_POSITION)
+	if((params.uberProgramSetup.LIGHT_DIRECT
+		|| params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto
+		|| params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP
+		) && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
 		const rr::RRBuffer* env = params.solver->getEnvironment();
 		if(textureRenderer && env)
@@ -204,8 +207,10 @@ void RendererOfRRDynamicSolver::render()
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	const RealtimeLight* light;
-	while(multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
+	Program* program;
+	while(program=multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
 	{
+		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
@@ -324,7 +329,10 @@ void RendererOfOriginalScene::render()
 	}
 
 	// render skybox
-	if((params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto || params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP) && !params.uberProgramSetup.FORCE_2D_POSITION)
+	if((params.uberProgramSetup.LIGHT_DIRECT
+		|| params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto
+		|| params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP
+		) && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
 		const rr::RRBuffer* env = params.solver->getEnvironment();
 		if(textureRenderer && env)
@@ -438,6 +446,7 @@ void RendererOfOriginalScene::render()
 			// - render
 			if(renderersNonCaching[i])
 			{
+				renderersNonCaching[i]->setProgram(program);
 				renderersNonCaching[i]->setRenderedChannels(renderedChannels);
 				if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
 				{

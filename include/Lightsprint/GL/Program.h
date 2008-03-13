@@ -55,6 +55,8 @@ public:
 	void sendUniform(const char *name, float x, float y);
 	//! Sets uniform of type vec3.
 	void sendUniform(const char *name, float x, float y, float z);
+	//! Sets uniform of type vec3.
+	void sendUniform3fv(const char *name, const float xyz[3]);
 	//! Sets uniform of type vec4.
 	void sendUniform(const char *name, float x, float y, float z, float w);
 	//! Sets uniform of type vec4.

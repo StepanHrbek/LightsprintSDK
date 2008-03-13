@@ -179,11 +179,6 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
 	}
-	if(MATERIAL_DIFFUSE_VCOLOR)
-	{
-		RR_ASSERT(!LIGHT_INDIRECT_VCOLOR2); // must not be combined, both use gl_SecondaryColor
-		LIGHT_INDIRECT_VCOLOR2 = 0;
-	}
 	bool emission = MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP;
 	if(!light && !emission)
 	{

@@ -282,7 +282,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	return detectedDirectSum;
 }
 
-void RRDynamicSolverGL::setupShader(unsigned objectNumber)
+Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 {
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->areaType==RealtimeLight::POINT)?setupShaderLight->getNumInstances():(setupShaderLight->getNumInstances()?1:0);
@@ -297,10 +297,12 @@ void RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.FORCE_2D_POSITION = true;
-	if(!uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1))
+	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1);
+	if(!program)
 	{
 		rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n");
 	}
+	return program;
 }
 
 unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsigned _space)
@@ -378,9 +380,10 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		renderedChannels.FORCE_2D_POSITION = true;
 
 		// setup shader
-		setupShader(0);
+		Program* program = setupShader(0);
 
 		// render scene
+		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererNonCaching->setLightingShadowingFlags(NULL,setupShaderLight->origin,honourExpensiveLightingShadowingFlags);

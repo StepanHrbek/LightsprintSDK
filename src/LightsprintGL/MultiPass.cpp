@@ -23,7 +23,9 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	//  don't put direct+indirect+emissive in one pass, prerender indirect+emissive in separated ambient pass
 	//  (direct pointlight(6 spots)+indirect vcolor+emissive vcolor nezvladnou v jednom passu GF5/6/7 a asi ani Radeony)
 	numLights = lights?lights->size():0;
-	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags||mainUberProgramSetup.MATERIAL_EMISSIVE_VCOLOR)?1:0;
+	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags
+		||mainUberProgramSetup.MATERIAL_EMISSIVE_VCOLOR // some older cards were not able to do this in one pass with pointlight
+		)?1:0;
 	lightIndex = -separatedAmbientPass;
 }
 
@@ -114,12 +116,15 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
+	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_VCOLOR = uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.MATERIAL_CULLING = (uberProgramSetup.MATERIAL_DIFFUSE || uberProgramSetup.MATERIAL_SPECULAR) && !uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
-	renderedChannels.MATERIAL_BLENDING = lightIndex==-separatedAmbientPass; // material wishes are respected only in first pass, other passes use adding
+	renderedChannels.MATERIAL_BLENDING = (lightIndex==-separatedAmbientPass) // material wishes are respected only in first pass, other passes use adding
+		&& (renderedChannels.MATERIAL_DIFFUSE_CONST || renderedChannels.MATERIAL_DIFFUSE_VCOLOR || renderedChannels.MATERIAL_DIFFUSE_MAP); // alpha is passed only as part of diffuse color
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 
 	outUberProgramSetup = uberProgramSetup;

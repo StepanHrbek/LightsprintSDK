@@ -495,7 +495,7 @@ protected:
 		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
 #endif
 	}
-	virtual void setupShader(unsigned objectNumber)
+	virtual rr_gl::Program* setupShader(unsigned objectNumber)
 	{
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 1;
@@ -519,8 +519,10 @@ protected:
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
 		realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
-		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
+		rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1);
+		if(!program)
 			error("Failed to compile or link GLSL program.\n",true);
+		return program;
 	}
 };
 

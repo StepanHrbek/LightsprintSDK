@@ -30,6 +30,7 @@ RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::R
 RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver, const rr::RRScaler* _scaler, bool _useBuffers)
 {
 	RR_ASSERT(_object);
+	params.program = NULL;
 	params.object = _object;
 	params.scene = _solver;
 	params.scaler = _scaler;
@@ -67,6 +68,11 @@ RendererOfRRObject::~RendererOfRRObject()
 {
 	delete indexedNo;
 	delete indexedYes;
+}
+
+void RendererOfRRObject::setProgram(Program* program)
+{
+	params.program = program;
 }
 
 void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
@@ -274,6 +280,14 @@ void RendererOfRRObject::render()
 		//unsigned numTriangles = meshImporter->getNumTriangles();
 		const rr::RRMaterial* oldMaterial = NULL;
 		rr::RRObjectIllumination* oldIllumination = NULL;
+		GLint materialDiffuseVColorIndex;
+		GLint materialEmissiveVColorIndex;
+		{
+			GLint program;
+			glGetIntegerv(GL_CURRENT_PROGRAM,&program);
+			materialDiffuseVColorIndex = glGetAttribLocation(program,"materialDiffuseVColor");
+			materialEmissiveVColorIndex = glGetAttribLocation(program,"materialEmissiveVColor");
+		}
 		//rr::RRReporter::report(rr::INF1,"------------------------------------------------------------------------------------------------------------");
 		for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<params.lastCapturedTrianglePlus1;triangleIdx++)
 		{
@@ -323,6 +337,7 @@ void RendererOfRRObject::render()
 					// blending
 					if(params.renderedChannels.MATERIAL_BLENDING)
 					{
+						RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 						if(material && material->specularTransmittance.avg())
 							glEnable(GL_BLEND);
 						else
@@ -330,11 +345,24 @@ void RendererOfRRObject::render()
 					}
 
 					// material diffuse color
+					if(params.renderedChannels.MATERIAL_DIFFUSE_CONST)
+					{
+						if(material && params.program)
+						{
+							params.program->sendUniform("materialDiffuseConst",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
+						}
+						else
+						{
+							RR_ASSERT(0); // expected data are missing
+						}
+					}
+
+					// material diffuse vcolor
 					if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
 					{
 						if(material)
 						{
-							glSecondaryColor3fv(&material->diffuseReflectance.x);
+							glVertexAttrib4f(materialDiffuseVColorIndex,material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
 						}
 						else
 						{
@@ -364,11 +392,11 @@ void RendererOfRRObject::render()
 					}
 
 					// material emissive color
-					if(params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
+					if(params.renderedChannels.MATERIAL_EMISSIVE_CONST)
 					{
-						if(material)
+						if(material && params.program)
 						{
-							glMultiTexCoord3fv(MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR,&material->diffuseEmittance.x); //!!! vertex shader gets zero (X1950)
+							params.program->sendUniform("materialEmissiveConst",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0.0f);
 						}
 						else
 						{
@@ -376,6 +404,19 @@ void RendererOfRRObject::render()
 						}
 					}
 
+
+					// material emissive vcolor
+					if(params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
+					{
+						if(material)
+						{
+							glVertexAttrib4f(materialEmissiveVColorIndex,material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0);
+						}
+						else
+						{
+							RR_ASSERT(0); // expected data are missing
+						}
+					}
 					// material emissive map - bind texture
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{

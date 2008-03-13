@@ -81,12 +81,14 @@ public:
 		bool     NORMALS                :1; ///< feeds gl_Normal
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
 		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRBuffer.
-		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< feeds gl_SecondaryColor, must not be combined with MATERIAL_DIFFUSE_VCOLOR
+		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< feeds gl_SecondaryColor
 		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
 		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
-		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
+		bool     MATERIAL_DIFFUSE_CONST :1; ///< feeds uniform materialDiffuseConst
+		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds materialDiffuseVColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
+		bool     MATERIAL_EMISSIVE_CONST:1; ///< feeds uniform materialEmissiveConst
 		bool     MATERIAL_EMISSIVE_VCOLOR:1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
 		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     MATERIAL_CULLING       :1; ///< sets face culling according to material (0=defaults in GL pipeline are used)
@@ -99,6 +101,9 @@ public:
 			memset(this,0,sizeof(*this));
 		}
 	};
+
+	//! Sets what program to use for changing uniform colors. (This class doesn't bind it, only changes some uniforms.)
+	void setProgram(Program* program);
 
 	//! Sets what data channels to feed to GPU during render().
 	void setRenderedChannels(RenderedChannels renderedChannels);
@@ -191,6 +196,7 @@ private:
 	};
 	struct Params
 	{
+		Program* program;                      ///< current program, used only by MATERIAL_DIFFUSE_CONST, MATERIAL_EMISSIVE_CONST
 		const rr::RRObject* object;            ///< object being rendered
 		rr::RRDynamicSolver* scene;            ///< scene it comes from
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR

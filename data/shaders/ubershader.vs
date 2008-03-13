@@ -94,6 +94,7 @@ varying
 	vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_VCOLOR
+	attribute vec4 materialDiffuseVColor;
 	varying vec4 materialDiffuseColor;
 #endif
 
@@ -102,6 +103,7 @@ varying
 #endif
 
 #ifdef MATERIAL_EMISSIVE_VCOLOR
+	attribute vec4 materialEmissiveVColor;
 	varying vec4 materialEmissiveColor;
 #endif
 
@@ -173,11 +175,11 @@ void main()
 	#endif
 
 	#ifdef MATERIAL_DIFFUSE_VCOLOR
-		materialDiffuseColor = gl_SecondaryColor;
+		materialDiffuseColor = materialDiffuseVColor;
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_VCOLOR
-		materialEmissiveColor = gl_MultiTexCoord4;
+		materialEmissiveColor = materialEmissiveVColor;
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP

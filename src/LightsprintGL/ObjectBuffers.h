@@ -59,8 +59,7 @@ private:
 		unsigned renderBack:1;
 		rr::RRBuffer* diffuseTexture;
 		rr::RRBuffer* emissiveTexture;
-		rr::RRVec3 diffuseColor;
-		rr::RRReal transparency;
+		rr::RRVec4 diffuseColor; // last component is alpha, 0=transparent
 		rr::RRVec3 emissiveColor;
 	};
 	std::vector<FaceGroup> faceGroups;

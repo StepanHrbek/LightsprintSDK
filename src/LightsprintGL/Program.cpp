@@ -136,6 +136,11 @@ void Program::sendUniform(const char *name, float x, float y, float z)
 	glUniform3f(getLoc(name), x, y, z);
 }
 
+void Program::sendUniform3fv(const char *name, const float xyz[3])
+{
+	glUniform3fv(getLoc(name), 1, xyz);
+}
+
 void Program::sendUniform(const char *name, float x, float y, float z, float w)
 {
 	glUniform4f(getLoc(name), x, y, z, w);

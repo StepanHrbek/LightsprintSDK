@@ -68,7 +68,7 @@ namespace rr_gl
 		virtual void calculate(CalculateParameters* params = NULL);
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. Helper function called from detectDirectIllumination().
-		virtual void setupShader(unsigned objectNumber);
+		virtual Program* setupShader(unsigned objectNumber);
 		//! Helper function called from detectDirectIllumination().
 		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
 		//! Detection of direct illumination from lights (see setLights()) implemented using OpenGL 2.0.

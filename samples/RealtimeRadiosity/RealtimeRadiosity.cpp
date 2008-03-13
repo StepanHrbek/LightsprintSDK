@@ -163,7 +163,7 @@ protected:
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
-	virtual void setupShader(unsigned objectNumber)
+	virtual rr_gl::Program* setupShader(unsigned objectNumber)
 	{
 		// render scene with forced 2d positions of all triangles
 		rr_gl::UberProgramSetup uberProgramSetup;
@@ -173,8 +173,10 @@ protected:
 		uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
+		rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1);
+		if(!program)
 			error("Failed to compile or link GLSL program.\n",true);
+		return program;
 	}
 };
 
