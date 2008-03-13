@@ -218,7 +218,7 @@ public:
 		glutAddMenuEntry("0.01 m/s", 10);
 		glutAddMenuEntry("0.1 m/s", 100);
 		glutAddMenuEntry("0.5 m/s", 500);
-		glutAddMenuEntry("2 m/s (default)", 2000);
+		glutAddMenuEntry("2 m/s", 2000);
 		glutAddMenuEntry("10 m/s", 10000);
 		glutAddMenuEntry("100 m/s", 100000);
 		glutAddMenuEntry("1000 m/s", 1000000);
@@ -288,19 +288,21 @@ public:
 					multiMesh->getAABB(&mini,&maxi,NULL);
 					unsigned numVertices = multiMesh->getNumVertices();
 					multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
-					eye.pos -= eye.dir*(maxi-mini).avg()*0.8f;
+					eye.pos -= eye.dir*(maxi-mini).sum()*0.22f;
+					eye.afar = MAX(eye.anear+1,(maxi-mini).sum()*50);
+					speedGlobal = (maxi-mini).sum()*0.1f;
 				}
 				break;
 			case ME_CLOSE: exitRequested = 1; break;
 		}
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void selectCallback(int item)
 	{
 		if(item<0) selectedType = ST_CAMERA;
 		if(item>=0 && item<1000) {selectedType = ST_LIGHT; selectedLightIndex = item;}
 		if(item>=1000) {selectedType = ST_OBJECT; selectedObjectIndex = item-1000;}
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void staticCallback(int item)
 	{
@@ -412,12 +414,12 @@ public:
 				break;
 		}
 		// leaving menu, mouse is not in the screen center -> center it
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void speedCallback(int item)
 	{
 		speedGlobal = item/1000.f;
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void envCallback(int item)
 	{
@@ -430,7 +432,7 @@ public:
 			case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
 			case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
 		}
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	enum
 	{
@@ -605,7 +607,7 @@ static void passive(int x, int y)
 		return;
 	}
 	if(!winWidth || !winHeight) return;
-	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
+	LIMITED_TIMES(1,if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
 	if(x || y)
@@ -631,7 +633,7 @@ static void passive(int x, int y)
 			light->update();
 			light->pos -= light->dir*0.3f;
 		}
-		glutWarpPointer(winWidth/2,winHeight/2);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}
 }
