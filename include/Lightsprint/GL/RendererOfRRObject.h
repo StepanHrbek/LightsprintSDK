@@ -81,7 +81,7 @@ public:
 		bool     NORMALS                :1; ///< feeds gl_Normal
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
 		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRBuffer.
-		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< not implemented yet
+		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< feeds gl_SecondaryColor, must not be combined with MATERIAL_DIFFUSE_VCOLOR
 		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
 		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
