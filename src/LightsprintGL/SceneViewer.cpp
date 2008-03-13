@@ -281,6 +281,7 @@ public:
 				}
 				break;
 			case ME_RANDOM_CAMERA:
+				if(solver->getMultiObjectCustom())
 				{
 					rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
 					rr::RRVec3 mini,maxi;
