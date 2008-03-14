@@ -31,16 +31,12 @@ public:
 	// }
 	void learnDestinationBegin();
 	void learnSource(unsigned offset, float contribution); // what to interpolate, contribution in <0,1>
-	void learnDestinationEnd(unsigned offset1, unsigned offset2, unsigned offset3); // where to write result
+	void learnDestinationEnd(unsigned offset1); // where to write result
 
 	unsigned getDestinationSize() const;
 
 	// High quality interpolation in physical space.
-	void interpolate(const RRVec3* src, RRVec3* dst, const RRScaler* scaler) const;
-#ifdef SUPPORT_LDR
-	// Fast interpolation in custom space.
-	void interpolate(const unsigned* src, unsigned* dst, void* unused) const;
-#endif
+	void interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler* scaler) const;
 
 private:
 	typedef unsigned Ofs;
@@ -49,18 +45,11 @@ private:
 		Ofs srcContributorsBegin;
 		Ofs srcContributorsEnd;
 		Ofs dstOffset1;
-#ifdef THREE_DESTINATIONS
-		Ofs dstOffset2;
-		Ofs dstOffset3;
-#endif
 	};
 	struct Contributor
 	{
 		float srcContributionHdr;
 		Ofs srcOffset;
-#ifdef SUPPORT_LDR
-		u16 srcContributionLdr;
-#endif
 	};
 	Ofs srcBegin;
 	std::vector<Header> headers;

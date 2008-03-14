@@ -14,7 +14,7 @@
 #include "Lightsprint/RRLight.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
-typedef unsigned char u8;
+#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 
 namespace rr
 {
@@ -37,14 +37,11 @@ void Interpolator::learnSource(unsigned offset, float contribution)
 	c.srcOffset = offset;
 	sourceSize = MAX(sourceSize,offset+1);
 	c.srcContributionHdr = contribution;
-#ifdef SUPPORT_LDR
-	c.srcContributionLdr = (u16)(contribution*65536);
-#endif
 	RR_ASSERT(_finite(contribution));
 	contributors.push_back(c);
 }
 
-void Interpolator::learnDestinationEnd(unsigned offset1, unsigned offset2, unsigned offset3)
+void Interpolator::learnDestinationEnd(unsigned offset1)
 {
 	Header h;
 	h.srcContributorsBegin = srcBegin;
@@ -52,16 +49,8 @@ void Interpolator::learnDestinationEnd(unsigned offset1, unsigned offset2, unsig
 	RR_ASSERT(h.srcContributorsEnd == contributors.size());
 	RR_ASSERT(h.srcContributorsEnd>h.srcContributorsBegin); // radius too small -> no neighbour texels put into interoplation
 	h.dstOffset1 = offset1;
-#ifdef THREE_DESTINATIONS
-	h.dstOffset2 = offset2;
-	h.dstOffset3 = offset3;
-#endif
 	headers.push_back(h);
 	destinationSize = MAX(offset1+1,destinationSize);
-#ifdef THREE_DESTINATIONS
-	destinationSize = MAX(offset2+1,destinationSize);
-	destinationSize = MAX(offset3+1,destinationSize);
-#endif
 }
 
 unsigned Interpolator::getDestinationSize() const
@@ -69,79 +58,55 @@ unsigned Interpolator::getDestinationSize() const
 	return destinationSize;
 }
 
-void Interpolator::interpolate(const RRVec3* src, RRVec3* dst, const RRScaler* scaler) const
+// caller must ensure that dst is of proper size
+void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler* scaler) const
 {
-	// #pragma with if() is broken in VC++2005
-	if(contributors.size()>100000)
-	{
-		#pragma omp parallel for schedule(static) // fastest: static, dynamic, static,1
-		for(int i=0;i<(int)headers.size();i++)
-		{
-			RRVec3 sum = RRVec3(0);
-			RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
-			for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
-			{
-				RR_ASSERT(_finite(contributors[j].srcContributionHdr));
-				RR_ASSERT(contributors[j].srcContributionHdr>0);
-				sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
-			}
-			if(scaler) scaler->getCustomScale(sum);
-#ifdef THREE_DESTINATIONS
-			dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
-#endif
-				dst[headers[i].dstOffset1] = sum;
-		}
-
-	}
-	else
-	{
-		for(int i=0;i<(int)headers.size();i++)
-		{
-			RRVec3 sum = RRVec3(0);
-			RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
-			for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
-			{
-				RR_ASSERT(contributors[j].srcOffset<sourceSize);
-				RR_ASSERT(_finite(contributors[j].srcContributionHdr));
-				RR_ASSERT(_finite(src[contributors[j].srcOffset][0]));
-				RR_ASSERT(_finite(src[contributors[j].srcOffset][1]));
-				RR_ASSERT(_finite(src[contributors[j].srcOffset][2]));
-				RR_ASSERT(contributors[j].srcContributionHdr>0);
-				sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
-			}
-			if(scaler) scaler->getCustomScale(sum);
-#ifdef THREE_DESTINATIONS
-			dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
-#endif
-				dst[headers[i].dstOffset1] = sum;
-		}
-	}
-}
-
-#ifdef SUPPORT_LDR
-// pozor, asi nekde preteka, stredy stran cubemapy byly cerny
-void Interpolator::interpolate(const unsigned* src, unsigned* dst, void* unused) const
-{
-	#pragma omp parallel for schedule(static)
+	RR_ASSERT(dst);
+	if(!dst->getScaled()) scaler = NULL;
+	unsigned char* locked = dst->lock(BL_DISCARD_AND_WRITE);
+	RRBufferFormat format = dst->getFormat();
+#pragma omp parallel for schedule(static) // fastest: static, dynamic, static,1
 	for(int i=0;i<(int)headers.size();i++)
 	{
-		unsigned sum[3] = {0,0,0};
+		RRVec4 sum = RRVec4(0);
 		RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
-			unsigned color = src[contributors[j].srcOffset];
-			RR_ASSERT(contributors[j].srcContributionLdr);
-			sum[0] += u8(color) * contributors[j].srcContributionLdr;
-			sum[1] += u8(color>>8) * contributors[j].srcContributionLdr;
-			sum[2] += u8(color>>16) * contributors[j].srcContributionLdr;
+			RR_ASSERT(_finite(contributors[j].srcContributionHdr));
+			RR_ASSERT(contributors[j].srcContributionHdr>0);
+			sum.RRVec3::operator+=(src[contributors[j].srcOffset] * contributors[j].srcContributionHdr);
 		}
-#ifdef THREE_DESTINATIONS
-		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
-#endif
-			dst[headers[i].dstOffset1] = (sum[0]>>16) + ((sum[1]>>16)<<8) + (sum[2]&0xff0000);
+		if(scaler) scaler->getCustomScale(sum);
+		if(locked)
+		{
+			switch(format)
+			{
+				case BF_RGBF:
+					((RRVec3*)locked)[headers[i].dstOffset1] = sum;
+					break;
+				case BF_RGB:
+					locked[headers[i].dstOffset1*3  ] = FLOAT2BYTE(sum[0]);
+					locked[headers[i].dstOffset1*3+1] = FLOAT2BYTE(sum[1]);
+					locked[headers[i].dstOffset1*3+2] = FLOAT2BYTE(sum[2]);
+					break;
+				case BF_RGBAF:
+					((RRVec4*)locked)[headers[i].dstOffset1] = sum;
+					break;
+				case BF_RGBA:
+					locked[headers[i].dstOffset1*4  ] = FLOAT2BYTE(sum[0]);
+					locked[headers[i].dstOffset1*4+1] = FLOAT2BYTE(sum[1]);
+					locked[headers[i].dstOffset1*4+2] = FLOAT2BYTE(sum[2]);
+					locked[headers[i].dstOffset1*4+3] = 0;
+					break;
+			}
+		}
+		else
+		{
+			dst->setElement(headers[i].dstOffset1,sum);
+		}
 	}
+	if(locked) dst->unlock();
 }
-#endif
 
 } // namespace
 

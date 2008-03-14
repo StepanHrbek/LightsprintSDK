@@ -45,7 +45,7 @@ public:
 	rr::RRReal animationTime; // controls object's procedural animation, used when ANIMATION_WAVE=true
 	bool visible;
 
-	// updated by updateIllumination
+	// updated by you, call solver->updateEnvironmentMap(illumination) each frame
 	rr::RRObjectIllumination* illumination;
 
 protected:
@@ -54,8 +54,6 @@ protected:
 	rr::RRObjects* singleObjects;
 	rr::RRObject* multiObject;
 	rr_gl::UberProgramSetup material;
-	unsigned gatherCubeSize;
-	unsigned specularCubeSize;
 #ifdef OPTIMIZED_RDO
 	rr_gl::RendererOfRRObject* rendererWithoutCache;
 #else

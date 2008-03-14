@@ -735,7 +735,7 @@ Used by some samples:
  - Call RRDynamicSolver::getIllumination() 
    to acquire static object's illumination, see \ref data_vertex_buffer and \ref data_pixel_buffer.
 
- - Call RRDynamicSolver::updateEnvironmentMaps()
+ - Call RRDynamicSolver::updateEnvironmentMap()
    to acquire static or dynamic object's illumination, see \ref data_environment_map.
 
  Nearly all of these calls are demonstrated in RealtimeRadiosity sample.
@@ -1478,7 +1478,7 @@ Used by some samples:
  \section d34 Instances
    - stored in: RRObjectIllumination::diffuseEnvMap and RRObjectIllumination::specularEnvMap or your arbitrary location
    - created by: you
-   - updated by: RRDynamicSolver::updateEnvironmentMaps()
+   - updated by: RRDynamicSolver::updateEnvironmentMap()
 
  \section d36 Rendering
    - Many rendering techniques are based on faked precomputed environment maps.
@@ -1520,26 +1520,23 @@ Used by some samples:
    - OpenGL example:
      \n Rendering with environment maps.
      \code
-	rr::RRDynamicSolver* dynamicSolver;
-	rr::RRVec3 center; // object's center position in world
-	rr::RRBuffer* diffuseEnvironmentMap;
-	rr::RRBuffer* specularEnvironmentMap;
+	rr::RRDynamicSolver* solver;
+	rr::RRObjectIllumination* illumination;
 	GLuint program;
 	...
 	// update environment maps
-	dynamicSolver->updateEnvironmentMaps(center,16,
-		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
+	solver->updateEnvironmentMap(illumination);
 	// set program created from shader below
 	glUseProgram(program);
 	// bind diffuse environment map to texture0
 	// it calls glBindTexture(GL_TEXTURE_2D,map);
 	glActiveTexture(GL_TEXTURE0);
-	rr_gl::getTexture(diffuseEnvironmentMap)->bindTexture();
+	rr_gl::getTexture(illumination->diffuseEnvMap)->bindTexture();
 	// set sampler to use texture0
 	glUniform1i(glGetUniformLocation(program,"diffuseEnvironmentMap"),0);
 	// bind specular environment map to texture1
 	glActiveTexture(GL_TEXTURE1);
-	rr_gl::getTexture(specularEnvironmentMap)->bindTexture();
+	rr_gl::getTexture(illumination->specularEnvMap)->bindTexture();
 	// set sampler to use texture1
 	glUniform1i(glGetUniformLocation(program,"specularEnvironmentMap"),1);
 	// render primitives
@@ -1572,14 +1569,11 @@ Used by some samples:
      \code
 	IDirect3DDevice9* device;
 	IDirect3DPixelShader9* pixelShader;
-	rr::RRDynamicSolver* dynamicSolver;
-	rr::RRVec3 center; // object's center position in world
-	rr::RRBuffer* diffuseEnvironmentMap;
-	rr::RRBuffer* specularEnvironmentMap;
+	rr::RRDynamicSolver* solver;
+	rr::RRObjectIllumination* illumination;
 	...
 	// update environment maps
-	dynamicSolver->updateEnvironmentMaps(center,16,
-		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
+	solver->updateEnvironmentMap(illumination);
 	// set rendering pipeline to use shader below
 	device->SetPixelShader(pixelShader);
 	// set samplers to use environment maps

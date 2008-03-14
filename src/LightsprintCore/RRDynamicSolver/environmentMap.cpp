@@ -320,7 +320,7 @@ void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator*
 							}
 						}
 				}
-				interpolator->learnDestinationEnd(oSize*oSize*oside+oSize*oj+oi,oSize*oSize*oside+oSize*oj+oi,oSize*oSize*oside+oSize*oj+oi);
+				interpolator->learnDestinationEnd(oSize*oSize*oside+oSize*oj+oi);
 			}
 	}
 }
@@ -432,14 +432,18 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 //
 // main
 
-#define FILL_CUBEMAP(filteredSize, radius, map) \
-	if(map) \
-	{ \
-		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
-		interpolator->interpolate(gatheredExitance,filteredExitance,priv->scaler); \
-		map->reset(BT_CUBE_TEXTURE,filteredSize,filteredSize,6,BF_RGBF,priv->scaler?true:false,(const unsigned char*)filteredExitance); \
-		updatedMaps++; \
-	}
+// returns number of buffers updated
+static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, RRBuffer* buffer)
+{
+	RR_ASSERT(gatheredExitance);
+	RR_ASSERT(gatherSize);
+	RR_ASSERT(filteredSize);
+	RR_ASSERT(filterRadius);
+	if(!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
+	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius);
+	interpolator->interpolate(gatheredExitance,buffer,scaler);
+	return 1;
+}
 
 
 void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illumination)
@@ -449,8 +453,8 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 		RR_ASSERT(0);
 		return;
 	}
-	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMapSize : 0;
-	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMapSize : 0;
+	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
+	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
 	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
 	if(!gatherSize)
 	{
@@ -488,8 +492,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		RR_ASSERT(0);
 		return 0;
 	}
-	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMapSize : 0;
-	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMapSize : 0;
+	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
+	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
 	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
 	if(!gatherSize)
 	{
@@ -498,8 +502,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 
 	// alloc temp space
-	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-	RRVec3* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
+	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
 
 	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{
@@ -538,8 +541,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	unsigned minSize = MIN(gatherSize,specularSize);
 	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
 	unsigned updatedMaps = 0;
-	FILL_CUBEMAP(diffuseSize,0.9f,illumination->diffuseEnvMap);
-	FILL_CUBEMAP(specularSize,1-minDot,illumination->specularEnvMap);
+	updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
+	updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,1-minDot,illumination->specularEnvMap);
 
 	// cleanup
 	delete[] gatheredExitance;

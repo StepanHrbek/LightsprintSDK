@@ -23,13 +23,12 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	if(d->model->Load(_filename,_scale) && d->model->numObjects)
 	{
 		d->material = _material;
-		d->gatherCubeSize = _gatherCubeSize;
-		d->specularCubeSize = _specularCubeSize;
 		// create envmaps
 		if(d->material.MATERIAL_DIFFUSE)
-			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,NULL);
+			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBF,true,NULL);
 		if(d->material.MATERIAL_SPECULAR)
-			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,NULL);
+			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_specularCubeSize,_specularCubeSize,6,rr::BF_RGBF,true,NULL);
+		d->illumination->gatherEnvMapSize = _gatherCubeSize;
 		d->updatePosition();
 
 		// simple renderer
@@ -125,11 +124,6 @@ void DynamicObject::updatePosition()
 		model->localCenter.x*worldMatrix[0]+model->localCenter.y*worldMatrix[4]+model->localCenter.z*worldMatrix[ 8]+worldMatrix[12],
 		model->localCenter.x*worldMatrix[1]+model->localCenter.y*worldMatrix[5]+model->localCenter.z*worldMatrix[ 9]+worldMatrix[13],
 		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
-
-	// update other illumination params
-	illumination->diffuseEnvMapSize = material.MATERIAL_DIFFUSE?4:0;
-	illumination->specularEnvMapSize = material.MATERIAL_SPECULAR?specularCubeSize:0;
-	illumination->gatherEnvMapSize = MAX(gatherCubeSize,illumination->specularEnvMapSize);
 }
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
@@ -191,8 +185,6 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			if(illumination->specularEnvMap)
 				rr_gl::getTexture(illumination->specularEnvMap,false)->bindTexture();
-			else
-				assert(0); // have you called updateIllumination()?
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
@@ -200,8 +192,6 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			if(illumination->diffuseEnvMap)
 				rr_gl::getTexture(illumination->diffuseEnvMap,false)->bindTexture();
-			else
-				assert(0); // have you called updateIllumination()?
 		}
 		// activate previously active texture
 		//  sometimes it's diffuse, sometimes emissive

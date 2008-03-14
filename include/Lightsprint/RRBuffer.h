@@ -63,9 +63,11 @@ namespace rr
 	//!    internally in subclass instance.
 	//!
 	//! Functions used by LightsprintCore to update buffers
-	//! - vertex buffers by lock(); or setElement() when lock() returns NULL
-	//! - environment maps by reset(), but future version will use lock() too to avoid memcpy
+	//! - vertex buffers by lock(BL_DISCARD_AND_WRITE) (if you implement your own buffer that doesn't support lock, setElement() is used)
+	//! - cube maps by lock(BL_DISCARD_AND_WRITE) (if you implement your own buffer that doesn't support lock, setElement() is used)
 	//! - lightmaps by setElement()
+	//!
+	//! LightsprintCore never calls reset(), so it never changes type, size, format or scale of your buffer.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

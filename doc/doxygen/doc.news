@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news51 ------------------------------------ 2008.3.xx -------------------------------------
+
+CHANGES
+
+- RRDynamicSolver::updateEnvironmentMap() preserves size and format of your maps,
+  \n diffuseEnvMapSize and specularEnvMapSize were deleted from RRObjectIllumination
+		 
 \section news50 ------------------------------------ 2008.3.11 -------------------------------------
 
 NEWS

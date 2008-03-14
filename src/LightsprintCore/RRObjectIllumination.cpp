@@ -23,8 +23,6 @@ RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 	diffuseEnvMap = NULL;
 	specularEnvMap = NULL;
 	gatherEnvMapSize = 16;
-	diffuseEnvMapSize = 4;
-	specularEnvMapSize = 16;
 	cachedCenter = RRVec3(0);
 	cachedGatherSize = 0;
 	cachedTriangleNumbers = NULL;
