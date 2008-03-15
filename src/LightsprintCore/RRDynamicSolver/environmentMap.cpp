@@ -437,7 +437,6 @@ static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, co
 {
 	RR_ASSERT(gatheredExitance);
 	RR_ASSERT(gatherSize);
-	RR_ASSERT(filteredSize);
 	RR_ASSERT(filterRadius);
 	if(!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
 	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius);
