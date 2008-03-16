@@ -63,7 +63,7 @@ public:
 			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
 			RRMesh* oldMesh = transformedMeshes[0];
-			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects);
+			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,true);
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes

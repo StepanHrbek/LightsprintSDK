@@ -14,12 +14,257 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMeshMulti
+// RRMeshMultiFast
 //
-// Merges multiple mesh importers together.
+// Merges multiple mesh adapters together.
 // Space is not transformed here, underlying meshes must already share one space.
+// Fast = uses 8byte/triangle lookup table.
 
-class RRMeshMulti : public RRMesh
+class RRMeshMultiFast : public RRMesh
+{
+public:
+	// creators
+	static RRMesh* create(RRMesh* const* mesh, unsigned numMeshes)
+		// all parameters (meshes, array of meshes) are destructed by caller, not by us
+		// array of meshes must live during this call
+		// meshes must live as long as created multimesh
+	{
+		if(!mesh)
+		{
+			RR_ASSERT(0);
+			return NULL;
+		}
+		for(unsigned i=0;i<numMeshes;i++)
+		{
+			if(mesh[i] && mesh[i]->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+			{
+				RRReporter::report(WARN,"Too many triangles (%d) in mesh %d (supported max=%d).\n",mesh[i]->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+				return NULL;
+			}
+			if(mesh[i] && mesh[i]->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+			{
+				RRReporter::report(WARN,"Too many vertices (%d) in mesh %d (supported max=%d).\n",mesh[i]->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+				return NULL;
+			}
+		}
+		switch(numMeshes)
+		{
+			case 0: 
+				return NULL;
+			case 1: 
+				return mesh[0];
+			default:
+				if(numMeshes>(1<<MultiMeshPreImportNumber::OBJ_BITS))
+				{
+					RRReporter::report(WARN,"Too many meshes (%d) for multimesh (supported max=%d).\n",numMeshes,1<<MultiMeshPreImportNumber::OBJ_BITS);
+					return NULL;
+				}
+				return new RRMeshMultiFast(mesh,numMeshes);
+		}
+	}
+
+	// channels
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		// All objects have the same channels, so let's simply ask object[0].
+		// Equality must be ensured by creator of multiobject.
+		//!!! check equality at construction time
+		unsigned itemSizeLocal = 0;
+		singles[0].mesh->getChannelSize(channelId,numItems,&itemSizeLocal);
+		if(itemSize) *itemSize = itemSizeLocal;
+		// Now we know object[0] properties.
+		// But whole multiobject has more objects, we must correct *numItems.
+		// If channels exists...
+		if(itemSizeLocal)
+		{
+			// ...let's skip adding all objects, use known sum.
+			switch(channelId&0x7ffff000)
+			{
+				case RRMesh::INDEXED_BY_VERTEX:
+					*numItems = numVerticesMulti;
+					break;
+				case RRMesh::INDEXED_BY_TRIANGLE:
+					*numItems = numTrianglesMulti;
+					break;
+			}
+		}
+	}
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		switch(channelId&0x7ffff000)
+		{
+			case INDEXED_BY_VERTEX:
+				RR_ASSERT(itemIndex<numVerticesMulti);
+				RR_ASSERT(postImportToMidImportVertex[itemIndex].object<numSingles);
+				return singles[postImportToMidImportVertex[itemIndex].object].mesh->getChannelData(channelId,postImportToMidImportVertex[itemIndex].index,itemData,itemSize);
+			case INDEXED_BY_TRIANGLE:
+				RR_ASSERT(itemIndex<numTrianglesMulti);
+				RR_ASSERT(postImportToMidImportTriangle[itemIndex].object<numSingles);
+				return singles[postImportToMidImportTriangle[itemIndex].object].mesh->getChannelData(channelId,postImportToMidImportTriangle[itemIndex].index,itemData,itemSize);
+			case INDEXED_BY_OBJECT:
+				RR_ASSERT(itemIndex<numSingles);
+				return singles[itemIndex].mesh->getChannelData(channelId,0,itemData,itemSize);
+			default:
+				return false;
+		}
+	}
+
+	// vertices
+	virtual unsigned     getNumVertices() const
+	{
+		return numVerticesMulti;
+	}
+	virtual void         getVertex(unsigned v, Vertex& out) const
+	{
+		RR_ASSERT(v<numVerticesMulti);
+		RR_ASSERT(postImportToMidImportVertex[v].object<numSingles);
+		singles[postImportToMidImportVertex[v].object].mesh->getVertex(postImportToMidImportVertex[v].index,out);
+	}
+
+	// triangles
+	virtual unsigned     getNumTriangles() const
+	{
+		return numTrianglesMulti;
+	}
+	virtual void         getTriangle(unsigned t, Triangle& out) const
+	{
+		RR_ASSERT(t<numTrianglesMulti);
+		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
+		Single* single = &singles[postImportToMidImportTriangle[t].object];
+		single->mesh->getTriangle(postImportToMidImportTriangle[t].index,out);
+		out[0] += single->numVerticesBefore;
+		out[1] += single->numVerticesBefore;
+		out[2] += single->numVerticesBefore;
+	}
+
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		RR_ASSERT(t<numTrianglesMulti);
+		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
+		singles[postImportToMidImportTriangle[t].object].mesh->getTriangleNormals(postImportToMidImportTriangle[t].index,out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		RR_ASSERT(t<numTrianglesMulti);
+		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
+		singles[postImportToMidImportTriangle[t].object].mesh->getTriangleMapping(postImportToMidImportTriangle[t].index,out);
+		// warning: all mappings overlap
+	}
+
+	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	{
+		RR_ASSERT(postImportTriangle<numTrianglesMulti);
+		RR_ASSERT(postImportVertex<numVerticesMulti);
+		RR_ASSERT(postImportToMidImportVertex[postImportVertex].object<numSingles);
+		unsigned preImportSingle = singles[postImportToMidImportVertex[postImportVertex].object].mesh->getPreImportVertex(postImportToMidImportVertex[postImportVertex].index,postImportToMidImportTriangle[postImportTriangle].index);
+		if(preImportSingle==UNDEFINED) return UNDEFINED;
+		MultiMeshPreImportNumber preImportMulti;
+		preImportMulti.object = postImportToMidImportVertex[postImportVertex].object;
+		preImportMulti.index = preImportSingle;
+		return preImportMulti;
+	}
+	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
+	{
+		MultiMeshPreImportNumber preImportV = preImportVertex;
+		MultiMeshPreImportNumber preImportT = preImportTriangle;
+		RR_ASSERT(preImportV.object<numSingles);
+		RR_ASSERT(preImportT.object<numSingles);
+		unsigned midImportVertex = singles[preImportV.object].mesh->getPostImportVertex(preImportV.index,preImportT.index);
+		if(midImportVertex==UNDEFINED) return UNDEFINED;
+		return singles[preImportV.object].numVerticesBefore+midImportVertex;
+	}
+	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const
+	{
+		RR_ASSERT(postImportTriangle<numTrianglesMulti);
+		RR_ASSERT(postImportToMidImportTriangle[postImportTriangle].object<numSingles);
+		unsigned preImportSingle = singles[postImportToMidImportTriangle[postImportTriangle].object].mesh->getPreImportTriangle(postImportToMidImportTriangle[postImportTriangle].index);
+		if(preImportSingle==UNDEFINED) return UNDEFINED;
+		MultiMeshPreImportNumber preImportMulti;
+		preImportMulti.object = postImportToMidImportVertex[postImportTriangle].object;
+		preImportMulti.index = preImportSingle;
+		return preImportMulti;
+	}
+	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const
+	{
+		MultiMeshPreImportNumber preImport = preImportTriangle;
+		RR_ASSERT(preImport.object<numSingles);
+		unsigned midImportTriangle = singles[preImport.object].mesh->getPostImportTriangle(preImport.index);
+		if(midImportTriangle==UNDEFINED) return UNDEFINED;
+		return singles[preImport.object].numTrianglesBefore+midImportTriangle;
+	}
+
+	virtual ~RRMeshMultiFast()
+	{
+		delete[] postImportToMidImportVertex;
+		delete[] postImportToMidImportTriangle;
+		delete[] singles;
+	}
+private:
+	RRMeshMultiFast(RRMesh* const* _meshes, unsigned _numMeshes)
+	{
+		RR_ASSERT(_meshes);
+		RR_ASSERT(_numMeshes);
+		numSingles = _numMeshes;
+		singles = new Single[numSingles];
+		numTrianglesMulti = 0;
+		numVerticesMulti = 0;
+		for(unsigned i=0;i<_numMeshes;i++)
+		{
+			singles[i].mesh = _meshes[i];
+			singles[i].numTrianglesBefore = numTrianglesMulti;
+			singles[i].numVerticesBefore = numVerticesMulti;
+			numTrianglesMulti += _meshes[i] ? _meshes[i]->getNumTriangles() : 0;
+			numVerticesMulti += _meshes[i] ? _meshes[i]->getNumVertices() : 0;
+		}
+		postImportToMidImportTriangle = new MultiMeshPreImportNumber[numTrianglesMulti];
+		postImportToMidImportVertex = new MultiMeshPreImportNumber[numVerticesMulti];
+		unsigned numTrianglesInserted = 0;
+		unsigned numVerticesInserted = 0;
+		for(unsigned i=0;i<_numMeshes;i++)
+		{
+			if(singles[i].mesh)
+			{
+				unsigned numTrianglesSingle = singles[i].mesh->getNumTriangles();
+				for(unsigned j=0;j<numTrianglesSingle;j++)
+				{
+					postImportToMidImportTriangle[numTrianglesInserted].object = i;
+					postImportToMidImportTriangle[numTrianglesInserted].index = j;
+					numTrianglesInserted++;
+				}
+				unsigned numVerticesSingle = singles[i].mesh->getNumVertices();
+				for(unsigned j=0;j<numVerticesSingle;j++)
+				{
+					postImportToMidImportVertex[numVerticesInserted].object = i;
+					postImportToMidImportVertex[numVerticesInserted].index = j;
+					numVerticesInserted++;
+				}
+			}
+		}
+	}
+	struct Single
+	{
+		RRMesh* mesh;
+		unsigned numTrianglesBefore;
+		unsigned numVerticesBefore;
+	};
+	Single* singles;
+	unsigned numSingles;
+	unsigned numTrianglesMulti;
+	unsigned numVerticesMulti;
+	MultiMeshPreImportNumber* postImportToMidImportTriangle;
+	MultiMeshPreImportNumber* postImportToMidImportVertex;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMeshMultiSmall
+//
+// Merges multiple mesh adapters together.
+// Space is not transformed here, underlying meshes must already share one space.
+// Small = doesn't allocate any per-triangle table.
+
+class RRMeshMultiSmall : public RRMesh
 {
 public:
 	// creators
@@ -58,7 +303,7 @@ public:
 				RRReporter::report(WARN,"Too many meshes (%d) for multimesh (supported max=%d).\n",numMeshes,1<<MultiMeshPreImportNumber::OBJ_BITS);
 				return NULL;
 			}
-			return new RRMeshMulti(
+			return new RRMeshMultiSmall(
 				create(mesh,numMeshes/2),numMeshes/2,
 				create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
 		}
@@ -82,10 +327,10 @@ public:
 			switch(channelId&0x7ffff000)
 			{
 				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = RRMeshMulti::getNumVertices();
+					*numItems = RRMeshMultiSmall::getNumVertices();
 					break;
 				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = RRMeshMulti::getNumTriangles();
+					*numItems = RRMeshMultiSmall::getNumTriangles();
 					break;
 			}
 		}
@@ -246,7 +491,7 @@ public:
 		}
 	}
 
-	virtual ~RRMeshMulti()
+	virtual ~RRMeshMultiSmall()
 	{
 		// Never delete lowest level of tree = input importers.
 		// Delete only higher levels = multi mesh importers created by our create().
@@ -254,7 +499,7 @@ public:
 		if(pack[1].getNumObjects()>1) delete pack[1].getMesh();
 	}
 private:
-	RRMeshMulti(const RRMesh* mesh1, unsigned mesh1Objects, const RRMesh* mesh2, unsigned mesh2Objects)
+	RRMeshMultiSmall(const RRMesh* mesh1, unsigned mesh1Objects, const RRMesh* mesh2, unsigned mesh2Objects)
 	{
 		pack[0].init(mesh1,mesh1Objects);
 		pack[1].init(mesh2,mesh2Objects);

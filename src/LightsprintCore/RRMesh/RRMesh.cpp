@@ -300,9 +300,9 @@ RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform)
 	return new RRTransformedMeshFilter(this,transform);
 }
 
-RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes)
+RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes, bool fast)
 {
-	return RRMeshMulti::create(meshes,numMeshes);
+	return fast ? RRMeshMultiFast::create(meshes,numMeshes) : RRMeshMultiSmall::create(meshes,numMeshes);
 }
 
 RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)

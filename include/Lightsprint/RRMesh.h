@@ -453,7 +453,11 @@ namespace rr
 		//!  For now, all meshes must have the same data channels (see RRChanneledData).
 		//! \param numMeshes
 		//!  Length of 'meshes' array.
-		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes);
+		//! \param fast
+		//!  With false, multimesh has fixed size of several bytes.
+		//!  With true, multimesh allocates 8 bytes per triangle, but it is faster,
+		//!  especially in scenes made of hundreds of small meshes.
+		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes, bool fast);
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
