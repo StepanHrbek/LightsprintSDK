@@ -86,6 +86,9 @@ public:
 				case RRMesh::INDEXED_BY_TRIANGLE:
 					*numItems = numTrianglesMulti;
 					break;
+				case RRMesh::INDEXED_BY_OBJECT:
+					*numItems = numSingles;
+					break;
 			}
 		}
 	}
@@ -180,7 +183,7 @@ public:
 		unsigned preImportSingle = singles[postImportToMidImportTriangle[postImportTriangle].object].mesh->getPreImportTriangle(postImportToMidImportTriangle[postImportTriangle].index);
 		if(preImportSingle==UNDEFINED) return UNDEFINED;
 		MultiMeshPreImportNumber preImportMulti;
-		preImportMulti.object = postImportToMidImportVertex[postImportTriangle].object;
+		preImportMulti.object = postImportToMidImportTriangle[postImportTriangle].object;
 		preImportMulti.index = preImportSingle;
 		return preImportMulti;
 	}

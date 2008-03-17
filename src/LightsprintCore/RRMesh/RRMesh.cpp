@@ -479,7 +479,7 @@ unsigned RRMesh::verify()
 		}
 		if(nanOrInf)
 		{
-			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths v0 %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
+			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
@@ -487,7 +487,7 @@ unsigned RRMesh::verify()
 		else
 		if(denormalized)
 		{
-			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths v0 %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
+			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));

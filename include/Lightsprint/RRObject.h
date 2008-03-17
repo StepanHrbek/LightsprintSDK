@@ -286,11 +286,14 @@ namespace rr
 		//!  True removes degenerated triangles.
 		//!  It is always good to get rid of degenerated triangles (true), but sometimes you know
 		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
-		//! \param accelerate
-		//!  Accelerates multiobject (faster lightmap building, COMPACT and FAST collisions), but consumes 144 bytes per triangle.
+		//! \param speed
+		//!  Could make object faster, but needs additional memory.
+		//!  \n 0 = normal speed, 0bytes/triangle overhead
+		//!  \n 1 = +speed, 12bytes/triangle overhead
+		//!  \n 2 = ++speed, 156bytes/triangle overhead
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation);
+		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, char* cacheLocation);
 
 		//! Creates and returns object with materials converted to physical space.
 		//

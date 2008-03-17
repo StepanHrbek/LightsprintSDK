@@ -13,20 +13,20 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRObjectMultiFast
+//
 // Merges multiple object importers together.
 // Instructions for deleting
 //   ObjectImporters typically get underlying Collider as constructor parameter.
 //   They are thus not allowed to destroy it (see general rules).
 //   MultiObjectImporter creates Collider internally. To behave as others, it doesn't destroy it.
-// Limitations:
-//   All objects must share one material numbering.
 
-class RRMultiObjectImporter : public RRObject
+class RRObjectMultiFast : public RRObject
 {
 public:
 	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
 	{
-		if(!numObjects) return NULL;
+		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
 		RRCollider* multiCollider = NULL;
 		RRMesh** transformedMeshes = NULL;
@@ -64,6 +64,261 @@ public:
 
 			RRMesh* oldMesh = transformedMeshes[0];
 			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,true);
+			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
+
+			// NOW: multiMesh is unoptimized = concatenated meshes
+			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
+			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
+			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleMaterial,
+			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
+			// stitch vertices
+			if(vertexWeldDistance>=0)
+			{
+				oldMesh = multiMesh;
+				multiMesh = multiMesh->createOptimizedVertices(vertexWeldDistance);
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
+			}
+			// remove degenerated triangles
+			if(optimizeTriangles)
+			{
+				oldMesh = multiMesh;
+				multiMesh = multiMesh->createOptimizedTriangles();
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
+			}
+			// accelerate (saves time but needs more memory)
+			if(accelerate)
+			{
+				oldMesh = multiMesh;
+				multiMesh = multiMesh->createAccelerated();
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_ACCELERATED] = multiMesh; // remember for freeing time
+			}
+			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
+
+			// create copy (faster access)
+			// disabled because we know that current copy implementation always gives up
+			// due to low efficiency
+			if(0)
+			{
+				RRMesh* tmp = multiMesh->createCopy();
+				if(tmp)
+				{
+					//transformedMeshes[numObjects+x] = multiMesh; // remember for freeing time
+					//multiMesh = tmp;
+				}
+			}
+
+			// create multicollider
+			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+
+			if(!multiCollider)
+			{
+				// not enough memory
+				for(unsigned i=0;i<numObjects+MI_MAX;i++) delete transformedMeshes[i];
+				delete[] transformedMeshes;
+				return NULL;
+			}
+		}
+
+		// creates tree of objects
+		return new RRObjectMultiFast(objects,numObjects,multiCollider,transformedMeshes);
+	}
+
+	virtual const RRCollider* getCollider() const
+	{
+		return multiCollider;
+	}
+
+	// channels
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		// All objects have the same channels, so let's simply ask object[0].
+		// Equality must be ensured by creator of multiobject.
+		//!!! check equality at construction time
+		unsigned itemSizeLocal = 0;
+		singles[0].object->getChannelSize(channelId,numItems,&itemSizeLocal);
+		if(itemSize) *itemSize = itemSizeLocal;
+		// Now we know object[0] properties.
+		// But whole multiobject has more objects, we must correct *numItems.
+		// If channels exists...
+		if(numItems && *numItems)
+		{
+			// ...let's skip adding all objects, use known sum.
+			switch(channelId&0x7ffff000)
+			{
+				case RRMesh::INDEXED_BY_VERTEX:
+					*numItems = numVerticesOptimized;
+					break;
+				case RRMesh::INDEXED_BY_TRIANGLE:
+					*numItems = numTrianglesOptimized;
+					break;
+				case RRMesh::INDEXED_BY_OBJECT:
+					*numItems = numSingles;
+					break;
+			}
+		}
+	}
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		switch(channelId&0x7ffff000)
+		{
+			case RRMesh::INDEXED_BY_VERTEX:
+				// never used in our demos -> disabled to save memory
+				//return singles[postImportToMidImportVertex[itemIndex].object].object->getChannelData(channelId,postImportToMidImportVertex[itemIndex].index,itemData,itemSize);
+				return false;
+			case RRMesh::INDEXED_BY_TRIANGLE:
+				return singles[postImportToMidImportTriangle[itemIndex].object].object->getChannelData(channelId,postImportToMidImportTriangle[itemIndex].index,itemData,itemSize);
+			case RRMesh::INDEXED_BY_OBJECT:
+				return singles[itemIndex].object->getChannelData(channelId,0,itemData,itemSize);
+			default:
+				return false;
+		}
+	}
+
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	{
+		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
+	}
+
+	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	{
+		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		singles[mid.object].object->getPointMaterial(mid.index,uv,out);
+	}
+
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRVec3& out) const
+	{
+		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		singles[mid.object].object->getTriangleIllumination(mid.index,format,out);
+	}
+
+	virtual ~RRObjectMultiFast()
+	{
+		//delete[] postImportToMidImportVertex;
+		delete[] postImportToMidImportTriangle;
+		delete multiCollider;
+		for(unsigned i=0;i<numSingles+MI_MAX;i++) delete transformedMeshes[i];
+		delete[] transformedMeshes;
+	}
+
+private:
+	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, RRMesh** _transformedMeshes = NULL)
+		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
+		// Array of meshes must live during this call.
+		// Meshes must live as long as created multimesh.
+	{
+		RR_ASSERT(_objects);
+		RR_ASSERT(_numObjects);
+		RR_ASSERT(_multiCollider);
+		numSingles = _numObjects;
+		singles = new Single[numSingles];
+		for(unsigned i=0;i<numSingles;i++)
+		{
+			singles[i].object = _objects[i];
+			//singles[i].numTrianglesBefore = numTrianglesMulti;
+			//singles[i].numVerticesBefore = numVerticesMulti;
+			//numTrianglesMulti += _meshes[i] ? _meshes[i]->getNumTriangles() : 0;
+			//numVerticesMulti += _meshes[i] ? _meshes[i]->getNumVertices() : 0;
+		}
+		multiCollider = _multiCollider;
+		transformedMeshes = _transformedMeshes;
+		RRMesh* multiMeshOptimized = multiCollider->getMesh();
+		numTrianglesOptimized = multiMeshOptimized->getNumTriangles();
+		numVerticesOptimized = multiMeshOptimized->getNumVertices();
+		postImportToMidImportTriangle = new RRMesh::MultiMeshPreImportNumber[numTrianglesOptimized];
+		for(unsigned t=0;t<numTrianglesOptimized;t++)
+		{
+			RRMesh::MultiMeshPreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
+			preImportT.index = transformedMeshes[preImportT.object]->getPostImportTriangle(preImportT.index);
+			postImportToMidImportTriangle[t] = preImportT;
+		}
+		//postImportToMidImportVertex = new RRMesh::MultiMeshPreImportNumber[numVerticesOptimized];
+		//for(unsigned v=0;v<numVerticesOptimized;v++)
+		//{
+		//	MultiMeshPreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
+		//	RRMesh::MultiMeshPreImportNumber preImportV = multiMeshOptimized->getPreImportVertex(v);
+		//	preImportV.index = transformedMeshes[preImportV.object]->getPostImportVertex(preImportV.index);
+		//	postImportToMidImportVertex[v] = preImportV;
+		//}
+	}
+
+	enum MeshIndex // for access to helper meshes transformedMeshes[numObjects+MeshIndex]
+	{
+		MI_MULTI = 0,
+		MI_OPTI_VERTICES,
+		MI_OPTI_TRIANGLES,
+		MI_ACCELERATED,
+		MI_MAX
+	};
+
+	struct Single
+	{
+		RRObject* object;
+	};
+	Single* singles;
+	unsigned numSingles;
+	unsigned numTrianglesOptimized;
+	unsigned numVerticesOptimized;
+	RRMesh::MultiMeshPreImportNumber* postImportToMidImportTriangle;
+	//RRMesh::MultiMeshPreImportNumber* postImportToMidImportVertex;
+
+	RRCollider*   multiCollider;
+	RRMesh**      transformedMeshes;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObjectMultiSmall
+//
+// Instructions for deleting
+//   ObjectImporters typically get underlying Collider as constructor parameter.
+//   They are thus not allowed to destroy it (see general rules).
+//   MultiObjectImporter creates Collider internally. To behave as others, it doesn't destroy it.
+
+class RRObjectMultiSmall : public RRObject
+{
+public:
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
+	{
+		if(!objects || !numObjects) return NULL;
+		// only in top level of hierarchy: create multicollider
+		RRCollider* multiCollider = NULL;
+		RRMesh** transformedMeshes = NULL;
+		// optimalizace: multimesh z 1 objektu = objekt samotny
+		// lze aplikovat jen pokud se nestitchuji vertexy
+		// pokud se stitchuji, musi vse projit standardni multi-cestou
+		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
+		{
+			if(numObjects>(1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS))
+			{
+				RRReporter::report(WARN,"Too many objects (%d) for multiobject (supported max=%d).\n",numObjects,1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS);
+				return NULL;
+			}
+			for(unsigned i=0;i<numObjects;i++)
+			{
+				if(objects[i] && objects[i]->getCollider())
+				{
+					if(objects[i]->getCollider()->getMesh()->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+					{
+						RRReporter::report(WARN,"Too many triangles (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+						return NULL;
+					}
+					if(objects[i]->getCollider()->getMesh()->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
+					{
+						RRReporter::report(WARN,"Too many vertices (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
+						return NULL;
+					}
+				}
+			}
+			// create multimesh
+			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
+				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
+			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
+
+			RRMesh* oldMesh = transformedMeshes[0];
+			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,false);
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
@@ -179,10 +434,10 @@ public:
 			switch(channelId&0x7ffff000)
 			{
 				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = RRMultiObjectImporter::getCollider()->getMesh()->getNumVertices();
+					*numItems = RRObjectMultiSmall::getCollider()->getMesh()->getNumVertices();
 					break;
 				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = RRMultiObjectImporter::getCollider()->getMesh()->getNumTriangles();
+					*numItems = RRObjectMultiSmall::getCollider()->getMesh()->getNumTriangles();
 					break;
 			}
 		}
@@ -240,7 +495,7 @@ public:
 		return pack[1].getImporter()->getTriangleIllumination(t-pack[0].getNumTriangles(),format,out);
 	}
 
-	virtual ~RRMultiObjectImporter()
+	virtual ~RRObjectMultiSmall()
 	{
 		// Never delete lowest level of tree = input importers.
 		// Delete only higher levels = multi mesh importers created by our create().
@@ -291,14 +546,14 @@ private:
 			}
 
 			// create multiobject
-			return new RRMultiObjectImporter(
+			return new RRObjectMultiSmall(
 				create(objects,num1),num1,tris[0],
 				create(objects+num1,num2),num2,tris[1],
 				multiCollider,transformedMeshes);
 		}
 	}
 
-	RRMultiObjectImporter(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
+	RRObjectMultiSmall(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
 		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
 		RRCollider* amultiCollider, RRMesh** atransformedMeshes)
 	{
