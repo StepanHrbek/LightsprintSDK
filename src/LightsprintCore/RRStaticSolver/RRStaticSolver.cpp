@@ -94,15 +94,13 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	// import triangles
 	// vzdy vklada/cisluje od nuly nahoru
 	DBG(printf(" triangles...\n"));
-	int tbot=0;
 	for(unsigned fi=0;fi<obj->triangles;fi++) 
 	{
 		RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
 		RR_ASSERT(s);
-		Triangle *t = &obj->triangle[tbot++];
-		RR_ASSERT(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
+		Triangle *t = &obj->triangle[fi];
 		// vlozi ho, seridi geometrii atd
 		if(!t->setGeometry(
 			&obj->vertex[tv[0]],
@@ -122,6 +120,10 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 			t->surface=NULL; // marks invalid triangles
 			t->area=0; // just to have consistency through all invalid triangles
 		}
+		// initialize isLod0
+		RRObject::LodInfo lodInfo;
+		importer->getTriangleLod(fi,lodInfo);
+		t->isLod0 = (lodInfo.level==0)?1:0;
 	}
 }
 

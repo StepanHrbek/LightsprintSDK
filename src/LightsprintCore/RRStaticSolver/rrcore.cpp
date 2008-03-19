@@ -194,6 +194,7 @@ Triangle::Triangle()
 	surface=NULL; // says that setSurface wasn't called yet
 	reset(true);
 	hits=0;
+	isLod0=0;
 }
 
 void Triangle::reset(bool resetFactors)
@@ -378,7 +379,7 @@ void Reflectors::resetBest()
 
 bool Reflectors::insert(Triangle* anode)
 {
-	if(anode->isReflector) return false;
+	if(anode->isReflector || !anode->isLod0) return false;
 	if(anode->totalExitingFlux==Channels(0) && anode->totalExitingFluxToDiffuse==Channels(0)) return false;
 	if(!nodesAllocated)
 	{
@@ -610,6 +611,64 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRCollisionHandlerLod0
+//
+//! Collides with lod0 only.
+//! Direct access to array of scene triangles.
+
+class RRCollisionHandlerLod0 : public RRCollisionHandler
+{
+public:
+	RRCollisionHandlerLod0(const Triangle* t)
+	{
+		triangle = t;
+		shooterTriangleIndex = UINT_MAX; // set manually before intersect
+	}
+
+	void setShooterTriangle(unsigned t)
+	{
+		shooterTriangleIndex = t;
+	}
+
+	virtual void init()
+	{
+		result = false;
+	}
+
+	virtual bool collides(const RRRay* ray)
+	{
+		// don't collide with shooter
+		if(ray->hitTriangle==shooterTriangleIndex)
+			return false;
+
+		// don't collide with lod!0
+		if(!triangle[ray->hitTriangle].isLod0)
+			return false;
+
+		// don't collide when object has NULL material (illegal input)
+		//triangleMaterial = triangle[ray->hitTriangle].surface;
+		//if(!triangleMaterial)
+		//	return false;
+
+		//if(!triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+		//	return false
+
+		return result = true;
+	}
+	virtual bool done()
+	{
+		return result;
+	}
+
+private:
+	unsigned shooterTriangleIndex;
+	bool result;
+	const Triangle* triangle; // access to triangles in scene
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // scene
 
 Scene::Scene()
@@ -626,13 +685,14 @@ Scene::Scene()
 	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	sceneRay->rayLengthMax = BIG_REAL;
-	sceneRay->collisionHandler = &skipTriangle;
+	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
 	delete object;
+	delete collisionHandlerLod0;
 	delete sceneRay;
 }
 
@@ -642,6 +702,7 @@ void Scene::objInsertStatic(Object *o)
 	object = o;
 	staticReflectors.insertObject(o);
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
+	sceneRay->collisionHandler = collisionHandlerLod0 = new RRCollisionHandlerLod0(object->triangle);
 }
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation)
@@ -675,6 +736,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 
 	return (staticSourceExitingFlux!=Channels(0)) ? RRStaticSolver::NOT_IMPROVED : RRStaticSolver::FINISHED;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -719,7 +781,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	ray.rayDirInv[0] = 1/direction[0];
 	ray.rayDirInv[1] = 1/direction[1];
 	ray.rayDirInv[2] = 1/direction[2];
-	skipTriangle.skipTriangleIndex = (unsigned)(skip-object->triangle);
+	collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	__shot++;

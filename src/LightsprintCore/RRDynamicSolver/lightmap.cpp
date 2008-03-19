@@ -463,7 +463,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
 			bool gatherAllDirections = allVertexBuffers[LS_DIRECTION1] || allVertexBuffers[LS_DIRECTION2] || allVertexBuffers[LS_DIRECTION3];
-			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
+			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
 
 			// interpolate: tmparray -> buffer
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
@@ -492,8 +492,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		}
 		tc.params = &params;
 		tc.singleObjectReceiver = getObject(objectNumber);
-		tc.gatherDirectEmitors = priv->staticObjectsContainEmissiveMaterials; // this is final gather -> gather from emitors
+		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
+		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
 		for(unsigned i=0;i<NUM_BUFFERS;i++)
@@ -627,7 +628,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
 			bool gatherAllDirections = containsDirectionalVertexBuffers;
-			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticObjectsContainEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
+			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
 
 			// 5. interpolate: tmparray -> buffer
 			// for each object with vertex buffer

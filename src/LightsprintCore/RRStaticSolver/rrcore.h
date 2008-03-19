@@ -43,7 +43,6 @@
 #include "geometry_v.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "interpol.h"
-#include "../RRObject/RRCollisionHandler.h" // SkipTriangle
 
 #define STATISTIC(a)
 #define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
@@ -130,8 +129,9 @@ public:
 
 	// shooting
 	real    hits; // accumulates hits from current shooter
-	unsigned shotsForFactors:31; // number of shots used for current ff
-	unsigned isReflector:1;
+	unsigned shotsForFactors:30; // number of shots used for current ff
+	unsigned isLod0:1; // triangle is in lod0. constant for whole triangle lifetime
+	unsigned isReflector:1; // triangle (is in lod0 and) has some energy accumulated to reflect
 	real    accuracy(); // shots done per energy unit
 
 	// light acumulators
@@ -339,6 +339,7 @@ public:
 		// previously global ray+levels, now allocated per scene
 		// -> multiple independent scenes are legal
 		RRRay*  sceneRay;
+		class RRCollisionHandlerLod0* collisionHandlerLod0;
 
 		// previously global filler, now allocated per scene
 		// -> multiple independent scenes are legal
@@ -346,13 +347,6 @@ public:
 		bool getRandomExitDir(const RRVec3& norm, const RRVec3& u3, const RRVec3& v3, const RRSideBits* sideBits, RRVec3& exitDir);
 	public:
 		Triangle* getRandomExitRay(Triangle* sourceNode, RRVec3* src, RRVec3* dir);
-	private:
-
-		// previously global skipTriangle, now allocated per scene
-		//  -> multiple independent scenes are legal
-		// SkipTriangle is not thread safe
-		//  -> one SkipTriangle per thread must be used if improveStatic() gets parallelized
-		SkipTriangle skipTriangle;
 };
 
 } // namespace

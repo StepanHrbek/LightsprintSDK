@@ -100,6 +100,10 @@ public:
 	{
 		return original->getTriangleIllumination(t,measure,out);
 	}
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	{
+		original->getTriangleLod(t,out);
+	}
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return original->getWorldMatrix();

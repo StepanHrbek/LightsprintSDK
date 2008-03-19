@@ -132,8 +132,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	// add direct illumination
 	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? new RRObjectWithIllumination(priv->multiObjectPhysical,getScaler()) : 
 		(priv->multiObjectCustom ? new RRObjectWithIllumination(priv->multiObjectCustom,getScaler()) : NULL);
-	REPORT(if(priv->multiObjectCustom)
-		RRReporter::report(INF3,"Static scene set: %d objects, optimized %d->%d tris, %d->%d verts\n",priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices()));
 
 	// update minimalSafeDistance
 	if(priv->multiObjectCustom)
@@ -143,19 +141,27 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 	}
 
-	// update staticObjectsContainEmissiveMaterials
-	priv->staticObjectsContainEmissiveMaterials = false;
+	// update staticSceneContainsEmissiveMaterials, staticSceneContainsLods
+	priv->staticSceneContainsEmissiveMaterials = false;
+	priv->staticSceneContainsLods = false;
 	if(priv->multiObjectCustom)
 	{
-		for(unsigned t=priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();t--;)
+		unsigned numTrianglesMulti = priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();
+		for(unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
 			if(material && material->diffuseEmittance!=rr::RRVec3(0))
-			{
-				priv->staticObjectsContainEmissiveMaterials = true;
+				priv->staticSceneContainsEmissiveMaterials = true;
+
+			RRObject::LodInfo lodInfo;
+			priv->multiObjectCustom->getTriangleLod(t,lodInfo);
+			if(lodInfo.level)
+				priv->staticSceneContainsLods = true;
+
+			if(priv->staticSceneContainsEmissiveMaterials && priv->staticSceneContainsLods)
 				break;
-			}
 		}
+		RRReporter::report(INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, emiss %s, lods %s\n",priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),priv->staticSceneContainsEmissiveMaterials?"yes":"no",priv->staticSceneContainsLods?"yes":"no");
 	}
 }
 

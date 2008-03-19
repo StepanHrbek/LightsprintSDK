@@ -34,7 +34,8 @@ namespace rr
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
-		bool       staticObjectsContainEmissiveMaterials;
+		bool       staticSceneContainsEmissiveMaterials;
+		bool       staticSceneContainsLods;
 
 		// detect
 		unsigned*  detectedCustomRGBA8;
@@ -74,7 +75,8 @@ namespace rr
 			multiObjectCustom = NULL;
 			multiObjectPhysical = NULL;
 			multiObjectPhysicalWithIllumination = NULL;
-			staticObjectsContainEmissiveMaterials = false;
+			staticSceneContainsEmissiveMaterials = false;
+			staticSceneContainsLods = false;
 
 			// detect
 			detectedCustomRGBA8 = NULL;

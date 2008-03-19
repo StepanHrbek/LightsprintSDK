@@ -10,11 +10,16 @@ namespace rr
 
 \section news51 ------------------------------------ 2008.3.xx -------------------------------------
 
+NEWS
+
+- global illumination is computed for all LODs at the same time
+  \n implement RRObject::getTriangleLod() to enable calculation with LODs
+
 CHANGES
 
 - RRDynamicSolver::updateEnvironmentMap() preserves size and format of your maps,
   \n RRObjectIllumination::diffuseEnvMapSize and specularEnvMapSize no longer needed, deleted
-		 
+
 \section news50 ------------------------------------ 2008.3.11 -------------------------------------
 
 NEWS

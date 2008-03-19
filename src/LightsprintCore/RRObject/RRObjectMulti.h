@@ -192,6 +192,12 @@ public:
 		singles[mid.object].object->getTriangleIllumination(mid.index,format,out);
 	}
 
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	{
+		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		singles[mid.object].object->getTriangleLod(mid.index,out);
+	}
+
 	virtual ~RRObjectMultiFast()
 	{
 		//delete[] postImportToMidImportVertex;
@@ -467,10 +473,6 @@ public:
 			return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
-	//!!! 10% casu pri vypoctu lightmap travi zde, slo by eliminovat pomocnou tabulkou (objects,table)
-	//    ktera by pomohla i v ostatnich metodach (ale vyzadala by si prepis RRObjectMulti z puleni intervalu na jedno pole objektu)
-	//    zde by to pak vypadalo:
-	//    return objects[table[t].objectNumber]->getTriangleMaterial(table[t].triangleMidNumber);
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		unoptimizeTriangle(t);
@@ -493,6 +495,13 @@ public:
 		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleIllumination(t,format,out);
 		return pack[1].getImporter()->getTriangleIllumination(t-pack[0].getNumTriangles(),format,out);
+	}
+
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	{
+		unoptimizeTriangle(t);
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleLod(t,out);
+		return pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out);
 	}
 
 	virtual ~RRObjectMultiSmall()

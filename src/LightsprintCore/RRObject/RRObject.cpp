@@ -42,6 +42,14 @@ void RRObject::getTriangleIllumination(unsigned t, RRRadiometricMeasure measure,
 	out[2] = 0;
 }
 
+void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
+{
+	out.base = (void*)this;
+	out.level = 0;
+	out.distanceMin = 0;
+	out.distanceMax = 1e35f;
+}
+
 const RRMatrix3x4* RRObject::getWorldMatrix()
 {
 	return NULL;

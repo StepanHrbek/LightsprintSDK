@@ -15,10 +15,11 @@ extern RRVec3 refract(RRVec3 N,RRVec3 I,real r);
 // inputs:
 //  - ray->rayLengthMin
 //  - ray->rayLengthMax
-Gatherer::Gatherer(RRRay* _ray, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight)
+Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods)
+	: collisionHandlerGatherHemisphere(_multiObject,_staticSolver,true,_staticSceneContainsLods)
 {
 	ray = _ray;
-	ray->collisionHandler = &skipTriangle;
+	ray->collisionHandler = &collisionHandlerGatherHemisphere;
 	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
@@ -46,7 +47,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 	ray->rayDirInv[0] = 1/direction[0];
 	ray->rayDirInv[1] = 1/direction[1];
 	ray->rayDirInv[2] = 1/direction[2];
-	skipTriangle.skipTriangleIndex = skipTriangleIndex;
+	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
 	if(!collider->intersect(ray))
 	{
 		// ray left scene
@@ -59,22 +60,14 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 		return Channels(0);
 	}
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
-	Triangle* hitTriangle = &triangle[ray->hitTriangle];
-	if(!hitTriangle->surface)
-	{
-		// error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
-		// sponza-stezka.dae sem leze i kdyz jsem ho nacet poprve, nevim proc
-		//RR_ASSERT(0);
-		return Channels(0);
-	}
 	RR_ASSERT(IS_NUMBER(ray->hitDistance));
-
-	RRSideBits side=hitTriangle->surface->sideBits[ray->hitFrontSide?0:1];
+	Triangle* hitTriangle = &triangle[ray->hitTriangle];
+	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
+	RRSideBits side=material->sideBits[ray->hitFrontSide?0:1];
 	Channels exitance = Channels(0);
 	if(side.legal && (side.catchFrom || side.emitTo))
 	{
 		// per-pixel material
-		const RRMaterial* material = hitTriangle->surface;
 		RRMaterial pointMaterial;
 		if(side.pointDetails)
 		{

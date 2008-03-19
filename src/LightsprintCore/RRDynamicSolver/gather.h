@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 
-//error : inserted by sunifdef: "#define USE_BOOST_POOL // simply undef it if you don't have boost headers. lightmap building will be slightly slower" contradicts -U at R:\work2\.git-rewrite\t\src\LightsprintCore\RRDynamicSolver\gather.h~(8)
+//error : inserted by sunifdef: "#define USE_BOOST_POOL // simply undef it if you don't have boost headers. lightmap building will be slightly slower, using slightly less memory" contradicts -U at R:\work2\.git-rewrite\t\src\LightsprintCore\RRDynamicSolver\gather.h~(8)
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
@@ -33,6 +33,7 @@ struct TexelContext
 	RRObject* singleObjectReceiver;
 	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
+	bool staticSceneContainsLods; // scene contains LODs, additional work
 };
 
 // subtexel is triangular intersection of triangle and texel

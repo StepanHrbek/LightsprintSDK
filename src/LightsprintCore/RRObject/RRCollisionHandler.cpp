@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-#include "RRCollisionHandler.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr
 {

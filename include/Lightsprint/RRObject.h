@@ -180,6 +180,31 @@ namespace rr
 		//! \param out Returned material in given point, undefined on input, to be filled by implementation.
 		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
 
+		//! Information about single object, what LOD it is.
+		struct LodInfo
+		{
+			//! LODs belong together only if they have identical bases.
+			void* base;
+			//! LODs that belong together always differ in level. There must be always at least level 0 for each base.
+			unsigned level;
+			//! Object is rendered only if its distance satisfies distanceMin<=distance<distanceMax.
+			RRReal distanceMin;
+			//! Object is rendered only if its distance satisfies distanceMin<=distance<distanceMax.
+			RRReal distanceMax;
+		};
+		//! Returns information about single object, what LOD it is.
+		//
+		//! In Lightsprint, LODs are completely separated objects without any pointers linking them.
+		//! The only information that connects them comes from this function.
+		//! \n Default implementation makes all objects unique, they return different bases and level 0.
+		//! \param t
+		//!  Triangle number, relevant only for multiobjects, individual triangles in multiobject may return
+		//!  different results.
+		//! \param out
+		//!  Caller provided storage for result.
+		//!  For valid t, requested LOD info is written to out. For invalid t, out stays unmodified.
+		virtual void getTriangleLod(unsigned t, LodInfo& out) const;
+
 
 		//
 		// may change during object lifetime

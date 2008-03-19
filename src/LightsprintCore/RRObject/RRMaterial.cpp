@@ -14,42 +14,22 @@ namespace rr
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRMaterial
-;
-// K cemu jsou sidebits?
-// 
-// gather-hemi: sondovat z povrchu do okoli zda tam neni svetlo
-//
-// gather-lights: zmerit viditelnost z povrchu do RRLight
-//   - povrch je prostupny podle specularTransmittance
-//     - dulezite pro normalni matrose
-//     - catchFrom, transmitFrom
-//   - povrch je zcela prostupny (napr zadni strana facu s 0.5 propustnosti)
-//     - dulezite pro polopruhlednou krabicku, zadni strany 1sided sten
-//       renderuje se jen 1 strana, tak at i propustnost omezuje jen jedna
-//     - !catchFrom
-//   - paprsek zasahl neco co nemel, vyradit ho z vypoctu jako neverohodny
-//     - dulezite proti vytekani tmy zpod zidky v koupelne
-//     - !legal
-//   - povrch je zcela neprostupny (napr zadni strana facu s 0.5 propustnosti)
-//     - asi neni nutne
-//     - catchFrom, !transmitFrom
-//
-// propag: strilet fotony z povrchu do okoli
-//
+
 
 void RRMaterial::reset(bool twoSided)
 {
-	memset(this,0,sizeof(*this));
 	RRSideBits sideBitsTmp[2][2]={
 		{{1,1,1,1,1,1,1,0},{0,0,1,0,0,0,0,0}}, // definition of default 1-sided (front side, back side)
 		{{1,1,1,1,1,1,1,0},{1,0,1,1,1,1,1,0}}, // definition of default 2-sided (front side, back side)
 	};
-	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
-	diffuseReflectance             = RRVec3(0.5f);
-	diffuseEmittance               = RRVec3(0);
-	specularReflectance            = 0;
-	specularTransmittance          = RRVec3(0);
-	refractionIndex                = 1;
+	sideBits[0]           = sideBitsTmp[twoSided?1:0][0];
+	sideBits[1]           = sideBitsTmp[twoSided?1:0][1];
+	diffuseReflectance    = RRVec3(0.5f);
+	diffuseEmittance      = RRVec3(0);
+	specularReflectance   = 0;
+	specularTransmittance = RRVec3(0);
+	refractionIndex       = 1;
+	name                  = NULL;
 }
 
 bool clamp(RRReal& vec, RRReal min, RRReal max)
