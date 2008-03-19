@@ -285,6 +285,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName).dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -381,6 +383,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 	</Configurations>

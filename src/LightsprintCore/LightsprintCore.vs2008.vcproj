@@ -630,10 +630,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRObject\RRCollisionHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="RRObject\RRMaterial.cpp"
 				>
 			</File>
