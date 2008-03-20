@@ -51,32 +51,32 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 //!  Function called for each enumerated texel. Must be thread safe.
 //! \param context
 //!  Context is passed unchanged to callback.
-void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
 	if(!multiObject)
 	{
 		RR_ASSERT(0);
-		return;
+		return false;
 	}
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 
-	// 1. preallocate texels, rays, relevantLights
+	// 1. preallocate texels
 	unsigned numTexelsInMap = mapWidth*mapHeight;
-	TexelSubTexels* texels = new TexelSubTexels[numTexelsInMap];
-
-#ifdef _OPENMP
-	int numThreads = omp_get_max_threads();
-#else
-	int numThreads = 1;
-#endif
-	RRRay* rays = RRRay::create(2*numThreads);
-
-	unsigned numAllLights = tc.solver->getLights().size();
-	unsigned numRelevantLights = 0;
-	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
+	TexelSubTexels* texels = NULL;
+	try
+	{
+		texels = new TexelSubTexels[numTexelsInMap];
+	}
+	catch(std::bad_alloc e)
+	{
+		RRReporter::report(ERRO,"Not enough memory, lightmap not updated(1).\n");
+		return false;
+	}
 	unsigned multiPostImportTriangleNumber = 0; // filled in next step
 
 	// 2. populate texels with subtexels
+	try
+	{
 	unsigned threadYMin = 0;
 	unsigned threadYMax = mapHeight; // our thread will process lines min..max-1
 #ifdef PARALLEL_POPULATE
@@ -250,8 +250,26 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 #ifdef PARALLEL_POPULATE
 	}}}
 #endif
+	}
+	catch(std::bad_alloc e)
+	{
+		RRReporter::report(ERRO,"Not enough memory, lightmap not updated(2).\n");
+		delete[] texels;
+		return false;
+	}
 
-	// 3. populate relevantLights
+	// 3. preallocate rays
+#ifdef _OPENMP
+	int numThreads = omp_get_max_threads();
+#else
+	int numThreads = 1;
+#endif
+	RRRay* rays = RRRay::create(2*numThreads);
+
+	// 4. preallocate and populate relevantLights
+	unsigned numAllLights = tc.solver->getLights().size();
+	unsigned numRelevantLights = 0;
+	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
 	for(unsigned i=0;i<numAllLights;i++)
 	{
 		RRLight* light = tc.solver->getLights()[i];
@@ -263,7 +281,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		}
 	}
 
-	// 4. gather, shoot rays from texels
+	// 5. gather, shoot rays from texels
 	#pragma omp parallel for schedule(dynamic)
 	for(int j=0;j<(int)mapHeight;j++)
 	{
@@ -294,10 +312,12 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		}
 	}
 
-	// 5. cleanup
+	// 6. cleanup
 	delete[] relevantLights;
 	delete[] texels;
 	delete[] rays;
+
+	return true;
 }
 
 void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
@@ -461,7 +481,16 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// for each triangle
 			// future optimization: gather only triangles necessary for selected object
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
+			ProcessTexelResult* finalGather;
+			try
+			{
+				finalGather = new ProcessTexelResult[numTriangles];
+			}
+			catch(std::bad_alloc)
+			{
+				RRReporter::report(ERRO,"Not enough memory, vertex buffer not updated.\n");
+				return updatedBuffers;
+			}
 			bool gatherAllDirections = allVertexBuffers[LS_DIRECTION1] || allVertexBuffers[LS_DIRECTION2] || allVertexBuffers[LS_DIRECTION3];
 			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
 
@@ -486,22 +515,34 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		TexelContext tc;
 		tc.solver = this;
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		try
 		{
-			tc.pixelBuffers[i] = allPixelBuffers[i]?new LightmapFilter(pixelBufferWidth,pixelBufferHeight):NULL;
+			for(unsigned i=0;i<NUM_BUFFERS;i++)
+				tc.pixelBuffers[i] = NULL;
+			for(unsigned i=0;i<NUM_BUFFERS;i++)
+				tc.pixelBuffers[i] = allPixelBuffers[i]?new LightmapFilter(pixelBufferWidth,pixelBufferHeight):NULL;
+		}
+		catch(std::bad_alloc)
+		{
+			for(unsigned i=0;i<NUM_BUFFERS;i++)
+				delete tc.pixelBuffers[i];
+			RRReporter::report(ERRO,"Not enough memory, lightmap not updated(0).\n");
+			return updatedBuffers;
 		}
 		tc.params = &params;
 		tc.singleObjectReceiver = getObject(objectNumber);
 		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
-		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
+		bool gathered = enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
 		for(unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			if(allPixelBuffers[i])
+			if(tc.pixelBuffers[i])
 			{
-				if(params.debugTexel==UINT_MAX) // skip texture update when debugging texel
+				if(allPixelBuffers[i]
+					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
+					&& gathered)
 				{
 					flush(allPixelBuffers[i],tc.pixelBuffers[i]->getFiltered(filtering),(i==LS_BENT_NORMALS)?NULL:priv->scaler);
 					updatedBuffers++;

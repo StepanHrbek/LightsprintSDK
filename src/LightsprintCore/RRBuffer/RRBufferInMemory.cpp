@@ -77,9 +77,16 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	// copy data
 	if(!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
 	{
-		delete[] data;
-		//data = _data ? new unsigned char[bytesTotal] : NULL;
-		data = (_data || _format!=BF_DEPTH) ? new unsigned char[bytesTotal] : NULL;
+		SAFE_DELETE_ARRAY(data);
+		try
+		{
+			data = (_data || _format!=BF_DEPTH) ? new unsigned char[bytesTotal] : NULL;
+		}
+		catch(std::bad_alloc e)
+		{
+			RRReporter::report(ERRO,"Not enough memory, %dMB buffer not created.\n",bytesTotal/1024/1024);
+			return false;
+		}
 	}
 	if(data && data!=_data)
 	{
@@ -120,7 +127,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 	}
 	if(index>=width*height*depth)
 	{
-		RRReporter::report(WARN,"getElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
+		RRReporter::report(WARN,"setElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
 		return;
 	}
 	switch(format)
