@@ -17,7 +17,6 @@
 #include "private.h"
 #include "gather.h"
 
-//#define PARALLEL_POPULATE // newer version, but no speedup, something blocks parallelism (default memory allocator in std::vector?)
 //#define ITERATE_MULTIMESH // older version with very small inefficiency
 
 namespace rr
@@ -32,26 +31,10 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 	return  sqrtf(s*(s-a)*(s-b)*(s-c));
 }
 
-//! Enumerates all texels on object's surface.
-//
-//! Default implementation runs callbacks on all CPUs/cores at once.
-//! It is not strictly defined what texels are enumerated, but close match to
-//! pixels visible on mapped object improves lightmap quality.
-//! \n Enumeration order is not defined.
-//! \param objectNumber
-//!  Number of object in this scene.
-//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
-//! \param mapWidth
-//!  Width of map that wraps object's surface in texels.
-//!  No map is used here, but coordinates are generated for map of this size.
-//! \param mapHeight
-//!  Height of map that wraps object's surface in texels.
-//!  No map is used here, but coordinates are generated for map of this size.
-//! \param callback
-//!  Function called for each enumerated texel. Must be thread safe.
-//! \param context
-//!  Context is passed unchanged to callback.
-bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
+		unsigned mapWidth, unsigned mapHeight,
+		unsigned rectXMin, unsigned rectYMin, unsigned rectXMaxPlus1, unsigned rectYMaxPlus1, 
+		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
 	if(!multiObject)
 	{
@@ -61,11 +44,11 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 
 	// 1. preallocate texels
-	unsigned numTexelsInMap = mapWidth*mapHeight;
-	TexelSubTexels* texels = NULL;
+	unsigned numTexelsInRect = (rectXMaxPlus1-rectXMin)*(rectYMaxPlus1-rectYMin);
+	TexelSubTexels* texelsRect = NULL;
 	try
 	{
-		texels = new TexelSubTexels[numTexelsInMap];
+		texelsRect = new TexelSubTexels[numTexelsInRect];
 	}
 	catch(std::bad_alloc e)
 	{
@@ -77,28 +60,6 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	// 2. populate texels with subtexels
 	try
 	{
-	unsigned threadYMin = 0;
-	unsigned threadYMax = mapHeight; // our thread will process lines min..max-1
-#ifdef PARALLEL_POPULATE
-	{
-	RRReportInterval report(INF1,"populating texels...\n");
-	#pragma omp parallel
-	{
-		// find out what rectangle belongs to our thread
-		unsigned threadYMin = 0;
-		unsigned threadYMax = mapHeight; // our thread will process lines min..max-1
-		#ifdef _OPENMP
-		{
-			int threadNum = omp_get_thread_num();
-			int numThreads = omp_get_num_threads();
-			threadYMin = threadYMax*threadNum/numThreads;
-			threadYMax = threadYMax*(threadNum+1)/numThreads;
-		}
-		#endif
-		if(threadYMax>threadYMin)
-		{
-#endif
-
 	// iterate only triangles in singlemesh
 	RRObject* singleObject = tc.solver->getObject(objectNumber);
 	RRMesh* singleMesh = singleObject->getCollider()->getMesh();
@@ -122,15 +83,15 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			//  find minimal bounding box
 			unsigned xminu, xmaxu, yminu, ymaxu;
 			{
-				RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
-				RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-				yminu = (unsigned)MAX(ymin,threadYMin); // !negative
-				ymaxu = (unsigned)CLAMPED(ymax+1,0,threadYMax); // !negative
-				if(yminu>=ymaxu) continue; // early exit from triangle belonging to other thread
 				RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
 				RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
-				xminu = (unsigned)MAX(xmin,0); // !negative
-				xmaxu = (unsigned)CLAMPED(xmax+1,0,mapWidth); // !negative
+				xminu = (unsigned)MAX(xmin,rectXMin); // !negative
+				xmaxu = (unsigned)CLAMPED(xmax+1,0,rectXMaxPlus1); // !negative
+				RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
+				RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
+				yminu = (unsigned)MAX(ymin,rectYMin); // !negative
+				ymaxu = (unsigned)CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
+				if(yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
 				if(!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
 					LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			}
@@ -239,7 +200,7 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
-								texels[x+y*mapWidth].push_back(subTexel);
+								texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel);
 							}
 						}
 					}
@@ -247,14 +208,11 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			}
 		}
 	}
-#ifdef PARALLEL_POPULATE
-	}}}
-#endif
 	}
 	catch(std::bad_alloc e)
 	{
 		RRReporter::report(ERRO,"Not enough memory, lightmap not updated(2).\n");
-		delete[] texels;
+		delete[] texelsRect;
 		return false;
 	}
 
@@ -283,23 +241,24 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 	// 5. gather, shoot rays from texels
 	#pragma omp parallel for schedule(dynamic)
-	for(int j=0;j<(int)mapHeight;j++)
+	for(int j=(int)rectYMin;j<(int)rectYMaxPlus1;j++)
 	{
 #ifdef _OPENMP
 		int threadNum = omp_get_thread_num();
 #else
 		int threadNum = 0;
 #endif
-		for(int i=0;i<(int)mapWidth;i++)
+		for(int i=(int)rectXMin;i<(int)rectXMaxPlus1;i++)
 		{
-			if(texels[i+j*mapWidth].size())
+			unsigned indexInRect = (i-rectXMin)+(j-rectYMin)*(rectXMaxPlus1-rectXMin);
+			if(texelsRect[indexInRect].size())
 			{
 				if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 				{
 					ProcessTexelParams ptp(tc);
 					ptp.uv[0] = i;
 					ptp.uv[1] = j;
-					ptp.subTexels = texels+i+j*mapWidth;
+					ptp.subTexels = texelsRect+indexInRect;
 					ptp.rays = rays+2*threadNum;
 					ptp.rays[0].rayLengthMin = minimalSafeDistance;
 					ptp.rays[1].rayLengthMin = minimalSafeDistance;
@@ -314,10 +273,57 @@ bool enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 	// 6. cleanup
 	delete[] relevantLights;
-	delete[] texels;
+	delete[] texelsRect;
 	delete[] rays;
 
 	return true;
+}
+
+//! Enumerates all texels on object's surface.
+//
+//! Default implementation runs callbacks on all CPUs/cores at once.
+//! Callback receives list of all triangles intersecting texel.
+//! It is not called for texels with empty list.
+//! \n Enumeration order is not defined.
+//! \param objectNumber
+//!  Number of object in this scene.
+//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
+//! \param mapWidth
+//!  Width of map that wraps object's surface in texels.
+//!  No map is used here, but coordinates are generated for map of this size.
+//! \param mapHeight
+//!  Height of map that wraps object's surface in texels.
+//!  No map is used here, but coordinates are generated for map of this size.
+//! \param callback
+//!  Function called for each enumerated texel. Must be thread safe.
+//! \param context
+//!  Context is passed unchanged to callback.
+bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+{
+	enum {MAX_TEXELS_PER_PASS=512*512};
+	unsigned numTexelsInMap = mapWidth*mapHeight;
+	unsigned numPasses = (numTexelsInMap+MAX_TEXELS_PER_PASS-1)/MAX_TEXELS_PER_PASS;
+	if(numPasses==0)
+		return false;
+	else
+	if(mapWidth<=mapHeight)
+	{
+		for(unsigned i=0;i<numPasses;i++)
+		{
+			if(!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+				return false;
+		}
+		return true;
+	}
+	else
+	{
+		for(unsigned i=0;i<numPasses;i++)
+		{
+			if(!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+				return false;
+		}
+		return true;
+	}
 }
 
 void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
@@ -534,7 +540,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
-		bool gathered = enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
+		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
 		for(unsigned i=0;i<NUM_BUFFERS;i++)
 		{
