@@ -36,7 +36,7 @@ int main()
 	// create mesh[0] from array
 	meshes[0] = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
-	// create mesh[1] as another instance of mesh[0], but slightly translated
+	// create mesh[1] as another instance of mesh[0], but slightly translated. data are not duplicated
 	RRMatrix3x4 matrix = {
 		1,0,0,0,
 		0,1,0,-0.1f,
@@ -44,7 +44,7 @@ int main()
 	meshes[1] = meshes[0]->createTransformed(&matrix);
 
 	// create multimesh, glue array of meshes together without duplicating data
-	RRMesh* multiMesh = RRMesh::createMultiMesh(meshes,2);
+	RRMesh* multiMesh = RRMesh::createMultiMesh(meshes,2,false);
 
 	// you can add more filters, e.g.
 	//multiMesh2 = multiMesh->createOptimizedVertices(0.1f); // vertex weld, distance 0.1
