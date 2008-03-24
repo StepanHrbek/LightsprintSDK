@@ -165,16 +165,7 @@ public:
 
 	// geometry
 	real    area;
-	S8      setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea);
-	const RRVec3* getVertex(unsigned i) const {return qvertex[i];}
-	RRVec3  getS3() const {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
-	RRVec3  getR3() const {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
-	RRVec3  getL3() const {return *getVertex(2)-*getVertex(0);}
-	Normal  getN3() const {return qn3;}
-		private:
-		const RRVec3* qvertex[3]; // 3x vertex
-		Normal qn3; // normalized normal vector
-		public:
+	S8      setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAngle,float ignoreSmallerArea);
 
 	// material
 	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
@@ -253,7 +244,6 @@ public:
 	RRObject* importer;
 	unsigned vertices;
 	unsigned triangles;
-	RRVec3    *vertex;
 	Triangle*triangle;
 	bool     buildTopIVertices(float minFeatureSize, float maxSmoothAngle); // false when out of memory
 		private:
@@ -325,6 +315,8 @@ public:
 		Triangle* improvingStatic;
 		Triangles hitTriangles;
 		Factors improvingFactors;
+		RRMesh::TriangleBody improvingBody;
+		RRMesh::TangentBasis improvingBasis;
 		void    shotFromToHalfspace(Triangle* sourceNode);
 		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Triangle* source,bool endfunc(void *),void *context);
@@ -344,7 +336,7 @@ public:
 		// previously global filler, now allocated per scene
 		// -> multiple independent scenes are legal
 		HomogenousFiller filler;
-		bool getRandomExitDir(const RRVec3& norm, const RRVec3& u3, const RRVec3& v3, const RRSideBits* sideBits, RRVec3& exitDir);
+		bool getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
 	public:
 		Triangle* getRandomExitRay(Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 };

@@ -158,6 +158,8 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 	//  zaloz ivertex s timto setem corneru
 	//  NEDOKONALE, vrchol jehlanu bude mit jednu barvu
 
+	const RRMesh* mesh = obj->importer->getCollider()->getMesh();
+
 	unsigned numSplitted = 0;
 	//while zbyvaji cornery
 	std::list<Corner*> cornersLeft;
@@ -177,25 +179,39 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 restart_iter:
 		for(std::list<Corner*>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
 		{
+			unsigned t1,t2;
+			RRMesh::TriangleBody body1,body2;
+			RRVec3 n1,n2;
 			unsigned j;
 			//  kdyz ma normalu dost blizkou aspon jednomu corneru ze setu, vloz ho do setu
 			if(!v->corners)
 				goto insert_i;
+
+			t1 = (*i)->node-obj->triangle;
+			mesh->getTriangleBody(t1,body1);
+			n1 = ortogonalTo(body1.side1,body1.side2).normalized();
+
 			for(j=0;j<v->corners;j++)
-				if(INTERPOL_BETWEEN((*i)->node,v->getCorner(j).node))
 			{
+				t2 = v->getCorner(j).node-obj->triangle;
+				mesh->getTriangleBody(t2,body2);
+				n2 = ortogonalTo(body2.side1,body2.side2).normalized();
+
+				if(angleBetweenNormalized(n1,n2)<=maxSmoothAngle)
+				{
 insert_i:
-				// vloz corner do noveho ivertexu
-				v->insert((*i)->node,true,(*i)->power);
-				// oprav pointery z nodu na stary ivertex
-				Triangle* triangle = (*i)->node;
-				for(unsigned k=0;k<3;k++)
-					if(triangle->topivertex[k]==this)
-						triangle->topivertex[k] = v;
-				// odeber z corneru zbyvajicich ke zpracovani
-				cornersLeft.erase(i);
-				// pro jistotu restartni iteraci, iterator muze byt dead
-				goto restart_iter;
+					// vloz corner do noveho ivertexu
+					v->insert((*i)->node,true,(*i)->power);
+					// oprav pointery z nodu na stary ivertex
+					Triangle* triangle = (*i)->node;
+					for(unsigned k=0;k<3;k++)
+						if(triangle->topivertex[k]==this)
+							triangle->topivertex[k] = v;
+					// odeber z corneru zbyvajicich ke zpracovani
+					cornersLeft.erase(i);
+					// pro jistotu restartni iteraci, iterator muze byt dead
+					goto restart_iter;
+				}
 			}
 		}
 	}
@@ -288,15 +304,19 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	// fill our vertices
 	info.ourVertices.insert(originalVertexIndex);
 	// fill center
-	info.center = object->vertex[originalVertexIndex];
+	RRMesh* mesh = object->importer->getCollider()->getMesh();
+	mesh->getVertex(originalVertexIndex,info.center);
 	// fill our neighbours
 	for(unsigned c=0;c<corners;c++)
 	{
 		Triangle* tri = getCorner(c).node;
 		unsigned originalPresent = 0;
+		unsigned triangleIndex = tri-object->triangle;
+		RRMesh::Triangle triangleVertexIndices;
+		mesh->getTriangle(triangleIndex,triangleVertexIndices);
 		for(unsigned i=0;i<3;i++)
 		{
-			unsigned triVertex = (unsigned)(tri->getVertex(i)-object->vertex);
+			unsigned triVertex = triangleVertexIndices[i];
 			if(triVertex!=originalVertexIndex)
 				info.neighbourVertices.insert(triVertex);
 			else
@@ -498,19 +518,21 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	RRMesh* meshImporter = importer->getCollider()->getMesh();
+	RRMesh* mesh = importer->getCollider()->getMesh();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
-		RRMesh::Triangle un_ve; // un_ = unrotated
-		meshImporter->getTriangle(t,un_ve);
-		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
+		RRMesh::Triangle un_ve;
+		mesh->getTriangle(t,un_ve);
+		RRMesh::Vertex vertex[3];
+		mesh->getVertex(un_ve[0],vertex[0]);
+		mesh->getVertex(un_ve[1],vertex[1]);
+		mesh->getVertex(un_ve[2],vertex[2]);
+		for(int ro_v=0;ro_v<3;ro_v++)
 		{
 			unsigned un_v = un_ve[ro_v];
 			RR_ASSERT(un_v<vertices);
 			triangle[t].topivertex[ro_v]=&topivertex[un_v];
-			Angle angle=angleBetween(
-			  *triangle[t].getVertex((ro_v+1)%3)-*triangle[t].getVertex(ro_v),
-			  *triangle[t].getVertex((ro_v+2)%3)-*triangle[t].getVertex(ro_v));
+			Angle angle=angleBetween(vertex[(ro_v+1)%3]-vertex[ro_v],vertex[(ro_v+2)%3]-vertex[ro_v]);
 			topivertex[un_v].insert(&triangle[t],true,angle);
 		}
 	}
@@ -537,7 +559,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 	for(unsigned v=0;v<vertices;v++)
 	{
 		RRMesh::Vertex vert;
-		meshImporter->getVertex(v,vert);
+		mesh->getVertex(v,vert);
 		numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
 		if(outOfMemory) break;
 		// check that splitted topivertex is no more referenced

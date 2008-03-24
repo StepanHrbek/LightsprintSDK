@@ -130,6 +130,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 		RRReporter::report(WARN,"setElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
 		return;
 	}
+	//RR_ASSERT(element[0]>=0); // bent normals may be negative
 	switch(format)
 	{
 		case BF_RGB:
@@ -188,9 +189,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 			result = *((RRVec4*)(data+ofs));
 			break;
 	}
-	RR_ASSERT(result[0]>=0);
-	RR_ASSERT(result[1]>=0);
-	RR_ASSERT(result[2]>=0);
+	//RR_ASSERT(result[0]>=0); // bent normals may be negative
 	return result;
 }
 

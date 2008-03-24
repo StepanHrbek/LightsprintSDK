@@ -105,7 +105,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
 			// calculate new direction after ideal mirror reflection
-			RRVec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
+			RRVec3 newDirection=ray->hitPlane*(-2*dot(direction,ray->hitPlane)/size2(ray->hitPlane))+direction;
 			// recursively call this function
 			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
@@ -118,7 +118,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
 			// calculate new direction after refraction
-			RRVec3 newDirection=-refract(hitTriangle->getN3(),direction,material->refractionIndex);
+			RRVec3 newDirection=-refract(ray->hitPlane,direction,material->refractionIndex);
 			// recursively call this function
 			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance);
 			RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0);

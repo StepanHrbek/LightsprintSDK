@@ -10,12 +10,6 @@
 namespace rr
 {
 
-#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE)
-#define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->getN3(),t2->getN3()))
-
-#define MAX_INTERPOL_ANGLE maxSmoothAngle // max angle between interpolated neighbours
-
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // interpolated vertex

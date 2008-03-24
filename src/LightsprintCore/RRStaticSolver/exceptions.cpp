@@ -43,7 +43,6 @@ Object* Object::create(int _vertices,int _triangles)
 	{
 		o->vertices = _vertices;
 		o->triangles = _triangles;
-		o->vertex=new RRVec3[_vertices];
 		o->triangle=new Triangle[_triangles];
 	}
 	catch(std::bad_alloc e)

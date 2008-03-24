@@ -224,39 +224,24 @@ static real minAngle(real a,real b,real c) // delky stran
 }
 
 // calculates triangle area from triangle vertices
-real calculateArea(RRVec3 v0, RRVec3 v1, RRVec3 v2)
+real calculateArea(const RRMesh::TriangleBody& body)
 {
-	real a=size2(v1-v0);
-	real b=size2(v2-v0);
-	real c=size2(v2-v1);
+	real a=size2(body.side1);
+	real b=size2(body.side2);
+	real c=size2(body.side2-body.side1);
 	return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
 }
 
-// rots muze prikazat kolikrat zarotovat, -1=autodetekce
-// vraci kolikrat zarotoval, -1..-11=vadna geometrie, zahodit
-// n=NULL .. spocita normalu sam
-// n!=NULL .. pouzije zadanou normalu
-//
-// Objekt muze byt scalovany. a/b/c ale dostavame v objectspace a tak musi zustat.
-// Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
-// obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
-
-S8 Triangle::setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea)
+S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAngle,float ignoreSmallerArea)
 {
-	qvertex[0]=a;
-	qvertex[1]=b;
-	qvertex[2]=c;
+	RRVec3 qn3=normalized(ortogonalTo(body.side1,body.side2));
+	//qn3.w=-dot(body.vertex0,qn3);
+	if(!IS_VEC3(qn3)) return -3; // throw out degenerated triangle
 
-	// set n3
-	qn3=normalized(ortogonalTo(getR3(),getL3()));
-	qn3.w=-dot(getS3(),getN3());
-	if(!IS_VEC3(getN3())) return -3; // throw out degenerated triangle
-
-	// set s2,u2,v2
-	real rsize=size(getR3());
-	real lsize=size(getL3());
+	real rsize=size(body.side1);
+	real lsize=size(body.side2);
 	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
-	real psqr=size2(getR3()/rsize-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
+	real psqr=size2(body.side1/rsize-(body.side2/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
 	if(psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
 	if(psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
@@ -272,15 +257,11 @@ S8 Triangle::setGeometry(RRVec3* a,RRVec3* b,RRVec3* c,const RRMatrix3x4 *obj2wo
 	if(area<=ignoreSmallerArea) return -5;
 
 	// premerit min angle v localspace (mohlo by byt i ve world)
-	real minangle = minAngle(lsize,rsize,size(getL3()-getR3()));
+	real minangle = minAngle(lsize,rsize,size(body.side2-body.side1));
 	if(!IS_NUMBER(area)) return -13;
 	if(minangle<=ignoreSmallerAngle) return -14;
 
-	// premerit area v worldspace
-	if(obj2world)
-		area = calculateArea(obj2world->transformedPosition(*a),obj2world->transformedPosition(*b),obj2world->transformedPosition(*c));
-	else
-		area = calculateArea(*a,*b,*c);
+	area = calculateArea(body);
 	if(!IS_NUMBER(area)) return -11;
 	if(area<=ignoreSmallerArea) return -12;
 
@@ -548,7 +529,6 @@ Object::Object()
 {
 	vertices=0;
 	triangles=0;
-	vertex=NULL;
 	triangle=NULL;
 	objSourceExitingFlux=Channels(0);
 	IVertexPool=NULL;
@@ -565,7 +545,6 @@ unsigned Object::getTriangleIndex(Triangle* t)
 Object::~Object()
 {
 	delete[] triangle;
-	delete[] vertex;
 	deleteIVertices();
 }
 
@@ -682,7 +661,7 @@ Scene::Scene()
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
 	sceneRay = RRRay::create();
-	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::FILL_PLANE;
 	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	sceneRay->rayLengthMax = BIG_REAL;
 	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
@@ -836,7 +815,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after ideal mirror reflection
-		RRVec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
+		RRVec3 newDirection=ray.hitPlane*(-2*dot(direction,ray.hitPlane)/size2(ray.hitPlane))+direction;
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}
@@ -851,7 +830,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after refraction
-		RRVec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionIndex);
+		RRVec3 newDirection=-refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.avg()));
 	}
@@ -901,8 +880,8 @@ void HomogenousFiller::GetTrianglePoint(real *a,real *b)
 //
 // random exiting ray
 
-bool Scene::getRandomExitDir(const RRVec3& norm, const RRVec3& u3, const RRVec3& v3, const RRSideBits* sideBits, RRVec3& exitDir)
-// ortonormal space: norm, u3, v3
+bool Scene::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
+// ortonormal basis
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
 #ifdef HOMOGENOUS_FILL
@@ -924,11 +903,11 @@ bool Scene::getRandomExitDir(const RRVec3& norm, const RRVec3& u3, const RRVec3&
 	if(!sideBits[0].emitTo && !sideBits[1].emitTo)
 		return false;
 #ifdef HOMOGENOUS_FILL
-	exitDir = norm*cosa + u3*x + v3*y;
+	exitDir = basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
 #else
 	real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
 	Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
-	exitDir = norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
+	exitDir = basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
 #endif
 	RR_ASSERT(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
 	return true;
@@ -945,15 +924,11 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 		u=RAND_MAX-u;
 		v=RAND_MAX-v;
 	}
-	Point3 srcPoint3 = source->getS3() + source->getR3()*(u/(real)RAND_MAX) + source->getL3()*(v/(real)RAND_MAX);
-
-	RRVec3 n3 = source->getN3();
-	RRVec3 u3 = normalized(source->getR3());
-	RRVec3 v3 = ortogonalTo(n3,u3);
+	Point3 srcPoint3 = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;
-	if(!getRandomExitDir(n3,u3,v3,source->surface->sideBits,rayVec3)) 
+	if(!getRandomExitDir(improvingBasis,source->surface->sideBits,rayVec3)) 
 		return NULL;
 	RR_ASSERT(IS_SIZE1(rayVec3));
 
@@ -1043,6 +1018,11 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		RR_ASSERT(shotsAccumulated==0);
 		RR_ASSERT(!hitTriangles.get());
 		filler.Reset(); // prepare homogenous shooting
+		// prepare data for shooting
+		unsigned triangleIndex = source-object->triangle;
+		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
+		improvingBasis.normal = ortogonalTo(improvingBody.side1,improvingBody.side2).normalized();
+		improvingBasis.buildBasisFromNormal();
 		phase=1;
 	}
 	if(phase==1)

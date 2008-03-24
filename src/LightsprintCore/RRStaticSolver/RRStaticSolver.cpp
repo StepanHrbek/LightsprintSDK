@@ -83,31 +83,21 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	RR_ASSERT(obj);
 	RRDynamicSolver::SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
-	RRMesh* meshImporter = importer->getCollider()->getMesh();
+	RRMesh* mesh = importer->getCollider()->getMesh();
 	obj->importer = importer;
 
-	// import vertices
-	RR_ASSERT(sizeof(RRMesh::Vertex)==sizeof(RRVec3));
-	for(unsigned i=0;i<obj->vertices;i++) 
-		meshImporter->getVertex(i,*(RRMesh::Vertex*)&obj->vertex[i]);
-
 	// import triangles
-	// vzdy vklada/cisluje od nuly nahoru
 	DBG(printf(" triangles...\n"));
 	for(unsigned fi=0;fi<obj->triangles;fi++) 
 	{
 		RRMesh::Triangle tv;
-		meshImporter->getTriangle(fi,tv);
+		mesh->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
 		RR_ASSERT(s);
 		Triangle *t = &obj->triangle[fi];
-		// vlozi ho, seridi geometrii atd
-		if(!t->setGeometry(
-			&obj->vertex[tv[0]],
-			&obj->vertex[tv[1]],
-			&obj->vertex[tv[2]],
-			NULL,NULL,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea
-			))
+		RRMesh::TriangleBody body;
+		mesh->getTriangleBody(fi,body);
+		if(!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
 		{
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
@@ -166,6 +156,8 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	{
 		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);
 		RR_ASSERT(triangleIndex<numTriangles);
+		RR_ASSERT(getCorner(i).power>0);
+		//RR_ASSERT((*(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex)).avg()>=0); bent normals may be negative
 		result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * getCorner(i).power;
 	}
 	return result/powerTopLevel;

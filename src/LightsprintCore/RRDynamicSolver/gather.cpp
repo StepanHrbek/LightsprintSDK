@@ -920,7 +920,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 			ptp.numRelevantLights = 0;
 			ptp.relevantLightsFilled = false;
 			results[t] = processTexel(ptp);
-			//RR_ASSERT(results[t].irradiance[0]>=0 && results[t].irradiance[1]>=0 && results[t].irradiance[2]>=0); small float error may generate negative value
+			RR_ASSERT(results[t].irradiance[LS_LIGHTMAP][0]>-0.01f && results[t].irradiance[LS_LIGHTMAP][1]>-0.01f && results[t].irradiance[LS_LIGHTMAP][2]>-0.01f); //small float error may generate negative value
 		}
 	}
 
