@@ -227,14 +227,14 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	// 4. preallocate and populate relevantLights
 	unsigned numAllLights = tc.solver->getLights().size();
 	unsigned numRelevantLights = 0;
-	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
+	const RRLight** relevantLightsForObject = new const RRLight*[numAllLights*numThreads];
 	for(unsigned i=0;i<numAllLights;i++)
 	{
 		RRLight* light = tc.solver->getLights()[i];
 		if(multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
 		{
 			for(int k=0;k<numThreads;k++)
-				relevantLights[k*numAllLights+numRelevantLights] = light;
+				relevantLightsForObject[k*numAllLights+numRelevantLights] = light;
 			numRelevantLights++;
 		}
 	}
@@ -262,7 +262,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 					ptp.rays = rays+2*threadNum;
 					ptp.rays[0].rayLengthMin = minimalSafeDistance;
 					ptp.rays[1].rayLengthMin = minimalSafeDistance;
-					ptp.relevantLights = relevantLights+numAllLights*threadNum;
+					ptp.relevantLights = relevantLightsForObject+numAllLights*threadNum;
 					ptp.numRelevantLights = numRelevantLights;
 					ptp.relevantLightsFilled = true;
 					callback(ptp);
@@ -272,7 +272,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	}
 
 	// 6. cleanup
-	delete[] relevantLights;
+	delete[] relevantLightsForObject;
 	delete[] texelsRect;
 	delete[] rays;
 

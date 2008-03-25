@@ -848,8 +848,8 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 			return false;
 		}
 	}
-	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
-	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
+	const RRObject* multiObject = getMultiObjectCustom();
+	const RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
 
 	// validate params
@@ -893,9 +893,26 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 	for(int i=0;i<numThreads;i++)
 		subTexels[i].push_back(subTexel);
 
-	// preallocates relevantLights
+	// preallocate empty relevantLights
+	//unsigned numAllLights = getLights().size();
+	//const RRLight** emptyRelevantLights = new const RRLight*[numAllLights*numThreads];
+	// preallocate filled per-object relevantLights
 	unsigned numAllLights = getLights().size();
-	RRLight** relevantLights = new RRLight*[numAllLights*numThreads];
+	unsigned numObjects = getNumObjects();
+	std::vector<const RRLight*>* relevantLightsPerObject = new std::vector<const RRLight*>[numObjects];
+	for(unsigned objectNumber=0;objectNumber<numObjects;objectNumber++)
+	{
+		RRMesh::MultiMeshPreImportNumber preImportTriangleNumber;
+		preImportTriangleNumber.object = objectNumber;
+		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0); // we assume triangle with preimport index 0 exists
+		unsigned postImportTriangleNumber = multiMesh->getPostImportTriangle(preImportTriangleNumber);
+		for(unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
+		{
+			const RRLight* light = getLights()[lightNumber];
+			if(multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
+				relevantLightsPerObject[objectNumber].push_back(light);
+		}
+	}
 
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
@@ -908,21 +925,30 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 #else
 			int threadNum = 0;
 #endif
-			tc.singleObjectReceiver = getObject(RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object);
+			unsigned objectNumber = RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object;
+			tc.singleObjectReceiver = getObject(objectNumber);
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;
 			ptp.subTexels->begin()->multiObjPostImportTriIndex = t;
 			ptp.rays = rays+2*threadNum;
 			ptp.rays[0].rayLengthMin = priv->minimalSafeDistance;
 			ptp.rays[1].rayLengthMin = priv->minimalSafeDistance;
-			ptp.relevantLights = relevantLights+numAllLights*threadNum;
-			ptp.numRelevantLights = 0;
-			ptp.relevantLightsFilled = false;
+
+			// pass empty array (is filled by processTexel for each triangle separately)
+			//ptp.relevantLights = emptyRelevantLights+numAllLights*threadNum;
+			//ptp.numRelevantLights = 0;
+			//ptp.relevantLightsFilled = false;
+			// pass filled array (is common for all triangles in singleobject)
+			ptp.numRelevantLights = relevantLightsPerObject[objectNumber].size();
+			ptp.relevantLights = ptp.numRelevantLights ? &(relevantLightsPerObject[objectNumber][0]) : NULL; // dirty conversion, from std::vector to array
+			ptp.relevantLightsFilled = true;
+
 			results->store(t,processTexel(ptp));
 		}
 	}
 
-	delete[] relevantLights;
+	//delete[] emptyRelevantLights;
+	delete[] relevantLightsPerObject;
 	delete[] subTexels;
 	delete[] rays;
 	return true;
