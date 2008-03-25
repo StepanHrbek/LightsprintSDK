@@ -78,5 +78,48 @@ struct ProcessTexelResult
 
 ProcessTexelResult processTexel(const ProcessTexelParams& pti);
 
+//! Data gathered by gatherPerTriangle()
+class GatheredPerTriangleData
+{
+public:
+	RRVec3* data[NUM_BUFFERS]; 
+
+	static GatheredPerTriangleData* create(unsigned numTriangles, bool gatherLightmap, bool gatherDirections, bool gatherBentNormals)
+	{
+		GatheredPerTriangleData* a = NULL;
+		try
+		{
+			a = new GatheredPerTriangleData;
+			a->data[LS_LIGHTMAP] = gatherLightmap ? new RRVec3[numTriangles] : NULL;
+			a->data[LS_DIRECTION1] = gatherDirections ? new RRVec3[numTriangles] : NULL;
+			a->data[LS_DIRECTION2] = gatherDirections ? new RRVec3[numTriangles] : NULL;
+			a->data[LS_DIRECTION3] = gatherDirections ? new RRVec3[numTriangles] : NULL;
+			a->data[LS_BENT_NORMALS] = gatherBentNormals ? new RRVec3[numTriangles] : NULL;
+		}
+		catch(std::bad_alloc)
+		{
+			SAFE_DELETE(a);
+		}
+		return a;
+	}
+	~GatheredPerTriangleData()
+	{
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+			delete[] data[i];
+	}
+	void store(unsigned triangleNumber, const ProcessTexelResult& a) const
+	{
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+			if(data[i])
+				data[i][triangleNumber] = a.irradiance[i];
+	}
+protected:
+	GatheredPerTriangleData()
+	{
+		for(unsigned i=0;i<NUM_BUFFERS;i++)
+			data[i] = NULL;
+	}
+};
+
 } // namespace
 

@@ -831,10 +831,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	return result;
 }
 
-
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots, bool _gatherDirectEmitors, bool _gatherAllDirections)
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const GatheredPerTriangleData* results, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
 	if(aborting)
 		return false;
@@ -872,7 +871,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.params = &params;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherDirectEmitors = _gatherDirectEmitors;
-	tc.gatherAllDirections = _gatherAllDirections;
+	tc.gatherAllDirections = results->data[LS_DIRECTION1]||results->data[LS_DIRECTION2]||results->data[LS_DIRECTION3];
 	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
@@ -919,8 +918,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 			ptp.relevantLights = relevantLights+numAllLights*threadNum;
 			ptp.numRelevantLights = 0;
 			ptp.relevantLightsFilled = false;
-			results[t] = processTexel(ptp);
-			RR_ASSERT(results[t].irradiance[LS_LIGHTMAP][0]>-0.01f && results[t].irradiance[LS_LIGHTMAP][1]>-0.01f && results[t].irradiance[LS_LIGHTMAP][2]>-0.01f); //small float error may generate negative value
+			results->store(t,processTexel(ptp));
 		}
 	}
 
@@ -949,19 +947,15 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-	ProcessTexelResult* finalGather = NULL;
-	try
-	{
-		finalGather = new ProcessTexelResult[numPostImportTriangles];
-	}
-	catch(std::bad_alloc e)
+	GatheredPerTriangleData* finalGather = GatheredPerTriangleData::create(numPostImportTriangles,1,0,0);
+	if(!finalGather)
 	{
 		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
 		return false;
 	}
-	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false,false)) // this is first gather -> don't gather emitors, don't gather directions
+	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
 	{
-		delete[] finalGather;
+		delete finalGather;
 		return false;
 	}
 
@@ -969,9 +963,9 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,finalGather[t].irradiance[LS_LIGHTMAP]);
+		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,finalGather->data[LS_LIGHTMAP][t]);
 	}
-	delete[] finalGather;
+	delete finalGather;
 
 	// object -> solver.direct
 	priv->scene->illuminationReset(false,true);

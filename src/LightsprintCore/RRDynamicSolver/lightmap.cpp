@@ -487,32 +487,25 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// for each triangle
 			// future optimization: gather only triangles necessary for selected object
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-			ProcessTexelResult* finalGather;
-			try
-			{
-				finalGather = new ProcessTexelResult[numTriangles];
-			}
-			catch(std::bad_alloc)
+			GatheredPerTriangleData* finalGather = GatheredPerTriangleData::create(numTriangles,allVertexBuffers[LS_LIGHTMAP]?1:0,allVertexBuffers[LS_DIRECTION1]||allVertexBuffers[LS_DIRECTION2]||allVertexBuffers[LS_DIRECTION3],allVertexBuffers[LS_BENT_NORMALS]?1:0);
+			if(!finalGather)
 			{
 				RRReporter::report(ERRO,"Not enough memory, vertex buffer not updated.\n");
-				return updatedBuffers;
 			}
-			bool gatherAllDirections = allVertexBuffers[LS_DIRECTION1] || allVertexBuffers[LS_DIRECTION2] || allVertexBuffers[LS_DIRECTION3];
-			gatherPerTriangle(&params,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
+			else
+			{
+				gatherPerTriangle(&params,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials); // this is final gather -> gather emissive materials
 
-			// interpolate: tmparray -> buffer
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-			{
-				if(allVertexBuffers[i])
+				// interpolate: tmparray -> buffer
+				for(unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,allVertexBuffers[i],&finalGather[0].irradiance[i],sizeof(finalGather[0]),true);
+					if(allVertexBuffers[i] && !aborting)
+					{
+						updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,allVertexBuffers[i],finalGather->data[i],sizeof(*finalGather->data[i]),i!=LS_BENT_NORMALS);
+					}
 				}
+				delete finalGather;
 			}
-			if(allVertexBuffers[LS_BENT_NORMALS])
-			{
-				updatedBuffers += updateVertexBufferFromPerTriangleData(objectNumber,allVertexBuffers[LS_BENT_NORMALS],&finalGather[0].bentNormal,sizeof(finalGather[0]),false);
-			}
-			delete[] finalGather;
 		}
 	}
 
@@ -588,17 +581,23 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	bool containsRealtime = !paramsDirect.applyLights && !paramsDirect.applyEnvironment && paramsDirect.applyCurrentSolution && !paramsDirect.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
-	bool containsDirectionalVertexBuffers = false;
+	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
 	unsigned sizeOfAllBuffers = 0;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		if(getIllumination(object))
 		{
-			if(getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]))
-				sizeOfAllBuffers += getIllumination(object)->getLayer(allLayers[i])->getMemoryOccupied();
-			containsVertexBuffers |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
-			containsPixelBuffers  |= getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_2D_TEXTURE;
-			containsDirectionalVertexBuffers |= i>=LS_DIRECTION1 && i<=LS_DIRECTION3 && getIllumination(object) && getIllumination(object)->getLayer(allLayers[i]) && getIllumination(object)->getLayer(allLayers[i])->getType()==BT_VERTEX_BUFFER;
+			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			{
+				RRBuffer* buffer = getIllumination(object)->getLayer(allLayers[i]);
+				if(buffer)
+				{
+					sizeOfAllBuffers += buffer->getMemoryOccupied();
+					containsVertexBuffers |= buffer->getType()==BT_VERTEX_BUFFER;
+					containsPixelBuffers  |= buffer->getType()==BT_2D_TEXTURE;
+					containsVertexBuffer[i] |= buffer->getType()==BT_VERTEX_BUFFER;
+				}
+			}
 		}
 	}
 
@@ -610,7 +609,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 	
 	if(sizeOfAllBuffers>10000000)
-		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1000000);
+		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1024/1024);
 
 	// 1. first gather: solver+lights+env -> solver.direct
 	// 2. propagate: solver.direct -> solver.indirect
@@ -673,28 +672,34 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
 			// for each triangle
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-			ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
-			bool gatherAllDirections = containsDirectionalVertexBuffers;
-			gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials,gatherAllDirections); // this is final gather -> gather emissive materials
-
-			// 5. interpolate: tmparray -> buffer
-			// for each object with vertex buffer
-			if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
+			const GatheredPerTriangleData* finalGather = GatheredPerTriangleData::create(numTriangles,containsVertexBuffer[LS_LIGHTMAP],containsVertexBuffer[LS_DIRECTION1]||containsVertexBuffer[LS_DIRECTION2]||containsVertexBuffer[LS_DIRECTION3],containsVertexBuffer[LS_BENT_NORMALS]);
+			if(!finalGather)
 			{
-				for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+				RRReporter::report(ERRO,"Not enough memory, vertex buffers not updated.\n");
+			}
+			else
+			{
+				gatherPerTriangle(&paramsDirect,finalGather,numTriangles,priv->staticSceneContainsEmissiveMaterials); // this is final gather -> gather emissive materials
+
+				// 5. interpolate: tmparray -> buffer
+				// for each object with vertex buffer
+				if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 				{
-					for(unsigned i=0;i<NUM_BUFFERS;i++)
+					for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 					{
-						if(allLayers[i]>=0 && !aborting)
+						for(unsigned i=0;i<NUM_BUFFERS;i++)
 						{
-							RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
-							if(vertexBuffer)
-								updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexBuffer,(i!=LS_BENT_NORMALS) ? &finalGather[0].irradiance[i] : &finalGather[0].bentNormal,sizeof(finalGather[0]),i!=LS_BENT_NORMALS);
+							if(allLayers[i]>=0 && !aborting)
+							{
+								RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
+								if(vertexBuffer)
+									updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexBuffer,finalGather->data[i],sizeof(*finalGather->data[i]),i!=LS_BENT_NORMALS);
+							}
 						}
 					}
 				}
+				delete finalGather;
 			}
-			delete[] finalGather;
 	}
 
 	// 6. pixel: final gather into pixel buffers (solver not modified)

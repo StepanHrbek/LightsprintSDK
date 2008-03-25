@@ -798,7 +798,7 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect);
 
-		bool gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots, bool gatherEmissiveMaterials, bool gatherAllDirections);
+		bool gatherPerTriangle(const UpdateParameters* aparams, const class GatheredPerTriangleData* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
 		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool allowScaling) const;
 		void calculateCore(float improveStep,CalculateParameters* params=NULL);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);

@@ -62,7 +62,10 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
-				if(in->getMemoryOccupied()>sizeof(T)) return in;
+				unsigned size1 = in->getMemoryOccupied();
+				if(size1>=10000000)
+					RRReporter::report(INF1,"Memory taken by collider(compact): %dMB\n",size1/1024/1024);
+				if(size1>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -72,7 +75,10 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 			{
 				typedef IntersectBspFast<BspTree44> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":((intersectTechnique==IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
-				if(in->getMemoryOccupied()>sizeof(T)) return in;
+				unsigned size1 = in->getMemoryOccupied();
+				if(size1>=10000000)
+					RRReporter::report(INF1,"Memory taken by collider(fast*): %dMB\n",size1/1024/1024);
+				if(size1>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
