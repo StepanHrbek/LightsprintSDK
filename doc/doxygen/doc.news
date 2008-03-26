@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news52 ------------------------------------ 2008.3.26 -------------------------------------
+
+NEWS
+
+- 5x faster lightmap build in scenes with hundreds of lights
+
 \section news51 ------------------------------------ 2008.3.21 -------------------------------------
 
 NEWS

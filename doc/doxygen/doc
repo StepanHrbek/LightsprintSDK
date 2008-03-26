@@ -13,6 +13,7 @@ namespace rr
 
  \section root_welcome Welcome to Lightsprint Software Development Kit
  - \subpage main_introduction
+ - \subpage main_ue3
  - \subpage main_news
  - \subpage main_scenarios
  - \subpage main_features
@@ -20,7 +21,6 @@ namespace rr
  - \subpage main_credits
 
  \section root_guide Programming guide
- - \subpage main_ue3
  - \subpage main_integration
  - \subpage main_inputs
  - \subpage main_data_access
@@ -1766,7 +1766,7 @@ Used by some samples:
  - ask for more
 
  GPUs
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx
+ - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx
  - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx
  - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
  - subset of workstation versions (Quadro, FireGL)
@@ -1950,7 +1950,8 @@ Used by some samples:
  If you are UE3 licensee, please request integration files from Lightsprint.
  Then see samples/ImportUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
 
-   
+ \image html unreal.png   
+
  
 \page main_conventions Conventions
 
