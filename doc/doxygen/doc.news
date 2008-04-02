@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news53 ------------------------------------ 2008.4.xx -------------------------------------
+
+NEWS
+
+- native 64bit support for all libraries and samples
+
 \section news52 ------------------------------------ 2008.3.26 -------------------------------------
 
 NEWS

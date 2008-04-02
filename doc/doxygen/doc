@@ -1754,6 +1754,8 @@ Used by some samples:
 
 \page main_platforms Supported platforms
 
+ All Lightsprint SDK libraries and samples support both 32bit and 64bit code.
+
  Operating systems
  - Windows XP
  - Windows XP x64
@@ -1762,7 +1764,8 @@ Used by some samples:
  - ask for more
 
  CPUs
- - x86 compatible with SSE instructions
+ - Intel x86 compatible (32bit) with SSE instructions
+ - AMD x64 compatible (64bit)
  - ask for more
 
  GPUs
@@ -1777,15 +1780,15 @@ Used by some samples:
  - Direct3D 9/10 (create device with D3DCREATE_FPU_PRESERVE. no examples yet)
  - for offline rendering, 3D API is not needed
 
+ Compilers
+ - Visual C++ 2008 (32bit, 64bit)
+ - Visual C++ 2005 SP1
+ - Visual C++ 2003 SP1
+ - ask for more
+
  Library configurations
  - Release DLL
  - Debug DLL
-
- Compilers
- - Visual C++ 2008 (testing)
- - Visual C++ 2005 SP1
- - Visual C++ 2003 (without Collada and threading)
- - ask for more
 
 
 
