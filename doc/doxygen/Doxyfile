@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
 PROJECT_NUMBER         = 2008.3.26
-OUTPUT_DIRECTORY       = "C:/Documents and Settings/Dee/Dokumenty/C/rr/doc/doxygen"
+OUTPUT_DIRECTORY       = "../../doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 BRIEF_MEMBER_DESC      = NO
@@ -81,33 +81,33 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRBuffer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRCollider.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDebug.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRLight.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMath.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMemory.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMesh.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRVector.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Camera.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/DemoEngine.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Program.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RealtimeLight.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Renderer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfRRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfScene.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RRDynamicSolverGL.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/SceneViewer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Texture.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/TextureRenderer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Timer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/UberProgram.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/UberProgramSetup.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc" \
-                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc.news"
+INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
+                         "../../include/Lightsprint/RRCollider.h" \
+                         "../../include/Lightsprint/RRDebug.h" \
+                         "../../include/Lightsprint/RRDynamicSolver.h" \
+                         "../../include/Lightsprint/RRIllumination.h" \
+                         "../../include/Lightsprint/RRLight.h" \
+                         "../../include/Lightsprint/RRMath.h" \
+                         "../../include/Lightsprint/RRMemory.h" \
+                         "../../include/Lightsprint/RRMesh.h" \
+                         "../../include/Lightsprint/RRObject.h" \
+                         "../../include/Lightsprint/RRVector.h" \
+                         "../../include/Lightsprint/GL/Camera.h" \
+                         "../../include/Lightsprint/GL/DemoEngine.h" \
+                         "../../include/Lightsprint/GL/Program.h" \
+                         "../../include/Lightsprint/GL/RealtimeLight.h" \
+                         "../../include/Lightsprint/GL/Renderer.h" \
+                         "../../include/Lightsprint/GL/RendererOfRRObject.h" \
+                         "../../include/Lightsprint/GL/RendererOfScene.h" \
+                         "../../include/Lightsprint/GL/RRDynamicSolverGL.h" \
+                         "../../include/Lightsprint/GL/SceneViewer.h" \
+                         "../../include/Lightsprint/GL/Texture.h" \
+                         "../../include/Lightsprint/GL/TextureRenderer.h" \
+                         "../../include/Lightsprint/GL/Timer.h" \
+                         "../../include/Lightsprint/GL/UberProgram.h" \
+                         "../../include/Lightsprint/GL/UberProgramSetup.h" \
+                         "../../doc/doxygen/doc" \
+                         "../../doc/doxygen/doc.news"
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \
@@ -142,8 +142,8 @@ EXCLUDE_PATTERNS       =
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen" \
-                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/samples"
+IMAGE_PATH             = "../../doc/doxygen" \
+                         "../../doc/doxygen/samples"
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
