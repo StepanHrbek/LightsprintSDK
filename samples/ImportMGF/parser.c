@@ -204,7 +204,7 @@ char	*name;
 	cp = lu_find(&ent_tab, name)->key;
 	if (cp == NULL)
 		return(-1);
-	return((cp - mg_ename[0])/sizeof(mg_ename[0]));
+	return (unsigned)((cp - mg_ename[0])/sizeof(mg_ename[0]));
 }
 
 
@@ -308,7 +308,7 @@ mg_read()			/* read next line from file */
 		if (fgets(mg_file->inpline+len,
 				MG_MAXLINE-len, mg_file->fp) == NULL)
 			return(len);
-		len += strlen(mg_file->inpline+len);
+		len += (unsigned)strlen(mg_file->inpline+len);
 		if (len >= MG_MAXLINE-1)
 			return(len);
 		mg_file->lineno++;
@@ -345,7 +345,7 @@ mg_parse()			/* parse current input line */
 		return(MG_OK);		/* no words in line */
 	*ap = NULL;
 					/* else handle it */
-	return(mg_handle(-1, ap-argv, argv));
+	return(mg_handle(-1, (int)(ap-argv), argv));
 }
 
 

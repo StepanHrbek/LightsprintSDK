@@ -112,7 +112,7 @@ char	**av;
 			ndim++;
 			i++;
 		} else
-			n += strlen(av[i]) + 1;
+			n += (unsigned)strlen(av[i]) + 1;
 	if (ndim > XF_MAXDIM)
 		return(NULL);
 	spec = (XF_SPEC *)malloc(sizeof(XF_SPEC) + n);

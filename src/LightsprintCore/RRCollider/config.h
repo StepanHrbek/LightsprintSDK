@@ -10,8 +10,8 @@
 
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
 
-#if defined(_MSC_VER) && defined(WIN32)
-	#define USE_SSE // by default, code is pure ANSI C++. gcc compiles but crashes with sse
+#if defined(_MSC_VER) && defined(_WIN32)
+	#define USE_SSE // by default, code is pure ANSI C++. gcc compiles but crashes with sse, probably alignment issue
 #endif
 #define USE_FAST_BOX // fast box can't handle 2 special cases -> rare errors
 //#define USE_EXPECT_HIT // always slower in rr, but may be useful for someone else later
@@ -53,8 +53,8 @@
 	#define PRIVATE
 #endif
 
-#define rayDir         hitPadding[0]
-#define hitDistanceMin hitPadding[1][0]
-#define hitDistanceMax hitPadding[1][1]
+#define rayDir         hitPadding1
+#define hitDistanceMin hitPadding2[0]
+#define hitDistanceMax hitPadding2[1]
 
 #endif

@@ -232,7 +232,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 							{
 								if(xlat[ti.t[i]]==UINT_MAX)
 								{
-									xlat[ti.t[i]] = vertices.size();
+									xlat[ti.t[i]] = (unsigned)vertices.size();
 									VertexInfo vi;
 									vi.position[0] = model->mVertices[ti.t[i]].mPosition[0]*0.015f;
 									vi.position[1] = model->mVertices[ti.t[i]].mPosition[2]*0.015f;

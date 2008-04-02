@@ -37,10 +37,15 @@ namespace rr
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
 		IntersectLinear(RRMesh* aimporter);
-		RRMesh*           importer;
-		unsigned          triangles;
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
-		Box               box; // aligned + vtable(4) + importer(4) + triangles(4) + DELTA_BSP(4) = aligned
+		unsigned          triangles;
+#ifdef _M_X64
+		Box               box; // aligned + vtable(8) + DELTA_BSP(4) + triangles(4) = aligned
+		RRMesh*           importer;
+#else
+		RRMesh*           importer;
+		Box               box; // aligned + vtable(4) + importer(4) + DELTA_BSP(4) + triangles(4) = aligned
+#endif
 	};
 
 }

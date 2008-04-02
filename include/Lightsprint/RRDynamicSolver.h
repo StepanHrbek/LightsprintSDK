@@ -320,7 +320,8 @@ namespace rr
 
 			//! Quality of computed illumination.
 			//
-			//! Time taken grows mostly linearly with this number.
+			//! Relates to number of rays per texel or triangle,
+			//! time taken grows mostly linearly with this number.
 			//! (When !applyCurrentSolution and applyLights and !applyEnvironment,
 			//! faster path is used.)
 			//!

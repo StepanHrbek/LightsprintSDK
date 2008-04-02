@@ -8,7 +8,7 @@
 #include <cassert>
 #include <cstring>
 #include <cstdio>
-#ifdef WIN32
+#ifdef _WIN32
 	#include <windows.h>
 #endif
 #include "Lightsprint/GL/Timer.h"
@@ -68,7 +68,7 @@ public:
 };
 
 
-#ifdef WIN32
+#ifdef _WIN32
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRReporterPrintf
@@ -178,7 +178,7 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	if(reporter)
 	{
 		report(ASSE,"%s in %s, file %s, line %d.\n",expression,func,file,line);
-#if defined(_DEBUG) && defined(RR_STATIC) && defined(WIN32)
+#if defined(_DEBUG) && defined(RR_STATIC) && defined(_WIN32)
 		__debugbreak();
 #endif
 	}
@@ -201,7 +201,7 @@ RRReporter* RRReporter::createFileReporter(const char* filename, bool caching)
 
 RRReporter* RRReporter::createPrintfReporter()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return new RRReporterPrintf;
 #else
 	return NULL;
@@ -210,7 +210,7 @@ RRReporter* RRReporter::createPrintfReporter()
 
 RRReporter* RRReporter::createOutputDebugStringReporter()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return new RRReporterOutputDebugString;
 #else
 	return NULL;

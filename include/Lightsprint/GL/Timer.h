@@ -18,7 +18,7 @@
 	#define GETTIME omp_get_wtime()
 	#define PER_SEC 1
 #else
-#ifdef WIN32
+#ifdef _WIN32
 	// GETTIME: 1ms precision,  Timer: high precision
 	#define WINDOWS_TIME
 	#include <windows.h>

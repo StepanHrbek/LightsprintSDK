@@ -23,7 +23,7 @@ AnimationEditor::~AnimationEditor()
 void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
-	unsigned count = MAX(6,setup->frames.size()+1);
+	unsigned count = MAX(6,(unsigned)setup->frames.size()+1);
 	//for(LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
 	//	if((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
 	for(LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
@@ -86,7 +86,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor = 0;
 			return true;
 		case GLUT_KEY_END:
-			frameCursor = setup->frames.size();
+			frameCursor = (unsigned)setup->frames.size();
 			return true;
 		case GLUT_KEY_LEFT:
 			if(modif)

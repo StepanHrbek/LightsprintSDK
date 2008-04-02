@@ -75,10 +75,10 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* 
 	if(!bufsize) return;
 	buf[0]=0;
 	// rrcache
-#ifdef WIN32
+#ifdef _WIN32
 	const char* dir = cacheLocation?cacheLocation:getenv("RRCACHE");
 #else
-	const char* dir = cacheLocation?cacheLocation:"game:\\";
+	const char* dir = cacheLocation?cacheLocation:"game:\\"; // xbox 360
 #endif
 	if(dir) 
 	{

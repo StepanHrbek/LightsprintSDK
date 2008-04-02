@@ -13,8 +13,8 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#ifdef WIN32
-	#include <windows.h> // jen kvuli GetTempPath
+#ifdef _WIN32
+	#include <windows.h> // GetTempPath
 #endif
 
 
@@ -29,7 +29,7 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
-#ifdef WIN32
+#ifdef _WIN32
 	char tmpPath[_MAX_PATH+1];
 	if(!cacheLocation)
 	{

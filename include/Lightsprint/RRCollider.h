@@ -99,7 +99,6 @@ namespace rr
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
-		RRCollisionHandler*    collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
 
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
@@ -108,7 +107,13 @@ namespace rr
 		RRVec3p         hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normal, normalized. Result is based on vertex positions rather than normals provided by mesh, so plane is constant for whole triangle.
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
-		RRVec3p         hitPadding[2];  ///< Out. Undefined, never modify.
+		RRVec3p         hitPadding1;    ///< Out. Undefined, never modify.
+#ifdef _M_X64
+		RRVec3          hitPadding2;    ///< Out. Undefined, never modify.
+#else
+		RRVec3p         hitPadding2;    ///< Out. Undefined, never modify.
+#endif
+		RRCollisionHandler*    collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};

@@ -232,7 +232,7 @@ unsigned RRMeshCollada::getNumVertices() const
 		RR_ASSERT(0);
 		return 0;
 	}
-	return source->GetValueCount();
+	return (unsigned)source->GetValueCount();
 }
 
 void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
@@ -294,7 +294,7 @@ void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 			RR_ASSERT(0);
 			return;
 		}
-		t -= polygons->GetFaceCount();
+		t -= (unsigned)polygons->GetFaceCount();
 	}
 	RR_ASSERT(0);
 }

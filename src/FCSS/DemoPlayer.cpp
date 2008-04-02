@@ -248,7 +248,7 @@ unsigned DemoPlayer::getPartIndex() const
 
 unsigned DemoPlayer::getNumParts() const
 {
-	return scenes.size();
+	return (unsigned)scenes.size();
 }
 
 float DemoPlayer::getPartPosition() const
@@ -299,7 +299,7 @@ void DemoPlayer::setVolume(float volume)
 
 unsigned DemoPlayer::getNumProjectors()
 {
-	return projectors.size();
+	return (unsigned)projectors.size();
 }
 
 const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)

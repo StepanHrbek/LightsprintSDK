@@ -5,7 +5,36 @@
 
 // This file is the only connection between Lightsprint and FreeImage.
 // Link it to project and textures from disk will be opened by FreeImage.
-// Delete it and textures from disk won't be opened.
+// Remove it from project and textures from disk won't be opened.
+
+// You can use any other image library if you implement two simple callbacks,
+// load and save, and call RRBuffer::setLoader().
+
+#ifdef _M_X64
+
+// FreeImage doesn't support x64 yet
+// this turns everything into 1x1 gray texture
+#include "Lightsprint/RRBuffer.h"
+using namespace rr;
+bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+{
+	if(buffer)
+	{
+		unsigned char gray[3] = {200,200,200};
+		buffer->reset(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,gray);
+	}
+	return true;
+}
+struct AutoRegister
+{
+	AutoRegister()
+	{
+		RRBuffer::setLoader(main_reload,NULL);
+	}
+};
+static AutoRegister a;
+
+#else
 
 #include <cstdio>
 #include <cstring>
@@ -520,3 +549,5 @@ struct AutoRegister
 };
 
 static AutoRegister a;
+
+#endif // !_M_X64

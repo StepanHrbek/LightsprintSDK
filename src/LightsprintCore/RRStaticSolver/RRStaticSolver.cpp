@@ -99,8 +99,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 		mesh->getTriangleBody(fi,body);
 		if(!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
 		{
-			// this code is on 2 places...
-			//  delete this and rather call obj->resetStaticIllumination
 			RRVec3 additionalIrradiance;
 			importer->getTriangleIllumination(fi,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,additionalIrradiance,true));

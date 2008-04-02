@@ -196,7 +196,7 @@ err:
 		TIME now = GETTIME;
 		while(times.size() && now-times.front()>PER_SEC) times.pop();
 		times.push(GETTIME);
-		fps = times.size();
+		fps = (unsigned)times.size();
 		if(!demoPlayer->getPaused()) frames++;
 		float seconds = demoPlayer->getDemoPosition();
 		fpsAvg = frames/MAX(0.01f,seconds);
@@ -1338,7 +1338,7 @@ void setupSceneDynamicAccordingToCursor(Level* level)
 	if(level->pilot.setup->frames.size())
 	{
 		// pokud je kurzor za koncem, vezmeme posledni frame
-		unsigned existingFrameNumber = MIN(level->animationEditor->frameCursor,level->pilot.setup->frames.size()-1);
+		unsigned existingFrameNumber = MIN(level->animationEditor->frameCursor,(unsigned)level->pilot.setup->frames.size()-1);
 		AnimationFrame* frame = level->pilot.setup->getFrameByIndex(existingFrameNumber);
 		if(frame)
 			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup, *frame, true);
@@ -2241,7 +2241,7 @@ void idle()
 					// play scene finished, jump to editor
 					demoPlayer->setPaused(true);
 					enableInteraction(true);
-					level->animationEditor->frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+					level->animationEditor->frameCursor = MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
 				}
 				else
 				{

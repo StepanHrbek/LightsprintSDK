@@ -286,7 +286,7 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 		}
 		frame.dynaPosRot.push_back(tmp);
 	}
-	frame.validate(setup->objects.size());
+	frame.validate((unsigned)setup->objects.size());
 }
 
 void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)

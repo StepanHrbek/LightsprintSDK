@@ -113,7 +113,7 @@ IntersectLinear::IntersectLinear(RRMesh* aimporter)
 #ifdef USE_SSE
 	if(intptr_t(&box)%16) 
 	{
-		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
+		RRReporter::report(ERRO,"You created unaligned structure. Try static or heap if it's on stack now.\n");
 		RR_ASSERT(!(intptr_t(&box)%16));
 		exit(0);
 	}

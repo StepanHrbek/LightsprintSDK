@@ -52,6 +52,8 @@ namespace rr
 
 #define SMALL_ENERGY 0.000001f // energy amount small enough to have no impact on scene
 
+#define ARRAY_ELEMENT_TO_INDEX(array,element) ((unsigned)((element)-(array))) // ARRAY_ELEMENT_TO_INDEX(a,&a[i]) = i
+
 // konvence:
 //  reset() uvadi objekt do stavu po konstruktoru
 //  resetStaticIllumination() uvadi objekt do stavu po nacteni sceny

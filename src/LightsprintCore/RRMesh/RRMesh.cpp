@@ -13,13 +13,23 @@
 #include "RRMeshFilterTransformed.h"
 #include "RRMeshMulti.h"
 #include "../RRMathPrivate.h"
-
 #include <cassert>
 #include <cstdio>
-#if defined(_MSC_VER)
-	#include "stdint.vs2003.h" // replacement for missing standard C99 header
-#else
+
+#ifndef _MSC_VER
 	#include <stdint.h> // standard C99 header
+#else
+	typedef unsigned char uint8_t;
+	typedef unsigned short uint16_t;
+	typedef unsigned uint32_t;
+	typedef unsigned long long uint64_t;
+	static union
+	{
+		char uint8_t_incorrect  [sizeof( uint8_t) == 1];
+		char uint16_t_incorrect [sizeof(uint16_t) == 2];
+		char uint32_t_incorrect [sizeof(uint32_t) == 4];
+		char intptr_t_incorrect [sizeof(intptr_t) == sizeof(void*)];
+	};
 #endif
 
 

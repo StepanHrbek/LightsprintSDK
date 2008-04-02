@@ -129,17 +129,14 @@ int main(int argc, char** argv)
 		(double)num_hits / NUM_RAYS
 		);
 
+	RRReporter::report(INF1,"Hit enter to close...");
+	fgetc(stdin);
+
 	// cleanup
 	delete watch;
 	delete rrMesh;
 	delete collider;
-
-#ifdef WIN32
-	RRReporter::report(INF1,"Hit enter to close...");
-	fgetc(stdin);
-#else
-	RRReporter::report(INF2,"Done.\n");
 	delete RRReporter::getReporter();
-#endif
+
 	return 0;
 }

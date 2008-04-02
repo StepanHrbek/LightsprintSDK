@@ -187,13 +187,13 @@ restart_iter:
 			if(!v->corners)
 				goto insert_i;
 
-			t1 = (*i)->node-obj->triangle;
+			t1 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,(*i)->node);
 			mesh->getTriangleBody(t1,body1);
 			n1 = ortogonalTo(body1.side1,body1.side2).normalized();
 
 			for(j=0;j<v->corners;j++)
 			{
-				t2 = v->getCorner(j).node-obj->triangle;
+				t2 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,v->getCorner(j).node);
 				mesh->getTriangleBody(t2,body2);
 				n2 = ortogonalTo(body2.side1,body2.side2).normalized();
 
@@ -311,7 +311,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	{
 		Triangle* tri = getCorner(c).node;
 		unsigned originalPresent = 0;
-		unsigned triangleIndex = tri-object->triangle;
+		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,tri);
 		RRMesh::Triangle triangleVertexIndices;
 		mesh->getTriangle(triangleIndex,triangleVertexIndices);
 		for(unsigned i=0;i<3;i++)

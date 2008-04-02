@@ -1019,7 +1019,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		RR_ASSERT(!hitTriangles.get());
 		filler.Reset(); // prepare homogenous shooting
 		// prepare data for shooting
-		unsigned triangleIndex = source-object->triangle;
+		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
 		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
 		improvingBasis.normal = ortogonalTo(improvingBody.side1,improvingBody.side2).normalized();
 		improvingBasis.buildBasisFromNormal();

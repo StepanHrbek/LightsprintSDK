@@ -63,7 +63,7 @@ bool LevelSetup::load(const char* afilename)
 	AnimationFrame frame(0); // working frame, data are loded over and over into tmp, so inheritance works
 	while(frame.loadOver(f))
 	{
-		frame.validate(objects.size());
+		frame.validate((unsigned)objects.size());
 		if(!isOkForNewLayerNumber(frame.layerNumber))
 		{
 			unsigned newNumber = newLayerNumber();
@@ -171,7 +171,7 @@ float LevelSetup::getFrameTime(unsigned index) const
 
 float LevelSetup::getTotalTime() const
 {
-	return getFrameTime(MAX(1,frames.size())-1);
+	return getFrameTime(MAX(1,(unsigned)frames.size())-1);
 }
 
 const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
