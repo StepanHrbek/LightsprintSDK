@@ -939,7 +939,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 			//ptp.numRelevantLights = 0;
 			//ptp.relevantLightsFilled = false;
 			// pass filled array (is common for all triangles in singleobject)
-			ptp.numRelevantLights = relevantLightsPerObject[objectNumber].size();
+			ptp.numRelevantLights = (unsigned)relevantLightsPerObject[objectNumber].size();
 			ptp.relevantLights = ptp.numRelevantLights ? &(relevantLightsPerObject[objectNumber][0]) : NULL; // dirty conversion, from std::vector to array
 			ptp.relevantLightsFilled = true;
 
@@ -951,7 +951,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 	delete[] relevantLightsPerObject;
 	delete[] subTexels;
 	delete[] rays;
-	return true;
+	return !aborting;
 }
 
 // CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
