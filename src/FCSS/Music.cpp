@@ -2,7 +2,11 @@
 //
 // music
 
-#pragma comment(lib,"fmodex_vc.lib")
+#ifdef _M_X64
+	#pragma comment(lib,"fmodex64_vc.lib")
+#else
+	#pragma comment(lib,"fmodex_vc.lib")
+#endif
 
 #include "Music.h"
 #include "fmod/fmod_errors.h"

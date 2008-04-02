@@ -1,5 +1,5 @@
 /* ========================================================================================== */
-/* FMOD Ex - DSP header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2006.      */
+/* FMOD Ex - DSP header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2008.      */
 /*                                                                                            */
 /* Use this header if you are interested in delving deeper into the FMOD software mixing /    */
 /* DSP engine.  In this header you can find parameter structures for FMOD system reigstered   */
@@ -280,7 +280,7 @@ typedef enum
 */
 typedef enum
 {
-    FMOD_DSP_HIGHPASS_CUTOFF,    /* Highpass cutoff frequency in hz.  10.0 to output 22000.0.  Default = 5000.0. */
+    FMOD_DSP_HIGHPASS_CUTOFF,    /* Highpass cutoff frequency in hz.  1.0 to output 22000.0.  Default = 5000.0. */
     FMOD_DSP_HIGHPASS_RESONANCE  /* Highpass resonance Q value.  1.0 to 10.0.  Default = 1.0. */
 } FMOD_DSP_HIGHPASS;
 
@@ -645,7 +645,9 @@ typedef enum
     FMOD_DSP_SFXREVERB_REVERBDELAY,         /* Reverb Delay   : Late reverberation delay time relative to first reflection in seconds.  Ranges from 0.0 to 0.1.  Default is 0.04. */
     FMOD_DSP_SFXREVERB_DIFFUSION,           /* Diffusion      : Reverberation diffusion (echo density) in percent.  Ranges from 0.0 to 100.0.  Default is 100.0. */
     FMOD_DSP_SFXREVERB_DENSITY,             /* Density        : Reverberation density (modal density) in percent.  Ranges from 0.0 to 100.0.  Default is 100.0. */
-    FMOD_DSP_SFXREVERB_HFREFERENCE          /* HF Reference   : Reference high frequency in Hz.  Ranges from 20.0 to 20000.0. Default is 5000.0. */
+    FMOD_DSP_SFXREVERB_HFREFERENCE,         /* HF Reference   : Reference high frequency in Hz.  Ranges from 20.0 to 20000.0. Default is 5000.0. */
+    FMOD_DSP_SFXREVERB_ROOMLF,              /* Room LF        : Room effect low-frequency level in mB.  Ranges from -10000.0 to 0.0.  Default is 0.0. */
+    FMOD_DSP_SFXREVERB_LFREFERENCE          /* LF Reference   : Reference low-frequency in Hz.  Ranges from 20.0 to 1000.0. Default is 250.0. */
 } FMOD_DSP_SFXREVERB;
 
 /*
