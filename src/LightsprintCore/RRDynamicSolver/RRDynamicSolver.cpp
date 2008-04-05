@@ -316,12 +316,12 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		)
 	{
 		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
-		priv->dirtyStaticSolver = false;
 		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
 		// create new
-		priv->scene = RRStaticSolver::create(priv->multiObjectPhysicalWithIllumination,&priv->smoothing);
+		priv->scene = RRStaticSolver::create(priv->multiObjectPhysicalWithIllumination,&priv->smoothing,aborting);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
+		if(!aborting) priv->dirtyStaticSolver = false; // this is fundamental structure, so when aborted, don't clear dirty, try to create it next time
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{

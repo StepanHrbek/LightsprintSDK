@@ -77,7 +77,9 @@ namespace rr
 		//!  \n object->getTriangleMaterial() and getPointMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
-		static RRStaticSolver* create(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing);
+		//! \param aborting
+		//!  When set, even asynchronously during create(), work is aborted.
+		static RRStaticSolver* create(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting);
 
 		//! Destructs static scene.
 		~RRStaticSolver();
@@ -198,7 +200,7 @@ namespace rr
 		friend class Gatherer;
 		friend class RRCollisionHandlerGatherHemisphere;
 		friend class RRDynamicSolver;
-		RRStaticSolver(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, class Object* obj);
+		RRStaticSolver(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, class Object* obj, bool& aborting);
 	};
 
 

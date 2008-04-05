@@ -389,7 +389,7 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 	ivertex->absorb(info2.ivertex);
 }
 
-unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize)
+unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, bool& aborting)
 // merges close ivertices
 // why to do it: eliminates negative effect of needle, both triangles around needle are interpolated as if there is no needle
 // returns number of merges (each merge = 1 ivertex reduced)
@@ -429,7 +429,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 
 	// work until done
 	unsigned ivertex1Idx = 0;
-	while(1)
+	while(!aborting)
 	{
 		// find closest ivertex - ivertex pair
 		real minDist = 1e30f;
@@ -507,8 +507,10 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 }
 #endif
 
-bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
+bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool& aborting)
 {
+	bool outOfMemory = false;
+
 	// check
 	for(unsigned t=0;t<triangles;t++)
 	{
@@ -521,6 +523,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 	RRMesh* mesh = importer->getCollider()->getMesh();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
+		if(aborting) break;
 		RRMesh::Triangle un_ve;
 		mesh->getTriangle(t,un_ve);
 		RRMesh::Vertex vertex[3];
@@ -543,21 +546,21 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 	//printf("IVertices loaded: %d\n",numIVertices);
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	// volano jen pokud ma neco delat -> malinka uspora casu
-	if(minFeatureSize>0)
+	if(minFeatureSize>0 && !aborting)
 	{
 		// Pouha existence nasledujiciho radku (mergeCloseIVertices) i kdyz se nikdy neprovadi
 		// zpomaluje cube v MSVC o 8%.
 		// Nevyresena zahada.
 		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
-		numIVertices -= mergeCloseIVertices(topivertex,minFeatureSize);
+		numIVertices -= mergeCloseIVertices(topivertex,minFeatureSize,aborting);
 		//printf("IVertices after merge close: %d\n",numIVertices);
 	}
 #endif
 
 	// split ivertices with too different normals
-	bool outOfMemory = false;
 	for(unsigned v=0;v<vertices;v++)
 	{
+		if(aborting) break;
 		RRMesh::Vertex vert;
 		mesh->getVertex(v,vert);
 		numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
@@ -580,12 +583,13 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 		{
 			// check that local array topivertex is not referenced here
 			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
-			RR_ASSERT(idx>=vertices);
+			RR_ASSERT(idx>=vertices || aborting);
 		}
 	}
 	delete[] topivertex;
 
 	// check triangle.topivertex validity
+	if(!aborting)
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{
@@ -596,7 +600,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle)
 			}
 		}
 
-	return !outOfMemory;
+	return !outOfMemory && !aborting;
 }
 
 } // namespace

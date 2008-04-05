@@ -247,9 +247,9 @@ public:
 	unsigned vertices;
 	unsigned triangles;
 	Triangle*triangle;
-	bool     buildTopIVertices(float minFeatureSize, float maxSmoothAngle); // false when out of memory
+	bool     buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool& aborting); // false when out of memory or aborting
 		private:
-		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
+		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, bool& aborting);
 		public:
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
 	// IVertex pool

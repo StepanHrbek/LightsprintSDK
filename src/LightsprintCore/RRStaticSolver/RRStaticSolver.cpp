@@ -51,7 +51,7 @@ RRStaticSolver::~RRStaticSolver()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
 
-RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing)
+RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing, bool& _aborting)
 {
 	if(!_object)
 	{
@@ -61,22 +61,22 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 	Object *obj = Object::create(mesh->getNumVertices(),mesh->getNumTriangles());
 	if(!obj)
 	{
-		return NULL; // not enough memory
+		return NULL; // not enough memory (already reported)
 	}
-	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj); // obj is filled but not yet adopted
+	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj,_aborting); // obj is filled but not yet adopted
 	   
-	if(!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle))
+	if(!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle,_aborting))
 	{
 		delete solver;
 		delete obj;
-		return NULL; // not enough memory
+		return NULL; // not enough memory (already reported) or abort
 	}
 
 	solver->scene->objInsertStatic(obj); // obj is adopted
 	return solver;
 }
 
-RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj)
+RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj, bool& aborting)
 {
 	scene=new Scene();
 	RR_ASSERT(importer);
@@ -88,8 +88,9 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 
 	// import triangles
 	DBG(printf(" triangles...\n"));
-	for(unsigned fi=0;fi<obj->triangles;fi++) 
+	for(unsigned fi=0;fi<obj->triangles;fi++)
 	{
+		if(aborting) break;
 		RRMesh::Triangle tv;
 		mesh->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
