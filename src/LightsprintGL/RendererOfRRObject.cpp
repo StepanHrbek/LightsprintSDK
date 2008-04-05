@@ -55,12 +55,8 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 	indexedNo = NULL;
 	if(_useBuffers)
 	{
-		indexedYes = new ObjectBuffers(_object,true);
-		if(!indexedYes->inited())
-			SAFE_DELETE(indexedYes);
-		indexedNo = new ObjectBuffers(_object,false);
-		if(!indexedNo->inited())
-			SAFE_DELETE(indexedNo);
+		indexedYes = ObjectBuffers::create(_object,true);
+		indexedNo = ObjectBuffers::create(_object,false);
 	}
 }
 
@@ -323,6 +319,11 @@ void RendererOfRRObject::render()
 					// face culling
 					if(params.renderedChannels.MATERIAL_CULLING)
 					{
+						if(begun)
+						{
+							glEnd();
+							begun = false;
+						}
 						if(!material || (material->sideBits[0].renderFrom && material->sideBits[1].renderFrom))
 						{
 							glDisable(GL_CULL_FACE);
@@ -337,6 +338,11 @@ void RendererOfRRObject::render()
 					// blending
 					if(params.renderedChannels.MATERIAL_BLENDING)
 					{
+						if(begun)
+						{
+							glEnd();
+							begun = false;
+						}
 						RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 						if(material && material->specularTransmittance.avg())
 							glEnable(GL_BLEND);
@@ -349,6 +355,11 @@ void RendererOfRRObject::render()
 					{
 						if(material && params.program)
 						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
 							params.program->sendUniform("materialDiffuseConst",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
 						}
 						else
@@ -362,6 +373,11 @@ void RendererOfRRObject::render()
 					{
 						if(material)
 						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
 							glVertexAttrib4f(materialDiffuseVColorIndex,material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
 						}
 						else
@@ -396,6 +412,11 @@ void RendererOfRRObject::render()
 					{
 						if(material && params.program)
 						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
 							params.program->sendUniform("materialEmissiveConst",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0.0f);
 						}
 						else
@@ -410,6 +431,11 @@ void RendererOfRRObject::render()
 					{
 						if(material)
 						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
 							glVertexAttrib4f(materialEmissiveVColorIndex,material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0);
 						}
 						else

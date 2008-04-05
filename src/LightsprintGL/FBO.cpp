@@ -63,7 +63,8 @@ bool FBO::isStatusOk() const
 			return true;
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
 			// choose different formats
-			assert(0);
+			// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
+			rr::RRReporter::report(rr::ERRO,"FBO failed, not enough memory?\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
 			// programming error; will fail on all hardware

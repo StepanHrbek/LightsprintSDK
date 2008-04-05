@@ -246,9 +246,15 @@ void RRDynamicSolverGL::updateDirtyLights()
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowMap(i);
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
-				shadowmap->renderingToBegin();
-				glClear(GL_DEPTH_BUFFER_BIT);
-				renderScene(uberProgramSetup,light->origin);
+				if(!shadowmap->renderingToBegin())
+				{
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed, not enough memory?\n"));
+				}
+				else
+				{
+					glClear(GL_DEPTH_BUFFER_BIT);
+					renderScene(uberProgramSetup,light->origin);
+				}
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);

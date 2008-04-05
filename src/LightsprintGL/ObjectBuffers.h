@@ -23,12 +23,11 @@ public:
 	//! \param indexed
 	//!  False = generates triangle list, numVertices == 3*numTriangles.
 	//!  True = generates indexed triangle list, numVertices <= 3*numTriangles, order specified by preimport vertex numbers
-	ObjectBuffers(const rr::RRObject* object, bool indexed);
+	static ObjectBuffers* create(const rr::RRObject* object, bool indexed);
 	~ObjectBuffers();
-	bool inited();
 	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
-	bool initedOk; // true when constructor had no problems and instance is ready to render
+	void init(const rr::RRObject* object, bool indexed); // throws std::bad_alloc
 	unsigned numVertices;
 
 	// arrays

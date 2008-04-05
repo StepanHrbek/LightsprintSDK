@@ -20,9 +20,39 @@
 namespace rr_gl
 {
 
-ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
+ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 {
-	initedOk = false;
+	if(!object) return NULL;
+
+	// ObjectBuffers with indexed=true fail if object has so high preimport vertex indices,
+	// that vertex buffer with such indices can't be reasonably created.
+	// Here we quickly detect such case and return NULL.
+	// It is optional, other more reliable detection would catch this problem deeper inside init()
+	// (however it would misleadingly report not enough memory)
+	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
+	if(!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1)>=3*numTriangles))
+		return NULL;
+
+	ObjectBuffers* ob = NULL;
+	try
+	{
+		// does lots of allocations, may fail here
+		ob = new ObjectBuffers;
+		memset(ob,0,sizeof(*ob)); // clear all pointers to NULL
+		ob->init(object,indexed);
+	}
+	catch(std::bad_alloc e)
+	{
+		// delete what was allocated
+		SAFE_DELETE(ob);
+		rr::RRReporter::report(rr::WARN,"Not enough memory, using emergency rendering path, might fail.\n");
+	}
+	return ob;
+}
+
+// one time initialization
+void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
+{
 	rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	// numVerticesMax is only estimate of numPreImportVertices
@@ -170,8 +200,9 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				// warning: could happen with correct inputs, RRMesh is allowed 
 				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
 				//  happens with all multiobjects
-				//RR_ASSERT(currentVertex<numVerticesMax);
-				return;
+				// Should not get here - catched by test in create().
+				RR_ASSERT(0);
+				throw std::bad_alloc();
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
@@ -184,8 +215,6 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
 	}
-	initedOk = true;
-
 #ifdef USE_VBO
 #define CREATE_VBO(array, elementType, vboType, vboId) \
 	{ vboId = 0; if(array) { \
@@ -228,11 +257,6 @@ ObjectBuffers::~ObjectBuffers()
 	delete[] indices;
 }
 
-bool ObjectBuffers::inited()
-{
-	return initedOk;
-}
-
 GLint getBufferNumComponents(rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
@@ -265,8 +289,6 @@ GLenum getBufferComponentType(rr::RRBuffer* buffer)
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
 {
-	RR_ASSERT(initedOk);
-	if(!initedOk) return;
 #ifdef USE_VBO
 #define BIND_VBO(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(floats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 #define BIND_VBO2(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);

@@ -103,6 +103,7 @@ never:
 
 Renderer* Renderer::createDisplayList()
 {
+	if(!this) return NULL;
 	// workaround for Catalyst bug (crash in driver), observed on X1950 while rendering Z only into shadowmap
 	if(COMPILE)
 	{
