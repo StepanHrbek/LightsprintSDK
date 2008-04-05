@@ -985,17 +985,10 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		return false;
 	}
 
-	// tmparray -> object
-	RRObjectWithIllumination* multiObject = priv->multiObjectPhysicalWithIllumination;
-	for(int t=0;t<(int)numPostImportTriangles;t++)
-	{
-		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,finalGather->data[LS_LIGHTMAP][t]);
-	}
-	delete finalGather;
-
-	// object -> solver.direct
-	priv->scene->illuminationReset(false,true);
+	// tmparray -> solver.direct
+	priv->scene->illuminationReset(false,true,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
 	priv->solutionVersion++;
+	delete finalGather;
 
 	return true;
 }
@@ -1063,7 +1056,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0);
-		priv->scene->illuminationReset(true,true); // required by endByQuality()
+		priv->scene->illuminationReset(true,true,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
 		if(!updateSolverDirectIllumination(&paramsIndirect))

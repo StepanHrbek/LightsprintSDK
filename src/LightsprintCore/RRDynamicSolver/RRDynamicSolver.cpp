@@ -104,7 +104,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	if(priv->multiObjectPhysical==priv->multiObjectCustom) priv->multiObjectCustom = NULL; // no scaler -> physical == custom
 	SAFE_DELETE(priv->multiObjectCustom);
 	SAFE_DELETE(priv->multiObjectPhysical);
-	SAFE_DELETE(priv->multiObjectPhysicalWithIllumination);
 
 	// create new
 
@@ -128,10 +127,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 	// convert it to physical scale
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
-
-	// add direct illumination
-	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? new RRObjectWithIllumination(priv->multiObjectPhysical,getScaler()) : 
-		(priv->multiObjectCustom ? new RRObjectWithIllumination(priv->multiObjectCustom,getScaler()) : NULL);
 
 	// update minimalSafeDistance
 	if(priv->multiObjectCustom)
@@ -319,7 +314,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
 		// create new
-		priv->scene = RRStaticSolver::create(priv->multiObjectPhysicalWithIllumination,&priv->smoothing,aborting);
+		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
 		if(!aborting) priv->dirtyStaticSolver = false; // this is fundamental structure, so when aborted, don't clear dirty, try to create it next time
 	}
@@ -351,19 +346,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		SAFE_DELETE(priv->packedSolver);
 		if(priv->scene)
 		{
-			if(priv->detectedCustomRGBA8)
-			{
-				int numTriangles = (int)getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-				#pragma omp parallel for schedule(static)
-				for(int t=0;t<numTriangles;t++)
-				{
-					unsigned color = priv->detectedCustomRGBA8[t];
-					priv->multiObjectPhysicalWithIllumination->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,
-						RRVec3(priv->customToPhysical[(color>>24)&255],priv->customToPhysical[(color>>16)&255],priv->customToPhysical[(color>>8)&255])
-						);
-				}
-			}
-			priv->scene->illuminationReset(true,true);
+			priv->scene->illuminationReset(true,true,priv->detectedCustomRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 	}
@@ -382,19 +365,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		else
 		if(priv->scene)
 		{
-			if(priv->detectedCustomRGBA8)
-			{
-				int numTriangles = (int)getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-				#pragma omp parallel for schedule(static)
-				for(int t=0;t<numTriangles;t++)
-				{
-					unsigned color = priv->detectedCustomRGBA8[t];
-					priv->multiObjectPhysicalWithIllumination->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,
-						RRVec3(priv->customToPhysical[(color>>24)&255],priv->customToPhysical[(color>>16)&255],priv->customToPhysical[(color>>8)&255])
-						);
-				}
-			}
-			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
+			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE,priv->detectedCustomRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 		if(dirtyEnergies==Private::BIG_CHANGE)

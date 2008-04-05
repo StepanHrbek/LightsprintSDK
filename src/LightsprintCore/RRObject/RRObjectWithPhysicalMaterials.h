@@ -96,10 +96,6 @@ public:
 	{
 		return original->getCollider();
 	}
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const
-	{
-		return original->getTriangleIllumination(t,measure,out);
-	}
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
 	{
 		original->getTriangleLod(t,out);

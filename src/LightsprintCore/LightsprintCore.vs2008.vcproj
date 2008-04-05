@@ -1082,10 +1082,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRObject\RRObjectWithIllumination.h"
-				>
-			</File>
-			<File
 				RelativePath="RRObject\RRObjectWithPhysicalMaterials.cpp"
 				>
 				<FileConfiguration

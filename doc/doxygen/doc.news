@@ -8,11 +8,15 @@ namespace rr
 
 \page main_news What's new
 
-\section news53 ------------------------------------ 2008.4.xx -------------------------------------
+\section news53 ------------------------------------ 2008.4.x -------------------------------------
 
 NEWS
 
 - native 64bit support for all libraries and samples
+
+CHANGES
+
+- removed RRObject::getTriangleIllumination
 
 \section news52 ------------------------------------ 2008.3.26 -------------------------------------
 

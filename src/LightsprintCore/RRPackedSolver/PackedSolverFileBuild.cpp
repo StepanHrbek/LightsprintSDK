@@ -14,7 +14,7 @@
 #include "../RRCollider/cache.h"
 
 #include "../RRDynamicSolver/private.h"
-#include <windows.h> // jen kvuli GetTempPath
+#include <windows.h> // GetTempPath
 
 namespace rr
 {

@@ -7,7 +7,6 @@
 #define PRIVATE_H
 
 #include <vector>
-#include "../RRObject/RRObjectWithIllumination.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "../RRPackedSolver/RRPackedSolver.h"
 #include "Lightsprint/GL/Timer.h"
@@ -32,7 +31,6 @@ namespace rr
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
-		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsEmissiveMaterials;
 		bool       staticSceneContainsLods;
@@ -74,7 +72,6 @@ namespace rr
 			// scene: function of inputs
 			multiObjectCustom = NULL;
 			multiObjectPhysical = NULL;
-			multiObjectPhysicalWithIllumination = NULL;
 			staticSceneContainsEmissiveMaterials = false;
 			staticSceneContainsLods = false;
 
@@ -111,7 +108,6 @@ namespace rr
 		{
 			delete packedSolver;
 			delete scene;
-			delete multiObjectPhysicalWithIllumination;
 			if(multiObjectPhysical!=multiObjectCustom) delete multiObjectPhysical; // no scaler -> physical == custom
 			delete multiObjectCustom;
 		}

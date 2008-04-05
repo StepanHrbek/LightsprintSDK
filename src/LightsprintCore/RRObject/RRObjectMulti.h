@@ -186,12 +186,6 @@ public:
 		singles[mid.object].object->getPointMaterial(mid.index,uv,out);
 	}
 
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRVec3& out) const
-	{
-		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
-		singles[mid.object].object->getTriangleIllumination(mid.index,format,out);
-	}
-
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
 	{
 		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
@@ -489,13 +483,6 @@ public:
 			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,out);
 	}
 
-
-	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRVec3& out) const
-	{
-		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleIllumination(t,format,out);
-		return pack[1].getImporter()->getTriangleIllumination(t-pack[0].getNumTriangles(),format,out);
-	}
 
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
 	{

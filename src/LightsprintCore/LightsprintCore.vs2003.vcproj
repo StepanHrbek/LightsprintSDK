@@ -478,9 +478,6 @@
 				RelativePath="RRObject\RRObjectMulti.h">
 			</File>
 			<File
-				RelativePath="RRObject\RRObjectWithIllumination.h">
-			</File>
-			<File
 				RelativePath="RRObject\RRObjectWithPhysicalMaterials.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">

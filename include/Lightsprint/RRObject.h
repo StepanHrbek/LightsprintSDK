@@ -210,18 +210,6 @@ namespace rr
 		// may change during object lifetime
 		//
 
-		//! Writes t-th triangle additional measure to out.
-		//
-		//! Although each triangle has its RRMaterial::diffuseEmittance,
-		//! it may be inconvenient to create new RRMaterial for each triangle when only emissions differ.
-		//! So this is way how to provide additional emissivity for each triangle separately.
-		//! \n Default implementation always returns 0.
-		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param measure Specifies requested radiometric measure. Scaled must be 1. Direct/indirect may be ignored.
-		//! \param out Caller provided storage for result.
-		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRVec3& out) const;
-
 		//! Returns object transformation.
 		//
 		//! Allowed transformations are composed of translation, rotation, scale.

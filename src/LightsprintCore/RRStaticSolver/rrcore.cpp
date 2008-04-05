@@ -556,7 +556,7 @@ Object::~Object()
 //  akceptuje upravene surfacy
 //  nesaha na subtriangly, coz je asi v poradku
 
-void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
+void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB)
 {
 	// nastavi akumulatory na pocatecni hodnoty
 	// separated to three floats because of openmp
@@ -576,9 +576,18 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 		}
 
 		// nastavi akumulatory na pocatecni hodnoty
-		RRVec3 additionalIrradiance;
-		importer->getTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
-		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,additionalIrradiance,resetPropagation));
+		RRVec3 directIrradiancePhysical(0);
+		if(directIrradiancePhysicalRGBA8)
+		{
+			unsigned color = directIrradiancePhysicalRGBA8[t];
+			directIrradiancePhysical = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]);
+		}
+		else
+		if(directIrradiancePhysicalRGB)
+		{
+			directIrradiancePhysical = directIrradiancePhysicalRGB[t];
+		}
+		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,directIrradiancePhysical,resetPropagation));
 		//objSourceExitingFlux += tmp;
 		tmpx += tmp.x;
 		tmpy += tmp.y;
@@ -684,7 +693,7 @@ void Scene::objInsertStatic(Object *o)
 	sceneRay->collisionHandler = collisionHandlerLod0 = new RRCollisionHandlerLod0(object->triangle);
 }
 
-RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation)
+RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB)
 {
 	if(resetFactors)
 		resetPropagation = true;
@@ -707,7 +716,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 		staticReflectors.resetBest();
 	}
 
-	object->resetStaticIllumination(resetFactors,resetPropagation);
+	object->resetStaticIllumination(resetFactors,resetPropagation,directIrradiancePhysicalRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 
 	staticReflectors.insertObject(object);
 

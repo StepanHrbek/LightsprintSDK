@@ -34,7 +34,7 @@ class RRCollisionHandlerGatherHemisphere : public RRCollisionHandler
 public:
 	RRCollisionHandlerGatherHemisphere(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, bool _allowPointMaterials, bool _staticSceneContainsLods)
 	{
-		multiObject = _multiObject; // this Physical is slightly faster than PhysicalWithIllumination in _staticSolver->scene->object->importer
+		multiObject = _multiObject; // Physical
 		triangle = _staticSolver ? _staticSolver->scene->object->triangle : NULL;
 		allowPointMaterials = _allowPointMaterials;
 		staticSceneContainsLods = _staticSceneContainsLods;

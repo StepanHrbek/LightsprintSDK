@@ -100,9 +100,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 		mesh->getTriangleBody(fi,body);
 		if(!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
 		{
-			RRVec3 additionalIrradiance;
-			importer->getTriangleIllumination(fi,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
-			obj->objSourceExitingFlux+=abs(t->setSurface(s,additionalIrradiance,true));
+			obj->objSourceExitingFlux+=abs(t->setSurface(s,RRVec3(0),true));
 		}
 		else
 		{
@@ -121,10 +119,10 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 //
 // calculate radiosity
 
-RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation)
+RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB)
 {
 	__frameNumber++;
-	return scene->resetStaticIllumination(resetFactors,resetPropagation);
+	return scene->resetStaticIllumination(resetFactors,resetPropagation,directIrradiancePhysicalRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 }
 
 RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(void*), void* context)
