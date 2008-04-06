@@ -61,12 +61,6 @@ namespace rr
 		if(!a.x && !a.y) return RRVec3(0,1,0); else return RRVec3(-a.y,a.x,0); // line of discontinuity
 	}
 
-// dohoda:
-// predpokladejme triangl s vrcholy 0,a,b.
-// pri pohledu na jeho vnejsi stranu (tu s normalou) vidime vrcholy
-// serazene proti smeru hodinovych rucicek.
-// jinak receno: ortogonalTo(doprava,dopredu)==nahoru
-
 	inline RRVec3 ortogonalTo(const RRVec3& a,const RRVec3& b)
 	{
 		return RRVec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);

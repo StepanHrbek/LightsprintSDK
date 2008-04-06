@@ -393,21 +393,6 @@ unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, boo
 // merges close ivertices
 // why to do it: eliminates negative effect of needle, both triangles around needle are interpolated as if there is no needle
 // returns number of merges (each merge = 1 ivertex reduced)
-/* first plan of algorithm:
-vertex2ivertex: kazdy vertex ma seznamek do kterych patri ivertexu
-ivertices: mam seznam ivertexu, ke kazdemu pridam
-  vaha = 1
-  seznam sousednich vertexu na ktere se da dojet po hrane
-pro kazdy ivertex najdu sousedni ivertexy a vzdalenosti
-pokud jsou nejblizsi dva ivertexy dost blizko, spojim je
-    nastavit nove teziste
-	secist vahy
-	spojit seznamy sousednich vertexu
-	vyradit ze seznamu vlastni vertexy
-	zaktualizovat vertex2ivertex
-mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle corner-plochy (miniaturni a nulovy maj mit nulovou vahu)
-  tim by se mohla zlepsit interpolace kdyz se ponechaj degenerovany triangly z tristripu
-*/
 {
 	unsigned ivertices = vertices; // it is expected that ivertex is array of length vertices
 	unsigned numReduced = 0;

@@ -1232,11 +1232,3 @@ bool Scene::finishStaticImprovement()
 
 } // namespace
 
-/*
-buga v interpolaci na vrsku 8stennyho bodaku
-pocitat pri gouraudu i totalExitingFlux z clusteru
-pocitat pri flatu i totalExitingFlux z clusteru
-reflector meshing je pomalej protoze pulreflektory nemaj energii na strileni, musi se odebrat reflektoru a dat jim.
-Factor *factor alokovat az pri prvnim insertu
-co pujde z Shooter presunout do Scene
-*/
