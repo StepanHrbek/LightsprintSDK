@@ -38,7 +38,6 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 	{
 		// does lots of allocations, may fail here
 		ob = new ObjectBuffers;
-		memset(ob,0,sizeof(*ob)); // clear all pointers to NULL
 		ob->init(object,indexed);
 	}
 	catch(std::bad_alloc e)
@@ -48,6 +47,19 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 		rr::RRReporter::report(rr::WARN,"Not enough memory, using emergency rendering path, might fail.\n");
 	}
 	return ob;
+}
+
+ObjectBuffers::ObjectBuffers()
+{
+	// clear all pointers
+	avertex = NULL;
+	anormal = NULL;
+	atexcoordDiffuse = NULL;
+	atexcoordEmissive = NULL;
+	atexcoordAmbient = NULL;
+	atexcoordForced2D = NULL;
+	alightIndirectVcolor = NULL;
+	indices = NULL;
 }
 
 // one time initialization

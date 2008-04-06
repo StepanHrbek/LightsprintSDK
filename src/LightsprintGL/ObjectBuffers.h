@@ -27,6 +27,7 @@ public:
 	~ObjectBuffers();
 	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
+	ObjectBuffers::ObjectBuffers();
 	void init(const rr::RRObject* object, bool indexed); // throws std::bad_alloc
 	unsigned numVertices;
 
