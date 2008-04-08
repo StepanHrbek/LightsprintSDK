@@ -360,6 +360,8 @@ public:
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if(object->getNumTriangles())
 			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+		else
+			delete object;
 	}
 	virtual ~ObjectsFromMGF()
 	{
