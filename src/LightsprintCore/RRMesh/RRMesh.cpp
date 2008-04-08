@@ -358,14 +358,14 @@ unsigned RRMesh::verify()
 	unsigned numReports = 0;
 	// numVertices
 	unsigned numVertices = getNumVertices();
-	if(numVertices>=10000000)
+	if(numVertices==0 || numVertices>=10000000)
 	{
 		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 		numReports++;
 	}
 	// numTriangles
 	unsigned numTriangles = getNumTriangles();
-	if(numTriangles>=10000000)
+	if(numTriangles==0 || numTriangles>=10000000)
 	{
 		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 		numReports++;
@@ -392,6 +392,11 @@ unsigned RRMesh::verify()
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 			numReports++;
 		}
+		if(triangle.m[0]==triangle.m[1] || triangle.m[0]==triangle.m[2] || triangle.m[1]==triangle.m[2])
+		{
+			RRReporter::report(ERRO,"degen: getTriangle(%d)==%d %d %d\n",i,triangle.m[0],triangle.m[1],triangle.m[2]);
+			numReports++;
+		}
 
 		// triangleBody
 		TriangleBody triangleBody;
@@ -409,6 +414,16 @@ unsigned RRMesh::verify()
 		if(!IS_VEC3(triangleBody.side2))
 		{
 			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
+			numReports++;
+		}
+		if(!triangleBody.side1.length2())
+		{
+			RRReporter::report(WARN,"degen: getTriangleBody(%d).side1==0\n",i);
+			numReports++;
+		}
+		if(!triangleBody.side2.length2())
+		{
+			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 			numReports++;
 		}
 
