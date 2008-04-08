@@ -20,17 +20,21 @@
 namespace rr_gl
 {
 
+// *3 is usual worst case.. *6 covers uncommon situation in WoP maps without BB
+#define ACCEPTABLE_NUM_VERTICES(numTriangles) (3*(numTriangles))
+
 ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 {
 	if(!object) return NULL;
 
-	// ObjectBuffers with indexed=true fail if object has so high preimport vertex indices,
+	// ObjectBuffers with indexed=true fail if object has preimport vertex indices so high
 	// that vertex buffer with such indices can't be reasonably created.
-	// Here we quickly detect such case and return NULL.
+	// It is case of multiobject.
+	// Here we quickly detect whether we got multiobject and return NULL.
 	// It is optional, other more reliable detection would catch this problem deeper inside init()
 	// (however it would misleadingly report not enough memory)
 	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
-	if(!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1)>=3*numTriangles))
+	if(!numTriangles || (indexed && rr::RRMesh::MultiMeshPreImportNumber(object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1)).object))
 		return NULL;
 
 	ObjectBuffers* ob = NULL;
@@ -45,6 +49,10 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 		// delete what was allocated
 		SAFE_DELETE(ob);
 		rr::RRReporter::report(rr::WARN,"Not enough memory, using emergency rendering path, might fail.\n");
+	}
+	catch(...)
+	{
+		SAFE_DELETE(ob);
 	}
 	return ob;
 }
@@ -69,12 +77,12 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	unsigned numTriangles = mesh->getNumTriangles();
 	// numVerticesMax is only estimate of numPreImportVertices
 	// we have enough time in constructor, what about computing it precisely? (to save memory)
-	unsigned numVerticesMax = numTriangles*3; // *3 is usual worst case.. additional *2 covers uncommon situation in WoP maps without BB
+	unsigned numVerticesMax = ACCEPTABLE_NUM_VERTICES(numTriangles);
 	numIndices = 0;
 	indices = NULL;
 	if(indexed)
 	{
-		indices = new unsigned[numTriangles*3]; // Always allocates worst case (no vertices merged) scenario size. Only first numIndices is used.
+		indices = new unsigned[numVerticesMax]; // Always allocates worst case (no vertices merged) scenario size. Only first numIndices is used.
 	}
 	numVertices = 0;
 	// Always allocates worst case scenario size. Only first numVertices is used.
@@ -212,9 +220,9 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				// warning: could happen with correct inputs, RRMesh is allowed 
 				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
 				//  happens with all multiobjects
-				// Should not get here - catched by test in create().
-				RR_ASSERT(0);
-				throw std::bad_alloc();
+				// Multiobjects should not get here - catched by test in create().
+				rr::RRReporter::report(rr::WARN,"Object has strange vertex numbers, falling back to emergency renderer.\n");
+				throw 1;
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
