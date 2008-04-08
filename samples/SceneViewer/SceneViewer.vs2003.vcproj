@@ -349,6 +349,18 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="OBJ"
+				>
+				<File
+					RelativePath="..\ImportOBJ\RRObjectObj.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\ImportOBJ\RRObjectObj.h"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="MGF"
 				>
 				<File

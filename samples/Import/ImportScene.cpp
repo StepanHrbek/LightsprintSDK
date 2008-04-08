@@ -1,6 +1,7 @@
 #define SUPPORT_3DS
 #define SUPPORT_BSP // Quake3
 #define SUPPORT_DAE // Collada
+#define SUPPORT_OBJ
 #define SUPPORT_MGF
 #define QUAKE_DIR_STRUCTURE        false // false flattens directory structure, all textures are loaded from the same directory as .bsp
 
@@ -21,6 +22,10 @@
 	#include "../ImportQUake3/RRObjectBSP.h"
 #endif
 
+#ifdef SUPPORT_OBJ
+	#include "../ImportOBJ/RRObjectOBJ.h"
+#endif
+
 #ifdef SUPPORT_MGF
 	#include "../ImportMGF/RRObjectMGF.h"
 #endif
@@ -34,7 +39,7 @@
 //
 // Scene
 
-ImportScene::ImportScene(const char* filename, float scale3ds)
+ImportScene::ImportScene(const char* filename, float scale3dsObj)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
 	objects = NULL;
@@ -46,7 +51,7 @@ ImportScene::ImportScene(const char* filename, float scale3ds)
 	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".3ds")==0)
 	{
 		scene_3ds = new Model_3DS;
-		if(!scene_3ds->Load(filename,scale3ds))
+		if(!scene_3ds->Load(filename,scale3dsObj))
 		{
 			SAFE_DELETE(scene_3ds);
 		}
@@ -101,6 +106,14 @@ ImportScene::ImportScene(const char* filename, float scale3ds)
 			objects = adaptObjectsFromFCollada(scene_dae);
 			lights = adaptLightsFromFCollada(scene_dae);
 		}
+	}
+#endif
+
+#ifdef SUPPORT_OBJ
+	// load obj scene
+	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".obj")==0)
+	{
+		objects = adaptObjectsFromOBJ(filename,scale3dsObj);
 	}
 #endif
 

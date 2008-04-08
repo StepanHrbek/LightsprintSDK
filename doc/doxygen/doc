@@ -169,6 +169,7 @@ Scene formats
 - Collada 1.4 (.DAE)
 - 3DS Max (.3DS)
 - Quake 3 (.BSP)
+- OBJ (.OBJ)
 - MGF (.MGF)
 - Unreal Engine 3 (internal structures)
 - framework for custom formats
@@ -582,8 +583,9 @@ Used by some samples:
  \section import_without_instancing Import without instancing
 
  For import without geometry instancing,
- see samples/Import3DS or samples/ImportQuake3 or samples/ImportMGF.
- It is everything necessary to load 3ds, Quake3 or mgf scene into 
+ see one of samples/Import3DS, samples/ImportQuake3, samples/ImportOBJ,
+ samples/ImportMGF.
+ It is everything necessary to load 3ds, Quake3, obj or mgf scene into 
  RRDynamicSolver.
 
  For sake of simplicity, adapters duplicate some data in memory
@@ -1805,6 +1807,7 @@ Used by some samples:
   - \subpage inputs_collada
   - \subpage inputs_3ds
   - \subpage inputs_quake3
+  - \subpage inputs_obj
   - \subpage inputs_mgf
   - \subpage inputs_images
 
@@ -1915,13 +1918,26 @@ Used by some samples:
  - skips script based material properties
  - skips curved surfaces
 
+\page inputs_obj OBJ (.OBJ)
+ OBJ (.obj) is old plaintext format popular for its simplicity.
+ It's suitable for individual objects, but not for whole scenes,
+ because it doesn't support lights.
+ For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>.
+
+ Source code of OBJ loader and adapter is in: samples/ImportOBJ/*.*
+ \n It loads .obj file and makes it available in Lightsprint format.
+
+ Known limitations of .obj loader and adapter are
+ - loads only raw triangles, no materials (use \ref inputs_collada for rich import)
+ - note: format doesn't support lights, so .obj scenes are completely black
+
 \page inputs_mgf MGF (.MGF)
  Materials and Geometry Format (.mgf) is open but old and rarely used format
  for describing scenes and objects suitable for physically-based rendering applications.
  For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">mgf homepage</a>.
 
  Source code of MGF loader and adapter is in: samples/ImportMGF/*.*
- \n It loads .mgf scene using source code taken from mgflib (see link above)
+ \n It loads .mgf file using source code taken from mgflib (see link above)
  and makes it available in Lightsprint format.
 
  Known limitations of .mgf loader and adapter are
@@ -2341,7 +2357,7 @@ Used by some samples:
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
  - debugging: see rays shot from individual triangles or texels
- - loads collada, 3ds, quake3, mgf scenes
+ - loads collada, 3ds, quake3, obj, mgf scenes
 
  <hr>
  <b>RealtimeLights</b>
@@ -2413,6 +2429,11 @@ Used by some samples:
  <b>ImportQuake3</b>
  - source code of Quake3 map loader and adapter
  - \ref inputs_quake3 details
+
+ <hr>
+ <b>ImportOBJ</b>
+ - source code of OBJ loader
+ - \ref inputs_obj details
 
  <hr>
  <b>ImportMGF</b>
