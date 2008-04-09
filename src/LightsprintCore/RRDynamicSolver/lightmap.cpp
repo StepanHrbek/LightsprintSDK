@@ -66,9 +66,9 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for(unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
 	{
-		RRMesh::MultiMeshPreImportNumber multiPreImportTriangle;
+		RRMesh::PreImportNumber multiPreImportTriangle;
 		multiPreImportTriangle.object = objectNumber;
-		multiPreImportTriangle.index = singleMesh->getPreImportTriangle(singlePostImportTriangle);
+		multiPreImportTriangle.index = singleMesh->getPreImportTriangle(singlePostImportTriangle).index;
 		unsigned multiPostImportTriangle = multiMesh->getPostImportTriangle(multiPreImportTriangle);
 		if(multiPostImportTriangle!=UINT_MAX && (onlyTriangleNumber<0 || onlyTriangleNumber==multiPostImportTriangle))
 		{

@@ -73,8 +73,6 @@ public:
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 	//virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
-	//virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const;
-	//virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
@@ -426,16 +424,6 @@ void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 	out[2] = -model->mVertices[v].mPosition[1]*0.015f;
 #endif
 }
-
-//unsigned RRObjectBSP::getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
-//{
-//	return postImportVertex;
-//}
-
-//unsigned RRObjectBSP::getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
-//{
-//	return preImportVertex;
-//}
 
 unsigned RRObjectBSP::getNumTriangles() const
 {

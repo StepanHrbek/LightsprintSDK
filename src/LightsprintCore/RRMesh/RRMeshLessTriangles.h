@@ -102,17 +102,17 @@ public:
 		t = ValidIndex[t];
 		inherited->getTriangleMapping(t,out);
 	}
-	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return inherited->getPreImportTriangle(midImportTriangle);
 	}
-	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
+	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const 
 	{
 		// check that this slow code is not called often
 //!!! is called when RRDynamicSolver works with single object
@@ -124,14 +124,14 @@ public:
 				return post;
 		return RRMesh::UNDEFINED;
 	}
-	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
 	// getPostImportVertex:  no conversion needed
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return inherited->getPreImportVertex(postImportVertex, midImportTriangle);
@@ -217,18 +217,18 @@ public:
 		RR_ASSERT(t<ValidIndices);
 		INHERITED::getTriangle(ValidIndex[t],out);
 	}
-	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const 
+	virtual RRMesh::PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		//return ValidIndex[postImportTriangle];
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return INHERITED::getPreImportTriangle(midImportTriangle);
 	}
-	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
+	virtual unsigned getPostImportTriangle(RRMesh::PreImportNumber preImportTriangle) const 
 	{
 		// check that this slow code is not called often
 		//RR_ASSERT(0); // called from RRMeshCopy
@@ -239,14 +239,14 @@ public:
 				return post;
 		return RRMesh::UNDEFINED;
 	}
-	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual RRMesh::PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
 	// getPostImportVertex:  no conversion needed
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return INHERITED::getPreImportVertex(postImportVertex, midImportTriangle);

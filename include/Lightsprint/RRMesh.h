@@ -316,21 +316,33 @@ namespace rr
 		//
 		// optional for advanced importers
 		//  post import number is always plain unsigned, 0..num-1
-		//  pre import number is implementation defined
+		//  pre import number is arbitrary, implementation defined
 		//  all numbers in interface are post import, except for following preImportXxx:
 		//
 
+		//! PreImport number, index of vertex or triangle before import.
+		struct PreImportNumber
+		{
+			//! PreImport index, arbitrary triangle or vertex number in single mesh before import.
+			unsigned index;
+			//! PreImport object number, index into array of objects in scene.
+			unsigned object;
+			PreImportNumber(unsigned _object, unsigned _index) {index=_index;object=_object;}
+			PreImportNumber() {}
+			bool operator ==(const PreImportNumber& a) {return index==a.index && object==a.object;}
+		};
+
 		//! Returns PreImport index of given vertex or UNDEFINED for invalid inputs.
-		virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
+		virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return PreImportNumber(0,postImportVertex);}
 
 		//! Returns PostImport index of given vertex or UNDEFINED for invalid inputs.
-		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
+		virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const {return preImportVertex.index;}
 
 		//! Returns PreImport index of given triangle or UNDEFINED for invalid inputs.
-		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
+		virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const {return PreImportNumber(0,postImportTriangle);}
 
 		//! Returns PostImport index of given triangle or UNDEFINED for invalid inputs.
-		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
+		virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const {return preImportTriangle.index;}
 
 		enum 
 		{
@@ -362,33 +374,6 @@ namespace rr
 			OPTIMIZED_TRIANGLES = (1<<2), ///< Remove degenerated triangles.
 		};
 
-		//! Structure of PreImport index in MultiMeshes created by createMultiMesh().
-		//
-		//! Underlying importers must use PreImport values that fit into index, this is not runtime checked.
-		//! This implies that it is not allowed to create MultiMesh from MultiMeshes.
-		struct MultiMeshPreImportNumber
-		{
-			enum {OBJ_BITS=13, TRI_BITS=sizeof(unsigned)*8-OBJ_BITS};
-			//! Original PreImport index of element (vertex or triangle).
-			//! For 32bit int: max 0.5M triangles/vertices in one mesh is supported by multimesh.
-			unsigned index : TRI_BITS;
-			//! Index into array of original meshes used to create multimesh.
-			//! For 32bit int: max 8k meshes is supported by multimesh.
-			unsigned object : OBJ_BITS;
-			MultiMeshPreImportNumber() {}
-			MultiMeshPreImportNumber(unsigned aobject, unsigned aindex) {index=aindex;object=aobject;}
-			//! Implicit unsigned -> MultiMeshPreImportNumber conversion.
-			MultiMeshPreImportNumber(unsigned i) {
-				//*(unsigned*)this = i; // not safe with strict aliasing
-				index = i; object = i>>TRI_BITS;
-				}
-			//! Implicit MultiMeshPreImportNumber -> unsigned conversion.
-			operator unsigned () {
-				//return *(unsigned*)this; // not safe with strict aliasing
-				return index + (object<<TRI_BITS);
-				}
-		};
-
 		//! Creates %RRMesh from your vertex buffer.
 		//
 		//! \param flags See #Flags. Note that optimizations are not implemented for triangle lists, OPTIMIZE_XXX flags will be silently ignored.
@@ -413,13 +398,6 @@ namespace rr
 		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
 		static RRMesh* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 
-		//! Creates and returns partial copy of your instance (everything except custom channels).
-		//
-		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
-		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
-		//! \n Copy may be faster than original, but may require more memory.
-		//! \n This function may fail and return NULL.
-		RRMesh* createCopy();
 
 		//! Creates and returns transformed mesh.
 		//
@@ -442,9 +420,9 @@ namespace rr
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n If you need to locate original triangles and vertices in MultiMesh, you have two choices:
-		//! -# Use PreImpport<->PostImport conversions. PreImport number for MultiMesh is defined as MultiMeshPreImportNumber.
+		//! -# Use PreImpport<->PostImport conversions. PreImport number for MultiMesh is defined as PreImportNumber.
 		//!  If you want to access triangle 2 in meshes[1], calculate index of triangle in MultiMesh as
-		//!  indexOfTriangle = multiMesh->getPostImportTriangle(MultiMeshPreImportNumber(2,1)).
+		//!  indexOfTriangle = multiMesh->getPostImportTriangle(PreImportNumber(2,1)).
 		//! -# Convert indices yourself. It is granted, that both indices and vertices preserve order of meshes in array:
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.

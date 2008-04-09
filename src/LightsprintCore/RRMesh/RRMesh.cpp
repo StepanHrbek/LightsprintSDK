@@ -341,10 +341,10 @@ class RRHidePreImportFilter : public RRMeshFilter
 {
 public:
 	RRHidePreImportFilter(RRMesh* _original) : RRMeshFilter(_original) {}
-	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
-	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
-	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
-	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return PreImportNumber(0,postImportVertex);}
+	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const {return preImportVertex.index;}
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const {return PreImportNumber(0,postImportTriangle);}
+	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const {return preImportTriangle.index;}
 };
 
 RRMesh* RRMesh::createVertexBufferRuler()

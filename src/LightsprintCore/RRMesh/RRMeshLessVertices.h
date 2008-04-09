@@ -124,12 +124,12 @@ dupl:;
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
 		inherited->getVertex(midImportVertex,out);
 	}
-	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
 		if(postImportVertex>=UniqueVertices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return PreImportNumber(UNDEFINED,UNDEFINED);
 		}
 
 		// exact version
@@ -139,7 +139,7 @@ dupl:;
 		if(midImportTriangle==UNDEFINED)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return PreImportNumber(UNDEFINED,UNDEFINED);
 		}
 		RRMesh::Triangle midImportVertices;
 		inherited->getTriangle(midImportTriangle,midImportVertices);
@@ -148,12 +148,12 @@ dupl:;
 			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return inherited->getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
-		RR_ASSERT(0); // nastalo kdyz byla chyba v LessTrianglesFilter a postNumber se nezkonvertilo na midNumber
 
-		// fast version
-		return Unique2Dupl[postImportVertex];
+		// invalid inputs (nastalo kdyz byla chyba v LessTrianglesFilter a postNumber se nezkonvertilo na midNumber)
+		RR_ASSERT(0);
+		return PreImportNumber(UNDEFINED,UNDEFINED);
 	}
-	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
+	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const
 	{
 		unsigned midImportVertex = inherited->getPostImportVertex(preImportVertex,preImportTriangle);
 		if(midImportVertex>=inherited->getNumVertices()) 
@@ -284,12 +284,12 @@ dupl:;
 		INHERITED::getVertex(midImportVertex,out);
 		//out = *(RRMesh::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
 	}
-	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	virtual RRMesh::PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
 		if(postImportVertex>=UniqueVertices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 
 		// exact version
@@ -299,7 +299,7 @@ dupl:;
 		if(midImportTriangle==RRMesh::UNDEFINED)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMesh::UNDEFINED;
+			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		RRMesh::Triangle midImportVertices;
 		INHERITED::getTriangle(midImportTriangle,midImportVertices);
@@ -308,12 +308,12 @@ dupl:;
 			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return INHERITED::getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
-		RR_ASSERT(0);
 
-		// fast version
-		return Unique2Dupl[postImportVertex];
+		// invalid inputs
+		RR_ASSERT(0);
+		return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 	}
-	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
+	virtual unsigned getPostImportVertex(RRMesh::PreImportNumber preImportVertex, RRMesh::PreImportNumber preImportTriangle) const
 	{
 		unsigned midImportVertex = INHERITED::getPostImportVertex(preImportVertex,preImportTriangle);
 		if(midImportVertex>=INHERITED::getNumVertices()) 

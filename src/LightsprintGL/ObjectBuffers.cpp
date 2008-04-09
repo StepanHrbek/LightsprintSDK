@@ -34,7 +34,7 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 	// It is optional, other more reliable detection would catch this problem deeper inside init()
 	// (however it would misleadingly report not enough memory)
 	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
-	if(!numTriangles || (indexed && rr::RRMesh::MultiMeshPreImportNumber(object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1)).object))
+	if(!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1).object))
 		return NULL;
 
 	ObjectBuffers* ob = NULL;
@@ -205,7 +205,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				//  RRDynamicSolver generates ambient vertex buffers for original vertex order.
 				//  to render them, whole mesh must be in original vertex order
 				// use preimport index, because of e.g. optimizations in RRObjectMulti
-				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t);
+				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t).index;
 				indices[numIndices++] = currentVertex;
 				numVertices = MAX(numVertices,currentVertex+1);
 			}

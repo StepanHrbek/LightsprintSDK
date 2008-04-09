@@ -50,7 +50,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
 			if(postImportMultiVertex<numPostImportMultiVertices)
 			{
-				RRMesh::MultiMeshPreImportNumber preVertexMulti = multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
+				RRMesh::PreImportNumber preVertexMulti = multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
 				if(priv->scene && !priv->scene->scene->object->triangle[postImportMultiTriangle].topivertex[v])
 				{
 					// static solver doesn't like this triangle and set surface NULL, probably because it is a needle
@@ -108,13 +108,9 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 					unsigned postImportVertex = postImportTriangleVertices[v];
 					if(postImportVertex<numPostImportVertices)
 					{
-						unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
-						RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
-						if(preVertexMulti.object==objectHandle)
-							preVertex = preVertexMulti.index;
-						else
-							continue; // skip asserts
-						if(preVertex<numPreImportVertices)
+						RRMesh::PreImportNumber preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+						if(preVertex.object!=objectHandle) continue; // skip asserts
+						if(preVertex.index<numPreImportVertices)
 						{
 							/* if more ivertices writes to this vertex, stop after getting first valid pointer and then never overwrite it by NULL
 							proc muze vic ivertexu zapisovat do stejneho vertexu a jeden z nich je NULL?
@@ -131,8 +127,8 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 								kdyz sestavuju vbuf, pro tento 1 vertex hledam ivertex
 								najdu oba
 								musim z nich pouzit ten ktery neni fialovy*/
-							if(!priv->preVertex2Ivertex[1+objectHandle][preVertex])
-								priv->preVertex2Ivertex[1+objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
+							if(!priv->preVertex2Ivertex[1+objectHandle][preVertex.index])
+								priv->preVertex2Ivertex[1+objectHandle][preVertex.index] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
 						}
 						else
 							RR_ASSERT(0);

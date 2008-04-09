@@ -308,7 +308,7 @@ void RendererOfRRObject::render()
 					// b) accumulating lit renders, so skipping render=disabling lighting (skip allowed in detection, background is cleared to black so skip=render unlit)
 					material = params.object->getTriangleMaterial(triangleIdx,params.renderingLitByThisLight,NULL);
 				}
-				//rr::RRMesh::MultiMeshPreImportNumber preTriangle = meshImporter->getPreImportTriangle(triangleIdx);
+				//rr::RRMesh::PreImportNumber preTriangle = meshImporter->getPreImportTriangle(triangleIdx);
 				//rr::RRReporter::report(rr::INF1,"%s %s tri%d(obj%d)",params.renderingLitByThisLight?"SHADOWMAP":(params.renderedChannels.FORCE_2D_POSITION?"DETECT":"FINAL_LIT"),material?"render":"skip",triangleIdx,preTriangle.object);
 				if(!material) continue; // skip rendering triangles without material
 

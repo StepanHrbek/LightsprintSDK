@@ -35,27 +35,6 @@ public:
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
-			if(numObjects>(1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS))
-			{
-				RRReporter::report(WARN,"Too many objects (%d) for multiobject (supported max=%d).\n",numObjects,1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS);
-				return NULL;
-			}
-			for(unsigned i=0;i<numObjects;i++)
-			{
-				if(objects[i] && objects[i]->getCollider())
-				{
-					if(objects[i]->getCollider()->getMesh()->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
-					{
-						RRReporter::report(WARN,"Too many triangles (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
-						return NULL;
-					}
-					if(objects[i]->getCollider()->getMesh()->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
-					{
-						RRReporter::report(WARN,"Too many vertices (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
-						return NULL;
-					}
-				}
-			}
 			// create multimesh
 			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
@@ -94,18 +73,6 @@ public:
 			}
 			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
 
-			// create copy (faster access)
-			// disabled because we know that current copy implementation always gives up
-			// due to low efficiency
-			if(0)
-			{
-				RRMesh* tmp = multiMesh->createCopy();
-				if(tmp)
-				{
-					//transformedMeshes[numObjects+x] = multiMesh; // remember for freeing time
-					//multiMesh = tmp;
-				}
-			}
 
 			// create multicollider
 			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
@@ -176,19 +143,19 @@ public:
 
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
-		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
 	}
 
 	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 	{
-		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		singles[mid.object].object->getPointMaterial(mid.index,uv,out);
 	}
 
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
 	{
-		RRMesh::MultiMeshPreImportNumber mid = postImportToMidImportTriangle[t];
+		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		singles[mid.object].object->getTriangleLod(mid.index,out);
 	}
 
@@ -225,18 +192,18 @@ private:
 		RRMesh* multiMeshOptimized = multiCollider->getMesh();
 		numTrianglesOptimized = multiMeshOptimized->getNumTriangles();
 		numVerticesOptimized = multiMeshOptimized->getNumVertices();
-		postImportToMidImportTriangle = new RRMesh::MultiMeshPreImportNumber[numTrianglesOptimized];
+		postImportToMidImportTriangle = new RRMesh::PreImportNumber[numTrianglesOptimized];
 		for(unsigned t=0;t<numTrianglesOptimized;t++)
 		{
-			RRMesh::MultiMeshPreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
-			preImportT.index = transformedMeshes[preImportT.object]->getPostImportTriangle(preImportT.index);
+			RRMesh::PreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
+			preImportT.index = transformedMeshes[preImportT.object]->getPostImportTriangle(RRMesh::PreImportNumber(0,preImportT.index));
 			postImportToMidImportTriangle[t] = preImportT;
 		}
-		//postImportToMidImportVertex = new RRMesh::MultiMeshPreImportNumber[numVerticesOptimized];
+		//postImportToMidImportVertex = new RRMesh::PreImportNumber[numVerticesOptimized];
 		//for(unsigned v=0;v<numVerticesOptimized;v++)
 		//{
-		//	MultiMeshPreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
-		//	RRMesh::MultiMeshPreImportNumber preImportV = multiMeshOptimized->getPreImportVertex(v);
+		//	RRMesh::PreImportNumber preImportT = multiMeshOptimized->getPreImportTriangle(t);
+		//	RRMesh::PreImportNumber preImportV = multiMeshOptimized->getPreImportVertex(v);
 		//	preImportV.index = transformedMeshes[preImportV.object]->getPostImportVertex(preImportV.index);
 		//	postImportToMidImportVertex[v] = preImportV;
 		//}
@@ -259,8 +226,8 @@ private:
 	unsigned numSingles;
 	unsigned numTrianglesOptimized;
 	unsigned numVerticesOptimized;
-	RRMesh::MultiMeshPreImportNumber* postImportToMidImportTriangle;
-	//RRMesh::MultiMeshPreImportNumber* postImportToMidImportVertex;
+	RRMesh::PreImportNumber* postImportToMidImportTriangle;
+	//RRMesh::PreImportNumber* postImportToMidImportVertex;
 
 	RRCollider*   multiCollider;
 	RRMesh**      transformedMeshes;
@@ -290,27 +257,6 @@ public:
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
-			if(numObjects>(1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS))
-			{
-				RRReporter::report(WARN,"Too many objects (%d) for multiobject (supported max=%d).\n",numObjects,1<<RRMesh::MultiMeshPreImportNumber::OBJ_BITS);
-				return NULL;
-			}
-			for(unsigned i=0;i<numObjects;i++)
-			{
-				if(objects[i] && objects[i]->getCollider())
-				{
-					if(objects[i]->getCollider()->getMesh()->getNumTriangles()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
-					{
-						RRReporter::report(WARN,"Too many triangles (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumTriangles(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
-						return NULL;
-					}
-					if(objects[i]->getCollider()->getMesh()->getNumVertices()>1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS)
-					{
-						RRReporter::report(WARN,"Too many vertices (%d) in object %d (supported max=%d).\n",objects[i]->getCollider()->getMesh()->getNumVertices(),i,1<<RRMesh::MultiMeshPreImportNumber::TRI_BITS);
-						return NULL;
-					}
-				}
-			}
 			// create multimesh
 			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
@@ -411,9 +357,9 @@ public:
 		// <unoptimized> is mesh after concatenation of multiple meshes/objects
 		// <this> is after concatenation and optimizations
 		// convert t from "post" to "pre"
-		t = getCollider()->getMesh()->getPreImportTriangle(t);
+		RRMesh::PreImportNumber preImportTriangle = getCollider()->getMesh()->getPreImportTriangle(t);
 		// convert t from "pre" to "mid"
-		t = unoptimizedMesh->getPostImportTriangle(t);
+		t = unoptimizedMesh->getPostImportTriangle(preImportTriangle);
 	}
 
 	// channels

@@ -902,9 +902,9 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 	std::vector<const RRLight*>* relevantLightsPerObject = new std::vector<const RRLight*>[numObjects];
 	for(unsigned objectNumber=0;objectNumber<numObjects;objectNumber++)
 	{
-		RRMesh::MultiMeshPreImportNumber preImportTriangleNumber;
+		RRMesh::PreImportNumber preImportTriangleNumber;
 		preImportTriangleNumber.object = objectNumber;
-		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0); // we assume triangle with preimport index 0 exists
+		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume triangle with preimport index 0 exists
 		unsigned postImportTriangleNumber = multiMesh->getPostImportTriangle(preImportTriangleNumber);
 		for(unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
@@ -925,7 +925,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 #else
 			int threadNum = 0;
 #endif
-			unsigned objectNumber = RRMesh::MultiMeshPreImportNumber(multiMesh->getPreImportTriangle(t)).object;
+			unsigned objectNumber = RRMesh::PreImportNumber(multiMesh->getPreImportTriangle(t)).object;
 			tc.singleObjectReceiver = getObject(objectNumber);
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;

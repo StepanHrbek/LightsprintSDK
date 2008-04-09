@@ -876,7 +876,7 @@ static void display(void)
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 			if(solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
-				rr::RRMesh::MultiMeshPreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
+				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 				const rr::RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 				rr::RRMaterial pointMaterial;
 				if(material && material->sideBits[ray->hitFrontSide?0:1].pointDetails)

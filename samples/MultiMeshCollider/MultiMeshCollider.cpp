@@ -75,7 +75,7 @@ int main()
 	{
 		// get original mesh/triangle numbers
 		// it works even when filters (e.g. vertex weld) run on mesh or multimesh
-		RRMesh::MultiMeshPreImportNumber original = multiMesh->getPreImportTriangle(ray->hitTriangle);
+		RRMesh::PreImportNumber original = multiMesh->getPreImportTriangle(ray->hitTriangle);
 
 		printf("Intersection was detected.\n\n");
 		printf(" distance                    = %f\n",ray->hitDistance);

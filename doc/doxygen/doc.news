@@ -8,11 +8,25 @@ namespace rr
 
 \page main_news What's new
 
-\section news54 ------------------------------------ 2008.4.8 -------------------------------------
+\section news54 ------------------------------------ 2008.4.9 -------------------------------------
 
 NEWS
 
+- supports scenes with up to 4 billion meshes and 4 billion triangles/vertices per mesh (was 8k and 512k)
 - import of .obj files
+
+CHANGES
+
+- RRMesh::MultiMeshPreImportNumber renamed to RRMesh::PreImportNumber
+- all PreImport numbers changed from unsigned to RRMesh::PreImportNumber
+  \n so compiler prevents you from accidentally using PreImport number for PostImport and vice versa
+  \n If you implemented following functions from RRMesh interface, change your declarations to match
+     new interface:
+  - RRMesh::getPreImportVertex()
+  - RRMesh::getPostImportVertex()
+  - RRMesh::getPreImportTriangle()
+  - RRMesh::getPostImportTriangle()
+- removed RRMesh::createCopy()
 
 \section news53 ------------------------------------ 2008.4.6 -------------------------------------
 

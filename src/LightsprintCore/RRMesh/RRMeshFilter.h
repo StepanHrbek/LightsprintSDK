@@ -71,19 +71,19 @@ public:
 	}
 
 	// preimport/postimport conversions
-	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
 		return inherited->getPreImportVertex(postImportVertex, postImportTriangle);
 	}
-	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
+	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const 
 	{
 		return inherited->getPostImportVertex(preImportVertex, preImportTriangle);
 	}
-	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
 	{
 		return inherited->getPreImportTriangle(postImportTriangle);
 	}
-	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
+	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const 
 	{
 		return inherited->getPostImportTriangle(preImportTriangle);
 	}
