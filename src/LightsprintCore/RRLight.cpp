@@ -29,6 +29,7 @@ public:
 		polynom = rr::RRVec3(0);
 		fallOffExponent = 0;
 		fallOffAngleRad = 0;
+		spotExponent = 1;
 		castShadows = true;
 		customData = NULL;
 	}
@@ -268,7 +269,7 @@ public:
 class SpotLightPoly : public CleanLight
 {
 public:
-	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec3 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec3 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad, RRReal _spotExponent)
 	{
 		type = SPOT;
 		distanceAttenuationType = POLYNOMIAL;
@@ -278,14 +279,15 @@ public:
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		spotExponent = CLAMPED(_spotExponent,0,1e10f);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = 1/(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
 		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
-		RRVec3 irradiance = color * attenuation;
+		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
+		RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;
 		if(scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
@@ -336,9 +338,9 @@ RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3&
 	return new SpotLightRadiusExp(position,color,radius,fallOffExponent,majorDirection,outerAngleRad,fallOffAngleRad);
 }
 
-RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
+RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
 {
-	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad);
+	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad,spotExponent);
 }
 
 } // namespace

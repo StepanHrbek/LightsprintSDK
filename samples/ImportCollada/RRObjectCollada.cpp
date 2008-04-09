@@ -990,7 +990,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 					push_back(rr::RRLight::createPointLightPoly(position,color,polynom));
 					break;
 				case FCDLight::SPOT:
-					push_back(rr::RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle()));
+					push_back(rr::RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
 					break;
 				case FCDLight::DIRECTIONAL:
 					push_back(rr::RRLight::createDirectionalLight(direction,color,false));

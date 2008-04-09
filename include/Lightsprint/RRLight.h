@@ -161,7 +161,7 @@ namespace rr
 			NONE,
 			//! Intensity in physical scale is color/distance^2. This is exactly how reality works.
 			PHYSICAL,
-			//! Intensity in custom scale is color/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2). Used in fixed pipeline engines.
+			//! Intensity in custom scale is color*pow(CLAMPED(1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2),0,1),spotExponent). Used in fixed pipeline engines.
 			POLYNOMIAL,
 			//! Intensity in physical scale is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.
 			EXPONENTIAL,
@@ -174,8 +174,12 @@ namespace rr
 		RRVec3 polynom;
 
 		//! Relevant only for distanceAttenuation==EXPONENTIAL.
-		//!  Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
+		//! Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
 		RRReal fallOffExponent;
+
+		//! Relevant only for distanceAttenuation==POLYNOMIAL and type=SPOT.
+		//! Exponent that controls attenuation from innerAngle to outerAngle in spotlight.
+		RRReal spotExponent;
 
 		//! Outer-inner code angle in radians. Relevant only for SPOT light. Read/write.
 		//
@@ -366,7 +370,11 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
-		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+		//! \param spotExponent
+		//!  Insight: This is how intensity changes in blurry part. Default 1 makes it linear. \n
+		//!  Exponent in (0,inf) range. \n
+		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
+		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
 	};
 
 
