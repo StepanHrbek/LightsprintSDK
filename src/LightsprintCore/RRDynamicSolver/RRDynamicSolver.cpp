@@ -104,6 +104,10 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	if(priv->multiObjectPhysical==priv->multiObjectCustom) priv->multiObjectCustom = NULL; // no scaler -> physical == custom
 	SAFE_DELETE(priv->multiObjectCustom);
 	SAFE_DELETE(priv->multiObjectPhysical);
+	// clear old values (code that fills tables needs them empty)
+	priv->preVertex2PostTriangleVertex.clear();
+	priv->preVertex2Ivertex.clear();
+
 
 	// create new
 
