@@ -259,23 +259,15 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 }
 
 #ifdef STRICT_SEPARATION
-static RRReal* get_polygon_normal(RRReal normal[3], int nverts, const RRReal verts[/* nverts */][3])
+static void get_tri_normal(RRReal normal[3], const RRReal verts[3][3])
 {
-	int i;
 	real tothis[3], toprev[3], cross[3];
-
-	/*
-	* Triangulate the polygon and sum up the nverts-2 triangle normals.
-	*/
 	ZEROVEC3(normal);
-	VMV3(toprev, verts[1], verts[0]);  	/* 3 subtracts */
-	for (i = 2; i <= nverts-1; ++i) {   /* n-2 times... */
-		VMV3(tothis, verts[i], verts[0]);    /* 3 subtracts */
-		VXV3(cross, toprev, tothis);         /* 3 subtracts, 6 multiplies */
-		VPV3(normal, normal, cross);         /* 3 adds */
-		SET3(toprev, tothis);
-	}
-	return normal;
+	VMV3(toprev, verts[1], verts[0]);
+	VMV3(tothis, verts[2], verts[0]);
+	VXV3(cross, toprev, tothis);
+	VPV3(normal, normal, cross);
+	SET3(toprev, tothis);
 }
 
 static bool face_intersects_box(const FACE* face, BBOX* bbox)
@@ -293,7 +285,7 @@ static bool face_intersects_box(const FACE* face, BBOX* bbox)
 	RR_ASSERT(IS_VEC3(tri[0]) && IS_VEC3(tri[1]) && IS_VEC3(tri[2]));
 	// transform normal
 	real normal[3];
-	get_polygon_normal(normal, 3, tri);
+	get_tri_normal(normal, tri);
 	// call Hatch+Green test
 	return pcube::fast_polygon_intersects_cube(3,tri,normal,0,0)!=0;
 }
@@ -413,7 +405,6 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 	FACE** minx = new FACE*[faces];
 	FACE** maxx = new FACE*[faces];
 	memcpy(minx,list,sizeof(FACE*)*faces);
-	memcpy(maxx,list,sizeof(FACE*)*faces);
 
 	for(info.axis=0;info.axis<3;info.axis++)
 	{
@@ -421,6 +412,7 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 
 		// sort sortarrays
 		qsort(minx,faces,sizeof(FACE*),(axis==0)?compare_face_minx_asc:((axis==1)?compare_face_miny_asc:compare_face_minz_asc));
+		memcpy(maxx,minx,sizeof(FACE*)*faces); // second qsort will be faster with inputs roughly sorted (makes collider build 3% faster)
 		qsort(maxx,faces,sizeof(FACE*),(axis==0)?compare_face_maxx_asc:((axis==1)?compare_face_maxy_asc:compare_face_maxz_asc));
 
 		// select root
