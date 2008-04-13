@@ -134,16 +134,15 @@ struct BBOX
 		RR_ASSERT(c>=0);
 		return 2*(a*(b+c)+b*c);
 	}
-	float getEdgeSize() const
+	void updateMaxVertexValue()
 	{
-		float a=hi[0]-lo[0];
-		float b=hi[1]-lo[1];
-		float c=hi[2]-lo[2];
-		RR_ASSERT(a>=0);
-		RR_ASSERT(b>=0);
-		RR_ASSERT(c>=0);
-		return a+b+c;
+		float a = MAX(MAX(hi[0],hi[1]),hi[2]);
+		float b = MIN(MIN(lo[0],lo[1]),lo[2]);
+		maxVertexValue = MAX(a,-b);
+		minSafeDistance = maxVertexValue * 1e-6f; // min distance from plane to be recognized as non-plane
 	}
+	float maxVertexValue;
+	float minSafeDistance;
 };
 
 struct BSP_TREE 
@@ -163,7 +162,6 @@ struct BSP_TREE
 };
 
 #define CACHE_SIZE 1000
-float   DELTA_INSIDE_PLANE; // min distance from plane to be recognized as non-plane
 #define DELTA_NORMALS_MATCH 0.001 // min distance of normals to be recognized as non-plane
 #define PLANE 0 // 2d in splitting plane
 #define FRONT 1 // 2d in front, 1d may be in plane
@@ -214,38 +212,22 @@ static void free_node(BSP_TREE* t)
 	}
 }
 
-static int locate_vertex_bsp(const FACE *f, const VERTEX *v, float DELTA_INSIDE_PLANE)
-{
-	float r = f->normal.a*v->x+f->normal.b*v->y+f->normal.c*v->z+f->normal.d;
-	if(ABS(r)<DELTA_INSIDE_PLANE) return PLANE; 
-	if(r>0) return FRONT; 
-	return BACK;
-}
-
-static int locate_vertex_kd(float splitValue, int splitAxis, const VERTEX *v)
-{
-	RR_ASSERT(splitAxis>=0 && splitAxis<3);
-	return ((*v)[splitAxis]>splitValue) ? FRONT : ( ((*v)[splitAxis]<splitValue) ? BACK : PLANE );
-}
-
 static int normals_match(const FACE *plane, const FACE *face)
 {
-	return
-		fabs(plane->normal.a+face->normal.a)+fabs(plane->normal.b+face->normal.b)+fabs(plane->normal.c+face->normal.c)<DELTA_NORMALS_MATCH ||
-		fabs(plane->normal.a-face->normal.a)+fabs(plane->normal.b-face->normal.b)+fabs(plane->normal.c-face->normal.c)<DELTA_NORMALS_MATCH;
+	return fabs(plane->normal.a*face->normal.a+plane->normal.b*face->normal.b+plane->normal.c*face->normal.c)>1-DELTA_NORMALS_MATCH;
+//		fabs(plane->normal.a+face->normal.a)+fabs(plane->normal.b+face->normal.b)+fabs(plane->normal.c+face->normal.c)<DELTA_NORMALS_MATCH ||
+//		fabs(plane->normal.a-face->normal.a)+fabs(plane->normal.b-face->normal.b)+fabs(plane->normal.c-face->normal.c)<DELTA_NORMALS_MATCH;
 }
 
 static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSIDE_PLANE)
 {
-	int i,f=0,b=0,p=0;
+	int f=0,b=0,p=0;
 
-	for(i=0;i<3;i++)
-		switch(locate_vertex_bsp(plane,face->vertex[i],DELTA_INSIDE_PLANE))
-		{
-			case BACK:b++;break;
-			case FRONT:f++;break;
-			case PLANE:f++;b++;p++;break;
-		}
+	for(int i=0;i<3;i++)
+	{
+		float dist = plane->normal.a*face->vertex[i]->x+plane->normal.b*face->vertex[i]->y+plane->normal.c*face->vertex[i]->z+plane->normal.d;
+		if(dist>DELTA_INSIDE_PLANE) f++; else if(dist<-DELTA_INSIDE_PLANE) b++; else {f++;b++;p++;}
+	}
 
 	if(plane==face)
 	{
@@ -291,20 +273,19 @@ static bool face_intersects_box(const FACE* face, BBOX* bbox)
 }
 #endif
 
-int locate_face_kd(float splitValue, int axis, BBOX *bbox, const FACE *face)
+int locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE *face)
 // bbox = bbox of node
 // splitValue/axis = where bbox is splited
 // face = object that needs to be located
 {
-	int i,f=0,b=0,p=0;
+	int f=0,b=0,p=0;
+	RR_ASSERT(splitAxis>=0 && splitAxis<3);
 
-	for (i=0;i<3;i++)
-		switch (locate_vertex_kd(splitValue,axis,face->vertex[i])) 
-		{
-			case BACK:b++;break;
-			case FRONT:f++;break;
-			case PLANE:f++;b++;p++;break;
-		}
+	for(int i=0;i<3;i++)
+	{
+		float r = (*face->vertex[i])[splitAxis];
+		if(r>splitValue) f++; else if(r<splitValue) b++; else {f++;b++;p++;}
+	}
 
 	if (p==3) return PLANE;
 	if (f==3) return FRONT;
@@ -312,7 +293,7 @@ int locate_face_kd(float splitValue, int axis, BBOX *bbox, const FACE *face)
 #ifdef STRICT_SEPARATION
 	// new: verify that face really intersects both subboxes
 	BBOX bbox2 = *bbox;
-	RRReal dif = DELTA_INSIDE_PLANE;
+	RRReal dif = bbox->minSafeDistance;
 	for(unsigned i=0;i<3;i++)
 	{
 		// tiny grow to hit also all tringles in faces of bbox 
@@ -320,11 +301,11 @@ int locate_face_kd(float splitValue, int axis, BBOX *bbox, const FACE *face)
 		bbox2.lo[i] -= dif;
 		bbox2.hi[i] += dif;
 	}
-	float tmp = bbox2.lo[axis];
-	bbox2.lo[axis] = splitValue;
+	float tmp = bbox2.lo[splitAxis];
+	bbox2.lo[splitAxis] = splitValue;
 	bool frontHit = face_intersects_box(face,&bbox2);
-	bbox2.lo[axis] = tmp;
-	bbox2.hi[axis] = splitValue;
+	bbox2.lo[splitAxis] = tmp;
+	bbox2.hi[splitAxis] = splitValue;
 	bool backHit = face_intersects_box(face,&bbox2);
 
 	if(frontHit && backHit) return SPLIT;
@@ -630,7 +611,7 @@ static int compare_face_q_desc( const void *p1, const void *p2 )
 	return (f<0)?-1:((f>0)?1:0);
 }
 
-const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
+const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DELTA_INSIDE_PLANE)
 {
 	int best_prize=0; 
 	const FACE *best=NULL;
@@ -711,7 +692,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	ROOT_INFO info_bsp, info_kd;
 	if(!kd_allowed || pn<buildParams.kdMinFacesInTree)
 	{
-		bsproot=find_best_root_bsp(space,&info_bsp);
+		bsproot=find_best_root_bsp(space,&info_bsp,bbox->minSafeDistance);
 		if(bsproot) RR_ASSERT(info_bsp.plane>=1);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&info_kd);
@@ -732,7 +713,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		}
 		if((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
-			bsproot = find_best_root_bsp(space,&info_bsp);
+			bsproot = find_best_root_bsp(space,&info_bsp,bbox->minSafeDistance);
 			if(bsproot) RR_ASSERT(info_bsp.plane>=1);
 			if(buildParams.kdHavran==0 && kdroot && info_kd.prize<info_bsp.prize+pn)
 				bsproot=NULL; 
@@ -779,7 +760,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	for(int i=0;space[i];i++)
 	{
 		//if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
 		switch(side) 
 		{
 			case BACK: back_num++; break;
@@ -833,7 +814,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int back_id=0;
 	for(int i=0;space[i];i++) if(kdroot || space[i]!=bsproot) 
 	{
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
 		switch(side) 
 		{
 			case PLANE: if(!kdroot) {plane[plane_id++]=space[i]; break;}
@@ -856,8 +837,11 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	BBOX bbox_back =*bbox;
 	if(kdroot) 
 	{
-		bbox_front.lo[info_kd.axis]=(*kdroot)[info_kd.axis];
-		bbox_back .hi[info_kd.axis]=(*kdroot)[info_kd.axis];
+		float cutValue = (*kdroot)[info_kd.axis];
+		bbox_front.lo[info_kd.axis] = cutValue;
+		if(bbox_front.maxVertexValue == -cutValue) bbox_front.updateMaxVertexValue();
+		bbox_back.hi[info_kd.axis] = cutValue;
+		if(bbox_back.maxVertexValue == cutValue) bbox_back.updateMaxVertexValue();
 		t->leaf = NULL;
 		t->axis = info_kd.axis;
 		t->kdroot = kdroot;
@@ -1122,11 +1106,8 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		obj->vertex[obj->face[i].vertex[2]->id].used++;
 	}
 
-	// pri 1e-6 se vyskytl triangl, ktery udajne nebyl uvnitr vlastni roviny
-	// nicmene pak to vzdy spadlo, oboje mohlo byt nasledek jineho rozkladu
-	DELTA_INSIDE_PLANE = bbox.getEdgeSize() * 1e-6f;
 
-
+	bbox.updateMaxVertexValue();
 	return create_bsp(make_list(obj),&bbox,kd_allowed);
 }
 

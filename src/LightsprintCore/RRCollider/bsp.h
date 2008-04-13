@@ -59,11 +59,11 @@ namespace rr
 		BuildParams(RRCollider::IntersectTechnique technique)
 		{
 			size = sizeof(*this);
-			forceRebuild = 0;//!!! 0=ok
+			forceRebuild = 0;
 			prizeBalance = 5;
 			prizeSplit = 40;
 			prizePlane = 10;
-			bspMaxFacesInTree = 400;
+			bspMaxFacesInTree = 40; //400->40: bunny 4.87->4.69, ctfhydrosis 691s->612s, cpulightmaps 18.1s->17s
 			bspBestN = 150;
 			kdMinFacesInTree = 5;
 			kdHavran = 0;
@@ -79,6 +79,7 @@ namespace rr
 				case RRCollider::IT_BSP_COMPACT:
 					prizeSplit = 50;
 					prizePlane = 1;
+					bspMaxFacesInTree = 400; // makes build and intersections slower, but tree smaller
 					kdMinFacesInTree = 10;
 					kdLeaf = 1;
 					break;
