@@ -79,7 +79,7 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, RRCollider::IntersectTechnique _intersectTechnique, const char* _cacheLocation)
+void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique)
 {
 	// check inputs
 	unsigned nullObjects = 0;

@@ -223,13 +223,13 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		//! \param intersectTechnique
-		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
 		//! \param cacheLocation
 		//!  Whether and where to cache colliders (speeds up startup when opening the same geometry next time).
 		//!  It is passed to RRCollider::create(), so
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, const char* cacheLocation=NULL);
+		//! \param intersectTechnique
+		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
+		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER);
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects();
 
