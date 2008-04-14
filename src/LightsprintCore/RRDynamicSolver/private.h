@@ -25,8 +25,6 @@ namespace rr
 
 		// scene: inputs
 		RRObjects  objects;
-		RRLights   lights;
-		const RRBuffer* environment;
 		SmoothingParameters smoothing;
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
@@ -34,6 +32,10 @@ namespace rr
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsEmissiveMaterials;
 		bool       staticSceneContainsLods;
+
+		// lights: inputs
+		RRLights   lights;
+		const RRBuffer* environment;
 
 		// detect
 		unsigned*  detectedCustomRGBA8;

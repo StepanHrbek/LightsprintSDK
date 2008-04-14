@@ -29,6 +29,7 @@ namespace rr
 
  \section root_samples Samples and tutorials
  - \subpage main_samples
+ - \subpage main_howto
 
 
 
@@ -1766,8 +1767,8 @@ Used by some samples:
  - ask for more
 
  CPUs
- - Intel x86 compatible (32bit) with SSE instructions
- - AMD x64 compatible (64bit)
+ - x86 compatible (32bit) with SSE instructions
+ - x64 compatible (64bit)
  - ask for more
 
  GPUs
@@ -1970,6 +1971,8 @@ Used by some samples:
  Then see samples/ImportUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
 
  \image html unreal.png   
+
+ When running out of memory, see \ref howto_bigscenes
 
  
 \page main_conventions Conventions
@@ -2446,6 +2449,27 @@ Used by some samples:
  - \ref inputs_unreal details
 
 
+
+\page main_howto How to...
+
+  Please report us problems you encounter. Your feedback is very important.
+
+ \section howto_bigscenes How to process even bigger scenes
+
+  Use 64bit code (fully supported by Lightsprint) whenever possible.
+  With 64bit code, you can process scenes of all sizes.
+
+  RAM is cheap these days, however if you must use 32bit code, you won't be able to use all physical memory,
+  your address space is limited by operating system.
+
+  If you must use 32bit code, run it in 64bit operating system, this gives you 4GB of address space per-process.
+  It is good enough for nearly all game developers today.
+
+  If you must use 32bit Windows, use /3GB parameter in boot.ini, this gives you 3GB of address space per-process.
+
+  Using 32bit Windows without /3GB parameter is worst case scenario, process has only 2GB address space,
+  so tasks like lightmap building can't process huge scenes.
+ 
 */
 
 };
