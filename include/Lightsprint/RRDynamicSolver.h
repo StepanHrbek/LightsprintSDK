@@ -192,6 +192,10 @@ namespace rr
 			//! Intersection technique used for smoothed object.
 			//! Techniques differ by speed and memory requirements.
 			RRCollider::IntersectTechnique intersectTechnique;
+			//! Whether and where to cache colliders (speeds up startup when opening the same geometry next time).
+			//! It is passed to RRCollider::create(), so
+			//! default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+			const char* cacheLocation;
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
@@ -202,6 +206,7 @@ namespace rr
 				ignoreSmallerAngle = 0; // ignores degerated triangles
 				ignoreSmallerArea = 0; // ignores degerated triangles
 				intersectTechnique = RRCollider::IT_BSP_FASTER;
+				cacheLocation = NULL;
 			}
 		};
 
@@ -696,7 +701,7 @@ namespace rr
 		//!
 		//! \param filename
 		//!  File with data to load, previously created by buildFireball().
-		//!  Set NULL to use automatically generated name.
+		//!  Set NULL to use automatically generated name (in your temp directory).
 		//! \return
 		//!  True if successful.
 		bool loadFireball(const char* filename);

@@ -211,12 +211,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 
 void getFireballFilename(const RRObject* object,char filename[1000])
 {
-	char tmpPath[_MAX_PATH+1];
-	GetTempPath(_MAX_PATH, tmpPath);
-	#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
-	if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
-
-	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object->getCollider()->getMesh(),tmpPath,".fireball");
+	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object->getCollider()->getMesh(),NULL,".fireball");
 }
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
@@ -275,7 +270,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		if(priv->scene)
-			RRReporter::report(WARN,"Fireball set, but solver already exists. Save resources, don't call calculate() before loadFireball().\n");
+			RRReporter::report(WARN,"Fireball set, but solver already exists. Don't call calculate() before loadFireball() to save memory and time.\n");
 	}
 	return priv->packedSolver!=NULL;
 }

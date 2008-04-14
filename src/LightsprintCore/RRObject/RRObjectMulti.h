@@ -24,7 +24,7 @@ namespace rr
 class RRObjectMultiFast : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -246,7 +246,7 @@ private:
 class RRObjectMultiSmall : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider

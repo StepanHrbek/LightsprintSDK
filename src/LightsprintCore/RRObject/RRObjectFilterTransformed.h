@@ -18,7 +18,7 @@ namespace rr
 class RRTransformedObjectFilter : public RRObjectFilter
 {
 public:
-	RRTransformedObjectFilter(RRObject* aobject, bool anegScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+	RRTransformedObjectFilter(RRObject* aobject, bool anegScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation)
 		: RRObjectFilter(aobject)
 	{
 		negScaleMakesOuterInner = anegScaleMakesOuterInner;

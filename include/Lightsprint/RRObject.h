@@ -271,7 +271,9 @@ namespace rr
 		//!  Technique used for collider construction.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
+		//!  It is passed to RRCollider::create(), so
+		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation);
 
 		//! Creates and returns union of multiple objects (contains geometry and materials from all objects).
 		//
@@ -306,7 +308,9 @@ namespace rr
 		//!  \n 2 = ++speed, 156bytes/triangle overhead
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, char* cacheLocation);
+		//!  It is passed to RRCollider::create(), so
+		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
 
 		//! Creates and returns object with materials converted to physical space.
 		//

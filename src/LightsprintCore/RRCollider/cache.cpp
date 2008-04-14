@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+	#include <windows.h> // GetTempPath
+#endif
 
 namespace rr
 {
@@ -76,13 +79,21 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* 
 	buf[0]=0;
 	// rrcache
 #ifdef _WIN32
-	const char* dir = cacheLocation;
-#else
-	const char* dir = cacheLocation?cacheLocation:"game:\\"; // xbox 360
-#endif
-	if(dir) 
+	char tmpPath[_MAX_PATH+1];
+	if(!cacheLocation)
 	{
-		strncpy(buf,dir,bufsize-1);
+		GetTempPath(_MAX_PATH, tmpPath);
+		#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
+		if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
+		cacheLocation = tmpPath;
+	}
+#endif
+#ifdef XBOX
+	if(!cacheLocation) cacheLocation = "game:\\"; // xbox 360
+#endif
+	if(cacheLocation) 
+	{
+		strncpy(buf,cacheLocation,bufsize-1);
 		buf[bufsize-1]=0;
 		unsigned len = (unsigned)strlen(buf); 
 		buf += len; 

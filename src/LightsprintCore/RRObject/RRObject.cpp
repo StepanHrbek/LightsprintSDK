@@ -63,13 +63,13 @@ RRMesh* RRObject::createWorldSpaceMesh()
 	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
 
-RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation)
 {
 	//!!! az bude refcounting, muzu pri identite vracet this
 	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
 }
 
-RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
 {
 	switch(speed)
 	{

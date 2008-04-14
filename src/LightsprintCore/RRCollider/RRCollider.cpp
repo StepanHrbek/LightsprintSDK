@@ -13,9 +13,6 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#ifdef _WIN32
-	#include <windows.h> // GetTempPath
-#endif
 
 
 namespace rr
@@ -29,16 +26,6 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
-#ifdef _WIN32
-	char tmpPath[_MAX_PATH+1];
-	if(!cacheLocation)
-	{
-		GetTempPath(_MAX_PATH, tmpPath);
-		#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
-		if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
-		cacheLocation = tmpPath;
-	}
-#endif
 	switch(intersectTechnique)
 	{
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
