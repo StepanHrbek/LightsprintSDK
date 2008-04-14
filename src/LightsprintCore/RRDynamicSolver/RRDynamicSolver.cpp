@@ -79,7 +79,7 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing)
+void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, RRCollider::IntersectTechnique _intersectTechnique, const char* _cacheLocation)
 {
 	// check inputs
 	unsigned nullObjects = 0;
@@ -126,7 +126,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 		}
 	}
-	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,0,priv->smoothing.cacheLocation);
+	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	delete[] importers;
 
 	// convert it to physical scale

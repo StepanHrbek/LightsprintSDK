@@ -189,13 +189,6 @@ namespace rr
 			//! 1e-10 is a reasonable value to put extremely small triangles off calculation,
 			//! which may help in some situations.
 			float ignoreSmallerArea;
-			//! Intersection technique used for smoothed object.
-			//! Techniques differ by speed and memory requirements.
-			RRCollider::IntersectTechnique intersectTechnique;
-			//! Whether and where to cache colliders (speeds up startup when opening the same geometry next time).
-			//! It is passed to RRCollider::create(), so
-			//! default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-			const char* cacheLocation;
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
@@ -205,8 +198,6 @@ namespace rr
 				minFeatureSize = 0; // disabled
 				ignoreSmallerAngle = 0; // ignores degerated triangles
 				ignoreSmallerArea = 0; // ignores degerated triangles
-				intersectTechnique = RRCollider::IT_BSP_FASTER;
-				cacheLocation = NULL;
 			}
 		};
 
@@ -232,7 +223,13 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing);
+		//! \param intersectTechnique
+		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
+		//! \param cacheLocation
+		//!  Whether and where to cache colliders (speeds up startup when opening the same geometry next time).
+		//!  It is passed to RRCollider::create(), so
+		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, const char* cacheLocation=NULL);
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects();
 
