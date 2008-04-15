@@ -8,14 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news55 ------------------------------------ 2008.4.14 -------------------------------------
+\section news54 ------------------------------------ 2008.4.14 -------------------------------------
 
 NEWS
 
 - supports scenes with up to 4 billion meshes and 4 billion triangles/vertices per mesh (was 8k and 512k)
 - supports spot exponent (in RRLight::createSpotPoly())
 - import of .obj files (geometry only, no materials)
-- RRDynamicSolver::setStaticObjects() has new parameter cacheLocation (you can disable collider cache)
+- RRDynamicSolver::setStaticObjects()'s new parameter cacheLocation (you can disable collider cache)
 
 CHANGES
 
@@ -29,14 +29,8 @@ CHANGES
   - RRMesh::getPreImportTriangle()
   - RRMesh::getPostImportTriangle()
 - moved RRDynamicSolver::SmoothingParams::intersectTechnique to RRDynamicSolver::setStaticObjects() parameter
-  \n (default value was preserved, no need to change if your code compiles)
+  \n (default value was preserved)
 - removed RRMesh::createCopy()
-
-\section news54 ------------------------------------ 2008.4.9 -------------------------------------
-
-NEWS
-
-- import of .obj files (geometry only, no materials)
 
 \section news53 ------------------------------------ 2008.4.6 -------------------------------------
 

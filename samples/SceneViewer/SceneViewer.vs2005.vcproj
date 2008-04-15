@@ -486,11 +486,11 @@
 				Name="OBJ"
 				>
 				<File
-					RelativePath="..\ImportOBJ\RRObjectObj.cpp"
+					RelativePath="..\ImportOBJ\RRObjectOBJ.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\ImportOBJ\RRObjectObj.h"
+					RelativePath="..\ImportOBJ\RRObjectOBJ.h"
 					>
 				</File>
 			</Filter>
