@@ -211,6 +211,10 @@ namespace rr
 		//! \return
 		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.
+		//! \remark
+		//!  Image load/save is implemented outside LightsprintCore.
+		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
+		//!  or use setLoader() to assign custom code.
 		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, bool flipV = false, bool flipH = false);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
@@ -228,12 +232,18 @@ namespace rr
 		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 		//! \return
 		//!  True on successful save of complete buffer.
+		//! \remark
+		//!  Image load/save is implemented outside LightsprintCore.
+		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
+		//!  or use setLoader() to assign custom code.
 		bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
 
 		//! Sets functions that load and save buffer, usually by calling external image manipulation library.
 		//
-		//! Example of callbacks: samples/Import/ImportFreeImage.cpp.
-		//! \n If functions are not set, attempts to load/save buffer are silently ignored.
+		//! Example of callbacks: samples/Import/ImportFreeImage.cpp. This file included into project
+		//! automatically call setLoader() and enables load/save.
+		//! \n If functions are not set, attempts to load/save buffer are ignored,
+		//! both reload() and save() return false.
 		static void setLoader(bool (*reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH), bool (*save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]));
 	};
 
