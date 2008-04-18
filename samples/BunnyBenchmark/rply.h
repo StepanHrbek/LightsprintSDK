@@ -17,6 +17,8 @@ extern "C" {
 #define RPLY_COPYRIGHT "Copyright (C) 2003-2005 Diego Nehab"
 #define RPLY_AUTHORS   "Diego Nehab"
 
+#define long int // this ancient code needs 32bit longs
+
 /* ----------------------------------------------------------------------
  * Types
  * ---------------------------------------------------------------------- */

@@ -80,6 +80,16 @@
 
 #include <cmath>
 
+// fix symbols missing in gcc
+#ifndef _MSC_VER
+	#define _strdup strdup
+	#define _snprintf snprintf
+	#define _vsnprintf vsnprintf
+	#define _finite finite
+	#define _isnan isnan
+	#define __cdecl
+#endif
+
 namespace rr /// LightsprintCore - platform independent realtime global illumination solver.
 {
 

@@ -80,6 +80,7 @@ void LightmapViewer::mouse(int button, int state, int x, int y)
 	{
 		alpha = !alpha;
 	}
+#ifdef GLUT_WITH_WHEEL_AND_LOOP
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		zoom *= 0.625f;
@@ -88,6 +89,7 @@ void LightmapViewer::mouse(int button, int state, int x, int y)
 	{
 		zoom *= 1.6f;
 	}
+#endif
 }
 
 void LightmapViewer::passive(int x, int y)

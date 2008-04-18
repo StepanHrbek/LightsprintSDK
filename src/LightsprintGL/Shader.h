@@ -31,7 +31,7 @@ public:
 	//!  Source code of GLSL shader.
 	//! \param shaderType
 	//!  GL_FRAGMENT_SHADER for fragment shader, GL_VERTEX_SHADER for vertex shader.
-	static Shader* Shader::create(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER);
+	static Shader* create(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER);
 	~Shader();
 
 	//! Compiles shader.  

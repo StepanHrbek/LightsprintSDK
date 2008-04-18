@@ -7,8 +7,8 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2008
 // --------------------------------------------------------------------------
 
-#include "PlyMeshReader.h"
-#include "SphereUnitVecPool.h"
+#include "plymeshreader.h"
+#include "sphereunitvecpool.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRCollider.h"
 #include <math.h>
@@ -16,13 +16,12 @@
 	#include <omp.h>
 #endif
 #include <stdio.h>
-#include <tchar.h>
 #include <time.h>
 
 using namespace rr;
 
 int main(int argc, char** argv)
-{                        
+{
 #ifdef XBOX
 	RRReporter::setReporter(RRReporter::createFileReporter("game:\\results.txt"));
 #else
@@ -32,7 +31,7 @@ int main(int argc, char** argv)
 	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
 
 	// provide license information
-	RRLicenseCollider::loadLicense("..\\..\\data\\licence_number");
+	RRLicenseCollider::loadLicense("../../data/licence_number");
 
 	// load mesh from disk
 	PlyMesh plyMesh;
@@ -42,7 +41,7 @@ int main(int argc, char** argv)
 #ifdef XBOX
 		reader.readFile("game:\\bun_zipper.ply",plyMesh);
 #else
-		reader.readFile("..\\..\\data\\objects\\bun_zipper.ply",plyMesh);
+		reader.readFile("../../data/objects/bun_zipper.ply",plyMesh);
 #endif
 	}
 	catch(PlyMeshReaderExcep* e)

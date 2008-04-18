@@ -14,7 +14,6 @@
 #include "../RRCollider/cache.h"
 
 #include "../RRDynamicSolver/private.h"
-#include <windows.h> // GetTempPath
 
 namespace rr
 {
@@ -211,7 +210,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 
 void getFireballFilename(const RRObject* object,char filename[1000])
 {
-	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object->getCollider()->getMesh(),NULL,".fireball");
+	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object->getCollider()->getMesh(),filename,".fireball");
 }
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)

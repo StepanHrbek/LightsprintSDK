@@ -43,7 +43,7 @@ static void error(const char* message, bool gfxRelated)
 
 static class Solver*              solver = NULL;
 static Camera                     eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000);
-static enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
+enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
 static SelectionType              selectedType = ST_CAMERA;
 static unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 static unsigned                   selectedObjectIndex = 0; // index into static objects
@@ -586,6 +586,7 @@ static void mouse(int button, int state, int x, int y)
 		if(selectedType!=ST_CAMERA) selectedType = ST_CAMERA;
 		else selectedType = ST_LIGHT;
 	}
+#ifdef GLUT_WITH_WHEEL_AND_LOOP
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
@@ -596,6 +597,7 @@ static void mouse(int button, int state, int x, int y)
 		if(eye.fieldOfView*1.4f<=3) eye.fieldOfView *= 1.4f;
 		else if(eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
+#endif
 	solver->reportInteraction();
 }
 
@@ -1038,7 +1040,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	if(_createWindow)
 	{
 		int argc=1;
-		char* argv[] = {"abc",NULL};
+		char argv0[2] = "a";
+		char* argv[] = {argv0,NULL};
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
@@ -1105,8 +1108,12 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	menu->mainCallback(Menu::ME_RANDOM_CAMERA);
 	
 	exitRequested = false;
+#ifdef GLUT_WITH_WHEEL_AND_LOOP
 	while(!exitRequested && !_solver->aborting)
 		glutMainLoopUpdate();
+#else
+	glutMainLoop();
+#endif
 
 	delete menu;
 //	glutDisplayFunc(NULL); forbidden by GLUT

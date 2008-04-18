@@ -177,7 +177,7 @@ public:
 	IVertex *topivertex[3]; // 3x ivertex
 	IVertex *ivertex(int i);
 
-	friend IVertex;
+	friend class IVertex;
 	friend class Scene;
 	friend class PackedBests;
 };

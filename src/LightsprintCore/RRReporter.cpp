@@ -8,6 +8,8 @@
 #include <cassert>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
+
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -68,10 +70,33 @@ public:
 };
 
 
-#ifdef _WIN32
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRReporterPrintf
+
+#ifndef _WIN32
+
+class RRReporterPrintf : public RRReporter
+{
+public:
+	virtual void customReport(RRReportType type, int indentation, const char* message)
+	{
+		// indentation
+		char space[1000];
+		space[0] = 0;
+		indentation *= 2;
+		if(indentation>0 && indentation<999)
+		{
+			memset(space,' ',indentation);
+			space[indentation] = 0;
+		}
+		// print
+		char typeColor[TIMI+1] = {37,33,37,36,36,36,36,34};
+		printf("%c[%d;%d;%dm%s%s%s",27,0,typeColor[type],(type==ERRO)?41:40,space,(type==ASSE)?"Assert failed: ":"",message);
+	}
+};
+
+#else
 
 class RRReporterPrintf : public RRReporter
 {
@@ -201,11 +226,7 @@ RRReporter* RRReporter::createFileReporter(const char* filename, bool caching)
 
 RRReporter* RRReporter::createPrintfReporter()
 {
-#ifdef _WIN32
 	return new RRReporterPrintf;
-#else
-	return NULL;
-#endif
 }
 
 RRReporter* RRReporter::createOutputDebugStringReporter()

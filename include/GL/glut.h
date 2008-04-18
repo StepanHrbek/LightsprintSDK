@@ -1,6 +1,8 @@
 #ifndef __glut_h__
 #define __glut_h__
 
+#define GLUT_WITH_WHEEL_AND_LOOP // patched version
+
 /* Copyright (c) Mark J. Kilgard, 1994, 1995, 1996, 1998. */
 
 /* This program is freely distributable without licensing fees  and is

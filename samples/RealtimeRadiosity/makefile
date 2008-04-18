@@ -1,16 +1,29 @@
-CPP = gcc
-CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
-# -DGLEW_STATIC
+PLATFORM = linux64
+DEBUG    =
+CPPFLAGS = -I../../include -DRR_STATIC
+
+ifdef DEBUG
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sd.a
+	CPPFLAGS += -D_DEBUG
+else
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
+	CPPFLAGS += -O3 -DNDEBUG
+	CPPFLAGS += -ffast-math
+	CPPFLAGS += -fomit-frame-pointer
+	CPPFLAGS += -march=k8 -msse
+	CPPFLAGS += -mfpmath=sse
+	CPPFLAGS += -fopenmp
+endif
+
+BIN = 
 MAKE = makefile
+OBJS = RealtimeRadiosity.o ../Import3DS/Model_3DS.o ../Import3DS/RRObject3DS.o ../Import3DS/RendererOf3DS.o DynamicObject.o
 
-OBJS = HelloRealtimeRadiosity.o ../Import3DS/RRObject3DS.o DynamicObject.o
-LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
+all: RealtimeRadiosity.exe
 
-all: HelloRealtimeRadiosity.exe
-
-HelloRealtimeRadiosity.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o HelloRealtimeRadiosity.exe
+RealtimeRadiosity.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lGLEW -lfreeimage -lGL -lGLU -lglut -lstdc++ -lgomp -s -o RealtimeRadiosity.exe
 
 clean:
-	del *.o
-	del HelloRealtimeRadiosity.exe
+	rm *.o
+	rm RealtimeRadiosity.exe
