@@ -14,7 +14,7 @@
 namespace rr
 {
 
-class RRPackedSolver
+class RRPackedSolver: public RRUniformlyAllocatedNonCopyable
 {
 public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);

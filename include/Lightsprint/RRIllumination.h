@@ -36,7 +36,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRObjectIllumination
+	class RR_API RRObjectIllumination: public RRUniformlyAllocatedNonCopyable
 	{
 	public:
 		//! \param numPreImportVertices

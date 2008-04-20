@@ -19,7 +19,7 @@ namespace rr_gl
 //
 //! It's basicly glGenTexture() and glTexImage2D(...,buffer->lock(BL_READ)) for 2d data
 //! or cube map data so you can immediately use them as a texture in OpenGL pipeline.
-class RR_GL_API Texture : public rr::RRUniformlyAllocated
+class RR_GL_API Texture : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	//! Creates texture.

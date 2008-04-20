@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news55 ------------------------------------ 2008.4.xx -------------------------------------
+
+CHANGES
+
+- safer classes, attempts to copy objects that don't support it are stopped by compiler
+
 \section news54 ------------------------------------ 2008.4.14 -------------------------------------
 
 NEWS

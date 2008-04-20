@@ -102,7 +102,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRDynamicSolver
+	class RR_API RRDynamicSolver: public RRUniformlyAllocatedNonCopyable
 	{
 	public:
 		RRDynamicSolver();

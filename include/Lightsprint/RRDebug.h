@@ -55,7 +55,7 @@ namespace rr
 	//! All new implementations must be thread safe too.
 	//
 	//////////////////////////////////////////////////////////////////////////////
-	class RR_API RRReporter : public RRUniformlyAllocated
+	class RR_API RRReporter : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
 		/////////////////////////////////////////////////////////////

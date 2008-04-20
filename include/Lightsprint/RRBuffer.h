@@ -71,7 +71,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRBuffer : public RRUniformlyAllocated
+	class RR_API RRBuffer : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
 

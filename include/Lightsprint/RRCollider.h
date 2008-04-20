@@ -132,7 +132,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRCollider : public RRAligned
+	class RR_API RRCollider : public RRAlignedNonCopyable
 	{
 	public:
 		//! Techniques for finding ray-mesh intersections.

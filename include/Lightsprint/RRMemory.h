@@ -24,9 +24,9 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRUniformlyAllocated
-	//! Base class for objects allocated on our heap.
+	//! When used as base class, delete works correctly without regard who calls it.
 	//
-	//! Allocating on our heap prevents corruption
+	//! Ensures that delete doesn't corrupt heap
 	//! in environment with multiple heaps.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRAligned
-	//! Base class for objects aligned in memory for SIMD instructions.
+	//! When used as base class, objects are 16byte aligned for SIMD instructions.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +63,35 @@ namespace rr
 		void operator delete(void* p, std::size_t n);
 		//! Frees aligned space allocated by new[].
 		void operator delete[](void* p, std::size_t n);
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRNonCopyable
+	//! When used as base class, object copying is not allowed.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! Both uniformly allocated and non copyable, without sideeffects of multiple inheritance.
+	class RR_API RRUniformlyAllocatedNonCopyable : public RRUniformlyAllocated
+	{
+	protected:
+		RRUniformlyAllocatedNonCopyable() {}
+		~RRUniformlyAllocatedNonCopyable() {}
+	private:
+		RRUniformlyAllocatedNonCopyable(const RRUniformlyAllocatedNonCopyable&);
+		const RRUniformlyAllocatedNonCopyable& operator=(const RRUniformlyAllocatedNonCopyable&);
+	};
+
+	//! Both aligned and non copyable, without sideeffects of multiple inheritance.
+	class RR_API RRAlignedNonCopyable : public RRAligned
+	{
+	protected:
+		RRAlignedNonCopyable() {}
+		~RRAlignedNonCopyable() {}
+	private:
+		RRAlignedNonCopyable(const RRAlignedNonCopyable&);
+		const RRAlignedNonCopyable& operator=(const RRAlignedNonCopyable&);
 	};
 
 

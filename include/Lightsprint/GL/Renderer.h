@@ -17,7 +17,7 @@ namespace rr_gl
 // Renderer - interface
 
 //! Interface of renderer.
-class RR_GL_API Renderer : public rr::RRUniformlyAllocated
+class RR_GL_API Renderer : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	/////////////////////////////////////////////////////////////////////////

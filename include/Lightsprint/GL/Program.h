@@ -21,7 +21,7 @@ namespace rr_gl
 //
 //! GLSL is language used by OpenGL API for writing shaders.
 //! Program is one or more shaders linked together, see OpenGL for more details.
-class RR_GL_API Program : public rr::RRUniformlyAllocated
+class RR_GL_API Program : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	//! Creates GLSL program by linking one vertex and one fragment shader together.

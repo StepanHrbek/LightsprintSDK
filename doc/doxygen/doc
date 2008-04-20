@@ -2053,10 +2053,6 @@ Used by some samples:
    you are not allowed to destroy mesh before destroying collider. This danger should be
    mentioned on all appropriate places.
 
- \section gassign Assignment, Copy constructor
-   Assigning and Copy constructing is forbidden for all classes
-   except for trivial ones like RRVec3.
-
  \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.
    With Inf or NaN on input, result of any operation is undefined.
