@@ -27,7 +27,9 @@ RRRay* RRRay::create()
 
 RRRay* RRRay::create(unsigned n)
 {
+#ifdef USE_SSE
 	RR_ASSERT(!(sizeof(RRRay)%16));
+#endif
 	return new RRRay[n]();
 }
 

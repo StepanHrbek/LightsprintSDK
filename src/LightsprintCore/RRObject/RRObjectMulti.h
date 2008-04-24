@@ -507,12 +507,12 @@ private:
 
 	struct ObjectPack
 	{
-		void init(RRObject* importer, unsigned objects, unsigned triangles)
+		void init(RRObject* _importer, unsigned _numObjects, unsigned _numTriangles)
 		{
-			RR_ASSERT(numObjects);
-			packImporter = importer;
-			numObjects = objects;
-			numTriangles = triangles;
+			RR_ASSERT(_numObjects);
+			packImporter = _importer;
+			numObjects = _numObjects;
+			numTriangles = _numTriangles;
 		}
 		RRObject* getImporter() const {return packImporter;}
 		unsigned  getNumObjects() const {return numObjects;}

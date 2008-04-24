@@ -1,11 +1,11 @@
 PLATFORM = linux64
-DEBUG    =
+DEBUG    = 1
 TMP      = #../../tmp/LightsprintCore/
 CPPFLAGS = -I../../include -I../LicGen/include -DSUPPORT_INTERPOL -DSUPPORT_OFFLINE -DSUPPORT_FIREBALL -DSUPPORT_ARCHITECT -DRR_STATIC
 
 ifdef DEBUG
 	LIB      = ../../lib/$(PLATFORM)/libLightsprintCore_sd.a
-	CPPFLAGS += -D_DEBUG
+	CPPFLAGS += -g -D_DEBUG
 else
 	LIB      = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a
 	CPPFLAGS += -O3 -DNDEBUG

@@ -115,7 +115,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (clock()%10000000)*0.07f;
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -189,13 +189,25 @@ void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
 
-	// update shadowmaps
+	// this would print diagnostic messages from solver internals
+	//solver->verify();
+
+	// update shadowmaps, lightmaps
 	eye.update();
 	realtimeLight->getParent()->update();
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->dirty = true;
 	solver->reportDirectIlluminationChange(false);
+	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
+	solver->calculate();
+	static unsigned solutionVersion = 0;
+	if(solver->getSolutionVersion()!=solutionVersion)
+	{
+		solutionVersion = solver->getSolutionVersion();
+		solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
+	}
 
+	// render
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
 	uberProgramSetup.SHADOW_SAMPLES = 4;
@@ -291,11 +303,6 @@ void passive(int x, int y)
 
 void idle()
 {
-	if(!winWidth) return; // can't work without window
-
-	// this would print diagnostic messages from solver internals
-	//solver->verify();
-
 	// smooth keyboard movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
@@ -314,15 +321,6 @@ void idle()
 		}
 	}
 	prev = now;
-
-	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
-	static unsigned solutionVersion = 0;
-	if(solver->getSolutionVersion()!=solutionVersion)
-	{
-		solutionVersion = solver->getSolutionVersion();
-		solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
-	}
 
 	glutPostRedisplay();
 }
@@ -372,8 +370,8 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	// init shaders
-	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
+	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
+	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
@@ -389,25 +387,25 @@ int main(int argc, char **argv)
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
+	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init static .3ds scene
-	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
 		error("",false);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	material.ANIMATION_WAVE = true;
-	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
 	material.ANIMATION_WAVE = false;
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init realtime radiosity solver
-	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
+	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
@@ -429,7 +427,7 @@ int main(int argc, char **argv)
 	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
-	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
 	realtimeLight->setNumInstances(shadowmapsPerPass);
 

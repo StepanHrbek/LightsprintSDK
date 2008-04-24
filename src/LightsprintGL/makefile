@@ -1,11 +1,11 @@
 PLATFORM = linux64
-DEBUG    = 
+DEBUG    = 1
 TMP      = #../../tmp/LightsprintGL/
 CPPFLAGS = -I../../include -DRR_STATIC
 
 ifdef DEBUG
 	LIB      = ../../lib/$(PLATFORM)/libLightsprintGL_sd.a
-	CPPFLAGS += -D_DEBUG
+	CPPFLAGS += -g -D_DEBUG
 else
 	LIB      = ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
 	CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
