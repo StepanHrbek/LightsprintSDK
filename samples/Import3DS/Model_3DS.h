@@ -122,7 +122,7 @@ public:
 	// Every chunk in the 3ds file starts with this struct
 	struct ChunkHeader {
 		unsigned short id;	// The chunk's id
-		unsigned long  len;	// The lenght of the chunk
+		unsigned int   len;	// The lenght of the chunk
 	};
 
 	// I sort the mesh by material so that I won't have to switch textures a great deal
