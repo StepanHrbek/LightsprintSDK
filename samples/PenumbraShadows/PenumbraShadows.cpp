@@ -27,7 +27,6 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "DynamicObject.h"
-#include <windows.h> // timeGetTime
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -88,7 +87,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	if(uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70;
 	// render objects
 	if(potato)
 	{
@@ -307,8 +306,8 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
+	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
+	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -323,21 +322,21 @@ int main(int argc, char **argv)
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
+	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init light
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
 	realtimeLight->setNumInstances(shadowmapsPerPass);
 
 	// init static .3ds scene
-	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
 		error("",false);
 
 	// init dynamic objects
-	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f);
-	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f);
 
 	glutMainLoop();
 	return 0;

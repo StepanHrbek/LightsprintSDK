@@ -49,7 +49,7 @@ namespace rr
 	class RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
-		//! Loads illumination layer from disk. (Load of vertex buffers is temporarily disabled.)
+		//! Loads illumination layer from disk.
 		//! It is shortcut for calling RRBuffer::load() on all buffers.
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.

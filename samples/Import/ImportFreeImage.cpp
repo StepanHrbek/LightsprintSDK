@@ -454,7 +454,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 									pixel[2] = tmp;
 								}
 								// write dst pixel
-								if((i%width)==0) dst += 3-(((unsigned char)dst+3)&3); // compensate for freeimage's scanline padding
+								if((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
 								switch(dstbipp)
 								{
 									case 128:

@@ -1,15 +1,11 @@
 all: .phony
 
 .phony:
-	cd LightsprintCore & make
-	cd LightsprintGL & make
-	cd FCSS & make
-	cd World & make
-	cd RR & make
+	cd LightsprintCore; make; cd ..
+	cd LightsprintGL; make; cd ..
+	cd FCSS; make; cd ..
 
 clean:
-	cd LightsprintCore & make clean
-	cd LightsprintGL & make clean
-	cd FCSS & make clean
-	cd World & make clean
-	cd RR & make clean
+	cd LightsprintCore; make clean; cd ..
+	cd LightsprintGL; make clean; cd ..
+	cd FCSS; make clean; cd ..
