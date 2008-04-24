@@ -42,7 +42,9 @@ $(LIB): makefile $(OBJS)
 	ranlib $(LIB)
 
 clean:
-	rm *.o ../../lib/$(PLATFORM)/libLightsprintGL_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
+	rm -f *.o ../../lib/$(PLATFORM)/libLightsprintGL_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
+
+cleanwin:
 	del *.o
 	del ..\..\lib\$(PLATFORM)\libLightsprintGL_sd.a
 	del ..\..\lib\$(PLATFORM)\libLightsprintGL_sr.a

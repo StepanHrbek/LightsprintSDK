@@ -131,7 +131,7 @@ static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const 
 	{
 		while(strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
 	}
-	char* exts[3]={".jpg",".png",".tga"};
+	const char* exts[3]={".jpg",".png",".tga"};
 	for(unsigned e=0;e<3;e++)
 	{
 		char buf[300];

@@ -25,7 +25,7 @@ public:
 	rr::RRVec3 getPos(unsigned objIndex) const;
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot);
 	rr::RRVec2 getRot(unsigned objIndex) const;
-	void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot);
+	void setRot(unsigned objIndex, rr::RRVec2 rot);
 
 	// copy positions from animation frame to actual scene
 	void copyAnimationFrameToScene(const class LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged);

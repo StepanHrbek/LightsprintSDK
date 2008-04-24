@@ -7,10 +7,10 @@
 
 LevelSetup koupelna4 =
 {
- //"3ds\\candella\\seen mesh.dae",
- "3ds\\koupelna\\koupelna4.3ds",
- //"collada\\koupelna\\koupelna4.dae",
- //"h:\\3dsmax\\export\\koupelna4uv2b.dae",
+ //"3ds/candella/seen mesh.dae",
+ "3ds/koupelna/koupelna4.3ds",
+ //"collada/koupelna/koupelna4.dae",
+ //"h:/3dsmax/export/koupelna4uv2b.dae",
  0.03f,
  {
   /*{screenshoty s porovnanim hard/soft/penumbra
@@ -106,7 +106,7 @@ LevelSetup koupelna4 =
 // Triangulation
 LevelSetup x3map05 = 
 {
- "bsp\\x3map\\maps\\x3map05.bsp",
+ "bsp/x3map/maps/x3map05.bsp",
  1,
  {
   {// 2, vsichni v kulaty dire mimo hlavni mapu, kamera nahore
@@ -187,7 +187,7 @@ LevelSetup x3map05 =
 // Mortal Wounds
 LevelSetup bgmp8 =
 {
- "bsp\\bgmp\\maps\\bgmp8.bsp",
+ "bsp/bgmp/maps/bgmp8.bsp",
  1,
  {
   { // 3, v chodbe
@@ -256,7 +256,7 @@ LevelSetup bgmp8 =
 // The Soremill
 LevelSetup bgmp6 =
 {
- "bsp\\bgmp\\maps\\bgmp6.bsp",
+ "bsp/bgmp/maps/bgmp6.bsp",
  1,
  {
   { // muzi nasviceni pred plakatem, zeny ve tme pred kamerou
@@ -329,41 +329,41 @@ class LevelSequence
 public:
 	LevelSequence()
 	{
-//		insertLevelBack(LevelSetup::create("3+1\\3dtest2_08exp.3DS"));
-//		insertLevelBack(LevelSetup::create("3+1\\detskypokoj1.3DS"));
-//		insertLevelBack(LevelSetup::create("3+1\\obyvak2.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1/3dtest2_08exp.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1/detskypokoj1.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1/obyvak2.3DS"));
 
-		//insertLevelBack(LevelSetup::create("3ds\\candella\\seen mesh.3ds"));
-		//insertLevelBack("3ds\\candella\\c-part.3ds");
-		//insertLevelBack("3ds\\candella\\c-all.3ds");
-		//insertLevelBack("3ds\\candella\\candella.3ds");
+		//insertLevelBack(LevelSetup::create("3ds/candella/seen mesh.3ds"));
+		//insertLevelBack("3ds/candella/c-part.3ds");
+		//insertLevelBack("3ds/candella/c-all.3ds");
+		//insertLevelBack("3ds/candella/candella.3ds");
 
-		//insertLevelBack(LevelSetup::create("collada\\koupelna\\koupelna4.dae"));
-		//insertLevelBack(LevelSetup::create("collada\\multimtl.dae"));
-		//insertLevelBack(LevelSetup::create("collada\\cube.dae"));
+		//insertLevelBack(LevelSetup::create("collada/koupelna/koupelna4.dae"));
+		//insertLevelBack(LevelSetup::create("collada/multimtl.dae"));
+		//insertLevelBack(LevelSetup::create("collada/cube.dae"));
 /*
 		insertLevelBack(&koupelna4);  // ++colorbleed, LIC=OK, 2M
 		insertLevelBack(&x3map05);    // ++ext, originalni geometrie levelu, LIC=OK, 7M
 		insertLevelBack(&bgmp8);      // ++pekne skaly a odrazy od zelene travy, int i ext, chybi malinko textur, LIC=OK, 25M/2
 		insertLevelBack(&bgmp6);      // ++pekne drevo, int, chybi malinko textur, LIC=OK, 25M/2
 		/*
-		insertLevelBack(LevelSetup::create("bsp\\bastir\\maps\\bastir.bsp"));            // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur, LIC=asine
-		insertLevelBack("bsp\\qxdm3\\maps\\qxdm3.bsp");              //  +chodby a trochu terenu
-		insertLevelBack("bsp\\bgmp\\maps\\bgmp5.bsp");               //  +dost chodeb
-		insertLevelBack("bsp\\charon3dm12\\maps\\charon3dm12.bsp");  //  +pekna kovova sachta, ale chybi par textur
-		insertLevelBack("3ds\\Trajectory\\Trajectory.3ds");          //  +original geometrie, LIC=BAD
-		insertLevelBack("bsp\\trajectory\\maps\\trajectory.bsp");    //  +original geometrie, LIC=BAD
-		insertLevelBack("bsp\\bgmp\\maps\\bgmp7.bsp");               //  -moc otevrene, nema podlahu (presto jsou odrazy dobre videt diky bilym zdem)
-		insertLevelBack("bsp\\bgmp\\maps\\bgmp9.bsp");               //  -moc otevrene, asi chybi textury (presto jsou odrazy dobre videt diky bilym zdem)
-		insertLevelBack("bsp\\x3map\\maps\\x3map03.bsp");            //  -chybi par textur
-		insertLevelBack("bsp\\x3map\\maps\\x3map07.bsp");            //  -otevrene nebe, odrazy jsou videt ale model banalni hrad, problemova triangulace
-		insertLevelBack("bsp\\kitfinal\\maps\\kitfinal.bsp");        //  -chodby, chybi par textur
-		insertLevelBack("bsp\\qfraggel3tdm\\maps\\qfraggel3tdm.bsp");//  -chodby, chybi par textur
-		insertLevelBack("3ds\\sponza\\sponza.3ds");
-		insertLevelBack("3ds\\quake\\quakecomp2.3ds");
-		insertLevelBack("3ds\\koupelna\\koupelna3.3ds");
-		insertLevelBack("3ds\\koupelna\\koupelna5.3ds");
-		insertLevelBack("3ds\\koupelna\\koupelna41.3ds");            // vse spojene do 1 objektu
+		insertLevelBack(LevelSetup::create("bsp/bastir/maps/bastir.bsp"));            // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur, LIC=asine
+		insertLevelBack("bsp/qxdm3/maps/qxdm3.bsp");              //  +chodby a trochu terenu
+		insertLevelBack("bsp/bgmp/maps/bgmp5.bsp");               //  +dost chodeb
+		insertLevelBack("bsp/charon3dm12/maps/charon3dm12.bsp");  //  +pekna kovova sachta, ale chybi par textur
+		insertLevelBack("3ds/Trajectory/Trajectory.3ds");          //  +original geometrie, LIC=BAD
+		insertLevelBack("bsp/trajectory/maps/trajectory.bsp");    //  +original geometrie, LIC=BAD
+		insertLevelBack("bsp/bgmp/maps/bgmp7.bsp");               //  -moc otevrene, nema podlahu (presto jsou odrazy dobre videt diky bilym zdem)
+		insertLevelBack("bsp/bgmp/maps/bgmp9.bsp");               //  -moc otevrene, asi chybi textury (presto jsou odrazy dobre videt diky bilym zdem)
+		insertLevelBack("bsp/x3map/maps/x3map03.bsp");            //  -chybi par textur
+		insertLevelBack("bsp/x3map/maps/x3map07.bsp");            //  -otevrene nebe, odrazy jsou videt ale model banalni hrad, problemova triangulace
+		insertLevelBack("bsp/kitfinal/maps/kitfinal.bsp");        //  -chodby, chybi par textur
+		insertLevelBack("bsp/qfraggel3tdm/maps/qfraggel3tdm.bsp");//  -chodby, chybi par textur
+		insertLevelBack("3ds/sponza/sponza.3ds");
+		insertLevelBack("3ds/quake/quakecomp2.3ds");
+		insertLevelBack("3ds/koupelna/koupelna3.3ds");
+		insertLevelBack("3ds/koupelna/koupelna5.3ds");
+		insertLevelBack("3ds/koupelna/koupelna41.3ds");            // vse spojene do 1 objektu
 		*/
 		it = sequence.begin();
 	}

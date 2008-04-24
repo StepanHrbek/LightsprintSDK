@@ -9,8 +9,8 @@
 AnimationEditor::AnimationEditor(LevelSetup* levelSetup)
 {
 	setup = levelSetup;
-	movieClipMap = rr::RRBuffer::load("maps\\movie_clip.jpg");
-	cursorMap = rr::RRBuffer::load("maps\\cursor.png");
+	movieClipMap = rr::RRBuffer::load("maps/movie_clip.jpg");
+	cursorMap = rr::RRBuffer::load("maps/cursor.png");
 	frameCursor = 0;
 }
 

@@ -32,7 +32,9 @@ $(LIB): makefile $(OBJS)
 	ranlib $(LIB)
 
 clean:
-	rm *.o RRBuffer/*.o RRCollider/*.o RRDynamicSolver/*.o RRMesh/*.o RRObject/*.o RRPackedSolver/*.o RRStaticSolver/*.o ../../lib/$(PLATFORM)/libLightsprintCore_sd.a ../../lib/$(PLATFORM)/libLightsprintCore_sr.a
-#	del /s *.o
-#	del ..\..\lib\$(PLATFORM)\libLightsprintCore_sd.a
-#	del ..\..\lib\$(PLATFORM)\libLightsprintCore_sr.a
+	rm -f *.o RRBuffer/*.o RRCollider/*.o RRDynamicSolver/*.o RRMesh/*.o RRObject/*.o RRPackedSolver/*.o RRStaticSolver/*.o ../../lib/$(PLATFORM)/libLightsprintCore_sd.a ../../lib/$(PLATFORM)/libLightsprintCore_sr.a
+
+cleanwin:
+	del /s *.o
+	del ..\..\lib\$(PLATFORM)\libLightsprintCore_sd.a
+	del ..\..\lib\$(PLATFORM)\libLightsprintCore_sr.a

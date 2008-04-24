@@ -1,30 +1,28 @@
-CPP = gcc
-CPPFLAGS = -Wall -I. -I../../include -I../../samples/HelloRealtimeRadiosity -DRR_STATIC
-# -DGLEW_STATIC
-#CPPFLAGS += -O1 -DNDEBUG
-CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
- #CPPFLAGS += -ffast-math // zpusobuje crash v soda
- #CPPFLAGS += -fomit-frame-pointer // zpusobuje crash
- CPPFLAGS += -march=athlon-xp
-CPPFLAGS += -msse
-#CPPFLAGS += -mfpmath=sse
-LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libDemoEngine.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
+PLATFORM = linux64
+DEBUG    = 1
+CPPFLAGS = -I../../include -I../../samples/RealtimeRadiosity -DRR_STATIC
 
-HELLO = ../../samples/HelloRealtimeRadiosity/
-BIN = ../../bin/
+ifdef DEBUG
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sd.a
+	CPPFLAGS += -g -D_DEBUG
+else
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a -s
+	CPPFLAGS += -O3 -DNDEBUG
+	CPPFLAGS += -ffast-math
+	CPPFLAGS += -fomit-frame-pointer
+	CPPFLAGS += -march=k8 -msse
+	CPPFLAGS += -mfpmath=sse
+	CPPFLAGS += -fopenmp
+endif
 
-OBJS = shadowcast.o Bugs.o $(HELLO)RRObject3DS.o $(HELLO)DynamicObject.o
+BIN = 
+MAKE = makefile
+OBJS = AnimationEditor.o AnimationFrame.o AnimationScene.o Autopilot.o DemoPlayer.o DynamicObjects.o Level.o Music.o shadowcast.o ../../samples/Import/ImportFreeImage.o ../../samples/ImportQuake3/Q3Loader.o ../../samples/ImportQuake3/RRObjectBSP.o ../../samples/RealtimeRadiosity/DynamicObject.o ../../samples/Import3DS/Model_3DS.o ../../samples/Import3DS/RendererOf3DS.o ../../samples/Import3DS/RRObject3DS.o
 
-all: $(BIN)fcss.exe
+all: fcss.exe
 
-$(BIN)fcss.exe: $(OBJS) makefile $(LIBS)
-	gcc $(OBJS) $(LIBS) ../../lib/win32/libfmodex.a ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o $(BIN)fcss.exe
-
-$(TMP)%.o: %.cpp makefile
-
-$(TMP)%.o: %.c makefile
+fcss.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lfmodex64 -lGLEW -lfreeimage -lGL -lGLU -lglut -lstdc++ -lgomp -o fcss.exe
 
 clean:
-	del *.o
-	del ..\..\samples\HelloRealtimeRadiosity\*.o
-	del ..\..\bin\fcss.exe
+	rm -f *.o ../../samples/Import/*.o ../../samples/Import3DS/*.o ../../samples/ImportQuake3/*.o ../../samples/RealtimeRadiosity/*.o fcss.exe

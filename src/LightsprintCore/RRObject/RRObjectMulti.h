@@ -509,7 +509,7 @@ private:
 	{
 		void init(RRObject* _importer, unsigned _numObjects, unsigned _numTriangles)
 		{
-			RR_ASSERT(_numObjects);
+			//RR_ASSERT(_numObjects); this is legal in case of multiobject from 1 object, with vertex weld enabled
 			packImporter = _importer;
 			numObjects = _numObjects;
 			numTriangles = _numTriangles;

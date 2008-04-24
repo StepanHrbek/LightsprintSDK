@@ -89,14 +89,14 @@ DynamicObjects::DynamicObjects()
 	material.MATERIAL_SPECULAR = 0;
 	material.MATERIAL_SPECULAR_MAP = 0;
 	material.MATERIAL_NORMAL_MAP = 0;
-	//dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f,material); // 14k
-	addObject(DynamicObject::create("3ds\\characters\\blackman1\\blackman.3ds",0.95f,material,0)); // 1k
-	addObject(DynamicObject::create("3ds\\characters\\civil\\civil.3ds",0.01f,material,0)); // 2k
-	//dynaobject[4] = DynamicObject::create("3ds\\characters\\3dm-female3\\3dm-female3.3ds",0.008f,material); // strasny vlasy
-	//dynaobject[5] = DynamicObject::create("3ds\\characters\\Tifa\\Tifa.3ds",0.028f,material); // prilis lowpoly oblicej
-	//dynaobject[5] = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f,material);
-	//dynaobject[6] = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f,material);
-	//dynaobject[7] = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f,material);
+	//dynaobject[3] = DynamicObject::create("3ds/characters/armyman2003.3ds",0.006f,material); // 14k
+	addObject(DynamicObject::create("3ds/characters/blackman1/blackman.3ds",0.95f,material,0)); // 1k
+	addObject(DynamicObject::create("3ds/characters/civil/civil.3ds",0.01f,material,0)); // 2k
+	//dynaobject[4] = DynamicObject::create("3ds/characters/3dm-female3/3dm-female3.3ds",0.008f,material); // strasny vlasy
+	//dynaobject[5] = DynamicObject::create("3ds/characters/Tifa/Tifa.3ds",0.028f,material); // prilis lowpoly oblicej
+	//dynaobject[5] = DynamicObject::create("3ds/characters/icop/icop.3DS",0.04f,material);
+	//dynaobject[6] = DynamicObject::create("3ds/characters/ct/crono.3ds",0.01f,material);
+	//dynaobject[7] = DynamicObject::create("3ds/characters/ct/lucca.3ds",0.01f,material);
 
 	// diff+specular map+normalmap
 	material.MATERIAL_DIFFUSE = 1;
@@ -106,7 +106,7 @@ DynamicObjects::DynamicObjects()
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 1;
 	material.MATERIAL_NORMAL_MAP = 1;
-	addObject(DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.011f,material,8)); // 2k
+	addObject(DynamicObject::create("3ds/characters/sven/sven.3ds",0.011f,material,8)); // 2k
 
 	// diff+specular
 	material.MATERIAL_DIFFUSE = 1;
@@ -117,12 +117,12 @@ DynamicObjects::DynamicObjects()
 	material.MATERIAL_SPECULAR_MAP = 0;
 	material.MATERIAL_NORMAL_MAP = 0;
 #ifdef HIGH_DETAIL
-	addObject(DynamicObject::create("3ds\\characters\\woman-statue HD.3ds",0.004f,material,4)); // 44k
-	addObject(DynamicObject::create("3ds\\characters\\Jessie HD.3DS",0.022f,material,16));
+	addObject(DynamicObject::create("3ds/characters/woman-statue HD.3ds",0.004f,material,4)); // 44k
+	addObject(DynamicObject::create("3ds/characters/Jessie HD.3DS",0.022f,material,16));
 #else
-	addObject(DynamicObject::create("3ds\\characters\\woman-statue9.3ds",0.004f,material,4)); // 9k
+	addObject(DynamicObject::create("3ds/characters/woman-statue9.3ds",0.004f,material,4)); // 9k
 	// 3
-	addObject(DynamicObject::create("3ds\\characters\\Jessie16.3DS",0.022f,material,16)); // 16k
+	addObject(DynamicObject::create("3ds/characters/Jessie16.3DS",0.022f,material,16)); // 16k
 	// 5
 #endif
 
@@ -134,7 +134,7 @@ DynamicObjects::DynamicObjects()
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 1;
 	material.MATERIAL_NORMAL_MAP = 0;
-	addObject(DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f,material,16)); // 13k
+	addObject(DynamicObject::create("3ds/characters/potato/potato01.3ds",0.004f,material,16)); // 13k
 	// 4
 
 	// specular
@@ -146,31 +146,31 @@ DynamicObjects::DynamicObjects()
 	material.MATERIAL_SPECULAR_MAP = 0;
 	material.MATERIAL_NORMAL_MAP = 0;
 #ifdef HIGH_DETAIL
-	addObject(DynamicObject::create("3ds\\characters\\I Robot female HD.3ds",0.024f,material,16));
+	addObject(DynamicObject::create("3ds/characters/I Robot female HD.3ds",0.024f,material,16));
 #else
-	addObject(DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.24f,material,16)); // 20k
+	addObject(DynamicObject::create("3ds/characters/I Robot female.3ds",0.24f,material,16)); // 20k
 #endif
 
 	// static: quake = 28k
 
 	// ok otexturovane
-	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f); // ok
-	//dynaobject = DynamicObject::create("3ds\\objects\\head\\head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
-	//dynaobject = DynamicObject::create("3ds\\characters\\swatfemale\\female.3ds",0.02f); // spatne normaly na bocich
-	//dynaobject = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
-	//dynaobject = DynamicObject::create("3ds\\characters\\GokuGT_3DS\\Goku_GT.3DS",0.004f); // ok, ale jen nekomercne
+	//dynaobject = DynamicObject::create("3ds/characters/ct/crono.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds/characters/ct/lucca.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds/characters/sven/sven.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds/characters/potato/potato01.3ds",0.004f); // ok
+	//dynaobject = DynamicObject::create("3ds/objects/head/head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
+	//dynaobject = DynamicObject::create("3ds/characters/swatfemale/female.3ds",0.02f); // spatne normaly na bocich
+	//dynaobject = DynamicObject::create("3ds/characters/icop/icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
+	//dynaobject = DynamicObject::create("3ds/characters/GokuGT_3DS/Goku_GT.3DS",0.004f); // ok, ale jen nekomercne
 
 	// ok neotexturovane
-	//dynaobject = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.04f); // ok
-	//dynaobject = DynamicObject::create("3ds\\objects\\knife.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\snowman.3ds",1); // spatne normaly zezadu
-	//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu
-	//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
-	//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
+	//dynaobject = DynamicObject::create("3ds/characters/armyman2003.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds/characters/i robot female.3ds",0.04f); // ok
+	//dynaobject = DynamicObject::create("3ds/objects/knife.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds/characters/snowman.3ds",1); // spatne normaly zezadu
+	//dynaobject = DynamicObject::create("3ds/objects/gothchocker.3ds",0.2f); // spatne normaly zezadu
+	//dynaobject = DynamicObject::create("3ds/objects/rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
+	//dynaobject = DynamicObject::create("3ds/objects/polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
 	//dynaobjectAI[1]->shuffle();
 	*/
 }

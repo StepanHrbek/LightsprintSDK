@@ -1,10 +1,10 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#define SUPPORT_3DS
-#define SUPPORT_COLLADA
+//#define SUPPORT_3DS
+//#define SUPPORT_COLLADA
 #define SUPPORT_BSP
-#define SUPPORT_MGF
+//#define SUPPORT_MGF
 //#define SUPPORT_UE3
 
 #ifdef SUPPORT_COLLADA
@@ -15,7 +15,7 @@
 
 #ifdef SUPPORT_BSP
 	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-	#include "../../samples/ImportQUake3/RRObjectBSP.h"
+	#include "../../samples/ImportQuake3/RRObjectBSP.h"
 #endif
 
 #ifdef SUPPORT_3DS

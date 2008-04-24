@@ -9,10 +9,10 @@
 #endif
 
 #include "Music.h"
-#include "fmod/fmod_errors.h"
+#include "fmodex/fmod_errors.h"
 #include "Lightsprint/RRDebug.h"
 #include <stdio.h>
-#include <conio.h>
+//#include <conio.h>
 #include <string.h>
 #include <stdlib.h>
 

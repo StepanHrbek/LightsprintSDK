@@ -1,3 +1,4 @@
+//_itoa _chdir getComm
 //#define BUGS
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
@@ -5,11 +6,11 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define BACKGROUND_WORKER
-#ifdef _DEBUG
-	#define CONSOLE
-#else
+//#define BACKGROUND_WORKER // nejde v linuxu
+#if defined(NDEBUG) && defined(WIN32)
 	//#define SET_ICON
+#else
+	#define CONSOLE
 #endif
 //#define SUPPORT_LIGHTMAPS
 //#define SUPPORT_WATER
@@ -65,15 +66,23 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
-#include <direct.h>
 #include <list>
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include <process.h>
 #include <GL/glew.h>
-#include <GL/wglew.h>
+#ifdef WIN32
+	#include <GL/wglew.h>
+#endif
 #include <GL/glut.h>
+#ifdef WIN32
+	#include <direct.h>
+#else
+	#define _chdir chdir
+#endif
+#ifdef BACKGROUND_WORKER
+	#include <process.h>
+#endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/RealtimeLight.h"
@@ -173,7 +182,7 @@ err:
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			char fpsstr[10];
-			_itoa(fps,fpsstr,10);
+			sprintf(fpsstr,"%d",fps);
 			float x = 0.82f;
 			float y = 0.0f;
 			float wpix = 1/1280.f;
@@ -309,7 +318,7 @@ void init_gl_resources()
 #endif
 	g_fps = Fps::create();
 
-	uberProgram = rr_gl::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
+	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
@@ -1244,7 +1253,7 @@ void display()
 		shots++;
 		char buf[100];
 		//sprintf(buf,"Lightsprint3+1_%02d.png",shots);
-		sprintf(buf,"video\\frame%04d.jpg",shots);
+		sprintf(buf,"video/frame%04d.jpg",shots);
 		/*if(rr_gl::Texture::saveBackbuffer(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else*/
@@ -2081,6 +2090,7 @@ void mouse(int button, int state, int x, int y)
 	{
 		modeMovingEye = !modeMovingEye;
 	}
+#ifdef GLUT_WITH_WHEEL_AND_LOOP
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(currentFrame.eye.fieldOfView>13) currentFrame.eye.fieldOfView -= 10;
@@ -2093,6 +2103,7 @@ void mouse(int button, int state, int x, int y)
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
+#endif
 }
 
 void passive(int x, int y)
@@ -2421,13 +2432,15 @@ int main(int argc, char **argv)
 #ifdef CONSOLE
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 #else
-	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("..\\log.txt",false));
+	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
 #endif
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
 	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2007 log. Check it if benchmark doesn't work properly.\n");
+#ifdef WIN32
 	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
+#endif
 
 	// init GLUT
 	glutInit(&argc, argv);
