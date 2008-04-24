@@ -91,8 +91,10 @@ public:
 			space[indentation] = 0;
 		}
 		// print
-		char typeColor[TIMI+1] = {37,33,37,36,36,36,36,34};
-		printf("%c[%d;%d;%dm%s%s%s",27,0,typeColor[type],(type==ERRO)?41:40,space,(type==ASSE)?"Assert failed: ":"",message);
+		char typeAttr[TIMI+1] = {1,1,1,0,0,0,0,0};
+		char typeFore[TIMI+1] = {37,33,37,37,37,37,37,36};
+		char typeBack[TIMI+1] = {41,40,40,40,40,40,40,40};
+		printf("%c[%d;%d;%dm%s%s%s",27,typeAttr[type],typeFore[type],typeBack[type],space,(type==ASSE)?"Assert failed: ":"",message);
 	}
 };
 
