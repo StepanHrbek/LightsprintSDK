@@ -23,7 +23,8 @@ namespace rr_gl
 		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		smallMapCPU = NULL;
 		numTriangles = 0;
-		dirty = true;
+		dirtyShadowmap = true;
+		dirtyGI = true;
 
 		parent = new Camera(_rrlight);
 		shadowMapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
@@ -42,7 +43,8 @@ namespace rr_gl
 		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		smallMapCPU = NULL;
 		numTriangles = 0;
-		dirty = true;
+		dirtyShadowmap = true;
+		dirtyGI = true;
 
 		parent = _camera;
 		shadowMapSize = _resolution;

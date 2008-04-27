@@ -162,13 +162,6 @@ protected:
 	{
 		::renderScene(uberProgramSetup,renderingFromThisLight);
 	}
-	// detects direct illumination irradiances on all faces in scene
-	virtual unsigned* detectDirectIllumination()
-	{
-		// don't try to detect when window is not created yet
-		if(!winWidth) return NULL;
-		return RRDynamicSolverGL::detectDirectIllumination();
-	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
 	virtual rr_gl::Program* setupShader(unsigned objectNumber)
 	{
@@ -347,7 +340,7 @@ void passive(int x, int y)
 			light->angle -= 0.005f*x;
 			light->angleX -= 0.005f*y;
 			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
-			solver->reportDirectIlluminationChange(true);
+			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation
 			light->pos += light->dir*0.3f;
 			light->update();
@@ -361,12 +354,11 @@ void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
 
-	// update shadowmaps
+	// update GI
 	eye.update();
-	light->update();
-	for(unsigned i=0;i<solver->realtimeLights.size();i++)
-		solver->realtimeLights[i]->dirty = true;
-	solver->reportDirectIlluminationChange(false);
+	solver->reportDirectIlluminationChange(0,true,false);
+	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
+	solver->calculate();
 
 	// update vertex color buffers if they need it
 	if(realtimeIllumination)
@@ -414,13 +406,10 @@ void idle()
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam==light) solver->reportDirectIlluminationChange(true);
+			if(cam==light) solver->reportDirectIlluminationChange(0,true,true);
 		}
 	}
 	prev = now;
-
-	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
 
 	glutPostRedisplay();
 }

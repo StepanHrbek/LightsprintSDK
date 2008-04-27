@@ -1,4 +1,3 @@
-//_itoa _chdir getComm
 //#define BUGS
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
@@ -33,8 +32,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 800;
-int resolutiony = 600;
+int resolutionx = 1280;
+int resolutiony = 1024;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
@@ -77,6 +76,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glut.h>
 #ifdef WIN32
 	#include <direct.h>
+	#include <shellapi.h> // CommandLineToArgvW
 #else
 	#define _chdir chdir
 #endif
@@ -305,8 +305,8 @@ void init_gl_resources()
 	quadric = gluNewQuadric();
 
 	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
-	//realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	//realtimeLight->parent = &currentFrame.light;
+//	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+//	realtimeLight->parent = &currentFrame.light;
 
 	// update states, but must be done after initing shadowmaps (inside RealtimeLight)
 	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
@@ -477,10 +477,6 @@ protected:
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
 	}
-	virtual unsigned* detectDirectIllumination()
-	{
-		return demoPlayer ? RRDynamicSolverGL::detectDirectIllumination() : NULL;
-	}
 	virtual void calculate(CalculateParameters* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
@@ -503,35 +499,6 @@ protected:
 #ifdef BACKGROUND_WORKER
 		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
 #endif
-	}
-	virtual rr_gl::Program* setupShader(unsigned objectNumber)
-	{
-		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-		uberProgramSetup.MATERIAL_SPECULAR = false;
-		uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
-		uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
-		uberProgramSetup.MATERIAL_NORMAL_MAP = false;
-		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
-		//uberProgramSetup.OBJECT_SPACE = false;
-		uberProgramSetup.FORCE_2D_POSITION = true;
-
-		realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
-		rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1);
-		if(!program)
-			error("Failed to compile or link GLSL program.\n",true);
-		return program;
 	}
 };
 
@@ -650,7 +617,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	if(!needDepthMapUpdate) return;
 	if(level && level->solver) 
 	{
-		((rr_gl::RRDynamicSolverGL*)level->solver)->realtimeLights[0]->dirty = true;
+		level->solver->reportDirectIlluminationChange(0,true,true);
 		needDepthMapUpdate = 0;
 	}
 }
@@ -1292,9 +1259,8 @@ void changeSpotlight()
 {
 	currentFrame.projectorIndex = (currentFrame.projectorIndex+1)%demoPlayer->getNumProjectors();
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
-	needDepthMapUpdate = 1;
 	if(!level) return;
-	level->solver->reportDirectIlluminationChange(true);
+	level->solver->reportDirectIlluminationChange(0,false,true);
 }
 
 void reportEyeMovement()
@@ -1314,12 +1280,7 @@ void reportEyeMovementEnd()
 void reportLightMovement()
 {
 	if(!level) return;
-	// Behem pohybu svetla v male scene dava lepsi vysledky update (false)
-	//  scena neni behem pohybu tmavsi, setrvacnost je neznatelna.
-	// Ve velke scene dava lepsi vysledky reset (true),
-	//  scena sice behem pohybu ztmavne,
-	//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-	level->solver->reportDirectIlluminationChange(true);
+	level->solver->reportDirectIlluminationChange(0,true,true);
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -1699,7 +1660,7 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			break;
 		case 'S':
-			solver->reportDirectIlluminationChange(true);
+			level->solver->reportDirectIlluminationChange(0,true,true);
 			break;
 		case 'w':
 		case 'W':
@@ -2213,6 +2174,7 @@ void idle()
 		//printf(" %f ",seconds);
 		if(cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
+	bool needsGI = true;
 	if(!demoPlayer->getPaused())
 	{
 		if(captureVideo)
@@ -2243,6 +2205,7 @@ void idle()
 					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
 				}
 				prevFrame = *frame;
+				needsGI = !frame->wantsConstantAmbient();
 			}
 			else
 			{
@@ -2291,7 +2254,12 @@ void idle()
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
 	}
-	if(level) level->solver->calculate(&level->pilot.setup->calculateParams);
+	if(level)
+	{
+		rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
+		if(!needsGI) calculateParams.qualityIndirectDynamic = 0; // disable direct detection and indirect calculation in "no radiosity" part
+		level->solver->calculate(&calculateParams);
+	}
 	glutPostRedisplay();
 }
 

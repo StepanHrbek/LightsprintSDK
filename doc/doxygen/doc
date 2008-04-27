@@ -667,21 +667,24 @@ Used by some samples:
 \page integration_step_4 Subclass RRDynamicSolver
 
  RRDynamicSolver is global illumination solver.
- For offline rendering, it is complete and can be immediately used.
+ For offline rendering, it is complete and it can be used immediately.
  For realtime rendering, subclass RRDynamicSolver and implement
  tasks specific for your renderer.
 
  \section step4_gl OpenGL
 
- RRDynamicSolverGL, subclass of RRDynamicSolver
- already implements most of GPU tasks using OpenGL.
+ rr_gl::RRDynamicSolverGL, subclass of RRDynamicSolver
+ already implements GPU tasks using OpenGL.
  If you plan to use OpenGL realtime renderer (Lightsprint or any other),
- subclass RRDynamicSolverGL and implement 2 member functions:
- - rr_gl::RRDynamicSolverGL::setupShader() - set shader so that 
-   direct light+shadows+emissivity are rendered, but other
-   material properties (diffuse texture etc) are ignored
- - rr_gl::RRDynamicSolverGL::detectDirectIllumination() -
-   if not up to date, update resources needed for scene render, e.g. shadowmaps
+ subclass RRDynamicSolverGL and implement one or more of these simple functions:
+
+ - rr_gl::RRDynamicSolverGL::renderScene()
+   \n Render your scene into shadowmap.
+
+ - rr_gl::RRDynamicSolverGL::setupShader() [optional]
+   \n Only for custom shader based lights.
+   \n Set shader so that direct light+shadows+emissivity are rendered, but other
+      material properties (diffuse texture etc) are ignored.
 
  See example implementation in RealtimeRadiosity sample.
 
@@ -690,8 +693,7 @@ Used by some samples:
  If you need global illumination in Direct3D renderer,
  it is possible to subclass directly RRDynamicSolver,
  and avoid any dependency on OpenGL.
- The only additional task in this scenario (compared to OpenGL scenario above) is
- described in \ref integration_step_6
+ The only task in this scenario is described in \ref integration_step_6
 
 
 
@@ -712,8 +714,9 @@ Used by some samples:
 
  - Set lights, call RRDynamicSolver::setLights() with set of lights participating in calculation.
    Optionally call also RRDynamicSolver::setEnvironment() to add outdoor/sky lighting.
-   These calls are cheap.
+   These calls are cheap, you can change lights frequently.
 
+ - 
  - Call RRDynamicSolver::calculate() often. If main loop of your
    application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
    If you render scene only when it has changed,
@@ -726,8 +729,8 @@ Used by some samples:
    to update illumination values stored in vertex/pixel buffers.
 
  - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
-   It is mainly when light moves or changes properties, but it is also when
-   object moves and its shadow changes.
+   It is mainly when light moves or changes properties, but for higher precision,
+   you may call it also when lit object moves and its shadow changes.
 
  - Call RRDynamicSolver::reportMaterialChange() whenever materials used in scene change.
 
@@ -749,17 +752,18 @@ Used by some samples:
 
 \page integration_step_6 Detect direct illumination
 
+ For OpenGL based renderers, 
  LightsprintGL implements detection of direct illumination
- suitable for OpenGL based renderers -
- rr_gl::RRDynamicSolverGL::detectDirectIllumination().
+ in rr_gl::RRDynamicSolverGL.
 
- If you want to use Lightsprint with Direct3D renderer,
- you need to reimplement detection of direct illumination, write
- Your_subclass_of_RRDynamicSolver::detectDirectIllumination().
+ For Direct3D and custom renderers, you need to reimplement
+ detection of direct illumination.
 
  <b>What needs to be detected:</b> average color of each face;
  how does it look lit by your direct (not ambient) point, spot and directional lights
  and shadowed by your shadows.
+
+ <b>What to do with detected values:</b> call RRDynamicSolver::setDirectIllumination().
 
  <b>Why is it important:</b> we have no other knowledge about your lights.
  You can use many light types with very complex lighting equations.
@@ -932,7 +936,7 @@ Used by some samples:
   so it's not practical to store it per vertex in vertex buffer
   (result would be too blurry).
 
- \section di3 Precomputed ambient maps, per-vertex ambient
+ \section di3 Ambient maps, per-vertex ambient
 
   Ambient maps and per-vertex ambient contain indirect component of illumination
   with infinite light bounces, color bleeding and indirect shadows;
@@ -954,16 +958,12 @@ Used by some samples:
   In realtime scenarios, per-vertex ambient is preferred for
   higher speed over ambient maps.
 
-  In non-realtime mode, all light source types are supported.
-  In realtime mode, light source is implemented in custom 
-  RRDynamicSolver::detectDirectIllumination() function.
-
   Ability to generate ambient maps or per vertex ambient is
   <b>fundamental for realtime global illumination</b>.
   To render realtime global illumination,
   start with renderer with direct illumination and shadows
-  (e.g. LightsprintGL) and add ambient map or per vertex ambient 
-  computed here. Realtime per-vertex ambient is preferred
+  and add ambient map or per vertex ambient 
+  computed by Lightsprint. Realtime per-vertex ambient is preferred
   for much higher speed.
 
  \section di4 Environment maps
@@ -1851,11 +1851,10 @@ Used by some samples:
   - Data structure container: RRObjects
   - Setup: RRDynamicSolver::setStaticObjects()
   - Supported in offline GI: yes
-  - Supported in realtime GI: no
+  - Supported in realtime GI: yes
 
  \section lrealtime Custom lights
-  - Per-triangle irradiances generated by custom shader (see RRDynamicSolverGL::setupShader())
-    or custom function (see RRDynamicSolver::detectDirectIllumination()).
+  - Per-triangle direct irradiances set by RRDynamicSolver::setDirectIllumination()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
 

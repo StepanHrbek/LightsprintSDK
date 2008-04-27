@@ -19,7 +19,7 @@ class RRPackedSolver: public RRUniformlyAllocatedNonCopyable
 public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
-	void illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical);
+	void illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical);
 	void illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic);
 
 	// Triangle exitance, physical, flat. For dynamic objects.

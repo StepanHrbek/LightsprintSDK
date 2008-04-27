@@ -147,14 +147,6 @@ public:
 			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
 		}
 	}
-
-protected:
-	// skipped, material properties were already read from .dae and never change
-	virtual unsigned* detectDirectIllumination()
-	{
-		if(!winWidth) return NULL;
-		return rr_gl::RRDynamicSolverGL::detectDirectIllumination();
-	}
 };
 
 
@@ -203,9 +195,10 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ':
 			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			rotation = (clock()%10000000)*0.07f;
-			solver->reportDirectIlluminationChange(false);
 			for(unsigned i=0;i<solver->realtimeLights.size();i++)
-				solver->realtimeLights[i]->dirty = true;
+			{
+				solver->reportDirectIlluminationChange(i,true,true);
+			}
 			break;
 		case '1':
 		case '2':
@@ -286,8 +279,7 @@ void passive(int x, int y)
 			light->angle -= 0.005f*x;
 			light->angleX -= 0.005f*y;
 			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
-			solver->reportDirectIlluminationChange(true);
-			solver->realtimeLights[selectedLightIndex]->dirty = true;
+			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 			// changes position a bit, together with rotation
 			// if we don't call it, solver updates light in a standard way, without position change
 			light->pos += light->dir*0.3f;
@@ -353,8 +345,7 @@ void idle()
 		{
 			if(cam!=&eye) 
 			{
-				solver->reportDirectIlluminationChange(true);
-				solver->realtimeLights[selectedLightIndex]->dirty = true;
+				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 				if(speedForward) cam->moveForward(speedForward*seconds);
 			}
 		}
@@ -469,7 +460,6 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
-	solver->calculate();
 
 	glutMainLoop();
 	return 0;

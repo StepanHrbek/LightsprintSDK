@@ -261,7 +261,7 @@ public:
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
-	void    resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB);
+	void    resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradiancePhysicalRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
 private:
 	Object();
@@ -299,7 +299,7 @@ public:
 
 	void    objInsertStatic(Object *aobject);
 
-	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB);
+	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradiancePhysicalRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 	RRStaticSolver::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);

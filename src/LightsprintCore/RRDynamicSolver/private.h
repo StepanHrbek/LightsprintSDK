@@ -36,20 +36,18 @@ namespace rr
 		// lights: inputs
 		RRLights   lights;
 		const RRBuffer* environment;
-
-		// detect
-		unsigned*  detectedCustomRGBA8;
+		const unsigned* customIrradianceRGBA8;
 
 		// scale: inputs
 		const RRScaler*  scaler;
-		RRReal     boostDetectedDirectIllumination;
+		RRReal     boostCustomIrradiance;
 		// scale: function of inputs
 		RRReal     customToPhysical[256];
 
 		// calculate
+		bool       dirtyCustomIrradiance;
 		bool       dirtyMaterials;
 		bool       dirtyStaticSolver;
-		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		bool       dirtyResults;
 		TIME       lastInteractionTime;
 		TIME       lastCalcEndTime;
@@ -77,12 +75,12 @@ namespace rr
 			staticSceneContainsEmissiveMaterials = false;
 			staticSceneContainsLods = false;
 
-			// detect
-			detectedCustomRGBA8 = NULL;
+			// lights
+			customIrradianceRGBA8 = NULL;
 
 			// scale: inputs
 			scaler = NULL;
-			boostDetectedDirectIllumination = 1;
+			boostCustomIrradiance = 1;
 			// scale: function of inputs
 			for(unsigned i=0;i<256;i++)
 			{
@@ -91,9 +89,9 @@ namespace rr
 
 			// calculate
 			scene = NULL;
+			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
 			dirtyStaticSolver = true;
-			dirtyLights = BIG_CHANGE;
 			dirtyResults = true;
 			lastInteractionTime = 0;
 			lastCalcEndTime = 0;

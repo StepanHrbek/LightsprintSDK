@@ -126,12 +126,13 @@ namespace rr
 
 		//! Sets environment around scene.
 		//
+		//! This is one of ways how light enters solver, others are setLights(), setDirectIllumination(), emissive materials.
+		//! Environment is rendered around scene and scene is lit by environment (but only in offline solver).
+		//!
 		//! By default, scene contains no environment, which is the same as black environment.
-		//! Environment matters only for updateLightmap() and updateLightmaps(), it is not used by realtime GI solver.
 		//! \param environment
 		//!  HDR map of environment around scene.
-		//!  Its RRBuffer::getValue() should return
-		//!  values in physical scale.
+		//!  Its RRBuffer::getValue() should return values in physical scale.
 		//!  Note that environment is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
 		void setEnvironment(const RRBuffer* environment);
@@ -142,16 +143,47 @@ namespace rr
 
 		//! Sets lights in scene, all at once.
 		//
-		//! Lights are used by both offline and realtime renderer.
-		//! By default, scene contains no lights.
+		//! This is one of ways how light enters solver, others are setEnvironment(), setDirectIllumination(), emissive materials.
 		//!
-		//! Note that even without lights, offline rendered scene may be still lit, by 
-		//! - emissive materials used by static objects
-		//! - environment, see setEnvironment()
+		//! By default, scene contains no lights.
 		virtual void setLights(const RRLights& lights);
 
 		//! Returns lights in scene, set by setLights().
 		const RRLights& getLights() const;
+
+
+		//! Sets custom irradiance for all triangles in scene.
+		//
+		//! This is one of ways how light enters solver, others are setLights(), setEnvironment(), emissive materials.
+		//!
+		//! \param perTriangleIrradiance
+		//!  Array of average per-triangle direct-lighting irradiances in custom scale.
+		//!  In other words, average triangle colors when direct lighting+shadows are applied,
+		//!  but materials are not. So result for fully shadowed triangle is 0, fully lit
+		//!  0xffffff00 (00 is alpha, it is ignored).
+		//!
+		//!  Order of values in array is defined by order of triangles in solver's multiobject.
+		//!  By default, order can't be guessed without asking getMultiObjectCustom().
+		//!  However, if you disable all optimizations in setStaticObjects(), order is guaranteed to be
+		//!  the most simple one: first all triangles from object 0, then all triangles from object 1 etc.
+		//!
+		//!  Array must stay valid at least until next setDirectIllumination() call.
+		//!  Array is not adopted+deleted, you are still responsible for deleting it.
+		//!  You are free to set always the same array or each time different one,
+		//!  performace is identical.
+		//!
+		//!  Setting NULL is the same as setting array full of zeroes, no custom irradiance.
+		void setDirectIllumination(const unsigned* perTriangleIrradiance);
+
+		//! Sets factor that multiplies intensity of direct illumination set by setDirectIllumination().
+		//
+		//! Default value is 1 = realistic.
+		//! 2 makes direct illumination in setDirectIllumination()
+		//! 2x stronger, so also computed indirect illumination is 2x stronger.
+		//! You can get the same results if you stay with default 1
+		//! and multiply computed indirect lighting in shader,
+		//! but this function does it for free, without slowing down shader.
+		void setDirectIlluminationBoost(RRReal boost);
 
 
 		//! Illumination smoothing parameters.
@@ -387,7 +419,7 @@ namespace rr
 			void (*debugRay)(const RRRay* ray, bool hit);
 
 
-			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::detectDirectIllumination() enters calculation.
+			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::setDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
 				applyLights = false;
@@ -637,19 +669,27 @@ namespace rr
 		//! (and RRObject::getTriangleMaterial() returns new materials).
 		//! If you use \ref calc_fireball, material changes don't apply
 		//! until you rebuild it (see buildFireball()).
-		void reportMaterialChange();
+		virtual void reportMaterialChange();
 
-		//! Reports that position/rotation/shape of one or more lights has changed.
+		//! Reports that scene has changed and direct or global illumination should be updated.
 		//
-		//! Call this function when any light in scene changes any property,
-		//! so that direct illumination changes.
-		//! For extra precision, you may call it also after each movement of shadow caster,
-		//! however, smaller moving objects typically don't affect indirect illumination,
-		//! so it's common optimization to not report illumination change in such situation.
-		//! \param strong Hint for solver, was change in direct illumination significant?
-		//!  Set true if not sure. Set false only if you know that change was minor.
-		//!  False improves performance, but introduces errors if change is not minor.
-		void reportDirectIlluminationChange(bool strong);
+		//! Call this function when light moves, changes color etc.. or when shadow caster moves,
+		//! so that shadows and/or GI should be updated.
+		//! \param lightIndex
+		//!  Light number in list of lights, see setLights().
+		//! \param dirtyShadowmap
+		//!  Tells us that direct shadows should be updated.
+		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
+		//!  use it to update light's shadowmaps.
+		//! \param dirtyGI
+		//!  Tells us that global illumination should be updated.
+		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
+		//!  use it to redetect appropriate direct irradiances and call setDirectIllumination().
+		//!  You can save time by setting false when changes in scene were so small, that
+		//!  change in GI would be hardly visible. This is usually case when objects move,
+		//!  but lights stay static or nearly static - moving objects have much weaker global effects
+		//!  than moving lights.
+		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI);
 
 		//! Reports interaction between user and application.
 		//
@@ -663,7 +703,7 @@ namespace rr
 		//! there's no interaction between user and application
 		//! and solver increases calculation batches up to 100ms at once to better utilize CPU.
 		//! This happens for example in game editor, when level designer stops moving mouse.
-		void reportInteraction();
+		virtual void reportInteraction();
 
 		//! Build and start Fireball. Optionally save it to file.
 		//
@@ -726,74 +766,7 @@ namespace rr
 		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
 
 	protected:
-		//! Detects direct illumination on all faces in scene and returns it in array of RGBA values.
-		//
-		//! \section ddi_2 Do I need it?
-		//! Necessary for realtime solver, rarely needed for offline calculations.
-		//!
-		//! detectDirectIllumination() is one of three paths for feeding solver with direct lighting,
-		//! other two paths are setLights() and setEnvironment().
-		//! While all three paths may be combined in offline calculation, detectDirectIllumination()
-		//! is rarely needed there and doesn't have to be implemented for good results, other paths
-		//! are sufficient.
-		//! On the other end, detectDirectIllumination() is the only path for feeding realtime solver with direct lighting,
-		//! so it must be implemented for realtime rendering of dynamic lights.
-		//!
-		//! This function is automatically called from calculate(),
-		//! when solver needs current direct illumination values and you
-		//! previously called reportDirectIlluminationChange(), so it's known,
-		//! that direct illumination values in solver are outdated.
-		//!
-		//! \section ddi_1 What to detect?
-		//! What exactly is considered "direct illumination" here is implementation defined,
-		//! but for consistent results, it should be complete illumination
-		//! generated by your renderer, except for indirect illumination (e.g. constant ambient).
-		//!
-		//! Detected values are average per-triangle direct-lighting irradiances in custom scale.
-		//! In other words, detect average triangle colors when direct lighting+shadows are applied,
-		//! but materials are not. So result for fully shadowed triangle is 0, fully lit
-		//! 0xffffff00 (00 is alpha, it is ignored).
-		//!
-		//! Order of values in returned array is defined by order of triangles in solver's multiobject.
-		//! By default, order can't be guessed without asking getMultiObjectCustom().
-		//! However, if you disable all optimizations in setStaticObjects(), order is guaranteed to be
-		//! the most simple one: first all triangles from object 0, then all triangles from object 1 etc.
-		//!
-		//! Returned array must stay valid at least until next detectDirectIllumination() call.
-		//! Array is not automatically deleted, you are expected to delete it later.
-		//! You are free to return always the same array or each time different one.
-		//! Best practice for managing array of results is to allocate it in constructor, free it in destructor,
-		//! always return the same pointer.
-		//!
-		//! Skeleton of implementation:
-		//!\code
-		//!virtual unsigned* detectDirectIllumination()
-		//!{
-		//!  unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-		//!  // for all triangles in static scene
-		//!  for(unsigned triangleIndex=0;triangleIndex<numTriangles;triangleIndex++)
-		//!  {
-		//!    myIrradiances[triangleIndex] = detectedIrradiance...;
-		//!  }
-		//!  return myIrradiances;
-		//!}
-		//!\endcode
-		//!
-		//! \return Pointer to array of detected average per-triangle direct-lighting irradiances in custom scale
-		//!  (= average triangle colors when material is not applied).
-		//!  Values are stored in RGBA8 format.
-		//!  Return NULL when direct illumination was not detected for any reason, this
-		//!  function will be called again in next calculate().
-		virtual unsigned* detectDirectIllumination() {return NULL;}
 
-		//! Sets factor that multiplies intensity of detected direct illumination.
-		//
-		//! Default value is 1 = realistic.
-		//! Calling it with boost=2 makes detected direct illumination
-		//! for solver 2x stronger, so also computed indirect illumination is 2x stronger.
-		//! You would get the same results if you multiply computed indirect lighting in shader,
-		//! but this way it's for free, without overhead.
-		void setDirectIlluminationBoost(RRReal boost);
 
 	private:
 

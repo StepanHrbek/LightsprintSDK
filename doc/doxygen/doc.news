@@ -12,7 +12,9 @@ namespace rr
 
 CHANGES
 
-- safer classes, attempts to copy objects that don't support it are stopped by compiler
+- classes that don't support copying now throw compile error on attempt to copy
+- more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
+- RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
 
 \section news54 ------------------------------------ 2008.4.14 -------------------------------------
 

@@ -556,7 +556,7 @@ Object::~Object()
 //  akceptuje upravene surfacy
 //  nesaha na subtriangly, coz je asi v poradku
 
-void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB)
+void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	// nastavi akumulatory na pocatecni hodnoty
 	// separated to three floats because of openmp
@@ -577,9 +577,9 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, u
 
 		// nastavi akumulatory na pocatecni hodnoty
 		RRVec3 directIrradiancePhysical(0);
-		if(directIrradiancePhysicalRGBA8)
+		if(directIrradianceCustomRGBA8)
 		{
-			unsigned color = directIrradiancePhysicalRGBA8[t];
+			unsigned color = directIrradianceCustomRGBA8[t];
 			directIrradiancePhysical = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]);
 		}
 		else
@@ -693,7 +693,7 @@ void Scene::objInsertStatic(Object *o)
 	sceneRay->collisionHandler = collisionHandlerLod0 = new RRCollisionHandlerLod0(object->triangle);
 }
 
-RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB)
+RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	if(resetFactors)
 		resetPropagation = true;
@@ -716,7 +716,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 		staticReflectors.resetBest();
 	}
 
-	object->resetStaticIllumination(resetFactors,resetPropagation,directIrradiancePhysicalRGBA8,customToPhysical,directIrradiancePhysicalRGB);
+	object->resetStaticIllumination(resetFactors,resetPropagation,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 
 	staticReflectors.insertObject(object);
 

@@ -148,24 +148,6 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete uberProgram1;
 }
 
-void RRDynamicSolverGL::calculate(CalculateParameters* params)
-{
-	// after camera change, dirty travelling lights
-	if(observer && observer->pos!=oldObserverPos)
-	{
-		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
-		oldObserverPos = observer->pos;
-		for(unsigned i=0;i<realtimeLights.size();i++)
-			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
-			{
-				realtimeLights[i]->dirty = true;
-				reportDirectIlluminationChange(true);
-			}
-	}
-
-	RRDynamicSolver::calculate(params);
-}
-
 void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 {
 	// create realtime lights
@@ -177,43 +159,61 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
-void RRDynamicSolverGL::updateDirtyLights()
+void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
 {
+	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI);
+	realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
+	realtimeLights[lightIndex]->dirtyGI |= dirtyGI;
+}
+
+void RRDynamicSolverGL::calculate(CalculateParameters* _params)
+{
+	// update only dirty maps
+	updateShadowmaps();
+
+	// early exit if quality=0
+	// used in "no radiosity" part of Lightsmark
+	if(_params && _params->qualityIndirectDynamic==0) return;
+
+	// detect only dirty lights
+	bool dirtyGI = false;
+	for(unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
+	if(dirtyGI)
+		setDirectIllumination(detectDirectIllumination());
+
+	RRDynamicSolver::calculate(_params);
+}
+
+void RRDynamicSolverGL::updateShadowmaps()
+{
+	if(!getMultiObjectCustom()) return;
+
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
-	if(!getMultiObjectCustom()) return;
-
-	// alloc space for detected direct illum
-	unsigned updated = 0;
-	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-	if(numTriangles!=detectedNumTriangles)
+	// after camera change, dirty travelling lights
+	if(observer && observer->pos!=oldObserverPos)
 	{
-		delete[] detectedDirectSum;
-		detectedNumTriangles = numTriangles;
-		detectedDirectSum = new unsigned[detectedNumTriangles];
-		memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
+		oldObserverPos = observer->pos;
+		for(unsigned i=0;i<realtimeLights.size();i++)
+			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
+			{
+				realtimeLights[i]->dirtyShadowmap = true;
+				//realtimeLights[i]->dirtyGI = true;
+			}
 	}
 
-	// update shadowmaps and smallMapsCPU
 	for(unsigned i=0;i<realtimeLights.size();i++)
 	{
-		REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
+		REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 		RealtimeLight* light = realtimeLights[i];
 		if(!light)
 		{
 			RR_ASSERT(0);
 			continue;
 		}
-		if(numTriangles!=light->numTriangles)
-		{
-			delete[] light->smallMapCPU;
-			light->numTriangles = numTriangles;
-			light->smallMapCPU = new unsigned[numTriangles+2047]; // allocate more so we can read complete last line from GPU, including unused values
-			light->dirty = 1;
-		}
-		if(!light->dirty) continue;
-		light->dirty = 0;
+
 		// update dirlight position
 		if(light->getParent()->orthogonal && light->getNumInstances())
 		{
@@ -221,7 +221,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 			light->getParent()->update(observer,MIN(shadowmap->getBuffer()->getWidth(),shadowmap->getBuffer()->getHeight()));
 		}
 		else
-			light->getParent()->update(NULL,0);
+			light->getParent()->update();
 
 		// sync RRLight pos/dir with realtimeLight pos/dir
 		// (not necessary for us, but user might want to calculate offline later and he would be surprised that RRLight is at old position while he moved RealtimeLight)
@@ -234,7 +234,9 @@ void RRDynamicSolverGL::updateDirtyLights()
 		}
 
 		// update shadowmap[s]
+		if(light->dirtyShadowmap)
 		{
+			light->dirtyShadowmap = false;
 			glClearDepth(0.9999); // prevents backprojection
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
@@ -261,13 +263,55 @@ void RRDynamicSolverGL::updateDirtyLights()
 			if(light->getNumInstances())
 				light->getShadowMap(0)->renderingToEnd();
 		}
+	}
+}
+
+const unsigned* RRDynamicSolverGL::detectDirectIllumination()
+{
+	if(!getMultiObjectCustom()) return NULL;
+
+	PreserveViewport p1;
+	PreserveMatrices p2;
+
+	// alloc space for detected direct illum
+	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	if(numTriangles!=detectedNumTriangles)
+	{
+		delete[] detectedDirectSum;
+		detectedNumTriangles = numTriangles;
+		detectedDirectSum = new unsigned[detectedNumTriangles];
+		memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+	}
+
+	// update smallMapsCPU
+	unsigned updatedSmallMaps = 0;
+	for(unsigned i=0;i<realtimeLights.size();i++)
+	{
+		RealtimeLight* light = realtimeLights[i];
+		if(!light)
+		{
+			RR_ASSERT(0);
+			continue;
+		}
+		if(numTriangles!=light->numTriangles)
+		{
+			delete[] light->smallMapCPU;
+			light->numTriangles = numTriangles;
+			light->smallMapCPU = new unsigned[numTriangles+2047]; // allocate more so we can read complete last line from GPU, including unused values
+			light->dirtyGI = true;
+		}
+
 		// update smallmap
-		setupShaderLight = light;
-		updated += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+		if(light->dirtyGI)
+		{
+			light->dirtyGI = false;
+			setupShaderLight = light;
+			updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+		}
 	}
 
 	// sum smallMapsCPU into detectedDirectSum
-	if(updated && realtimeLights.size()>1)
+	if(updatedSmallMaps && realtimeLights.size()>1)
 	{
 		unsigned numLights = realtimeLights.size();
 #pragma omp parallel for
@@ -279,11 +323,7 @@ void RRDynamicSolverGL::updateDirtyLights()
 			((unsigned char*)detectedDirectSum)[b] = CLAMPED(sum,0,255);
 		}
 	}
-}
 
-unsigned* RRDynamicSolverGL::detectDirectIllumination()
-{
-	updateDirtyLights();
 	if(realtimeLights.size()==1) return realtimeLights[0]->smallMapCPU;
 	return detectedDirectSum;
 }

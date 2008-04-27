@@ -150,16 +150,14 @@ public:
 	}
 	void dirtyLights()
 	{
-		for(unsigned i=0;i<realtimeLights.size();i++) realtimeLights[i]->dirty = true;
+		for(unsigned i=0;i<realtimeLights.size();i++)
+		{
+			solver->reportDirectIlluminationChange(i,true,true);
+		}
 	}
 
 protected:
 	char* pathToShaders;
-	virtual unsigned* detectDirectIllumination()
-	{
-		if(!winWidth) return NULL;
-		return RRDynamicSolverGL::detectDirectIllumination();
-	}
 };
 
 
@@ -623,12 +621,11 @@ static void passive(int x, int y)
 		else
 		if(selectedType==ST_LIGHT)
 		{
+			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 			Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
 			light->angle -= 0.005f*x;
 			light->angleX -= 0.005f*y;
 			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
-			solver->reportDirectIlluminationChange(true);
-			solver->realtimeLights[selectedLightIndex]->dirty = true;
 			// changes position a bit, together with rotation
 			// if we don't call it, solver updates light in a standard way, without position change
 			light->pos += light->dir*0.3f;
@@ -1022,8 +1019,7 @@ static void idle()
 		{
 			if(cam!=&eye) 
 			{
-				solver->reportDirectIlluminationChange(true);
-				solver->realtimeLights[selectedLightIndex]->dirty = true;
+				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 				if(speedForward) cam->moveForward(speedForward*seconds);
 			}
 		}

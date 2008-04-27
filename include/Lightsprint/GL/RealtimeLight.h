@@ -75,8 +75,12 @@ public:
 	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned numTriangles;
 
-	//! Marks lights that need update of shadows and GI.
-	bool dirty;
+	//! Whether shadowmap needs update.
+	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
+	bool dirtyShadowmap;
+	//! Whether GI needs update.
+	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
+	bool dirtyGI;
 
 	//! Original RRLight used at our creation, contains additional parameters like color. May be NULL.
 	const rr::RRLight* origin;

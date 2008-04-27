@@ -1081,9 +1081,6 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"No light in scene.\n");break;
 				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
 			}
-			// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
-			//  before further realtime rendering
-			//reportDirectIlluminationChange(true);
 		}
 	}
 	return true;

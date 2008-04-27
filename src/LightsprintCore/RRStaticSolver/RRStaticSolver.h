@@ -122,7 +122,7 @@ namespace rr
 		//!  Array of per-triangle detected direct irradiances in RGB format, one value per multiobject triangle.
 		//!  May be NULL.
 		//! \return Calculation state, see Improvement.
-		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, unsigned* directIrradiancePhysicalRGBA8, RRReal customToPhysical[256], RRVec3* directIrradiancePhysicalRGB);
+		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradiancePhysicalRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
 		//! Improve illumination until endfunc returns true.
 		//

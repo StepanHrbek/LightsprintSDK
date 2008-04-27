@@ -155,29 +155,6 @@ protected:
 	{
 		::renderScene(uberProgramSetup);
 	}
-	// detects direct illumination irradiances on all faces in scene
-	virtual unsigned* detectDirectIllumination()
-	{
-		// don't try to detect when window is not created yet
-		if(!winWidth) return false;
-		return RRDynamicSolverGL::detectDirectIllumination();
-	}
-	// set shader so that direct light+shadows+emissivity are rendered, but no materials
-	virtual rr_gl::Program* setupShader(unsigned objectNumber)
-	{
-		// render scene with forced 2d positions of all triangles
-		rr_gl::UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.FORCE_2D_POSITION = true;
-		rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1);
-		if(!program)
-			error("Failed to compile or link GLSL program.\n",true);
-		return program;
-	}
 };
 
 
@@ -194,10 +171,7 @@ void display(void)
 
 	// update shadowmaps, lightmaps
 	eye.update();
-	realtimeLight->getParent()->update();
-	for(unsigned i=0;i<solver->realtimeLights.size();i++)
-		solver->realtimeLights[i]->dirty = true;
-	solver->reportDirectIlluminationChange(false);
+	solver->reportDirectIlluminationChange(0,true,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
 	static unsigned solutionVersion = 0;
@@ -263,7 +237,6 @@ void reshape(int w, int h)
 	eye.aspect = winWidth/(float)winHeight;
 	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
-	solver->calculate(); // make sure lighting is computed before first display()
 }
 
 void mouse(int button, int state, int x, int y)
@@ -291,7 +264,7 @@ void passive(int x, int y)
 			realtimeLight->getParent()->angle -= 0.005f*x;
 			realtimeLight->getParent()->angleX -= 0.005f*y;
 			CLAMP(realtimeLight->getParent()->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
-			solver->reportDirectIlluminationChange(true);
+			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation
 			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
 			realtimeLight->getParent()->update();
@@ -317,7 +290,7 @@ void idle()
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam!=&eye) solver->reportDirectIlluminationChange(true);
+			if(cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
 		}
 	}
 	prev = now;
@@ -424,7 +397,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr::RRLights lights;
-	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);

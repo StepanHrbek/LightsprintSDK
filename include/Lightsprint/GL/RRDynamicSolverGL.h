@@ -48,16 +48,12 @@ namespace rr_gl
 		//! For realtime rendering, #realtimeLights are created based on lights given here.
 		//!
 		//! It is legal to modify light properties after set, but not number of lights.
-		//! Changes are processed when RealtimeLight::dirty flag is set.
+		//! Changes are processed when RealtimeLight::dirtyXxx flag is set.
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		virtual void setLights(const rr::RRLights& lights);
-		//! Updates shadowmaps and GI from lights with RealtimeLight::dirty set.
-		//
-		//! It also copies position and direction from dirty RealtimeLight-s to RRLight-s.
-		//! \n Called by solver in response to reportDirectIlluminationChange().
-		virtual void updateDirtyLights();
-		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application. renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
+		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
+		//! renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;
 		//! Renders wireframe frustums or boxes of lights.
 		virtual void renderLights();
@@ -65,14 +61,13 @@ namespace rr_gl
 		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination);
 
 
+		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI);
+
+		//! Updates shadowmaps, detects direct illumination, calculates GI.
+		//
+		//! Updates only dirty lights, call reportDirectIlluminationChange() to mark light dirty.
+		//! \n You can update only shadowmaps by setting params->qualityIndirectDynamic=0.
 		virtual void calculate(CalculateParameters* params = NULL);
-		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
-		//! without material. Helper function called from detectDirectIllumination().
-		virtual Program* setupShader(unsigned objectNumber);
-		//! Helper function called from detectDirectIllumination().
-		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
-		//! Detection of direct illumination from lights (see setLights()) implemented using OpenGL 2.0.
-		virtual unsigned* detectDirectIllumination();
 
 		//! Realtime lights, set by setLights(). You may modify them freely.
 		rr::RRVector<RealtimeLight*> realtimeLights;
@@ -81,7 +76,28 @@ namespace rr_gl
 		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
 		//! Inited to false, you may freely change it.
 		bool honourExpensiveLightingShadowingFlags;
+	protected:
+		//! Detects direct illumination from lights (see setLights()) on all faces in scene and returns it in array of RGBA values.
+		//! Result may be immediately passed to setDirectIllumination().
+		//! \return Pointer to array of detected average per-triangle direct-lighting irradiances in custom scale
+		//!  (= average triangle colors when material is not applied).
+		//!  Values are stored in RGBA8 format.
+		//!  Return NULL when direct illumination was not detected for any reason, this
+		//!  function will be called again in next calculate().
+		virtual const unsigned* detectDirectIllumination();
+		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
+		//! without material. Helper function called from detectDirectIllumination().
+		virtual Program* setupShader(unsigned objectNumber);
 	private:
+		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap set.
+		//
+		//! It also copies position and direction from RealtimeLight-s to RRLight-s.
+		//! Flag is set when you call reportDirectIlluminationChange(,true,).
+		//! \n Called by user.
+		virtual void updateShadowmaps();
+		//! Helper function called from detectDirectIllumination().
+		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
+
 		// for internal rendering
 		char pathToShaders[300];
 		class CaptureUv* captureUv;

@@ -45,10 +45,10 @@ RRDynamicSolver::~RRDynamicSolver()
 void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
-	// update fast conversion table for our detectDirectIllumination
+	// update fast conversion table for our setDirectIllumination
 	for(unsigned i=0;i<256;i++)
 	{
-		rr::RRVec3 c(i*priv->boostDetectedDirectIllumination/255);
+		rr::RRVec3 c(i*priv->boostCustomIrradiance/255);
 		if(_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
@@ -95,7 +95,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	priv->objects = _objects;
 	priv->smoothing = _smoothing ? *_smoothing : SmoothingParameters();
 	priv->dirtyStaticSolver = true;
-	priv->dirtyLights = Private::BIG_CHANGE;
 
 	// delete old
 
@@ -224,10 +223,9 @@ void RRDynamicSolver::reportMaterialChange()
 	if(priv->multiObjectPhysical) priv->multiObjectPhysical->update();
 }
 
-void RRDynamicSolver::reportDirectIlluminationChange(bool strong)
+void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
 {
-	REPORT(RRReporter::report(INF1,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
-	priv->dirtyLights = strong?Private::BIG_CHANGE:Private::SMALL_CHANGE;
+	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
 }
 
 void RRDynamicSolver::reportInteraction()
@@ -236,9 +234,23 @@ void RRDynamicSolver::reportInteraction()
 	priv->lastInteractionTime = GETTIME;
 }
 
+void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
+{
+	if(priv->customIrradianceRGBA8 || directIllumination)
+	{
+		priv->customIrradianceRGBA8 = directIllumination;
+		priv->dirtyCustomIrradiance = true;
+		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
+	}
+}
+
 void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 {
-	priv->boostDetectedDirectIllumination = boost;
+	if(priv->boostCustomIrradiance != boost)
+	{
+		priv->boostCustomIrradiance = boost;
+		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
+	}
 }
 
 struct EBTContext
@@ -303,7 +315,6 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	if(!_params) _params = &s_params;
 
 	bool dirtyFactors = false;
-	Private::ChangeStrength dirtyEnergies = Private::NO_CHANGE;
 	if(priv->dirtyMaterials)
 	{
 		priv->dirtyMaterials = false;
@@ -315,70 +326,42 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		)
 	{
 		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
-		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
 		// create new
 		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
 		if(!aborting) priv->dirtyStaticSolver = false; // this is fundamental structure, so when aborted, don't clear dirty, try to create it next time
 	}
-	if(priv->dirtyLights!=Private::NO_CHANGE)
-	{
-		dirtyEnergies = priv->dirtyLights;
-		priv->dirtyLights = Private::NO_CHANGE;
-		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
-		REPORT(RRReportInterval report(INF3,"Detecting direct illumination...\n"));
-		priv->detectedCustomRGBA8 = detectDirectIllumination();
-		if(!priv->detectedCustomRGBA8)
-		{
-			// detection has failed, ensure these points:
-			// 1) detection will be detected again next time
-			priv->dirtyLights = Private::BIG_CHANGE;
-			// 2) eventual dirtyFactors = true; won't be forgotten
-			// let normal dirtyFactors handler work now, exit later
-			// 3) no calculations on current obsoleted primaries will be wasted
-			// exit before resetting energies
-			// exit before factor calculation and energy propagation
-		}
-	}
 	if(dirtyFactors)
 	{
 		dirtyFactors = false;
-		dirtyEnergies = Private::NO_CHANGE;
+		priv->dirtyCustomIrradiance = false;
 		priv->dirtyResults = true;
 		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
 		SAFE_DELETE(priv->packedSolver);
 		if(priv->scene)
 		{
-			priv->scene->illuminationReset(true,true,priv->detectedCustomRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(true,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 	}
-	if(priv->dirtyLights!=Private::NO_CHANGE)
-	{
-		// exit in response to unsuccessful detectDirectIllumination
-		return;
-	}
-	if(dirtyEnergies!=Private::NO_CHANGE)
+	if(priv->dirtyCustomIrradiance)
 	{
 		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));
 		if(priv->packedSolver)
 		{
-			priv->packedSolver->illuminationReset(priv->detectedCustomRGBA8,priv->customToPhysical);
+			priv->packedSolver->illuminationReset(priv->customIrradianceRGBA8,priv->customToPhysical);
 		}
 		else
 		if(priv->scene)
 		{
-			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE,priv->detectedCustomRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(false,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
-		if(dirtyEnergies==Private::BIG_CHANGE)
-		{
-			// following improvement should be so big that single frames after big reset are not visibly darker
-			// so...calculate at least 20ms?
-			improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
-		}
-		dirtyEnergies = Private::NO_CHANGE;
+		// following improvement should be so big that single frames after big reset are not visibly darker
+		// so...calculate at least 20ms?
+		improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
+		priv->dirtyCustomIrradiance = false;
 		priv->dirtyResults = true;
 	}
 
@@ -568,19 +551,19 @@ void RRDynamicSolver::verify()
 	{
 		RRReporter::report(WARN,"  No lights in solver, see setLights().\n");
 	}
-	unsigned* detected = detectDirectIllumination();
+	const unsigned* detected = priv->customIrradianceRGBA8;
 	if(!detected)
 	{
-		RRReporter::report(WARN,"  detectDirectIllumination() returns NULL, no realtime lighting.\n");
+		RRReporter::report(WARN,"  setDirectIllumination() not called yet (or called with NULL), no realtime lighting.\n");
 		return;
 	}
 
 	// boost
-	if(priv->boostDetectedDirectIllumination<=0.1f || priv->boostDetectedDirectIllumination>=10)
+	if(priv->boostCustomIrradiance<=0.1f || priv->boostCustomIrradiance>=10)
 	{
 		RRReporter::report(WARN,"  setDirectIlluminationBoost(%f) was called, is it intentional? Scene may get too %s.\n",
-			priv->boostDetectedDirectIllumination,
-			(priv->boostDetectedDirectIllumination<=0.1f)?"dark":"bright");
+			priv->boostCustomIrradiance,
+			(priv->boostCustomIrradiance<=0.1f)?"dark":"bright");
 	}
 
 	// histogram
@@ -597,7 +580,7 @@ void RRDynamicSolver::verify()
 	}
 	if(histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
 	{
-		RRReporter::report(WARN,"  detectDirectIllumination() detects no light, all is 0=completely dark.\n");
+		RRReporter::report(WARN,"  setDirectIllumination() was called with array of zeros, no lights in scene?\n");
 		return;
 	}
 	RRReporter::report(INF1,"  Triangles with realtime direct illumination: %d/%d.\n",numLit,numTriangles);

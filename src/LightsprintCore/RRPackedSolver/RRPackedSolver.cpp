@@ -226,15 +226,26 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 	return NULL;
 }
 
-void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical)
+void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical)
 {
 	packedBests->reset();
-#pragma omp parallel for schedule(static)
-	for(int t=0;(unsigned)t<numTriangles;t++)
+	if(customDirectIrradiance)
 	{
-		unsigned color = customDirectIrradiance[t];
-		triangles[t].incidentFluxDiffused = RRVec3(0);
-		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
+#pragma omp parallel for schedule(static)
+		for(int t=0;(unsigned)t<numTriangles;t++)
+		{
+			unsigned color = customDirectIrradiance[t];
+			triangles[t].incidentFluxDiffused = RRVec3(0);
+			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
+		}
+	}
+	else
+	{
+		for(int t=0;(unsigned)t<numTriangles;t++)
+		{
+			triangles[t].incidentFluxDiffused = RRVec3(0);
+			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(0);
+		}
 	}
 	currentVersionInTriangles++;
 	currentQuality = 0;
