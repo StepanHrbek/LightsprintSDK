@@ -74,6 +74,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_auto       :1; ///< Extension. Makes renderer set all LIGHT_INDIRECT_xxx flags automatically (except _CONST) according to available data.
 
 	bool     MATERIAL_DIFFUSE          :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
+	bool     MATERIAL_DIFFUSE_X2       :1; ///< Enables material's diffuse reflectance multiplied by 2. (used by Quake3 engine scenes)
 	bool     MATERIAL_DIFFUSE_CONST    :1; ///< Enables material's diffuse reflectance modulated by constant color.
 	bool     MATERIAL_DIFFUSE_VCOLOR   :1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
 	bool     MATERIAL_DIFFUSE_MAP      :1; ///< Enables material's diffuse reflectance modulated by diffuse map.

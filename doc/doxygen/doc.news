@@ -12,9 +12,10 @@ namespace rr
 
 CHANGES
 
-- classes that don't support copying now throw compile error on attempt to copy
 - more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
 - RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
+- classes that don't support copying now throw compile error on attempt to copy
+- collider is slightly faster and more robust
 
 \section news54 ------------------------------------ 2008.4.14 -------------------------------------
 

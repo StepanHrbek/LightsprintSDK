@@ -21,6 +21,7 @@
 //  #define LIGHT_INDIRECT_MAP2
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
+//  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
 //  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
@@ -342,6 +343,9 @@ void main()
 			//
 
 			#ifdef MATERIAL_DIFFUSE
+				#ifdef MATERIAL_DIFFUSE_X2
+					2 *
+				#endif
 				#ifdef MATERIAL_DIFFUSE_CONST
 					materialDiffuseConst *
 				#endif

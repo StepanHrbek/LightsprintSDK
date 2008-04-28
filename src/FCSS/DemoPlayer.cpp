@@ -81,6 +81,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	{
 		rr_gl::UberProgramSetup material;
 		material.MATERIAL_DIFFUSE = diffuse?1:0;
+		material.MATERIAL_DIFFUSE_X2 = 0;
 		material.MATERIAL_DIFFUSE_CONST = (diffuse && diffuse!=1)?1:0;
 		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = diffuse?1:0;
