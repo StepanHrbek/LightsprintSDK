@@ -167,7 +167,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			{
 				fg.firstIndex = numVertices;
 			}
-			RR_ASSERT(material);
+			if(!material) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
 			fg.renderFront = !material || material->sideBits[0].renderFrom;
 			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;

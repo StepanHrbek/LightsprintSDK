@@ -279,7 +279,7 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradiance, bool resetPropagation)
 {
 	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
-	RR_ASSERT(s);
+	//RR_ASSERT(s); problem was already reported one level up, let's try to survive
 
 	// aby to necrashlo kdyz uzivatel neopravnene zada NULL
 	static RRMaterial emergencyMaterial;

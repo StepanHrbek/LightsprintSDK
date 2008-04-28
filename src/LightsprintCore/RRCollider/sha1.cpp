@@ -27,6 +27,8 @@
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
+//#define SAVE_TO_FILE // saves whole stream to file
+
 #include <string.h>
 #include <stdio.h>
 
@@ -61,8 +63,14 @@ namespace sha1
 /*
  * SHA-1 context setup
  */
+#ifdef SAVE_TO_FILE
+FILE* ff;
+#endif
 void sha1_starts( sha1_context *ctx )
 {
+#ifdef SAVE_TO_FILE
+	ff = fopen("c:/users/dee/documents/a.a","wb");
+#endif
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -234,6 +242,9 @@ static void sha1_process( sha1_context *ctx, unsigned char data[64] )
  */
 void sha1_update( sha1_context *ctx, unsigned char *input, int ilen )
 {
+#ifdef SAVE_TO_FILE
+	if(ff) fwrite(input,ilen,1,ff);
+#endif
     int fill;
     unsigned long left;
 
@@ -286,6 +297,9 @@ static const unsigned char sha1_padding[64] =
  */
 void sha1_finish( sha1_context *ctx, unsigned char *output )
 {
+#ifdef SAVE_TO_FILE
+	if(ff) fclose(ff);
+#endif
     unsigned long last, padn;
     unsigned long high, low;
     unsigned char msglen[8];

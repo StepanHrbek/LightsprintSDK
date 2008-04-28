@@ -250,6 +250,7 @@ namespace rr
 				obj.face[ii].vertex[0] = &obj.vertex[v[0]];
 				obj.face[ii].vertex[1] = &obj.vertex[v[1]];
 				obj.face[ii].vertex[2] = &obj.vertex[v[2]];
+				// invalid triangles are skipped, but triangle numbers (id) are preserved
 				if(intersector->isValidTriangle(i)) obj.face[ii++].id=i;
 			}
 			RR_ASSERT(ii);

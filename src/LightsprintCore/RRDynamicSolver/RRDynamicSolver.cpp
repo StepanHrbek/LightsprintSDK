@@ -365,7 +365,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->dirtyResults = true;
 	}
 
-	REPORT(RRReportInterval report(INF3,"Calculating...\n"));
+	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
 	TIME now = GETTIME;
 	if(priv->packedSolver)
 	{
