@@ -153,6 +153,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 		return false;
 	}
 	const float* data = source->GetData();
+	size_t dataCount = source->GetDataCount();
 	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
@@ -174,7 +175,13 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 						{
 							for(unsigned k=0;k<floatsPerVertex;k++)
 							{
-								*out++ = data[indices[relativeIndex*3+j]*3+k];
+								unsigned dataIndex = indices[relativeIndex*3+j]*3+k;
+								if(dataIndex>=dataCount)
+								{
+									LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Out of range indices in Collada file.\n"));
+									return false;
+								}
+								*out++ = data[dataIndex];
 							}
 						}
 						return true;
