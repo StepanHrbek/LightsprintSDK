@@ -305,7 +305,7 @@ bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, rea
 // approx 50% of runtime is spent here
 // all calls (except recursion) are inlined
 {
-#define MAX_SIZE 10000000 // max size of node, for runtime checks of consistency
+#define MAX_SIZE 100000000 // max size of node, for runtime checks of consistency
 begin:
 	FILL_STATISTIC(intersectStats.intersect_bspSRLNP++);
 	RR_ASSERT(ray);
@@ -317,7 +317,7 @@ begin:
 #ifdef SUPPORT_EMPTY_KDNODE
 		// exit from empty kdnode
 		// empty kdnodes are created only in FASTEST (when havran=1 && SUPPORT_EMPTY_KDNODE)
-		if(t->allows_emptykd && sizeof(typename BspTree::_Ofs)==4) // this is true only in FASTEST
+		if(t->allows_emptykd && sizeof(typename BspTree::_Ofs)==sizeof(unsigned)) // this is true only in FASTEST
 			if(t->kd.size<=sizeof(BspTree)) // only empty kdnode is so small
 				return false;
 #endif

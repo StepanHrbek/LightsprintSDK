@@ -120,6 +120,43 @@ class BspBuilder
 {
 public:
 
+struct BSP_TREE 
+{
+	BSP_TREE *front;
+	BSP_TREE *back;
+	unsigned kdnodes;// kd internal nodes in whole tree
+	unsigned kdleaves;// kd leaves in whole tree
+	unsigned bspnodes;// bsp nodes in whole tree
+	unsigned faces;// face instances in whole tree
+	// bsp
+	const FACE **plane;
+	// kd
+	const VERTEX *kdroot;
+	int axis;
+	const FACE **leaf;
+};
+
+#define CACHE_SIZE 1000
+#define DELTA_NORMALS_MATCH 0.01 // min distance of normals to be recognized as non-plane
+#define SAFE_DISTANCE_IN_UNIT_SCENE 2e-5f
+#define PLANE 0 // 2d in splitting plane
+#define FRONT 1 // 2d in front, 1d may be in plane
+#define BACK -1 // 2d in back, 1d may be in plane
+#define SPLIT 2 // 2d partially in front, partially in back
+#define NONE  3 // 2d outside bbox, 1d may be in front or back
+
+#define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
+#define ALLOC(A) nALLOC(A,1)
+
+#define SQR(A) ((A)*(A))
+#undef  ABS
+#define ABS(x) (((x)>0)?(x):(-(x)))
+
+unsigned    nodes,faces;
+BSP_TREE*   bsptree;
+unsigned    bsptree_id;
+BuildParams buildParams;
+
 struct BBOX
 {
 	float hi[3];
@@ -139,47 +176,11 @@ struct BBOX
 		float a = MAX(MAX(hi[0],hi[1]),hi[2]);
 		float b = MIN(MIN(lo[0],lo[1]),lo[2]);
 		maxVertexValue = MAX(a,-b);
-		minSafeDistance = maxVertexValue * 1e-6f; // min distance from plane to be recognized as non-plane
+		minSafeDistance = maxVertexValue * SAFE_DISTANCE_IN_UNIT_SCENE; // min distance from plane to be recognized as non-plane
 	}
 	float maxVertexValue;
 	float minSafeDistance;
 };
-
-struct BSP_TREE 
-{
-	BSP_TREE *front;
-	BSP_TREE *back;
-	unsigned kdnodes;// kd internal nodes in whole tree
-	unsigned kdleaves;// kd leaves in whole tree
-	unsigned bspnodes;// bsp nodes in whole tree
-	unsigned faces;// face instances in whole tree
-	// bsp
-	const FACE **plane;
-	// kd
-	const VERTEX *kdroot;
-	int axis;
-	const FACE **leaf;
-};
-
-#define CACHE_SIZE 1000
-#define DELTA_NORMALS_MATCH 0.001 // min distance of normals to be recognized as non-plane
-#define PLANE 0 // 2d in splitting plane
-#define FRONT 1 // 2d in front, 1d may be in plane
-#define BACK -1 // 2d in back, 1d may be in plane
-#define SPLIT 2 // 2d partially in front, partially in back
-#define NONE  3 // 2d outside bbox, 1d may be in front or back
-
-#define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
-#define ALLOC(A) nALLOC(A,1)
-
-#define SQR(A) ((A)*(A))
-#undef  ABS
-#define ABS(x) (((x)>0)?(x):(-(x)))
-
-unsigned    nodes,faces;
-BSP_TREE*   bsptree;
-unsigned    bsptree_id;
-BuildParams buildParams;
 
 BspBuilder() : buildParams(RRCollider::IT_BSP_FASTEST)
 {

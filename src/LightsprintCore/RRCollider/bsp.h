@@ -81,7 +81,7 @@ namespace rr
 					prizePlane = 1;
 					bspMaxFacesInTree = 400; // makes build and intersections slower, but tree smaller
 					kdMinFacesInTree = 10;
-					kdLeaf = 1;
+					kdLeaf = 1; // supported by code only in compact
 					break;
 			}
 		}

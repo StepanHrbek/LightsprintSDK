@@ -6,7 +6,7 @@
 #ifndef COLLIDER_INTERSECTBSP_H
 #define COLLIDER_INTERSECTBSP_H
 
-#define TREE_VERSION 2 // version of tree format, increase when format changes
+#define TREE_VERSION 3 // version of tree format, increase when format changes
 
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
