@@ -360,7 +360,7 @@ void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, const char* pathToTextures, bool stripPaths);
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
@@ -387,7 +387,7 @@ private:
 	};
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
 	Cache                      cache;
-	void                       updateMaterials();
+	void                       updateMaterials(const char* pathToTextures, bool stripPaths);
 	const MaterialInfo*        getTriangleMaterialInfo(unsigned t) const;
 
 	// collider for ray-mesh collisions
@@ -413,7 +413,7 @@ void getNodeMatrices(const FCDSceneNode* node, rr::RRMatrix3x4& worldMatrix, rr:
 			invWorldMatrix.m[i][j] = world.m[j][i];
 }
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider)
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, const char* pathToTextures, bool stripPaths)
 {
 	node = anode;
 	geometryInstance = ageometryInstance;
@@ -426,7 +426,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	getNodeMatrices(node,worldMatrix,invWorldMatrix);
 
 	// create material cache
-	updateMaterials();
+	updateMaterials(pathToTextures,stripPaths);
 }
 
 void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
@@ -529,7 +529,7 @@ RRReal colorToFloat(FMVector4 color)
 	return (color.x+color.y+color.z)*0.333f;
 }
 
-void RRObjectCollada::updateMaterials()
+void RRObjectCollada::updateMaterials(const char* pathToTextures, bool stripPaths)
 {
 	if(!geometryInstance)
 	{
@@ -622,8 +622,13 @@ void RRObjectCollada::updateMaterials()
 						const FCDImage* diffuseImage = diffuseTexture->GetImage();
 						if(diffuseImage)
 						{
-							const fstring& filename = diffuseImage->GetFilename();
-							mi.diffuseTexture = rr::RRBuffer::load(&filename[0],NULL);
+							fstring strippedName = diffuseImage->GetFilename();
+							if(stripPaths)
+							{
+								while(strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
+							}
+							strippedName.insert(0,pathToTextures);
+							mi.diffuseTexture = rr::RRBuffer::load(strippedName.c_str(),NULL);
 							if(mi.diffuseTexture)
 							{
 								// compute average diffuse texture color
@@ -803,13 +808,13 @@ RRObjectCollada::~RRObjectCollada()
 class ObjectsFromFCollada : public rr::RRObjects
 {
 public:
-	ObjectsFromFCollada(FCDocument* document);
+	ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths);
 	virtual ~ObjectsFromFCollada();
 
 private:
 	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel);
-	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel);
-	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel);
+	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
+	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
 
 	// collider and mesh cache, for instancing
 	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
@@ -838,7 +843,7 @@ RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh, 
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders and meshes).
-RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel)
+RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths)
 {
 	if(!geometryInstance)
 	{
@@ -859,11 +864,11 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 	{
 		return NULL;
 	}
-	return new RRObjectCollada(node,geometryInstance,collider);
+	return new RRObjectCollada(node,geometryInstance,collider,pathToTextures,stripPaths);
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChannel)
+void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths)
 {
 	if(!node)
 		return;
@@ -874,7 +879,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChanne
 		if(entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
-			RRObjectCollada* object = newObject(node,geometryInstance,lightmapUvChannel);
+			RRObjectCollada* object = newObject(node,geometryInstance,lightmapUvChannel,pathToTextures,stripPaths);
 			if(object)
 			{
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
@@ -887,12 +892,12 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChanne
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(child, lightmapUvChannel);
+			addNode(child,lightmapUvChannel,pathToTextures,stripPaths);
 		}
 	}
 }
 
-ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
+ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
 {
 	if(!document)
 		return;
@@ -921,7 +926,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 	// import data
 	const FCDSceneNode* root = document->GetVisualSceneInstance();
 	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
-	addNode(root, lightmapUvChannel);
+	addNode(root,lightmapUvChannel,pathToTextures,stripPaths);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
@@ -1029,9 +1034,9 @@ LightsFromFCollada::~LightsFromFCollada()
 //
 // main
 
-rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document)
+rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
 {
-	return new ObjectsFromFCollada(document);
+	return new ObjectsFromFCollada(document,pathToTextures,stripPaths);
 }
 
 rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)

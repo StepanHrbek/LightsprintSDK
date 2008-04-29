@@ -3,7 +3,6 @@
 #define SUPPORT_DAE // Collada
 #define SUPPORT_OBJ
 #define SUPPORT_MGF
-#define QUAKE_DIR_STRUCTURE        false // false flattens directory structure, all textures are loaded from the same directory as .bsp
 
 #ifdef SUPPORT_DAE
 	// must be included first because it collides with #define SAFE_DELETE
@@ -39,7 +38,7 @@
 //
 // Scene
 
-ImportScene::ImportScene(const char* filename, float scale3dsObj)
+ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
 	objects = NULL;
@@ -51,7 +50,7 @@ ImportScene::ImportScene(const char* filename, float scale3dsObj)
 	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".3ds")==0)
 	{
 		scene_3ds = new Model_3DS;
-		if(!scene_3ds->Load(filename,scale3dsObj))
+		if(!scene_3ds->Load(filename,scale))
 		{
 			SAFE_DELETE(scene_3ds);
 		}
@@ -76,12 +75,12 @@ ImportScene::ImportScene(const char* filename, float scale3dsObj)
 		{
 			char* maps = _strdup(filename);
 			char* mapsEnd;
-			if(QUAKE_DIR_STRUCTURE)
+			if(!stripPaths)
 			{
 				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
 			}
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-			objects = adaptObjectsFromTMapQ3(scene_bsp,maps,!QUAKE_DIR_STRUCTURE,NULL);
+			objects = adaptObjectsFromTMapQ3(scene_bsp,maps,stripPaths,NULL);
 			free(maps);
 		}
 	}
@@ -103,8 +102,15 @@ ImportScene::ImportScene(const char* filename, float scale3dsObj)
 		}
 		else
 		{
-			objects = adaptObjectsFromFCollada(scene_dae);
+			char* pathToFile = _strdup(filename);
+			if(stripPaths)
+			{
+				char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
+				if(tmp) tmp[1] = 0;
+			}			
+			objects = adaptObjectsFromFCollada(scene_dae,stripPaths?pathToFile:"",stripPaths);
 			lights = adaptLightsFromFCollada(scene_dae);
+			free(pathToFile);
 		}
 	}
 #endif
@@ -113,7 +119,7 @@ ImportScene::ImportScene(const char* filename, float scale3dsObj)
 	// load obj scene
 	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".obj")==0)
 	{
-		objects = adaptObjectsFromOBJ(filename,scale3dsObj);
+		objects = adaptObjectsFromOBJ(filename,scale);
 	}
 #endif
 
