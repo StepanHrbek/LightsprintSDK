@@ -174,7 +174,10 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		return;
 	}
 	// set matrix
-	program->sendUniform("worldMatrix",worldMatrix,false,4);
+	if(uberProgramSetup.OBJECT_SPACE)
+	{
+		program->sendUniform("worldMatrix",worldMatrix,false,4);
+	}
 	// set envmap
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
