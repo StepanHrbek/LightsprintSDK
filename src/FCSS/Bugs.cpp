@@ -94,7 +94,7 @@ public:
 			}
 		}
 		avgFaceArea = 0;
-		RRMesh* mesh = object->getCollider()->getMesh();
+		const RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 		if(numTriangles)
 		{

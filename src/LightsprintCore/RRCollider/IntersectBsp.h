@@ -208,7 +208,7 @@ namespace rr
 	}
 
 	template IBP
-	PRIVATE BspTree* load(RRMesh* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	PRIVATE BspTree* load(const RRMesh* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;

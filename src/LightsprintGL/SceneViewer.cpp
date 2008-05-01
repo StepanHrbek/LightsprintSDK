@@ -281,7 +281,7 @@ public:
 			case ME_RANDOM_CAMERA:
 				if(solver->getMultiObjectCustom())
 				{
-					rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
+					const rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
 					rr::RRVec3 mini,maxi;
 					multiMesh->getAABB(&mini,&maxi,NULL);
 					unsigned numVertices = multiMesh->getNumVertices();

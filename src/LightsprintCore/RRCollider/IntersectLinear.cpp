@@ -41,7 +41,7 @@ PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-PRIVATE void update_hitPlane(RRRay* ray, RRMesh* importer)
+PRIVATE void update_hitPlane(RRRay* ray, const RRMesh* importer)
 {
 	RRMesh::TriangleBody t2;
 	importer->getTriangleBody(ray->hitTriangle,t2);
@@ -108,7 +108,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	return true;
 }
 
-IntersectLinear::IntersectLinear(RRMesh* aimporter)
+IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 {
 #ifdef USE_SSE
 	if(intptr_t(&box)%16) 

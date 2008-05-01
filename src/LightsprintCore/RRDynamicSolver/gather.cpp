@@ -724,7 +724,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
 			{
 				cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
-				RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+				const RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
 				mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 				mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
 			}

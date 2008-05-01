@@ -15,8 +15,8 @@
 namespace rr
 {                                                                            
 	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
-	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* mesh);
-	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* mesh, const char* cacheLocation, const char* extension);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* mesh);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* mesh, const char* cacheLocation, const char* extension);
 }
 
 #endif

@@ -15,7 +15,7 @@
 namespace rr
 {
 
-IntersectVerification::IntersectVerification(RRMesh* importer) 
+IntersectVerification::IntersectVerification(const RRMesh* importer) 
 	: IntersectLinear(importer)
 {
 	for(unsigned i=0;i<IT_VERIFICATION;i++)

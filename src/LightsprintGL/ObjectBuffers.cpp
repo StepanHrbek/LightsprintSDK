@@ -73,7 +73,7 @@ ObjectBuffers::ObjectBuffers()
 // one time initialization
 void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 {
-	rr::RRMesh* mesh = object->getCollider()->getMesh();
+	const rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	// numVerticesMax is only estimate of numPreImportVertices
 	// we have enough time in constructor, what about computing it precisely? (to save memory)

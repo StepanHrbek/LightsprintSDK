@@ -51,7 +51,7 @@ void calculate(rr::RRDynamicSolver* solver)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
 	{
-		rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
+		const rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
 		if(i==SELECTED_OBJECT_NUMBER)
 		{
 			// allocate lightmaps for selected object

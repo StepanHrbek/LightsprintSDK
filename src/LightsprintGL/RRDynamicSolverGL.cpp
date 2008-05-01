@@ -378,7 +378,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	}
 	if(!rendererObject) return 0;
 
-	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
+	const rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	if(!numTriangles)
 	{

@@ -39,7 +39,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 		}
 	}
 	// fill table
-	RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
+	const RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
 	unsigned numPostImportMultiVertices = multiMesh->getNumVertices();
 	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
 	for(unsigned postImportMultiTriangle=0;postImportMultiTriangle<numPostImportMultiTriangles;postImportMultiTriangle++)
@@ -80,7 +80,7 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 		RR_ASSERT(0);
 		return;
 	}
-	RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
+	const RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
 	unsigned numPostImportMultiVertices = multiMesh->getNumVertices();
 	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
 

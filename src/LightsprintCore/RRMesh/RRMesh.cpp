@@ -176,7 +176,7 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 //
 // RRMesh tools
 
-void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter)
+void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter) const
 {
 	RRVec3 center = RRVec3(0);
 	RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
@@ -302,7 +302,7 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 	return NULL;
 }
 
-RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform)
+RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform) const
 {
 	if(!this) return NULL;
 	//!!! az bude refcounting, muzu pri identite vracet this
@@ -310,12 +310,12 @@ RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform)
 	return new RRTransformedMeshFilter(this,transform);
 }
 
-RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes, bool fast)
+const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numMeshes, bool fast)
 {
 	return fast ? RRMeshMultiFast::create(meshes,numMeshes) : RRMeshMultiSmall::create(meshes,numMeshes);
 }
 
-RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
+const RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance) const
 {
 	if(!this) return NULL;
 	if(vertexStitchMaxDistance<0)
@@ -327,7 +327,7 @@ RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
 	return this;
 }
 
-RRMesh* RRMesh::createOptimizedTriangles()
+const RRMesh* RRMesh::createOptimizedTriangles() const
 {
 	if(!this) return NULL;
 	RRMesh* tmp = new RRLessTrianglesFilter(this);
@@ -340,20 +340,20 @@ RRMesh* RRMesh::createOptimizedTriangles()
 class RRHidePreImportFilter : public RRMeshFilter
 {
 public:
-	RRHidePreImportFilter(RRMesh* _original) : RRMeshFilter(_original) {}
+	RRHidePreImportFilter(const RRMesh* _original) : RRMeshFilter(_original) {}
 	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return PreImportNumber(0,postImportVertex);}
 	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const {return preImportVertex.index;}
 	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const {return PreImportNumber(0,postImportTriangle);}
 	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const {return preImportTriangle.index;}
 };
 
-RRMesh* RRMesh::createVertexBufferRuler()
+RRMesh* RRMesh::createVertexBufferRuler() const
 {
 	if(!this) return NULL;
 	return new RRHidePreImportFilter(this);
 }
 
-unsigned RRMesh::verify()
+unsigned RRMesh::verify() const
 {
 	unsigned numReports = 0;
 	// numVertices

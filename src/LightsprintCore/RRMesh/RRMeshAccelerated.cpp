@@ -56,7 +56,7 @@ protected:
 //
 // RRMesh
 
-RRMesh* RRMesh::createAccelerated()
+const RRMesh* RRMesh::createAccelerated() const
 {
 	try
 	{

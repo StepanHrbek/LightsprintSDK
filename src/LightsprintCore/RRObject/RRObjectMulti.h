@@ -29,20 +29,20 @@ public:
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
 		RRCollider* multiCollider = NULL;
-		RRMesh** transformedMeshes = NULL;
+		const RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
-			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
+			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
-			RRMesh* oldMesh = transformedMeshes[0];
-			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,true);
+			const RRMesh* oldMesh = transformedMeshes[0];
+			const RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,true);
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
@@ -169,7 +169,7 @@ public:
 	}
 
 private:
-	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, RRMesh** _transformedMeshes = NULL)
+	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -189,7 +189,7 @@ private:
 		}
 		multiCollider = _multiCollider;
 		transformedMeshes = _transformedMeshes;
-		RRMesh* multiMeshOptimized = multiCollider->getMesh();
+		const RRMesh* multiMeshOptimized = multiCollider->getMesh();
 		numTrianglesOptimized = multiMeshOptimized->getNumTriangles();
 		numVerticesOptimized = multiMeshOptimized->getNumVertices();
 		postImportToMidImportTriangle = new RRMesh::PreImportNumber[numTrianglesOptimized];
@@ -230,7 +230,7 @@ private:
 	//RRMesh::PreImportNumber* postImportToMidImportVertex;
 
 	RRCollider*   multiCollider;
-	RRMesh**      transformedMeshes;
+	const RRMesh** transformedMeshes;
 };
 
 
@@ -251,20 +251,20 @@ public:
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
 		RRCollider* multiCollider = NULL;
-		RRMesh** transformedMeshes = NULL;
+		const RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
-			transformedMeshes = new RRMesh*[numObjects+MI_MAX];
+			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
-			RRMesh* oldMesh = transformedMeshes[0];
-			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,false);
+			const RRMesh* oldMesh = transformedMeshes[0];
+			const RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,false);
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
@@ -349,7 +349,7 @@ public:
 	{
 		if(!transformedMeshes) return;
 		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
-		RRMesh* unoptimizedMesh;
+		const RRMesh* unoptimizedMesh;
 		if(transformedMeshes[numObjects+MI_OPTI_VERTICES]) unoptimizedMesh = transformedMeshes[numObjects+MI_OPTI_VERTICES]; else
 			if(transformedMeshes[numObjects+MI_OPTI_VERTICES]) unoptimizedMesh = transformedMeshes[numObjects+MI_OPTI_VERTICES]; else
 				if(transformedMeshes[numObjects+MI_ACCELERATED]) unoptimizedMesh = transformedMeshes[numObjects+MI_ACCELERATED]; else
@@ -457,7 +457,7 @@ public:
 	}
 
 private:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -497,7 +497,7 @@ private:
 
 	RRObjectMultiSmall(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
 		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
-		RRCollider* amultiCollider, RRMesh** atransformedMeshes)
+		RRCollider* amultiCollider, const RRMesh** atransformedMeshes)
 	{
 		multiCollider = amultiCollider;
 		transformedMeshes = atransformedMeshes;
@@ -534,7 +534,7 @@ private:
 
 	ObjectPack    pack[2];
 	RRCollider*   multiCollider;
-	RRMesh**      transformedMeshes;
+	const RRMesh** transformedMeshes;
 };
 
 }; // namespace

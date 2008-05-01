@@ -24,7 +24,7 @@ class RRMeshMultiFast : public RRMesh
 {
 public:
 	// creators
-	static RRMesh* create(RRMesh* const* mesh, unsigned numMeshes)
+	static const RRMesh* create(const RRMesh* const* mesh, unsigned numMeshes)
 		// all parameters (meshes, array of meshes) are destructed by caller, not by us
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh
@@ -185,7 +185,7 @@ public:
 		delete[] singles;
 	}
 private:
-	RRMeshMultiFast(RRMesh* const* _meshes, unsigned _numMeshes)
+	RRMeshMultiFast(const RRMesh* const* _meshes, unsigned _numMeshes)
 	{
 		RR_ASSERT(_meshes);
 		RR_ASSERT(_numMeshes);
@@ -228,7 +228,7 @@ private:
 	}
 	struct Single
 	{
-		RRMesh* mesh;
+		const RRMesh* mesh;
 		unsigned numTrianglesBefore;
 		unsigned numVerticesBefore;
 	};
@@ -253,7 +253,7 @@ class RRMeshMultiSmall : public RRMesh
 {
 public:
 	// creators
-	static RRMesh* create(RRMesh* const* mesh, unsigned numMeshes)
+	static const RRMesh* create(const RRMesh* const* mesh, unsigned numMeshes)
 		// all parameters (meshes, array of meshes) are destructed by caller, not by us
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh

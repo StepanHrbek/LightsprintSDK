@@ -27,7 +27,7 @@ namespace rr_gl
 	static Program* lmapAlphaProgram;
 	static Program* lineProgram;
 	static rr::RRBuffer* buffer;
-	static rr::RRMesh* mesh;
+	static const rr::RRMesh* mesh;
 
 LightmapViewer* LightmapViewer::create(const char* _pathToShaders)
 {
@@ -53,7 +53,7 @@ LightmapViewer::LightmapViewer(const char* _pathToShaders)
 	mesh = NULL;
 }
 
-void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, rr::RRMesh* _mesh, bool _bilinear)
+void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _mesh, bool _bilinear)
 {
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
 	mesh = _mesh;

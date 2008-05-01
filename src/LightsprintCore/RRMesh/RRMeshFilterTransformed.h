@@ -17,7 +17,7 @@ namespace rr
 class RRTransformedMeshFilter : public RRMeshFilter
 {
 public:
-	RRTransformedMeshFilter(RRMesh* mesh, const RRMatrix3x4* matrix)
+	RRTransformedMeshFilter(const RRMesh* mesh, const RRMatrix3x4* matrix)
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;

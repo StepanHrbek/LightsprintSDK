@@ -304,7 +304,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	// fill our vertices
 	info.ourVertices.insert(originalVertexIndex);
 	// fill center
-	RRMesh* mesh = object->importer->getCollider()->getMesh();
+	const RRMesh* mesh = object->importer->getCollider()->getMesh();
 	mesh->getVertex(originalVertexIndex,info.center);
 	// fill our neighbours
 	for(unsigned c=0;c<corners;c++)
@@ -505,7 +505,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	RRMesh* mesh = importer->getCollider()->getMesh();
+	const RRMesh* mesh = importer->getCollider()->getMesh();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		if(aborting) break;

@@ -310,7 +310,7 @@ namespace rr
 		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
 		//! \param center
 		//!  NULL or pointer to vec3 to be filled with average vertex position.
-		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center);
+		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 
 
 		//
@@ -410,7 +410,7 @@ namespace rr
 		//! Only positions/normals/tangent space are transformed, custom channels are left untouched.
 		//!
 		//! Non-uniform transformations break tangent space ortogonality.
-		RRMesh* createTransformed(const RRMatrix3x4* transform);
+		RRMesh* createTransformed(const RRMatrix3x4* transform) const;
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//
@@ -435,7 +435,7 @@ namespace rr
 		//!  With false, multimesh has fixed size of several bytes.
 		//!  With true, multimesh allocates 8 bytes per triangle, but it is faster,
 		//!  especially in scenes made of hundreds of small meshes.
-		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes, bool fast);
+		static const RRMesh* createMultiMesh(const RRMesh* const* meshes, unsigned numMeshes, bool fast);
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
@@ -448,14 +448,14 @@ namespace rr
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
 		//!  For positive value, also vertices in lower or equal distance will be stitched.
-		RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0);
+		const RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		//
 		//! Created instance requires only small amount of additional memory, 
 		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
 		//! If 'this' is already optimal, 'this' is returned.
-		RRMesh* createOptimizedTriangles();
+		const RRMesh* createOptimizedTriangles() const;
 
 		//! Creates and returns accelerated mesh.
 		//
@@ -467,7 +467,7 @@ namespace rr
 		//! Accelerated functions are getTriangleBase() and getTriangleNormals().
 		//! They are critical for performance of BSP_COMPACT and BSP_FAST colliders
 		//! and for building lightmaps.
-		RRMesh* createAccelerated();
+		const RRMesh* createAccelerated() const;
 
 		//! Creates and returns identical mesh with all optimizations and filters previously applied baked.
 		//
@@ -479,14 +479,14 @@ namespace rr
 		//! This filter only erases original (preImport) numbers and sets them equal to current (postImport) numbers.
 		//! PreImport numbers are used by RRDynamicSolver for vertex buffer layout, so this filter
 		//! adjusts layout of generated vertex buffers to use current vertex numbers.
-		RRMesh* createVertexBufferRuler();
+		RRMesh* createVertexBufferRuler() const;
 
 
 		//! Verifies that mesh is well formed.
 		//
 		//! Reports any problems found using RRReporter.
 		//! \return Number of problem reports sent, 0 for valid mesh.
-		unsigned verify();
+		unsigned verify() const;
 	};
 
 } // namespace

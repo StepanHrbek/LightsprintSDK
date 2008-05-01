@@ -41,7 +41,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		RR_ASSERT(0);
 		return false;
 	}
-	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
+	const RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 
 	// 1. preallocate texels
 	unsigned numTexelsInRect = (rectXMaxPlus1-rectXMin)*(rectYMaxPlus1-rectYMin);
@@ -62,7 +62,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	{
 	// iterate only triangles in singlemesh
 	RRObject* singleObject = tc.solver->getObject(objectNumber);
-	RRMesh* singleMesh = singleObject->getCollider()->getMesh();
+	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for(unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
 	{

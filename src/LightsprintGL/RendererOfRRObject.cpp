@@ -272,7 +272,7 @@ void RendererOfRRObject::render()
 		// reads indirect vertex illumination always from solver, indirect maps always from layer
 
 		bool begun = false;
-		rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
+		const rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 		//unsigned numTriangles = meshImporter->getNumTriangles();
 		const rr::RRMaterial* oldMaterial = NULL;
 		rr::RRObjectIllumination* oldIllumination = NULL;

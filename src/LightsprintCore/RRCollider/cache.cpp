@@ -37,7 +37,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsig
 	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* importer)
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer)
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
@@ -73,7 +73,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* 
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* importer, const char* cacheLocation, const char* extension)
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer, const char* cacheLocation, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;

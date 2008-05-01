@@ -19,7 +19,7 @@ namespace rr
 {
 
 
-RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
+RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
 	try {
 

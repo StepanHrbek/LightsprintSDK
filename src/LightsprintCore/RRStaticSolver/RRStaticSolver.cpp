@@ -57,7 +57,7 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 	{
 		return NULL; // no input
 	}
-	RRMesh* mesh = _object->getCollider()->getMesh();
+	const RRMesh* mesh = _object->getCollider()->getMesh();
 	Object *obj = Object::create(mesh->getNumVertices(),mesh->getNumTriangles());
 	if(!obj)
 	{
@@ -83,7 +83,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	RR_ASSERT(obj);
 	RRDynamicSolver::SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
-	RRMesh* mesh = importer->getCollider()->getMesh();
+	const RRMesh* mesh = importer->getCollider()->getMesh();
 	obj->importer = importer;
 
 	// import triangles
