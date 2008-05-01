@@ -1076,7 +1076,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
 	solver->setScaler(_solver->getScaler());
 	solver->setEnvironment(_solver->getEnvironment());
-	solver->setStaticObjects(_solver->getStaticObjects(),NULL);
+	solver->setStaticObjects(_solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,_solver->getMultiObjectCustom());
 	solver->setLights(_solver->getLights());
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);

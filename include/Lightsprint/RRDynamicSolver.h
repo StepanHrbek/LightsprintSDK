@@ -269,7 +269,9 @@ namespace rr
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param intersectTechnique
 		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
-		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER);
+		//! \param forceMultiObjectCustom
+		//!  Should stay NULL.
+		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRObject* forceMultiObjectCustom = NULL);
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects();
 
@@ -760,7 +762,7 @@ namespace rr
 
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
-		const RRObject* getMultiObjectCustom() const;
+		RRObject* getMultiObjectCustom() const;
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
 		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;

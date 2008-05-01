@@ -28,6 +28,7 @@ namespace rr
 		SmoothingParameters smoothing;
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
+		bool       forcedMultiObjectCustom;
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsEmissiveMaterials;
@@ -71,6 +72,7 @@ namespace rr
 			environment = NULL;
 			// scene: function of inputs
 			multiObjectCustom = NULL;
+			forcedMultiObjectCustom = false;
 			multiObjectPhysical = NULL;
 			staticSceneContainsEmissiveMaterials = false;
 			staticSceneContainsLods = false;
@@ -106,10 +108,20 @@ namespace rr
 		}
 		~Private()
 		{
-			delete packedSolver;
-			delete scene;
-			if(multiObjectPhysical!=multiObjectCustom) delete multiObjectPhysical; // no scaler -> physical == custom
-			delete multiObjectCustom;
+			deleteScene();
+		}
+		void deleteScene()
+		{
+			SAFE_DELETE(packedSolver);
+			SAFE_DELETE(scene);
+			// be careful:
+			// 1. physical==custom (when no scaler) -> don't delete physical
+			if(multiObjectPhysical==multiObjectCustom) multiObjectPhysical = NULL;
+			// 2. forced (in sceneViewer) -> don't delete custom
+			if(forcedMultiObjectCustom) multiObjectCustom = NULL;
+			// 3. both -> don't delete 
+			SAFE_DELETE(multiObjectCustom);
+			SAFE_DELETE(multiObjectPhysical);
 		}
 	};
 
