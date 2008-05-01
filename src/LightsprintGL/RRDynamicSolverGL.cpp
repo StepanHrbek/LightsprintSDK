@@ -168,6 +168,8 @@ void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool
 
 void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 {
+	REPORT(rr::RRReportInterval report(rr::INF3,"calculate...\n"));
+
 	// update only dirty maps
 	updateShadowmaps();
 
@@ -206,7 +208,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 
 	for(unsigned i=0;i<realtimeLights.size();i++)
 	{
-		REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 		RealtimeLight* light = realtimeLights[i];
 		if(!light)
 		{
@@ -236,6 +237,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 		// update shadowmap[s]
 		if(light->dirtyShadowmap)
 		{
+			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
 			glClearDepth(0.9999); // prevents backprojection
 			glColorMask(0,0,0,0);
