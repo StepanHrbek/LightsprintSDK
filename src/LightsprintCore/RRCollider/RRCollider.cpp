@@ -19,7 +19,7 @@ namespace rr
 {
 
 
-RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
+const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
 	try {
 
@@ -89,7 +89,7 @@ RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique inters
 	}
 }
 
-void RRCollider::intersectBatch(RRRay* ray, unsigned numRays)
+void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 {
 	#pragma omp parallel for schedule(static,1)
 	for(int i=0;i<(int)numRays;i++)

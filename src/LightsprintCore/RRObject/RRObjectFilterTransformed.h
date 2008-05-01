@@ -82,7 +82,7 @@ public:
 		return inherited->getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 private:
-	RRCollider* collider;
+	const RRCollider* collider;
 	bool negScaleMakesOuterInner;
 };
 

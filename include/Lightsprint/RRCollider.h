@@ -154,7 +154,7 @@ namespace rr
 		//!        Default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
 		//! \return Created collider.
-		static RRCollider* create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
+		static const RRCollider* create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
@@ -221,7 +221,7 @@ namespace rr
 		//!  any other value means that intersection was detected.
 		//! \param numRays
 		//!  Number of rays in array.
-		void intersectBatch(RRRay* ray, unsigned numRays);
+		void intersectBatch(RRRay* ray, unsigned numRays) const;
 
 
 		//! \return Mesh that was passed to create().

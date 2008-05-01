@@ -28,7 +28,7 @@ public:
 	{
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
-		RRCollider* multiCollider = NULL;
+		const RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
@@ -169,7 +169,7 @@ public:
 	}
 
 private:
-	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
+	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, const RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -229,7 +229,7 @@ private:
 	RRMesh::PreImportNumber* postImportToMidImportTriangle;
 	//RRMesh::PreImportNumber* postImportToMidImportVertex;
 
-	RRCollider*   multiCollider;
+	const RRCollider* multiCollider;
 	const RRMesh** transformedMeshes;
 };
 
@@ -250,7 +250,7 @@ public:
 	{
 		if(!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
-		RRCollider* multiCollider = NULL;
+		const RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
@@ -457,7 +457,7 @@ public:
 	}
 
 private:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, const RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -497,7 +497,7 @@ private:
 
 	RRObjectMultiSmall(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
 		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
-		RRCollider* amultiCollider, const RRMesh** atransformedMeshes)
+		const RRCollider* amultiCollider, const RRMesh** atransformedMeshes)
 	{
 		multiCollider = amultiCollider;
 		transformedMeshes = atransformedMeshes;
@@ -533,7 +533,7 @@ private:
 	};
 
 	ObjectPack    pack[2];
-	RRCollider*   multiCollider;
+	const RRCollider* multiCollider;
 	const RRMesh** transformedMeshes;
 };
 

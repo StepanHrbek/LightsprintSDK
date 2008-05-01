@@ -87,7 +87,7 @@ private:
 	std::vector<rr::RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
-	rr::RRCollider* collider;
+	const rr::RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
 	rr::RRObjectIllumination* illumination;

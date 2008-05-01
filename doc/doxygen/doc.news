@@ -16,7 +16,7 @@ CHANGES
 - RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
 - classes that don't support copying now throw compile error on attempt to copy
 - collider is slightly faster and more robust
-- more RRMesh functions and instances are const (to emphasize fact that mesh never changes)
+- more RRMesh and RRCollider functions and instances are const (to emphasize fact that they never change)
 
 \section news54 ------------------------------------ 2008.4.14 -------------------------------------
 

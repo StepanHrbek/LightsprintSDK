@@ -123,7 +123,7 @@ private:
 	rr::RRMaterial material;
 	
 	// collider for ray-mesh collisions
-	rr::RRCollider* collider;
+	const rr::RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
 	rr::RRObjectIllumination* illumination;

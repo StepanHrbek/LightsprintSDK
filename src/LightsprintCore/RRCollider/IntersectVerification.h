@@ -21,7 +21,7 @@ namespace rr
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
 		IntersectVerification(const RRMesh* aimporter);
-		RRCollider*       collider[IT_VERIFICATION];
+		const RRCollider* collider[IT_VERIFICATION];
 	};
 
 }

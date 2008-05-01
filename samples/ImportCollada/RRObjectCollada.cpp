@@ -812,18 +812,18 @@ public:
 	virtual ~ObjectsFromFCollada();
 
 private:
-	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel);
+	const RRCollider*          newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel);
 	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
 	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
 
 	// collider and mesh cache, for instancing
-	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
+	typedef std::map<const FCDGeometryMesh*,const RRCollider*> Cache;
 	Cache                      cache;
 };
 
 // Creates new RRCollider from FCDGeometryMesh.
 // Caching on, first query creates collider, second query reads it from cache.
-RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel)
+const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel)
 {
 	if(!mesh)
 	{
@@ -859,7 +859,7 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 	{
 		return NULL;
 	}
-	RRCollider* collider = newColliderCached(mesh, lightmapUvChannel);
+	const RRCollider* collider = newColliderCached(mesh, lightmapUvChannel);
 	if(!collider)
 	{
 		return NULL;
@@ -942,7 +942,7 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 	// delete meshes and colliders (stored in cache)
 	for(Cache::iterator i = cache.begin(); i!=cache.end(); i++)
 	{
-		RRCollider* collider = (*i).second;
+		const RRCollider* collider = (*i).second;
 		delete collider->getMesh();
 		delete collider;
 	}

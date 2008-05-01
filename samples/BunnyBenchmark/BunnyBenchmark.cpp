@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	SphereUnitVecPool vecpool;
 
 	// create collider
-	RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST);
+	const RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST);
 
 	// start watch
 	rr_gl::Timer* watch = new rr_gl::Timer();
