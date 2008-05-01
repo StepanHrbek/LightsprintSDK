@@ -41,7 +41,7 @@ namespace rr
 		unsigned          triangles;
 #ifdef _M_X64
 		Box               box; // aligned + vtable(8) + DELTA_BSP(4) + triangles(4) = aligned
-		RRMesh*           importer;
+		const RRMesh*     importer;
 #else
 		const RRMesh*     importer;
 		Box               box; // aligned + vtable(4) + importer(4) + DELTA_BSP(4) + triangles(4) = aligned
