@@ -11,7 +11,7 @@
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
 
-#define MIN_TRIANGLES_FOR_SAVE 362 // smaller objects are not saved to disk
+#define MIN_BYTES_FOR_SAVE 1024 // smaller trees are not saved to disk, build is faster than disk operation
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
@@ -216,15 +216,22 @@ namespace rr
 		if(!triangles) return NULL;
 		if(!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
 		BspTree* tree = NULL;
-		bool retried = false;
 		char name[300];
 		getFileName(name,300,TREE_VERSION,importer,cacheLocation,ext);
 
 
-		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
-		if(!f)
+		// try to load tree from disk
+		FILE* f;
+		if(!buildParams->forceRebuild && (f=fopen(name,"rb")))
 		{
-		retry:
+			tree = load IBP2(f);
+			fclose(f);
+			if(tree)
+				return tree;
+		}
+
+		// create tree in memory
+		{
 			OBJECT obj;
 			RR_ASSERT(triangles);
 			obj.face_num = triangles;
@@ -255,43 +262,20 @@ namespace rr
 			}
 			RR_ASSERT(ii);
 			obj.face_num = ii;
-
-			if(obj.face_num<MIN_TRIANGLES_FOR_SAVE)
-			{
-				// pack tree directly to ram, no saving
-				RR_ASSERT(!tree);
-				bool ok = createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree);
-			}
-			else
-			{
-				// pack tree to file
-				f = fopen(name,"wb");
-				if(f)
-				{
-					RR_ASSERT(!tree);
-					bool ok = createAndSaveBsp IBP2(&obj,buildParams,f,NULL);
-					fclose(f);
-					if(!ok)
-					{
-						f = fopen(name,"wb");
-						fclose(f);
-						retried = true;
-					}
-				}
-				f = fopen(name,"rb");
-			}
-
+			RR_ASSERT(!tree);
+			createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
 			delete[] obj.vertex;
 			delete[] obj.face;
 		}
-		if(f)
+
+		// save tree to disk
+		if(tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
 		{
-			tree = load IBP2(f);
-			fclose(f);
-			if(!tree && !retried)
+			f = fopen(name,"wb");
+			if(f)
 			{
-				retried = true;
-				goto retry;
+				fwrite(tree,tree->bsp.size,1,f);
+				fclose(f);
 			}
 		}
 
