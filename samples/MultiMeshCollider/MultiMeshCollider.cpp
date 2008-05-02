@@ -44,7 +44,7 @@ int main()
 	meshes[1] = meshes[0]->createTransformed(&matrix);
 
 	// create multimesh, glue array of meshes together without duplicating data
-	RRMesh* multiMesh = RRMesh::createMultiMesh(meshes,2,false);
+	const RRMesh* multiMesh = RRMesh::createMultiMesh(meshes,2,false);
 
 	// you can add more filters, e.g.
 	//multiMesh2 = multiMesh->createOptimizedVertices(0.1f); // vertex weld, distance 0.1
@@ -54,7 +54,7 @@ int main()
 	printf("Vertices in multimesh = %d\n\n",multiMesh->getNumVertices()); // 6+6
 
 	// create collider (able to find ray x mesh intersections)
-	RRCollider* collider = RRCollider::create(multiMesh,RRCollider::IT_BSP_FAST);
+	const RRCollider* collider = RRCollider::create(multiMesh,RRCollider::IT_BSP_FAST);
 
 	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();

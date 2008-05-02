@@ -33,7 +33,7 @@ int main()
 	RRMesh* mesh = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
 	// create collider (able to find ray x mesh intersections)
-	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
+	const RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
 
 	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();
