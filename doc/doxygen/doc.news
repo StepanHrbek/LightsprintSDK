@@ -8,18 +8,19 @@ namespace rr
 
 \page main_news What's new
 
-\section news55 ------------------------------------ 2008.4.xx -------------------------------------
+\section news55 ------------------------------------ 2008.5.2 -------------------------------------
 
 NEWS
 
-- ray-mesh intersections are faster and more robust (depends on scene)
 - rr_gl::sceneViewer() initializes more quickly, reduced memory requirements
 - Collada adapter supports directory flattening, loading all textures from selected directory
+- improved precision in scenes with geometry translated far (tens of km) from center
+  \n however, it's still recommended to place objects near world center
 
 CHANGES
 
-- more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
 - RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
+- more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
 - classes that don't support copying now throw compile error on attempt to copy
 - more RRMesh and RRCollider functions and instances are const (to emphasize fact that they never change)
 
