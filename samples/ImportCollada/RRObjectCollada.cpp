@@ -137,7 +137,7 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChanne
 //
 // RRMeshCollada implements RRChanneledData
 
-bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned index, unsigned floatsPerVertex, unsigned itemIndex, void* itemData, unsigned itemSize)
+bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned index, unsigned floatsPerVertexExpected, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
 	assert(itemSize==12*floatsPerVertex);
 	FCDGeometrySourceConstList sources;
@@ -154,6 +154,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 	}
 	const float* data = source->GetData();
 	size_t dataCount = source->GetDataCount();
+	unsigned floatsPerVertexPresent = source->GetStride();
 	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
@@ -173,9 +174,9 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 						float* out = (float*)itemData;
 						for(unsigned j=0;j<3;j++)
 						{
-							for(unsigned k=0;k<floatsPerVertex;k++)
+							for(unsigned k=0;k<floatsPerVertexExpected;k++)
 							{
-								unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertex+k;
+								unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
 								if(dataIndex>=dataCount)
 								{
 									LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Out of range indices in Collada file.\n"));
