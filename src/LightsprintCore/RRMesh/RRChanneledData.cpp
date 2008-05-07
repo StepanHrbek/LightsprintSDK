@@ -18,8 +18,13 @@ void RRChanneledData::getChannelSize(unsigned channelId, unsigned* numItems, uns
 
 bool RRChanneledData::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
-	// legal, but shouldn't happen in well coded program
-	LIMITED_TIMES(1,RRReporter::report(WARN,"getChannelData: Unsupported channel %x requested.\n",channelId));
+	// how to handle request to read channel unsupported by adapter?
+	// a) warning, rev 1-1691
+	//LIMITED_TIMES(1,RRReporter::report(WARN,"getChannelData: Unsupported channel %x requested.\n",channelId));
+	// b) no warning, rev 1692-inf
+	// our renderer reads even non-existing channels
+	//  because channel may exist only for part of multiobject
+	//  and it's expensive to verify channel's presence for each triangle
 	return false;
 }
 

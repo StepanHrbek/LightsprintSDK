@@ -56,6 +56,7 @@ static bool                       render2d = 0;
 static bool                       renderAmbient = 0;
 static bool                       renderEmission = 1;
 static bool                       renderDiffuse = 1;
+static bool                       renderTextures = 1;
 static bool                       renderWireframe = 0;
 static bool                       renderHelpers = 1;
 static float                      speedGlobal = 2; // speed of movement controlled by user
@@ -235,7 +236,8 @@ public:
 		glutAddSubMenu("Environment...", envHandle);
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render emissivity", ME_RENDER_EMISSION);
-		glutAddMenuEntry("Toggle render diffuse color", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry("Toggle render diffuse", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry("Toggle render textures", ME_RENDER_TEXTURES);
 		glutAddMenuEntry("Toggle render wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
@@ -256,6 +258,7 @@ public:
 			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
 			case ME_RENDER_DIFFUSE: renderDiffuse = !renderDiffuse; break;
+			case ME_RENDER_TEXTURES: renderTextures = !renderTextures; break;
 			case ME_RENDER_WIREFRAME: renderWireframe = !renderWireframe; break;
 			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
@@ -437,6 +440,7 @@ public:
 		ME_RENDER_AMBIENT,
 		ME_RENDER_EMISSION,
 		ME_RENDER_DIFFUSE,
+		ME_RENDER_TEXTURES,
 		ME_RENDER_WIREFRAME,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
@@ -676,8 +680,10 @@ static void display(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 		uberProgramSetup.LIGHT_INDIRECT_auto = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse;
-		uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures;
+		uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
+		uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
 		uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 		uberProgramSetup.POSTPROCESS_GAMMA = true;
 		if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}

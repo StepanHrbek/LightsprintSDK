@@ -90,15 +90,19 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	NEW_ARRAY(avertex,RRVec3);
 	NEW_ARRAY(anormal,RRVec3);
 
-	unsigned hasDiffuseMap = 0;
-	mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
+	// work as if all data are present, generate stubs for missing data
+	// this way renderer works even with partial data (missing texture, missing texcoord...)
+	// (other way would be to rebuild shaders for missing data)
+
+	unsigned hasDiffuseMap = 1;
+	//mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
 	if(hasDiffuseMap)
 		NEW_ARRAY(atexcoordDiffuse,RRVec2)
 	else
 		atexcoordDiffuse = NULL;
 
-	unsigned hasEmissiveMap = 0;
-	mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
+	unsigned hasEmissiveMap = 1;
+	//mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
 	if(hasEmissiveMap)
 		NEW_ARRAY(atexcoordEmissive,RRVec2)
 	else
@@ -175,19 +179,33 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.diffuseColor[3] = material ? 1-material->specularTransmittance.avg() : 1; // alpha, 0=transparent
 			fg.emissiveColor = material ? material->diffuseEmittance : rr::RRVec3(0);
 			fg.diffuseTexture = NULL;
-			if(hasDiffuseMap)
+//			if(hasDiffuseMap)
 			{
 				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
-				if(!fg.diffuseTexture)
+//				if(!fg.diffuseTexture)
 				{
 					// it's still possible that user will render without texture
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
+//					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
 				}
 			}
+			if(!fg.diffuseTexture)
+			{
+				// create 1x1 stub so we can support even shaders that request texture
+				fg.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
+				fg.diffuseTexture->setElement(0,fg.diffuseColor);
+				tempTextures.push_back(fg.diffuseTexture); // remember it for destruction time
+			}
 			fg.emissiveTexture = NULL;
-			if(hasEmissiveMap)
+			//if(hasEmissiveMap)
 			{
 				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
+			}
+			if(!fg.emissiveTexture)
+			{
+				// create 1x1 stub so we can support even shaders that request texture
+				fg.emissiveTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
+				fg.emissiveTexture->setElement(0,fg.emissiveColor);
+				tempTextures.push_back(fg.emissiveTexture); // remember it for destruction time
 			}
 			faceGroups.push_back(fg);
 			previousMaterial = material;
@@ -275,6 +293,9 @@ ObjectBuffers::~ObjectBuffers()
 	delete[] anormal;
 	delete[] avertex;
 	delete[] indices;
+
+	// temp 1x1 textures
+	for(unsigned i=0;i<tempTextures.size();i++) delete tempTextures[i];
 }
 
 GLint getBufferNumComponents(rr::RRBuffer* buffer)

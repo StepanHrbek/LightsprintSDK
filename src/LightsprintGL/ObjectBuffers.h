@@ -51,6 +51,9 @@ private:
 	//unsigned texcoordForced2DVBO;
 	//unsigned lightIndirectVcolorVBO;
 
+	// temp 1x1 textures
+	std::vector<rr::RRBuffer*> tempTextures;
+
 	struct FaceGroup
 	{
 		unsigned firstIndex;
@@ -60,7 +63,7 @@ private:
 		rr::RRBuffer* diffuseTexture;
 		rr::RRBuffer* emissiveTexture;
 		rr::RRVec4 diffuseColor; // last component is alpha, 0=transparent
-		rr::RRVec3 emissiveColor;
+		rr::RRVec4 emissiveColor;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
