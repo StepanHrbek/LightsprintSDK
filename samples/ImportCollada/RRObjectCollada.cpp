@@ -175,7 +175,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 						{
 							for(unsigned k=0;k<floatsPerVertex;k++)
 							{
-								unsigned dataIndex = indices[relativeIndex*3+j]*3+k;
+								unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertex+k;
 								if(dataIndex>=dataCount)
 								{
 									LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Out of range indices in Collada file.\n"));
