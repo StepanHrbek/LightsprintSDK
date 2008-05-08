@@ -349,6 +349,38 @@ void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// ImageCache
+
+class ImageCache
+{
+public:
+	RRBuffer* load(fstring filename, const char* cubeSideName[6], bool flipV, bool flipH)
+	{
+		Cache::iterator i = cache.find(filename);
+		if(i!=cache.end())
+		{
+			return i->second;
+		}
+		else
+		{
+			return cache[filename] = RRBuffer::load(filename,cubeSideName,flipV,flipH);
+		}
+	}
+	~ImageCache()
+	{
+		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		{
+			delete i->second;
+		}
+	}
+protected:
+	typedef std::map<fstring,RRBuffer*> Cache;
+	Cache cache;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRObjectCollada
 
 // See RRObject documentation for details
@@ -357,7 +389,7 @@ void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, const char* pathToTextures, bool stripPaths);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, const char* pathToTextures, bool stripPaths, ImageCache* imageCache);
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
@@ -383,8 +415,9 @@ private:
 		rr::RRBuffer*          diffuseTexture;
 		bool                   transparencyInDiffuseTextureAlpha;
 	};
-	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
-	Cache                      cache;
+	typedef std::map<const FCDEffectStandard*,MaterialInfo> MaterialCache;
+	MaterialCache              materialCache;
+	ImageCache*                imageCache;
 	void                       updateMaterials(const char* pathToTextures, bool stripPaths);
 	const MaterialInfo*        getTriangleMaterialInfo(unsigned t) const;
 
@@ -411,11 +444,15 @@ void getNodeMatrices(const FCDSceneNode* node, rr::RRMatrix3x4& worldMatrix, rr:
 			invWorldMatrix.m[i][j] = world.m[j][i];
 }
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, const char* pathToTextures, bool stripPaths)
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, const char* _pathToTextures, bool _stripPaths, ImageCache* _imageCache)
 {
-	node = anode;
-	geometryInstance = ageometryInstance;
-	collider = acollider;
+	RR_ASSERT(_node);
+	RR_ASSERT(_collider);
+	RR_ASSERT(_imageCache);
+	node = _node;
+	geometryInstance = _geometryInstance;
+	collider = _collider;
+	imageCache = _imageCache;
 
 	// create illumination
 	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
@@ -424,7 +461,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	getNodeMatrices(node,worldMatrix,invWorldMatrix);
 
 	// create material cache
-	updateMaterials(pathToTextures,stripPaths);
+	updateMaterials(_pathToTextures,_stripPaths);
 }
 
 void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
@@ -584,8 +621,8 @@ void RRObjectCollada::updateMaterials(const char* pathToTextures, bool stripPath
 			//    and that pointer stays valid for whole RRObject life.
 			// 2) getTriangleMaterial() is const and thread safe,
 			//    so cache can't be filled lazily, it must be filled in constructor.
-			Cache::const_iterator i = cache.find(effectStandard);
-			if(i==cache.end())
+			MaterialCache::const_iterator i = materialCache.find(effectStandard);
+			if(i==materialCache.end())
 			{
 				MaterialInfo mi;
 				mi.material.reset(false); // 1-sided with photons hitting back side deleted
@@ -626,7 +663,7 @@ void RRObjectCollada::updateMaterials(const char* pathToTextures, bool stripPath
 							while(strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
 						}
 						strippedName.insert(0,pathToTextures);
-						mi.diffuseTexture = rr::RRBuffer::load(strippedName.c_str(),NULL);
+						mi.diffuseTexture = imageCache->load(strippedName.c_str(),NULL,false,false);
 						if(mi.diffuseTexture)
 						{
 							// compute average diffuse texture color
@@ -671,7 +708,7 @@ void RRObjectCollada::updateMaterials(const char* pathToTextures, bool stripPath
 #else
 				mi.material.validate();
 #endif
-				cache[effectStandard] = mi;
+				materialCache[effectStandard] = mi;
 			}
 		}
 	}
@@ -725,8 +762,8 @@ const RRObjectCollada::MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(un
 	}
 	const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
 
-	Cache::const_iterator i = cache.find(effectStandard);
-	if(i==cache.end())
+	MaterialCache::const_iterator i = materialCache.find(effectStandard);
+	if(i==materialCache.end())
 	{
 		RR_ASSERT(0);
 		return NULL;
@@ -792,13 +829,14 @@ RRObjectIllumination* RRObjectCollada::getIllumination()
 
 RRObjectCollada::~RRObjectCollada()
 {
-	for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+	for(MaterialCache::iterator i=materialCache.begin();i!=materialCache.end();i++)
 	{
 		// we created it in updateMaterials() and stored in const char* so no one can edit it
 		// now it's time to free it
 		free((char*)(i->second.material.name));
 
-		SAFE_DELETE(i->second.diffuseTexture);
+		// don't delete textures loaded via imageCache
+		//SAFE_DELETE(i->second.diffuseTexture);
 	}
 	delete illumination;
 	// don't delete collider and mesh, we haven't created them
@@ -817,12 +855,13 @@ public:
 
 private:
 	const RRCollider*          newColliderCached(const FCDGeometryMesh* mesh, int lightmapUvChannel);
-	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
-	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths);
+	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths, ImageCache* imageCache);
+	void                       addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths, ImageCache* imageCache);
 
 	// collider and mesh cache, for instancing
-	typedef std::map<const FCDGeometryMesh*,const RRCollider*> Cache;
-	Cache                      cache;
+	typedef std::map<const FCDGeometryMesh*,const RRCollider*> ColliderCache;
+	ColliderCache              colliderCache;
+	ImageCache                 imageCache;
 };
 
 // Creates new RRCollider from FCDGeometryMesh.
@@ -834,20 +873,20 @@ const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* 
 		RR_ASSERT(0);
 		return NULL;
 	}
-	Cache::iterator i = cache.find(mesh);
-	if(i!=cache.end())
+	ColliderCache::iterator i = colliderCache.find(mesh);
+	if(i!=colliderCache.end())
 	{
 		return (*i).second;
 	}
 	else
 	{
-		return cache[mesh] = RRCollider::create(new RRMeshCollada(mesh, lightmapUvChannel),RRCollider::IT_LINEAR);
+		return colliderCache[mesh] = RRCollider::create(new RRMeshCollada(mesh, lightmapUvChannel),RRCollider::IT_LINEAR);
 	}
 }
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders and meshes).
-RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths)
+RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, int lightmapUvChannel, const char* pathToTextures, bool stripPaths, ImageCache* imageCache)
 {
 	if(!geometryInstance)
 	{
@@ -868,11 +907,11 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 	{
 		return NULL;
 	}
-	return new RRObjectCollada(node,geometryInstance,collider,pathToTextures,stripPaths);
+	return new RRObjectCollada(node,geometryInstance,collider,pathToTextures,stripPaths,imageCache);
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths)
+void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChannel, const char* pathToTextures, bool stripPaths, ImageCache* imageCache)
 {
 	if(!node)
 		return;
@@ -883,7 +922,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChanne
 		if(entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
-			RRObjectCollada* object = newObject(node,geometryInstance,lightmapUvChannel,pathToTextures,stripPaths);
+			RRObjectCollada* object = newObject(node,geometryInstance,lightmapUvChannel,pathToTextures,stripPaths,imageCache);
 			if(object)
 			{
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
@@ -896,7 +935,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, int lightmapUvChanne
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(child,lightmapUvChannel,pathToTextures,stripPaths);
+			addNode(child,lightmapUvChannel,pathToTextures,stripPaths,imageCache);
 		}
 	}
 }
@@ -930,7 +969,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	// import data
 	const FCDSceneNode* root = document->GetVisualSceneInstance();
 	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
-	addNode(root,lightmapUvChannel,pathToTextures,stripPaths);
+	addNode(root,lightmapUvChannel,pathToTextures,stripPaths,&imageCache);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
@@ -944,7 +983,7 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 		delete (*this)[i].object;
 	}
 	// delete meshes and colliders (stored in cache)
-	for(Cache::iterator i = cache.begin(); i!=cache.end(); i++)
+	for(ColliderCache::iterator i = colliderCache.begin(); i!=colliderCache.end(); i++)
 	{
 		const RRCollider* collider = (*i).second;
 		delete collider->getMesh();
