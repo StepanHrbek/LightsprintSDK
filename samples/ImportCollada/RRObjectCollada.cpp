@@ -24,15 +24,11 @@
 //
 // 'Up' vector is automatically converted to 0,1,0 (Y positive).
 //
-// Alpha in diffuse textures is interpreted as transparency (0=transparent).
-// (Note: solvers apply transparency properly, however realtime OpenGL renderer ignores it)
-//
 // 'pointDetails' flag that hints solver to use slower per-pixel material path
-// is enabled for diffuse textures with at least 1% transparency on average.
+// is enabled for materials with at least 1% transparency specified by texture.
 
 #if 1 // 0 disables Collada support, 1 enables
 
-#include <cassert>
 #include <cmath>
 #include <map>
 
@@ -139,7 +135,7 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChanne
 
 bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned index, unsigned floatsPerVertexExpected, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
-	assert(itemSize==12*floatsPerVertex);
+	RR_ASSERT(itemSize==12*floatsPerVertexExpected);
 	FCDGeometrySourceConstList sources;
 	mesh->FindSourcesByType(semantic,sources);
 	if(sources.size()<=index)
@@ -163,7 +159,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 			const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
 			if(polygonsInput)
 			{
-				LIMITED_TIMES(10,assert(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
+				LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
 				size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
 				if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 				{
@@ -191,7 +187,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 			}
 		}
 	}
-	assert(0);
+	RR_ASSERT(0);
 	return false;
 }
 
@@ -214,7 +210,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 {
 	if(!itemData)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return false;
 	}
 	switch(channelId)
@@ -385,6 +381,7 @@ private:
 	{
 		RRMaterial             material;
 		rr::RRBuffer*          diffuseTexture;
+		bool                   transparencyInDiffuseTextureAlpha;
 	};
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
 	Cache                      cache;
@@ -449,7 +446,7 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 {
 	if(!itemData)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return false;
 	}
 	switch(channelId)
@@ -458,14 +455,14 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 			{
 			if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 			{
-				assert(0); // legal, but shouldn't happen in well coded program
+				RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef rr::RRBuffer* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return false;
 			}
 			const MaterialInfo* mi = getTriangleMaterialInfo(itemIndex);
@@ -477,14 +474,14 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 			{
 			if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 			{
-				assert(0); // legal, but shouldn't happen in well coded program
+				RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef RRObjectIllumination* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return false;
 			}
 			*out = illumination;
@@ -516,7 +513,7 @@ fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle
 			}
 		}
 	}
-	assert(0);
+	RR_ASSERT(0);
 	return NULL;
 }
 
@@ -614,56 +611,58 @@ void RRObjectCollada::updateMaterials(const char* pathToTextures, bool stripPath
 					case FCDEffectStandard::BLINN:
 						break;
 				}*/
+				const FCDTexture* diffuseTexture = effectStandard->GetTextureCount(FUDaeTextureChannel::DIFFUSE) ? effectStandard->GetTexture(FUDaeTextureChannel::DIFFUSE,0) : NULL;
+				const FCDTexture* transparentTexture = effectStandard->GetTextureCount(FUDaeTextureChannel::TRANSPARENT) ? effectStandard->GetTexture(FUDaeTextureChannel::TRANSPARENT,0) : NULL;
 				mi.diffuseTexture = NULL;
-				if(effectStandard->GetTextureCount(FUDaeTextureChannel::DIFFUSE))
+				mi.transparencyInDiffuseTextureAlpha = false;
+				if(diffuseTexture)
 				{
-					const FCDTexture* diffuseTexture = effectStandard->GetTexture(FUDaeTextureChannel::DIFFUSE,0);
-					if(diffuseTexture)
+					const FCDImage* diffuseImage = diffuseTexture->GetImage();
+					if(diffuseImage)
 					{
-						const FCDImage* diffuseImage = diffuseTexture->GetImage();
-						if(diffuseImage)
+						fstring strippedName = diffuseImage->GetFilename();
+						if(stripPaths)
 						{
-							fstring strippedName = diffuseImage->GetFilename();
-							if(stripPaths)
+							while(strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
+						}
+						strippedName.insert(0,pathToTextures);
+						mi.diffuseTexture = rr::RRBuffer::load(strippedName.c_str(),NULL);
+						if(mi.diffuseTexture)
+						{
+							// compute average diffuse texture color
+							enum {size = 8};
+							rr::RRVec4 avg = rr::RRVec4(0);
+							for(unsigned i=0;i<size;i++)
+								for(unsigned j=0;j<size;j++)
+								{
+									avg += mi.diffuseTexture->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
+								}
+							avg /= size*size;
+							// rgb is diffuse reflectance
+							mi.material.diffuseReflectance = avg;
+							// alpha could be transparency
+							if(transparentTexture && transparentTexture->GetImage()==diffuseTexture->GetImage() && effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
 							{
-								while(strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
-							}
-							strippedName.insert(0,pathToTextures);
-							mi.diffuseTexture = rr::RRBuffer::load(strippedName.c_str(),NULL);
-							if(mi.diffuseTexture)
-							{
-								// compute average diffuse texture color
-								enum {size = 8};
-								rr::RRVec4 avg = rr::RRVec4(0);
-								for(unsigned i=0;i<size;i++)
-									for(unsigned j=0;j<size;j++)
-									{
-										avg += mi.diffuseTexture->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
-									}
-								avg /= size*size;
-								// rgb is diffuse reflectance
-								mi.material.diffuseReflectance = avg;
-								// alpha is transparency
+								mi.transparencyInDiffuseTextureAlpha = true;
 								mi.material.specularTransmittance = rr::RRVec3(1-avg[3]);
-
+								if(effectStandard->GetTranslucencyFactor()!=1)
+									LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
 								// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
 								// It makes calculation much slower, so enable it only when necessary.
 								// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
-								// Here, for simplicity, we enable it for textures with at least 1% transparency.
+								// Here, for simplicity, we enable it for textures with at least 1% transparency in texture.
 								if(mi.material.specularTransmittance.avg()>0.01f)
 									mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 							}
 						}
 					}
 				}
-				if(!mi.diffuseTexture)
+				if(transparentTexture && !mi.transparencyInDiffuseTextureAlpha)
 				{
-					// add 1x1 diffuse texture
-					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
-					// not necessary for other renderers
-					#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
-					unsigned char color[4] = {FLOAT2BYTE(mi.material.diffuseReflectance[0]),FLOAT2BYTE(mi.material.diffuseReflectance[1]),FLOAT2BYTE(mi.material.diffuseReflectance[2]),0};
-					mi.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,color);
+					if(transparentTexture->GetImage()==diffuseTexture->GetImage())
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"RGB tranparency texture ignored by Collada adapter.\n"))
+					else
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Tranparency texture other than diffuse texture ignored by Collada adapter.\n"));
 				}
 				mi.material.name = _strdup(effect->GetName().c_str());
 #ifdef VERIFY
@@ -729,7 +728,7 @@ const RRObjectCollada::MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(un
 	Cache::const_iterator i = cache.find(effectStandard);
 	if(i==cache.end())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return NULL;
 	}
 	return &i->second;
@@ -763,13 +762,17 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
 	uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 	// getting pixel from texture
+	RR_ASSERT(materialInfo->diffuseTexture);
 	RRVec4 rgba = materialInfo->diffuseTexture->getElement(RRVec3(uv[0],uv[1],0));
 	// diffuse color
 	out.diffuseReflectance = rgba;
 	// alpha/transparency
-	out.specularTransmittance = rr::RRVec3(1-rgba[3]);
-	if(rgba[3]==0)
-		out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	if(materialInfo->transparencyInDiffuseTextureAlpha)
+	{
+		out.specularTransmittance = rr::RRVec3(1-rgba[3]);
+		if(rgba[3]==0)
+			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	}
 }
 
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()
@@ -828,7 +831,7 @@ const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* 
 {
 	if(!mesh)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return NULL;
 	}
 	Cache::iterator i = cache.find(mesh);
