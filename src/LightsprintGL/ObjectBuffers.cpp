@@ -502,7 +502,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	}
 	// render facegroups (facegroups differ by material)
 	if(params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
-		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP
+		|| params.renderedChannels.MATERIAL_TRANSPARENT || params.renderedChannels.MATERIAL_CULLING)
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
@@ -530,7 +531,6 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// set blending
 				if(params.renderedChannels.MATERIAL_TRANSPARENT)
 				{
-					RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 					bool transparency = faceGroups[fg].diffuseColor[3]<1;
 					if(transparency!=blendEnabled || !blendKnown)
 					{

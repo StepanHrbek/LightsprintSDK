@@ -122,8 +122,8 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_VCOLOR = uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.MATERIAL_CULLING = (uberProgramSetup.MATERIAL_DIFFUSE || uberProgramSetup.MATERIAL_SPECULAR) && !uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
-	renderedChannels.MATERIAL_TRANSPARENT = (renderedChannels.MATERIAL_DIFFUSE_CONST || renderedChannels.MATERIAL_DIFFUSE_VCOLOR || renderedChannels.MATERIAL_DIFFUSE_MAP); // alpha is passed only as part of diffuse color
+	renderedChannels.MATERIAL_TRANSPARENT = uberProgramSetup.MATERIAL_TRANSPARENT;
+	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 
 	outUberProgramSetup = uberProgramSetup;

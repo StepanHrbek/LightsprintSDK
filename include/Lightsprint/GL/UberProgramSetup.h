@@ -88,6 +88,8 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_EMISSIVE_MAP     :1; ///< Enables material's emission stored in sRGB map.
 
 	bool     MATERIAL_NORMAL_MAP       :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
+	bool     MATERIAL_TRANSPARENT      :1; ///< Enables materials's specular transmittance (alpha test is enabled/disabled according to material, no change in shader).
+	bool     MATERIAL_CULLING          :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).
 
 	bool     ANIMATION_WAVE            :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
 	bool     POSTPROCESS_NORMALS       :1; ///< Renders normal values instead of colors.
@@ -104,6 +106,8 @@ struct RR_GL_API UberProgramSetup
 	{
 		memset(this,0,sizeof(*this));
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = true; // this doesn't turn on LIGHT_INDIRECT_VCOLOR, but if YOU turn it on, it will be in physical scale rather than custom
+		MATERIAL_TRANSPARENT = true;
+		MATERIAL_CULLING = true;
 	}
 
 	//! Returns our attribute values in format suitable for our uberprogram.
