@@ -528,7 +528,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				}
 
 				// set blending
-				if(params.renderedChannels.MATERIAL_BLENDING)
+				if(params.renderedChannels.MATERIAL_TRANSPARENT)
 				{
 					RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 					bool transparency = faceGroups[fg].diffuseColor[3]<1;

@@ -336,7 +336,7 @@ void RendererOfRRObject::render()
 					}
 
 					// blending
-					if(params.renderedChannels.MATERIAL_BLENDING)
+					if(params.renderedChannels.MATERIAL_TRANSPARENT)
 					{
 						if(begun)
 						{
