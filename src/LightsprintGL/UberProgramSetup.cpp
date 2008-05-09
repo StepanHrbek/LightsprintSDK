@@ -431,7 +431,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	if(MATERIAL_EMISSIVE_CONST)
 	{
 		// set default value, caller may override it by additional sendUniform call
-		program->sendUniform("materialEmissiveConst",1.0f,1.0f,1.0f,1.0f);
+		program->sendUniform("materialEmissiveConst",1.0f,1.0f,1.0f,0.0f);
 	}
 
 	if(MATERIAL_EMISSIVE_MAP)

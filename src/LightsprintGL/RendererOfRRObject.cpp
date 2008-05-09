@@ -345,9 +345,17 @@ void RendererOfRRObject::render()
 						}
 						RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 						if(material && material->specularTransmittance.avg())
-							glEnable(GL_BLEND);
+						{
+							// current blendfunc is used, caller is responsible for setting it
+//							glEnable(GL_BLEND);
+							// current alpha func+ref is used, caller is responsible for setting it
+							glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
+						}
 						else
-							glDisable(GL_BLEND);
+						{
+//							glDisable(GL_BLEND);
+							glDisable(GL_ALPHA_TEST);
+						}
 					}
 
 					// material diffuse color

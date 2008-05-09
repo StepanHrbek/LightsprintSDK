@@ -344,7 +344,7 @@ void main()
 
 			#ifdef MATERIAL_DIFFUSE
 				#ifdef MATERIAL_DIFFUSE_X2
-					2 *
+					vec4(2.0,2.0,2.0,1.0) *
 				#endif
 				#ifdef MATERIAL_DIFFUSE_CONST
 					materialDiffuseConst *
@@ -358,7 +358,7 @@ void main()
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialDiffuseReflectance *
 				#endif
-				( 
+				vec4(( 
 					#ifdef LIGHT_DIRECT
 						lightDirect
 					#endif
@@ -379,7 +379,7 @@ void main()
 					#ifdef LIGHT_INDIRECT_ENV
 						+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
 					#endif
-				)
+				).rgb,1.0)
 			#endif
 
 
@@ -401,7 +401,7 @@ void main()
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialSpecularReflectance *
 				#endif
-				(
+				vec4((
 					#ifdef LIGHT_DIRECT
 						+ pow(max(0.0,dot(worldLightDirToPixel,normalize(worldViewReflected))),10.0)*2.0
 						* lightDirect
@@ -412,7 +412,7 @@ void main()
 					#ifdef LIGHT_INDIRECT_ENV
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
 					#endif
-				)
+				).rgb,1.0)
 			#endif
 
 
@@ -432,16 +432,16 @@ void main()
 			;
 
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
-			gl_FragColor *= 0.5;
+			gl_FragColor.rgb *= 0.5;
 		#endif
 		#ifdef POSTPROCESS_NORMALS
 			gl_FragColor.rgb = abs(worldNormalSmooth);
 		#endif
 		#ifdef POSTPROCESS_BRIGHTNESS
-			gl_FragColor *= postprocessBrightness;
+			gl_FragColor.rgb *= postprocessBrightness.rgb;
 		#endif
 		#ifdef POSTPROCESS_GAMMA
-			gl_FragColor = pow(gl_FragColor,vec4(postprocessGamma,postprocessGamma,postprocessGamma,postprocessGamma));
+			gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
 		#endif
 		#ifdef POSTPROCESS_BIGSCREEN
 			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));

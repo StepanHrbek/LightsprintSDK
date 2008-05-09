@@ -536,12 +536,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					{
 						if(transparency)
 						{
-							glEnable(GL_BLEND);
 							// current blendfunc is used, caller is responsible for setting it
+//							glEnable(GL_BLEND);
+							// current alpha func+ref is used, caller is responsible for setting it
+							glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
 						}
 						else
 						{
-							glDisable(GL_BLEND);
+//							glDisable(GL_BLEND);
+							glDisable(GL_ALPHA_TEST);
 						}
 						blendKnown = true;
 						blendEnabled = transparency;
