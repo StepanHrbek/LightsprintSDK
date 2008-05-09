@@ -684,7 +684,16 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	for(int i=0;space[i];i++) pn++;
 
 	// alloc node
-	BSP_TREE *t=new_node();
+	BSP_TREE *t=NULL;
+	try
+	{
+		t=new_node();
+	}
+	catch(...)
+	{
+		RRReporter::report(ERRO,"Not enough memory to build collider.\n");
+		return NULL;
+	}
 	memset(t,0,sizeof(BSP_TREE));
 
 	// select splitting plane
