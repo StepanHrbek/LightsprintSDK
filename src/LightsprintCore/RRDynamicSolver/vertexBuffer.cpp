@@ -107,8 +107,10 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 		multiMesh->getTriangle(postImportMultiTriangle,postImportMultiTriangleVertices);
 		for(unsigned v=0;v<3;v++)
 		{
-			// fir multiobject
-			priv->preVertex2Ivertex[0][postImportMultiTriangle*3+v] = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
+			// for multiobject
+			const RRVec3* irrad = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
+			if(irrad)
+				priv->preVertex2Ivertex[0][postImportMultiTriangle*3+v] = irrad;
 			// for singleobjects
 			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
 			if(postImportMultiVertex<numPostImportMultiVertices)
