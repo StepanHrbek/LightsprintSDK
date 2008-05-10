@@ -74,6 +74,10 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 // prepare lookup tables preImportVertex -> Ivertex for multiobject and for all singleobjects
 {
+	// table changes only after setStaticObjects
+	// setStaticObjects clears it, so if it's not empty, it's already up to date
+	if(!priv->preVertex2Ivertex.empty()) return;
+
 	RRReportInterval reportProp(INF3,"Updating fireball lookup table...\n");
 	if(!priv->packedSolver || !getMultiObjectPhysical())
 	{
@@ -86,9 +90,8 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 
 	// allocate and clear table
 	static RRVec3 pink(1,0,1); // pink = preimport vertices without ivertex
-	RR_ASSERT(priv->preVertex2Ivertex.empty()); // full clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
 	priv->preVertex2Ivertex.resize(1+priv->objects.size());
-	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
+	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink); // full clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
 	for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 	{
 		priv->preVertex2Ivertex[1+objectHandle].resize(getIllumination(objectHandle) ? getIllumination(objectHandle)->getNumPreImportVertices() : 0,&pink);
