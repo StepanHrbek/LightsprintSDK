@@ -753,6 +753,9 @@ namespace rr
 		//!  True if successful.
 		bool loadFireball(const char* filename);
 
+		//! Switch to non-Fireball solver that supports offline calculations.
+		void leaveFireball();
+
 		//! Verifies data in solver and reports problems found using RRReporter.
 		//
 		//! While all precomputed lighting and cheap-to-detect realtime lighting problems

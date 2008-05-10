@@ -274,10 +274,15 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
-		if(priv->scene)
-			RRReporter::report(WARN,"Fireball set, but solver already exists. Don't call calculate() before loadFireball() to save memory and time.\n");
+		SAFE_DELETE(priv->scene);
 	}
 	return priv->packedSolver!=NULL;
+}
+
+void RRDynamicSolver::leaveFireball()
+{
+	SAFE_DELETE(priv->packedSolver);
+	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 }
 
 } // namespace
