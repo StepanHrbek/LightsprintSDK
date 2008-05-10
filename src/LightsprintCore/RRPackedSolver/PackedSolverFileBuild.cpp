@@ -249,6 +249,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	{
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
+		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
 		SAFE_DELETE(priv->scene);
 	}
 	return priv->packedSolver!=NULL;
@@ -272,6 +273,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
+		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
 		if(priv->scene)
 			RRReporter::report(WARN,"Fireball set, but solver already exists. Don't call calculate() before loadFireball() to save memory and time.\n");
 	}
