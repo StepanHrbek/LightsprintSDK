@@ -19,7 +19,12 @@ namespace rr
 
 void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex012] for all objects
+// depends on static objects (needs update when they change)
 {
+	// table depends only on static scene
+	// setStaticObjects() clears it, so if it's not empty, it's already up to date
+	if(!priv->preVertex2PostTriangleVertex.empty()) return;
+
 	RRReportInterval reportProp(INF3,"Updating vertex lookup table...\n");
 	if(!getMultiObjectPhysical())
 	{
@@ -27,7 +32,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 		return;
 	}
 	// allocate and clear table
-	RR_ASSERT(priv->preVertex2PostTriangleVertex.empty()); // full clear to UNDEFINED. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
+	// (_full_ clear to UNDEFINED. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles))
 	priv->preVertex2PostTriangleVertex.resize(priv->objects.size());
 	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
@@ -73,11 +78,8 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 
 void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 // prepare lookup tables preImportVertex -> Ivertex for multiobject and for all singleobjects
+// depends on static objects and packedSolver (needs update when they change)
 {
-	// table changes only after setStaticObjects
-	// setStaticObjects clears it, so if it's not empty, it's already up to date
-	if(!priv->preVertex2Ivertex.empty()) return;
-
 	RRReportInterval reportProp(INF3,"Updating fireball lookup table...\n");
 	if(!priv->packedSolver || !getMultiObjectPhysical())
 	{
@@ -90,8 +92,9 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 
 	// allocate and clear table
 	static RRVec3 pink(1,0,1); // pink = preimport vertices without ivertex
+	RR_ASSERT(priv->preVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
 	priv->preVertex2Ivertex.resize(1+priv->objects.size());
-	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink); // full clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
+	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
 	for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 	{
 		priv->preVertex2Ivertex[1+objectHandle].resize(getIllumination(objectHandle) ? getIllumination(objectHandle)->getNumPreImportVertices() : 0,&pink);

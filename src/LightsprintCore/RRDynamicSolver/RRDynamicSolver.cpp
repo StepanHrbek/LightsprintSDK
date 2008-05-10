@@ -94,14 +94,10 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 	priv->objects = _objects;
 	priv->smoothing = _smoothing ? *_smoothing : SmoothingParameters();
-	priv->dirtyStaticSolver = true;
 
 	// delete old
 
 	priv->deleteScene();
-	// clear old values (code that fills tables needs them empty)
-	priv->preVertex2PostTriangleVertex.clear();
-	priv->preVertex2Ivertex.clear();
 
 	// create new
 
@@ -317,7 +313,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		dirtyFactors = true;
 		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
-	if(priv->dirtyStaticSolver
+	if(!priv->scene
 		&& !priv->packedSolver
 		)
 	{
@@ -326,7 +322,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		// create new
 		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
-		if(!aborting) priv->dirtyStaticSolver = false; // this is fundamental structure, so when aborted, don't clear dirty, try to create it next time
+		if(aborting) SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
 	if(dirtyFactors)
 	{

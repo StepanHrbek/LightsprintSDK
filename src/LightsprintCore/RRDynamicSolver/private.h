@@ -48,7 +48,6 @@ namespace rr
 		// calculate
 		bool       dirtyCustomIrradiance;
 		bool       dirtyMaterials;
-		bool       dirtyStaticSolver;
 		bool       dirtyResults;
 		TIME       lastInteractionTime;
 		TIME       lastCalcEndTime;
@@ -63,8 +62,8 @@ namespace rr
 
 		// read results
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
-		std::vector<std::vector<TriangleVertexPair> > preVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver
-		std::vector<std::vector<const RRVec3*> > preVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject.
+		std::vector<std::vector<TriangleVertexPair> > preVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver. depends on static objects, must be updated when they change
+		std::vector<std::vector<const RRVec3*> > preVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject. depends on static objects and packed solver, must be updated when they change
 
 		Private()
 		{
@@ -93,7 +92,6 @@ namespace rr
 			scene = NULL;
 			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
-			dirtyStaticSolver = true;
 			dirtyResults = true;
 			lastInteractionTime = 0;
 			lastCalcEndTime = 0;
@@ -122,6 +120,9 @@ namespace rr
 			// 3. both -> don't delete 
 			SAFE_DELETE(multiObjectCustom);
 			SAFE_DELETE(multiObjectPhysical);
+			// clear tables that depend on scene (code that fills tables needs them empty)
+			preVertex2PostTriangleVertex.clear();
+			preVertex2Ivertex.clear();
 		}
 	};
 
