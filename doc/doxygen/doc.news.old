@@ -8,6 +8,35 @@ namespace rr
 
 \page main_news What's new
 
+\section news49 ------------------------------------ 2008.2.20 -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::aborting
+  \n lets you abort running calculation
+- rr_gl::updateLightmapsWithDialog()
+  \n enhanced RRDynamicSolver::updateLightmaps(), with abort button, adjustable quality, log, scene viewer
+
+\section news48 ------------------------------------ 2008.2.17 -------------------------------------
+
+CHANGES
+
+- LightsprintCore doesn't depend on FreeImage
+  \n To load textures using FreeImage, include samples/Import/ImportFreeImage.cpp in your project.
+
+\section news47 ------------------------------------ 2008.2.7 -------------------------------------
+
+NEWS
+
+- non-fireball solvers use 2x less memory
+- non-fireball solvers initialize faster (1000x faster in scene with 6000 meshes)
+
+\section news46 ------------------------------------ 2008.1.28 -------------------------------------
+
+NEWS
+
+- lightmap building is 10x faster
+
 \section news45 ------------------------------------ 2008.1.21 -------------------------------------
 
 NEWS
