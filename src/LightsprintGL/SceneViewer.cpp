@@ -60,6 +60,7 @@ static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
 static bool                       renderWireframe = 0;
 static bool                       renderHelpers = 1;
+static bool                       fireballLoadAttempted = 1;
 static float                      speedGlobal = 2; // speed of movement controlled by user
 static float                      speedForward = 0;
 static float                      speedBack = 0;
@@ -189,8 +190,7 @@ public:
 
 		// Static lighting...
 		int staticHandle = glutCreateMenu(staticCallback);
-		glutAddMenuEntry("Render realtime lighting", ME_STATIC_RTGI);
-		glutAddMenuEntry("       static lighting", ME_STATIC_3D);
+		glutAddMenuEntry("Render static lighting", ME_STATIC_3D);
 		glutAddMenuEntry("       static lighting in 2D", ME_STATIC_2D);
 		glutAddMenuEntry("Toggle bilinear interpolation", ME_STATIC_BILINEAR);
 		glutAddMenuEntry("Assign empty vertex buffers",0);
@@ -212,6 +212,14 @@ public:
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
+		// Fireball
+		int fireballHandle = glutCreateMenu(fireballCallback);
+		glutAddMenuEntry("Render realtime lighting", ME_REALTIME_RTGI);
+		glutAddMenuEntry("Build fireball, quality 10", 10);
+		glutAddMenuEntry("                quality 100", 100);
+		glutAddMenuEntry("                quality 1000", 1000);
+		glutAddMenuEntry("                quality 10000", 10000);
+
 		// Movement speed...
 		int speedHandle = glutCreateMenu(speedCallback);
 		glutAddMenuEntry("0.001 m/s", 1);
@@ -232,6 +240,7 @@ public:
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
+		glutAddSubMenu("Realtime lighting...", fireballHandle);
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
@@ -245,6 +254,7 @@ public:
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
 		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
+		glutAddMenuEntry("Log solver status",ME_VERIFY);
 		glutAddMenuEntry("Quit", ME_CLOSE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
@@ -297,6 +307,7 @@ public:
 					speedGlobal = (maxi-mini).sum()*0.1f;
 				}
 				break;
+			case ME_VERIFY: solver->verify(); break;
 			case ME_CLOSE: exitRequested = 1; break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
@@ -312,11 +323,6 @@ public:
 	{
 		switch(item)
 		{
-			case ME_STATIC_RTGI:
-				renderRealtime = 1;
-				render2d = 0;
-				solver->dirtyLights();
-				break;
 			case ME_STATIC_3D:
 				renderRealtime = 0;
 				render2d = 0;
@@ -349,6 +355,8 @@ public:
 			case ME_STATIC_BUILD1:
 				{
 					// calculate 1 object, direct lighting
+					solver->leaveFireball();
+					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(1000);
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
@@ -369,6 +377,8 @@ public:
 				{
 					if(centerObject!=UINT_MAX)
 					{
+						solver->leaveFireball();
+						fireballLoadAttempted = false;
 						rr::RRDynamicSolver::UpdateParameters params(item+1-ME_STATIC_DIAGNOSE1);
 						params.debugObject = centerObject;
 						params.debugTexel = centerTexel;
@@ -384,6 +394,8 @@ public:
 				if(item>0)
 				{
 					// calculate all
+					solver->leaveFireball();
+					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(item);
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
@@ -420,6 +432,26 @@ public:
 		// leaving menu, mouse is not in the screen center -> center it
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
+	static void fireballCallback(int item)
+	{
+		switch(item)
+		{
+			case ME_REALTIME_RTGI:
+				renderRealtime = 1;
+				render2d = 0;
+				solver->dirtyLights();
+				if(!fireballLoadAttempted) 
+				{
+					fireballLoadAttempted = true;
+					solver->loadFireball(NULL);
+				}
+				break;
+			default:
+				solver->buildFireball(item,NULL);
+				break;
+		}
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+	}
 	static void speedCallback(int item)
 	{
 		speedGlobal = item/1000.f;
@@ -454,8 +486,9 @@ public:
 		ME_ENV_BLACK,
 		ME_ENV_WHITE_TOP,
 		ME_RANDOM_CAMERA,
-		// ME_STATIC must not collide with 1,10,100,1000
-		ME_STATIC_RTGI = 1234,
+		ME_VERIFY,
+		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
+		ME_REALTIME_RTGI = 1234,
 		ME_STATIC_3D,
 		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
@@ -1090,7 +1123,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->setStaticObjects(_solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,_solver->getMultiObjectCustom());
 	solver->setLights(_solver->getLights());
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
-	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
+	fireballLoadAttempted = 1;
 
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);
