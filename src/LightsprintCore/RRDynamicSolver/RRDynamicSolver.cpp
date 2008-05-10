@@ -550,6 +550,11 @@ void RRDynamicSolver::verify()
 		return;
 	}
 
+	if(!priv->scene&&priv->packedSolver) RRReporter::report(INF1,"  Solver type: fireball(for games)\n"); else
+		if(priv->scene&&!priv->packedSolver) RRReporter::report(INF1,"  Solver type: architect(not for games)\n"); else
+		if(!priv->scene&&!priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n"); else
+		if(priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: none\n");
+
 	// boost
 	if(priv->boostCustomIrradiance<=0.1f || priv->boostCustomIrradiance>=10)
 	{
