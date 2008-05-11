@@ -1,14 +1,10 @@
 // --------------------------------------------------------------------------
 // Lightmaps sample
 //
-// This is a viewer of Collada .DAE scenes
-// with realtime global illumination from 1 area light
-// and ability to precompute/render/save/load
-// higher quality texture or vertex based illumination
-// from
-// - skybox
-// - arbitrary point/spot/dir lights
-// - 1 realtime area light
+// Shows differences between realtime and precomputed global illumination.
+// At the beginning, GI is fully realtime computed (using architect solver).
+// You can freely move light. After pressing 'p', sample switches to fully 
+// precomputed GI (using lightmaps and lightfield).
 //
 // Unlimited options:
 // - Ambient maps (indirect illumination) are precomputed here,
@@ -29,7 +25,7 @@
 //  arrows = move around
 //  left button = switch between camera and light
 //  spacebar = toggle realtime vertex ambient and static ambient maps
-//  p = Precompute higher quality static maps
+//  p = Precompute higher quality static maps + lightfield
 //      alt-tab to console to see progress (takes seconds to minutes)
 //  s = Save maps to disk (alt-tab to console to see filenames)
 //  l = Load maps from disk, stop realtime global illumination
@@ -84,6 +80,7 @@ rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0
 rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
+const rr::RRLightField*    lightField = NULL;
 rr_gl::RendererOfScene*    rendererOfScene = NULL;
 DynamicObject*             robot = NULL;
 DynamicObject*             potato = NULL;
@@ -94,7 +91,7 @@ float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
-bool                       realtimeIllumination = true;
+bool                       realtimeIllumination = true; // true = fully realtime computed GI, no precalcs; false = precomputed lightmaps+lightfield
 bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(1);
 float                      gamma = 1;
@@ -130,7 +127,18 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		robot->rotYZ = rr::RRVec2(rotation,0);
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_auto)
-			solver->updateEnvironmentMap(robot->illumination);
+		{
+			if(realtimeIllumination)
+				solver->updateEnvironmentMap(robot->illumination);
+			else
+			if(lightField)
+			{
+				// update texture in CPU memory
+				lightField->updateEnvironmentMap(robot->illumination);
+				// copy it to GPU memory
+				rr_gl::getTexture(potato->illumination->specularEnvMap,false)->reset(false);
+			}
+		}
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
 	if(potato)
@@ -139,7 +147,19 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_auto)
-			solver->updateEnvironmentMap(potato->illumination);
+		{
+			if(realtimeIllumination)
+				solver->updateEnvironmentMap(potato->illumination);
+			else
+			if(lightField)
+			{
+				// update texture in CPU memory
+				lightField->updateEnvironmentMap(potato->illumination);
+				// copy it to GPU memory
+				rr_gl::getTexture(potato->illumination->diffuseEnvMap,false)->reset(false);
+				rr_gl::getTexture(potato->illumination->specularEnvMap,false)->reset(false);
+			}
+		}
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
 }
@@ -269,6 +289,12 @@ void keyboard(unsigned char c, int x, int y)
 				// update vertex buffers too, for comparison with pixel buffers
 				solver->updateLightmaps(1,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 
+				// update lightfield
+				rr::RRVec3 aabbMin,aabbMax;
+				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				delete lightField;
+				lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+
 				// start rendering computed maps
 				ambientMapsRender = true;
 				realtimeIllumination = false;
@@ -279,12 +305,16 @@ void keyboard(unsigned char c, int x, int y)
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
 			solver->getStaticObjects().saveIllumination("../../data/export/",2);
+			if(lightField)
+				lightField->save("../../data/export/lightfield.lf");
 			break;
 
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
 				solver->getStaticObjects().loadIllumination("../../data/export/",2);
+				delete lightField;
+				lightField = rr::RRLightField::load("../../data/export/lightfield.lf");
 				// start rendering loaded maps
 				ambientMapsRender = true;
 				realtimeIllumination = false;

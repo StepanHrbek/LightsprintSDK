@@ -82,9 +82,12 @@
 	varying vec4 shadowCoord[SHADOW_MAPS];
 #endif
 
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV))
+	uniform vec3 worldEyePos;
+#endif
+
 #ifdef LIGHT_DIRECT
 	uniform vec3 worldLightPos;
-	uniform vec3 worldEyePos;
 	#ifndef MATERIAL_NORMAL_MAP
 		varying float lightDirectVColor;
 	#endif

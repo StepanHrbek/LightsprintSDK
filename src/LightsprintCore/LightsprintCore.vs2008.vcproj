@@ -1134,6 +1134,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RRLightField.cpp"
+				>
+			</File>
+			<File
 				RelativePath="RRObjectIllumination.cpp"
 				>
 				<FileConfiguration

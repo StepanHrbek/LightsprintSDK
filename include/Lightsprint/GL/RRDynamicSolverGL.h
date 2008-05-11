@@ -76,6 +76,8 @@ namespace rr_gl
 		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
 		//! Inited to false, you may freely change it.
 		bool honourExpensiveLightingShadowingFlags;
+		//! Users can reuse our uberprogram for their own rendering.
+		UberProgram* getUberProgram() {return uberProgram1;}
 	protected:
 		//! Detects direct illumination from lights (see setLights()) on all faces in scene and returns it in array of RGBA values.
 		//! Result may be immediately passed to setDirectIllumination().

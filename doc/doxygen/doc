@@ -2387,12 +2387,13 @@ Used by some samples:
  <hr>
  <b>Lightmaps</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/Lightmaps_1.jpg realtime GI, move light
+  \image html samples/Lightmaps_1.jpg realtime GI = fully dynamic
   </td><td>
-  \image html samples/Lightmaps_2.jpg precomputed quality (p pressed)
+  \image html samples/Lightmaps_2.jpg lightmaps + lightfield = faster
   </td></tr></table>
- - like RealtimeRadiosity, but computes lightmaps on request, see better shadows on right image
- - for analyzing errors of realtime lighting
+ - demonstrates differences between realtime and precomputed lighting
+ - starts with fully realtime GI (both lights and objects dynamic)
+ - after pressing 'p', switches to lightmaps+lightfield (faster, but light is static)
 
  <hr>
  <b>PenumbraShadows</b>

@@ -81,6 +81,11 @@ static unsigned                   centerObject = UINT_MAX; // object in the midd
 static unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
 static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
 
+// all we need for testing lightfield
+static const rr::RRLightField*    lightField = NULL;
+static GLUquadricObj*             lightFieldQuadric = NULL;
+static rr::RRObjectIllumination*  lightFieldObjectIllumination = NULL;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -209,6 +214,7 @@ public:
 		glutAddMenuEntry("                quality 100", ME_STATIC_DIAGNOSE100);
 		glutAddMenuEntry("                quality 1000", ME_STATIC_DIAGNOSE1000);
 #endif
+		glutAddMenuEntry("Build lightfield",ME_STATIC_BUILD_LIGHTFIELD);
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
@@ -351,6 +357,14 @@ public:
 				break;
 			case ME_STATIC_SAVE:
 				solver->getStaticObjects().saveIllumination("",layerNumber);
+				break;
+			case ME_STATIC_BUILD_LIGHTFIELD:
+				{
+					rr::RRVec3 aabbMin,aabbMax;
+					solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+					delete lightField;
+					lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+				}
 				break;
 			case ME_STATIC_BUILD1:
 				{
@@ -501,6 +515,7 @@ public:
 #endif
 		ME_STATIC_LOAD,
 		ME_STATIC_SAVE,
+		ME_STATIC_BUILD_LIGHTFIELD,
 	};
 };
 
@@ -730,6 +745,47 @@ static void display(void)
 
 		if(renderHelpers)
 		{
+			// render light field
+			if(lightField)
+			{
+				// update cube
+				lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(eye.pos[0]+eye.dir[0],eye.pos[1]+eye.dir[1],eye.pos[2]+eye.dir[2]);
+				rr::RRVec2 sphereShift = rr::RRVec2(eye.dir[2],-eye.dir[0]).normalized()*0.05f;
+				lightField->updateEnvironmentMap(lightFieldObjectIllumination);
+
+				// diffuse
+				// set shader (no direct light)
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+				uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
+				uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
+				uberProgramSetup.MATERIAL_DIFFUSE = true;
+				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&brightness,gamma);
+				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false)->reset(false);
+				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false)->bindTexture();
+				// render
+				glPushMatrix();
+				glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
+				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
+				glPopMatrix();
+
+				// specular
+				// set shader (no direct light)
+				uberProgramSetup.MATERIAL_DIFFUSE = false;
+				uberProgramSetup.MATERIAL_SPECULAR = true;
+				uberProgramSetup.OBJECT_SPACE = true;
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&brightness,gamma);
+				program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+				getTexture(lightFieldObjectIllumination->specularEnvMap,false)->reset(false);
+				getTexture(lightFieldObjectIllumination->specularEnvMap,false)->bindTexture();
+				// render
+				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
+				program->sendUniform("worldMatrix",worldMatrix,false,4);
+				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
+			}
+
 			// render light frames
 			solver->renderLights();
 
@@ -1133,6 +1189,10 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	ourEnv = 0;
 	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
 	if(selectedObjectIndex>=solver->getNumObjects()) selectedObjectIndex = 0;
+	lightFieldQuadric = gluNewQuadric();
+	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
+	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
+	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 
 	// run
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -1183,6 +1243,10 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		delete solver->getEnvironment();
 	SAFE_DELETE(solver);
 	SAFE_DELETE(lv);
+	SAFE_DELETE(lightField);
+	SAFE_DELETE(lightFieldObjectIllumination);
+	gluDeleteQuadric(lightFieldQuadric);
+	lightFieldQuadric = NULL;
 }
 
 }; // namespace

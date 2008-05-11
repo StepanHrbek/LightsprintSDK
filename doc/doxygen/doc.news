@@ -8,13 +8,22 @@ namespace rr
 
 \page main_news What's new
 
+\section news57 ------------------------------------ 2008.5.x -------------------------------------
+
+NEWS
+
+- RRLightField
+  \n new structure for fast GI with dynamic objects and static lights
+  \n demonstrated in sample Lightmaps, see \ref samples_gl
+- RRDynamicSolver::leaveFireball() switches back from game to architect solver
+- improved rr_gl::sceneViewer() (optional Fireball, LightField)
+
 \section news56 ------------------------------------ 2008.5.9 -------------------------------------
 
 NEWS
 
 - improved Collada import (transparency, image cache)
 - improved rr_gl::sceneViewer() (textures, transparency)
-- RRDynamicSolver::leaveFireball() switches back from game to architect solver
 
 \section news55 ------------------------------------ 2008.5.2 -------------------------------------
 
