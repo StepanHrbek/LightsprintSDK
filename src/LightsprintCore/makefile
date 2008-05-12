@@ -16,7 +16,7 @@ else
 	CPPFLAGS += -fopenmp
 endif
 
-OBJS  = $(TMP)RRLight.o $(TMP)RRMemory.o $(TMP)RRObjectIllumination.o $(TMP)RRReporter.o
+OBJS  = $(TMP)RRLight.o $(TMP)RRMemory.o $(TMP)RRLightField.o $(TMP)RRObjectIllumination.o $(TMP)RRReporter.o
 OBJS += $(TMP)RRBuffer/RRBuffer.o $(TMP)RRBuffer/RRBufferInMemory.o
 OBJS += $(TMP)RRCollider/bsp.o $(TMP)RRCollider/cache.o $(TMP)RRCollider/fpcube.o $(TMP)RRCollider/geometry.o $(TMP)RRCollider/IntersectBspCompact.o $(TMP)RRCollider/IntersectBspFast.o $(TMP)RRCollider/IntersectLinear.o $(TMP)RRCollider/IntersectVerification.o $(TMP)RRCollider/pcube.o $(TMP)RRCollider/RRCollider.o $(TMP)RRCollider/RRRay.o $(TMP)RRCollider/sha1.o
 OBJS += $(TMP)RRDynamicSolver/environmentMap.o $(TMP)RRDynamicSolver/gather.o $(TMP)RRDynamicSolver/Interpolator.o $(TMP)RRDynamicSolver/lightmap.o $(TMP)RRDynamicSolver/LightmapFilter.o $(TMP)RRDynamicSolver/RRDynamicSolver.o $(TMP)RRDynamicSolver/vertexBuffer.o
