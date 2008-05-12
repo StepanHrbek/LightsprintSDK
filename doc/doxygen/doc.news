@@ -19,6 +19,7 @@ NEWS
   \n automatically used by rr_gl::RRDynamicSolverGL for higher quality directional lights
 - RRDynamicSolver::leaveFireball() switches back from game to architect solver
 - improved rr_gl::sceneViewer() (optional Fireball, LightField)
+- Fireball size limit relaxed to 4 billion triangles
 
 \section news56 ------------------------------------ 2008.5.9 -------------------------------------
 

@@ -12,8 +12,8 @@
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
 
-#define FIREBALL_STRUCTURE_VERSION 4 // change when file structere changes, old files will be overwritten
-#define FIREBALL_FILENAME_VERSION  1 // change when file structere changes, old files will be preserved
+#define FIREBALL_STRUCTURE_VERSION 5 // change when file structere changes, old files will be overwritten
+#define FIREBALL_FILENAME_VERSION  2 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
 #include "RRPackedSolver.h" // THREADED_BEST, RRObject
@@ -135,6 +135,7 @@ protected:
 //
 // form faktor
 
+/*
 // 50% memory, 102% speed, 6bit precision, 128k triangles
 class PackedFactor
 {
@@ -160,11 +161,12 @@ public:
 	{
 		return destinationTriangle & ((1<<BITS_FOR_TRIANGLE_INDEX)-1);
 	}
-private:
 	enum
 	{
-		BITS_FOR_TRIANGLE_INDEX = 17
+		BITS_FOR_TRIANGLE_INDEX = 17,
+		MAX_TRIANGLES = 1 << BITS_FOR_TRIANGLE_INDEX,
 	};
+private:
 	union
 	{
 		RRReal visibility;
@@ -172,7 +174,7 @@ private:
 	};
 };
 
-/*
+
 // 50% memory, 100% speed, ~10bit precision, 128k triangles
 class PackedFactor
 {
@@ -194,16 +196,18 @@ public:
 	{
 		return destinationTriangle;
 	}
-private:
 	enum
 	{
 		BITS_FOR_VISIBILITY = 15,
 		BITS_FOR_TRIANGLE_INDEX = sizeof(unsigned)*8-BITS_FOR_VISIBILITY,
+		MAX_TRIANGLES = 1 << BITS_FOR_TRIANGLE_INDEX,
 	};
+private:
 	unsigned visibility          : BITS_FOR_VISIBILITY;
 	unsigned destinationTriangle : BITS_FOR_TRIANGLE_INDEX;
 };
-/*
+*/
+
 // 100% memory, 100% speed, 23bit precision, 4G triangles
 class PackedFactor
 {
@@ -227,11 +231,15 @@ public:
 	{
 		return destinationTriangle;
 	}
+	enum
+	{
+		MAX_TRIANGLES = UINT_MAX,
+	};
 private:
 	float visibility;
 	unsigned destinationTriangle;
 };
-*/
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -56,6 +56,12 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 
 PackedSolverFile* Scene::packSolver() const
 {
+	if(object->triangles>PackedFactor::MAX_TRIANGLES)
+	{
+		RRReporter::report(WARN,"Fireball not created, max %d triangles per solver supported.\n",PackedFactor::MAX_TRIANGLES);
+		return NULL;
+	}
+
 	PackedSolverFile* packedSolverFile = new PackedSolverFile;
 
 	/////////////////////////////////////////////////////////////////////////
@@ -221,6 +227,8 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	calculateCore(0); // create static solver if not created yet
 	RR_ASSERT(priv->scene);
 	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle);
+	if(!packedSolverFile)
+		return false;
 	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",
 		( packedSolverFile->getMemoryOccupied() )/1024,
 		( packedSolverFile->packedFactors->getMemoryOccupied() )/1024,
