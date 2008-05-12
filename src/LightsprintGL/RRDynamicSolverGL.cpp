@@ -242,9 +242,25 @@ void RRDynamicSolverGL::updateShadowmaps()
 			glClearDepth(0.9999); // prevents backprojection
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
-			rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
-			uberProgramSetup.MATERIAL_TRANSPARENT = 0;
-			uberProgramSetup.MATERIAL_CULLING = 0;
+			UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
+			switch(light->transparentMaterialShadows)
+			{
+				case RealtimeLight::RGB_SHADOWS:
+					// not yet implemented
+					break;
+				case RealtimeLight::ALPHA_KEYED_SHADOWS:
+					uberProgramSetup.MATERIAL_TRANSPARENT = 1;
+					uberProgramSetup.MATERIAL_CULLING = 0;
+					uberProgramSetup.MATERIAL_DIFFUSE = 1;
+					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
+					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
+					break;
+				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
+				default:
+					uberProgramSetup.MATERIAL_TRANSPARENT = 0;
+					uberProgramSetup.MATERIAL_CULLING = 0;
+					break;
+			}
 			for(unsigned i=0;i<light->getNumInstances();i++)
 			{
 				Camera* lightInstance = light->getInstance(i);

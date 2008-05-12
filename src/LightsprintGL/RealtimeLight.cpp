@@ -30,6 +30,7 @@ namespace rr_gl
 		shadowMapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
 		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
 		areaSize = 0.2f;
+		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;

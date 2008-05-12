@@ -167,6 +167,8 @@ void UberProgramSetup::validate()
 	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV;
 	if(!light)
 	{
+		// without light, material properties are _usually_ not needed, so here we remove them.
+		// in case of alpha-keyed shadows, avoid material removal by enabling LIGHT_INDIRECT_CONST.
 		MATERIAL_DIFFUSE = 0;
 		MATERIAL_SPECULAR = 0;
 	}

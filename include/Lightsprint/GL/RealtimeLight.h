@@ -27,10 +27,18 @@ public:
 	//! Shapes of light source area.
 	enum AreaType
 	{
-		POINT, // point light, must have exactly 6 instances for cube shadow map generation
-		LINE, // n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
-		CIRCLE, // n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
-		RECTANGLE, // n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
+		POINT,     ///< point light, must have exactly 6 instances for cube shadow map generation
+		LINE,      ///< n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
+		CIRCLE,    ///< n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
+		RECTANGLE, ///< n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
+	};
+
+	//! Specifies how shadows of transparent materials are created, whether quickly, or more precisely.
+	enum TransparentMaterialShadows
+	{
+		FULLY_OPAQUE_SHADOWS, ///< All materials will be fully opaque for light (when creating shadows). This is the fastest technique.
+		ALPHA_KEYED_SHADOWS,  ///< All materials will be fully opaque or fully transparent for light. This is evaluated per-pixel.
+		RGB_SHADOWS,          ///< not yet implemented
 	};
 
 	//! Creates realtime light out of standard light.
@@ -69,6 +77,9 @@ public:
 	AreaType areaType;
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
+
+	//! Specifies how shadows of transparent materials are created.
+	TransparentMaterialShadows transparentMaterialShadows;
 
 	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned* smallMapCPU;
