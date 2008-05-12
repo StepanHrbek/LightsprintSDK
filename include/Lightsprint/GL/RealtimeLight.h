@@ -42,9 +42,9 @@ public:
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;
 
-	//! Sets number of Class instances.
+	//! Sets number of virtual light instances (usually 1 for spotlight, 6 for point light, 1+ for approximation of area light, 1 for dirlight, 2 for cascaded dirlight...)
 	virtual void setNumInstances(unsigned instances);
-	//! Returns number of Class instances available.
+	//! Returns number of virtual light instances.
 	virtual unsigned getNumInstances() const;
 
 	//! Creates and returns requested instance (element of area light).

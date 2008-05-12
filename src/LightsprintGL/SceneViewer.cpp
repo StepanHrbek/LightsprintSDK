@@ -59,7 +59,7 @@ static bool                       renderEmission = 1;
 static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
 static bool                       renderWireframe = 0;
-static bool                       renderHelpers = 1;
+static bool                       renderHelpers = 0;
 static bool                       fireballLoadAttempted = 1;
 static float                      speedGlobal = 2; // speed of movement controlled by user
 static float                      speedForward = 0;
@@ -625,7 +625,7 @@ static void reshape(int w, int h)
 	Texture* texture = Texture::createShadowmap(64,64);
 	GLint shadowDepthBits = texture->getTexelBits();
 	delete texture;
-	glPolygonOffset(1,(GLfloat)(12<<(shadowDepthBits-16)));
+	glPolygonOffset(1.2f,(GLfloat)(20<<(shadowDepthBits-16)));
 }
 
 static void mouse(int button, int state, int x, int y)

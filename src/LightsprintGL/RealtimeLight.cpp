@@ -33,7 +33,7 @@ namespace rr_gl
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;
-		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:1):0);
+		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:((_rrlight.type==rr::RRLight::DIRECTIONAL)?2:1)):0);
 	}
 
 	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
@@ -132,6 +132,17 @@ namespace rr_gl
 		{
 			light.update();
 			return; // only 1 instance -> use unmodified parent
+		}
+		if(origin && origin->type==rr::RRLight::DIRECTIONAL)
+		{
+			// setup second map in cascade
+			RR_ASSERT(numInstances==2); // dir must have 1 or 2 instances
+			if(instance==0)
+			{
+				light.orthoSize *= 0.2f; // cascade goes in 5x size steps
+			}
+			light.update();
+			return;
 		}
 
 		//light.update(0.3f);

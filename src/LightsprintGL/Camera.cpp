@@ -42,8 +42,8 @@ Camera::Camera(const rr::RRLight& light)
 	leanAngle = 0;
 	aspect = 1;
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
-	anear = 0.1f;
-	afar = 100;
+	anear = (light.type==rr::RRLight::DIRECTIONAL) ? 10 : .1f;
+	afar = (light.type==rr::RRLight::DIRECTIONAL) ? 200 : 100;
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
 	update();
@@ -78,7 +78,7 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	up = tmpup*c+tmpright*s;
 	right = tmpup*s-tmpright*c;
 
-	// update pos
+	// update pos (the same for all cascade steps)
 	if(observer)
 	{
 		// update matrices

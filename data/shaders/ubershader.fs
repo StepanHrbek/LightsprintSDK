@@ -5,6 +5,7 @@
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
+//  #define SHADOW_CASCADE
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
@@ -80,6 +81,10 @@
 
 #if SHADOW_MAPS>0
 	varying vec4 shadowCoord[SHADOW_MAPS];
+#endif
+
+#if SHADOW_SAMPLES>1
+	uniform vec4 shadowBlurWidth;
 #endif
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV))
@@ -199,9 +204,8 @@ void main()
 				float noise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
 			#endif
 			vec3 sc = vec3(sin(noise),cos(noise),0.0);
-			vec3 shift1 = sc*0.003;
-			vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0.0);
-
+			vec3 shift1 = sc*shadowBlurWidth.w;
+			vec3 shift2 = sc.yxz*shadowBlurWidth.xyz;
 			#if SHADOW_SAMPLES==2
 				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
@@ -241,8 +245,13 @@ void main()
 		#if SHADOW_MAPS>0
 			SHADOWMAP_LOOKUP(shadowMap0,0);
 		#endif
+
 		#if SHADOW_MAPS>1
-			SHADOWMAP_LOOKUP(shadowMap1,1);
+			#if defined(SHADOW_CASCADE)
+				if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04) visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*SHADOW_SAMPLES;
+			#else
+				SHADOWMAP_LOOKUP(shadowMap1,1);
+			#endif
 		#endif
 		#if SHADOW_MAPS>2
 			SHADOWMAP_LOOKUP(shadowMap2,2);

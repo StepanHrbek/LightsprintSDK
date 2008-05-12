@@ -15,6 +15,8 @@ NEWS
 - RRLightField
   \n new structure for fast GI with dynamic objects and static lights
   \n demonstrated in sample Lightmaps, see \ref samples_gl
+- cascaded shadowmapping
+  \n automatically used by rr_gl::RRDynamicSolverGL for higher quality directional lights
 - RRDynamicSolver::leaveFireball() switches back from game to architect solver
 - improved rr_gl::sceneViewer() (optional Fireball, LightField)
 

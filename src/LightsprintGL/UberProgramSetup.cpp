@@ -22,11 +22,12 @@ const char* UberProgramSetup::getSetupString()
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
 		SHADOW_PENUMBRA?"#define SHADOW_PENUMBRA\n":"",
+		SHADOW_CASCADE?"#define SHADOW_CASCADE\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_COLOR?"#define LIGHT_DIRECT_COLOR\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
@@ -281,6 +282,13 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	}
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
+
+	if(SHADOW_SAMPLES>1)
+	{
+		rr::RRBuffer* buffer = light->getShadowMap(firstInstance)->getBuffer();
+		unsigned shadowmapSize = buffer->getWidth()+buffer->getHeight();
+		program->sendUniform("shadowBlurWidth",6.f/shadowmapSize,-6.f/shadowmapSize,0.0f,3.f/shadowmapSize);
+	}
 
 	if(LIGHT_DIRECT)
 	{

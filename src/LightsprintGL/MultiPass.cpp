@@ -65,6 +65,8 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		RR_ASSERT(light);
 		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
 		uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
+		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
+		if(uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // override user setting by optimal setting
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;

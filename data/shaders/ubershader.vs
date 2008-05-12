@@ -5,6 +5,7 @@
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
+//  #define SHADOW_CASCADE
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
