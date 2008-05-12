@@ -220,7 +220,8 @@ public:
 
 		// Fireball
 		int fireballHandle = glutCreateMenu(fireballCallback);
-		glutAddMenuEntry("Render realtime lighting", ME_REALTIME_RTGI);
+		glutAddMenuEntry("Render realtime GI: architect", ME_REALTIME_ARCHITECT);
+		glutAddMenuEntry("Render realtime GI: fireball", ME_REALTIME_FIREBALL);
 		glutAddMenuEntry("Build fireball, quality 10", 10);
 		glutAddMenuEntry("                quality 100", 100);
 		glutAddMenuEntry("                quality 1000", 1000);
@@ -450,7 +451,7 @@ public:
 	{
 		switch(item)
 		{
-			case ME_REALTIME_RTGI:
+			case ME_REALTIME_FIREBALL:
 				renderRealtime = 1;
 				render2d = 0;
 				solver->dirtyLights();
@@ -460,8 +461,19 @@ public:
 					solver->loadFireball(NULL);
 				}
 				break;
+			case ME_REALTIME_ARCHITECT:
+				renderRealtime = 1;
+				render2d = 0;
+				solver->dirtyLights();
+				fireballLoadAttempted = false;
+				solver->leaveFireball();
+				break;
 			default:
+				renderRealtime = 1;
+				render2d = 0;
 				solver->buildFireball(item,NULL);
+				solver->dirtyLights();
+				fireballLoadAttempted = true;
 				break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
@@ -502,7 +514,8 @@ public:
 		ME_RANDOM_CAMERA,
 		ME_VERIFY,
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
-		ME_REALTIME_RTGI = 1234,
+		ME_REALTIME_FIREBALL = 1234,
+		ME_REALTIME_ARCHITECT,
 		ME_STATIC_3D,
 		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
