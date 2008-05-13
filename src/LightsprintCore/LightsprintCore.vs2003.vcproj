@@ -275,6 +275,22 @@
 			Name="RRCollider">
 			<File
 				RelativePath="RRCollider\bsp.cpp">
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRCollider\bsp.h">
@@ -503,6 +519,26 @@
 			Name="RRIllumination">
 			<File
 				RelativePath="..\..\include\Lightsprint\RRIllumination.h">
+			</File>
+			<File
+				RelativePath="RRLightField.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRObjectIllumination.cpp">
