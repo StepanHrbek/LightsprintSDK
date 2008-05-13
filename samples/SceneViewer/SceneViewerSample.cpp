@@ -29,6 +29,7 @@
 #include <direct.h>
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/Program.h"
 
 void error(const char* message, bool gfxRelated)
 {

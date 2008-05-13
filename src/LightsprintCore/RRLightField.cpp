@@ -1,17 +1,14 @@
 // --------------------------------------------------------------------------
 // LightField, precomputed GI for dynamic objects + static lights
-// Copyright 2007-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright 2008 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifndef LIGHTFIELDFILE_H
-#define LIGHTFIELDFILE_H
 
 #include <cstdio> // save/load
 #include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr
 {
-
 
 #define LIGHTFIELD_STRUCTURE_VERSION 1 // change when file structure changes, old files will be overwritten
 
@@ -245,9 +242,5 @@ const RRLightField* RRDynamicSolver::buildLightField(RRVec3 aabbMin, RRVec3 aabb
 	return lightField;
 }
 
-
-
-
 } // namespace
 
-#endif
