@@ -3,10 +3,10 @@ DEBUG    = 1
 CPPFLAGS = -I../../include -I../../samples/RealtimeRadiosity -DRR_STATIC
 
 ifdef DEBUG
-	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sd.a
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintGL_sd.a ../../lib/$(PLATFORM)/libLightsprintCore_sd.a
 	CPPFLAGS += -g -D_DEBUG
 else
-	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a -s
+	LIBS     = ../../lib/$(PLATFORM)/libLightsprintGL_sr.a ../../lib/$(PLATFORM)/libLightsprintCore_sr.a -s
 	CPPFLAGS += -O3 -DNDEBUG
 	CPPFLAGS += -ffast-math
 	CPPFLAGS += -fomit-frame-pointer

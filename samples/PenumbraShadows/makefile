@@ -25,7 +25,4 @@ PenumbraShadows.exe: $(OBJS) $(MAKE)
 	gcc $(OBJS) $(LIBS) -lGLEW -lfreeimage -lGL -lGLU -lglut -lstdc++ -lgomp -o PenumbraShadows.exe
 
 clean:
-	rm *.o
-	rm ../Import/ImportFreeImage.o
-	rm ../Import3DS/*.o
-	rm PenumbraShadows.exe
+	rm -f *.o ../Import/ImportFreeImage.o ../Import3DS/*.o PenumbraShadows.exe
