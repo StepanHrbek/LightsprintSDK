@@ -270,7 +270,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 				if(!shadowmap->renderingToBegin())
 				{
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed, not enough memory?\n"));
+					// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed.\n"));
 				}
 				else
 				{

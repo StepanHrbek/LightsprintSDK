@@ -108,6 +108,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 				char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
 				if(tmp) tmp[1] = 0;
 			}			
+			rr::RRReportInterval report(rr::INF3,"Adapting scene...\n");
 			objects = adaptObjectsFromFCollada(scene_dae,stripPaths?pathToFile:"",stripPaths);
 			lights = adaptLightsFromFCollada(scene_dae);
 			free(pathToFile);

@@ -945,31 +945,41 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	if(!document)
 		return;
 
-	// normalize geometry
-	FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
-
-	// guess where is mapping for lightmaps
-	//  has textures -> lmaps in second uv channel, doesn't have textures -> lmaps in first uv channel
-	FCDImageLibrary* imageLibrary = document->GetImageLibrary();
-	int lightmapUvChannel = (imageLibrary && !imageLibrary->IsEmpty()) ? 1 : 0;
+	// standardize up axis and units
+	{
+		rr::RRReportInterval report(rr::INF3,"Standardizing geometry...\n");
+		FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
+	}
 
 	// triangulate all polygons
-	FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
-	for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 	{
-		FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
-		FCDGeometryMesh* mesh = geometry->GetMesh();
-		if(mesh)
+		rr::RRReportInterval report(rr::INF3,"Triangulating geometry...\n");
+		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
+		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 		{
-			FCDGeometryPolygonsTools::Triangulate(mesh);
-			FCDGeometryPolygonsTools::GenerateUniqueIndices(mesh);
+			FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
+			FCDGeometryMesh* mesh = geometry->GetMesh();
+			if(mesh)
+			{
+				FCDGeometryPolygonsTools::Triangulate(mesh);
+				FCDGeometryPolygonsTools::GenerateUniqueIndices(mesh);
+			}
 		}
 	}
 
-	// import data
-	const FCDSceneNode* root = document->GetVisualSceneInstance();
-	if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
-	addNode(root,lightmapUvChannel,pathToTextures,stripPaths,&imageCache);
+	// adapt objects
+	{
+		rr::RRReportInterval report(rr::INF3,"Adapting objects...\n");
+
+		// guess where mapping for lightmaps is
+		//  has textures -> lmaps in second uv channel, doesn't have textures -> lmaps in first uv channel
+		FCDImageLibrary* imageLibrary = document->GetImageLibrary();
+		int lightmapUvChannel = (imageLibrary && !imageLibrary->IsEmpty()) ? 1 : 0;
+
+		const FCDSceneNode* root = document->GetVisualSceneInstance();
+		if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
+		addNode(root,lightmapUvChannel,pathToTextures,stripPaths,&imageCache);
+	}
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()

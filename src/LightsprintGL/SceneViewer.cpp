@@ -721,6 +721,7 @@ static void textOutput(int x, int y, const char *format, ...)
 
 static void display(void)
 {
+	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if(render2d && lv)
 	{
 		LightmapViewer::setObject(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber),solver->getObject(selectedObjectIndex)->getCollider()->getMesh(),bilinear);
@@ -732,32 +733,39 @@ static void display(void)
 
 		eye.update();
 
-		solver->calculate();
+		{
+			rr::RRReportInterval report(rr::INF3,"calculate...\n");
+			solver->calculate();
+		}
 
-		glClear(GL_DEPTH_BUFFER_BIT);
-		eye.setupForRender();
-		UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = renderRealtime;
-		uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
-		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
-		uberProgramSetup.LIGHT_INDIRECT_auto = true;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
-		uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
-		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
-		uberProgramSetup.MATERIAL_TRANSPARENT = renderTransparent;
-		uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-		uberProgramSetup.POSTPROCESS_GAMMA = true;
-		if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
-		solver->renderScene(uberProgramSetup,NULL);
-		if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		{
+			rr::RRReportInterval report(rr::INF3,"render scene...\n");
+			glClear(GL_DEPTH_BUFFER_BIT);
+			eye.setupForRender();
+			UberProgramSetup uberProgramSetup;
+			uberProgramSetup.SHADOW_MAPS = 1;
+			uberProgramSetup.SHADOW_SAMPLES = 1;
+			uberProgramSetup.LIGHT_DIRECT = renderRealtime;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
+			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
+			uberProgramSetup.LIGHT_INDIRECT_auto = true;
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
+			uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
+			uberProgramSetup.MATERIAL_TRANSPARENT = renderTransparent;
+			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+			uberProgramSetup.POSTPROCESS_GAMMA = true;
+			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+			solver->renderScene(uberProgramSetup,NULL);
+			if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
 
 		if(renderHelpers)
 		{
+			rr::RRReportInterval report(rr::INF3,"render helpers 1...\n");
 			// render light field
 			if(lightField)
 			{
@@ -827,6 +835,7 @@ static void display(void)
 
 	if(renderHelpers)
 	{
+		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
 		// render properties
 		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 		centerTexel = UINT_MAX;
