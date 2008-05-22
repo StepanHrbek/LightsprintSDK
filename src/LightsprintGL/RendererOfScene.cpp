@@ -154,9 +154,9 @@ void RendererOfRRDynamicSolver::render()
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
 			if(env->getWidth()>2)
-				getTexture(env)->bindTexture(); // smooth
+				getTexture(env,true,false)->bindTexture(); // smooth
 			else
-				getTexture(env,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
+				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
 				glVertex3f(-1,-1,1);
 				glVertex3f(1,-1,1);
@@ -343,9 +343,9 @@ void RendererOfOriginalScene::render()
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
 			if(env->getWidth()>2)
-				getTexture(env)->bindTexture(); // smooth
+				getTexture(env,true,false)->bindTexture(); // smooth
 			else
-				getTexture(env,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
+				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
 			glVertex3f(1,-1,1);

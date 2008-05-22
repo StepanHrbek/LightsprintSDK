@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news58 ------------------------------------ 2008.5.x -------------------------------------
+
+NEWS
+
+- rr_gl::getTexture() and rr_gl::Texture::reset() have new parameter
+  that enables texture compression.
+  \n WARNING: Old code still compiles, but it might be incorrect now.
+  Find all places where you call these functions and add new parameter.
+
 \section news57 ------------------------------------ 2008.5.13 -------------------------------------
 
 NEWS

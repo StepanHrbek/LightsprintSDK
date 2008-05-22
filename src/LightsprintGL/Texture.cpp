@@ -16,7 +16,7 @@ namespace rr_gl
 FBO* globalFBO = NULL;
 unsigned numPotentialFBOUsers = 0;
 
-Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, int wrapS, int wrapT)
+Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int magn, int mini, int wrapS, int wrapT)
 {
 	if(!_buffer)
 		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
@@ -26,7 +26,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, 
 	numPotentialFBOUsers++;
 
 	glGenTextures(1, &id);
-	reset(_buildMipmaps);
+	reset(_buildMipmaps,_compress);
 
 	// changes anywhere
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, (_buildMipmaps&&(mini==GL_LINEAR))?GL_LINEAR_MIPMAP_LINEAR:mini);
@@ -35,7 +35,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, int magn, int mini, 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapT);
 }
 
-void Texture::reset(bool _buildMipmaps)
+void Texture::reset(bool _buildMipmaps, bool _compress)
 {
 	if(!buffer) return;
 
@@ -54,10 +54,10 @@ void Texture::reset(bool _buildMipmaps)
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	switch(buffer->getFormat())
 	{
-		case rr::BF_RGB: glinternal = glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_RGBA: glinternal = glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_RGBF: glinternal = /*GL_RGB16F_ARB;*/ glformat = GL_RGB; gltype = GL_FLOAT; break;
-		case rr::BF_RGBAF: glinternal = /*GL_RGBA16F_ARB;*/ glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		case rr::BF_RGB: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBA: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8; glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBF: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8;/*GL_RGB16F_ARB;*/ glformat = GL_RGB; gltype = GL_FLOAT; break;
+		case rr::BF_RGBAF: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8;/*GL_RGBA16F_ARB;*/ glformat = GL_RGBA; gltype = GL_FLOAT; break;
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
@@ -242,7 +242,7 @@ static GLenum filtering()
 
 Texture* Texture::createShadowmap(unsigned width, unsigned height)
 {
-	Texture* texture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,NULL),false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	Texture* texture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,NULL),false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	texture->ownBuffer = true;
 	return texture;
 }
@@ -254,17 +254,17 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height)
 
 static std::vector<Texture*> g_textures;
 
-Texture* getTexture(const rr::RRBuffer* _buffer, bool buildMipMaps, int magn, int mini, int wrapS, int wrapT)
+Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compress, int _magn, int _mini, int _wrapS, int _wrapT)
 {
 	if(!_buffer) return NULL;
 	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! customData is modified in const object
 	if(!buffer->customData)
 	{
-		Texture* texture = new Texture(buffer,buildMipMaps,magn,mini,wrapS,wrapT);
+		Texture* texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
 		buffer->customData = texture;
 		g_textures.push_back(texture);
 	}
-	return (Texture*)(buffer->customData);
+	return (Texture*)(_buffer->customData);
 }
 
 void deleteAllTextures()

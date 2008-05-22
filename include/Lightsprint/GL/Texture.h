@@ -23,7 +23,7 @@ class RR_GL_API Texture : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	//! Creates texture.
-	Texture(rr::RRBuffer* buffer, bool buildMipMaps, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+	Texture(rr::RRBuffer* buffer, bool buildMipMaps, bool compress, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 	//! Creates depth texture (shadowmap).
 	static Texture* createShadowmap(unsigned width, unsigned height);
 	//! Returns texture buffer (with type, width, height, format, data).
@@ -31,7 +31,7 @@ public:
 	//! Returns texture buffer (with type, width, height, format, data).
 	const rr::RRBuffer* getBuffer() const;
 	//! Rebuilds texture according to buffer. To be called when buffer changes.
-	void reset(bool buildMipMaps);
+	void reset(bool buildMipMaps, bool compress);
 	//! Binds texture.
 	void bindTexture() const;
 	//! Returns number of bits per texel.
@@ -66,7 +66,11 @@ protected:
 //
 //! Before deleting buffer, you should delete texture or at least stop using it, deleteAllTextures() will mass-delete it later.
 //! If you delete only texture, set buffer->customData=NULL.
-RR_GL_API Texture* getTexture(const rr::RRBuffer* buffer, bool buildMipMaps = true, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+//!
+//! Parameters beyond buffer are respected only when called for first time.
+//! Once texture is created, successive calls return the same texture.
+//! Use Texture::reset() to change already created texture.
+RR_GL_API Texture* getTexture(const rr::RRBuffer* buffer, bool buildMipMaps = true, bool compress = true, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 //! Deletes all textures created by getTexture(). (But you can delete textures one by one as well.)
 RR_GL_API void deleteAllTextures();

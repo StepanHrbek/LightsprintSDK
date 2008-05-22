@@ -108,7 +108,7 @@ namespace rr_gl
 		for(unsigned i=0;i<numInstances;i++)
 		{
 			shadowMaps[i]->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
-			shadowMaps[i]->reset(false);
+			shadowMaps[i]->reset(false,false);
 		}
 	}
 

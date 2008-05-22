@@ -136,7 +136,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				// update texture in CPU memory
 				lightField->updateEnvironmentMap(robot->illumination);
 				// copy it to GPU memory
-				rr_gl::getTexture(potato->illumination->specularEnvMap,false)->reset(false);
+				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
@@ -156,8 +156,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				// update texture in CPU memory
 				lightField->updateEnvironmentMap(potato->illumination);
 				// copy it to GPU memory
-				rr_gl::getTexture(potato->illumination->diffuseEnvMap,false)->reset(false);
-				rr_gl::getTexture(potato->illumination->specularEnvMap,false)->reset(false);
+				rr_gl::getTexture(potato->illumination->diffuseEnvMap,false,false)->reset(false,false);
+				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);

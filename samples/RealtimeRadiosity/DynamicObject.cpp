@@ -187,14 +187,14 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			if(illumination->specularEnvMap)
-				rr_gl::getTexture(illumination->specularEnvMap,false)->bindTexture();
+				rr_gl::getTexture(illumination->specularEnvMap,false,false)->bindTexture();
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			if(illumination->diffuseEnvMap)
-				rr_gl::getTexture(illumination->diffuseEnvMap,false)->bindTexture();
+				rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
 		// activate previously active texture
 		//  sometimes it's diffuse, sometimes emissive

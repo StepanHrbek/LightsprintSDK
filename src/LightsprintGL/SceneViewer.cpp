@@ -379,7 +379,7 @@ public:
 					renderRealtime = false;
 					// propagate computed data from buffers to textures
 					if(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) && solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
-						getTexture(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber))->reset(true);
+						getTexture(solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber))->reset(true,false);
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
 				}
@@ -420,7 +420,7 @@ public:
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
 						if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(layerNumber) && solver->getIllumination(i)->getLayer(layerNumber)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getIllumination(i)->getLayer(layerNumber))->reset(true);
+							getTexture(solver->getIllumination(i)->getLayer(layerNumber))->reset(true,false);
 					}
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
@@ -783,8 +783,8 @@ static void display(void)
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
 				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&brightness,gamma);
 				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false)->reset(false);
-				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false)->bindTexture();
+				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false,false)->reset(false,false);
+				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false,false)->bindTexture();
 				// render
 				glPushMatrix();
 				glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
@@ -799,8 +799,8 @@ static void display(void)
 				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&brightness,gamma);
 				program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-				getTexture(lightFieldObjectIllumination->specularEnvMap,false)->reset(false);
-				getTexture(lightFieldObjectIllumination->specularEnvMap,false)->bindTexture();
+				getTexture(lightFieldObjectIllumination->specularEnvMap,false,false)->reset(false,false);
+				getTexture(lightFieldObjectIllumination->specularEnvMap,false,false)->bindTexture();
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
 				program->sendUniform("worldMatrix",worldMatrix,false,4);
