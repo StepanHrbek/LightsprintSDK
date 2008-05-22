@@ -206,6 +206,9 @@ namespace rr
 		//! For your private use, not accessed by Lightsprint. Initialized to NULL.
 		void* customData;
 
+		//! Destruct light.
+		virtual ~RRLight() {}
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Offline rendering interface
