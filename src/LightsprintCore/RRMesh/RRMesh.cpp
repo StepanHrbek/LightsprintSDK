@@ -498,9 +498,9 @@ unsigned RRMesh::verify() const
 			if(fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if(fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
 			if(size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
-			if(abs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrtogonal = true;
-			if(abs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
-			if(abs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrtogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
 		}
 		if(nanOrInf)
 		{
