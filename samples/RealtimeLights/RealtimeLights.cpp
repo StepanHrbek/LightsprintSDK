@@ -437,7 +437,7 @@ int main(int argc, char **argv)
 
 	// init lights
 	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
-	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 

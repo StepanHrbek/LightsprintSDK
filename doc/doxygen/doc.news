@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- rr_gl::getTexture() and rr_gl::Texture::reset() have new parameter
+- rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
   that enables texture compression.
   \n WARNING: Old code still compiles, but it might be incorrect now.
   Find all places where you call these functions and add new parameter.
