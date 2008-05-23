@@ -14,8 +14,10 @@
 #endif
 
 //#define USE_VBO // use VBO to save unnecessary CPU<->GPU data transfers
-// using advanced features may trigger driver bugs, better avoid VBO for now
-// as I haven't registered any significant speedup in real world scenarios
+// 1.using advanced features may trigger driver bugs, better avoid VBO for now
+//   as I haven't registered any significant speedup in real world scenarios
+// 2.it seems that mixed VBO+vertex array renders don't work correctly(8800+17x.xx),
+//   try full VBO render (predelat na VBO i indirect_vcolor, forced_2d)
 
 namespace rr_gl
 {
@@ -195,6 +197,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				fg.diffuseTexture->setElement(0,fg.diffuseColor);
 				tempTextures.push_back(fg.diffuseTexture); // remember it for destruction time
 			}
+			getTexture(fg.diffuseTexture); // prebuild texture so we don't do it in display list
 			fg.emissiveTexture = NULL;
 			//if(hasEmissiveMap)
 			{
@@ -207,6 +210,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				fg.emissiveTexture->setElement(0,fg.emissiveColor);
 				tempTextures.push_back(fg.emissiveTexture); // remember it for destruction time
 			}
+			getTexture(fg.emissiveTexture); // prebuild texture so we don't do it in display list
 			faceGroups.push_back(fg);
 			previousMaterial = material;
 		}
@@ -268,6 +272,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	CREATE_VBO(atexcoordAmbient,RRVec2,GL_STATIC_DRAW,texcoordAmbientVBO);
 	//CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
 	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
 #endif
 }
 
@@ -331,8 +336,8 @@ GLenum getBufferComponentType(rr::RRBuffer* buffer)
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
 {
 #ifdef USE_VBO
-#define BIND_VBO(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(floats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
-#define BIND_VBO2(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+#define BIND_VBO(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER, myName##VBO); gl##glName##Pointer(floats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+#define BIND_VBO2(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER, myName##VBO); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
 #else
 #define BIND_VBO(glName,floats,myName) gl##glName##Pointer(floats, GL_FLOAT, 0, &a##myName[0].x);
 #define BIND_VBO2(glName,floats,myName) gl##glName##Pointer(GL_FLOAT, 0, &a##myName[0].x);
@@ -470,9 +475,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set 2d_position texcoords
 	if(params.renderedChannels.FORCE_2D_POSITION)
 	{
-		//!!! possible optimization
-		// remember params used at atexcoordForced2D filling
-		//  and refill it only when params change
+		//!!! possible optimizations
+		// a) remember params used at atexcoordForced2D filling
+		//    and refill it only when params change
+		// b) predpripravit VBO se vsemi 2d pos v 1024x1024, pak jen menit pointer do VBO podle params.firstCapturedTriangle
+		//    toto VBO by melo byt spolecne pro vsechny meshe
 
 		// this should not be executed in every frame, generated texcoords change rarely
 		RR_ASSERT(!indices); // needs non-indexed trilist
