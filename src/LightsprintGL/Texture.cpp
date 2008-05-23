@@ -39,6 +39,11 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 {
 	if(!buffer) return;
 
+	// temporarily disabled
+	//  nekdy vyrabim texturu uvnitr display listu, komprese pak silne zpomaluje
+	//  musim to ihned opravit, pak kompresi zapnu
+	_compress = 0;
+
 	const unsigned char* data = buffer->lock(rr::BL_READ);
 	switch(buffer->getType())
 	{
