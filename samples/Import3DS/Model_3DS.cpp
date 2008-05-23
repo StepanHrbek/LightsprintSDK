@@ -128,6 +128,38 @@
 #define PERC_INT			0x0030
 #define PERC_FLOAT			0x0031
 
+// utility functions for handling little endian on a big endian system
+
+#ifdef __PPC__
+#ifndef BIG_ENDIAN
+#define BIG_ENDIAN
+#endif
+#endif
+
+inline void swap16(void* p)
+{
+#ifdef BIG_ENDIAN
+	char b0 = ((char*) p)[0];
+	char b1 = ((char*) p)[1];
+	((char*) p)[0] = b1;
+	((char*) p)[1] = b0;
+#endif
+}
+
+inline void swap32(void* p)
+{
+#ifdef BIG_ENDIAN
+	char b0 = ((char*) p)[0];
+	char b1 = ((char*) p)[1];
+	char b2 = ((char*) p)[2];
+	char b3 = ((char*) p)[3];
+	((char*) p)[0] = b3;
+	((char*) p)[1] = b2;
+	((char*) p)[2] = b1;
+	((char*) p)[3] = b0;
+#endif
+}
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -211,7 +243,9 @@ bool Model_3DS::Load(const char *filename, float ascale)
 
 	// Load the Main Chunk's header
 	fread(&main.id,sizeof(main.id),1,bin3ds);
-    fread(&main.len,sizeof(main.len),1,bin3ds);
+	fread(&main.len,sizeof(main.len),1,bin3ds);
+	swap16(&main.id);
+	swap32(&main.len);
 
 	// Start Processing
 	MainChunkProcessor(main.len, ftell(bin3ds));
@@ -481,6 +515,8 @@ void Model_3DS::MainChunkProcessor(long length, long findex)
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -518,6 +554,8 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -547,6 +585,8 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 		{
 			fread(&h.id,sizeof(h.id),1,bin3ds);
 			fread(&h.len,sizeof(h.len),1,bin3ds);
+			swap16(&h.id);
+			swap32(&h.len);
 
 			switch (h.id)
 			{
@@ -598,6 +638,8 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 		{
 			fread(&h.id,sizeof(h.id),1,bin3ds);
 			fread(&h.len,sizeof(h.len),1,bin3ds);
+			swap16(&h.id);
+			swap32(&h.len);
 
 			switch (h.id)
 			{
@@ -631,6 +673,8 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -752,6 +796,8 @@ void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matinde
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		// Determine the format of the color and load it
 		switch (h.id)
@@ -798,6 +844,9 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
 	fread(&r,sizeof(r),1,bin3ds);
 	fread(&g,sizeof(g),1,bin3ds);
 	fread(&b,sizeof(b),1,bin3ds);
+	swap32(&r);
+	swap32(&g);
+	swap32(&b);
 
 	Materials[matindex].color.r = (unsigned char)(r*255.0f);
 	Materials[matindex].color.g = (unsigned char)(g*255.0f);
@@ -847,6 +896,8 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -923,6 +974,8 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -955,6 +1008,8 @@ void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objin
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -984,6 +1039,8 @@ void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objin
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -1014,6 +1071,7 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 
 	// Read the number of vertices of the object
 	fread(&numVerts,sizeof(numVerts),1,bin3ds);
+	swap16(&numVerts);
 
 	// Allocate arrays for the vertices and normals
 	Objects[objindex].Vertexes = new GLfloat[numVerts * 3];
@@ -1027,11 +1085,21 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 		Objects[objindex].Normals[j] = 0.0f;
 
 	// Read the vertices, switching the y and z coordinates and changing the sign of the z coordinate
+	
+	GLfloat v0, v1, v2;
+
 	for (int i = 0; i < numVerts * 3; i+=3)
 	{
-		fread(&Objects[objindex].Vertexes[i],sizeof(GLfloat),1,bin3ds);
-		fread(&Objects[objindex].Vertexes[i+2],sizeof(GLfloat),1,bin3ds);
-		fread(&Objects[objindex].Vertexes[i+1],sizeof(GLfloat),1,bin3ds);
+		fread(&v0, sizeof(GLfloat), 1, bin3ds);
+		fread(&v1, sizeof(GLfloat), 1, bin3ds);
+		fread(&v2, sizeof(GLfloat), 1, bin3ds);
+		swap32(&v0);
+		swap32(&v1);
+		swap32(&v2);
+
+		Objects[objindex].Vertexes[i + 0] = v0;
+		Objects[objindex].Vertexes[i + 2] = v1;
+		Objects[objindex].Vertexes[i + 1] = v2;
 
 		// Change the sign of the z coordinate
 		Objects[objindex].Vertexes[i+2] = -Objects[objindex].Vertexes[i+2];
@@ -1059,6 +1127,7 @@ void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
 
 	// Read the number of coordinates
 	fread(&numCoords,sizeof(numCoords),1,bin3ds);
+	swap16(&numCoords);
 
 	// Allocate an array to hold the texture coordinates
 	Objects[objindex].TexCoords = new GLfloat[numCoords * 2];
@@ -1066,11 +1135,22 @@ void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
 	// Set the number of texture coords
 	Objects[objindex].numTexCoords = numCoords;
 
-	// Read teh texture coordiantes into the array
+	// Read the texture coordiantes into the array
+
+	GLfloat t0, t1;
+
 	for (int i = 0; i < numCoords * 2; i+=2)
 	{
-		fread(&Objects[objindex].TexCoords[i],sizeof(GLfloat),1,bin3ds);
-		fread(&Objects[objindex].TexCoords[i+1],sizeof(GLfloat),1,bin3ds);
+		fread(&t0, sizeof(GLfloat), 1, bin3ds);
+		fread(&t1, sizeof(GLfloat), 1, bin3ds);
+		swap32(&t0);
+		swap32(&t1);
+
+		Objects[objindex].TexCoords[i + 0] = t0;
+		Objects[objindex].TexCoords[i + 1] = t1;
+
+//		fread(&Objects[objindex].TexCoords[i],sizeof(GLfloat),1,bin3ds);
+//		fread(&Objects[objindex].TexCoords[i+1],sizeof(GLfloat),1,bin3ds);
 	}
 
 	// move the file pointer back to where we got it so
@@ -1096,6 +1176,7 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 
 	// Read the number of faces
 	fread(&numFaces,sizeof(numFaces),1,bin3ds);
+	swap16(&numFaces);
 
 	// Allocate an array to hold the faces
 	Objects[objindex].Faces = new GLushort[numFaces * 3];
@@ -1110,6 +1191,10 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		fread(&vertB,sizeof(vertB),1,bin3ds);
 		fread(&vertC,sizeof(vertC),1,bin3ds);
 		fread(&flags,sizeof(flags),1,bin3ds);
+		swap16(&vertA);
+		swap16(&vertB);
+		swap16(&vertC);
+		swap16(&flags);
 
 		// Place them in the array
 		Objects[objindex].Faces[i]   = vertA;
@@ -1188,6 +1273,8 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
 		fread(&h.len,sizeof(h.len),1,bin3ds);
+		swap16(&h.id);
+		swap32(&h.len);
 
 		switch (h.id)
 		{
@@ -1219,6 +1306,8 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		{
 			fread(&h.id,sizeof(h.id),1,bin3ds);
 			fread(&h.len,sizeof(h.len),1,bin3ds);
+			swap16(&h.id);
+			swap32(&h.len);
 
 			switch (h.id)
 			{
@@ -1275,6 +1364,7 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 
 	// Read the number of faces associated with this material
 	fread(&numEntries,sizeof(numEntries),1,bin3ds);
+	swap16(&numEntries);
 
 	// Allocate an array to hold the list of faces associated with this material
 	Objects[objindex].MatFaces[subfacesindex].subFaces = new GLushort[numEntries * 3];
@@ -1286,6 +1376,8 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	{
 		// read the face
 		fread(&Face,sizeof(Face),1,bin3ds);
+		swap16(&Face);
+
 		// Add the face's vertices to the list
 		Objects[objindex].MatFaces[subfacesindex].subFaces[i] = Objects[objindex].Faces[Face * 3];
 		Objects[objindex].MatFaces[subfacesindex].subFaces[i+1] = Objects[objindex].Faces[Face * 3 + 1];
