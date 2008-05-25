@@ -944,6 +944,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);
+	rr_gl::getTexture(Materials[matindex].tex); // preload/compress textures, avoid doing it on first render in display list
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
