@@ -8,6 +8,9 @@
 #include "Shader.h"
 #include "Lightsprint/RRDebug.h"
 
+#include <string.h>
+#include <stdlib.h>
+
 namespace rr_gl
 {
 
@@ -28,10 +31,83 @@ char* readShader(const char *filename)
 
 Shader* Shader::create(const char* defines, const char* filename, GLenum shaderType)
 {
+
+// HACK: is MESA library present? (PS3 Linux)
+#ifdef GL_MESA_window_pos
+#define MESA_VERSION
+#endif
+
+#ifdef MESA_VERSION
+
+	// MESA preprocessor is buggy, therefore we use GCC preprocessor instead
+
+	const char* shaderDefs = defines ? defines : "";
+
+	FILE* f = fopen(filename, "rb");
+	if (!f) return NULL;
+
+	fseek(f, 0, SEEK_END);
+	long shaderFileSize = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	int shaderSrcSize = strlen(shaderDefs) + shaderFileSize + 2;
+	char* shaderSrc = new char[shaderSrcSize];
+	memset(shaderSrc, 0, shaderSrcSize);
+
+	sprintf(shaderSrc, "%s\n", shaderDefs);
+	fread(shaderSrc + strlen(shaderSrc), shaderFileSize, 1, f);
+	fclose(f);
+
+	if (!strncmp(shaderSrc, "#version", 8))
+	{
+		// remove "#version" tag which GCC preprocessor does not recognize
+		char* p = shaderSrc;
+		while (*p != 0x0A && *p != 0x00) *p++ = ' ';
+	}
+
+	char* srcName = "shader.s";
+	char* parsedSrcName = "shader.i";
+/*
+	static int shaderNum = -1;
+	shaderNum++;
+
+	printf("SHADER %02d: %s\n%s\n", shaderNum, filename, shaderDefs);
+
+	char srcName[256];
+	sprintf(srcName, "ubershader.s%02d", shaderNum);
+
+	char parsedSrcName[256];
+	sprintf(parsedSrcName, "ubershader.p%02d", shaderNum);
+*/
+	f = fopen(srcName, "wb");
+	fwrite(shaderSrc, strlen(shaderSrc), 1, f);
+	fclose(f);
+
+	delete [] shaderSrc;
+
+	char shellCmd[256];
+	sprintf(shellCmd, "gcc -E -P -x c %s > %s", srcName, parsedSrcName);
+	system(shellCmd);
+
+	// C parser doesn't recognize "#version" tag
+
+	const char *source[3];
+	source[0] = "#version 110\n";
+	source[1] = "";
+	source[2] = readShader(parsedSrcName);
+
+	sprintf(shellCmd, "rm %s", parsedSrcName);
+	system(shellCmd);
+
+#else // MESA_VERSION
+
 	const char *source[3];
 	source[0] = "#version 110\n";
 	source[1] = defines?defines:"";
 	source[2] = readShader(filename);
+
+#endif // MESA_VERSION
+
 	if(!source[2])
 	{
 		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
