@@ -83,13 +83,18 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 
 unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int argc, const char*const*argv)
 {
+	GLint maxTextureImageUnits = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&maxTextureImageUnits);
+	int maxShadowmapUnits = maxTextureImageUnits-TEXTURE_2D_SHADOWMAP_0; // should be 1 on mesa, 9 on radeon, 25 on geforce
+	if(maxShadowmapUnits<1) return 0;
+
 	while(argc--)
 	{
 		int tmp;
 		if(sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp>=1 && tmp<=8) // accept only penumbra1..8
 		{
 			SHADOW_MAPS = tmp;
-			if(tmp<1 || tmp>8 || !getProgram(uberProgram)) 
+			if(tmp<1 || tmp>8 || tmp>maxShadowmapUnits || !getProgram(uberProgram)) 
 			{
 				rr::RRReporter::report(rr::ERRO,"GPU is not able to produce given penumbra quality, set lower quality.\n");
 				SHADOW_MAPS = 0;
@@ -100,7 +105,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	}
 	// try max 9 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
 	// no, make it shorter, try max 8 maps, both AMD and NVIDIA high end GPUs can do only 8
-	for(SHADOW_MAPS=1;SHADOW_MAPS<=8;SHADOW_MAPS++)
+	for(SHADOW_MAPS=1;SHADOW_MAPS<=MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
 	{
 		Program* program = getProgram(uberProgram);
 		if(!program // stop when !compiled or !linked
@@ -141,6 +146,16 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;
 	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
 	return SHADOW_MAPS;
+}
+
+void UberProgramSetup::checkCapabilities()
+{
+	GLint maxTextureImageUnits = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&maxTextureImageUnits);
+	if(maxTextureImageUnits<16)
+	{
+		rr::RRReporter::report(rr::WARN,"Only %d textures per shader supported, some features will be disabled.\n",maxTextureImageUnits);
+	}
 }
 
 void UberProgramSetup::validate()
@@ -244,6 +259,8 @@ void UberProgramSetup::setPostprocess(const rr::RRVec4* brightness, float gamma)
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
 {
+	LIMITED_TIMES(1,checkCapabilities());
+
 	Program* program = getProgram(uberProgram);
 	if(!program)
 	{
@@ -268,15 +285,16 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		glActiveTexture(GL_TEXTURE0+i);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
 		// prepare samplers
 		light->getShadowMap(firstInstance+i)->bindTexture();
 		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
-		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
-		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
-		program->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
+		char name[] = "shadowMap0"; // for individual samplers
+		name[9] = '0'+i; // for individual samplers
+		program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i)); // for individual samplers
 		// prepare and send matrices
 		Camera* lightInstance = light->getInstance(firstInstance+i,true);
+		glActiveTexture(GL_TEXTURE0+i); // for feeding gl_TextureMatrix[0..maps-1]
 		glLoadMatrixd(tmp);
 		glMultMatrixd(lightInstance->frustumMatrix);
 		glMultMatrixd(lightInstance->viewMatrix);

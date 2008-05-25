@@ -18,14 +18,17 @@ namespace rr_gl
 enum
 {
 	// textures assigned to UberProgram
-	// 0..8 are reserved for shadowmaps, 9..15 declared here, 16+ would fail on ATI
-	TEXTURE_2D_LIGHT_DIRECT              = 9, ///< Sampler id used by our uberprogram for projected light map.
-	TEXTURE_2D_MATERIAL_DIFFUSE          = 10, ///< Sampler id used by our uberprogram for diffuse map.
-	TEXTURE_2D_MATERIAL_EMISSIVE         = 11, ///< Sampler id used by our uberprogram for emissive map.
-	TEXTURE_2D_LIGHT_INDIRECT            = 12, ///< Sampler id used by our uberprogram for ambient map.
-	TEXTURE_2D_LIGHT_INDIRECT2           = 13, ///< Sampler id used by our uberprogram for ambient map2.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14, ///< Sampler id used by our uberprogram for specular cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15, ///< Sampler id used by our uberprogram for diffuse cube map.
+	// GeForce supports 0..31, ok
+	// Radeon supports 0..15, ok
+	// Mesa supports only 0..7, ok if you use at most 2 shadowmaps and 1 lightmap
+	TEXTURE_2D_MATERIAL_DIFFUSE          = 0, ///< Sampler id used by our uberprogram for diffuse map.
+	TEXTURE_2D_LIGHT_DIRECT              = 1, ///< Sampler id used by our uberprogram for projected light map.
+	TEXTURE_2D_LIGHT_INDIRECT            = 2, ///< Sampler id used by our uberprogram for ambient map.
+	TEXTURE_2D_MATERIAL_EMISSIVE         = 3, ///< Sampler id used by our uberprogram for emissive map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 4, ///< Sampler id used by our uberprogram for specular cube map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Sampler id used by our uberprogram for diffuse cube map.
+	TEXTURE_2D_SHADOWMAP_0               = 6, ///< Sampler id used by our shadowmap 0. For more shadowmaps, use up to TEXTURE_2D_SHADOWMAP_0+7
+	TEXTURE_2D_LIGHT_INDIRECT2           = 15, ///< Sampler id used by our uberprogram for ambient map2.
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
@@ -126,6 +129,8 @@ struct RR_GL_API UberProgramSetup
 	//! The same number is set to SHADOW_MAPS.
 	//! \n\n If one of arguments in argv is penumbraX for X=1..8, X is returned.
 	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, const char*const*argv = NULL);
+	//! Check whether number of texture image units supported by platform is high enough, warns if it isn't.
+	static void checkCapabilities();
 	//! Change invalid settings to closest valid settings.
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered using
