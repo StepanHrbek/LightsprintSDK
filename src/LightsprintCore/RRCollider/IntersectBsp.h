@@ -269,7 +269,7 @@ namespace rr
 		}
 
 		// save tree to disk
-		if(tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
+		if(tree && (unsigned)(tree->bsp.size)>=MIN_BYTES_FOR_SAVE)
 		{
 			f = fopen(name,"wb");
 			if(f)
