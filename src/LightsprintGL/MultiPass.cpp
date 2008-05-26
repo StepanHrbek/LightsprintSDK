@@ -100,7 +100,7 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 	if(!program)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
 		return NULL;
 	}
 	if(lightIndex==-separatedAmbientPass+1)
@@ -124,7 +124,8 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_VCOLOR = uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.MATERIAL_TRANSPARENT = uberProgramSetup.MATERIAL_TRANSPARENT;
+	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
+	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;
 	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 

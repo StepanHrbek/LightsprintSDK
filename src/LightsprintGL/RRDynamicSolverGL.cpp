@@ -249,7 +249,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 					// not yet implemented
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
-					uberProgramSetup.MATERIAL_TRANSPARENT = 1;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 1;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;//!!!
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					uberProgramSetup.MATERIAL_DIFFUSE = 1;
 					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
@@ -257,7 +258,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
 				default:
-					uberProgramSetup.MATERIAL_TRANSPARENT = 0;
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					break;
 			}
@@ -367,7 +367,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1);
 	if(!program)
 	{
-		rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n");
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
 	}
 	return program;
 }

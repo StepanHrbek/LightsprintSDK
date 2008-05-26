@@ -33,6 +33,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 
 		// simple renderer
 		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
+		d->rendererWithoutCache->render(); // render once without cache to create textures, avoid doing so in display list
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->amdBugWorkaround = false;
 		char* renderer = (char*)glGetString(GL_RENDERER);
@@ -170,7 +171,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,brightness,gamma);
 	if(!program)
 	{
-		printf("Failed to compile or link GLSL program for dynamic object.\n");
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
 	// set matrix

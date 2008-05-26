@@ -32,6 +32,9 @@
 //  #define MATERIAL_EMISSIVE_CONST
 //  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define MATERIAL_TRANSPARENCY_CONST
+//  #define MATERIAL_TRANSPARENCY_MAP
+//  #define MATERIAL_TRANSPARENCY_IN_ALPHA
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -42,9 +45,7 @@
 //  #define CLIPPING
 //  #define FORCE_2D_POSITION
 //
-// Workarounds for driver bugs of one vendor made it a mess, sorry.
-//
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
 
 #define sqr(a) ((a)*(a))
 
@@ -111,6 +112,10 @@ varying
 
 #ifdef MATERIAL_EMISSIVE_MAP
 	varying vec2 materialEmissiveCoord;
+#endif
+
+#ifdef MATERIAL_TRANSPARENCY_MAP
+	varying vec2 materialTransparencyCoord;
 #endif
 
 #ifdef ANIMATION_WAVE
@@ -186,6 +191,10 @@ void main()
 
 	#ifdef MATERIAL_EMISSIVE_MAP
 		materialEmissiveCoord = gl_MultiTexCoord3.xy;
+	#endif
+
+	#ifdef MATERIAL_TRANSPARENCY_MAP
+		materialTransparencyCoord = gl_MultiTexCoord4.xy;
 	#endif
 
 	// for cycle (for any OpenGL 2.0 compliant card)

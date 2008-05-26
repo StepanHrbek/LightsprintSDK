@@ -33,7 +33,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1);
 	if(!program)
 	{
-		printf("Failed to compile or link GLSL program for dynamic object.\n");
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
 	// set specular environment map

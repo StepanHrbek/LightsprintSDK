@@ -134,7 +134,6 @@ void updateShadowmap(unsigned mapIndex)
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
 	uberProgramSetup.MATERIAL_CULLING = 0;
-	uberProgramSetup.MATERIAL_TRANSPARENT = 0;
 	renderScene(uberProgramSetup);
 	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);

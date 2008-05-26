@@ -134,6 +134,21 @@ namespace rr
 	public:
 
 		//////////////////////////////////////////////////////////////////////////////
+		// Channels
+		//////////////////////////////////////////////////////////////////////////////
+
+		enum
+		{
+			CHANNEL_TRIANGLE_DIFFUSE_TEX              = RRMesh::INDEXED_BY_TRIANGLE+5, ///< channel contains RRBuffer* for each triangle
+			CHANNEL_TRIANGLE_EMISSIVE_TEX             = RRMesh::INDEXED_BY_TRIANGLE+6, ///< channel contains RRBuffer* for each triangle
+			CHANNEL_TRIANGLE_TRANSPARENCY_TEX         = RRMesh::INDEXED_BY_TRIANGLE+7, ///< channel contains RRBuffer* for each triangle
+			CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV      = RRMesh::INDEXED_BY_TRIANGLE+8, ///< channel contains RRVec2[3] for each triangle
+			CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV     = RRMesh::INDEXED_BY_TRIANGLE+9, ///< channel contains RRVec2[3] for each triangle
+			CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV = RRMesh::INDEXED_BY_TRIANGLE+10, ///< channel contains RRVec2[3] for each triangle
+			CHANNEL_TRIANGLE_OBJECT_ILLUMINATION      = RRMesh::INDEXED_BY_TRIANGLE+11, ///< channel contains RRObjectIllumination* for each triangle
+		};
+
+		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 

@@ -336,14 +336,13 @@ void RendererOfRRObject::render()
 					}
 
 					// blending
-					if(params.renderedChannels.MATERIAL_TRANSPARENT)
+					if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 					{
 						if(begun)
 						{
 							glEnd();
 							begun = false;
 						}
-						RR_ASSERT(params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_CONST);
 						if(material && material->specularTransmittance.avg())
 						{
 							// current blendfunc is used, caller is responsible for setting it
@@ -398,7 +397,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
 						rr::RRBuffer* tex = NULL;
-						params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
+						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -455,7 +454,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{
 						Texture* tex = NULL;
-						params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
+						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -464,6 +463,26 @@ void RendererOfRRObject::render()
 								begun = false;
 							}
 							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
+							tex->bindTexture();
+						}
+						else
+						{			
+							RR_ASSERT(0); // expected data are missing
+						}
+					}
+					// material transparency rgb map - bind texture
+					if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+					{
+						Texture* tex = NULL;
+						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX,triangleIdx,&tex,sizeof(tex));
+						if(tex)
+						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
+							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
 							tex->bindTexture();
 						}
 						else
@@ -512,7 +531,7 @@ void RendererOfRRObject::render()
 				//        coz vytvari oboustrannou vazbu mezi RRDynamicSolver a nami(DemoEngine)
 
 				rr::RRObjectIllumination* objectIllumination = NULL;
-				if(params.object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
+				if(params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
 					&& objectIllumination!=oldIllumination)
 				{
 					oldIllumination = objectIllumination;
@@ -606,7 +625,7 @@ void RendererOfRRObject::render()
 				{
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
-					if(params.object->getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
+					if(params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
@@ -617,8 +636,19 @@ void RendererOfRRObject::render()
 				{
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
-					if(params.object->getCollider()->getMesh()->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
+					if(params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE,uv[v][0],uv[v][1]);
+					else
+						RR_ASSERT(0); // expected data are missing
+				}
+
+				// material transparency map - uv
+				if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+				{
+					rr::RRVec2 uv[3];
+					//!!! optimize, get once, not three times per triangle
+					if(params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,triangleIdx,&uv,sizeof(uv)))
+						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
 				}

@@ -60,6 +60,7 @@ static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
 static bool                       renderWireframe = 0;
 static bool                       renderHelpers = 0;
+static bool                       transparencyInAlpha = 1; //!!! autodetected, whether whole scene reads transparency from A or from RGB
 static bool                       fireballLoadAttempted = 1;
 static float                      speedGlobal = 2; // speed of movement controlled by user
 static float                      speedForward = 0;
@@ -308,10 +309,13 @@ public:
 					rr::RRVec3 mini,maxi;
 					multiMesh->getAABB(&mini,&maxi,NULL);
 					unsigned numVertices = multiMesh->getNumVertices();
-					multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
-					eye.pos -= eye.dir*(maxi-mini).sum()*0.22f;
-					eye.afar = MAX(eye.anear+1,(maxi-mini).sum()*50);
-					speedGlobal = (maxi-mini).sum()*0.1f;
+					if(numVertices)
+					{
+						multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
+						eye.pos -= eye.dir*(maxi-mini).sum()*0.22f;
+						eye.afar = MAX(eye.anear+1,(maxi-mini).sum()*50);
+						speedGlobal = (maxi-mini).sum()*0.1f;
+					}
 				}
 				break;
 			case ME_VERIFY: solver->verify(); break;
@@ -430,7 +434,7 @@ public:
 					// allocate buffers
 					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if(solver->getIllumination(i))
+						if(solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
 						{
 							delete solver->getIllumination(i)->getLayer(layerNumber);
 							solver->getIllumination(i)->getLayer(layerNumber) = item
@@ -755,7 +759,9 @@ static void display(void)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
-			uberProgramSetup.MATERIAL_TRANSPARENT = renderTransparent;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = transparencyInAlpha;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
@@ -965,12 +971,15 @@ static void display(void)
 				}
 			}
 
-			textOutput(x,y+=18,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
-			textOutput(x,y+=18,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
-			textOutput(x,y+=18,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
-			textOutput(x,y+=18,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
-			textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
-			textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
+			if(numTrianglesSingle)
+			{
+				textOutput(x,y+=18,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
+				textOutput(x,y+=18,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
+				textOutput(x,y+=18,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
+				textOutput(x,y+=18,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
+				textOutput(x,y+=18,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
+				textOutput(x,y+=18,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
+			}
 			textOutput(x,y+=18,"lit: %s",renderRealtime?"realtime":"static");
 			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(selectedObjectIndex) ? solver->getIllumination(selectedObjectIndex)->getLayer(layerNumber) : NULL;
 			if(bufferSelectedObj)
@@ -1204,10 +1213,25 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
 
+	/*/ autotetect transparency mode
+	{
+		RRObject* multiObject = solver->getMultiObjectCustom();
+		RRMesh* multiMesh = multiObject->getCollider()->getMesh();
+		unsigned numTriangles = multiMesh->getNumTriangles();
+		for(unsigned i=0;i<numTriangles;i++)
+		{
+			RRMaterial* material = multiObject->getTriangleMaterial(i);
+			if(material)
+			{
+				if(material->
+		transparencyInAlpha = ;
+	}*/
+
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);
 	layerNumber = (_layerNumber<0)?-1-_layerNumber:_layerNumber;
 	renderRealtime = _layerNumber<0;
+	renderAmbient = _solver->getLights().size()==0;
 	ourEnv = 0;
 	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
 	if(selectedObjectIndex>=solver->getNumObjects()) selectedObjectIndex = 0;

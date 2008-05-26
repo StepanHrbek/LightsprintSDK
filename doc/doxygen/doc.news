@@ -12,10 +12,20 @@ namespace rr
 
 NEWS
 
+- improved Collada adapter (reads more textures with proper texcoords)
+- improved LightsprintGL renderer (renders more textures)
 - rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
   that enables texture compression.
   \n WARNING: Old code still compiles, but it might be incorrect now.
   Find all places where you call these functions and add new parameter.
+
+CHANGES
+
+- optional texcoord channels and all channel indices moved from RRMesh to RRObject
+  \n As adapter writer, move your getChannelData() and getChannelSize() from your RRMesh adapter to your RRObject adapter.
+  \n As adapter user, change mesh->getChannelData(RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+  \n into object->getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+
 
 \section news57 ------------------------------------ 2008.5.13 -------------------------------------
 

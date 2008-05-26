@@ -21,8 +21,8 @@ const char* UberProgramSetup::getSetupString()
 	static bool SHADOW_BILINEAR = true;
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
-	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	static char setup[2000];
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -54,6 +54,9 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_EMISSIVE_CONST?"#define MATERIAL_EMISSIVE_CONST\n":"",
 		MATERIAL_EMISSIVE_VCOLOR?"#define MATERIAL_EMISSIVE_VCOLOR\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
+		MATERIAL_TRANSPARENCY_CONST?"#define MATERIAL_TRANSPARENCY_CONST\n":"",
+		MATERIAL_TRANSPARENCY_MAP?"#define MATERIAL_TRANSPARENCY_MAP\n":"",
+		MATERIAL_TRANSPARENCY_IN_ALPHA?"#define MATERIAL_TRANSPARENCY_IN_ALPHA\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -103,9 +106,8 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 			return tmp;
 		}
 	}
-	// try max 9 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
-	// no, make it shorter, try max 8 maps, both AMD and NVIDIA high end GPUs can do only 8
-	for(SHADOW_MAPS=1;SHADOW_MAPS<=MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
+	// try max 8 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
+	for(SHADOW_MAPS=1;SHADOW_MAPS<=(unsigned)MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
 	{
 		Program* program = getProgram(uberProgram);
 		if(!program // stop when !compiled or !linked
@@ -264,7 +266,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	Program* program = getProgram(uberProgram);
 	if(!program)
 	{
-		rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n");
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n"));
 		return NULL;
 	}
 	program->useIt();
@@ -467,6 +469,18 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
 		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active (EMISSIVE is typically used without DIFFUSE)
 		program->sendUniform("materialEmissiveMap", id);
+	}
+
+	if(MATERIAL_TRANSPARENCY_CONST)
+	{
+		// set default value, caller may override it by additional sendUniform call
+		program->sendUniform("materialTransparencyConst", 0.5f, 0.5f, 0.5f, 0.5f);
+	}
+
+	if(MATERIAL_TRANSPARENCY_MAP)
+	{
+		int id=TEXTURE_2D_MATERIAL_TRANSPARENCY;
+		program->sendUniform("materialTransparencyMap", id);
 	}
 
 	if(POSTPROCESS_BRIGHTNESS

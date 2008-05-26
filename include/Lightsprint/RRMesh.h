@@ -169,11 +169,6 @@ namespace rr
 			INDEXED_BY_VERTEX                = 0x0000,
 			INDEXED_BY_TRIANGLE              = 0x1000,
 			INDEXED_BY_OBJECT                = 0x3000,
-			CHANNEL_TRIANGLE_DIFFUSE_TEX         = INDEXED_BY_TRIANGLE+5, ///< channel contains RRBuffer* for each triangle
-			CHANNEL_TRIANGLE_EMISSIVE_TEX        = INDEXED_BY_TRIANGLE+6, ///< channel contains RRBuffer* for each triangle
-			CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV = INDEXED_BY_TRIANGLE+7, ///< channel contains RRVec2[3] for each triangle
-			CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV= INDEXED_BY_TRIANGLE+8, ///< channel contains RRVec2[3] for each triangle
-			CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = INDEXED_BY_TRIANGLE+9, ///< channel contains RRObjectIllumination* for each triangle
 		};
 
 		//////////////////////////////////////////////////////////////////////////////

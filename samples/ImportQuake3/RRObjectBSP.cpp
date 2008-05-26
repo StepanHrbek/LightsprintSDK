@@ -198,6 +198,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
 		MaterialInfo si;
+		si.texture = NULL;
 		bool triedLoadTexture = false;
 		for(unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
 		for(unsigned i=model->mModels[mdl].mFace;i<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);i++)
@@ -288,6 +289,7 @@ rr::RRObjectIllumination* RRObjectBSP::getIllumination()
 
 RRObjectBSP::~RRObjectBSP()
 {
+	for(unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].texture;
 	delete illumination;
 	delete collider;
 }
@@ -300,11 +302,13 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
 			return;
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -323,7 +327,8 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -346,7 +351,8 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = materials[materialIndex].texture;
 			return true;
 		}
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -373,7 +379,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			}
 			return true;
 		}
-		case rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{

@@ -195,13 +195,15 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
 			return;
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -220,8 +222,9 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX:
+		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
@@ -244,8 +247,9 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = model->Materials[materialIndex].tex;
 			return true;
 		}
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
@@ -268,7 +272,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			}
 			return true;
 		}
-		case rr::RRMesh::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{

@@ -186,7 +186,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererCaching = rendererNonCaching->createDisplayList();
 	if(!rendererCaching)
 	{
-		RR_ASSERT(0);
+		// probably empty scene
 		return;
 	}
 

@@ -66,6 +66,7 @@ ObjectBuffers::ObjectBuffers()
 	anormal = NULL;
 	atexcoordDiffuse = NULL;
 	atexcoordEmissive = NULL;
+	atexcoordTransparency = NULL;
 	atexcoordAmbient = NULL;
 	atexcoordForced2D = NULL;
 	alightIndirectVcolor = NULL;
@@ -97,18 +98,25 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	// (other way would be to rebuild shaders for missing data)
 
 	unsigned hasDiffuseMap = 1;
-	//mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
+	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
 	if(hasDiffuseMap)
 		NEW_ARRAY(atexcoordDiffuse,RRVec2)
 	else
 		atexcoordDiffuse = NULL;
 
 	unsigned hasEmissiveMap = 1;
-	//mesh->getChannelSize(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
+	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
 	if(hasEmissiveMap)
 		NEW_ARRAY(atexcoordEmissive,RRVec2)
 	else
 		atexcoordEmissive = NULL;
+
+	unsigned hasTransparencyMap = 1;
+	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,&hasTransparencyMap,NULL);
+	if(hasTransparencyMap)
+		NEW_ARRAY(atexcoordTransparency,RRVec2)
+	else
+		atexcoordTransparency = NULL;
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
@@ -128,12 +136,17 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		rr::RRVec2 diffuseUv[3];
 		if(hasDiffuseMap)
 		{
-			mesh->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
 		}
 		rr::RRVec2 emissiveUv[3];
 		if(hasEmissiveMap)
 		{
-			mesh->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
+			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
+		}
+		rr::RRVec2 transparencyUv[3];
+		if(hasTransparencyMap)
+		{
+			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,transparencyUv,sizeof(transparencyUv));
 		}
 /*		// material change? -> start new facegroup
 		// a) rendering into shadowmap, check shadowing flags
@@ -178,12 +191,13 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
-			fg.diffuseColor[3] = material ? 1-material->specularTransmittance.avg() : 1; // alpha, 0=transparent
 			fg.emissiveColor = material ? material->diffuseEmittance : rr::RRVec3(0);
+			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance,1-material->specularTransmittance.avg()) : rr::RRVec4(0,0,0,1);
+
 			fg.diffuseTexture = NULL;
 //			if(hasDiffuseMap)
 			{
-				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
 //				if(!fg.diffuseTexture)
 				{
 					// it's still possible that user will render without texture
@@ -194,23 +208,39 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
 				fg.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
-				fg.diffuseTexture->setElement(0,fg.diffuseColor);
+				fg.diffuseTexture->setElement(0,rr::RRVec4(fg.diffuseColor,1));
 				tempTextures.push_back(fg.diffuseTexture); // remember it for destruction time
 			}
 			getTexture(fg.diffuseTexture); // prebuild texture so we don't do it in display list
+
 			fg.emissiveTexture = NULL;
 			//if(hasEmissiveMap)
 			{
-				object->getChannelData(rr::RRMesh::CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
+				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
 			}
 			if(!fg.emissiveTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
 				fg.emissiveTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
-				fg.emissiveTexture->setElement(0,fg.emissiveColor);
+				fg.emissiveTexture->setElement(0,rr::RRVec4(fg.emissiveColor,1));
 				tempTextures.push_back(fg.emissiveTexture); // remember it for destruction time
 			}
 			getTexture(fg.emissiveTexture); // prebuild texture so we don't do it in display list
+
+			fg.transparencyTexture = NULL;
+			//if(hasTransparencyMap)
+			{
+				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX,t,&fg.transparencyTexture,sizeof(fg.transparencyTexture));
+			}
+			if(!fg.transparencyTexture)
+			{
+				// create 1x1 stub so we can support even shaders that request texture
+				fg.transparencyTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
+				fg.transparencyTexture->setElement(0,fg.transparencyColor);
+				tempTextures.push_back(fg.transparencyTexture); // remember it for destruction time
+			}
+			getTexture(fg.transparencyTexture); // prebuild texture so we don't do it in display list
+
 			faceGroups.push_back(fg);
 			previousMaterial = material;
 		}
@@ -253,6 +283,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				atexcoordDiffuse[currentVertex] = diffuseUv[v];
 			if(hasEmissiveMap)
 				atexcoordEmissive[currentVertex] = emissiveUv[v];
+			if(hasTransparencyMap)
+				atexcoordTransparency[currentVertex] = transparencyUv[v];
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
@@ -269,6 +301,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	CREATE_VBO(anormal,RRVec3,GL_STATIC_DRAW,normalVBO);
 	CREATE_VBO(atexcoordDiffuse,RRVec2,GL_STATIC_DRAW,texcoordDiffuseVBO);
 	CREATE_VBO(atexcoordEmissive,RRVec2,GL_STATIC_DRAW,texcoordEmissiveVBO);
+	CREATE_VBO(atexcoordTransparency,RRVec2,GL_STATIC_DRAW,texcoordTransparencyVBO);
 	CREATE_VBO(atexcoordAmbient,RRVec2,GL_STATIC_DRAW,texcoordAmbientVBO);
 	//CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
 	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
@@ -293,6 +326,7 @@ ObjectBuffers::~ObjectBuffers()
 	delete alightIndirectVcolor;
 	delete[] atexcoordForced2D;
 	delete[] atexcoordAmbient;
+	delete[] atexcoordTransparency;
 	delete[] atexcoordEmissive;
 	delete[] atexcoordDiffuse;
 	delete[] anormal;
@@ -507,10 +541,18 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		BIND_VBO(TexCoord,2,texcoordEmissive);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
+	// set material transparency texcoords
+	if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
+		BIND_VBO(TexCoord,2,texcoordTransparency);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 	// render facegroups (facegroups differ by material)
 	if(params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
 		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP
-		|| params.renderedChannels.MATERIAL_TRANSPARENT || params.renderedChannels.MATERIAL_CULLING)
+		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
+		|| params.renderedChannels.MATERIAL_CULLING)
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
@@ -536,9 +578,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				}
 
 				// set blending
-				if(params.renderedChannels.MATERIAL_TRANSPARENT)
+				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 				{
-					bool transparency = faceGroups[fg].diffuseColor[3]<1;
+					bool transparency = faceGroups[fg].transparencyColor[3]<1;
 					if(transparency!=blendEnabled || !blendKnown)
 					{
 						if(transparency)
@@ -617,6 +659,28 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but emissive texture not available, expect incorrect render.\n"));
 					}
 				}
+				// set transparency color
+				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST)
+				{
+					if(params.program)
+						params.program->sendUniform("materialTransparencyConst",faceGroups[fg].transparencyColor[0],faceGroups[fg].transparencyColor[1],faceGroups[fg].transparencyColor[2],faceGroups[fg].transparencyColor[3]);
+					else
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
+				}
+				// set transparency map
+				if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+				{
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
+					rr::RRBuffer* tex = faceGroups[fg].transparencyTexture;
+					if(tex)
+					{
+						getTexture(tex)->bindTexture();
+					}
+					else
+					{
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but transparency texture not available, expect incorrect render.\n"));
+					}
+				}
 				// render one facegroup
 				if(indices)
 				{
@@ -650,6 +714,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glBindTexture(GL_TEXTURE_2D,0);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+	// unset material transparency texcoords
+	if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}

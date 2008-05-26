@@ -32,6 +32,9 @@
 //  #define MATERIAL_EMISSIVE_CONST
 //  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define MATERIAL_TRANSPARENCY_CONST
+//  #define MATERIAL_TRANSPARENCY_MAP
+//  #define MATERIAL_TRANSPARENCY_IN_ALPHA
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -42,9 +45,7 @@
 //  #define CLIPPING
 //  #define FORCE_2D_POSITION
 //
-// Workarounds for driver bugs of one vendor made it a mess, sorry.
-//
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
 
 //#if SHADOW_SAMPLES>0 // ATI fails on this line
 #if SHADOW_MAPS>0
@@ -171,6 +172,15 @@
 #ifdef MATERIAL_EMISSIVE_MAP
 	uniform sampler2D materialEmissiveMap;
 	varying vec2 materialEmissiveCoord;
+#endif
+
+#ifdef MATERIAL_TRANSPARENCY_CONST
+	uniform vec4 materialTransparencyConst;
+#endif
+
+#ifdef MATERIAL_TRANSPARENCY_MAP
+	uniform sampler2D materialTransparencyMap;
+	varying vec2 materialTransparencyCoord;
 #endif
 
 #ifdef POSTPROCESS_BRIGHTNESS
@@ -342,7 +352,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
@@ -443,6 +453,21 @@ void main()
 			#endif
 			;
 
+		#ifdef MATERIAL_TRANSPARENCY_CONST
+			#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+				gl_FragColor.a = materialTransparencyConst.a;
+			#else
+				gl_FragColor.a = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
+			#endif
+		#endif
+		#ifdef MATERIAL_TRANSPARENCY_MAP
+			vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
+			#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+				gl_FragColor.a = materialTransparencyMapColor.a;
+			#else
+				gl_FragColor.a = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
+			#endif
+		#endif
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor.rgb *= 0.5;
 		#endif

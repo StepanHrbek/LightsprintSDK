@@ -36,6 +36,7 @@ private:
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
 	rr::RRVec2* atexcoordEmissive;
+	rr::RRVec2* atexcoordTransparency;
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
@@ -47,6 +48,7 @@ private:
 	unsigned normalVBO;
 	unsigned texcoordDiffuseVBO;
 	unsigned texcoordEmissiveVBO;
+	unsigned texcoordTransparencyVBO;
 	unsigned texcoordAmbientVBO;
 	//unsigned texcoordForced2DVBO;
 	//unsigned lightIndirectVcolorVBO;
@@ -62,8 +64,10 @@ private:
 		unsigned renderBack:1;
 		rr::RRBuffer* diffuseTexture;
 		rr::RRBuffer* emissiveTexture;
-		rr::RRVec4 diffuseColor; // last component is alpha, 0=transparent
-		rr::RRVec4 emissiveColor;
+		rr::RRBuffer* transparencyTexture;
+		rr::RRVec3 diffuseColor;
+		rr::RRVec3 emissiveColor;
+		rr::RRVec4 transparencyColor;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)

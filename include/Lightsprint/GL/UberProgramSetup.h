@@ -20,15 +20,16 @@ enum
 	// textures assigned to UberProgram
 	// GeForce supports 0..31, ok
 	// Radeon supports 0..15, ok
-	// Mesa supports only 0..7, ok if you use at most 2 shadowmaps and 1 lightmap
-	TEXTURE_2D_MATERIAL_DIFFUSE          = 0, ///< Sampler id used by our uberprogram for diffuse map.
-	TEXTURE_2D_LIGHT_DIRECT              = 1, ///< Sampler id used by our uberprogram for projected light map.
-	TEXTURE_2D_LIGHT_INDIRECT            = 2, ///< Sampler id used by our uberprogram for ambient map.
-	TEXTURE_2D_MATERIAL_EMISSIVE         = 3, ///< Sampler id used by our uberprogram for emissive map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 4, ///< Sampler id used by our uberprogram for specular cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Sampler id used by our uberprogram for diffuse cube map.
-	TEXTURE_2D_SHADOWMAP_0               = 6, ///< Sampler id used by our shadowmap 0. For more shadowmaps, use up to TEXTURE_2D_SHADOWMAP_0+7
-	TEXTURE_2D_LIGHT_INDIRECT2           = 15, ///< Sampler id used by our uberprogram for ambient map2.
+	// Mesa supports only 0..7, ok if you use at most 1 shadowmap and 1 lightmap
+	TEXTURE_2D_MATERIAL_DIFFUSE          = 0, ///< Texture image unit used by our uberprogram for diffuse map.
+	TEXTURE_2D_LIGHT_DIRECT              = 1, ///< Texture image unit used by our uberprogram for projected light map.
+	TEXTURE_2D_LIGHT_INDIRECT            = 2, ///< Texture image unit used by our uberprogram for ambient map.
+	TEXTURE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Texture image unit used by our uberprogram for rgb transparency map.
+	TEXTURE_2D_MATERIAL_EMISSIVE         = 4, ///< Texture image unit used by our uberprogram for emissive map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Texture image unit used by our uberprogram for diffuse cube map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Texture image unit used by our uberprogram for specular cube map.
+	TEXTURE_2D_SHADOWMAP_0               = 7, ///< Texture image unit used by our shadowmap 0. For more shadowmaps in single shader, use up to TEXTURE_2D_SHADOWMAP_0+7
+	TEXTURE_2D_LIGHT_INDIRECT2           = 15, ///< Texture image unit used by our uberprogram for ambient map2.
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
@@ -36,6 +37,7 @@ enum
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for ambient map uv.
 	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
 	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
+	MULTITEXCOORD_MATERIAL_TRANSPARENCY  = 4, ///< Texcoord channel used by our uberprogram for rgb transparency map uv.
 };
 
 
@@ -91,8 +93,11 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_EMISSIVE_VCOLOR  :1; ///< Enables material's emission stored per vertex.
 	bool     MATERIAL_EMISSIVE_MAP     :1; ///< Enables material's emission stored in sRGB map.
 
+	bool     MATERIAL_TRANSPARENCY_CONST:1; ///< Enables materials's specular transmittance modulated by rgb constant.
+	bool     MATERIAL_TRANSPARENCY_MAP :1; ///< Enables materials's specular transmittance modulated by texture (rgb or alpha).
+	bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< When enabled, transparency is read from alpha (0=transparent) rather than from rgb (1=transparent).
+
 	bool     MATERIAL_NORMAL_MAP       :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
-	bool     MATERIAL_TRANSPARENT      :1; ///< Enables materials's specular transmittance (alpha test is enabled/disabled according to material, no change in shader).
 	bool     MATERIAL_CULLING          :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).
 
 	bool     ANIMATION_WAVE            :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
@@ -110,7 +115,6 @@ struct RR_GL_API UberProgramSetup
 	{
 		memset(this,0,sizeof(*this));
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = true; // this doesn't turn on LIGHT_INDIRECT_VCOLOR, but if YOU turn it on, it will be in physical scale rather than custom
-		MATERIAL_TRANSPARENT = true;
 		MATERIAL_CULLING = true;
 	}
 
