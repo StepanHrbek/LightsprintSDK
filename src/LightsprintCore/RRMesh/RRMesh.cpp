@@ -178,24 +178,33 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 
 void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter) const
 {
-	RRVec3 center = RRVec3(0);
-	RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
-	RRVec3 maxi = RRVec3(-1e37f);
 	unsigned numVertices = getNumVertices();
-	for(unsigned i=0;i<numVertices;i++)
+	if(numVertices)
 	{
-		RRMesh::Vertex v;
-		getVertex(i,v);
-		for(unsigned j=0;j<3;j++)
+		RRVec3 center = RRVec3(0);
+		RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
+		RRVec3 maxi = RRVec3(-1e37f);
+		for(unsigned i=0;i<numVertices;i++)
 		{
-			center[j] += v[j];
-			mini[j] = MIN(mini[j],v[j]);
-			maxi[j] = MAX(maxi[j],v[j]);
+			RRMesh::Vertex v;
+			getVertex(i,v);
+			for(unsigned j=0;j<3;j++)
+			{
+				center[j] += v[j];
+				mini[j] = MIN(mini[j],v[j]);
+				maxi[j] = MAX(maxi[j],v[j]);
+			}
 		}
+		if(acenter) *acenter = center/numVertices;
+		if(amini) *amini = mini;
+		if(amaxi) *amaxi = maxi;
 	}
-	if(amini) *amini = mini;
-	if(amaxi) *amaxi = maxi;
-	if(acenter) *acenter = center/numVertices;
+	else
+	{
+		if(acenter) *acenter = RRVec3(0);
+		if(amini) *amini = RRVec3(0);
+		if(amaxi) *amaxi = RRVec3(0);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
