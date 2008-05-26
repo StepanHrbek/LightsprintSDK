@@ -33,7 +33,7 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 {
 
 // HACK: is MESA library present? (PS3 Linux)
-#ifdef GL_MESA_window_pos
+#if !defined(_WIN32) && defined(__PPC__)
 #define MESA_VERSION
 #endif
 
