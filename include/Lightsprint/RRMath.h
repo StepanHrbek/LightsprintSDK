@@ -81,8 +81,9 @@
 #include <cmath>
 
 // fix symbols missing in gcc
-#ifndef _MSC_VER
+#ifdef POSIX
 	#define _strdup strdup
+	#define _stricmp strcasecmp
 	#define _snprintf snprintf
 	#define _vsnprintf vsnprintf
 	#define _finite finite

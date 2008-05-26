@@ -4,10 +4,6 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
-#if (defined(__GNUC__)  || defined(__GCCXML__)) && !defined(_stricmp)
-#define _stricmp strcasecmp
-#endif
-
 extern rr_gl::RRDynamicSolverGL* createSolver();
 extern void error(const char* message, bool gfxRelated);
 
