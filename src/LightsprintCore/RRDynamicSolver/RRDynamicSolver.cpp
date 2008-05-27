@@ -140,7 +140,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		for(unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
-			if(material && material->diffuseEmittance!=rr::RRVec3(0))
+			if(material && material->diffuseEmittance.color!=rr::RRVec3(0))
 				priv->staticSceneContainsEmissiveMaterials = true;
 
 			RRObject::LodInfo lodInfo;

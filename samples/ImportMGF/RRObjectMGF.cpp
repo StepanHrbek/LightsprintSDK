@@ -159,10 +159,10 @@ void* add_material(C_MATERIAL* m)
 {
 	rr::RRMaterial mat;
 	mat.reset(m->sided==0);
-	mgf2rgb(&m->ed_c,m->ed/4000,mat.diffuseEmittance); //!!!
-	mgf2rgb(&m->rd_c,m->rd,mat.diffuseReflectance);
+	mgf2rgb(&m->ed_c,m->ed/4000,mat.diffuseEmittance.color); //!!!
+	mgf2rgb(&m->rd_c,m->rd,mat.diffuseReflectance.color);
 	mat.specularReflectance = m->rs;
-	mgf2rgb(&m->ts_c,m->ts,mat.specularTransmittance);
+	mgf2rgb(&m->ts_c,m->ts,mat.specularTransmittance.color);
 	mat.refractionIndex = m->nr;
 #ifdef VERIFY
 	// we know inputs are correct, only ideal glass is adjusted to slightly less ideal glass

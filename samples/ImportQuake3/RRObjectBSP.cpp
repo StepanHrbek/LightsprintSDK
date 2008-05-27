@@ -12,7 +12,7 @@
 // nearly zero memory requirements, no duplications.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_DIFFUSE_TEX etc.
+// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with diffuse maps or ambient maps),
 // it is never accessed by radiosity solver.
@@ -149,7 +149,7 @@ static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const 
 	if(!t)
 	{
 		t = fallback;
-		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green"))
+		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green")) // temporary: don't report known missing textures in Lightsmark
 			rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
@@ -171,9 +171,11 @@ static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const 
 	// set all properties to default
 	s.reset(0);
 	// rgb is diffuse reflectance
-	s.diffuseReflectance = avg;
+	s.diffuseReflectance.color = avg;
+	s.diffuseReflectance.texture = t;
 	// alpha is transparency
-	s.specularTransmittance = rr::RRVec3(1-avg[3]);
+	s.specularTransmittance.color = rr::RRVec3(1-avg[3]);
+	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
 
 #ifdef VERIFY
 	if(s.validate())
@@ -302,11 +304,6 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
-			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
-			return;
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
@@ -327,30 +324,6 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
-		{
-			if(itemIndex>=RRObjectBSP::getNumTriangles())
-			{
-				assert(0); // legal, but shouldn't happen in well coded program
-				return false;
-			}
-			unsigned materialIndex = triangles[itemIndex].s;
-			if(materialIndex>=materials.size())
-			{
-				assert(0); // illegal
-				return false;
-			}
-			typedef rr::RRBuffer* Out;
-			Out* out = (Out*)itemData;
-			if(sizeof(*out)!=itemSize)
-			{
-				assert(0);
-				return false;
-			}
-			*out = materials[materialIndex].texture;
-			return true;
-		}
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 		{

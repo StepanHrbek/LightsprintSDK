@@ -190,20 +190,11 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.renderFront = !material || material->sideBits[0].renderFrom;
 			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;
-			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
-			fg.emissiveColor = material ? material->diffuseEmittance : rr::RRVec3(0);
-			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance,1-material->specularTransmittance.avg()) : rr::RRVec4(0,0,0,1);
+			fg.diffuseColor = material ? material->diffuseReflectance.color : rr::RRVec3(0);
+			fg.emissiveColor = material ? material->diffuseEmittance.color : rr::RRVec3(0);
+			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()) : rr::RRVec4(0,0,0,1);
 
-			fg.diffuseTexture = NULL;
-//			if(hasDiffuseMap)
-			{
-				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
-//				if(!fg.diffuseTexture)
-				{
-					// it's still possible that user will render without texture
-//					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
-				}
-			}
+			fg.diffuseTexture = material ? material->diffuseReflectance.texture : NULL;
 			if(!fg.diffuseTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
@@ -213,11 +204,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			}
 			getTexture(fg.diffuseTexture); // prebuild texture so we don't do it in display list
 
-			fg.emissiveTexture = NULL;
-			//if(hasEmissiveMap)
-			{
-				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
-			}
+			fg.emissiveTexture = material ? material->diffuseEmittance.texture : NULL;
 			if(!fg.emissiveTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
@@ -227,11 +214,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			}
 			getTexture(fg.emissiveTexture); // prebuild texture so we don't do it in display list
 
-			fg.transparencyTexture = NULL;
-			//if(hasTransparencyMap)
-			{
-				object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX,t,&fg.transparencyTexture,sizeof(fg.transparencyTexture));
-			}
+			fg.transparencyTexture = material ? material->specularTransmittance.texture : NULL;
 			if(!fg.transparencyTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture

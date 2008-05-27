@@ -379,7 +379,7 @@ public:
 			if(pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= pointMaterial.specularTransmittance.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+				visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
 				return !visibility;
 			}
 		}
@@ -389,7 +389,7 @@ public:
 			if(triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
 				return !visibility;
 			}
 		}

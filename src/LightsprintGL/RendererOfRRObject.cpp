@@ -271,6 +271,8 @@ void RendererOfRRObject::render()
 		// general, but slower code
 		// reads indirect vertex illumination always from solver, indirect maps always from layer
 
+		if(!params.object || !params.object->getCollider() || !params.object->getCollider()->getMesh()) return; // sanity check, things may be missing when out of memory
+
 		bool begun = false;
 		const rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 		//unsigned numTriangles = meshImporter->getNumTriangles();
@@ -343,7 +345,7 @@ void RendererOfRRObject::render()
 							glEnd();
 							begun = false;
 						}
-						if(material && material->specularTransmittance.avg())
+						if(material && material->specularTransmittance.color.avg())
 						{
 							// current blendfunc is used, caller is responsible for setting it
 //							glEnable(GL_BLEND);
@@ -367,7 +369,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							params.program->sendUniform("materialDiffuseConst",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
+							params.program->sendUniform("materialDiffuseConst",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1-material->specularTransmittance.color.avg());
 						}
 						else
 						{
@@ -385,7 +387,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							glVertexAttrib4f(materialDiffuseVColorIndex,material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2],1-material->specularTransmittance.avg());
+							glVertexAttrib4f(materialDiffuseVColorIndex,material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1-material->specularTransmittance.color.avg());
 						}
 						else
 						{
@@ -396,8 +398,7 @@ void RendererOfRRObject::render()
 					// material diffuse map - bind texture
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
-						rr::RRBuffer* tex = NULL;
-						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
+						Texture* tex = material ? getTexture(material->diffuseReflectance.texture) : NULL;
 						if(tex)
 						{
 							if(begun)
@@ -406,7 +407,7 @@ void RendererOfRRObject::render()
 								begun = false;
 							}
 							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-							getTexture(tex)->bindTexture();
+							tex->bindTexture();
 						}
 						else
 						{			
@@ -424,7 +425,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							params.program->sendUniform("materialEmissiveConst",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0.0f);
+							params.program->sendUniform("materialEmissiveConst",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2],0.0f);
 						}
 						else
 						{
@@ -443,7 +444,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							glVertexAttrib4f(materialEmissiveVColorIndex,material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2],0);
+							glVertexAttrib4f(materialEmissiveVColorIndex,material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2],0);
 						}
 						else
 						{
@@ -453,8 +454,7 @@ void RendererOfRRObject::render()
 					// material emissive map - bind texture
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{
-						Texture* tex = NULL;
-						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
+						Texture* tex = material ? getTexture(material->diffuseEmittance.texture) : NULL;
 						if(tex)
 						{
 							if(begun)
@@ -473,8 +473,7 @@ void RendererOfRRObject::render()
 					// material transparency rgb map - bind texture
 					if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 					{
-						Texture* tex = NULL;
-						params.object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX,triangleIdx,&tex,sizeof(tex));
+						Texture* tex = material ? getTexture(material->specularTransmittance.texture) : NULL;
 						if(tex)
 						{
 							if(begun)

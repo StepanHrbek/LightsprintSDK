@@ -1054,11 +1054,11 @@ static void display(void)
 				{
 					if(material->name)
 						textOutput(x,y+=18,"name: %s",material->name);
-					textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance[0],material->diffuseReflectance[1],material->diffuseReflectance[2]);
+					textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2]);
 					textOutput(x,y+=18,"specular refl: %f",material->specularReflectance);
-					textOutput(x,y+=18,"transmittance: %f %f %f",material->specularTransmittance[0],material->specularTransmittance[1],material->specularTransmittance[2]);
+					textOutput(x,y+=18,"transmittance: %f %f %f",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2]);
 					textOutput(x,y+=18,"refraction index: %f",material->refractionIndex);
-					textOutput(x,y+=18,"dif.emittance: %f %f %f",material->diffuseEmittance[0],material->diffuseEmittance[1],material->diffuseEmittance[2]);
+					textOutput(x,y+=18,"dif.emittance: %f %f %f",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2]);
 				}
 				unsigned numReceivedLights = 0;
 				unsigned numShadowsCast = 0;

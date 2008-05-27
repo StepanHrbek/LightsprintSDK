@@ -201,7 +201,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	for(unsigned t=0;t<numTriangles;t++)
 	{
 		const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
-		triangles[t].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
+		triangles[t].diffuseReflectance = material ? material->diffuseReflectance.color : RRVec3(0.5f);
 		triangles[t].area = mesh->getTriangleArea(t);
 		triangles[t].areaInv = triangles[t].area ? 1/triangles[t].area : 1; // so we don't return INF exitance from degenerated triangle (now we mostly return 0)
 		RR_ASSERT(_finite(triangles[t].area));

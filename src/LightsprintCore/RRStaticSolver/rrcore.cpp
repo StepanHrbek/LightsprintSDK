@@ -296,13 +296,13 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	#error CHANNELS == 1 not supported here.
 #else
 	Channels newSourceIrradiance = _sourceIrradiance;
-	Channels newSourceExitance = surface->diffuseEmittance + _sourceIrradiance * surface->diffuseReflectance;
+	Channels newSourceExitance = surface->diffuseEmittance.color + _sourceIrradiance * surface->diffuseReflectance.color;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
 #endif
-	RR_ASSERT(surface->diffuseEmittance[0]>=0); // teoreticky by melo jit i se zapornou
-	RR_ASSERT(surface->diffuseEmittance[1]>=0);
-	RR_ASSERT(surface->diffuseEmittance[2]>=0);
+	RR_ASSERT(surface->diffuseEmittance.color[0]>=0); // teoreticky by melo jit i se zapornou
+	RR_ASSERT(surface->diffuseEmittance.color[1]>=0);
+	RR_ASSERT(surface->diffuseEmittance.color[2]>=0);
 	RR_ASSERT(area>=0);
 	RR_ASSERT(_sourceIrradiance.x>=0); // teoreticky by melo jit i se zapornou
 	RR_ASSERT(_sourceIrradiance.y>=0);
@@ -803,10 +803,10 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
 	if(side.receiveFrom)
-	if(sum(abs(hitTriangle->surface->diffuseReflectance*power))>0.01)
+	if(sum(abs(hitTriangle->surface->diffuseReflectance.color*power))>0.01)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReceived);
-		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
+		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
 		// cheap storage with accumulated power -> subdivision is not possible
 		// put triangle among other hit triangles
 		if(!hitTriangle->hits) hitTriangles.insert(hitTriangle);
@@ -832,7 +832,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
 	if(side.transmitFrom)
-	if(fabs(power*hitTriangle->surface->specularTransmittance.sum())>0.3f)
+	if(fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f)
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsTransmitted);
@@ -841,7 +841,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		// calculate new direction after refraction
 		RRVec3 newDirection=-refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.avg()));
+		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
 	}
 	s_depth--;
 	return hitPower;
@@ -982,12 +982,12 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	Channels energyIncident = energy;
 #ifdef CLEAN_FACTORS
 	RR_ASSERT(destination->surface);
-	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance));
+	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.color));
 	// kdyz se aspon polovinu casu hybe svetly (hodne se distribuuje),
 	//  tento radek je nejvetsi zrout CPU z celeho rr.
 	// pri predelani cele matematiky na sse se vyrazne zrychli, ale jine vypocty 
 	//  zpomali, protoze msvc neumi volaci konvence s predavanim sse registru.
-	energy *= destination->surface->diffuseReflectance;
+	energy *= destination->surface->diffuseReflectance.color;
 
 	// statistics
 	//RRStaticSolver::getSceneStatistics()->sumDistribFactorClean += factor->power;

@@ -363,19 +363,16 @@ protected:
 // data stored per material, shared by multiple objects
 // includes textures, but not binding to texcoord channels
 
-struct MaterialProperty
-{
-	RRBuffer*              texture;
-	unsigned               texcoord;
-};
+// Makes key in MaterialCache map FCDEffectStandard, not FCDMaterialInstance.
+// + reduces number of unique materials, saves memory, makes render faster
+// - introduces error if two instances of the same material use different uv channels
+// When you see wrong uv, disable AGGRESSIVE_CACHE.
+#define AGGRESSIVE_CACHE
 
 struct MaterialInfo
 {
 	RRMaterial             material;
-	MaterialProperty       diffuse;
-	MaterialProperty       emissive;
-	MaterialProperty       transparency;
-	bool                   transparencyInAlpha;
+	// here's space for custom extensions
 };
 
 fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
@@ -430,6 +427,7 @@ public:
 			return NULL;
 		}
 
+#ifdef AGGRESSIVE_CACHE
 		const FCDMaterial* material = materialInstance->GetMaterial();
 		if(!material)
 		{
@@ -458,6 +456,37 @@ public:
 		{
 			return &( cache[effectStandard] = loadMaterial(materialInstance,effectStandard) );
 		}
+#else
+		Cache::iterator i = cache.find(materialInstance);
+		if(i!=cache.end())
+		{
+			return &( i->second );
+		}
+		else
+		{
+			const FCDMaterial* material = materialInstance->GetMaterial();
+			if(!material)
+			{
+				return NULL;
+			}
+
+			const FCDEffect* effect = material->GetEffect();
+			if(!effect)
+			{
+				return NULL;
+			}
+
+			const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
+			if(!effectProfile)
+			{
+				return NULL;
+			}
+
+			const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
+
+			return &( cache[materialInstance] = loadMaterial(materialInstance,effectStandard) );
+		}
+#endif
 	}
 	~MaterialCache()
 	{
@@ -472,14 +501,14 @@ public:
 		}
 	}
 private:
-	void loadTexture(FUDaeTextureChannel::Channel channel, MaterialProperty& materialProperty, RRVec3& color, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
+	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
 		// load texture
 		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : NULL;
 		materialProperty.texture = imageCache->load(texture);
 		if(materialProperty.texture)
 		{
-			color = getAvgColor(materialProperty.texture);
+			materialProperty.color = getAvgColor(materialProperty.texture);
 		}
 		// load texcoord
 		materialProperty.texcoord = 0;
@@ -505,24 +534,24 @@ private:
 	{
 		MaterialInfo mi;
 		mi.material.reset(false); // 1-sided with photons hitting back side deleted
-		mi.material.diffuseReflectance = colorToColor(effectStandard->GetDiffuseColor());
-		mi.material.diffuseEmittance = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
+		mi.material.diffuseReflectance.color = colorToColor(effectStandard->GetDiffuseColor());
+		mi.material.diffuseEmittance.color = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 		mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
-		mi.material.specularTransmittance = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
+		mi.material.specularTransmittance.color = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
 			? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 			: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 		mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
 
-		loadTexture(FUDaeTextureChannel::DIFFUSE,mi.diffuse,mi.material.diffuseReflectance,materialInstance,effectStandard);
-		loadTexture(FUDaeTextureChannel::EMISSION,mi.emissive,mi.material.diffuseEmittance,materialInstance,effectStandard);
-		loadTexture(FUDaeTextureChannel::TRANSPARENT,mi.transparency,mi.material.specularTransmittance,materialInstance,effectStandard);
-		mi.transparencyInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
-		if(mi.transparency.texture)
+		loadTexture(FUDaeTextureChannel::DIFFUSE,mi.material.diffuseReflectance,materialInstance,effectStandard);
+		loadTexture(FUDaeTextureChannel::EMISSION,mi.material.diffuseEmittance,materialInstance,effectStandard);
+		loadTexture(FUDaeTextureChannel::TRANSPARENT,mi.material.specularTransmittance,materialInstance,effectStandard);
+		mi.material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
+		if(mi.material.specularTransmittance.texture)
 		{
-			if(mi.transparencyInAlpha)
+			if(mi.material.specularTransmittanceInAlpha)
 			{
-				RRVec4 avg = getAvgColor(mi.transparency.texture);
-				mi.material.specularTransmittance = RRVec3(1-avg[3]);
+				RRVec4 avg = getAvgColor(mi.material.specularTransmittance.texture);
+				mi.material.specularTransmittance.color = RRVec3(1-avg[3]);
 			}
 
 			if(effectStandard->GetTranslucencyFactor()!=1)
@@ -532,7 +561,7 @@ private:
 			// It makes calculation much slower, so enable it only when necessary.
 			// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
 			// Here, for simplicity, we enable it for textures with at least 1% transparency in texture.
-			if(mi.material.specularTransmittance.avg()>0.01f)
+			if(mi.material.specularTransmittance.color.avg()>0.01f)
 				mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 		}
 
@@ -546,11 +575,11 @@ private:
 		return mi;
 	}
 
-	// Note: Key in map is FCDEffectStandard, not FCDMaterialInstance.
-	// + reduces number of unique materials, saves memory, makes render faster
-	// - introduces error if two instances of the same material use different uv channels
- 	// When you see wrong uv, change key to FCDMaterialInstance.
+#ifdef AGGRESSIVE_CACHE
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
+#else
+	typedef std::map<const FCDMaterialInstance*,MaterialInfo> Cache;
+#endif
 	Cache cache;
 
 	ImageCache* imageCache;
@@ -641,13 +670,6 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 			if(itemSize) *itemSize = sizeof(RRVec2[3]);
 			return;
 
-		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
-			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr::RRBuffer*);
-			return;
-
 		default:
 			// unsupported channel
 			RRObject::getChannelSize(channelId,numItems,itemSize);
@@ -679,38 +701,11 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 				}
 				const FCDGeometryMesh* mesh = static_cast<const FCDGeometry*>(geometryInstance->GetEntity())->GetMesh();
 				unsigned inputSet = (channelId==rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV)
-					? mi->diffuse.texcoord
+					? mi->material.diffuseReflectance.texcoord
 					: ( (channelId==rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV)
-						? mi->emissive.texcoord
-						: mi->transparency.texcoord );
+						? mi->material.diffuseEmittance.texcoord
+						: mi->material.specularTransmittance.texcoord );
 				return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,(int)inputSet,2,itemIndex,itemData,itemSize);
-			}
-
-		case rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX:
-		case rr::RRObject::CHANNEL_TRIANGLE_TRANSPARENCY_TEX:
-			{
-				if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
-				{
-					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
-					return false;
-				}
-				typedef rr::RRBuffer* Out;
-				Out* out = (Out*)itemData;
-				if(sizeof(*out)!=itemSize)
-				{
-					RR_ASSERT(0);
-					return false;
-				}
-				const MaterialInfo* mi = getTriangleMaterialInfo(itemIndex);
-				*out = mi
-					? (	(channelId==rr::RRObject::CHANNEL_TRIANGLE_DIFFUSE_TEX)
-						? mi->diffuse.texture
-						: ( (channelId==rr::RRObject::CHANNEL_TRIANGLE_EMISSIVE_TEX)
-							? mi->emissive.texture
-							: mi->transparency.texture ) )
-					: NULL;
-				return true;
 			}
 
 		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
@@ -789,28 +784,28 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	{
 		out.reset(false);
 	}
-	if(materialInfo->diffuse.texture)
+	if(material->diffuseReflectance.texture)
 	{
 		rr::RRVec2 mapping[3];
 		getCollider()->getMesh()->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
-		out.diffuseReflectance = materialInfo->diffuse.texture->getElement(RRVec3(uv[0],uv[1],0));
+		out.diffuseReflectance.color = material->diffuseReflectance.texture->getElement(RRVec3(uv[0],uv[1],0));
 	}
-	if(materialInfo->emissive.texture)
+	if(material->diffuseEmittance.texture)
 	{
 		rr::RRVec2 mapping[3];
 		getCollider()->getMesh()->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
-		out.diffuseEmittance = materialInfo->emissive.texture->getElement(RRVec3(uv[0],uv[1],0));
+		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
 	}
-	if(materialInfo->transparency.texture)
+	if(material->specularTransmittance.texture)
 	{
 		rr::RRVec2 mapping[3];
 		getCollider()->getMesh()->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
-		RRVec4 rgba = materialInfo->transparency.texture->getElement(RRVec3(uv[0],uv[1],0));
-		out.specularTransmittance = materialInfo->transparencyInAlpha ? RRVec3(1-rgba[3]) : rgba;
-		if(out.specularTransmittance==RRVec3(1))
+		RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
+		out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
+		if(out.specularTransmittance.color==RRVec3(1))
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 	}
 }

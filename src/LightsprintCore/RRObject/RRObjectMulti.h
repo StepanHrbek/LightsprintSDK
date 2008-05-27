@@ -398,7 +398,7 @@ public:
 				pack0Items = pack[0].getImporter()->getCollider()->getMesh()->getNumVertices();
 				break;
 			case RRMesh::INDEXED_BY_TRIANGLE:
-				unoptimizeTriangle(itemIndex); // pokud vypustime unoptimize, CHANNEL_TRIANGLE_DIFFUSE_TEX bude vracet spatne udaje ve scene kde doslo k optimalizaci
+				unoptimizeTriangle(itemIndex); // pokud vypustime unoptimize, CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV bude vracet spatne udaje ve scene kde doslo k optimalizaci
 				pack0Items = pack[0].getNumTriangles();
 				break;
 			case RRMesh::INDEXED_BY_OBJECT:

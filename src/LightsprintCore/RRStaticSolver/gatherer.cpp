@@ -88,7 +88,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 			if(gatherDirectEmitors)
 			{
 				// used in direct lighting final gather [per pixel emittance]
-				exitance += visibility * material->diffuseEmittance;
+				exitance += visibility * material->diffuseEmittance.color;
 			}
 			else
 			{
@@ -113,14 +113,14 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 
 		// specular transmittance
 		if(side.transmitFrom)
-		if(sum(abs(visibility*material->specularTransmittance))>0.1)
+		if(sum(abs(visibility*material->specularTransmittance.color))>0.1)
 		{
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
 			// calculate new direction after refraction
 			RRVec3 newDirection=-refract(ray->hitPlane,direction,material->refractionIndex);
 			// recursively call this function
-			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance);
+			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance.color);
 			RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0);
 		}
 	}
