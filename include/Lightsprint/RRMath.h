@@ -81,7 +81,7 @@
 #include <cmath>
 
 // fix symbols missing in gcc
-#ifdef POSIX
+#ifdef __GNUC__
 	#define _strdup strdup
 	#define _stricmp strcasecmp
 	#define _snprintf snprintf
