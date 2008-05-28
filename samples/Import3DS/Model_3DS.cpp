@@ -131,14 +131,12 @@
 // utility functions for handling little endian on a big endian system
 
 #ifdef __PPC__
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN
-#endif
+#define RR_BIG_ENDIAN
 #endif
 
 inline void swap16(void* p)
 {
-#ifdef BIG_ENDIAN
+#ifdef RR_BIG_ENDIAN
 	char b0 = ((char*) p)[0];
 	char b1 = ((char*) p)[1];
 	((char*) p)[0] = b1;
@@ -148,7 +146,7 @@ inline void swap16(void* p)
 
 inline void swap32(void* p)
 {
-#ifdef BIG_ENDIAN
+#ifdef RR_BIG_ENDIAN
 	char b0 = ((char*) p)[0];
 	char b1 = ((char*) p)[1];
 	char b2 = ((char*) p)[2];

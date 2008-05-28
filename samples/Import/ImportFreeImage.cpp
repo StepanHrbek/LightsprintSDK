@@ -19,7 +19,7 @@
 #pragma comment(lib,"FreeImage.lib")
 
 #if defined(__PPC__)
-#define BIG_ENDIAN
+#define RR_BIG_ENDIAN
 #endif
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -106,7 +106,7 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 					{
 						for(unsigned i=0;i<width;i++)
 						{
-#ifdef BIG_ENDIAN
+#ifdef RR_BIG_ENDIAN
 							pixels[j*4*width+4*i+0] = fipixels[j*pitch+4*i+0];
 							pixels[j*4*width+4*i+1] = fipixels[j*pitch+4*i+1];
 							pixels[j*4*width+4*i+2] = fipixels[j*pitch+4*i+2];
