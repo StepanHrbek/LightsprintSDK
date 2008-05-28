@@ -98,6 +98,9 @@ void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler*
 					locked[headers[i].dstOffset1*4+2] = FLOAT2BYTE(sum[2]);
 					locked[headers[i].dstOffset1*4+3] = 0;
 					break;
+				default:
+					RRReporter::report(WARN,"Unexpected buffer format.\n");
+					break;
 			}
 		}
 		else

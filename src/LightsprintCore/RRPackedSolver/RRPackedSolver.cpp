@@ -256,7 +256,6 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	if(currentQuality>=qualityStatic) return; // improving in static scene (without reset) is more and more expensive, stop it after n improves
 	currentQuality += qualityDynamic;
 	//RRReportInterval report(INF2,"Improving...\n");
-	unsigned numShooters = 0;
 
 
 	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni

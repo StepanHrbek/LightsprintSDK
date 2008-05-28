@@ -150,6 +150,9 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 		case BF_RGBAF:
 			((RRVec4*)data)[index] = element;
 			break;
+		default:
+			RRReporter::report(WARN,"Unexpected buffer format.\n");
+			break;
 	}
 }
 
@@ -187,6 +190,9 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 			break;
 		case BF_RGBAF:
 			result = *((RRVec4*)(data+ofs));
+			break;
+		default:
+			RRReporter::report(WARN,"Unexpected buffer format.\n");
 			break;
 	}
 	//RR_ASSERT(result[0]>=0); // bent normals may be negative

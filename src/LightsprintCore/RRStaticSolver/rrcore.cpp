@@ -246,8 +246,7 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 	if(psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
 	if(psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
 	#endif
-	real cosa=1-psqr/2;
-	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(cosa)); //first is probably faster
+	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(1-psqr/2)); //first is probably faster
 	area=sina/2*rsize*lsize;
 	if(psqr<=0) return -7;
 	if(psqr>=4) return -9;

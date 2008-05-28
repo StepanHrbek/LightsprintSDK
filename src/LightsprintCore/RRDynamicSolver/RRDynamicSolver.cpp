@@ -485,14 +485,14 @@ unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) con
 		{
 			delete illumination->getLayer(layerNumber);
 			const char* filename = bp("%sobj%04d_%02d.png",path?path:"",i,layerNumber);
-			if(illumination->getLayer(layerNumber) = rr::RRBuffer::load(filename,NULL))
+			if( (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 			{
 				result++;
 				rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);
 			}
 			else
 			{
-				if(illumination->getLayer(layerNumber) = rr::RRBuffer::load(bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber),NULL))
+				if( (illumination->getLayer(layerNumber)=rr::RRBuffer::load(bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber),NULL)) )
 				{
 					result++;
 					rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);

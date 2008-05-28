@@ -268,8 +268,8 @@ namespace rr
 			delete[] obj.face;
 		}
 
-		// save tree to disk
-		if(tree && (unsigned)(tree->bsp.size)>=MIN_BYTES_FOR_SAVE)
+		// save tree to disk (gcc warning on following line is innocent but hard to prevent)
+		if(tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
 		{
 			f = fopen(name,"wb");
 			if(f)

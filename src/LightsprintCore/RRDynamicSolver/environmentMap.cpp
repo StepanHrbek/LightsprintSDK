@@ -32,8 +32,8 @@ struct CubeSide
 	signed char dir[3];
 	struct Neighbour
 	{
-		char side;
-		char edge;
+		unsigned char side;
+		unsigned char edge;
 	};
 	Neighbour neighbour[4]; // indexed by Edge
 
