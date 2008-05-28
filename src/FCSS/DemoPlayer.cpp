@@ -92,7 +92,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
 		rr::RRReporter::report(rr::INF1,"Loading %s...\n",buf);
 		DynamicObject* object = DynamicObject::create(buf,scale,material,gatherDiffuseCubeSize,specularCubeSize);
-		dynamicObjects->addObject(object);
+		if(object)
+			dynamicObjects->addObject(object);
+		else
+			rr::RRReporter::report(rr::WARN,"Object indices temporarily broken due to missing object.\n");
 	}
 
 	// load scenes

@@ -177,8 +177,15 @@ DynamicObjects::DynamicObjects()
 
 void DynamicObjects::addObject(DynamicObject* dynobj)
 {
-	dynaobject.push_back(dynobj);
-	dynaobjectAI.push_back(new DynamicObjectAI());
+	if(dynobj)
+	{
+		dynaobject.push_back(dynobj);
+		dynaobjectAI.push_back(new DynamicObjectAI());
+	}
+	else
+	{
+		RR_ASSERT(0);
+	}
 }
 
 rr::RRVec3 DynamicObjects::getPos(unsigned objIndex) const
@@ -341,6 +348,7 @@ void DynamicObjects::advanceRot(float seconds)
 {
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
+		RR_ASSERT(dynaobject[i]);
 		dynaobject[i]->rotYZ[0] += 90*seconds;
 		dynaobject[i]->updatePosition();
 	}

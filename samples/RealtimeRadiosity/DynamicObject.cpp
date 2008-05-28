@@ -55,7 +55,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 
 		return d;
 	}
-	if(!d->model->numObjects) printf("Model %s contains no objects.\n",_filename);
+	if(!d->model->numObjects) rr::RRReporter::report(rr::WARN,"Model %s contains no objects.\n",_filename);
 	delete d;
 	return NULL;
 }
