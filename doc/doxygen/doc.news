@@ -22,8 +22,10 @@ NEWS
 CHANGES
 
 - extended RRMaterial, now it includes textures
+  \n In your code, change material->diffuseReflectance to material->diffuseReflectance.color.
+   Do the same for diffuseEmittance and specularTransmittance.
 - removed texture channels CHANNEL_TRIANGLE_DIFFUSE_TEX, CHANNEL_TRIANGLE_EMISSIVE_TEX, CHANNEL_TRIANGLE_TRANSPARENCY_TEX
-  (obsoleted by extended RRMaterial)
+  (obsoleted by extended RRMaterial, use material->diffuseReflectance.texture)
 - moved texcoord channels (CHANNEL_TRIANGLE_VERTICES_*_UV) from RRMesh to RRObject
   \n As adapter writer, move your getChannelData() and getChannelSize() from your RRMesh
      implementation to your RRObject implementation.
