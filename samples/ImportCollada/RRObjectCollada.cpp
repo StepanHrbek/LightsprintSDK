@@ -312,7 +312,11 @@ class ImageCache
 public:
 	ImageCache(const char* _pathToTextures, bool _stripPaths)
 	{
-		pathToTextures = _strdup(_pathToTextures);
+		if(_pathToTextures)
+			pathToTextures = _strdup(_pathToTextures);
+		else
+			// _strdup on NULL string causes crash on Unix platforms
+			pathToTextures = _strdup("");
 		stripPaths = _stripPaths;
 	}
 	RRBuffer* load(const FCDTexture* texture)
