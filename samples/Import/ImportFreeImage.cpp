@@ -443,6 +443,20 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 										pixel[2] = ((float*)src)[2];
 										pixel[3] = 1;
 										break;
+#ifdef RR_BIG_ENDIAN
+									case 32:
+										pixel[0] = BYTE2FLOAT(src[2]);
+										pixel[1] = BYTE2FLOAT(src[1]);
+										pixel[2] = BYTE2FLOAT(src[0]);
+										pixel[3] = BYTE2FLOAT(src[3]);
+										break;
+									case 24:
+										pixel[0] = BYTE2FLOAT(src[2]);
+										pixel[1] = BYTE2FLOAT(src[1]);
+										pixel[2] = BYTE2FLOAT(src[0]);
+										pixel[3] = 1;
+										break;
+#else // RR_BIG_ENDIAN
 									case 32:
 										pixel[0] = BYTE2FLOAT(src[0]);
 										pixel[1] = BYTE2FLOAT(src[1]);
@@ -455,6 +469,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 										pixel[2] = BYTE2FLOAT(src[2]);
 										pixel[3] = 1;
 										break;
+#endif // RR_BIG_ENDIAN
 								}
 								src += srcbypp;
 								// swap r<->b
