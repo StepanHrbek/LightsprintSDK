@@ -442,6 +442,12 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	{
 		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
 
+		// reduce number of lines read back if possible
+		//  unused space is located at the end of last readback buffer (last iteration of this for cycle)
+		//  without this code, we would read it back, but it could be too long (e.g. 2.5K) for our _results buffer
+		//  with this code, we reduce unused space read back to less than 1 line (that fits in our safety 2K buffer)
+		while(captureUv->triCountY && captureUv->triCountX*(captureUv->triCountY-1)>=captureUv->lastCapturedTrianglePlus1-captureUv->firstCapturedTriangle) captureUv->triCountY--;
+
 		// prepare for scaling down -> render to texture
 		detectBigMap->renderingToBegin();
 
