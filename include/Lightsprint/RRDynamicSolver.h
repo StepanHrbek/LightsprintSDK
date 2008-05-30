@@ -270,8 +270,8 @@ namespace rr
 		//! \param intersectTechnique
 		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
 		//! \param forceMultiObjectCustom
-		//!  Should stay NULL.
-		void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRObject* forceMultiObjectCustom = NULL);
+		//!  Should stay NULL (used by sceneViewer to share multiObjectCustom between original and rendering solver).
+		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRObject* forceMultiObjectCustom = NULL);
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects();
 

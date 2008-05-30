@@ -129,6 +129,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
 	honourExpensiveLightingShadowingFlags = false;
+	numTransparencyChannels = 0;
 
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
@@ -157,6 +158,30 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
 	// reset detected direct lighting
 	if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+}
+
+void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRObject* forceMultiObjectCustom)
+{
+	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,forceMultiObjectCustom);
+
+	// update numTransparencyChannels
+	numTransparencyChannels = 0;
+	if(getMultiObjectCustom())
+	{
+		unsigned numTrianglesWithATransp = 0;
+		unsigned numTrianglesWithRGBTransp = 0;
+		unsigned numTrianglesMulti = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+		for(unsigned t=0;t<numTrianglesMulti;t++)
+		{
+			const rr::RRMaterial* material = getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
+			if(material && material->specularTransmittance.texture)
+			{
+				if(material->specularTransmittanceInAlpha) numTrianglesWithATransp++;
+					else numTrianglesWithRGBTransp++;
+			}
+		}
+		numTransparencyChannels = (numTrianglesWithRGBTransp>numTrianglesWithATransp)?3:( (numTrianglesWithATransp>numTrianglesWithRGBTransp)?1:0 );
+	}
 }
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
@@ -259,7 +284,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 1;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;//!!!
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = numTransparencyChannels!=3; // autodetected for whole static scene (however, it could be incorrect for dynamic object. only updating shader during render will fix it)
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					uberProgramSetup.MATERIAL_DIFFUSE = 1;
 					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;

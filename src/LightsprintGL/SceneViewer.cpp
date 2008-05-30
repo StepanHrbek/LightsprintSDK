@@ -60,7 +60,6 @@ static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
 static bool                       renderWireframe = 0;
 static bool                       renderHelpers = 0;
-static bool                       transparencyInAlpha = 1; //!!! autodetected, whether whole scene reads transparency from A or from RGB
 static bool                       fireballLoadAttempted = 1;
 static float                      speedGlobal = 2; // speed of movement controlled by user
 static float                      speedForward = 0;
@@ -818,7 +817,7 @@ static void display(void)
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = transparencyInAlpha;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = solver->numTransparencyChannels!=3; // autodetected for whole static scene
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
@@ -1274,20 +1273,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
-
-	/*/ autotetect transparency mode
-	{
-		RRObject* multiObject = solver->getMultiObjectCustom();
-		RRMesh* multiMesh = multiObject->getCollider()->getMesh();
-		unsigned numTriangles = multiMesh->getNumTriangles();
-		for(unsigned i=0;i<numTriangles;i++)
-		{
-			RRMaterial* material = multiObject->getTriangleMaterial(i);
-			if(material)
-			{
-				if(material->
-		transparencyInAlpha = ;
-	}*/
 
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);

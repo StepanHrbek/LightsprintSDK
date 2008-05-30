@@ -151,7 +151,10 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			if(priv->staticSceneContainsEmissiveMaterials && priv->staticSceneContainsLods)
 				break;
 		}
-		RRReporter::report(_forceMultiObjectCustom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, emiss %s, lods %s\n",priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),priv->staticSceneContainsEmissiveMaterials?"yes":"no",priv->staticSceneContainsLods?"yes":"no");
+		RRReporter::report(_forceMultiObjectCustom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, emiss %s, lods %s\n",
+			priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
+			priv->staticSceneContainsEmissiveMaterials?"yes":"no",
+			priv->staticSceneContainsLods?"yes":"no");
 	}
 }
 

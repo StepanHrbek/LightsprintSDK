@@ -52,6 +52,7 @@ namespace rr_gl
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		virtual void setLights(const rr::RRLights& lights);
+		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRObject* forceMultiObjectCustom = NULL);
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
 		//! renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;
@@ -76,6 +77,9 @@ namespace rr_gl
 		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
 		//! Inited to false, you may freely change it.
 		bool honourExpensiveLightingShadowingFlags;
+		//! Solver needs all transparency maps to be Alpha or RGB. This should be 1 for all Alpha, 3 for all RGB.
+		//! Default value is autodetected in setStaticObjects() from materials in static scene, but you are free to change it at any moment later.
+		unsigned numTransparencyChannels;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 	protected:
