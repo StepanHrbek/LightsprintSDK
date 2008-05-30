@@ -178,10 +178,19 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 	if(_params && _params->qualityIndirectDynamic==0) return;
 
 	// detect only dirty lights
-	bool dirtyGI = false;
-	for(unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
-	if(dirtyGI)
-		setDirectIllumination(detectDirectIllumination());
+	if(realtimeLights.size())
+	{
+		bool dirtyGI = false;
+		for(unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
+		if(dirtyGI)
+			setDirectIllumination(detectDirectIllumination());
+	}
+	else
+	{
+		// must be called at least once after all lights are removed
+		// it's no performance problem to call it many times in row
+		setDirectIllumination(NULL);
+	}
 
 	RRDynamicSolver::calculate(_params);
 }
