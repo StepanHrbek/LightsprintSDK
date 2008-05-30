@@ -18,7 +18,7 @@ namespace rr
 //
 //! Purpose of RRVector is to replace STL in public Lightsprint headers,
 //! which makes Lightsprint work with any STL implementation.
-//! It works like std::vector in simple cases demonstrated in Lightsprint SDK
+//! It works like std::vector in simple cases in Lightsprint SDK interface
 //! where C is pointer, RRObject* or RRLight*.
 //! It is not suitable for more complex operations.
 template<class C>
@@ -63,6 +63,16 @@ public:
 			c = (C*)std::realloc(c,sizeof(C)*numAllocated);
 		}
 		c[numUsed++] = a;
+	}
+	//! Removes i-th element from vector (i is not iterator unlike std::vector).
+	//! Destructor is not called (unlike std::vector).
+	void erase(unsigned i)
+	{
+		if(numUsed)
+		{
+			numUsed--;
+			for(;i<numUsed;i++) c[i] = c[i+1];
+		}
 	}
 	//! Returns number of elements in vector (like std::vector).
 	unsigned size() const

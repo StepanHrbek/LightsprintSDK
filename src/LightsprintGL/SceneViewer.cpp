@@ -76,11 +76,13 @@ static bool                       exitRequested = 0;
 static int                        menuHandle = 0;
 static bool                       bilinear = 1;
 static bool                       ourEnv = 0; // whether environment is owned by us
+static rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned by us
 static LightmapViewer*            lv = NULL; // 2d lightmap viewer
 static unsigned                   layerNumber = 0; // layer used for all static lighting operations
 static unsigned                   centerObject = UINT_MAX; // object in the middle of screen
 static unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
 static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
+static int                        menuInUse = GLUT_MENU_NOT_IN_USE; // GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
 
 // all we need for testing lightfield
 static const rr::RRLightField*    lightField = NULL;
@@ -179,6 +181,11 @@ class Menu
 public:
 	Menu(Solver* solver)
 	{
+		create();
+		menuInUse = GLUT_MENU_NOT_IN_USE;
+	}
+	static void create()
+	{
 		// Select...
 		int selectHandle = glutCreateMenu(selectCallback);
 		char buf[100];
@@ -245,6 +252,13 @@ public:
 		glutAddMenuEntry("Set black", ME_ENV_BLACK);
 		glutAddMenuEntry("Set white top", ME_ENV_WHITE_TOP);
 
+		// Lights...
+		int lightsHandle = glutCreateMenu(lightsCallback);
+		glutAddMenuEntry("Insert dir light", ME_LIGHT_DIR);
+		glutAddMenuEntry("Insert spot light", ME_LIGHT_SPOT);
+		glutAddMenuEntry("Insert point light", ME_LIGHT_POINT);
+		glutAddMenuEntry("Delete selected light", ME_LIGHT_DELETE);
+
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
@@ -252,6 +266,7 @@ public:
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
+		glutAddSubMenu("Lights...", lightsHandle);
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render diffuse", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry("Toggle render emissive", ME_RENDER_EMISSION);
@@ -266,10 +281,14 @@ public:
 		glutAddMenuEntry("Quit", ME_CLOSE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
-	~Menu()
+	static void destroy()
 	{
 		glutDetachMenu(GLUT_RIGHT_BUTTON);
 		glutDestroyMenu(menuHandle);
+	}
+	~Menu()
+	{
+		destroy();
 	}
 	static void mainCallback(int item)
 	{
@@ -500,6 +519,36 @@ public:
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
+	static void lightsCallback(int item)
+	{
+		rr::RRLights newList = solver->getLights();
+		rr::RRLight* newLight = NULL;
+		switch(item)
+		{
+			case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); break;
+			case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(eye.pos,rr::RRVec3(1),eye.dir,eye.fieldOfView*(3.14f/180/2),eye.fieldOfView*(3.14f/180/4)); break;
+			case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(eye.pos,rr::RRVec3(1)); break;
+			case ME_LIGHT_DELETE:
+				if(selectedLightIndex<solver->realtimeLights.size())
+				{
+					newList.erase(selectedLightIndex);
+					if(selectedLightIndex && selectedLightIndex==newList.size())
+						selectedLightIndex--;
+					if(!newList.size())
+						selectedType = ST_CAMERA;
+				}
+				break;
+		}
+		if(newLight)
+		{
+			lightsToBeDeletedOnExit.push_back(newLight);
+			newList.push_back(newLight);
+		}
+		solver->setLights(newList);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		destroy();
+		create();
+	}
 	enum
 	{
 		ME_RENDER_AMBIENT,
@@ -515,6 +564,10 @@ public:
 		ME_ENV_WHITE,
 		ME_ENV_BLACK,
 		ME_ENV_WHITE_TOP,
+		ME_LIGHT_DIR,
+		ME_LIGHT_SPOT,
+		ME_LIGHT_POINT,
+		ME_LIGHT_DELETE,
 		ME_RANDOM_CAMERA,
 		ME_VERIFY,
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
@@ -674,6 +727,7 @@ static void mouse(int button, int state, int x, int y)
 
 static void passive(int x, int y)
 {
+	if(menuInUse==GLUT_MENU_IN_USE) return;
 	if(render2d && lv)
 	{
 		LightmapViewer::passive(x,y);
@@ -694,16 +748,19 @@ static void passive(int x, int y)
 		else
 		if(selectedType==ST_LIGHT)
 		{
-			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
-			Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-			light->angle -= 0.005f*x;
-			light->angleX -= 0.005f*y;
-			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
-			// changes position a bit, together with rotation
-			// if we don't call it, solver updates light in a standard way, without position change
-			light->pos += light->dir*0.3f;
-			light->update();
-			light->pos -= light->dir*0.3f;
+			if(selectedLightIndex<solver->getLights().size())
+			{
+				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
+				Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
+				light->angle -= 0.005f*x;
+				light->angleX -= 0.005f*y;
+				CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+				// changes position a bit, together with rotation
+				// if we don't call it, solver updates light in a standard way, without position change
+				light->pos += light->dir*0.3f;
+				light->update();
+				light->pos -= light->dir*0.3f;
+			}
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
@@ -1160,6 +1217,11 @@ static void idle()
 	glutPostRedisplay();
 }
 
+static void menuStatus(int status, int x, int y)
+{
+	menuInUse = status;
+}
+
 void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, int _layerNumber, bool _honourExpensiveLightingShadowingFlags)
 {
 	// init GLUT
@@ -1251,6 +1313,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
+	glutMenuStatusFunc(menuStatus);
 	Menu* menu = new Menu(solver);
 	menu->mainCallback(Menu::ME_RANDOM_CAMERA);
 	
@@ -1272,6 +1335,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMouseFunc(NULL);
 	glutPassiveMotionFunc(NULL);
 	glutIdleFunc(NULL);
+	glutMenuStatusFunc(NULL);
 
 	if(_createWindow)
 	{
@@ -1291,6 +1355,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	SAFE_DELETE(lv);
 	SAFE_DELETE(lightField);
 	SAFE_DELETE(lightFieldObjectIllumination);
+	for(unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
+	lightsToBeDeletedOnExit.clear();
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;
 }
