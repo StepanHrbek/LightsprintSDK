@@ -66,7 +66,11 @@
 
 using namespace rr;
 
-#define LIGHTMAP_CHANNEL UINT_MAX
+enum
+{
+	LIGHTMAP_CHANNEL = UINT_MAX,
+	UNSPECIFIED_CHANNEL = UINT_MAX-1,
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -122,8 +126,10 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
 #endif
 }
 
-// for TEXCOORD semantic, inputSet is mandatory. for lightmaps, inputSet is LIGHTMAP_CHANNEL and we read data from highest valid inputSet.
-// for other semantics, inputSet is ignored
+// for non TEXCOORD semantics, inputSet is ignored
+// for TEXCOORD semantic, inputSet is mandatory
+//   for lightmaps, inputSet is LIGHTMAP_CHANNEL and we read data from highest valid inputSet.
+//   for broken documents without binding, inputSet is UNSPECIFIED_CHANNEL and we read data from first valid inputSet.
 bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned inputSet, unsigned floatsPerVertexExpected, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
 	RR_ASSERT(itemSize==12*floatsPerVertexExpected);
@@ -136,10 +142,11 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 			size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
 			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 			{
-				for(size_t m=polygons->GetInputCount();m--;)
+				bool reverse = inputSet==LIGHTMAP_CHANNEL; // iterate from highest to lowers inputSet
+				for(size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
 				{
 					const FCDGeometryPolygonsInput* polygonsInput = polygons->GetInput(m);
-					if(polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL))
+					if(polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
 					{
 						const FCDGeometrySource* source = polygonsInput->GetSource();
 						if(source)
@@ -527,7 +534,8 @@ private:
 				}
 				else
 				{
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Texcoord binding missing in Collada file.\n"));
+					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Texcoord binding missing in Collada file, reading first channel instead. This is error of software that produced your Collada document. Documents can be tested using coherency test from http://sourceforge.net/projects/colladarefinery/\n"));
 				}
 			}
 		}
