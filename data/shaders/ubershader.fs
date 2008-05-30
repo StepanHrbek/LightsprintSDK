@@ -258,7 +258,7 @@ void main()
 
 		#if SHADOW_MAPS>1
 			#if defined(SHADOW_CASCADE)
-				if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04) visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*SHADOW_SAMPLES;
+				if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04) visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
 			#else
 				SHADOWMAP_LOOKUP(shadowMap1,1);
 			#endif
