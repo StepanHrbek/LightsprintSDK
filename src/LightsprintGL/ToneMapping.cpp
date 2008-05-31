@@ -47,18 +47,23 @@ void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVe
 			delete bigTexture->getBuffer();
 			delete bigTexture;
 		}
-		bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,viewport[2],viewport[3],1,rr::BF_RGBA,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,viewport[2],viewport[3],1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 	}
 	bigTexture->bindTexture();
 	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,viewport[0],viewport[1],viewport[2],viewport[3]);
-	//glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,viewport[0],viewport[1],viewport[2],viewport[3],0); changes size of texture on GPU but doesn't update size in RRBuffer
 	const unsigned width = 64;
 	const unsigned height = 32;
 	unsigned char buf[width*height*3];
 	unsigned histo[256];
 	unsigned avg = 0;
+	if(!smallTexture)
+	{
+		smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+	}
+	smallTexture->renderingToBegin();
 	textureRenderer->render2D(bigTexture,NULL,0,0,float(width)/viewport[2],float(height)/viewport[3]);
 	glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE,buf);
+	smallTexture->renderingToEnd();
 	for(unsigned i=0;i<256;i++)
 		histo[i] = 0;
 	for(unsigned i=0;i<width*height*3;i++)
