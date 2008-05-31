@@ -138,7 +138,7 @@ namespace rr_gl
 		{
 			// setup second map in cascade
 			RR_ASSERT(numInstances==2); // dir must have 1 or 2 instances
-			if(instance==0)
+			if(instance==1)
 			{
 				light.orthoSize *= 0.2f; // cascade goes in 5x size steps
 			}
