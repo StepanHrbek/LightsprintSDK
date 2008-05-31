@@ -355,7 +355,8 @@ public:
 		size_t memoryOccupied = 0;
 		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
-			memoryOccupied += i->second->getMemoryOccupied();
+			if(i->second)
+				memoryOccupied += i->second->getMemoryOccupied();
 		}
 		return memoryOccupied;
 	}
