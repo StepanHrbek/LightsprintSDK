@@ -985,14 +985,15 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 		if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
 		addNode(root);
 	}
-
-	size_t memoryOccupied = imageCache.getMemoryOccupied();
-	if(memoryOccupied>10000000)
-		rr::RRReporter::report(INF1,"Memory taken by textures: %dMB\n",memoryOccupied/1024/1024);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
 {
+	// report memory taken by textures
+	size_t memoryOccupied = imageCache.getMemoryOccupied();
+	if(memoryOccupied>10000000)
+		rr::RRReporter::report(INF1,"Collada: Memory taken by textures: %dMB\n",memoryOccupied/1024/1024);
+
 	// delete objects
 	for(unsigned i=0;i<size();i++)
 	{
