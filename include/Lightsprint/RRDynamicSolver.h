@@ -757,6 +757,17 @@ namespace rr
 		//! Switch to non-Fireball solver that supports offline calculations.
 		void leaveFireball();
 
+		//! Type of internal solver. For debugging purposes.
+		enum InternalSolverType
+		{
+			NONE,
+			ARCHITECT, // default solver type
+			FIREBALL, // must be activated by loadFireball() or buildFireball()
+			BOTH
+		};
+		//! Returns type of active internal solver.
+		InternalSolverType getInternalSolverType();
+
 
 		//! Build light field for GI of dynamic objects under static lighting.
 		//

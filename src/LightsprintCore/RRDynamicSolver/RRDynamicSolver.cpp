@@ -616,6 +616,13 @@ unsigned RRDynamicSolver::getSolutionVersion() const
 	return priv->solutionVersion;
 }
 
+RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType()
+{
+	if(priv->scene)
+		return priv->packedSolver?BOTH:ARCHITECT;
+	return priv->packedSolver?FIREBALL:NONE;
+}
+
 unsigned RR_INTERFACE_ID_LIB()
 {
 	return RR_INTERFACE_ID_APP();

@@ -269,16 +269,16 @@ public:
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
-		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
-		glutAddMenuEntry("Toggle render diffuse", ME_RENDER_DIFFUSE);
-		glutAddMenuEntry("Toggle render emissive", ME_RENDER_EMISSION);
-		glutAddMenuEntry("Toggle render transparent", ME_RENDER_TRANSPARENT);
-		glutAddMenuEntry("Toggle render textures", ME_RENDER_TEXTURES);
-		glutAddMenuEntry("Toggle render tone mapping", ME_RENDER_TONEMAPPING);
-		glutAddMenuEntry("Toggle render wireframe", ME_RENDER_WIREFRAME);
-		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
-		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
-		glutAddMenuEntry("Toggle maximize window", ME_MAXIMIZE);
+		glutAddMenuEntry(renderAmbient?"Disable const ambient":"Enable const ambient", ME_RENDER_AMBIENT);
+		glutAddMenuEntry(renderDiffuse?"Disable diffuse":"Enable diffuse", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry(renderEmission?"Disable emissivity":"Enable emissivity", ME_RENDER_EMISSION);
+		glutAddMenuEntry(renderTransparent?"Disable transparency":"Enable transparency", ME_RENDER_TRANSPARENT);
+		glutAddMenuEntry(renderTextures?"Disable textures":"Enable textures", ME_RENDER_TEXTURES);
+		glutAddMenuEntry(renderTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
+		glutAddMenuEntry(renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
+		glutAddMenuEntry(renderHelpers?"Hide helpers":"Show helpers", ME_RENDER_HELPERS);
+		glutAddMenuEntry(solver->honourExpensiveLightingShadowingFlags?"Ignore expensive flags":"Honour expensive flags", ME_HONOUR_FLAGS);
+		glutAddMenuEntry(fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
 		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
 		glutAddMenuEntry("Log solver status",ME_VERIFY);
 		glutAddMenuEntry("Quit", ME_CLOSE);
@@ -345,6 +345,8 @@ public:
 			case ME_CLOSE: exitRequested = 1; break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		destroy();
+		create();
 	}
 	static void selectCallback(int item)
 	{
@@ -829,7 +831,7 @@ static void display(void)
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			solver->renderScene(uberProgramSetup,NULL);
 			if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if(renderTonemapping)
+			if(renderTonemapping && !renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST)) // disable adjustment in completely dark scene
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;
@@ -935,7 +937,15 @@ static void display(void)
 		{
 			if(renderRealtime)
 			{
-				textOutput(x,y+=18,"realtime GI lighting");
+				const char* solverType = "";
+				switch(solver->getInternalSolverType())
+				{
+					case rr::RRDynamicSolver::NONE: solverType = "no solver"; break;
+					case rr::RRDynamicSolver::ARCHITECT: solverType = "Architect solver"; break;
+					case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
+					case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
+				}
+				textOutput(x,y+=18,"realtime GI lighting, %s",solverType);
 			}
 			else
 			{
