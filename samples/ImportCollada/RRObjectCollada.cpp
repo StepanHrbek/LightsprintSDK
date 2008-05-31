@@ -350,6 +350,15 @@ public:
 			return cache[filename] = RRBuffer::load(filename,cubeSideName,flipV,flipH);
 		}
 	}
+	size_t getMemoryOccupied()
+	{
+		size_t memoryOccupied = 0;
+		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		{
+			memoryOccupied += i->second->getMemoryOccupied();
+		}
+		return memoryOccupied;
+	}
 	~ImageCache()
 	{
 		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
@@ -976,6 +985,10 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 		if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
 		addNode(root);
 	}
+
+	size_t memoryOccupied = imageCache.getMemoryOccupied();
+	if(memoryOccupied>10000000)
+		rr::RRReporter::report(INF1,"Memory taken by textures: %dMB\n",memoryOccupied/1024/1024);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
