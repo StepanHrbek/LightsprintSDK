@@ -12,8 +12,8 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "PreserveState.h"
 
-#define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
-#define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
+#define BIG_MAP_SIZEX            2048 // size of temporary texture used during detection
+#define BIG_MAP_SIZEY            2048
 #define REPORT(a) //a
 
 namespace rr_gl
