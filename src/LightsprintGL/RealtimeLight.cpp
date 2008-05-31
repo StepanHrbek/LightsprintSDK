@@ -34,6 +34,7 @@ namespace rr_gl
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;
+		positionOfLastDDI = rr::RRVec3(1e6);
 		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:((_rrlight.type==rr::RRLight::DIRECTIONAL)?2:1)):0);
 	}
 
@@ -54,6 +55,7 @@ namespace rr_gl
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;
+		positionOfLastDDI = rr::RRVec3(1e6);
 		setNumInstances(_numInstances);
 	}
 

@@ -235,8 +235,15 @@ void RRDynamicSolverGL::updateShadowmaps()
 		for(unsigned i=0;i<realtimeLights.size();i++)
 			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
 			{
+				// dirty shadowmap always
 				realtimeLights[i]->dirtyShadowmap = true;
-				//realtimeLights[i]->dirtyGI = true;
+				// dirty GI only when observer moved too far
+				// (direct illum is detected and indirect calculated only in orthoSize*orthoSize range around observer,
+				//  so when observer moves far enough, we redetect direct illum automatically)
+				if((observer->pos-realtimeLights[i]->positionOfLastDDI).length()>realtimeLights[i]->getParent()->orthoSize/4)
+				{
+					realtimeLights[i]->dirtyGI = true;
+				}
 			}
 	}
 
@@ -360,6 +367,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		if(light->dirtyGI)
 		{
 			light->dirtyGI = false;
+			if(observer) light->positionOfLastDDI = observer->pos;
 			setupShaderLight = light;
 			updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
 		}

@@ -92,6 +92,9 @@ public:
 	//! Whether GI needs update.
 	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
 	bool dirtyGI;
+	//! Eye position when direct lighting was detected.
+	//! Only for directional light.
+	rr::RRVec3 positionOfLastDDI;
 
 	//! Original RRLight used at our creation, contains additional parameters like color. May be NULL.
 	const rr::RRLight* origin;

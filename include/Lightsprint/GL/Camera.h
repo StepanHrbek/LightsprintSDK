@@ -45,7 +45,7 @@ public:
 	float    afar;
 	//! Whether camera is orthogonal, set for directional lights.
 	bool     orthogonal;
-	//! Only if orthogonal: World space distance between points projected to top and bottom of screen.
+	//! Only if orthogonal: World space distance between closest points projected to top and bottom of screen.
 	float    orthoSize;
 
 	// outputs, to be calculated by update() and possibly read by user
