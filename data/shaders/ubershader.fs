@@ -253,8 +253,11 @@ void main()
 
 		vec3 center;
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
-			SHADOWMAP_LOOKUP(shadowMap1,1);
-			if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04) visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
+			center = shadowCoord[1].xyz/shadowCoord[1].w;
+			if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04)
+				visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
+			else
+				{SHADOWMAP_LOOKUP(shadowMap1,1);}
 		#else
 			#if SHADOW_MAPS>0
 				SHADOWMAP_LOOKUP(shadowMap0,0);
