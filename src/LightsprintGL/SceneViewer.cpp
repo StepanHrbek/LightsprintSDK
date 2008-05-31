@@ -7,6 +7,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/RendererOfScene.h"
+#include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Timer.h"
 #include "LightmapViewer.h"
 #include <cstdio>
@@ -58,6 +59,8 @@ static bool                       renderDiffuse = 1;
 static bool                       renderEmission = 1;
 static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
+static bool                       renderTonemapping = 1;
+static ToneMapping*               toneMapping = NULL;
 static bool                       renderWireframe = 0;
 static bool                       renderHelpers = 0;
 static bool                       fireballLoadAttempted = 1;
@@ -200,6 +203,13 @@ public:
 			glutAddMenuEntry(buf, 1000+i);
 		}
 
+		// Lights...
+		int lightsHandle = glutCreateMenu(lightsCallback);
+		glutAddMenuEntry("Insert dir light", ME_LIGHT_DIR);
+		glutAddMenuEntry("Insert spot light", ME_LIGHT_SPOT);
+		glutAddMenuEntry("Insert point light", ME_LIGHT_POINT);
+		glutAddMenuEntry("Delete selected light", ME_LIGHT_DELETE);
+
 		// Static lighting...
 		int staticHandle = glutCreateMenu(staticCallback);
 		glutAddMenuEntry("Render static lighting", ME_STATIC_3D);
@@ -251,26 +261,20 @@ public:
 		glutAddMenuEntry("Set black", ME_ENV_BLACK);
 		glutAddMenuEntry("Set white top", ME_ENV_WHITE_TOP);
 
-		// Lights...
-		int lightsHandle = glutCreateMenu(lightsCallback);
-		glutAddMenuEntry("Insert dir light", ME_LIGHT_DIR);
-		glutAddMenuEntry("Insert spot light", ME_LIGHT_SPOT);
-		glutAddMenuEntry("Insert point light", ME_LIGHT_POINT);
-		glutAddMenuEntry("Delete selected light", ME_LIGHT_DELETE);
-
 		// main menu
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
+		glutAddSubMenu("Lights...", lightsHandle);
 		glutAddSubMenu("Realtime lighting...", fireballHandle);
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
-		glutAddSubMenu("Lights...", lightsHandle);
 		glutAddMenuEntry("Toggle render const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry("Toggle render diffuse", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry("Toggle render emissive", ME_RENDER_EMISSION);
 		glutAddMenuEntry("Toggle render transparent", ME_RENDER_TRANSPARENT);
 		glutAddMenuEntry("Toggle render textures", ME_RENDER_TEXTURES);
+		glutAddMenuEntry("Toggle render tone mapping", ME_RENDER_TONEMAPPING);
 		glutAddMenuEntry("Toggle render wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry("Toggle render helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry("Toggle honour expensive flags", ME_HONOUR_FLAGS);
@@ -298,6 +302,7 @@ public:
 			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
 			case ME_RENDER_TRANSPARENT: renderTransparent = !renderTransparent; break;
 			case ME_RENDER_TEXTURES: renderTextures = !renderTextures; break;
+			case ME_RENDER_TONEMAPPING: renderTonemapping = !renderTonemapping; break;
 			case ME_RENDER_WIREFRAME: renderWireframe = !renderWireframe; break;
 			case ME_RENDER_HELPERS: renderHelpers = !renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
@@ -555,6 +560,7 @@ public:
 		ME_RENDER_EMISSION,
 		ME_RENDER_TRANSPARENT,
 		ME_RENDER_TEXTURES,
+		ME_RENDER_TONEMAPPING,
 		ME_RENDER_WIREFRAME,
 		ME_RENDER_HELPERS,
 		ME_HONOUR_FLAGS,
@@ -823,6 +829,15 @@ static void display(void)
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			solver->renderScene(uberProgramSetup,NULL);
 			if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			if(renderTonemapping)
+			{
+				static TIME oldTime = 0;
+				TIME newTime = GETTIME;
+				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
+				if(secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
+					toneMapping->adjustOperator(secondsSinceLastFrame,brightness,gamma);
+				oldTime = newTime;
+			}
 		}
 
 		if(renderHelpers)
@@ -1301,6 +1316,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMenuStatusFunc(menuStatus);
 	Menu* menu = new Menu(solver);
 	menu->mainCallback(Menu::ME_RANDOM_CAMERA);
+	toneMapping = new ToneMapping(_pathToShaders);
 	
 	exitRequested = false;
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
@@ -1310,6 +1326,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMainLoop();
 #endif
 
+	delete toneMapping;
 	delete menu;
 //	glutDisplayFunc(NULL); forbidden by GLUT
 	glutKeyboardFunc(NULL);

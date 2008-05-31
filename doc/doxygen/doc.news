@@ -12,7 +12,9 @@ namespace rr
 
 NEWS
 
-- improved Collada adapter (reads more textures with proper texcoords)
+- rr_gl::ToneMapping, support for automatic tone mapping,
+  \n demonstrated in SceneViewer sample
+- improved Collada adapter (reads more textures, texcoords)
 - improved LightsprintGL renderer (renders more textures)
 - rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
   that enables texture compression.
@@ -25,7 +27,7 @@ CHANGES
   \n In your code, change material->diffuseReflectance to material->diffuseReflectance.color.
    Do the same for diffuseEmittance and specularTransmittance.
 - removed texture channels CHANNEL_TRIANGLE_DIFFUSE_TEX, CHANNEL_TRIANGLE_EMISSIVE_TEX, CHANNEL_TRIANGLE_TRANSPARENCY_TEX
-  (obsoleted by extended RRMaterial, use material->diffuseReflectance.texture)
+  (use e.g. material->diffuseReflectance.texture instead)
 - moved texcoord channels (CHANNEL_TRIANGLE_VERTICES_*_UV) from RRMesh to RRObject
   \n As adapter writer, move your getChannelData() and getChannelSize() from your RRMesh
      implementation to your RRObject implementation.

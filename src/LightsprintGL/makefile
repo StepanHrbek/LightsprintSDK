@@ -31,6 +31,7 @@ OBJS  = $(TMP)Camera.o \
 	$(TMP)Shader.o \
 	$(TMP)Texture.o \
 	$(TMP)TextureRenderer.o \
+	$(TMP)ToneMapping.o \
 	$(TMP)UberProgram.o \
 	$(TMP)UberProgramSetup.o \
 	$(TMP)matrix.o

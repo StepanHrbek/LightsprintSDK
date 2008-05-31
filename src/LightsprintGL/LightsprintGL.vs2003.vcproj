@@ -413,6 +413,14 @@
 				>
 			</File>
 			<File
+				RelativePath="ToneMapping.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h"
+				>
+			</File>
+			<File
 				RelativePath="UberProgram.cpp"
 				>
 			</File>

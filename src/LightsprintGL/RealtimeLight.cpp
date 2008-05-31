@@ -139,6 +139,7 @@ namespace rr_gl
 		if(origin && origin->type==rr::RRLight::DIRECTIONAL)
 		{
 			// setup second map in cascade
+			// DDI needs map0 big, so map0 is big, map1 is smaller
 			RR_ASSERT(numInstances==2); // dir must have 1 or 2 instances
 			if(instance==1)
 			{
