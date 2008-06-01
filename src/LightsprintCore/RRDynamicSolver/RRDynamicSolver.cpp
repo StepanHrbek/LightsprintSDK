@@ -8,6 +8,7 @@
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // buildovani packed faktoru
+#include <set>
 
 namespace rr
 {
@@ -134,6 +135,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	// update staticSceneContainsEmissiveMaterials, staticSceneContainsLods
 	priv->staticSceneContainsEmissiveMaterials = false;
 	priv->staticSceneContainsLods = false;
+	std::set<const RRBuffer*> allTextures;
 	if(priv->multiObjectCustom)
 	{
 		unsigned numTrianglesMulti = priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();
@@ -148,11 +150,23 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			if(lodInfo.level)
 				priv->staticSceneContainsLods = true;
 
-			if(priv->staticSceneContainsEmissiveMaterials && priv->staticSceneContainsLods)
-				break;
+			if(material)
+			{
+				allTextures.insert(material->diffuseReflectance.texture);
+				allTextures.insert(material->diffuseEmittance.texture);
+				allTextures.insert(material->specularTransmittance.texture);
+			}
 		}
-		RRReporter::report(_forceMultiObjectCustom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, emiss %s, lods %s\n",
+		size_t memoryOccupiedByTextures = 0;
+		for(std::set<const RRBuffer*>::iterator i=allTextures.begin();i!=allTextures.end();i++)
+		{
+			if(*i)
+				memoryOccupiedByTextures += (*i)->getMemoryOccupied();
+		}
+
+		RRReporter::report(_forceMultiObjectCustom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, emiss %s, lods %s\n",
 			priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
+			unsigned(memoryOccupiedByTextures>>20),
 			priv->staticSceneContainsEmissiveMaterials?"yes":"no",
 			priv->staticSceneContainsLods?"yes":"no");
 	}
