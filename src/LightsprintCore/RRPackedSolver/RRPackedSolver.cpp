@@ -6,7 +6,7 @@
 
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
-#define BESTS 200 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
+#define BESTS 800 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #include "RRPackedSolver.h"
@@ -149,6 +149,7 @@ public:
 	//if(bests) RRReporter::report(INF2,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
 
 
+		highestFluxToDistribute = bests ? bestQ[0] : 0;
 		return bests;
 	}
 
@@ -158,6 +159,12 @@ public:
 	{
 		RR_ASSERT(i<bests);
 		return bestNode[i];
+	}
+
+	// valid only after selectBests()
+	RRReal getHighestFluxToDistribute() const
+	{
+		return highestFluxToDistribute;
 	}
 
 	// 1-threaded interface
@@ -181,6 +188,7 @@ protected:
 	unsigned indexBegin; ///< Index into triangle array, first of our triangles.
 	unsigned indexEnd; ///< Index into triangle array, last+1 of our triangles.
 	unsigned indexStep; ///< Step used in triangle array, we access only triangles: indexBegin, indexBegin+indexStep, indexBegin+2*indexStep, ...
+	RRReal highestFluxToDistribute;
 };
 
 
@@ -254,7 +262,6 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic)
 {
 	if(currentQuality>=qualityStatic) return; // improving in static scene (without reset) is more and more expensive, stop it after n improves
-	currentQuality += qualityDynamic;
 	//RRReportInterval report(INF2,"Improving...\n");
 
 
@@ -263,6 +270,22 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	for(unsigned group=0;group<qualityDynamic;group++)
 	{
 		unsigned bests = packedBests->selectBests();
+		if(bests)
+		{
+			RRReal q = packedBests->getHighestFluxToDistribute();
+			RRReporter::report(INF1,"%f\n",q);
+			if(currentQuality==0)
+			{
+				// this is first improve, set termination criteria
+				terminalFluxToDistribute = q/MAX(10000,packedSolverFile->packedIvertices->getNumC1());
+			}
+			else
+			if(q<terminalFluxToDistribute) // terminate
+			{
+				currentQuality = qualityStatic; // don't improve next time
+				return; // don't improve now
+			}
+		}
 		currentVersionInTriangles += bests;
 		for(unsigned i=0;i<bests;i++)
 		{
@@ -281,6 +304,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 					exitingFluxToDiffuse*start->getVisibility();
 			}
 		}
+		currentQuality++;
 	}
 
 

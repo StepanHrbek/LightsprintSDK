@@ -63,6 +63,7 @@ protected:
 	unsigned currentVersionInTriangles; // version of results available per triangle. reset and improve may increment it
 	unsigned currentVersionInVertices; // version of results available per vertex. getTriangleIrradianceIndirectUpdate() updates it to triangle version
 	unsigned currentQuality; // number of best200 groups processed since reset
+	RRReal terminalFluxToDistribute; // set during illuminationImprove(), when the best node has fluxToDistribute lower, improvement terminates
 };
 
 } // namespace

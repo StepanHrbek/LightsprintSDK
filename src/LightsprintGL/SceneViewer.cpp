@@ -803,7 +803,10 @@ static void display(void)
 
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
-			solver->calculate();
+			rr::RRDynamicSolver::CalculateParameters params;
+			//params.qualityIndirectDynamic = 6;
+			params.qualityIndirectStatic = 10000;
+			solver->calculate(&params);
 		}
 
 		{
