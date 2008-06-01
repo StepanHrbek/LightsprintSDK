@@ -205,10 +205,11 @@ public:
 
 		// Lights...
 		int lightsHandle = glutCreateMenu(lightsCallback);
-		glutAddMenuEntry("Insert dir light", ME_LIGHT_DIR);
-		glutAddMenuEntry("Insert spot light", ME_LIGHT_SPOT);
-		glutAddMenuEntry("Insert point light", ME_LIGHT_POINT);
+		glutAddMenuEntry("Add dir light", ME_LIGHT_DIR);
+		glutAddMenuEntry("Add spot light", ME_LIGHT_SPOT);
+		glutAddMenuEntry("Add point light", ME_LIGHT_POINT);
 		glutAddMenuEntry("Delete selected light", ME_LIGHT_DELETE);
+		glutAddMenuEntry(renderAmbient?"Delete constant ambient":"Add constant ambient", ME_LIGHT_AMBIENT);
 
 		// Static lighting...
 		int staticHandle = glutCreateMenu(staticCallback);
@@ -269,7 +270,6 @@ public:
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
-		glutAddMenuEntry(renderAmbient?"Disable const ambient":"Enable const ambient", ME_RENDER_AMBIENT);
 		glutAddMenuEntry(renderDiffuse?"Disable diffuse":"Enable diffuse", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry(renderEmission?"Disable emissivity":"Enable emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry(renderTransparent?"Disable transparency":"Enable transparency", ME_RENDER_TRANSPARENT);
@@ -297,7 +297,6 @@ public:
 	{
 		switch(item)
 		{
-			case ME_RENDER_AMBIENT: renderAmbient = !renderAmbient; break;
 			case ME_RENDER_DIFFUSE: renderDiffuse = !renderDiffuse; break;
 			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
 			case ME_RENDER_TRANSPARENT: renderTransparent = !renderTransparent; break;
@@ -541,13 +540,18 @@ public:
 					if(selectedLightIndex && selectedLightIndex==newList.size())
 						selectedLightIndex--;
 					if(!newList.size())
+					{
 						selectedType = ST_CAMERA;
+						renderAmbient = 1; // enable ambient when deleting last light
+					}
 				}
 				break;
+			case ME_LIGHT_AMBIENT: renderAmbient = !renderAmbient; break;
 		}
 		if(newLight)
 		{
 			lightsToBeDeletedOnExit.push_back(newLight);
+			if(!newList.size()) renderAmbient = 0; // disable ambient when adding first light
 			newList.push_back(newLight);
 		}
 		solver->setLights(newList);
@@ -557,7 +561,6 @@ public:
 	}
 	enum
 	{
-		ME_RENDER_AMBIENT,
 		ME_RENDER_DIFFUSE,
 		ME_RENDER_EMISSION,
 		ME_RENDER_TRANSPARENT,
@@ -575,6 +578,7 @@ public:
 		ME_LIGHT_SPOT,
 		ME_LIGHT_POINT,
 		ME_LIGHT_DELETE,
+		ME_LIGHT_AMBIENT,
 		ME_RANDOM_CAMERA,
 		ME_VERIFY,
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
@@ -1306,7 +1310,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	lv = LightmapViewer::create(_pathToShaders);
 	layerNumber = (_layerNumber<0)?-1-_layerNumber:_layerNumber;
 	renderRealtime = _layerNumber<0;
-	renderAmbient = _solver->getLights().size()==0;
+	renderAmbient = _solver->getLights().size()==0 && _layerNumber<0;
 	ourEnv = 0;
 	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
 	if(selectedObjectIndex>=solver->getNumObjects()) selectedObjectIndex = 0;
