@@ -14,7 +14,7 @@ NEWS
 
 - rr_gl::ToneMapping, support for automatic tone mapping,
   \n demonstrated in SceneViewer sample
-- improved Collada adapter (reads more textures, texcoords)
+- improved Collada support (faster load, reads more textures, more texcoords, has workaround for broken documents)
 - improved LightsprintGL renderer (renders more textures)
 - rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
   that enables texture compression.

@@ -972,9 +972,9 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 			FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
 			FCDGeometryMesh* mesh = geometry->GetMesh();
 			if(mesh)
-			{
-				FCDGeometryPolygonsTools::Triangulate(mesh);
-				FCDGeometryPolygonsTools::GenerateUniqueIndices(mesh);
+			{	
+				if(!mesh->IsTriangles())
+					FCDGeometryPolygonsTools::Triangulate(mesh);
 			}
 		}
 	}
