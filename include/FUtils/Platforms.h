@@ -74,7 +74,7 @@
 #include <wchar.h>
 #include <stdint.h>
 #else // __APPLE__
-#if defined(LINUX) || defined(__PPU__)
+#if defined(linux)
 #include <ctype.h>
 #include <wctype.h>
 #include <unistd.h>
