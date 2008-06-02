@@ -12,7 +12,7 @@ CPP_FLAGS += $(addprefix -L, $(LIB_DIRS))
 
 $(TARGET): $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	gcc -o $@ -shared $(OBJECTS)
+	gcc -o $@ -shared $(OBJECTS) $(LIBS)
 
 # include dependencies
 

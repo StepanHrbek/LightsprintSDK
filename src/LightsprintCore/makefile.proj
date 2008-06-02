@@ -70,7 +70,7 @@ RRReporter.cpp
 
 # libraries
 
-LIBS += -lstdc++
+LIBS += -lgomp
 
 # include directories
 
