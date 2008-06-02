@@ -11,6 +11,7 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
+CPP_FLAGS += -fpic
 CPP_FLAGS += -DSUPPORT_INTERPOL
 CPP_FLAGS += -DSUPPORT_OFFLINE
 CPP_FLAGS += -DSUPPORT_FIREBALL
