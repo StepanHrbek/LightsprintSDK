@@ -1,0 +1,35 @@
+# include platform-specific configuration
+
+CFG_DIR = ../../src/configs
+-include $(CFG_DIR)/current
+
+# general project settings
+
+PROJECT = BunnyBenchmark
+TARGET = BunnyBenchmark.exe
+OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
+
+# project-dependent compiler/preprocessor flags
+
+CPP_FLAGS += -DRR_STATIC
+
+# source files
+
+SOURCES = \
+BunnyBenchmark.cpp \
+plymeshreader.cpp \
+rply.c \
+sphereunitvecpool.cpp
+
+# libraries
+
+LIBS += -lstdc++
+
+# include directories
+
+INC_DIRS = . \
+	../../include
+
+# library directories
+
+LIB_DIRS = . \
