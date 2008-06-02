@@ -1,0 +1,5 @@
+CONFIG = pc-mingw32-debug
+
+CPP_FLAGS += -O0
+CPP_FLAGS += -g
+CPP_FLAGS += -D_DEBUG
