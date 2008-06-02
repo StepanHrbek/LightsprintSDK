@@ -46,7 +46,7 @@ DECLARE_PRESERVE_STATE( PreserveAlphaFunc ,GLint func;GLfloat ref ,glGetIntegerv
 // current matrix only
 DECLARE_PRESERVE_STATE( PreserveMatrix    ,                       ,glPushMatrix()                              ,glPopMatrix(););
 // projection and modelview matrices only
-DECLARE_PRESERVE_STATE( PreserveMatrices  ,GLint matrixMode       ,glGetIntegerv(GL_MATRIX_MODE,&matrixMode);glMatrixMode(GL_PROJECTION_MATRIX);glPushMatrix();glMatrixMode(GL_MODELVIEW_MATRIX);glPushMatrix(), glMatrixMode(GL_PROJECTION_MATRIX);glPopMatrix();glMatrixMode(GL_MODELVIEW_MATRIX);glPopMatrix();glMatrixMode(matrixMode););
+DECLARE_PRESERVE_STATE( PreserveMatrices  ,GLint matrixMode       ,glGetIntegerv(GL_MATRIX_MODE,&matrixMode);glMatrixMode(GL_PROJECTION);glPushMatrix();glMatrixMode(GL_MODELVIEW);glPushMatrix(), glMatrixMode(GL_PROJECTION);glPopMatrix();glMatrixMode(GL_MODELVIEW);glPopMatrix();glMatrixMode(matrixMode););
 
 #undef DECLARE_PRESERVE_STATE
 
