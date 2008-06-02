@@ -1,30 +1,42 @@
-PLATFORM = linux64
-DEBUG    =
-CPPFLAGS = -I../../include -DRR_STATIC
+# include project settings
 
-ifdef DEBUG
-	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sd.a
-	CPPFLAGS += -D_DEBUG
-else
-	LIBS     = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a
-	CPPFLAGS += -O3 -DNDEBUG
-	CPPFLAGS += -ffast-math
-	CPPFLAGS += -fomit-frame-pointer
-	CPPFLAGS += -march=k8 -msse
-	CPPFLAGS += -mfpmath=sse
-	CPPFLAGS += -fopenmp
-endif
+include makefile.proj
 
-BIN = 
-MAKE = makefile
+OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
 
-OBJS = BunnyBenchmark.o plymeshreader.o rply.o sphereunitvecpool.o
+# specify include and library directories for compiler
 
-all: $(BIN)BunnyBenchmark.exe
+CPP_FLAGS += $(addprefix -I, $(INC_DIRS))
+CPP_FLAGS += $(addprefix -L, $(LIB_DIRS))
 
-$(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) $(LIBS)
-	g++ $(OBJS) $(LIBS) -lstdc++ -lgomp -o $(BIN)BunnyBenchmark.exe
+# link
+
+$(TARGET): config $(OBJECTS)
+	@mkdir -p $(dir $@)
+	gcc -o $@ $(OBJECTS) $(LIBS)
+
+# include dependencies
+
+-include $(OBJECTS:%.o=%.d)
+
+# compile
+
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
+# clean object and dependency files
 
 clean:
-	rm *.o
-	rm $(BIN)BunnyBenchmark.exe
+	@rm -f `find $(OBJ_DIR) -type f`
+	@rm -rf $(OBJ_DIR)
+
+# include common handling of platforms and configurations
+
+include $(CFG_DIR)/makefile.cfg
