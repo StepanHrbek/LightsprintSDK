@@ -1,51 +1,50 @@
-PLATFORM = linux64
-DEBUG    = 1
-TMP      = #../../tmp/LightsprintGL/
-CPPFLAGS = -I../../include -DRR_STATIC
+# include project settings
 
-ifdef DEBUG
-	LIB      = ../../lib/$(PLATFORM)/libLightsprintGL_sd.a
-	CPPFLAGS += -g -D_DEBUG
-else
-	LIB      = ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
-	CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
-	CPPFLAGS += -ffast-math
-	CPPFLAGS += -fomit-frame-pointer
-	CPPFLAGS += -march=k8 -msse
-	CPPFLAGS += -mfpmath=sse
-	CPPFLAGS += -fopenmp
-endif
+include makefile.proj
 
-OBJS  = $(TMP)Camera.o \
-	$(TMP)FBO.o \
-	$(TMP)LightmapViewer.o \
-	$(TMP)MultiPass.o \
-	$(TMP)ObjectBuffers.o \
-	$(TMP)Program.o \
-	$(TMP)RRDynamicSolverGL.o \
-	$(TMP)RealtimeLight.o \
-	$(TMP)RendererOfRRObject.o \
-	$(TMP)RendererOfScene.o \
-	$(TMP)RendererWithCache.o \
-	$(TMP)SceneViewer.o \
-	$(TMP)Shader.o \
-	$(TMP)Texture.o \
-	$(TMP)TextureRenderer.o \
-	$(TMP)ToneMapping.o \
-	$(TMP)UberProgram.o \
-	$(TMP)UberProgramSetup.o \
-	$(TMP)matrix.o
+# specify include and library directories for compiler
 
-all: makefile $(LIB)
+OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
+CPP_FLAGS += $(addprefix -I, $(INC_DIRS))
+CPP_FLAGS += $(addprefix -L, $(LIB_DIRS))
 
-$(LIB): makefile $(OBJS)
-	ar rc $(LIB) $(OBJS)
-	ranlib $(LIB)
+# link
+
+$(TARGET): $(CFG_DIR)/current core $(OBJECTS)
+	@mkdir -p $(dir $@)
+	gcc -o $@ -shared $(OBJECTS)
+
+core:
+	@cd ../LightsprintCore && make
+
+# include dependencies
+
+-include $(OBJECTS:%.o=%.d)
+
+# compile
+
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s|^ *||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
+# clean object and dependency files
 
 clean:
-	rm -f *.o ../../lib/$(PLATFORM)/libLightsprintGL_sd.a ../../lib/$(PLATFORM)/libLightsprintGL_sr.a
+	@rm -f `find $(OBJ_DIR) -type f`
+	@rm -rf $(OBJ_DIR)
 
-cleanwin:
-	del *.o
-	del ..\..\lib\$(PLATFORM)\libLightsprintGL_sd.a
-	del ..\..\lib\$(PLATFORM)\libLightsprintGL_sr.a
+# check whether the platform-specific configuration file exists
+
+$(CFG_DIR)/current:
+	@echo "Please use \"make <config>\" first to select configuration."
+	@exit 1
+
+# create platform-specific configuration file
+
+ps3-linux ps3-linux-debug \
+pc-linux32 pc-linux32-debug \
+pc-linux64 pc-linux64-debug \
+:
+	@cp $(CFG_DIR)/$@ $(CFG_DIR)/current
+	@echo Switched to configuration \"$@\". You may now use simple \"make\".

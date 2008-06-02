@@ -1,0 +1,55 @@
+# include platform-specific configuration
+
+CFG_DIR = ../configs
+-include $(CFG_DIR)/current
+
+# general project settings
+
+PROJECT = LightsprintGL
+TARGET = ../../lib/$(CONFIG)/libLightsprintGL.so
+OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
+
+# project-dependent compiler/preprocessor flags
+
+CPP_FLAGS += -DSUPPORT_INTERPOL
+CPP_FLAGS += -DSUPPORT_OFFLINE
+CPP_FLAGS += -DSUPPORT_FIREBALL
+CPP_FLAGS += -DSUPPORT_ARCHITECT
+CPP_FLAGS += -DSUPPORT_LIGHTFIELD
+CPP_FLAGS += -DRR_STATIC
+
+# source files
+
+SOURCES = \
+Camera.cpp \
+FBO.cpp \
+LightmapViewer.cpp \
+matrix.cpp \
+MultiPass.cpp \
+ObjectBuffers.cpp \
+Program.cpp \
+RealtimeLight.cpp \
+RendererOfRRObject.cpp \
+RendererOfScene.cpp \
+RendererWithCache.cpp \
+RRDynamicSolverGL.cpp \
+SceneViewer.cpp \
+Shader.cpp \
+Texture.cpp \
+TextureRenderer.cpp \
+ToneMapping.cpp \
+UberProgram.cpp \
+UberProgramSetup.cpp
+
+# libraries
+
+LIBS +=
+
+# include directories
+
+INC_DIRS = . \
+	../../include \
+
+# library directories
+
+LIB_DIRS = . \
