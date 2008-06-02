@@ -1,0 +1,8 @@
+CONFIG = ps3-linux
+
+CPP_FLAGS += -O3
+CPP_FLAGS += -s
+CPP_FLAGS += -ffast-math
+CPP_FLAGS += -fomit-frame-pointer
+CPP_FLAGS += -fopenmp
+CPP_FLAGS += -DNDEBUG
