@@ -19,13 +19,8 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	brightness = _brightness;
 	gamma = _gamma;
 	honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
-	// intermediates
-	//  don't put direct+indirect+emissive in one pass, prerender indirect+emissive in separated ambient pass
-	//  (direct pointlight(6 spots)+indirect vcolor+emissive vcolor nezvladnou v jednom passu GF5/6/7 a asi ani Radeony)
 	numLights = lights?lights->size():0;
-	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags
-		||mainUberProgramSetup.MATERIAL_EMISSIVE_VCOLOR // some older cards were not able to do this in one pass with pointlight
-		)?1:0;
+	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags)?1:0;
 	lightIndex = -separatedAmbientPass;
 }
 
@@ -36,11 +31,11 @@ Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererO
 
 // returns true and all outXxx are set, do render
 // or returns false and outXxx stay unchanged, rendering is done
-Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const
+Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, const RealtimeLight*& _outLight) const
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	const RealtimeLight* light;
-	if(lightIndex==-1)
+	if(_lightIndex==-1)
 	{
 		// adjust program for render without lights
 		//uberProgramSetup.setLightDirect(NULL,NULL);
@@ -55,13 +50,13 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
-		//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",lightIndex); else printf(" %d: nothing\n",lightIndex);
+		//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",_lightIndex); else printf(" %d: nothing\n",_lightIndex);
 	}
 	else
-	if(lightIndex<(int)numLights)
+	if(_lightIndex<(int)numLights)
 	{
 		// adjust program for n-th light (0-th includes indirect, others have it disabled)
-		light = (*lights)[lightIndex];
+		light = (*lights)[_lightIndex];
 		RR_ASSERT(light);
 		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
 		uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
@@ -74,7 +69,7 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-		if(lightIndex>-separatedAmbientPass)
+		if(_lightIndex>-separatedAmbientPass)
 		{
 			// additional passes don't include indirect
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
@@ -88,22 +83,34 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
-			//printf(" %d: direct\n",lightIndex);
+			//printf(" %d: direct\n",_lightIndex);
 		}
-		//else printf(" %d: direct+indirect\n",lightIndex);
+		//else printf(" %d: direct+indirect\n",_lightIndex);
 	}
 	else
 	{
-		// lightIndex out of range, all passes done
+		// _lightIndex out of range, all passes done
 		return NULL;
 	}
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 	if(!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
-		return NULL;
+		// Radeon X300 and GF5/6/7 fail to run some complex shaders in one pass
+		// simply disabling transparency map saves the day
+		if(uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
+		{
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, one feature disabled (transparency map).\n"));
+		}
+		if(!program)
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
+			return NULL;
+		}
 	}
-	if(lightIndex==-separatedAmbientPass+1)
+	if(_lightIndex==-separatedAmbientPass+1)
 	{
 		// additional passes add to framebuffer
 		glEnable(GL_BLEND);
@@ -129,9 +136,9 @@ Program* MultiPass::getPass(int lightIndex, UberProgramSetup& outUberProgramSetu
 	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 
-	outUberProgramSetup = uberProgramSetup;
-	outRenderedChannels = renderedChannels;
-	outLight = light;
+	_outUberProgramSetup = uberProgramSetup;
+	_outRenderedChannels = renderedChannels;
+	_outLight = light;
 	return program;
 }
 
