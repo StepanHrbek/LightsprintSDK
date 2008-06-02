@@ -25,7 +25,7 @@ struct LightFieldParameters
 	unsigned diffuseSize;
 	unsigned specularSize;
 	RRVec3 aabbMin;
-	RRVec3 aabbSize;
+	RRVec3 aabbSize; // all must be >=0, at least one must be >0
 
 	LightFieldParameters()
 	{
@@ -40,7 +40,7 @@ struct LightFieldParameters
 	}
 	bool isOk() const
 	{
-		return version==LIGHTFIELD_STRUCTURE_VERSION && fieldSize() && aabbSize[0] && aabbSize[1] && aabbSize[2];
+		return version==LIGHTFIELD_STRUCTURE_VERSION && fieldSize() && aabbSize[0]>=0 && aabbSize[1]>=0 && aabbSize[2]>=0 && (aabbSize[0]>0 || aabbSize[1]>0 || aabbSize[2]>0);
 	}
 	unsigned cellSize() const
 	{
@@ -238,6 +238,9 @@ const RRLightField* RRDynamicSolver::buildLightField(RRVec3 aabbMin, RRVec3 aabb
 				objectIllum.specularEnvMap->lock(BL_READ),specularSize*specularSize*6*3);
 			objectIllum.specularEnvMap->unlock();
 		}
+		// report progress
+		enum {STEP=10000};
+		if((cellIndex%STEP)==STEP-1) RRReporter::report(INF3,"%d/%d\n",cellIndex/STEP+1,(lightField->header.gridSize[0]*lightField->header.gridSize[1]*lightField->header.gridSize[2])/STEP);
 	}
 	return lightField;
 }

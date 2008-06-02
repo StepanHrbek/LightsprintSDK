@@ -232,7 +232,8 @@ public:
 		glutAddMenuEntry("                quality 100", ME_STATIC_DIAGNOSE100);
 		glutAddMenuEntry("                quality 1000", ME_STATIC_DIAGNOSE1000);
 #endif
-		glutAddMenuEntry("Build lightfield",ME_STATIC_BUILD_LIGHTFIELD);
+		glutAddMenuEntry("Build 2d lightfield",ME_STATIC_BUILD_LIGHTFIELD_2D);
+		glutAddMenuEntry("Build 3d lightfield",ME_STATIC_BUILD_LIGHTFIELD_3D);
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
@@ -387,7 +388,16 @@ public:
 			case ME_STATIC_SAVE:
 				solver->getStaticObjects().saveIllumination("",layerNumber);
 				break;
-			case ME_STATIC_BUILD_LIGHTFIELD:
+			case ME_STATIC_BUILD_LIGHTFIELD_2D:
+				{
+					rr::RRVec3 aabbMin,aabbMax;
+					solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+					delete lightField;
+					aabbMin.y = aabbMax.y = eye.pos.y;
+					lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+				}
+				break;
+			case ME_STATIC_BUILD_LIGHTFIELD_3D:
 				{
 					rr::RRVec3 aabbMin,aabbMax;
 					solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
@@ -596,7 +606,8 @@ public:
 #endif
 		ME_STATIC_LOAD,
 		ME_STATIC_SAVE,
-		ME_STATIC_BUILD_LIGHTFIELD,
+		ME_STATIC_BUILD_LIGHTFIELD_2D,
+		ME_STATIC_BUILD_LIGHTFIELD_3D,
 	};
 };
 
@@ -1270,7 +1281,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		unsigned resolutiony = h-64;
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
-		window = glutCreateWindow("Lightsprint Debug Console");
+		window = glutCreateWindow("Lightsprint");
 		glutPopWindow();
 
 		// init GLEW
