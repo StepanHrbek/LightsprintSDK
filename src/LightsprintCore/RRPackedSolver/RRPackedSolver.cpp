@@ -273,7 +273,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 		if(bests)
 		{
 			RRReal q = packedBests->getHighestFluxToDistribute();
-			RRReporter::report(INF1,"%f\n",q);
+			//RRReporter::report(INF1,"%f\n",q);
 			if(currentQuality==0)
 			{
 				// this is first improve, set termination criteria
