@@ -3,6 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2008, All rights reserved
 // --------------------------------------------------------------------------
 
+#include <cstdlib>
 #include <GL/glew.h>
 #include "Lightsprint/GL/ToneMapping.h"
 //#include "Lightsprint/RRDebug.h"
@@ -42,49 +43,37 @@ void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVe
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT,viewport);
 
-	// changes size of texture on CPU, GPU synchronizes to CPU, cleaner but system ram is wasted
-	//if(!bigTexture || bigTexture->getBuffer()->getWidth()<(unsigned)viewport[2] || bigTexture->getBuffer()->getHeight()<(unsigned)viewport[3])
-	//{
-	//	if(bigTexture)
-	//	{
-	//		delete bigTexture->getBuffer();
-	//		delete bigTexture;
-	//	}
-	//	bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,viewport[2],viewport[3],1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-	//}
-	//bigTexture->bindTexture();
-	//glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,viewport[0],viewport[1],viewport[2],viewport[3]);
-
-	// changes size of texture on GPU, makes following render2D() parameters simpler
-	// system ram is not wasted
 	if(!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 	bigTexture->bindTexture();
-	glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,viewport[2],viewport[3],0);
+	int bwidth = 1; while(bwidth*2<=viewport[2]) bwidth *= 2;
+	int bheight = 1; while(bheight*2<=viewport[3]) bheight *= 2;
+	glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,(viewport[2]>bwidth)?rand()%(viewport[2]-bwidth):0,(viewport[3]>bheight)?rand()%(viewport[3]-bheight):0,bwidth,bheight,0);
 
-	const unsigned width = 64;
-	const unsigned height = 32;
-	unsigned char buf[width*height*3];
+	const unsigned swidth = 32;
+	const unsigned sheight = 32;
+	unsigned char buf[swidth*sheight*3];
 	unsigned histo[256];
 	unsigned avg = 0;
 	if(!smallTexture)
 	{
-		smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,swidth,sheight,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 	}
 	smallTexture->renderingToBegin();
-	glViewport(0,0,width,height);
+	glViewport(0,0,swidth,sheight);
 	textureRenderer->render2D(bigTexture,NULL,0,0,1,1);
-	glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE,buf);
+	glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);
 	smallTexture->renderingToEnd();
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	for(unsigned i=0;i<256;i++)
 		histo[i] = 0;
-	for(unsigned i=0;i<width*height*3;i++)
+	for(unsigned i=0;i<swidth*sheight*3;i++)
 		histo[buf[i]]++;
 	for(unsigned i=0;i<256;i++)
 		avg += histo[i]*i;
-	avg = avg/(width*height)+1;
+	avg = avg/(swidth*sheight*3)+1;
+	if(histo[255]>=swidth*sheight*2) avg = 1000; // at least 66% of screen white, adjust faster
+	brightness *= pow(100.0f/avg,CLAMPED(secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
 	//rr::RRReporter::report(rr::INF1,"%d\n",avg);
-	brightness *= pow(128.0f/avg,CLAMPED(secondsSinceLastAdjustment*0.2f,0.0002f,0.3f));
 }
 
 }; // namespace

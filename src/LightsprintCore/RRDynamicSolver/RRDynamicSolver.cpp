@@ -567,8 +567,8 @@ void RRDynamicSolver::verify()
 		return;
 	}
 
-	if(!priv->scene&&priv->packedSolver) RRReporter::report(INF1,"  Solver type: fireball(for games)\n"); else
-		if(priv->scene&&!priv->packedSolver) RRReporter::report(INF1,"  Solver type: architect(not for games)\n"); else
+	if(!priv->scene&&priv->packedSolver) RRReporter::report(INF1,"  Solver type: Fireball\n"); else
+		if(priv->scene&&!priv->packedSolver) RRReporter::report(INF1,"  Solver type: Architect\n"); else
 		if(!priv->scene&&!priv->packedSolver) RRReporter::report(WARN,"  Solver type: none\n"); else
 		if(priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n");
 

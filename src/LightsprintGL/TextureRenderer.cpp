@@ -121,13 +121,13 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	}
 	texture->bindTexture();
 	glBegin(GL_POLYGON);
-		glTexCoord2f(0,0);
+		glMultiTexCoord2f(GL_TEXTURE0,0,0);
 		glVertex2f(2*x-1,2*y-1);
-		glTexCoord2f(1,0);
+		glMultiTexCoord2f(GL_TEXTURE0,1,0);
 		glVertex2f(2*(x+w)-1,2*y-1);
-		glTexCoord2f(1,1);
+		glMultiTexCoord2f(GL_TEXTURE0,1,1);
 		glVertex2f(2*(x+w)-1,2*(y+h)-1);
-		glTexCoord2f(0,1);
+		glMultiTexCoord2f(GL_TEXTURE0,0,1);
 		glVertex2f(2*x-1,2*(y+h)-1);
 	glEnd();
 }
