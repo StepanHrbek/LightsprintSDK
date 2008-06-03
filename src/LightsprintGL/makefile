@@ -1,6 +1,6 @@
 all:
-	@cd ../../src/LightsprintCore && make
+	@cd ../../src/LightsprintGL && make
 	@make -f makefile.proj
 
-clean:
-	@make -f makefile.proj clean
+%:
+	@make -f makefile.proj $@
