@@ -31,7 +31,7 @@ public:
 	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
 
 protected:
-	Program* getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight) const;
+	Program* getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
 
 	// inputs
 	const RealtimeLights* lights;

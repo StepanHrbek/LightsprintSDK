@@ -31,7 +31,7 @@ Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererO
 
 // returns true and all outXxx are set, do render
 // or returns false and outXxx stay unchanged, rendering is done
-Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, const RealtimeLight*& _outLight) const
+Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, const RealtimeLight*& _outLight)
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	const RealtimeLight* light;
@@ -95,14 +95,23 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 	if(!program)
 	{
-		// Radeon X300 and GF5/6/7 fail to run some complex shaders in one pass
-		// simply disabling transparency map saves the day
+		// Radeon X300 fails to run some complex shaders in one pass
+		// disabling transparency map saves SceneViewer sample
 		if(uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 		{
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
-			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, one feature disabled (transparency map).\n"));
+			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
+		}
+		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)
+		if(!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
+		{
+			separatedAmbientPass = 1;
+			lightIndex = -1;
+			program = getNextPass(_outUberProgramSetup,_outRenderedChannels,_outLight);
+			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
+			return program;
 		}
 		if(!program)
 		{
