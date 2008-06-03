@@ -77,7 +77,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::FilteringParameters filtering;
 	filtering.wrap = false;
 	// a) update lightmaps 
-	//solver->updateLightmaps(layerNumber,-1,&params,&params,&filtering); 
+	//solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering); 
 	// b) the same with dialog that lets you abort, change quality, view scene...
 	rr_gl::updateLightmapsWithDialog(solver,layerNumber,-1,-1,&params,&params,&filtering,true,"../../data/shaders/",NULL);
 }

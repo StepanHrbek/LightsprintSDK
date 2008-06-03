@@ -533,6 +533,7 @@ public:
 							irradianceLights[i] += irrad * normalIncidence;
 					}
 				}
+				//RR_ASSERT(IS_VEC3(irradianceLights[0])); might be inf when light distance=0
 				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence);
 				hitsLight++;
 				hitsReliable++;
@@ -600,6 +601,7 @@ public:
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
 			reliabilityLights = hitsReliable/(RRReal)rays;
 		}
+		//RR_ASSERT(IS_VEC3(irradianceLights[0])); might be inf when light distance=0
 	}
 
 	unsigned getNumMaterialAcceptedLights()
@@ -827,6 +829,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	}
 
 	//RR_ASSERT(result.irradiance[0]>=0 && result.irradiance[1]>=0 && result.irradiance[2]>=0); small float error may generate negative value
+	//RR_ASSERT(IS_VEC3(result.irradiance[0])); might be inf when light distance=0
 
 	return result;
 }

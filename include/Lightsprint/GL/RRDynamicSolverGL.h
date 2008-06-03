@@ -99,7 +99,7 @@ namespace rr_gl
 		//
 		//! It also copies position and direction from RealtimeLight-s to RRLight-s.
 		//! Flag is set when you call reportDirectIlluminationChange(,true,).
-		//! \n Called by user.
+		//! \n Called by calculate().
 		virtual void updateShadowmaps();
 		//! Helper function called from detectDirectIllumination().
 		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);

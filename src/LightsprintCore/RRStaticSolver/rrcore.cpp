@@ -1159,7 +1159,8 @@ bool Scene::distribute(real maxError)
 
 RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
-	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
+	if(!IS_CHANNELS(staticSourceExitingFlux))
+		return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
 	STATISTIC_INC(numCallsImprove);
 	RRStaticSolver::Improvement improved=RRStaticSolver::NOT_IMPROVED;
 

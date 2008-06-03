@@ -230,6 +230,8 @@ namespace rr
 		//! \return
 		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
 		//!  assuming that receiver is oriented towards light.
+		//!  Some lights with non-linear distance attenuation might return inf
+		//!  for receiverPosition exactly in light position.
 		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const = 0;
 
 
