@@ -57,7 +57,7 @@ int main()
 		printf(" position in object space = %f %f %f\n",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
 		printf(" position in triangle space = %f %f\n",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 		printf(" triangle index in mesh = %d\n",ray->hitTriangle);
-		printf(" triangle index in vertex buffer = %d\n",mesh->getPreImportTriangle(ray->hitTriangle));
+		printf(" triangle index in vertex buffer = %d\n",mesh->getPreImportTriangle(ray->hitTriangle).index);
 		printf(" triangle side = %s\n",ray->hitFrontSide?"front":"back");
 		printf(" triangle plane = %f %f %f %f\n",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
 	}
