@@ -18,7 +18,7 @@
 
 #ifdef SUPPORT_BSP
 	#include "../ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-	#include "../ImportQUake3/RRObjectBSP.h"
+	#include "../ImportQuake3/RRObjectBSP.h"
 #endif
 
 #ifdef SUPPORT_OBJ
