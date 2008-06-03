@@ -28,7 +28,8 @@ public:
 	void setRot(unsigned objIndex, rr::RRVec2 rot);
 
 	// copy positions from animation frame to actual scene
-	void copyAnimationFrameToScene(const class LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged);
+	// returns true when object in scene changed position or rotation
+	bool copyAnimationFrameToScene(const class LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged);
 
 	// copy positions from actual scene to animation frame
 	void copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame, const LevelSetup* setup);

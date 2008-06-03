@@ -125,7 +125,6 @@ int winHeight = 0;
 int depthBias24 = 50;//23;//42;
 int depthScale24;
 GLfloat slopeScale = 5;//2.3;//4.0;
-int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
@@ -266,7 +265,7 @@ void updateDepthBias(int delta)
 {
 	depthBias24 += delta;
 	glPolygonOffset(slopeScale, (GLfloat)(depthBias24*depthScale24));
-	needDepthMapUpdate = 1;
+	if(level) level->solver->reportDirectIlluminationChange(0,true,false);
 	//printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
 }
 
@@ -297,7 +296,7 @@ void setShadowTechnique()
 		slopeScale = 3;//0.1f;
 	}
 	glPolygonOffset(slopeScale,(GLfloat)(depthBias24*depthScale24));
-	needDepthMapUpdate = 1;
+	level->solver->reportDirectIlluminationChange(0,true,false);
 }
 
 void init_gl_resources()
@@ -463,7 +462,6 @@ BackgroundWorker* g_backgroundWorker = NULL;
 
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight);
 void updateMatrices();
-void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
@@ -477,7 +475,7 @@ protected:
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
 	}
-	virtual void calculate(CalculateParameters* params = NULL)
+	/*virtual void calculate(CalculateParameters* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
 #ifdef BACKGROUND_WORKER
@@ -499,7 +497,7 @@ protected:
 #ifdef BACKGROUND_WORKER
 		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
 #endif
-	}
+	}*/
 };
 
 // called from Level.cpp
@@ -580,7 +578,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	// boost quake map intensity
 	if(level->type==Level::TYPE_BSP && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_X2 = true;
 	}
 
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
@@ -610,16 +608,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
 	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted);
-}
-
-void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
-{
-	if(!needDepthMapUpdate) return;
-	if(level && level->solver) 
-	{
-		level->solver->reportDirectIlluminationChange(0,true,true);
-		needDepthMapUpdate = 0;
-	}
 }
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -666,16 +654,10 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 
 void drawEyeViewSoftShadowed(void)
 {
-	// update shadowmaps
 	unsigned numInstances = realtimeLight->getNumInstances();
-	for(unsigned i=0;i<numInstances;i++)
-	{
-		updateDepthMap(i,numInstances);
-	}
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-
 	RR_ASSERT(numInstances<=INSTANCES_PER_PASS);
 
 #ifdef SUPPORT_WATER
@@ -768,12 +750,12 @@ void updateThumbnail(AnimationFrame& frame)
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
 	level->solver->calculate();
-	// update shadows in advance, so following render doesn't touch FBO
+	/*/ update shadows in advance, so following render doesn't touch FBO
 	unsigned numInstances = realtimeLight->getNumInstances();
 	for(unsigned j=0;j<numInstances;j++)
 	{
 		updateDepthMap(j,numInstances);
-	}
+	}*/
 	// render into thumbnail
 	if(!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
@@ -1157,6 +1139,10 @@ void display()
 	if(needMatrixUpdate)
 		updateMatrices();
 
+	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
+	if(currentFrame.wantsConstantAmbient()) calculateParams.qualityIndirectDynamic = 0; // disable direct detection and indirect calculation in "no radiosity" part
+	level->solver->calculate(&calculateParams);
+
 	needRedisplay = 0;
 
 	drawEyeViewSoftShadowed();
@@ -1281,7 +1267,6 @@ void reportLightMovement()
 {
 	if(!level) return;
 	level->solver->reportDirectIlluminationChange(0,true,true);
-	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingLight = 3;
@@ -1291,6 +1276,11 @@ void reportLightMovementEnd()
 {
 	if(!level) return;
 	movingLight = 0;
+}
+
+void reportObjectMovement()
+{
+	level->solver->reportDirectIlluminationChange(0,true,false);
 }
 
 float speedForward = 0;
@@ -1538,8 +1528,8 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			break;
 
-		case '[': realtimeLight->areaSize /= 1.2f; needDepthMapUpdate = 1; printf("%f\n",realtimeLight->areaSize); break;
-		case ']': realtimeLight->areaSize *= 1.2f; needDepthMapUpdate = 1; break;			
+		case '[': realtimeLight->areaSize /= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true); printf("%f\n",realtimeLight->areaSize); break;
+		case ']': realtimeLight->areaSize *= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true); break;			
 
 		case '1':
 		case '2':
@@ -1586,7 +1576,7 @@ void keyboard(unsigned char c, int x, int y)
 							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 					}
 				}
-				needDepthMapUpdate = 1;
+				level->solver->reportDirectIlluminationChange(0,true,false);
 			}
 			break;
 
@@ -2119,7 +2109,6 @@ void idle()
 		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
-		needDepthMapUpdate = 1;
 
 		// end of the demo
 		if(!level)
@@ -2131,7 +2120,7 @@ void idle()
 		}
 
 		// implant our light into solver
-		((rr_gl::RRDynamicSolverGL*)level->solver)->realtimeLights.push_back(realtimeLight);
+		level->solver->realtimeLights.push_back(realtimeLight);
 
 		//for(unsigned i=0;i<6;i++)
 		//	level->solver->calculate();
@@ -2174,7 +2163,6 @@ void idle()
 		//printf(" %f ",seconds);
 		if(cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
-	bool needsGI = true;
 	if(!demoPlayer->getPaused())
 	{
 		if(captureVideo)
@@ -2197,7 +2185,9 @@ void idle()
 				// pokud existuje, nastavi ho
 				demoPlayer->setVolume(frame->volume);
 				static AnimationFrame prevFrame(0);
-				demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
+				bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
+				if(objMoved)
+					reportObjectMovement();
 				for(unsigned i=0;i<10;i++)
 				{
 					// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
@@ -2205,7 +2195,6 @@ void idle()
 					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
 				}
 				prevFrame = *frame;
-				needsGI = !frame->wantsConstantAmbient();
 			}
 			else
 			{
@@ -2234,7 +2223,8 @@ void idle()
 		{
 			float secondsSincePrevFrame = demoPlayer->advance();
 			demoPlayer->getDynamicObjects()->advanceRot(secondsSincePrevFrame);
-			needDepthMapUpdate = 1;
+			//if(object on screen)
+				reportObjectMovement();
 			needRedisplay = 1;
 		}
 	}
@@ -2251,14 +2241,7 @@ void idle()
 	}
 	if(!demoPlayer->getPaused())
 	{
-		needDepthMapUpdate = 1;
 		needRedisplay = 1;
-	}
-	if(level)
-	{
-		rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
-		if(!needsGI) calculateParams.qualityIndirectDynamic = 0; // disable direct detection and indirect calculation in "no radiosity" part
-		level->solver->calculate(&calculateParams);
 	}
 	glutPostRedisplay();
 }
@@ -2469,6 +2452,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_X2 = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;

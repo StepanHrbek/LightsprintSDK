@@ -234,8 +234,9 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 }
 
 // copy animation data from frame to actual scene
-void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged)
+bool DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged)
 {
+	bool objMoved = false;
 	if(lightsChanged)
 	{
 		currentFrame.light = frame.light;
@@ -260,7 +261,9 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 		if(i<frame.dynaPosRot.size() && j<dynaobject.size() && dynaobject[j])
 		{
 			dynaobject[j]->visible = true;
+			if((dynaobject[j]->worldFoot-frame.dynaPosRot[i].pos).length()>0.001f) objMoved = true; // treshold is necessary, rounding errors make position slightly off
 			dynaobject[j]->worldFoot = frame.dynaPosRot[i].pos;
+			if((dynaobject[j]->rotYZ-frame.dynaPosRot[i].rot).length()>0.001f) objMoved = true;
 			dynaobject[j]->rotYZ = frame.dynaPosRot[i].rot;
 //static float globalRot = 0; globalRot += 0.2f; dynaobject[j]->rotYZ[0] = globalRot; //!!! automaticka rotace vsech objektu
 			dynaobject[j]->updatePosition();
@@ -268,6 +271,7 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 			dynaobjectAI[j]->pos = dynaobject[j]->worldFoot;
 		}
 	}
+	return objMoved;
 }
 
 // copy animation data from frame to actual scene
