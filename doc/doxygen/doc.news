@@ -8,18 +8,19 @@ namespace rr
 
 \page main_news What's new
 
-\section news58 ------------------------------------ 2008.5.x -------------------------------------
+\section news58 ------------------------------------ 2008.6.3 -------------------------------------
 
 NEWS
 
 - rr_gl::ToneMapping, support for automatic tone mapping,
   \n demonstrated in SceneViewer sample
-- improved Collada support (faster load, reads more textures, more texcoords, has workaround for broken documents)
+- improved Collada support (faster load, reads more textures, more texcoords, workaround for broken documents)
 - improved LightsprintGL renderer (renders more textures)
+- improved rr_gl::sceneViewer() (inserting and deleting lights)
 - rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
   that enables texture compression.
-  \n WARNING: Old code still compiles, but it might be incorrect now because new parameter is not the last one.
-  Find and check all places where you call these functions and add new parameter.
+  \n WARNING: If you call rr_gl::getTexture() or rr_gl::Texture() with more than two parameters,
+   old code is incorrect now, it needs new parameter to be inserted between second and third one.
 
 CHANGES
 
