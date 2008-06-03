@@ -6,7 +6,8 @@ CFG_DIR = ../../src/configs
 # general project settings
 
 PROJECT = BunnyBenchmark
-TARGET = BunnyBenchmark.exe
+TARGET = $(PROJECT).exe
+CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
@@ -18,18 +19,24 @@ CPP_FLAGS += -DRR_STATIC
 SOURCES = \
 BunnyBenchmark.cpp \
 plymeshreader.cpp \
-rply.c \
-sphereunitvecpool.cpp
+sphereunitvecpool.cpp \
+rply.c
 
 # libraries
 
 LIBS += -lstdc++
+LIBS += ../../lib/$(CONFIG)/libLightsprintCore.so
+LIBS += ../../lib/$(CONFIG)/libLightsprintGL.so
 
 # include directories
 
-INC_DIRS = . \
-	../../include
+INC_DIRS = .
+INC_DIRS += ../../include
 
 # library directories
 
-LIB_DIRS = . \
+LIB_DIRS = .
+
+# include the core part of the makefile
+
+include $(CFG_DIR)/../makefile.core
