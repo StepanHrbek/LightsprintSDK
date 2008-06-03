@@ -1,0 +1,44 @@
+# include platform-specific configuration
+
+CFG_DIR = ../../src/configs
+-include $(CFG_DIR)/current
+
+# general project settings
+
+PROJECT = PenumbraShadows
+TARGET = $(PROJECT).exe
+CFG_TYPE = exe
+OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
+
+# project-dependent compiler/preprocessor flags
+
+CPP_FLAGS += -DGLEW_STATIC
+
+# source files
+
+SOURCES = \
+PenumbraShadows.cpp \
+DynamicObject.cpp \
+../Import3DS/Model_3DS.cpp \
+../Import3DS/RendererOf3DS.cpp \
+../Import/ImportFreeImage.cpp
+
+# libraries
+
+LIBS += -lstdc++
+LIBS += ../../lib/$(CONFIG)/libLightsprintCore.so
+LIBS += ../../lib/$(CONFIG)/libLightsprintGL.so
+LIBS += -lfreeimage
+
+# include directories
+
+INC_DIRS = .
+INC_DIRS += ../../include
+
+# library directories
+
+LIB_DIRS = .
+
+# include the core part of the makefile
+
+include $(CFG_DIR)/../makefile.core
