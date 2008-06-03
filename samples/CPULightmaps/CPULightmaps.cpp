@@ -29,7 +29,7 @@
 #include "../ImportCollada/RRObjectCollada.h"
 
 #include <cassert>
-#ifdef _MSVC
+#ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
 #include <cstdlib>
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 	// (some other samples are stripped down, they don't free memory)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 30351;
-#endif // _MSVC
+#endif // _MSC_VER
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -102,11 +102,11 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(reporter);
 	//rr::RRReporter::setFilter(true,3,true);
 
-#ifdef _MSVC
+#ifdef _MSC_VER
 	// decrease priority, so that this task runs on background using only free CPU cycles
 	// good for precalculating lightmaps on workstation
 	SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
-#endif // _MSVC
+#endif // _MSC_VER
 
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
