@@ -1,15 +1,6 @@
-PLATFORM = linux64
-CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
-MAKE = makefile
+all:
+	@cd ../../src/LightsprintGL && make
+	@make -f makefile.proj
 
-OBJS = HelloMesh.o
-LIBS = ../../lib/$(PLATFORM)/libLightsprintCore_sr.a
-
-all: HelloMesh.exe
-
-HelloMesh.exe: $(OBJS) $(MAKE) $(LIBS)
-	g++ $(OBJS) $(LIBS) -lstdc++ -o HelloMesh.exe
-
-clean:
-	rm *.o
-	rm HelloMesh.exe
+%:
+	@make -f makefile.proj $@
