@@ -1,47 +1,88 @@
-# include project settings
+# include platform-specific configuration
 
-include makefile.proj
+CFG_DIR = ../configs
+-include $(CFG_DIR)/current
 
-# specify include and library directories for compiler
+# general project settings
 
-OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
-CPP_FLAGS += $(addprefix -I, $(INC_DIRS))
-CPP_FLAGS += $(addprefix -L, $(LIB_DIRS))
+PROJECT = LightsprintCore
+TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).so
+CFG_TYPE = dll
+OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
-# link
+# project-dependent compiler/preprocessor flags
 
-$(TARGET): $(CFG_DIR)/current $(OBJECTS)
-	@mkdir -p $(dir $@)
-	gcc -o $@ -shared $(OBJECTS) $(LIBS)
+CPP_FLAGS += -DSUPPORT_INTERPOL
+CPP_FLAGS += -DSUPPORT_OFFLINE
+CPP_FLAGS += -DSUPPORT_FIREBALL
+CPP_FLAGS += -DSUPPORT_ARCHITECT
+CPP_FLAGS += -DSUPPORT_LIGHTFIELD
+CPP_FLAGS += -DRR_STATIC
 
-# include dependencies
+# source files
 
--include $(OBJECTS:%.o=%.d)
+SOURCES = \
+RRBuffer/RRBuffer.cpp \
+RRBuffer/RRBufferInMemory.cpp \
+RRCollider/bsp.cpp \
+RRCollider/cache.cpp \
+RRCollider/fpcube.cpp \
+RRCollider/geometry.cpp \
+RRCollider/IntersectBspCompact.cpp \
+RRCollider/IntersectBspFast.cpp \
+RRCollider/IntersectLinear.cpp \
+RRCollider/IntersectVerification.cpp \
+RRCollider/pcube.cpp \
+RRCollider/RRCollider.cpp \
+RRCollider/RRRay.cpp \
+RRCollider/sha1.cpp \
+RRDynamicSolver/environmentMap.cpp \
+RRDynamicSolver/gather.cpp \
+RRDynamicSolver/Interpolator.cpp \
+RRDynamicSolver/lightmap.cpp \
+RRDynamicSolver/LightmapFilter.cpp \
+RRDynamicSolver/RRDynamicSolver.cpp \
+RRDynamicSolver/vertexBuffer.cpp \
+RRMesh/RRChanneledData.cpp \
+RRMesh/RRMatrix3x4.cpp \
+RRMesh/RRMesh.cpp \
+RRMesh/RRMeshAccelerated.cpp \
+RRMesh/RRMeshCopy.cpp \
+RRMesh/RRMeshLessVertices.cpp \
+RRObject/RRCollisionHandler.cpp \
+RRObject/RRMaterial.cpp \
+RRObject/RRObject.cpp \
+RRObject/RRObjectWithPhysicalMaterials.cpp \
+RRObject/RRScaler.cpp \
+RRPackedSolver/PackedSolverFileBuild.cpp \
+RRPackedSolver/RRPackedSolver.cpp \
+RRStaticSolver/exceptions.cpp \
+RRStaticSolver/gatherer.cpp \
+RRStaticSolver/geometry_v.cpp \
+RRStaticSolver/interpol.cpp \
+RRStaticSolver/rrcore.cpp \
+RRStaticSolver/RRStaticSolver.cpp \
+RRStaticSolver/RRVision.cpp \
+RRLight.cpp \
+RRLightField.cpp \
+RRMemory.cpp \
+RRObjectIllumination.cpp \
+RRReporter.cpp
 
-# compile
+# libraries
 
-$(OBJ_DIR)/%.o: %.cpp
-	@mkdir -p $(dir $@)
-	gcc -o $@ -c $< $(CPP_FLAGS) -MD
-	@sed 's|^.*:||;s|^ *||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+LIBS += -lgomp
 
-# clean object and dependency files
+# include directories
 
-clean:
-	@rm -f `find $(OBJ_DIR) -type f`
-	@rm -rf $(OBJ_DIR)
+INC_DIRS = .
+INC_DIRS += ../../include
+INC_DIRS += ../LicGen/include
 
-# check whether the platform-specific configuration file exists
+# library directories
 
-$(CFG_DIR)/current:
-	@echo "Please use \"make <config>\" first to select configuration."
-	@exit 1
+LIB_DIRS = .
 
-# create platform-specific configuration file
+# include the core part of the makefile
 
-ps3-linux ps3-linux-debug \
-pc-linux32 pc-linux32-debug \
-pc-linux64 pc-linux64-debug \
-:
-	@cp $(CFG_DIR)/$@ $(CFG_DIR)/current
-	@echo Switched to configuration \"$@\". You may now use simple \"make\".
+include $(CFG_DIR)/../makefile.core
