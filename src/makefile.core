@@ -1,0 +1,70 @@
+OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+
+# specify include and library directories
+
+CPP_FLAGS += $(addprefix -I, $(INC_DIRS))
+LINK_FLAGS += $(addprefix -L, $(LIB_DIRS))
+
+# build executable
+
+ifeq ($(CFG_TYPE), exe)
+$(TARGET): config $(OBJECTS)
+	@mkdir -p $(dir $@)
+	gcc -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
+endif
+
+# build static library
+
+ifeq ($(CFG_TYPE), lib)
+$(TARGET): config $(OBJECTS)
+	@mkdir -p $(dir $@)
+	@ar rc $@ $(OBJECTS)
+	@ranlib $@
+endif
+
+# build dynamically linked library
+
+ifeq ($(CFG_TYPE), dll)
+CPP_FLAGS += -fpic
+$(TARGET): config $(OBJECTS)
+	@mkdir -p $(dir $@)
+	gcc -o $@ -shared $(OBJECTS) $(LIBS)
+endif
+
+# include dependencies
+
+-include $(OBJECTS:%.o=%.d)
+
+# compile
+
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
+# clean object and dependency files
+
+clean:
+	@rm -f `find $(OBJ_DIR) -type f`
+	@rm -rf $(OBJ_DIR)
+
+# handle platforms and configurations
+
+config:
+	@if [ ! -f $(CFG_DIR)/current ] ; then \
+		echo "Please use \"make <config>\" first to select configuration."; \
+		exit 1; \
+	fi
+
+ps3-linux ps3-linux-debug \
+pc-linux32 pc-linux32-debug \
+pc-linux64 pc-linux64-debug \
+pc-mingw32 pc-mingw32-debug \
+:
+	@cp $(CFG_DIR)/$@ $(CFG_DIR)/current
+	@echo "Switched to configuration \"$@\". You may now use simple \"make\"."
