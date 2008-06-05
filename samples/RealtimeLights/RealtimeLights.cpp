@@ -45,6 +45,13 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
 
+#ifndef GLUT_WHEEL_UP
+#define GLUT_WHEEL_UP 3
+#endif
+
+#ifndef GLUT_WHEEL_DOWN
+#define GLUT_WHEEL_DOWN 4
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -82,7 +89,7 @@ float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
 rr::RRVec4                 brightness(1);
-float                      gamma = 1;
+float                      contrast = 1;
 float                      rotation = 0;
 
 
@@ -113,7 +120,7 @@ public:
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,false);
 		rendererOfScene->useOptimizedScene();
-		rendererOfScene->setBrightnessGamma(&brightness,gamma);
+		rendererOfScene->setBrightnessGamma(&brightness,contrast);
 		rendererOfScene->render();
 
 		// render dynamic objects
@@ -135,7 +142,7 @@ public:
 			robot->updatePosition();
 			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 				updateEnvironmentMap(robot->illumination);
-			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
+			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
 		if(potato)
 		{
@@ -144,7 +151,7 @@ public:
 			potato->updatePosition();
 			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 				updateEnvironmentMap(potato->illumination);
-			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
+			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
 	}
 };
@@ -187,10 +194,10 @@ void keyboard(unsigned char c, int x, int y)
 			brightness /= 1.2f;
 			break;
 		case '*':
-			gamma *= 1.2f;
+			contrast *= 1.2f;
 			break;
 		case '/':
-			gamma /= 1.2f;
+			contrast /= 1.2f;
 			break;
 		case ' ':
 			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
@@ -362,9 +369,11 @@ void idle()
 
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 39436;
+#endif // _WIN32
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -394,11 +403,13 @@ int main(int argc, char **argv)
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 	
+#ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
 	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	SetCurrentDirectoryA(exedir);
 	free(exedir);
+#endif // _WIN32
 
 	// init solver
 	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
