@@ -26,6 +26,8 @@
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel AO, others get per-vertex AO
 //#define TB
 
+
+#include "Lightsprint/RRMath.h"    // TODO: Platform.h
 #ifdef TB
 #include "../../samples/ImportTB/RRObjectTB.h"
 #else
@@ -76,10 +78,11 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::UpdateParameters params(2000);
 	rr::RRDynamicSolver::FilteringParameters filtering;
 	filtering.wrap = false;
-	// a) update lightmaps 
-	//solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering); 
-	// b) the same with dialog that lets you abort, change quality, view scene...
+#ifdef _WIN32
 	rr_gl::updateLightmapsWithDialog(solver,layerNumber,-1,-1,&params,&params,&filtering,true,"../../data/shaders/",NULL);
+#else
+	solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering); 
+#endif
 }
 
 int main(int argc, char **argv)
@@ -140,7 +143,9 @@ int main(int argc, char **argv)
 		rr::RRReportInterval report(rr::INF1,"Starting AO lightmap build, takes approx 2 minutes ...\n");
 
 		// decrease priority, so that this task runs on background using only free CPU cycles
+#ifdef _WIN32
 		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
+#endif
 
 		// calculate and save it
 		calculate(solver,0);
@@ -150,7 +155,9 @@ int main(int argc, char **argv)
 		//solver->getObjects()->loadIllumination("../../data/export/",0);
 
 		// restore priority
+#ifdef _WIN32
 		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
+#endif
 	}
 
 	rr_gl::sceneViewer(solver,true,"../../data/shaders/",0,false);
