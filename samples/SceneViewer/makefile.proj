@@ -23,7 +23,6 @@ SceneViewerSample.cpp \
 ../Import3DS/RRObject3DS.cpp \
 ../Import3DS/Model_3DS.cpp \
 ../ImportCollada/RRObjectCollada.cpp \
-../ImportMGF/RRObjectMGF.cpp \
 ../ImportMGF/badarg.c \
 ../ImportMGF/context.c \
 ../ImportMGF/fvect.c \
