@@ -55,7 +55,13 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
+#ifdef _WIN32
 #include <windows.h> // timeGetTime
+#endif
+#if defined(LINUX) || defined(linux)
+#include <sys/time.h> // gettimeofday
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -94,7 +100,7 @@ float                      speedLeft = 0;
 bool                       realtimeIllumination = true; // true = fully realtime computed GI, no precalcs; false = precomputed lightmaps+lightfield
 bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(1);
-float                      gamma = 1;
+float                      contrast = 1;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -106,7 +112,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight,false);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:(ambientMapsRender?2:1));
-	rendererOfScene->setBrightnessGamma(&brightness,gamma);
+	rendererOfScene->setBrightnessGamma(&brightness,contrast);
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -119,7 +125,14 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
+#ifdef _WIN32
 	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
+#elif defined(LINUX) || defined(linux)
+	timeval time;
+	gettimeofday(&time,NULL);
+	long msec = time.tv_sec*1000+(time.tv_usec/1000);
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (msec%10000000)*0.07f;
+#endif
 	// render object1
 	if(robot)
 	{
@@ -139,7 +152,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
-		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
+		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast);
 	}
 	if(potato)
 	{
@@ -160,7 +173,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
-		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
+		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast);
 	}
 }
 
@@ -238,10 +251,10 @@ void keyboard(unsigned char c, int x, int y)
 			brightness /= 1.2f;
 			break;
 		case '*':
-			gamma *= 1.2f;
+			contrast *= 1.2f;
 			break;
 		case '/':
-			gamma /= 1.2f;
+			contrast /= 1.2f;
 			break;
 
 		case ' ':
