@@ -25,8 +25,10 @@
 #include "../Import/ImportScene.h"
 #include <cstdlib>
 #include <cstdio>
+#ifdef _WIN32
 #include <crtdbg.h>
 #include <direct.h>
+#endif // _WIN32
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/Program.h"
@@ -43,9 +45,11 @@ void error(const char* message, bool gfxRelated)
 
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 65;
+#endif // _WIN32
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -58,11 +62,13 @@ int main(int argc, char **argv)
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(1);
 	
+#ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
 	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	_chdir(exedir);
 	free(exedir);
+#endif // _WIN32
 
 	// load scene
 	ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
