@@ -2,7 +2,9 @@
 #define SUPPORT_BSP // Quake3
 #define SUPPORT_DAE // Collada
 #define SUPPORT_OBJ
+#ifdef _WIN32
 #define SUPPORT_MGF
+#endif
 
 #ifdef SUPPORT_DAE
 	// must be included first because it collides with #define SAFE_DELETE
