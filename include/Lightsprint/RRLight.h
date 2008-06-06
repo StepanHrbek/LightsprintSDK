@@ -131,6 +131,7 @@ namespace rr
 		RRVec3 position;
 
 		//! Normalized direction of light in world space. Relevant only for DIRECTIONAL and SPOT light. Read/write.
+		//! Be careful, setting unnormalized value would break lightmap building.
 		RRVec3 direction;
 
 		//! Outer cone angle in radians. Relevant only for SPOT light. Read/write.
@@ -230,8 +231,8 @@ namespace rr
 		//! \return
 		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
 		//!  assuming that receiver is oriented towards light.
-		//!  Some lights with non-linear distance attenuation might return inf
-		//!  for receiverPosition exactly in light position.
+		//!  Lights must return finite number, even when lighting model
+		//!  predicts infinite number (some types of attenuation + zero distance).
 		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const = 0;
 
 

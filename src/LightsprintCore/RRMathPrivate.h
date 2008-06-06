@@ -27,6 +27,7 @@ namespace rr
 	#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
 	#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
 	#define IS_VEC4(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]) && IS_NUMBER(v[3]))
+	#define IS_NORMALIZED(v) (fabs((v).length2()-1)<0.01f)
 
 	inline RRVec3 operator -(const RRVec3& a)
 	{
