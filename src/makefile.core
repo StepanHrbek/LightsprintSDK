@@ -57,7 +57,8 @@ clean:
 
 config:
 	@if [ ! -f $(CFG_DIR)/current ] ; then \
-		echo "Please use \"make <config>\" first to select configuration."; \
+		echo "Please use \"make <config>\" first to select configuration from:"; \
+		ls $(CFG_DIR); \
 		exit 1; \
 	fi
 
