@@ -769,27 +769,6 @@ namespace rr
 		InternalSolverType getInternalSolverType();
 
 
-		//! Build light field for GI of dynamic objects under static lighting.
-		//
-		//! \param aabbMin
-		//!  Lower corner of axis aligned bounding box of space where light field is to be computed.
-		//! \param aabbSize
-		//!  Size of axis aligned bounding box of space where light field is to be computed.
-		//! \param spacing
-		//!  Distance between sampling points in meters. Smaller = higher quality, but larger structure.
-		//! \param diffuseSize
-		//!  Size of cubemaps for diffuse reflection.
-		//!  4 is usually sufficient.
-		//!  Diffuse part is usually more important for indirect lighting of dynamic objects,
-		//!  however, you can set size 0 to build light field without diffuse part
-		//! \param specularSize
-		//!  Size of cubemaps for specular reflection.
-		//!  8 is usually sufficient.
-		//!  Specular part is usually less important for indirect lighting of dynamic objects,
-		//!  and it takes more memory (4x more by default),
-		//!  so you set size 0 to build light field without specular part.
-		const RRLightField* buildLightField(RRVec3 aabbMin, RRVec3 aabbSize, RRReal spacing = 1, unsigned diffuseSize = 4, unsigned specularSize = 8);
-
 		//! Verifies data in solver and reports problems found using RRReporter.
 		//
 		//! While all precomputed lighting and cheap-to-detect realtime lighting problems

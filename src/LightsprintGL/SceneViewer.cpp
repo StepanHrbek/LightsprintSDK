@@ -87,7 +87,7 @@ static unsigned                   centerTriangle = UINT_MAX; // triangle in the 
 static int                        menuInUse = GLUT_MENU_NOT_IN_USE; // GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
 
 // all we need for testing lightfield
-static const rr::RRLightField*    lightField = NULL;
+static rr::RRLightField*          lightField = NULL;
 static GLUquadricObj*             lightFieldQuadric = NULL;
 static rr::RRObjectIllumination*  lightFieldObjectIllumination = NULL;
 
@@ -390,19 +390,23 @@ public:
 				break;
 			case ME_STATIC_BUILD_LIGHTFIELD_2D:
 				{
-					rr::RRVec3 aabbMin,aabbMax;
+					rr::RRVec4 aabbMin,aabbMax;
 					solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
-					delete lightField;
 					aabbMin.y = aabbMax.y = eye.pos.y;
-					lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+					aabbMin.w = aabbMax.w = 0;
+					delete lightField;
+					lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
+					lightField->captureLighting(solver,0);
 				}
 				break;
 			case ME_STATIC_BUILD_LIGHTFIELD_3D:
 				{
-					rr::RRVec3 aabbMin,aabbMax;
+					rr::RRVec4 aabbMin,aabbMax;
 					solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+					aabbMin.w = aabbMax.w = 0;
 					delete lightField;
-					lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+					lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
+					lightField->captureLighting(solver,0);
 				}
 				break;
 			case ME_STATIC_BUILD1:
@@ -869,7 +873,7 @@ static void display(void)
 				// update cube
 				lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(eye.pos[0]+eye.dir[0],eye.pos[1]+eye.dir[1],eye.pos[2]+eye.dir[2]);
 				rr::RRVec2 sphereShift = rr::RRVec2(eye.dir[2],-eye.dir[0]).normalized()*0.05f;
-				lightField->updateEnvironmentMap(lightFieldObjectIllumination);
+				lightField->updateEnvironmentMap(lightFieldObjectIllumination,0);
 
 				// diffuse
 				// set shader (no direct light)

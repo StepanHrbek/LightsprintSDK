@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news58 ------------------------------------ 2008.6.x -------------------------------------
+
+NEWS
+
+- Lightfield extended from 3D to 4D, it captures illumination in space and time.
+
+CHANGES
+
+- Lightfield creation moved from RRDynamicSolver::createLightField()
+  to RRLightField::create() and RRLightField::captureLighting()
+
 \section news58 ------------------------------------ 2008.6.3 -------------------------------------
 
 NEWS

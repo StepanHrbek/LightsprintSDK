@@ -127,13 +127,58 @@ namespace rr
 	class RR_API RRLightField : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
+
+		//! Creates light field.
+		//
+		//! Empty lightfield is created, use captureLighting() to fill it.
+		//! \param aabbMin
+		//!  Lower corner of axis aligned bounding box of space/time where light field is to be computed.
+		//!  Fourth coordinate is time in your units.
+		//! \param aabbSize
+		//!  Size of axis aligned bounding box of space/time where light field is to be computed.
+		//!  Fourth coordinate is time in your units.
+		//! \param spacing
+		//!  Distance between sampling points. Smaller = higher quality, but larger structure.
+		//! \param diffuseSize
+		//!  Size of cubemaps for diffuse reflection.
+		//!  4 is usually sufficient.
+		//!  Diffuse part is usually more important for indirect lighting of dynamic objects,
+		//!  however, you can set size 0 to build light field without diffuse part
+		//! \param specularSize
+		//!  Size of cubemaps for specular reflection.
+		//!  8 is usually sufficient.
+		//!  Specular part is usually less important for indirect lighting of dynamic objects,
+		//!  and it takes more memory (4x more by default),
+		//!  so you set size 0 to build light field without specular part.
+		//! \param numTimeSlots
+		//!  Number of time slots in lightfield.
+		//!  Time slots are used for dynamic lights, you can capture lighting in space for several
+		//!  moments in time. Use 1 slot for static lighting.
+		static RRLightField* create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spacing = 1, unsigned diffuseSize = 4, unsigned specularSize = 8, unsigned numTimeSlots = 1);
+
+		//! Captures lighting in space into lightfield.
+		//! Call it for all time slots, otherwise content of lightfield will be undefined.
+		//! \param solver
+		//!  Solver, source of information about scene and its illumination.
+		//! \param timeSlot
+		//!  Lighting in scene will be stored to given slot.
+		//!  Time slot numbers are 0..numTimeSlots-1
+		//!  where numTimeSlots was specified by create().
+		virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot) = 0;
+
 		//! Updates diffuse and/or specular environment maps in object illumination.
 		//
 		//! Unlike all other buffer update function in Lightsprint SDK, this one
 		//! changes type/size/format of buffer (to RGB cubemap of size you entered
 		//! to RRDynamicSolver::buildLightField()).
+		//! \param  objectIllumination
+		//!  Illumination you want to update.
+		//! \param time
+		//!  Illumination at given time is computed. (Lightfield may store dynamic lighting
+		//!  for time period specified at lightfield build.)
+		//!  Use the same time units you used in create().
 		//! \return Number of maps updated, 0, 1 or 2.
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* objectIllumination) const = 0;
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* objectIllumination, RRReal time) const = 0;
 		virtual ~RRLightField() {}
 
 		//! Saves instance to disk.
