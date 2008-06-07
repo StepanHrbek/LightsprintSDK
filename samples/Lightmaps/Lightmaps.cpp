@@ -86,7 +86,7 @@ rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0
 rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
-const rr::RRLightField*    lightField = NULL;
+rr::RRLightField*          lightField = NULL;
 rr_gl::RendererOfScene*    rendererOfScene = NULL;
 DynamicObject*             robot = NULL;
 DynamicObject*             potato = NULL;
@@ -147,7 +147,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 			if(lightField)
 			{
 				// update texture in CPU memory
-				lightField->updateEnvironmentMap(robot->illumination);
+				lightField->updateEnvironmentMap(robot->illumination,0);
 				// copy it to GPU memory
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
@@ -167,7 +167,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 			if(lightField)
 			{
 				// update texture in CPU memory
-				lightField->updateEnvironmentMap(potato->illumination);
+				lightField->updateEnvironmentMap(potato->illumination,0);
 				// copy it to GPU memory
 				rr_gl::getTexture(potato->illumination->diffuseEnvMap,false,false)->reset(false,false);
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
@@ -303,10 +303,11 @@ void keyboard(unsigned char c, int x, int y)
 				solver->updateLightmaps(1,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 
 				// update lightfield
-				rr::RRVec3 aabbMin,aabbMax;
+				rr::RRVec4 aabbMin,aabbMax;
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
-				delete lightField;
-				lightField = solver->buildLightField(aabbMin,aabbMax-aabbMin,1);
+				aabbMin.w = aabbMax.w = 0;
+				if(!lightField) lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
+				lightField->captureLighting(solver,0);
 
 				// start rendering computed maps
 				ambientMapsRender = true;

@@ -291,7 +291,7 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 	return lightField;
 }
 
-const RRLightField* RRLightField::load(const char* filename)
+RRLightField* RRLightField::load(const char* filename)
 {
 	LightField* lightField = new LightField();
 	if(!lightField->reload(filename))
