@@ -32,15 +32,16 @@ Camera::Camera(const rr::RRLight& light)
 {
 	pos = light.position;
 	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
-	angleX = (light.type!=rr::RRLight::POINT) ? asin(light.direction[1]) : 0;
-	if(light.type!=rr::RRLight::POINT && fabs(cos(angleX))>0.0001f)
+	if(light.type==rr::RRLight::POINT)
 	{
-		angle = asin(light.direction[0]/cos(angleX));
-		if(light.direction[2]<0) angle = (rr::RRReal)(M_PI-angle);
+		angleX = 0;
+		angle = 0;
+		leanAngle = 0;
 	}
 	else
-		angle = 0;	
-	leanAngle = 0;
+	{
+		setDirection(light.direction);
+	}
 	aspect = 1;
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
 	anear = (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f;
@@ -49,6 +50,20 @@ Camera::Camera(const rr::RRLight& light)
 	orthoSize = 100;
 	updateDirFromAngles = true;
 	update();
+}
+
+void Camera::setDirection(const rr::RRVec3& _dir)
+{
+	dir = _dir.normalized();
+	angleX = asin(dir[1]);
+	if(fabs(cos(angleX))>0.0001f)
+	{
+		angle = asin(dir[0]/cos(angleX));
+		if(dir[2]<0) angle = (rr::RRReal)(M_PI-angle);
+	}
+	else
+		angle = 0;	
+	leanAngle = 0;
 }
 
 bool Camera::operator==(const Camera& a) const

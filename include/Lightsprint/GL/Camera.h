@@ -76,6 +76,8 @@ public:
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
 	//! Initializes all inputs from RRLight.
 	Camera(const rr::RRLight& light);
+	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
+	void setDirection(const rr::RRVec3& dir);
 	//! == operator, true when inputs are equal.
 	bool operator==(const Camera& a) const;
 	//! != operator, true when inputs differ.
