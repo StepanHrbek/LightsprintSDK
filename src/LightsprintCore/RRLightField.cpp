@@ -65,6 +65,8 @@ public:
 	{
 		rawField = NULL;
 		rawCell = NULL;
+		for(unsigned i=0;i<256;i++)
+			customToPhysical[i] = (unsigned)pow(float(i),2.2f);
 	}
 	virtual ~LightField()
 	{
@@ -117,8 +119,15 @@ public:
 	{
 		if(!header.isOk() || !rawField || !rawCell || !object) return 0;
 
-		// find cell in field (out of 8 cells that blend together, this one has minimal coords)
-		RRVec4 cellCoordFloat = RRVec4( (object->envMapWorldCenter-header.aabbMin)/header.aabbSize*RRVec3(RRReal(header.gridSize[0]),RRReal(header.gridSize[1]),RRReal(header.gridSize[2]))-RRVec3(0.5f) , time );
+		// find cell in field (out of 16 cells that blend together, this one has minimal coords)
+		//                              min                     max
+		//  for xyz, capture points are  |.....|.....|.....|.....|
+		//                                  0     1     2     3       <- capture points and cellCoordFloat
+		//  for time, capture points are |...|.......|.......|...|
+		//                               0       1       2       3    <- capture points and cellCoordFloat
+		RRVec4 cellCoordFloat = RRVec4(
+			(object->envMapWorldCenter-header.aabbMin  )/header.aabbSize  *RRVec3(RRReal(header.gridSize[0]),RRReal(header.gridSize[1]),RRReal(header.gridSize[2]))-RRVec3(0.5f),
+			(time                     -header.aabbMin.w)/header.aabbSize.w*(header.gridSize[3]-1) );
 		int cellCoordInt[4] = {int(cellCoordFloat[0]),int(cellCoordFloat[1]),int(cellCoordFloat[2]),int(cellCoordFloat[3])};
 		RRVec4 cellCoordFraction = cellCoordFloat-RRVec4(RRReal(cellCoordInt[0]),RRReal(cellCoordInt[1]),RRReal(cellCoordInt[2]),RRReal(cellCoordInt[3]));
 		for(unsigned i=0;i<4;i++)
@@ -139,19 +148,19 @@ public:
 			for(unsigned i=0;i<8;i++)
 			{
 				cellOffset[i] = cellSize*(( cellIndex+(i&1)+((i>>1)&1)*header.gridSize[0]+((i>>2)&1)*header.gridSize[0]*header.gridSize[1] )%numFields);
-				cellWeight[i] = unsigned( 65535 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) );
+				cellWeight[i] = unsigned( 8192 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) );
 			}
 			for(unsigned i=0;i<cellSize;i++)
 			{
-				rawCell[i] = (
-					cellWeight[0]*rawField[cellOffset[0]+i] +
-					cellWeight[1]*rawField[cellOffset[1]+i] +
-					cellWeight[2]*rawField[cellOffset[2]+i] +
-					cellWeight[3]*rawField[cellOffset[3]+i] +
-					cellWeight[4]*rawField[cellOffset[4]+i] +
-					cellWeight[5]*rawField[cellOffset[5]+i] +
-					cellWeight[6]*rawField[cellOffset[6]+i] +
-					cellWeight[7]*rawField[cellOffset[7]+i] ) >> 16;
+				rawCell[i] = (unsigned)pow(float((
+					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
+					cellWeight[1]*customToPhysical[rawField[cellOffset[1]+i]] +
+					cellWeight[2]*customToPhysical[rawField[cellOffset[2]+i]] +
+					cellWeight[3]*customToPhysical[rawField[cellOffset[3]+i]] +
+					cellWeight[4]*customToPhysical[rawField[cellOffset[4]+i]] +
+					cellWeight[5]*customToPhysical[rawField[cellOffset[5]+i]] +
+					cellWeight[6]*customToPhysical[rawField[cellOffset[6]+i]] +
+					cellWeight[7]*customToPhysical[rawField[cellOffset[7]+i]] ) /8192 ), 0.45f);
 			}
 		}
 		else
@@ -176,27 +185,27 @@ public:
 							)
 						)
 					)%numFields);
-				cellWeight[i] = unsigned( 65535 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) * ((i&8)?cellCoordFraction[3]:1-cellCoordFraction[3]) );
+				cellWeight[i] = unsigned( 8192 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) * ((i&8)?cellCoordFraction[3]:1-cellCoordFraction[3]) );
 			}
 			for(unsigned i=0;i<cellSize;i++)
 			{
-				rawCell[i] = (
-					cellWeight[0]*rawField[cellOffset[0]+i] +
-					cellWeight[1]*rawField[cellOffset[1]+i] +
-					cellWeight[2]*rawField[cellOffset[2]+i] +
-					cellWeight[3]*rawField[cellOffset[3]+i] +
-					cellWeight[4]*rawField[cellOffset[4]+i] +
-					cellWeight[5]*rawField[cellOffset[5]+i] +
-					cellWeight[6]*rawField[cellOffset[6]+i] +
-					cellWeight[7]*rawField[cellOffset[7]+i] +
-					cellWeight[8]*rawField[cellOffset[8]+i] +
-					cellWeight[9]*rawField[cellOffset[9]+i] +
-					cellWeight[10]*rawField[cellOffset[10]+i] +
-					cellWeight[11]*rawField[cellOffset[11]+i] +
-					cellWeight[12]*rawField[cellOffset[12]+i] +
-					cellWeight[13]*rawField[cellOffset[13]+i] +
-					cellWeight[14]*rawField[cellOffset[14]+i] +
-					cellWeight[15]*rawField[cellOffset[15]+i] ) >> 16;
+				rawCell[i] = (unsigned)pow(float((
+					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
+					cellWeight[1]*customToPhysical[rawField[cellOffset[1]+i]] +
+					cellWeight[2]*customToPhysical[rawField[cellOffset[2]+i]] +
+					cellWeight[3]*customToPhysical[rawField[cellOffset[3]+i]] +
+					cellWeight[4]*customToPhysical[rawField[cellOffset[4]+i]] +
+					cellWeight[5]*customToPhysical[rawField[cellOffset[5]+i]] +
+					cellWeight[6]*customToPhysical[rawField[cellOffset[6]+i]] +
+					cellWeight[7]*customToPhysical[rawField[cellOffset[7]+i]] +
+					cellWeight[8]*customToPhysical[rawField[cellOffset[8]+i]] +
+					cellWeight[9]*customToPhysical[rawField[cellOffset[9]+i]] +
+					cellWeight[10]*customToPhysical[rawField[cellOffset[10]+i]] +
+					cellWeight[11]*customToPhysical[rawField[cellOffset[11]+i]] +
+					cellWeight[12]*customToPhysical[rawField[cellOffset[12]+i]] +
+					cellWeight[13]*customToPhysical[rawField[cellOffset[13]+i]] +
+					cellWeight[14]*customToPhysical[rawField[cellOffset[14]+i]] +
+					cellWeight[15]*customToPhysical[rawField[cellOffset[15]+i]] ) /8192 ), 0.45f);
 			}
 		}
 
@@ -265,6 +274,7 @@ public:
 	LightFieldParameters header;
 	unsigned char* rawField; // static array of precomputed cells
 	unsigned char* rawCell; // temporary cell used by updateEnvironmentMap (for blending precomputed cells)
+	unsigned customToPhysical[256]; // custom scale 8bit to phys scale ~18bit
 };
 
 
