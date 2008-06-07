@@ -594,4 +594,7 @@ unsigned RRMesh::verify() const
 	return numReports;
 }
 
+// Moved to file with exceptions enabled:
+// RRReal RRMesh::findGroundLevel() const
+
 } //namespace

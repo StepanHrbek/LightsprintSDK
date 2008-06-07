@@ -328,17 +328,10 @@ public:
 			case ME_RANDOM_CAMERA:
 				if(solver->getMultiObjectCustom())
 				{
-					const rr::RRMesh* multiMesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
-					rr::RRVec3 mini,maxi;
-					multiMesh->getAABB(&mini,&maxi,NULL);
-					unsigned numVertices = multiMesh->getNumVertices();
-					if(numVertices)
-					{
-						multiMesh->getVertex(numVertices*rand()/RAND_MAX,eye.pos);
-						eye.pos -= eye.dir*(maxi-mini).sum()*0.22f;
-						eye.afar = MAX(eye.anear+1,(maxi-mini).sum()*50);
-						speedGlobal = (maxi-mini).sum()*0.1f;
-					}
+					solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
+					speedGlobal = eye.afar*0.08f;
+					eye.afar = MAX(eye.anear+1,eye.afar);
+					eye.setDirection(eye.dir);
 				}
 				break;
 			case ME_VERIFY: solver->verify(); break;

@@ -80,4 +80,7 @@ RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObje
 		
 }
 
+// Moved to file with exceptions enabled:
+// void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
+
 } // namespace

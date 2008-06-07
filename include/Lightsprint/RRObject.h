@@ -364,6 +364,16 @@ namespace rr
 		//! Thread safe: this function yes, but created collision handler no.
 		//! (typical use case: for n threads, use 1 collider, n rays and n handlers.)
 		RRCollisionHandler* createCollisionHandlerFirstVisible();
+
+
+		// camera helper
+
+		//! Generates position and direction suitable for automatically placed camera.
+		//
+		//! All parameters are filled by function.
+		//! outMaxdist is upper bound for distance between two points in scene,
+		//! it could be used for setting camera far.
+		void generateRandomCamera(RRVec3& outPos, RRVec3& outDir, RRReal& outMaxdist);
 	};
 
 
