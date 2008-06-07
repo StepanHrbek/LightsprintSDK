@@ -224,7 +224,7 @@ static real minAngle(real a,real b,real c) // delky stran
 }
 
 // calculates triangle area from triangle vertices
-real calculateArea(const RRMesh::TriangleBody& body)
+static real calculateArea(const RRMesh::TriangleBody& body)
 {
 	real a=size2(body.side1);
 	real b=size2(body.side2);

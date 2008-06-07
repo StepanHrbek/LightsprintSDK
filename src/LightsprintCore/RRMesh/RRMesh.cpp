@@ -150,7 +150,7 @@ bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
 }
 
 // calculates triangle area from triangle vertices
-RRReal calculateArea2(RRVec3 v0, RRVec3 v1, RRVec3 v2)
+static RRReal calculateArea(RRVec3 v0, RRVec3 v1, RRVec3 v2)
 {
 	RRReal a = size2(v1-v0);
 	RRReal b = size2(v2-v0);
@@ -168,7 +168,7 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 	getVertex(t[0],v[0]);
 	getVertex(t[1],v[1]);
 	getVertex(t[2],v[2]);
-	RRReal area = calculateArea2(v[0],v[1],v[2]);
+	RRReal area = calculateArea(v[0],v[1],v[2]);
 	return area;
 }
 
@@ -176,7 +176,7 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 //
 // RRMesh tools
 
-void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter) const
+void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	unsigned numVertices = getNumVertices();
 	if(numVertices)
@@ -195,17 +195,18 @@ void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter) const
 				maxi[j] = MAX(maxi[j],v[j]);
 			}
 		}
-		if(acenter) *acenter = center/numVertices;
-		if(amini) *amini = mini;
-		if(amaxi) *amaxi = maxi;
+		if(_center) *_center = center/numVertices;
+		if(_mini) *_mini = mini;
+		if(_maxi) *_maxi = maxi;
 	}
 	else
 	{
-		if(acenter) *acenter = RRVec3(0);
-		if(amini) *amini = RRVec3(0);
-		if(amaxi) *amaxi = RRVec3(0);
+		if(_center) *_center = RRVec3(0);
+		if(_mini) *_mini = RRVec3(0);
+		if(_maxi) *_maxi = RRVec3(0);
 	}
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

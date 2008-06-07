@@ -5,6 +5,9 @@
 
 #include "RRMeshFilter.h"
 
+#include "../RRMathPrivate.h"
+#include <map> // findGroundLevel
+
 namespace rr
 {
 
@@ -66,6 +69,54 @@ const RRMesh* RRMesh::createAccelerated() const
 	{
 		RRReporter::report(ERRO,"Not enough memory, mesh not accelerated.\n");
 		return this;
+	}
+}
+
+// calculates triangle area from triangle vertices
+static RRReal calculateArea(RRVec3 v0, RRVec3 v1, RRVec3 v2)
+{
+	RRReal a = size2(v1-v0);
+	RRReal b = size2(v2-v0);
+	RRReal c = size2(v2-v1);
+	//return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
+	RRReal d = 2*b*c+2*c*a+2*a*b-a*a-b*b-c*c;
+	return (d>0) ? sqrt(d)*0.25f : 0; // protection against evil rounding error
+}
+
+// this function logically belongs to RRMesh.cpp,
+// we put it here where exceptions are enabled
+// enabling exceptions in RRMesh.cpp would cause slow down
+RRReal RRMesh::findGroundLevel() const
+{
+	unsigned numTriangles = getNumTriangles();
+	if(numTriangles)
+	{
+		typedef std::map<RRReal,RRReal> YToArea;
+		YToArea yToArea;
+		for(unsigned t=0;t<numTriangles;t++)
+		{
+			RRMesh::TriangleBody tb;
+			getTriangleBody(t,tb);
+			if(tb.side1.y==0 && tb.side2.y==0 && ortogonalTo(tb.side1,tb.side2).y>0) // planar and facing up
+			{
+				RRReal area = calculateArea(tb.side1,tb.side2,tb.side2-tb.side1);
+				YToArea::iterator i = yToArea.find(tb.vertex0.y);
+				if(i==yToArea.end())
+					yToArea[tb.vertex0.y]=area;
+				else
+					yToArea[tb.vertex0.y]+=area;
+			}
+		}
+		YToArea::iterator best = yToArea.begin();
+		for(YToArea::iterator i=yToArea.begin();i!=yToArea.end();i++)
+		{
+			if(i->second>best->second) best = i;
+		}
+		return best->first;
+	}
+	else
+	{
+		return 0;
 	}
 }
 

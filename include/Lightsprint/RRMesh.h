@@ -306,6 +306,10 @@ namespace rr
 		//! \param center
 		//!  NULL or pointer to vec3 to be filled with average vertex position.
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
+		
+		//! Returns y coordinate of plane where triangles facing straight up have the biggest total area.
+		//! In CG scenes, this is usually ground.
+		virtual RRReal       findGroundLevel() const;
 
 
 		//

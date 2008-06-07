@@ -14,6 +14,7 @@ NEWS
 
 - Lightfield extended from 3D to 4D, it captures illumination in space and time.
 - rr_gl::Camera::updateDirFromAngles makes it possible to set camera direction as vector rather than 3 angles
+- RRMesh::findGroundLevel(), helper for automatic processing of unknown scene
 
 CHANGES
 
