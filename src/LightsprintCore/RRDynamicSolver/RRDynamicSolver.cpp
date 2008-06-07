@@ -481,7 +481,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 //
 // save & load
 
-char *bp(const char *fmt, ...)
+static char *bp(const char *fmt, ...)
 {
 	static char msg[1000];
 	va_list argptr;
@@ -489,6 +489,14 @@ char *bp(const char *fmt, ...)
 	vsprintf (msg,fmt,argptr);
 	va_end (argptr);
 	return msg;
+}
+
+static bool exists(const char* filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if(!f) return false;
+	fclose(f);
+	return true;
 }
 
 unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) const
@@ -502,31 +510,32 @@ unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) con
 		{
 			delete illumination->getLayer(layerNumber);
 			const char* filename = bp("%sobj%04d_%02d.png",path?path:"",i,layerNumber);
-			if( (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
+			if( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 			{
 				result++;
-				rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);
+				rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
 			}
 			else
 			{
-				if( (illumination->getLayer(layerNumber)=rr::RRBuffer::load(bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber),NULL)) )
+				filename = bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber);
+				if( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 				{
 					result++;
-					rr::RRReporter::report(rr::INF2,"Loaded %s.\n",filename);
+					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
 					RR_ASSERT(illumination->getLayer(layerNumber)->getWidth()==illumination->getNumPreImportVertices());
 				}
 			}
 		}
 	}
-	rr::RRReporter::report(rr::INF2,"Loaded %d/%d buffers.\n",result,numObjects);
+	rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers from %s.\n",layerNumber,result,numObjects,path);
 	return result;
 }
 
 unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) const
 {
-	rr::RRReportInterval report(rr::INF2,"Saving layer %d...\n",layerNumber);
 	unsigned result = 0;
-	for(unsigned i=0;i<size();i++)
+	unsigned numObjects = size();
+	for(unsigned i=0;i<numObjects;i++)
 	{
 		RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
 		if(buffer)
@@ -535,12 +544,13 @@ unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) con
 			if(buffer->save(filename,NULL))
 			{
 				result++;
-				rr::RRReporter::report(rr::INF2,"Saved %s.\n",filename);
+				rr::RRReporter::report(rr::INF3,"Saved %s.\n",filename);
 			}
 			else
 				rr::RRReporter::report(rr::WARN,"Not saved %s.\n",filename);
 		}
 	}
+	rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,numObjects,path);
 	return result;
 }
 
