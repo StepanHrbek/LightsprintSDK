@@ -29,11 +29,11 @@ public:
 
 	//! Position of camera (imaginary frustum apex).
 	rr::RRVec3 pos;
-	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to the left/right.
+	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to the left/right. Ignored if !updateDirFromAngles.
 	float    angle;
-	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning.
+	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning. Used for up vector even if !updateDirFromAngles.
 	float    leanAngle;
-	//! Rotation around X axis, radians, controls looking up/down.
+	//! Rotation around X axis, radians, controls looking up/down. Ignored if !updateDirFromAngles.
 	float    angleX;
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
@@ -47,11 +47,16 @@ public:
 	bool     orthogonal;
 	//! Only if orthogonal: World space distance between closest points projected to top and bottom of screen.
 	float    orthoSize;
+	//! True(default): you set angle+leanAngle+angleX, update() computes direction from angles. False: you set direction, update() doesn't touch it.
+	bool     updateDirFromAngles;
+
+	// inputs or outputs
+
+	//! View direction. Input if !updateDirFromAngles, output if updateDirFromAngles.
+	rr::RRVec4 dir;
 
 	// outputs, to be calculated by update() and possibly read by user
 
-	//! View direction.
-	rr::RRVec4 dir;
 	//! Up vector.
 	rr::RRVec3 up;
 	//! Right vector.

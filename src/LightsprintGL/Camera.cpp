@@ -24,6 +24,7 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	afar = _afar;
 	orthogonal = 0;
 	orthoSize = 0;
+	updateDirFromAngles = true;
 	update();
 }
 
@@ -46,6 +47,7 @@ Camera::Camera(const rr::RRLight& light)
 	afar = (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f;
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
+	updateDirFromAngles = true;
 	update();
 }
 
@@ -62,9 +64,12 @@ bool Camera::operator!=(const Camera& a) const
 void Camera::update(const Camera* observer, unsigned shadowmapSize)
 {
 	// update dir
-	dir[0] = sin(angle)*cos(angleX);
-	dir[1] = sin(angleX);
-	dir[2] = cos(angle)*cos(angleX);
+	if(updateDirFromAngles)
+	{
+		dir[0] = sin(angle)*cos(angleX);
+		dir[1] = sin(angleX);
+		dir[2] = cos(angle)*cos(angleX);
+	}
 	dir[3] = 1.0;
 
 	// - leaning
