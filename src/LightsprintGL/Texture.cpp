@@ -49,6 +49,13 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		default: rr::RRReporter::report(rr::ERRO,"Texture of invalid type created.\n"); break;
 	}
 
+	// this might help some drivers (I experienced very rare crash in 8800 driver while creating 1x1 compressed mipmapped texture)
+	if(buffer->getWidth()==1 && buffer->getHeight()==1)
+	{
+		_buildMipmaps = false;
+		_compress = false;
+	}
+
 	GLenum glinternal; // GL_RGB, GL_RGBA
 	GLenum glformat; // GL_RGB, GL_RGBA
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
