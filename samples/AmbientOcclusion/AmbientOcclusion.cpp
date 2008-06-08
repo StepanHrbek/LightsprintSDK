@@ -64,14 +64,18 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for(unsigned i=0;i<solver->getNumObjects();i++)
 	{
-		solver->getIllumination(i)->getLayer(layerNumber) =
-			(i==SELECTED_OBJECT_NUMBER)
-			?
-			// allocate lightmap for selected object
-			rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,true,NULL)
-			:
-			// allocate vertex buffers for other objects
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+		unsigned numVertices = solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
+		if(numVertices)
+		{
+			solver->getIllumination(i)->getLayer(layerNumber) =
+				(i==SELECTED_OBJECT_NUMBER)
+				?
+				// allocate lightmap for selected object
+				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,true,NULL)
+				:
+				// allocate vertex buffers for other objects
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+		}
 	}
 
 	// calculate ambient occlusion
