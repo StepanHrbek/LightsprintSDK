@@ -17,10 +17,10 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2008
 // --------------------------------------------------------------------------
 
-//#define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
-#define DEFAULT_SCENE           "../../../rr_users/triana-3drender/2008-05-20/unp/kalasatama.dae"
+#define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
+//#define DEFAULT_SCENE           "../../../rr_users/triana-3drender/2008-05-20/unp/kalasatama.dae"
 //#define DEFAULT_SCENE           "../../data/scenes/koupelna/koupelna4-windows.dae"
-#define FORCE_PRECALCULATE            // precalculate even when data are already available
+//#define FORCE_PRECALCULATE            // precalculate even when data are already available
 #define NUM_FRAMES              10    // more = more detailed changes in time
 #define STATIC_QUALITY          200   // more = less noise
 #define DYNAMIC_OBJECTS         30    // number of characters
