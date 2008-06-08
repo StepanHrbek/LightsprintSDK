@@ -2342,7 +2342,19 @@ Used by some samples:
  - realtime GI in scene from real game (World of Padman)
  - original scene without any modifications is loaded to show engine robustness
  - complete Lightsmark 2007 is not part of SDK,
-   but you can <a href="http://dee.cz/lightsmark">download it here</a>
+   but you can <a href="http://dee.cz/lightsmark">download it here</a>,
+   source code on request
+
+ <hr>
+ <b>MovingSun</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/MovingSun_1.jpg dynamic Sun
+  </td><td>
+  \image html samples/MovingSun_2.jpg dynamic objects
+  </td></tr></table>
+ - GI, tone mapping, dynamic objects lit by dynamic Sun and skybox
+ - loads collada scene, drag&drop to open custom scene
+ - when opened for first time, runs precalculations
 
  <hr>
  <b>SceneViewer</b>
@@ -2354,7 +2366,7 @@ Used by some samples:
  - single function call: sceneViewer(), you can run it from your code to visualize data
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
- - debugging: see rays shot from individual triangles or texels
+ - debugging: add/remove lights, see rays shot from individual triangles or texels
  - loads collada, 3ds, quake3, obj, mgf scenes
 
  <hr>

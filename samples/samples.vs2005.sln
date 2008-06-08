@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2005", "Re
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2005", "SceneViewer\SceneViewer.vs2005.vcproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MovingSun.vs2005", "MovingSun\MovingSun.vs2005.vcproj", "{2691A4C3-6413-8964-A425-B51468532572}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -73,6 +75,10 @@ Global
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{2691A4C3-6413-8964-A425-B51468532572}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{2691A4C3-6413-8964-A425-B51468532572}.Release DLL|Win32.Build.0 = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

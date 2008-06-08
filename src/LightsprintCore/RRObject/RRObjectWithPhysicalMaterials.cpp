@@ -71,7 +71,7 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 		}
 		if(hitTriangles.size()>=bestNumFaces)
 		{
-			bestNumFaces = hitTriangles.size();
+			bestNumFaces = (unsigned)hitTriangles.size();
 			_pos = pos;
 			_dir = dir;
 		}
