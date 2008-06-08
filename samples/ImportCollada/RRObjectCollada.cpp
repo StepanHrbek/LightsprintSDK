@@ -979,6 +979,24 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 		}
 	}
 
+	// generate unique indices
+	// only important for realtime rendering
+	// very slow (4 minutes in 800ktri scene)
+	// without this code, single vertex number has unique pos, but it could have different normal/uv in different triangles
+	{
+		rr::RRReportInterval report(rr::INF2,"Generating unique indices...\n");
+		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
+		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
+		{
+			FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
+			FCDGeometryMesh* mesh = geometry->GetMesh();
+			if(mesh)
+			{	
+				FCDGeometryPolygonsTools::GenerateUniqueIndices(mesh);
+			}
+		}
+	}
+
 	// adapt objects
 	{
 		rr::RRReportInterval report(rr::INF3,"Adapting objects...\n");
