@@ -4,7 +4,7 @@
 // Shows Sun moving over sky, with global illumination
 // rendered on all static and dynamic objects.
 //
-// When run for first time, precalculations take approx 10 minutes.
+// When run for first time, precalculations take 2-4 minutes.
 //
 // Feel free to load your custom Collada scene to see the same effect
 // (use drag&drop or commandline parameter).
@@ -15,6 +15,8 @@
 // space  = toggle automatic movement of sun and objects
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2008
+// Sponza atrium model by Marko Dabrovic
+// Character models by 3DRender.fi
 // --------------------------------------------------------------------------
 
 #define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
@@ -26,6 +28,7 @@
 #define DYNAMIC_OBJECTS         30    // number of characters
 #define SUN_SPEED               0.05f // speed of Sun movement
 #define OBJ_SPEED               0.05f // speed of dynamic object movement
+#define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
 #define SELECTED_STATIC_OBJECT  9920  // index of static object awarded by higher quality indirect lighting (per-pixel)
 
 #include "FCollada.h" // must be included before LightsprintGL because of fcollada SAFE_DELETE macro
@@ -144,7 +147,7 @@ rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
-float                      speedGlobal = 1; // movement speed in m/sec
+float                      cameraSpeed = 1; // camera speed in m/sec
 bool                       autopilot = true;
 float                      objectTime = 0; // arbitrary
 float                      lightTime = 0; // arbitrary
@@ -401,7 +404,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		float distance = seconds * speedGlobal;
+		float distance = seconds * cameraSpeed;
 		rr_gl::Camera* cam = &eye;
 		if(autopilot) lightTime += seconds*SUN_SPEED;
 		if(keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
@@ -534,7 +537,7 @@ int main(int argc, char **argv)
 	{
 		//srand((unsigned)time(NULL));
 		solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
-		speedGlobal = eye.afar*0.08f;
+		cameraSpeed = eye.afar*CAM_SPEED;
 		eye.afar = MAX(eye.anear+1,eye.afar*50); //!!! 50 kvuli skyboxu
 		eye.setDirection(eye.dir);
 	}
