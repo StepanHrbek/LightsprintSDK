@@ -601,6 +601,8 @@ namespace rr
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
 		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
+		//! \remarks
+		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
 		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 		
 		//! Makes other solver functions abort, returning quickly with bogus results.
@@ -800,8 +802,8 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect);
 
-		bool gatherPerTriangle(const UpdateParameters* aparams, const class GatheredPerTriangleData* results, unsigned numResultSlots, bool gatherEmissiveMaterials);
-		unsigned updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool allowScaling) const;
+		bool gatherPerTrianglePhysical(const UpdateParameters* aparams, const class GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool gatherEmissiveMaterials);
+		unsigned updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const;
 		void calculateCore(float improveStep,CalculateParameters* params=NULL);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();

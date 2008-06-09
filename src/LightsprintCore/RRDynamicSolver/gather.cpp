@@ -176,7 +176,7 @@ public:
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
 		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-			irradianceHemisphere[i] = RRVec3(0);
+			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? MAX(1,pti.context.params->quality) : 0;
@@ -220,13 +220,13 @@ public:
 		RRVec3 dir = getRandomExitDir(fillerDir,ortonormalBasis);
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gather(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
+		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if(!pti.context.gatherAllDirections)
 		{
 			// single irradiance is computed
 			// no need to compute dot(dir,normal), it is already compensated by picking dirs close to normal more often
-			irradianceHemisphere[LS_LIGHTMAP] += irrad;
+			irradiancePhysicalHemisphere[LS_LIGHTMAP] += irrad;
 		}
 		else
 		{
@@ -242,8 +242,8 @@ public:
 					RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
 					if(normalIncidence2>0)
-						irradianceHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
-					//!!! pocita jako reliable i kdyz irradianceHemisphere vubec nezmenim
+						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
+					//!!! pocita jako reliable i kdyz irradiancePhysicalHemisphere vubec nezmenim
 				}
 			}
 		}
@@ -261,7 +261,7 @@ public:
 		{
 			// completely unreliable
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceHemisphere[i] = RRVec3(0);
+				irradiancePhysicalHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
@@ -271,7 +271,7 @@ public:
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceHemisphere[i] = RRVec3(0);
+				irradiancePhysicalHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
@@ -279,14 +279,14 @@ public:
 		{
 			// get average hit, hemisphere hits don't accumulate
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceHemisphere[i] /= (RRReal)hitsReliable;
+				irradiancePhysicalHemisphere[i] /= (RRReal)hitsReliable;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
-		//RR_ASSERT(irradianceHemisphere[0]>=0 && irradianceHemisphere[1]>=0 && irradianceHemisphere[2]>=0); may be negative by rounding error
+		//RR_ASSERT(irradiancePhysicalHemisphere[0]>=0 && irradiancePhysicalHemisphere[1]>=0 && irradiancePhysicalHemisphere[2]>=0); may be negative by rounding error
 	}
 
-	RRVec3 irradianceHemisphere[NUM_LIGHTMAPS];
+	RRVec3 irradiancePhysicalHemisphere[NUM_LIGHTMAPS];
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
 	unsigned rays;
@@ -464,7 +464,7 @@ public:
 		}
 		// more init (depends on filtered lights)
 		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-			irradianceLights[i] = RRVec3(0);
+			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
@@ -521,8 +521,8 @@ public:
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if(!pti.context.gatherAllDirections)
 				{
-					irradianceLights[LS_LIGHTMAP] += irrad * normalIncidence;
-//RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradianceLights[LS_LIGHTMAP][0]/(shotRounds+1));
+					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
+//RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}
 				else
 				{
@@ -531,7 +531,7 @@ public:
 						RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
 						if(normalIncidence>0)
-							irradianceLights[i] += irrad * normalIncidence;
+							irradiancePhysicalLights[i] += irrad * normalIncidence;
 					}
 				}
 				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence);
@@ -578,7 +578,7 @@ public:
 		{
 			// completely unreliable
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceLights[i] = RRVec3(0);
+				irradiancePhysicalLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
@@ -588,7 +588,7 @@ public:
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceLights[i] = RRVec3(0);
+				irradiancePhysicalLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
@@ -596,12 +596,12 @@ public:
 		{
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
 			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradianceLights[i] /= (RRReal)shotRounds;
+				irradiancePhysicalLights[i] /= (RRReal)shotRounds;
 			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
 			reliabilityLights = hitsReliable/(RRReal)rays;
 		}
-		RR_ASSERT(IS_VEC3(irradianceLights[0]));
+		RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 	}
 
 	unsigned getNumMaterialAcceptedLights()
@@ -609,7 +609,7 @@ public:
 		return numRelevantLights;
 	}
 
-	RRVec3 irradianceLights[NUM_LIGHTMAPS];
+	RRVec3 irradiancePhysicalLights[NUM_LIGHTMAPS];
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
 	unsigned hitsReliable;
@@ -801,14 +801,14 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	ProcessTexelResult result;
 	for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 	{
-		result.irradiance[i] = gilights.irradianceLights[i] + hemisphere.irradianceHemisphere[i]; // [3] = 0
+		result.irradiancePhysical[i] = gilights.irradiancePhysicalLights[i] + hemisphere.irradiancePhysicalHemisphere[i]; // [3] = 0
 		if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
-			result.irradiance[i][3] = 1; // only completely unreliable results stay at 0, others get 1 here
+			result.irradiancePhysical[i][3] = 1; // only completely unreliable results stay at 0, others get 1 here
 		// store irradiance (no scaling yet)
 		if(pti.context.pixelBuffers[i])
-			pti.context.pixelBuffers[i]->renderTexel(pti.uv,result.irradiance[i]);
+			pti.context.pixelBuffers[i]->renderTexelPhysical(pti.uv,result.irradiancePhysical[i]);
 	}
-//RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradianceLights[LS_LIGHTMAP][0],hemisphere.irradianceHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
+//RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradiancePhysicalLights[LS_LIGHTMAP][0],hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
 	// sum bent normals
 	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
@@ -821,7 +821,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// store bent normal (no scaling)
 	if(pti.context.pixelBuffers[LS_BENT_NORMALS])
 	{
-		pti.context.pixelBuffers[LS_BENT_NORMALS]->renderTexel(pti.uv,
+		pti.context.pixelBuffers[LS_BENT_NORMALS]->renderTexelPhysical(pti.uv,
 			// instead of result.bentNormal
 			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
 			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1)
@@ -829,14 +829,14 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	}
 
 	//RR_ASSERT(result.irradiance[0]>=0 && result.irradiance[1]>=0 && result.irradiance[2]>=0); small float error may generate negative value
-	RR_ASSERT(IS_VEC3(result.irradiance[0]));
+	RR_ASSERT(IS_VEC3(result.irradiancePhysical[0]));
 
 	return result;
 }
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const GatheredPerTriangleData* results, unsigned numResultSlots, bool _gatherDirectEmitors)
+bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
 	if(aborting)
 		return false;
@@ -846,7 +846,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTriangle: Empty scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTrianglePhysical: Empty scene.\n");
 			RR_ASSERT(0);
 			return false;
 		}
@@ -874,7 +874,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 	tc.params = &params;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherDirectEmitors = _gatherDirectEmitors;
-	tc.gatherAllDirections = results->data[LS_DIRECTION1]||results->data[LS_DIRECTION2]||results->data[LS_DIRECTION3];
+	tc.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
 	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
@@ -946,7 +946,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, const G
 			ptp.relevantLights = ptp.numRelevantLights ? &(relevantLightsPerObject[objectNumber][0]) : NULL; // dirty conversion, from std::vector to array
 			ptp.relevantLightsFilled = true;
 
-			results->store(t,processTexel(ptp));
+			resultsPhysical->store(t,processTexel(ptp));
 		}
 	}
 
@@ -982,7 +982,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
 		return false;
 	}
-	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
+	if(!gatherPerTrianglePhysical(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
 	{
 		delete finalGather;
 		return false;

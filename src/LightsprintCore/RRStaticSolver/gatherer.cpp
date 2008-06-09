@@ -32,7 +32,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	triangles = _object->triangles;
 }
 
-RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility)
+RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -107,7 +107,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 			// calculate new direction after ideal mirror reflection
 			RRVec3 newDirection=ray->hitPlane*(-2*dot(direction,ray->hitPlane)/size2(ray->hitPlane))+direction;
 			// recursively call this function
-			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance);
+			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
@@ -120,7 +120,7 @@ RRVec3 Gatherer::gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex
 			// calculate new direction after refraction
 			RRVec3 newDirection=-refract(ray->hitPlane,direction,material->refractionIndex);
 			// recursively call this function
-			exitance += gather(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance.color);
+			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance.color);
 			RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0);
 		}
 	}

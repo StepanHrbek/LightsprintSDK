@@ -257,7 +257,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 // Converts data from input array [post import triangles of whole scene]
 // to output array [pre import vertices of single object]
 // Fast, but used only in offline solutions.
-unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride, bool allowScaling) const
+unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const
 {
 	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getNumObjects());
 
@@ -277,7 +277,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 		RRVec4 data = RRVec4(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
-			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
+			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleDataPhysical,stride);
 			if(scaler) scaler->getCustomScale(data);
 			for(unsigned i=0;i<3;i++)
 			{

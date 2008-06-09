@@ -155,7 +155,7 @@ public:
 	// Returns color visible in given direction, in physical scale.
 	// May reflect/refract internally.
 	// Individual calls to gather() are independent.
-	RRVec3 gather(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility);
+	RRVec3 gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility);
 
 protected:
 	// helper structures

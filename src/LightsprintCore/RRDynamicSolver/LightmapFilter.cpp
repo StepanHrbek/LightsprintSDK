@@ -96,12 +96,12 @@ LightmapFilter::LightmapFilter(unsigned _width, unsigned _height)
 {
 	width = _width;
 	height = _height;
-	renderedTexels = new rr::RRVec4[width*height];
-	memset(renderedTexels,0,width*height*sizeof(RRVec4));
+	renderedTexelsPhysical = new rr::RRVec4[width*height];
+	memset(renderedTexelsPhysical,0,width*height*sizeof(RRVec4));
 	numRenderedTexels = 0;
 }
 
-void LightmapFilter::renderTexel(const unsigned uv[2], const RRVec4& color)
+void LightmapFilter::renderTexelPhysical(const unsigned uv[2], const RRVec4& colorPhysical)
 {
 	if(uv[0]>=width)
 	{
@@ -113,11 +113,11 @@ void LightmapFilter::renderTexel(const unsigned uv[2], const RRVec4& color)
 		RR_ASSERT(0);
 		return;
 	}
-	renderedTexels[uv[0]+uv[1]*width] += color;
+	renderedTexelsPhysical[uv[0]+uv[1]*width] += colorPhysical;
 	numRenderedTexels++;
 }
 
-RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* _params)
+RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringParameters* _params)
 {
 	RRDynamicSolver::FilteringParameters params;
 	if(_params) params = *_params;
@@ -132,9 +132,9 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
 		for(int i=0;i<(int)numTexels;i++)
 		{
-			renderedTexels[i] = params.backgroundColor;
+			renderedTexelsPhysical[i] = params.backgroundColor;
 		}
-		return renderedTexels;
+		return renderedTexelsPhysical;
 	}
 
 	// normalize texels
@@ -147,14 +147,14 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 #pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)numTexels;i++)
 	{
-		if(renderedTexels[i][3])
+		if(renderedTexelsPhysical[i][3])
 		{
-			renderedTexels[i] /= renderedTexels[i][3];
+			renderedTexelsPhysical[i] /= renderedTexelsPhysical[i][3];
 		}
 #ifdef DIAGNOSTIC_RED_UNRELIABLE
 		else
 		{
-			renderedTexels[i] = RRVec4(1,0,0,0);//!!!
+			renderedTexelsPhysical[i] = RRVec4(1,0,0,0);//!!!
 		}
 #endif
 	}
@@ -167,7 +167,7 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 	};
 	for(unsigned i=0;i<numTexels;i++)
 	{
-		renderedTexels[i].color = diagColors[CLAMPED(renderedTexels[i].color&255,0,7)];
+		renderedTexelsPhysical[i].color = diagColors[CLAMPED(renderedTexelsPhysical[i].color&255,0,7)];
 	}
 #endif
 
@@ -180,8 +180,8 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 	bool changed = true;
 	for(unsigned pass=0;pass<params.spreadForegroundColor && changed;pass++)
 	{
-		filter(renderedTexels,workspaceTexels,width,height,&changed,params.wrap);
-		filter(workspaceTexels,renderedTexels,width,height,&changed,params.wrap);
+		filter(renderedTexelsPhysical,workspaceTexels,width,height,&changed,params.wrap);
+		filter(workspaceTexels,renderedTexelsPhysical,width,height,&changed,params.wrap);
 	}
 
 	// free second workspace
@@ -190,34 +190,34 @@ RRVec4* LightmapFilter::getFiltered(const RRDynamicSolver::FilteringParameters* 
 	// set background color
 	for(unsigned i=0;i<numTexels;i++)
 	{
-		RRReal alpha = renderedTexels[i][3];
+		RRReal alpha = renderedTexelsPhysical[i][3];
 		if(params.smoothBackground)
 		{
 			if(alpha<1)
 			{
-				renderedTexels[i] = renderedTexels[i] + params.backgroundColor*(1-alpha);
+				renderedTexelsPhysical[i] = renderedTexelsPhysical[i] + params.backgroundColor*(1-alpha);
 			}
 		}
 		else
 		{
 			if(alpha<=0)
 			{
-				renderedTexels[i] = params.backgroundColor;
+				renderedTexelsPhysical[i] = params.backgroundColor;
 			}
 			else
 			{
-				renderedTexels[i] = renderedTexels[i]/alpha;
+				renderedTexelsPhysical[i] = renderedTexelsPhysical[i]/alpha;
 			}
 		}
 	}
 
-	return renderedTexels;
+	return renderedTexelsPhysical;
 #endif
 }
 
 LightmapFilter::~LightmapFilter()
 {
-	delete[] renderedTexels;
+	delete[] renderedTexelsPhysical;
 }
 
 }; // namespace

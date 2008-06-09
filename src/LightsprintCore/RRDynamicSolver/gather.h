@@ -67,22 +67,22 @@ struct ProcessTexelParams
 
 struct ProcessTexelResult
 {
-	RRVec4 irradiance[NUM_LIGHTMAPS]; // alpha = 0|1
+	RRVec4 irradiancePhysical[NUM_LIGHTMAPS]; // alpha = 0|1
 	RRVec4 bentNormal; // alpha = 0|1
 	ProcessTexelResult()
 	{
-		for(unsigned i=0;i<NUM_LIGHTMAPS;i++) irradiance[i] = RRVec4(0);
+		for(unsigned i=0;i<NUM_LIGHTMAPS;i++) irradiancePhysical[i] = RRVec4(0);
 		bentNormal = RRVec4(0);
 	}
 };
 
 ProcessTexelResult processTexel(const ProcessTexelParams& pti);
 
-//! Data gathered by gatherPerTriangle()
+//! Data gathered by gatherPerTrianglePhysical()
 class GatheredPerTriangleData
 {
 public:
-	RRVec3* data[NUM_BUFFERS]; 
+	RRVec3* data[NUM_BUFFERS]; // physical scale
 
 	static GatheredPerTriangleData* create(unsigned numTriangles, bool gatherLightmap, bool gatherDirections, bool gatherBentNormals)
 	{
@@ -111,7 +111,7 @@ public:
 	{
 		for(unsigned i=0;i<NUM_BUFFERS;i++)
 			if(data[i])
-				data[i][triangleNumber] = a.irradiance[i];
+				data[i][triangleNumber] = a.irradiancePhysical[i];
 	}
 protected:
 	GatheredPerTriangleData()

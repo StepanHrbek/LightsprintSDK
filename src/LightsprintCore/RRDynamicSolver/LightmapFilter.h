@@ -12,20 +12,20 @@
 namespace rr
 {
 
-// no scaling, operates on raw unknown-scale data
+// no scaling, operates on physical-scale data
 class LightmapFilter
 {
 public:
 	LightmapFilter(unsigned _width, unsigned _height);
 	unsigned getWidth() {return width;}
 	unsigned getHeight() {return height;}
-	void renderTexel(const unsigned uv[2], const RRVec4& color);
-	RRVec4* getFiltered(const RRDynamicSolver::FilteringParameters* _params);
+	void renderTexelPhysical(const unsigned uv[2], const RRVec4& colorPhysical);
+	RRVec4* getFilteredPhysical(const RRDynamicSolver::FilteringParameters* _params);
 	~LightmapFilter();
 private:
 	unsigned width;
 	unsigned height;
-	RRVec4* renderedTexels;
+	RRVec4* renderedTexelsPhysical;
 	unsigned numRenderedTexels;
 };
 
