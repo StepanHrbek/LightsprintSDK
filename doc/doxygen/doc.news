@@ -8,11 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news58 ------------------------------------ 2008.6.x -------------------------------------
+\section news58 ------------------------------------ 2008.6.9 -------------------------------------
 
 NEWS
 
-- MovingSun sample, shows global illumination under moving sun, with moving objects
+- MovingSun sample, shows global illumination under moving Sun, with moving objects
 - Lightfield extended from 3D to 4D, it captures illumination in space and time.
 - RRMesh::findGroundLevel(), helper for automatic processing of unknown scene
 - RRObject::generateRandomCamera(), helper for automatic processing of unknown scene
