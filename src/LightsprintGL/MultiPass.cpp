@@ -142,6 +142,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
 	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;
+	renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA = uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA;
 	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 

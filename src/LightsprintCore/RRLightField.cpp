@@ -66,7 +66,7 @@ public:
 		rawField = NULL;
 		rawCell = NULL;
 		for(unsigned i=0;i<256;i++)
-			customToPhysical[i] = (unsigned)pow(float(i),2.2f);
+			customToPhysical[i] = (unsigned)pow(float(i),2.2222f);
 	}
 	virtual ~LightField()
 	{

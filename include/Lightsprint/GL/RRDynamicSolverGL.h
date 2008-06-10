@@ -77,9 +77,10 @@ namespace rr_gl
 		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
 		//! Inited to false, you may freely change it.
 		bool honourExpensiveLightingShadowingFlags;
-		//! Solver needs all transparency maps to be Alpha or RGB. This should be 1 for all Alpha, 3 for all RGB.
-		//! Default value is autodetected in setStaticObjects() from materials in static scene, but you are free to change it at any moment later.
-		unsigned numTransparencyChannels;
+		//! Recommended setting for UberProgramSetup, detected from scene materials in setStaticObjects().
+		bool MATERIAL_TRANSPARENCY_CONST:1;
+		bool MATERIAL_TRANSPARENCY_MAP:1;
+		bool MATERIAL_TRANSPARENCY_IN_ALPHA:1;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 	protected:

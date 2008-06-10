@@ -129,7 +129,9 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
 	honourExpensiveLightingShadowingFlags = false;
-	numTransparencyChannels = 0;
+	MATERIAL_TRANSPARENCY_CONST = 0;
+	MATERIAL_TRANSPARENCY_MAP = 0;
+	MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
@@ -164,23 +166,78 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 {
 	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,forceMultiObjectCustom);
 
-	// update numTransparencyChannels
-	numTransparencyChannels = 0;
+	// update MATERIAL_TRANSPARENCY_* recommendations
+	unsigned numTrianglesWithConstTransp = 0;
+	unsigned numTrianglesWithMapRGBTransp = 0;
+	unsigned numTrianglesWithDifMapATransp = 0;
+	unsigned numTrianglesWithNonDifMapATransp = 0;
 	if(getMultiObjectCustom())
 	{
-		unsigned numTrianglesWithATransp = 0;
-		unsigned numTrianglesWithRGBTransp = 0;
 		unsigned numTrianglesMulti = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			const rr::RRMaterial* material = getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
-			if(material && material->specularTransmittance.texture)
+			if(material)
 			{
-				if(material->specularTransmittanceInAlpha) numTrianglesWithATransp++;
-					else numTrianglesWithRGBTransp++;
+				if(material->specularTransmittance.texture)
+				{
+					if(material->specularTransmittance.texture==material->diffuseReflectance.texture)
+						numTrianglesWithDifMapATransp++;
+					else 
+					if(material->specularTransmittanceInAlpha)
+						numTrianglesWithNonDifMapATransp++;
+					else 
+						numTrianglesWithMapRGBTransp++;
+				}
+				else
+				if(material->specularTransmittance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithConstTransp++;
+				}
 			}
 		}
-		numTransparencyChannels = (numTrianglesWithRGBTransp>numTrianglesWithATransp)?3:( (numTrianglesWithATransp>numTrianglesWithRGBTransp)?1:0 );
+	}
+	if(numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
+	{
+		//LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
+	}
+	if(numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
+	{
+		// transparency mostly in rgb map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 1;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+	}
+	else
+	if(numTrianglesWithNonDifMapATransp>0)
+	{
+		// transparency mostly in a map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 1;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	}
+	else
+	if(numTrianglesWithDifMapATransp>0)
+	{
+		// transparency mostly in a of diffuse map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	}
+	else
+	if(numTrianglesWithConstTransp>0)
+	{
+		// transparency mostly constant
+		MATERIAL_TRANSPARENCY_CONST = 1;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+	}
+	else
+	{
+		// no transparency
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
 }
 
@@ -290,8 +347,9 @@ void RRDynamicSolverGL::updateShadowmaps()
 					// not yet implemented
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
-					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 1;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = numTransparencyChannels!=3; // autodetected for whole static scene (however, it could be incorrect for dynamic object. only updating shader during render will fix it)
+					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = MATERIAL_TRANSPARENCY_CONST;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = MATERIAL_TRANSPARENCY_MAP;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = MATERIAL_TRANSPARENCY_IN_ALPHA;
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					uberProgramSetup.MATERIAL_DIFFUSE = 1;
 					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;

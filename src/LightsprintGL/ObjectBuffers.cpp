@@ -561,7 +561,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				}
 
 				// set blending
-				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP || params.renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA)
 				{
 					bool transparency = faceGroups[fg].transparencyColor[3]<1;
 					if(transparency!=blendEnabled || !blendKnown)

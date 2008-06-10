@@ -838,9 +838,9 @@ static void display(void)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = solver->numTransparencyChannels!=3; // autodetected for whole static scene
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures && solver->MATERIAL_TRANSPARENCY_CONST;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures && solver->MATERIAL_TRANSPARENCY_MAP;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = renderTransparent && solver->MATERIAL_TRANSPARENCY_IN_ALPHA;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}

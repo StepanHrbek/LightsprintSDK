@@ -338,7 +338,7 @@ void RendererOfRRObject::render()
 					}
 
 					// blending
-					if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+					if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP || params.renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA)
 					{
 						if(begun)
 						{

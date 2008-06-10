@@ -2463,6 +2463,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_EMISSIVE_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_EMISSIVE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_EMISSIVE_MAP = false;
+	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 

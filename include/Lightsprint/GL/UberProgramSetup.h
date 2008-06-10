@@ -93,9 +93,9 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_EMISSIVE_VCOLOR  :1; ///< Enables material's emission stored per vertex.
 	bool     MATERIAL_EMISSIVE_MAP     :1; ///< Enables material's emission stored in sRGB map.
 
-	bool     MATERIAL_TRANSPARENCY_CONST:1; ///< Enables materials's specular transmittance modulated by rgb constant.
-	bool     MATERIAL_TRANSPARENCY_MAP :1; ///< Enables materials's specular transmittance modulated by texture (rgb or alpha).
-	bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< When enabled, transparency is read from alpha (0=transparent) rather than from rgb (1=transparent).
+	bool     MATERIAL_TRANSPARENCY_CONST:1; ///< Enables materials's specular transmittance modulated by constant.
+	bool     MATERIAL_TRANSPARENCY_MAP :1; ///< Enables materials's specular transmittance modulated by texture (rgb or alpha). Optimization: with diffuse map enabled and transparency in its alpha, set only MATERIAL_TRANSPARENCY_IN_ALPHA, not MATERIAL_TRANSPARENCY_MAP.
+	bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< If(!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP), enables materials's specular transmittance modulated by diffuse alpha (0=transparent), otherwise makes transparency read from alpha (0=transparent) rather than from rgb (1=transparent). 
 
 	bool     MATERIAL_NORMAL_MAP       :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_CULLING          :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).

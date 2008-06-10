@@ -371,7 +371,9 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
+	uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = solver->MATERIAL_TRANSPARENCY_CONST;
+	uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = solver->MATERIAL_TRANSPARENCY_MAP;
+	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = solver->MATERIAL_TRANSPARENCY_IN_ALPHA;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	//uberProgramSetup.POSTPROCESS_GAMMA = true;
 	solver->renderScene(uberProgramSetup,NULL);
