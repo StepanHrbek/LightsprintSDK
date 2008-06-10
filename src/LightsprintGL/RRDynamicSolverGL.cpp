@@ -298,9 +298,10 @@ void RRDynamicSolverGL::updateShadowmaps()
 					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
-				default:
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					break;
+				default:
+					RR_ASSERT(0);
 			}
 			for(unsigned i=0;i<light->getNumInstances();i++)
 			{
