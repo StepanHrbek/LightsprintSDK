@@ -13,6 +13,7 @@
 struct AnimationFrame
 {
 	// camera and light
+	// must stay together, AnimationFrame::blend accesses it as array of floats
 	rr_gl::Camera eye;
 	rr_gl::Camera light;
 	rr::RRVec4 brightness;

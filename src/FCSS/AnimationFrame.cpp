@@ -86,8 +86,12 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	for(unsigned i=0;i<(sizeof(eye)+sizeof(light)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
 	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alpha,(float)(2*M_PI));
-	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alpha,(float)(2*M_PI));
+	blended.eye.orthogonal = eye.orthogonal;
+	blended.eye.updateDirFromAngles = eye.updateDirFromAngles;
 	blended.eye.update();
+	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alpha,(float)(2*M_PI));
+	blended.light.orthogonal = light.orthogonal;
+	blended.light.updateDirFromAngles = light.updateDirFromAngles;
 	blended.light.update();
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();

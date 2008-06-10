@@ -44,11 +44,19 @@ public:
 	//! Camera's far plane distance in world units. Must be greater than near.
 	float    afar;
 	//! Whether camera is orthogonal, set for directional lights.
-	bool     orthogonal;
+	union
+	{
+		bool     orthogonal;
+		float    dummy1; // AnimationFrame needs everything float sized
+	};
 	//! Only if orthogonal: World space distance between closest points projected to top and bottom of screen.
 	float    orthoSize;
 	//! True(default): you set angle+leanAngle+angleX, update() computes direction from angles. False: you set direction, update() doesn't touch it.
-	bool     updateDirFromAngles;
+	union
+	{
+		bool     updateDirFromAngles;
+		float    dummy2; // AnimationFrame needs everything float sized
+	};
 
 	// inputs or outputs
 
