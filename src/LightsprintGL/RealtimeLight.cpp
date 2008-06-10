@@ -52,6 +52,7 @@ namespace rr_gl
 		shadowMapSize = _resolution;
 		areaType = LINE;
 		areaSize = 0.2f;
+		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
 		lightDirectMap = NULL;
 		numInstances = 0;
 		shadowMaps = NULL;
