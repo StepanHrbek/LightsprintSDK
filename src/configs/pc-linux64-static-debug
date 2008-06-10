@@ -1,5 +1,6 @@
-CONFIG = ps3-linux-debug
+CONFIG = pc-linux64-static-debug
 BITS = 64
+STATIC = 1
 
 CPP_FLAGS += -O0
 CPP_FLAGS += -g

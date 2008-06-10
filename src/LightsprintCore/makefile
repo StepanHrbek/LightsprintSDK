@@ -6,8 +6,15 @@ CFG_DIR = ../configs
 # general project settings
 
 PROJECT = LightsprintCore
-TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).so
+
+ifdef STATIC
+CFG_TYPE = lib
+TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).a
+else
 CFG_TYPE = dll
+TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).so
+endif
+
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags

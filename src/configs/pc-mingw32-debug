@@ -1,4 +1,5 @@
 CONFIG = pc-mingw32-debug
+BITS = 32
 
 CPP_FLAGS += -O0
 CPP_FLAGS += -g

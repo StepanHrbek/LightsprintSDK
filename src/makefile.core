@@ -53,6 +53,10 @@ clean:
 	@rm -f `find $(OBJ_DIR) -type f`
 	@rm -rf $(OBJ_DIR)
 
+run:
+	@make
+	@$(TARGET)
+
 # handle platforms and configurations
 
 config:
@@ -64,8 +68,11 @@ config:
 
 ps3-linux ps3-linux-debug \
 pc-linux32 pc-linux32-debug \
+pc-linux32-static pc-linux32-static-debug \
 pc-linux64 pc-linux64-debug \
+pc-linux64-static pc-linux64-static-debug \
 pc-mingw32 pc-mingw32-debug \
 :
 	@cp $(CFG_DIR)/$@ $(CFG_DIR)/current
-	@echo "Switched to configuration \"$@\". You may now use simple \"make\"."
+	@echo Switched to configuration \"$@\". From now on you may use simple \"make\".
+	@make

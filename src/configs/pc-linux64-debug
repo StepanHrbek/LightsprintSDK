@@ -1,4 +1,5 @@
 CONFIG = pc-linux64-debug
+BITS = 64
 
 CPP_FLAGS += -O0
 CPP_FLAGS += -g

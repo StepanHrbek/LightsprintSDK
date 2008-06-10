@@ -1,8 +1,10 @@
-CONFIG = pc-mingw32
-BITS = 32
+CONFIG = pc-linux64-static
+BITS = 64
+STATIC = 1
 
 CPP_FLAGS += -O3
 CPP_FLAGS += -s
 CPP_FLAGS += -ffast-math
 CPP_FLAGS += -fomit-frame-pointer
+CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
