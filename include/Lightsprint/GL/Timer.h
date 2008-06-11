@@ -29,11 +29,20 @@
 		#pragma comment(lib,"winmm.lib")
 	#endif
 #else
-	// GETTIME: 16ms precision, fast,  Timer: low precision
-	#include <ctime>
-	#define TIME    clock_t
-	#define GETTIME clock()
-	#define PER_SEC CLOCKS_PER_SEC
+
+	// GETTIME: 1 ns precision, artificially reduced to 1 ms
+	#include <time.h>
+	#define TIME unsigned long long
+	#define GETTIME getTime()
+	#define PER_SEC 1000
+
+	inline unsigned long long getTime()
+	{
+		timespec t;
+		clock_gettime(CLOCK_MONOTONIC, &t);
+		return t.tv_sec * 1000 + (t.tv_nsec + 500000) / 1000000;
+	}
+
 #endif
 #endif
 #define GETSEC ((double)(GETTIME/(double)PER_SEC))
