@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cfloat>
 #include <vector>
+#include <algorithm>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
