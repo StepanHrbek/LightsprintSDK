@@ -11,14 +11,16 @@
 #include <cassert>
 
 #ifdef _OPENMPxxx
+
 	// GETTIME: 1us precision, slow,  Timer: low precision
 	#include <omp.h>
 	#include <cstring> // NULL
 	#define TIME    double
 	#define GETTIME omp_get_wtime()
 	#define PER_SEC 1
-#else
-#ifdef _WIN32
+
+#elif defined(_WIN32xxx)
+
 	// GETTIME: 1ms precision,  Timer: high precision
 	#define WINDOWS_TIME
 	#include <windows.h>
@@ -28,7 +30,9 @@
 	#ifdef _MSC_VER
 		#pragma comment(lib,"winmm.lib")
 	#endif
-#else
+
+#elif defined(LINUX) || defined(linux)
+
 	// GETTIME: 1 ns precision, artificially reduced to 1 ms
 	#include <time.h>
 	#define TIME unsigned long long
@@ -42,8 +46,16 @@
 		return t.tv_sec * 1000 + (t.tv_nsec + 500000) / 1000000;
 	}
 
+#else
+
+	// GETTIME: 16ms precision, fast,  Timer: low precision
+	#include <ctime>
+	#define TIME    clock_t
+	#define GETTIME clock()
+	#define PER_SEC CLOCKS_PER_SEC
+
 #endif
-#endif
+
 #define GETSEC ((double)(GETTIME/(double)PER_SEC))
 
 namespace rr_gl
