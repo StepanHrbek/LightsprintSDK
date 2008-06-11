@@ -561,8 +561,8 @@ struct SortedBuffer
 	RRBuffer* buffer;
 	unsigned objectIndex;
 	unsigned lightmapIndex;
-	bool operator >(const SortedBuffer& a) {return buffer>a.buffer;}
-	bool operator <(const SortedBuffer& a) {return buffer<a.buffer;}
+	bool operator >(const SortedBuffer& a) const {return buffer>a.buffer;}
+	bool operator <(const SortedBuffer& a) const {return buffer<a.buffer;}
 };
 
 
