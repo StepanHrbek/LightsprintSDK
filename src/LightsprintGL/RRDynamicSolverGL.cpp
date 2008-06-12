@@ -129,9 +129,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
 	honourExpensiveLightingShadowingFlags = false;
-	MATERIAL_TRANSPARENCY_CONST = 0;
-	MATERIAL_TRANSPARENCY_MAP = 0;
-	MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
@@ -166,7 +163,11 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 {
 	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,forceMultiObjectCustom);
 
-	// update MATERIAL_TRANSPARENCY_* recommendations
+	// update MATERIAL_* recommendations
+	unsigned numTrianglesWithDifConst = 0;
+	unsigned numTrianglesWithDifMap = 0;
+	unsigned numTrianglesWithEmiConst = 0;
+	unsigned numTrianglesWithEmiMap = 0;
 	unsigned numTrianglesWithConstTransp = 0;
 	unsigned numTrianglesWithMapRGBTransp = 0;
 	unsigned numTrianglesWithDifMapATransp = 0;
@@ -179,6 +180,29 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 			const rr::RRMaterial* material = getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
 			if(material)
 			{
+				// dif
+				if(material->diffuseReflectance.texture)
+				{
+					numTrianglesWithDifMap++;
+				}
+				else
+				if(material->diffuseReflectance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithDifConst++;
+				}
+
+				// emi
+				if(material->diffuseEmittance.texture)
+				{
+					numTrianglesWithEmiMap++;
+				}
+				else
+				if(material->diffuseEmittance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithEmiConst++;
+				}
+
+				// transp
 				if(material->specularTransmittance.texture)
 				{
 					if(material->specularTransmittance.texture==material->diffuseReflectance.texture)
@@ -197,6 +221,17 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 			}
 		}
 	}
+
+	// dif
+	materialsInStaticScene.MATERIAL_DIFFUSE_MAP = numTrianglesWithDifMap>0;
+	materialsInStaticScene.MATERIAL_DIFFUSE_CONST = numTrianglesWithDifConst>0 && numTrianglesWithDifMap==0;
+	materialsInStaticScene.MATERIAL_DIFFUSE = materialsInStaticScene.MATERIAL_DIFFUSE_CONST || materialsInStaticScene.MATERIAL_DIFFUSE_MAP;
+
+	// emi
+	materialsInStaticScene.MATERIAL_EMISSIVE_MAP = numTrianglesWithEmiMap>0;
+	materialsInStaticScene.MATERIAL_EMISSIVE_CONST = numTrianglesWithEmiConst>0 && numTrianglesWithEmiMap==0;
+
+	// transp
 	if(numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
 	{
 		//LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
@@ -204,40 +239,40 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 	if(numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
 	{
 		// transparency mostly in rgb map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 1;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 1;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
 	else
 	if(numTrianglesWithNonDifMapATransp>0)
 	{
 		// transparency mostly in a map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 1;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 1;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 	}
 	else
 	if(numTrianglesWithDifMapATransp>0)
 	{
 		// transparency mostly in a of diffuse map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 	}
 	else
 	if(numTrianglesWithConstTransp>0)
 	{
 		// transparency mostly constant
-		MATERIAL_TRANSPARENCY_CONST = 1;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 1;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
 	else
 	{
 		// no transparency
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 0;
+		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
 }
 
@@ -347,9 +382,9 @@ void RRDynamicSolverGL::updateShadowmaps()
 					// not yet implemented
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
-					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = MATERIAL_TRANSPARENCY_CONST;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = MATERIAL_TRANSPARENCY_MAP;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = MATERIAL_TRANSPARENCY_IN_ALPHA;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA;
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					uberProgramSetup.MATERIAL_DIFFUSE = 1;
 					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;

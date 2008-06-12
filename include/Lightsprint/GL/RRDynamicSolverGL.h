@@ -77,10 +77,8 @@ namespace rr_gl
 		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
 		//! Inited to false, you may freely change it.
 		bool honourExpensiveLightingShadowingFlags;
-		//! Recommended setting for UberProgramSetup, detected from scene materials in setStaticObjects().
-		bool MATERIAL_TRANSPARENCY_CONST:1;
-		bool MATERIAL_TRANSPARENCY_MAP:1;
-		bool MATERIAL_TRANSPARENCY_IN_ALPHA:1;
+		//! Returns minimal superset of all material features in static scene in MATERIAL_*.
+		UberProgramSetup getMaterialsInStaticScene() {return materialsInStaticScene;}
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 	protected:
@@ -120,6 +118,8 @@ namespace rr_gl
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 		rr::RRVec3 oldObserverPos;
+		// Minimal superset of all material features in static scene, recommended MATERIAL_* setting for UberProgramSetup, detected from scene materials in setStaticObjects().
+		UberProgramSetup materialsInStaticScene;
 	};
 
 };

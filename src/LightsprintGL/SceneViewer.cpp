@@ -825,6 +825,12 @@ static void display(void)
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT);
 			eye.setupForRender();
+
+			UberProgramSetup miss = solver->getMaterialsInStaticScene();
+			bool hasDif = miss.MATERIAL_DIFFUSE_CONST||miss.MATERIAL_DIFFUSE_MAP;
+			bool hasEmi = miss.MATERIAL_EMISSIVE_CONST||miss.MATERIAL_EMISSIVE_MAP;
+			bool hasTra = miss.MATERIAL_TRANSPARENCY_CONST||miss.MATERIAL_TRANSPARENCY_MAP||miss.MATERIAL_TRANSPARENCY_IN_ALPHA;
+
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -833,14 +839,14 @@ static void display(void)
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 			uberProgramSetup.LIGHT_INDIRECT_auto = true;
-			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures;
-			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission;// && !renderTextures;
-			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;//renderEmission && renderTextures; ... we don't yet need emissive _maps_
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures && solver->MATERIAL_TRANSPARENCY_CONST;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures && solver->MATERIAL_TRANSPARENCY_MAP;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = renderTransparent && solver->MATERIAL_TRANSPARENCY_IN_ALPHA;
+			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE;
+			uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures && hasDif;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures && hasDif;
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission && !renderTextures && hasEmi;
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = renderEmission && renderTextures && hasEmi;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures && hasTra;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures && hasTra;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = renderTransparent && renderTextures && hasTra;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
