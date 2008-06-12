@@ -549,7 +549,9 @@ public:
 					if(!newList.size())
 					{
 						selectedType = ST_CAMERA;
-						renderAmbient = 1; // enable ambient when deleting last light
+						// enable ambient when deleting last light
+						//  but only when scene doesn't contain emissive materials
+						renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 					}
 				}
 				break;
@@ -1324,7 +1326,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	lv = LightmapViewer::create(_pathToShaders);
 	layerNumber = (_layerNumber<0)?-1-_layerNumber:_layerNumber;
 	renderRealtime = _layerNumber<0;
-	renderAmbient = _solver->getLights().size()==0 && _layerNumber<0;
+	renderAmbient = _solver->getLights().size()==0 && _layerNumber<0 && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;;
 	ourEnv = 0;
 	if(selectedLightIndex>_solver->getLights().size()) selectedLightIndex = 0;
 	if(selectedObjectIndex>=solver->getNumObjects()) selectedObjectIndex = 0;
