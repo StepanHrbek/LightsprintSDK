@@ -41,7 +41,9 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#ifdef _MSC_VER
 #include <direct.h> // _mkdir
+#endif // _MSC_VER
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
@@ -50,6 +52,20 @@
 #include "Lightsprint/GL/ToneMapping.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
 
+#if defined(LINUX) || defined(linux)
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
+// Linux GLUT compatibility
+
+#ifndef GLUT_WHEEL_UP
+#define GLUT_WHEEL_UP 3
+#endif
+
+#ifndef GLUT_WHEEL_DOWN
+#define GLUT_WHEEL_DOWN 4
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -128,7 +144,12 @@ bool loadPrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField
 
 void savePrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField* _lightfield, std::string _path)
 {
+#ifdef _MSC_VER
 	_mkdir(_path.c_str());
+#endif // _MSC_VER
+#if defined(LINUX) || defined(linux)
+	mkdir(_path.c_str(), 0744);
+#endif
 	for(unsigned i=0;i<NUM_FRAMES;i++)
 		_staticObjects.saveIllumination(_path.c_str(),i);
 	_lightfield->save((_path+"lightfield.lf").c_str());
@@ -153,7 +174,7 @@ float                      objectTime = 0; // arbitrary
 float                      lightTime = 0; // arbitrary
 float                      lightTime01 = 0; // lightTime doing pingpong in 0..1 range
 rr::RRVec4                 brightness(1);
-float                      gamma = 1;
+float                      contrast = 1;
 const rr::RRLightField*    lightField;
 rr_gl::ToneMapping*        toneMapping = NULL;
 bool                       keyPressed[512];
@@ -208,7 +229,7 @@ public:
 		unsigned frame2 = (frame1+1)%NUM_FRAMES;
 		float blend = lightTime01*(NUM_FRAMES-1)-frame1;
 		rendererOfScene->useOriginalSceneBlend(frame1,frame2,blend,frame1);
-		rendererOfScene->setBrightnessGamma(&brightness,gamma);
+		rendererOfScene->setBrightnessGamma(&brightness,contrast);
 		rendererOfScene->render();
 
 		//rr::RRReportInterval report2(rr::INF1,"dynamic...\n");
@@ -242,7 +263,7 @@ public:
 				rr_gl::getTexture(dynamicObject[i]->illumination->diffuseEnvMap,false,false)->reset(false,false);
 				//rr_gl::getTexture(dynamicObject[i]->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
-			dynamicObject[i]->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
+			dynamicObject[i]->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
 	}
 };
@@ -269,8 +290,8 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case '+': brightness *= 1.2f; break;
 		case '-': brightness /= 1.2f; break;
-		case '*': gamma *= 1.2f; break;
-		case '/': gamma /= 1.2f; break;
+		case '*': contrast *= 1.2f; break;
+		case '/': contrast /= 1.2f; break;
 		case ' ': autopilot = !autopilot; break;
 
 		case 27:
@@ -382,7 +403,7 @@ void display(void)
 			oldTime = newTime;
 		}
 		if(secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
-			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,gamma);
+			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,contrast);
 	}
 
 	glutSwapBuffers();
@@ -427,9 +448,11 @@ void idle()
 
 int main(int argc, char **argv)
 {
+#ifdef _MSC_VER
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 //	_crtBreakAlloc = 1372;
+#endif // _MSC_VER
 
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
@@ -465,11 +488,14 @@ int main(int argc, char **argv)
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 	
+
+#ifdef _MSC_VER
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
 	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	SetCurrentDirectoryA(exedir);
 	free(exedir);
+#endif // _MSC_VER
 
 	// init solver
 	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)

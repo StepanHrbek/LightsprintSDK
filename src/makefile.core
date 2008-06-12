@@ -73,6 +73,6 @@ pc-linux64 pc-linux64-debug \
 pc-linux64-static pc-linux64-static-debug \
 pc-mingw32 pc-mingw32-debug \
 :
-	@cp $(CFG_DIR)/$@ $(CFG_DIR)/current
+	echo "CONFIG = $@" > $(CFG_DIR)/current
 	@echo Switched to configuration \"$@\". From now on you may use simple \"make\".
 	@make

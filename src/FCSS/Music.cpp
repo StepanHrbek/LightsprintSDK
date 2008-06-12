@@ -35,6 +35,10 @@ Music* Music::load(const char* filename)
 		goto err_printed;
 	}
 
+
+	result = music->system->setStreamBufferSize(0x40000, FMOD_TIMEUNIT_RAWBYTES);
+	if(result!=FMOD_OK) goto err;
+
 	result = music->system->init(1, FMOD_INIT_NORMAL, 0);
 	if(result!=FMOD_OK) goto err;
 

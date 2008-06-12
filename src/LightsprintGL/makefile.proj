@@ -3,6 +3,10 @@
 CFG_DIR = ../configs
 -include $(CFG_DIR)/current
 
+ifdef CONFIG
+include $(CFG_DIR)/$(CONFIG)
+endif
+
 # general project settings
 
 PROJECT = LightsprintGL
@@ -12,7 +16,7 @@ CFG_TYPE = lib
 TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).a
 else
 CFG_TYPE = dll
-TARGET = ../../lib/$(CONFIG)/lib$(PROJECT).so
+TARGET = ../../bin/$(CONFIG)/lib$(PROJECT).so
 endif
 
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
