@@ -475,29 +475,17 @@ protected:
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
 	}
-	/*virtual void calculate(CalculateParameters* params = NULL)
+#ifdef BACKGROUND_WORKER
+	virtual void calculate(CalculateParameters* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
-#ifdef BACKGROUND_WORKER
 		if(g_backgroundWorker) g_backgroundWorker->addWork(demoPlayer);
-#endif
-		// possibly update shadow maps
-		if(needDepthMapUpdate)
-		{
-			if(needMatrixUpdate) updateMatrices(); // probably not necessary
-			unsigned numInstances = realtimeLight->getNumInstances();
-			for(unsigned i=0;i<numInstances;i++)
-			{
-				updateDepthMap(i,numInstances);
-			}
-		}
-		// possibly calculate
+		// possibly calculate (update shadowmaps, DDI)
 		RRDynamicSolverGL::calculate(params);
 		// possibly wait for background work completion
-#ifdef BACKGROUND_WORKER
 		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
+	}
 #endif
-	}*/
 };
 
 // called from Level.cpp
