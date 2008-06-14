@@ -72,7 +72,7 @@ bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
 {
 	if(!texture)
 	{
-		assert(0);
+		LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
 		return false;
 	}
 	if(renderEnvironmentBegin(color))
