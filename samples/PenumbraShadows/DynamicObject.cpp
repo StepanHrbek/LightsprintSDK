@@ -39,6 +39,11 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	// set specular environment map
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
+		if(!lightIndirectEnvSpecular)
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering dynamic object with NULL cubemap.\n"));
+			return;
+		}
 		GLint activeTexture;
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
 		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
