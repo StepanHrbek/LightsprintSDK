@@ -28,10 +28,9 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
-#include "FCollada.h" // must be included before LightsprintGL because of fcollada SAFE_DELETE macro
-#include "FCDocument/FCDocument.h"
-#include "../../samples/ImportCollada/RRObjectCollada.h"
-
+#ifdef _WIN32
+#include <windows.h>    // SetCurrentDirectory
+#endif
 #include <cassert>
 #include <ctime>
 #include <cmath>
@@ -44,6 +43,7 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/SceneViewer.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 #ifndef GLUT_WHEEL_UP
 #define GLUT_WHEEL_UP 3
@@ -72,9 +72,6 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-FCDocument*                collada = NULL;
-rr::RRObjects*             adaptedObjects = NULL;
-rr::RRLights*              adaptedLights = NULL;
 rr_gl::Texture*	           lightDirectMap = NULL;
 class Solver*              solver = NULL;
 DynamicObject*             robot;
@@ -91,7 +88,7 @@ float                      speedLeft = 0;
 rr::RRVec4                 brightness(1);
 float                      contrast = 1;
 float                      rotation = 0;
-
+rr_io::ImportScene*        scene = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -225,13 +222,11 @@ void keyboard(unsigned char c, int x, int y)
 			delete solver->getEnvironment();
 			delete solver->getScaler();
 			delete solver;
+			delete scene;
 			delete robot;
 			delete potato;
-			delete adaptedLights;
-			delete adaptedObjects;
 			delete lightDirectMap->getBuffer();
 			delete lightDirectMap;
-			delete collada;
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
 			exit(0);
@@ -385,6 +380,8 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,3,true);
 
+	rr_io::setImageLoader();
+
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -417,19 +414,9 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
-	// init static objects
-	{
-		FCollada::Initialize();
-		collada = FCollada::NewTopDocument();
-		FUErrorSimpleHandler errorHandler;
-		FCollada::LoadDocumentFromFile(collada,(argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
-		if(!errorHandler.IsSuccessful())
-		{
-			puts(errorHandler.GetErrorString());
-			error("",false);
-		}
-		solver->setStaticObjects(*(adaptedObjects=adaptObjectsFromFCollada(collada)),NULL);
-	}
+	// load scene
+	scene = new rr_io::ImportScene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	solver->setStaticObjects(*scene->getObjects(), NULL);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
@@ -447,7 +434,7 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init lights
-	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
+	solver->setLights(*scene->getLights());
 	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	for(unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;

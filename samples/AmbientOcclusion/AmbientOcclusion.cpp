@@ -26,17 +26,18 @@
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel AO, others get per-vertex AO
 //#define TB
 
+#include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>    // SetPriorityClass
+#endif
 
 #include "Lightsprint/RRMath.h"    // TODO: Platform.h
 #ifdef TB
 #include "../../samples/ImportTB/RRObjectTB.h"
-#else
-#include "FCollada.h"
-#include "FCDocument/FCDocument.h"
-#include "../ImportCollada/RRObjectCollada.h"
 #endif
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -100,6 +101,8 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
+	rr_io::setImageLoader();
+
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
@@ -126,16 +129,11 @@ int main(int argc, char **argv)
 	//mapNames.push_back( "1_14" );
 	solver->setStaticObjects( *adaptObjectsFromTB( mapNames ), NULL );
 #else
-	FCollada::Initialize();
-	FCDocument* collada = FCollada::NewTopDocument();
-	FUErrorSimpleHandler errorHandler;
-	FCollada::LoadDocumentFromFile(collada,"../../data/scenes/koupelna/koupelna4-windows.dae");
-	if(!errorHandler.IsSuccessful())
-	{
-		puts(errorHandler.GetErrorString());
-		error("",false);
-	}
-	solver->setStaticObjects( *adaptObjectsFromFCollada( collada ), NULL );
+
+	// load scene
+	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
+	solver->setStaticObjects(*scene.getObjects(), NULL);
+
 #endif
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

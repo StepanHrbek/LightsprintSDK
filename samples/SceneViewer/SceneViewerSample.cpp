@@ -22,7 +22,6 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
-#include "../Import/ImportScene.h"
 #include <cstdlib>
 #include <cstdio>
 #ifdef _WIN32
@@ -32,6 +31,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/Program.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 void error(const char* message, bool gfxRelated)
 {
@@ -61,7 +61,9 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(1);
-	
+
+	rr_io::setImageLoader();
+
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
@@ -71,7 +73,7 @@ int main(int argc, char **argv)
 #endif // _WIN32
 
 	// load scene
-	ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
+	rr_io::ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
 
 	// init solver
 	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)

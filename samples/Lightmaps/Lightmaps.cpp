@@ -42,9 +42,7 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro
-#include "FCDocument/FCDocument.h"
-#include "../../samples/ImportCollada/RRObjectCollada.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 #include <cassert>
 #include <cmath>
@@ -57,6 +55,7 @@
 #include "../RealtimeRadiosity/DynamicObject.h"
 #ifdef _WIN32
 #include <windows.h> // timeGetTime
+#include <stdio.h>   // printf
 #endif
 #if defined(LINUX) || defined(linux)
 #include <sys/time.h> // gettimeofday
@@ -474,6 +473,8 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
+	rr_io::setImageLoader();
+
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -519,16 +520,11 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	FCollada::Initialize();
-	FCDocument* collada = FCollada::NewTopDocument();
-	FUErrorSimpleHandler errorHandler;
-	FCollada::LoadDocumentFromFile(collada,"..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
-	if(!errorHandler.IsSuccessful())
-	{
-		puts(errorHandler.GetErrorString());
-		error("",false);
-	}
-	solver->setStaticObjects(*adaptObjectsFromFCollada(collada),NULL);
+
+	// load scene
+	rr_io::ImportScene scene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	solver->setStaticObjects(*scene.getObjects(), NULL);
+
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");

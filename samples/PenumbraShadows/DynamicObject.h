@@ -6,7 +6,7 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
-#include "../Import3DS/Model_3DS.h"
+#include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/Renderer.h"
 

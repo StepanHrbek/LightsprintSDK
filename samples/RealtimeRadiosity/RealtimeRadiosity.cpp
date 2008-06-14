@@ -31,9 +31,9 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
-#include "../../samples/Import3DS/RRObject3DS.h"
+#include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
-
+#include "Lightsprint/IO/ImportScene.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -314,6 +314,8 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr_gl::Program::showLog = true; // log also results of shader compiler
+
+	rr_io::setImageLoader();
 
 	// init GLUT
 	glutInit(&argc, argv);

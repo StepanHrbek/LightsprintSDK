@@ -640,27 +640,27 @@
 				Name="Import3DS"
 				>
 				<File
-					RelativePath="..\..\samples\Import3DS\Model_3DS.cpp"
+					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\Import3DS\Model_3DS.h"
+					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\Import3DS\RendererOf3DS.cpp"
+					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\Import3DS\RendererOf3DS.h"
+					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\Import3DS\RRObject3DS.cpp"
+					RelativePath="..\LightsprintIO\Import3DS\RRObject3DS.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\Import3DS\RRObject3DS.h"
+					RelativePath="..\LightsprintIO\Import3DS\RRObject3DS.h"
 					>
 				</File>
 			</Filter>
@@ -668,11 +668,11 @@
 				Name="ImportCollada"
 				>
 				<File
-					RelativePath="..\..\samples\ImportCollada\RRObjectCollada.cpp"
+					RelativePath="..\LightsprintIO\ImportCollada\RRObjectCollada.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportCollada\RRObjectCollada.h"
+					RelativePath="..\LightsprintIO\ImportCollada\RRObjectCollada.h"
 					>
 				</File>
 			</Filter>
@@ -680,55 +680,55 @@
 				Name="ImportMGF"
 				>
 				<File
-					RelativePath="..\..\samples\ImportMGF\badarg.c"
+					RelativePath="..\LightsprintIO\ImportMGF\badarg.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\context.c"
+					RelativePath="..\LightsprintIO\ImportMGF\context.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\fvect.c"
+					RelativePath="..\LightsprintIO\ImportMGF\fvect.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\lookup.c"
+					RelativePath="..\LightsprintIO\ImportMGF\lookup.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\lookup.h"
+					RelativePath="..\LightsprintIO\ImportMGF\lookup.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\messages.h"
+					RelativePath="..\LightsprintIO\ImportMGF\messages.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\mgfparser.h"
+					RelativePath="..\LightsprintIO\ImportMGF\mgfparser.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\object.c"
+					RelativePath="..\LightsprintIO\ImportMGF\object.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\parser.c"
+					RelativePath="..\LightsprintIO\ImportMGF\parser.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\RRObjectMGF.cpp"
+					RelativePath="..\LightsprintIO\ImportMGF\RRObjectMGF.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\RRObjectMGF.h"
+					RelativePath="..\LightsprintIO\ImportMGF\RRObjectMGF.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\words.c"
+					RelativePath="..\LightsprintIO\ImportMGF\words.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportMGF\xf.c"
+					RelativePath="..\LightsprintIO\ImportMGF\xf.c"
 					>
 				</File>
 			</Filter>
@@ -736,19 +736,19 @@
 				Name="ImportQuake3"
 				>
 				<File
-					RelativePath="..\..\samples\ImportQuake3\Q3Loader.cpp"
+					RelativePath="..\LightsprintIO\ImportQuake3\Q3Loader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportQuake3\Q3Loader.h"
+					RelativePath="..\LightsprintIO\ImportQuake3\Q3Loader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportQuake3\RRObjectBSP.cpp"
+					RelativePath="..\LightsprintIO\ImportQuake3\RRObjectBSP.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\samples\ImportQuake3\RRObjectBSP.h"
+					RelativePath="..\LightsprintIO\ImportQuake3\RRObjectBSP.h"
 					>
 				</File>
 			</Filter>

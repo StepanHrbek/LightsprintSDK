@@ -28,6 +28,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "DynamicObject.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -278,6 +279,8 @@ int main(int argc, char **argv)
 {
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
+	rr_io::setImageLoader();
 
 	// init GLUT
 	glutInit(&argc, argv);

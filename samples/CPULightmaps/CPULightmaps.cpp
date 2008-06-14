@@ -24,16 +24,16 @@
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel lightmap, others get per-vertex
 
-#include "FCollada.h"
-#include "FCDocument/FCDocument.h"
-#include "../ImportCollada/RRObjectCollada.h"
-
 #include <cassert>
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <crtdbg.h>
+#include <windows.h>  // SetPriorityClass
 #endif
 #include <cstdlib>
+#include <stdio.h>    // printf
 
+#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -102,6 +102,8 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(reporter);
 	//rr::RRReporter::setFilter(true,3,true);
 
+	rr_io::setImageLoader();
+
 #ifdef _MSC_VER
 	// decrease priority, so that this task runs on background using only free CPU cycles
 	// good for precalculating lightmaps on workstation
@@ -116,31 +118,16 @@ int main(int argc, char **argv)
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
 	solver->setScaler(scaler);
 
-	FCollada::Initialize();
-	FCDocument* collada = FCollada::NewTopDocument();
-	FUErrorSimpleHandler errorHandler;
-	FCollada::LoadDocumentFromFile(collada,"../../data/scenes/koupelna/koupelna4-windows.dae");
-	if(!errorHandler.IsSuccessful())
-	{
-		puts(errorHandler.GetErrorString());
-		error("",false);
-	}
-	rr::RRObjects* objects = adaptObjectsFromFCollada( collada );
-	rr::RRDynamicSolver::SmoothingParameters smoothing;
-	//smoothing.intersectTechnique = rr::RRCollider::IT_BSP_FAST;
-	solver->setStaticObjects( *objects, &smoothing );
-	rr::RRLights* lights = adaptLightsFromFCollada( collada );
-	solver->setLights( *lights );
+	// load scene
+	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
+	solver->setStaticObjects(*scene.getObjects(), NULL);
+	solver->setLights(*scene.getLights());
 
 	// calculate and save results
 	calculate(solver);
 
 	// release memory
 	delete solver;
-	delete lights;
-	delete objects;
-	collada->Release();
-	FCollada::Release();
 	delete scaler;
 	rr::RRReporter::setReporter(NULL);
 	delete reporter;

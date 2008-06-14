@@ -31,9 +31,7 @@
 #define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
 #define SELECTED_STATIC_OBJECT  9920  // index of static object awarded by higher quality indirect lighting (per-pixel)
 
-#include "FCollada.h" // must be included before LightsprintGL because of fcollada SAFE_DELETE macro
-#include "FCDocument/FCDocument.h"
-#include "../../samples/ImportCollada/RRObjectCollada.h"
+#include "Lightsprint/IO/ImportScene.h"
 
 #include <cassert>
 #include <ctime>
@@ -42,6 +40,7 @@
 #include <string>
 #include <vector>
 #ifdef _MSC_VER
+#include <windows.h> // SetCurrentDirectoryA
 #include <direct.h> // _mkdir
 #endif // _MSC_VER
 #include <GL/glew.h>
@@ -133,7 +132,7 @@ void precalculateAllLayers(rr_gl::RRDynamicSolverGL* _solver, const rr::RRLightF
 	}
 }
 
-bool loadPrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField*& _lightfield, std::string _path)
+bool loadPrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLightField*& _lightfield, std::string _path)
 {
 	_lightfield = rr::RRLightField::load((_path+"lightfield.lf").c_str());
 	if(!_lightfield) return false;
@@ -142,7 +141,7 @@ bool loadPrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField
 	return true;
 }
 
-void savePrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField* _lightfield, std::string _path)
+void savePrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLightField* _lightfield, std::string _path)
 {
 #ifdef _MSC_VER
 	_mkdir(_path.c_str());
@@ -160,8 +159,6 @@ void savePrecalculatedData(rr::RRObjects& _staticObjects, const rr::RRLightField
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-FCDocument*                collada = NULL;
-rr::RRObjects*             adaptedObjects = NULL;
 class Solver*              solver = NULL;
 DynamicObject*             dynamicObject[DYNAMIC_OBJECTS];
 rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f,1000);
@@ -180,7 +177,7 @@ rr_gl::ToneMapping*        toneMapping = NULL;
 bool                       keyPressed[512];
 rr::RRVec3                 aabbMin,aabbMax; // AABB of static scene
 rr::RRReal                 groundLevel = 0;
-
+rr_io::ImportScene*        scene = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -302,15 +299,16 @@ void keyboard(unsigned char c, int x, int y)
 			delete solver->getScaler();
 			delete solver->getLights()[0];
 			delete solver;
+			delete scene;
 			for(unsigned i=0;i<DYNAMIC_OBJECTS;i++) delete dynamicObject[i];
-			delete adaptedObjects;
-			delete collada;
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
 			exit(0);
 	}
+
 	solver->reportInteraction();
 }
+
 
 void keyboardUp(unsigned char c, int x, int y)
 {
@@ -441,7 +439,6 @@ void idle()
 	glutPostRedisplay();
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // main
@@ -451,13 +448,15 @@ int main(int argc, char **argv)
 #ifdef _MSC_VER
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-//	_crtBreakAlloc = 1372;
+//	_crtBreakAlloc = 1;
 #endif // _MSC_VER
 
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,1,true);
 	//rr_gl::Program::logMessages(1);
+
+	rr_io::setImageLoader();
 
 	// init keys
 	memset(keyPressed,sizeof(keyPressed),0);
@@ -505,23 +504,11 @@ int main(int argc, char **argv)
 
 	const char* sceneFilename = (argc>1)?argv[1]:DEFAULT_SCENE;
 
-	// init static objects
-	{
-		FCollada::Initialize();
-		collada = FCollada::NewTopDocument();
-		FUErrorSimpleHandler errorHandler;
-		FCollada::LoadDocumentFromFile(collada,sceneFilename);
-		if(!errorHandler.IsSuccessful())
-		{
-			puts(errorHandler.GetErrorString());
-			error("",false);
-		}
-		char* pathToFile = _strdup(sceneFilename);
-		char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
-		if(tmp) tmp[1] = 0;
-		solver->setStaticObjects(*(adaptedObjects=adaptObjectsFromFCollada(collada,pathToFile,true)),NULL);
-		free(pathToFile);
-	}
+	// load scene
+	scene = new rr_io::ImportScene(sceneFilename);
+
+	solver->setStaticObjects(*scene->getObjects(), NULL);
+
 	groundLevel = solver->getMultiObjectCustom()->getCollider()->getMesh()->findGroundLevel();
 	solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
 
@@ -545,11 +532,11 @@ int main(int argc, char **argv)
 	{
 		std::string path = std::string(sceneFilename)+".precalc/";
 #ifndef FORCE_PRECALCULATE
-		if(!loadPrecalculatedData(*adaptedObjects,lightField,path))
+		if(!loadPrecalculatedData(solver->getStaticObjects(),lightField,path))
 #endif
 		{
 			precalculateAllLayers(solver,lightField,groundLevel,aabbMin,aabbMax);
-			savePrecalculatedData(*adaptedObjects,lightField,path);
+			savePrecalculatedData(solver->getStaticObjects(),lightField,path);
 		}
 	}
 

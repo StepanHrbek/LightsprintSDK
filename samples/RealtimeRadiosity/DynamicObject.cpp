@@ -7,8 +7,8 @@
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "DynamicObject.h"
-#include "../Import3DS/RendererOf3DS.h"
-#include "../Import3DS/Model_3DS.h"
+#include "../src/LightsprintIO/Import3DS/RendererOf3DS.h"
+#include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

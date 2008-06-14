@@ -10,25 +10,25 @@
 #ifdef SUPPORT_COLLADA
 	#include "FCollada.h"
 	#include "FCDocument/FCDocument.h"
-	#include "../../samples/ImportCollada/RRObjectCollada.h"
+	#include "../../src/LightsprintIO/ImportCollada/RRObjectCollada.h"
 #endif
 
 #ifdef SUPPORT_BSP
-	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-	#include "../../samples/ImportQuake3/RRObjectBSP.h"
+	#include "../../src/LightsprintIO/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
+	#include "../../src/LightsprintIO/ImportQuake3/RRObjectBSP.h"
 #endif
 
 #ifdef SUPPORT_3DS
-	#include "../../samples/Import3DS/Model_3DS.h"
-	#include "../../samples/Import3DS/RRObject3DS.h"
+	#include "../../src/LightsprintIO/Import3DS/Model_3DS.h"
+	#include "../../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #endif
 
 #ifdef SUPPORT_MGF
-	#include "../../samples/ImportMGF/RRObjectMGF.h"
+	#include "../../src/LightsprintIO/ImportMGF/RRObjectMGF.h"
 #endif
 
 #ifdef SUPPORT_UE3
-	#include "../../samples/ImportUE3/RRObjectUE3.h"
+	#include "../../src/LightsprintIO/ImportUE3/RRObjectUE3.h"
 #endif
 
 #include "AnimationEditor.h"
