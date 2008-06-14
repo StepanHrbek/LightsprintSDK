@@ -25,7 +25,7 @@
 // 'pointDetails' flag that hints solver to use slower per-pixel material path
 // is enabled for materials with at least 1% transparency specified by texture.
 
-#if 1 // 0 disables Collada support, 1 enables
+#if 1 && (_MSC_VER && (_MSC_VER >= 1400)) // 0 disables Collada support, 1 enables
 
 #include <cmath>
 #include <map>
