@@ -23,7 +23,9 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"
+#ifndef RR_IO_BUILD
 #include "GL/glew.h"
+#endif
 
 //#define MARK_OPENED // mark used textures by read-only attribute
 #ifdef MARK_OPENED
