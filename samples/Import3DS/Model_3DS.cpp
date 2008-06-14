@@ -78,9 +78,13 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#ifndef RR_IO_BUILD
 #include <GL/glew.h>
+#endif
 #include "Model_3DS.h"
+#ifndef RR_IO_BUILD
 #include "Lightsprint/GL/UberProgramSetup.h"
+#endif
 
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D
@@ -127,6 +131,10 @@
 #define COLOR_RGBG			0x0013
 #define PERC_INT			0x0030
 #define PERC_FLOAT			0x0031
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
 
 // utility functions for handling little endian on a big endian system
 
@@ -276,7 +284,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			Objects[k].numTexCoords = Objects[k].numVerts;
 
 			// Allocate an array to hold the texture coordinates
-			Objects[k].TexCoords = new GLfloat[Objects[k].numTexCoords * 2];
+			Objects[k].TexCoords = new float[Objects[k].numTexCoords * 2];
 
 			// Make some texture coords
 			for (int m = 0; m < Objects[k].numTexCoords; m++)
@@ -353,6 +361,9 @@ void Model_3DS::Draw(
 	const float* (*acquireVertexColors)(void* model,unsigned object),
 	void (*releaseVertexColors)(void* model,unsigned object)) const
 {
+
+#ifndef RR_IO_BUILD
+
 	if (visible)
 	{
 		glShadeModel(GL_SMOOTH);
@@ -468,6 +479,8 @@ void Model_3DS::Draw(
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+
+#endif // RR_IO_BUILD
 }
 
 void Model_3DS::CalculateNormals()
@@ -1072,8 +1085,8 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 	swap16(&numVerts);
 
 	// Allocate arrays for the vertices and normals
-	Objects[objindex].Vertexes = new GLfloat[numVerts * 3];
-	Objects[objindex].Normals = new GLfloat[numVerts * 3];
+	Objects[objindex].Vertexes = new float[numVerts * 3];
+	Objects[objindex].Normals = new float[numVerts * 3];
 
 	// Assign the number of vertices for future use
 	Objects[objindex].numVerts = numVerts;
@@ -1084,13 +1097,13 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 
 	// Read the vertices, switching the y and z coordinates and changing the sign of the z coordinate
 	
-	GLfloat v0, v1, v2;
+	float v0, v1, v2;
 
 	for (int i = 0; i < numVerts * 3; i+=3)
 	{
-		fread(&v0, sizeof(GLfloat), 1, bin3ds);
-		fread(&v1, sizeof(GLfloat), 1, bin3ds);
-		fread(&v2, sizeof(GLfloat), 1, bin3ds);
+		fread(&v0, sizeof(float), 1, bin3ds);
+		fread(&v1, sizeof(float), 1, bin3ds);
+		fread(&v2, sizeof(float), 1, bin3ds);
 		swap32(&v0);
 		swap32(&v1);
 		swap32(&v2);
@@ -1128,27 +1141,27 @@ void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
 	swap16(&numCoords);
 
 	// Allocate an array to hold the texture coordinates
-	Objects[objindex].TexCoords = new GLfloat[numCoords * 2];
+	Objects[objindex].TexCoords = new float[numCoords * 2];
 
 	// Set the number of texture coords
 	Objects[objindex].numTexCoords = numCoords;
 
 	// Read the texture coordiantes into the array
 
-	GLfloat t0, t1;
+	float t0, t1;
 
 	for (int i = 0; i < numCoords * 2; i+=2)
 	{
-		fread(&t0, sizeof(GLfloat), 1, bin3ds);
-		fread(&t1, sizeof(GLfloat), 1, bin3ds);
+		fread(&t0, sizeof(float), 1, bin3ds);
+		fread(&t1, sizeof(float), 1, bin3ds);
 		swap32(&t0);
 		swap32(&t1);
 
 		Objects[objindex].TexCoords[i + 0] = t0;
 		Objects[objindex].TexCoords[i + 1] = t1;
 
-//		fread(&Objects[objindex].TexCoords[i],sizeof(GLfloat),1,bin3ds);
-//		fread(&Objects[objindex].TexCoords[i+1],sizeof(GLfloat),1,bin3ds);
+//		fread(&Objects[objindex].TexCoords[i],sizeof(float),1,bin3ds);
+//		fread(&Objects[objindex].TexCoords[i+1],sizeof(float),1,bin3ds);
 	}
 
 	// move the file pointer back to where we got it so
@@ -1177,7 +1190,7 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 	swap16(&numFaces);
 
 	// Allocate an array to hold the faces
-	Objects[objindex].Faces = new GLushort[numFaces * 3];
+	Objects[objindex].Faces = new unsigned short[numFaces * 3];
 	// Store the number of faces
 	Objects[objindex].numFaces = numFaces * 3;
 
@@ -1365,7 +1378,7 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	swap16(&numEntries);
 
 	// Allocate an array to hold the list of faces associated with this material
-	Objects[objindex].MatFaces[subfacesindex].subFaces = new GLushort[numEntries * 3];
+	Objects[objindex].MatFaces[subfacesindex].subFaces = new unsigned short[numEntries * 3];
 	// Store this number for later use
 	Objects[objindex].MatFaces[subfacesindex].numSubFaces = numEntries * 3;
 
