@@ -42,8 +42,6 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/IO/ImportScene.h"
-
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -52,13 +50,10 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
+#include "Lightsprint/IO/ImportScene.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
 #ifdef _WIN32
-#include <windows.h> // timeGetTime
 #include <stdio.h>   // printf
-#endif
-#if defined(LINUX) || defined(linux)
-#include <sys/time.h> // gettimeofday
 #endif
 
 
@@ -124,14 +119,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-#ifdef _WIN32
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
-#elif defined(LINUX) || defined(linux)
-	timeval time;
-	gettimeofday(&time,NULL);
-	long msec = time.tv_sec*1000+(time.tv_usec/1000);
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (msec%10000000)*0.07f;
-#endif
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*50.f;
 	// render object1
 	if(robot)
 	{
