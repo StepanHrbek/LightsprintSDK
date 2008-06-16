@@ -10,6 +10,10 @@
 // You can use any other image library if you implement two simple callbacks,
 // load and save, and call RRBuffer::setLoader().
 
+#define USE_FREEIMAGE
+
+#ifdef USE_FREEIMAGE
+
 #include <cstdio>
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
@@ -536,9 +540,10 @@ ende:
 	return result;
 }
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
-// automatic registration
+// automatic registration - does not work inside library
 
 struct AutoRegister
 {
@@ -550,7 +555,20 @@ struct AutoRegister
 
 static AutoRegister a;
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// manual registration
+
 void rr_io::setImageLoader()
 {
 	RRBuffer::setLoader(main_reload,main_save);
 }
+
+#else / USE_FREEIMAGE
+
+void rr_io::setImageLoader()
+{
+}
+
+#endif // USE_FREEIMAGE

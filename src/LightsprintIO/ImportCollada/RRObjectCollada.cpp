@@ -25,7 +25,9 @@
 // 'pointDetails' flag that hints solver to use slower per-pixel material path
 // is enabled for materials with at least 1% transparency specified by texture.
 
-#if 1 && (_MSC_VER && (_MSC_VER >= 1400)) // 0 disables Collada support, 1 enables
+#define USE_FCOLLADA
+
+#if defined(USE_FCOLLADA) && (_MSC_VER && (_MSC_VER >= 1400))
 
 #include <cmath>
 #include <map>
@@ -63,6 +65,8 @@
 		#pragma comment(lib,"FCollada.lib")
 	#endif
 #endif
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 using namespace rr;
 
@@ -433,6 +437,26 @@ RRVec4 getAvgColor(RRBuffer* buffer)
 	return avg/(size*size);
 }
 
+// opacityInAlpha -> avg distance from 0 or 1 (what's closer)
+// !opacityInAlpha -> avg distance from 0,0,0 or 1,1,1 (what's closer)
+// result: 0..0.02 keying probably better
+// result: 0.02..0.5 blending probably better
+RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
+{
+	if(!buffer) return 0;
+	enum {size = 16};
+	rr::RRReal blendImportance = 0;
+	for(unsigned i=0;i<size;i++)
+		for(unsigned j=0;j<size;j++)
+		{
+			rr::RRVec4 color = buffer->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
+			rr::RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
+			rr::RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
+			blendImportance += MIN(distFrom0,distFrom1);
+		}
+	return blendImportance/(size*size); 
+}
+
 class MaterialCache
 {
 public:
@@ -567,6 +591,7 @@ private:
 		loadTexture(FUDaeTextureChannel::EMISSION,mi.material.diffuseEmittance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,mi.material.specularTransmittance,materialInstance,effectStandard);
 		mi.material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
+		mi.material.specularTransmittanceKeyed = getBlendImportance(mi.material.specularTransmittance.texture,mi.material.specularTransmittanceInAlpha)<0.02f;
 		if(mi.material.specularTransmittance.texture)
 		{
 			if(mi.material.specularTransmittanceInAlpha)
@@ -1121,7 +1146,7 @@ rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return new LightsFromFCollada(document);
 }
 
-#else
+#else // USE_FCOLLADA
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
@@ -1134,4 +1159,4 @@ rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return NULL;
 }
 
-#endif
+#endif // USE_FCOLLADA
