@@ -178,13 +178,6 @@ static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const 
 	// alpha is transparency
 	s.specularTransmittance.color = rr::RRVec3(1-avg[3]);
 	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
-
-#ifdef VERIFY
-	if(s.validate())
-		rr::RRReporter::report(rr::WARN,"Material adjusted to physically valid.\n");
-#else
-	s.validate();
-#endif
 }
 
 // Creates internal copies of .bsp geometry and material properties.

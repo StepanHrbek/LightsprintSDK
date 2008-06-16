@@ -137,6 +137,7 @@ void RRScaler::getPhysicalScale(RRReal& value) const
 
 void RRScaler::getCustomFactor(RRVec3& value) const
 {
+	// for typical scalers like sRGB, result does not depend on 0.5 constant
 	RRVec3 tmp1 = RRVec3(0.5f)*value;
 	RRVec3 tmp2 = RRVec3(0.5f);
 	getCustomScale(tmp1);
@@ -152,6 +153,7 @@ void RRScaler::getCustomFactor(RRReal& value) const
 
 void RRScaler::getPhysicalFactor(RRVec3& value) const
 {
+	// for typical scalers like sRGB, result does not depend on 0.5 constant
 	RRVec3 tmp1 = RRVec3(0.5f)*value;
 	RRVec3 tmp2 = RRVec3(0.5f);
 	getPhysicalScale(tmp1);

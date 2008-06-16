@@ -8,6 +8,9 @@
 #include "Lightsprint/RRObject.h"
 #include "memory.h"
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 namespace rr
 {
 
@@ -32,13 +35,6 @@ void RRMaterial::reset(bool twoSided)
 	name                         = NULL;
 }
 
-bool clamp(RRReal& vec, RRReal min, RRReal max)
-{
-	if(vec<min) {vec=min; return true;}
-	if(vec>max) {vec=max; return true;}
-	return false;
-}
-
 bool clamp(RRVec3& vec, RRReal min, RRReal max)
 {
 	unsigned clamped = 3;
@@ -51,29 +47,23 @@ bool clamp(RRVec3& vec, RRReal min, RRReal max)
 	return clamped>0;
 }
 
-bool RRMaterial::validate()
+bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 {
 	bool changed = false;
 
-	const float MAX_LEFT = 0.98f; // photons that left surface, sum of dif/spec reflected, transmitted
-	const float MAX_REFL = MAX_LEFT;
-	const float MAX_TRANS = MAX_LEFT;
-	const float MAX_EMIT = 1e6;//1000;
-
-	if(clamp(diffuseEmittance.color,0,MAX_EMIT)) changed = true;
-	if(clamp(specularTransmittance.color,0,MAX_TRANS)) changed = true;
-	if(clamp(diffuseReflectance.color,0,MAX_REFL)) changed = true;
-	if(clamp(specularReflectance,0,MAX_REFL)) changed = true;
-	// clamp so that no new photons appear
-	for(unsigned i=0;i<3;i++)
+	RRVec3 sum = diffuseReflectance.color+specularTransmittance.color+RRVec3(specularReflectance);
+	RRReal max = MAX(sum[0],MAX(sum[1],sum[2]));
+	if(max>redistributedPhotonsLimit)
 	{
-		RRReal all = diffuseReflectance.color[i]+specularReflectance+specularTransmittance.color[i];
-		if(clamp(all,0,MAX_LEFT)) changed = true;
-		if(clamp(diffuseReflectance.color[i],0,all-specularTransmittance.color[i])) changed = true;
-		if(clamp(specularReflectance,0,all-specularTransmittance.color[i]-diffuseReflectance.color[i])) changed = true;
+		diffuseReflectance.color *= redistributedPhotonsLimit/max;
+		specularReflectance *= redistributedPhotonsLimit/max;
+		specularTransmittance.color *= redistributedPhotonsLimit/max;
+		changed = true;
 	}
 
-	// FCollada returns 0 when information is not available
+	if(clamp(diffuseEmittance.color,0,1e6f)) changed = true;
+
+	// it is common error to default refraction to 0, we must anticipate and handle it
 	if(refractionIndex==0) {refractionIndex = 1; changed = true;}
 
 	return changed;

@@ -96,8 +96,13 @@ namespace rr
 		//! It makes good glass, but bad thin dif.reflecting wall.
 		void          reset(bool twoSided);
 
-		//! Changes material to closest physically valid values. Returns true when changes were made.
-		bool          validate();
+		//! Changes material to closest physically valid values. Returns whether changes were made.
+		//
+		//! In physical scale, diffuse+specular+transmission must be below 1 (real world materials are below 0.98)
+		//! and this function enforces it. We call it automatically from solver.
+		//! In custom scale, it's legal to have diffuse+specular+transmission higher (up to roughly 1.7),
+		//! so we don't call validate on custom scale materials.
+		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
 		//! Converts material properties from physical to custom scale.
 		void          convertToCustomScale(const RRScaler* scaler);

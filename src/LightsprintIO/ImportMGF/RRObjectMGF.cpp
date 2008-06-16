@@ -164,13 +164,6 @@ void* add_material(C_MATERIAL* m)
 	mat.specularReflectance = m->rs;
 	mgf2rgb(&m->ts_c,m->ts,mat.specularTransmittance.color);
 	mat.refractionIndex = m->nr;
-#ifdef VERIFY
-	// we know inputs are correct, only ideal glass is adjusted to slightly less ideal glass
-	if(mat.validate())
-		rr::RRReporter::report(rr::WARN,"Material adjusted to physically valid.\n");
-#else
-	mat.validate();
-#endif
 
 	// convert from physical scale, all samples expect inputs in screen colors
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();

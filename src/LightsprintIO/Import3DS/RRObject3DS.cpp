@@ -130,13 +130,6 @@ static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 	// set diffuse reflectance according to 3ds material
 	s->diffuseReflectance.color = avg;
 	s->diffuseReflectance.texture = m->tex;
-
-#ifdef VERIFY
-	if(s->validate())
-		rr::RRReporter::report(rr::WARN,"Material adjusted to physically valid.\n");
-#else
-	s->validate();
-#endif
 }
 
 // Creates internal copies of .3ds geometry and material properties.

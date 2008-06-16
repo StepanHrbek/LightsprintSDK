@@ -586,6 +586,7 @@ private:
 			? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 			: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 		mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
+		if(mi.material.refractionIndex==0) mi.material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
 
 		loadTexture(FUDaeTextureChannel::DIFFUSE,mi.material.diffuseReflectance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::EMISSION,mi.material.diffuseEmittance,materialInstance,effectStandard);
@@ -612,12 +613,6 @@ private:
 		}
 
 		mi.material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
-#ifdef VERIFY
-		if(mi.material.validate())
-			RRReporter::report(WARN,"Material adjusted to physically valid.\n");
-#else
-		mi.material.validate();
-#endif
 		return mi;
 	}
 
