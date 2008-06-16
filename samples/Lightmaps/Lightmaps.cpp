@@ -52,8 +52,16 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/IO/ImportScene.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
-#ifdef _WIN32
 #include <stdio.h>   // printf
+
+// Linux GLUT compatibility
+
+#ifndef GLUT_WHEEL_UP
+#define GLUT_WHEEL_UP 3
+#endif
+
+#ifndef GLUT_WHEEL_DOWN
+#define GLUT_WHEEL_DOWN 4
 #endif
 
 

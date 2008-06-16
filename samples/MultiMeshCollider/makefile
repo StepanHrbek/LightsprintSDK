@@ -1,5 +1,4 @@
 all:
-	@cd ../../src/LightsprintGL && make
 	@make -f makefile.proj
 
 %:

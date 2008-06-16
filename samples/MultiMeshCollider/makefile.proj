@@ -16,8 +16,6 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
-CPP_FLAGS += -DRR_STATIC
-
 # source files
 
 SOURCES = \
@@ -25,8 +23,14 @@ MultiMeshCollider.cpp
 
 # libraries
 
+ifdef STATIC
+LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
+else
+LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
+endif
+
 LIBS += -lstdc++
-LIBS += ../../lib/$(CONFIG)/libLightsprintCore.so
+LIBS += -lgomp
 
 # include directories
 

@@ -16,37 +16,44 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
-CPP_FLAGS += -DRR_STATIC
-CPP_FLAGS += -DLINUX
-
 # source files
 
 SOURCES = \
-SceneViewerSample.cpp \
-../Import/ImportScene.cpp \
-../Import3DS/RRObject3DS.cpp \
-../Import3DS/Model_3DS.cpp \
-../ImportCollada/RRObjectCollada.cpp \
-../ImportMGF/badarg.c \
-../ImportMGF/context.c \
-../ImportMGF/fvect.c \
-../ImportMGF/lookup.c \
-../ImportMGF/object.c \
-../ImportMGF/parser.c \
-../ImportMGF/words.c \
-../ImportMGF/xf.c \
-../ImportOBJ/RRObjectOBJ.cpp \
-../ImportQuake3/RRObjectBSP.cpp \
-../ImportQuake3/Q3Loader.cpp
+SceneViewerSample.cpp
 
 # libraries
 
+ifeq ($(CONFIG), ps3-linux)
+LIBS += ../../lib/ps3-linux/mesa/libGL.so
+LIBS += ../../lib/ps3-linux/mesa/libglut.so
+LIBS += ../../lib/ps3-linux/libGLEW.a
+else
+ifeq ($(CONFIG), ps3-linux-debug)
+LIBS += ../../lib/ps3-linux/mesa/libGL.so
+LIBS += ../../lib/ps3-linux/mesa/libglut.so
+LIBS += ../../lib/ps3-linux/libGLEW.a
+else
+LIBS += -lGL
+LIBS += -lglut
+LIBS += -lGLEW
+endif
+endif
+
+ifdef STATIC
+LIBS += ../../lib/$(CONFIG)/libLightsprintGL.a
+LIBS += ../../lib/$(CONFIG)/libLightsprintIO.a
+LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
+else
+LIBS += ../../bin/$(CONFIG)/libLightsprintGL.so
+LIBS += ../../bin/$(CONFIG)/libLightsprintIO.so
+LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
+endif
+
 LIBS += -lstdc++
-LIBS += -lxml2
-LIBS += -lfcollada
+LIBS += -lgomp
 LIBS += -lfreeimage
-LIBS += ../../lib/$(CONFIG)/libLightsprintCore.so
-LIBS += ../../lib/$(CONFIG)/libLightsprintGL.so
+LIBS += -lfcollada
+LIBS += -lxml2
 
 # include directories
 
