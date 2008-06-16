@@ -219,25 +219,63 @@ Ray-Mesh collisions
 
 
 
-\page main_credits Additional credits
+\page main_credits Third party libraries
 
-Lightsprint SDK uses free open source libraries listed below.
-They are included here as .dll files.
+Lightsprint integrated into game engine doesn't need any third party library.
+
+Standalone Lightsprint SDK uses several free open source libraries with permissive licenses,
+for scene loading and GPU access.
 You are free to download their sources and rebuild, use them in commercial applications etc.
+Use of these libraries is optional, global illumination solver works without them.
 
-Used by LightsprintCore:
-- none
+Libraries used by LightsprintCore (global illumination solver):
+- <a href="http://boost.org">boost</a>
+  - optional, remove by deleting \#define USE_BOOST_POOL in src/LightsprintCore/RRDynamicSolver/gather.h
+  - only headers accessed when building LightsprintCore from sources (only when you license source code),
+    no library needed (no .dll/.so)
+  - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
+  - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
 
-Used by LightsprintGL:
-- <a href="http://glew.sourceforge.net/">GLEW</a> 1.5.0
-- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a> 3.7.6
-  (with <a href="http://dee.cz/glut">patch</a>)
+Used by LightsprintGL (optional OpenGL support):
+- GLU
+  - Windows: should be already installed, part of PlatformSDK by Microsoft
+  - Linux (including PS3): should be already installed, install using e.g. <code>sudo apt-get install libglu1-mesa-dev</code>
+  - XBox360, PS3 with system software: not necessary
+- <a href="http://glew.sourceforge.net/">GLEW</a>
+  - Windows: precompiled 1.5.0 is part of SDK
+  - Linux (including PS3): install using e.g. <code>sudo apt-get install libglew1.5-dev</code>
+    - Note that we <code>\#include <GL/glew.h></code>, but SDK contains <code>include/gl/glew.h</code>.
+      This ensures that version we bundle for Windows won't be used on Linux.
+      You can safely install and use different version in your Linux system.
+  - XBox360, PS3 with system software: not necessary
+- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
+  - Windows: precompiled 3.7.6 <a href="http://dee.cz/glut">patched</a> is part of SDK
+  - Linux (including PS3): install using e.g. <code>sudo apt-get install libglut3-dev</code>
+    - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
+      This ensures that version we bundle for Windows won't be used on Linux.
+      You can safely install and use different version in your Linux system.
+  - XBox360, PS3 with system software: not necessary
 
-Used by some samples:
-- <a href="http://freeimage.sourceforge.net">FreeImage</a> 3.10.0 This software uses the FreeImage open source image library.
-  FreeImage is used under the FIPL, version 1.0.
-- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> 3.05B by Feeling Software is used under MIT license.
+Used by LightsprintIO (optional file format support):
+- <a href="http://freeimage.sourceforge.net">FreeImage</a>
+  - This software uses the FreeImage open source image library. FreeImage is used under the FIPL, version 1.0.
+  - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
+  - Windows: precompiled 3.10.0 is part of SDK
+  - Linux (including PS3 Linux): install using e.g. <code>sudo apt-get install libfreeimage-dev</code>
+    - Note that we <code>\#include <FreeImage.h></code>, but SDK contains <code>include/freeimage.h</code>.
+      This ensures that version we bundle for Windows won't be used on Linux.
+      You can safely install and use different version in your Linux system.
+  - XBox360, PS3 with system software: not necessary
+- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
+  - by Feeling Software, used under MIT license
+  - optional, remove by deleting \#define USE_FCOLLADA in src/LightsprintIO/ImportCollada/RRObjectCollada.cpp (for Linux, remove linking from makefile)
+  - Windows, Linux (including PS3): precompiled 3.05B is part of SDK
+  - Linux (including PS3): if you want to build from sources anyway, see src/LightsprintIO/ImportCollada for our makefile and instructions
+  - XBox360, PS3 with system software: not necessary
 
+Remark:
+- when installing dependencies on Debian based Linux (Ubuntu etc), it can be done by single command
+  <code>sudo apt-get install libboost-dev libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev</code>
 
 
 \page main_integration Integration
@@ -1757,23 +1795,15 @@ Used by some samples:
 
 \page main_platforms Supported platforms
 
- All Lightsprint SDK libraries and samples support both 32bit and 64bit code.
+ Platforms
+ - Windows (XP, Vista, 32bit, 64bit)
+ - Linux (32bit, 64bit)
+ - Playstation 3
+ - Xbox 360
 
- Operating systems
- - Windows XP
- - Windows XP x64
- - Windows Vista
- - Windows Vista x64
- - ask for more
-
- CPUs
- - x86 compatible (32bit) with SSE instructions
- - x64 compatible (64bit)
- - ask for more
-
- GPUs
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx
- - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx
+ GPUs on PC
+ - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx
+ - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx
  - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
  - subset of workstation versions (Quadro, FireGL)
  - for offline rendering, GPU is not needed
@@ -1787,11 +1817,13 @@ Used by some samples:
  - Visual C++ 2008 (32bit, 64bit)
  - Visual C++ 2005 SP1
  - Visual C++ 2003 SP1
- - ask for more
+ - gcc (32bit, 64bit)
 
  Library configurations
- - Release DLL
- - Debug DLL
+ - Release DLL/so
+ - Debug DLL/so
+ - Release Static (source code license only)
+ - Debug Static (source code license only)
 
 
 
