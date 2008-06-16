@@ -1,4 +1,4 @@
-"..\..\3rd\ImageMagick\convert.exe" -quality 100 -opaque #ffffff libraries.png libraries.png
+"..\..\3rd\ImageMagick\convert.exe" -quality 100 -transparent #ffffff -trim libraries.png libraries.png
 "..\..\3rd\ImageMagick\convert.exe" -quality 100 -opaque #ffffff Integration1a.png Integration1a.png
 "..\..\3rd\ImageMagick\convert.exe" -quality 100 -opaque #ffffff Integration1b.png Integration1b.png
 "..\..\3rd\ImageMagick\convert.exe" -quality 100 -opaque #ffffff Integration1c.png Integration1c.png

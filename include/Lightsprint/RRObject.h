@@ -63,11 +63,16 @@ namespace rr
 	//! Description of material properties of a surface.
 	//
 	//! It is minimal set of properties needed by global illumination solver,
-	//! so it not complete material for rendering (no textures).
+	//! so it not necessarily complete material description,
+	//! custom renderer may use additional custom information stored elsewhere.
 	//!
-	//! Values could be in physical or any other scale, depends on who uses it.
-	//! Adapters usually create materials in sRGB scale -> material properties are screen colors.
-	//! Solver always converts materials to physical scale, you can access them via RRDynamicSolver::getMultiObjectPhysical().
+	//! Values may be in physical or any other scale, depends on context, who uses it.
+	//! - Adapters create materials in custom scale (usually sRGB, so material properties are screen colors).
+	//! - Realtime renderer uses custom scale materials.
+	//!   Renderer expects, that custom scale is sRGB (physical->sRGB conversion is offloaded from CPU to GPU).
+	//!   We don't enforce validation, so you can safely create and render unrealistic materials.
+	//! - GI solver internally creates material copies converted to physical scale and validated,
+	//!   you can access them via RRDynamicSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial
 	{
 		//! Part of material description.
@@ -109,15 +114,26 @@ namespace rr
 		//! Converts material properties from custom to physical scale.
 		void          convertToPhysicalScale(const RRScaler* scaler);
 
-		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
-		Property      diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
-		Property      diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). (Adapters usually create materials in sRGB scale, so that this is screen color.)
-		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
-		Property      specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
-		bool          specularTransmittanceInAlpha;  ///< Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
-		bool          specularTransmittanceKeyed;    ///< Whether alpha keying is used instead of alpha blend while realtime rendering. Alpha keying is faster but removes semi-translucency. Alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
-		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
-		const char*   name;                          ///< Optional name of material, may be NULL.
+		//! Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
+		RRSideBits    sideBits[2];
+		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
+		Property      diffuseReflectance;
+		//! Radiant emittance in watts per square meter (each channel separately). (Adapters usually create materials in sRGB scale, so that this is screen color.)
+		Property      diffuseEmittance;
+		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
+		RRReal        specularReflectance;
+		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
+		//! Note that transmittance does not affect reflectance and emittance, they are independent properties.
+		//! There's single exception to this rule: when reading rgb from diffuseReflectance.texture, we multiply it by opacity on the fly (so that points with full transparency have zero diffuse reflection).
+		Property      specularTransmittance;
+		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
+		bool          specularTransmittanceInAlpha;
+		///< Whether alpha keying is used instead of alpha blend while realtime rendering. Alpha keying is faster but removes semi-translucency. Alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
+		bool          specularTransmittanceKeyed;
+		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		RRReal        refractionIndex;
+		//! Optional name of material, may be NULL.
+		const char*   name;
 	};
 
 

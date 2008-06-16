@@ -1,3 +1,10 @@
+//----------------------------------------------------------------------------
+//! \file ImportScene.h
+//! \brief LightsprintIO | scene import
+//! \author Copyright (C) Lightsprint 2006-2008
+//! All rights reserved
+//----------------------------------------------------------------------------
+
 #ifndef IMPORTSCENE_H
 #define IMPORTSCENE_H
 
@@ -70,15 +77,20 @@
 
 #include "Lightsprint/RRDynamicSolver.h"
 
-namespace rr_io
+namespace rr_io /// LightsprintIO - access to scenes and images on disk
 {
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Scene
+// Scene load
 
-//! Loads scene from file. Supported formats:
+//! Loads scene from file.
+//
+//! Fully supported formats:
 //! - .dae (collada)
+//!
+//! Partially supported formats:
 //! - .3ds
 //! - .bsp (quake3)
 //! - .obj
@@ -91,12 +103,12 @@ public:
 	//! \param filename
 	//!  Filename of scene.
 	//! \param scale
-	//!  If it is .3ds/.obj, geometry is scaled by scale3dsObj.
+	//!  If it is .3ds/.obj, geometry is scaled by scale.
 	//!  .3ds/.obj formats don't contain information about units,
 	//!  different files might need different scale to convert to meters.
 	//! \param stripPaths
-	//!  You can flatten eventual directory structure in texture names
-	//!  and search all textures in the same directory as scene file.
+	//!  Tries to load all textures from the same directory where scene file is,
+	//!  ignoring full paths stored in scene file.
 	ImportScene(const char* filename, float scale = 1, bool stripPaths = false);
 	~ImportScene();
 
@@ -110,6 +122,11 @@ protected:
 	struct TMapQ3*    scene_bsp;
 	class FCDocument* scene_dae;
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture load/save
 
 //! Registers callbacks for loading and saving textures using FreeImage 3rd party library.
 void RR_IO_API setImageLoader();

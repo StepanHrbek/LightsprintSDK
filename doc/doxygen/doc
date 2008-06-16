@@ -2133,13 +2133,16 @@ Remark:
  - <b> \subpage api_core "LIGHTSPRINT CORE" </b> -
   Calculates global illumination in dynamic scenes.
   Includes fast ray-scene intersections.
-  Is OpenGL/Direct3D independent.
+  Is OpenGL/Direct3D independent, file format independent.
 
  - <b> \subpage api_gl "LIGHTSPRINT GL" </b> -
-  Integration of LightsprintCore with OpenGL 2.0.
-  Renderer with penumbra shadows.
+  Optional integration with OpenGL 2.0,
+  realtime rendering with penumbra shadows.
 
- See scheme of library and sample dependencies:
+ - <b> \subpage api_io "LIGHTSPRINT IO" </b> -
+  Optional access to scenes and images stored on disk.
+
+ structured into core layer and extensions:
 
  \image html libraries.png
 
@@ -2159,7 +2162,7 @@ Remark:
 
  <hr>
 
- Header: RRDynamicSolver.h
+ Header: Lightsprint/RRDynamicSolver.h
 
  - calculates global illumination in static or dynamic scenes, offline or realtime
  - gives you full control over speed/quality
@@ -2173,25 +2176,25 @@ Remark:
 
  <hr>
 
- Headers: RRIllumination.h
+ Headers: Lightsprint/RRIllumination.h
 
  - data structure (RRObjectIllumination): object's illumination and more
 
  <hr>
 
- Header: RRBuffer.h
+ Header: Lightsprint/RRBuffer.h
 
  - data structure (RRBuffer): texture, vertex buffer
 
  <hr>
 
- Header: RRObject.h
+ Header: Lightsprint/RRObject.h
 
  - 3d object properties: geometry, materials, position etc
 
  <hr>
 
- Header: RRCollider.h
+ Header: Lightsprint/RRCollider.h
 
  - finds ray-mesh intersections
  - thread safe, you can calculate any number of intersections at the same time
@@ -2210,7 +2213,7 @@ Remark:
 
  <hr>
 
- Header: RRMesh.h
+ Header: Lightsprint/RRMesh.h
 
  - interface to 3d triangle mesh
  - knows tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
@@ -2229,7 +2232,7 @@ Remark:
 
  <hr>
 
- Header: RRMath.h
+ Header: Lightsprint/RRMath.h
 
  - math classes used by whole Lightsprint SDK
  - RRReal holds one real number, which is single precision float
@@ -2239,10 +2242,22 @@ Remark:
 
  <hr>
 
- Header: RRDebug.h
+ Header: Lightsprint/RRDebug.h
 
  - debugging and reporting routines used by whole Lightsprint SDK
  - RRReporter processess all messages sent by Lightsprint SDK to you
+
+ <hr>
+
+ Header: Lightsprint/RRLight.h
+
+ - RRLight interface for point/spot/dir lights
+
+ <hr>
+
+ Header: Lightsprint/RRVector.h
+
+ - RRVector template, std::vector like container
 
 
 
@@ -2255,34 +2270,36 @@ Remark:
    - realtime global illumination
    - arbitrary number of realtime dynamic point, spot, directional lights
    - linear and area spotlights with realtime penumbra shadows
+   - tone mapping
    - separately enabled/disabled light features:
      - color
      - projected texture
      - polynomial, exponential, none or physically correct distance attenuation models
-     - shadows with variable softness, resolution
+     - shadows with variable softness, resolution, automatically cascaded in outdoor
    - separately enabled/disabled material features:
      - diffuse reflection: none, constant, per vertex, per pixel
      - specular reflection: none, constant, per vertex, per pixel
-     - emissive map
+     - emission: none, constant, per pixel
+     - transparency: none, constant, per pixel / blend or alpha keying
      - normal map
    - supports OpenGL 2.0 GPUs (GeForce 5xxx and higher, Radeon 9500 and higher etc)
 
  Namespace: rr_gl
 
  <hr>
- Header: GL/SceneViewer.h
+ Header: Lightsprint/GL/SceneViewer.h
 
  - rr_gl::sceneViewer() is a single function scene viewer, with movable lights, realtime GI,
    calculating static GI, 2d viewer of lightmaps and mappings, debugging outputs.
    RRDynamicSolver is usually black box. This viewer shows what's inside solver.
 
  <hr>
- Header: GL/RRDynamicSolverGL.h
+ Header: Lightsprint/GL/RRDynamicSolverGL.h
 
  - rr_gl::RRDynamicSolverGL extends RRDynamicSolver for realtime rendering in OpenGL 2.0
 
  <hr>
- Header: GL/RendererOfScene.h
+ Header: Lightsprint/GL/RendererOfScene.h
 
  - rr_gl::RendererOfScene is a renderer of 3d scene in RRDynamicSolver
  - renders environment, HDR
@@ -2290,7 +2307,7 @@ Remark:
  - detects what data are available (lightmaps, vertex colors)
 
  <hr>
- Header: GL/RendererOfRRObject.h
+ Header: Lightsprint/GL/RendererOfRRObject.h
 
  - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
  - renders object with precomputed or realtime computed illumination
@@ -2305,6 +2322,20 @@ Remark:
  - rr_gl::Camera is frustum suitable for camera or spotlight
  - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
  - rr_gl::Renderer is generic renderer interface
+
+
+
+
+\page api_io LightsprintIO
+
+ LightsprintIO handles scene loading and image load/save.
+
+ Namespace: rr_io
+
+ <hr>
+ Header: Lightsprint/IO/ImportScene.h
+
+ - rr_io::ImportScene loads scene from disk
 
 
 

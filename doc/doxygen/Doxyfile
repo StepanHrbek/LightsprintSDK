@@ -104,8 +104,10 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/Texture.h" \
                          "../../include/Lightsprint/GL/TextureRenderer.h" \
                          "../../include/Lightsprint/GL/Timer.h" \
+                         "../../include/Lightsprint/GL/ToneMapping.h" \
                          "../../include/Lightsprint/GL/UberProgram.h" \
                          "../../include/Lightsprint/GL/UberProgramSetup.h" \
+                         "../../include/Lightsprint/IO/ImportScene.h" \
                          "../../doc/doxygen/doc" \
                          "../../doc/doxygen/doc.news"
 FILE_PATTERNS          = *.c \
