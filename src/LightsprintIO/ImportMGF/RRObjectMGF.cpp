@@ -187,10 +187,11 @@ void add_polygon(unsigned vertices,void** vertex,void* material)
 	for(unsigned i=2;i<vertices;i++)
 	{
 		RRObjectMGF::TriangleInfo t;
-		t.indices[0] = (unsigned)vertex[0];
-		t.indices[1] = (unsigned)vertex[i-1];
-		t.indices[2] = (unsigned)vertex[i];
-		t.material = (unsigned)material;
+		// this is not an error even on 64-bit platforms since MGF cannot contain over 4G of triangles
+		t.indices[0] = (unsigned)((intptr_t)vertex[0]);
+		t.indices[1] = (unsigned)((intptr_t)vertex[i-1]);
+		t.indices[2] = (unsigned)((intptr_t)vertex[i]);
+		t.material = (unsigned)((intptr_t)material);
 		g_scene->triangles.push_back(t);
 	}
 }

@@ -9,7 +9,7 @@ endif
 
 # general project settings
 
-PROJECT = LightsprintGL
+PROJECT = LightsprintIO
 
 ifdef STATIC
 CFG_TYPE = lib
@@ -24,31 +24,30 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 # project-dependent compiler/preprocessor flags
 
 ifdef STATIC
-CPP_FLAGS += -DRR_GL_STATIC
+CPP_FLAGS += -DRR_IO_STATIC
 endif
+CPP_FLAGS += -DLINUX
 
 # source files
 
 SOURCES = \
-Camera.cpp \
-FBO.cpp \
-LightmapViewer.cpp \
-matrix.cpp \
-MultiPass.cpp \
-ObjectBuffers.cpp \
-Program.cpp \
-RealtimeLight.cpp \
-RendererOfRRObject.cpp \
-RendererOfScene.cpp \
-RendererWithCache.cpp \
-RRDynamicSolverGL.cpp \
-SceneViewer.cpp \
-Shader.cpp \
-Texture.cpp \
-TextureRenderer.cpp \
-ToneMapping.cpp \
-UberProgram.cpp \
-UberProgramSetup.cpp
+Import3DS/Model_3DS.cpp \
+Import3DS/RRObject3DS.cpp \
+ImportCollada/RRObjectCollada.cpp \
+ImportMGF/RRObjectMGF.cpp \
+ImportMGF/badarg.c \
+ImportMGF/context.c \
+ImportMGF/fvect.c \
+ImportMGF/lookup.c \
+ImportMGF/object.c \
+ImportMGF/parser.c \
+ImportMGF/words.c \
+ImportMGF/xf.c \
+ImportOBJ/RRObjectOBJ.cpp \
+ImportQuake3/Q3Loader.cpp \
+ImportQuake3/RRObjectBSP.cpp \
+ImportFreeImage.cpp \
+ImportScene.cpp
 
 # libraries
 

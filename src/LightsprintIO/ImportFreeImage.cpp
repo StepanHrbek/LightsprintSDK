@@ -565,7 +565,7 @@ void rr_io::setImageLoader()
 	RRBuffer::setLoader(main_reload,main_save);
 }
 
-#else / USE_FREEIMAGE
+#else // USE_FREEIMAGE
 
 void rr_io::setImageLoader()
 {

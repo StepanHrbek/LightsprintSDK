@@ -27,7 +27,7 @@
 
 #define USE_FCOLLADA
 
-#if defined(USE_FCOLLADA) && (_MSC_VER && (_MSC_VER >= 1400))
+#if defined(USE_FCOLLADA)
 
 #include <cmath>
 #include <map>
@@ -60,7 +60,7 @@
 
 #ifdef _MSC_VER
 	#if _MSC_VER<1400
-		#error Third party library FCollada doesn't support VS2003.
+		#error "Third party library FCollada doesn't support VS2003".
 	#else
 		#pragma comment(lib,"FCollada.lib")
 	#endif
