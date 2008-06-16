@@ -521,8 +521,14 @@ unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) con
 				if( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 				{
 					result++;
-					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
-					RR_ASSERT(illumination->getLayer(layerNumber)->getWidth()==illumination->getNumPreImportVertices());
+					if(illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
+					{
+						LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size, must belong to different scene.\n",filename));
+					}
+					else
+					{
+						rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
+					}
 				}
 			}
 		}
