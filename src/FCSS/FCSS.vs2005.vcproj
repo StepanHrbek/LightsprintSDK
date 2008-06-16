@@ -48,7 +48,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\samples\RealtimeRadiosity"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\samples\RealtimeRadiosity"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
@@ -332,123 +332,15 @@
 		<Filter
 			Name="Import"
 			>
-			<File
-				RelativePath="..\..\samples\Import\ImportFreeImage.cpp"
-				>
-			</File>
 			<Filter
 				Name="Import3DS"
 				>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.h"
-					>
-				</File>
 				<File
 					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\RRObject3DS.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\RRObject3DS.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ImportCollada"
-				>
-				<File
-					RelativePath="..\LightsprintIO\ImportCollada\RRObjectCollada.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportCollada\RRObjectCollada.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ImportMGF"
-				>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\badarg.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\context.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\fvect.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\lookup.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\lookup.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\messages.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\mgfparser.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\object.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\parser.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\RRObjectMGF.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\RRObjectMGF.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\words.c"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportMGF\xf.c"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ImportQuake3"
-				>
-				<File
-					RelativePath="..\LightsprintIO\ImportQuake3\Q3Loader.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportQuake3\Q3Loader.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportQuake3\RRObjectBSP.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\ImportQuake3\RRObjectBSP.h"
 					>
 				</File>
 			</Filter>

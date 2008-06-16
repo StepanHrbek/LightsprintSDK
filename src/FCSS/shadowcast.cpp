@@ -91,6 +91,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/IO/ImportScene.h"
 #ifdef SUPPORT_WATER
 	#include "Lightsprint/GL/Water.h"
 #endif
@@ -2380,6 +2381,8 @@ int main(int argc, char **argv)
 #ifdef WIN32
 	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
 #endif
+
+	rr_io::setImageLoader();
 
 	// init GLUT
 	glutInit(&argc, argv);

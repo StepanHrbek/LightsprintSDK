@@ -22,9 +22,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 #endif
 	rendererOfScene = NULL;
 	objects = NULL;
-#ifdef SUPPORT_COLLADA
-	collada = NULL;
-#endif
+
 	// init radiosity solver
 	solver = createSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
@@ -51,69 +49,9 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		}
 	}
 
-	switch(type)
-	{
-#ifdef SUPPORT_BSP
-		case TYPE_BSP:
-		{
-			// load quake 3 map
-			if(!readMap(pilot.setup->filename,bsp))
-				error("Failed to load .bsp scene.",false);
-			char* maps = _strdup(pilot.setup->filename);
-			char* mapsEnd;
-			if(QUAKE_DIR_STRUCTURE)
-			{
-				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
-			}
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-			//char missing[1000];
-			//strncpy(missing,maps,999);
-			//missing[970] = 0;
-			//strcat(missing,"/missing.jpg");
-			//objects = adaptObjectsFromTMapQ3(&bsp,maps,rr_gl::Texture::load(missing,NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT));
-			objects = adaptObjectsFromTMapQ3(&bsp,maps,!QUAKE_DIR_STRUCTURE,NULL);
-			free(maps);
-			break;
-		}
-#endif
-#ifdef SUPPORT_3DS
-		case TYPE_3DS:
-		{
-			// load .3ds scene
-			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
-				error("",false);
-			objects = adaptObjectsFrom3DS(&m3ds);
-			break;
-		}
-#endif
-#ifdef SUPPORT_COLLADA
-		case TYPE_DAE:
-		{
-			// load collada document
-			FCollada::Initialize();
-			collada = FCollada::NewTopDocument();
-			FUErrorSimpleHandler errorHandler;
-			FCollada::LoadDocumentFromFile(collada,pilot.setup->filename);
-			if(!errorHandler.IsSuccessful())
-			{
-				puts(errorHandler.GetErrorString());
-				SAFE_DELETE(collada);
-			}
-			else
-			{
-				objects = adaptObjectsFromFCollada(collada);
-			}
-			break;
-		}
-#endif
-#ifdef SUPPORT_MGF
-		case TYPE_MGF:
-			objects = adaptObjectsFromMGF(pilot.setup->filename);
-			break;
-#endif
-		default:
-			puts("Unsupported scene format.");
-	}
+	scene = new rr_io::ImportScene(pilot.setup->filename, 1.f, !QUAKE_DIR_STRUCTURE);
+	objects = scene->getObjects();
+
 	if(!objects || !objects->size())
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",pilot.setup->filename);
@@ -190,37 +128,14 @@ Level::~Level()
 		pilot.setup->save();
 	delete animationEditor;
 
-	switch(type)
-	{
-#ifdef SUPPORT_BSP
-		case TYPE_BSP:
-			freeMap(bsp);
-			break;
-#endif
-#ifdef SUPPORT_3DS
-		case TYPE_3DS:
-			break;
-#endif
-#ifdef SUPPORT_COLLADA
-		case TYPE_DAE:
-			collada->Release();
-			FCollada::Release();
-			break;
-#endif
-#ifdef SUPPORT_MGF
-		case TYPE_MGF:
-			break;
-#endif
-		default:
-			puts("Unsupported scene format.");
-	}
 #ifdef BUGS
 	delete bugs;
 #endif
+
 	delete rendererOfScene;
 	delete solver->getScaler();
 	delete solver;
-	delete objects;
+	delete scene;
 }
 
 unsigned Level::saveIllumination(const char* path)
