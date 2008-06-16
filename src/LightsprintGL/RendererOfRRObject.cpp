@@ -194,7 +194,7 @@ void RendererOfRRObject::render()
 	bool readIndirectFromLayer = renderIndirect && params.indirectIlluminationSource==LAYER;
 	bool readIndirectFromNone = renderIndirect && params.indirectIlluminationSource==NONE;
 
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR || params.renderedChannels.NORMALS;
+	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
 
 	// BUFFERS
 	// general and faster code, but can't handle objects with big preimport vertex numbers (e.g. multiobject)
@@ -356,15 +356,27 @@ void RendererOfRRObject::render()
 						}
 						if(material && material->specularTransmittance.color.avg())
 						{
-							// current blendfunc is used, caller is responsible for setting it
-//							glEnable(GL_BLEND);
-							// current alpha func+ref is used, caller is responsible for setting it
-							glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
+							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							{
+								// current blendfunc is used, caller is responsible for setting it
+								glEnable(GL_BLEND);
+							}
+							else
+							{
+								// current alpha func+ref is used, caller is responsible for setting it
+								glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
+							}
 						}
 						else
 						{
-//							glDisable(GL_BLEND);
-							glDisable(GL_ALPHA_TEST);
+							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							{
+								glDisable(GL_BLEND);
+							}
+							else
+							{
+								glDisable(GL_ALPHA_TEST);
+							}
 						}
 					}
 

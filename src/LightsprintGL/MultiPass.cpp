@@ -128,13 +128,12 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	}
 
 	RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || uberProgramSetup.POSTPROCESS_NORMALS;
+	renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
-	renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR = uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR;
 	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;

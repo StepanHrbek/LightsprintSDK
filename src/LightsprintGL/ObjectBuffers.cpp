@@ -376,7 +376,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	BIND_VBO(Vertex,3,vertex);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV_DIFFUSE || params.renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR || params.renderedChannels.NORMALS;
+	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
 	if(setNormals)
 	{
 		BIND_VBO2(Normal,3,normal);
@@ -553,6 +553,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++) if((faceGroups[fg].needsBlend && params.renderBlended) || (!faceGroups[fg].needsBlend && params.renderNonBlended))
 		{
+			// skip whole facegroup when alpha keying with constant alpha below 0.5
+			// GPU would do the same for all pixels, this is faster
+			if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && !params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND && faceGroups[fg].transparencyColor[3]<0.5f)
+			{
+				continue;
+			}
+
 			unsigned firstIndex = faceGroups[fg].firstIndex;
 			int numIndices = faceGroups[fg].numIndices; //!!! we are in scope of ObjectBuffers::numIndices, local variable should be renamed or naming convention changed
 			// limit rendered indices to capture range
