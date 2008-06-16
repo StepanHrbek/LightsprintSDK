@@ -36,11 +36,11 @@ public:
 
 	//! Compiles shader.  
 	//! (When errors are encountered, program link will fail.)
-	void compile();
+	void compile(const char* filenameDiagnosticOnly);
 	//! Returns OpenGL handle to shader.
 	GLuint getHandle() const;
 private:
-	Shader(const GLchar** source, GLenum shaderType);
+	Shader(const char* filenameDiagnosticOnly, const GLchar** source, GLenum shaderType);
 	GLuint handle;
 };
 

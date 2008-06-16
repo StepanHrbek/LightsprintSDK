@@ -113,18 +113,18 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
 		return NULL;
 	}
-	return new Shader(source,shaderType);
+	return new Shader(filename,source,shaderType);
 }
 
-Shader::Shader(const GLchar** source, GLenum shaderType)
+Shader::Shader(const char* filenameDiagnosticOnly, const GLchar** source, GLenum shaderType)
 {
 	handle = glCreateShader(shaderType);
 	glShaderSource(handle, 3, (const GLchar**)source, NULL);
-	compile();
+	compile(filenameDiagnosticOnly);
 	delete[] source[2];
 }
 
-void Shader::compile()
+void Shader::compile(const char* filenameDiagnosticOnly)
 {
 	GLint compiled;
 
@@ -133,6 +133,8 @@ void Shader::compile()
 
 	if(!compiled)
 	{
+		rr::RRReporter::report(rr::ERRO,"From %s:\n",filenameDiagnosticOnly);
+
 		GLchar *debug;
 		GLint debugLength;
 		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
