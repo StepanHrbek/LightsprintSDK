@@ -121,7 +121,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 			RRVec3 newDirection=-refract(ray->hitPlane,direction,material->refractionIndex);
 			// recursively call this function
 			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance.color);
-			RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0);
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 	}
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
