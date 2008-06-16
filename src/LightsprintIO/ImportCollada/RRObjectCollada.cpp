@@ -27,6 +27,11 @@
 
 #define USE_FCOLLADA
 
+// FCollada doesn't support Visual Studio 2003
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#undef USE_FCOLLADA
+#endif
+
 #if defined(USE_FCOLLADA)
 
 #include <cmath>
