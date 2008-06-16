@@ -110,6 +110,7 @@ namespace rr
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		Property      specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		bool          specularTransmittanceInAlpha;  ///< Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
+		bool          specularTransmittanceKeyed;    ///< Whether alpha keying is used instead of alpha blend while realtime rendering. Alpha keying is faster but removes semi-translucency. Alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		const char*   name;                          ///< Optional name of material, may be NULL.
 	};

@@ -74,12 +74,13 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			// additional passes don't include indirect
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
@@ -127,22 +128,24 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	}
 
 	RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV || uberProgramSetup.POSTPROCESS_NORMALS;
+	renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
-	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
+	renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR = uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR;
 	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.MATERIAL_SPECULAR_CONST = uberProgramSetup.MATERIAL_SPECULAR_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_VCOLOR = uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
 	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;
 	renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA = uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA;
+	renderedChannels.MATERIAL_TRANSPARENCY_BLEND = uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
 	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 

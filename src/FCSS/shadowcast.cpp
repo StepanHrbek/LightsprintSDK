@@ -680,7 +680,8 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
 			uberProgramSetup.FORCE_2D_POSITION = false;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
@@ -698,23 +699,14 @@ void drawEyeViewSoftShadowed(void)
 		// render everything except water
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
-		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.SHADOW_PENUMBRA = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
-		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		//uberProgramSetup.MATERIAL_DIFFUSE = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
-		//uberProgramSetup.MATERIAL_SPECULAR = ;
-		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
-		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
-		//uberProgramSetup.OBJECT_SPACE = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
 
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
@@ -2441,19 +2433,8 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
-	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_X2 = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
-	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
-	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
-	uberProgramGlobalSetup.MATERIAL_EMISSIVE_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_EMISSIVE_VCOLOR = false;
-	uberProgramGlobalSetup.MATERIAL_EMISSIVE_MAP = false;
 	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;

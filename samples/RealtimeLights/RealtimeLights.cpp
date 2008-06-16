@@ -123,13 +123,14 @@ public:
 		// render dynamic objects
 		// enable object space
 		uberProgramSetup.OBJECT_SPACE = true;
-		// when not rendering shadows, enable environment maps
+		// when not rendering into shadowmaps, enable environment maps
 		if(uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-			uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 		}
 		// render objects
 		if(robot)
@@ -137,7 +138,7 @@ public:
 			robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 			robot->rotYZ = rr::RRVec2(rotation,0);
 			robot->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 				updateEnvironmentMap(robot->illumination);
 			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
@@ -146,7 +147,7 @@ public:
 			potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
 			potato->rotYZ = rr::RRVec2(rotation/2,0);
 			potato->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 				updateEnvironmentMap(potato->illumination);
 			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}

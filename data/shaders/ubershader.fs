@@ -20,7 +20,8 @@
 //  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_MAP2
-//  #define LIGHT_INDIRECT_ENV
+//  #define LIGHT_INDIRECT_ENV_DIFFUSE
+//  #define LIGHT_INDIRECT_ENV_SPECULAR
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
@@ -35,6 +36,7 @@
 //  #define MATERIAL_TRANSPARENCY_CONST
 //  #define MATERIAL_TRANSPARENCY_MAP
 //  #define MATERIAL_TRANSPARENCY_IN_ALPHA
+//  #define MATERIAL_TRANSPARENCY_BLEND
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -88,7 +90,7 @@
 	uniform vec4 shadowBlurWidth;
 #endif
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV))
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
 	uniform vec3 worldEyePos;
 #endif
 
@@ -131,9 +133,12 @@
 	uniform float lightIndirectBlend;
 #endif
 
-#ifdef LIGHT_INDIRECT_ENV
-	uniform samplerCube lightIndirectSpecularEnvMap;
+#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
 	uniform samplerCube lightIndirectDiffuseEnvMap;
+#endif
+
+#ifdef LIGHT_INDIRECT_ENV_SPECULAR
+	uniform samplerCube lightIndirectSpecularEnvMap;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_CONST
@@ -157,7 +162,7 @@
 	uniform vec4 materialSpecularConst;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV) || defined(POSTPROCESS_NORMALS)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(POSTPROCESS_NORMALS)
 	varying vec3 worldNormalSmooth;
 #endif
 
@@ -298,14 +303,43 @@ void main()
 	//
 	// material
 
+
+	float opacity = 1.0;
+	#ifdef MATERIAL_TRANSPARENCY_CONST
+		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+			opacity = materialTransparencyConst.a;
+		#else
+			opacity = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
+		#endif
+	#endif
+	#ifdef MATERIAL_TRANSPARENCY_MAP
+		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
+		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+			opacity = materialTransparencyMapColor.a;
+		#else
+			opacity = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
+		#endif
+	#endif
 	#ifdef MATERIAL_DIFFUSE_MAP
 		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
+		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			opacity = materialDiffuseMapColor.a;
+		#endif
+
+		#ifdef MATERIAL_TRANSPARENCY_BLEND
+			// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
+			// so if we want RGB modulated by opacity, it must be done here in shader
+			// Q: do we want RGB modulated by opacity?
+			// A: only for DIFFUSE_MAP (DIFFUSE_CONST, specular and emission are not affected by transparency)
+			//    and TRANSPARENCY_BLEND (without blend, GPU will force opacity 0 or 1, so here's no reason to darken our material)
+			materialDiffuseMapColor.rgb *= opacity;
+		#endif
 	#endif
 	#ifdef MATERIAL_SPECULAR_MAP
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
+	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR)
 		#ifdef MATERIAL_NORMAL_MAP
 			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
 		#else
@@ -355,10 +389,26 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
 
-		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
+		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
+		#endif
+
+		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
+			vec4 lightIndirectLightmap = 
+					#ifdef LIGHT_INDIRECT_VCOLOR
+						+ gl_Color
+					#endif
+					#ifdef LIGHT_INDIRECT_MAP
+						+ texture2D(lightIndirectMap, lightIndirectCoord)
+					#endif
+					#ifdef LIGHT_INDIRECT_MAP2
+						* (1.0-lightIndirectBlend)
+						+ texture2D(lightIndirectMap2, lightIndirectCoord)
+						* lightIndirectBlend
+					#endif
+					;
 		#endif
 
 		gl_FragColor =
@@ -390,18 +440,10 @@ void main()
 					#ifdef LIGHT_INDIRECT_CONST
 						+ lightIndirectConst
 					#endif
-					#ifdef LIGHT_INDIRECT_VCOLOR
-						+ gl_Color
+					#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
+						+ lightIndirectLightmap
 					#endif
-					#ifdef LIGHT_INDIRECT_MAP
-						+ texture2D(lightIndirectMap, lightIndirectCoord)
-					#endif
-					#ifdef LIGHT_INDIRECT_MAP2
-						* (1.0-lightIndirectBlend)
-						+ texture2D(lightIndirectMap2, lightIndirectCoord)
-						* lightIndirectBlend
-					#endif
-					#ifdef LIGHT_INDIRECT_ENV
+					#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
 						+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
 					#endif
 				).rgb,1.0)
@@ -434,8 +476,13 @@ void main()
 					#ifdef LIGHT_INDIRECT_CONST
 						+ lightIndirectConst
 					#endif
-					#ifdef LIGHT_INDIRECT_ENV
+					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
+						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
+							// we use fixed cubemap for indirect specular reflections on static surfaces (not very realistic)
+							// modulating it by indirect irradiance makes it look bit better
+							* lightIndirectLightmap
+						#endif
 					#endif
 				).rgb,1.0)
 			#endif
@@ -454,23 +501,10 @@ void main()
 			#ifdef MATERIAL_EMISSIVE_MAP
 				+ materialEmissiveMapColor
 			#endif
+
+			+ vec4(0.0,0.0,0.0,0.0) // prevent broken shader when material properties are disabled
 			;
 
-		#ifdef MATERIAL_TRANSPARENCY_CONST
-			#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-				gl_FragColor.a = materialTransparencyConst.a;
-			#else
-				gl_FragColor.a = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
-			#endif
-		#endif
-		#ifdef MATERIAL_TRANSPARENCY_MAP
-			vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
-			#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-				gl_FragColor.a = materialTransparencyMapColor.a;
-			#else
-				gl_FragColor.a = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
-			#endif
-		#endif
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor.rgb *= 0.5;
 		#endif
@@ -486,8 +520,13 @@ void main()
 		#ifdef POSTPROCESS_BIGSCREEN
 			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));
 		#endif
+
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;
+		#else
+		#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			gl_FragColor.a = opacity;
+		#endif
 		#endif
 	#else
 		// all lights are disabled, render black pixels

@@ -37,7 +37,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		return;
 	}
 	// set specular environment map
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+	if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		if(!lightIndirectEnvSpecular)
 		{

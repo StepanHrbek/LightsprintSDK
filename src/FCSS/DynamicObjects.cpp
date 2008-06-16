@@ -324,17 +324,18 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 1;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 1;
 	}
 	//dynaobject[4]->worldFoot = rr::RRVec3(2.2f*sin(d*0.005f),1.0f,2.2f);
 
-	RRReportInterval report(uberProgramSetup.LIGHT_INDIRECT_ENV?INF3:INF9,"Updating dynamic objects...\n");
+	RRReportInterval report(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE?INF3:INF9,"Updating dynamic objects...\n");
 
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
 		if(dynaobject[i] && dynaobject[i]->visible && dynaobject[i]->worldFoot!=rr::RRVec3(0))
 		{
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			{
 				solver->updateEnvironmentMap(dynaobject[i]->illumination);
 			}

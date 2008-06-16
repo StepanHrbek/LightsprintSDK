@@ -132,12 +132,13 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	if(uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
 		uberProgramSetup.LIGHT_INDIRECT_auto = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 	}
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
 	// when indirect illum is off, do nothing, it's probably render of shadow into shadowmap.
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+	if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
 		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = material.MATERIAL_DIFFUSE_VCOLOR;
@@ -180,22 +181,22 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		program->sendUniform("worldMatrix",worldMatrix,false,4);
 	}
 	// set envmap
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+	if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		GLint activeTexture;
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
-		if(uberProgramSetup.MATERIAL_SPECULAR)
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE)
+		{
+			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			if(illumination->diffuseEnvMap)
+				rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
+		}
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			if(illumination->specularEnvMap)
 				rr_gl::getTexture(illumination->specularEnvMap,false,false)->bindTexture();
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-		}
-		if(uberProgramSetup.MATERIAL_DIFFUSE)
-		{
-			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			if(illumination->diffuseEnvMap)
-				rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
 		// activate previously active texture
 		//  sometimes it's diffuse, sometimes emissive

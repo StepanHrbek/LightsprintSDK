@@ -25,7 +25,7 @@ namespace rr_gl
 // *3 is usual worst case.. *6 covers uncommon situation in WoP maps without BB
 #define ACCEPTABLE_NUM_VERTICES(numTriangles) (3*(numTriangles))
 
-ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
+ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended)
 {
 	if(!object) return NULL;
 
@@ -56,6 +56,11 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed)
 	{
 		SAFE_DELETE(ob);
 	}
+	if(ob)
+	{
+		containsNonBlended = ob->containsNonBlended;
+		containsBlended = ob->containsBlended;
+	}
 	return ob;
 }
 
@@ -76,6 +81,8 @@ ObjectBuffers::ObjectBuffers()
 // one time initialization
 void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 {
+	containsNonBlended = false;
+	containsBlended = false;
 	const rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	// numVerticesMax is only estimate of numPreImportVertices
@@ -193,6 +200,12 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.diffuseColor = material ? material->diffuseReflectance.color : rr::RRVec3(0);
 			fg.emissiveColor = material ? material->diffuseEmittance.color : rr::RRVec3(0);
 			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()) : rr::RRVec4(0,0,0,1);
+			fg.specular = material ? material->specularReflectance : 0;
+			fg.needsBlend = fg.transparencyColor!=rr::RRVec4(0,0,0,1);
+			if(fg.needsBlend)
+				containsBlended = true;
+			else
+				containsNonBlended = true;
 
 			fg.diffuseTexture = material ? material->diffuseReflectance.texture : NULL;
 			if(!fg.diffuseTexture)
@@ -363,7 +376,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	BIND_VBO(Vertex,3,vertex);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV || params.renderedChannels.NORMALS;
+	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV_DIFFUSE || params.renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR || params.renderedChannels.NORMALS;
 	if(setNormals)
 	{
 		BIND_VBO2(Normal,3,normal);
@@ -535,9 +548,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
 		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP
 		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
-		|| params.renderedChannels.MATERIAL_CULLING)
+		|| params.renderedChannels.MATERIAL_CULLING
+		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
-		for(unsigned fg=0;fg<faceGroups.size();fg++)
+		for(unsigned fg=0;fg<faceGroups.size();fg++) if((faceGroups[fg].needsBlend && params.renderBlended) || (!faceGroups[fg].needsBlend && params.renderNonBlended))
 		{
 			unsigned firstIndex = faceGroups[fg].firstIndex;
 			int numIndices = faceGroups[fg].numIndices; //!!! we are in scope of ObjectBuffers::numIndices, local variable should be renamed or naming convention changed
@@ -568,15 +582,27 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					{
 						if(transparency)
 						{
-							// current blendfunc is used, caller is responsible for setting it
-//							glEnable(GL_BLEND);
-							// current alpha func+ref is used, caller is responsible for setting it
-							glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
+							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							{
+								// current blendfunc is used, caller is responsible for setting it
+								glEnable(GL_BLEND);
+							}
+							else
+							{
+								// current alpha func+ref is used, caller is responsible for setting it
+								glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
+							}
 						}
 						else
 						{
-//							glDisable(GL_BLEND);
-							glDisable(GL_ALPHA_TEST);
+							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							{
+								glDisable(GL_BLEND);
+							}
+							else
+							{
+								glDisable(GL_ALPHA_TEST);
+							}
 						}
 						blendKnown = true;
 						blendEnabled = transparency;
@@ -611,6 +637,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					{
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
 					}
+				}
+				// set specular
+				if(params.renderedChannels.MATERIAL_SPECULAR_CONST)
+				{
+					if(params.program)
+						params.program->sendUniform("materialSpecularConst",faceGroups[fg].specular,faceGroups[fg].specular,faceGroups[fg].specular,1.0f);
+					else
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
 				// set emissive color
 				if(params.renderedChannels.MATERIAL_EMISSIVE_CONST)

@@ -84,16 +84,18 @@ public:
 		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< feeds gl_SecondaryColor
 		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
 		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
-		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
+		bool     LIGHT_INDIRECT_ENV_SPECULAR:1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR]. Always read from RRObjectIllumination.
 		bool     MATERIAL_DIFFUSE_CONST :1; ///< feeds uniform materialDiffuseConst
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds materialDiffuseVColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
+		bool     MATERIAL_SPECULAR_CONST:1; ///< feeds uniform materialSpecularConst
 		bool     MATERIAL_EMISSIVE_CONST:1; ///< feeds uniform materialEmissiveConst
 		bool     MATERIAL_EMISSIVE_VCOLOR:1;///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
 		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
-		bool     MATERIAL_TRANSPARENCY_CONST:1;    ///< enables alphatest/blend, feeds uniform materialTransparencyConst
-		bool     MATERIAL_TRANSPARENCY_MAP:1;      ///< enables alphatest/blend, feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]
+		bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< enables alphatest/blend, feeds uniform materialTransparencyConst
+		bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< enables alphatest/blend, feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]
 		bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< enables alphatest/blend
+		bool     MATERIAL_TRANSPARENCY_BLEND   :1; ///< enables alphatest/blend
 		bool     MATERIAL_CULLING       :1; ///< sets 1/2-sided face according to material (0=defaults in GL pipeline are used)
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		//! Creates setup with everything off, only vertex positions are rendered.
@@ -109,6 +111,9 @@ public:
 
 	//! Sets what data channels to feed to GPU during render().
 	void setRenderedChannels(RenderedChannels renderedChannels);
+
+	//! Sets what subset of materials will be rendered. Returns whether the subset is non empty.
+	bool setMaterialFilter(bool renderNonBlended, bool renderBlended);
 
 	//! Sets source of uv coords for render() with FORCE_2D_POSITION enabled.
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
@@ -222,12 +227,17 @@ private:
 		const rr::RRLight* renderingFromThisLight;
 		const rr::RRLight* renderingLitByThisLight;
 		bool honourExpensiveLightingShadowingFlags;
+		// set by setMaterialFilter
+		bool renderNonBlended;
+		bool renderBlended;
 	};
 	Params params;
 	// buffers for faster rendering
 	class ObjectBuffers* indexedYes;
 	class ObjectBuffers* indexedNo;
 	unsigned solutionVersion;              ///< Version of solution in static solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
+	bool containsNonBlended;
+	bool containsBlended;
 };
 
 }; // namespace

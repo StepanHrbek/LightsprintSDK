@@ -111,7 +111,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
@@ -122,7 +123,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		//robot->rotYZ = rr::RRVec2(rotation,0); // rotate
 		robot->rotYZ = rr::RRVec2(55,0); robot->animationTime = rotation*0.01f; // wave
 		robot->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination);
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
@@ -131,7 +132,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(potato->illumination);
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}

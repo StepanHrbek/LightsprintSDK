@@ -123,7 +123,9 @@ public:
 	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are
 	//! transformed as if viewed by this camera.
-	void setupForRender();
+	void setupForRender() const;
+	//! Returns last camera that executed setupForRender().
+	static const Camera* getRenderCamera();
 };
 
 }; // namespace

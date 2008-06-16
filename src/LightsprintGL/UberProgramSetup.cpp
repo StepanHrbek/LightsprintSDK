@@ -21,8 +21,10 @@ const char* UberProgramSetup::getSetupString()
 	static bool SHADOW_BILINEAR = true;
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
+	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
+
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -42,7 +44,8 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL?"#define LIGHT_INDIRECT_VCOLOR_PHYSICAL\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		LIGHT_INDIRECT_MAP2?"#define LIGHT_INDIRECT_MAP2\n":"",
-		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
+		LIGHT_INDIRECT_ENV_DIFFUSE?"#define LIGHT_INDIRECT_ENV_DIFFUSE\n":"",
+		LIGHT_INDIRECT_ENV_SPECULAR?"#define LIGHT_INDIRECT_ENV_SPECULAR\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_X2?"#define MATERIAL_DIFFUSE_X2\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
@@ -57,6 +60,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_CONST?"#define MATERIAL_TRANSPARENCY_CONST\n":"",
 		MATERIAL_TRANSPARENCY_MAP?"#define MATERIAL_TRANSPARENCY_MAP\n":"",
 		MATERIAL_TRANSPARENCY_IN_ALPHA?"#define MATERIAL_TRANSPARENCY_IN_ALPHA\n":"",
+		MATERIAL_TRANSPARENCY_BLEND?"#define MATERIAL_TRANSPARENCY_BLEND\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -181,7 +185,19 @@ void UberProgramSetup::validate()
 	{
 		LIGHT_INDIRECT_MAP2 = 0;
 	}
-	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV;
+	if(!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_ENV_SPECULAR)
+	{
+		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
+	}
+	if(!MATERIAL_DIFFUSE)
+	{
+		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
+	}
+	if(!MATERIAL_SPECULAR)
+	{
+		LIGHT_INDIRECT_ENV_SPECULAR = 0;
+	}
+	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
 	if(!light)
 	{
 		// without light, material properties are _usually_ not needed, so here we remove them.
@@ -423,20 +439,18 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightIndirectMap2", id);
 	}
 
-	if(LIGHT_INDIRECT_ENV)
+	if(LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
 	{
-		if(MATERIAL_DIFFUSE)
-		{
-			int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
-			//glActiveTexture(GL_TEXTURE0+id);
-			program->sendUniform("lightIndirectDiffuseEnvMap", id);
-		}
-		if(MATERIAL_SPECULAR)
-		{
-			int id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
-			//glActiveTexture(GL_TEXTURE0+id);
-			program->sendUniform("lightIndirectSpecularEnvMap", id);
-		}
+		int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
+		//glActiveTexture(GL_TEXTURE0+id);
+		program->sendUniform("lightIndirectDiffuseEnvMap", id);
+	}
+
+	if(LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
+	{
+		int id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
+		//glActiveTexture(GL_TEXTURE0+id);
+		program->sendUniform("lightIndirectSpecularEnvMap", id);
 	}
 
 	if(MATERIAL_DIFFUSE_CONST)
@@ -486,7 +500,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	if(POSTPROCESS_BRIGHTNESS
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
 	{
 		if(!brightness)
 		{
@@ -499,7 +513,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	if(POSTPROCESS_GAMMA
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessGamma", gamma);
 	}

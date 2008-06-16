@@ -56,6 +56,7 @@ static bool                       renderRealtime = 1;
 static bool                       render2d = 0;
 static bool                       renderAmbient = 0;
 static bool                       renderDiffuse = 1;
+static bool                       renderSpecular = 1;
 static bool                       renderEmission = 1;
 static bool                       renderTransparent = 1;
 static bool                       renderTextures = 1;
@@ -148,7 +149,7 @@ public:
 	}
 	virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
-		const rr::RRVector<RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
+		const RealtimeLights* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
@@ -271,7 +272,8 @@ public:
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
-		glutAddMenuEntry(renderDiffuse?"Disable diffuse":"Enable diffuse", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry(renderDiffuse?"Disable diffuse color":"Enable diffuse color", ME_RENDER_DIFFUSE);
+		glutAddMenuEntry(renderSpecular?"Disable specular reflection":"Enable specular reflection", ME_RENDER_SPECULAR);
 		glutAddMenuEntry(renderEmission?"Disable emissivity":"Enable emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry(renderTransparent?"Disable transparency":"Enable transparency", ME_RENDER_TRANSPARENT);
 		glutAddMenuEntry(renderTextures?"Disable textures":"Enable textures", ME_RENDER_TEXTURES);
@@ -299,6 +301,7 @@ public:
 		switch(item)
 		{
 			case ME_RENDER_DIFFUSE: renderDiffuse = !renderDiffuse; break;
+			case ME_RENDER_SPECULAR: renderSpecular = !renderSpecular; break;
 			case ME_RENDER_EMISSION: renderEmission = !renderEmission; break;
 			case ME_RENDER_TRANSPARENT: renderTransparent = !renderTransparent; break;
 			case ME_RENDER_TEXTURES: renderTextures = !renderTextures; break;
@@ -571,6 +574,7 @@ public:
 	enum
 	{
 		ME_RENDER_DIFFUSE,
+		ME_RENDER_SPECULAR,
 		ME_RENDER_EMISSION,
 		ME_RENDER_TRANSPARENT,
 		ME_RENDER_TEXTURES,
@@ -841,20 +845,23 @@ static void display(void)
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = renderAmbient;
 			uberProgramSetup.LIGHT_INDIRECT_auto = true;
-			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE;
+			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = renderDiffuse && !renderTextures && hasDif;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = renderDiffuse && renderTextures && hasDif;
+			uberProgramSetup.MATERIAL_SPECULAR = renderSpecular && miss.MATERIAL_SPECULAR;
+			uberProgramSetup.MATERIAL_SPECULAR_CONST = renderSpecular && miss.MATERIAL_SPECULAR; // even when mixing only 0% and 100% specular, this must be enabled, otherwise all will have 100%
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = renderEmission && !renderTextures && hasEmi;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = renderEmission && renderTextures && hasEmi;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && !renderTextures && hasTra;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && renderTextures && hasTra;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = renderTransparent && renderTextures && hasTra;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_CONST || !renderTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_MAP && renderTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_IN_ALPHA && renderTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = renderTransparent && hasTra && miss.MATERIAL_TRANSPARENCY_BLEND;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			solver->renderScene(uberProgramSetup,NULL);
 			if(renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if(renderTonemapping && !renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST)) // disable adjustment in completely dark scene
+			if(renderTonemapping && !renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;
@@ -879,7 +886,7 @@ static void display(void)
 				// diffuse
 				// set shader (no direct light)
 				UberProgramSetup uberProgramSetup;
-				uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+				uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 				uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 				uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
@@ -895,6 +902,8 @@ static void display(void)
 
 				// specular
 				// set shader (no direct light)
+				uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+				uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 				uberProgramSetup.MATERIAL_DIFFUSE = false;
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
@@ -1153,7 +1162,7 @@ static void display(void)
 				textOutput(x,y+=18,"tangent: %f %f %f",tangent[0],tangent[1],tangent[2]);
 				textOutput(x,y+=18,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
 				textOutput(x,y+=18,"side: %s",ray->hitFrontSide?"front":"back");
-				textOutput(x,y+=18,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-vertex"):"NULL!!!");
+				textOutput(x,y+=18,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-pixel"):"NULL!!!");
 				if(material)
 				{
 					if(material->name)

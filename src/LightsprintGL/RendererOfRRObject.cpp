@@ -53,10 +53,12 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 
 	indexedYes = NULL;
 	indexedNo = NULL;
+	containsNonBlended = 1;
+	containsBlended = 0;
 	if(_useBuffers)
 	{
-		indexedYes = ObjectBuffers::create(_object,true);
-		indexedNo = ObjectBuffers::create(_object,false);
+		indexedYes = ObjectBuffers::create(_object,true,containsNonBlended,containsBlended);
+		indexedNo = ObjectBuffers::create(_object,false,containsNonBlended,containsBlended);
 	}
 }
 
@@ -74,6 +76,13 @@ void RendererOfRRObject::setProgram(Program* program)
 void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
 {
 	params.renderedChannels = renderedChannels;
+}
+
+bool RendererOfRRObject::setMaterialFilter(bool _renderNonBlended, bool _renderBlended)
+{
+	params.renderNonBlended = _renderNonBlended;
+	params.renderBlended = _renderBlended;
+	return (_renderNonBlended && containsNonBlended) || (_renderBlended && containsBlended);
 }
 
 void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1)
@@ -185,7 +194,7 @@ void RendererOfRRObject::render()
 	bool readIndirectFromLayer = renderIndirect && params.indirectIlluminationSource==LAYER;
 	bool readIndirectFromNone = renderIndirect && params.indirectIlluminationSource==NONE;
 
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV || params.renderedChannels.NORMALS;
+	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV_SPECULAR || params.renderedChannels.NORMALS;
 
 	// BUFFERS
 	// general and faster code, but can't handle objects with big preimport vertex numbers (e.g. multiobject)

@@ -103,9 +103,9 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			// LIGHT_INDIRECT_CONST = specular surface reflects constant ambient
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
-			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV?rr_gl::getTexture(environmentMap):NULL,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation/2);
 	}
 	if(robot)
 	{
@@ -118,7 +118,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		}
-		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV?rr_gl::getTexture(environmentMap):NULL,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation);
 	}
 }
 

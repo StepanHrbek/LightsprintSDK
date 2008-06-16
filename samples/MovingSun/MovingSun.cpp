@@ -31,8 +31,6 @@
 #define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
 #define SELECTED_STATIC_OBJECT  9920  // index of static object awarded by higher quality indirect lighting (per-pixel)
 
-#include "Lightsprint/IO/ImportScene.h"
-
 #include <cassert>
 #include <ctime>
 #include <cmath>
@@ -49,6 +47,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/ToneMapping.h"
+#include "Lightsprint/IO/ImportScene.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
 
 #if defined(LINUX) || defined(linux)
@@ -239,7 +238,8 @@ public:
 			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-			uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 		}
 		// render objects
 		for(unsigned i=0;i<DYNAMIC_OBJECTS;i++)
@@ -254,7 +254,7 @@ public:
 				(aabbMin.z+aabbMax.z)/2+(aabbMax.z-aabbMin.z)*0.45*( b*sin(t)*cos(s)+a*cos(t)*sin(s) ));
 			dynamicObject[i]->rotYZ = rr::RRVec2(3.14f+3*objectTime+i,0);
 			dynamicObject[i]->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			{
 				lightField->updateEnvironmentMap(dynamicObject[i]->illumination,lightTime01);
 				rr_gl::getTexture(dynamicObject[i]->illumination->diffuseEnvMap,false,false)->reset(false,false);
@@ -417,7 +417,7 @@ void idle()
 	if(prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
-		CLAMP(seconds,0.001f,0.3f);
+		CLAMP(seconds,0.001f,0.1f);
 		float distance = seconds * cameraSpeed;
 		rr_gl::Camera* cam = &eye;
 		if(autopilot) lightTime += seconds*SUN_SPEED;
@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 	const char* sceneFilename = (argc>1)?argv[1]:DEFAULT_SCENE;
 
 	// load scene
-	scene = new rr_io::ImportScene(sceneFilename);
+	scene = new rr_io::ImportScene(sceneFilename,1,true);
 
 	solver->setStaticObjects(*scene->getObjects(), NULL);
 
@@ -546,7 +546,7 @@ int main(int argc, char **argv)
 		//srand((unsigned)time(NULL));
 		solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
 		cameraSpeed = eye.afar*CAM_SPEED;
-		eye.afar = MAX(eye.anear+1,eye.afar*50); //!!! 50 kvuli skyboxu
+		eye.afar = MAX(eye.anear+1,eye.afar);
 		eye.setDirection(eye.dir);
 	}
 

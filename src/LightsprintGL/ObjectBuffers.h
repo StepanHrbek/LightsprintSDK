@@ -23,7 +23,11 @@ public:
 	//! \param indexed
 	//!  False = generates triangle list, numVertices == 3*numTriangles.
 	//!  True = generates indexed triangle list, numVertices <= 3*numTriangles, order specified by preimport vertex numbers
-	static ObjectBuffers* create(const rr::RRObject* object, bool indexed);
+	//! \param containsNonBlended
+	//!  Set only when returning non-NULL result, otherwise unchanged.
+	//! \param containsBlended
+	//!  Set only when returning non-NULL result, otherwise unchanged.
+	static ObjectBuffers* create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended);
 	~ObjectBuffers();
 	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
@@ -59,21 +63,26 @@ private:
 	struct FaceGroup
 	{
 		unsigned firstIndex;
-		unsigned numIndices:30;
+		unsigned numIndices:29;
 		unsigned renderFront:1;
 		unsigned renderBack:1;
+		unsigned needsBlend:1; // whether material needs blending on output = needs draw calls sorted by distance, farthest first
 		rr::RRBuffer* diffuseTexture;
 		rr::RRBuffer* emissiveTexture;
 		rr::RRBuffer* transparencyTexture;
 		rr::RRVec3 diffuseColor;
 		rr::RRVec3 emissiveColor;
 		rr::RRVec4 transparencyColor;
+		rr::RRReal specular;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
 	unsigned lightIndirectVcolorVersion;
 	unsigned lightIndirectVcolorFirst;
 	unsigned lightIndirectVcolorLastPlus1;
+
+	bool containsNonBlended;
+	bool containsBlended;
 };
 
 }; // namespace

@@ -3,6 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
+#include <algorithm> // sort
 #include <cassert>
 #include <vector>
 #include <GL/glew.h>
@@ -68,10 +69,14 @@ protected:
 	Params params;
 	TextureRenderer* textureRenderer;
 	UberProgram* uberProgram;
+	void initSpecularReflection(Program* program); // bind TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR texture, set uniform worldEyePos
 private:
 	// 1 renderer for 1 scene
 	Renderer* rendererCaching;
 	RendererOfRRObject* rendererNonCaching;
+	// 1 specular refl map for all static faces
+	const rr::RRBuffer* lastRenderSolverEnv; // solver environment
+	rr::RRBuffer* lastRenderSpecularEnv; // downscaled for specular reflections
 };
 
 
@@ -98,10 +103,13 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	params.gamma = 1;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
+	lastRenderSolverEnv = NULL;
+	lastRenderSpecularEnv = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
 }
 
 RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 {
+	delete lastRenderSpecularEnv;
 	delete rendererCaching;
 	delete rendererNonCaching;
 	delete uberProgram;
@@ -128,6 +136,39 @@ void RendererOfRRDynamicSolver::setBrightnessGamma(const rr::RRVec4* brightness,
 	params.gamma = gamma;
 }
 
+void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
+{
+	// set environment as specular reflection
+	const rr::RRBuffer* env = params.solver->getEnvironment();
+	if(env)
+	{
+		// reflect 16x16x6 reflection map
+		if(env!=lastRenderSolverEnv)
+		{
+			lastRenderSolverEnv = env;
+			// create small specular reflection map using temporary solver with environment only
+			rr::RRDynamicSolver tmpSolver;
+			tmpSolver.setEnvironment(env);
+			rr::RRObjectIllumination tmpObjIllum(0);
+			tmpObjIllum.specularEnvMap = lastRenderSpecularEnv;
+			tmpSolver.updateEnvironmentMap(&tmpObjIllum);
+			tmpObjIllum.specularEnvMap = NULL;
+		}
+		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		getTexture(lastRenderSpecularEnv,false,false)->bindTexture();
+
+		// reflect original environment (might be too sharp)
+		//glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		//if(env->getWidth()>2)
+		//	getTexture(env,true,false)->bindTexture(); // smooth
+		//else
+		//	getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
+	}
+	const Camera* eye = Camera::getRenderCamera();
+	if(eye)
+		program->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+}
+
 void RendererOfRRDynamicSolver::render()
 {
 	rr::RRReportInterval report(rr::INF3,"Rendering optimized scene...\n");
@@ -143,16 +184,13 @@ void RendererOfRRDynamicSolver::render()
 	}
 
 	// render skybox
-	if((params.uberProgramSetup.LIGHT_DIRECT
-		|| params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto
-		|| params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP
-		) && !params.uberProgramSetup.FORCE_2D_POSITION)
+	if(!params.renderingFromThisLight && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
 		const rr::RRBuffer* env = params.solver->getEnvironment();
 		if(textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],false);
 			if(env->getWidth()>2)
 				getTexture(env,true,false)->bindTexture(); // smooth
 			else
@@ -197,14 +235,15 @@ void RendererOfRRDynamicSolver::render()
 		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
-		params.uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 	}
 
 	PreserveBlend p1;
 	PreserveBlendFunc p2;
 	PreserveAlphaTest p3;
 	PreserveAlphaFunc p4;
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
 	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
 	UberProgramSetup uberProgramSetup;
@@ -217,6 +256,9 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
+
+		if(uberProgramSetup.MATERIAL_SPECULAR)
+			initSpecularReflection(program);
 
 		// don't cache indirect illumination in vertices, it changes often
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
@@ -261,13 +303,42 @@ private:
 	unsigned layerNumber2;
 	float layerBlend; // 0..1, 0=layerNumber, 1=layerNumber2
 	unsigned layerNumberFallback;
-	std::vector<Renderer*> renderersCaching;
-	std::vector<RendererOfRRObject*> renderersNonCaching;
 	bool amdBugWorkaround;
+	struct PerObjectPermanent
+	{
+		rr::RRObject* object;
+		rr::RRObjectIllumination* illumination;
+		rr::RRVec3 objectCenter;
+		Renderer* rendererCaching;
+		RendererOfRRObject* rendererNonCaching;
+		PerObjectPermanent()
+		{
+			object = NULL;
+			illumination = NULL;
+			objectCenter = rr::RRVec3(0);
+			rendererCaching = NULL;
+			rendererNonCaching = NULL;
+		}
+		~PerObjectPermanent()
+		{
+			delete rendererCaching;
+			delete rendererNonCaching;
+		}
+	};
+	PerObjectPermanent* perObjectPermanent;
+	struct PerObjectSorted
+	{
+		PerObjectPermanent* permanent;
+		rr::RRReal distance;
+		bool operator<(const PerObjectSorted& a) const {return distance<a.distance;}
+		bool operator>(const PerObjectSorted& a) const {return distance>a.distance;}
+	};
+	PerObjectSorted* perObjectSorted; // filled and used by render(). might be made thread safe if render() allocates it locally, however GL is unsafe anyway
+	void renderOriginalObject(const PerObjectPermanent* perObject, bool renderNonBlended, bool renderBlended);
 };
 
 
-RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver, const char* pathToShaders) : RendererOfRRDynamicSolver(asolver,pathToShaders)
+RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* _solver, const char* _pathToShaders) : RendererOfRRDynamicSolver(_solver,_pathToShaders)
 {
 	layerNumber = 0;
 
@@ -288,12 +359,15 @@ RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver, c
 		// workaround for Catalyst bug (object disappears), observed on X1950, HD2xxx, HD3xxx
 		amdBugWorkaround = (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999);
 	}
+	
+	perObjectPermanent = NULL;
+	perObjectSorted = NULL;
 }
 
 RendererOfOriginalScene::~RendererOfOriginalScene()
 {
-	for(unsigned i=0;i<renderersCaching.size();i++) delete renderersCaching[i];
-	for(unsigned i=0;i<renderersNonCaching.size();i++) delete renderersNonCaching[i];
+	delete[] perObjectSorted;
+	delete[] perObjectPermanent;
 }
 
 void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned alayerNumber)
@@ -321,44 +395,12 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
 }
 
-void RendererOfOriginalScene::render()
+// renders single object, materials with blending in blending pass only
+void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* perObject, bool renderNonBlended, bool renderBlended)
 {
-	rr::RRReportInterval report(rr::INF3,"Rendering original scene...\n");
-	// create helper renderers
-	if(!params.solver)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-
-	// render skybox
-	if((params.uberProgramSetup.LIGHT_DIRECT
-		|| params.uberProgramSetup.LIGHT_INDIRECT_CONST || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto
-		|| params.uberProgramSetup.MATERIAL_EMISSIVE_CONST || params.uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR || params.uberProgramSetup.MATERIAL_EMISSIVE_MAP
-		) && !params.uberProgramSetup.FORCE_2D_POSITION)
-	{
-		const rr::RRBuffer* env = params.solver->getEnvironment();
-		if(textureRenderer && env)
-		{
-			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
-			if(env->getWidth()>2)
-				getTexture(env,true,false)->bindTexture(); // smooth
-			else
-				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
-			glBegin(GL_POLYGON);
-			glVertex3f(-1,-1,1);
-			glVertex3f(1,-1,1);
-			glVertex3f(1,1,1);
-			glVertex3f(-1,1,1);
-			glEnd();
-			textureRenderer->renderEnvironmentEnd();
-		}
-		else
-		{
-			glClear(GL_COLOR_BUFFER_BIT);
-		}
-	}
+	// tell renderer whether we render blended / nonblended materials
+	// early exit when no materials pass filter
+	if(!perObject->rendererNonCaching || !perObject->rendererNonCaching->setMaterialFilter(renderNonBlended,renderBlended)) return;
 
 	// How do we render multiple objects + multiple lights?
 	// for each object
@@ -368,107 +410,181 @@ void RendererOfOriginalScene::render()
 	// + easily supported by getNextPass()
 	// - many shader changes, reusing shaders already set was removed
 	// + open path for future multi-light passes
+
+	// working copy of params.uberProgramSetup
+	UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
+	mainUberProgramSetup.OBJECT_SPACE = perObject->object->getWorldMatrix()!=NULL;
+	// set shader according to vbuf/pbuf presence
+	rr::RRBuffer* vbuffer = onlyVbuf(perObject->illumination->getLayer(layerNumber));
+	rr::RRBuffer* pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumber));
+	rr::RRBuffer* vbuffer2 = onlyVbuf(perObject->illumination->getLayer(layerNumber2));
+	rr::RRBuffer* pbuffer2 = onlyLmap(perObject->illumination->getLayer(layerNumber2));
+	// fallback when buffers are not available
+	if(!vbuffer) vbuffer = onlyVbuf(perObject->illumination->getLayer(layerNumberFallback));
+	if(!pbuffer) pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumberFallback));
+	if(!vbuffer2) vbuffer2 = onlyVbuf(perObject->illumination->getLayer(layerNumberFallback));
+	if(!pbuffer2) pbuffer2 = onlyLmap(perObject->illumination->getLayer(layerNumberFallback));
+	if(mainUberProgramSetup.LIGHT_INDIRECT_auto)
+	{
+		mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
+		mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
+		mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = vbuffer && !vbuffer->getScaled();
+		mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
+		mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
+		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // enable always, will affect only specular materials
+	}
+	mainUberProgramSetup.validate();
+
+	PreserveBlend p1;
+	PreserveBlendFunc p2;
+	PreserveAlphaTest p3;
+	PreserveAlphaFunc p4;
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
+	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
+	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+	UberProgramSetup uberProgramSetup;
+	RendererOfRRObject::RenderedChannels renderedChannels;
+	const RealtimeLight* light;
+	Program* program;
+	// here we cached uberProgramSetup and skipped shader+uniforms set when setup didn't change
+	// it had to go, but if performance tests show regression, we will return it back somehow
+	while(program = multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
+	{
+		// set transformation
+		if(uberProgramSetup.OBJECT_SPACE)
+		{
+			rr::RRObject* object = perObject->object;
+			const rr::RRMatrix3x4* world = object->getWorldMatrix();
+			if(world)
+			{
+				float worldMatrix[16] =
+				{
+					world->m[0][0],world->m[1][0],world->m[2][0],0,
+					world->m[0][1],world->m[1][1],world->m[2][1],0,
+					world->m[0][2],world->m[1][2],world->m[2][2],0,
+					world->m[0][3],world->m[1][3],world->m[2][3],1
+				};
+				program->sendUniform("worldMatrix",worldMatrix,false,4);
+			}
+			else
+			{
+				float worldMatrix[16] =
+				{
+					1,0,0,0,
+					0,1,0,0,
+					0,0,1,0,
+					0,0,0,1
+				};
+				program->sendUniform("worldMatrix",worldMatrix,false,4);
+			}
+		}
+
+		if(uberProgramSetup.MATERIAL_SPECULAR)
+			initSpecularReflection(program);
+
+		// render
+		perObject->rendererNonCaching->setProgram(program);
+		perObject->rendererNonCaching->setRenderedChannels(renderedChannels);
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
+		{
+			perObject->rendererNonCaching->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
+			program->sendUniform("lightIndirectBlend",layerBlend);
+		}
+		else
+		{
+			perObject->rendererNonCaching->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+		}
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
+			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
+		else
+			perObject->rendererCaching->render(); // cache everything else, it's constant
+	}
+}
+
+void RendererOfOriginalScene::render()
+{
+	rr::RRReportInterval report(rr::INF3,"Rendering original scene...\n");
+	if(!params.solver)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+
+	// Clear background so multi-GPU systems know frames are independent
+	// (it could hurt single-GPU systems, not yet widely tested)
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Create object renderers
+	if(!perObjectPermanent)
+	{
+		perObjectPermanent = new PerObjectPermanent[params.solver->getNumObjects()];
+		perObjectSorted = new PerObjectSorted[params.solver->getNumObjects()];
+		for(unsigned i=0;i<params.solver->getNumObjects();i++)
+		{
+			perObjectPermanent[i].object = params.solver->getObject(i);
+			perObjectPermanent[i].illumination = params.solver->getIllumination(i);
+			if(perObjectPermanent[i].object)
+			{
+				rr::RRMesh* mesh = perObjectPermanent[i].object->createWorldSpaceMesh();
+				mesh->getAABB(NULL,NULL,&perObjectPermanent[i].objectCenter);
+				delete mesh;
+				perObjectPermanent[i].rendererNonCaching = RendererOfRRObject::create(perObjectPermanent[i].object,NULL,NULL,true);
+				perObjectPermanent[i].rendererCaching = perObjectPermanent[i].rendererNonCaching ? perObjectPermanent[i].rendererNonCaching->createDisplayList() : NULL;
+			}
+			perObjectSorted[i].permanent = perObjectPermanent+i;
+			perObjectSorted[i].distance = 0;
+		}
+	}
+
+	// Sort objects
+	const Camera* eye = Camera::getRenderCamera();
+	if(!eye)
+	{
+		RR_ASSERT(0); // eye not set
+		return;
+	}
+	unsigned numObjectsToRender = 0;
 	for(unsigned i=0;i<params.solver->getNumObjects();i++) if(params.solver->getObject(i))
 	{
-		// - working copy of params.uberProgramSetup
-		UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
-		mainUberProgramSetup.OBJECT_SPACE = params.solver->getObject(i)->getWorldMatrix()!=NULL;
-		// - set shader according to vbuf/pbuf presence
-		rr::RRBuffer* vbuffer = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumber));
-		rr::RRBuffer* pbuffer = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumber));
-		//   - second
-		rr::RRBuffer* vbuffer2 = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumber2));
-		rr::RRBuffer* pbuffer2 = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumber2));
-		//   - fallback when buffers are not available
-		if(!vbuffer) vbuffer = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
-		if(!pbuffer) pbuffer = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
-		if(!vbuffer2) vbuffer2 = onlyVbuf(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
-		if(!pbuffer2) pbuffer2 = onlyLmap(params.solver->getIllumination(i)->getLayer(layerNumberFallback));
-		if(mainUberProgramSetup.LIGHT_INDIRECT_auto)
-		{
-			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
-			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
-			mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = vbuffer && !vbuffer->getScaled();
-			mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
-			mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
-		}
-		mainUberProgramSetup.validate();
+		perObjectSorted[numObjectsToRender].permanent = perObjectPermanent+i;
+		perObjectSorted[numObjectsToRender].distance = (perObjectPermanent[i].objectCenter-eye->pos).length2();
+		numObjectsToRender++;
+	}
+	std::sort(perObjectSorted,perObjectSorted+numObjectsToRender);
 
-		PreserveBlend p1;
-		PreserveBlendFunc p2;
-		PreserveAlphaTest p3;
-		PreserveAlphaFunc p4;
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
-		glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
-		MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
-		UberProgramSetup uberProgramSetup;
-		RendererOfRRObject::RenderedChannels renderedChannels;
-		const RealtimeLight* light;
-		Program* program;
-		// here we cached uberProgramSetup and skipped shader+uniforms set when setup didn't change
-		// it had to go, but if performance tests show regression, we will return it back somehow
-		while(program = multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
-		{
-			// - set transformation
-			if(uberProgramSetup.OBJECT_SPACE)
-			{
-				rr::RRObject* object = params.solver->getObject(i);
-				const rr::RRMatrix3x4* world = object->getWorldMatrix();
-				if(world)
-				{
-					float worldMatrix[16] =
-					{
-						world->m[0][0],world->m[1][0],world->m[2][0],0,
-						world->m[0][1],world->m[1][1],world->m[2][1],0,
-						world->m[0][2],world->m[1][2],world->m[2][2],0,
-						world->m[0][3],world->m[1][3],world->m[2][3],1
-					};
-					program->sendUniform("worldMatrix",worldMatrix,false,4);
-				}
-				else
-				{
-					float worldMatrix[16] =
-					{
-						1,0,0,0,
-						0,1,0,0,
-						0,0,1,0,
-						0,0,0,1
-					};
-					program->sendUniform("worldMatrix",worldMatrix,false,4);
-				}
-			}
+	// Render opaque objects from 0 to inf
+	for(unsigned i=0;i<numObjectsToRender;i++)
+	{
+		renderOriginalObject(perObjectSorted[i].permanent,true,false);
+	}
 
-			// - create missing renderers
-			if(i>=renderersNonCaching.size())
-			{
-				while(i>renderersNonCaching.size()) renderersNonCaching.push_back(NULL); // renderers with lower i missing? -> must be NULL objects, set NULL renderers
-				renderersNonCaching.push_back(rr_gl::RendererOfRRObject::create(params.solver->getObject(i),NULL,NULL,true));
-			}
-			if(i>=renderersCaching.size())
-			{
-				while(i>renderersCaching.size()) renderersCaching.push_back(NULL); // renderers with lower i missing? -> must be NULL objects, set NULL renderers
-				renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
-			}
-			// - render
-			if(renderersNonCaching[i])
-			{
-				renderersNonCaching[i]->setProgram(program);
-				renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-				if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
-				{
-					renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
-					program->sendUniform("lightIndirectBlend",layerBlend);
-				}
-				else
-				{
-					renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
-				}
-				if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
-					renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
-				else
-					renderersCaching[i]->render(); // cache everything else, it's constant
-			}
+	// Render skybox
+	if(!params.renderingFromThisLight && !params.uberProgramSetup.FORCE_2D_POSITION)
+	{
+		const rr::RRBuffer* env = params.solver->getEnvironment();
+		if(textureRenderer && env)
+		{
+			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true);
+			if(env->getWidth()>2)
+				getTexture(env,true,false)->bindTexture(); // smooth
+			else
+				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
+			glBegin(GL_POLYGON);
+				const GLfloat depth = 0.999f; // must be less than 0.9999 set in some samples
+				glVertex3f(-1,-1,depth);
+				glVertex3f(1,-1,depth);
+				glVertex3f(1,1,depth);
+				glVertex3f(-1,1,depth);
+			glEnd();
+			textureRenderer->renderEnvironmentEnd();
 		}
+	}
+
+	// Render blended objects from inf to 0
+	for(unsigned i=numObjectsToRender;i--;)
+	{
+		renderOriginalObject(perObjectSorted[i].permanent,false,true);
 	}
 }
 

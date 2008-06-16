@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/Program.h"
+#include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
@@ -29,6 +30,7 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
 	twodProgram = Program::create("#define TEXTURE\n",buf1,buf2);
 	if(!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
+	oldCamera = NULL;
 }
 
 TextureRenderer::~TextureRenderer()
@@ -37,7 +39,7 @@ TextureRenderer::~TextureRenderer()
 	delete skyProgram;
 }
 
-bool TextureRenderer::renderEnvironmentBegin(float color[4])
+bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTest)
 {
 	if(!skyProgram)
 	{
@@ -49,14 +51,22 @@ bool TextureRenderer::renderEnvironmentBegin(float color[4])
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	// setup render states
-	glDisable(GL_DEPTH_TEST);
+	if(!_allowDepthTest) glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	// render cube
 	skyProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	skyProgram->sendUniform("cube",0);
-	skyProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
-	//	skyProgram->sendUniform("worldEyePos",worldEyePos[0],worldEyePos[1],worldEyePos[2]);
+	skyProgram->sendUniform("color",_color?_color[0]:1,_color?_color[1]:1,_color?_color[2]:1,_color?_color[3]:1);
+	oldCamera = Camera::getRenderCamera();
+	if(oldCamera)
+	{
+		// temporarily loads camera matrix with position 0
+		Camera tmp = *oldCamera;
+		tmp.pos = rr::RRVec3(0);
+		tmp.update();
+		tmp.setupForRender();
+	}
 	return true;
 }
 
@@ -66,6 +76,10 @@ void TextureRenderer::renderEnvironmentEnd()
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
 	if(culling) glEnable(GL_CULL_FACE);
+	if(oldCamera)
+	{
+		oldCamera->setupForRender();
+	}
 }
 
 bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
@@ -75,7 +89,7 @@ bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
 		LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
 		return false;
 	}
-	if(renderEnvironmentBegin(color))
+	if(renderEnvironmentBegin(color,false))
 	{
 		texture->bindTexture();
 		glBegin(GL_POLYGON);

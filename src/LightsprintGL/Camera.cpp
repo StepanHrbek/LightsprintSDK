@@ -167,8 +167,16 @@ void Camera::rotateViewMatrix(unsigned instance)
 	invertMatrix(inverseViewMatrix,viewMatrix);
 }
 
-void Camera::setupForRender()
+static const Camera* s_renderCamera = NULL;
+
+const Camera* Camera::getRenderCamera()
 {
+	return s_renderCamera;
+}
+
+void Camera::setupForRender() const
+{
+	s_renderCamera = this;
 	// set matrices in GL pipeline
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixd(frustumMatrix);

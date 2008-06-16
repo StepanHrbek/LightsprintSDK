@@ -166,12 +166,15 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 	// update MATERIAL_* recommendations
 	unsigned numTrianglesWithDifConst = 0;
 	unsigned numTrianglesWithDifMap = 0;
+	unsigned numTrianglesWithSpecConst = 0;
 	unsigned numTrianglesWithEmiConst = 0;
 	unsigned numTrianglesWithEmiMap = 0;
 	unsigned numTrianglesWithConstTransp = 0;
 	unsigned numTrianglesWithMapRGBTransp = 0;
 	unsigned numTrianglesWithDifMapATransp = 0;
 	unsigned numTrianglesWithNonDifMapATransp = 0;
+	unsigned numTrianglesWithTranspBlend = 0;
+	unsigned numTrianglesWithTranspKeyed = 0;
 	if(getMultiObjectCustom())
 	{
 		unsigned numTrianglesMulti = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
@@ -189,6 +192,12 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 				if(material->diffuseReflectance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithDifConst++;
+				}
+
+				// spec
+				if(material->specularReflectance!=0)
+				{
+					numTrianglesWithSpecConst++;
 				}
 
 				// emi
@@ -212,11 +221,16 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 						numTrianglesWithNonDifMapATransp++;
 					else 
 						numTrianglesWithMapRGBTransp++;
+					if(material->specularTransmittanceKeyed)
+						numTrianglesWithTranspKeyed++;
+					else
+						numTrianglesWithTranspBlend++;
 				}
 				else
 				if(material->specularTransmittance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithConstTransp++;
+					numTrianglesWithTranspBlend++;
 				}
 			}
 		}
@@ -226,6 +240,10 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 	materialsInStaticScene.MATERIAL_DIFFUSE_MAP = numTrianglesWithDifMap>0;
 	materialsInStaticScene.MATERIAL_DIFFUSE_CONST = numTrianglesWithDifConst>0 && numTrianglesWithDifMap==0;
 	materialsInStaticScene.MATERIAL_DIFFUSE = materialsInStaticScene.MATERIAL_DIFFUSE_CONST || materialsInStaticScene.MATERIAL_DIFFUSE_MAP;
+
+	// spec
+	materialsInStaticScene.MATERIAL_SPECULAR = numTrianglesWithSpecConst>0;
+	materialsInStaticScene.MATERIAL_SPECULAR_CONST = numTrianglesWithSpecConst>0;
 
 	// emi
 	materialsInStaticScene.MATERIAL_EMISSIVE_MAP = numTrianglesWithEmiMap>0;
@@ -274,6 +292,7 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP = 0;
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
+	materialsInStaticScene.MATERIAL_TRANSPARENCY_BLEND = numTrianglesWithTranspBlend>numTrianglesWithTranspKeyed;
 }
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)

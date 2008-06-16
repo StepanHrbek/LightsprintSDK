@@ -22,13 +22,14 @@ void RRMaterial::reset(bool twoSided)
 		{{1,1,1,1,1,1,1,0},{0,0,1,0,0,0,0,0}}, // definition of default 1-sided (front side, back side)
 		{{1,1,1,1,1,1,1,0},{1,0,1,1,1,1,1,0}}, // definition of default 2-sided (front side, back side)
 	};
-	sideBits[0]              = sideBitsTmp[twoSided?1:0][0];
-	sideBits[1]              = sideBitsTmp[twoSided?1:0][1];
-	diffuseReflectance.color = RRVec3(0.5f);
-	specularReflectance      = 0;
+	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
+	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
+	diffuseReflectance.color     = RRVec3(0.5f);
+	specularReflectance          = 0;
 	specularTransmittanceInAlpha = false;
-	refractionIndex          = 1;
-	name                     = NULL;
+	specularTransmittanceKeyed   = false;
+	refractionIndex              = 1;
+	name                         = NULL;
 }
 
 bool clamp(RRReal& vec, RRReal min, RRReal max)

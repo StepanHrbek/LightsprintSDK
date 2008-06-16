@@ -39,7 +39,7 @@ public:
 	//! Initializes shader and render states for rendering cubemap.
 	//! It is one component of renderEnvironment().
 	//! For non-NULL color, texture is multiplied by color.
-	bool renderEnvironmentBegin(float color[4]);
+	bool renderEnvironmentBegin(float color[4], bool allowDepthTest);
 
 	//! Restores original render states after renderEnvironmentBegin().
 	//! It is one component of renderEnvironment().
@@ -67,6 +67,7 @@ private:
 	unsigned char culling;
 	unsigned char depthTest;
 	unsigned char depthMask;
+	const class Camera* oldCamera;
 };
 
 }; // namespace
