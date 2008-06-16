@@ -8,7 +8,17 @@ namespace rr
 
 \page main_news What's new
 
-\section news58 ------------------------------------ 2008.6.9 -------------------------------------
+\section news60 ------------------------------------ 2008.6.x -------------------------------------
+
+NEWS
+
+- Support for Linux and PS3 Linux.
+
+CHANGES
+
+- Standalone scene loaders merged into LightsprintIO library.
+
+\section news59 ------------------------------------ 2008.6.9 -------------------------------------
 
 NEWS
 
