@@ -156,13 +156,15 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 //  - exitanceHdr, float exitance in physical scale, may be NULL
 static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRBuffer* environment, const RRScaler* scalerForReadingEnv, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
-	if((!scene && !packedSolver) || !object || (!triangleNumbers && !exitanceHdr))
+	if(!triangleNumbers && !exitanceHdr)
 	{
-		if(!scene && !packedSolver)
-			{LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));}
-		else
-			RR_ASSERT(0);
+		RR_ASSERT(0);
 		return false;
+	}
+	if((!scene && !packedSolver) || !object)
+	{
+		// this is legal, renderer asks us to build small cubemap from solver with big environment and 0 objects
+		//LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
 	}
 	if(environment && !environment->getScaled()) scalerForReadingEnv = NULL;
 // vypnuto kdyz nas vola worker thread s nizkou prioritou (!exitanceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
@@ -178,16 +180,21 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 			{
 				unsigned ofs = i+(j+side*size)*size;
 				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
-				RRReal dirsize = dir.length();
-				// find face
-				ray->rayOrigin = center;
-				ray->rayDirInv[0] = dirsize/dir[0];
-				ray->rayDirInv[1] = dirsize/dir[1];
-				ray->rayDirInv[2] = dirsize/dir[2];
-				ray->rayLengthMin = 0;
-				ray->rayLengthMax = 10000; //!!! hard limit
-				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
-				unsigned face = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
+				unsigned face = UINT_MAX;
+				if(object)
+				{
+					RRReal dirsize = dir.length();
+					// find face
+					ray->rayOrigin = center;
+					ray->rayDirInv[0] = dirsize/dir[0];
+					ray->rayDirInv[1] = dirsize/dir[1];
+					ray->rayDirInv[2] = dirsize/dir[2];
+					ray->rayLengthMin = 0;
+					ray->rayLengthMax = 10000; //!!! hard limit
+					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+					if(object->getCollider()->intersect(ray))
+						face = ray->hitTriangle;
+				}
 				if(triangleNumbers)
 				{
 					triangleNumbers[ofs] = face;
@@ -215,7 +222,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 						exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
-					else
+					else if(scene)
 					{
 						// read face exitance
 						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
@@ -532,16 +539,15 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
 
-	// early exit if we don't have valid data
-	if(!illumination->cachedGatherSize)
-		return 0;
-
-	// fill envmaps
-	unsigned minSize = MIN(gatherSize,specularSize);
-	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
 	unsigned updatedMaps = 0;
-	updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
-	updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,1-minDot,illumination->specularEnvMap);
+	if(illumination->cachedGatherSize)
+	{
+		// fill envmaps
+		unsigned minSize = MIN(gatherSize,specularSize);
+		RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
+		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
+		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,1-minDot,illumination->specularEnvMap);
+	}
 
 	// cleanup
 	delete[] gatheredExitance;
