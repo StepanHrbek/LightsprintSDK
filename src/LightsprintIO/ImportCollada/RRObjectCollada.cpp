@@ -582,8 +582,10 @@ private:
 
 	const MaterialInfo loadMaterial(const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
+		const fchar* extra = effectStandard->GetExtraAttribute("MAX3D","double_sided");
+		bool twoSided = !extra || extra[0]!='0'; // collada default is 2sided, but MAX3D extra '0' can change it to 1-sided (=not rendered, and photons hitting back side are deleted)
 		MaterialInfo mi;
-		mi.material.reset(false); // 1-sided with photons hitting back side deleted
+		mi.material.reset(twoSided);
 		mi.material.diffuseReflectance.color = colorToColor(effectStandard->GetDiffuseColor());
 		mi.material.diffuseEmittance.color = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 		mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
