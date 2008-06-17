@@ -135,9 +135,14 @@ public:
 #else
 	inline void append(unsigned int i) { append((uint32) i); } /**< See above. */
 #endif
+#else // WIN32
+#ifdef _LP64
+	inline void append(unsigned long long i) { append((uint32) i); } /**< See above. */
+	inline void append(long long i) { append((int32) i); } /**< See above. */
 #else
 	inline void append(unsigned long i) { append((uint32) i); } /**< See above. */
 	inline void append(long i) { append((int32) i); } /**< See above. */
+#endif
 #endif // platform-switch.
 
 	/** Appends the floating-point value, after converting it to a string,
