@@ -499,30 +499,30 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 	
 	// init shaders
-	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init static scene and solver
-	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
+	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 
 	// load scene
-	rr_io::ImportScene scene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4.dae");
 	solver->setStaticObjects(*scene.getObjects(), NULL);
 
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(rr::RRBuffer::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
@@ -547,7 +547,7 @@ int main(int argc, char **argv)
 	rr::RRLights lights;
 	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
-	solver->realtimeLights[0]->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("..\\..\\data\\maps\\spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	solver->realtimeLights[0]->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	light = solver->realtimeLights[0]->getParent();
 
 	glutMainLoop();
