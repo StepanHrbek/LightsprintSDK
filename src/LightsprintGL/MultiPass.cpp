@@ -105,6 +105,14 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
 		}
+		// disabling specular reflection saves SceneViewer sample (helps GF6150)
+		if(uberProgramSetup.MATERIAL_SPECULAR)
+		{
+			uberProgramSetup.MATERIAL_SPECULAR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
+		}
 		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)
 		if(!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
 		{
