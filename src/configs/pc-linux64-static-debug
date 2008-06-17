@@ -5,3 +5,7 @@ STATIC = 1
 CPP_FLAGS += -O0
 CPP_FLAGS += -g
 CPP_FLAGS += -D_DEBUG
+
+GL_LIBS = -lGL -lglut -lGLEW
+FCOLLADA_LIB = ../../lib/pc-linux64/libfcollada.a -lxml2
+

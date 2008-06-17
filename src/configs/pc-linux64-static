@@ -8,3 +8,7 @@ CPP_FLAGS += -ffast-math
 CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
+
+GL_LIBS = -lGL -lglut -lGLEW
+FCOLLADA_LIB = ../../lib/pc-linux64/libfcollada.a -lxml2
+
