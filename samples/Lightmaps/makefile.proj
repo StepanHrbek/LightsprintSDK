@@ -25,37 +25,21 @@ Lightmaps.cpp \
 
 # libraries
 
-ifeq ($(CONFIG), ps3-linux)
-LIBS += ../../lib/ps3-linux/mesa/libGL.so
-LIBS += ../../lib/ps3-linux/mesa/libglut.so
-LIBS += ../../lib/ps3-linux/libGLEW.a
-else
-ifeq ($(CONFIG), ps3-linux-debug)
-LIBS += ../../lib/ps3-linux/mesa/libGL.so
-LIBS += ../../lib/ps3-linux/mesa/libglut.so
-LIBS += ../../lib/ps3-linux/libGLEW.a
-else
-LIBS += -lGL
-LIBS += -lglut
-LIBS += -lGLEW
-endif
-endif
-
 ifdef STATIC
-LIBS += ../../lib/$(CONFIG)/libLightsprintGL.a
 LIBS += ../../lib/$(CONFIG)/libLightsprintIO.a
+LIBS += ../../lib/$(CONFIG)/libLightsprintGL.a
 LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
 else
-LIBS += ../../bin/$(CONFIG)/libLightsprintGL.so
 LIBS += ../../bin/$(CONFIG)/libLightsprintIO.so
+LIBS += ../../bin/$(CONFIG)/libLightsprintGL.so
 LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
 endif
 
 LIBS += -lstdc++
 LIBS += -lgomp
 LIBS += -lfreeimage
-LIBS += -lfcollada
-LIBS += -lxml2
+LIBS += $(GL_LIBS)
+LIBS += $(FCOLLADA_LIB)
 
 # include directories
 

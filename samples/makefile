@@ -25,3 +25,16 @@ clean:
 	cd RealtimeLights && make clean
 	cd RealtimeRadiosity && make clean
 	cd SceneViewer && make clean
+
+%:
+	cd AmbientOcclusion && make $@
+	cd BunnyBenchmark && make $@
+	cd CPULightmaps && make $@
+	cd HelloCollider && make $@
+	cd HelloMesh && make $@
+	cd Lightmaps && make $@
+	cd MultiMeshCollider && make $@
+	cd PenumbraShadows && make $@
+	cd RealtimeLights && make $@
+	cd RealtimeRadiosity && make $@
+	cd SceneViewer && make $@
