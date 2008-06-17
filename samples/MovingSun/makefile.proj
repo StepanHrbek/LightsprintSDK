@@ -1,0 +1,71 @@
+# include platform-specific configuration
+
+CFG_DIR = ../../src/configs
+-include $(CFG_DIR)/current
+
+ifdef CONFIG
+include $(CFG_DIR)/$(CONFIG)
+endif
+
+# general project settings
+
+PROJECT = MovingSun
+TARGET = ../../bin/$(CONFIG)/$(PROJECT).exe
+CFG_TYPE = exe
+OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
+
+# project-dependent compiler/preprocessor flags
+
+# source files
+
+SOURCES = \
+MovingSun.cpp \
+../RealtimeRadiosity/DynamicObject.cpp \
+../../src/LightsprintIO/Import3DS/RendererOf3DS.cpp
+
+# libraries
+
+ifeq ($(CONFIG), ps3-linux)
+LIBS += ../../lib/ps3-linux/mesa/libGL.so
+LIBS += ../../lib/ps3-linux/mesa/libglut.so
+LIBS += ../../lib/ps3-linux/libGLEW.a
+else
+ifeq ($(CONFIG), ps3-linux-debug)
+LIBS += ../../lib/ps3-linux/mesa/libGL.so
+LIBS += ../../lib/ps3-linux/mesa/libglut.so
+LIBS += ../../lib/ps3-linux/libGLEW.a
+else
+LIBS += -lGL
+LIBS += -lglut
+LIBS += -lGLEW
+endif
+endif
+
+ifdef STATIC
+LIBS += ../../lib/$(CONFIG)/libLightsprintGL.a
+LIBS += ../../lib/$(CONFIG)/libLightsprintIO.a
+LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
+else
+LIBS += ../../bin/$(CONFIG)/libLightsprintGL.so
+LIBS += ../../bin/$(CONFIG)/libLightsprintIO.so
+LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
+endif
+
+LIBS += -lstdc++
+LIBS += -lgomp
+LIBS += -lfreeimage
+LIBS += -lfcollada
+LIBS += -lxml2
+
+# include directories
+
+INC_DIRS = .
+INC_DIRS += ../../include
+
+# library directories
+
+LIB_DIRS = .
+
+# include the core part of the makefile
+
+include $(CFG_DIR)/../makefile.core
