@@ -257,7 +257,7 @@ Used by LightsprintGL (optional OpenGL support):
   - XBox360, PS3 with system software: not necessary
 
 Used by LightsprintIO (optional file format support):
-- <a href="http://freeimage.sourceforge.net">FreeImage</a>
+- <a href="http://freeimage.sourceforge.net/">FreeImage</a>
   - This software uses the FreeImage open source image library. FreeImage is used under the FIPL, version 1.0.
   - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
   - Windows: precompiled 3.10.0 is part of SDK
@@ -282,10 +282,15 @@ Used by LightsprintIO (optional file format support):
     - Open the file "FCollada/FUtils/FUFileManager.cpp" and change "size" to "(unsigned int) size" at line 392.
     - On 64-bit platforms, open the file "FCollada/FUtils/FUStringBuilder.h" and replace "long" by "long long" at lines 139 and 140.
     - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
+- <a href="http://xmlsoft.org/">libxml2</a>
+  - used under MIT license
+  - Libxml2 library is required in Linux environment by FCollada. Although it is likely that
+    this library will be already bundled with your system, you can install it manually using
+    your Linux packaging tool, e.g. <code>sudo apt-get install libxml2-dev</code>
 
 Remark:
 - when installing dependencies on Debian based Linux (Ubuntu etc), it can be done by single command
-  <code>sudo apt-get install libboost-dev libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev</code>
+  <code>sudo apt-get install libboost-dev libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
 
 
 \page main_integration Integration
