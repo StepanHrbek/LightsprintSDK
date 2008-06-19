@@ -107,6 +107,10 @@ varying
 	varying vec2 materialDiffuseCoord;
 #endif
 
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
+	uniform vec3 worldEyePos;
+#endif
+
 #ifdef MATERIAL_EMISSIVE_VCOLOR
 	attribute vec4 materialEmissiveVColor;
 	varying vec4 materialEmissiveColor;
@@ -146,9 +150,9 @@ void main()
 
 	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
 		#ifdef LIGHT_DIRECTIONAL
-			lightDirectVColor = max(-dot(worldLightDir, worldNormalSmooth),0.0);			
+			lightDirectVColor = dot(worldLightDir, worldNormalSmooth);
 		#else
-			lightDirectVColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
+			lightDirectVColor = dot(normalize(worldPos-worldLightPos), worldNormalSmooth);
 			float distance = distance(worldPos,worldLightPos);
 			#ifdef LIGHT_DIRECT_ATT_PHYSICAL
 				lightDirectVColor *= pow(distance,-0.9);
@@ -159,6 +163,13 @@ void main()
 			#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
 				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
 			#endif
+		#endif
+		#if defined(MATERIAL_SPECULAR)
+			// block specular reflection on wrong side of 2-sided face
+			lightDirectVColor = (lightDirectVColor*dot(worldPos-worldEyePos,worldNormalSmooth)>0.0) ? abs(lightDirectVColor) : 0.0;
+		#else
+			// allow diffuse reflection on both sides of 2-sided face
+			lightDirectVColor = abs(lightDirectVColor);
 		#endif
 	#endif
 

@@ -199,10 +199,7 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		rr::RRReporter::report(rr::ERRO,"%s is not a valid uniform variable name.\n"
-			"This is usually caused by error in graphics card driver.\n"
-			"We reported it to Nvidia and wait for fix.\n"
-			"As a workaround, run application with penumbra1 parameter on command line.\n",name);
+		rr::RRReporter::report(rr::ERRO,"Graphics card driver reports there's no %s uniform in shader.\nThis is usually driver error.\n",name);
 		exit(0);
 	}
 	return loc;
