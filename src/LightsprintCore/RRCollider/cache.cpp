@@ -10,6 +10,8 @@
 #include <string.h>
 #ifdef _WIN32
 	#include <windows.h> // GetTempPath
+#else
+	#include <sys/stat.h> // mkdir
 #endif
 
 namespace rr
@@ -51,7 +53,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 	{
 		RRMesh::Vertex v;
 		importer->getVertex(i,v);
-#ifdef XBOX
+#if defined(XBOX) || defined(__PPC__)
 		for(unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = _byteswap_ulong(((unsigned long*)&v)[j]);
 #endif
@@ -62,7 +64,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 	{
 		RRMesh::Triangle t;
 		importer->getTriangle(i,t);
-#ifdef XBOX
+#if defined(XBOX) || defined(__PPC__)
 		for(unsigned j=0;j<3;j++)
 			((unsigned long*)&t)[j] = _byteswap_ulong(((unsigned long*)&t)[j]);
 #endif
@@ -87,6 +89,10 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 		if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
 		cacheLocation = tmpPath;
 	}
+#else
+	char tmpDir[] = "/tmp/lightsprint/";
+        mkdir(tmpDir, 0744);
+	cacheLocation = tmpDir;
 #endif
 #ifdef XBOX
 	if(!cacheLocation) cacheLocation = "game:\\"; // xbox 360
