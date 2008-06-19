@@ -14,6 +14,12 @@
 	#include <sys/stat.h> // mkdir
 #endif
 
+#define SWAP_32(x) \
+	((x) << 24) | \
+	(((x) & 0x0000FF00) << 8) | \
+	(((x) & 0x00FF0000) >> 8) | \
+	(((x) >> 24) & 0xFF)
+
 namespace rr
 {
 
@@ -55,7 +61,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 		importer->getVertex(i,v);
 #if defined(XBOX) || defined(__PPC__)
 		for(unsigned j=0;j<3;j++)
-			((unsigned long*)&v)[j] = _byteswap_ulong(((unsigned long*)&v)[j]);
+			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
@@ -66,7 +72,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 		importer->getTriangle(i,t);
 #if defined(XBOX) || defined(__PPC__)
 		for(unsigned j=0;j<3;j++)
-			((unsigned long*)&t)[j] = _byteswap_ulong(((unsigned long*)&t)[j]);
+			((unsigned long*)&t)[j] = SWAP_32(((unsigned long*)&t)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
 	}
