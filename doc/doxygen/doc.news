@@ -12,11 +12,13 @@ namespace rr
 
 NEWS
 
-- Support for Linux and PS3 Linux.
+- Linux and PS3 Linux added as fully supported platforms
+- improved LightsprintGL renderer (better transparency, 2sided faces, specular reflections)
+- improved Collada import (1/2sided faces)
 
 CHANGES
 
-- Standalone scene loaders merged into LightsprintIO library.
+- standalone scene loaders merged into LightsprintIO library
 
 \section news59 ------------------------------------ 2008.6.9 -------------------------------------
 

@@ -199,7 +199,7 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		rr::RRReporter::report(rr::ERRO,"Graphics card driver reports there's no %s uniform in shader.\nThis is usually driver error.\n",name);
+		rr::RRReporter::report(rr::ERRO,"Variable %s missing in shader. This is usually graphics card driver error.\n",name);
 		exit(0);
 	}
 	return loc;

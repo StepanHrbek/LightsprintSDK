@@ -93,6 +93,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		// _lightIndex out of range, all passes done
 		return NULL;
 	}
+	uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 	if(!program)
 	{
@@ -102,6 +103,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
+			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
 		}
@@ -110,6 +112,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
 			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
 		}
@@ -120,7 +123,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			lightIndex = -1;
 			program = getNextPass(_outUberProgramSetup,_outRenderedChannels,_outLight);
 			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
-			return program;
 		}
 		if(!program)
 		{
