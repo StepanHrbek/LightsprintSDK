@@ -86,6 +86,7 @@ static unsigned                   centerObject = UINT_MAX; // object in the midd
 static unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
 static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
 static int                        menuInUse = GLUT_MENU_NOT_IN_USE; // GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
+static unsigned                   realtimeLayerNumber = 192837465; // layer number used for realtime GI, number is random to avoid collision with user layers
 
 // all we need for testing lightfield
 static rr::RRLightField*          lightField = NULL;
@@ -154,10 +155,33 @@ public:
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
 
-		if(renderRealtime)
-			rendererOfScene->useOptimizedScene();
+		if(renderRealtime && !renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND)
+		{
+			// render per object (properly sorting), with temporary buffers filled here
+			if(!getIllumination(0)->getLayer(realtimeLayerNumber))
+			{
+				// allocate lightmap-buffers for realtime rendering
+				for(unsigned i=0;i<getNumObjects();i++)
+				{
+					if(getIllumination(i) && getObject(i))
+						getIllumination(i)->getLayer(realtimeLayerNumber) =
+							rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+				}
+			}
+			updateLightmaps(realtimeLayerNumber,-1,-1,NULL,NULL,NULL);
+			rendererOfScene->useOriginalScene(realtimeLayerNumber);
+		}
 		else
+		if(renderRealtime)
+		{
+			// render whole scene at once (no sorting -> semitranslucency would render incorrectly)
+			rendererOfScene->useOptimizedScene();
+		}
+		else
+		{
+			// render per object (properly sorting), with static lighting buffers
 			rendererOfScene->useOriginalScene(layerNumber);
+		}
 
 		rendererOfScene->setBrightnessGamma(&brightness,gamma);
 		rendererOfScene->render();
@@ -1381,6 +1405,12 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutIdleFunc(NULL);
 	glutMenuStatusFunc(NULL);
 
+	for(unsigned i=0;i<solver->getNumObjects();i++)
+	{
+		// free lightmap-buffers for realtime rendering
+		if(solver->getIllumination(i))
+			SAFE_DELETE(solver->getIllumination(i)->getLayer(realtimeLayerNumber));
+	}
 	if(_createWindow)
 	{
 		// delete all textures created by us
