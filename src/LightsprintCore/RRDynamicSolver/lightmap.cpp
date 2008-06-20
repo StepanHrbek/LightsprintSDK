@@ -591,7 +591,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	std::vector<SortedBuffer> bufferSharing;
 
-	bool containsFirstGather = _paramsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment);
+	bool containsFirstGather = _paramsIndirect && ((paramsIndirect.applyCurrentSolution && paramsIndirect.quality) || paramsIndirect.applyLights || paramsIndirect.applyEnvironment);
 	bool containsRealtime = !paramsDirect.applyLights && !paramsDirect.applyEnvironment && paramsDirect.applyCurrentSolution && !paramsDirect.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;

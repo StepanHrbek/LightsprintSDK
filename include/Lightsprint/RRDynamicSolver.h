@@ -572,8 +572,9 @@ namespace rr
 		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
-		//!  \n Set both paramsDirect and paramsIndirect to NULL for 'realtime' update
+		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
 		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
+		//!  Set only paramsDirect NULL for no direct illumination.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
@@ -581,7 +582,9 @@ namespace rr
 		//!  For global illumination created by e.g. lights,
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
 		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
-		//!  Set to NULL for no indirect illumination.
+		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
+		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
+		//!  Set only paramsIndirect NULL for no indirect illumination.
 		//! \param filtering
 		//!  Parameters of lightmap filtering, set NULL for default ones.
 		//! \return
