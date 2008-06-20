@@ -56,10 +56,7 @@ public:
 	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setStaticObjects()).
 	//! \n Direct illumination: first light from lights passed to setParams().
 	//! \n Indirect illumination is always taken from given layer.
-	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
-	//!  If both types are availabale (vertex buffer and texture), texture is used. 
-	//!  Partially textured scenes are supported (some objects look better with ambient map,
-	//!  some objects are good enough with vertex colors).
+	//!    Types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP, LIGHT_INDIRECT_auto.
 	//! \param layerNumber
 	//!  Indirect illumination will be taken from given layer.
 	void useOriginalScene(unsigned layerNumber);
@@ -71,11 +68,12 @@ public:
 	//
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
 	//! and other optimizations.
+	//! Optimized scene is rendered in one draw call - it is faster, but objects are not sorted,
+	//! so MATERIAL_TRANSPARENCY_BLEND is not supported (scene is rendered incorrectly).
 	//! \n Direct illumination: all lights from setParams().
 	//! \n Indirect illumination is always taken directly from solver.
 	//!    Only LIGHT_INDIRECT_VCOLOR is supported. Nothing is rendered
 	//!    if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
-	//! \n Maps (diffuse etc) are not supported.
 	void useOptimizedScene();
 
 	//! Returns parameters with influence on render().

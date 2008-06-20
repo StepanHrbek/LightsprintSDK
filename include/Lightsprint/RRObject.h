@@ -123,8 +123,9 @@ namespace rr
 		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRReal        specularReflectance;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
-		//! Note that transmittance does not affect reflectance and emittance, they are independent properties.
-		//! There's single exception to this rule: when reading rgb from diffuseReflectance.texture, we multiply it by opacity on the fly (so that points with full transparency have zero diffuse reflection).
+		//
+		//! Note that higher transmittance does not decrease reflectance and emittance, they are independent properties.
+		//! There's single exception to this rule: higher transmittance decreases diffuseReflectance.texture (we multiply rgb from diffuse texture by opacity on the fly).
 		Property      specularTransmittance;
 		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
 		bool          specularTransmittanceInAlpha;

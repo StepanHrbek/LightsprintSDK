@@ -832,13 +832,6 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	{
 		out.reset(false);
 	}
-	if(material->diffuseReflectance.texture)
-	{
-		rr::RRVec2 mapping[3];
-		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
-		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
-		out.diffuseReflectance.color = material->diffuseReflectance.texture->getElement(RRVec3(uv[0],uv[1],0));
-	}
 	if(material->diffuseEmittance.texture)
 	{
 		rr::RRVec2 mapping[3];
@@ -855,6 +848,17 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 		out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
 		if(out.specularTransmittance.color==RRVec3(1))
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	}
+	if(material->diffuseReflectance.texture)
+	{
+		rr::RRVec2 mapping[3];
+		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
+		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
+		out.diffuseReflectance.color = RRVec3(material->diffuseReflectance.texture->getElement(RRVec3(uv[0],uv[1],0)))
+			// we multiply dif texture by opacity on the fly
+			// because real world data are often in this format
+			// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
+			* (RRVec3(1)-out.specularTransmittance.color);
 	}
 }
 
