@@ -264,7 +264,7 @@ Used by LightsprintGL (optional OpenGL support):
     - type <code>sudo make install</code>
     - There is a known issue with simultaneously using GLEW and Mesa: GLEW happens to undefine
       macro <code>GLAPIENTRY</code> which leads to compile errors. As a workaround, open the file
-      "/usr/include/GL/glew.h" and comment-out the statement <code>##undef GLAPIENTRY</code> at line 10767
+      "/usr/include/GL/glew.h" and comment-out the statement <code>\#undef GLAPIENTRY</code> at line 10767
       (valid for version 1.5.0)
   - XBox360, PS3 System Software: not necessary
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
@@ -1871,11 +1871,7 @@ Remark:
   - \subpage inputs_materials
 
  \section inputs_files Files
-  - \subpage inputs_collada
-  - \subpage inputs_3ds
-  - \subpage inputs_quake3
-  - \subpage inputs_obj
-  - \subpage inputs_mgf
+  - 3D scenes in any of the following formats: Collada, 3DS, Quake 3, OBJ, MGF. See \ref api_io library documentation.
   - \subpage inputs_images
 
  \section inputs_engines Engines
@@ -1944,77 +1940,13 @@ Remark:
 
  Materials must be physically valid. Use RRMaterial::validate() to validate your materials.
  
-\page inputs_collada Collada (.DAE)
- Collada is one of the most flexible and most widely supported 3d scene file formats.
- It is well specified open standard with great support.
-
- Source code of Collada adapter is in: samples/ImportCollada/*.*
- \n It adapts Collada scene with geometry, materials and light to Lightsprint format.
- \n Scene is loaded by open source FCollada library, precompiled in bin/lib directories.
-
- See comments at the beginning of samples/ImportCollada/RRObjectCollada.cpp
- for more details on features supported.
-
-\page inputs_3ds .3DS
- 3DS is very old and popular 3d scene file format.
- It is closed format without official specification.
- It supports only one uv coordinates, so it is suitable for realtime lighting and precomputed
- per-vertex, but not for precomputed lightmaps.
-
- Source code of 3ds adapter is in: samples/Import3DS/*.*
- \n It adapts 3DS scene with geometry and materials for Lightsprint format.
- \n Scene is loaded by open source 3DS loader in the same directory.
-
- Known limitations of 3ds loader and adapter are
- - skips lights
- - skips less frequent material properties
- - skips non-baked matrices
-
-\page inputs_quake3 Quake 3 (.BSP)
- Quake 3 .BSP is popular 3d scene format used by now open source game Quake 3.
- It supports only one uv coordinates, so it is suitable for realtime lighting and precomputed
- per-vertex, but not for precomputed lightmaps.
-
- Source code of Quake 3 adapter is in: samples/ImportQuake3/*.*
- \n It adapts BSP scene with geometry and materials for Lightsprint format.
- \n Scene is loaded by open source BSP loader in the same directory.
-
- Known limitations of .bsp loader and adapter are
- - skips lights
- - skips script based material properties
- - skips curved surfaces
-
-\page inputs_obj OBJ (.OBJ)
- OBJ (.obj) is old plaintext format popular for its simplicity.
- It's suitable for individual objects, but not for whole scenes,
- because it doesn't support lights.
- For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>.
-
- Source code of OBJ loader and adapter is in: samples/ImportOBJ/*.*
- \n It loads .obj file and makes it available in Lightsprint format.
-
- Known limitations of .obj loader and adapter are
- - loads only raw triangles, no materials (use \ref inputs_collada for rich import)
- - note: format doesn't support lights, so .obj scenes are completely black
-
-\page inputs_mgf MGF (.MGF)
- Materials and Geometry Format (.mgf) is open but old and rarely used format
- for describing scenes and objects suitable for physically-based rendering applications.
- For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">mgf homepage</a>.
-
- Source code of MGF loader and adapter is in: samples/ImportMGF/*.*
- \n It loads .mgf file using source code taken from mgflib (see link above)
- and makes it available in Lightsprint format.
-
- Known limitations of .mgf loader and adapter are
- - only convex polygons are triangulated properly
 
 \page inputs_images Images (jpg, png, dds, hdr, gif, tga...), vertex buffers (vbu)
  Nearly all standard image formats are supported.
  \n Images with floating point colors are supported in .hdr format.
  Both 2d and cubemap images are supported.
 
- Source code of image loading/saving is in: samples/Import/ImportFreeImage.cpp.
+ Source code of image loading/saving is in: src/LightsprintIO/ImportFreeImage.cpp.
  \n It loads/saves vertex buffers directly, textures using FreeImage library.
 
 \page inputs_unreal Unreal Engine 3
@@ -2349,10 +2281,39 @@ Remark:
 
 
 
-
 \page api_io LightsprintIO
 
- LightsprintIO handles scene loading and image load/save.
+ LightsprintIO is an optional utility library that handles loading of 3D scenes from a variety
+ of formats, namely:
+  - Collada (.DAE) - open, flexible and well supported format for digital asset exchange.
+  Adapter loads geometry, materials and lights and uses FCollada library. See comments at the
+  beginning of source file "RRObjectCollada.cpp" for more details about features supported.
+  - 3DS - very old but popular format, despite the fact that its specification was never
+  officially released. It supports only one set of texture coordinates, therefore it is
+  not suitable for static lightmaps (which typically require another mapping channel).
+  Adapter loads geometry and materials and uses open source 3DS loader. Known limitations:
+    - no support for lights
+    - no support for less common material properties
+    - skips non-baked matrices
+  - Quake 3 (.BSP) - popular scene format used by Quake 3 engine. It supports only one set of
+  texture coordinates so it is not suitable for scenarios where static lighting calculation
+  into lightmaps is required (see 3DS). Adapter loads geometry and materials. Known limitations:
+    - does not support lights
+    - does not support script-based materials
+    - does not support curved surfaces
+  - OBJ - old, plain text based format popular mainly because of its simplicity. It is suitable
+  for loading of single objects but not whole scenes, since it lacks support for lights.
+  For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>. Known limitations:
+    - no support for materials (only geometry is loaded)
+    - no support for lights (the scene will likely appear black)
+  - MGF - Materials and Geometry Format is an open but old and rarely used 3D format.
+  For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">MGF homepage</a>.
+  Adapter loads .MGF file using parts of the source code taken from mgflib (see the link above).
+  Known limitations:
+    - only convex polygons are triangulated properly
+
+ The source code of individual adapters is located in their respective directories within
+ "src/LightsprintIO".
 
  Namespace: rr_io
 
@@ -2363,15 +2324,12 @@ Remark:
 
 
 
-
-
 \page main_samples Samples
 
  \section samples_root Purpose
 
  - \subpage samples_gl
  - \subpage samples_core
- - \subpage samples_import
 
 
 
@@ -2515,43 +2473,6 @@ Remark:
  - penumbra shadows
  - simple, no global illumination, only constant ambient
 
-
-
-\page samples_import Scene import
-
- Several sample 3d scene importers are provided.
- They are not libraries, only *.h and *.cpp files to be included in other projects.
- \n They are located in samples directory in the SDK.
-
- <hr>
- <b>ImportCollada</b>
- - source code of Collada adapter
- - \ref inputs_collada details
-
- <hr>
- <b>Import3DS</b>
- - source code of 3DS loader, renderer and adapter
- - \ref inputs_3ds details
-
- <hr>
- <b>ImportQuake3</b>
- - source code of Quake3 map loader and adapter
- - \ref inputs_quake3 details
-
- <hr>
- <b>ImportOBJ</b>
- - source code of OBJ loader
- - \ref inputs_obj details
-
- <hr>
- <b>ImportMGF</b>
- - source code of MGF loader
- - \ref inputs_mgf details
-
- <hr>
- <b>ImportUE3</b>
- - source code of Unreal Engine 3 world adapter
- - \ref inputs_unreal details
 
 
 
