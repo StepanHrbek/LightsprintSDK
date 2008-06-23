@@ -235,6 +235,17 @@ Libraries used by LightsprintCore (global illumination solver):
     no library needed (no .dll/.so)
   - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
   - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
+- <a href="http://mesa3d.org/">Mesa 3D</a>
+  - Only required on PS3 Linux as a rendering front end for samples, since there are no
+    hardware accelerated RSX drivers provided. Please follow these installation instructions:
+    - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
+      writing this document is 7.0.3).
+    - type <code>make linux-ppc</code>
+    - open the file "configs/default" and make sure the variable <code>INSTALL_DIR</code> is set to <code>usr/local</code>.
+      This will ensure that Mesa will install to <code>/usr/local/lib</code> and will not interfere with the system default
+      OpenGL library located at <code>usr/lib</code>.
+    - type <code>sudo make install</code>
+    - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
 
 Used by LightsprintGL (optional OpenGL support):
 - GLU
@@ -242,14 +253,22 @@ Used by LightsprintGL (optional OpenGL support):
   - Linux (including PS3): should be already installed, install using e.g. <code>sudo apt-get install libglu1-mesa-dev</code>
   - XBox360, PS3 with system software: not necessary
 - <a href="http://glew.sourceforge.net/">GLEW</a>
-  - Windows: precompiled 1.5.0 is part of SDK
-  - Linux (including PS3): install using e.g. <code>sudo apt-get install libglew1.5-dev</code>
+  - Windows: precompiled version 1.5.0 is a part of SDK
+  - Linux: install using <code>sudo apt-get install libglew1.5-dev</code> or similar package manager
     - Note that we <code>\#include <GL/glew.h></code>, but SDK contains <code>include/gl/glew.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
-  - XBox360, PS3 with system software: not necessary
+  - PS3 Linux:
+    - download and unpack the latest source code package
+    - type <code>make</code>
+    - type <code>sudo make install</code>
+    - There is a known issue with simultaneously using GLEW and Mesa: GLEW happens to undefine
+      macro <code>GLAPIENTRY</code> which leads to compile errors. As a workaround, open the file
+      "/usr/include/GL/glew.h" and comment-out the statement <code>##undef GLAPIENTRY</code> at line 10767
+      (valid for version 1.5.0)
+  - XBox360, PS3 System Software: not necessary
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
-  - Windows: precompiled 3.7.6 <a href="http://dee.cz/glut">patched</a> is part of SDK
+  - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
   - Linux (including PS3): install using e.g. <code>sudo apt-get install libglut3-dev</code>
     - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
@@ -260,7 +279,7 @@ Used by LightsprintIO (optional file format support):
 - <a href="http://freeimage.sourceforge.net/">FreeImage</a>
   - This software uses the FreeImage open source image library. FreeImage is used under the FIPL, version 1.0.
   - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
-  - Windows: precompiled 3.10.0 is part of SDK
+  - Windows: precompiled version 3.10.0 is a part of SDK
   - Linux (including PS3 Linux): install using e.g. <code>sudo apt-get install libfreeimage-dev</code>
     - Note that we <code>\#include <FreeImage.h></code>, but SDK contains <code>include/freeimage.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
