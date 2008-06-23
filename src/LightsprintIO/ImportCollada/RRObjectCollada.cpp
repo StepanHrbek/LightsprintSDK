@@ -574,7 +574,7 @@ private:
 				else
 				{
 					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Texcoord binding missing in Collada file, reading first channel instead. This is error of software that produced your Collada document. Documents can be tested using coherency test from http://sourceforge.net/projects/colladarefinery/\n"));
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
 				}
 			}
 		}

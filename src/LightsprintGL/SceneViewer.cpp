@@ -163,7 +163,7 @@ public:
 				// allocate lightmap-buffers for realtime rendering
 				for(unsigned i=0;i<getNumObjects();i++)
 				{
-					if(getIllumination(i) && getObject(i))
+					if(getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
 						getIllumination(i)->getLayer(realtimeLayerNumber) =
 							rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 				}
@@ -357,7 +357,8 @@ public:
 				{
 					solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
 					speedGlobal = eye.afar*0.08f;
-					eye.afar = MAX(eye.anear+1,eye.afar);
+					eye.anear = MAX(0.1f,eye.afar/500); // increase from 0.1 to prevent z fight in big scenes
+					eye.afar = MAX(eye.anear+1,eye.afar); // adjust to fit all objects in range
 					eye.setDirection(eye.dir);
 				}
 				break;

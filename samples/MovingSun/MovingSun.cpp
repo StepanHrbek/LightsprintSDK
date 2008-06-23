@@ -544,7 +544,8 @@ int main(int argc, char **argv)
 		//srand((unsigned)time(NULL));
 		solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
 		cameraSpeed = eye.afar*CAM_SPEED;
-		eye.afar = MAX(eye.anear+1,eye.afar);
+		eye.anear = MAX(0.1f,eye.afar/500); // increase from 0.1 to prevent z fight in big scenes
+		eye.afar = MAX(eye.anear+1,eye.afar); // adjust to fit all objects in range
 		eye.setDirection(eye.dir);
 	}
 
