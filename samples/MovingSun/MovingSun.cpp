@@ -20,8 +20,6 @@
 // --------------------------------------------------------------------------
 
 #define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
-//#define DEFAULT_SCENE           "../../../rr_users/triana-3drender/2008-05-20/unp/kalasatama.dae"
-//#define DEFAULT_SCENE           "../../data/scenes/koupelna/koupelna4-windows.dae"
 //#define FORCE_PRECALCULATE            // precalculate even when data are already available
 #define NUM_FRAMES              10    // more = more detailed changes in time
 #define STATIC_QUALITY          200   // more = less noise
@@ -506,6 +504,8 @@ int main(int argc, char **argv)
 
 	// load scene
 	scene = new rr_io::ImportScene(sceneFilename,1,true);
+	if(!scene->getObjects())
+		error("No objects in scene.",false);
 
 	solver->setStaticObjects(*scene->getObjects(), NULL);
 
@@ -515,8 +515,6 @@ int main(int argc, char **argv)
 	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
-//	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/qfraggel3/qfraggel3_%s.jpg",cubeSideNames,true,true));
-//	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/forest1/forest_%s.tga",cubeSideNames,true,true));
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

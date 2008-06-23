@@ -378,8 +378,10 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	TIME now = GETTIME;
 	if(priv->packedSolver)
 	{
+		//unsigned oldVer = priv->packedSolver->getSolutionVersion();
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
 		priv->dirtyResults = true;
+		//priv->dirtyResults = priv->packedSolver->getSolutionVersion()>oldVer;
 	}
 	else
 	if(priv->scene)
