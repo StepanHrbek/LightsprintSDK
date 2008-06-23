@@ -28,7 +28,7 @@ ifeq ($(CFG_TYPE), dll)
 CPP_FLAGS += -fpic
 $(TARGET): config $(OBJECTS)
 	@mkdir -p $(dir $@)
-	gcc -o $@ -shared $(OBJECTS) $(LIBS)
+	gcc -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
 
 # include dependencies
