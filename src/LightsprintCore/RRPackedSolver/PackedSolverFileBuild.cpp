@@ -216,7 +216,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 
 void getFireballFilename(const RRObject* object,char filename[1000])
 {
-	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object ? object->getCollider()->getMesh() : NULL,filename,".fireball");
+	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object ? object->getCollider()->getMesh() : NULL,NULL,".fireball");
 }
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
