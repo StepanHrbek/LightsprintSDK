@@ -2,12 +2,12 @@ CONFIG = ps3-linux
 BITS = 64
 
 CPP_FLAGS += -O3
-CPP_FLAGS += -s
 CPP_FLAGS += -ffast-math
 CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
 
-GL_LIBS = ../../bin/ps3-linux/libGL.so ../../bin/ps3-linux/libglut.so ../../bin/ps3-linux/libGLEW.so
-FCOLLADA_LIB = ../../lib/ps3-linux/libfcollada.a -lxml2
+LINK_FLAGS += -s
 
+GL_LIBS = -lGL -lglut -lGLEW
+FCOLLADA_LIB = ../../lib/ps3-linux/libfcollada.a -lxml2

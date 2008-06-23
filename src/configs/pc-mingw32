@@ -2,7 +2,8 @@ CONFIG = pc-mingw32
 BITS = 32
 
 CPP_FLAGS += -O3
-CPP_FLAGS += -s
 CPP_FLAGS += -ffast-math
 CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -DNDEBUG
+
+LINK_FLAGS += -s

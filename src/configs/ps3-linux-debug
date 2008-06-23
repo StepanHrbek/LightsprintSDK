@@ -5,6 +5,5 @@ CPP_FLAGS += -O0
 CPP_FLAGS += -g
 CPP_FLAGS += -D_DEBUG
 
-GL_LIBS = ../../bin/ps3-linux/libGL.so ../../bin/ps3-linux/libglut.so ../../bin/ps3-linux/libGLEW.so
+GL_LIBS = -lGL -lglut -lGLEW
 FCOLLADA_LIB = ../../lib/ps3-linux/libfcollada.a -lxml2
-
