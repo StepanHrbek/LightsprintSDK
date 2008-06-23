@@ -54,16 +54,6 @@
 #include "../RealtimeRadiosity/DynamicObject.h"
 #include <stdio.h>   // printf
 
-// Linux GLUT compatibility
-
-#ifndef GLUT_WHEEL_UP
-#define GLUT_WHEEL_UP 3
-#endif
-
-#ifndef GLUT_WHEEL_DOWN
-#define GLUT_WHEEL_DOWN 4
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -350,6 +340,7 @@ void mouse(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		modeMovingEye = !modeMovingEye;
+#ifdef GLUT_WHEEL_UP
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
@@ -358,6 +349,7 @@ void mouse(int button, int state, int x, int y)
 	{
 		if(eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
+#endif
 }
 
 void passive(int x, int y)

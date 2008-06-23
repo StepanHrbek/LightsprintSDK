@@ -22,8 +22,8 @@
 #define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
 //#define FORCE_PRECALCULATE            // precalculate even when data are already available
 #define NUM_FRAMES              10    // more = more detailed changes in time
-#define STATIC_QUALITY          200   // more = less noise
-#define DYNAMIC_OBJECTS         30    // number of characters
+#define STATIC_QUALITY          200   // more = less noise. some scenes need at least 1000 (but precalc takes longer)
+#define DYNAMIC_OBJECTS         30    // number of characters randomly moving around
 #define SUN_SPEED               0.05f // speed of Sun movement
 #define OBJ_SPEED               0.05f // speed of dynamic object movement
 #define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
@@ -51,16 +51,6 @@
 #if defined(LINUX) || defined(linux)
 #include <sys/stat.h>
 #include <sys/types.h>
-#endif
-
-// Linux GLUT compatibility
-
-#ifndef GLUT_WHEEL_UP
-#define GLUT_WHEEL_UP 3
-#endif
-
-#ifndef GLUT_WHEEL_DOWN
-#define GLUT_WHEEL_DOWN 4
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -327,6 +317,7 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
+#ifdef GLUT_WHEEL_UP
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
@@ -335,6 +326,7 @@ void mouse(int button, int state, int x, int y)
 	{
 		if(eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
+#endif
 	solver->reportInteraction();
 }
 
