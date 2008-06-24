@@ -13,6 +13,9 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
+#include <GL/freeglut_ext.h>
+#endif
 
 #define DEBUG_TEXEL
 
@@ -363,7 +366,8 @@ public:
 				}
 				break;
 			case ME_VERIFY: solver->verify(); break;
-			case ME_CLOSE: exitRequested = 1; break;
+			case ME_CLOSE:
+				exitRequested = 1; break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		destroy();
@@ -1384,11 +1388,14 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	Menu* menu = new Menu(solver);
 	menu->mainCallback(Menu::ME_RANDOM_CAMERA);
 	toneMapping = new ToneMapping(_pathToShaders);
-	
+
 	exitRequested = false;
-#ifdef GLUT_WITH_WHEEL_AND_LOOP
+#if defined(GLUT_WITH_WHEEL_AND_LOOP)
 	while(!exitRequested && !_solver->aborting)
 		glutMainLoopUpdate();
+#elif (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
+	while(!exitRequested && !_solver->aborting)
+		glutMainLoopEvent();
 #else
 	glutMainLoop();
 #endif
