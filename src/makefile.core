@@ -61,8 +61,13 @@ run:
 
 config:
 	@if [ ! -f $(CFG_DIR)/current ] ; then \
-		echo "Please use \"make <config>\" first to select configuration from:"; \
-		ls $(CFG_DIR); \
+		echo "-----------------------------------------------------------------------------"; \
+		echo "Please use \"make <config>\" first. Select one of the following configurations:"; \
+		echo "-----------------------------------------------------------------------------"; \
+		ls -1 $(CFG_DIR); \
+		echo "-----------------------------------------------------------------------------"; \
+		echo "You may ignore the following error messages."; \
+		echo "-----------------------------------------------------------------------------"; \
 		exit 1; \
 	fi
 
