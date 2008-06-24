@@ -164,7 +164,7 @@ void display(void)
 
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_SAMPLES = 4; // for 3ds draw, won't be reset by MultiPass
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
@@ -321,7 +321,7 @@ int main(int argc, char **argv)
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_SAMPLES = 4; // for detectMaxShadowmaps, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;

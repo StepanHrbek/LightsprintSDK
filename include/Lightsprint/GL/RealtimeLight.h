@@ -67,6 +67,11 @@ public:
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowMap(unsigned instance) const;
 
+	//! Whether soft shadows are allowed. Modified only by user, default=true. Affects getNumShadowSamples().
+	bool softShadowsAllowed;
+	//! Returns recommended number of shadow samples for given light type and instance.
+	unsigned getNumShadowSamples(unsigned instance) const;
+
 	//! Shape of light source area.
 	//
 	//! Area light is simulated by multiple spot lights.

@@ -36,6 +36,7 @@ namespace rr_gl
 		shadowMaps = NULL;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:((_rrlight.type==rr::RRLight::DIRECTIONAL)?2:1)):0);
+		softShadowsAllowed = true;
 	}
 
 	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
@@ -58,6 +59,7 @@ namespace rr_gl
 		shadowMaps = NULL;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		setNumInstances(_numInstances);
+		softShadowsAllowed = true;
 	}
 
 	RealtimeLight::~RealtimeLight()
@@ -123,6 +125,22 @@ namespace rr_gl
 			return NULL;
 		}
 		return shadowMaps[instance];
+	}
+
+	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
+	{
+		if(instance>=numInstances) return 0;
+		if(!origin) return 1;
+		if(!origin->castShadows) return 0;
+		if(!softShadowsAllowed) return 1;
+		switch(origin->type)
+		{
+			case rr::RRLight::POINT: return 1;
+			case rr::RRLight::SPOT: return 4;
+			case rr::RRLight::DIRECTIONAL: return (instance==numInstances-1)?4:1;
+			default: RR_ASSERT(0);
+		}
+		return 1;
 	}
 
 	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const

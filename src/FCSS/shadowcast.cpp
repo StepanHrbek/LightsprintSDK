@@ -123,9 +123,6 @@ rr_gl::UberProgram* uberProgram;
 rr_gl::UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
-int depthBias24 = 50;//23;//42;
-int depthScale24;
-GLfloat slopeScale = 5;//2.3;//4.0;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
@@ -262,14 +259,6 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-void updateDepthBias(int delta)
-{
-	depthBias24 += delta;
-	glPolygonOffset(slopeScale, (GLfloat)(depthBias24*depthScale24));
-	if(level) level->solver->reportDirectIlluminationChange(0,true,false);
-	//printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
-}
-
 // sets our globals and rendering pipeline according to currentFrame.shadowType
 void setShadowTechnique()
 {
@@ -279,24 +268,19 @@ void setShadowTechnique()
 	oldShadowType = currentFrame.shadowType;
 
 	// cheap changes (no GL commands)
-	uberProgramGlobalSetup.SHADOW_SAMPLES = (currentFrame.shadowType<2)?1:4;
 	realtimeLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
 
 	// expensive changes (GL commands)
 	if(currentFrame.shadowType>=2)
 	{
 		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
-		// 8800@24bit // x300+gf6150
-		depthBias24 = 50;//23;
-		slopeScale = 5;//2.3f;
+		realtimeLight->softShadowsAllowed = true;
 	}
 	else
 	{
 		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
-		depthBias24 = 30;//1;
-		slopeScale = 3;//0.1f;
+		realtimeLight->softShadowsAllowed = false;
 	}
-	glPolygonOffset(slopeScale,(GLfloat)(depthBias24*depthScale24));
 	level->solver->reportDirectIlluminationChange(0,true,false);
 }
 
@@ -307,11 +291,6 @@ void init_gl_resources()
 	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 //	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 //	realtimeLight->parent = &currentFrame.light;
-
-	// update states, but must be done after initing shadowmaps (inside RealtimeLight)
-	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
-	depthScale24 = 1 << (shadowDepthBits-16);
-	updateDepthBias(0);  /* Update with no offset change. */
 
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
@@ -657,7 +636,6 @@ void drawEyeViewSoftShadowed(void)
 			glClear(GL_DEPTH_BUFFER_BIT);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
@@ -878,11 +856,7 @@ static void drawHelpMessage(int screen)
 		"'n'   - compress shadow frustum near clip plane",
 		"'N'   - expand shadow frustum near clip plane",
 		"'c'   - compress shadow frustum far clip plane",
-		"'C'   - expand shadow frustum far clip plane",
-		"'b'   - increment the depth bias for 1st pass glPolygonOffset",
-		"'B'   - decrement the depth bias for 1st pass glPolygonOffset",
-		"'q'   - increment depth slope for 1st pass glPolygonOffset",
-		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
+		"'C'   - expand shadow frustum far clip plane",*/
 		NULL,
 		}
 /*#ifndef THREE_ONE
@@ -1031,70 +1005,6 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 	skyRenderer->render2D(rr_gl::getTexture(logo),color,x,y,w,h);
 	glDisable(GL_BLEND);
 }
-
-/*
-// shortcut for multiple scenes displayed at once
-void displayScene(unsigned sceneIndex, float sceneTime, rr::RRVec3 offset)
-{
-	// backup old state
-	Level* oldLevel = level;
-	rr_gl::Camera oldEye = eye;
-	rr_gl::Camera oldLight = light;
-
-	level = demoPlayer->getPart(sceneIndex);
-	assert(level);
-	demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup,sceneTime);
-	eye = oldEye;
-	eye.pos[0] -= offset[0];
-	eye.pos[1] -= offset[1];
-	eye.pos[2] -= offset[2];
-	eye.update(0);
-	light.update(0.3f);
-
-	//!!! always updated = waste of GPU performance
-	needDepthMapUpdate = 1;
-	updateDepthMap(0,0);
-
-	rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-	//uberProgramSetup.MATERIAL_DIFFUSE = ;
-	//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-	//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
-	//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
-	//uberProgramSetup.MATERIAL_SPECULAR = ;
-	//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
-	//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
-	//uberProgramSetup.OBJECT_SPACE = false;
-	uberProgramSetup.FORCE_2D_POSITION = false;
-	eye.setupForRender();
-	renderScene(uberProgramSetup,0);
-
-	// restore old state
-	light = oldLight;
-	eye = oldEye;
-	level = oldLevel;
-}
-
-void displayScenes()
-{
-	if(demoPlayer->getNumParts()>1)
-	{
-	//	displayScene(0,8,rr::RRVec3( 0,0, 0));
-		displayScene(0,8,rr::RRVec3(20,0,12)); //!!! 8
-		displayScene(1,8,rr::RRVec3(20,0, 0));
-		displayScene(0,8,rr::RRVec3( 0,0,12));
-	}
-	//eye.update(0);
-	//light.update(0.3f);
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1607,25 +1517,6 @@ void keyboard(unsigned char c, int x, int y)
 			showLightViewFrustum = !showLightViewFrustum;
 			if (showLightViewFrustum) needMatrixUpdate = 1;
 			break;
-		case 'b':
-			updateDepthBias(+1);
-			break;
-		case 'B':
-			updateDepthBias(-1);
-			break;
-		case 'q':
-			slopeScale += 0.1;
-			needDepthMapUpdate = 1;
-			updateDepthBias(0);
-			break;
-		case 'Q':
-			slopeScale -= 0.1;
-			if (slopeScale < 0.0) {
-				slopeScale = 0.0;
-			}
-			needDepthMapUpdate = 1;
-			updateDepthBias(0);
-			break;
 		case 'a':
 			++realtimeLight->areaType%=3;
 			needDepthMapUpdate = 1;
@@ -1660,51 +1551,6 @@ void keyboard(unsigned char c, int x, int y)
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
-			break;
-		case '*':
-			if(uberProgramGlobalSetup.SHADOW_SAMPLES<8)
-			{
-				uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
-				setupAreaLight();
-			}
-			//	else uberProgramGlobalSetup.SHADOW_SAMPLES=9;
-			break;
-		case '/':
-			//if(uberProgramGlobalSetup.SHADOW_SAMPLES==9) uberProgramGlobalSetup.SHADOW_SAMPLES=8; else
-			if(uberProgramGlobalSetup.SHADOW_SAMPLES>1) 
-			{
-				uberProgramGlobalSetup.SHADOW_SAMPLES /= 2;
-				setupAreaLight();
-			}
-			break;
-		case '+':
-			{
-				unsigned numInstances = realtimeLight->getNumInstances();
-				if(numInstances+INSTANCES_PER_PASS<=MAX_INSTANCES) 
-				{
-					if(numInstances==1 && numInstances<INSTANCES_PER_PASS)
-						numInstances = INSTANCES_PER_PASS;
-					// vypnuty accum, protoze nedela dobrotu na radeonech
-					//else
-					//	numInstances += INSTANCES_PER_PASS;
-					realtimeLight->setNumInstances(numInstances);
-					setupAreaLight();
-				}
-			}
-			break;
-		case '-':
-			{
-				unsigned numInstances = realtimeLight->getNumInstances();
-				if(numInstances>1) 
-				{
-					if(numInstances>INSTANCES_PER_PASS) 
-						numInstances -= INSTANCES_PER_PASS;
-					else
-						numInstances = 1;
-					realtimeLight->setNumInstances(numInstances);
-					setupAreaLight();
-				}
-			}
 			break;*/
 		default:
 			return;
@@ -2426,7 +2272,6 @@ int main(int argc, char **argv)
 	updateMatrices(); // needed for startup without area lights (realtimeLight doesn't update matrices for 1 instance)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
-	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();

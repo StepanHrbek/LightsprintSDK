@@ -190,7 +190,7 @@ void display(void)
 	// render
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_SAMPLES = 4; // for 3ds draw, won't be reset by MultiPass
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
@@ -241,8 +241,6 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = winWidth/(float)winHeight;
-	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
-	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -358,7 +356,7 @@ int main(int argc, char **argv)
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_SAMPLES = 4; // for detectMaxShadowmaps, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;

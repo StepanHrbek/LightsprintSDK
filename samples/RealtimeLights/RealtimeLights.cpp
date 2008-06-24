@@ -240,10 +240,6 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = winWidth/(float)winHeight;
-	rr_gl::Texture* texture = rr_gl::Texture::createShadowmap(64,64);
-	GLint shadowDepthBits = texture->getTexelBits();
-	delete texture;
-	glPolygonOffset(1,(float)(12<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -313,7 +309,6 @@ void display(void)
 	eye.setupForRender();
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;

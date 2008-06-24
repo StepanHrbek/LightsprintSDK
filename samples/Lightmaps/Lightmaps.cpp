@@ -91,7 +91,7 @@ float                      speedRight = 0;
 float                      speedLeft = 0;
 bool                       realtimeIllumination = true; // true = fully realtime computed GI, no precalcs; false = precomputed lightmaps+lightfield
 bool                       ambientMapsRender = false;
-rr::RRVec4                 brightness(1);
+rr::RRVec4                 brightness(2);
 float                      contrast = 1;
 
 #if defined(LINUX) || defined(linux)
@@ -184,22 +184,6 @@ protected:
 	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 	{
 		::renderScene(uberProgramSetup,renderingFromThisLight);
-	}
-	// set shader so that direct light+shadows+emissivity are rendered, but no materials
-	virtual rr_gl::Program* setupShader(unsigned objectNumber)
-	{
-		// render scene with forced 2d positions of all triangles
-		rr_gl::UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.FORCE_2D_POSITION = true;
-		rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLights[0],0,NULL,1);
-		if(!program)
-			error("Failed to compile or link GLSL program.\n",true);
-		return program;
 	}
 };
 
@@ -337,8 +321,6 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = winWidth/(float)winHeight;
-	GLint shadowDepthBits = solver->realtimeLights[0]->getShadowMap(0)->getTexelBits();
-	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -411,7 +393,6 @@ void display(void)
 	eye.setupForRender();
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;

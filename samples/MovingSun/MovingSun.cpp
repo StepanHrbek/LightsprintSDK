@@ -315,10 +315,6 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = winWidth/(float)winHeight;
-	rr_gl::Texture* texture = rr_gl::Texture::createShadowmap(64,64);
-	GLint shadowDepthBits = texture->getTexelBits();
-	delete texture;
-	glPolygonOffset(1,(float)(20<<(shadowDepthBits-16)));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -379,8 +375,8 @@ void display(void)
 	eye.setupForRender();
 	rr_gl::UberProgramSetup uberProgramSetup = solver->getMaterialsInStaticScene();
 	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	//uberProgramSetup.POSTPROCESS_GAMMA = true;
@@ -519,7 +515,7 @@ int main(int argc, char **argv)
 	// init lights
 	{
 		rr::RRLights lights;
-		lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(1),rr::RRVec3(1),true)); 
+		lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(1),rr::RRVec3(3),true)); 
 		//lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),0.8f,0.4f)); 
 		solver->setLights(lights);
 	}

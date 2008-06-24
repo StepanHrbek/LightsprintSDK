@@ -156,7 +156,7 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	{
 		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);
 		RR_ASSERT(triangleIndex<numTriangles);
-		RR_ASSERT(getCorner(i).power>=0); // ==0 is not nice, but for simplicity we accept it too
+		RR_ASSERT(getCorner(i).power>=0); // power 0 is not nice, but for simplicity we accept it too
 		//RR_ASSERT((*(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex)).avg()>=0); bent normals may be negative
 		result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * getCorner(i).power;
 	}

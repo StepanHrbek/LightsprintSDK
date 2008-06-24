@@ -161,10 +161,19 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	if(!light || (light->origin && !light->origin->castShadows))
 	{
 		uberProgramSetup.SHADOW_MAPS = 0;
-		uberProgramSetup.SHADOW_SAMPLES = 0;
+		uberProgramSetup.SHADOW_SAMPLES = 0; // for 3ds draw, not reset by MultiPass
 	}
-	uberProgramSetup.LIGHT_DIRECT_COLOR         = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->color!=rr::RRVec3(1);
-	uberProgramSetup.LIGHT_DIRECT_MAP           = uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light && light->lightDirectMap;
+	else
+	{
+		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
+		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0); // for 3ds draw, not reset by MultiPass
+		if(uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects
+		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
+		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
+	}
+
+	uberProgramSetup.LIGHT_DIRECT_COLOR           = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->color!=rr::RRVec3(1);
+	uberProgramSetup.LIGHT_DIRECT_MAP             = uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light && light->lightDirectMap;
 	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL    = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL  = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;

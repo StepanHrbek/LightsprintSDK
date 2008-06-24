@@ -319,8 +319,7 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 	if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
 		// indirect from envmap
-		uberProgramSetup.SHADOW_MAPS = 1; // always use 1 shadowmap, detectMaxShadowmaps expects it and ignores dynaobjects
-		//uberProgramSetup.SHADOW_SAMPLES = 1;
+		uberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynobjects
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;

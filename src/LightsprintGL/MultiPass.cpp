@@ -59,9 +59,12 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		light = (*lights)[_lightIndex];
 		RR_ASSERT(light);
 		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
+		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0);
 		uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
 		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
-		if(uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // override user setting by optimal setting
+		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects, for DDI
+		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
+		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;

@@ -421,6 +421,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 				lightInstance->setupForRender();
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowMap(i);
+				float bias = (float)light->getNumShadowSamples(i);
+				glPolygonOffset(bias,bias*(10<<(shadowmap->getTexelBits()-16)));
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 				if(!shadowmap->renderingToBegin())
 				{
@@ -508,7 +510,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 {
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->areaType==RealtimeLight::POINT)?setupShaderLight->getNumInstances():(setupShaderLight->getNumInstances()?1:0);
-	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0;
+	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
 	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;

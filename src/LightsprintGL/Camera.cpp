@@ -103,6 +103,10 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	{
 		// update matrices
 		//update(NULL,0);
+		// update visible range to roughly match observer range
+		orthoSize = MIN(150,observer->afar);
+		afar = orthoSize*1.8f; // light must have 2x bigger range, it goes in 2 directions from observer
+		anear = afar/10;
 		// set new pos
 		pos = observer->pos - dir*((afar-anear)*0.5f);// + observer->dir*(orthoSize*0.5f);
 		/*/ adjust pos

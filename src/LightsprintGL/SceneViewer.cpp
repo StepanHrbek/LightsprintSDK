@@ -746,10 +746,6 @@ static void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = winWidth/(float)winHeight;
-	Texture* texture = Texture::createShadowmap(64,64);
-	GLint shadowDepthBits = texture->getTexelBits();
-	delete texture;
-	glPolygonOffset(1.2f,(GLfloat)(20<<(shadowDepthBits-16)));
 }
 
 static void mouse(int button, int state, int x, int y)
@@ -868,7 +864,6 @@ static void display(void)
 
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = renderRealtime;
 			uberProgramSetup.LIGHT_DIRECT_COLOR = renderRealtime;
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = renderRealtime;
