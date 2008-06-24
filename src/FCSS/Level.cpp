@@ -1,5 +1,3 @@
-#define QUAKE_DIR_STRUCTURE        false
-
 #include "Level.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
@@ -49,7 +47,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		}
 	}
 
-	scene = new rr_io::ImportScene(pilot.setup->filename, 1.f, !QUAKE_DIR_STRUCTURE);
+	scene = new rr_io::ImportScene(pilot.setup->filename, pilot.setup->scale, true);
 	objects = scene->getObjects();
 
 	if(!objects || !objects->size())
