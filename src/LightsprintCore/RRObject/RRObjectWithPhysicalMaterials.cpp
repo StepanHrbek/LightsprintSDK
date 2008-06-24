@@ -38,12 +38,12 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 	{
 		_pos = RRVec3(0);
 		_dir = RRVec3(1,0,0);
-		_maxdist = 1;
+		_maxdist = 10;
 		return;
 	}
 	rr::RRVec3 mini,maxi,center;
 	mesh->getAABB(&mini,&maxi,&center);
-	_maxdist = (maxi-mini).sum();
+	_maxdist = (maxi-mini).length();
 	unsigned bestNumFaces = 0;
 	RRRay* ray = RRRay::create();
 	std::set<unsigned> hitTriangles;
