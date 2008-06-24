@@ -907,12 +907,13 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	{
 		RRMesh::PreImportNumber preImportTriangleNumber;
 		preImportTriangleNumber.object = objectNumber;
-		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume triangle with preimport index 0 exists
+		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume object's triangle 0 made it into multiobject
 		unsigned postImportTriangleNumber = multiMesh->getPostImportTriangle(preImportTriangleNumber);
 		for(unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
 			const RRLight* light = getLights()[lightNumber];
-			if(multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
+			if(postImportTriangleNumber==UINT_MAX // make all lights relevant in very rare case when object's triangle 0 is not in multiobject (happens when opening kalasatama.dae in MovingSun)
+				|| multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
 				relevantLightsPerObject[objectNumber].push_back(light);
 		}
 	}
