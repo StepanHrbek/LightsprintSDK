@@ -66,11 +66,6 @@ float                  speedBack = 0;
 float                  speedRight = 0;
 float                  speedLeft = 0;
 
-#if defined(LINUX) || defined(linux)
-static const float mouseSensitivity = 0.0002f;
-#else
-static const float mouseSensitivity = 0.005f;
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -233,6 +228,11 @@ void passive(int x, int y)
 	y -= winHeight/2;
 	if(x || y)
 	{
+#if defined(LINUX) || defined(linux)
+		const float mouseSensitivity = 0.0002f;
+#else
+		const float mouseSensitivity = 0.005f;
+#endif
 		if(modeMovingEye)
 		{
 			eye.angle -= mouseSensitivity*x;

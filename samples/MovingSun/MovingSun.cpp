@@ -166,11 +166,6 @@ rr::RRVec3                 aabbMin,aabbMax; // AABB of static scene
 rr::RRReal                 groundLevel = 0;
 rr_io::ImportScene*        scene = NULL;
 
-#if defined(LINUX) || defined(linux)
-static const float mouseSensitivity = 0.0002f;
-#else
-static const float mouseSensitivity = 0.005f;
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -340,6 +335,11 @@ void passive(int x, int y)
 	y -= winHeight/2;
 	if(x || y)
 	{
+#if defined(LINUX) || defined(linux)
+		const float mouseSensitivity = 0.0002f;
+#else
+		const float mouseSensitivity = 0.005f;
+#endif
 		eye.angle -= mouseSensitivity*x;
 		eye.angleX -= mouseSensitivity*y;
 		CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
