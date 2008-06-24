@@ -148,12 +148,15 @@ RRReal RRStaticSolver::illuminationAccuracy()
 
 RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride, Triangle* triangles, unsigned numTriangles) const
 {
+	// prevent NaN (triangle with 1 corner with power=0 gets here in MovingSun+kalasatama.dae)
+	if(!powerTopLevel) return RRVec3(0);
+
 	RRVec3 result = RRVec3(0);
 	for(unsigned i=0;i<corners;i++)
 	{
 		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);
 		RR_ASSERT(triangleIndex<numTriangles);
-		RR_ASSERT(getCorner(i).power>0);
+		RR_ASSERT(getCorner(i).power>=0); // ==0 is not nice, but for simplicity we accept it too
 		//RR_ASSERT((*(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex)).avg()>=0); bent normals may be negative
 		result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * getCorner(i).power;
 	}
