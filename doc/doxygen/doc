@@ -2110,9 +2110,14 @@ Remark:
 
 
 \page api_core Lightsprint Core
+
+ \section core_overview Overview
+
  Lightsprint Core calculates global illumination in dynamic and static scenes.
  Subsystems include fast ray-scene intersections.
  It is OpenGL/Direct3D independent.
+
+ \section core_api API
 
  Namespace: rr
 
@@ -2220,6 +2225,8 @@ Remark:
 
 \page api_gl LightsprintGL
 
+ \section gl_overview Overview
+
  LightsprintGL implements realtime rendering on top of LightsprintCore.
 
  Features of LightsprintGL renderer
@@ -2239,6 +2246,8 @@ Remark:
      - transparency: none, constant, per pixel / blend or alpha keying
      - normal map
    - supports OpenGL 2.0 GPUs (GeForce 5xxx and higher, Radeon 9500 and higher etc)
+
+ \section gl_api API
 
  Namespace: rr_gl
 
@@ -2283,37 +2292,36 @@ Remark:
 
 \page api_io LightsprintIO
 
+ \section io_overview Overview
+
  LightsprintIO is an optional utility library that handles loading of 3D scenes from a variety
  of formats, namely:
-  - Collada (.DAE) - open, flexible and well supported format for digital asset exchange.
+  - <b>Collada (.DAE)</b> - open, flexible and well supported format for digital asset exchange.
   Adapter loads geometry, materials and lights and uses FCollada library. See comments at the
-  beginning of source file "RRObjectCollada.cpp" for more details about features supported.
-  - 3DS - very old but popular format, despite the fact that its specification was never
+  beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
+  for more details about features supported.
+  - <b>3DS</b> - very old but popular format, despite the fact that its specification was never
   officially released. It supports only one set of texture coordinates, therefore it is
   not suitable for static lightmaps (which typically require another mapping channel).
   Adapter loads geometry and materials and uses open source 3DS loader. Known limitations:
-    - no support for lights
-    - no support for less common material properties
-    - skips non-baked matrices
-  - Quake 3 (.BSP) - popular scene format used by Quake 3 engine. It supports only one set of
+  does not support lights, less common material properties and non-baked matrices.
+  - <b>Quake 3 (.BSP)</b> - popular scene format used by Quake 3 engine. It supports only one set of
   texture coordinates so it is not suitable for scenarios where static lighting calculation
   into lightmaps is required (see 3DS). Adapter loads geometry and materials. Known limitations:
-    - does not support lights
-    - does not support script-based materials
-    - does not support curved surfaces
-  - OBJ - old, plain text based format popular mainly because of its simplicity. It is suitable
+  does not support lights, script-based materials and curved surfaces.
+  - <b>OBJ</b> - old, plain text based format popular mainly because of its simplicity. It is suitable
   for loading of single objects but not whole scenes, since it lacks support for lights.
   For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>. Known limitations:
-    - no support for materials (only geometry is loaded)
-    - no support for lights (the scene will likely appear black)
-  - MGF - Materials and Geometry Format is an open but old and rarely used 3D format.
+  does not support materials and lights.
+  - <b>MGF</b> - Materials and Geometry Format is an open but old and rarely used 3D format.
   For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">MGF homepage</a>.
   Adapter loads .MGF file using parts of the source code taken from mgflib (see the link above).
-  Known limitations:
-    - only convex polygons are triangulated properly
+  Known limitations: only convex polygons are triangulated properly.
 
  The source code of individual adapters is located in their respective directories within
  "src/LightsprintIO".
+
+ \section io_api API
 
  Namespace: rr_io
 
