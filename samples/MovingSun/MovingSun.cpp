@@ -166,6 +166,12 @@ rr::RRVec3                 aabbMin,aabbMax; // AABB of static scene
 rr::RRReal                 groundLevel = 0;
 rr_io::ImportScene*        scene = NULL;
 
+#if defined(LINUX) || defined(linux)
+static const float mouseSensitivity = 0.0002f;
+#else
+static const float mouseSensitivity = 0.005f;
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // termination with error message
@@ -338,8 +344,8 @@ void passive(int x, int y)
 	y -= winHeight/2;
 	if(x || y)
 	{
-		eye.angle -= 0.005f*x;
-		eye.angleX -= 0.005f*y;
+		eye.angle -= mouseSensitivity*x;
+		eye.angleX -= mouseSensitivity*y;
 		CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();

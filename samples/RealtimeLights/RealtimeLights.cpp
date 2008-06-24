@@ -83,6 +83,12 @@ float                      contrast = 1;
 float                      rotation = 0;
 rr_io::ImportScene*        scene = NULL;
 
+#if defined(LINUX) || defined(linux)
+static const float mouseSensitivity = 0.0002f;
+#else
+static const float mouseSensitivity = 0.005f;
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // GI solver and renderer
@@ -267,15 +273,15 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005f*x;
-			eye.angleX -= 0.005f*y;
+			eye.angle -= mouseSensitivity*x;
+			eye.angleX -= mouseSensitivity*y;
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
 			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-			light->angle -= 0.005f*x;
-			light->angleX -= 0.005f*y;
+			light->angle -= mouseSensitivity*x;
+			light->angleX -= mouseSensitivity*y;
 			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 			// changes position a bit, together with rotation

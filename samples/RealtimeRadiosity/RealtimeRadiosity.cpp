@@ -71,6 +71,11 @@ float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
 
+#if defined(LINUX) || defined(linux)
+static const float mouseSensitivity = 0.0002f;
+#else
+static const float mouseSensitivity = 0.005f;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -252,18 +257,19 @@ void passive(int x, int y)
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
+
 	if(x || y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005f*x;
-			eye.angleX -= 0.005f*y;
+			eye.angle -= mouseSensitivity*x;
+			eye.angleX -= mouseSensitivity*y;
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
-			realtimeLight->getParent()->angle -= 0.005f*x;
-			realtimeLight->getParent()->angleX -= 0.005f*y;
+			realtimeLight->getParent()->angle -= mouseSensitivity*x;
+			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
 			CLAMP(realtimeLight->getParent()->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation
@@ -358,7 +364,8 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
+//	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
+	shadowmapsPerPass = 1;
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures

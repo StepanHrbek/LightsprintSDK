@@ -94,6 +94,11 @@ bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(1);
 float                      contrast = 1;
 
+#if defined(LINUX) || defined(linux)
+static const float mouseSensitivity = 0.0002f;
+#else
+static const float mouseSensitivity = 0.005f;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -362,14 +367,14 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005f*x;
-			eye.angleX -= 0.005f*y;
+			eye.angle -= mouseSensitivity*x;
+			eye.angleX -= mouseSensitivity*y;
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
-			light->angle -= 0.005f*x;
-			light->angleX -= 0.005f*y;
+			light->angle -= mouseSensitivity*x;
+			light->angleX -= mouseSensitivity*y;
 			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation

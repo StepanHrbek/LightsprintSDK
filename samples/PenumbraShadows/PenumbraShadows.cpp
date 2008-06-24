@@ -66,6 +66,11 @@ float                  speedBack = 0;
 float                  speedRight = 0;
 float                  speedLeft = 0;
 
+#if defined(LINUX) || defined(linux)
+static const float mouseSensitivity = 0.0002f;
+#else
+static const float mouseSensitivity = 0.005f;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -230,14 +235,14 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005f*x;
-			eye.angleX -= 0.005f*y;
+			eye.angle -= mouseSensitivity*x;
+			eye.angleX -= mouseSensitivity*y;
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
 		{
-			realtimeLight->getParent()->angle -= 0.005f*x;
-			realtimeLight->getParent()->angleX -= 0.005f*y;
+			realtimeLight->getParent()->angle -= mouseSensitivity*x;
+			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
 			CLAMP(realtimeLight->getParent()->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			// changes also position a bit, together with rotation
 			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
