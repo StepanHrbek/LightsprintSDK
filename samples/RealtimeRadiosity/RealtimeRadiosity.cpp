@@ -71,11 +71,6 @@ float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
 
-#if defined(LINUX) || defined(linux)
-static const float mouseSensitivity = 0.0002f;
-#else
-static const float mouseSensitivity = 0.005f;
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -258,6 +253,11 @@ void passive(int x, int y)
 
 	if(x || y)
 	{
+#if defined(LINUX) || defined(linux)
+		const float mouseSensitivity = 0.0002f;
+#else
+		const float mouseSensitivity = 0.005f;
+#endif
 		if(modeMovingEye)
 		{
 			eye.angle -= mouseSensitivity*x;
@@ -362,8 +362,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-//	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-	shadowmapsPerPass = 1;
+	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
