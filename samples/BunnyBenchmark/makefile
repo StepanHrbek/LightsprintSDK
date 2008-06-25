@@ -1,12 +1,8 @@
-RR_IO_PATH = ../../src/LightsprintIO
-RR_GL_PATH = ../../src/LightsprintGL
+RR_CORE_PATH = ../../src/LightsprintCore
 
 all:
-	@if [ -e $(RR_IO_PATH) ] ; then \
-		cd $(RR_IO_PATH) && make; \
-	fi
-	@if [ -e $(RR_GL_PATH) ] ; then \
-		cd $(RR_GL_PATH) && make; \
+	@if [ -e $(RR_CORE_PATH) ] ; then \
+		cd $(RR_CORE_PATH) && make; \
 	fi
 	@make -f makefile.proj
 
