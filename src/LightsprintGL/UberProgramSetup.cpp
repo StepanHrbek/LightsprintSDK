@@ -185,25 +185,13 @@ void UberProgramSetup::validate()
 	{
 		LIGHT_INDIRECT_MAP2 = 0;
 	}
+	if(!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_VCOLOR && !LIGHT_INDIRECT_MAP && !LIGHT_INDIRECT_MAP2 && !LIGHT_INDIRECT_ENV_DIFFUSE)
+	{
+		MATERIAL_DIFFUSE = 0; // diffuse reflection requested, but there's no suitable light
+	}
 	if(!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
-	}
-	if(!MATERIAL_DIFFUSE)
-	{
-		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
-	}
-	if(!MATERIAL_SPECULAR)
-	{
-		LIGHT_INDIRECT_ENV_SPECULAR = 0;
-	}
-	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
-	if(!light)
-	{
-		// without light, material properties are _usually_ not needed, so here we remove them.
-		// in case of alpha-keyed shadows, avoid material removal by enabling LIGHT_INDIRECT_CONST.
-		MATERIAL_DIFFUSE = 0;
-		MATERIAL_SPECULAR = 0;
 	}
 	if(!MATERIAL_DIFFUSE)
 	{
@@ -211,12 +199,15 @@ void UberProgramSetup::validate()
 		MATERIAL_DIFFUSE_CONST = 0;
 		MATERIAL_DIFFUSE_VCOLOR = 0;
 		MATERIAL_DIFFUSE_MAP = 0;
+		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
 	if(!MATERIAL_SPECULAR)
 	{
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
+		LIGHT_INDIRECT_ENV_SPECULAR = 0;
 	}
+	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
 	bool emission = MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP;
 	if(!light && !emission)
 	{
