@@ -138,7 +138,7 @@ struct BSP_TREE
 
 #define CACHE_SIZE 1000
 #define DELTA_NORMALS_MATCH 0.01 // min distance of normals to be recognized as non-plane
-#define SAFE_DISTANCE_IN_UNIT_SCENE 2e-5f
+#define SAFE_DISTANCE_IN_UNIT_SCENE 1e-5f
 #define PLANE 0 // 2d in splitting plane
 #define FRONT 1 // 2d in front, 1d may be in plane
 #define BACK -1 // 2d in back, 1d may be in plane
