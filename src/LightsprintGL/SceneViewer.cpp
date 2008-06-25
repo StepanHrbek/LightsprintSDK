@@ -789,10 +789,15 @@ static void passive(int x, int y)
 	y -= winHeight/2;
 	if(x || y)
 	{
+#if defined(LINUX) || defined(linux)
+		const float mouseSensitivity = 0.0002f;
+#else
+		const float mouseSensitivity = 0.005f;
+#endif
 		if(selectedType==ST_CAMERA || selectedType==ST_OBJECT)
 		{
-			eye.angle -= 0.005f*x*(eye.fieldOfView/90);
-			eye.angleX -= 0.005f*y*(eye.fieldOfView/90);
+			eye.angle -= mouseSensitivity*x*(eye.fieldOfView/90);
+			eye.angleX -= mouseSensitivity*y*(eye.fieldOfView/90);
 			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
@@ -802,8 +807,8 @@ static void passive(int x, int y)
 			{
 				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 				Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-				light->angle -= 0.005f*x;
-				light->angleX -= 0.005f*y;
+				light->angle -= mouseSensitivity*x;
+				light->angleX -= mouseSensitivity*y;
 				CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 				// changes position a bit, together with rotation
 				// if we don't call it, solver updates light in a standard way, without position change
