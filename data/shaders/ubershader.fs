@@ -417,7 +417,7 @@ void main()
 			// diffuse reflection
 			//
 
-			#ifdef MATERIAL_DIFFUSE
+			#if defined(MATERIAL_DIFFUSE) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2) || defined(LIGHT_INDIRECT_ENV_DIFFUSE))
 				#ifdef MATERIAL_DIFFUSE_X2
 					vec4(2.0,2.0,2.0,1.0) *
 				#endif
