@@ -367,7 +367,11 @@ public:
 				break;
 			case ME_VERIFY: solver->verify(); break;
 			case ME_CLOSE:
-				exitRequested = 1; break;
+				exitRequested = 1;
+				#if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
+				    glutLeaveMainLoop();
+				#endif
+				break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		destroy();
@@ -1393,9 +1397,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 #if defined(GLUT_WITH_WHEEL_AND_LOOP)
 	while(!exitRequested && !_solver->aborting)
 		glutMainLoopUpdate();
-#elif (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
-	while(!exitRequested && !_solver->aborting)
-		glutMainLoopEvent();
 #else
 	glutMainLoop();
 #endif
