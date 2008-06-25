@@ -64,6 +64,10 @@ int main(int argc, char **argv)
 
 	rr_io::setImageLoader();
 
+#if defined(LINUX) || defined(linux)
+	rr::RRReporter::report(rr::WARN,"This sample renders incorrectly in Linux. It's probably graphics card driver problem.\n");
+#endif
+
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
