@@ -30,10 +30,6 @@ int main(int argc, char** argv)
 
 	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
 
-#if defined(LINUX) || defined(linux)
-	RRReporter::report(WARN,"This sample crashes in Linux, to be fixed.\n");
-#endif
-
 	// provide license information
 	RRLicenseCollider::loadLicense("../../data/licence_number");
 

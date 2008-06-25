@@ -767,11 +767,16 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int front_num=0;
 	int back_num=0;
 	int none_num=0;
+
+	int list_size = 0;
+	while(space[list_size]) list_size++;
+	int* sides = new int[list_size];
+
 	for(int i=0;space[i];i++)
 	{
 		//if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
-		switch(side) 
+		sides[i] = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
+		switch(sides[i]) 
 		{
 			case BACK: back_num++; break;
 			case PLANE: plane_num++; break;
@@ -801,10 +806,10 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	const FACE **plane=NULL;
 	const FACE **front=NULL;
 	const FACE **back=NULL;
-	if(front_num>0) { front=nALLOC(const FACE*,front_num+1); front[front_num]=NULL; }
+	if(front_num>0) { front=nALLOC(const FACE*,front_num+1); }
 	if(kdroot)
 	{
-		if(back_num+plane_num>0) { back=nALLOC(const FACE*,back_num+plane_num+1); back[back_num+plane_num]=NULL; }
+		if(back_num+plane_num>0) { back=nALLOC(const FACE*,back_num+plane_num+1); }
 #ifdef SUPPORT_EMPTY_KDNODE
 		if(!buildParams.kdHavran)
 #endif
@@ -814,32 +819,40 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 			RR_ASSERT(front && back);
 		}
 	} else {
-		if(back_num>0) { back=nALLOC(const FACE*,back_num+1); back[back_num]=NULL; }
-		if(plane_num>0) { plane=nALLOC(const FACE*,plane_num+1); plane[plane_num]=NULL; }
+		if(back_num>0) { back=nALLOC(const FACE*,back_num+1); }
+		if(plane_num>0) { plane=nALLOC(const FACE*,plane_num+1); }
 	}
 
 	// fill front/back/plane
 	int plane_id=0;
 	int front_id=0;
 	int back_id=0;
-	for(int i=0;space[i];i++) if(kdroot || space[i]!=bsproot) 
+	for(int i=0;space[i];i++)
 	{
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
-		switch(side) 
+		if(kdroot || space[i]!=bsproot) 
 		{
-			case PLANE: if(!kdroot) {plane[plane_id++]=space[i]; break;}
-				// intentionally no break for kd, plane goes into back
-			case BACK: back[back_id++]=space[i]; break;
-			case FRONT: front[front_id++]=space[i]; break;
-			case SPLIT: front[front_id++]=space[i]; back[back_id++]=space[i]; break;
+			switch(sides[i])
+			{
+				case PLANE: if(!kdroot) {plane[plane_id++]=space[i]; break;}
+					// intentionally no break for kd, plane goes into back
+				case BACK: back[back_id++]=space[i]; break;
+				case FRONT: front[front_id++]=space[i]; break;
+				case SPLIT: front[front_id++]=space[i]; back[back_id++]=space[i]; break;
+			}
 		}
 	}
+
 	if(!kdroot) plane[plane_id++] = bsproot;
 	RR_ASSERT(front_id==front_num);
 	if(!kdroot) RR_ASSERT(back_id==back_num);
 	if(!kdroot) RR_ASSERT(plane_id==plane_num);
 	if(kdroot) RR_ASSERT(back_id+plane_id==back_num+plane_num);
 
+	if (back) back[back_id]=NULL;
+	if (front) front[front_id]=NULL;
+	if (plane) plane[plane_id]=NULL;
+
+	delete [] sides;
 	free(space);
 
 	// create sons
