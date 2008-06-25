@@ -50,6 +50,8 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 	params.renderingFromThisLight = NULL;
 	params.renderingLitByThisLight = NULL;
 	params.honourExpensiveLightingShadowingFlags = false;
+	params.renderBlended = true;
+	params.renderNonBlended = true;
 
 	indexedYes = NULL;
 	indexedNo = NULL;
