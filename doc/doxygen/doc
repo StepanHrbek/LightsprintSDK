@@ -235,17 +235,6 @@ Libraries used by LightsprintCore (global illumination solver):
     no library needed (no .dll/.so)
   - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
   - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
-- <a href="http://mesa3d.org/">Mesa 3D</a>
-  - Only required on PS3 Linux as a rendering front end for samples, since there are no
-    hardware accelerated RSX drivers provided. Please follow these installation instructions:
-    - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
-      writing this document is 7.0.3).
-    - type <code>make linux-ppc</code>
-    - open the file "configs/default" and make sure the variable <code>INSTALL_DIR</code> is set to <code>usr/local</code>.
-      This will ensure that Mesa will install to <code>/usr/local/lib</code> and will not interfere with the system default
-      OpenGL library located at <code>usr/lib</code>.
-    - type <code>sudo make install</code>
-    - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
 
 Used by LightsprintGL (optional OpenGL support):
 - GLU
@@ -274,6 +263,17 @@ Used by LightsprintGL (optional OpenGL support):
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not necessary
+- <a href="http://mesa3d.org/">Mesa 3D</a>
+  - Only required on PS3 Linux as a rendering front end for samples, since there are no
+    hardware accelerated RSX drivers provided. Please follow these installation instructions:
+    - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
+      writing this document is 7.0.3).
+    - type <code>make linux-ppc</code>
+    - open the file "configs/default" and make sure the variable <code>INSTALL_DIR</code> is set to <code>usr/local</code>.
+      This will ensure that Mesa will install to <code>/usr/local/lib</code> and will not interfere with the system default
+      OpenGL library located at <code>usr/lib</code>.
+    - type <code>sudo make install</code>
+    - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
 
 Used by LightsprintIO (optional file format support):
 - <a href="http://freeimage.sourceforge.net/">FreeImage</a>
