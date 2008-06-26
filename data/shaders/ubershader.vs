@@ -168,8 +168,8 @@ void main()
 			// block specular reflection on wrong side of 2-sided face
 			lightDirectVColor = (lightDirectVColor*dot(worldPos-worldEyePos,worldNormalSmooth)>0.0) ? abs(lightDirectVColor) : 0.0;
 		#else
-			// allow diffuse reflection on both sides of 2-sided face
-			lightDirectVColor = abs(lightDirectVColor);
+			// allow diffuse reflection only on front side (ok for 1sided, might need tweak for 2sided faces)
+			lightDirectVColor = max(0.0,-lightDirectVColor);
 		#endif
 	#endif
 
