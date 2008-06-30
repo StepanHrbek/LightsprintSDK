@@ -73,20 +73,16 @@ unsigned  __frameNumber=1; // frame number increased after each draw
 //
 // form factor from implicit source to explicit destination
 
-Factor::Factor(class Triangle* adestination,real apower)
+Factor::Factor(class Triangle* _destination, real _power)
 {
-	RR_ASSERT(apower>0); // power=0 has no sense to store
-	// Power muze byt vic nez 1 uplne kdykoliv, viz komentar u rayTracePhoton().
-	//RR_ASSERT(apower<=1 || adestination->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
-	power=apower;
-	destination=adestination;
+	RR_ASSERT(_power>0); // power=0 has no sense to store
+	power = _power;
+	destination = _destination;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // all form factors from implicit source
-
-unsigned __factorsAllocated=0;
 
 Factors::Factors()
 {
@@ -95,29 +91,17 @@ Factors::Factors()
 	factor=NULL;
 }
 
-unsigned Factors::factors()
-{
-	return factors24;
-}
-
-unsigned Factors::factorsAllocated()
-{
-	return 1<<allocatedLn2;
-}
-
 void Factors::insert(Factor afactor)
 {
 	if(!allocatedLn2)
 	{
 		allocatedLn2=4;
 		factor=(Factor *)malloc(factorsAllocated()*sizeof(Factor));
-		__factorsAllocated+=factorsAllocated();
 	}
 	else
 	if(factors()==factorsAllocated())
 	{
 		size_t oldsize=factorsAllocated()*sizeof(Factor);
-		__factorsAllocated+=3*factorsAllocated();
 		allocatedLn2+=2;
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
 	}
@@ -125,58 +109,11 @@ void Factors::insert(Factor afactor)
 	factors24++;
 }
 
-void Factors::insert(Factors *afactors)
-{
-	if(!afactors->factors()) return;
-	if(!allocatedLn2)
-	{
-		allocatedLn2=4;
-		while(factorsAllocated()<factors()+afactors->factors()) allocatedLn2++;
-		factor=(Factor *)malloc(factorsAllocated()*sizeof(Factor));
-		__factorsAllocated+=factorsAllocated();
-	}
-	else
-	if(factorsAllocated()<factors()+afactors->factors())
-	{
-		size_t oldsize=factorsAllocated()*sizeof(Factor);
-		while(factorsAllocated()<factors()+afactors->factors())
-		{
-			__factorsAllocated+=factorsAllocated();
-			allocatedLn2++;
-		}
-		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
-	}
-	memcpy(&factor[factors()],&afactors->factor[0],afactors->factors()*sizeof(Factor));
-	factors24+=afactors->factors();
-}
-
-Factor Factors::get()
-{
-	RR_ASSERT(factors());
-	factors24--;
-	return factor[factors()];
-}
-
-void Factors::forEach(void (*func)(Factor *factor,va_list ap),...)
-{
-	va_list ap;
-	va_start(ap,func);
-	for(unsigned i=0;i<factors();i++) func(factor+i,ap);
-	va_end(ap);
-}
-
-void Factors::reset()
-{
-	factors24=0;
-}
-
 Factors::~Factors()
 {
 	if(allocatedLn2)
 	{
 		free(factor);
-		RR_ASSERT(__factorsAllocated>=factorsAllocated());
-		__factorsAllocated-=factorsAllocated();
 	}
 }
 
@@ -966,51 +903,32 @@ static void distributeEnergyViaFactor(const Factor *factor, Channels energy, Ref
 {
 	// statistics
 	STATISTIC_INC(numCallsDistribFactor);
-	//RRStaticSolver::getSceneStatistics()->sumDistribInput += energy;
 
 	Triangle* destination=factor->destination;
 	RR_ASSERT(destination);
 	RR_ASSERT(factor->power>=0);
-	// Power muze byt vic nez 1 uplne kdykoliv, viz komentar u rayTracePhoton().
-	//RR_ASSERT(factor->power<=1 || factor->destination->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
 	energy*=factor->power;
 
-	Channels energyIncident = energy;
-#ifdef CLEAN_FACTORS
-	RR_ASSERT(destination->surface);
-	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.color));
-	// kdyz se aspon polovinu casu hybe svetly (hodne se distribuuje),
-	//  tento radek je nejvetsi zrout CPU z celeho rr.
-	// pri predelani cele matematiky na sse se vyrazne zrychli, ale jine vypocty 
-	//  zpomali, protoze msvc neumi volaci konvence s predavanim sse registru.
-	energy *= destination->surface->diffuseReflectance.color;
-
-	// statistics
-	//RRStaticSolver::getSceneStatistics()->sumDistribFactorClean += factor->power;
-	//RRStaticSolver::getSceneStatistics()->sumDistribFactorMaterial += destination->surface->diffuseReflectance * factor->power;
-#else
-	//RRStaticSolver::getSceneStatistics()->sumDistribFactorClean += factor->power / destination->surface->diffuseReflectance;
-	//RRStaticSolver::getSceneStatistics()->sumDistribFactorMaterial += factor->power;
-#endif
-	//RRStaticSolver::getSceneStatistics()->sumDistribOutput += energy;
-
-	// pak leze nahoru az k trianglu, do clusteru neni treba
-	destination->totalExitingFlux+=energy;
-	destination->totalIncidentFlux+=energyIncident;
+	destination->totalIncidentFlux+=energy;
 #ifndef CLEAN_FACTORS
 #error Filling totalIncidentFlux requires CLEAN_FACTORS.
 #endif
+
+#ifdef CLEAN_FACTORS
+	RR_ASSERT(destination->surface);
+	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.color));
+	energy *= destination->surface->diffuseReflectance.color;
+#endif
+
+	destination->totalExitingFlux+=energy;
 	destination->totalExitingFluxToDiffuse+=energy;
 	staticReflectors->insert(destination);
-	// stara verze bez zmeny levelu
-	//factor->destination->totalExitingFluxToDiffuse+=energy*factor->power;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // refresh form factors from one source to all destinations that need it
-// split triangles and subtriangles if needed
 
 void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context)
 {
@@ -1041,44 +959,37 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			shotsTotal++;
 			if(shotsTotal%10==0) if(endfunc(context)) return;
 		}
-		phase=3;
+		phase=2;
 	}
-	if(phase==3)
+	if(phase==2)
 	{
-		// analyze and remove hits and calculate new factors
-		Triangle *hitTriangle;
+		// remove old factors
+		shotsForFactorsTotal-=source->shotsForFactors;
+		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
+		for(unsigned i = 0; i < source->factors.factors(); i++)
+			distributeEnergyViaFactor(source->factors.get(i), ch, &staticReflectors);
+		source->factors.reset();
 
+		// insert new factors
+		Triangle *hitTriangle;
 		while((hitTriangle=hitTriangles.get())
 			)
 		{
-			// do improvingFactors sype generovane faktory
 			RR_ASSERT(hitTriangle->hits);
 			real ff=hitTriangle->hits/shotsAccumulated;
 			// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
 #ifdef CLEAN_FACTORS
-			improvingFactors.insert(Factor(hitTriangle,ff));
+			source->factors.insert(Factor(hitTriangle,ff));
 #else
-			improvingFactors.insert(Factor(hitTriangle,ff*hitTriangle->surface->diffuseReflectance));
+			source->factors.insert(Factor(hitTriangle,ff*hitTriangle->surface->diffuseReflectance));
 #endif
 			hitTriangle->hits=0;
 		}
 		hitTriangles.reset();
-
-		// take back energy distributed via old factors
-		shotsForFactorsTotal-=source->shotsForFactors;
-		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-
-		for(unsigned i = 0; i < source->factors.factors(); i++)
-			distributeEnergyViaFactor(source->factors.get(i), ch, &staticReflectors);
-
 		source->totalExitingFluxToDiffuse=source->totalExitingFlux;
 		source->shotsForFactors=shotsAccumulated;
 		shotsAccumulated=0;
 		shotsForFactorsTotal+=source->shotsForFactors;
-		// install new factors
-		source->factors.reset();
-		source->factors.insert(&improvingFactors);
-		improvingFactors.reset();
 		phase=0;
 	}
 }
@@ -1134,7 +1045,6 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 
 bool Scene::distribute(real maxError)
 {
-	//if(phase==3) return false; myslim ze zadna phase nebrani distribuci
 	bool distributed=false;
 	int steps=0;
 	int rezerva=20;
@@ -1195,7 +1105,6 @@ void Scene::abortStaticImprovement()
 		Triangle *hitTriangle;
 		while((hitTriangle=hitTriangles.get())) hitTriangle->hits=0;
 		hitTriangles.reset();
-		improvingFactors.reset();
 		shotsAccumulated=0;
 		phase=0;
 		improvingStatic=NULL;

@@ -84,33 +84,28 @@ public:
 	               // Q: is modulated by destination's material?
 	               // A: CLEAN_FACTORS->NO, !CLEAN_FACTORS->YES
 
-	Factor(Triangle* destination,FactorChannels apower);
+	Factor(Triangle* destination,FactorChannels power);
 };
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // all form factors from implicit source
 
-extern unsigned __factorsAllocated;
-
 class Factors
 {
 public:
 	Factors();
 	~Factors();
-	void    reset();
+	void    reset() {factors24=0;}
 
-	unsigned factors();
+	unsigned factors() {return factors24;}
 	void    insert(Factor afactor);
-	void    insert(Factors *afactors);
 	const Factor* get(unsigned i) {return &factor[i];} // returns i-th factor
-	Factor  get(); // returns one factor and and removes it from container
-	void    forEach(void (*func)(Factor *factor,va_list ap),...);
 
 	private:
 		unsigned factors24:24;
 		unsigned allocatedLn2:8;//ln2(factors allocated), 0=nothing allocated
-		unsigned factorsAllocated();
+		unsigned factorsAllocated() {return 1<<allocatedLn2;}
 		Factor *factor;
 };
 
@@ -316,7 +311,6 @@ public:
 		int     phase;
 		Triangle* improvingStatic;
 		Triangles hitTriangles;
-		Factors improvingFactors;
 		RRMesh::TriangleBody improvingBody;
 		RRMesh::TangentBasis improvingBasis;
 		void    shotFromToHalfspace(Triangle* sourceNode);
