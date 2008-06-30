@@ -285,7 +285,7 @@ public:
 		glutAddMenuEntry(svs.renderEmission?"Disable emissivity":"Enable emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry(svs.renderTransparent?"Disable transparency":"Enable transparency", ME_RENDER_TRANSPARENT);
 		glutAddMenuEntry(svs.renderTextures?"Disable textures":"Enable textures", ME_RENDER_TEXTURES);
-		glutAddMenuEntry(svs.renderTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
+		glutAddMenuEntry(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
 		glutAddMenuEntry(svs.renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry(svs.renderHelpers?"Hide helpers":"Show helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry(solver->honourExpensiveLightingShadowingFlags?"Ignore expensive flags":"Honour expensive flags", ME_HONOUR_FLAGS);
@@ -313,7 +313,7 @@ public:
 			case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
 			case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
 			case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
-			case ME_RENDER_TONEMAPPING: svs.renderTonemapping = !svs.renderTonemapping; break;
+			case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 			case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 			case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
@@ -378,7 +378,7 @@ public:
 				svs.render2d = 1;
 				break;
 			case ME_STATIC_BILINEAR:
-				svs.bilinear = !svs.bilinear;
+				svs.renderBilinear = !svs.renderBilinear;
 				svs.renderRealtime = false;
 				for(unsigned i=0;i<solver->getNumObjects();i++)
 				{	
@@ -386,8 +386,8 @@ public:
 					{
 						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
 						rr_gl::getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->bindTexture();
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.bilinear?GL_LINEAR:GL_NEAREST);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.bilinear?GL_LINEAR:GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
 					}
 				}
 				break;
@@ -825,7 +825,7 @@ static void display(void)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if(svs.render2d && lv)
 	{
-		LightmapViewer::setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.bilinear);
+		LightmapViewer::setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.renderBilinear);
 		LightmapViewer::display();
 	}
 	else
@@ -875,7 +875,7 @@ static void display(void)
 			if(svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			solver->renderScene(uberProgramSetup,NULL);
 			if(svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if(svs.renderTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
+			if(svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;
