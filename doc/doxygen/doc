@@ -277,7 +277,7 @@ Used by LightsprintGL (optional OpenGL support):
 
 Used by LightsprintIO (optional file format support):
 - <a href="http://freeimage.sourceforge.net/">FreeImage</a>
-  - This software uses the FreeImage open source image library. FreeImage is used under the FIPL, version 1.0.
+  - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
   - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
   - Windows: precompiled version 3.10.0 is a part of SDK
   - Linux (including PS3 Linux): install using e.g. <code>sudo apt-get install libfreeimage-dev</code>
