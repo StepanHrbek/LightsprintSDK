@@ -91,7 +91,7 @@ Factors::Factors()
 	factor=NULL;
 }
 
-void Factors::insert(Factor afactor)
+void Factors::push_back(Factor afactor)
 {
 	if(!allocatedLn2)
 	{
@@ -99,14 +99,13 @@ void Factors::insert(Factor afactor)
 		factor=(Factor *)malloc(factorsAllocated()*sizeof(Factor));
 	}
 	else
-	if(factors()==factorsAllocated())
+	if(size()==factorsAllocated())
 	{
 		size_t oldsize=factorsAllocated()*sizeof(Factor);
 		allocatedLn2+=2;
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
 	}
-	factor[factors()]=afactor;
-	factors24++;
+	factor[factors24++]=afactor;
 }
 
 Factors::~Factors()
@@ -141,7 +140,7 @@ void Triangle::reset(bool resetFactors)
 	isReflector=0;
 	if(resetFactors)
 	{
-		factors.reset();
+		factors.clear();
 		shotsForFactors=0;
 	}
 	totalExitingFluxToDiffuse=Channels(0);
@@ -340,7 +339,7 @@ restart:
 			real q;
 			real toDiffuse=sum(abs(node[i]->totalExitingFluxToDiffuse));
 			// distributor found -> switch from accumulating refreshers to accumulating distributors
-			if(refreshing && node[i]->factors.factors() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
+			if(refreshing && node[i]->factors.size() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
 			{
 				refreshing=0;
 				bests=0;
@@ -349,7 +348,7 @@ restart:
 			// calculate quality of distributor
 			if(!refreshing)
 			{
-				if(!node[i]->factors.factors()) continue;
+				if(!node[i]->factors.size()) continue;
 				if(toDiffuse<DISTRIB_LEVEL_LOW*abs(allEnergyInScene)) continue;
 				q=toDiffuse;
 			}
@@ -899,15 +898,15 @@ void Scene::shotFromToHalfspace(Triangle* sourceNode)
 //
 // distribute energy via one factor
 
-static void distributeEnergyViaFactor(const Factor *factor, Channels energy, Reflectors* staticReflectors)
+static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Reflectors* staticReflectors)
 {
 	// statistics
 	STATISTIC_INC(numCallsDistribFactor);
 
-	Triangle* destination=factor->destination;
+	Triangle* destination=factor.destination;
 	RR_ASSERT(destination);
-	RR_ASSERT(factor->power>=0);
-	energy*=factor->power;
+	RR_ASSERT(factor.power>=0);
+	energy*=factor.power;
 
 	destination->totalIncidentFlux+=energy;
 #ifndef CLEAN_FACTORS
@@ -966,9 +965,9 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// remove old factors
 		shotsForFactorsTotal-=source->shotsForFactors;
 		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-		for(unsigned i = 0; i < source->factors.factors(); i++)
-			distributeEnergyViaFactor(source->factors.get(i), ch, &staticReflectors);
-		source->factors.reset();
+		for(unsigned i = 0; i < source->factors.size(); i++)
+			distributeEnergyViaFactor(source->factors[i], ch, &staticReflectors);
+		source->factors.clear();
 
 		// insert new factors
 		Triangle *hitTriangle;
@@ -979,7 +978,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			real ff=hitTriangle->hits/shotsAccumulated;
 			// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
 #ifdef CLEAN_FACTORS
-			source->factors.insert(Factor(hitTriangle,ff));
+			source->factors.push_back(Factor(hitTriangle,ff));
 #else
 			source->factors.insert(Factor(hitTriangle,ff*hitTriangle->surface->diffuseReflectance));
 #endif
@@ -1028,9 +1027,9 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 	if(phase==0)
 	{
 		// distribute energy via form factors
-		for(unsigned i = 0; i < source->factors.factors(); i++)
+		for(unsigned i = 0; i < source->factors.size(); i++)
 		{
-			distributeEnergyViaFactor(source->factors.get(i), source->totalExitingFluxToDiffuse, &staticReflectors);
+			distributeEnergyViaFactor(source->factors[i], source->totalExitingFluxToDiffuse, &staticReflectors);
 		}
 
 		source->totalExitingFluxToDiffuse=Channels(0);
@@ -1053,8 +1052,8 @@ bool Scene::distribute(real maxError)
 		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 
-		for(unsigned i = 0; i < source->factors.factors(); i++)
-			distributeEnergyViaFactor(source->factors.get(i), source->totalExitingFluxToDiffuse, &staticReflectors);
+		for(unsigned i = 0; i < source->factors.size(); i++)
+			distributeEnergyViaFactor(source->factors[i], source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
 		steps++;

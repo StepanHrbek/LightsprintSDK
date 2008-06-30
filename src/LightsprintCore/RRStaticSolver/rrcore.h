@@ -91,16 +91,16 @@ public:
 //
 // all form factors from implicit source
 
-class Factors
+class Factors // similar to std::vector<Factor>
 {
 public:
 	Factors();
 	~Factors();
-	void    reset() {factors24=0;}
 
-	unsigned factors() {return factors24;}
-	void    insert(Factor afactor);
-	const Factor* get(unsigned i) {return &factor[i];} // returns i-th factor
+	void clear() {factors24=0;}
+	unsigned size() const {return factors24;}
+	const Factor& operator [](unsigned i) const {return factor[i];}
+	void push_back(Factor afactor);
 
 	private:
 		unsigned factors24:24;

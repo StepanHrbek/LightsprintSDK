@@ -73,7 +73,7 @@ PackedSolverFile* Scene::packSolver() const
 	for(unsigned i=0;i<object->triangles;i++)
 	{
 		//!!! optimize, sort factors
-		numFactors += object->triangle[i].factors.factors();
+		numFactors += object->triangle[i].factors.size();
 	}
 
 
@@ -84,12 +84,12 @@ PackedSolverFile* Scene::packSolver() const
 	{
 		// write factors
 		packedSolverFile->packedFactors->newC1(i);
-		for(unsigned j=0;j<object->triangle[i].factors.factors();j++)
+		for(unsigned j=0;j<object->triangle[i].factors.size();j++)
 		{
-			const Factor* factor = object->triangle[i].factors.get(j);
-			unsigned destinationTriangle = (unsigned)( factor->destination-object->triangle );
+			const Factor& factor = object->triangle[i].factors[j];
+			unsigned destinationTriangle = (unsigned)( factor.destination-object->triangle );
 			RR_ASSERT(destinationTriangle<object->triangles);
-			packedSolverFile->packedFactors->newC2()->set(factor->power,destinationTriangle);
+			packedSolverFile->packedFactors->newC2()->set(factor.power,destinationTriangle);
 		}
 	}
 	packedSolverFile->packedFactors->newC1(object->triangles);
