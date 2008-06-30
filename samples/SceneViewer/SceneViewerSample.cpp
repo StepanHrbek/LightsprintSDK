@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 
 	// run interactive scene viewer
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",-1,false);
+	rr_gl::sceneViewer(solver,true,"../../data/shaders/",NULL);
 
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();

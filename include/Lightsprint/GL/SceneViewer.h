@@ -8,11 +8,67 @@
 #ifndef SCENEVIEWER_H
 #define SCENEVIEWER_H
 
-#include "Lightsprint/GL/DemoEngine.h"
+#include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr_gl
 {
+
+// Optional parameters of sceneViewer()
+struct SceneViewerState
+{
+	// viewer state
+	Camera           eye;
+	unsigned         selectedLightIndex;  //! Index into lights, light controlled by mouse/arrows.
+	unsigned         selectedObjectIndex; //! Index into static objects.
+	bool             fullscreen;
+	bool             renderRealtime;      //! realtime vs static lighting
+	bool             render2d;            //! when not rendering realtime, show static lightmaps in 2D
+	bool             renderAmbient;
+	bool             renderDiffuse;
+	bool             renderSpecular;
+	bool             renderEmission;
+	bool             renderTransparent;
+	bool             renderTextures;
+	bool             renderTonemapping;
+	bool             renderWireframe;
+	bool             renderHelpers;
+	bool             honourExpensiveLightingShadowingFlags; //! False=all objects are lit and cast shadows, fast. True=honours lighting or shadowing disabled by rr::RRMesh::getTriangleMaterial(), slower.
+	float            speedGlobal;         //! Speed of movement controlled by user, in m/s.
+	rr::RRVec4       brightness;
+	float            gamma;
+	bool             bilinear;
+	unsigned         staticLayerNumber;   //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
+	unsigned         realtimeLayerNumber; //! Layer used for all realtime lighting operations.
+	// viewer initialization
+	bool             autodetectCamera;    //! Ignore what's set in eye and generate camera (and speedGlobal) from scene.
+	// sets default state with realtime GI and random camera
+	SceneViewerState()
+		: eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
+	{
+		selectedLightIndex = 0;
+		selectedObjectIndex = 0;
+		fullscreen = 0;
+		renderRealtime = 1;
+		render2d = 0;
+		renderAmbient = 0;
+		renderDiffuse = 1;
+		renderSpecular = 0;
+		renderEmission = 1;
+		renderTransparent = 1;
+		renderTextures = 1;
+		renderTonemapping = 1;
+		renderWireframe = 0;
+		renderHelpers = 0;
+		speedGlobal = 2;
+		brightness = rr::RRVec4(1);
+		gamma = 1;
+		bilinear = 1;
+		staticLayerNumber = 192837464;
+		realtimeLayerNumber = 192837465;
+		autodetectCamera = 1;
+	}
+};
 
 //! Runs interactive scene viewer.
 //
@@ -32,12 +88,9 @@ namespace rr_gl
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
 //!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
-//! \param layerNumber
-//!  Start rendering existing static buffers from this layer, use them for all static lighting operations.
-//!  To start in realtime GI rendering mode, pass -1-layerNumber.
-//! \param honourExpensiveLightingShadowingFlags
-//!  False=all objects are lit and cast shadows, fast. True=honours lighting or shadowing disabled by rr::RRMesh::getTriangleMaterial(), slower.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, int layerNumber, bool honourExpensiveLightingShadowingFlags);
+//! \param svs
+//!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, SceneViewerState* svs);
 
 enum UpdateResult
 {

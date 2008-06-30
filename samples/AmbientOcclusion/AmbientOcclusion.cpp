@@ -162,7 +162,10 @@ int main(int argc, char **argv)
 #endif
 	}
 
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",0,false);
+	rr_gl::SceneViewerState svs;
+	svs.renderRealtime = 0; // switch from default realtime GI to static GI
+	svs.staticLayerNumber = 0; // switch from default layer to our layer 0
+	rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
 
 	return 0;
 }

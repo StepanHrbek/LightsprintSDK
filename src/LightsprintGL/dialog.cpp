@@ -216,7 +216,10 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 		if(g_cmdViewer)
 		{
 			g_cmdViewer = false;
-			rr_gl::sceneViewer(g_solver,createWindow,pathToShaders,-1-layerNumberLighting,false);
+			rr_gl::SceneViewerState svs;
+			svs.renderRealtime = 0; // switch from default realtime GI to static GI
+			svs.staticLayerNumber = layerNumberLighting; // switch from default layer to our layer
+			rr_gl::sceneViewer(g_solver,createWindow,pathToShaders,&svs);
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)false,0);
 			ShowWindow(GetDlgItem(g_hDlg,IDOK),SW_SHOWNORMAL);
 			if(customButton)

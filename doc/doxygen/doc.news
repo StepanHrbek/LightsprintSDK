@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news61 ------------------------------------ 2008.6.xx -------------------------------------
+
+NEWS
+
+- extended rr_gl::sceneViewer(), it's possible to set initial camera and more than 20 other parameters.
+  (For realtime GI viewer, change last two parameters from -1,false to NULL.
+  For static GI viewer, see AmbientOcclusion sample.)
+
 \section news60 ------------------------------------ 2008.6.26 -------------------------------------
 
 NEWS

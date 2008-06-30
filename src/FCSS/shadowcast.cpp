@@ -1618,7 +1618,7 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_SCENE_VIEWER:
-			rr_gl::sceneViewer(level->solver,false,"shaders/",-1,false);
+			rr_gl::sceneViewer(level->solver,false,"shaders/",NULL);
 			break;
 		case ME_TOGGLE_VIDEO:
 			captureVideo = !captureVideo;
