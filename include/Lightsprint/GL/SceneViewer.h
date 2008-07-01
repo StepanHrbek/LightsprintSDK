@@ -63,6 +63,7 @@ struct SceneViewerState
 		renderWireframe = 0;
 		renderHelpers = 0;
 		adjustTonemapping = 1;
+		honourExpensiveLightingShadowingFlags = 0;
 		speedGlobal = 2;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
