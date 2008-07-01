@@ -1294,10 +1294,7 @@ static void menuStatus(int status, int x, int y)
 
 void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, SceneViewerState* _svs)
 {
-	if(_svs)
-		svs = *_svs;
-	else
-		svs.SceneViewerState::SceneViewerState();
+	svs = _svs ? *_svs : SceneViewerState();
 
 	// init GLUT
 	int window;
@@ -1343,7 +1340,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	solver = new Solver(_pathToShaders);
 	solver->setScaler(_solver->getScaler());
 	solver->setEnvironment(_solver->getEnvironment());
-	solver->setStaticObjects(_solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,_solver->getMultiObjectCustom());
+	solver->setStaticObjects(_solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,_solver); // smoothing and multiobject are taken from _solver
 	solver->setLights(_solver->getLights());
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it

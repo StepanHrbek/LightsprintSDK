@@ -52,7 +52,7 @@ namespace rr_gl
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		virtual void setLights(const rr::RRLights& lights);
-		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRObject* forceMultiObjectCustom = NULL);
+		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRDynamicSolver* copyFrom = NULL);
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
 		//! renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;

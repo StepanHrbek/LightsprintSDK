@@ -159,9 +159,9 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
-void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRObject* forceMultiObjectCustom)
+void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRDynamicSolver* copyFrom)
 {
-	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,forceMultiObjectCustom);
+	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,copyFrom);
 
 	// update MATERIAL_* recommendations
 	unsigned numTrianglesWithDifConst = 0;
