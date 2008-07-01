@@ -15,6 +15,7 @@ NEWS
 - extended rr_gl::sceneViewer(), it's possible to set initial camera and more than 20 other parameters.
   (For realtime GI viewer, change last two parameters from -1,false to NULL.
   For static GI viewer, see AmbientOcclusion sample.)
+- optimized solver (less memory, faster shutdown)
 
 \section news60 ------------------------------------ 2008.6.26 -------------------------------------
 

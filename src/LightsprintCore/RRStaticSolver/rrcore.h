@@ -43,6 +43,7 @@
 #include "geometry_v.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "interpol.h"
+#include "ChunkList.h"
 
 #define STATISTIC(a)
 #define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
@@ -83,30 +84,6 @@ public:
 	FactorChannels power; // this fraction of emited energy reaches destination
 	               // Q: is modulated by destination's material?
 	               // A: CLEAN_FACTORS->NO, !CLEAN_FACTORS->YES
-
-	Factor(Triangle* destination,FactorChannels power);
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// all form factors from implicit source
-
-class Factors // similar to std::vector<Factor>
-{
-public:
-	Factors();
-	~Factors();
-
-	void clear() {factors24=0;}
-	unsigned size() const {return factors24;}
-	const Factor& operator [](unsigned i) const {return factor[i];}
-	void push_back(Factor afactor);
-
-	private:
-		unsigned factors24:24;
-		unsigned allocatedLn2:8;//ln2(factors allocated), 0=nothing allocated
-		unsigned factorsAllocated() {return 1<<allocatedLn2;}
-		Factor *factor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -122,7 +99,7 @@ public:
 	void    reset(bool resetFactors);
 
 	// form factors
-	Factors factors;
+	ChunkList<Factor> factors;
 
 	// shooting
 	real    hits; // accumulates hits from current shooter
@@ -328,6 +305,10 @@ public:
 		// -> multiple independent scenes are legal
 		RRRay*  sceneRay;
 		class RRCollisionHandlerLod0* collisionHandlerLod0;
+
+		// all factors allocated by this scene
+		// deallocated only in scene destructor
+		ChunkList<Factor>::Allocator factorAllocator;
 
 		// previously global filler, now allocated per scene
 		// -> multiple independent scenes are legal

@@ -71,54 +71,6 @@ unsigned  __frameNumber=1; // frame number increased after each draw
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// form factor from implicit source to explicit destination
-
-Factor::Factor(class Triangle* _destination, real _power)
-{
-	RR_ASSERT(_power>0); // power=0 has no sense to store
-	power = _power;
-	destination = _destination;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// all form factors from implicit source
-
-Factors::Factors()
-{
-	factors24=0;
-	allocatedLn2=0;
-	factor=NULL;
-}
-
-void Factors::push_back(Factor afactor)
-{
-	if(!allocatedLn2)
-	{
-		allocatedLn2=4;
-		factor=(Factor *)malloc(factorsAllocated()*sizeof(Factor));
-	}
-	else
-	if(size()==factorsAllocated())
-	{
-		size_t oldsize=factorsAllocated()*sizeof(Factor);
-		allocatedLn2+=2;
-		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
-	}
-	factor[factors24++]=afactor;
-}
-
-Factors::~Factors()
-{
-	if(allocatedLn2)
-	{
-		free(factor);
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // triangle
 
 Triangle::Triangle()
@@ -965,24 +917,27 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// remove old factors
 		shotsForFactorsTotal-=source->shotsForFactors;
 		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-		for(unsigned i = 0; i < source->factors.size(); i++)
-			distributeEnergyViaFactor(source->factors[i], ch, &staticReflectors);
-		source->factors.clear();
+		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+			distributeEnergyViaFactor(**i, ch, &staticReflectors);
 
 		// insert new factors
-		Triangle *hitTriangle;
-		while((hitTriangle=hitTriangles.get())
+		ChunkList<Factor>::InsertIterator i(source->factors,factorAllocator);
+		Factor f;
+		while((f.destination=hitTriangles.get())
 			)
 		{
-			RR_ASSERT(hitTriangle->hits);
-			real ff=hitTriangle->hits/shotsAccumulated;
+			f.power = f.destination->hits/shotsAccumulated;
+#ifndef CLEAN_FACTORS
 			// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
-#ifdef CLEAN_FACTORS
-			source->factors.push_back(Factor(hitTriangle,ff));
-#else
-			source->factors.insert(Factor(hitTriangle,ff*hitTriangle->surface->diffuseReflectance));
+			f.power *= f.destination->surface->diffuseReflectance;
 #endif
-			hitTriangle->hits=0;
+			f.destination->hits = 0;
+			RR_ASSERT(f.power>0);
+			if(!i.insert(f))
+			{
+				shotsForFactorsTotal = UINT_MAX-1; // stop improving, avgAccuracy() will return number high enough for everyone
+				break;
+			}
 		}
 		hitTriangles.reset();
 		source->totalExitingFluxToDiffuse=source->totalExitingFlux;
@@ -1027,10 +982,8 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 	if(phase==0)
 	{
 		// distribute energy via form factors
-		for(unsigned i = 0; i < source->factors.size(); i++)
-		{
-			distributeEnergyViaFactor(source->factors[i], source->totalExitingFluxToDiffuse, &staticReflectors);
-		}
+		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
 		return true;
@@ -1052,8 +1005,8 @@ bool Scene::distribute(real maxError)
 		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 
-		for(unsigned i = 0; i < source->factors.size(); i++)
-			distributeEnergyViaFactor(source->factors[i], source->totalExitingFluxToDiffuse, &staticReflectors);
+		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
 		steps++;

@@ -755,6 +755,10 @@
 			Name="RRStaticSolver"
 			>
 			<File
+				RelativePath=".\RRStaticSolver\ChunkList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RRStaticSolver\exceptions.cpp"
 				>
 				<FileConfiguration

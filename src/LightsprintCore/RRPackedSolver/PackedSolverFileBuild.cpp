@@ -84,12 +84,11 @@ PackedSolverFile* Scene::packSolver() const
 	{
 		// write factors
 		packedSolverFile->packedFactors->newC1(i);
-		for(unsigned j=0;j<object->triangle[i].factors.size();j++)
+		for(ChunkList<Factor>::ReadIterator j(object->triangle[i].factors); *j; ++j)
 		{
-			const Factor& factor = object->triangle[i].factors[j];
-			unsigned destinationTriangle = (unsigned)( factor.destination-object->triangle );
+			unsigned destinationTriangle = (unsigned)( (*j)->destination-object->triangle );
 			RR_ASSERT(destinationTriangle<object->triangles);
-			packedSolverFile->packedFactors->newC2()->set(factor.power,destinationTriangle);
+			packedSolverFile->packedFactors->newC2()->set((*j)->power,destinationTriangle);
 		}
 	}
 	packedSolverFile->packedFactors->newC1(object->triangles);
