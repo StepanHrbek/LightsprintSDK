@@ -1172,7 +1172,9 @@ void reportLightMovementEnd()
 
 void reportObjectMovement()
 {
-	level->solver->reportDirectIlluminationChange(0,true,false);
+	// shadowType 0 is static hard shadow, it doesn't need updates
+	if(currentFrame.shadowType!=0)
+		level->solver->reportDirectIlluminationChange(0,true,false);
 }
 
 float speedForward = 0;

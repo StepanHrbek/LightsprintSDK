@@ -52,7 +52,7 @@ struct AnimationFrame
 	float volume;
 
 	// technique
-	unsigned shadowType; // 0=hard 1=soft 2=penumbra
+	unsigned shadowType; // 0=static hard 1=hard 2=soft 3=penumbra
 	unsigned indirectType; // 0=none 1=constant 2=realtimeGI 3=precomputedGI
 	bool wantsConstantAmbient() const {return indirectType==1;}
 	bool wantsVertexColors() const {return indirectType==2;}

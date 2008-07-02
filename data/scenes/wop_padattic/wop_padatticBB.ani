@@ -120,6 +120,7 @@ light = {{7.299,-13.319,-11.450},6.135,0.000,-0.726,1.0,70.0,1.0,100.0}
 brightness = {1.519981,1.519981,1.519981,1.519981}
 object = {10.995,-14.840,-14.774,-10.157,0.000}
 2d_overlay = 5.000,1,maps/txt-global-illumination.png
+shadow_type = 0
 duration = 5.000
 
 layer_number = 23
@@ -175,7 +176,7 @@ brightness = {2.073600,2.073600,2.073600,2.073600}
 object = {25.823,-4.140,-10.126,217.337,0.000}
 projector = 0
 2d_overlay = 5.000,1,maps/txt-indirect-lighting.png
-shadow_type = 1
+shadow_type = 0
 duration = 5.000
 
 layer_number = 44
@@ -206,7 +207,7 @@ light = {{27.146,-16.258,-2.431},4.547,0.000,-0.401,1.0,70.0,1.0,100.0}
 brightness = {2.073600,2.073600,2.073600,2.073600}
 object = {19.729,-18.120,0.375,117.337,0.000}
 projector = 0
-shadow_type = 1
+shadow_type = 0
 duration = 5.000
 
 layer_number = 3
