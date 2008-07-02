@@ -12,7 +12,9 @@
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
 
-#define FIREBALL_STRUCTURE_VERSION 5 // change when file structere changes, old files will be overwritten
+#define FACTOR_FORMAT 2 // 0: 32bit int/float overlap (lightsmark); 1: 32bit short+short; 2: 64bit int+float (SDK)
+
+#define FIREBALL_STRUCTURE_VERSION (6+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
 #define FIREBALL_FILENAME_VERSION  2 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
@@ -135,7 +137,7 @@ protected:
 //
 // form faktor
 
-/*
+#if FACTOR_FORMAT==0
 // 50% memory, 102% speed, 6bit precision, 128k triangles
 class PackedFactor
 {
@@ -173,8 +175,9 @@ private:
 		unsigned destinationTriangle;
 	};
 };
+#endif
 
-
+#if FACTOR_FORMAT==1
 // 50% memory, 100% speed, ~10bit precision, 128k triangles
 class PackedFactor
 {
@@ -206,8 +209,9 @@ private:
 	unsigned visibility          : BITS_FOR_VISIBILITY;
 	unsigned destinationTriangle : BITS_FOR_TRIANGLE_INDEX;
 };
-*/
+#endif
 
+#if FACTOR_FORMAT==2
 // 100% memory, 100% speed, 23bit precision, 4G triangles
 class PackedFactor
 {
@@ -239,6 +243,7 @@ private:
 	float visibility;
 	unsigned destinationTriangle;
 };
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////
