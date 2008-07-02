@@ -130,7 +130,11 @@ namespace rr_gl
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
 		if(instance>=numInstances) return 0;
-		if(!origin) return 1;
+		if(!origin)
+		{
+			// special code for fcss
+			return softShadowsAllowed ? 4 : 1;
+		}
 		if(!origin->castShadows) return 0;
 		if(!softShadowsAllowed) return 1;
 		switch(origin->type)
