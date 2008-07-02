@@ -993,7 +993,7 @@ void showOverlay(const rr::RRBuffer* tex)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	float color[4] = {currentFrame.brightness[0],currentFrame.brightness[1],currentFrame.brightness[2],1};
-	skyRenderer->render2D(rr_gl::getTexture(tex),color,0,0,1,1);
+	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),color,0,0,1,1);
 	glDisable(GL_BLEND);
 }
 
@@ -1003,7 +1003,7 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	float color[4] = {intensity,intensity,intensity,intensity};
-	skyRenderer->render2D(rr_gl::getTexture(logo),color,x,y,w,h);
+	skyRenderer->render2D(rr_gl::getTexture(logo,false,false),color,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
