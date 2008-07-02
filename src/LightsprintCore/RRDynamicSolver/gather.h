@@ -4,10 +4,13 @@
 // --------------------------------------------------------------------------
 
 
-//error : inserted by sunifdef: "#define USE_BOOST_POOL // simply undef it if you don't have boost headers. lightmap building will be slightly slower, using slightly less memory" contradicts -U at R:\work2\.git-rewrite\t\src\LightsprintCore\RRDynamicSolver\gather.h~(8)
+
+//#define USE_BOOST_POOL // use boost. big, fast
+// comment out both = use stl. small, slow
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "LightmapFilter.h"
+	#include "../RRStaticSolver/ChunkList.h"
 
 
 namespace rr
@@ -45,7 +48,7 @@ struct SubTexel
 };
 
 // texel knows its intersection with all triangles
-typedef std::vector<SubTexel> TexelSubTexels;
+typedef ChunkList<SubTexel> TexelSubTexels; // chunklist is small, fast
 
 struct ProcessTexelParams
 {

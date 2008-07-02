@@ -57,6 +57,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		RRReporter::report(ERRO,"Not enough memory, lightmap not updated(1).\n");
 		return false;
 	}
+	TexelSubTexels::Allocator subTexelAllocator; // pool, memory is freed when it gets out of scope
 	unsigned multiPostImportTriangleNumber = 0; // filled in next step
 
 	// 2. populate texels with subtexels
@@ -202,7 +203,9 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
-								texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel);
+								texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel
+									,subTexelAllocator
+									);
 							}
 						}
 					}

@@ -679,7 +679,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	TexelSubTexels::const_iterator subTexelIterator = pti.subTexels->begin();
 	RRReal areaAccu = -pti.subTexels->begin()->areaInMapSpace;
 	RRReal areaMax = 0;
-	for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();i++) areaMax += i->areaInMapSpace;
+	for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i) areaMax += i->areaInMapSpace;
 
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
@@ -715,12 +715,12 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			areaAccu += areaStep;
 			while(areaAccu>0)
 			{
-				subTexelIterator++;
+				++subTexelIterator;
 				if(subTexelIterator==pti.subTexels->end())
 					subTexelIterator = pti.subTexels->begin();
 				areaAccu -= subTexelIterator->areaInMapSpace;
 			}
-			const SubTexel* subTexel = &*subTexelIterator;
+			const SubTexel* subTexel = *subTexelIterator;
 
 			// update cached triangle data
 			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
@@ -893,8 +893,9 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	subTexel.uvInTriangleSpace[0] = RRVec2(0,0);
 	subTexel.uvInTriangleSpace[1] = RRVec2(1,0);
 	subTexel.uvInTriangleSpace[2] = RRVec2(0,1);
+	TexelSubTexels::Allocator subTexelAllocator;
 	for(int i=0;i<numThreads;i++)
-		subTexels[i].push_back(subTexel);
+		subTexels[i].push_back(subTexel,subTexelAllocator);
 
 	// preallocate empty relevantLights
 	//unsigned numAllLights = getLights().size();

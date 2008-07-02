@@ -229,12 +229,7 @@ You are free to download their sources and rebuild, use them in commercial appli
 Use of these libraries is optional, global illumination solver works without them.
 
 Libraries used by LightsprintCore (global illumination solver):
-- <a href="http://boost.org">boost</a>
-  - optional, remove by deleting \#define USE_BOOST_POOL in src/LightsprintCore/RRDynamicSolver/gather.h
-  - only headers accessed when building LightsprintCore from sources (only when you license source code),
-    no library needed (no .dll/.so)
-  - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
-  - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
+- none
 
 Used by LightsprintGL (optional OpenGL support):
 - GLU
@@ -306,6 +301,12 @@ Used by LightsprintIO (optional file format support):
   - Libxml2 library is required in Linux environment by FCollada. Although it is likely that
     this library will be already bundled with your system, you can install it manually using
     your Linux packaging tool, e.g. <code>sudo apt-get install libxml2-dev</code>
+
+Used by some samples:
+- <a href="http://boost.org">boost</a>
+  - only headers accessed, no library needed (no .dll/.so)
+  - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
+  - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
 
 Remark:
 - when installing dependencies on Debian based Linux (Ubuntu etc), it can be done by single command

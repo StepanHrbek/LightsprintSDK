@@ -917,8 +917,9 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// remove old factors
 		shotsForFactorsTotal-=source->shotsForFactors;
 		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, ch, &staticReflectors);
+		source->factors.clear();
 
 		// insert new factors
 		ChunkList<Factor>::InsertIterator i(source->factors,factorAllocator);
@@ -982,7 +983,7 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 	if(phase==0)
 	{
 		// distribute energy via form factors
-		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
@@ -1005,7 +1006,7 @@ bool Scene::distribute(real maxError)
 		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 
-		for(ChunkList<Factor>::ReadIterator i(source->factors); *i; ++i)
+		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);

@@ -80,15 +80,17 @@ private:
 // ChunkList
 //
 // singly linked list with pooling and grouping. supports
-// - insert all elements at once
-// - read all elements at once
+// - insert (fast when using InsertIterator to insert all elements at once, push_back is slow)
+// - read all elements at once using const_iterator
 // - clear
 // - separated pools for separated sets of instances
 //
-// STL would be inefficient here
+// STL (with boost pool) would be inefficient here
 // - list pointers waste memory when elements are small (we group elements to reduce number of pointers)
 // - vector pooling is inefficient, needs blocks of different sizes (we are happy with single size)
 // - all instances share one pool
+//
+// beware: it's compatible with STL only for our use case, it won't work elsewhere
 
 template<class C>
 class ChunkList
@@ -124,15 +126,19 @@ public:
 	// allocator - user must manually create at least one
 	typedef Pool<Chunk> Allocator;
 
-	// the only way to insert new elements, overwrites old elements
+	// the only way to append new elements
 	class InsertIterator
 	{
 	public:
 		InsertIterator(ChunkList& _chunkList, Allocator& _allocator) : chunkList(_chunkList), allocator(_allocator)
 		{
-			chunkList.numElements = 0; // insertIterator overwrites old elements, this line simulates clear
 			chunk = chunkList.firstChunk;
-			elementInChunk = 0;
+			elementInChunk = chunkList.numElements;
+			while(elementInChunk>Chunk::CHUNK_SIZE)
+			{
+				elementInChunk -= Chunk::CHUNK_SIZE;
+				chunk = chunk->next;
+			}
 		}
 		bool insert(C element)
 		{
@@ -160,17 +166,27 @@ public:
 		unsigned elementInChunk;
 	};
 
+	void push_back(const C& _c, Allocator& _allocator) // InsertIterator is faster when inserting multiple elements
+	{
+		InsertIterator i(*this,_allocator);
+		i.insert(_c);
+	}
+
 	// the only way to read elements
-	class ReadIterator
+	class const_iterator
 	{
 	public:
-		ReadIterator(const ChunkList& _chunkList)
+		const_iterator(const ChunkList& _chunkList)
 		{
 			chunk = _chunkList.firstChunk;
 			elementInChunk = 0;
 			remainingElements = _chunkList.numElements;
 		}
-		const C* operator *()
+		const C* operator *() const
+		{
+			return remainingElements ? chunk->element+elementInChunk : NULL;
+		}
+		const C* operator ->() const
 		{
 			return remainingElements ? chunk->element+elementInChunk : NULL;
 		}
@@ -185,11 +201,32 @@ public:
 				elementInChunk = 0;
 			}
 		}
+		const bool operator ==(void*) const // i==end()
+		{
+			return remainingElements==0;
+		}
+		const bool operator !=(void*) const // i!=end()
+		{
+			return remainingElements!=0;
+		}
 	private:
 		Chunk* chunk;
 		unsigned elementInChunk;
 		unsigned remainingElements;
 	};
+	const ChunkList& begin() const // const_iterator = begin()
+	{
+		return *this;
+	}
+	void* end() const // i!=end()
+	{
+		return NULL;
+	}
+	C* operator ->() const // begin()->counter = 1;
+	{
+		RR_ASSERT(numElements);
+		return firstChunk->element;
+	}
 
 private:
 	Chunk* firstChunk;

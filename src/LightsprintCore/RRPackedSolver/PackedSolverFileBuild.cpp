@@ -84,7 +84,7 @@ PackedSolverFile* Scene::packSolver() const
 	{
 		// write factors
 		packedSolverFile->packedFactors->newC1(i);
-		for(ChunkList<Factor>::ReadIterator j(object->triangle[i].factors); *j; ++j)
+		for(ChunkList<Factor>::const_iterator j=object->triangle[i].factors.begin(); *j; ++j)
 		{
 			unsigned destinationTriangle = (unsigned)( (*j)->destination-object->triangle );
 			RR_ASSERT(destinationTriangle<object->triangles);
