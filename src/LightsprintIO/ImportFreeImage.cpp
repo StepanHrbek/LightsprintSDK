@@ -56,8 +56,8 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 
 static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat)
 {
-	// skip loading from network
-	if(filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
+	// uncomment if you wish to skip loading from network
+//	if(filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
 
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
