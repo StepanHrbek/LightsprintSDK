@@ -7,7 +7,7 @@
 #ifndef PACKEDSOLVERFILE_H
 #define PACKEDSOLVERFILE_H
 
-//#define THREADED_IMPROVE 2 // num threads, na dualcore nulovy prinos
+//#define THREADED_IMPROVE 4 // num threads, na dualcore nulovy prinos, na 4core 3% zpomaleni
 //#define USE_SSEA // aligned: memory=125%, speed=154/94
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
