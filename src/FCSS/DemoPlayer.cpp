@@ -310,7 +310,7 @@ const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 {
 	if(projectorIndex<projectors.size())
 	{
-		return rr_gl::getTexture(projectors[projectorIndex],true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER);
+		return rr_gl::getTexture(projectors[projectorIndex],false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER);
 	}
 	else
 	{
