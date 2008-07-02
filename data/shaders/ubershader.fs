@@ -49,7 +49,7 @@
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
 
-//#if SHADOW_SAMPLES>0 // ATI fails on this line
+//#if SHADOW_SAMPLES>0 // ATI failed on this line
 #if SHADOW_MAPS>0
 	uniform sampler2DShadow shadowMap0;
 #endif
@@ -120,7 +120,7 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on anything else
+	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI failed on custom varying
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP

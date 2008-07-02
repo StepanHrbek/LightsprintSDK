@@ -78,7 +78,7 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
+	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI failed on custom varying
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR2
@@ -213,7 +213,7 @@ void main()
 	// for cycle (for any OpenGL 2.0 compliant card)
 	//for(int i=0;i<SHADOW_MAPS;i++)
 	//  shadowCoord[i] = gl_TextureMatrix[i] * worldPos4;
-	// unrolled version (ATI fails on for cycle)
+	// unrolled version (this fixed broken render on ATI)
 	#if SHADOW_MAPS>0
 		shadowCoord[0] = gl_TextureMatrix[0] * worldPos4;
 	#endif
