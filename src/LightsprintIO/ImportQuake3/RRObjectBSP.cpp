@@ -186,6 +186,9 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 {
 	model = amodel;
 
+	// Lightsmark 2007 specific code, you can safely delete it
+	bool lightsmark = strstr(pathToTextures,"wop_padattic")!=NULL;
+
 #ifdef PACK_VERTICES
 	// prepare for unused vertex removal
 	unsigned* xlat = new unsigned[model->mVertices.size()]; // old vertexIdx to new vertexIdx, UINT_MAX=unknown yet
@@ -221,6 +224,19 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 							ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
 							ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
 							ti.s = model->mFaces[i].mTextureIndex;
+
+							// clip parts of scene never visible in Lightsmark 2007
+							if(lightsmark)
+							{
+								unsigned clipped = 0;
+								for(unsigned i=0;i<3;i++)
+								{
+									float y = model->mVertices[ti.t[i]].mPosition[2]*0.015f;
+									float z = -model->mVertices[ti.t[i]].mPosition[1]*0.015f;
+									if(y<-18.2f || z>11.5f) clipped++;
+								}
+								if(clipped==3) continue;
+							}
 
 #ifdef PACK_VERTICES
 							// pack vertices, remove unused
