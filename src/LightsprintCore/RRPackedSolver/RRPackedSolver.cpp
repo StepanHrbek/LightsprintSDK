@@ -6,7 +6,7 @@
 
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
-#define MAX_BESTS 1000 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
+#define MAX_BESTS 1000
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
@@ -25,24 +25,6 @@
 namespace rr
 {
 
-/*
-how to handle degenerated triangles?
------------------------------------
-a) vyradit z multiobjektu, automaticky nebudou ani v solveru
-   + zjednodusi solvery
-   - pridany filtr mirne zpomali
-   -? mozna nebude fungovat, nevim jestli je odebrani trianglu odladene
-b) dovolit je v multiobjektu, pocitat s nima v solveru
-   - osetrit zasah degena, getExitance ted vraci INF
-     zasah je legalni (za degena se surf=NULL muze byt oznacena i jehla a tu jde zasahnout)
-     * pokud budou degeni jen s area=0, muzu ohlidat KD/BSP
-	   aby ho nikdy nezasah, ted asi zasahuje
-
-davat mezi degeny i jehly?
-- kdyz vyradim i jehly, paprsek muze proletet skvirou v objektu,
-  mel bych pouzivat radsi minFeatureSize
-
-*/
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -15,7 +15,7 @@ unsigned INSTANCES_PER_PASS;
 //#define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
-//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
+//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery, pomalejsi. udajne nepodporuje fireball (zda se ale ze vse funguje)
 //#define THREE_ONE
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
