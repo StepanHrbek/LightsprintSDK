@@ -6,26 +6,12 @@
 // This code implements data adapters for access to TMapQ3 meshes, objects, materials.
 // You can replace TMapQ3 with your internal format and adapt this code
 // so it works with your data.
-//
-// For sake of simplicity, some data are duplicated here.
-// See RRObjectCollada as an example of adapter with
-// nearly zero memory requirements, no duplications.
-//
-// RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV etc.
-// It is used only by our custom renderer RendererOfRRObject
-// (during render of scene with diffuse maps or ambient maps),
-// it is never accessed by radiosity solver.
-// You may skip it in your implementation.
 
 #include <cassert>
 #include <cmath>
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"
-#ifndef RR_IO_BUILD
-#include "GL/glew.h"
-#endif
 
 //#define MARK_OPENED // mark used textures by read-only attribute
 #ifdef MARK_OPENED
@@ -33,7 +19,7 @@
 	#include <sys/stat.h>
 #endif
 
-#define PACK_VERTICES // reindex vertices, remove unused ones
+#define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -75,6 +61,7 @@ public:
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 	//virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
+	virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
@@ -94,18 +81,14 @@ private:
 	struct VertexInfo
 	{
 		rr::RRVec3 position;
-		rr::RRVec2 texCoord;
+		rr::RRVec2 texCoordDiffuse;
+		rr::RRVec2 texCoordLightmap;
 	};
 	std::vector<VertexInfo> vertices;
 #endif
 
-	// copy of object's material properties
-	struct MaterialInfo
-	{
-		rr::RRMaterial material;
-		rr::RRBuffer* texture;
-	};
-	std::vector<MaterialInfo> materials;
+	// copy of object's materials
+	std::vector<rr::RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
 	const rr::RRCollider* collider;
@@ -121,11 +104,12 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(rr::RRMaterial& s, rr::RRBuffer*& t, TTexture* m,const char* pathToTextures, bool stripPaths, rr::RRBuffer* fallback)
+static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextures, bool stripPaths, rr::RRBuffer* fallback)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
 	// load texture
+	rr::RRBuffer* t = NULL;
 	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
 	const char* strippedName = m->mName;
@@ -186,7 +170,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 {
 	model = amodel;
 
-	// Lightsmark 2007 specific code, you can safely delete it
+	// Lightsmark 2007 specific code. it affects only wop_padattic scene, but you can safely delete it
 	bool lightsmark = strstr(pathToTextures,"wop_padattic")!=NULL;
 
 #ifdef PACK_VERTICES
@@ -197,42 +181,41 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 
 	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
-		MaterialInfo si;
-		si.texture = NULL;
+		rr::RRMaterial material;
 		bool triedLoadTexture = false;
 		for(unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
-		for(unsigned i=model->mModels[mdl].mFace;i<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);i++)
+		for(unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
 		{
-			if(model->mFaces[i].mTextureIndex==s)
+			if(model->mFaces[f].mTextureIndex==s)
 			//if(materials[model->mFaces[i].mTextureIndex].texture)
 			{
-				if(model->mFaces[i].mType==1)
+				if(model->mFaces[f].mType==1)
 				{
-					for(unsigned j=(unsigned)model->mFaces[i].mMeshVertex;j<(unsigned)(model->mFaces[i].mMeshVertex+model->mFaces[i].mNbMeshVertices);j+=3)
+					for(unsigned j=(unsigned)model->mFaces[f].mMeshVertex;j<(unsigned)(model->mFaces[f].mMeshVertex+model->mFaces[f].mNbMeshVertices);j+=3)
 					{
 						// try load texture when it is mapped on at least 1 triangle
 						if(!triedLoadTexture)
 						{
-							fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,stripPaths,missingTexture);
+							fillMaterial(material,&model->mTextures[s],pathToTextures,stripPaths,missingTexture);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
-						if(si.texture)
+						if(material.diffuseReflectance.texture)
 						{
 							TriangleInfo ti;
-							ti.t[0] = model->mFaces[i].mVertex + model->mMeshVertices[j  ].mMeshVert;
-							ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
-							ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
-							ti.s = model->mFaces[i].mTextureIndex;
+							ti.t[0] = model->mFaces[f].mVertex + model->mMeshVertices[j  ].mMeshVert;
+							ti.t[1] = model->mFaces[f].mVertex + model->mMeshVertices[j+2].mMeshVert;
+							ti.t[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
+							ti.s = model->mFaces[f].mTextureIndex;
 
 							// clip parts of scene never visible in Lightsmark 2007
 							if(lightsmark)
 							{
 								unsigned clipped = 0;
-								for(unsigned i=0;i<3;i++)
+								for(unsigned v=0;v<3;v++)
 								{
-									float y = model->mVertices[ti.t[i]].mPosition[2]*0.015f;
-									float z = -model->mVertices[ti.t[i]].mPosition[1]*0.015f;
+									float y = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
+									float z = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
 									if(y<-18.2f || z>11.5f) clipped++;
 								}
 								if(clipped==3) continue;
@@ -240,20 +223,30 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 
 #ifdef PACK_VERTICES
 							// pack vertices, remove unused
-							for(unsigned i=0;i<3;i++)
+							for(unsigned v=0;v<3;v++)
 							{
-								if(xlat[ti.t[i]]==UINT_MAX)
+								if(xlat[ti.t[v]]==UINT_MAX)
 								{
-									xlat[ti.t[i]] = (unsigned)vertices.size();
+									xlat[ti.t[v]] = (unsigned)vertices.size();
 									VertexInfo vi;
-									vi.position[0] = model->mVertices[ti.t[i]].mPosition[0]*0.015f;
-									vi.position[1] = model->mVertices[ti.t[i]].mPosition[2]*0.015f;
-									vi.position[2] = -model->mVertices[ti.t[i]].mPosition[1]*0.015f;
-									vi.texCoord[0] = model->mVertices[ti.t[i]].mTexCoord[0][0];
-									vi.texCoord[1] = model->mVertices[ti.t[i]].mTexCoord[0][1];
+									vi.position[0] = model->mVertices[ti.t[v]].mPosition[0]*0.015f;
+									vi.position[1] = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
+									vi.position[2] = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
+									vi.texCoordDiffuse[0] = model->mVertices[ti.t[v]].mTexCoord[0][0];
+									vi.texCoordDiffuse[1] = model->mVertices[ti.t[v]].mTexCoord[0][1];
+
+									// as we merge all objects, we must merge also lightmaps
+									unsigned numLightmaps = model->mLightMaps.size();
+									unsigned w = (unsigned)(sqrt((float)numLightmaps)+0.99999f);
+									unsigned h = (numLightmaps+w-1)/w;
+									unsigned x = model->mFaces[f].mLightmapIndex % w;
+									unsigned y = model->mFaces[f].mLightmapIndex / w;
+									vi.texCoordLightmap[0] = ( model->mVertices[ti.t[v]].mTexCoord[1][0] + x)/w;
+									vi.texCoordLightmap[1] = ( model->mVertices[ti.t[v]].mTexCoord[1][1] + y)/h;
+
 									vertices.push_back(vi);
 								}
-								ti.t[i] = xlat[ti.t[i]];
+								ti.t[v] = xlat[ti.t[v]];
 							}
 #endif
 
@@ -277,7 +270,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 			}
 		}
 		// push all materials to preserve material numbering
-		materials.push_back(si);
+		materials.push_back(material);
 	}
 
 #ifdef PACK_VERTICES
@@ -302,7 +295,7 @@ rr::RRObjectIllumination* RRObjectBSP::getIllumination()
 
 RRObjectBSP::~RRObjectBSP()
 {
-	for(unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].texture;
+	for(unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
 	delete illumination;
 	delete collider;
 }
@@ -355,7 +348,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			for(unsigned v=0;v<3;v++)
 			{
 #ifdef PACK_VERTICES
-				(*out)[v] = vertices[triangle[v]].texCoord;
+				(*out)[v] = vertices[triangle[v]].texCoordDiffuse;
 #else
 				(*out)[v][0] = model->mVertices[triangle[v]].mTexCoord[0][0];
 				(*out)[v][1] = model->mVertices[triangle[v]].mTexCoord[0][1];
@@ -449,6 +442,21 @@ void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }*/
 
+void RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out) const
+{
+	Triangle triangle;
+	RRObjectBSP::getTriangle(t,triangle);
+	for(unsigned v=0;v<3;v++)
+	{
+#ifdef PACK_VERTICES
+		out.uv[v] = vertices[triangle[v]].texCoordLightmap;
+#else
+		out.uv[v][0] = model->mVertices[triangle[v]].mTexCoord[0][0];
+		out.uv[v][1] = model->mVertices[triangle[v]].mTexCoord[0][1];
+#endif
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -472,16 +480,8 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRL
 		assert(0);
 		return NULL;
 	}
-	return &materials[s].material;
+	return &materials[s];
 }
-
-// Unwrap is not present in .bsp file format.
-// If you omit getTriangleMapping (as it happens here), emergency automatic unwrap
-// is used and ambient map quality is reduced.
-//void RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out) const
-//{
-//	out.uv = unwrap baked with mesh;
-//}
 
 
 //////////////////////////////////////////////////////////////////////////////
