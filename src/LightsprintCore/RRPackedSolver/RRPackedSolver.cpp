@@ -6,8 +6,9 @@
 
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
-#define BESTS 800 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
+#define MAX_BESTS 1000 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
@@ -117,24 +118,24 @@ public:
 
 	// m-threaded interface, to be run from 1 thread when other threads don't call getSelectedBest()
 	//  returns number of triangles in selected group
-	unsigned selectBests()
+	unsigned selectBests(unsigned maxBests)
 	{
 		//RRReportInterval report(INF2,"Finding bests200...\n");//!!!
 		reset();
 
 
 		// search 200 shooters with most energy to diffuse
-		RRReal bestQ[BESTS];
-		bestQ[BESTS-1] = 0; // last is always valid
+		RRReal bestQ[MAX_BESTS];
+		bestQ[maxBests-1] = 0; // last is always valid
 		for(unsigned i=indexBegin;i<indexEnd;i++)
 		{
 			// calculate quality of distributor
 			RRReal q = triangle[i].incidentFluxToDiffuse.sum();
 
-			if(q>bestQ[BESTS-1])
+			if(q>bestQ[maxBests-1])
 			{
 				// sort [q,node] into best cache, bestQ[0] is highest
-				if(bests<BESTS) bests++;
+				if(bests<maxBests) bests++;
 				unsigned pos = bests-1;
 				for(; pos>0 && q>bestQ[pos-1]; pos--)
 				{
@@ -167,22 +168,10 @@ public:
 		return highestFluxToDistribute;
 	}
 
-	// 1-threaded interface
-	//  returns best triangle
-	unsigned getBest()
-	{
-		// if cache empty, fill cache
-		if(bestNodeIterator==bests)
-		{
-			selectBests();
-		}
-		// get best from cache
-		if(!bests) return UINT_MAX;
-		return bestNode[bestNodeIterator++];
-	}
+
 protected:
 	unsigned bests; ///< Number of elements in bestNode[] array.
-	unsigned bestNode[BESTS]; ///< Runtime selected triangle indices in range <indexBegin..indexEnd-1>.
+	unsigned bestNode[MAX_BESTS]; ///< Runtime selected triangle indices in range <indexBegin..indexEnd-1>.
 	unsigned bestNodeIterator; ///< Iterator used by 1threaded getBest(), index into bestNode[] array.
 	const PackedTriangle* triangle; ///< Pointer to our data: triangle[indexBegin]..triangle[indexEnd-1].
 	unsigned indexBegin; ///< Index into triangle array, first of our triangles.
@@ -265,11 +254,16 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	//RRReportInterval report(INF2,"Improving...\n");
 
 
+	// adjust pack size to scene size
+	// numTriangles->maxBests 16k->200 70k->400 800k->800
+	unsigned maxBests = (unsigned)(pow((float)numTriangles,0.35f)*6.5f);
+	CLAMP(maxBests,100,MAX_BESTS);
+
 	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
 	for(unsigned group=0;group<qualityDynamic;group++)
 	{
-		unsigned bests = packedBests->selectBests();
+		unsigned bests = packedBests->selectBests((currentQuality+1==qualityStatic)?maxBests/2:maxBests); // shorten last set of bests
 		if(bests)
 		{
 			RRReal q = packedBests->getHighestFluxToDistribute();
