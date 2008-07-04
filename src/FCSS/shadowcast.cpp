@@ -544,12 +544,6 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	}
 #endif
 
-	// boost quake map intensity
-	if(level->type==Level::TYPE_BSP && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-	{
-		uberProgramSetup.MATERIAL_DIFFUSE_X2 = true;
-	}
-
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);

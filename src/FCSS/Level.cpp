@@ -36,17 +36,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		light = tmplight;
 	}*/
 
-	type = TYPE_NONE;
-	const char* typeExt[] = {".3ds",".bsp",".dae",".mgf"};
-	for(unsigned i=TYPE_3DS;i<TYPE_NONE;i++)
-	{
-		if(strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,typeExt[i])==0)
-		{
-			type = (Level::Type)i;
-			break;
-		}
-	}
-
 	scene = new rr_io::ImportScene(pilot.setup->filename, pilot.setup->scale, true);
 	objects = scene->getObjects();
 
