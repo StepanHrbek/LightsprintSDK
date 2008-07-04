@@ -175,7 +175,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 										unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
 										if(dataIndex>=dataCount)
 										{
-											LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Out of range indices in Collada file.\n"));
+											LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
 											return false;
 										}
 										*out++ = data[dataIndex];
@@ -398,12 +398,6 @@ protected:
 // When you see wrong uv, disable AGGRESSIVE_CACHE.
 #define AGGRESSIVE_CACHE
 
-struct MaterialInfo
-{
-	RRMaterial             material;
-	// here's space for custom extensions
-};
-
 fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
 {
 	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
@@ -435,10 +429,10 @@ RRReal colorToFloat(FMVector4 color)
 RRVec4 getAvgColor(RRBuffer* buffer)
 {
 	enum {size = 8};
-	rr::RRVec4 avg = rr::RRVec4(0);
+	RRVec4 avg = RRVec4(0);
 	for(unsigned i=0;i<size;i++)
 		for(unsigned j=0;j<size;j++)
-			avg += buffer->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
+			avg += buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
 	return avg/(size*size);
 }
 
@@ -450,13 +444,13 @@ RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
 {
 	if(!buffer) return 0;
 	enum {size = 16};
-	rr::RRReal blendImportance = 0;
+	RRReal blendImportance = 0;
 	for(unsigned i=0;i<size;i++)
 		for(unsigned j=0;j<size;j++)
 		{
-			rr::RRVec4 color = buffer->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
-			rr::RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
-			rr::RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
+			RRVec4 color = buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
+			RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
+			RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
 			blendImportance += MIN(distFrom0,distFrom1);
 		}
 	return blendImportance/(size*size); 
@@ -469,7 +463,7 @@ public:
 	{
 		imageCache = _imageCache;
 	}
-	const MaterialInfo* getMaterial(const FCDMaterialInstance* materialInstance)
+	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
 		if(!materialInstance)
 		{
@@ -543,7 +537,7 @@ public:
 		{
 			// we created it in updateMaterials() and stored in const char* so no one can edit it
 			// now it's time to free it
-			free((char*)(i->second.material.name));
+			free((char*)(i->second.name));
 
 			// don't delete textures loaded via imageCache
 			//SAFE_DELETE(i->second.diffuseTexture);
@@ -574,59 +568,59 @@ private:
 				else
 				{
 					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
+					LIMITED_TIMES(1,RRReporter::report(WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
 				}
 			}
 		}
 	}
 
-	const MaterialInfo loadMaterial(const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
+	const RRMaterial loadMaterial(const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
 		const fchar* extra = effectStandard->GetExtraAttribute("MAX3D","double_sided");
 		bool twoSided = !extra || extra[0]!='0'; // collada default is 2sided, but MAX3D extra '0' can change it to 1-sided (=not rendered, and photons hitting back side are deleted)
-		MaterialInfo mi;
-		mi.material.reset(twoSided);
-		mi.material.diffuseReflectance.color = colorToColor(effectStandard->GetDiffuseColor());
-		mi.material.diffuseEmittance.color = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
-		mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
-		mi.material.specularTransmittance.color = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
+		RRMaterial material;
+		material.reset(twoSided);
+		material.diffuseReflectance.color = colorToColor(effectStandard->GetDiffuseColor());
+		material.diffuseEmittance.color = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
+		material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
+		material.specularTransmittance.color = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
 			? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 			: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
-		mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
-		if(mi.material.refractionIndex==0) mi.material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
+		material.refractionIndex = effectStandard->GetIndexOfRefraction();
+		if(material.refractionIndex==0) material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
 
-		loadTexture(FUDaeTextureChannel::DIFFUSE,mi.material.diffuseReflectance,materialInstance,effectStandard);
-		loadTexture(FUDaeTextureChannel::EMISSION,mi.material.diffuseEmittance,materialInstance,effectStandard);
-		loadTexture(FUDaeTextureChannel::TRANSPARENT,mi.material.specularTransmittance,materialInstance,effectStandard);
-		mi.material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
-		mi.material.specularTransmittanceKeyed = getBlendImportance(mi.material.specularTransmittance.texture,mi.material.specularTransmittanceInAlpha)<0.02f;
-		if(mi.material.specularTransmittance.texture)
+		loadTexture(FUDaeTextureChannel::DIFFUSE,material.diffuseReflectance,materialInstance,effectStandard);
+		loadTexture(FUDaeTextureChannel::EMISSION,material.diffuseEmittance,materialInstance,effectStandard);
+		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
+		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
+		material.specularTransmittanceKeyed = getBlendImportance(material.specularTransmittance.texture,material.specularTransmittanceInAlpha)<0.02f;
+		if(material.specularTransmittance.texture)
 		{
-			if(mi.material.specularTransmittanceInAlpha)
+			if(material.specularTransmittanceInAlpha)
 			{
-				RRVec4 avg = getAvgColor(mi.material.specularTransmittance.texture);
-				mi.material.specularTransmittance.color = RRVec3(1-avg[3]);
+				RRVec4 avg = getAvgColor(material.specularTransmittance.texture);
+				material.specularTransmittance.color = RRVec3(1-avg[3]);
 			}
 
 			if(effectStandard->GetTranslucencyFactor()!=1)
-				LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
+				LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
 
 			// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
 			// It makes calculation much slower, so enable it only when necessary.
 			// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
 			// Here, for simplicity, we enable it for textures with at least 1% transparency in texture.
-			if(mi.material.specularTransmittance.color.avg()>0.01f)
-				mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
+			if(material.specularTransmittance.color.avg()>0.01f)
+				material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 		}
 
-		mi.material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
-		return mi;
+		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
+		return material;
 	}
 
 #ifdef AGGRESSIVE_CACHE
-	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
+	typedef std::map<const FCDEffectStandard*,RRMaterial> Cache;
 #else
-	typedef std::map<const FCDMaterialInstance*,MaterialInfo> Cache;
+	typedef std::map<const FCDMaterialInstance*,RRMaterial> Cache;
 #endif
 	Cache cache;
 
@@ -665,7 +659,6 @@ private:
 
 	// materials
 	MaterialCache*             materialCache;
-	const MaterialInfo*        getTriangleMaterialInfo(unsigned t) const;
 
 	// collider for ray-mesh collisions
 	const RRCollider*          collider;
@@ -678,7 +671,7 @@ private:
 	RRObjectIllumination*      illumination;
 };
 
-void getNodeMatrices(const FCDSceneNode* node, rr::RRMatrix3x4& worldMatrix, rr::RRMatrix3x4& invWorldMatrix)
+void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4& worldMatrix, RRMatrix3x4& invWorldMatrix)
 {
 	FMMatrix44 world = node->CalculateWorldTransform();
 	for(unsigned i=0;i<3;i++)
@@ -701,7 +694,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	materialCache = _materialCache;
 
 	// create illumination
-	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
+	illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
 
 	// create transformation matrices
 	getNodeMatrices(node,worldMatrix,invWorldMatrix);
@@ -711,9 +704,9 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 {
 	switch(channelId)
 	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
 			if(itemSize) *itemSize = sizeof(RRVec2[3]);
 			return;
@@ -733,30 +726,30 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 	}
 	switch(channelId)
 	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
+		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			{
 				if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 				{
 					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 					return false;
 				}
-				const MaterialInfo* mi = getTriangleMaterialInfo(itemIndex);
-				if(!mi)
+				const RRMaterial* material = getTriangleMaterial(itemIndex,NULL,NULL);
+				if(!material)
 				{
 					return false;
 				}
 				const FCDGeometryMesh* mesh = static_cast<const FCDGeometry*>(geometryInstance->GetEntity())->GetMesh();
-				unsigned inputSet = (channelId==rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV)
-					? mi->material.diffuseReflectance.texcoord
-					: ( (channelId==rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV)
-						? mi->material.diffuseEmittance.texcoord
-						: mi->material.specularTransmittance.texcoord );
+				unsigned inputSet = (channelId==RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV)
+					? material->diffuseReflectance.texcoord
+					: ( (channelId==RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV)
+						? material->diffuseEmittance.texcoord
+						: material->specularTransmittance.texcoord );
 				return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,(int)inputSet,2,itemIndex,itemData,itemSize);
 			}
 
-		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 			{
 				if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 				{
@@ -785,7 +778,7 @@ const RRCollider* RRObjectCollada::getCollider() const
 	return collider;
 }
 
-const MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(unsigned t) const
+const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if(!geometryInstance)
 	{
@@ -809,12 +802,6 @@ const MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(unsigned t) const
 	return materialCache->getMaterial(materialInstance);
 }
 
-const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-{
-	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
-	return materialInfo ? &materialInfo->material : NULL;
-}
-
 void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 {
 	// When point materials are used, this is critical place for performance
@@ -822,8 +809,7 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	// getChannelData() called here is very slow.
 	// In your implementations, prefer simple lookups, avoid for cycles.
 	// Use profiler to see what percentage of time is spent in getPointMaterial().
-	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
-	const RRMaterial* material = materialInfo ? &materialInfo->material : NULL;
+	const RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
 	if(material)
 	{
 		out = *material;
@@ -834,15 +820,15 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	}
 	if(material->diffuseEmittance.texture)
 	{
-		rr::RRVec2 mapping[3];
-		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,mapping,sizeof(mapping));
+		RRVec2 mapping[3];
+		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
 	}
 	if(material->specularTransmittance.texture)
 	{
-		rr::RRVec2 mapping[3];
-		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,mapping,sizeof(mapping));
+		RRVec2 mapping[3];
+		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 		RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
 		out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
@@ -851,8 +837,8 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	}
 	if(material->diffuseReflectance.texture)
 	{
-		rr::RRVec2 mapping[3];
-		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
+		RRVec2 mapping[3];
+		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 		out.diffuseReflectance.color = RRVec3(material->diffuseReflectance.texture->getElement(RRVec3(uv[0],uv[1],0)))
 			// we multiply dif texture by opacity on the fly
@@ -888,7 +874,7 @@ RRObjectCollada::~RRObjectCollada()
 //
 // ObjectsFromFCollada
 
-class ObjectsFromFCollada : public rr::RRObjects
+class ObjectsFromFCollada : public RRObjects
 {
 public:
 	ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths);
@@ -990,13 +976,13 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 
 	// standardize up axis and units
 	{
-		rr::RRReportInterval report(rr::INF3,"Standardizing geometry...\n");
+		RRReportInterval report(INF3,"Standardizing geometry...\n");
 		FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
 	}
 
 	// triangulate all polygons
 	{
-		rr::RRReportInterval report(rr::INF3,"Triangulating geometry...\n");
+		RRReportInterval report(INF3,"Triangulating geometry...\n");
 		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
 		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 		{
@@ -1015,7 +1001,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	// very slow (4 minutes in 800ktri scene)
 	// without this code, single vertex number has unique pos, but it could have different normal/uv in different triangles
 	{
-		rr::RRReportInterval report(rr::INF2,"Generating unique indices...\n");
+		RRReportInterval report(INF2,"Generating unique indices...\n");
 		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
 		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 		{
@@ -1030,7 +1016,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 
 	// adapt objects
 	{
-		rr::RRReportInterval report(rr::INF3,"Adapting objects...\n");
+		RRReportInterval report(INF3,"Adapting objects...\n");
 		const FCDSceneNode* root = document->GetVisualSceneInstance();
 		if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
 		addNode(root);
@@ -1061,7 +1047,7 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 //
 // LightsFromFCollada
 
-class LightsFromFCollada : public rr::RRLights
+class LightsFromFCollada : public RRLights
 {
 public:
 	LightsFromFCollada(FCDocument* document);
@@ -1095,25 +1081,25 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 			if(light)
 			{
 				// get position and direction
-				rr::RRMatrix3x4 worldMatrix;
-				rr::RRMatrix3x4 invWorldMatrix;
+				RRMatrix3x4 worldMatrix;
+				RRMatrix3x4 invWorldMatrix;
 				getNodeMatrices(node,worldMatrix,invWorldMatrix);
-				rr::RRVec3 position = invWorldMatrix.transformedPosition(rr::RRVec3(0));
-				rr::RRVec3 direction = invWorldMatrix.transformedDirection(rr::RRVec3(0,0,-1));
+				RRVec3 position = invWorldMatrix.transformedPosition(RRVec3(0));
+				RRVec3 direction = invWorldMatrix.transformedDirection(RRVec3(0,0,-1));
 
 				// create RRLight
-				rr::RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
-				rr::RRVec3 polynom = rr::RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor());
+				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
+				RRVec3 polynom = RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor());
 				switch(light->GetLightType())
 				{
 				case FCDLight::POINT:
-					push_back(rr::RRLight::createPointLightPoly(position,color,polynom));
+					push_back(RRLight::createPointLightPoly(position,color,polynom));
 					break;
 				case FCDLight::SPOT:
-					push_back(rr::RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
+					push_back(RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
 					break;
 				case FCDLight::DIRECTIONAL:
-					push_back(rr::RRLight::createDirectionalLight(direction,color,false));
+					push_back(RRLight::createDirectionalLight(direction,color,false));
 					break;
 				}
 			}
@@ -1142,12 +1128,12 @@ LightsFromFCollada::~LightsFromFCollada()
 //
 // main
 
-rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
 {
 	return new ObjectsFromFCollada(document,pathToTextures,stripPaths);
 }
 
-rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
+RRLights* adaptLightsFromFCollada(class FCDocument* document)
 {
 	return new LightsFromFCollada(document);
 }
@@ -1156,11 +1142,11 @@ rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
-rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
+RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
 {
 	return NULL;
 }
-rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
+RRLights* adaptLightsFromFCollada(class FCDocument* document)
 {
 	return NULL;
 }
