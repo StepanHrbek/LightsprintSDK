@@ -66,6 +66,7 @@ public:
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
+	virtual void                    getPointMaterial(unsigned t, rr::RRVec2 uv, rr::RRMaterial& out) const;
 
 private:
 	TMapQ3* model;
@@ -135,7 +136,7 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	if(!t)
 	{
 		t = fallback;
-		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green")) // temporary: don't report known missing textures in Lightsmark
+		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
 			rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
@@ -155,13 +156,15 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	}
 
 	// set all properties to default
-	s.reset(0);
+	s.reset(avg[3]!=1); // make transparent materials twosided
 	// rgb is diffuse reflectance
 	s.diffuseReflectance.color = avg;
 	s.diffuseReflectance.texture = t;
-	// alpha is transparency
+	// alpha is transparency (1=opaque)
 	s.specularTransmittance.color = rr::RRVec3(1-avg[3]);
 	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
+	s.specularTransmittanceInAlpha = true;
+	s.sideBits[0].pointDetails = s.sideBits[1].pointDetails = s.specularTransmittance.texture ? 1 : 0;
 }
 
 // Creates internal copies of .bsp geometry and material properties.
@@ -481,6 +484,35 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRL
 		return NULL;
 	}
 	return &materials[s];
+}
+
+void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out) const
+{
+	// When point materials are used, this is critical place for performance
+	// of updateLightmap[s]().
+	// getChannelData() called here is very slow.
+	// In your implementations, prefer simple lookups, avoid for cycles.
+	// Use profiler to see what percentage of time is spent in getPointMaterial().
+	const rr::RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
+	if(material)
+	{
+		out = *material;
+	}
+	else
+	{
+		out.reset(false);
+	}
+	if(material->diffuseReflectance.texture)
+	{
+		rr::RRVec2 mapping[3];
+		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
+		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
+		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(uv[0],uv[1],0));
+		out.diffuseReflectance.color = rgba * rgba[3];
+		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
+		if(rgba[3]==0)
+			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	}
 }
 
 
