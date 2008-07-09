@@ -726,9 +726,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
 			{
 				cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
-				const RRMesh* mesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
-				mesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
-				mesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+				const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+				multiMesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
+				multiMesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
 			}
 			// update cached subtexel data
 			// (simplification: average tangent base is used for all rays from subtexel)
@@ -782,6 +782,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 			if(shootLights)
 			{
+				RR_ASSERT(!pti.context.params->lowDetailForLightDetailMap);
 				if(!shootHemisphere // shooting only into lights
 					|| gilights.rounds>=hemisphere.rays // shoting both, always into lights
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
@@ -796,6 +797,31 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	hemisphere.done();
 	gilights.done();
+
+	// convert result to indirect detail map
+	if(pti.context.params->lowDetailForLightDetailMap)
+	{
+		RRVec3 irradianceIndirectLowDetail(0);
+		const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+		for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
+		{
+			RRVec2 uvInTriangleSpace = (i->uvInTriangleSpace[0]+i->uvInTriangleSpace[1]+i->uvInTriangleSpace[2])*0.33333333f; // uv of center of subtexel
+			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
+			RRMesh::Triangle postImportTriangleVertex;
+			multiMesh->getTriangle(i->multiObjPostImportTriIndex,postImportTriangleVertex);
+			RRVec3 irradianceIndirect[3];
+			for(unsigned v=0;v<3;v++)
+			{
+				RRMesh::PreImportNumber preImportVertex = multiMesh->getPreImportVertex(postImportTriangleVertex[v],i->multiObjPostImportTriIndex);
+				// our caller promised that all pti.subtexels belong to object whose buffer is updated, so we may ignore preImportVertex.object
+				irradianceIndirect[v] = pti.context.params->lowDetailForLightDetailMap->getElement(preImportVertex.index);
+			}
+			irradianceIndirectLowDetail += ( irradianceIndirect[0]*wInTriangleSpace + irradianceIndirect[1]*uvInTriangleSpace[0] + irradianceIndirect[2]*uvInTriangleSpace[1] ) * i->areaInMapSpace;
+		}
+		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be scaled in scaleAndFlushToBuffer()
+		if(pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
+		hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP] /= irradianceIndirectLowDetail*(2/areaMax);
+	}
 
 	// sum and store irradiance
 	ProcessTexelResult result;

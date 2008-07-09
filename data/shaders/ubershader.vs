@@ -20,6 +20,7 @@
 //  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_MAP2
+//  #define LIGHT_INDIRECT_DETAIL_MAP
 //  #define LIGHT_INDIRECT_ENV_DIFFUSE
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
 //  #define MATERIAL_DIFFUSE
@@ -85,7 +86,7 @@
 	uniform float lightIndirectBlend;
 #endif
 
-#ifdef LIGHT_INDIRECT_MAP
+#if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
 	varying vec2 lightIndirectCoord;
 #endif
 
@@ -186,7 +187,7 @@ void main()
 		#endif
 	#endif
 
-	#ifdef LIGHT_INDIRECT_MAP
+	#if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
 		lightIndirectCoord = gl_MultiTexCoord1.xy;
 	#endif
 

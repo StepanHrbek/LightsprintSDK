@@ -549,6 +549,8 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
 
+	level->rendererOfScene->setLDM(uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX );
+
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
@@ -677,6 +679,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
+		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = !currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;

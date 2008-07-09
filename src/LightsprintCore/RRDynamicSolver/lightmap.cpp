@@ -331,7 +331,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	}
 }
 
-void flush(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
+void scaleAndFlushToBuffer(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
 {
 	if(!srcData || !destBuffer)
 	{
@@ -548,7 +548,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
-					flush(allPixelBuffers[i],tc.pixelBuffers[i]->getFilteredPhysical(filtering),(i==LS_BENT_NORMALS)?NULL:priv->scaler);
+					scaleAndFlushToBuffer(allPixelBuffers[i],tc.pixelBuffers[i]->getFilteredPhysical(filtering),(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
 					updatedBuffers++;
 				}
 				delete tc.pixelBuffers[i];
@@ -765,7 +765,22 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 				if(numPixelBuffers)
 				{
-					updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
+					if(allPixelBuffers[LS_LIGHTMAP] && paramsDirect.locality>99999 && paramsIndirect.locality<99 && !paramsDirect.applyLights)
+					{
+						// light detail map
+						RRReportInterval report(INF2,"Creating light detail map...\n");
+						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getIllumination(object)->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
+						updateLightmap(object,lowDetail,NULL,NULL,&paramsDirect,_filtering);
+						paramsDirect.lowDetailForLightDetailMap = lowDetail;
+						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
+						paramsDirect.lowDetailForLightDetailMap = NULL;
+						delete lowDetail;
+					}
+					else
+					{
+						// other maps
+						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
+					}
 				}
 			}
 		}

@@ -49,6 +49,12 @@ public:
 	//! Specifies global brightness and gamma factors used by following render() commands.
 	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
+	//! Specifies light detail map. Default = none.
+	void setLDM(unsigned layerNumberLDM)
+	{
+		params.layerNumberLDM = layerNumberLDM;
+	}
+
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
 
@@ -64,6 +70,7 @@ protected:
 		bool honourExpensiveLightingShadowingFlags;
 		rr::RRVec4 brightness;
 		float gamma;
+		unsigned layerNumberLDM;
 		Params();
 	};
 	Params params;
@@ -88,6 +95,7 @@ RendererOfRRDynamicSolver::Params::Params()
 	honourExpensiveLightingShadowingFlags = false;
 	brightness = rr::RRVec4(1);
 	gamma = 1;
+	layerNumberLDM = UINT_MAX; // UINT_MAX is usually empty, so it's like disabled ldm
 }
 
 RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders)
@@ -235,6 +243,9 @@ void RendererOfRRDynamicSolver::render()
 		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
+		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getIllumination(0)->getLayer(params.layerNumberLDM);
+		if(params.layerNumberLDM!=UINT_MAX && params.solver->getStaticObjects().size()>1) 
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"LDM not rendered, call useOriginalScene() rather than useOptimizedScene(). Original works only for scenes with 1 object.\n"));
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 	}
@@ -255,6 +266,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
+		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getIllumination(0)->getLayer(params.layerNumberLDM) : NULL);
 		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
 
 		if(uberProgramSetup.MATERIAL_SPECULAR)
@@ -419,6 +431,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	rr::RRBuffer* pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumber));
 	rr::RRBuffer* vbuffer2 = onlyVbuf(perObject->illumination->getLayer(layerNumber2));
 	rr::RRBuffer* pbuffer2 = onlyLmap(perObject->illumination->getLayer(layerNumber2));
+	rr::RRBuffer* pbufferldm = onlyLmap(perObject->illumination->getLayer(params.layerNumberLDM));
 	// fallback when buffers are not available
 	if(!vbuffer) vbuffer = onlyVbuf(perObject->illumination->getLayer(layerNumberFallback));
 	if(!pbuffer) pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumberFallback));
@@ -431,6 +444,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = vbuffer && !vbuffer->getScaled();
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
+		mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = pbufferldm?true:false;
 		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // enable always, will affect only specular materials
 	}
 	mainUberProgramSetup.validate();
@@ -494,6 +508,8 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		{
 			perObject->rendererNonCaching->setIndirectIlluminationBuffers(vbuffer,pbuffer);
 		}
+		perObject->rendererNonCaching->setLDM(pbufferldm);
+
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
 			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
 		else
@@ -552,10 +568,21 @@ void RendererOfOriginalScene::render()
 	}
 	std::sort(perObjectSorted,perObjectSorted+numObjectsToRender);
 
-	// Render opaque objects from 0 to inf
-	for(unsigned i=0;i<numObjectsToRender;i++)
+	if(params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 	{
-		renderOriginalObject(perObjectSorted[i].permanent,true,false);
+		// Render opaque objects from 0 to inf
+		for(unsigned i=0;i<numObjectsToRender;i++)
+		{
+			renderOriginalObject(perObjectSorted[i].permanent,true,false);
+		}
+	}
+	else
+	{
+		// Render all objects from 0 to inf
+		for(unsigned i=0;i<numObjectsToRender;i++)
+		{
+			renderOriginalObject(perObjectSorted[i].permanent,true,true);
+		}
 	}
 
 	// Render skybox
@@ -581,10 +608,13 @@ void RendererOfOriginalScene::render()
 		}
 	}
 
-	// Render blended objects from inf to 0
-	for(unsigned i=numObjectsToRender;i--;)
+	if(params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 	{
-		renderOriginalObject(perObjectSorted[i].permanent,false,true);
+		// Render blended objects from inf to 0
+		for(unsigned i=numObjectsToRender;i--;)
+		{
+			renderOriginalObject(perObjectSorted[i].permanent,false,true);
+		}
 	}
 }
 
@@ -615,6 +645,11 @@ void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)
 {
 	renderer->setBrightnessGamma(brightness,gamma);
+}
+
+void RendererOfScene::setLDM(unsigned layerNumberLDM)
+{
+	renderer->setLDM(layerNumberLDM);
 }
 
 const void* RendererOfScene::getParams(unsigned& length) const

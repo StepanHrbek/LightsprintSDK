@@ -21,12 +21,14 @@ struct SceneViewerState
 	Camera           eye;
 	unsigned         staticLayerNumber;   //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
 	unsigned         realtimeLayerNumber; //! Layer used for all realtime lighting operations.
+	unsigned         ldmLayerNumber;      //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
 	unsigned         selectedLightIndex;  //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex; //! Index into static objects array.
 	bool             fullscreen;          //! Fullscreen rather than window.
-	bool             renderRealtime;      //! Realtime rather than static lighting.
+	bool             renderRealtime;      //! Realtime lighting (from realtimeLayerNumber) rather than static lighting (from staticLayerNumber).
 	bool             render2d;            //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderAmbient;       //! Constant ambient light.
+	bool             renderLDM;           //! Render light detail map (from ldmLayerNumber).
 	bool             renderDiffuse;       //! Render diffuse color.
 	bool             renderSpecular;      //! Render specular reflections.
 	bool             renderEmission;      //! Render emissivity.
@@ -48,12 +50,14 @@ struct SceneViewerState
 	{
 		staticLayerNumber = 192837464;
 		realtimeLayerNumber = 192837465;
+		ldmLayerNumber = 192837466;
 		selectedLightIndex = 0;
 		selectedObjectIndex = 0;
 		fullscreen = 0;
 		renderRealtime = 1;
 		render2d = 0;
 		renderAmbient = 0;
+		renderLDM = 0;
 		renderDiffuse = 1;
 		renderSpecular = 0;
 		renderEmission = 1;

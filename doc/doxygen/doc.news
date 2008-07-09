@@ -12,10 +12,16 @@ namespace rr
 
 NEWS
 
+- Light Detail Maps
+  \n precomputed maps that greatly enhance precision of realtime GI at cost of single lookup in shader
 - extended rr_gl::sceneViewer(), it's possible to set initial camera and more than 20 other parameters.
   (For realtime GI viewer, change last two parameters from -1,false to NULL.
   For static GI viewer, see AmbientOcclusion sample.)
 - optimized Architect solver (smaller, faster)
+
+CHANGES
+
+- removed honourExpensiveFlags option in renderer, so all objects cast shadows
 
 \section news60 ------------------------------------ 2008.6.26 -------------------------------------
 

@@ -139,34 +139,38 @@ public:
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,svs.honourExpensiveLightingShadowingFlags);
 
-		if(svs.renderRealtime && !renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND)
-		{
-			// render per object (properly sorting), with temporary buffers filled here
-			if(!getIllumination(0)->getLayer(svs.realtimeLayerNumber))
-			{
-				// allocate lightmap-buffers for realtime rendering
-				for(unsigned i=0;i<getNumObjects();i++)
-				{
-					if(getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
-						getIllumination(i)->getLayer(svs.realtimeLayerNumber) =
-							rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
-				}
-			}
-			updateLightmaps(svs.realtimeLayerNumber,-1,-1,NULL,NULL,NULL);
-			rendererOfScene->useOriginalScene(svs.realtimeLayerNumber);
-		}
-		else
 		if(svs.renderRealtime)
 		{
-			// render whole scene at once (no sorting -> semitranslucency would render incorrectly)
-			rendererOfScene->useOptimizedScene();
+			if( (!renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND) // optimized render can't sort
+				|| (svs.renderLDM && getStaticObjects().size()>1) // optimized render can't render AO for more than 1 object
+				)
+			{
+				// render per object (properly sorting), with temporary buffers filled here
+				if(!getIllumination(0)->getLayer(svs.realtimeLayerNumber))
+				{
+					// allocate lightmap-buffers for realtime rendering
+					for(unsigned i=0;i<getNumObjects();i++)
+					{
+						if(getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
+							getIllumination(i)->getLayer(svs.realtimeLayerNumber) =
+								rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+					}
+				}
+				updateLightmaps(svs.realtimeLayerNumber,-1,-1,NULL,NULL,NULL);
+				rendererOfScene->useOriginalScene(svs.realtimeLayerNumber);
+			}
+			else
+			{
+				// render whole scene at once (no sorting -> semitranslucency would render incorrectly)
+				rendererOfScene->useOptimizedScene();
+			}
 		}
 		else
 		{
 			// render per object (properly sorting), with static lighting buffers
 			rendererOfScene->useOriginalScene(svs.staticLayerNumber);
 		}
-
+		rendererOfScene->setLDM(svs.renderLDM ? svs.ldmLayerNumber : UINT_MAX);
 		rendererOfScene->setBrightnessGamma(&svs.brightness,svs.gamma);
 		rendererOfScene->render();
 	}
@@ -220,6 +224,7 @@ public:
 		glutAddMenuEntry("Delete selected light", ME_LIGHT_DELETE);
 		glutAddMenuEntry(svs.renderAmbient?"Delete constant ambient":"Add constant ambient", ME_LIGHT_AMBIENT);
 
+
 		// Static lighting...
 		int staticHandle = glutCreateMenu(staticCallback);
 		glutAddMenuEntry("Render static lighting", ME_STATIC_3D);
@@ -246,14 +251,16 @@ public:
 		glutAddMenuEntry("Save",ME_STATIC_SAVE);
 		glutAddMenuEntry("Load",ME_STATIC_LOAD);
 
-		// Fireball
-		int fireballHandle = glutCreateMenu(fireballCallback);
+		// Realtime lighting...
+		int realtimeHandle = glutCreateMenu(realtimeCallback);
 		glutAddMenuEntry("Render realtime GI: architect", ME_REALTIME_ARCHITECT);
 		glutAddMenuEntry("Render realtime GI: fireball", ME_REALTIME_FIREBALL);
 		glutAddMenuEntry("Build fireball, quality 10", 10);
 		glutAddMenuEntry("                quality 100", 100);
 		glutAddMenuEntry("                quality 1000", 1000);
 		glutAddMenuEntry("                quality 10000", 10000);
+		glutAddMenuEntry("Build light detail map",ME_REALTIME_LDM_BUILD);
+		glutAddMenuEntry(svs.renderLDM?"Disable light detail map":"Enable light detail map",ME_REALTIME_LDM);
 
 		// Movement speed...
 		int speedHandle = glutCreateMenu(speedCallback);
@@ -276,7 +283,7 @@ public:
 		menuHandle = glutCreateMenu(mainCallback);
 		glutAddSubMenu("Select...", selectHandle);
 		glutAddSubMenu("Lights...", lightsHandle);
-		glutAddSubMenu("Realtime lighting...", fireballHandle);
+		glutAddSubMenu("Realtime lighting...", realtimeHandle);
 		glutAddSubMenu("Static lighting...", staticHandle);
 		glutAddSubMenu("Movement speed...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
@@ -499,7 +506,7 @@ public:
 		// leaving menu, mouse is not in the screen center -> center it
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
-	static void fireballCallback(int item)
+	static void realtimeCallback(int item)
 	{
 		switch(item)
 		{
@@ -520,6 +527,36 @@ public:
 				fireballLoadAttempted = false;
 				solver->leaveFireball();
 				break;
+			case ME_REALTIME_LDM:
+				svs.renderRealtime = 1;
+				solver->dirtyLights();
+				svs.renderLDM = !svs.renderLDM;
+				break;
+			case ME_REALTIME_LDM_BUILD:
+				svs.renderRealtime = 1;
+				svs.render2d = 0;
+				solver->dirtyLights();
+				svs.renderLDM = 1;
+				{
+					for(unsigned i=0;i<solver->getNumObjects();i++)
+						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
+							rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024,1024,1,rr::BF_RGB,true,NULL);
+					rr::RRDynamicSolver::UpdateParameters paramsDirect(100);
+					paramsDirect.applyLights = 0;
+					rr::RRDynamicSolver::UpdateParameters paramsIndirect(100);
+					paramsIndirect.locality = 1;
+					const rr::RRBuffer* oldEnv = solver->getEnvironment();
+					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
+					solver->setEnvironment(newEnv);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.backgroundColor = rr::RRVec4(0.5f);
+					filtering.wrap = false;
+					filtering.smoothBackground = true;
+					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+					solver->setEnvironment(oldEnv);
+					delete newEnv;
+				}
+				break;
 			default:
 				svs.renderRealtime = 1;
 				svs.render2d = 0;
@@ -529,6 +566,8 @@ public:
 				break;
 		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		destroy();
+		create();
 	}
 	static void speedCallback(int item)
 	{
@@ -611,6 +650,8 @@ public:
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
 		ME_REALTIME_FIREBALL = 1234,
 		ME_REALTIME_ARCHITECT,
+		ME_REALTIME_LDM,
+		ME_REALTIME_LDM_BUILD,
 		ME_STATIC_3D,
 		ME_STATIC_2D,
 		ME_STATIC_BILINEAR,
@@ -688,6 +729,8 @@ static void keyboard(unsigned char c, int x, int y)
 		case 'X': speedLean = -1; break;
 		case 'c':
 		case 'C': speedLean = +1; break;
+
+		case 'o': Menu::realtimeCallback(Menu::ME_REALTIME_LDM); break;
 
 		case 27: if(svs.render2d) svs.render2d = 0;
 			//else exitRequested = 1;
@@ -825,7 +868,7 @@ static void display(void)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if(svs.render2d && lv)
 	{
-		LightmapViewer::setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.renderBilinear);
+		LightmapViewer::setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.renderBilinear);
 		LightmapViewer::display();
 	}
 	else

@@ -20,6 +20,7 @@
 //  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_MAP2
+//  #define LIGHT_INDIRECT_DETAIL_MAP
 //  #define LIGHT_INDIRECT_ENV_DIFFUSE
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
 //  #define MATERIAL_DIFFUSE
@@ -123,7 +124,7 @@
 	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI failed on custom varying
 #endif
 
-#ifdef LIGHT_INDIRECT_MAP
+#if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
 	uniform sampler2D lightIndirectMap;
 	varying vec2 lightIndirectCoord;
 #endif
@@ -437,14 +438,20 @@ void main()
 					#ifdef LIGHT_DIRECT
 						lightDirect
 					#endif
-					#ifdef LIGHT_INDIRECT_CONST
-						+ lightIndirectConst
+					#ifdef LIGHT_INDIRECT_DETAIL_MAP
+						+ (
 					#endif
-					#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-						+ lightIndirectLightmap
-					#endif
-					#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
-						+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+						#ifdef LIGHT_INDIRECT_CONST
+							+ lightIndirectConst
+						#endif
+						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
+							+ lightIndirectLightmap
+						#endif
+						#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
+							+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+						#endif
+					#ifdef LIGHT_INDIRECT_DETAIL_MAP
+						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
 					#endif
 				).rgb,1.0)
 			#endif

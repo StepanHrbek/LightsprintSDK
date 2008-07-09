@@ -27,6 +27,8 @@ public:
 
 	unsigned saveIllumination(const char* path);
 	unsigned loadIllumination(const char* path);
+
+	unsigned getLDMLayer() {return 1;}
 };
 
 #endif

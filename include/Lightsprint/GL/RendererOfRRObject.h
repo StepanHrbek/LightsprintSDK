@@ -78,25 +78,26 @@ public:
 	//! Specifies what data channels to feed to GPU during render.
 	struct RenderedChannels
 	{
-		bool     NORMALS                :1; ///< feeds gl_Normal
-		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
-		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRBuffer.
-		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< feeds gl_SecondaryColor
-		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
-		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
-		bool     MATERIAL_DIFFUSE_CONST :1; ///< feeds uniform materialDiffuseConst
-		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds materialDiffuseVColor
-		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
-		bool     MATERIAL_SPECULAR_CONST:1; ///< feeds uniform materialSpecularConst
-		bool     MATERIAL_EMISSIVE_CONST:1; ///< feeds uniform materialEmissiveConst
-		bool     MATERIAL_EMISSIVE_VCOLOR:1;///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
-		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
+		bool     NORMALS                       :1; ///< feeds gl_Normal
+		bool     LIGHT_DIRECT                  :1; ///< feeds gl_Normal
+		bool     LIGHT_INDIRECT_VCOLOR         :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRBuffer.
+		bool     LIGHT_INDIRECT_VCOLOR2        :1; ///< feeds gl_SecondaryColor
+		bool     LIGHT_INDIRECT_MAP            :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRBuffer.
+		bool     LIGHT_INDIRECT_MAP2           :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
+		bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT_AO]
+		bool     MATERIAL_DIFFUSE_CONST        :1; ///< feeds uniform materialDiffuseConst
+		bool     MATERIAL_DIFFUSE_VCOLOR       :1; ///< feeds materialDiffuseVColor
+		bool     MATERIAL_DIFFUSE_MAP          :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
+		bool     MATERIAL_SPECULAR_CONST       :1; ///< feeds uniform materialSpecularConst
+		bool     MATERIAL_EMISSIVE_CONST       :1; ///< feeds uniform materialEmissiveConst
+		bool     MATERIAL_EMISSIVE_VCOLOR      :1;///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
+		bool     MATERIAL_EMISSIVE_MAP         :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< enables alphatest/blend, feeds uniform materialTransparencyConst
 		bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< enables alphatest/blend, feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]
 		bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< enables alphatest/blend
 		bool     MATERIAL_TRANSPARENCY_BLEND   :1; ///< enables alphatest/blend
-		bool     MATERIAL_CULLING       :1; ///< sets 1/2-sided face according to material (0=defaults in GL pipeline are used)
-		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
+		bool     MATERIAL_CULLING              :1; ///< sets 1/2-sided face according to material (0=defaults in GL pipeline are used)
+		bool     FORCE_2D_POSITION             :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		//! Creates setup with everything off, only vertex positions are rendered.
 		//! Suitable for rendering into shadowmaps.
 		RenderedChannels()
@@ -119,7 +120,7 @@ public:
 
 	//! Specifies what indirect illumination to render in render(): use these buffers.
 	//
-	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
+	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
 	//! It is not supported in combination with useBuffers=false (set at renderer creation time).
 	//! \param vertexBuffer
 	//!  Used by render() with LIGHT_INDIRECT_VCOLOR.
@@ -138,34 +139,18 @@ public:
 	//! both sets are pushed into OpenGL pipeline at render time.
 	void setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2);
 
-	//! Specifies what indirect illumination to render in render(): use buffers from this layer.
-	//
-	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
-	//! \param layerNumber
-	//!  Number of layer to take indirect illumination buffers from.
-	void setIndirectIlluminationLayer(unsigned layerNumber);
-
-	//! Specifies what indirect illumination to render in render(): use blend of these layers.
-	//
-	//! \param layerNumber
-	//!  Number of first source layer.
-	//! \param layerNumber2
-	//!  Number of second source layer.
-	//! \param layerBlend
-	//!  Data from both layers are blended at render time, first layer * (1-layerBlend + second layer * layerBlend.
-	//! \param layerNumberFallback
-	//!  When previous layers contain no data, data from this layer are used.
-	void setIndirectIlluminationLayerBlend(unsigned layerNumber, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback);
-
 	//! Specifies what indirect illumination to render in render(): read live values from the solver.
 	//
-	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
+	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
 	//! \param solutionVersion
 	//!  If you change this number, indirect illumination data are read form the solver at render() time.
 	//!  If you call render() without changing this number,
 	//!  indirect illumination from previous render() is reused and render is faster.
 	//!  RRDynamicSolver::getSolutionVersion() is usually entered here.
 	void setIndirectIlluminationFromSolver(unsigned solutionVersion);
+
+	//! Specifies light detail map. Default = none.
+	void setLDM(const rr::RRBuffer* aoBuffer);
 
 	//! Enables lighting and shadowing flag tests.
 	//
@@ -214,14 +199,12 @@ private:
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
 		// set by setIndirectIlluminationXxx()
 		IndirectIlluminationSource indirectIlluminationSource;
-		unsigned indirectIlluminationLayer;
-		unsigned indirectIlluminationLayer2;
-		float indirectIlluminationBlend;
-		unsigned indirectIlluminationLayerFallback;
+		float indirectIlluminationBlend;       ///< specifies amount of blend between availableIndirectIlluminationVColors/2 or availableIndirectIlluminationMap/2
 		rr::RRBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
 		rr::RRBuffer* availableIndirectIlluminationVColors2;
-		const rr::RRBuffer* availableIndirectIlluminationMap; ///< ambient map
-		const rr::RRBuffer* availableIndirectIlluminationMap2;
+		const rr::RRBuffer* availableIndirectIlluminationMap; ///< lightmap
+		const rr::RRBuffer* availableIndirectIlluminationMap2; ///< second lightmap that blends with first one according to indirectIlluminationBlend
+		const rr::RRBuffer* availableIndirectIlluminationLDMap; ///< light detail map
 		// set by setLightingShadowingFlags()
 		const rr::RRLight* renderingFromThisLight;
 		const rr::RRLight* renderingLitByThisLight;

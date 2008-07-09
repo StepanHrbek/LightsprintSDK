@@ -333,7 +333,7 @@ ObjectBuffers::~ObjectBuffers()
 	for(unsigned i=0;i<tempTextures.size();i++) delete tempTextures[i];
 }
 
-GLint getBufferNumComponents(rr::RRBuffer* buffer)
+GLint getBufferNumComponents(const rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
 	{
@@ -348,7 +348,7 @@ GLint getBufferNumComponents(rr::RRBuffer* buffer)
 	}
 }
 
-GLenum getBufferComponentType(rr::RRBuffer* buffer)
+GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
 	{
@@ -483,14 +483,17 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
 		}
 	}
-	// set indirect illumination texcoords + map
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
+	// set indirect illumination texcoords + map (lightmap or light detail map)
+	if((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		BIND_VBO(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-		getTexture(params.availableIndirectIlluminationMap)->bindTexture();
+		if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
+			getTexture(params.availableIndirectIlluminationMap)->bindTexture(); // bind lightmap
+		else
+			getTexture(params.availableIndirectIlluminationLDMap)->bindTexture(); // bind light detail map
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -767,8 +770,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
-	// unset indirect illumination texcoords + map
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
+	// unset indirect illumination texcoords + map (lightmap or light detail map)
+	if((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);

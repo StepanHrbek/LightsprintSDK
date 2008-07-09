@@ -82,6 +82,9 @@ public:
 	//! Specifies global brightness and gamma factors used by following render() commands.
 	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
+	//! Specifies source of light detail maps.
+	void setLDM(unsigned layerNumberLDM);
+
 	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
 	//
 	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),

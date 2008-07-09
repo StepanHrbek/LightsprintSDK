@@ -323,6 +323,7 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 1;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 1;
 	}

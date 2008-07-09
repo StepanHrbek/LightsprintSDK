@@ -82,6 +82,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
+			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
@@ -147,6 +148,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
+	renderedChannels.LIGHT_INDIRECT_DETAIL_MAP = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP;
 	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;

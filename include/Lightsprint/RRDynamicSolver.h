@@ -409,6 +409,9 @@ namespace rr
 			//! outer environment/sky.)
 			RRReal locality;
 
+			//! For internal use only, don't change default NULL value.
+			RRBuffer* lowDetailForLightDetailMap;
+
 			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
 			RRRadiometricMeasure measure_internal;
 
@@ -432,6 +435,7 @@ namespace rr
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
+				lowDetailForLightDetailMap = NULL;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
@@ -449,6 +453,7 @@ namespace rr
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
+				lowDetailForLightDetailMap = NULL;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;

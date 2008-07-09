@@ -70,6 +70,36 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	//lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	//solver->setLights(lights);
 
+	// load light detail map
+	{
+		char* ldmName = _strdup(pilot.setup->filename);
+		strcpy(ldmName+strlen(ldmName)-3,"png");
+		rr::RRBuffer* ldm = rr::RRBuffer::load(ldmName);
+		if(!ldm)
+		{
+			// build light detail map
+			solver->getIllumination(0)->getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
+			rr::RRDynamicSolver::UpdateParameters paramsDirect(200);
+			paramsDirect.applyLights = 0;
+			rr::RRDynamicSolver::UpdateParameters paramsIndirect(200);
+			paramsIndirect.locality = 1;
+			const rr::RRBuffer* oldEnv = solver->getEnvironment();
+			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials on detail map
+			solver->setEnvironment(newEnv);
+			rr::RRDynamicSolver::FilteringParameters filtering;
+			filtering.backgroundColor = rr::RRVec4(0.5f);
+			filtering.wrap = false;
+			filtering.smoothBackground = true;
+			solver->updateLightmaps(getLDMLayer(),-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+			solver->setEnvironment(oldEnv);
+			delete newEnv;
+			// save light detail map
+			ldm->save(ldmName);
+		}
+		free(ldmName);
+		solver->getIllumination(0)->getLayer(getLDMLayer()) = ldm;
+	}
+
 	// load Fireball
 	char* fbname = _strdup(pilot.setup->filename);
 	strcpy(fbname+strlen(fbname)-3,"fib");
