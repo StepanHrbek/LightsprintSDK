@@ -146,15 +146,20 @@ class Gatherer
 {
 public:
 	// Initializes helper structures for gather().
+	//! \param ray
+	//!  rayLengthMin and rayLengthMax are inputs, other attributes are changed.
 	//! \param gatherDirectEmitors
 	//!  Gather direct exitance from emitors (stored in material).
 	//! \param gatherIndirectLight
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	Gatherer(RRRay* ray, const RRObject* multiObject, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight, bool staticSceneContainsLods);
 
-	// Returns color visible in given direction, in physical scale.
-	// May reflect/refract internally.
-	// Individual calls to gather() are independent.
+	//! Returns color visible in given direction, in physical scale, multiplied by visibility.
+	//
+	//! May reflect/refract internally until visibility is sufficiently low.
+	//! Individual calls to gather() are independent.
+	//! \param visibility
+	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
 	RRVec3 gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility);
 
 protected:

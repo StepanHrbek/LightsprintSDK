@@ -12,9 +12,6 @@ namespace rr
 
 extern RRVec3 refract(RRVec3 N,RRVec3 I,real r);
 
-// inputs:
-//  - ray->rayLengthMin
-//  - ray->rayLengthMax
 Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods)
 	: collisionHandlerGatherHemisphere(_multiObject,_staticSolver,true,_staticSceneContainsLods)
 {
@@ -67,35 +64,29 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 	Channels exitance = Channels(0);
 	if(side.legal && (side.catchFrom || side.emitTo))
 	{
-		// per-pixel material
-		RRMaterial pointMaterial;
-		if(side.pointDetails)
-		{
-			material = &pointMaterial;
-			object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-			side = pointMaterial.sideBits[ray->hitFrontSide?0:1];
-		}
-
-		// diffuse reflection
+		// diffuse reflection + emission
 		if(side.emitTo)
 		{
+			// we admit we emit everything to both sides of 2sided face, thus doubling energy
+			// this behaviour will be probably changed later
+			//float splitToTwoSides = material->sideBits[ray->hitFrontSide?1:0].emitTo ? 0.5f : 1;
+
+			// diffuse reflection
 			if(gatherIndirectLight)
 			{
-				// used in GI final gather [per triangle]
-				exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
+				// used in GI final gather
+				// point detail version
+				exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color;// * splitToTwoSides;
+				// per triangle version (ignores point detail even if it's already available)
+				//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
 			}
-			else
+			// diffuse emission
 			if(gatherDirectEmitors)
 			{
 				// used in direct lighting final gather [per pixel emittance]
-				exitance += visibility * material->diffuseEmittance.color;
-			}
-			else
-			{
-				// used in GI first gather
+				exitance += visibility * material->diffuseEmittance.color;// * splitToTwoSides;
 			}
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-			//!!! /2 kdyz emituje do obou stran
 		}
 
 		// specular reflection
