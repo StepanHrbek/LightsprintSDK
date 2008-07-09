@@ -544,6 +544,7 @@ public:
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(100);
 					paramsDirect.applyLights = 0;
 					rr::RRDynamicSolver::UpdateParameters paramsIndirect(100);
+					paramsIndirect.applyLights = 0;
 					paramsIndirect.locality = 1;
 					const rr::RRBuffer* oldEnv = solver->getEnvironment();
 					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
