@@ -1142,6 +1142,7 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
+using namespace rr;
 RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
 {
 	return NULL;
