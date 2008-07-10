@@ -219,6 +219,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 			rr_gl::SceneViewerState svs;
 			svs.renderRealtime = 0; // switch from default realtime GI to static GI
 			svs.staticLayerNumber = layerNumberLighting; // switch from default layer to our layer
+			svs.adjustTonemapping = false; // turn off tonemapping, it mostly impractical in ue3 scenes
 			rr_gl::sceneViewer(g_solver,createWindow,pathToShaders,&svs);
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)false,0);
 			ShowWindow(GetDlgItem(g_hDlg,IDOK),SW_SHOWNORMAL);
