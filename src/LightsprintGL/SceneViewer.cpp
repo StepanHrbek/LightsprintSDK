@@ -878,6 +878,7 @@ static void display(void)
 
 		svs.eye.update();
 
+		if(svs.renderRealtime)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			rr::RRDynamicSolver::CalculateParameters params;
@@ -1035,7 +1036,7 @@ static void display(void)
 					case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
 					case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
 				}
-				textOutput(x,y+=18,"realtime GI lighting, %s",solverType);
+				textOutput(x,y+=18,"realtime GI lighting, %s, light detail map %s",solverType,svs.renderLDM?"on":"off");
 			}
 			else
 			{
