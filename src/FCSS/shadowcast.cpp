@@ -1893,17 +1893,22 @@ void passive(int x, int y)
 	if(level && (x || y)) level->pilot.reportInteraction();
 	if(x || y)
 	{
+#if defined(LINUX) || defined(linux)
+		const float mouseSensitivity = 0.0002f;
+#else
+		const float mouseSensitivity = 0.005f;
+#endif
 		if(modeMovingEye)
 		{
-			currentFrame.eye.angle -= 0.005f*x;
-			currentFrame.eye.angleX -= 0.005f*y;
+			currentFrame.eye.angle -= mouseSensitivity*x;
+			currentFrame.eye.angleX -= mouseSensitivity*y;
 			CLAMP(currentFrame.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			reportEyeMovement();
 		}
 		else
 		{
-			currentFrame.light.angle -= 0.005f*x;
-			currentFrame.light.angleX -= 0.005f*y;
+			currentFrame.light.angle -= mouseSensitivity*x;
+			currentFrame.light.angleX -= mouseSensitivity*y;
 			CLAMP(currentFrame.light.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 			// changes also position a bit, together with rotation
 			currentFrame.light.pos += currentFrame.light.dir*0.3f;
