@@ -956,7 +956,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 #else
 			int threadNum = 0;
 #endif
-			unsigned objectNumber = RRMesh::PreImportNumber(multiMesh->getPreImportTriangle(t)).object;
+			unsigned objectNumber = multiMesh->getPreImportTriangle(t).object;
 			tc.singleObjectReceiver = getObject(objectNumber);
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;
