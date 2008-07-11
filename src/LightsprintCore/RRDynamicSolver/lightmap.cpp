@@ -30,7 +30,9 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 	RRReal b = (v2-v1).length();
 	RRReal c = (v0-v2).length();
 	RRReal s = (a+b+c)*0.5f;
-	return  sqrtf(s*(s-a)*(s-b)*(s-c));
+	RRReal area = sqrtf(s*(s-a)*(s-b)*(s-c));
+	RR_ASSERT(_finite(area));
+	return area;
 }
 
 bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
@@ -134,6 +136,11 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[1]));
 						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[2]));
 						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[3]));
+
+						//!!! look for NaN areas
+						//for(unsigned i=0;i<polySize-2;i++)
+						//	getArea(polyVertexInTriangleSpace[0],polyVertexInTriangleSpace[i+1],polyVertexInTriangleSpace[i+2]);
+
 						// calculate texel-triangle intersection (=polygon) in 2d 0..1 map space
 						// cut it three times by triangle side
 						for(unsigned triSide=0;triSide<3;triSide++)
@@ -190,6 +197,10 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 							RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-2]));
 							RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[dst-1]));
 							polySize = dst;
+
+							//!!! look for NaN areas
+							//for(unsigned i=0;i<polySize-2;i++)
+							//	getArea(polyVertexInTriangleSpace[0],polyVertexInTriangleSpace[i+1],polyVertexInTriangleSpace[i+2]);
 						}
 						// triangulate polygon into subtexels
 						if(polySize)
@@ -202,6 +213,8 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								subTexel.uvInTriangleSpace[1] = polyVertexInTriangleSpace[i+1];
 								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
+								RR_ASSERT(_finite(subTexelAreaInTriangleSpace));
+								RR_ASSERT(_finite(triangleAreaInMapSpace));
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
 								texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel
 									,subTexelAllocator

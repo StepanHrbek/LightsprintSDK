@@ -805,6 +805,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
 		for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
 		{
+			RR_ASSERT(_finite(i->areaInMapSpace));
 			RRVec2 uvInTriangleSpace = (i->uvInTriangleSpace[0]+i->uvInTriangleSpace[1]+i->uvInTriangleSpace[2])*0.33333333f; // uv of center of subtexel
 			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
 			RRMesh::Triangle postImportTriangleVertex;
@@ -820,7 +821,15 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		}
 		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be scaled in scaleAndFlushToBuffer()
 		if(pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
-		hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP] /= irradianceIndirectLowDetail*(2/areaMax);
+		for(unsigned i=0;i<3;i++)
+		{
+			RR_ASSERT(_finite(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i]));
+			hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i] =
+				irradianceIndirectLowDetail[i]
+					? hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i] / irradianceIndirectLowDetail[i] * (areaMax*0.5f)
+					: 0.5f;
+		}
+		RR_ASSERT(IS_VEC3(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]));
 	}
 
 	// sum and store irradiance
