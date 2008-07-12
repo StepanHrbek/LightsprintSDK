@@ -50,7 +50,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	if(buf[0])
 	{
 		loadingMap = rr::RRBuffer::load(buf);
-		showImage(rr_gl::getTexture(loadingMap));
+		showImage(rr_gl::getTexture(loadingMap,true,false));
 	}
 
 	// load music - step1
