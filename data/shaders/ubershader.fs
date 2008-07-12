@@ -464,10 +464,12 @@ void main()
 			#ifdef MATERIAL_SPECULAR
 				+
 				#ifdef MATERIAL_DIFFUSE_MAP
-					materialDiffuseMapColor.a *
+					// special behaviour, not enabled by default
+					//materialDiffuseMapColor.a *
 				#endif
 				#ifdef MATERIAL_EMISSIVE_MAP
-					materialEmissiveMapColor.a *
+					// special behaviour, not enabled by default
+					//materialEmissiveMapColor.a *
 				#endif
 				#ifdef MATERIAL_SPECULAR_CONST
 					materialSpecularConst *
@@ -513,7 +515,8 @@ void main()
 			;
 
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
-			gl_FragColor.rgb *= 0.5;
+			// special behaviour, not enabled by default
+			//gl_FragColor.rgb *= 0.5;
 		#endif
 		#ifdef POSTPROCESS_NORMALS
 			gl_FragColor.rgb = abs(worldNormalSmooth);
