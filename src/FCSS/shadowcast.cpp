@@ -29,7 +29,6 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "eg-sponza.cfg"
 //#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
-bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
 int resolutionx = 1280;
@@ -1000,7 +999,7 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	float color[4] = {intensity,intensity,intensity,intensity};
-	skyRenderer->render2D(rr_gl::getTexture(logo,false,false),color,x,y,w,h);
+	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),color,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
@@ -2272,22 +2271,20 @@ int main(int argc, char **argv)
 	init_gl_states();
 	const char* vendor = (const char*)glGetString(GL_VENDOR);
 	const char* renderer = (const char*)glGetString(GL_RENDERER);
-	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
 	updateMatrices(); // needed for startup without area lights (realtimeLight doesn't update matrices for 1 instance)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
-	uberProgramGlobalSetup.LIGHT_DIRECT = true;
-	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
-	uberProgramGlobalSetup.OBJECT_SPACE = false;
-	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
+	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
+	uberProgramGlobalSetup.SHADOW_PENUMBRA = 1;
+	uberProgramGlobalSetup.LIGHT_DIRECT = 1;
+	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = 1;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 1;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP = 1;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE = 1;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = 1;
+	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	uberProgramGlobalSetup.POSTPROCESS_BRIGHTNESS = 1;
 
 	// init shaders
 	// init textures
