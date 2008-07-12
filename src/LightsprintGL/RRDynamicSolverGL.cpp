@@ -421,8 +421,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 				lightInstance->setupForRender();
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowMap(i);
-				float bias = (float)light->getNumShadowSamples(i);
-				glPolygonOffset(bias,bias*(10<<(shadowmap->getTexelBits()-16)));
+				float bias = 1.f*light->getNumShadowSamples(i);
+				glPolygonOffset(bias,(10<<(shadowmap->getTexelBits()-16)));
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 				if(!shadowmap->renderingToBegin())
 				{
