@@ -80,12 +80,12 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 			break;
 		default:
 		{
-			// known to driver-crash with 8x8: X300
-			// known to work with 8x8: X1600, X2400, 6150, 7100, 8800
+			// known to driver-crash or otherwise fail with 8x8: X300
+			// known to work with 8x8: X1600, X2400, X3780, X4850, 6150, 7100, 8800
 			// so our automatic pick is:
-			//   8x8 for: gf6000..9999, radeon 1300..4999
-			//   4x4 for others
-			detectionQuality = DDI_4X4;
+			//   4x4 for radeon 9500..9999, x100..1299
+			//   8x8 for others
+			detectionQuality = DDI_8X8;
 			char* renderer = (char*)glGetString(GL_RENDERER);
 			if(renderer)
 			{
@@ -98,10 +98,14 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 						number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
 						break;
 					}
+					else
+					if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
+					{
+						number = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
+						break;
+					}
 
-				if( ((strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1300 && number<=4999)) ||
-					((strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=6000 && number<=9999)) )
-						detectionQuality = DDI_8X8;
+				if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500)) detectionQuality = DDI_4X4;
 			}
 			break;
 		}
@@ -422,7 +426,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowMap(i);
 				float bias = 1.f*light->getNumShadowSamples(i);
-				glPolygonOffset(bias,(10<<(shadowmap->getTexelBits()-16)));
+				glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 				if(!shadowmap->renderingToBegin())
 				{
