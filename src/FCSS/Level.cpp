@@ -75,7 +75,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	// load light detail map
 	{
 		char* ldmName = _strdup(pilot.setup->filename);
-		strcpy(ldmName+strlen(ldmName)-3,"png");
+		strcpy(ldmName+strlen(ldmName)-3,"jpg");
 		rr::RRBuffer* ldm = REBUILD_DATA ? 0 : rr::RRBuffer::load(ldmName);
 		if(!ldm)
 		{
