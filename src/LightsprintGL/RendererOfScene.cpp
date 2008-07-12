@@ -315,7 +315,6 @@ private:
 	unsigned layerNumber2;
 	float layerBlend; // 0..1, 0=layerNumber, 1=layerNumber2
 	unsigned layerNumberFallback;
-	bool amdBugWorkaround;
 	struct PerObjectPermanent
 	{
 		rr::RRObject* object;
@@ -353,25 +352,6 @@ private:
 RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* _solver, const char* _pathToShaders) : RendererOfRRDynamicSolver(_solver,_pathToShaders)
 {
 	layerNumber = 0;
-
-	amdBugWorkaround = false;
-	char* renderer = (char*)glGetString(GL_RENDERER);
-	if(renderer)
-	{
-		// find 4digit number
-		unsigned number = 0;
-		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-		for(unsigned i=0;renderer[i];i++)
-			if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
-			{
-				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
-				break;
-			}
-
-		// workaround for Catalyst bug (object disappears), observed on X1950, HD2xxx, HD3xxx
-		amdBugWorkaround = (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1900 && number<=4999);
-	}
-	
 	perObjectPermanent = NULL;
 	perObjectSorted = NULL;
 }
@@ -510,8 +490,8 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		}
 		perObject->rendererNonCaching->setLDM(pbufferldm);
 
-		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (uberProgramSetup.OBJECT_SPACE && amdBugWorkaround))
-			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often. don't cache on some radeons, they are buggy
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often
 		else
 			perObject->rendererCaching->render(); // cache everything else, it's constant
 	}

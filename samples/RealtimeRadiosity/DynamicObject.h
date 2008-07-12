@@ -60,7 +60,6 @@ protected:
 	rr_gl::Renderer* rendererWithoutCache;
 #endif
 	rr_gl::Renderer* rendererCached;
-	bool amdBugWorkaround;
 
 	// updated by updatePosition
 	float worldMatrix[16];
