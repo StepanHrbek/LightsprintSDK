@@ -55,7 +55,13 @@ public:
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 #endif
 
-	// for dynamic objects
+	// for dynamic objects (point material)
+	RRVec3 getIrradiance() const
+	{
+		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse)*areaInv)));
+		return (incidentFluxDiffused+incidentFluxToDiffuse)*areaInv;
+	}
+	// for dynamic objects (per-tri material)
 	RRVec3 getExitance() const
 	{
 		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv)));
@@ -284,6 +290,12 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	}
 
 
+}
+
+RRVec3 RRPackedSolver::getTriangleIrradiance(unsigned triangle) const
+{
+	RR_ASSERT(triangle<numTriangles);
+	return triangles[triangle].getIrradiance();
 }
 
 RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const

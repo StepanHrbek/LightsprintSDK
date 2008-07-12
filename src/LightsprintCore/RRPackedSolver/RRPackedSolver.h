@@ -22,8 +22,11 @@ public:
 	void illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical);
 	void illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic);
 
-	// Triangle exitance, physical, flat. For dynamic objects.
+	// Triangle exitance, physical, flat. For dynamic objects/per-triangle materials.
 	RRVec3 getTriangleExitance(unsigned triangle) const;
+
+	// Triangle exitance, physical, flat. For dynamic objects/point materials.
+	RRVec3 getTriangleIrradiance(unsigned triangle) const;
 
 	// Triangle indirect irradiance, physical, gouraud. For static objects.
 	// Pointer is guaranteed to stay constant, you can reuse it in next frames.

@@ -4,6 +4,8 @@
 // --------------------------------------------------------------------------
 
 
+//#define POINT_MATERIALS // enables point materials (texture lookups) when building reflection maps. however, point details are lost in cache (when object doesn't move)
+
 #include <cassert>
 #include <map>
 #ifdef _OPENMP
@@ -15,6 +17,9 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
+#ifdef POINT_MATERIALS
+	#include "../RRStaticSolver/gatherer.h"
+#endif
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
@@ -156,6 +161,16 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 //  - exitanceHdr, float exitance in physical scale, may be NULL
 static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRBuffer* environment, const RRScaler* scalerForReadingEnv, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
+#ifdef POINT_MATERIALS
+	RRCollisionHandlerGatherHemisphere* collisionHandlers[6];
+	RRCollisionHandlerGatherHemisphere collisionHandler0(object,NULL,true,false); ray6[0].collisionHandler = collisionHandlers[0] = &collisionHandler0;
+	RRCollisionHandlerGatherHemisphere collisionHandler1(object,NULL,true,false); ray6[1].collisionHandler = collisionHandlers[1] = &collisionHandler1;
+	RRCollisionHandlerGatherHemisphere collisionHandler2(object,NULL,true,false); ray6[2].collisionHandler = collisionHandlers[2] = &collisionHandler2;
+	RRCollisionHandlerGatherHemisphere collisionHandler3(object,NULL,true,false); ray6[3].collisionHandler = collisionHandlers[3] = &collisionHandler3;
+	RRCollisionHandlerGatherHemisphere collisionHandler4(object,NULL,true,false); ray6[4].collisionHandler = collisionHandlers[4] = &collisionHandler4;
+	RRCollisionHandlerGatherHemisphere collisionHandler5(object,NULL,true,false); ray6[5].collisionHandler = collisionHandlers[5] = &collisionHandler5;
+#endif
+
 	if(!triangleNumbers && !exitanceHdr)
 	{
 		RR_ASSERT(0);
@@ -219,7 +234,11 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 					else if(packedSolver)
 					{
 						// read face exitance
+#ifdef POINT_MATERIALS
+						exitanceHdr[ofs] = packedSolver->getTriangleIrradiance(face) * collisionHandlers[side]->getContactMaterial()->diffuseReflectance.color;
+#else
 						exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
+#endif
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
 					else if(scene)
