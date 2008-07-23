@@ -1,0 +1,15 @@
+CONFIG = pc-linux32-static
+BITS = 32
+STATIC = 1
+
+CPP_FLAGS += -O3
+CPP_FLAGS += -ffast-math
+CPP_FLAGS += -fomit-frame-pointer
+CPP_FLAGS += -fopenmp
+CPP_FLAGS += -DNDEBUG
+
+LINK_FLAGS += -s
+
+GL_LIBS = -lGL -lglut -lGLEW
+FCOLLADA_LIB = ../../lib/pc-linux32/libfcollada.a -lxml2
+
