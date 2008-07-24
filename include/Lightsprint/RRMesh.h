@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRDebug.h"
-#include <climits> // UNDEFINED
+#include <climits> // UNDEFINED/UINT_MAX
 
 namespace rr
 {

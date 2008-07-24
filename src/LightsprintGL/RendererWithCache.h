@@ -8,6 +8,8 @@
 
 #include <cmath>
 #include <map>
+#include <cstring> // memcmp
+#include <climits> // UINT_MAX
 #include "Lightsprint/GL/Renderer.h"
 
 namespace rr_gl
