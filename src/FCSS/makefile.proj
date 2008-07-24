@@ -50,7 +50,7 @@ LIBS += -lgomp
 LIBS += -lfreeimage
 LIBS += $(GL_LIBS)
 LIBS += $(FCOLLADA_LIB)
-LIBS += /usr/local/lib/libfmodex$(BITS).so
+LIBS += ../../bin/pc-linux$(BITS)/libfmodex.so
 
 # include directories
 

@@ -40,7 +40,7 @@ unsigned logTexelIndex = 0;
 //
 // directional lightmaps, compatible with Unreal Engine 3
 
-static RRVec3 g_lightmapDirections[NUM_LIGHTMAPS] =
+static const RRVec3 g_lightmapDirections[NUM_LIGHTMAPS] =
 {
 	RRVec3(0,0,1),
 	RRVec3(0,sqrtf(6.0f)/3,1/sqrtf(3.0f)),

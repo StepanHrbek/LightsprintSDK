@@ -74,9 +74,10 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #endif
 #include <GL/glut.h>
 #ifdef WIN32
-	#include <direct.h>
+	#include <direct.h> // _chdir
 	#include <shellapi.h> // CommandLineToArgvW
 #else
+	#include <unistd.h> // chdir
 	#define _chdir chdir
 #endif
 #ifdef BACKGROUND_WORKER
