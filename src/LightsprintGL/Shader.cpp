@@ -5,11 +5,10 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include "Shader.h"
-#include "Lightsprint/RRDebug.h"
-
 #include <string.h>
 #include <stdlib.h>
+#include "Shader.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {

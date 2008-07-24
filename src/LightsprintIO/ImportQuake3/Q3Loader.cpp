@@ -5,6 +5,7 @@
  */
 
 #include "Q3Loader.h"
+#include <string.h>
 
 //#pragma pack(push, Q3LOADER_H)
 //#include <cstdio>
