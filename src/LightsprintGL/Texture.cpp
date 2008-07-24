@@ -3,6 +3,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008, All rights reserved
 // --------------------------------------------------------------------------
 
+#include <climits> // UINT_MAX
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRDebug.h"
 #include "FBO.h"
