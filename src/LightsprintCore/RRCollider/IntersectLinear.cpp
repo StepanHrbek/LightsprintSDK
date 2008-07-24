@@ -5,9 +5,6 @@
 
 #include "IntersectLinear.h"
 #include <assert.h>
-#ifndef _MSC_VER
-#include <inttypes.h> // intptr_t
-#endif
 #include <math.h>
 #include <cstring>
 #include <stdio.h>
@@ -111,10 +108,10 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 {
 #ifdef USE_SSE
-	if(intptr_t(&box)%16) 
+	if((long long)(&box)%16) 
 	{
 		RRReporter::report(ERRO,"You created unaligned structure. Try static or heap if it's on stack now.\n");
-		RR_ASSERT(!(intptr_t(&box)%16));
+		RR_ASSERT(!((long long)(&box)%16));
 		exit(0);
 	}
 #endif

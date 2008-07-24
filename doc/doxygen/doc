@@ -234,11 +234,15 @@ Libraries used by LightsprintCore (global illumination solver):
 Used by LightsprintGL (optional OpenGL support):
 - GLU
   - Windows: should be already installed, part of PlatformSDK by Microsoft
-  - Linux (including PS3): should be already installed, install using e.g. <code>sudo apt-get install libglu1-mesa-dev</code>
+  - Linux (including PS3): should be already installed, install using
+    - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev</code>
+    - Fedora: <code>pkcon install mesa-libGLU-devel</code>
   - XBox360, PS3 with system software: not necessary
 - <a href="http://glew.sourceforge.net/">GLEW</a>
   - Windows: precompiled version 1.5.0 is a part of SDK
-  - Linux: install using <code>sudo apt-get install libglew1.5-dev</code> or similar package manager
+  - Linux: install using
+    - Ubuntu: <code>sudo apt-get install libglew1.5-dev</code>
+    - Fedora: <code>pkcon install glew-devel</code>
     - Note that we <code>\#include <GL/glew.h></code>, but SDK contains <code>include/gl/glew.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
@@ -253,13 +257,17 @@ Used by LightsprintGL (optional OpenGL support):
   - XBox360, PS3 System Software: not necessary
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
   - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
-  - Linux (including PS3): install using e.g. <code>sudo apt-get install libglut3-dev</code>
+  - Linux (including PS3): install using
+    - Ubuntu: <code>sudo apt-get install libglut3-dev</code>
+    - Fedora: <code>pkcon install freeglut-devel</code>
     - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not necessary
 - <a href="http://mesa3d.org/">Mesa 3D</a>
-  - Only required on PS3 Linux as a rendering front end for samples, since there are no
+  - Windows: not necessary
+  - Linux: not necessary
+  - PS3 Linux: required as a rendering front end for samples, since there are no
     hardware accelerated RSX drivers provided. Please follow these installation instructions:
     - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
       writing this document is 7.0.3).
@@ -272,16 +280,17 @@ Used by LightsprintGL (optional OpenGL support):
 
 Used by LightsprintIO (optional file format support):
 - <a href="http://freeimage.sourceforge.net/">FreeImage</a>
-  - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
   - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
   - Windows: precompiled version 3.10.0 is a part of SDK
-  - Linux (including PS3 Linux): install using e.g. <code>sudo apt-get install libfreeimage-dev</code>
+  - Linux (including PS3 Linux): install using
+    - Ubuntu: <code>sudo apt-get install libfreeimage-dev</code>
+    - Fedora: <code>pkcon install freeimage-devel</code>
     - Note that we <code>\#include <FreeImage.h></code>, but SDK contains <code>include/freeimage.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not necessary
+  - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
-  - by Feeling Software, used under MIT license
   - optional, remove by deleting \#define USE_FCOLLADA in src/LightsprintIO/ImportCollada/RRObjectCollada.cpp (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not necessary
@@ -296,21 +305,22 @@ Used by LightsprintIO (optional file format support):
     - Open the file "FCollada/FUtils/FUFileManager.cpp" and change "size" to "(unsigned int) size" at line 392.
     - On 64-bit platforms, open the file "FCollada/FUtils/FUStringBuilder.h" and replace "long" by "long long" at lines 139 and 140.
     - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
+  - by Feeling Software, used under MIT license
 - <a href="http://xmlsoft.org/">libxml2</a>
+  - optional, remove by disabling FCollada, see above
+  - Windows: not necessary
+  - Linux (including PS3 Linux): should be already installed, install using
+    - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
+    - Fedora: <code>pkcon install libxml2-devel</code>
   - used under MIT license
-  - Libxml2 library is required in Linux environment by FCollada. Although it is likely that
-    this library will be already bundled with your system, you can install it manually using
-    your Linux packaging tool, e.g. <code>sudo apt-get install libxml2-dev</code>
 
-Used by some samples:
-- <a href="http://boost.org">boost</a>
-  - only headers accessed, no library needed (no .dll/.so)
-  - Windows: download from <a href="http://boost.org">boost web</a> and unpack, no need to build
-  - Linux (including PS3): install using e.g. <code>sudo apt-get install libboost-dev</code>
+Remarks:
+- you can install all dependencies by single command
+  - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
+  - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code>
 
-Remark:
-- when installing dependencies on Debian based Linux (Ubuntu etc), it can be done by single command
-  <code>sudo apt-get install libboost-dev libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
+
+
 
 
 \page main_integration Integration

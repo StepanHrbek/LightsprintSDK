@@ -28,7 +28,7 @@
 		char uint8_t_incorrect  [sizeof( uint8_t) == 1];
 		char uint16_t_incorrect [sizeof(uint16_t) == 2];
 		char uint32_t_incorrect [sizeof(uint32_t) == 4];
-		char intptr_t_incorrect [sizeof(intptr_t) == sizeof(void*)];
+		char uint64_t_incorrect [sizeof(uint64_t) == 8];
 	};
 #endif
 
