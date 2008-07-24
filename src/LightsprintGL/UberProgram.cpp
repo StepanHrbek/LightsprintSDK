@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstdlib>
+#include <string.h> // _strdup
 #include <map>
 #include "Lightsprint/GL/UberProgram.h"
 
