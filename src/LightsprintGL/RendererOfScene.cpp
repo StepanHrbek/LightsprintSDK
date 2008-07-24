@@ -5,7 +5,7 @@
 
 #include <algorithm> // sort
 #include <cassert>
-#include <vector>
+#include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
