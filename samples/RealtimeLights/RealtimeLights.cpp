@@ -34,6 +34,7 @@
 #include <cassert>
 #include <ctime>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <vector>
 #include <GL/glew.h>
