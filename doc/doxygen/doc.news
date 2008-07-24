@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news62 ------------------------------------ 2008.7.xx -------------------------------------
+
+NEWS
+
+- 32bit Linux support (previously we supported only 64bit)
+
 \section news61 ------------------------------------ 2008.7.11 -------------------------------------
 
 NEWS
