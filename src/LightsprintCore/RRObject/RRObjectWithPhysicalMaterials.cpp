@@ -51,7 +51,7 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 	{
 		// generate random pos+dir
 		RRVec3 pos;
-		mesh->getVertex(numVertices*rand()/(RAND_MAX+1),pos);
+		mesh->getVertex(rand()%numVertices,pos);
 		RRVec3 dir = (center-pos).normalized();
 		pos += dir*_maxdist*0.1f;
 
