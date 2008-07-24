@@ -857,7 +857,8 @@ static void textOutput(int x, int y, const char *format, ...)
 	char text[1000];
 	va_list argptr;
 	va_start (argptr,format);
-	vsprintf (text,format,argptr);
+	_vsnprintf (text,999,format,argptr);
+	text[999] = 0;
 	va_end (argptr);
 	glRasterPos2i(x,y);
 	int len = (int)strlen(text);

@@ -488,7 +488,8 @@ static char *bp(const char *fmt, ...)
 	static char msg[1000];
 	va_list argptr;
 	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
+	_vsnprintf (msg,999,fmt,argptr);
+	msg[999] = 0;
 	va_end (argptr);
 	return msg;
 }
