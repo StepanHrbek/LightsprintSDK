@@ -108,7 +108,7 @@ namespace rr
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
 		RRVec3p         hitPadding1;    ///< Out. Undefined, never modify.
-#ifdef _M_X64
+#if defined(_M_X64) || defined(_LP64)
 		RRVec3          hitPadding2;    ///< Out. Undefined, never modify.
 #else
 		RRVec3p         hitPadding2;    ///< Out. Undefined, never modify.

@@ -39,7 +39,7 @@ namespace rr
 		IntersectLinear(const RRMesh* aimporter);
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		unsigned          triangles;
-#ifdef _M_X64
+#if defined(_M_X64) || defined(_LP64)
 		Box               box; // aligned + vtable(8) + DELTA_BSP(4) + triangles(4) = aligned
 		const RRMesh*     importer;
 #else

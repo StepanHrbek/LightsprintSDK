@@ -2,10 +2,12 @@
 //
 // music
 
-#ifdef _M_X64
+#ifdef _WIN64
 	#pragma comment(lib,"fmodex64_vc.lib")
 #else
+#ifdef _WIN32
 	#pragma comment(lib,"fmodex_vc.lib")
+#endif
 #endif
 
 #include "Music.h"
