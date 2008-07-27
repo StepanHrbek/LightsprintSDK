@@ -1,0 +1,2 @@
+@cd doc\doxygen
+@build

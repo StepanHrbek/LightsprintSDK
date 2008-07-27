@@ -9,8 +9,8 @@ endif
 
 # general project settings
 
-PROJECT = fcss
-TARGET = ../../bin/$(CONFIG)/$(PROJECT).exe
+PROJECT = backend
+TARGET = ../../bin/$(CONFIG)/$(PROJECT)
 CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
