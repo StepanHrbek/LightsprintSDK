@@ -52,7 +52,7 @@ END
 // Bitmap
 //
 
-IDB_BITMAP2             BITMAP                  "Lightsmark2007.bmp"
+IDB_BITMAP2             BITMAP                  "Lightsmark2008.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -61,7 +61,7 @@ IDB_BITMAP2             BITMAP                  "Lightsmark2007.bmp"
 
 IDD_DIALOG1 DIALOGEX 0, 0, 327, 162
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Lightsmark 2007 - Next Generation Lighting Benchmark"
+CAPTION "Lightsmark 2008 - Next Generation Lighting Benchmark"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "START BENCHMARK",IDC_START,230,122,90,14
@@ -70,13 +70,14 @@ BEGIN
     COMBOBOX        IDC_RESOLUTION,230,7,90,148,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Penumbra quality",IDC_STATIC2,230,21,90,8,NOT WS_VISIBLE
     COMBOBOX        IDC_PENUMBRA,230,29,90,103,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_SCORE,"RichEdit20A",ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | WS_TABSTOP,230,86,90,21,WS_EX_TRANSPARENT
+    CONTROL         "",IDC_SCORE,"RichEdit20W",ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | WS_TABSTOP,230,86,90,21,WS_EX_TRANSPARENT
     CTEXT           "",IDC_STATIC3,230,107,90,8
     PUSHBUTTON      "readme",IDC_README,230,141,40,14
-    CONTROL         "Editor",IDC_EDITOR,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,283,69,30,10
+    CONTROL         "Editor",IDC_EDITOR,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,290,68,30,10
     COMBOBOX        IDC_STABILITY,230,52,90,103,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Light stability",IDC_STATIC4,230,44,90,8,NOT WS_VISIBLE
-    CONTROL         "Music",IDC_MUSIC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,230,69,29,10
+    CONTROL         "Music",IDC_MUSIC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,259,68,29,10
+    CONTROL         "64bit",IDC_X64,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,230,68,28,10
 END
 
 
@@ -107,7 +108,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_MAIN_ICON           ICON                    "Lightsmark2007.ico"
+IDI_MAIN_ICON           ICON                    "Lightsmark2008.ico"
 #endif    // Czech resources
 /////////////////////////////////////////////////////////////////////////////
 

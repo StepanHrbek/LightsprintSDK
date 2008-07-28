@@ -1,4 +1,4 @@
-// Lightsmark 2007, (C) Stepan Hrbek
+// Lightsmark 2008 front-end, (C) Stepan Hrbek
 
 #include <windows.h>
 #include <stdio.h>
@@ -126,6 +126,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if(wParam==0xffff) // click on image
 		{
+			ShowWindow(GetDlgItem(hDlg,IDC_X64),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_MUSIC),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STABILITY),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STATIC4),SW_SHOWNORMAL);
@@ -178,7 +179,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_MINIMIZE);
 
 			// run
-			//ShellExecuteA( NULL, "open", "fcss_sr.exe", params, NULL, SW_SHOWNORMAL );
+			//ShellExecuteA( NULL, "open", "backend.exe", params, NULL, SW_SHOWNORMAL );
 
 			// run & wait
 			SHELLEXECUTEINFOA ShExecInfo = {0};
@@ -186,7 +187,8 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 			ShExecInfo.hwnd = NULL;
 			ShExecInfo.lpVerb = NULL;
-			ShExecInfo.lpFile = "..\\bin\\win32\\fcss_sr.exe";
+			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
+			ShExecInfo.lpFile = x64 ? "..\\bin\\x64\\backend.exe" : "..\\bin\\win32\\backend.exe";
 			ShExecInfo.lpParameters = buf;
 			ShExecInfo.lpDirectory = "..\\..\\data";
 			ShExecInfo.nShow = SW_SHOW;

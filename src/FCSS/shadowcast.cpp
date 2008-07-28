@@ -20,8 +20,8 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define PRODUCT_NAME "Lightsmark 2007"
-#define CFG_FILE "Lightsmark2007.cfg"
+#define PRODUCT_NAME "Lightsmark 2008"
+#define CFG_FILE "Lightsmark2008.cfg"
 //#define CFG_FILE "mgf.cfg"
 //#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
@@ -69,11 +69,11 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include <GL/glew.h>
-#ifdef WIN32
+#ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
 #include <GL/glut.h>
-#ifdef WIN32
+#ifdef _WIN32
 	#include <direct.h> // _chdir
 	#include <shellapi.h> // CommandLineToArgvW
 #else
@@ -179,7 +179,7 @@ err:
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			char fpsstr[10];
-			sprintf(fpsstr,"%d",fps);
+			sprintf(fpsstr,"%d",fpsToRender);
 			float x = 0.82f;
 			float y = 0.0f;
 			float wpix = 1/1280.f;
@@ -202,7 +202,7 @@ err:
 		TIME now = GETTIME;
 		while(times.size() && now-times.front()>PER_SEC) times.pop();
 		times.push(GETTIME);
-		fps = (unsigned)times.size();
+		fpsToRender = (unsigned)times.size();
 		if(!demoPlayer->getPaused()) frames++;
 		float seconds = demoPlayer->getDemoPosition();
 		fpsAvg = frames/MAX(0.01f,seconds);
@@ -227,12 +227,14 @@ protected:
 			mapDigit[i] = rr::RRBuffer::load(buf);
 		}
 		frames = 0;
+		fpsToRender = 0;
+		fpsAvg = 0;
 	}
 	rr::RRBuffer* mapDigit[10];
 	rr::RRBuffer* mapFps;
 	std::queue<TIME> times;
 	unsigned frames; // kolik snimku se stihlo behem 1 prehrani animace
-	unsigned fps;
+	unsigned fpsToRender; // jake cislo renderovat
 	float fpsAvg;
 };
 
@@ -2137,7 +2139,8 @@ void init_gl_states()
 
 void parseOptions(int argc, const char*const*argv)
 {
-	int i;
+	int i,tmp;
+	bool badArgument = false;
 
 	for(i=1; i<argc; i++)
 	{
@@ -2145,45 +2148,82 @@ void parseOptions(int argc, const char*const*argv)
 		{
 			cfgFile = argv[i];
 		}
+		else
 		if(!strcmp("editor", argv[i]))
 		{
 			supportEditor = 1;
 			fullscreen = 0;
 			showTimingInfo = 1;
 		}
+		else
 		if(!strcmp("bigscreen", argv[i]))
 		{
 			bigscreenCompensation = 1;
 		}
-		sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony);
+		else
+		if(sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony)==2)
+		{
+		}
+		else
 		if(!strcmp("window", argv[i]))
 		{
 			fullscreen = 0;
 		}
+		else
 		if(!strcmp("fullscreen", argv[i]))
 		{
 			fullscreen = 1;
 		}
+		else
 		if(!strcmp("stability=low", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_4X4;
 		}
+		else
 		if(!strcmp("stability=auto", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
 		}
+		else
 		if(!strcmp("stability=high", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_8X8;
 		}
+		else
 		if(!strcmp("silent", argv[i]))
 		{
 			supportMusic = false;
 		}
+		else
 		if(!strcmp("timer_precision=high", argv[i]))
 		{
 			preciseTimer = true;
 		}
+		else
+		if(sscanf(argv[i],"penumbra%d", &tmp)==1)
+		{
+			// handled elsewhere
+		}
+		else
+		{
+			printf("Unknown commandline argument: %s\n",argv[i]);
+			badArgument = true;
+		}
+	}
+	if(badArgument)
+	{
+		printf("\nLightsmark 2008 back-end                                       (C) Stepan Hrbek\n");
+		printf("\nUsage: backend.exe [arg1] [arg2] ...\n");
+		printf("\nArguments:\n");
+		printf("  window                    - run in window (default is fullscreen)\n");
+		printf("  640x480                   - run in given resolution (default is 1280x1024)\n");
+		printf("  silent                    - run without music (default si music)\n");
+		printf("  bigscreen                 - boost brightness\n");
+		printf("  stability=[low|auto|high] - set lighting stability (default is auto)\n");
+		printf("  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n");
+		printf("  editor                    - run editor (default is benchmark)\n");
+		printf("  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n");
+		exit(0);
 	}
 }
 
@@ -2220,8 +2260,8 @@ int main(int argc, char **argv)
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
-	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2007 log. Check it if benchmark doesn't work properly.\n");
-#ifdef WIN32
+	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2008 [%dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+#ifdef _WIN32
 	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
 #endif
 

@@ -173,7 +173,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 {
 	model = amodel;
 
-	// Lightsmark 2007 specific code. it affects only wop_padattic scene, but you can safely delete it
+	// Lightsmark 2008 specific code. it affects only wop_padattic scene, but you can safely delete it
 	bool lightsmark = strstr(pathToTextures,"wop_padattic")!=NULL;
 
 #ifdef PACK_VERTICES
@@ -211,7 +211,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 							ti.t[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
 							ti.s = model->mFaces[f].mTextureIndex;
 
-							// clip parts of scene never visible in Lightsmark 2007
+							// clip parts of scene never visible in Lightsmark 2008
 							if(lightsmark)
 							{
 								unsigned clipped = 0;

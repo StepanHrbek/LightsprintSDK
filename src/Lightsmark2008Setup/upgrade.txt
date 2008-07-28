@@ -2,7 +2,7 @@ co updatnout pri nove verzi:
 - cislo verze v projektu v nazvu ciloveho .msi
 - cislo verze v projektu v properties
 - souhlasit se zmenou ProductCode a PackageCode
-- do UninstallLightsmark2007.bat zkopirovat novy ProductCode
+- do UninstallLightsmark2008.bat zkopirovat novy ProductCode
 - cislo verze v readme.txt v zahlavi a history
 - upload na lightsmark.com
 - upload torrentu
