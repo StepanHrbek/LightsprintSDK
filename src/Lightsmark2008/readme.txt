@@ -43,9 +43,9 @@
      run bin/win32/Lightsmark2008.exe
      to use native 64bit code, click image in dialog window, check 64bit
    - Linux 32bit
-     run bin/pc-linux32-static/backend
+     run bin/pc-linux32/backend
    - Linux 64bit
-     run bin/pc-linux64-static/backend
+     run bin/pc-linux64/backend
 
    Linux notes
    - First of all, run bin/install_dependencies
