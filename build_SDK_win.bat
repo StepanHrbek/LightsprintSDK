@@ -39,7 +39,7 @@ echo Building VS2008 Release DLL/x64...
 devenv src\RR.vs2008.sln /build "Release DLL|x64" >%ERR%
 if ERRORLEVEL 1 goto error
 
-echo OK.
+echo SDK/win built OK.
 goto end
 
 :error
