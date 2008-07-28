@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2008                                          beta1, 2008-07-28
+   LIGHTSMARK 2008                                          beta1, 2008-07-29
    __________________________________________________________________________
 
    Lightsmark is multiplatform benchmark based on next generation 3D engine.
@@ -34,16 +34,25 @@
    - 64bit support (was 32bit only)
    - all GPUs use the same render path (in 2007 they didn't due to driver bug)
 
-4. Linux specific
-   - Run bin/install_dependencies
+4. Platforms
+
+   Multiplatform package contains binaries for 4 platforms.
+   - Windows 32bit
+     run bin/win32/Lightsmark2008.exe
+   - Windows 64bit
+     run bin/win32/Lightsmark2008.exe
+     to use native 64bit code, click image in dialog window, check 64bit
+   - Linux 32bit
+     run bin/pc-linux32-static/backend
+   - Linux 64bit
+     run bin/pc-linux64-static/backend
+
+   Linux notes
+   - First of all, run bin/install_dependencies
    - To my knowledge, open source graphics drivers don't supports OpenGL 2.0
      properly yet, use the latest proprietary driver.
-   - Run bin/pc-linuxXX-static/backend where XX is 32 or 64
-   - Run it with random argument to see list of valid commandline arguments.
-   - Score is printed to console. 10*score is returned as result code.
-   - Feel free to create graphical front-end. It could report results
-     to your database etc.
-     Windows front-end source code is in src/Lightsmark2008/Lightsmark2008.cpp
+   - To see list of options, run backend with random argument.
+   - Score is printed to console. 10*score is returned as a result code.
 
 5. Credits
    Created by Stepan Hrbek using
