@@ -567,6 +567,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
+	// render scene dynamic
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
@@ -575,6 +576,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
+	glDisable(GL_CULL_FACE); // make robot 2sided, costs approx 1% of fps
 	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted);
 }
 

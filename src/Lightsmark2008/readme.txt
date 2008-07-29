@@ -19,8 +19,8 @@
 2. Requirements
    - Windows XP/Vista (32bit, 64bit) or Linux (32bit, 64bit)
    - OpenGL 2.0 compliant GPU with at least 32 MB RAM
-     * NVIDIA: GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx (partially GeForce Go, Quadro)
-     * AMD: Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx (partially Mobility, FireGL)
+     * NVIDIA: GeForce 5200-9800, 260-280 (partially GeForce Go, Quadro)
+     * AMD: Radeon 9500-9800, Xnumber, HDnumber (partially Mobility, FireGL)
      * to my knowledge, other vendors don't support OpenGL 2.0 yet
      * use the latest drivers
    - CPU: x86/x64 with SSE
@@ -28,10 +28,10 @@
    - free disk space: 100 MB
 
 3. How does it differ from Lightsmark 2007
-   - faster engine (up to 2x higher fps -> different scores -> renamed to 2008)
+   - faster engine (up to 3x higher fps, so scores are different)
    - better image quality (per-pixel indirect shadows and color bleeding)
    - Linux support (was Windows only)
-   - 64bit support (was 32bit only)
+   - native 64bit support (was 32bit only)
    - all GPUs use the same render path (in 2007 they didn't due to driver bug)
 
 4. Platforms
@@ -49,7 +49,7 @@
 
    Linux notes
    - First of all, run bin/install_dependencies
-   - To my knowledge, open source graphics drivers don't supports OpenGL 2.0
+   - AFAIK open source graphics drivers don't supports OpenGL 2.0
      properly yet, use the latest proprietary driver.
    - To see list of options, run backend with random argument.
    - Score is printed to console. 10*score is returned as a result code.
@@ -71,8 +71,6 @@
    http://creativecommons.org/licenses/by-nc/3.0/
    Exception: Files from World of Padman under original game's license.
    Use in product reviews/comparisons is welcome.
-   When modifying Lightsmark, you must make clear that your work is
-   Lightsmark 2008 mod and link to http://dee.cz/lightsmark.
 
 7. Contact
    Stepan Hrbek <dee@dee.cz>
