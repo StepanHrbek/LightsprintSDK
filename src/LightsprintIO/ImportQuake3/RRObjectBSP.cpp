@@ -239,7 +239,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 									vi.texCoordDiffuse[1] = model->mVertices[ti.t[v]].mTexCoord[0][1];
 
 									// as we merge all objects, we must merge also lightmaps
-									unsigned numLightmaps = model->mLightMaps.size();
+									unsigned numLightmaps = (unsigned)model->mLightMaps.size();
 									unsigned w = (unsigned)(sqrt((float)numLightmaps)+0.99999f);
 									unsigned h = (numLightmaps+w-1)/w;
 									unsigned x = model->mFaces[f].mLightmapIndex % w;
