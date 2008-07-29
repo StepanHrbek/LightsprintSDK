@@ -2,7 +2,7 @@ CONFIG = pc-linux32
 BITS = 32
 
 CPP_FLAGS += -O3
-CPP_FLAGS += -ffast-math
+#CPP_FLAGS += -ffast-math          # area in buildFireball was NaN with fast-math
 CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
