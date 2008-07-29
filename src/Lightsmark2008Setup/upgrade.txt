@@ -8,3 +8,11 @@ co updatnout pri nove verzi:
 - upload torrentu
 - cislo verze na webu lightsmark.com
 - cislo verze na webu dee.cz/lightsmark
+
+jake zmeny v src udelat pred buildem exe
+  - src/LightsprintIO/ImportScene.cpp                      // 3ds collada obj mgf
+  - src/LightsprintCore/RRPackedSolver/PackedSolverFile.h  FACTOR_FORMAT 0
+jak zbuildovat data pred releasem (po provedeni predchozich zmen):
+  - pointDetails zaple v RRObjectBSP
+     (dlouhodobe by mel o pointdetails rozhodovat solver)
+  - Level.cpp REBUILD_FIB=1 a REBUILD_JPG=1

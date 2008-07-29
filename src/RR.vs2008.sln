@@ -403,19 +403,15 @@ Global
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.ActiveCfg = Release static|x64
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.Build.0 = Release static|x64
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|Win32.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|x64.ActiveCfg = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|x64.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|Win32.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|x64.ActiveCfg = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|x64.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|Win32.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|x64.ActiveCfg = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|x64.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|Win32.Build.0 = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|x64.ActiveCfg = Release static
 		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|x64.Build.0 = Release static
 	EndGlobalSection

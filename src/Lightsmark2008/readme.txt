@@ -38,14 +38,14 @@
 
    Multiplatform package contains binaries for 4 platforms.
    - Windows 32bit
-     run bin/win32/Lightsmark2008.exe
+     run Lightsmark2008.exe in bin/win32
    - Windows 64bit
-     run bin/win32/Lightsmark2008.exe
+     run Lightsmark2008.exe in bin/win32
      to use native 64bit code, click image in dialog window, check 64bit
    - Linux 32bit
-     run bin/pc-linux32/backend
+     run backend in bin/pc-linux32
    - Linux 64bit
-     run bin/pc-linux64/backend
+     run backend in bin/pc-linux64
 
    Linux notes
    - First of all, run bin/install_dependencies

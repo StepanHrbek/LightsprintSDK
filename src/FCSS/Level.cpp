@@ -2,7 +2,8 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
-const unsigned REBUILD_DATA = 0; // 1 = rebuild precomputed .fib (fireball) and .png (light detail map)
+const unsigned REBUILD_FIB = 0; // 1 = rebuild precomputed .fib (fireball)
+const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail map)
 
 extern rr_gl::RRDynamicSolverGL* createSolver();
 extern void error(const char* message, bool gfxRelated);
@@ -76,14 +77,14 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	{
 		char* ldmName = _strdup(pilot.setup->filename);
 		strcpy(ldmName+strlen(ldmName)-3,"jpg");
-		rr::RRBuffer* ldm = REBUILD_DATA ? 0 : rr::RRBuffer::load(ldmName);
+		rr::RRBuffer* ldm = REBUILD_JPG ? 0 : rr::RRBuffer::load(ldmName);
 		if(!ldm)
 		{
 			// build light detail map
 			solver->getIllumination(0)->getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
-			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_DATA ? 2000 : 200);
+			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 200);
 			paramsDirect.applyLights = 0;
-			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_DATA ? 2000 : 200);
+			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 200);
 			paramsIndirect.applyLights = 0;
 			paramsIndirect.locality = 1;
 			const rr::RRBuffer* oldEnv = solver->getEnvironment();
@@ -106,7 +107,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	// load Fireball
 	char* fbname = _strdup(pilot.setup->filename);
 	strcpy(fbname+strlen(fbname)-3,"fib");
-	if(REBUILD_DATA)
+	if(REBUILD_FIB)
 		solver->buildFireball(5000,fbname);
 	else
 		solver->loadFireball(fbname) || solver->buildFireball(1000,fbname);
