@@ -2224,7 +2224,11 @@ void parseOptions(int argc, const char*const*argv)
 	if(badArgument)
 	{
 		printf("\nLightsmark 2008 back-end                                       (C) Stepan Hrbek\n");
+#if defined(LINUX) || defined(linux)
+		printf("\nUsage: backend [arg1] [arg2] ...\n");
+#else
 		printf("\nUsage: backend.exe [arg1] [arg2] ...\n");
+#endif
 		printf("\nArguments:\n");
 		printf("  window                    - run in window (default is fullscreen)\n");
 		printf("  640x480                   - run in given resolution (default is 1280x1024)\n");
