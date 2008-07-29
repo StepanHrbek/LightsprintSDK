@@ -12,7 +12,7 @@
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
 
-#define FACTOR_FORMAT 2 // 0: 32bit int/float overlap (lightsmark); 1: 32bit short+short; 2: 64bit int+float (SDK)
+#define FACTOR_FORMAT 0 // 0: 32bit int/float overlap (lightsmark); 1: 32bit short+short; 2: 64bit int+float (SDK)
 
 #define FIREBALL_STRUCTURE_VERSION (6+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
 #define FIREBALL_FILENAME_VERSION  2 // change when file structere changes, old files will be preserved
@@ -155,7 +155,7 @@ public:
 	{
 		return visibility;
 	}
-	const RRReal* getVisibilityPtr() const
+	const RRReal* getVisibilityPtr() const // only for SSE version
 	{
 		return &visibility;
 	}
@@ -227,7 +227,7 @@ public:
 	{
 		return visibility;
 	}
-	const RRReal* getVisibilityPtr() const
+	const RRReal* getVisibilityPtr() const // only for SSE version
 	{
 		return &visibility;
 	}

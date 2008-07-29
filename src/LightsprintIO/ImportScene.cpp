@@ -1,6 +1,6 @@
 #define SUPPORT_3DS
 #define SUPPORT_BSP // Quake3
-#define SUPPORT_DAE // Collada
+//#define SUPPORT_DAE // Collada
 #define SUPPORT_OBJ
 #ifdef _WIN32
 #define SUPPORT_MGF
