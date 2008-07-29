@@ -273,7 +273,7 @@ static bool endByTime(void *context)
 	EBTContext* c = (EBTContext*)context;
 #if PER_SEC==1
 	// floating point time without overflows
-	return (GETTIME>c->time) || c->aborting;
+	return (GETTIME>c->endTime) || c->aborting;
 #else
 	// fixed point time with overlaps
 	TIME now = GETTIME;

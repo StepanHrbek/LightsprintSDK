@@ -134,6 +134,7 @@ unsigned movingLight = 0;
 bool needRedisplay = 0;
 bool needReportEyeChange = 0;
 bool needReportLightChange = 0;
+bool needImmediateDDI = 1; // nastaveno pri strihu, pri rucnim pohybu svetlem mysi nebo klavesnici
 #ifdef BUGS
 bool gameOn = 1;
 #else
@@ -1032,6 +1033,8 @@ void display()
 
 	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
 	if(currentFrame.wantsConstantAmbient()) calculateParams.qualityIndirectDynamic = 0; // disable direct detection and indirect calculation in "no radiosity" part
+	calculateParams.secondsBetweenDDI = needImmediateDDI ? 0 : 0.05;
+	needImmediateDDI = false;
 	level->solver->calculate(&calculateParams);
 
 	needRedisplay = 0;
@@ -1204,6 +1207,8 @@ void setupSceneDynamicAccordingToCursor(Level* level)
 
 void special(int c, int x, int y)
 {
+	needImmediateDDI = true; // chceme okamzitou odezvu kdyz klavesa hne svetlem
+
 	if(level 
 		&& demoPlayer->getPaused()
 		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
@@ -1320,6 +1325,8 @@ void specialPlayerOnly(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+	needImmediateDDI = true; // chceme okamzitou odezvu kdyz klavesa hne svetlem
+
 #ifdef SUPPORT_LIGHTMAPS
 	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 #endif
@@ -1917,6 +1924,7 @@ void passive(int x, int y)
 			currentFrame.light.update();
 			currentFrame.light.pos -= currentFrame.light.dir*0.3f;
 			reportLightMovement();
+			needImmediateDDI = true; // chceme okamzitou odezvu pri rucnim hybani svetlem
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -2028,6 +2036,7 @@ void idle()
 					DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
 					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
 				}
+				if(frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu					
 				prevFrame = *frame;
 			}
 			else

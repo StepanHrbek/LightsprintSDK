@@ -113,6 +113,7 @@ namespace rr_gl
 		Program* scaleDownProgram;
 		DDIQuality detectionQuality;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
+		double lastDDITime;
 		// for GI of multiple lights
 		RealtimeLight* setupShaderLight;
 		unsigned* detectedDirectSum;

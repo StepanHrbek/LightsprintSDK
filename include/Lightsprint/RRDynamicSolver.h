@@ -298,11 +298,17 @@ namespace rr
 			//! Higher quality doesn't make calculate() take longer, but indirect lighting
 			//! improves in several consecutive frames when direct lighting doesn't change.
 			unsigned qualityIndirectStatic;
+			//! For how long time indirect illumination may stay unchanged.
+			//! 0 = update in each frame, highest quality.
+			//! 0.05 = update less frequently, faster.
+			//! Used by RRDynamicSolverGL, RRDynamicSolver ignores it.
+			float secondsBetweenDDI;
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
 			CalculateParameters()
 			{
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
+				secondsBetweenDDI = 0;
 			}
 		};
 

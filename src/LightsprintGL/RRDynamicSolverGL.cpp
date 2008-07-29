@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <GL/glew.h>
+#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
@@ -310,12 +311,14 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"calculate...\n"));
 
+	CalculateParameters params = _params ? *_params : CalculateParameters();
+
 	// update only dirty maps
 	updateShadowmaps();
 
 	// early exit if quality=0
 	// used in "no radiosity" part of Lightsmark
-	if(_params && _params->qualityIndirectDynamic==0) return;
+	if(params.qualityIndirectDynamic==0) return;
 
 	// detect only dirty lights
 	if(realtimeLights.size())
@@ -323,7 +326,14 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 		bool dirtyGI = false;
 		for(unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
 		if(dirtyGI)
-			setDirectIllumination(detectDirectIllumination());
+		{
+			double now = GETSEC;
+			if(abs(now-lastDDITime)>params.secondsBetweenDDI) // limits frequency of DDI
+			{
+				lastDDITime = now;
+				setDirectIllumination(detectDirectIllumination());
+			}
+		}
 	}
 	else
 	{
