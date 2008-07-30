@@ -152,7 +152,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;
-	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	rr::RRReporter::report(rr::INF1,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
 	return SHADOW_MAPS;
 }
 

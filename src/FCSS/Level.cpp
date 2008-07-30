@@ -14,7 +14,8 @@ extern void error(const char* message, bool gfxRelated);
 
 Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) : pilot(levelSetup)
 {
-	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
+	// loading scenename will be reported by ImportScene, don't make it confusing by 2 reports
+	//rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
 
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;

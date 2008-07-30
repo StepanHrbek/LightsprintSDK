@@ -1370,7 +1370,7 @@ void keyboard(unsigned char c, int x, int y)
 				break;
 			}
 
-			rr::RRReporter::report(rr::INF1,"Escaped by user, benchmarking unfinished.\n");
+			rr::RRReporter::report(rr::INF1,supportEditor ? "Quitting editor.\n" : "Escaped by user, benchmarking unfinished.\n");
 			// rychlejsi ukonceni:
 			//if(supportEditor) delete level; // aby se ulozily zmeny v animaci
 			// pomalejsi ukonceni s uvolnenim pameti:
@@ -2279,12 +2279,14 @@ int main(int argc, char **argv)
 #else
 	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
 #endif
-	rr::RRReporter::setFilter(true,2,false);
+	rr::RRReporter::setFilter(true,1,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::logMessages(true);
-	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2008 [%dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #ifdef _WIN32
-	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"Started: %s\n",GetCommandLine());
+#else
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
 	rr_io::setImageLoader();
