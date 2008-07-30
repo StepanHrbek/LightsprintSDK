@@ -13,7 +13,8 @@
    - infinite light bounces
    - fully dynamic HDR lighting
    - 220000 triangles in scene
-   - 300-400 average fps
+   - 300 fps on mainstream hw
+   - interactive (press F1 while benchmarking)
    - fully moddable, data and source code in install directory
 
 2. Requirements

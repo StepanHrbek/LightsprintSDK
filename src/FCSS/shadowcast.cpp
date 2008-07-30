@@ -2222,6 +2222,18 @@ void parseOptions(int argc, const char*const*argv)
 			// handled elsewhere
 		}
 		else
+		if(!strcmp("verbose", argv[i]))
+		{
+			rr::RRReporter::setFilter(true,2,true);
+			rr_gl::Program::logMessages(true);
+		}
+		else
+		if(!strcmp("capture", argv[i]))
+		{
+			captureVideo = true;
+			supportMusic = false;
+		}
+		else
 		{
 			printf("Unknown commandline argument: %s\n",argv[i]);
 			badArgument = true;
@@ -2237,7 +2249,6 @@ void parseOptions(int argc, const char*const*argv)
 #endif
 		printf("\nArguments:\n");
 		printf("  window                    - run in window\n");
-		printf("  fullscreen                - run in fullscreen\n");
 		printf("  640x480                   - run in given resolution (default is 1280x1024)\n");
 		printf("  silent                    - run without music (default si music)\n");
 		printf("  bigscreen                 - boost brightness\n");
@@ -2245,6 +2256,8 @@ void parseOptions(int argc, const char*const*argv)
 		printf("  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n");
 		printf("  editor                    - run editor (default is benchmark)\n");
 		printf("  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n");
+		printf("  verbose                   - log also shader diagnostic messages\n");
+		printf("  capture                   - capture into .tga at 30fps\n");
 		exit(0);
 	}
 }
@@ -2272,6 +2285,11 @@ int main(int argc, char **argv)
 	// GPU PerfStudio can't [2]
 	_chdir("../../data");
 
+	// do this before parseOption, options might override our defaults
+	rr::RRReporter::setFilter(true,1,false); // never mind that reporter doesn't exist yet, this is global setting
+	REPORT(rr::RRReporter::setFilter(true,3,true));
+	//rr_gl::Program::logMessages(true);
+
 	parseOptions(argc, argv);
 
 #ifdef CONSOLE
@@ -2279,9 +2297,6 @@ int main(int argc, char **argv)
 #else
 	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
 #endif
-	rr::RRReporter::setFilter(true,1,false);
-	REPORT(rr::RRReporter::setFilter(true,3,true));
-	//rr_gl::Program::logMessages(true);
 #ifdef _WIN32
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 	rr::RRReporter::report(rr::INF1,"Started: %s\n",GetCommandLine());
