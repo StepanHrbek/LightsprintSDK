@@ -712,21 +712,16 @@ void updateThumbnail(AnimationFrame& frame)
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
 	level->solver->calculate();
-	/*/ update shadows in advance, so following render doesn't touch FBO
-	unsigned numInstances = realtimeLight->getNumInstances();
-	for(unsigned j=0;j<numInstances;j++)
-	{
-		updateDepthMap(j,numInstances);
-	}*/
 	// render into thumbnail
 	if(!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
 	glViewport(0,0,160,120);
-	//frame.thumbnail->renderingToBegin();
+	frame.eye.update(); currentFrame.eye = frame.eye; // while rendering, we call currentFrame.eye.setupForRender();
 	drawEyeViewSoftShadowed();
-	//frame.thumbnail->renderingToEnd();
-	rr_gl::getTexture(frame.thumbnail)->bindTexture();
-	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,160,120);
+	unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
+	glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+	frame.thumbnail->unlock();
+	rr_gl::getTexture(frame.thumbnail,false,true)->reset(false,true);
 	glViewport(0,0,winWidth,winHeight);
 }
 
@@ -1034,7 +1029,10 @@ void display()
 		updateMatrices();
 
 	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
-	if(currentFrame.wantsConstantAmbient()) calculateParams.qualityIndirectDynamic = 0; // disable direct detection and indirect calculation in "no radiosity" part
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = 
+		// disable direct detection and indirect calculation in "no radiosity" part
+		// increase quality to 5 elsewhere (fixes book in first 5 seconds)
+		currentFrame.wantsConstantAmbient() ? 0 : 5;
 	calculateParams.secondsBetweenDDI = needImmediateDDI ? 0 : 0.05;
 	needImmediateDDI = false;
 	level->solver->calculate(&calculateParams);
@@ -1098,13 +1096,13 @@ void display()
 
 	if(shotRequested)
 	{
-		static unsigned shots = 0;
-		shots++;
+		static unsigned manualShots = 0;
+		static unsigned videoShots = 0;
 		char buf[100];
 		if(captureVideo)
-			sprintf(buf,"frame%04d.tga",shots);
+			sprintf(buf,"frame%04d.jpg",++videoShots);
 		else
-			sprintf(buf,"Lightsmark_%02d.png",shots);
+			sprintf(buf,"Lightsmark_%02d.png",++manualShots);
 		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
 		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
 		glReadBuffer(GL_BACK);
@@ -1857,7 +1855,7 @@ void initMenu()
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
-	glutAddMenuEntry("Toggle video capture",ME_TOGGLE_VIDEO);
+	glutAddMenuEntry("Toggle video capture while playing",ME_TOGGLE_VIDEO);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -2283,7 +2281,7 @@ int main(int argc, char **argv)
 #endif
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
-	//rr_gl::Program::showLog = true;
+	//rr_gl::Program::logMessages(true);
 	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2008 [%dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #ifdef _WIN32
 	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
