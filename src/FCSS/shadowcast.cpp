@@ -837,7 +837,7 @@ static void drawHelpMessage(int screen)
 #else
 		" F5,F6,F7      - ambient: none/const/realtimeradiosity",
 #endif
-//		" F11           - save screenshot",
+		" F11           - save screenshot",
 		" wheel         - zoom",
 		" x,c           - lean",
 		" +,-,*,/       - brightness/contrast",
@@ -1101,12 +1101,20 @@ void display()
 		static unsigned shots = 0;
 		shots++;
 		char buf[100];
-		//sprintf(buf,"Lightsprint3+1_%02d.png",shots);
-		sprintf(buf,"video/frame%04d.jpg",shots);
-		/*if(rr_gl::Texture::saveBackbuffer(buf))
+		if(captureVideo)
+			sprintf(buf,"frame%04d.tga",shots);
+		else
+			sprintf(buf,"Lightsmark_%02d.png",shots);
+		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
+		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+		glReadBuffer(GL_BACK);
+		glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+		sshot->unlock();
+		if(sshot->save(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
-		else*/
+		else
 			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
+		delete sshot;
 		shotRequested = 0;
 	}
 
@@ -1835,7 +1843,7 @@ void initMenu()
 #ifdef SUPPORT_WATER
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 #endif
-	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
+	glutAddMenuEntry("Toggle info panel",ME_TOGGLE_INFO);
 	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
 #ifdef SUPPORT_LIGHTMAPS
 	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
@@ -2230,7 +2238,8 @@ void parseOptions(int argc, const char*const*argv)
 		printf("\nUsage: backend.exe [arg1] [arg2] ...\n");
 #endif
 		printf("\nArguments:\n");
-		printf("  window                    - run in window (default is fullscreen)\n");
+		printf("  window                    - run in window\n");
+		printf("  fullscreen                - run in fullscreen\n");
 		printf("  640x480                   - run in given resolution (default is 1280x1024)\n");
 		printf("  silent                    - run without music (default si music)\n");
 		printf("  bigscreen                 - boost brightness\n");
