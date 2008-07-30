@@ -111,6 +111,12 @@ void DynamicObject::updatePosition()
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
+	if(!uberProgramSetup.LIGHT_DIRECT)
+	{
+		// direct light is disabled in shader so let's ignore direct lights
+		// (withouth this, we would enable SHADOW_SAMPLES and it's invalid with LIGHT_DIRECT=0)
+		lights = NULL;
+	}
 	if(uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
 		uberProgramSetup.LIGHT_INDIRECT_auto = false;
@@ -149,7 +155,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	{
 		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0); // for 3ds draw, not reset by MultiPass
-		if(uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects
+		//if(uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects // don't reduce, looks bad in Lightsmark
 		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
 		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 	}
