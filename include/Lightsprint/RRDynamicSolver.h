@@ -50,18 +50,22 @@ namespace rr
 	{
 	public:
 		//! Loads illumination layer from disk.
-		//! It is shortcut for calling RRBuffer::load() on all buffers.
+		//
+		//! It is shortcut for calling illumination->getLayer() = rr::RRBuffer::load() on all elements in this container.
 		//! \remark
-		//!  Image load/save is implemented outside LightsprintCore.
-		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
-		//!  or call RRBuffer::setLoader() to assign custom code.
+		//!  Image load/save is implemented outside this library (LightsprintCore), in LightsprintIO.
+		//!  If you don't link with LightsprintIO, load/save won't operate.
+		//!  In MSVC, link simply by including "Lightsprint/IO/ImportScene.h".
 		RR_API virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const;
 		//! Saves illumination layer to disk.
-		//! It is shortcut for calling RRBuffer::save() on all buffers.
+		//
+		//! It is shortcut for calling illumination->getLayer()->save() on all elements in this container.
+		//! Format of 2d data is .png, floats are converted to bytes.
+		//! 1d data are saved to .vbu, floats are preserved.
 		//! \remark
-		//!  Image load/save is implemented outside LightsprintCore.
-		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
-		//!  or call RRBuffer::setLoader() to assign custom code.
+		//!  Image load/save is implemented outside this library (LightsprintCore), in LightsprintIO.
+		//!  If you don't link with LightsprintIO, load/save won't operate.
+		//!  In MSVC, link simply by including "Lightsprint/IO/ImportScene.h".
 		RR_API virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const;
 
 		virtual ~RRObjects() {};

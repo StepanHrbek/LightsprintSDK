@@ -339,6 +339,16 @@ bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideNam
 //
 // RRBuffer save
 
+BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
+{
+	switch(bpp)
+	{
+		case 96: return FreeImage_FIFSupportsExportType(fif, FIT_RGBF);
+		case 128: return FreeImage_FIFSupportsExportType(fif, FIT_RGBAF);
+		default: return FreeImage_FIFSupportsExportBPP(fif, bpp);
+	}
+}
+
 bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6])
 {
 	bool result = false;
@@ -391,10 +401,10 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 			};
 		unsigned dstbipp;
 		RR_ASSERT(BF_RGB==0 && BF_RGBA==1 && BF_RGBF==2 && BF_RGBAF==3);
-		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
-		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
-		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
-		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
+		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
+		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
+		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
+		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
 		{
 			RRReporter::report(WARN,"Save not supported for %s format.\n",filename);
 			goto ende;
