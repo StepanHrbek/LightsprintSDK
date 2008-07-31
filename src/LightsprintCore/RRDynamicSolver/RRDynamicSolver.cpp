@@ -73,6 +73,11 @@ const RRBuffer* RRDynamicSolver::getEnvironment() const
 
 void RRDynamicSolver::setLights(const RRLights& _lights)
 {
+	if(!&_lights)
+	{
+		RRReporter::report(WARN,"setLights: Invalid input, lights=NULL.\n");
+		return;
+	}
 	priv->lights = _lights;
 }
 
@@ -84,6 +89,11 @@ const RRLights& RRDynamicSolver::getLights() const
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
 {
 	// check inputs
+	if(!&_objects)
+	{
+		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=NULL.\n");
+		return;
+	}
 	unsigned nullObjects = 0;
 	unsigned nullIllums = 0;
 	for(unsigned i=0;i<_objects.size();i++)
