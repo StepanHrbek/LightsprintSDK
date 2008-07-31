@@ -132,7 +132,7 @@ void Shader::compile(const char* filenameDiagnosticOnly)
 
 	if(!compiled)
 	{
-		rr::RRReporter::report(rr::ERRO,"From %s:\n",filenameDiagnosticOnly);
+		rr::RRReporter::report(rr::ERRO,"%s compilation failed:\n",filenameDiagnosticOnly);
 
 		GLchar *debug;
 		GLint debugLength;

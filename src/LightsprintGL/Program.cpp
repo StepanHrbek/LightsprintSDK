@@ -27,17 +27,23 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	fragment = NULL;
 	linked = 0;
 
+	if(showLog)
+	{
+		rr::RRReporter::report(rr::INF1,"Building %s + %s\n",vertexShader,fragmentShader);
+		if(defines && defines[0]) rr::RRReporter::report(rr::INF1,"%s",defines);
+	}
+
 	if(vertexShader)
 	{
 		vertex = Shader::create(defines, vertexShader, GL_VERTEX_SHADER);
-		if(!vertex) return;
+		if(!vertex) goto end;
 		glAttachShader(handle, vertex->getHandle());
 	}
 
 	if(fragmentShader)
 	{
 		fragment = Shader::create(defines, fragmentShader, GL_FRAGMENT_SHADER);
-		if(!fragment) return;
+		if(!fragment) goto end;
 		glAttachShader(handle, fragment->getHandle());
 	}
 
@@ -50,21 +56,24 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 
 	if(showLog)
 	{
-		if(!alinked)
-			rr::RRReporter::report(rr::INF1,"Shader link failed.\n");
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
+		if(!alinked)
+			rr::RRReporter::report(rr::INF1,"Link failed%c\n",(debugLength>2)?':':'.');
 		if(debugLength>2)
 		{
-			rr::RRReporter::report(rr::INF1,"Vertex: %s\n",vertexShader);
-			rr::RRReporter::report(rr::INF1,"Fragment: %s\n",fragmentShader);
-			if(defines && defines[0]) rr::RRReporter::report(rr::INF1,"Defines: %s",defines);
 			GLchar *debug = new GLchar[debugLength];
 			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
-			rr::RRReporter::report(rr::INF1,"Log: %s\n\n",debug);
+			rr::RRReporter::report(rr::INF1,"%s\n",debug);
 			delete[] debug;
 		}
 	}
+end:
+	if(showLog)
+	{
+		rr::RRReporter::report(rr::INF1,"\n");
+	}
+
 }
 
 Program::~Program()
