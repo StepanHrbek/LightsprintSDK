@@ -14,6 +14,7 @@ unsigned INSTANCES_PER_PASS;
 //#define SUPPORT_LIGHTMAPS
 //#define SUPPORT_WATER
 //#define CORNER_LOGO
+//#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery, pomalejsi. udajne nepodporuje fireball (zda se ale ze vse funguje)
 //#define THREE_ONE
@@ -1951,6 +1952,13 @@ void idle()
 		seekInMusicAtSceneSwap = false;
 	}
 
+#ifdef PLAY_WITH_FIXED_ADVANCE
+	static double timeStart = 0;
+	if(timeStart==2) timeStart = GETSEC;
+	if(timeStart==1) timeStart = 2;
+	if(timeStart==0) timeStart = 1;
+#endif
+
 	if(!level)
 	{
 		//		showImage(loadingMap);
@@ -1963,7 +1971,11 @@ void idle()
 		// end of the demo
 		if(!level)
 		{
+#ifdef PLAY_WITH_FIXED_ADVANCE
+			rr::RRReporter::report(rr::INF1,"Finished in %fs.\n",(float)(GETSEC-timeStart));
+#else
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fps?g_fps->getAvg():0);
+#endif
 			exiting = true;
 			exit(g_fps ? (unsigned)(g_fps->getAvg()*10) : 0);
 			//keyboard(27,0,0);
@@ -2023,8 +2035,12 @@ void idle()
 		}
 		else
 		{
+#ifdef PLAY_WITH_FIXED_ADVANCE
+			demoPlayer->advanceBy(1/30.f);
+#else
 			// advance according to real time
 			demoPlayer->advance();
+#endif
 		}
 		if(level)
 		{
@@ -2035,7 +2051,8 @@ void idle()
 				// pokud existuje, nastavi ho
 				demoPlayer->setVolume(frame->volume);
 				static AnimationFrame prevFrame(0);
-				bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
+				bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
+				bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
 				if(objMoved)
 					reportObjectMovement();
 				for(unsigned i=0;i<10;i++)
@@ -2044,7 +2061,7 @@ void idle()
 					DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
 					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
 				}
-				if(frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu					
+				if(frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
 				prevFrame = *frame;
 			}
 			else
