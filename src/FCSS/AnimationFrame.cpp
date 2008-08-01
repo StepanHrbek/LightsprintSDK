@@ -52,6 +52,16 @@ AnimationFrame::~AnimationFrame()
 	delete thumbnail;
 }
 
+// returns a*(1-alpha) + b*alpha;
+template<class C>
+C blendNormal(C a,C b,rr::RRReal alpha)
+{
+	// don't interpolate between identical values,
+	//  results would be slightly different for different alphas (in win64, not in win32)
+	//  some optimizations are enabled only when data don't change between frames (see shadowcast.cpp bool lightChanged)
+	return (a==b) ? a : (a*(1-alpha) + b*alpha);
+}
+
 // returns a*(1-alpha) + b*alpha; (a and b are points on 360degree circle)
 // using shortest path between a and b
 rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal modulo)
@@ -60,7 +70,7 @@ rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal mod
 	b = fmodf(b,modulo);
 	if(a<b-(modulo/2)) a += modulo; else
 	if(a>b+(modulo/2)) a -= modulo;
-	return a*(1-alpha) + b*alpha;
+	return blendNormal(a,b,alpha);
 }
 
 rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal modulo)
@@ -76,20 +86,25 @@ rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal mod
 // returns blend between this and that frame
 // return this for alpha=0, that for alpha=1
 // returns always the same static object
-const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
+const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alphaSmooth) const
 {
+	float alphaRounded = alphaSmooth;
+
 	static AnimationFrame blended(0);
 	// blend eye+light
 	float* a = (float*)(&this->eye);
 	float* b = (float*)(&that.eye);
 	float* c = (float*)(&blended.eye);
 	for(unsigned i=0;i<(sizeof(eye)+sizeof(light)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
-		c[i] = a[i]*(1-alpha) + b[i]*alpha;
-	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alpha,(float)(2*M_PI));
+	{
+		float alpha = (i<sizeof(eye)/sizeof(float)) ? alphaSmooth : alphaRounded;
+		c[i] = blendNormal(a[i],b[i],alpha);
+	}
+	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alphaSmooth,(float)(2*M_PI));
 	blended.eye.orthogonal = eye.orthogonal;
 	blended.eye.updateDirFromAngles = eye.updateDirFromAngles;
 	blended.eye.update();
-	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alpha,(float)(2*M_PI));
+	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alphaRounded,(float)(2*M_PI));
 	blended.light.orthogonal = light.orthogonal;
 	blended.light.updateDirFromAngles = light.updateDirFromAngles;
 	blended.light.update();
@@ -98,12 +113,12 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	for(unsigned i=0;i<this->dynaPosRot.size() && i<that.dynaPosRot.size();i++)
 	{
 		DynaObjectPosRot tmp;
-		tmp.pos = this->dynaPosRot[i].pos*(1-alpha) + that.dynaPosRot[i].pos*alpha;
-		tmp.rot = blendModulo(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alpha,360);
+		tmp.pos = blendNormal(this->dynaPosRot[i].pos,that.dynaPosRot[i].pos,alphaRounded);
+		tmp.rot = blendModulo(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alphaRounded,360);
 		blended.dynaPosRot.push_back(tmp);
 	}
 	// blend volume
-	blended.volume = this->volume*(1-alpha)+that.volume*alpha;
+	blended.volume = blendNormal(this->volume,that.volume,alphaSmooth);
 	// blend projectorIndex
 	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
@@ -115,6 +130,8 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	// technique
 	blended.shadowType = this->shadowType;
 	blended.indirectType = this->indirectType;
+	// must be updated too (used to detect animation cuts, needImmediateDDI is set when layerNumber changes)
+	blended.layerNumber = this->layerNumber;
 	return &blended;
 }
 
