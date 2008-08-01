@@ -234,6 +234,7 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 }
 
 // copy animation data from frame to actual scene
+// returns whether objects moved
 bool DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged)
 {
 	bool objMoved = false;

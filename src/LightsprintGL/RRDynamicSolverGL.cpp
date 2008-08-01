@@ -328,7 +328,7 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 		if(dirtyGI)
 		{
 			double now = GETSEC;
-			if(fabs(now-lastDDITime)>params.secondsBetweenDDI) // limits frequency of DDI
+			if(abs(now-lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
 			{
 				lastDDITime = now;
 				setDirectIllumination(detectDirectIllumination());

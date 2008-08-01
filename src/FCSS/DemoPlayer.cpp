@@ -185,11 +185,7 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 
 float DemoPlayer::advance()
 {
-#if PER_SEC==1000
-	double now = ((double)((GETTIME&0xfffffff8)/(double)PER_SEC)); // make more precise timers less precise to roughly match windows32
-#else
 	double now = GETSEC;
-#endif
 	float secondsSincePrevFrame = (float)(now-absTimeNow);
 	absTimeNow = now;
 	if(!paused)

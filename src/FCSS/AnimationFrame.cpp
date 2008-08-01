@@ -86,10 +86,8 @@ rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal mod
 // returns blend between this and that frame
 // return this for alpha=0, that for alpha=1
 // returns always the same static object
-const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alphaSmooth) const
+const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alphaSmooth, float alphaRounded) const
 {
-	float alphaRounded = alphaSmooth;
-
 	static AnimationFrame blended(0);
 	// blend eye+light
 	float* a = (float*)(&this->eye);

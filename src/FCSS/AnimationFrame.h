@@ -37,7 +37,7 @@ struct AnimationFrame
 	// timing
 	float transitionToNextTime;
 
-	// precomputed layer
+	// precomputed layer (unique number of frame, it doesn't change while reordering frames in editor)
 	unsigned layerNumber;
 
 	// runtime generated
@@ -49,10 +49,10 @@ struct AnimationFrame
 	unsigned overlayMode;
 	rr::RRBuffer* overlayMap;
 
-	// volume
+	// music volume
 	float volume;
 
-	// technique
+	// shadow technique, indirect technique
 	unsigned shadowType; // 0=static hard 1=hard 2=soft 3=penumbra
 	unsigned indirectType; // 0=none 1=constant 2=realtimeGI 3=precomputedGI
 	bool wantsConstantAmbient() const {return indirectType==1;}
@@ -66,7 +66,7 @@ struct AnimationFrame
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
-	const AnimationFrame* blend(const AnimationFrame& that, float alpha) const;
+	const AnimationFrame* blend(const AnimationFrame& that, float alphaSmooth, float alphaRounded) const;
 
 	// load frame from opened .ani file, return false on failure, true when at least 1 line of data is loaded
 	// existing frame is modified

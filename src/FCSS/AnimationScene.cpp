@@ -2,6 +2,10 @@
 #include "AnimationScene.h"
 #include "Lightsprint/RRDebug.h"
 
+// frequency of light and object position/rotation changes is limited
+// faster changes would not be visible
+#define MAX_LIGHT_UPDATE_FREQUENCY 60
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // LevelSetup, all data from .ani file in editable form
@@ -189,7 +193,11 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 	Frames::const_iterator j = i; j++;
 	if(j==frames.end())
 		return NULL;
-	return (*i)->blend(**j,absSeconds/(*i)->transitionToNextTime);
+
+	// round absSeconds to nearest lower multiply of 1/60s to make light move in small steps, reduce number of shadowmap updates
+	float absSecondsRounded = unsigned(absSeconds*MAX_LIGHT_UPDATE_FREQUENCY)/float(MAX_LIGHT_UPDATE_FREQUENCY);
+
+	return (*i)->blend(**j,absSeconds/(*i)->transitionToNextTime,absSecondsRounded/(*i)->transitionToNextTime);
 }
 
 unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal)
