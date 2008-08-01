@@ -28,7 +28,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "..\\Lightsmark2007\\Lightsmark2007.ico"
+IDI_ICON1               ICON                    "..\\Lightsmark2008\\Lightsmark2008.ico"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
