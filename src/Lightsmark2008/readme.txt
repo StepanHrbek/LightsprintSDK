@@ -34,6 +34,7 @@
    - Linux support (was Windows only)
    - native 64bit support (was 32bit only)
    - all GPUs use the same render path (in 2007 they didn't due to driver bug)
+   - steadier score
 
 4. Platforms
 

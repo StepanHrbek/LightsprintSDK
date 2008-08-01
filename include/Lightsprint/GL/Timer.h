@@ -10,32 +10,10 @@
 
 #include <cassert>
 
-#ifdef _OPENMPxxx // delete xxx to enable
-
-	// GETTIME: 1us precision, slow,  Timer: low precision
-	// on linux: sometimes runs slower than real time
-	#include <omp.h>
-	#include <cstring> // NULL
-	#define TIME    double
-	#define GETTIME omp_get_wtime()
-	#define PER_SEC 1
-
-#elif defined(_WIN32xxx) // delete xxx to enable
-
-	// GETTIME: 1ms precision,  Timer: high precision
-	#define WINDOWS_TIME
-	#include <windows.h>
-	#define TIME    DWORD
-	#define GETTIME timeGetTime()
-	#define PER_SEC 1000
-	#ifdef _MSC_VER
-		#pragma comment(lib,"winmm.lib")
-	#endif
-
-#elif defined(LINUX) || defined(linux)
+#if defined(LINUX) || defined(linux)
 
 	// GETTIME: 1 ns precision, artificially reduced to 1 ms
-	// on linux: correct
+	// in linux: correct
 	#include <time.h>
 	#define TIME unsigned long long
 	#define GETTIME getTime()
@@ -48,10 +26,32 @@
 		return t.tv_sec * 1000 + (t.tv_nsec + 500000) / 1000000;
 	}
 
+#elif defined(_OPENMPxxx) // delete xxx to enable
+
+	// GETTIME: 1us precision,  Timer: low precision
+	// in linux: sometimes runs slower than real time
+	#include <omp.h>
+	#include <cstring> // NULL
+	#define TIME    double
+	#define GETTIME omp_get_wtime()
+	#define PER_SEC 1
+
+#elif defined(_WIN32xxx) // delete xxx to enable
+
+	// GETTIME: 1-10ms precision,  Timer: high precision
+	#define WINDOWS_TIME
+	#include <windows.h>
+	#define TIME    DWORD
+	#define GETTIME timeGetTime()
+	#define PER_SEC 1000
+	#ifdef _MSC_VER
+		#pragma comment(lib,"winmm.lib")
+	#endif
+
 #else
 
-	// GETTIME: 16ms precision on windows, fast,  Timer: low precision
-	// on linux: sometimes runs slower than real time
+	// GETTIME: 1-16ms precision,  Timer: low precision
+	// in linux: sometimes runs slower than real time
 	#include <ctime>
 	#define TIME    clock_t
 	#define GETTIME clock()
