@@ -722,7 +722,7 @@ void updateThumbnail(AnimationFrame& frame)
 	unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
 	glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
 	frame.thumbnail->unlock();
-	rr_gl::getTexture(frame.thumbnail,false,true)->reset(false,true);
+	rr_gl::getTexture(frame.thumbnail,true,true)->reset(true,true); // false,true made render of thumbnails terribly slow on X300
 	glViewport(0,0,winWidth,winHeight);
 }
 
