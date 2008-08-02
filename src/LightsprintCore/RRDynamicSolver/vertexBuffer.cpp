@@ -91,7 +91,11 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
 
 	// allocate and clear table
+#ifdef _DEBUG
 	static RRVec3 pink(1,0,1); // pink = preimport vertices without ivertex
+#else
+	static RRVec3 pink(0);
+#endif
 	RR_ASSERT(priv->preVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
 	priv->preVertex2Ivertex.resize(1+priv->objects.size());
 	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
