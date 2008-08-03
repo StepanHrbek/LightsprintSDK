@@ -50,7 +50,7 @@
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
 
-//#if SHADOW_SAMPLES>0 // ATI failed on this line
+#if SHADOW_SAMPLES>0
 #if SHADOW_MAPS>0
 	uniform sampler2DShadow shadowMap0;
 #endif
@@ -81,7 +81,7 @@
 #if SHADOW_MAPS>9
 	uniform sampler2DShadow shadowMap9;
 #endif
-//#endif
+#endif
 
 #if SHADOW_MAPS>0
 	varying vec4 shadowCoord[SHADOW_MAPS];
@@ -488,8 +488,8 @@ void main()
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-							// we use fixed cubemap for indirect specular reflections on static surfaces (not very realistic)
-							// modulating it by indirect irradiance makes it look bit better
+							// for now, engine uses skybox for indirect specular reflections on all static surfaces (not very realistic)
+							// modulating it by indirect irradiance makes it look better
 							* lightIndirectLightmap
 						#endif
 					#endif

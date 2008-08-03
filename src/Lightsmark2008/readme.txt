@@ -15,7 +15,6 @@
    - 220000 triangles in scene
    - 300 fps on mainstream hw
    - interactive (press F1 while benchmarking)
-   - fully moddable, data and source code in install directory
 
 2. Requirements
    - Windows XP/Vista (32bit, 64bit) or Linux (32bit, 64bit)
@@ -51,7 +50,7 @@
 
    Linux notes
    - First of all, run bin/install_dependencies
-   - AFAIK open source graphics drivers don't supports OpenGL 2.0
+   - Open source graphics drivers don't supports OpenGL 2.0
      properly yet, use the latest proprietary driver.
    - To see list of options, run backend with random argument.
    - Score is printed to console. 10*score is returned as a result code.
