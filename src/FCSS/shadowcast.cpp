@@ -38,7 +38,7 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-char* captureVideo = 0;
+const char* captureVideo = 0;
 float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 bool supportMusic = 1;
 /*
