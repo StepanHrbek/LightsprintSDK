@@ -71,7 +71,10 @@
 6. License
    http://creativecommons.org/licenses/by-nc/3.0/
    Exception: Files from World of Padman under original game's license.
-   Use in product reviews/comparisons is welcome.
+
+   What does it mean: you can use in product reviews/comparisons,
+   modify source code e.g. to send results to your web,
+   release new versions etc.
 
 7. Contact
    Stepan Hrbek <dee@dee.cz>
