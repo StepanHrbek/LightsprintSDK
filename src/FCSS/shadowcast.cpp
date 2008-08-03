@@ -38,7 +38,7 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-bool captureVideo = 0;
+char* captureVideo = 0;
 float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 bool supportMusic = 1;
 /*
@@ -1101,7 +1101,7 @@ void display()
 		static unsigned videoShots = 0;
 		char buf[100];
 		if(captureVideo)
-			sprintf(buf,"frame%04d.jpg",++videoShots);
+			sprintf(buf,"frame%04d.%s",++videoShots,captureVideo);
 		else
 			sprintf(buf,"Lightsmark_%02d.png",++manualShots);
 		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
@@ -1639,7 +1639,7 @@ void mainMenu(int item)
 			rr_gl::sceneViewer(level->solver,false,"shaders/",NULL);
 			break;
 		case ME_TOGGLE_VIDEO:
-			captureVideo = !captureVideo;
+			captureVideo = captureVideo ? NULL : "jpg";
 			break;
 #ifdef SUPPORT_WATER
 		case ME_TOGGLE_WATER:
@@ -2245,9 +2245,15 @@ void parseOptions(int argc, const char*const*argv)
 			rr_gl::Program::logMessages(true);
 		}
 		else
-		if(!strcmp("capture", argv[i]))
+		if(!strcmp("capture=jpg", argv[i]))
 		{
-			captureVideo = true;
+			captureVideo = "jpg";
+			supportMusic = false;
+		}
+		else
+		if(!strcmp("capture=tga", argv[i]))
+		{
+			captureVideo = "tga";
 			supportMusic = false;
 		}
 		else
@@ -2274,7 +2280,7 @@ void parseOptions(int argc, const char*const*argv)
 		printf("  editor                    - run editor (default is benchmark)\n");
 		printf("  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n");
 		printf("  verbose                   - log also shader diagnostic messages\n");
-		printf("  capture                   - capture into .tga at 30fps\n");
+		printf("  capture=[jpg|tga]         - capture into sequence of images at 30fps\n");
 		exit(0);
 	}
 }
