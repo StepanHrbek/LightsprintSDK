@@ -41,6 +41,7 @@ bool showTimingInfo = 0;
 const char* captureVideo = 0;
 float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 bool supportMusic = 1;
+bool alphashadows = 1; // 0=opaque shadows, bad sun's shadow, 1=alpha keyed, fixes sun, danger:driver might optimize lightIndirectConstColor away
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -295,7 +296,8 @@ void init_gl_resources()
 	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 //	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 //	realtimeLight->parent = &currentFrame.light;
-	realtimeLight->transparentMaterialShadows = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
+	if(!alphashadows)
+		realtimeLight->transparentMaterialShadows = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
@@ -2237,6 +2239,11 @@ void parseOptions(int argc, const char*const*argv)
 			supportMusic = false;
 		}
 		else
+		if(!strcmp("opaqueshadows", argv[i]))
+		{
+			alphashadows = false;
+		}
+		else
 		if(!strcmp("timer_precision=high", argv[i]))
 		{
 			preciseTimer = true;
@@ -2289,6 +2296,7 @@ void parseOptions(int argc, const char*const*argv)
 		printf("  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n");
 		printf("  verbose                   - log also shader diagnostic messages\n");
 		printf("  capture=[jpg|tga]         - capture into sequence of images at 30fps\n");
+		printf("  opaqueshadows             - use simpler shadows\n");
 		exit(0);
 	}
 }
