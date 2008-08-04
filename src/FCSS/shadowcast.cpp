@@ -2357,9 +2357,10 @@ int main(int argc, char **argv)
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
-	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony)
+	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
+	    || (fullscreen && (glutGet(GLUT_SCREEN_WIDTH)<resolutionx || glutGet(GLUT_SCREEN_HEIGHT)<resolutiony)))
 	{
-		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d%s, try different mode.\n",resolutionx,resolutiony,fullscreen?" fullscreen":"");
+		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d %s, try different mode.\n",resolutionx,resolutiony,fullscreen?"fullscreen":"window");
 		exiting = true;
 		exit(0);
 	};
