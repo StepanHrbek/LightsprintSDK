@@ -567,6 +567,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 {
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
+	glEnable(GL_CULL_FACE); // make scene 1sided, light is sometimes above roof
 	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
 	// render scene dynamic
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
