@@ -673,6 +673,13 @@ void drawEyeViewSoftShadowed(void)
 			// Z only pre-pass before expensive penumbra shadows
 			// optional but improves fps from 60 to 80
 			rr_gl::UberProgramSetup uberProgramSetup;
+
+			// (enable alpha keying - fixes missing transparency of sun with penumbra shadow)
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // to prevent optimizing texture access away
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+
 			currentFrame.eye.setupForRender();
 			renderScene(uberProgramSetup,0,&currentFrame.eye,NULL);
 		}
