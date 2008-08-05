@@ -153,6 +153,7 @@ bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
 rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
 bool preciseTimer = false;
+char globalOutputDirectory[1000] = "."; // without trailing slash
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1110,11 +1111,11 @@ void display()
 	{
 		static unsigned manualShots = 0;
 		static unsigned videoShots = 0;
-		char buf[100];
+		char buf[1000];
 		if(captureVideo)
-			sprintf(buf,"frame%04d.%s",++videoShots,captureVideo);
+			sprintf(buf,"%s/frame%04d.%s",globalOutputDirectory,++videoShots,captureVideo);
 		else
-			sprintf(buf,"Lightsmark_%02d.png",++manualShots);
+			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
 		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
 		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
 		glReadBuffer(GL_BACK);
@@ -2343,7 +2344,26 @@ int main(int argc, char **argv)
 #ifdef CONSOLE
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 #else
-	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
+	// this is windows only code
+	// designed to work on vista with restricted write access
+	rr::RRReporter* r = rr::RRReporter::createFileReporter("../log.txt",false);
+	if(!r)
+	{
+		// primary output directory is . (data)
+		// if it fails (program files in vista is not writeable), secondary is created in appdata
+		const char* appdata = getenv("LOCALAPPDATA");
+		if(appdata)
+		{
+			sprintf(globalOutputDirectory,"%s/%s",appdata,PRODUCT_NAME);
+			_mkdir(globalOutputDirectory);
+
+			char logname[1000];
+			sprintf(logname,"%s/log.txt",globalOutputDirectory);
+			r = rr::RRReporter::createFileReporter(logname,false);
+		}
+	}
+	rr::RRReporter::setReporter(r);
+	//rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
 #endif
 #ifdef _WIN32
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);

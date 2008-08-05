@@ -227,8 +227,23 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			if(showLog)
 			{
 				// finished with error
-				if(FileSize64("..\\..\\log.txt"))
-					ShellExecuteA( NULL, "open", "..\\..\\log.txt", NULL, NULL, SW_SHOWNORMAL );
+				// try to open log at location 1
+				const char* log1 = "..\\..\\log.txt";
+				if(FileSize64(log1))
+					ShellExecuteA( NULL, "open", log1, NULL, NULL, SW_SHOWNORMAL );
+				else
+				{
+					// try to open log at location 2, used when location 1 is not writeable
+					// (e.g. program files in vista)
+					const char* appdata = getenv("LOCALAPPDATA");
+					if(appdata)
+					{
+						char log2[1000];
+						sprintf(log2,"%s/Lightsprint 2008/log.txt",appdata);
+						if(FileSize64(log2))
+							ShellExecuteA( NULL, "open", log2, NULL, NULL, SW_SHOWNORMAL );
+					}
+				}
 			}
 
 			// restore
