@@ -33,7 +33,7 @@
    - Linux support (was Windows only)
    - native 64bit support (was 32bit only)
    - all GPUs use the same render path (in 2007 they didn't due to driver bug)
-   - steadier score
+   - minor fixes (sun's shadow, robot's back faces)
 
 4. Platforms
 
@@ -52,7 +52,7 @@
    - First of all, run bin/install_dependencies
    - Open source graphics drivers don't supports OpenGL 2.0
      properly yet, use the latest proprietary driver.
-   - To see list of options, run backend with random argument.
+   - To see list of options, run backend ?
    - Score is printed to console. 10*score is returned as a result code.
 
 5. Credits

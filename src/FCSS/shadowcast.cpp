@@ -34,6 +34,7 @@ int fullscreen = 1;
 bool startWithSoftShadows = 0;
 int resolutionx = 1280;
 int resolutiony = 1024;
+bool resolutionSet = false; // false = not set from cmdline, use default 1280x1024 and fallback to 1024x768
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
@@ -2207,6 +2208,7 @@ void parseOptions(int argc, const char*const*argv)
 		else
 		if(sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony)==2)
 		{
+			resolutionSet = true;
 		}
 		else
 		if(!strcmp("window", argv[i]))
@@ -2355,6 +2357,7 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
+retry:
 	if(fullscreen)
 	{
 		char buf[100];
@@ -2383,6 +2386,14 @@ int main(int argc, char **argv)
 	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
 	    || (fullscreen && (glutGet(GLUT_SCREEN_WIDTH)<resolutionx || glutGet(GLUT_SCREEN_HEIGHT)<resolutiony)))
 	{
+		if(!resolutionSet)
+		{
+			rr::RRReporter::report(rr::WARN,"Failed to set default 1280x1024 fullscreen, falling back to 1024x768 fullscreen.\n");
+			resolutionx = 1024;
+			resolutiony = 768;
+			resolutionSet = true;
+			goto retry;
+		}
 		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d %s, try different mode.\n",resolutionx,resolutiony,fullscreen?"fullscreen":"window");
 		exiting = true;
 		exit(0);
