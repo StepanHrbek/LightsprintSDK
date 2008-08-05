@@ -687,7 +687,7 @@ void debugInformations(const TMapQ3& pMap, FILE* pFile)
 bool readMap(const std::string& pFilename, TMapQ3& pMap)
 {
 	// Open the file.
-	FILE* lFile = fopen(pFilename.c_str(), "r+b");
+	FILE* lFile = fopen(pFilename.c_str(), "rb");
 
 	// Check if the file exists.
 	if
