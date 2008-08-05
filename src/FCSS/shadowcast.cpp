@@ -2279,24 +2279,31 @@ void parseOptions(int argc, const char*const*argv)
 	}
 	if(badArgument)
 	{
-		printf("\nLightsmark 2008 back-end                                       (C) Stepan Hrbek\n");
+		const char* caption = 
+			"Lightsmark 2008 back-end                                       (C) Stepan Hrbek";
+		const char* usage = 
 #if defined(LINUX) || defined(linux)
-		printf("\nUsage: backend [arg1] [arg2] ...\n");
+			"Usage: backend [arg1] [arg2] ...\n"
 #else
-		printf("\nUsage: backend.exe [arg1] [arg2] ...\n");
+			"Usage: backend.exe [arg1] [arg2] ...\n"
 #endif
-		printf("\nArguments:\n");
-		printf("  window                    - run in window\n");
-		printf("  640x480                   - run in given resolution (default is 1280x1024)\n");
-		printf("  silent                    - run without music (default si music)\n");
-		printf("  bigscreen                 - boost brightness\n");
-		printf("  stability=[low|auto|high] - set lighting stability (default is auto)\n");
-		printf("  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n");
-		printf("  editor                    - run editor (default is benchmark)\n");
-		printf("  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n");
-		printf("  verbose                   - log also shader diagnostic messages\n");
-		printf("  capture=[jpg|tga]         - capture into sequence of images at 30fps\n");
-		printf("  opaqueshadows             - use simpler shadows\n");
+			"\nArguments:\n"
+			"  window                    - run in window\n"
+			"  640x480                   - run in given resolution (default is 1280x1024)\n"
+			"  silent                    - run without music (default si music)\n"
+			"  bigscreen                 - boost brightness\n"
+			"  stability=[low|auto|high] - set lighting stability (default is auto)\n"
+			"  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n"
+			"  editor                    - run editor (default is benchmark)\n"
+			"  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n"
+			"  verbose                   - log also shader diagnostic messages\n"
+			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
+			"  opaqueshadows             - use simpler shadows\n";
+#if defined(LINUX) || defined(linux)
+		printf("\n%s\n\n%s",caption,usage);
+#else
+		MessageBox(0,usage,caption,MB_OK);
+#endif
 		exit(0);
 	}
 }
