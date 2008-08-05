@@ -81,10 +81,10 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 			break;
 		default:
 		{
-			// known to driver-crash or otherwise fail with 8x8: X300
+			// known to driver-crash or otherwise fail with 8x8: X300, FireGL 3200
 			// known to work with 8x8: X1600, X2400, X3780, X4850, 6150, 7100, 8800
 			// so our automatic pick is:
-			//   4x4 for radeon 9500..9999, x100..1299
+			//   4x4 for radeon 9500..9999, x100..1299, FireGL
 			//   8x8 for others
 			detectionQuality = DDI_8X8;
 			char* renderer = (char*)glGetString(GL_RENDERER);
@@ -106,7 +106,9 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 						break;
 					}
 
-				if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500)) detectionQuality = DDI_4X4;
+				if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500) ) detectionQuality = DDI_4X4; // fixes X300
+				//if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<6000) ) detectionQuality = DDI_4X4; // never tested
+				if( strstr(renderer,"FireGL") ) detectionQuality = DDI_4X4; // fixes FireGL 3200
 			}
 			break;
 		}
