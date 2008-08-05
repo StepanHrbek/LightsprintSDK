@@ -25,13 +25,11 @@ namespace rr
 class RRReporterFile : public RRReporter
 {
 public:
-	RRReporterFile(const char* _filename, bool _flush)
+	static RRReporter* create(const char* filename, bool flush)
 	{
-		filename = _strdup(_filename);
-		file = fopen(filename,"wt");
-		flush = _flush;
-		if(flush)
-			fclose(file);
+		RRReporterFile* r = new RRReporterFile(filename,flush);
+		if(!r->file) SAFE_DELETE(r);
+		return r;
 	}
 	virtual void customReport(RRReportType type, int indentation, const char* message)
 	{
@@ -53,7 +51,7 @@ public:
 			file = fopen(filename,"at");
 		if(file)
 			fprintf(file,"%s%s%s",space,typePrefix[type],message);
-		if(flush)
+		if(file && flush)
 		{
 			fclose(file);
 			file = NULL;
@@ -63,6 +61,15 @@ public:
 	{
 		if(file) fclose(file);
 		free(filename);
+	}
+private:
+	RRReporterFile(const char* _filename, bool _flush)
+	{
+		filename = _strdup(_filename);
+		file = fopen(filename,"wt");
+		flush = _flush;
+		if(file && flush)
+			fclose(file);
 	}
 	char* filename;
 	FILE* file;
@@ -223,7 +230,7 @@ RRReporter* RRReporter::getReporter()
 
 RRReporter* RRReporter::createFileReporter(const char* filename, bool caching)
 {
-	return new RRReporterFile(filename,!caching);
+	return RRReporterFile::create(filename,!caching);
 }
 
 RRReporter* RRReporter::createPrintfReporter()
