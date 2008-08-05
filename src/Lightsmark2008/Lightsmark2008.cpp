@@ -188,9 +188,9 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShExecInfo.hwnd = NULL;
 			ShExecInfo.lpVerb = NULL;
 			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
-			ShExecInfo.lpFile = x64 ? "..\\bin\\x64\\backend.exe" : "..\\bin\\win32\\backend.exe";
+			ShExecInfo.lpFile = x64 ? "..\\x64\\backend.exe" : "..\\win32\\backend.exe";
 			ShExecInfo.lpParameters = buf;
-			ShExecInfo.lpDirectory = NULL;//"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-NULL here, let's rather change dir in backend
+			ShExecInfo.lpDirectory = NULL; //"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-NULL here, let's rather change dir in backend
 			ShExecInfo.nShow = SW_SHOW;
 			ShExecInfo.hInstApp = NULL;
 			DWORD score = 0;
