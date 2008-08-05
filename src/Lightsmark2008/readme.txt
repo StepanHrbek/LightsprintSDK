@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2008                                           v1.9, 2008-08-03
+   LIGHTSMARK 2008                                           v2.0, 2008-08-05
    __________________________________________________________________________
 
    Lightsmark is multiplatform benchmark based on next generation 3D engine.
