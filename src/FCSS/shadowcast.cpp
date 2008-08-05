@@ -2327,6 +2327,11 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 
+#ifdef _WIN32
+	// remember cwd before we change it (we can't print it yet because log is opened after change)
+	char* cwd = _getcwd(NULL,0);
+#endif
+
 	// data are in ../../data
 	// solution: change dir [1] rather than expect that caller calls us from data [2]
 	// why?
@@ -2354,7 +2359,7 @@ int main(int argc, char **argv)
 		const char* appdata = getenv("LOCALAPPDATA");
 		if(appdata)
 		{
-			sprintf(globalOutputDirectory,"%s/%s",appdata,PRODUCT_NAME);
+			sprintf(globalOutputDirectory,"%s\\%s",appdata,PRODUCT_NAME);
 			_mkdir(globalOutputDirectory);
 
 			char logname[1000];
@@ -2367,7 +2372,10 @@ int main(int argc, char **argv)
 #endif
 #ifdef _WIN32
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
-	rr::RRReporter::report(rr::INF1,"Started: %s\n",GetCommandLine());
+	rr::RRReporter::report(rr::INF1,"Started: %s in %s\n",GetCommandLine(),cwd);
+	free(cwd);
+	if(globalOutputDirectory[1])
+		rr::RRReporter::report(rr::INF1,"Program directory not writeable, log+screenshots sent to %s\n",globalOutputDirectory);
 #else
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
