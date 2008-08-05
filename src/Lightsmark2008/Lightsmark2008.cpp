@@ -190,7 +190,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
 			ShExecInfo.lpFile = x64 ? "..\\bin\\x64\\backend.exe" : "..\\bin\\win32\\backend.exe";
 			ShExecInfo.lpParameters = buf;
-			ShExecInfo.lpDirectory = "..\\..\\data";
+			ShExecInfo.lpDirectory = NULL;//"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-NULL here, let's rather change dir in backend
 			ShExecInfo.nShow = SW_SHOW;
 			ShExecInfo.hInstApp = NULL;
 			DWORD score = 0;
@@ -239,7 +239,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					if(appdata)
 					{
 						char log2[1000];
-						sprintf(log2,"%s/Lightsprint 2008/log.txt",appdata);
+						sprintf(log2,"%s\\Lightsmark 2008\\log.txt",appdata);
 						if(FileSize64(log2))
 							ShellExecuteA( NULL, "open", log2, NULL, NULL, SW_SHOWNORMAL );
 					}
