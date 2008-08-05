@@ -49,11 +49,15 @@
      run backend in bin/pc-linux64
 
    Linux notes
-   - First of all, run bin/install_dependencies
+   - First of all, run bin/install_dependencies.sh
    - Open source graphics drivers don't supports OpenGL 2.0
      properly yet, use the latest proprietary driver.
    - To see list of options, run backend ?
    - Score is printed to console. 10*score is returned as a result code.
+
+   Vista notes
+   - If you use installer, screenshots can't be saved to data directory,
+     they go to %LOCALAPPDATA%\Lightsmark 2008
 
 5. Credits
    Created by Stepan Hrbek using
