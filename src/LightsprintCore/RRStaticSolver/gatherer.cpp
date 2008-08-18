@@ -17,7 +17,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 {
 	ray = _ray;
 	ray->collisionHandler = &collisionHandlerGatherHemisphere;
-	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
 	gatherDirectEmitors = _gatherDirectEmitors;
