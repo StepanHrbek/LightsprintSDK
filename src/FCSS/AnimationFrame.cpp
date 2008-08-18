@@ -138,7 +138,7 @@ AnimationFrame* AnimationFrame::loadNew(FILE* f)
 {
 	AnimationFrame* tmp = new AnimationFrame(0);
 	if(!tmp->loadOver(f))
-		SAFE_DELETE(tmp);
+		RR_SAFE_DELETE(tmp);
 	return tmp;
 }
 

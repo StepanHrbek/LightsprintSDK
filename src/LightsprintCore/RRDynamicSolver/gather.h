@@ -101,7 +101,7 @@ public:
 		}
 		catch(std::bad_alloc)
 		{
-			SAFE_DELETE(a);
+			RR_SAFE_DELETE(a);
 		}
 		return a;
 	}

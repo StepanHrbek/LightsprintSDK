@@ -1,5 +1,5 @@
 #include "GL/glew.h"
-#include "Level.h" // must be first, so collada is included before demoengine (#define SAFE_DELETE collides)
+#include "Level.h"
 #include "DemoPlayer.h"
 #include "Music.h"
 #include "DynamicObject.h"

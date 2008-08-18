@@ -310,7 +310,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 		for(unsigned side=0;side<6;side++)
 		{
 			memcpy(pixels+width*height*getBytesPerPixel(format)*side,sides[side],width*height*getBytesPerPixel(format));
-			SAFE_DELETE_ARRAY(sides[side]);
+			RR_SAFE_DELETE_ARRAY(sides[side]);
 		}
 	}
 

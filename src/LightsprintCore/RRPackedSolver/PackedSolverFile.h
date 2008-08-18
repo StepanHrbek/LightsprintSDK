@@ -367,7 +367,7 @@ public:
 		psf->packedSmoothTrianglesBytes = header.packedSmoothTrianglesBytes;
 		// done
 		fclose(f);
-		if(ok!=3) SAFE_DELETE(psf);
+		if(ok!=3) RR_SAFE_DELETE(psf);
 		return psf;
 	}
 	bool isCompatible(const RRObject* object) const

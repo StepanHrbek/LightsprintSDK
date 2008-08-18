@@ -540,7 +540,7 @@ public:
 			free((char*)(i->second.name));
 
 			// don't delete textures loaded via imageCache
-			//SAFE_DELETE(i->second.diffuseTexture);
+			//RR_SAFE_DELETE(i->second.diffuseTexture);
 		}
 	}
 private:

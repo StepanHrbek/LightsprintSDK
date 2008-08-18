@@ -221,7 +221,7 @@ void getFireballFilename(const RRObject* object,char filename[1000])
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
 	RRReportInterval report(INF1,"Building Fireball (triangles=%d)...\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
-	SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
+	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 	calculateCore(0); // create static solver if not created yet
 	RR_ASSERT(priv->scene);
@@ -248,7 +248,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		else
 		{
 			RRReporter::report(WARN,"Failed to save to %s\n",filename);
-			SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
+			RR_SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
 		}
 	}
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
@@ -257,14 +257,14 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
-		SAFE_DELETE(priv->scene);
+		RR_SAFE_DELETE(priv->scene);
 	}
 	return priv->packedSolver!=NULL;
 }
 
 bool RRDynamicSolver::loadFireball(const char* filename)
 {
-	SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
+	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
 	char filenameauto[1000];
@@ -281,14 +281,14 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
-		SAFE_DELETE(priv->scene);
+		RR_SAFE_DELETE(priv->scene);
 	}
 	return priv->packedSolver!=NULL;
 }
 
 void RRDynamicSolver::leaveFireball()
 {
-	SAFE_DELETE(priv->packedSolver);
+	RR_SAFE_DELETE(priv->packedSolver);
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 }
 

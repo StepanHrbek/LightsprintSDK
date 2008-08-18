@@ -86,7 +86,7 @@ Program::~Program()
 Program* Program::create(const char* defines, const char* vertexShader, const char* fragmentShader)
 {
 	Program* res = new Program(defines,vertexShader,fragmentShader);
-	if(!res->isLinked()) SAFE_DELETE(res);
+	if(!res->isLinked()) RR_SAFE_DELETE(res);
 	return res;
 }
 

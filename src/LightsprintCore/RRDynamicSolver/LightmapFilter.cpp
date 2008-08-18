@@ -185,7 +185,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 	}
 
 	// free second workspace
-	SAFE_DELETE_ARRAY(workspaceTexels);
+	RR_SAFE_DELETE_ARRAY(workspaceTexels);
 
 	// set background color
 	for(unsigned i=0;i<numTexels;i++)

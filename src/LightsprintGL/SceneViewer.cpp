@@ -1445,7 +1445,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	{
 		// free lightmap-buffers for realtime rendering
 		if(solver->getIllumination(i))
-			SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
+			RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
 	}
 	if(_createWindow)
 	{
@@ -1461,10 +1461,10 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	}
 	if(ourEnv)
 		delete solver->getEnvironment();
-	SAFE_DELETE(solver);
-	SAFE_DELETE(lv);
-	SAFE_DELETE(lightField);
-	SAFE_DELETE(lightFieldObjectIllumination);
+	RR_SAFE_DELETE(solver);
+	RR_SAFE_DELETE(lv);
+	RR_SAFE_DELETE(lightField);
+	RR_SAFE_DELETE(lightFieldObjectIllumination);
 	for(unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
 	lightsToBeDeletedOnExit.clear();
 	gluDeleteQuadric(lightFieldQuadric);

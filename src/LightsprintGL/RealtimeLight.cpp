@@ -80,7 +80,7 @@ namespace rr_gl
 		{
 			for(unsigned i=0;i<numInstances;i++)
 				delete shadowMaps[i];
-			SAFE_DELETE_ARRAY(shadowMaps);
+			RR_SAFE_DELETE_ARRAY(shadowMaps);
 			numInstances = instances;
 			if(numInstances)
 			{

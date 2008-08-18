@@ -71,7 +71,7 @@ void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _me
 LightmapViewer::~LightmapViewer()
 {
 	created = false;
-	SAFE_DELETE(uberProgram);
+	RR_SAFE_DELETE(uberProgram);
 }
 
 void LightmapViewer::mouse(int button, int state, int x, int y)

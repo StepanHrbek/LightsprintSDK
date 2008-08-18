@@ -28,7 +28,7 @@ public:
 	static RRReporter* create(const char* filename, bool flush)
 	{
 		RRReporterFile* r = new RRReporterFile(filename,flush);
-		if(!r->file) SAFE_DELETE(r);
+		if(!r->file) RR_SAFE_DELETE(r);
 		return r;
 	}
 	virtual void customReport(RRReportType type, int indentation, const char* message)

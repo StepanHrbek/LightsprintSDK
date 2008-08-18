@@ -11,12 +11,8 @@
 #include <new> // operators new/delete
 #include "RRMath.h"
 
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(a)       {delete a;a=NULL;}
-#endif
-#ifndef SAFE_DELETE_ARRAY
-#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
-#endif
+#define RR_SAFE_DELETE(a)       {delete a;a=NULL;}
+#define RR_SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 
 namespace rr
 {

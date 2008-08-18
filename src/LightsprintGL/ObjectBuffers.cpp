@@ -49,12 +49,12 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 	catch(std::bad_alloc e)
 	{
 		// delete what was allocated
-		SAFE_DELETE(ob);
+		RR_SAFE_DELETE(ob);
 		rr::RRReporter::report(rr::WARN,"Not enough memory, using emergency rendering path, might fail.\n");
 	}
 	catch(...)
 	{
-		SAFE_DELETE(ob);
+		RR_SAFE_DELETE(ob);
 	}
 	if(ob)
 	{
@@ -291,7 +291,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		glGenBuffers(1,&vboId); \
 		glBindBuffer(GL_ARRAY_BUFFER, vboId); \
 		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(rr::elementType), array, vboType); \
-		SAFE_DELETE_ARRAY(array); } }
+		RR_SAFE_DELETE_ARRAY(array); } }
 
 	CREATE_VBO(avertex,RRVec3,GL_STATIC_DRAW,vertexVBO);
 	CREATE_VBO(anormal,RRVec3,GL_STATIC_DRAW,normalVBO);

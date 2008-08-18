@@ -219,13 +219,13 @@ Texture::~Texture()
 // dobre: budu ho tise ignorovat. 
 // jedine co nesmim je smazat buffer a dal pouzivat texturu.
 	if(ownBuffer)
-		SAFE_DELETE(buffer);
+		RR_SAFE_DELETE(buffer);
 	glDeleteTextures(1, &id);
 	id = UINT_MAX;
 	numPotentialFBOUsers--;
 	if(!numPotentialFBOUsers)
 	{
-		SAFE_DELETE(globalFBO);
+		RR_SAFE_DELETE(globalFBO);
 	}
 }
 

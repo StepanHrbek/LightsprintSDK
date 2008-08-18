@@ -490,7 +490,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 	{
 		if(illumination->cachedGatherSize!=gatherSize)
 		{
-			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
+			RR_SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
 		if(!illumination->cachedTriangleNumbers)
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
@@ -533,7 +533,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	{
 		if(illumination->cachedGatherSize!=gatherSize)
 		{
-			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
+			RR_SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
 		if(!illumination->cachedTriangleNumbers)
 		{

@@ -60,7 +60,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef MINGW
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
-#include "Level.h" // must be first, so collada is included before demoengine (#define SAFE_DELETE collides)
+#include "Level.h"
 #include "Lightsprint/GL/Timer.h"
 #include <cassert>
 #include <cfloat>
@@ -323,13 +323,13 @@ void init_gl_resources()
 
 void done_gl_resources()
 {
-	SAFE_DELETE(skyRenderer);
-	SAFE_DELETE(uberProgram);
-	SAFE_DELETE(g_fps);
+	RR_SAFE_DELETE(skyRenderer);
+	RR_SAFE_DELETE(uberProgram);
+	RR_SAFE_DELETE(g_fps);
 #ifdef CORNER_LOGO
-	SAFE_DELETE(lightsprintMap);
+	RR_SAFE_DELETE(lightsprintMap);
 #endif
-//!!! uvolnuje se vickrat SAFE_DELETE(realtimeLight);
+//!!! uvolnuje se vickrat RR_SAFE_DELETE(realtimeLight);
 	gluDeleteQuadric(quadric);
 }
 

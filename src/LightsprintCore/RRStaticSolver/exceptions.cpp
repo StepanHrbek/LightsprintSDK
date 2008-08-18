@@ -47,7 +47,7 @@ Object* Object::create(int _vertices,int _triangles)
 	}
 	catch(std::bad_alloc e)
 	{
-		SAFE_DELETE(o);
+		RR_SAFE_DELETE(o);
 		RRReporter::report(ERRO,"Not enough memory, solver not created(1).\n");
 	}
 	return o;

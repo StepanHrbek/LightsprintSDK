@@ -12,7 +12,7 @@
 #endif
 
 #ifdef SUPPORT_DAE
-	// must be included first because it collides with #define SAFE_DELETE
+	// must be included first because it collides with #define RR_SAFE_DELETE
 	#include "FCollada.h"
 	#include "FCDocument/FCDocument.h"
 	#include "ImportCollada/RRObjectCollada.h"
@@ -60,7 +60,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 		scene_3ds = new Model_3DS;
 		if(!scene_3ds->Load(filename,scale))
 		{
-			SAFE_DELETE(scene_3ds);
+			RR_SAFE_DELETE(scene_3ds);
 		}
 		else
 		{
@@ -77,7 +77,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 		scene_bsp = new TMapQ3;
 		if(!readMap(filename,*scene_bsp))
 		{
-			SAFE_DELETE(scene_bsp);
+			RR_SAFE_DELETE(scene_bsp);
 		}
 		else
 		{
@@ -106,7 +106,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 		if(!errorHandler.IsSuccessful())
 		{
 			rr::RRReporter::report(rr::ERRO,"%s\n",errorHandler.GetErrorString());
-			SAFE_DELETE(scene_dae);
+			RR_SAFE_DELETE(scene_dae);
 		}
 		else
 		{

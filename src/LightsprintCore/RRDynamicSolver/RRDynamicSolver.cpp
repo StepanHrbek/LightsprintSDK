@@ -339,7 +339,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	{
 		priv->dirtyMaterials = false;
 		dirtyFactors = true;
-		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
+		//RR_SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
 	if(!priv->scene
 		&& !priv->packedSolver
@@ -350,7 +350,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		// create new
 		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
-		if(aborting) SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
+		if(aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
 	if(dirtyFactors)
 	{
@@ -358,7 +358,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->dirtyCustomIrradiance = false;
 		priv->dirtyResults = true;
 		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
-		SAFE_DELETE(priv->packedSolver);
+		RR_SAFE_DELETE(priv->packedSolver);
 		if(priv->scene)
 		{
 			priv->scene->illuminationReset(true,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);

@@ -559,8 +559,8 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	if(getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
 	{
 		// delete old renderer
-		SAFE_DELETE(rendererCaching);
-		SAFE_DELETE(rendererNonCaching);
+		RR_SAFE_DELETE(rendererCaching);
+		RR_SAFE_DELETE(rendererNonCaching);
 		// create new renderer
 		// for empty scene, stay without renderer
 		rendererObject = getMultiObjectCustom();

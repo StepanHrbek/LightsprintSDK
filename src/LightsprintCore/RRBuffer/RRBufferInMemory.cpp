@@ -77,7 +77,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	// copy data
 	if(!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
 	{
-		SAFE_DELETE_ARRAY(data);
+		RR_SAFE_DELETE_ARRAY(data);
 		try
 		{
 			data = (_data || _format!=BF_DEPTH) ? new unsigned char[bytesTotal] : NULL;
@@ -243,7 +243,7 @@ RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height
 {
 	RRBuffer* buffer = new RRBufferInMemory();
 	if(!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
-		SAFE_DELETE(buffer);
+		RR_SAFE_DELETE(buffer);
 	return buffer;
 }
 
@@ -273,7 +273,7 @@ RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool
 	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
 	if(!texture->reload(filename,cubeSideName,flipV,flipH))
 	{
-		SAFE_DELETE(texture);
+		RR_SAFE_DELETE(texture);
 	}
 	return texture;
 }

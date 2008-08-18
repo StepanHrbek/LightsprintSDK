@@ -227,8 +227,8 @@ public:
 	// realloc arrays according to (new) header
 	bool reallocData()
 	{
-		SAFE_DELETE_ARRAY(rawField);
-		SAFE_DELETE_ARRAY(rawCell);
+		RR_SAFE_DELETE_ARRAY(rawField);
+		RR_SAFE_DELETE_ARRAY(rawCell);
 		try
 		{
 			rawField = new unsigned char[header.fieldSize()];
@@ -306,7 +306,7 @@ RRLightField* RRLightField::load(const char* filename)
 	LightField* lightField = new LightField();
 	if(!lightField->reload(filename))
 	{
-		SAFE_DELETE(lightField);
+		RR_SAFE_DELETE(lightField);
 	}
 	return lightField;
 }
