@@ -263,7 +263,7 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 	//lu_done(&ent_tab); ent_tab is local structure inside mgflib that leaks
 
 #ifdef VERIFY
-	verify();
+	checkConsistency();
 #endif
 
 	// create collider

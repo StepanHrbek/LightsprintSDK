@@ -395,7 +395,7 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 	return new RRHidePreImportFilter(this);
 }
 
-unsigned RRMesh::verify() const
+unsigned RRMesh::checkConsistency() const
 {
 	unsigned numReports = 0;
 	// numVertices

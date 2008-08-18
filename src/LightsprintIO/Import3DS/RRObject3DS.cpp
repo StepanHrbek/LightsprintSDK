@@ -160,7 +160,7 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 	}
 
 #ifdef VERIFY
-	verify();
+	checkConsistency();
 #endif
 
 	// create collider

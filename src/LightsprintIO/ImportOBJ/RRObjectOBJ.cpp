@@ -60,7 +60,7 @@ public:
 			fclose(f);
 		}
 		material.reset(false);
-		verify();
+		checkConsistency();
 		collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
 		illumination = new rr::RRObjectIllumination((unsigned)vertices.size());
 	}

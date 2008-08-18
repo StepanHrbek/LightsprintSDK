@@ -353,7 +353,7 @@ public:
 					svs.eye.setDirection(svs.eye.dir);
 				}
 				break;
-			case ME_VERIFY: solver->verify(); break;
+			case ME_VERIFY: solver->checkConsistency(); break;
 			case ME_CLOSE:
 				exitRequested = 1;
 				#if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT

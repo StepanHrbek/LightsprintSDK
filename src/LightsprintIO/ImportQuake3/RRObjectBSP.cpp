@@ -281,7 +281,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 #endif
 
 #ifdef VERIFY
-	verify();
+	checkConsistency();
 #endif
 
 	// create collider

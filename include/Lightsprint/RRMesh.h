@@ -485,7 +485,7 @@ namespace rr
 		//
 		//! Reports any problems found using RRReporter.
 		//! \return Number of problem reports sent, 0 for valid mesh.
-		unsigned verify() const;
+		unsigned checkConsistency() const;
 	};
 
 } // namespace

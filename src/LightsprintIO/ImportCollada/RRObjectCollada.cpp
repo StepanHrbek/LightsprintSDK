@@ -131,7 +131,7 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
 	mesh = _mesh;
 
 #ifdef VERIFY
-	verify();
+	checkConsistency();
 #endif
 }
 

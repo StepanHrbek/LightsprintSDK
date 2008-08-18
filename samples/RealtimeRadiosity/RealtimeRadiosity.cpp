@@ -168,7 +168,7 @@ void display(void)
 	if(!winWidth || !winHeight) return; // can't display without window
 
 	// this would print diagnostic messages from solver internals
-	//solver->verify();
+	//solver->checkConsistency();
 
 	// update shadowmaps, lightmaps
 	eye.update();

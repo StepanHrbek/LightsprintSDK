@@ -578,7 +578,7 @@ unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) con
 //
 // misc
 
-void RRDynamicSolver::verify()
+void RRDynamicSolver::checkConsistency()
 {
 	RRReporter::report(INF1,"Solver diagnose:\n");
 	if(!getMultiObjectCustom())

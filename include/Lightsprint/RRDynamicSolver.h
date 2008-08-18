@@ -792,9 +792,9 @@ namespace rr
 		//! Verifies data in solver and reports problems found using RRReporter.
 		//
 		//! While all precomputed lighting and cheap-to-detect realtime lighting problems
-		//! are reported immediately even without verify(),
+		//! are reported immediately even without checkConsistency(),
 		//! more expensive realtime lighting checks are done only on this request.
-		void verify();
+		void checkConsistency();
 
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
