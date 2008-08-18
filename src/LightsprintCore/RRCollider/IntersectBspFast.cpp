@@ -675,7 +675,13 @@ IntersectBspFast IBP2::IntersectBspFast(const RRMesh* aimporter, IntersectTechni
 		}
 
 	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
-	if(!tree) return;
+	if(!tree)
+	{
+		RR_SAFE_DELETE_ARRAY(triangleNP); // must be deleted -> getMemoryOccupied is low -> RRCollider::create sees failure and switches to IT_LINEAR
+		RR_SAFE_DELETE_ARRAY(triangleSRLNP);
+		intersectTechnique = IT_LINEAR;
+		return;
+	}
 }
 
 template IBP

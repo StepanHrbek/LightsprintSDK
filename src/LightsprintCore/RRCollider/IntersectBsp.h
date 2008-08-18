@@ -260,10 +260,18 @@ namespace rr
 				// invalid triangles are skipped, but triangle numbers (id) are preserved
 				if(intersector->isValidTriangle(i)) obj.face[ii++].id=i;
 			}
-			RR_ASSERT(ii);
-			obj.face_num = ii;
-			RR_ASSERT(!tree);
-			createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
+			if(ii)
+			{
+				if(obj.face_num-ii)
+					RRReporter::report(INF2,"%d degenerated triangles removed form collider.\n",obj.face_num-ii);
+				obj.face_num = ii;
+				RR_ASSERT(!tree);
+				createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
+			}
+			else
+			{
+				RRReporter::report(WARN,"All %d triangles in mesh degenerated, fast collider not created.\n",obj.face_num);
+			}
 			delete[] obj.vertex;
 			delete[] obj.face;
 		}
