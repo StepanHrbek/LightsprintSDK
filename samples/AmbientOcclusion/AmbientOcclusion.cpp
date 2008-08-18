@@ -104,8 +104,9 @@ int main(int argc, char **argv)
 	rr_io::setImageLoader();
 
 	// init scene and solver
-	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
-		error("Problem with licence number.\n", false);
+	const char* licError = rr::loadLicense("../../data/licence_number");
+	if(licError)
+		error(licError,false);
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
