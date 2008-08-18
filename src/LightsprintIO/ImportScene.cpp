@@ -12,7 +12,6 @@
 #endif
 
 #ifdef SUPPORT_DAE
-	// must be included first because it collides with #define RR_SAFE_DELETE
 	#include "FCollada.h"
 	#include "FCDocument/FCDocument.h"
 	#include "ImportCollada/RRObjectCollada.h"

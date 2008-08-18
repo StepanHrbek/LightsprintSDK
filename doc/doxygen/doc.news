@@ -8,11 +8,16 @@ namespace rr
 
 \page main_news What's new
 
-\section news62 ------------------------------------ 2008.7.xx -------------------------------------
+\section news62 ------------------------------------ 2008.8.xx -------------------------------------
 
 NEWS
 
-- 32bit Linux support (previously we supported only 64bit)
+- 32bit Linux support (64bit was already supported)
+- outside SDK: new realtime GI demo in <a href="http://dee.cz/lightsmark>Lightsmark 2008</a>
+
+CHANGES
+
+- verify() functions renamed to checkConsistency() (because UE3 contains macro verify)
 
 \section news61 ------------------------------------ 2008.7.11 -------------------------------------
 

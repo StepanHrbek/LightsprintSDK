@@ -481,9 +481,9 @@ namespace rr
 		RRMesh* createVertexBufferRuler() const;
 
 
-		//! Verifies that mesh is well formed.
+		//! Checks mesh and reports incinsistencies found.
 		//
-		//! Reports any problems found using RRReporter.
+		//! Reports any problems found in mesh using RRReporter.
 		//! \return Number of problem reports sent, 0 for valid mesh.
 		unsigned checkConsistency() const;
 	};

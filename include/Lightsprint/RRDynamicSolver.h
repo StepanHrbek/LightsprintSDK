@@ -789,7 +789,7 @@ namespace rr
 		InternalSolverType getInternalSolverType();
 
 
-		//! Verifies data in solver and reports problems found using RRReporter.
+		//! Checks consistency of data in solver and reports problems found using RRReporter.
 		//
 		//! While all precomputed lighting and cheap-to-detect realtime lighting problems
 		//! are reported immediately even without checkConsistency(),
@@ -829,44 +829,6 @@ namespace rr
 		struct Private;
 		Private* priv;
 		friend class GatheredIrradianceHemisphere;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRLicense
-	//! Everything related to your license number.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRLicense
-	{
-	public:
-		//! States of your license.
-		enum LicenseStatus
-		{
-			VALID,       ///< Valid license.
-			EXPIRED,     ///< Expired license.
-			WRONG,       ///< Wrong license. May be also double precision broken by Direct3D, see loadLicense().
-			NO_INET,     ///< No internet connection to verify license.
-			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
-		};
-		//! Loads license from file.
-		//
-		//! Must be called before any other work with library.
-		//!
-		//! Uses doubles.
-		//! If you create Direct3D device
-		//! before licence check, use D3DCREATE_FPU_PRESERVE flag,
-		//! otherwise Direct3D breaks double precision for whole
-		//! application including DLLs and this function fails.
-		//!
-		//! May connect to Lightsprint servers for verification.
-		//!
-		//! \return Result of license check.
-		//!  If it's not VALID, lighting computed by other functions
-		//!  may be incorrect.
-		static LicenseStatus loadLicense(const char* filename);
 	};
 
 
