@@ -298,7 +298,8 @@ public:
 		glutAddMenuEntry(solver->honourExpensiveLightingShadowingFlags?"Ignore expensive flags":"Honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry(fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
 		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
-		glutAddMenuEntry("Log solver status",ME_VERIFY);
+		glutAddMenuEntry("Log solver diagnose",ME_CHECK_SOLVER);
+		glutAddMenuEntry("Log scene errors",ME_CHECK_SCENE);
 		glutAddMenuEntry("Quit", ME_CLOSE);
 		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
@@ -353,7 +354,8 @@ public:
 					svs.eye.setDirection(svs.eye.dir);
 				}
 				break;
-			case ME_VERIFY: solver->checkConsistency(); break;
+			case ME_CHECK_SOLVER: solver->checkConsistency(); break;
+			case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
 			case ME_CLOSE:
 				exitRequested = 1;
 				#if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
@@ -647,7 +649,8 @@ public:
 		ME_LIGHT_DELETE,
 		ME_LIGHT_AMBIENT,
 		ME_RANDOM_CAMERA,
-		ME_VERIFY,
+		ME_CHECK_SOLVER,
+		ME_CHECK_SCENE,
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
 		ME_REALTIME_FIREBALL = 1234,
 		ME_REALTIME_ARCHITECT,
