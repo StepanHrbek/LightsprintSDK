@@ -242,21 +242,23 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRLicense
-	//! Everything related to your license number.
+	//! Loads license from file.
 	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRLicenseCollider
-	{
-	public:
-		//! Loads license from file.
-		//
-		//! This should be called before any other work with library.
-		//! When not called or called with invalid license,
-		//! collision detections won't be accelerated.
-		static void loadLicense(const char* filename);
-	};
+	//! Must be called before any other work with library.
+	//!
+	//! Uses doubles.
+	//! If you create Direct3D device
+	//! before licence check, use D3DCREATE_FPU_PRESERVE flag,
+	//! otherwise Direct3D breaks double precision for whole
+	//! application including DLLs and this function fails.
+	//!
+	//! May connect to Lightsprint servers for verification.
+	//!
+	//! \return
+	//!  Error message for failed license check, NULL for successful check.
+	//!  If it's not NULL, lighting computed by other functions
+	//!  may be incorrect.
+	RR_API const char* loadLicense(const char* filename);
 
 } // namespace
 

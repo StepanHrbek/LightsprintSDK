@@ -2469,8 +2469,9 @@ retry:
 	if(!INSTANCES_PER_PASS) error("",true);
 	realtimeLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 
-	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
-		error("Problem with licence number.",false);
+	const char* licError = rr::loadLicense("licence_number");
+	if(licError)
+		error(licError,false);
 
 #ifdef BACKGROUND_WORKER
 #ifdef _OPENMP

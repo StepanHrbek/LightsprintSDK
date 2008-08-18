@@ -17,6 +17,8 @@ NEWS
 
 CHANGES
 
+- RRLicense::loadLicense() returning error code changed to 
+  loadLicense() returning error description string or NULL for success
 - verify() functions renamed to checkConsistency() (because UE3 contains macro verify)
 
 \section news61 ------------------------------------ 2008.7.11 -------------------------------------

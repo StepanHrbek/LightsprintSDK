@@ -14,7 +14,9 @@ using namespace rr;
 int main()
 {
 	// provide licence information
-	RRLicenseCollider::loadLicense("..\\..\\data\\licence_number");
+	const char* licError = loadLicense("../../data/licence_number");
+	if(licError)
+		puts(licError);
 
 	// simple mesh used for demonstration
 	float vertexArray[18] =

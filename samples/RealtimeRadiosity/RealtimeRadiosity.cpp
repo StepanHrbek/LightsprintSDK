@@ -385,8 +385,9 @@ int main(int argc, char **argv)
 	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init realtime radiosity solver
-	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
-		error("Problem with licence number.\n", false);
+	const char* licError = rr::loadLicense("../../data/licence_number");
+	if(licError)
+		error(licError,false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());

@@ -101,13 +101,11 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 
 
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// License
 
-
-void RRLicenseCollider::loadLicense(const char* filename)
+const char* loadLicense(const char* filename)
 {
+	return NULL;
 }
+
 
 } //namespace

@@ -76,8 +76,9 @@ int main(int argc, char **argv)
 	rr_io::ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
 
 	// init solver
-	if(rr::RRLicense::loadLicense("../../data/licence_number")!=rr::RRLicense::VALID)
-		error("Problem with licence number.\n", false);
+	const char* licError = rr::loadLicense("../../data/licence_number");
+	if(licError)
+		error(licError,false);
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	if(scene.getObjects()) solver->setStaticObjects(*scene.getObjects(),NULL);

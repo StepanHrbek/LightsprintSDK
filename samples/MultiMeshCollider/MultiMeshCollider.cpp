@@ -15,7 +15,9 @@ using namespace rr;
 int main()
 {
 	// provide licence information
-	RRLicenseCollider::loadLicense("..\\..\\data\\licence_number");
+	const char* licError = loadLicense("../../data/licence_number");
+	if(licError)
+		puts(licError);
 
 	// array of meshes in our scene. all meshes use the same coordinate space
 	RRMesh* meshes[2];
