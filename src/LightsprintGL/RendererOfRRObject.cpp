@@ -102,6 +102,7 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuff
 	params.availableIndirectIlluminationVColors2 = NULL;
 	params.availableIndirectIlluminationMap2 = NULL;
 	solutionVersion = 0;
+	getTexture(ambientMap); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
 }
 
 void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2)
@@ -113,6 +114,8 @@ void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* verte
 	params.availableIndirectIlluminationVColors2 = vertexBuffer2;
 	params.availableIndirectIlluminationMap2 = ambientMap2;
 	solutionVersion = 0;
+	getTexture(ambientMap); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
+	getTexture(ambientMap2); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
 }
 
 void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVersion)
@@ -129,6 +132,7 @@ void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVer
 void RendererOfRRObject::setLDM(const rr::RRBuffer* ldmBuffer)
 {
 	params.availableIndirectIlluminationLDMap = ldmBuffer;
+	getTexture(ldmBuffer); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
 }
 
 void RendererOfRRObject::setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight, bool honourExpensiveLightingShadowingFlags)
