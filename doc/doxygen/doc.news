@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news62 ------------------------------------ 2008.8.xx -------------------------------------
+\section news62 ------------------------------------ 2008.8.20 -------------------------------------
 
 NEWS
 
@@ -17,8 +17,7 @@ NEWS
 
 CHANGES
 
-- RRLicense::loadLicense() returning error code changed to 
-  loadLicense() returning error description string or NULL for success
+- single function loadLicense() replaces old classes RRLicense and RRLicenseCollider
 - verify() functions renamed to checkConsistency() (because UE3 contains macro verify)
 
 \section news61 ------------------------------------ 2008.7.11 -------------------------------------

@@ -111,7 +111,7 @@ namespace rr
 
   - Publicity, be first with this level of realism in game.
 
-  - See <a href="http://dee.cz/lightsmark">Lightsmark 2007</a>
+  - See <a href="http://dee.cz/lightsmark">Lightsmark</a>
     as an example, it's a simple demo based on Lightsprint SDK.
 
   \image html samples/Lightsmark3.jpg
@@ -2407,7 +2407,7 @@ Remarks:
  \n They are located in samples directory in the SDK, binaries in bin.
 
  <hr>
- <b>Lightsmark 2007</b>
+ <b>Lightsmark</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/Lightsmark2.jpg
   </td><td>
@@ -2415,7 +2415,7 @@ Remarks:
   </td></tr></table>
  - realtime GI in scene from real game (World of Padman)
  - original scene without any modifications is loaded to show engine robustness
- - complete Lightsmark 2007 is not part of SDK,
+ - complete Lightsmark is not part of SDK,
    but you can <a href="http://dee.cz/lightsmark">download it here</a>,
    source code on request
 
