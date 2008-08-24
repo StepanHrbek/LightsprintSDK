@@ -103,11 +103,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2008", "Lig
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Lightsmark2008Setup", "Lightsmark2008Setup\Lightsmark2008Setup.vdproj", "{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF} = {3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -399,18 +394,6 @@ Global
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|Win32.Build.0 = Release static|Win32
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.ActiveCfg = Release static|x64
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.Build.0 = Release static|x64
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|x64.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug DLL|x64.Build.0 = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|x64.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Debug static|x64.Build.0 = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|x64.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release DLL|x64.Build.0 = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|Win32.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|x64.ActiveCfg = Release static
-		{C37919FB-AC14-49D5-A010-E5BD8AC4FC26}.Release static|x64.Build.0 = Release static
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

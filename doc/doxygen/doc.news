@@ -13,7 +13,7 @@ namespace rr
 NEWS
 
 - 32bit Linux support (64bit was already supported)
-- outside SDK: new realtime GI demo in <a href="http://dee.cz/lightsmark>Lightsmark 2008</a>
+- outside SDK: new realtime GI demo <a href="http://dee.cz/lightsmark">Lightsmark 2008</a>
 
 CHANGES
 
