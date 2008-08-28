@@ -48,7 +48,8 @@ Texture.cpp \
 TextureRenderer.cpp \
 ToneMapping.cpp \
 UberProgram.cpp \
-UberProgramSetup.cpp
+UberProgramSetup.cpp \
+Water.cpp
 
 # libraries
 

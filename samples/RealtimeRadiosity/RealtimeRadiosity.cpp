@@ -57,7 +57,7 @@ void error(const char* message, bool gfxRelated)
 Model_3DS                  m3ds;
 rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.23f,0,0.05f,1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr::RRBuffer*                environmentMap = NULL;
+rr::RRBuffer*              environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;

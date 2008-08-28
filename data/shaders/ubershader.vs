@@ -45,7 +45,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
-//  #define CLIPPING
+//  #define CLIP_PLANE
 //  #define FORCE_2D_POSITION
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
@@ -90,7 +90,7 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE)
 varying
 #endif
 	vec3 worldPos;
@@ -250,9 +250,5 @@ void main()
 		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0);
 	#else
 		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
-	#endif
-
-	#ifdef CLIPPING
-		gl_ClipVertex = worldPos4;
 	#endif
 }

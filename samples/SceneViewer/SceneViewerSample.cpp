@@ -73,7 +73,8 @@ int main(int argc, char **argv)
 #endif // _WIN32
 
 	// load scene
-	rr_io::ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
+//	rr_io::ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
+	rr_io::ImportScene scene("../../data/scenes/sponza/sponza.dae");
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");

@@ -1,5 +1,5 @@
 // Water with planar reflection, fresnel and waves
-// Copyright (C) Stepan Hrbek, Lightsprint 2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
 
 // Options controlled from outside:
 // #define FRESNEL
@@ -25,12 +25,17 @@ float reflectance(in vec3 incom, in vec3 normal)
 
 void main()
 {
+	// mirror reflection
 	vec2 uv = vec2(0.5,0.5)+vec2(0.5,-0.5)*mirrorCoord.xy/mirrorCoord.w;
 
+	// waves
 	vec3 worldNormal = vec3(
-		0.003*sin(worldPos.x*6.3+time*5.4)+0.002*cos(worldPos.x*33.0+worldPos.z*46.0+time*9.3),
+		0.003*sin(worldPos.x*6.3+time*5.4) + 0.002*sin(worldPos.x*33.0+worldPos.z*46.0+time*9.3),
 		1.0,
-		0.040*sin(worldPos.z*8.0+time*3.3)+0.015*cos(worldPos.x*53.0+worldPos.z*33.0+time*12.3));
+		0.080*sin(worldPos.z*8.0+time*3.3) + 0.030*sin(worldPos.x*53.0+worldPos.z*33.0+time*12.3));
+
+	// antialiasing
+	worldNormal.xz *= min(0.03/length(dFdy(worldPos.xz)),1.0);
 
 	vec4 env = texture2D(mirrorMap,uv+worldNormal.xz);
 
@@ -50,4 +55,5 @@ void main()
 #else
 	gl_FragColor = env;
 #endif
+
 }

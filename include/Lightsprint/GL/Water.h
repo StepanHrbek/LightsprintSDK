@@ -19,6 +19,14 @@ namespace rr_gl
 //
 // Water
 
+//! Water effect with waves, reflection, fresnel.
+//
+//! To render water
+//! - call updateReflectionInit()
+//! - render whole scene while culling pixels below water (when using uber shader, enable CLIP_PLANE. this removes everything below 0 in world space)
+//! - call updateReflectionDone()
+//! - render whole scene
+//! - call render()
 class RR_GL_API Water
 {
 public:
@@ -33,7 +41,7 @@ public:
 	//! \param eye
 	//!  Camera used for rendering scene. It will be modified
 	//! \param altitude
-	//!  Altitude of water surface in world.
+	//!  Altitude of water surface in world. When using CLIP_PLANE in ubershader, this must be 0.
 	void updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera* eye, float altitude=0);
 
 	//! Finishes rendering into reflection map, restores camera settings.

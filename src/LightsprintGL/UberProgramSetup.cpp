@@ -69,7 +69,7 @@ const char* UberProgramSetup::getSetupString()
 		POSTPROCESS_GAMMA?"#define POSTPROCESS_GAMMA\n":"",
 		POSTPROCESS_BIGSCREEN?"#define POSTPROCESS_BIGSCREEN\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
-		CLIPPING?"#define CLIPPING\n":"",
+		CLIP_PLANE?"#define CLIP_PLANE\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
 		);
 	return setup;
@@ -220,7 +220,7 @@ void UberProgramSetup::validate()
 	{
 		UberProgramSetup uberProgramSetupBlack;
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
-		uberProgramSetupBlack.CLIPPING = CLIPPING;
+		uberProgramSetupBlack.CLIP_PLANE = CLIP_PLANE;
 		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
 		*this = uberProgramSetupBlack;
 	}

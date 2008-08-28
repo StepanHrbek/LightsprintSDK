@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news63 ------------------------------------ 2008.9.xx -------------------------------------
+
+NEWS
+
+- rr_gl::Water - water effect with waves, reflection, fresnel
+  \n (it's back with improved compatibility and quality)
+
 \section news62 ------------------------------------ 2008.8.20 -------------------------------------
 
 NEWS

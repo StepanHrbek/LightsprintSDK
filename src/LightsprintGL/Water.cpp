@@ -2,19 +2,20 @@
 // Water with reflection and waves.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
-/*
+
 #include <GL/glew.h>
 #include <cstdio>
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/Timer.h"
+//#include "Lightsprint/GL/TextureRenderer.h"
 
 namespace rr_gl
 {
 
 Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
 {
-	mirrorMap = Texture::create(NULL,1,1,false,Texture::TF_RGBF,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	mirrorDepth = Texture::createShadowmap(1,1);
+	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NULL),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	mirrorDepth = Texture::createShadowmap(16,16);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	char buf3[400]; buf3[399] = 0;
@@ -34,29 +35,25 @@ Water::~Water()
 	delete mirrorMap;
 }
 
-void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera* aeye, float aaltitude)
+void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude)
 {
 	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	// adjust size
-	if(reflWidth!=mirrorMap->getWidth() || reflHeight!=mirrorMap->getHeight())
+	if(_reflWidth!=mirrorMap->getBuffer()->getWidth() || _reflHeight!=mirrorMap->getBuffer()->getHeight())
 	{
-		// TF_RGBF improves HDR sun reflection (TF_RGBA = LDR reflection is weak),
+		// RGBF improves HDR sun reflection (RGBA = LDR reflection is weak),
 		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
-		mirrorMap->reset(reflWidth,reflHeight,Texture::TF_RGBA,NULL,false);
-		mirrorDepth->reset(reflWidth,reflHeight,Texture::TF_NONE,NULL,false);
+		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGBA,true,NULL);
+		mirrorMap->reset(false,false);
+		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,NULL);
+		mirrorDepth->reset(false,false);
 	}
 	mirrorDepth->renderingToBegin();
 	mirrorMap->renderingToBegin();
 	glGetIntegerv(GL_VIEWPORT,viewport);
-	glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
-	eye = aeye;
-	altitude = aaltitude;
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	GLdouble plane[4] = {0,1,0,-altitude};
-	glClipPlane(GL_CLIP_PLANE0,plane);
-	glEnable(GL_CLIP_PLANE0);
+	glViewport(0,0,mirrorMap->getBuffer()->getWidth(),mirrorMap->getBuffer()->getHeight());
+	eye = _eye;
+	altitude = _altitude;
 
 	if(eye)
 	{
@@ -68,7 +65,6 @@ void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera
 
 void Water::updateReflectionDone()
 {
-	glDisable(GL_CLIP_PLANE0);
 	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorDepth->renderingToEnd();
 	mirrorMap->renderingToEnd();
@@ -103,7 +99,10 @@ void Water::render(float size)
 	}
 	//if(!blend)
 	//	glDisable(GL_BLEND);
+
+	//static TextureRenderer* textureRenderer = NULL;
+	//if(!textureRenderer) textureRenderer = new TextureRenderer("../../data/shaders/");
+	//textureRenderer->render2D(mirrorMap,NULL,0,0,0.3,0.3);
 }
 
 }; // namespace
-*/

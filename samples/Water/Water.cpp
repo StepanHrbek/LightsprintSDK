@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include "Lightsprint/IO/ImportScene.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/TextureRenderer.h"
@@ -41,12 +42,12 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-rr_gl::Texture*        environmentMap = NULL;
-rr_gl::TextureRenderer*textureRenderer = NULL;
-rr_gl::Water*          water = NULL;
-int                 winWidth = 0;
-int                 winHeight = 0;
+rr_gl::Camera           eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
+rr_gl::Texture*         environmentMap = NULL;
+rr_gl::TextureRenderer* textureRenderer = NULL;
+rr_gl::Water*           water = NULL;
+int                     winWidth = 0;
+int                     winHeight = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -143,12 +144,13 @@ int main(int argc, char **argv)
 	glDisable(GL_DEPTH_TEST);
 
 	// init shaders
-	water = new rr_gl::Water("..\\..\\data\\shaders\\",true,false);
-	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
+	water = new rr_gl::Water("../../data/shaders/",true,!false);
+	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
 	
 	// init textures
+	rr_io::setImageLoader();
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	environmentMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true),true,true);
 
 	glutMainLoop();
 	return 0;

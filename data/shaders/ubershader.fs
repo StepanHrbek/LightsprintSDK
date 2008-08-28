@@ -45,7 +45,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
-//  #define CLIPPING
+//  #define CLIP_PLANE
 //  #define FORCE_2D_POSITION
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
@@ -155,7 +155,7 @@
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE)
 	varying vec3 worldPos;
 #endif
 
@@ -199,6 +199,14 @@
 
 void main()
 {
+
+	/////////////////////////////////////////////////////////////////////
+	//
+	// clipping
+
+	#ifdef CLIP_PLANE
+		if(worldPos.y<0) discard;
+	#endif
 
 	/////////////////////////////////////////////////////////////////////
 	//

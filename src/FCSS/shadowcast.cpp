@@ -12,7 +12,7 @@ unsigned INSTANCES_PER_PASS;
 	#define CONSOLE
 #endif
 //#define SUPPORT_LIGHTMAPS
-//#define SUPPORT_WATER
+#define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
@@ -649,7 +649,9 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 			uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
-			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
+			uberProgramSetup.CLIP_PLANE = true;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			water->updateReflectionDone();
 		}
@@ -1656,6 +1658,7 @@ void mainMenu(int item)
 #ifdef SUPPORT_WATER
 		case ME_TOGGLE_WATER:
 			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
+			level->pilot.setup->waterLevel = 0;//currentFrame.eye.pos.y-1;
 			break;
 #endif
 		case ME_TOGGLE_INFO:
