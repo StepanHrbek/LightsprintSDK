@@ -1327,7 +1327,6 @@ static void idle()
 			if(cam!=&svs.eye) 
 			{
 				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
-				if(speedForward) cam->moveForward(speedForward*seconds);
 			}
 		}
 	}

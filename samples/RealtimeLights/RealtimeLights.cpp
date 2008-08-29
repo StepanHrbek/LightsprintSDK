@@ -346,7 +346,6 @@ void idle()
 			if(cam!=&eye) 
 			{
 				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
-				if(speedForward) cam->moveForward(speedForward*seconds);
 			}
 		}
 	}
