@@ -714,7 +714,7 @@ void drawEyeViewSoftShadowed(void)
 		// render water
 		if(water && level->pilot.setup->renderWater)
 		{
-			water->render(100);
+			water->render(100,rr::RRVec3(0));
 		}
 #endif
 }

@@ -32,6 +32,7 @@ Water::~Water()
 {
 	delete mirrorProgram;
 	delete mirrorDepth;
+	delete mirrorMap->getBuffer();
 	delete mirrorMap;
 }
 
@@ -76,7 +77,7 @@ void Water::updateReflectionDone()
 	}
 }
 
-void Water::render(float size)
+void Water::render(float size, rr::RRVec3 center)
 {
 	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorProgram->useIt();
@@ -91,10 +92,10 @@ void Water::render(float size)
 	if(size>0)
 	{
 		glBegin(GL_QUADS);
-		glVertex3f(-size,altitude,-size);
-		glVertex3f(-size,altitude,size);
-		glVertex3f(size,altitude,size);
-		glVertex3f(size,altitude,-size);
+		glVertex3f(center[0]-size,altitude,center[2]-size);
+		glVertex3f(center[0]-size,altitude,center[2]+size);
+		glVertex3f(center[0]+size,altitude,center[2]+size);
+		glVertex3f(center[0]+size,altitude,center[2]-size);
 		glEnd();
 	}
 	//if(!blend)

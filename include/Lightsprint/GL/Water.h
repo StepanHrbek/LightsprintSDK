@@ -53,7 +53,9 @@ public:
 	//! water primitives, reflection shader is still active and will be used.
 	//! \param size
 	//!  Size of water quad in center of world (-size..size).
-	void render(float size);
+	//! \param center
+	//!  Center of quad in world space (0=center of world). y is ignored, altitude from updateReflectionInit() is used instead.
+	void render(float size, rr::RRVec3 center);
 
 protected:
 	Texture* mirrorMap;
