@@ -9,6 +9,7 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Timer.h"
+#include "Lightsprint/GL/Water.h"
 #include "LightmapViewer.h"
 #include <cstdio>
 #include <GL/glew.h>
@@ -18,6 +19,7 @@
 #endif
 
 #define DEBUG_TEXEL
+#define OWNED_BY_3DRENDER
 
 namespace rr_gl
 {
@@ -53,6 +55,7 @@ static int                        winWidth = 0; // current size
 static int                        winHeight = 0; // current size
 static bool                       fullscreen = 0; // current mode
 static int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
+static Water*                     water = NULL;
 static ToneMapping*               toneMapping = NULL;
 static bool                       fireballLoadAttempted = 1;
 static float                      speedForward = 0;
@@ -71,6 +74,7 @@ static unsigned                   centerObject = UINT_MAX; // object in the midd
 static unsigned                   centerTexel = UINT_MAX; // texel in the middle of screen
 static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
 static int                        menuInUse = GLUT_MENU_NOT_IN_USE; // GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
+static rr::RRVec3                 lastSecondMovement(0); // last movement vector extended to 1 second, updated in each frame, used during free fall
 
 // all we need for testing lightfield
 static rr::RRLightField*          lightField = NULL;
@@ -264,6 +268,9 @@ public:
 
 		// Movement speed...
 		int speedHandle = glutCreateMenu(speedCallback);
+#ifdef OWNED_BY_3DRENDER
+		glutAddMenuEntry(svs.cameraGravity?"Switch to flying observer":"Switch to first person", ME_GRAVITY);
+#endif
 		glutAddMenuEntry("0.001 m/s", 1);
 		glutAddMenuEntry("0.01 m/s", 10);
 		glutAddMenuEntry("0.1 m/s", 100);
@@ -285,12 +292,13 @@ public:
 		glutAddSubMenu("Lights...", lightsHandle);
 		glutAddSubMenu("Realtime lighting...", realtimeHandle);
 		glutAddSubMenu("Static lighting...", staticHandle);
-		glutAddSubMenu("Movement speed...", speedHandle);
+		glutAddSubMenu("Movement...", speedHandle);
 		glutAddSubMenu("Environment...", envHandle);
 		glutAddMenuEntry(svs.renderDiffuse?"Disable diffuse color":"Enable diffuse color", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry(svs.renderSpecular?"Disable specular reflection":"Enable specular reflection", ME_RENDER_SPECULAR);
 		glutAddMenuEntry(svs.renderEmission?"Disable emissivity":"Enable emissivity", ME_RENDER_EMISSION);
 		glutAddMenuEntry(svs.renderTransparent?"Disable transparency":"Enable transparency", ME_RENDER_TRANSPARENT);
+		glutAddMenuEntry(svs.renderWater?"Disable water":"Enable water", ME_RENDER_WATER);
 		glutAddMenuEntry(svs.renderTextures?"Disable textures":"Enable textures", ME_RENDER_TEXTURES);
 		glutAddMenuEntry(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
 		glutAddMenuEntry(svs.renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
@@ -320,6 +328,7 @@ public:
 			case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
 			case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
 			case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
+			case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
 			case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
 			case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 			case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
@@ -348,7 +357,7 @@ public:
 				if(solver->getMultiObjectCustom())
 				{
 					solver->getMultiObjectCustom()->generateRandomCamera(svs.eye.pos,svs.eye.dir,svs.eye.afar);
-					svs.speedGlobal = svs.eye.afar*0.08f;
+					svs.cameraMetersPerSecond = svs.eye.afar*0.08f;
 					svs.eye.anear = MAX(0.1f,svs.eye.afar/500); // increase from 0.1 to prevent z fight in big scenes
 					svs.eye.afar = MAX(svs.eye.anear+1,svs.eye.afar); // adjust to fit all objects in range
 					svs.eye.setDirection(svs.eye.dir);
@@ -574,7 +583,18 @@ public:
 	}
 	static void speedCallback(int item)
 	{
-		svs.speedGlobal = item/1000.f;
+#ifdef OWNED_BY_3DRENDER
+		if(item==ME_GRAVITY)
+		{
+			svs.cameraCollisions = svs.cameraGravity = !svs.cameraGravity;
+			destroy();
+			create();
+		}
+		else
+#endif
+		{
+			svs.cameraMetersPerSecond = item/1000.f;
+		}
 		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void envCallback(int item)
@@ -633,6 +653,7 @@ public:
 		ME_RENDER_SPECULAR,
 		ME_RENDER_EMISSION,
 		ME_RENDER_TRANSPARENT,
+		ME_RENDER_WATER,
 		ME_RENDER_TEXTURES,
 		ME_RENDER_TONEMAPPING,
 		ME_RENDER_WIREFRAME,
@@ -670,6 +691,7 @@ public:
 		ME_STATIC_SAVE,
 		ME_STATIC_BUILD_LIGHTFIELD_2D,
 		ME_STATIC_BUILD_LIGHTFIELD_3D,
+		ME_GRAVITY,
 	};
 };
 
@@ -735,6 +757,7 @@ static void keyboard(unsigned char c, int x, int y)
 		case 'C': speedLean = +1; break;
 
 		case 'o': Menu::realtimeCallback(Menu::ME_REALTIME_LDM); break;
+		case 'g': Menu::speedCallback(Menu::ME_GRAVITY); break;
 
 		case 27: if(svs.render2d) svs.render2d = 0;
 			//else exitRequested = 1;
@@ -868,7 +891,7 @@ static void textOutput(int x, int y, const char *format, ...)
 	for(int i=0;i<len;i++) glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[i]);
 }
 
-static void display(void)
+static void display()
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if(svs.render2d && lv)
@@ -922,7 +945,16 @@ static void display(void)
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if(svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+			if(svs.renderWater && water && !svs.renderWireframe)
+			{
+				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,0);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				uberProgramSetup.CLIP_PLANE = true;
+				solver->renderScene(uberProgramSetup,NULL);
+				water->updateReflectionDone();
+			}
 			solver->renderScene(uberProgramSetup,NULL);
+			if(svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.afar*2,svs.eye.pos);
 			if(svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if(svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
 			{
@@ -1306,22 +1338,113 @@ static void idle()
 {
 	if(!winWidth) return; // can't work without window
 
-	// smooth keyboard movement
+	// camera/light movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
 	if(prev && now!=prev)
 	{
+		// camera/light keyboard move
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		seconds *= svs.speedGlobal;
+		float meters = seconds * svs.cameraMetersPerSecond;
 		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getParent();
-		if(speedForward) cam->moveForward(speedForward*seconds);
-		if(speedBack) cam->moveBack(speedBack*seconds);
-		if(speedRight) cam->moveRight(speedRight*seconds);
-		if(speedLeft) cam->moveLeft(speedLeft*seconds);
-		if(speedUp) cam->moveUp(speedUp*seconds);
-		if(speedDown) cam->moveDown(speedDown*seconds);
-		if(speedLean) cam->lean(speedLean*seconds);
+
+#ifdef OWNED_BY_3DRENDER
+		// is feet on the ground?
+		#define WALL_DISTANCE    0.4f // m
+		#define FLOOR_DISTANCE   1.6f // m
+		#define CEILING_DISTANCE 0.4f // m
+		#define LIFT_SPEED       1.0f // m/s
+		rr::RRVec3 oldEyePos = svs.eye.pos;
+		const rr::RRCollider* collider = (solver && solver->getMultiObjectCustom()) ? solver->getMultiObjectCustom()->getCollider() : NULL;
+		rr::RRRay* ray = rr::RRRay::create();
+		ray->rayOrigin = svs.eye.pos;
+		ray->rayDirInv = rr::RRVec3(1e10f,-1,1e10f);
+		ray->rayLengthMin = 0;
+		ray->rayLengthMax = FLOOR_DISTANCE*1.01f; // 1.01 prevents free fall on flat ground due to float precision error
+		ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+		if(!svs.cameraGravity || !collider || collider->intersect(ray))
+#endif
+		{
+			// yes -> respond to keyboard
+			if(speedForward) cam->moveForward(speedForward*meters);
+			if(speedBack) cam->moveBack(speedBack*meters);
+			if(speedRight) cam->moveRight(speedRight*meters);
+			if(speedLeft) cam->moveLeft(speedLeft*meters);
+			if(speedUp) cam->moveUp(speedUp*meters);
+			if(speedDown) cam->moveDown(speedDown*meters);
+			if(speedLean) cam->lean(speedLean*meters);
+		}
+#ifdef OWNED_BY_3DRENDER
+		else
+		{
+			// no -> continue free fall
+			if(svs.cameraGravity)
+			{
+				lastSecondMovement[1] += -9.81f*seconds;
+				svs.eye.pos += lastSecondMovement*seconds;
+			}
+		}
+
+		// camera collisions
+		if(collider && svs.cameraCollisions && svs.eye.pos!=oldEyePos)
+		{
+			// keep WALL_DISTANCE
+			rr::RRVec3 dir = (svs.eye.pos-oldEyePos).normalized();
+			ray->rayOrigin = oldEyePos;
+			ray->rayDirInv = rr::RRVec3(1)/dir;
+			ray->rayLengthMin = 0;
+			ray->rayLengthMax = (svs.eye.pos-oldEyePos).length() + WALL_DISTANCE;
+			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+			if(collider->intersect(ray))
+			{
+				// movement partially or fully blocked, move back
+				svs.eye.pos = oldEyePos + dir * MAX(0,ray->hitDistance-WALL_DISTANCE);
+			}
+		}
+
+		// camera gravity
+		if(svs.cameraGravity)
+		{
+			// keep FLOOR_DISTANCE
+			ray->rayOrigin = svs.eye.pos;
+			ray->rayDirInv = rr::RRVec3(1e10f,-1,1e10f);
+			ray->rayLengthMin = 0;
+			ray->rayLengthMax = FLOOR_DISTANCE*1.2f; // 1.2 prevents walker from doing small jumps when camera points slightly up
+			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+			if(collider->intersect(ray))
+			{
+				float aboveGround = ray->hitDistance;
+
+				// keep CEILING_DISTANCE
+				ray->rayOrigin = svs.eye.pos;
+				ray->rayDirInv = rr::RRVec3(1e10f,1,1e10f);
+				ray->rayLengthMin = 0;
+				ray->rayLengthMax = FLOOR_DISTANCE+CEILING_DISTANCE-aboveGround; // test up to full person height from ground
+				ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+				if(collider->intersect(ray))
+				{
+					// camera too low in tight space, keep camera in the middle
+					float underCeiling = ray->hitDistance;
+					float liftMetersRequested = MAX( underCeiling-CEILING_DISTANCE, (underCeiling-aboveGround)*0.5f );
+					svs.eye.pos.y += MIN(liftMetersRequested,LIFT_SPEED*seconds);
+				}
+				else
+				{
+					// camera too low in big space, lift camera up
+					float liftMetersRequested = FLOOR_DISTANCE-aboveGround;
+					svs.eye.pos.y += MIN(liftMetersRequested,LIFT_SPEED*seconds);
+				}
+			}
+		}
+
+		lastSecondMovement = (svs.eye.pos-oldEyePos)/seconds;
+		if(svs.cameraGravity && lastSecondMovement.y<-30) Menu::mainCallback(Menu::ME_RANDOM_CAMERA); // respawn when falling outside world
+
+		delete ray;
+#endif
+
+		// light change report
 		if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 		{
 			if(cam!=&svs.eye) 
@@ -1420,6 +1543,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	Menu* menu = new Menu(solver);
 	if(svs.autodetectCamera) menu->mainCallback(Menu::ME_RANDOM_CAMERA);
 	if(svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
+	water = new Water(_pathToShaders,true,false);
 	toneMapping = new ToneMapping(_pathToShaders);
 
 	exitRequested = false;
@@ -1431,6 +1555,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 #endif
 
 	delete toneMapping;
+	delete water;
 	delete menu;
 //	glutDisplayFunc(NULL); forbidden by GLUT
 	glutKeyboardFunc(NULL);
