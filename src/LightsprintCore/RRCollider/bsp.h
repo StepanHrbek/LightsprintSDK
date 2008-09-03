@@ -67,7 +67,7 @@ namespace rr
 			bspBestN = 150;
 			kdMinFacesInTree = 5;
 			kdHavran = 0;
-			kdLeaf = 0;
+			kdLeaf = 1; // necessary to avoid exponential growth in speedtree meshes
 			switch(technique)
 			{
 				case RRCollider::IT_BSP_FASTEST:
@@ -81,7 +81,6 @@ namespace rr
 					prizePlane = 1;
 					bspMaxFacesInTree = 400; // makes build and intersections slower, but tree smaller
 					kdMinFacesInTree = 10;
-					kdLeaf = 1; // supported by code only in compact
 					break;
 			}
 		}

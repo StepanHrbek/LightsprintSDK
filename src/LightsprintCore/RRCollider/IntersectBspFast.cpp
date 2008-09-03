@@ -330,7 +330,28 @@ begin:
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			RR_ASSERT(0);
+			// kd leaf contains bunch of unsorted triangles
+			// RayHits gathers all hits, sorts them by distance and then calls collisionHandler in proper order
+
+			// size of kd leaf
+			BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
+			BspTree::_TriInfo* trianglesEnd = (BspTree::_TriInfo*)t->getTrianglesEnd();
+			unsigned trianglesCount = trianglesEnd-trianglesBegin;
+			RR_ASSERT(trianglesCount);
+
+			// container for all hits in kd leaf
+			RayHits rayHits(trianglesCount);
+
+			// test all triangles in kd leaf for intersection
+			for(typename BspTree::_TriInfo* triangle=trianglesBegin;triangle<trianglesEnd;triangle++)
+			{
+				if(intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
+				{
+					ray->hitTriangle = triangle->getTriangleIndex();
+					rayHits.insertHitUnordered(ray);
+				}
+			}
+			return rayHits.getHitOrdered(ray,importer);
 		}
 
 //#define DISTANCE_SPACE // pokus
@@ -518,7 +539,30 @@ begin:
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			RR_ASSERT(0);
+			// kd leaf contains bunch of unsorted triangles
+			// RayHits gathers all hits, sorts them by distance and then calls collisionHandler in proper order
+
+			// size of kd leaf
+			BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
+			BspTree::_TriInfo* trianglesEnd = (BspTree::_TriInfo*)t->getTrianglesEnd();
+			unsigned trianglesCount = trianglesEnd-trianglesBegin;
+			RR_ASSERT(trianglesCount);
+
+			// container for all hits in kd leaf
+			RayHits rayHits(trianglesCount);
+
+			// test all triangles in kd leaf for intersection
+			for(typename BspTree::_TriInfo* triangle=trianglesBegin;triangle<trianglesEnd;triangle++)
+			{
+				RRMesh::TriangleBody srl;
+				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
+				if(intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&srl))
+				{
+					ray->hitTriangle = triangle->getTriangleIndex();
+					rayHits.insertHitUnordered(ray);
+				}
+			}
+			return rayHits.getHitOrdered(ray,importer);
 		}
 
 		// test subtrees

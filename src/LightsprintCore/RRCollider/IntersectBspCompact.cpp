@@ -7,11 +7,9 @@
 
 #define DBG(a) //a
 
-#include <assert.h>
+#include <cmath>
+#include <cstdio>
 #include <cstring>
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
 
 namespace rr
 {
@@ -96,72 +94,30 @@ begin:
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			void *trianglesEnd = t->getTrianglesEnd();
-			bool hit = false;
-			char backup[sizeof(RRRay)];
-#ifdef COLLISION_HANDLER
-			if(ray->collisionHandler) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides()
-#endif
-			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
+			// kd leaf contains bunch of unsorted triangles
+			// RayHits gathers all hits, sorts them by distance and then calls collisionHandler in proper order
+
+			// size of kd leaf
+			BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
+			BspTree::_TriInfo* trianglesEnd = (BspTree::_TriInfo*)t->getTrianglesEnd();
+			unsigned trianglesCount = trianglesEnd-trianglesBegin;
+			RR_ASSERT(trianglesCount);
+
+			// container for all hits in kd leaf
+			RayHits rayHits(trianglesCount);
+
+			// test all triangles in kd leaf for intersection
+			for(typename BspTree::_TriInfo* triangle=trianglesBegin;triangle<trianglesEnd;triangle++)
 			{
 				RRMesh::TriangleBody srl;
 				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
-#ifdef COLLISION_HANDLER
-					if(ray->collisionHandler)
-					{
-#ifdef FILL_HITPOINT3D
-						if(ray->rayFlags&RRRay::FILL_POINT3D)
-						{
-							update_hitPoint3d(ray,ray->hitDistance);
-						}
-#endif
-#ifdef FILL_HITPLANE
-						if(ray->rayFlags&RRRay::FILL_PLANE)
-						{
-							update_hitPlane(ray,importer);
-						}
-#endif
-						if(ray->collisionHandler->collides(ray)) 
-						{
-							memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
-							ray->hitDistanceMax = ray->hitDistance;
-							hit = true;
-						}
-					}
-					else
-#endif
-					{
-						ray->hitDistanceMax = ray->hitDistance;
-						hit=true;
-					}
+					rayHits.insertHitUnordered(ray);
 				}
 			}
-			if(hit)
-			{
-#ifdef COLLISION_HANDLER
-				if(ray->collisionHandler)
-				{
-					memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
-				}
-#endif
-#ifdef FILL_HITPOINT3D
-				if(ray->rayFlags&RRRay::FILL_POINT3D)
-				{
-					update_hitPoint3d(ray,ray->hitDistance);
-				}
-#endif
-#ifdef FILL_HITPLANE
-				if(ray->rayFlags&RRRay::FILL_PLANE)
-				{
-					update_hitPlane(ray,importer);
-				}
-#endif
-				//FILL_STATISTIC(intersectStats.hit_mesh++);
-			}
-			return hit;
+			return rayHits.getHitOrdered(ray,importer);
 		}
 
 		// test subtrees

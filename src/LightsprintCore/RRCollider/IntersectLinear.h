@@ -48,6 +48,31 @@ namespace rr
 #endif
 	};
 
-}
+
+	////////////////////////////////////////////////////////////////////////////
+	//
+	// RayHits
+
+	// Helper for intersecting bunch of unordered triangles in proper order (by hit distance).
+	class RayHits
+	{
+	public:
+		RayHits(unsigned maxNumHits);
+		// Call each time when ray collides with triangle. Order of inserts doesn't matter.
+		// It should be still the same ray, only hit may differ.
+		void insertHitUnordered(RRRay* ray);
+		// Call once at the end, stored hits are processed.
+		// Hits are passed to collisionHandler ordered by distance.
+		// True = nearest accepted hit is saved to ray.
+		bool getHitOrdered(RRRay* ray, const RRMesh* mesh);
+		~RayHits();
+	private:
+		//std::vector<RayHitBackup> backupSlot;
+		class RayHitBackup* backupSlot;
+		unsigned backupSlotsUsed;
+		unsigned theBestSlot;
+	};
+
+} // namespace
 
 #endif
