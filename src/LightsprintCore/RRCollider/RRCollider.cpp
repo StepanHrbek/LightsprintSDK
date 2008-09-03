@@ -32,6 +32,8 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 		case IT_BSP_COMPACT:
 			if(importer->getNumTriangles()<=256)
 			{
+				// we expect that mesh with <256 triangles won't produce >64k tree, CBspTree21 has 16bit offsets
+				// this is satisfied only with kdleaves enabled
 				typedef IntersectBspCompact<CBspTree21> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;

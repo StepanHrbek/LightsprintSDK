@@ -124,10 +124,13 @@ struct BSP_TREE
 {
 	BSP_TREE *front;
 	BSP_TREE *back;
+
+	// for internal use of save_bsp
 	unsigned kdnodes;// kd internal nodes in whole tree
 	unsigned kdleaves;// kd leaves in whole tree
 	unsigned bspnodes;// bsp nodes in whole tree
 	unsigned faces;// face instances in whole tree
+
 	// bsp
 	const FACE **plane;
 	// kd
@@ -733,7 +736,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	}
 	
 	// create kd leaf
-	if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3)
+	//if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3) // minimum of kdleaves: builds the fastest kd, but build time&space is exponential on some speedtree meshes
+	if(buildParams.kdLeaf && bsproot && info_bsp.split>info_bsp.front+info_bsp.back+info_bsp.plane) // more kdleaves: problematic meshes fixed, normal meshes unchanged
 	{
 		t->plane  =NULL;
 		t->leaf   =space;
