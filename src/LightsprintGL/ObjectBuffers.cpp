@@ -22,9 +22,6 @@
 namespace rr_gl
 {
 
-// *3 is usual worst case.. *6 covers uncommon situation in WoP maps without BB
-#define ACCEPTABLE_NUM_VERTICES(numTriangles) (3*(numTriangles))
-
 ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended)
 {
 	if(!object) return NULL;
@@ -85,18 +82,17 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	containsBlended = false;
 	const rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
-	// numVerticesMax is only estimate of numPreImportVertices
-	// we have enough time in constructor, what about computing it precisely? (to save memory)
-	unsigned numVerticesMax = ACCEPTABLE_NUM_VERTICES(numTriangles);
+	unsigned numVerticesExpected = indexed
+		? mesh->getNumPreImportVertices() // indexed (when rendering 1object without force_2d)
+		: 3*numTriangles; // nonindexed (when rendering multiobject or force_2d)
 	numIndices = 0;
 	indices = NULL;
 	if(indexed)
 	{
-		indices = new unsigned[numVerticesMax]; // Always allocates worst case (no vertices merged) scenario size. Only first numIndices is used.
+		indices = new unsigned[3*numTriangles]; // exact, we always have 3*numTriangles indices
 	}
 	numVertices = 0;
-	// Always allocates worst case scenario size. Only first numVertices is used.
-	#define NEW_ARRAY(arr,type) {arr = new rr::type[numVerticesMax]; memset(arr,0,sizeof(rr::type)*numVerticesMax);}
+	#define NEW_ARRAY(arr,type) {arr = new rr::type[numVerticesExpected]; memset(arr,0,sizeof(rr::type)*numVerticesExpected);}
 	NEW_ARRAY(avertex,RRVec3);
 	NEW_ARRAY(anormal,RRVec3);
 
@@ -127,7 +123,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
-	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesMax,1,1,rr::BF_RGBF,false,NULL);
+	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesExpected,1,1,rr::BF_RGBF,false,NULL);
 
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;
@@ -250,10 +246,12 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 
 				// force original RRObject vertex order
 				// why?
-				//  RRDynamicSolver generates ambient vertex buffers for original vertex order.
+				//  RRDynamicSolver generates vertex buffers for original vertex order.
 				//  to render them, whole mesh must be in original vertex order
 				// use preimport index, because of e.g. optimizations in RRObjectMulti
 				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t).index;
+				RR_ASSERT(currentVertex<numVerticesExpected);
+				RR_ASSERT(numIndices<3*numTriangles);
 				indices[numIndices++] = currentVertex;
 				numVertices = MAX(numVertices,currentVertex+1);
 			}
@@ -262,14 +260,14 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				currentVertex = numVertices;
 				numVertices++;
 			}
-			if(currentVertex>=numVerticesMax)
+			if(currentVertex>=numVerticesExpected)
 			{
 				// preimport vertex number is out of range, fail
 				// warning: could happen with correct inputs, RRMesh is allowed 
 				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
 				//  happens with all multiobjects
 				// Multiobjects should not get here - catched by test in create().
-				rr::RRReporter::report(rr::WARN,"Object has strange vertex numbers, falling back to emergency renderer.\n");
+				rr::RRReporter::report(rr::WARN,"Object has strange vertex numbers, aborting render.\n");
 				throw 1;
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
@@ -303,6 +301,9 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 #endif
+	if(indexed)
+		for(unsigned i=0;i<numTriangles*3;i++)
+			RR_ASSERT(indices[i]<numVerticesExpected);
 }
 
 ObjectBuffers::~ObjectBuffers()

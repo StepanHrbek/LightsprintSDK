@@ -207,8 +207,10 @@ namespace rr
 			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
 			//! Zero stitches only identical vertices, negative value generates no action.
 			//! Non-stitched vertices at the same location create illumination discontinuity.
-			//! \n If your geometry doesn't need stitching and adapter doesn't split vertices (Collada adapter does),
-			//! make sure to set negative value, calculation will be faster.
+			//! \n Sideeffect: non-negative values protect solver against INF and NaN vertices.
+			//! \n In ideal situation where your geometry doesn't need stitching, doesn't contain NaNs and INFs
+			//! and adapter doesn't split vertices (Collada adapter does),
+			//! set negative value to make calculation faster.
 			float vertexWeldDistance;
 			//! Distance in world units. Smaller indirect light features will be smoothed. This could be imagined as a kind of blur.
 			//! Use default 0 for no blur and watch for possible artifacts in areas with small geometry details

@@ -371,16 +371,17 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
-	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d, %s %d*%d, directional %d*%d %d*%d %d*%d, bent normals %d*%d...\n",
+	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d, %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
 		objectNumber,getNumObjects(),
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
 		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getWidth():0,
 		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getHeight():0,
-		(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getWidth():0,
-		(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getHeight():0,
-		(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getWidth():0,
-		(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getHeight():0,
+		// other two directional sizes not reported to make report shorter
+		//(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getWidth():0,
+		//(directionalLightmaps&&directionalLightmaps[1])?directionalLightmaps[1]->getHeight():0,
+		//(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getWidth():0,
+		//(directionalLightmaps&&directionalLightmaps[2])?directionalLightmaps[2]->getHeight():0,
 		bentNormals?bentNormals->getWidth():0,bentNormals?bentNormals->getHeight():0);
 	
 	// init params
@@ -419,7 +420,8 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		if(paramsAllowRealtime && objectNumber==-1)
 		{
-			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices();
+			// for multiobject, we use non-indexed render with numTriangles*3 vertices in vbuf
+			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3;
 		}
 		else
 		{

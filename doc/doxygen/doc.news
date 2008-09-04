@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- INF and NaN vertices in meshes mostly harmless
+  \n (see RRDynamicSolver::SmoothingParameters::vertexWeldDistance for details)
+- fixed crash while processing specific SpeedTree meshes
 - rr_gl::Water - water effect with waves, reflection, fresnel
   \n (it's back with improved compatibility and quality)
 

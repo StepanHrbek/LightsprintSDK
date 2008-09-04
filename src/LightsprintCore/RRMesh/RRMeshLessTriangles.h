@@ -29,17 +29,17 @@ public:
 		unsigned numAllTriangles = inherited->getNumTriangles();
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMesh::Triangle t;
-			inherited->getTriangle(i,t);
-			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
+			RRMesh::TriangleBody tb;
+			inherited->getTriangleBody(i,tb);
+			if(tb.isNotDegenerated()) ValidIndices++;
 		}
 		ValidIndex = new unsigned[ValidIndices];
 		ValidIndices = 0;
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMesh::Triangle t;
-			inherited->getTriangle(i,t);
-			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
+			RRMesh::TriangleBody tb;
+			inherited->getTriangleBody(i,tb);
+			if(tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
 		}
 	};
 	~RRLessTrianglesFilter()
@@ -164,17 +164,17 @@ public:
 		unsigned numAllTriangles = INHERITED::getNumTriangles();
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMesh::Triangle t;
-			INHERITED::getTriangle(i,t);
-			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
+			RRMesh::TriangleBody tb;
+			INHERITED::getTriangleBody(i,tb);
+			if(tb.isNotDegenerated()) ValidIndices++;
 		}
 		ValidIndex = new unsigned[ValidIndices];
 		ValidIndices = 0;
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMesh::Triangle t;
-			INHERITED::getTriangle(i,t);
-			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
+			RRMesh::TriangleBody tb;
+			INHERITED::getTriangleBody(i,tb);
+			if(tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
 		}
 	};
 	~RRLessTrianglesImporter()
