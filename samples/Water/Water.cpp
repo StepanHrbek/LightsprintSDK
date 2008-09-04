@@ -68,7 +68,7 @@ void display(void)
 	textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render water
-	water->render(100);
+	water->render(100,rr::RRVec3(0));
 
 	glutSwapBuffers();
 }
