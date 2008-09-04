@@ -5,6 +5,7 @@
 
 #include "RRObjectWithPhysicalMaterials.h"
 #include <set> // generateRandomCamera
+#include <cfloat> // _finite
 
 namespace rr
 {
@@ -52,6 +53,9 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 		// generate random pos+dir
 		RRVec3 pos;
 		mesh->getVertex(rand()%numVertices,pos);
+		for(unsigned j=0;j<3;j++)
+			if(!_finite(pos[j]))
+				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
 		RRVec3 dir = (center-pos).normalized();
 		pos += dir*_maxdist*0.1f;
 
