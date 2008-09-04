@@ -39,7 +39,7 @@ namespace rr
 		Vec3    min;
 		real    pad;
 		Vec3    max;
-		void    detect(const Vec3 *vertex,unsigned vertices);
+		void    init(RRVec3 _min, RRVec3 _max);
 		bool    intersect(RRRay* ray) const;
 		bool    intersectFast(RRRay* ray) const;
 	};

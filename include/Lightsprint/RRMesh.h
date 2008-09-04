@@ -234,7 +234,7 @@ namespace rr
 		//
 
 		//! %Triangle in 3d space defined by one vertex and two side vectors. This representation is most suitable for intersection tests.
-		struct TriangleBody  {Vertex vertex0,side1,side2;};
+		struct TriangleBody  {Vertex vertex0,side1,side2; bool isNotDegenerated() const;};
 		//! Writes t-th triangle in mesh to out.
 		//
 		//! Make sure you provide valid t in range <0..getNumTriangles()-1>.
@@ -342,6 +342,12 @@ namespace rr
 
 		//! Returns PostImport index of given triangle or UNDEFINED for invalid inputs.
 		virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const {return preImportTriangle.index;}
+
+		//! Returns highest PreImport vertex number+1.
+		//
+		//! PreImport numbers are used as positions of vertices in vertex buffer, so returned number is also size of vertex buffer.
+		//! Very slow (checks all vertices).
+		unsigned getNumPreImportVertices() const;
 
 		enum 
 		{

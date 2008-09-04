@@ -118,18 +118,8 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	importer = aimporter;
 	triangles = importer->getNumTriangles();
 
-	unsigned vertices = importer->getNumVertices();
-	Vec3* vertex = new Vec3[vertices];
-	for(unsigned i=0;i<vertices;i++)
-	{
-		RRMesh::Vertex v;
-		importer->getVertex(i,v);
-		vertex[i].x = v[0];
-		vertex[i].y = v[1];
-		vertex[i].z = v[2];
-	}
-	box.detect(vertex,vertices);
-	delete[] vertex;
+	importer->getAABB(&box.min,&box.max,NULL);
+	box.init(box.min,box.max);
 
 	// lower number = danger of numeric errors
 	// higher number = slower intersection
@@ -152,9 +142,11 @@ unsigned IntersectLinear::getMemoryOccupied() const
 
 bool IntersectLinear::isValidTriangle(unsigned i) const
 {
-	RRMesh::Triangle t;
-	importer->getTriangle(i,t);
-	return t[0]!=t[1] && t[0]!=t[2] && t[1]!=t[2];
+	// filters out all degenerates
+	// this makes collider safe agains INF/NaN vertices
+	RRMesh::TriangleBody tb;
+	importer->getTriangleBody(i,tb);
+	return tb.isNotDegenerated();
 }
 
 // return first intersection with object

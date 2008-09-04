@@ -36,6 +36,21 @@
 namespace rr
 {
 
+////////////////////////////////////////////////////////////////////////////
+//
+// RRMesh::TriangleBody
+
+bool RRMesh::TriangleBody::isNotDegenerated() const
+{
+	return IS_VEC3(vertex0) && IS_VEC3(side1) && IS_VEC3(side2) // NaN or INF
+		&& side1.abs().sum() && side2.abs().sum(); // degenerated
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// RRMesh
+
 void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
 {
 	Triangle t;
@@ -189,11 +204,12 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 			RRMesh::Vertex v;
 			getVertex(i,v);
 			for(unsigned j=0;j<3;j++)
-			{
-				center[j] += v[j];
-				mini[j] = MIN(mini[j],v[j]);
-				maxi[j] = MAX(maxi[j],v[j]);
-			}
+				if(_finite(v[j])) // filter out INF/NaN
+				{
+					center[j] += v[j];
+					mini[j] = MIN(mini[j],v[j]);
+					maxi[j] = MAX(maxi[j],v[j]);
+				}
 		}
 		if(_center) *_center = center/numVertices;
 		if(_mini) *_mini = mini;
@@ -205,6 +221,8 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 		if(_mini) *_mini = RRVec3(0);
 		if(_maxi) *_maxi = RRVec3(0);
 	}
+	if(_mini) RR_ASSERT(IS_VEC3(_mini[0]));
+	if(_maxi) RR_ASSERT(IS_VEC3(_mini[0]));
 }
 
 
@@ -593,6 +611,25 @@ unsigned RRMesh::checkConsistency() const
 	}
 	return numReports;
 }
+
+unsigned RRMesh::getNumPreImportVertices() const 
+{
+	unsigned numPreImportVertices = 0;
+	unsigned numPostTriangles = getNumTriangles();
+	for(unsigned postTriangle=0;postTriangle<numPostTriangles;postTriangle++)
+	{
+		Triangle postVertices;
+		getTriangle(postTriangle,postVertices);
+		for(unsigned i=0;i<3;i++)
+		{
+			PreImportNumber preVertex = getPreImportVertex(postVertices[i],postTriangle);
+			if(preVertex.index!=UINT_MAX)
+				numPreImportVertices = MAX(numPreImportVertices,preVertex.index+1);
+		}
+	}
+	return numPreImportVertices;
+}
+
 
 // Moved to file with exceptions enabled:
 // RRReal RRMesh::findGroundLevel() const

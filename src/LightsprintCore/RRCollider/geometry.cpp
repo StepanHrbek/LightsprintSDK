@@ -15,24 +15,17 @@ namespace rr
 //
 // box in 3d
 
-void Box::detect(const Vec3 *vertex,unsigned vertices)
+void Box::init(RRVec3 _min, RRVec3 _max)
 {
-	min = Vec3(+1e16f,+1e16f,+1e16f);
-	max = Vec3(-1e16f,-1e16f,-1e16f);
-	for(unsigned i=0;i<vertices;i++)
-	{
-		min.x = MIN(min.x,vertex[i].x);
-		min.y = MIN(min.y,vertex[i].y);
-		min.z = MIN(min.z,vertex[i].z);
-		max.x = MAX(max.x,vertex[i].x);
-		max.y = MAX(max.y,vertex[i].y);
-		max.z = MAX(max.z,vertex[i].z);
-	}
+	min = _min;
+	max = _max;
 	// bsp tree traversal requires small overlap to fight precision problems
 	// may be deleted if i manage to solve precision problem inside traversal code
 	real d = (max.x-min.x + max.y-min.y + max.z-min.z) * 1e-5f;
 	min -= Vec3(d,d,d); 
 	max += Vec3(d,d,d);
+	RR_ASSERT(IS_VEC3(min));
+	RR_ASSERT(IS_VEC3(max));
 }
 
 #ifndef USE_SSE
