@@ -211,6 +211,11 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 					maxi[j] = MAX(maxi[j],v[j]);
 				}
 		}
+
+		// fix negative size
+		for(unsigned j=0;j<3;j++)
+			if(mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
+
 		if(_center) *_center = center/numVertices;
 		if(_mini) *_mini = mini;
 		if(_maxi) *_maxi = maxi;

@@ -462,12 +462,13 @@ void RRDynamicSolverGL::updateShadowmaps()
 const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 {
 	if(!getMultiObjectCustom()) return NULL;
+	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	if(!numTriangles) return NULL;
 
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
 	// alloc space for detected direct illum
-	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 	if(numTriangles!=detectedNumTriangles)
 	{
 		delete[] detectedDirectSum;
