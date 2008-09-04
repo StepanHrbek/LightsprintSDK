@@ -98,8 +98,8 @@ begin:
 			// RayHits gathers all hits, sorts them by distance and then calls collisionHandler in proper order
 
 			// size of kd leaf
-			BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
-			BspTree::_TriInfo* trianglesEnd = (BspTree::_TriInfo*)t->getTrianglesEnd();
+			typename BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
+			typename BspTree::_TriInfo* trianglesEnd = (typename BspTree::_TriInfo*)t->getTrianglesEnd();
 			unsigned trianglesCount = trianglesEnd-trianglesBegin;
 			RR_ASSERT(trianglesCount);
 
