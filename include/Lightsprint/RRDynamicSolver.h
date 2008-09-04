@@ -845,7 +845,7 @@ namespace rr
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
-	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 2 )
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 3 )
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.
