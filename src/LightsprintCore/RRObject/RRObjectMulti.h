@@ -30,9 +30,6 @@ public:
 		// only in top level of hierarchy: create multicollider
 		const RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
-		// optimalizace: multimesh z 1 objektu = objekt samotny
-		// lze aplikovat jen pokud se nestitchuji vertexy
-		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
@@ -46,10 +43,6 @@ public:
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
-			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
-			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
-			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleMaterial,
-			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
 			if(vertexWeldDistance>=0)
 			{
@@ -252,14 +245,10 @@ public:
 		// only in top level of hierarchy: create multicollider
 		const RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
-		// optimalizace: multimesh z 1 objektu = objekt samotny
-		// lze aplikovat jen pokud se nestitchuji vertexy
-		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
-				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			for(unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
@@ -268,10 +257,6 @@ public:
 			if(multiMesh!=oldMesh) transformedMeshes[numObjects+MI_MULTI] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
-			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
-			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
-			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleMaterial,
-			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
 			if(vertexWeldDistance>=0)
 			{
@@ -468,14 +453,8 @@ private:
 			return NULL;
 		case 1: 
 			RR_ASSERT(objects);
-			//  pokud nemame externe narizeny multiCollider, vratime hned jediny objekt, objects[0]
 			if(!multiCollider) return objects[0]; 
-		// pozor, return objects[0]; nestaci v pripade ze vytvarime multiObject z 1 objektu (objects[0])
-		//  a mame externe narizeny multiCollider
-		//  ignorovaly by se totiz zmeny provedene v objects[0] a nam dodane v multiCollideru (konkretne jde o vertex stitching)
-		//  musime vracet vse jako object[0], ale misto jeho collideru pouzit multiCollider
-		//  toto za nas s nepatrne snizenou efektivitou zaridi default vetev
-		// zde umyslne neni break, pokracujeme do defaultu
+		// intentionally no break, continue to default
 		default: 
 			RR_ASSERT(objects); 
 			unsigned num1 = (numObjects+1)/2;

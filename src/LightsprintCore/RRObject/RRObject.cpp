@@ -65,7 +65,6 @@ RRMesh* RRObject::createWorldSpaceMesh()
 
 RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation)
 {
-	//!!! az bude refcounting, muzu pri identite vracet this
 	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
 }
 
