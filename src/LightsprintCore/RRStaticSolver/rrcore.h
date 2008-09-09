@@ -289,7 +289,7 @@ public:
 		Triangle* improvingStatic;
 		Triangles hitTriangles;
 		RRMesh::TriangleBody improvingBody;
-		RRMesh::TangentBasis improvingBasis;
+		RRMesh::TangentBasis improvingBasisOrthonormal;
 		void    shotFromToHalfspace(Triangle* sourceNode);
 		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Triangle* source,bool endfunc(void *),void *context);

@@ -824,7 +824,7 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;
-	if(!getRandomExitDir(improvingBasis,source->surface->sideBits,rayVec3)) 
+	if(!getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3)) 
 		return NULL;
 	RR_ASSERT(IS_SIZE1(rayVec3));
 
@@ -895,8 +895,8 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// prepare data for shooting
 		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
 		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
-		improvingBasis.normal = ortogonalTo(improvingBody.side1,improvingBody.side2).normalized();
-		improvingBasis.buildBasisFromNormal();
+		improvingBasisOrthonormal.normal = ortogonalTo(improvingBody.side1,improvingBody.side2).normalized();
+		improvingBasisOrthonormal.buildBasisFromNormal();
 		phase=1;
 	}
 	if(phase==1)

@@ -259,15 +259,20 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
-		//! Orthonormal tangent basis in object space.
+		//! Tangent basis in object space.
+		//
+		//! Normal must be normalized.
+		//! Orthonormality is not mandatory.
+		//! Tangent and bitangent affect only directional lightmaps.
 		struct RR_API TangentBasis
 		{
 			RRVec3 normal;
 			RRVec3 tangent;
 			RRVec3 bitangent;
+			//! Build orthonormal base from normalized normal.
 			void buildBasisFromNormal();
 		};
-		//! Orthonormal tangent bases in object space, for three vertices in triangle.
+		//! Tangent bases in object space, for three vertices in triangle.
 		struct TriangleNormals
 		{
 			TangentBasis vertex[3];

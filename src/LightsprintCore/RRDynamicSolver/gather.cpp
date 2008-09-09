@@ -117,12 +117,12 @@ public:
 
 // returns random exit direction from diffuse surface
 // result is normalized only if base is ortonormal
-static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRMesh::TangentBasis& basis)
+static RRVec3 getRandomExitDirNormalized(HomogenousFiller2& filler, const RRMesh::TangentBasis& basisOrthonormal)
 {
 #ifdef HOMOGENOUS_FILL
 	RRReal x,y;
 	RRReal cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
-	return basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
+	return basisOrthonormal.normal*cosa + basisOrthonormal.tangent*x + basisOrthonormal.bitangent*y;
 #else
 	// select random vector from srcPoint3 to one halfspace
 	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
@@ -207,17 +207,18 @@ public:
 	// 1 ray
 	// inputs:
 	//  - pti.rays[0].rayOrigin
-	void shotRay(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
+	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
+	void shotRay(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
 	{
 		// build ortonormal basis (so that probabilities of exit directions are correct)
-		// don't use _basis, because it's not ortonormal, it's made for compatibility with UE3
-		RRMesh::TangentBasis ortonormalBasis;
-		ortonormalBasis.normal = _basis.normal.normalized();
-		ortonormalBasis.tangent = ortogonalTo(ortonormalBasis.normal).normalized();
-		ortonormalBasis.bitangent = ortogonalTo(ortonormalBasis.normal,ortonormalBasis.tangent);
+		// don't use _basisSkewed, because it's not ortonormal, it's made for compatibility with UE3
+		RRMesh::TangentBasis basisOrthonormal;
+		basisOrthonormal.normal = _basisSkewed.normal.normalized();
+		basisOrthonormal.tangent = ortogonalTo(basisOrthonormal.normal).normalized();
+		basisOrthonormal.bitangent = ortogonalTo(basisOrthonormal.normal,basisOrthonormal.tangent);
 
 		// random exit dir
-		RRVec3 dir = getRandomExitDir(fillerDir,ortonormalBasis);
+		RRVec3 dir = getRandomExitDirNormalized(fillerDir,basisOrthonormal);
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
@@ -232,14 +233,14 @@ public:
 		{
 			// 4 irradiance values are computed for different normal directions
 			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
-			float normalIncidence1 = dot(dir,_basis.normal.normalized());
+			float normalIncidence1 = dot(dir,basisOrthonormal.normal);
 			// dir je spocteny z neortogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
 			if(normalIncidence1>0)
 			{
 				float normalIncidence1Inv = 1/normalIncidence1;
 				for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				{
-					RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
+					RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
 					if(normalIncidence2>0)
 						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
@@ -487,7 +488,8 @@ public:
 	// 1 ray
 	// inputs:
 	// - pti.rays[1].rayOrigin
-	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basis)
+	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
+	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basisSkewed)
 	{
 		if(!_light) return;
 		RRRay* ray = &pti.rays[1];
@@ -496,7 +498,7 @@ public:
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-		float normalIncidence = dot(dir,_basis.normal.normalized());
+		float normalIncidence = dot(dir,_basisSkewed.normal.normalized());
 		if(normalIncidence<=0)
 		{
 			// face is not oriented towards light -> reliable black (selfshadowed)
@@ -528,7 +530,7 @@ public:
 				{
 					for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
 					{
-						RRVec3 lightmapDirection = _basis.tangent*g_lightmapDirections[i][0] + _basis.bitangent*g_lightmapDirections[i][1] + _basis.normal*g_lightmapDirections[i][2];
+						RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
 						if(normalIncidence>0)
 							irradiancePhysicalLights[i] += irrad * normalIncidence;
@@ -562,11 +564,12 @@ public:
 	}
 
 	// 1 ray per light
-	void shotRayPerLight(const RRMesh::TangentBasis& _basis, unsigned _skipTriangleIndex)
+	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
+	void shotRayPerLight(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
 	{
 		collisionHandlerGatherLight.setShooterTriangle(_skipTriangleIndex);
 		for(unsigned i=0;i<numRelevantLights;i++)
-			shotRay(pti.relevantLights[i],_basis);
+			shotRay(pti.relevantLights[i],_basisSkewed);
 		shotRounds++;
 	}
 
@@ -672,7 +675,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
 	RRMesh::TriangleNormals cache_bases;
-	RRMesh::TangentBasis cache_basis;
+	RRMesh::TangentBasis cache_basis_skewed;
 
 
 	// init subtexel selector
@@ -738,9 +741,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
 				RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
 				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-				cache_basis.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
-				cache_basis.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
-				cache_basis.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
+				cache_basis_skewed.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
+				cache_basis_skewed.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
+				cache_basis_skewed.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
 				// tangent basis for point in triangle was computed as linear interpolation of vertex bases
 				// -> result is not ortogonal, lengths are not unit
 				//    compatibility with Unreal Engine 3 is secured
@@ -771,7 +774,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumHemisphereShootersShot*(seriesNumShootersTotal-1)<hemisphere.rays*seriesShooterNum) // shooting both, sometimes hemisphere
 				{
 					seriesNumHemisphereShootersShot++;
-					hemisphere.shotRay(cache_basis,subTexel->multiObjPostImportTriIndex);
+					hemisphere.shotRay(cache_basis_skewed,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 			
@@ -788,7 +791,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
 				{
 					seriesNumGilightsShootersShot++;
-					gilights.shotRayPerLight(cache_basis,subTexel->multiObjPostImportTriIndex);
+					gilights.shotRayPerLight(cache_basis_skewed,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 		}

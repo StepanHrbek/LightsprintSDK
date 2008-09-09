@@ -553,7 +553,7 @@ unsigned RRMesh::checkConsistency() const
 		bool nanOrInf = false;
 		bool denormalized = false;
 		bool badDirection = false;
-		bool notOrtogonal = false;
+		bool notOrthogonal = false;
 		for(unsigned j=0;j<3;j++)
 		{
 			if(!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
@@ -563,9 +563,9 @@ unsigned RRMesh::checkConsistency() const
 			if(fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if(fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
 			if(size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
-			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrtogonal = true;
-			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
-			if(fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrtogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
+			if(fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
 		}
 		if(nanOrInf)
 		{
@@ -588,9 +588,10 @@ unsigned RRMesh::checkConsistency() const
 			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 		}
 		else
-		if(notOrtogonal)
+		if(notOrthogonal)
 		{
-			RRReporter::report(WARN,"getTriangleNormals(%d) are not ortogonal (normal,tangent,bitangent).\n",i);
+			// they are ortogonal in UE3, but they are not in Gamebryo
+			// RRReporter::report(WARN,"getTriangleNormals(%d) are not ortogonal (normal,tangent,bitangent).\n",i);
 		}
 
 		// triangleMapping
