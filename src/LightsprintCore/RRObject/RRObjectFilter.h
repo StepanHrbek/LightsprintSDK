@@ -53,10 +53,6 @@ public:
 	{
 		return inherited->getWorldMatrix();
 	}
-	virtual const RRMatrix3x4* getInvWorldMatrix()
-	{
-		return inherited->getInvWorldMatrix();
-	}
 
 protected:
 	RRObject* inherited;

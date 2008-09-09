@@ -651,7 +651,6 @@ public:
 	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	virtual void               getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
 	virtual const RRMatrix3x4* getWorldMatrix();
-	virtual const RRMatrix3x4* getInvWorldMatrix();
 
 private:
 	const FCDSceneNode*        node;
@@ -663,9 +662,8 @@ private:
 	// collider for ray-mesh collisions
 	const RRCollider*          collider;
 
-	// copy of object's transformation matrices
+	// copy of object's transformation matrix
 	RRMatrix3x4                worldMatrix;
-	RRMatrix3x4                invWorldMatrix;
 
 	// indirect illumination (ambient maps etc)
 	RRObjectIllumination*      illumination;
@@ -851,11 +849,6 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()
 {
 	return &worldMatrix;
-}
-
-const RRMatrix3x4* RRObjectCollada::getInvWorldMatrix()
-{
-	return &invWorldMatrix;
 }
 
 RRObjectIllumination* RRObjectCollada::getIllumination()

@@ -235,9 +235,9 @@ namespace rr
 		//! Information about single object, what LOD it is.
 		struct LodInfo
 		{
-			//! LODs belong together only if they have identical bases.
+			//! Two objects are LODs of the same model only if they have identical bases.
 			void* base;
-			//! LODs that belong together always differ in level. There must be always at least level 0 for each base.
+			//! LODs of the same model always differ in level. There must be always at least level 0 for each base.
 			unsigned level;
 			//! Object is rendered only if its distance satisfies distanceMin<=distance<distanceMax.
 			RRReal distanceMin;
@@ -262,18 +262,14 @@ namespace rr
 		// may change during object lifetime
 		//
 
-		//! Returns object transformation.
+		//! Returns object transformation from local to world space.
 		//
-		//! Allowed transformations are composed of translation, rotation, scale.
-		//! \n There is default implementation that always returns NULL, which means no transformation.
+		//! Default implementation always returns NULL, which means no transformation.
 		//! \return Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
-
-		//! Differs from getWorldMatrix() only by returning _inverse_ matrix.
-		virtual const RRMatrix3x4*  getInvWorldMatrix();
 
 
 		//////////////////////////////////////////////////////////////////////////////

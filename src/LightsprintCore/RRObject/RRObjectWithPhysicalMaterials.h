@@ -104,10 +104,6 @@ public:
 	{
 		return original->getWorldMatrix();
 	}
-	virtual const RRMatrix3x4* getInvWorldMatrix()
-	{
-		return original->getInvWorldMatrix();
-	}
 
 private:
 	RRObject* original;

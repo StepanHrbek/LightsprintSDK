@@ -48,11 +48,6 @@ const RRMatrix3x4* RRObject::getWorldMatrix()
 	return NULL;
 }
 
-const RRMatrix3x4* RRObject::getInvWorldMatrix()
-{
-	return NULL;
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -69,7 +69,6 @@ public:
 	virtual const rr::RRCollider*   getCollider() const;
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
 	virtual const rr::RRMatrix3x4*  getWorldMatrix();
-	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 
 private:
 	Model_3DS* model;
@@ -345,11 +344,6 @@ void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
 const rr::RRMatrix3x4* RRObject3DS::getWorldMatrix()
 {
 	// transformation matrices from 3ds are ignored
-	return NULL;
-}
-
-const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
-{
 	return NULL;
 }
 
