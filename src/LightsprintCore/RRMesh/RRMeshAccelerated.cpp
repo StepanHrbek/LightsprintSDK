@@ -97,7 +97,7 @@ RRReal RRMesh::findGroundLevel() const
 		{
 			RRMesh::TriangleBody tb;
 			getTriangleBody(t,tb);
-			if(tb.side1.y==0 && tb.side2.y==0 && ortogonalTo(tb.side1,tb.side2).y>0) // planar and facing up
+			if(tb.side1.y==0 && tb.side2.y==0 && orthogonalTo(tb.side1,tb.side2).y>0) // planar and facing up
 			{
 				RRReal area = calculateArea(tb.side1,tb.side2,tb.side2-tb.side1);
 				YToArea::iterator i = yToArea.find(tb.vertex0.y);

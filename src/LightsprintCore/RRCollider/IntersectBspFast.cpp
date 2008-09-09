@@ -114,7 +114,7 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	    intersectByte+=6;//max=r3.y
 	}
 	// calculate normal
-	n3=normalized(ortogonalTo(r3,l3));
+	n3=normalized(orthogonalTo(r3,l3));
 	n3.w=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 
@@ -173,7 +173,7 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	    intersectByte+=6;//max=r3.y
 	}
 	// calculate normal
-	n3=normalized(ortogonalTo(r3,l3));
+	n3=normalized(orthogonalTo(r3,l3));
 	n3.w=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 

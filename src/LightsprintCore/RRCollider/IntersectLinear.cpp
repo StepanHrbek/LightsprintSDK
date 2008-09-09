@@ -64,7 +64,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = ortogonalTo(ray->rayDir,t->side2);
+	Vec3 pvec = orthogonalTo(ray->rayDir,t->side2);
 	real det = dot(t->side1,pvec);
 
 	// cull test
@@ -84,7 +84,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	if(u<0 || u>1) return false;
 
 	// prepare to test V parameter
-	Vec3 qvec = ortogonalTo(tvec,t->side1);
+	Vec3 qvec = orthogonalTo(tvec,t->side1);
 
 	// calculate V parameter and test bounds
 	real v = dot(ray->rayDir,qvec)/det;

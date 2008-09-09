@@ -190,13 +190,13 @@ restart_iter:
 
 			t1 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,(*i)->node);
 			mesh->getTriangleBody(t1,body1);
-			n1 = ortogonalTo(body1.side1,body1.side2).normalized();
+			n1 = orthogonalTo(body1.side1,body1.side2).normalized();
 
 			for(j=0;j<v->corners;j++)
 			{
 				t2 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,v->getCorner(j).node);
 				mesh->getTriangleBody(t2,body2);
-				n2 = ortogonalTo(body2.side1,body2.side2).normalized();
+				n2 = orthogonalTo(body2.side1,body2.side2).normalized();
 
 				if(angleBetweenNormalized(n1,n2)<=maxSmoothAngle)
 				{

@@ -66,8 +66,8 @@ real size(Vec2 a);
 real size2(Vec2 a);
 Vec2 normalized(Vec2 a);
 real dot(Vec2 a,Vec2 b);
-Vec2 ortogonalToRight(Vec2 a);
-Vec2 ortogonalToLeft(Vec2 a);
+Vec2 orthogonalToRight(Vec2 a);
+Vec2 orthogonalToLeft(Vec2 a);
 Angle angleBetween(Vec2 a,Vec2 b);
 Angle angleBetweenNormalized(Vec2 a,Vec2 b);
 

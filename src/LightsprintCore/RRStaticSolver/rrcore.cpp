@@ -122,7 +122,7 @@ static real calculateArea(const RRMesh::TriangleBody& body)
 
 S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAngle,float ignoreSmallerArea)
 {
-	RRVec3 qn3=normalized(ortogonalTo(body.side1,body.side2));
+	RRVec3 qn3=normalized(orthogonalTo(body.side1,body.side2));
 	//qn3.w=-dot(body.vertex0,qn3);
 	if(!IS_VEC3(qn3)) return -3; // throw out degenerated triangle
 
@@ -777,7 +777,7 @@ void HomogenousFiller::GetTrianglePoint(real *a,real *b)
 // random exiting ray
 
 bool Scene::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
-// ortonormal basis
+// orthonormal basis
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
 #ifdef HOMOGENOUS_FILL
@@ -895,7 +895,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// prepare data for shooting
 		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
 		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
-		improvingBasisOrthonormal.normal = ortogonalTo(improvingBody.side1,improvingBody.side2).normalized();
+		improvingBasisOrthonormal.normal = orthogonalTo(improvingBody.side1,improvingBody.side2).normalized();
 		improvingBasisOrthonormal.buildBasisFromNormal();
 		phase=1;
 	}

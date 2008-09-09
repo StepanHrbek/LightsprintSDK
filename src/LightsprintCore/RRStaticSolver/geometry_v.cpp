@@ -41,12 +41,12 @@ real dot(Vec2 a,Vec2 b)
 	return a.x*b.x+a.y*b.y;
 }
 
-Vec2 ortogonalToRight(Vec2 a)
+Vec2 orthogonalToRight(Vec2 a)
 {
 	return Vec2(a.y,-a.x);
 }
 
-Vec2 ortogonalToLeft(Vec2 a)
+Vec2 orthogonalToLeft(Vec2 a)
 {
 	return Vec2(-a.y,a.x);
 }

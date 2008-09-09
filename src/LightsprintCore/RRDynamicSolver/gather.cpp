@@ -116,7 +116,7 @@ public:
 // random exiting ray
 
 // returns random exit direction from diffuse surface
-// result is normalized only if base is ortonormal
+// result is normalized only if base is orthonormal
 static RRVec3 getRandomExitDirNormalized(HomogenousFiller2& filler, const RRMesh::TangentBasis& basisOrthonormal)
 {
 #ifdef HOMOGENOUS_FILL
@@ -210,12 +210,12 @@ public:
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
 	void shotRay(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
 	{
-		// build ortonormal basis (so that probabilities of exit directions are correct)
-		// don't use _basisSkewed, because it's not ortonormal, it's made for compatibility with UE3
+		// build orthonormal basis (so that probabilities of exit directions are correct)
+		// don't use _basisSkewed, because it's not orthonormal, it's made for compatibility with UE3
 		RRMesh::TangentBasis basisOrthonormal;
 		basisOrthonormal.normal = _basisSkewed.normal.normalized();
-		basisOrthonormal.tangent = ortogonalTo(basisOrthonormal.normal).normalized();
-		basisOrthonormal.bitangent = ortogonalTo(basisOrthonormal.normal,basisOrthonormal.tangent);
+		basisOrthonormal.tangent = orthogonalTo(basisOrthonormal.normal).normalized();
+		basisOrthonormal.bitangent = orthogonalTo(basisOrthonormal.normal,basisOrthonormal.tangent);
 
 		// random exit dir
 		RRVec3 dir = getRandomExitDirNormalized(fillerDir,basisOrthonormal);
@@ -234,7 +234,7 @@ public:
 			// 4 irradiance values are computed for different normal directions
 			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
 			float normalIncidence1 = dot(dir,basisOrthonormal.normal);
-			// dir je spocteny z neortogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
+			// dir je spocteny z neorthogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
 			if(normalIncidence1>0)
 			{
 				float normalIncidence1Inv = 1/normalIncidence1;
@@ -745,7 +745,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				cache_basis_skewed.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
 				cache_basis_skewed.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
 				// tangent basis for point in triangle was computed as linear interpolation of vertex bases
-				// -> result is not ortogonal, lengths are not unit
+				// -> result is not orthogonal, lengths are not unit
 				//    compatibility with Unreal Engine 3 is secured
 			}
 

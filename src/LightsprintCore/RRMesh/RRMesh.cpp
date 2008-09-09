@@ -72,8 +72,8 @@ void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
 
 void RRMesh::TangentBasis::buildBasisFromNormal()
 {
-	tangent = ortogonalTo(normal).normalized();
-	bitangent = ortogonalTo(normal,tangent);
+	tangent = orthogonalTo(normal).normalized();
+	bitangent = orthogonalTo(normal,tangent);
 }
 
 void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -86,7 +86,7 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 	RRMesh::TriangleBody tb;
 	getTriangleBody(t,tb);
-	out.vertex[0].normal = ortogonalTo(tb.side1,tb.side2).normalized();
+	out.vertex[0].normal = orthogonalTo(tb.side1,tb.side2).normalized();
 	out.vertex[0].buildBasisFromNormal();
 	out.vertex[1] = out.vertex[0];
 	out.vertex[2] = out.vertex[0];
@@ -159,7 +159,7 @@ bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
 	getVertex(t[0],v[0]);
 	getVertex(t[1],v[1]);
 	getVertex(t[2],v[2]);
-	out=normalized(ortogonalTo(v[1]-v[0],v[2]-v[0]));
+	out=normalized(orthogonalTo(v[1]-v[0],v[2]-v[0]));
 	out[3]=-dot(v[0],out);
 	return IS_VEC4(out);
 }
@@ -590,8 +590,8 @@ unsigned RRMesh::checkConsistency() const
 		else
 		if(notOrthogonal)
 		{
-			// they are ortogonal in UE3, but they are not in Gamebryo
-			// RRReporter::report(WARN,"getTriangleNormals(%d) are not ortogonal (normal,tangent,bitangent).\n",i);
+			// they are orthogonal in UE3, but they are not in Gamebryo
+			// RRReporter::report(WARN,"getTriangleNormals(%d) are not orthogonal (normal,tangent,bitangent).\n",i);
 		}
 
 		// triangleMapping

@@ -419,7 +419,7 @@ namespace rr
 		//!
 		//! Only positions/normals/tangent space are transformed, custom channels are left untouched.
 		//!
-		//! Non-uniform transformations break tangent space ortogonality.
+		//! Non-uniform transformations break tangent space orthogonality.
 		RRMesh* createTransformed(const RRMatrix3x4* transform) const;
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
