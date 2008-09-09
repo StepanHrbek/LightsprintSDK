@@ -669,16 +669,22 @@ private:
 	RRObjectIllumination*      illumination;
 };
 
-void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4& worldMatrix, RRMatrix3x4& invWorldMatrix)
+void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
 {
 	FMMatrix44 world = node->CalculateWorldTransform();
-	for(unsigned i=0;i<3;i++)
-		for(unsigned j=0;j<4;j++)
-			worldMatrix.m[i][j] = world.m[j][i];
-	const FMMatrix44 inv = world.Inverted();
-	for(unsigned i=0;i<3;i++)
-		for(unsigned j=0;j<4;j++)
-			invWorldMatrix.m[i][j] = world.m[j][i];
+	if(worldMatrix)
+	{
+		for(unsigned i=0;i<3;i++)
+			for(unsigned j=0;j<4;j++)
+				worldMatrix->m[i][j] = world.m[j][i];
+	}
+	if(invWorldMatrix)
+	{
+		const FMMatrix44 inv = world.Inverted();
+		for(unsigned i=0;i<3;i++)
+			for(unsigned j=0;j<4;j++)
+				invWorldMatrix->m[i][j] = world.m[j][i];
+	}
 }
 
 RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, MaterialCache* _materialCache)
@@ -695,7 +701,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
 
 	// create transformation matrices
-	getNodeMatrices(node,worldMatrix,invWorldMatrix);
+	getNodeMatrices(node,&worldMatrix,NULL);
 }
 
 void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
@@ -1074,9 +1080,8 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 			if(light)
 			{
 				// get position and direction
-				RRMatrix3x4 worldMatrix;
 				RRMatrix3x4 invWorldMatrix;
-				getNodeMatrices(node,worldMatrix,invWorldMatrix);
+				getNodeMatrices(node,NULL,&invWorldMatrix);
 				RRVec3 position = invWorldMatrix.transformedPosition(RRVec3(0));
 				RRVec3 direction = invWorldMatrix.transformedDirection(RRVec3(0,0,-1));
 
