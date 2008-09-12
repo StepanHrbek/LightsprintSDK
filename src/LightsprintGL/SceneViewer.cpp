@@ -1351,9 +1351,9 @@ static void idle()
 
 #ifdef OWNED_BY_3DRENDER
 		// is feet on the ground?
-		#define WALL_DISTANCE    0.4f // m
+		#define WALL_DISTANCE    0.2f // m
 		#define FLOOR_DISTANCE   1.6f // m
-		#define CEILING_DISTANCE 0.4f // m
+		#define CEILING_DISTANCE 0.2f // m
 		#define LIFT_SPEED       1.0f // m/s
 		rr::RRVec3 oldEyePos = svs.eye.pos;
 		const rr::RRCollider* collider = (solver && solver->getMultiObjectCustom()) ? solver->getMultiObjectCustom()->getCollider() : NULL;
