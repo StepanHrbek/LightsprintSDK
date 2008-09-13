@@ -135,8 +135,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	detectedNumTriangles = 0;
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
-	honourExpensiveLightingShadowingFlags = false;
-
+	
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
 	uberProgram1 = UberProgram::create(buf1,buf2);
@@ -633,7 +632,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
-		rendererNonCaching->setLightingShadowingFlags(NULL,setupShaderLight->origin,honourExpensiveLightingShadowingFlags);
+		rendererNonCaching->setLightingShadowingFlags(NULL,setupShaderLight->origin);
 		glDisable(GL_CULL_FACE);
 		if(renderedChannels.LIGHT_INDIRECT_MAP)
 			rendererNonCaching->render();

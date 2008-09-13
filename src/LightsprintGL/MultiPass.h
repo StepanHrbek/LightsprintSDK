@@ -24,7 +24,7 @@ namespace rr_gl
 class MultiPass
 {
 public:
-	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma, bool honourExpensiveLightingShadowingFlags);
+	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma);
 
 	// Returns true and all outXxx are set, do render,
 	// or returns false and outXxx stay unchanged, rendering is done.
@@ -39,7 +39,6 @@ protected:
 	UberProgram* uberProgram;
 	const rr::RRVec4* brightness;
 	float gamma;
-	bool honourExpensiveLightingShadowingFlags;
 
 	// intermediates
 	unsigned numLights;

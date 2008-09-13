@@ -41,7 +41,7 @@ public:
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	void setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags);
+	void setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -67,7 +67,6 @@ protected:
 		UberProgramSetup uberProgramSetup;
 		const RealtimeLights* lights;
 		const rr::RRLight* renderingFromThisLight;
-		bool honourExpensiveLightingShadowingFlags;
 		rr::RRVec4 brightness;
 		float gamma;
 		unsigned layerNumberLDM;
@@ -92,7 +91,6 @@ RendererOfRRDynamicSolver::Params::Params()
 	solver = NULL;
 	lights = NULL;
 	renderingFromThisLight = NULL;
-	honourExpensiveLightingShadowingFlags = false;
 	brightness = rr::RRVec4(1);
 	gamma = 1;
 	layerNumberLDM = UINT_MAX; // UINT_MAX is usually empty, so it's like disabled ldm
@@ -124,12 +122,11 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
 	params.renderingFromThisLight = renderingFromThisLight;
-	params.honourExpensiveLightingShadowingFlags = honourExpensiveLightingShadowingFlags;
 }
 
 const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
@@ -256,7 +253,7 @@ void RendererOfRRDynamicSolver::render()
 	PreserveAlphaFunc p4;
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
-	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	const RealtimeLight* light;
@@ -267,7 +264,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getIllumination(0)->getLayer(params.layerNumberLDM) : NULL);
-		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL,params.honourExpensiveLightingShadowingFlags);
+		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL);
 
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 			initSpecularReflection(program);
@@ -435,7 +432,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	PreserveAlphaFunc p4;
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
-	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.honourExpensiveLightingShadowingFlags);
+	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	const RealtimeLight* light;
@@ -617,9 +614,9 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, bool honourExpensiveLightingShadowingFlags)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight)
 {
-	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight,honourExpensiveLightingShadowingFlags);
+	renderer->setParams(uberProgramSetup,lights,renderingFromThisLight);
 }
 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)

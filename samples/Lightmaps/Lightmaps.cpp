@@ -102,7 +102,7 @@ float                      contrast = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 {
 	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight,false);
+	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:(ambientMapsRender?2:1));
 	rendererOfScene->setBrightnessGamma(&brightness,contrast);
 	rendererOfScene->render();

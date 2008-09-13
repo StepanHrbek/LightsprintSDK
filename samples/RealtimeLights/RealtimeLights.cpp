@@ -110,7 +110,7 @@ public:
 		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,false);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 		rendererOfScene->useOptimizedScene();
 		rendererOfScene->setBrightnessGamma(&brightness,contrast);
 		rendererOfScene->render();

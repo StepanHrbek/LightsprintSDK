@@ -10,7 +10,7 @@
 namespace rr_gl
 {
 
-MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const rr::RRVec4* _brightness, float _gamma, bool _honourExpensiveLightingShadowingFlags)
+MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const rr::RRVec4* _brightness, float _gamma)
 {
 	// inputs
 	lights = _lights;
@@ -18,9 +18,8 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	uberProgram = _uberProgram;
 	brightness = _brightness;
 	gamma = _gamma;
-	honourExpensiveLightingShadowingFlags = _honourExpensiveLightingShadowingFlags;
 	numLights = lights?lights->size():0;
-	separatedAmbientPass = (!numLights||honourExpensiveLightingShadowingFlags)?1:0;
+	separatedAmbientPass = (!numLights)?1:0;
 	lightIndex = -separatedAmbientPass;
 }
 

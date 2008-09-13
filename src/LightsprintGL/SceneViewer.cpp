@@ -141,7 +141,7 @@ public:
 		const RealtimeLights* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,svs.honourExpensiveLightingShadowingFlags);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 
 		if(svs.renderRealtime)
 		{
@@ -303,7 +303,6 @@ public:
 		glutAddMenuEntry(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
 		glutAddMenuEntry(svs.renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry(svs.renderHelpers?"Hide helpers":"Show helpers", ME_RENDER_HELPERS);
-		glutAddMenuEntry(solver->honourExpensiveLightingShadowingFlags?"Ignore expensive flags":"Honour expensive flags", ME_HONOUR_FLAGS);
 		glutAddMenuEntry(fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
 		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
 		glutAddMenuEntry("Log solver diagnose",ME_CHECK_SOLVER);
@@ -333,7 +332,6 @@ public:
 			case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 			case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 			case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
-			case ME_HONOUR_FLAGS: solver->honourExpensiveLightingShadowingFlags = !solver->honourExpensiveLightingShadowingFlags; solver->dirtyLights(); break;
 			case ME_MAXIMIZE:
 				if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 				{
@@ -658,7 +656,6 @@ public:
 		ME_RENDER_TONEMAPPING,
 		ME_RENDER_WIREFRAME,
 		ME_RENDER_HELPERS,
-		ME_HONOUR_FLAGS,
 		ME_MAXIMIZE,
 		ME_CLOSE,
 		ME_ENV_WHITE,

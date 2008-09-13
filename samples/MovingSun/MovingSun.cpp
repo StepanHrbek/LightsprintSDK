@@ -208,7 +208,7 @@ public:
 		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
 		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight,false);
+		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 
 		unsigned frame1 = (unsigned)(lightTime01*(NUM_FRAMES-1));
 		unsigned frame2 = (frame1+1)%NUM_FRAMES;

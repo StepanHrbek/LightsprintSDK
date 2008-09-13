@@ -154,17 +154,13 @@ public:
 
 	//! Enables lighting and shadowing flag tests.
 	//
-	//! When lights are not specified or set to NULL, all objects are lit and shadows rendered as in real world.
-	//! When lights are specified, lighting and shadowing flags are tested (see rr::RRObject::getTriangleMaterial())
-	//! more or less accurately, depending on honourExpensiveLightingShadowingFlags.
-	//!
 	//! In other words:
 	//! \n Before rendering shadow casters into shadowmap, set light and renderingShadowCasters,
 	//! triangles that don't cast shadows won't be renderd.
 	//! \n Before rendering light receivers, set light and unset renderingShadowCasters,
 	//! triangles that don't receive light won't be renderd.
 	//! \n In other cases, pass light=NULL, all triangles will be rendered.
-	void setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight, bool honourExpensiveLightingShadowingFlags);
+	void setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -208,7 +204,6 @@ private:
 		// set by setLightingShadowingFlags()
 		const rr::RRLight* renderingFromThisLight;
 		const rr::RRLight* renderingLitByThisLight;
-		bool honourExpensiveLightingShadowingFlags;
 		// set by setMaterialFilter
 		bool renderNonBlended;
 		bool renderBlended;

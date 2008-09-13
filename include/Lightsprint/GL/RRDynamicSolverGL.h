@@ -74,9 +74,6 @@ namespace rr_gl
 		rr::RRVector<RealtimeLight*> realtimeLights;
 		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
 		Camera* observer;
-		//! Whether update of shadowmaps and detection of direct illum honours expensive lighting&shadowing flags.
-		//! Inited to false, you may freely change it.
-		bool honourExpensiveLightingShadowingFlags;
 		//! Returns minimal superset of all material features in static scene in MATERIAL_*.
 		UberProgramSetup getMaterialsInStaticScene() {return materialsInStaticScene;}
 		//! Users can reuse our uberprogram for their own rendering.

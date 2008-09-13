@@ -39,7 +39,6 @@ struct SceneViewerState
 	bool             renderHelpers;       //! Show helper wireframe objects and text outputs.
 	bool             renderBilinear;      //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
-	bool             honourExpensiveLightingShadowingFlags; //! False=all objects are lit and cast shadows, fast. True=honours lighting or shadowing disabled by rr::RRMesh::getTriangleMaterial(), slower.
 	bool             cameraGravity;       //! Camera responds to gravity.
 	bool             cameraCollisions;    //! Camera collides with geometry.
 	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
@@ -71,7 +70,6 @@ struct SceneViewerState
 		renderWireframe = 0;
 		renderHelpers = 0;
 		adjustTonemapping = 1;
-		honourExpensiveLightingShadowingFlags = 0;
 		cameraGravity = 0;
 		cameraCollisions = 0;
 		cameraMetersPerSecond = 2;
