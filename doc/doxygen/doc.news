@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news64 ------------------------------------ 2008.9.13 -------------------------------------
+
+CHANGES
+
+- game engine integration projects moved from samples/ImportXXX to src/LightsprintXXX
+- cleanup: removed RRMesh::getInvWorldMatrix(), RRDynamicSolver::SmoothingParameters::subdivisionSpeed,
+  honourExpensiveLightingShadowingFlags
+
 \section news63 ------------------------------------ 2008.9.4 -------------------------------------
 
 NEWS
