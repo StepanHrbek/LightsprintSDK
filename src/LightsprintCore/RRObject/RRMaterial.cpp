@@ -35,7 +35,15 @@ void RRMaterial::reset(bool twoSided)
 	name                         = NULL;
 }
 
-bool clamp(RRVec3& vec, RRReal min, RRReal max)
+bool clamp1(RRReal& a, RRReal min, RRReal max)
+{
+	if(a<min) a=min; else
+		if(a>max) a=max; else
+			return false;
+	return true;
+}
+
+bool clamp3(RRVec3& vec, RRReal min, RRReal max)
 {
 	unsigned clamped = 3;
 	for(unsigned i=0;i<3;i++)
@@ -51,6 +59,11 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 {
 	bool changed = false;
 
+	if(clamp3(diffuseReflectance.color,0,10)) changed = true;
+	if(clamp1(specularReflectance,0,10)) changed = true;
+	if(clamp3(specularTransmittance.color,0,10)) changed = true;
+	if(clamp3(diffuseEmittance.color,0,1e6f)) changed = true;
+
 	RRVec3 sum = diffuseReflectance.color+specularTransmittance.color+RRVec3(specularReflectance);
 	RRReal max = MAX(sum[0],MAX(sum[1],sum[2]));
 	if(max>redistributedPhotonsLimit)
@@ -60,8 +73,6 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 		specularTransmittance.color *= redistributedPhotonsLimit/max;
 		changed = true;
 	}
-
-	if(clamp(diffuseEmittance.color,0,1e6f)) changed = true;
 
 	// it is common error to default refraction to 0, we must anticipate and handle it
 	if(refractionIndex==0) {refractionIndex = 1; changed = true;}
