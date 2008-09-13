@@ -562,7 +562,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
-	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight,false);
+	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight);
 	level->rendererOfScene->render();
 }
 
