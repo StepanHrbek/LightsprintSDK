@@ -168,36 +168,6 @@ namespace rr
 		//!  True if out was successfully filled. False may be caused by invalid inputs.
 		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
 
-		//! Illumination information for triangle's subtriangle.
-		//
-		//! Subtriangle is triangular area inside triangle given by three 2d coordinates in triangle space.
-		//! If triangle has no subdivision, the only subtriangle fills whole triangle with following coordinates:
-		//!  RRVec2(0,0), RRVec2(1,0), RRVec2(0,1)
-		//! Illumination is recorded in subtriangle vertices.
-		struct SubtriangleIllumination
-		{
-			RRVec2 texCoord[3]; ///< Subtriangle vertices positions in triangle space, triangle vertex0 is in 0,0, vertex1 is in 1,0, vertex2 is in 0,1.
-			RRVec3 measure[3]; ///< Subtriangle vertices illumination.
-		};
-		//! Callback for passing multiple SubtriangleIlluminations to you.
-		typedef void (SubtriangleIlluminationEater)(const SubtriangleIllumination& si, void* context);
-		//! Reads illumination of triangle's subtriangles in units given by measure.
-		//
-		//! Reads results in format suitable for high quality texture based rendering (with adaptive subdivision).
-		//! \param triangle
-		//!  Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
-		//! \param measure
-		//!  Specifies what to measure, using what units.
-		//! \param scaler
-		//!  Custom scaler for results in non physical scale. Scale conversion is enabled by measure.scaled.
-		//! \param callback
-		//!  Your callback that will be called for each triangle's subtriangle.
-		//! \param context
-		//!  Value is passed to callback without any modification.
-		//! \return
-		//!  Number of subtriangles processed.
-		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const;
-
 		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle);
 

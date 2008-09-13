@@ -192,7 +192,6 @@ public:
 	bool    lastBestWantsRefresh() {return refreshing;}
 	bool    insert(Triangle* anode); // returns true when node was inserted (=appended)
 	void    insertObject(class Object *o);
-	void    removeSubtriangles();
 
 	private:
 		unsigned nodesAllocated;

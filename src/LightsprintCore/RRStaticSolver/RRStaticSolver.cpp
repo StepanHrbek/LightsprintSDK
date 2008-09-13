@@ -284,9 +284,5 @@ zero:
 	return false;
 }
 
-unsigned RRStaticSolver::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const
-{
-	return 0;
-}
 
 } // namespace

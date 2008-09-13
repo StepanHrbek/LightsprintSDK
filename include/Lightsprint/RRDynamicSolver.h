@@ -197,13 +197,6 @@ namespace rr
 		//! - if seams between scene segments appear, consider increased minFeatureSize or vertexWeldDistance
 		struct SmoothingParameters
 		{
-			//! Speed of surface subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast.
-			//! \n Set 0 for the fastest results and realtime responsiveness. Illumination will be available in scene vertices.
-			//!    0 is necessary for realtime calculation.
-			//! \n Set 1 for higher quality, precalculations. Illumination will be available in adaptively subdivided surfaces.
-			//!    You can set slower subdivision for higher quality results with less noise, calculation will be slower.
-			//!    If you set higher speed, calculation will be faster, but results will contain high frequency noise.
-			float subdivisionSpeed;
 			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
 			//! Zero stitches only identical vertices, negative value generates no action.
 			//! Non-stitched vertices at the same location create illumination discontinuity.
@@ -238,7 +231,6 @@ namespace rr
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
-				subdivisionSpeed = 0; // disabled
 				maxSmoothAngle = 0.33f; // default angle for automatic smoothing
 				vertexWeldDistance = 0; // weld enabled for identical vertices
 				minFeatureSize = 0; // disabled
