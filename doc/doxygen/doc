@@ -685,7 +685,7 @@ Remarks:
 
  For import with instancing, see samples/ImportCollada.
  (adapter for scenes loaded by freely available FCollada library)
- or samples/ImportUE3 (adapter for import from Unreal Engine 3).
+ or src/LightsprintUE3 (adapter for import from Unreal Engine 3).
 
  Adapters don't duplicate any memory, all data are accessed directly
  in FCollada document.
@@ -1964,7 +1964,7 @@ Remarks:
  Unreal Engine 3 is one of the most acclaimed game engines.
 
  Source code of adapter that accesses UE3 scene in memory
- is in: samples/ImportUE3/*.*
+ is in: src/LightsprintUE3/*.*
  \n Scene is loaded by Unreal Engine 3.
 
  \ref main_ue3
@@ -1976,7 +1976,7 @@ Remarks:
  "Lighting build" produce global illumination lightmaps.
 
  If you are UE3 licensee, please request integration files from Lightsprint.
- Then see samples/ImportUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
+ Then see src/LightsprintUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
 
  \image html unreal.png   
 

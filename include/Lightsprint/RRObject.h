@@ -236,7 +236,7 @@ namespace rr
 		struct LodInfo
 		{
 			//! Two objects are LODs of the same model only if they have identical bases.
-			void* base;
+			const void* base;
 			//! LODs of the same model always differ in level. There must be always at least level 0 for each base.
 			unsigned level;
 			//! Object is rendered only if its distance satisfies distanceMin<=distance<distanceMax.
