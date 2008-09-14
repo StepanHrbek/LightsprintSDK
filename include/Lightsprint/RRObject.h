@@ -124,6 +124,11 @@ namespace rr
 		RRReal        specularReflectance;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		//
+		//! Whether light gets through translucent object, e.g. sphere, it depends on material sphere is made of
+		//! - standard 2sided material -> ray gets through interacting with both front and back faces, creating correct caustics
+		//! - standard 1sided material -> ray is deleted when it hits back side of 1sided face
+		//! - 1sided material with sideBits[1].catchFrom=1 -> ray gets through, interacting with front face, skipping back face, creating incorrect caustics
+		//!
 		//! Note that higher transmittance does not decrease reflectance and emittance, they are independent properties.
 		//! There's single exception to this rule: higher transmittance decreases diffuseReflectance.texture (we multiply rgb from diffuse texture by opacity on the fly).
 		Property      specularTransmittance;
