@@ -8,15 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news64 ------------------------------------ 2008.9.13 -------------------------------------
-
-CHANGES
-
-- game engine integration projects moved from samples/ImportXXX to src/LightsprintXXX
-- cleanup: removed RRMesh::getInvWorldMatrix(), RRDynamicSolver::SmoothingParameters::subdivisionSpeed,
-  honourExpensiveLightingShadowingFlags
-
-\section news63 ------------------------------------ 2008.9.4 -------------------------------------
+\section news63 ------------------------------------ 2008.9.14 -------------------------------------
 
 NEWS
 
@@ -25,6 +17,12 @@ NEWS
 - fixed crash while processing specific SpeedTree meshes
 - rr_gl::Water - water effect with waves, reflection, fresnel
   \n (it's back with improved compatibility and quality)
+
+CHANGES
+
+- game engine integration projects moved from samples/ImportXXX to src/LightsprintXXX
+- cleanup: removed RRMesh::getInvWorldMatrix(), RRDynamicSolver::SmoothingParameters::subdivisionSpeed,
+  honourExpensiveLightingShadowingFlags
 
 \section news62 ------------------------------------ 2008.8.20 -------------------------------------
 
