@@ -27,19 +27,19 @@ public:
 	{
 		ValidIndices = 0;
 		unsigned numAllTriangles = inherited->getNumTriangles();
-		for(unsigned i=0;i<numAllTriangles;i++)
+		for (unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::TriangleBody tb;
 			inherited->getTriangleBody(i,tb);
-			if(tb.isNotDegenerated()) ValidIndices++;
+			if (tb.isNotDegenerated()) ValidIndices++;
 		}
 		ValidIndex = new unsigned[ValidIndices];
 		ValidIndices = 0;
-		for(unsigned i=0;i<numAllTriangles;i++)
+		for (unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::TriangleBody tb;
 			inherited->getTriangleBody(i,tb);
-			if(tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
+			if (tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
 		}
 	};
 	~RRLessTrianglesFilter()
@@ -51,16 +51,16 @@ public:
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		inherited->getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000)==INDEXED_BY_TRIANGLE)
+		if (numItems && *numItems && (channelId&0x7ffff000)==INDEXED_BY_TRIANGLE)
 		{
 			*numItems = ValidIndices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		if ((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
 		{
-			if(itemIndex<ValidIndices)
+			if (itemIndex<ValidIndices)
 			{
 				itemIndex = ValidIndex[itemIndex];
 			}
@@ -84,7 +84,7 @@ public:
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
-		if(t>=ValidIndices)
+		if (t>=ValidIndices)
 		{
 			RR_ASSERT(0); // legal but bad practise, good to be warned when it happens
 			return;
@@ -94,7 +94,7 @@ public:
 	}
 	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
-		if(t>=ValidIndices)
+		if (t>=ValidIndices)
 		{
 			RR_ASSERT(0); // legal but bad practise, good to be warned when it happens
 			return;
@@ -104,7 +104,7 @@ public:
 	}
 	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
 	{
-		if(postImportTriangle>=ValidIndices)
+		if (postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
@@ -119,8 +119,8 @@ public:
 //		RR_ASSERT(0);
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = inherited->getPostImportTriangle(preImportTriangle);
-		for(unsigned post=0;post<ValidIndices;post++)
-			if(ValidIndex[post]==midImportTriangle)
+		for (unsigned post=0;post<ValidIndices;post++)
+			if (ValidIndex[post]==midImportTriangle)
 				return post;
 		return RRMesh::UNDEFINED;
 	}
@@ -128,7 +128,7 @@ public:
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
 	// getPostImportVertex:  no conversion needed
 	{
-		if(postImportTriangle>=ValidIndices)
+		if (postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
@@ -162,19 +162,19 @@ public:
 	{
 		ValidIndices = 0;
 		unsigned numAllTriangles = INHERITED::getNumTriangles();
-		for(unsigned i=0;i<numAllTriangles;i++)
+		for (unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::TriangleBody tb;
 			INHERITED::getTriangleBody(i,tb);
-			if(tb.isNotDegenerated()) ValidIndices++;
+			if (tb.isNotDegenerated()) ValidIndices++;
 		}
 		ValidIndex = new unsigned[ValidIndices];
 		ValidIndices = 0;
-		for(unsigned i=0;i<numAllTriangles;i++)
+		for (unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::TriangleBody tb;
 			INHERITED::getTriangleBody(i,tb);
-			if(tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
+			if (tb.isNotDegenerated()) ValidIndex[ValidIndices++] = i;
 		}
 	};
 	~RRLessTrianglesImporter()
@@ -186,16 +186,16 @@ public:
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		INHERITED::getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000)==RRMesh::INDEXED_BY_TRIANGLE)
+		if (numItems && *numItems && (channelId&0x7ffff000)==RRMesh::INDEXED_BY_TRIANGLE)
 		{
 			*numItems = ValidIndices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == RRMesh::INDEXED_BY_TRIANGLE)
+		if ((channelId&0x7ffff000) == RRMesh::INDEXED_BY_TRIANGLE)
 		{
-			if(itemIndex<ValidIndices)
+			if (itemIndex<ValidIndices)
 			{
 				itemIndex = ValidIndex[itemIndex];
 			}
@@ -219,7 +219,7 @@ public:
 	}
 	virtual RRMesh::PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
 	{
-		if(postImportTriangle>=ValidIndices)
+		if (postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
@@ -234,8 +234,8 @@ public:
 		//RR_ASSERT(0); // called from RRMeshCopy
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = INHERITED::getPostImportTriangle(preImportTriangle);
-		for(unsigned post=0;post<ValidIndices;post++)
-			if(ValidIndex[post]==midImportTriangle)
+		for (unsigned post=0;post<ValidIndices;post++)
+			if (ValidIndex[post]==midImportTriangle)
 				return post;
 		return RRMesh::UNDEFINED;
 	}
@@ -243,7 +243,7 @@ public:
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
 	// getPostImportVertex:  no conversion needed
 	{
-		if(postImportTriangle>=ValidIndices)
+		if (postImportTriangle>=ValidIndices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);

@@ -23,16 +23,16 @@ void Autopilot::reportInteraction()
 // generates new positions for eye, camera, characters
 const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 {
-	if(setup->frames.size()==0)
+	if (setup->frames.size()==0)
 		return NULL;
 
 	pilotedFrames++;
 	*lightsChanged = false;
 	secondsSinceLastInteraction += seconds;
-	if(!enabled 
+	if (!enabled 
 		&& pilotedFrames>1) // must be enabled at least for one frame in each level
 	{
-		if(secondsSinceLastInteraction>TIME_TO_AUTOPILOT)
+		if (secondsSinceLastInteraction>TIME_TO_AUTOPILOT)
 			enabled = true;
 		else
 			return NULL;
@@ -40,7 +40,7 @@ const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 	secondsSinceFrameA += seconds;
 	float secondsOfTransition = secondsSinceFrameA - TIME_OF_STAY_STILL;
 	float alpha = 0; // 0..1 where 0 is frameA, 1 is frameB
-	if(secondsSinceFrameA!=seconds // uz nevim proc
+	if (secondsSinceFrameA!=seconds // uz nevim proc
 		&& secondsOfTransition<0)
 	{
 		// part with no change
@@ -49,7 +49,7 @@ const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 	{
 		// transition from frameA to frameB
 		alpha = secondsOfTransition/TIME_OF_FLIGHT;
-		if(alpha>1)
+		if (alpha>1)
 		{
 			frameA = frameB;
 			frameB = getNextFrame();
@@ -71,16 +71,16 @@ bool Autopilot::isTimeToChangeLevel()
 // picks next frame that was less often selected
 unsigned Autopilot::getNextFrame()
 {
-	if(!setup->frames.size())
+	if (!setup->frames.size())
 	{
 		return 0;
 	}
 	//static unsigned q=0;return q++%LevelSetup::MAX_FRAMES;//!!!
 	unsigned best = 0;
-	for(unsigned i=0;i<100;i++)
+	for (unsigned i=0;i<100;i++)
 	{
 		unsigned j = rand()%setup->frames.size();
-		if(frameVisitedTimes[j]<frameVisitedTimes[best]) best = j;			
+		if (frameVisitedTimes[j]<frameVisitedTimes[best]) best = j;			
 	}
 	frameVisitedTimes[best]++;
 	return best;

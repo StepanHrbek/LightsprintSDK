@@ -54,7 +54,7 @@
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	if(gfxRelated)
+	if (gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -119,7 +119,7 @@ public:
 		// enable object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// when not rendering into shadowmaps, enable environment maps
-		if(uberProgramSetup.LIGHT_DIRECT)
+		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
@@ -128,21 +128,21 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 		}
 		// render objects
-		if(robot)
+		if (robot)
 		{
 			robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 			robot->rotYZ = rr::RRVec2(rotation,0);
 			robot->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 				updateEnvironmentMap(robot->illumination);
 			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
-		if(potato)
+		if (potato)
 		{
 			potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
 			potato->rotYZ = rr::RRVec2(rotation/2,0);
 			potato->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 				updateEnvironmentMap(potato->illumination);
 			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
@@ -195,7 +195,7 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ':
 			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			rotation = (clock()%10000000)*0.07f;
-			for(unsigned i=0;i<solver->realtimeLights.size();i++)
+			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 			{
 				solver->reportDirectIlluminationChange(i,true,true);
 			}
@@ -210,7 +210,7 @@ void keyboard(unsigned char c, int x, int y)
 		case '8':
 		case '9':
 			selectedLightIndex = MIN(c-'1',(int)solver->getLights().size()-1);
-			if(solver->realtimeLights.size()) modeMovingEye = false;
+			if (solver->realtimeLights.size()) modeMovingEye = false;
 			break;
 
 		case 27:
@@ -240,16 +240,16 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
 		modeMovingEye = !modeMovingEye;
 #ifdef GLUT_WHEEL_UP
-	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+		if (eye.fieldOfView>13) eye.fieldOfView -= 10;
 	}
-	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+		if (eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
 #endif
 	solver->reportInteraction();
@@ -257,18 +257,18 @@ void mouse(int button, int state, int x, int y)
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if(modeMovingEye)
+		if (modeMovingEye)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
@@ -294,11 +294,11 @@ void passive(int x, int y)
 
 void display(void)
 {
-	if(!winWidth || !winHeight)
+	if (!winWidth || !winHeight)
 	{
 		winWidth = glutGet(GLUT_WINDOW_WIDTH);
 		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
-		if(!winWidth || !winHeight) return; // can't display without window
+		if (!winWidth || !winHeight) return; // can't display without window
 		reshape(winWidth,winHeight);
 	}
 
@@ -327,23 +327,23 @@ void display(void)
 
 void idle()
 {
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 
 	// smooth keyboard movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getParent();
-		if(speedForward) cam->moveForward(speedForward*seconds);
-		if(speedBack) cam->moveBack(speedBack*seconds);
-		if(speedRight) cam->moveRight(speedRight*seconds);
-		if(speedLeft) cam->moveLeft(speedLeft*seconds);
-		if(speedForward || speedBack || speedRight || speedLeft)
+		if (speedForward) cam->moveForward(speedForward*seconds);
+		if (speedBack) cam->moveBack(speedBack*seconds);
+		if (speedRight) cam->moveRight(speedRight*seconds);
+		if (speedLeft) cam->moveLeft(speedLeft*seconds);
+		if (speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam!=&eye) 
+			if (cam!=&eye) 
 			{
 				solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 			}
@@ -368,7 +368,7 @@ int main(int argc, char **argv)
 #endif // _WIN32
 
 	// check for version mismatch
-	if(!RR_INTERFACE_OK)
+	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
@@ -386,11 +386,11 @@ int main(int argc, char **argv)
 	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint RealtimeLights"); // for windowed mode
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -400,14 +400,14 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
-	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
+	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	SetCurrentDirectoryA(exedir);
 	free(exedir);
 #endif // _WIN32
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 	solver = new Solver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
@@ -428,13 +428,13 @@ int main(int argc, char **argv)
 	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
-	if(!solver->getMultiObjectCustom())
+	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init lights
 	solver->setLights(*scene->getLights());
 	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	for(unsigned i=0;i<solver->realtimeLights.size();i++)
+	for (unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 
 	// Uncomment to view scene in sceneViewer.

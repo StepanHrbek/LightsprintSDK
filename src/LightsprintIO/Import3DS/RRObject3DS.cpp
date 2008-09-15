@@ -104,10 +104,10 @@ static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 	// for diffuse textures provided by 3ds, 
 	// it is sufficient to compute average texture color
 	rr::RRVec3 avg = rr::RRVec3(0);
-	if(m->tex)
+	if (m->tex)
 	{
-		for(unsigned i=0;i<size;i++)
-			for(unsigned j=0;j<size;j++)
+		for (unsigned i=0;i<size;i++)
+			for (unsigned j=0;j<size;j++)
 			{
 				avg += m->tex->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
 			}
@@ -138,9 +138,9 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 	model = amodel;
 	object = &model->Objects[objectIdx];
 
-	for(unsigned i=0;i<(unsigned)object->numMatFaces;i++)
+	for (unsigned i=0;i<(unsigned)object->numMatFaces;i++)
 	{
-		for(unsigned j=0;j<(unsigned)object->MatFaces[i].numSubFaces/3;j++)
+		for (unsigned j=0;j<(unsigned)object->MatFaces[i].numSubFaces/3;j++)
 		{
 			TriangleInfo ti;
 			ti.t[0] = object->MatFaces[i].subFaces[3*j];
@@ -151,7 +151,7 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 		}
 	}
 
-	for(unsigned i=0;i<(unsigned)model->numMaterials;i++)
+	for (unsigned i=0;i<(unsigned)model->numMaterials;i++)
 	{
 		rr::RRMaterial s;
 		fillMaterial(&s,&model->Materials[i]);
@@ -191,8 +191,8 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if(numItems) *numItems = RRObject3DS::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
+			if (numItems) *numItems = RRObject3DS::getNumTriangles();
+			if (itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
 			// unsupported channel
@@ -202,7 +202,7 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 
 bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
-	if(!itemData)
+	if (!itemData)
 	{
 		assert(0);
 		return false;
@@ -213,21 +213,21 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 		{
-			if(itemIndex>=RRObject3DS::getNumTriangles())
+			if (itemIndex>=RRObject3DS::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef rr::RRVec2 Out[3];
 			Out* out = (Out*)itemData;
-			if(sizeof(*out)!=itemSize)
+			if (sizeof(*out)!=itemSize)
 			{
 				assert(0);
 				return false;
 			}
 			Triangle triangle;
 			RRObject3DS::getTriangle(itemIndex,triangle);
-			for(unsigned v=0;v<3;v++)
+			for (unsigned v=0;v<3;v++)
 			{
 				(*out)[v][0] = object->TexCoords[2*triangle[v]];
 				(*out)[v][1] = object->TexCoords[2*triangle[v]+1];
@@ -236,14 +236,14 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 		}
 		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
-			if(itemIndex>=RRObject3DS::getNumTriangles())
+			if (itemIndex>=RRObject3DS::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef rr::RRObjectIllumination* Out;
 			Out* out = (Out*)itemData;
-			if(sizeof(*out)!=itemSize)
+			if (sizeof(*out)!=itemSize)
 			{
 				assert(0);
 				return false;
@@ -281,7 +281,7 @@ unsigned RRObject3DS::getNumTriangles() const
 
 void RRObject3DS::getTriangle(unsigned t, Triangle& out) const
 {
-	if(t>=RRObject3DS::getNumTriangles()) 
+	if (t>=RRObject3DS::getNumTriangles()) 
 	{
 		assert(0);
 		return;
@@ -301,13 +301,13 @@ const rr::RRCollider* RRObject3DS::getCollider() const
 
 const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
 {
-	if(t>=RRObject3DS::getNumTriangles())
+	if (t>=RRObject3DS::getNumTriangles())
 	{
 		assert(0);
 		return NULL;
 	}
 	unsigned s = triangles[t].s;
-	if(s>=materials.size())
+	if (s>=materials.size())
 	{
 		assert(0);
 		return NULL;
@@ -317,14 +317,14 @@ const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRL
 
 void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if(t>=RRObject3DS::getNumTriangles())
+	if (t>=RRObject3DS::getNumTriangles())
 	{
 		assert(0);
 		return;
 	}
 	Triangle triangle;
 	RRObject3DS::getTriangle(t,triangle);
-	for(unsigned v=0;v<3;v++)
+	for (unsigned v=0;v<3;v++)
 	{
 		out.vertex[v].normal[0] = object->Normals[3*triangle[v]];
 		out.vertex[v].normal[1] = object->Normals[3*triangle[v]+1];
@@ -357,7 +357,7 @@ class ObjectsFrom3DS : public rr::RRObjects
 public:
 	ObjectsFrom3DS(Model_3DS* model)
 	{
-		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
+		for (unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
 			RRObject3DS* object = new RRObject3DS(model,i);
 			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
@@ -365,7 +365,7 @@ public:
 	}
 	virtual ~ObjectsFrom3DS()
 	{
-		for(unsigned i=0;i<size();i++)
+		for (unsigned i=0;i<size();i++)
 		{
 			// no need to delete illumination separately, we created it as part of object
 			//delete (*this)[i].illumination;

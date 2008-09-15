@@ -45,11 +45,11 @@ public:
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		const RRMaterial* surf = inherited->getTriangleMaterial(t,light,receiver);
-		if(!surf || negScaleMakesOuterInner) return surf;
+		if (!surf || negScaleMakesOuterInner) return surf;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
-		if(!m) return surf;
+		if (!m) return surf;
 		bool negScale = m->determinant3x3()<0;
-		if(!negScale) return surf;
+		if (!negScale) return surf;
 		//!!! neni thread safe
 		static RRMaterial surf2 = *surf;
 		surf2.sideBits[0] = surf->sideBits[1];
@@ -60,10 +60,10 @@ public:
 	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 	{
 		inherited->getPointMaterial(t,uv,out);
-		if(!negScaleMakesOuterInner)
+		if (!negScaleMakesOuterInner)
 		{
 			const RRMatrix3x4* m = inherited->getWorldMatrix();
-			if(m && m->determinant3x3()<0)
+			if (m && m->determinant3x3()<0)
 			{
 				RRSideBits tmpBits = out.sideBits[0];
 				out.sideBits[0] = out.sideBits[1];

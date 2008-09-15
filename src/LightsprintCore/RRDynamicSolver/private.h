@@ -83,7 +83,7 @@ namespace rr
 			scaler = NULL;
 			boostCustomIrradiance = 1;
 			// scale: function of inputs
-			for(unsigned i=0;i<256;i++)
+			for (unsigned i=0;i<256;i++)
 			{
 				customToPhysical[i] = i/255.f;
 			}
@@ -114,9 +114,9 @@ namespace rr
 			RR_SAFE_DELETE(scene);
 			// be careful:
 			// 1. physical==custom (when no scaler) -> don't delete physical
-			if(multiObjectPhysical==multiObjectCustom) multiObjectPhysical = NULL;
+			if (multiObjectPhysical==multiObjectCustom) multiObjectPhysical = NULL;
 			// 2. forced (in sceneViewer) -> don't delete custom
-			if(forcedMultiObjectCustom) multiObjectCustom = NULL;
+			if (forcedMultiObjectCustom) multiObjectCustom = NULL;
 			// 3. both -> don't delete 
 			RR_SAFE_DELETE(multiObjectCustom);
 			RR_SAFE_DELETE(multiObjectPhysical);

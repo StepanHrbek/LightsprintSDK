@@ -114,45 +114,45 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
 	const char* strippedName = m->mName;
-	if(stripPaths)
+	if (stripPaths)
 	{
-		while(strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
+		while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
 	}
 	const char* exts[3]={".jpg",".png",".tga"};
-	for(unsigned e=0;e<3;e++)
+	for (unsigned e=0;e<3;e++)
 	{
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,strippedName,exts[e]);
 		buf[299]=0;
 		t = rr::RRBuffer::load(buf,NULL,true,false);
 #ifdef MARK_OPENED
-		if(t) _chmod(buf,_S_IREAD); // mark opened files read only
+		if (t) _chmod(buf,_S_IREAD); // mark opened files read only
 #endif
-		//if(t) {puts(buf);break;}
-		if(t) break;
-		//if(e==2) printf("Not found: %s\n",buf);
+		//if (t) {puts(buf);break;}
+		if (t) break;
+		//if (e==2) printf("Not found: %s\n",buf);
 	}
 	rr::RRReporter::setReporter(oldReporter);
-	if(!t)
+	if (!t)
 	{
 		t = fallback;
-		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
+		if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
 			rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
 	rr::RRVec4 avg = rr::RRVec4(0);
-	if(t)
+	if (t)
 	{
-		for(unsigned i=0;i<size;i++)
-			for(unsigned j=0;j<size;j++)
+		for (unsigned i=0;i<size;i++)
+			for (unsigned j=0;j<size;j++)
 			{
 				avg += t->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha
-		if(avg[3]==0) avg[3]=1; // all pixels 100% transparent? must be special material we can't handle, make it fully opaque, better than invisible
+		if (avg[3]==0) avg[3]=1; // all pixels 100% transparent? must be special material we can't handle, make it fully opaque, better than invisible
 	}
 
 	// set all properties to default
@@ -179,31 +179,31 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 #ifdef PACK_VERTICES
 	// prepare for unused vertex removal
 	unsigned* xlat = new unsigned[model->mVertices.size()]; // old vertexIdx to new vertexIdx, UINT_MAX=unknown yet
-	for(unsigned i=0;i<(unsigned)model->mVertices.size();i++) xlat[i] = UINT_MAX;
+	for (unsigned i=0;i<(unsigned)model->mVertices.size();i++) xlat[i] = UINT_MAX;
 #endif
 
-	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
+	for (unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
 		rr::RRMaterial material;
 		bool triedLoadTexture = false;
-		for(unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
-		for(unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
+		for (unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
+		for (unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
 		{
-			if(model->mFaces[f].mTextureIndex==s)
-			//if(materials[model->mFaces[i].mTextureIndex].texture)
+			if (model->mFaces[f].mTextureIndex==s)
+			//if (materials[model->mFaces[i].mTextureIndex].texture)
 			{
-				if(model->mFaces[f].mType==1)
+				if (model->mFaces[f].mType==1)
 				{
-					for(unsigned j=(unsigned)model->mFaces[f].mMeshVertex;j<(unsigned)(model->mFaces[f].mMeshVertex+model->mFaces[f].mNbMeshVertices);j+=3)
+					for (unsigned j=(unsigned)model->mFaces[f].mMeshVertex;j<(unsigned)(model->mFaces[f].mMeshVertex+model->mFaces[f].mNbMeshVertices);j+=3)
 					{
 						// try load texture when it is mapped on at least 1 triangle
-						if(!triedLoadTexture)
+						if (!triedLoadTexture)
 						{
 							fillMaterial(material,&model->mTextures[s],pathToTextures,stripPaths,missingTexture);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
-						if(material.diffuseReflectance.texture)
+						if (material.diffuseReflectance.texture)
 						{
 							TriangleInfo ti;
 							ti.t[0] = model->mFaces[f].mVertex + model->mMeshVertices[j  ].mMeshVert;
@@ -212,23 +212,23 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 							ti.s = model->mFaces[f].mTextureIndex;
 
 							// clip parts of scene never visible in Lightsmark 2008
-							if(lightsmark)
+							if (lightsmark)
 							{
 								unsigned clipped = 0;
-								for(unsigned v=0;v<3;v++)
+								for (unsigned v=0;v<3;v++)
 								{
 									float y = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
 									float z = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
-									if(y<-18.2f || z>11.5f) clipped++;
+									if (y<-18.2f || z>11.5f) clipped++;
 								}
-								if(clipped==3) continue;
+								if (clipped==3) continue;
 							}
 
 #ifdef PACK_VERTICES
 							// pack vertices, remove unused
-							for(unsigned v=0;v<3;v++)
+							for (unsigned v=0;v<3;v++)
 							{
-								if(xlat[ti.t[v]]==UINT_MAX)
+								if (xlat[ti.t[v]]==UINT_MAX)
 								{
 									xlat[ti.t[v]] = (unsigned)vertices.size();
 									VertexInfo vi;
@@ -258,9 +258,9 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 					}
 				}
 			//else
-			//if(model->mFaces[i].mType==3)
+			//if (model->mFaces[i].mType==3)
 			//{
-			//	for(unsigned j=0;j<(unsigned)model->mFaces[i].mNbVertices;j+=3)
+			//	for (unsigned j=0;j<(unsigned)model->mFaces[i].mNbVertices;j+=3)
 			//	{
 			//		TriangleInfo ti;
 			//		ti.t[0] = model->mFaces[i].mVertex+j;
@@ -298,7 +298,7 @@ rr::RRObjectIllumination* RRObjectBSP::getIllumination()
 
 RRObjectBSP::~RRObjectBSP()
 {
-	for(unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
+	for (unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
 	delete illumination;
 	delete collider;
 }
@@ -313,8 +313,8 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 	{
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
+			if (numItems) *numItems = RRObjectBSP::getNumTriangles();
+			if (itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
 			// unsupported channel
@@ -324,7 +324,7 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 
 bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
-	if(!itemData)
+	if (!itemData)
 	{
 		assert(0);
 		return false;
@@ -334,21 +334,21 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 		{
-			if(itemIndex>=RRObjectBSP::getNumTriangles())
+			if (itemIndex>=RRObjectBSP::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef rr::RRVec2 Out[3];
 			Out* out = (Out*)itemData;
-			if(sizeof(*out)!=itemSize)
+			if (sizeof(*out)!=itemSize)
 			{
 				assert(0);
 				return false;
 			}
 			Triangle triangle;
 			RRObjectBSP::getTriangle(itemIndex,triangle);
-			for(unsigned v=0;v<3;v++)
+			for (unsigned v=0;v<3;v++)
 			{
 #ifdef PACK_VERTICES
 				(*out)[v] = vertices[triangle[v]].texCoordDiffuse;
@@ -361,14 +361,14 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 		}
 		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
-			if(itemIndex>=RRObjectBSP::getNumTriangles())
+			if (itemIndex>=RRObjectBSP::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
 			typedef rr::RRObjectIllumination* Out;
 			Out* out = (Out*)itemData;
-			if(sizeof(*out)!=itemSize)
+			if (sizeof(*out)!=itemSize)
 			{
 				assert(0);
 				return false;
@@ -418,7 +418,7 @@ unsigned RRObjectBSP::getNumTriangles() const
 
 void RRObjectBSP::getTriangle(unsigned t, Triangle& out) const
 {
-	if(t>=RRObjectBSP::getNumTriangles()) 
+	if (t>=RRObjectBSP::getNumTriangles()) 
 	{
 		assert(0);
 		return;
@@ -429,14 +429,14 @@ void RRObjectBSP::getTriangle(unsigned t, Triangle& out) const
 /*
 void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if(t>=RRObjectBSP::getNumTriangles())
+	if (t>=RRObjectBSP::getNumTriangles())
 	{
 		assert(0);
 		return;
 	}
 	Triangle triangle;
 	RRObjectBSP::getTriangle(t,triangle);
-	for(unsigned v=0;v<3;v++)
+	for (unsigned v=0;v<3;v++)
 	{
 		// nejsem si jisty jestli je to takhle dobre
 		out.norm[v][0] = model->mVertices[triangle[v]].mNormal[0];
@@ -449,7 +449,7 @@ void RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
 	Triangle triangle;
 	RRObjectBSP::getTriangle(t,triangle);
-	for(unsigned v=0;v<3;v++)
+	for (unsigned v=0;v<3;v++)
 	{
 #ifdef PACK_VERTICES
 		out.uv[v] = vertices[triangle[v]].texCoordLightmap;
@@ -472,13 +472,13 @@ const rr::RRCollider* RRObjectBSP::getCollider() const
 
 const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
 {
-	if(t>=RRObjectBSP::getNumTriangles())
+	if (t>=RRObjectBSP::getNumTriangles())
 	{
 		assert(0);
 		return NULL;
 	}
 	unsigned s = triangles[t].s;
-	if(s>=materials.size())
+	if (s>=materials.size())
 	{
 		assert(0);
 		return NULL;
@@ -494,7 +494,7 @@ void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out)
 	// In your implementations, prefer simple lookups, avoid for cycles.
 	// Use profiler to see what percentage of time is spent in getPointMaterial().
 	const rr::RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
-	if(material)
+	if (material)
 	{
 		out = *material;
 	}
@@ -502,7 +502,7 @@ void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out)
 	{
 		out.reset(false);
 	}
-	if(material->diffuseReflectance.texture)
+	if (material->diffuseReflectance.texture)
 	{
 		rr::RRVec2 mapping[3];
 		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
@@ -510,7 +510,7 @@ void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out)
 		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(uv[0],uv[1],0));
 		out.diffuseReflectance.color = rgba * rgba[3];
 		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
-		if(rgba[3]==0)
+		if (rgba[3]==0)
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 	}
 }

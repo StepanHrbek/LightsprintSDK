@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
 	// provide license information
 	const char* licError = loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		RRReporter::report(ERRO,"%s\n",licError);
 
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 		ray->rayFlags = RRRay::FILL_TRIANGLE | RRRay::FILL_DISTANCE;
 		ray->rayLengthMin = 0;
 		// perform intersection tests
-		for(int i=0; i<NUM_RAYS/num_threads; ++i)
+		for (int i=0; i<NUM_RAYS/num_threads; ++i)
 		{
 			static const PoolVec3 AABB_CENTER = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 			static const float RADIUS = 0.2f;//radius of sphere
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 			PoolVec3 rayend = vecpool.getVec();//get random point on unit ball from pool
 			PoolVec3 dir = rayend - rayorigin;
 			float size = sqrtf((dir.x*dir.x)+(dir.y*dir.y)+(dir.z*dir.z));
-			if(size==0) continue;
+			if (size==0) continue;
 
 			//form the ray object
 			ray->rayOrigin[0] = rayorigin.x*RADIUS+AABB_CENTER.x;
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 			ray->rayLengthMax = size;
 
 			//do the trace
-			if(collider->intersect(ray))
+			if (collider->intersect(ray))
 				num_hits++;//count the hit.
 		}
 		// cleanup

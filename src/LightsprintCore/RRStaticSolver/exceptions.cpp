@@ -11,7 +11,7 @@ namespace rr
 
 IVertex *Object::newIVertex()
 {
-	if(IVertexPoolItemsUsed>=IVertexPoolItems) 
+	if (IVertexPoolItemsUsed>=IVertexPoolItems) 
 	{
 		IVertex *old=IVertexPool;
 		unsigned newIVertexPoolItems=MIN(MAX(IVertexPoolItems,128)*2,32768);
@@ -37,7 +37,7 @@ Object* Object::create(int _vertices,int _triangles)
 	Object* o = new Object();
 	unsigned size1 = (sizeof(RRVec3)*_vertices+sizeof(Triangle)*_triangles);
 	unsigned size2 = sizeof(IVertex)*_vertices;
-	if(size1+size2>10000000)
+	if (size1+size2>10000000)
 		RRReporter::report(INF1,"Memory taken by static solver: %d+%dMB\n",size1/1024/1024,size2/1024/1024);
 	try
 	{

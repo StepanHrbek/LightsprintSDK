@@ -29,13 +29,13 @@ public:
 	RRObjectOBJ(const char* filename, float scale)
 	{
 		FILE* f = fopen(filename,"rt");
-		if(f)
+		if (f)
 		{
 			char line[100];
-			while(fgets(line,100,f))
+			while (fgets(line,100,f))
 			{
 				VertexInfo v;
-				if(sscanf(line,"v %f %f %f",&v.pos[0],&v.pos[1],&v.pos[2])==3)
+				if (sscanf(line,"v %f %f %f",&v.pos[0],&v.pos[1],&v.pos[2])==3)
 				{
 					v.pos *= scale;
 					vertices.push_back(v);
@@ -43,13 +43,13 @@ public:
 				int indices[4];
 				int unused;
 				int polySize;
-				if((polySize=sscanf(line,"f %d %d %d %d\n",indices+0,indices+1,indices+2,indices+3))>=3
+				if ((polySize=sscanf(line,"f %d %d %d %d\n",indices+0,indices+1,indices+2,indices+3))>=3
 					|| (polySize=sscanf(line,"f %d/%d %d/%d %d/%d %d/%d\n",indices+0,&unused,indices+1,&unused,indices+2,&unused,indices+3,&unused)/2)>=3
 					|| (polySize=sscanf(line,"f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n",indices+0,&unused,&unused,indices+1,&unused,&unused,indices+2,&unused,&unused,indices+3,&unused,&unused)/3)>=3)
 				{
 					TriangleInfo t;
 					t.indices[0] = (indices[0]<0) ? (unsigned)(indices[0]+vertices.size()) : indices[0];
-					for(int i=2;i<polySize;i++)
+					for (int i=2;i<polySize;i++)
 					{
 						t.indices[1] = (indices[i-1]<0) ? (unsigned)(indices[i-1]+vertices.size()) : indices[i-1];
 						t.indices[2] = (indices[i]<0) ? (unsigned)(indices[i]+vertices.size()) : indices[i];
@@ -140,14 +140,14 @@ public:
 	ObjectsFromOBJ(const char* filename, float scale)
 	{
 		RRObjectOBJ* object = new RRObjectOBJ(filename,scale);
-		if(object->getNumTriangles())
+		if (object->getNumTriangles())
 			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
 		else
 			delete object;
 	}
 	virtual ~ObjectsFromOBJ()
 	{
-		if(size())
+		if (size())
 			delete (*this)[0].object;
 	}
 };

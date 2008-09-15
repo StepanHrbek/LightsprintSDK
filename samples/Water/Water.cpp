@@ -30,7 +30,7 @@
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	if(gfxRelated)
+	if (gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -56,7 +56,7 @@ int                     winHeight = 0;
 
 void display(void)
 {
-	if(!winWidth || !winHeight) return; // can't display without window
+	if (!winWidth || !winHeight) return; // can't display without window
 
 	// init water reflection
 	water->updateReflectionInit(winWidth/4,winHeight/4,&eye);
@@ -92,11 +92,11 @@ void reshape(int w, int h)
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 		eye.angle -= 0.005*x;
 		eye.angleX -= 0.005*y;
@@ -133,11 +133,11 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);

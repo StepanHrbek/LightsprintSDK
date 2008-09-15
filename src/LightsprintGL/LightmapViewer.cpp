@@ -57,7 +57,7 @@ void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _me
 {
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
 	mesh = _mesh;
-	if(buffer)
+	if (buffer)
 	{
 		getTexture(buffer);
 		glActiveTexture(GL_TEXTURE0);
@@ -76,16 +76,16 @@ LightmapViewer::~LightmapViewer()
 
 void LightmapViewer::mouse(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		alpha = !alpha;
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
-	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		zoom *= 0.625f;
 	}
-	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
 		zoom *= 1.6f;
 	}
@@ -99,7 +99,7 @@ void LightmapViewer::passive(int x, int y)
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 		center[0] += 2*x/zoom;
 		center[1] -= 2*y/zoom;
@@ -127,7 +127,7 @@ rr::RRVec2 LightmapViewer::getCenterUv()
 
 void LightmapViewer::display()
 {
-	if(!lmapProgram || !lmapAlphaProgram || !lineProgram)
+	if (!lmapProgram || !lmapAlphaProgram || !lineProgram)
 	{
 		RR_ASSERT(0);
 		return;
@@ -149,7 +149,7 @@ void LightmapViewer::display()
 	bh = (unsigned)(mult*bh);
 
 	// render lightmap
-	if(buffer)
+	if (buffer)
 	{
 		float x = 0.5f + ( center[0] - bw*0.5f )*zoom/winWidth;
 		float y = 0.5f + ( center[1] - bh*0.5f )*zoom/winHeight;
@@ -174,21 +174,21 @@ void LightmapViewer::display()
 	}
 
 	// render mapping edges
-	if(mesh)
+	if (mesh)
 	{
 		lineProgram->useIt();
 		lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
 		glBegin(GL_LINES);
-		for(unsigned i=0;i<mesh->getNumTriangles();i++)
+		for (unsigned i=0;i<mesh->getNumTriangles();i++)
 		{
 			rr::RRMesh::TriangleMapping mapping;
 			mesh->getTriangleMapping(i,mapping);
-			for(unsigned j=0;j<3;j++)
+			for (unsigned j=0;j<3;j++)
 			{
 				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/winWidth;
 				mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/winHeight;
 			}
-			for(unsigned j=0;j<3;j++)
+			for (unsigned j=0;j<3;j++)
 			{
 				glVertex2fv(&mapping.uv[j].x);
 				glVertex2fv(&mapping.uv[(j+1)%3].x);

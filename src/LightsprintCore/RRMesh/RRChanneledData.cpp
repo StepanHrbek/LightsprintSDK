@@ -12,8 +12,8 @@ namespace rr
 void RRChanneledData::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	// legal query for presence of channel
-	if(numItems) *numItems = 0;
-	if(itemSize) *itemSize = 0;
+	if (numItems) *numItems = 0;
+	if (itemSize) *itemSize = 0;
 }
 
 bool RRChanneledData::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const

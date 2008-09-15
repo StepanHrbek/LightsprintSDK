@@ -28,12 +28,12 @@ void* RRUniformlyAllocated::operator new[](std::size_t n)
 
 void RRUniformlyAllocated::operator delete(void* p, std::size_t n)
 {
-	if(p) free(p);
+	if (p) free(p);
 };
 
 void RRUniformlyAllocated::operator delete[](void* p, std::size_t n)
 {
-	if(p) free(p);
+	if (p) free(p);
 };
 
 
@@ -70,12 +70,12 @@ void* RRAligned::operator new[](std::size_t n)
 
 void RRAligned::operator delete(void* p, std::size_t n)
 {
-	if(p) AlignedFree(p);
+	if (p) AlignedFree(p);
 };
 
 void RRAligned::operator delete[](void* p, std::size_t n)
 {
-	if(p) AlignedFree(p);
+	if (p) AlignedFree(p);
 };
 
 } //namespace

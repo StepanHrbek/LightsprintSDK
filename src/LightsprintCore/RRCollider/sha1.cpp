@@ -243,12 +243,12 @@ static void sha1_process( sha1_context *ctx, unsigned char data[64] )
 void sha1_update( sha1_context *ctx, unsigned char *input, int ilen )
 {
 #ifdef SAVE_TO_FILE
-	if(ff) fwrite(input,ilen,1,ff);
+	if (ff) fwrite(input,ilen,1,ff);
 #endif
     int fill;
     unsigned long left;
 
-    if( ilen <= 0 )
+    if ( ilen <= 0 )
         return;
 
     left = ctx->total[0] & 0x3F;
@@ -257,10 +257,10 @@ void sha1_update( sha1_context *ctx, unsigned char *input, int ilen )
     ctx->total[0] += ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (unsigned long) ilen )
+    if ( ctx->total[0] < (unsigned long) ilen )
         ctx->total[1]++;
 
-    if( left && ilen >= fill )
+    if ( left && ilen >= fill )
     {
         memcpy( (void *) (ctx->buffer + left),
                 (void *) input, fill );
@@ -270,14 +270,14 @@ void sha1_update( sha1_context *ctx, unsigned char *input, int ilen )
         left = 0;
     }
 
-    while( ilen >= 64 )
+    while ( ilen >= 64 )
     {
         sha1_process( ctx, input );
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 )
+    if ( ilen > 0 )
     {
         memcpy( (void *) (ctx->buffer + left),
                 (void *) input, ilen );
@@ -298,7 +298,7 @@ static const unsigned char sha1_padding[64] =
 void sha1_finish( sha1_context *ctx, unsigned char *output )
 {
 #ifdef SAVE_TO_FILE
-	if(ff) fclose(ff);
+	if (ff) fclose(ff);
 #endif
     unsigned long last, padn;
     unsigned long high, low;
@@ -349,19 +349,19 @@ int sha1_file( char *path, unsigned char *output )
     sha1_context ctx;
     unsigned char buf[1024];
 
-    if( ( f = fopen( path, "rb" ) ) == NULL )
+    if ( ( f = fopen( path, "rb" ) ) == NULL )
         return( 1 );
 
     sha1_starts( &ctx );
 
-    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+    while ( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
         sha1_update( &ctx, buf, (int) n );
 
     sha1_finish( &ctx, output );
 
     memset( &ctx, 0, sizeof( sha1_context ) );
 
-    if( ferror( f ) != 0 )
+    if ( ferror( f ) != 0 )
     {
         fclose( f );
         return( 2 );
@@ -382,9 +382,9 @@ void sha1_hmac_starts( sha1_context *ctx,
     memset( ctx->ipad, 0x36, 64 );
     memset( ctx->opad, 0x5C, 64 );
 
-    for( i = 0; i < keylen; i++ )
+    for ( i = 0; i < keylen; i++ )
     {
-        if( i >= 64 ) break;
+        if ( i >= 64 ) break;
 
         ctx->ipad[i] ^= key[i];
         ctx->opad[i] ^= key[i];
@@ -468,38 +468,38 @@ int sha1_self_test( int verbose )
     unsigned char sha1sum[20];
     sha1_context ctx;
 
-    for( i = 0; i < 3; i++ )
+    for ( i = 0; i < 3; i++ )
     {
-        if( verbose != 0 )
+        if ( verbose != 0 )
             printf( "  SHA-1 test #%d: ", i + 1 );
 
         sha1_starts( &ctx );
 
-        if( i < 2 )
+        if ( i < 2 )
             sha1_update( &ctx, (unsigned char *) sha1_test_str[i],
                          strlen( sha1_test_str[i] ) );
         else
         {
             memset( buf, 'a', 1000 );
-            for( j = 0; j < 1000; j++ )
+            for ( j = 0; j < 1000; j++ )
                 sha1_update( &ctx, buf, 1000 );
         }
 
         sha1_finish( &ctx, sha1sum );
 
-        if( memcmp( sha1sum, sha1_test_sum[i], 20 ) != 0 )
+        if ( memcmp( sha1sum, sha1_test_sum[i], 20 ) != 0 )
         {
-            if( verbose != 0 )
+            if ( verbose != 0 )
                 printf( "failed\n" );
 
             return( 1 );
         }
 
-        if( verbose != 0 )
+        if ( verbose != 0 )
             printf( "passed\n" );
     }
 
-    if( verbose != 0 )
+    if ( verbose != 0 )
         printf( "\n" );
 
     return( 0 );

@@ -27,23 +27,23 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	fragment = NULL;
 	linked = 0;
 
-	if(showLog)
+	if (showLog)
 	{
 		rr::RRReporter::report(rr::INF1,"Building %s + %s\n",vertexShader,fragmentShader);
-		if(defines && defines[0]) rr::RRReporter::report(rr::INF1,"%s",defines);
+		if (defines && defines[0]) rr::RRReporter::report(rr::INF1,"%s",defines);
 	}
 
-	if(vertexShader)
+	if (vertexShader)
 	{
 		vertex = Shader::create(defines, vertexShader, GL_VERTEX_SHADER);
-		if(!vertex) goto end;
+		if (!vertex) goto end;
 		glAttachShader(handle, vertex->getHandle());
 	}
 
-	if(fragmentShader)
+	if (fragmentShader)
 	{
 		fragment = Shader::create(defines, fragmentShader, GL_FRAGMENT_SHADER);
-		if(!fragment) goto end;
+		if (!fragment) goto end;
 		glAttachShader(handle, fragment->getHandle());
 	}
 
@@ -54,13 +54,13 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	// store result
 	linked = alinked && logLooksSafe();
 
-	if(showLog)
+	if (showLog)
 	{
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
-		if(!alinked)
+		if (!alinked)
 			rr::RRReporter::report(rr::INF1,"Link failed%c\n",(debugLength>2)?':':'.');
-		if(debugLength>2)
+		if (debugLength>2)
 		{
 			GLchar *debug = new GLchar[debugLength];
 			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
@@ -69,7 +69,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 		}
 	}
 end:
-	if(showLog)
+	if (showLog)
 	{
 		rr::RRReporter::report(rr::INF1,"\n");
 	}
@@ -86,7 +86,7 @@ Program::~Program()
 Program* Program::create(const char* defines, const char* vertexShader, const char* fragmentShader)
 {
 	Program* res = new Program(defines,vertexShader,fragmentShader);
-	if(!res->isLinked()) RR_SAFE_DELETE(res);
+	if (!res->isLinked()) RR_SAFE_DELETE(res);
 	return res;
 }
 
@@ -102,7 +102,7 @@ bool Program::logLooksSafe()
 	//  program probably can't run on GPU
 	// it's better to fail than render first frame for 30 seconds
 	// Radeon X1250 runs fine, log contains both software and hardware
-	if(strstr(debug,"software") && !strstr(debug,"hardware"))
+	if (strstr(debug,"software") && !strstr(debug,"hardware"))
 	{
 		//rr::RRReporter::report(rr::WARN,"Sw shader detected.\n");
 		result = false;
@@ -206,7 +206,7 @@ void Program::sendUniform(const char *name, float *matrix, bool transpose, int s
 int Program::getLoc(const char *name)
 {
 	int loc = glGetUniformLocation(handle, name);
-	if(loc == -1)
+	if (loc == -1)
 	{
 		rr::RRReporter::report(rr::ERRO,"Variable %s disappeared from shader. This is usually graphics card driver error.\n",name);
 		exit(0);
@@ -229,8 +229,8 @@ const char* getTypeName(unsigned type)
 		"BOOL", "BOOL_VEC2", "BOOL_VEC3", "BOOL_VEC4", "FLOAT_MAT2", "FLOAT_MAT3",
 		"FLOAT_MAT4", "SAMPLER_1D", "SAMPLER_2D", "SAMPLER_3D", "SAMPLER_CUBE",
 		"SAMPLER_1D_SHADOW", "SAMPLER_2D_SHADOW"};
-	for(unsigned i=0;i<sizeof(types)/sizeof(types[0]);i++)
-		if(types[i]==type)
+	for (unsigned i=0;i<sizeof(types)/sizeof(types[0]);i++)
+		if (types[i]==type)
 			return typeNames[i];
 	return "?";
 }
@@ -239,7 +239,7 @@ void Program::enumVariables()
 {
 	GLint count = 0;
 	glGetProgramiv(handle,GL_ACTIVE_ATTRIBUTES,&count);
-	for(int i=0;i<count;i++)
+	for (int i=0;i<count;i++)
 	{
 		char name[64] = "";
 		int size = 0;
@@ -248,7 +248,7 @@ void Program::enumVariables()
 		printf(" attrib  %s %d %s\n",name,size,getTypeName(type));
 	}
 	glGetProgramiv(handle,GL_ACTIVE_UNIFORMS,&count);
-	for(int i=0;i<count;i++)
+	for (int i=0;i<count;i++)
 	{
 		char name[64] = "";
 		int size = 0;

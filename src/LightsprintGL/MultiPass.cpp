@@ -34,7 +34,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	const RealtimeLight* light;
-	if(_lightIndex==-1)
+	if (_lightIndex==-1)
 	{
 		// adjust program for render without lights
 		//uberProgramSetup.setLightDirect(NULL,NULL);
@@ -49,10 +49,10 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
-		//if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",_lightIndex); else printf(" %d: nothing\n",_lightIndex);
+		//if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",_lightIndex); else printf(" %d: nothing\n",_lightIndex);
 	}
 	else
-	if(_lightIndex<(int)numLights)
+	if (_lightIndex<(int)numLights)
 	{
 		// adjust program for n-th light (0-th includes indirect, others have it disabled)
 		light = (*lights)[_lightIndex];
@@ -61,9 +61,9 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0);
 		uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
 		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
-		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects, for DDI
-		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
-		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
+		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects, for DDI
+		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
+		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
@@ -71,7 +71,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-		if(_lightIndex>-separatedAmbientPass)
+		if (_lightIndex>-separatedAmbientPass)
 		{
 			// additional passes don't include indirect
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
@@ -98,50 +98,50 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	}
 	uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
-	if(!program)
+	if (!program)
 	{
 		// Radeon X300 fails to run some complex shaders in one pass
 		// disabling transparency map saves SceneViewer sample
-		if(uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
+		if (uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 		{
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
-			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
+			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
 		}
 		// disabling specular reflection saves SceneViewer sample (helps GF6150)
-		if(!program && uberProgramSetup.MATERIAL_SPECULAR)
+		if (!program && uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
-			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
+			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
 		}
 		// disabling light detail map saves Lightsmark (helps GF6150)
-		if(!program && uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP)
+		if (!program && uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP)
 		{
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
-			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
+			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
 		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)
-		if(!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
+		if (!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
 		{
 			separatedAmbientPass = 1;
 			lightIndex = -1;
 			program = getNextPass(_outUberProgramSetup,_outRenderedChannels,_outLight);
-			if(program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
+			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
 		}
-		if(!program)
+		if (!program)
 		{
 			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
 			return NULL;
 		}
 	}
-	if(_lightIndex==-separatedAmbientPass+1)
+	if (_lightIndex==-separatedAmbientPass+1)
 	{
 		// additional passes add to framebuffer
 		glEnable(GL_BLEND);

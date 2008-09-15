@@ -76,11 +76,11 @@ void xy2rgb(double cx,double cy,double intensity,rr::RRVec3& cout)
 	cie[2] = intensity*(1.f/cy - 1.f) - cie[0];
 	/* convert to RGB */
 	cout[0] = rr::RRReal( xyz2rgbmat[0][0]*cie[0] + xyz2rgbmat[0][1]*cie[1]	+ xyz2rgbmat[0][2]*cie[2] );
-	if(cout[0] < 0.f) cout[0] = 0.f;
+	if (cout[0] < 0.f) cout[0] = 0.f;
 	cout[1] = rr::RRReal( xyz2rgbmat[1][0]*cie[0] + xyz2rgbmat[1][1]*cie[1] + xyz2rgbmat[1][2]*cie[2] );
-	if(cout[1] < 0.f) cout[1] = 0.f;
+	if (cout[1] < 0.f) cout[1] = 0.f;
 	cout[2] = rr::RRReal( xyz2rgbmat[2][0]*cie[0] + xyz2rgbmat[2][1]*cie[1] + xyz2rgbmat[2][2]*cie[2] );
-	if(cout[2] < 0.f) cout[2] = 0.f;
+	if (cout[2] < 0.f) cout[2] = 0.f;
 }
 
 void mgf2rgb(C_COLOR *cin,FLOAT intensity,rr::RRVec3& cout)
@@ -177,7 +177,7 @@ void* add_material(C_MATERIAL* m)
 void add_polygon(unsigned vertices,void** vertex,void* material)
 {
 	// primitive triangulation, doesn't support holes
-	for(unsigned i=2;i<vertices;i++)
+	for (unsigned i=2;i<vertices;i++)
 	{
 		RRObjectMGF::TriangleInfo t;
 		// this is not an error even on 64-bit platforms since MGF cannot contain over 4G of triangles
@@ -192,12 +192,12 @@ void add_polygon(unsigned vertices,void** vertex,void* material)
 int my_hface(int ac,char** av)
 {
 	#define xf_xid (xf_context?xf_context->xid:0)
-	if(ac<4) return(MG_EARGC);
+	if (ac<4) return(MG_EARGC);
 	void **vertex=new void*[ac-1];
 	for (int i = 1; i < ac; i++) {
 		C_VERTEX *vp=c_getvert(av[i]);
-		if(!vp) return(MG_EUNDEF);
-		if(!shared_vertices || (vp->clock!=-1-111*xf_xid))
+		if (!vp) return(MG_EUNDEF);
+		if (!shared_vertices || (vp->clock!=-1-111*xf_xid))
 		{
 			FVECT vert;
 			FVECT norm;
@@ -210,7 +210,7 @@ int my_hface(int ac,char** av)
 		vertex[i-1]=vp->client_data;
 	}
 	assert(c_cmaterial);
-	if(c_cmaterial->clock!=-1)
+	if (c_cmaterial->clock!=-1)
 	{
 		c_cmaterial->clock=-1;
 		c_cmaterial->client_data=(char *)add_material(c_cmaterial);
@@ -222,8 +222,8 @@ int my_hface(int ac,char** av)
 
 int my_hobject(int ac,char** av)
 {
-	//if(ac==2) begin_object(av[1]);
-	//if(ac==1) end_object();
+	//if (ac==2) begin_object(av[1]);
+	//if (ac==1) end_object();
 	return obj_handler(ac,av);
 }
 
@@ -307,7 +307,7 @@ unsigned RRObjectMGF::getNumTriangles() const
 
 void RRObjectMGF::getTriangle(unsigned t, Triangle& out) const
 {
-	if(t>=RRObjectMGF::getNumTriangles()) 
+	if (t>=RRObjectMGF::getNumTriangles()) 
 	{
 		RR_ASSERT(0);
 		return;
@@ -327,13 +327,13 @@ const rr::RRCollider* RRObjectMGF::getCollider() const
 
 const rr::RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
 {
-	if(t>=RRObjectMGF::getNumTriangles())
+	if (t>=RRObjectMGF::getNumTriangles())
 	{
 		RR_ASSERT(0);
 		return NULL;
 	}
 	unsigned material = triangles[t].material;
-	if(material>=materials.size())
+	if (material>=materials.size())
 	{
 		RR_ASSERT(0);
 		return NULL;
@@ -352,14 +352,14 @@ public:
 	ObjectsFromMGF(const char* filename)
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
-		if(object->getNumTriangles())
+		if (object->getNumTriangles())
 			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
 		else
 			delete object;
 	}
 	virtual ~ObjectsFromMGF()
 	{
-		if(size())
+		if (size())
 			delete (*this)[0].object;
 	}
 };

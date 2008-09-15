@@ -15,7 +15,7 @@ int main()
 {
 	// provide licence information
 	const char* licError = loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		puts(licError);
 
 	// simple mesh used for demonstration
@@ -52,7 +52,7 @@ int main()
 	bool hit = collider->intersect(ray);
 
 	// print results
-	if(hit)
+	if (hit)
 	{
 		printf("Intersection was detected.\n\n");
 		printf(" distance = %f\n",ray->hitDistance);

@@ -22,7 +22,7 @@ LevelSetup::LevelSetup(const char* afilename)
 
 LevelSetup::~LevelSetup()
 {
-	for(Frames::iterator i=frames.begin();i!=frames.end();i++)
+	for (Frames::iterator i=frames.begin();i!=frames.end();i++)
 		delete *i;
 	free((void*)filename);
 }
@@ -31,7 +31,7 @@ LevelSetup::~LevelSetup()
 // afilename is name of scene, e.g. path/koupelna4.3ds
 bool LevelSetup::load(const char* afilename)
 {
-	if(!afilename)
+	if (!afilename)
 		return false;
 	free((void*)filename);
 	filename = _strdup(afilename);
@@ -40,7 +40,7 @@ bool LevelSetup::load(const char* afilename)
 	rr::RRReporter::report(rr::INF1,"Loading %s...\n",aniname);
 	FILE* f = fopen(aniname,"rt");
 	free(aniname);
-	if(!f)
+	if (!f)
 		return false;
 	// load scale
 	scale = 1;
@@ -58,17 +58,17 @@ bool LevelSetup::load(const char* afilename)
 	// load objects
 	objects.clear();
 	unsigned tmpobj;
-	while(1==fscanf(f,"object = %d\n",&tmpobj))
+	while (1==fscanf(f,"object = %d\n",&tmpobj))
 	{
 		objects.push_back(tmpobj-1);
 	}
 	// load frames
 	frames.clear();
 	AnimationFrame frame(0); // working frame, data are loded over and over into tmp, so inheritance works
-	while(frame.loadOver(f))
+	while (frame.loadOver(f))
 	{
 		frame.validate((unsigned)objects.size());
-		if(!isOkForNewLayerNumber(frame.layerNumber))
+		if (!isOkForNewLayerNumber(frame.layerNumber))
 		{
 			unsigned newNumber = newLayerNumber();
 			rr::RRReporter::report(rr::INF1,"Changing layer number %d -> %d.\n",frame.layerNumber,newNumber);
@@ -91,17 +91,17 @@ bool LevelSetup::save() const
 	// save scale
 	fprintf(f,"scale = %f\n",scale);
 	// save water
-	if(renderWater)
+	if (renderWater)
 		fprintf(f,"water = %f\n",waterLevel);
 	// save min feature size
-	if(minFeatureSize)
+	if (minFeatureSize)
 		fprintf(f,"min_feature = %f\n",minFeatureSize);
 	// save quality
-	if((calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectDynamic) ||
+	if ((calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectDynamic) ||
 		(calculateParams.qualityIndirectStatic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectStatic))
 	fprintf(f,"indirect_quality = %d,%d\n",calculateParams.qualityIndirectDynamic,calculateParams.qualityIndirectStatic);
 	// save objects
-	for(unsigned i=0;i<objects.size();i++)
+	for (unsigned i=0;i<objects.size();i++)
 	{
 		fprintf(f,"object = %d\n",objects[i]+1);
 	}
@@ -109,9 +109,9 @@ bool LevelSetup::save() const
 	// save frames
 	AnimationFrame empty(0);
 	AnimationFrame* prev = &empty; // previous frame
-	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
+	for (Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{
-		if(!(*i)->save(f,*prev))
+		if (!(*i)->save(f,*prev))
 			return false;
 		prev = *i;
 	}
@@ -121,10 +121,10 @@ bool LevelSetup::save() const
 
 bool LevelSetup::isOkForNewLayerNumber(unsigned number)
 {
-	if(number<2) return false;
-	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
+	if (number<2) return false;
+	for (Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{
-		if((*i)->layerNumber==number) return false;
+		if ((*i)->layerNumber==number) return false;
 	}
 	return true;
 }
@@ -132,7 +132,7 @@ bool LevelSetup::isOkForNewLayerNumber(unsigned number)
 unsigned LevelSetup::newLayerNumber()
 {
 	unsigned number = 0;
-	while(!isOkForNewLayerNumber(number)) number++;
+	while (!isOkForNewLayerNumber(number)) number++;
 	return number;
 }
 
@@ -140,13 +140,13 @@ LevelSetup::Frames::iterator LevelSetup::getFrameIterByIndex(unsigned index)
 {
 	//RR_ASSERT(index<frames.size());
 	Frames::iterator i=frames.begin();
-	for(unsigned j=0;j<index;j++) i++;
+	for (unsigned j=0;j<index;j++) i++;
 	return i;
 }
 
 AnimationFrame* LevelSetup::getFrameByIndex(unsigned index)
 {
-	if(index<frames.size())
+	if (index<frames.size())
 		return *getFrameIterByIndex(index);
 	else
 		return NULL;
@@ -155,16 +155,16 @@ AnimationFrame* LevelSetup::getFrameByIndex(unsigned index)
 float LevelSetup::getFrameTime(unsigned index) const
 {
 	float seconds = 0;
-	if(frames.size()>1)
+	if (frames.size()>1)
 	{
 		Frames::const_iterator i=frames.begin();
-		while(i!=frames.end() && index--)
+		while (i!=frames.end() && index--)
 		{
 			seconds += (*i)->transitionToNextTime;
 			i++;
 		}
 		// remove addition of last frame, animation stops at the beginning of last frame
-		if(i==frames.end())
+		if (i==frames.end())
 		{
 			i--;
 			seconds -= (*i)->transitionToNextTime;
@@ -180,18 +180,18 @@ float LevelSetup::getTotalTime() const
 
 const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 {
-	if(absSeconds<0)
+	if (absSeconds<0)
 		return NULL;
 	Frames::const_iterator i=frames.begin();
-	while(i!=frames.end() && (*i)->transitionToNextTime<absSeconds)
+	while (i!=frames.end() && (*i)->transitionToNextTime<absSeconds)
 	{
 		absSeconds -= (*i)->transitionToNextTime;
 		i++;
 	}
-	if(i==frames.end())
+	if (i==frames.end())
 		return NULL;
 	Frames::const_iterator j = i; j++;
-	if(j==frames.end())
+	if (j==frames.end())
 		return NULL;
 
 	// round absSeconds to nearest lower multiply of 1/60s to make light move in small steps, reduce number of shadowmap updates
@@ -204,13 +204,13 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 {
 	unsigned result = 0;
 	Frames::const_iterator i=frames.begin();
-	while(i!=frames.end() && (*i)->transitionToNextTime<=absSeconds)
+	while (i!=frames.end() && (*i)->transitionToNextTime<=absSeconds)
 	{
 		absSeconds -= (*i)->transitionToNextTime;
 		i++;
 		result++;
 	}
-	if(transitionDone) *transitionDone = absSeconds;
-	if(transitionTotal) *transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
+	if (transitionDone) *transitionDone = absSeconds;
+	if (transitionTotal) *transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
 	return result;
 }

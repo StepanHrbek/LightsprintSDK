@@ -29,7 +29,7 @@ public:
 	}
 	C* allocate()
 	{
-		if(!block || elementsUsed==Block::BLOCK_SIZE)
+		if (!block || elementsUsed==Block::BLOCK_SIZE)
 		{
 			Block* oldBlock = block;
 			try // ignore warning, std::bad_alloc exception is catched properly
@@ -134,7 +134,7 @@ public:
 		{
 			chunk = chunkList.firstChunk;
 			elementInChunk = chunkList.numElements;
-			while(elementInChunk>Chunk::CHUNK_SIZE)
+			while (elementInChunk>Chunk::CHUNK_SIZE)
 			{
 				elementInChunk -= Chunk::CHUNK_SIZE;
 				chunk = chunk->next;
@@ -142,17 +142,17 @@ public:
 		}
 		bool insert(C element)
 		{
-			if(!chunk)
+			if (!chunk)
 			{
 				chunk = chunkList.firstChunk = allocator.allocate();
-				if(!chunk) return false;
+				if (!chunk) return false;
 			}
-			if(elementInChunk==Chunk::CHUNK_SIZE)
+			if (elementInChunk==Chunk::CHUNK_SIZE)
 			{
-				if(!chunk->next)
+				if (!chunk->next)
 					chunk->next = allocator.allocate();
 				chunk = chunk->next;
-				if(!chunk) return false;
+				if (!chunk) return false;
 				elementInChunk = 0;
 			}
 			chunk->element[elementInChunk++] = element;
@@ -195,7 +195,7 @@ public:
 			RR_ASSERT(remainingElements);
 			remainingElements--;
 			elementInChunk++;
-			if(elementInChunk>=Chunk::CHUNK_SIZE)
+			if (elementInChunk>=Chunk::CHUNK_SIZE)
 			{
 				chunk = chunk->next;
 				elementInChunk = 0;

@@ -85,7 +85,7 @@ RRReal avg(RRReal a)
 
 void clampToZero(RRReal& a)
 {
-	if(a<0) a=0;
+	if (a<0) a=0;
 }
 
 RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)

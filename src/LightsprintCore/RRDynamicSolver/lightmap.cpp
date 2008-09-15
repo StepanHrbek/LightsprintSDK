@@ -40,7 +40,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		unsigned rectXMin, unsigned rectYMin, unsigned rectXMaxPlus1, unsigned rectYMaxPlus1, 
 		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
-	if(!multiObject)
+	if (!multiObject)
 	{
 		RR_ASSERT(0);
 		return false;
@@ -69,13 +69,13 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	RRObject* singleObject = tc.solver->getObject(objectNumber);
 	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
-	for(unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
+	for (unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
 	{
 		RRMesh::PreImportNumber multiPreImportTriangle;
 		multiPreImportTriangle.object = objectNumber;
 		multiPreImportTriangle.index = singleMesh->getPreImportTriangle(singlePostImportTriangle).index;
 		unsigned multiPostImportTriangle = multiMesh->getPostImportTriangle(multiPreImportTriangle);
-		if(multiPostImportTriangle!=UINT_MAX && (onlyTriangleNumber<0 || onlyTriangleNumber==multiPostImportTriangle))
+		if (multiPostImportTriangle!=UINT_MAX && (onlyTriangleNumber<0 || onlyTriangleNumber==multiPostImportTriangle))
 		{
 			unsigned t = multiPostImportTriangle;
 			// gather data about triangle t
@@ -96,8 +96,8 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
 				yminu = (unsigned)MAX(ymin,rectYMin); // !negative
 				ymaxu = (unsigned)CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
-				if(yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
-				if(!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
+				if (yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
+				if (!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
 					LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			}
 			//  prepare mapspace -> trianglespace matrix
@@ -106,7 +106,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				{ mapping.uv[1][1]-mapping.uv[0][1], mapping.uv[2][1]-mapping.uv[0][1], mapping.uv[0][1] },
 				{ 0,0,1 } };
 			RRReal det = m[0][0]*m[1][1]*m[2][2]+m[0][1]*m[1][2]*m[2][0]+m[0][2]*m[1][0]*m[2][1]-m[0][0]*m[1][2]*m[2][1]-m[0][1]*m[1][0]*m[2][2]-m[0][2]*m[1][1]*m[2][0];
-			if(!det) continue; // skip degenerated triangles
+			if (!det) continue; // skip degenerated triangles
 			RRReal invdet = 1/det;
 			RRReal inv[2][3] = {
 				{ (m[1][1]*m[2][2]-m[1][2]*m[2][1])*invdet/mapWidth, (m[0][2]*m[2][1]-m[0][1]*m[2][2])*invdet/mapHeight, (m[0][1]*m[1][2]-m[0][2]*m[1][1])*invdet },
@@ -115,11 +115,11 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				};
 			RRReal triangleAreaInMapSpace = getArea(mapping.uv[0],mapping.uv[1],mapping.uv[2]);
 			//  for all texels in bounding box
-			for(unsigned y=yminu;y<ymaxu;y++)
+			for (unsigned y=yminu;y<ymaxu;y++)
 			{
-				for(unsigned x=xminu;x<xmaxu;x++)
+				for (unsigned x=xminu;x<xmaxu;x++)
 				{
-					if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
+					if ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 					{
 						// start with full texel, 4 vertices
 						unsigned polySize = 4;
@@ -138,12 +138,12 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 						RR_ASSERT(IS_VEC2(polyVertexInTriangleSpace[3]));
 
 						// look for NaN areas (they exist because of limited float precision)
-						//for(unsigned i=0;i<polySize-2;i++)
+						//for (unsigned i=0;i<polySize-2;i++)
 						//	getArea(polyVertexInTriangleSpace[0],polyVertexInTriangleSpace[i+1],polyVertexInTriangleSpace[i+2]);
 
 						// calculate texel-triangle intersection (=polygon) in 2d 0..1 map space
 						// cut it three times by triangle side
-						for(unsigned triSide=0;triSide<3;triSide++)
+						for (unsigned triSide=0;triSide<3;triSide++)
 						{
 							RRVec3 triLineInTriangleSpace = (triSide==0) ? RRVec3(0,1,0) : ((triSide==1) ? RRVec3(-1,-1,1) : RRVec3(1,0,0) );
 							// are poly vertices inside or outside halfplane defined by triLine?
@@ -156,17 +156,17 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 							InsideOut inside[7];
 							unsigned numInside = 0;
 							unsigned numOutside = 0;
-							for(unsigned i=0;i<polySize;i++)
+							for (unsigned i=0;i<polySize;i++)
 							{
 #define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
 								RRReal dist = POINT_LINE_DISTANCE_2D(polyVertexInTriangleSpace[i],triLineInTriangleSpace);
-								if(dist<0)
+								if (dist<0)
 								{
 									inside[i] = OUTSIDE;
 									numOutside++;
 								}
 								else
-								if(dist>0)
+								if (dist>0)
 								{
 									inside[i] = INSIDE;
 									numInside++;
@@ -177,17 +177,17 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								}
 							}
 							// none OUTSIDE -> don't modify poly, go to next triangle side
-							if(!numOutside) continue;
+							if (!numOutside) continue;
 							// none INSIDE -> empty poly, go to next texel
-							if(!numInside) {polySize = 0; break;}
+							if (!numInside) {polySize = 0; break;}
 							// part INSIDE, part OUTSIDE -> cut off all OUTSIDE and EDGE, add 2 new vertices
 							unsigned firstPreserved = 1;
-							while(inside[(firstPreserved-1)%polySize]==INSIDE || inside[firstPreserved%polySize]!=INSIDE) firstPreserved++;
+							while (inside[(firstPreserved-1)%polySize]==INSIDE || inside[firstPreserved%polySize]!=INSIDE) firstPreserved++;
 							RRVec2 polyVertexInTriangleSpaceOrig[7];
 							memcpy(polyVertexInTriangleSpaceOrig,polyVertexInTriangleSpace,sizeof(polyVertexInTriangleSpace));
 							unsigned src = firstPreserved;
 							unsigned dst = 0;
-							while(inside[src%polySize]==INSIDE) polyVertexInTriangleSpace[dst++] = polyVertexInTriangleSpaceOrig[src++%polySize]; // copy preserved vertices
+							while (inside[src%polySize]==INSIDE) polyVertexInTriangleSpace[dst++] = polyVertexInTriangleSpaceOrig[src++%polySize]; // copy preserved vertices
 							#define INTERSECTION_POINTA_POINTB_LINE(pointA,pointB,line) \
 								((pointA) - ((pointB)-(pointA)) * POINT_LINE_DISTANCE_2D(pointA,line) / ( (line)[0]*((pointB)[0]-(pointA)[0]) + (line)[1]*((pointB)[1]-(pointA)[1]) ) )
 							polyVertexInTriangleSpace[dst++] =
@@ -199,22 +199,22 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 							polySize = dst;
 
 							// look for NaN areas (they exist because of limited float precision)
-							//for(unsigned i=0;i<polySize-2;i++)
+							//for (unsigned i=0;i<polySize-2;i++)
 							//	getArea(polyVertexInTriangleSpace[0],polyVertexInTriangleSpace[i+1],polyVertexInTriangleSpace[i+2]);
 						}
 						// triangulate polygon into subtexels
-						if(polySize)
+						if (polySize)
 						{
 							SubTexel subTexel;
 							subTexel.multiObjPostImportTriIndex = t;
 							subTexel.uvInTriangleSpace[0] = polyVertexInTriangleSpace[0];
-							for(unsigned i=0;i<polySize-2;i++)
+							for (unsigned i=0;i<polySize-2;i++)
 							{
 								subTexel.uvInTriangleSpace[1] = polyVertexInTriangleSpace[i+1];
 								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
-								if(_finite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
+								if (_finite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
 									texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel
 										,subTexelAllocator
 										);
@@ -245,12 +245,12 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	unsigned numAllLights = tc.solver->getLights().size();
 	unsigned numRelevantLights = 0;
 	const RRLight** relevantLightsForObject = new const RRLight*[numAllLights*numThreads];
-	for(unsigned i=0;i<numAllLights;i++)
+	for (unsigned i=0;i<numAllLights;i++)
 	{
 		RRLight* light = tc.solver->getLights()[i];
-		if(multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
+		if (multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
 		{
-			for(int k=0;k<numThreads;k++)
+			for (int k=0;k<numThreads;k++)
 				relevantLightsForObject[k*numAllLights+numRelevantLights] = light;
 			numRelevantLights++;
 		}
@@ -258,19 +258,19 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 
 	// 5. gather, shoot rays from texels
 	#pragma omp parallel for schedule(dynamic)
-	for(int j=(int)rectYMin;j<(int)rectYMaxPlus1;j++)
+	for (int j=(int)rectYMin;j<(int)rectYMaxPlus1;j++)
 	{
 #ifdef _OPENMP
 		int threadNum = omp_get_thread_num();
 #else
 		int threadNum = 0;
 #endif
-		for(int i=(int)rectXMin;i<(int)rectXMaxPlus1;i++)
+		for (int i=(int)rectXMin;i<(int)rectXMaxPlus1;i++)
 		{
 			unsigned indexInRect = (i-rectXMin)+(j-rectYMin)*(rectXMaxPlus1-rectXMin);
-			if(texelsRect[indexInRect].size())
+			if (texelsRect[indexInRect].size())
 			{
-				if((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
+				if ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
 				{
 					ProcessTexelParams ptp(tc);
 					ptp.uv[0] = i;
@@ -320,23 +320,23 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	enum {MAX_TEXELS_PER_PASS=512*512};
 	unsigned numTexelsInMap = mapWidth*mapHeight;
 	unsigned numPasses = (numTexelsInMap+MAX_TEXELS_PER_PASS-1)/MAX_TEXELS_PER_PASS;
-	if(numPasses==0)
+	if (numPasses==0)
 		return false;
 	else
-	if(mapWidth<=mapHeight)
+	if (mapWidth<=mapHeight)
 	{
-		for(unsigned i=0;i<numPasses;i++)
+		for (unsigned i=0;i<numPasses;i++)
 		{
-			if(!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, onlyTriangleNumber))
 				return false;
 		}
 		return true;
 	}
 	else
 	{
-		for(unsigned i=0;i<numPasses;i++)
+		for (unsigned i=0;i<numPasses;i++)
 		{
-			if(!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, onlyTriangleNumber))
 				return false;
 		}
 		return true;
@@ -345,16 +345,16 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 
 void scaleAndFlushToBuffer(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
 {
-	if(!srcData || !destBuffer)
+	if (!srcData || !destBuffer)
 	{
 		RR_ASSERT(0); // invalid inputs
 		return;
 	}
-	if(!destBuffer->getScaled()) scaler = NULL;
+	if (!destBuffer->getScaled()) scaler = NULL;
 	unsigned numElements = destBuffer->getWidth()*destBuffer->getHeight();
-	for(unsigned i=0;i<numElements;i++)
+	for (unsigned i=0;i<numElements;i++)
 	{
-		if(scaler) scaler->getCustomScale(srcData[i]);
+		if (scaler) scaler->getCustomScale(srcData[i]);
 		destBuffer->setElement(i,srcData[i]);
 	}
 }
@@ -386,21 +386,21 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	
 	// init params
 	UpdateParameters params;
-	if(_params) params = *_params;
-	if(params.applyLights && !getLights().size())
+	if (_params) params = *_params;
+	if (params.applyLights && !getLights().size())
 		params.applyLights = false;
-	if(params.applyEnvironment && !getEnvironment())
+	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 	bool paramsAllowRealtime = !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality;
 
 	// init solver
-	if((!priv->scene
+	if ((!priv->scene
 		&& !priv->packedSolver
 		) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if( (!priv->scene
+		if ( (!priv->scene
 			&& !priv->packedSolver
 			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
@@ -418,19 +418,19 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	unsigned pixelBufferHeight = 0;
 	unsigned vertexBufferWidth = 0;
 	{
-		if(paramsAllowRealtime && objectNumber==-1)
+		if (paramsAllowRealtime && objectNumber==-1)
 		{
 			// for multiobject, we use non-indexed render with numTriangles*3 vertices in vbuf
 			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3;
 		}
 		else
 		{
-			if(objectNumber>=(int)getNumObjects() || objectNumber<0)
+			if (objectNumber>=(int)getNumObjects() || objectNumber<0)
 			{
 				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 				return 0;
 			}
-			if(!getIllumination(objectNumber))
+			if (!getIllumination(objectNumber))
 			{
 				RRReporter::report(WARN,"getIllumination(%d) is NULL.\n",objectNumber);
 				return 0;
@@ -445,21 +445,21 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		allBuffers[LS_DIRECTION3] = directionalLightmaps?directionalLightmaps[2]:NULL;
 		allBuffers[LS_BENT_NORMALS] = bentNormals;
 
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			allVertexBuffers[i] = onlyVbuf(allBuffers[i]); if(allVertexBuffers[i]) numVertexBuffers++;
-			allPixelBuffers[i] = onlyLmap(allBuffers[i]); if(allPixelBuffers[i]) numPixelBuffers++;
+			allVertexBuffers[i] = onlyVbuf(allBuffers[i]); if (allVertexBuffers[i]) numVertexBuffers++;
+			allPixelBuffers[i] = onlyLmap(allBuffers[i]); if (allPixelBuffers[i]) numPixelBuffers++;
 		}
-		if(numVertexBuffers+numPixelBuffers==0)
+		if (numVertexBuffers+numPixelBuffers==0)
 		{
 			RRReporter::report(WARN,"No output buffers, no work to do.\n");
 			return 0;
 		}
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			if(allVertexBuffers[i])
+			if (allVertexBuffers[i])
 			{
-				if(allBuffers[i]->getWidth()<vertexBufferWidth) // only smaller buffer is problem, bigger buffer is sometimes created by ObjectBuffers
+				if (allBuffers[i]->getWidth()<vertexBufferWidth) // only smaller buffer is problem, bigger buffer is sometimes created by ObjectBuffers
 				{
 					RRReporter::report(WARN,"Insufficient vertex buffer size %d, should be %d.\n",allBuffers[i]->getWidth(),vertexBufferWidth);
 					return 0;
@@ -467,11 +467,11 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			}
 		}
 		bool filled = false;
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			if(allPixelBuffers[i])
+			if (allPixelBuffers[i])
 			{
-				if(!filled)
+				if (!filled)
 				{
 					filled = true;
 					pixelBufferWidth = allBuffers[i]->getWidth();
@@ -479,7 +479,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				}
 				else
 				{
-					if(pixelBufferWidth!=allBuffers[i]->getWidth() || pixelBufferHeight!=allBuffers[i]->getHeight())
+					if (pixelBufferWidth!=allBuffers[i]->getWidth() || pixelBufferHeight!=allBuffers[i]->getHeight())
 					{
 						RRReporter::report(WARN,"Pixel buffer sizes don't match, %dx%d != %dx%d.\n",pixelBufferWidth,pixelBufferHeight,allBuffers[i]->getWidth(),allBuffers[i]->getHeight());
 						return 0;
@@ -492,10 +492,10 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	unsigned updatedBuffers = 0;
 
 	// PER-VERTEX
-	if(numVertexBuffers)
+	if (numVertexBuffers)
 	{
 		// REALTIME
-		if(allVertexBuffers[0] && paramsAllowRealtime)
+		if (allVertexBuffers[0] && paramsAllowRealtime)
 		{
 			updatedBuffers += updateVertexBufferFromSolver(objectNumber,allVertexBuffers[0],_params);
 		}
@@ -507,7 +507,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			// future optimization: gather only triangles necessary for selected object
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			GatheredPerTriangleData* finalGatherPhysical = GatheredPerTriangleData::create(numTriangles,allVertexBuffers[LS_LIGHTMAP]?1:0,allVertexBuffers[LS_DIRECTION1]||allVertexBuffers[LS_DIRECTION2]||allVertexBuffers[LS_DIRECTION3],allVertexBuffers[LS_BENT_NORMALS]?1:0);
-			if(!finalGatherPhysical)
+			if (!finalGatherPhysical)
 			{
 				RRReporter::report(ERRO,"Not enough memory, vertex buffer not updated.\n");
 			}
@@ -516,9 +516,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				gatherPerTrianglePhysical(&params,finalGatherPhysical,numTriangles,priv->staticSceneContainsEmissiveMaterials); // this is final gather -> gather emissive materials
 
 				// interpolate: tmparray -> buffer
-				for(unsigned i=0;i<NUM_BUFFERS;i++)
+				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					if(allVertexBuffers[i] && !aborting)
+					if (allVertexBuffers[i] && !aborting)
 					{
 						updatedBuffers += updateVertexBufferFromPerTriangleDataPhysical(objectNumber,allVertexBuffers[i],finalGatherPhysical->data[i],sizeof(*finalGatherPhysical->data[i]),i!=LS_BENT_NORMALS);
 					}
@@ -529,20 +529,20 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	}
 
 	// PER-PIXEL (NON-REALTIME)
-	if(numPixelBuffers)
+	if (numPixelBuffers)
 	{
 		TexelContext tc;
 		tc.solver = this;
 		try
 		{
-			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			for (unsigned i=0;i<NUM_BUFFERS;i++)
 				tc.pixelBuffers[i] = NULL;
-			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			for (unsigned i=0;i<NUM_BUFFERS;i++)
 				tc.pixelBuffers[i] = allPixelBuffers[i]?new LightmapFilter(pixelBufferWidth,pixelBufferHeight):NULL;
 		}
 		catch(std::bad_alloc)
 		{
-			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			for (unsigned i=0;i<NUM_BUFFERS;i++)
 				delete tc.pixelBuffers[i];
 			RRReporter::report(ERRO,"Not enough memory, lightmap not updated(0).\n");
 			return updatedBuffers;
@@ -554,11 +554,11 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			if(tc.pixelBuffers[i])
+			if (tc.pixelBuffers[i])
 			{
-				if(allPixelBuffers[i]
+				if (allPixelBuffers[i]
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
@@ -589,12 +589,12 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	UpdateParameters paramsDirect;
 	UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
-	if(_paramsDirect) paramsDirect = *_paramsDirect;
-	if(_paramsIndirect) paramsIndirect = *_paramsIndirect;
+	if (_paramsDirect) paramsDirect = *_paramsDirect;
+	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
-	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+	if (paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
-		if(_paramsDirect) // don't report if direct is NULL, silently disable it
+		if (_paramsDirect) // don't report if direct is NULL, silently disable it
 			RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 		paramsDirect.applyCurrentSolution = false;
 	}
@@ -614,14 +614,14 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	bool containsPixelBuffers = false;
 	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
 	unsigned sizeOfAllBuffers = 0;
-	for(unsigned object=0;object<getNumObjects();object++)
+	for (unsigned object=0;object<getNumObjects();object++)
 	{
-		if(getIllumination(object))
+		if (getIllumination(object))
 		{
-			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			for (unsigned i=0;i<NUM_BUFFERS;i++)
 			{
 				RRBuffer* buffer = getIllumination(object)->getLayer(allLayers[i]);
-				if(buffer)
+				if (buffer)
 				{
 					sizeOfAllBuffers += buffer->getMemoryOccupied();
 					containsVertexBuffers |= buffer->getType()==BT_VERTEX_BUFFER;
@@ -640,16 +640,16 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	// detect buffers shared by multiple objects
 	sort(bufferSharing.begin(),bufferSharing.end());
-	for(unsigned i=1;i<bufferSharing.size();i++)
+	for (unsigned i=1;i<bufferSharing.size();i++)
 	{
-		if(bufferSharing[i].buffer==bufferSharing[i-1].buffer) // sharing
+		if (bufferSharing[i].buffer==bufferSharing[i-1].buffer) // sharing
 		{
-			if(bufferSharing[i].lightmapIndex!=bufferSharing[i-1].lightmapIndex)
+			if (bufferSharing[i].lightmapIndex!=bufferSharing[i-1].lightmapIndex)
 			{
 				LIMITED_TIMES(1,RRReporter::report(WARN,"Single buffer can't be used for multiple content types (eg lightmap and bent normals).\n"));
 			}
 			else
-			/*if(bufferSharing[i].buffer->getType()!=BT_2D_TEXTURE)
+			/*if (bufferSharing[i].buffer->getType()!=BT_2D_TEXTURE)
 			{
 				LIMITED_TIMES(1,RRReporter::report(WARN,"Per-vertex lightmap can't be shared by multiple objects.\n"));
 			}
@@ -667,20 +667,20 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 	
-	if(sizeOfAllBuffers>10000000 && (containsFirstGather||containsPixelBuffers||!containsRealtime))
+	if (sizeOfAllBuffers>10000000 && (containsFirstGather||containsPixelBuffers||!containsRealtime))
 		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1024/1024);
 
 	// 1. first gather: solver+lights+env -> solver.direct
 	// 2. propagate: solver.direct -> solver.indirect
-	if(containsFirstGather)
+	if (containsFirstGather)
 	{
 		// shoot 2x less indirect rays than direct
 		// (but only if direct.quality was specified)
-		if(_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
+		if (_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
 
 		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
 		// 2. propagate: solver.direct -> solver.indirect
-		if(!updateSolverIndirectIllumination(&paramsIndirect))
+		if (!updateSolverIndirectIllumination(&paramsIndirect))
 			return 0;
 
 		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
@@ -693,24 +693,24 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	unsigned updatedBuffers = 0;
 
-	if(!paramsDirect.applyLights && !paramsDirect.applyEnvironment && !paramsDirect.applyCurrentSolution)
+	if (!paramsDirect.applyLights && !paramsDirect.applyEnvironment && !paramsDirect.applyCurrentSolution)
 	{
 		RRReporter::report(WARN,"No light sources enabled.\n");
 	}
 
 	// 3. vertex: realtime copy into buffers (solver not modified)
-	if(containsVertexBuffers && containsRealtime)
+	if (containsVertexBuffers && containsRealtime)
 	{
-		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++) if(!aborting)
+		for (int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++) if (!aborting)
 		{
-			for(unsigned i=0;i<NUM_BUFFERS;i++)
+			for (unsigned i=0;i<NUM_BUFFERS;i++)
 			{
-				if(allLayers[i]>=0)
+				if (allLayers[i]>=0)
 				{
 					RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
-					if(vertexBuffer)
+					if (vertexBuffer)
 					{
-						if(i==LS_LIGHTMAP)
+						if (i==LS_LIGHTMAP)
 						{
 							updatedBuffers += updateVertexBufferFromSolver(objectHandle,vertexBuffer,&paramsDirect);
 						}
@@ -725,14 +725,14 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	}
 
 	// 4+5. vertex: final gather into vertex buffers (solver not modified)
-	if(containsVertexBuffers && !containsRealtime)
-	if(!(paramsDirect.debugTexel!=UINT_MAX && paramsDirect.debugTriangle==UINT_MAX)) // skip triangle-gathering when debugging texel
+	if (containsVertexBuffers && !containsRealtime)
+	if (!(paramsDirect.debugTexel!=UINT_MAX && paramsDirect.debugTriangle==UINT_MAX)) // skip triangle-gathering when debugging texel
 	{
 			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
 			// for each triangle
 			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 			const GatheredPerTriangleData* finalGatherPhysical = GatheredPerTriangleData::create(numTriangles,containsVertexBuffer[LS_LIGHTMAP],containsVertexBuffer[LS_DIRECTION1]||containsVertexBuffer[LS_DIRECTION2]||containsVertexBuffer[LS_DIRECTION3],containsVertexBuffer[LS_BENT_NORMALS]);
-			if(!finalGatherPhysical)
+			if (!finalGatherPhysical)
 			{
 				RRReporter::report(ERRO,"Not enough memory, vertex buffers not updated.\n");
 			}
@@ -742,16 +742,16 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 				// 5. interpolate: tmparray -> buffer
 				// for each object with vertex buffer
-				if(paramsDirect.debugObject==UINT_MAX) // skip update when debugging
+				if (paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 				{
-					for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+					for (unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 					{
-						for(unsigned i=0;i<NUM_BUFFERS;i++)
+						for (unsigned i=0;i<NUM_BUFFERS;i++)
 						{
-							if(allLayers[i]>=0 && !aborting)
+							if (allLayers[i]>=0 && !aborting)
 							{
 								RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
-								if(vertexBuffer)
+								if (vertexBuffer)
 									updatedBuffers += updateVertexBufferFromPerTriangleDataPhysical(objectHandle,vertexBuffer,finalGatherPhysical->data[i],sizeof(*finalGatherPhysical->data[i]),i!=LS_BENT_NORMALS);
 							}
 						}
@@ -762,24 +762,24 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	}
 
 	// 6. pixel: final gather into pixel buffers (solver not modified)
-	if(containsPixelBuffers)
-	if(!(paramsDirect.debugTexel==UINT_MAX && paramsDirect.debugTriangle!=UINT_MAX)) // skip pixel-gathering when debugging triangle
+	if (containsPixelBuffers)
+	if (!(paramsDirect.debugTexel==UINT_MAX && paramsDirect.debugTriangle!=UINT_MAX)) // skip pixel-gathering when debugging triangle
 	{
-		for(unsigned object=0;object<getNumObjects();object++)
+		for (unsigned object=0;object<getNumObjects();object++)
 		{
-			if((paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) && !aborting) // skip objects when debugging texel
+			if ((paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) && !aborting) // skip objects when debugging texel
 			{
 				RRBuffer* allPixelBuffers[NUM_BUFFERS];
 				unsigned numPixelBuffers = 0;
-				for(unsigned i=0;i<NUM_BUFFERS;i++)
+				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
 					allPixelBuffers[i] = (allLayers[i]>=0 && getIllumination(object)) ? onlyLmap(getIllumination(object)->getLayer(allLayers[i])) : NULL;
-					if(allPixelBuffers[i]) numPixelBuffers++;
+					if (allPixelBuffers[i]) numPixelBuffers++;
 				}
 
-				if(numPixelBuffers)
+				if (numPixelBuffers)
 				{
-					if(allPixelBuffers[LS_LIGHTMAP] && paramsDirect.locality>99999 && paramsIndirect.locality<99 && !paramsDirect.applyLights)
+					if (allPixelBuffers[LS_LIGHTMAP] && paramsDirect.locality>99999 && paramsIndirect.locality<99 && !paramsDirect.applyLights)
 					{
 						// light detail map
 						RRReportInterval report(INF2,"Creating light detail map...\n");

@@ -23,28 +23,28 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 {
 	try {
 
-	if(!importer) return NULL;
+	if (!importer) return NULL;
 	BuildParams bp(intersectTechnique);
-	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
+	if (!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
 	{
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case IT_BSP_COMPACT:
-			if(importer->getNumTriangles()<=256)
+			if (importer->getNumTriangles()<=256)
 			{
 				// we expect that mesh with <256 triangles won't produce >64k tree, CBspTree21 has 16bit offsets
 				// this is satisfied only with kdleaves enabled
 				typedef IntersectBspCompact<CBspTree21> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
-				if(in->getMemoryOccupied()>sizeof(T)) return in;
+				if (in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
-			if(importer->getNumTriangles()<=65536)
+			if (importer->getNumTriangles()<=65536)
 			{
 				typedef IntersectBspCompact<CBspTree42> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
-				if(in->getMemoryOccupied()>sizeof(T)) return in;
+				if (in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -52,9 +52,9 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 				typedef IntersectBspCompact<CBspTree44> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
 				unsigned size1 = in->getMemoryOccupied();
-				if(size1>=10000000)
+				if (size1>=10000000)
 					RRReporter::report(INF1,"Memory taken by collider(compact): %dMB\n",size1/1024/1024);
-				if(size1>sizeof(T)) return in;
+				if (size1>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -65,9 +65,9 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 				typedef IntersectBspFast<BspTree44> T;
 				T* in = T::create(importer,intersectTechnique,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":((intersectTechnique==IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
 				unsigned size1 = in->getMemoryOccupied();
-				if(size1>=10000000)
+				if (size1>=10000000)
 					RRReporter::report(INF1,"Memory taken by collider(fast*): %dMB\n",size1/1024/1024);
-				if(size1>sizeof(T)) return in;
+				if (size1>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -79,7 +79,7 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 		default:
 		linear:
 			RR_ASSERT(importer);
-			if(!importer) return NULL;
+			if (!importer) return NULL;
 			return IntersectLinear::create(importer);
 	}
 
@@ -94,9 +94,9 @@ const RRCollider* RRCollider::create(const RRMesh* importer, IntersectTechnique 
 void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 {
 	#pragma omp parallel for schedule(static,1)
-	for(int i=0;i<(int)numRays;i++)
+	for (int i=0;i<(int)numRays;i++)
 	{
-		if(!intersect(ray+i)) ray[i].hitDistance = -1;
+		if (!intersect(ray+i)) ray[i].hitDistance = -1;
 	}
 }
 

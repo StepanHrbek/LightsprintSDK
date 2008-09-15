@@ -24,36 +24,36 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
 	unsigned count = MAX(6,(unsigned)setup->frames.size()+1);
-	//for(LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
-	//	if((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
-	for(LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
+	//for (LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
+	//	if ((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
+	for (LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
 	{
 		float x = index/(float)count;
 		float y = 0;
 		float w = 1/(float)count;
 		float h = 0.15f;
 		// thumbnail
-		if(i!=setup->frames.end())
+		if (i!=setup->frames.end())
 		{
 			float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
 			float color[4] = {intensity,intensity,1,1};
 			renderer->render2D(rr_gl::getTexture(movieClipMap),color,x,y,w,h);
-			if((*i)->thumbnail)
+			if ((*i)->thumbnail)
 				renderer->render2D(rr_gl::getTexture((*i)->thumbnail),NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
 		}
 		// cursor
-		if(index==frameCursor)
+		if (index==frameCursor)
 		{
 			GLboolean blend = glIsEnabled(GL_BLEND);
 			glEnable(GL_BLEND);
 			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			float move = fabs((clock()%CLOCKS_PER_SEC)/(float)CLOCKS_PER_SEC-0.5f);
 			renderer->render2D(rr_gl::getTexture(cursorMap),NULL,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
-			if(!blend)
+			if (!blend)
 				glDisable(GL_BLEND);
 		}
 		// end for cycle
-		if(i==setup->frames.end())
+		if (i==setup->frames.end())
 			break;
 	}
 }
@@ -64,8 +64,8 @@ bool AnimationEditor::keyboard(unsigned char c, int x, int y)
 	{
 		case 127: // DELETE
 			{LevelSetup::Frames::iterator i=setup->frames.begin();
-			for(unsigned j=0;j<frameCursor;j++) i++;
-			if(i!=setup->frames.end())
+			for (unsigned j=0;j<frameCursor;j++) i++;
+			if (i!=setup->frames.end())
 				setup->frames.erase(i);
 			return true;}
 			//default:
@@ -89,32 +89,32 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor = (unsigned)setup->frames.size();
 			return true;
 		case GLUT_KEY_LEFT:
-			if(modif)
+			if (modif)
 			{
 				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
-				if(frame)
+				if (frame)
 				{
 					frame->transitionToNextTime = MAX(0.00f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
 			{
-				if(frameCursor) frameCursor--;
+				if (frameCursor) frameCursor--;
 			}
 			return true;
 		case GLUT_KEY_RIGHT:
-			if(modif)
+			if (modif)
 			{
 				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
-				if(frame)
+				if (frame)
 				{
-					//if(frame->transitionToNextTime<0.03f) frame->transitionToNextTime=0;
+					//if (frame->transitionToNextTime<0.03f) frame->transitionToNextTime=0;
 					frame->transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}
 			else
 			{
-				if(frameCursor<setup->frames.size()) frameCursor++;
+				if (frameCursor<setup->frames.size()) frameCursor++;
 			}
 			return true;
 		case GLUT_KEY_INSERT:
@@ -127,14 +127,14 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor++;
 			return true;}
 		case GLUT_KEY_PAGE_UP:
-			if(frameCursor && frameCursor<setup->frames.size())
+			if (frameCursor && frameCursor<setup->frames.size())
 			{
 				std::swap(*setup->getFrameIterByIndex(frameCursor),*setup->getFrameIterByIndex(frameCursor-1));
 				frameCursor--;
 			}
 			return true;
 		case GLUT_KEY_PAGE_DOWN:
-			if(frameCursor+1<setup->frames.size())
+			if (frameCursor+1<setup->frames.size())
 			{
 				std::swap(*setup->getFrameIterByIndex(frameCursor),*setup->getFrameIterByIndex(frameCursor+1));
 				frameCursor++;

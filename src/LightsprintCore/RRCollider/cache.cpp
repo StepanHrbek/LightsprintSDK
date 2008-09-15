@@ -33,14 +33,14 @@ static unsigned getBit(unsigned char* data, unsigned bit)
 static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 {
 	unsigned tmp = 0;
-	while(bits--) tmp = tmp*2 + getBit(data, bit+bits);
+	while (bits--) tmp = tmp*2 + getBit(data, bit+bits);
 	return tmp;
 }
 
 PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
 	const char* letter="0123456789abcdefghijklmnopqrstuv";
-	for(unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
+	for (unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
 		buf[i]=letter[getBits(hash, i*5, MIN(5,bits-i*5))];
 	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
@@ -49,29 +49,29 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
-	if(version)
+	if (version)
 	{
 		unsigned char ver = version;
 		sha1::sha1_update(&ctx, &ver, 1);
 	}
 	unsigned i = importer->getNumVertices();
-	while(i--)
+	while (i--)
 	{
 		RRMesh::Vertex v;
 		importer->getVertex(i,v);
 #if defined(XBOX) || defined(__PPC__)
-		for(unsigned j=0;j<3;j++)
+		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
 	i = importer->getNumTriangles();
-	while(i--)
+	while (i--)
 	{
 		RRMesh::Triangle t;
 		importer->getTriangle(i,t);
 #if defined(XBOX) || defined(__PPC__)
-		for(unsigned j=0;j<3;j++)
+		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&t)[j] = SWAP_32(((unsigned long*)&t)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
@@ -83,16 +83,16 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 
 PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer, const char* cacheLocation, const char* extension)
 {
-	if(!bufsize) return;
+	if (!bufsize) return;
 	buf[0]=0;
 	// rrcache
 #ifdef _WIN32
 	char tmpPath[_MAX_PATH+1];
-	if(!cacheLocation)
+	if (!cacheLocation)
 	{
 		GetTempPath(_MAX_PATH, tmpPath);
 		#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
-		if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
+		if (!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
 		cacheLocation = tmpPath;
 	}
 #else
@@ -101,9 +101,9 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 	cacheLocation = tmpDir;
 #endif
 #ifdef XBOX
-	if(!cacheLocation) cacheLocation = "game:\\"; // xbox 360
+	if (!cacheLocation) cacheLocation = "game:\\"; // xbox 360
 #endif
-	if(cacheLocation) 
+	if (cacheLocation) 
 	{
 		strncpy(buf,cacheLocation,bufsize-1);
 		buf[bufsize-1]=0;
@@ -112,7 +112,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 		bufsize -= len;
 	}
 	// hash
-	if(importer)
+	if (importer)
 	{
 		getFileName(buf,bufsize-1,version,importer);
 		unsigned len = (unsigned)strlen(buf); 
@@ -120,7 +120,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RR
 		bufsize -= len;
 	}
 	// extension
-	if(extension)
+	if (extension)
 	{
 		strncpy(buf,extension,bufsize-1);
 		buf[bufsize-1]=0;

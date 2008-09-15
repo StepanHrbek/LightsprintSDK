@@ -37,8 +37,8 @@ void RRMaterial::reset(bool twoSided)
 
 bool clamp1(RRReal& a, RRReal min, RRReal max)
 {
-	if(a<min) a=min; else
-		if(a>max) a=max; else
+	if (a<min) a=min; else
+		if (a>max) a=max; else
 			return false;
 	return true;
 }
@@ -46,10 +46,10 @@ bool clamp1(RRReal& a, RRReal min, RRReal max)
 bool clamp3(RRVec3& vec, RRReal min, RRReal max)
 {
 	unsigned clamped = 3;
-	for(unsigned i=0;i<3;i++)
+	for (unsigned i=0;i<3;i++)
 	{
-		if(vec[i]<min) vec[i]=min; else
-			if(vec[i]>max) vec[i]=max; else
+		if (vec[i]<min) vec[i]=min; else
+			if (vec[i]>max) vec[i]=max; else
 				clamped--;
 	}
 	return clamped>0;
@@ -59,14 +59,14 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 {
 	bool changed = false;
 
-	if(clamp3(diffuseReflectance.color,0,10)) changed = true;
-	if(clamp1(specularReflectance,0,10)) changed = true;
-	if(clamp3(specularTransmittance.color,0,10)) changed = true;
-	if(clamp3(diffuseEmittance.color,0,1e6f)) changed = true;
+	if (clamp3(diffuseReflectance.color,0,10)) changed = true;
+	if (clamp1(specularReflectance,0,10)) changed = true;
+	if (clamp3(specularTransmittance.color,0,10)) changed = true;
+	if (clamp3(diffuseEmittance.color,0,1e6f)) changed = true;
 
 	RRVec3 sum = diffuseReflectance.color+specularTransmittance.color+RRVec3(specularReflectance);
 	RRReal max = MAX(sum[0],MAX(sum[1],sum[2]));
-	if(max>redistributedPhotonsLimit)
+	if (max>redistributedPhotonsLimit)
 	{
 		diffuseReflectance.color *= redistributedPhotonsLimit/max;
 		specularReflectance *= redistributedPhotonsLimit/max;
@@ -75,14 +75,14 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 	}
 
 	// it is common error to default refraction to 0, we must anticipate and handle it
-	if(refractionIndex==0) {refractionIndex = 1; changed = true;}
+	if (refractionIndex==0) {refractionIndex = 1; changed = true;}
 
 	return changed;
 }
 
 void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 {
-	if(scaler)
+	if (scaler)
 	{
 		scaler->getCustomFactor(diffuseReflectance.color);
 		scaler->getCustomScale(diffuseEmittance.color);
@@ -94,7 +94,7 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 
 void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 {
-	if(scaler)
+	if (scaler)
 	{
 		scaler->getPhysicalFactor(diffuseReflectance.color);
 		scaler->getPhysicalScale(diffuseEmittance.color);

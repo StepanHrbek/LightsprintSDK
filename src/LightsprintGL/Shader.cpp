@@ -16,7 +16,7 @@ namespace rr_gl
 char* readShader(const char *filename)
 {
 	FILE* f = fopen(filename,"rb");
-	if(!f) return NULL;
+	if (!f) return NULL;
 	fseek(f,0,SEEK_END);
 	unsigned count = ftell(f);
 	char *buf;
@@ -107,7 +107,7 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 
 #endif // MESA_VERSION
 
-	if(!source[2])
+	if (!source[2])
 	{
 		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
 		return NULL;
@@ -130,7 +130,7 @@ void Shader::compile(const char* filenameDiagnosticOnly)
 	glCompileShader(handle);
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);
 
-	if(!compiled)
+	if (!compiled)
 	{
 		rr::RRReporter::report(rr::ERRO,"%s compilation failed:\n",filenameDiagnosticOnly);
 

@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TRACE(a) //{if(RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
+#define TRACE(a) //{if (RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
 
 namespace rr
 {
@@ -42,7 +42,7 @@ struct IVertexInfo
 
 void Object::deleteIVertices()
 {
-	while(IVertexPool)
+	while (IVertexPool)
 	{
 		IVertex *old=IVertexPool->previousAllocBlock;
 		delete[] IVertexPool;
@@ -62,7 +62,7 @@ void Object::deleteIVertices()
 
 IVertex* IVertexPoolIterator::getNext()
 {
-	if(poolItemsUsed==1)
+	if (poolItemsUsed==1)
 	{
 		pool = *(IVertex**)pool;
 		poolItemsUsed = poolItems = poolItems/2;
@@ -114,7 +114,7 @@ void IVertex::insert(Triangle* node,bool toplevel,real power)
 {
 	RR_ASSERT(this);
 	power *= node->area;
-	if(corners==cornersAllocated())
+	if (corners==cornersAllocated())
 	{
 		size_t oldsize=(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner);
 		__cornersAllocated+=cornersAllocated();
@@ -123,8 +123,8 @@ void IVertex::insert(Triangle* node,bool toplevel,real power)
 		//cornersAllocatedLn2+=2;
 		dynamicCorner=(Corner *)realloc(dynamicCorner,oldsize,(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner));
 	}
-	for(unsigned i=0;i<corners;i++)
-		if(getCorner(i).node==node)
+	for (unsigned i=0;i<corners;i++)
+		if (getCorner(i).node==node)
 		{
 #ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size se i triangly smej insertovat vickrat
 			RR_ASSERT(!node->grandpa);// pouze clustery se smej insertovat vickrat, power se akumuluje
@@ -136,13 +136,13 @@ void IVertex::insert(Triangle* node,bool toplevel,real power)
 	getCorner(corners-1).node=node;
 	getCorner(corners-1).power=power;
 label:
-	if(toplevel) powerTopLevel+=power;
+	if (toplevel) powerTopLevel+=power;
 }
 
 bool IVertex::contains(Triangle* node)
 {
-	for(unsigned i=0;i<corners;i++)
-		if(getCorner(i).node==node) return true;
+	for (unsigned i=0;i<corners;i++)
+		if (getCorner(i).node==node) return true;
 	return false;
 }
 
@@ -164,13 +164,13 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 	unsigned numSplitted = 0;
 	//while zbyvaji cornery
 	std::list<Corner*> cornersLeft;
-	for(unsigned i=0;i<corners;i++) cornersLeft.push_back(&getCorner(i));
-	while(cornersLeft.size())
+	for (unsigned i=0;i<corners;i++) cornersLeft.push_back(&getCorner(i));
+	while (cornersLeft.size())
 	{
 		// set=empty
 		// zaloz ivertex s timto setem corneru
 		IVertex *v = obj->newIVertex();
-		if(!v)
+		if (!v)
 		{
 			outOfMemory = true;
 			break;
@@ -178,35 +178,35 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 		numSplitted++;
 		// for each zbyvajici corner
 restart_iter:
-		for(std::list<Corner*>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
+		for (std::list<Corner*>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
 		{
 			unsigned t1,t2;
 			RRMesh::TriangleBody body1,body2;
 			RRVec3 n1,n2;
 			unsigned j;
 			//  kdyz ma normalu dost blizkou aspon jednomu corneru ze setu, vloz ho do setu
-			if(!v->corners)
+			if (!v->corners)
 				goto insert_i;
 
 			t1 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,(*i)->node);
 			mesh->getTriangleBody(t1,body1);
 			n1 = orthogonalTo(body1.side1,body1.side2).normalized();
 
-			for(j=0;j<v->corners;j++)
+			for (j=0;j<v->corners;j++)
 			{
 				t2 = ARRAY_ELEMENT_TO_INDEX(obj->triangle,v->getCorner(j).node);
 				mesh->getTriangleBody(t2,body2);
 				n2 = orthogonalTo(body2.side1,body2.side2).normalized();
 
-				if(angleBetweenNormalized(n1,n2)<=maxSmoothAngle)
+				if (angleBetweenNormalized(n1,n2)<=maxSmoothAngle)
 				{
 insert_i:
 					// vloz corner do noveho ivertexu
 					v->insert((*i)->node,true,(*i)->power);
 					// oprav pointery z nodu na stary ivertex
 					Triangle* triangle = (*i)->node;
-					for(unsigned k=0;k<3;k++)
-						if(triangle->topivertex[k]==this)
+					for (unsigned k=0;k<3;k++)
+						if (triangle->topivertex[k]==this)
 							triangle->topivertex[k] = v;
 					// odeber z corneru zbyvajicich ke zpracovani
 					cornersLeft.erase(i);
@@ -227,14 +227,14 @@ insert_i:
 // only measure.direct/indirect is used
 Channels IVertex::irradiance(RRRadiometricMeasure measure)
 {
-	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid || cacheDirect!=measure.direct || cacheIndirect!=measure.indirect) // cacheTime is byte:5
+	if (cacheTime!=(__frameNumber&0x1f) || !cacheValid || cacheDirect!=measure.direct || cacheIndirect!=measure.indirect) // cacheTime is byte:5
 	{
 		//RR_ASSERT(powerTopLevel);
 		// irrad=irradiance in W/m^2
 		Channels irrad=Channels(0);
 
 		// full path
-		for(unsigned i=0;i<corners;i++)
+		for (unsigned i=0;i<corners;i++)
 		{
 			Triangle* node=getCorner(i).node;
 			RR_ASSERT(node);
@@ -308,17 +308,17 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	const RRMesh* mesh = object->importer->getCollider()->getMesh();
 	mesh->getVertex(originalVertexIndex,info.center);
 	// fill our neighbours
-	for(unsigned c=0;c<corners;c++)
+	for (unsigned c=0;c<corners;c++)
 	{
 		Triangle* tri = getCorner(c).node;
 		unsigned originalPresent = 0;
 		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,tri);
 		RRMesh::Triangle triangleVertexIndices;
 		mesh->getTriangle(triangleIndex,triangleVertexIndices);
-		for(unsigned i=0;i<3;i++)
+		for (unsigned i=0;i<3;i++)
 		{
 			unsigned triVertex = triangleVertexIndices[i];
-			if(triVertex!=originalVertexIndex)
+			if (triVertex!=originalVertexIndex)
 				info.neighbourVertices.insert(triVertex);
 			else
 				originalPresent++;
@@ -333,17 +333,17 @@ void IVertex::absorb(IVertex* aivertex)
 // aivertex <- 0
 {
 	// rehook nodes referencing aivertex to us
-	for(unsigned c=0;c<aivertex->corners;c++)
+	for (unsigned c=0;c<aivertex->corners;c++)
 	{
 		Triangle* tri = aivertex->getCorner(c).node;
-		for(unsigned i=0;i<3;i++)
+		for (unsigned i=0;i<3;i++)
 		{
-			if(tri->topivertex[i]==aivertex)
+			if (tri->topivertex[i]==aivertex)
 				tri->topivertex[i]=this;
 		}
 	}
 	// move corners
-	while(aivertex->corners)
+	while (aivertex->corners)
 	{
 		Corner* c = &aivertex->getCorner(--aivertex->corners);
 		insert(c->node,false,c->power);
@@ -369,11 +369,11 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 	neighbourVertices.insert(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
 	info2.neighbourVertices.erase(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
 	RR_ASSERT(info2.neighbourVertices.size()==0);
-	for(std::set<unsigned>::const_iterator i=ourVertices.begin();i!=ourVertices.end();i++)
+	for (std::set<unsigned>::const_iterator i=ourVertices.begin();i!=ourVertices.end();i++)
 	{
 		unsigned ourVertex = *i;
 		std::set<unsigned>::iterator invalidNeighbour = neighbourVertices.find(ourVertex);
-		if(invalidNeighbour!=neighbourVertices.end())
+		if (invalidNeighbour!=neighbourVertices.end())
 		{
 			neighbourVertices.erase(invalidNeighbour);
 			//invalidNeighbour = neighbourVertices.find(ourVertex);
@@ -403,31 +403,31 @@ unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, boo
 	// - set of vertices
 	// - set of neighbour vertices
 	IVertexInfo* ivertexInfo = new IVertexInfo[ivertices];
-	for(unsigned i=0;i<ivertices;i++)
+	for (unsigned i=0;i<ivertices;i++)
 	{
 		ivertex[i].fillInfo(this,i,ivertexInfo[i]);
 	}
 	unsigned* vertex2ivertex = new unsigned[vertices];
-	for(unsigned i=0;i<ivertices;i++)
+	for (unsigned i=0;i<ivertices;i++)
 	{
 		vertex2ivertex[i] = i;
 	}
 
 	// work until done
 	unsigned ivertex1Idx = 0;
-	while(!aborting)
+	while (!aborting)
 	{
 		// find closest ivertex - ivertex pair
 		real minDist = 1e30f;
 		unsigned minIVert1 = 0;
 		unsigned minIVert2 = 0;
-		for(;ivertex1Idx<ivertices;ivertex1Idx++)
-			if(ivertexInfo[ivertex1Idx].ourVertices.size())
+		for (;ivertex1Idx<ivertices;ivertex1Idx++)
+			if (ivertexInfo[ivertex1Idx].ourVertices.size())
 		{
 			RR_ASSERT(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xfeee);
 			RR_ASSERT(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xcdcd);
 			// for each neighbour vertex
-			for(std::set<unsigned>::const_iterator i=ivertexInfo[ivertex1Idx].neighbourVertices.begin();i!=ivertexInfo[ivertex1Idx].neighbourVertices.end();i++)
+			for (std::set<unsigned>::const_iterator i=ivertexInfo[ivertex1Idx].neighbourVertices.begin();i!=ivertexInfo[ivertex1Idx].neighbourVertices.end();i++)
 			{
 				// convert to neighbour ivertex
 				unsigned vertex2Idx = *i;
@@ -437,22 +437,22 @@ unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, boo
 				real dist = size(ivertexInfo[ivertex1Idx].center-ivertexInfo[ivertex2Idx].center);
 				RR_ASSERT(dist); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
 				// store the best
-				if(dist<minDist)
+				if (dist<minDist)
 				{
 					minDist = dist;
 					minIVert1 = ivertex1Idx;
 					minIVert2 = ivertex2Idx;
 				}
 			}
-			if(minDist<=minFeatureSize) break;
+			if (minDist<=minFeatureSize) break;
 		}
 
 		// end if not close enough
-		if(minDist>minFeatureSize) break;
+		if (minDist>minFeatureSize) break;
 		numReduced++;
 
 		// merge ivertices: update local temporary vertex2ivertex
-		for(std::set<unsigned>::const_iterator i=ivertexInfo[minIVert2].ourVertices.begin();i!=ivertexInfo[minIVert2].ourVertices.end();i++)
+		for (std::set<unsigned>::const_iterator i=ivertexInfo[minIVert2].ourVertices.begin();i!=ivertexInfo[minIVert2].ourVertices.end();i++)
 		{
 			RR_ASSERT(vertex2ivertex[*i] == minIVert2);
 			vertex2ivertex[*i] = minIVert1;
@@ -468,21 +468,21 @@ unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, boo
 
 		// sanity check
 		bool warned = false;
-		if(ivertexInfo[minIVert1].ourVertices.size()>100)
+		if (ivertexInfo[minIVert1].ourVertices.size()>100)
 		{
 			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"Cluster of more than 100 vertices smoothed.\n"));
 		}
-		if(numReduced>unsigned(vertices*0.9f))
+		if (numReduced>unsigned(vertices*0.9f))
 		{
 			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"More than 90%% of vertices removed in smoothing.\n"));
 		}
-		if(warned)
+		if (warned)
 		{
 			RRVec3 mini,maxi,center;
 			importer->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 			RRReporter::report(INF1,"Scene stats: numVertices=%d  size=%fm x %fm x %fm  minFeatureSize=%fm (check what you enter into RRDynamicSolver::setStaticObjects() or RRStaticSolver())\n",vertices,maxi[0]-mini[0],maxi[1]-mini[1],maxi[2]-mini[2],minFeatureSize);
-			if(sum(abs(maxi-mini))>5000) RRReporter::report(WARN,"Possibly scene too big (wrong scale)?\n");
-			if(sum(abs(maxi-mini))<0.5) RRReporter::report(WARN,"Possibly scene too small (wrong scale)?\n");
+			if (sum(abs(maxi-mini))>5000) RRReporter::report(WARN,"Possibly scene too big (wrong scale)?\n");
+			if (sum(abs(maxi-mini))<0.5) RRReporter::report(WARN,"Possibly scene too small (wrong scale)?\n");
 		}
 	}
 
@@ -498,25 +498,25 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 	bool outOfMemory = false;
 
 	// check
-	for(unsigned t=0;t<triangles;t++)
+	for (unsigned t=0;t<triangles;t++)
 	{
-		for(int v=0;v<3;v++)
+		for (int v=0;v<3;v++)
 			RR_ASSERT(!triangle[t].topivertex[v]);
 	}
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
 	const RRMesh* mesh = importer->getCollider()->getMesh();
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+	for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
 	{
-		if(aborting) break;
+		if (aborting) break;
 		RRMesh::Triangle un_ve;
 		mesh->getTriangle(t,un_ve);
 		RRMesh::Vertex vertex[3];
 		mesh->getVertex(un_ve[0],vertex[0]);
 		mesh->getVertex(un_ve[1],vertex[1]);
 		mesh->getVertex(un_ve[2],vertex[2]);
-		for(int ro_v=0;ro_v<3;ro_v++)
+		for (int ro_v=0;ro_v<3;ro_v++)
 		{
 			unsigned un_v = un_ve[ro_v];
 			RR_ASSERT(un_v<vertices);
@@ -532,7 +532,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 	//printf("IVertices loaded: %d\n",numIVertices);
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	// volano jen pokud ma neco delat -> malinka uspora casu
-	if(minFeatureSize>0 && !aborting)
+	if (minFeatureSize>0 && !aborting)
 	{
 		// Pouha existence nasledujiciho radku (mergeCloseIVertices) i kdyz se nikdy neprovadi
 		// zpomaluje cube v MSVC o 8%.
@@ -544,17 +544,17 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 #endif
 
 	// split ivertices with too different normals
-	for(unsigned v=0;v<vertices;v++)
+	for (unsigned v=0;v<vertices;v++)
 	{
-		if(aborting) break;
+		if (aborting) break;
 		RRMesh::Vertex vert;
 		mesh->getVertex(v,vert);
 		numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
-		if(outOfMemory) break;
+		if (outOfMemory) break;
 		// check that splitted topivertex is no more referenced
-		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+		/*for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
 		{
-			for(unsigned i=0;i<3;i++)
+			for (unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(triangle[t].topivertex[i]!=&topivertex[v]);
 			}
@@ -563,9 +563,9 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 	//printf("IVertices after splitting: %d\n",numIVertices);
 
 	// delete local array topivertex
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+	for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
 	{
-		for(unsigned i=0;i<3;i++)
+		for (unsigned i=0;i<3;i++)
 		{
 			// check that local array topivertex is not referenced here
 			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
@@ -575,11 +575,11 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 	delete[] topivertex;
 
 	// check triangle.topivertex validity
-	if(!aborting)
-	for(unsigned t=0;t<triangles;t++)
-		for(int v=0;v<3;v++)
+	if (!aborting)
+	for (unsigned t=0;t<triangles;t++)
+		for (int v=0;v<3;v++)
 		{
-			if(triangle[t].topivertex[v])
+			if (triangle[t].topivertex[v])
 			{
 				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xcdcd);
 				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);

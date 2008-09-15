@@ -16,7 +16,7 @@ int main()
 {
 	// provide licence information
 	const char* licError = loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		puts(licError);
 
 	// array of meshes in our scene. all meshes use the same coordinate space
@@ -73,7 +73,7 @@ int main()
 	bool hit = collider->intersect(ray);
 
 	// print results
-	if(hit)
+	if (hit)
 	{
 		// get original mesh/triangle numbers
 		// it works even when filters (e.g. vertex weld) run on mesh or multimesh

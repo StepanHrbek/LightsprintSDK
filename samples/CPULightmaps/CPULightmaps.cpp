@@ -51,23 +51,23 @@ void calculate(rr::RRDynamicSolver* solver)
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for(unsigned i=0;i<solver->getNumObjects();i++)
+	for (unsigned i=0;i<solver->getNumObjects();i++)
 	{
 		const rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
-		if(i==SELECTED_OBJECT_NUMBER)
+		if (i==SELECTED_OBJECT_NUMBER)
 		{
 			// allocate lightmaps for selected object
 			unsigned res = 16;
 			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-			while(res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
-			for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+			while (res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
+			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 				solver->getIllumination(i)->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 		}
 		else
 		{
 			// allocate vertex buffers for other objects
-			for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 				solver->getIllumination(i)->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
@@ -78,7 +78,7 @@ void calculate(rr::RRDynamicSolver* solver)
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
 
 	// save GI lightmaps, bent normals
-	for(unsigned layerNumber=0;layerNumber<5;layerNumber++)
+	for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 		solver->getStaticObjects().saveIllumination("../../data/export/",layerNumber);
 }
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 #endif // _MSC_VER
 
 	// check for version mismatch
-	if(!RR_INTERFACE_OK)
+	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
 	// init scene and solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace

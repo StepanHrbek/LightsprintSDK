@@ -28,7 +28,7 @@ public:
 	virtual ~UberProgramImpl()
 	{
 		// delete all programs in cache
-		for(Cache::const_iterator i=cache.begin();i!=cache.end();i++)
+		for (Cache::const_iterator i=cache.begin();i!=cache.end();i++)
 			delete (*i).second;
 		free((void*)fragmentShaderFileName);
 		free((void*)vertexShaderFileName);
@@ -37,12 +37,12 @@ public:
 	virtual Program* getProgram(const char* defines)
 	{
 		unsigned hash = 0;
-		for(const char* tmp = defines;tmp && *tmp;tmp++)
+		for (const char* tmp = defines;tmp && *tmp;tmp++)
 		{
 			hash=(hash<<5)+(hash>>27)+*tmp;
 		}
 		Cache::iterator i = cache.find(hash);
-		if(i!=cache.end()) return i->second;
+		if (i!=cache.end()) return i->second;
 		Program* program = Program::create(defines,vertexShaderFileName,fragmentShaderFileName);
 		cache[hash] = program;
 		return program;

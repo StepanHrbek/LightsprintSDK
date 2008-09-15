@@ -28,16 +28,16 @@ public:
 	virtual bool collides(const RRRay* ray)
 	{
 		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
-		if(material)
+		if (material)
 		{
 			// per-pixel materials
-			if(material->sideBits[ray->hitFrontSide?0:1].pointDetails)
+			if (material->sideBits[ray->hitFrontSide?0:1].pointDetails)
 			{
 				// optional ray->hitPoint2d must be filled
 				// this is satisfied by existing colliders, they fill hitPoint2d even when not requested by user
 				RRMaterial pointMaterial;
 				object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-				if(pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
+				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					return result = true;
 				}
@@ -45,7 +45,7 @@ public:
 			else
 			// per-triangle materials
 			{
-				if(material->sideBits[ray->hitFrontSide?0:1].renderFrom)
+				if (material->sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					return result = true;
 				}

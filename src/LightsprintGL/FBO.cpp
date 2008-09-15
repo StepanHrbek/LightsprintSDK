@@ -19,7 +19,7 @@ namespace rr_gl
 
 FBO::FBO()
 {
-	if(!glewIsSupported("GL_EXT_framebuffer_object"))
+	if (!glewIsSupported("GL_EXT_framebuffer_object"))
 	{
 		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n");
 		exit(0);
@@ -36,7 +36,7 @@ void FBO::setRenderTargetColor(unsigned color_id, unsigned textarget) const
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, textarget, color_id, 0);
-	if(color_id)
+	if (color_id)
 	{
 		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);

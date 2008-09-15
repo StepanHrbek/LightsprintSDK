@@ -79,7 +79,7 @@ void RRMesh::TangentBasis::buildBasisFromNormal()
 void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	unsigned numTriangles = getNumTriangles();
-	if(t>=numTriangles)
+	if (t>=numTriangles)
 	{
 		RR_ASSERT(0);
 		return;
@@ -95,7 +95,7 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
 	unsigned numTriangles = getNumTriangles();
-	if(t>=numTriangles)
+	if (t>=numTriangles)
 	{
 		RR_ASSERT(0);
 		return;
@@ -131,7 +131,7 @@ void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
 	unsigned x = t%w;
 	unsigned y = t/w;
 	static const float border = 0.1f;
-	if(!spin)
+	if (!spin)
 	{
 		out.uv[0][0] = (x+border)/w;
 		out.uv[0][1] = (y+border)/h;
@@ -194,17 +194,17 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	unsigned numVertices = getNumVertices();
-	if(numVertices)
+	if (numVertices)
 	{
 		RRVec3 center = RRVec3(0);
 		RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
 		RRVec3 maxi = RRVec3(-1e37f);
-		for(unsigned i=0;i<numVertices;i++)
+		for (unsigned i=0;i<numVertices;i++)
 		{
 			RRMesh::Vertex v;
 			getVertex(i,v);
-			for(unsigned j=0;j<3;j++)
-				if(_finite(v[j])) // filter out INF/NaN
+			for (unsigned j=0;j<3;j++)
+				if (_finite(v[j])) // filter out INF/NaN
 				{
 					center[j] += v[j];
 					mini[j] = MIN(mini[j],v[j]);
@@ -213,21 +213,21 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 		}
 
 		// fix negative size
-		for(unsigned j=0;j<3;j++)
-			if(mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
+		for (unsigned j=0;j<3;j++)
+			if (mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
 
-		if(_center) *_center = center/numVertices;
-		if(_mini) *_mini = mini;
-		if(_maxi) *_maxi = maxi;
+		if (_center) *_center = center/numVertices;
+		if (_mini) *_mini = mini;
+		if (_maxi) *_maxi = maxi;
 	}
 	else
 	{
-		if(_center) *_center = RRVec3(0);
-		if(_mini) *_mini = RRVec3(0);
-		if(_maxi) *_maxi = RRVec3(0);
+		if (_center) *_center = RRVec3(0);
+		if (_mini) *_mini = RRVec3(0);
+		if (_maxi) *_maxi = RRVec3(0);
 	}
-	if(_mini) RR_ASSERT(IS_VEC3(_mini[0]));
-	if(_maxi) RR_ASSERT(IS_VEC3(_mini[0]));
+	if (_mini) RR_ASSERT(IS_VEC3(_mini[0]));
+	if (_maxi) RR_ASSERT(IS_VEC3(_mini[0]));
 }
 
 
@@ -369,7 +369,7 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 
 RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform) const
 {
-	if(!this) return NULL;
+	if (!this) return NULL;
 	//!!! az bude refcounting, muzu pri identite vracet this
 	//return transform ? new RRTransformedMeshFilter(this,transform) : this;
 	return new RRTransformedMeshFilter(this,transform);
@@ -382,11 +382,11 @@ const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numM
 
 const RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance) const
 {
-	if(!this) return NULL;
-	if(vertexStitchMaxDistance<0)
+	if (!this) return NULL;
+	if (vertexStitchMaxDistance<0)
 		return this;
 	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
-	if(tmp->getNumVertices()<getNumVertices())
+	if (tmp->getNumVertices()<getNumVertices())
 		return tmp;
 	delete tmp;
 	return this;
@@ -394,9 +394,9 @@ const RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance) con
 
 const RRMesh* RRMesh::createOptimizedTriangles() const
 {
-	if(!this) return NULL;
+	if (!this) return NULL;
 	RRMesh* tmp = new RRLessTrianglesFilter(this);
-	if(tmp->getNumTriangles()<getNumTriangles())
+	if (tmp->getNumTriangles()<getNumTriangles())
 		return tmp;
 	delete tmp;
 	return this;
@@ -414,7 +414,7 @@ public:
 
 RRMesh* RRMesh::createVertexBufferRuler() const
 {
-	if(!this) return NULL;
+	if (!this) return NULL;
 	return new RRHidePreImportFilter(this);
 }
 
@@ -423,41 +423,41 @@ unsigned RRMesh::checkConsistency() const
 	unsigned numReports = 0;
 	// numVertices
 	unsigned numVertices = getNumVertices();
-	if(numVertices==0 || numVertices>=10000000)
+	if (numVertices==0 || numVertices>=10000000)
 	{
 		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 		numReports++;
 	}
 	// numTriangles
 	unsigned numTriangles = getNumTriangles();
-	if(numTriangles==0 || numTriangles>=10000000)
+	if (numTriangles==0 || numTriangles>=10000000)
 	{
 		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 		numReports++;
 	}
 	// vertices
-	for(unsigned i=0;i<numVertices;i++)
+	for (unsigned i=0;i<numVertices;i++)
 	{
 		Vertex vertex;
 		getVertex(i,vertex);
-		if(!IS_VEC3(vertex))
+		if (!IS_VEC3(vertex))
 		{
 			RRReporter::report(ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
 			numReports++;
 		}
 	}
 	// triangles
-	for(unsigned i=0;i<numTriangles;i++)
+	for (unsigned i=0;i<numTriangles;i++)
 	{
 		// triangle
 		Triangle triangle;
 		getTriangle(i,triangle);
-		if(triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
+		if (triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
 		{
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 			numReports++;
 		}
-		if(triangle.m[0]==triangle.m[1] || triangle.m[0]==triangle.m[2] || triangle.m[1]==triangle.m[2])
+		if (triangle.m[0]==triangle.m[1] || triangle.m[0]==triangle.m[2] || triangle.m[1]==triangle.m[2])
 		{
 			RRReporter::report(ERRO,"degen: getTriangle(%d)==%d %d %d\n",i,triangle.m[0],triangle.m[1],triangle.m[2]);
 			numReports++;
@@ -466,27 +466,27 @@ unsigned RRMesh::checkConsistency() const
 		// triangleBody
 		TriangleBody triangleBody;
 		getTriangleBody(i,triangleBody);
-		if(!IS_VEC3(triangleBody.vertex0))
+		if (!IS_VEC3(triangleBody.vertex0))
 		{
 			RRReporter::report(ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
 			numReports++;
 		}
-		if(!IS_VEC3(triangleBody.side1))
+		if (!IS_VEC3(triangleBody.side1))
 		{
 			RRReporter::report(ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
 			numReports++;
 		}
-		if(!IS_VEC3(triangleBody.side2))
+		if (!IS_VEC3(triangleBody.side2))
 		{
 			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 			numReports++;
 		}
-		if(!triangleBody.side1.length2())
+		if (!triangleBody.side1.length2())
 		{
 			RRReporter::report(WARN,"degen: getTriangleBody(%d).side1==0\n",i);
 			numReports++;
 		}
-		if(!triangleBody.side2.length2())
+		if (!triangleBody.side2.length2())
 		{
 			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 			numReports++;
@@ -497,7 +497,7 @@ unsigned RRMesh::checkConsistency() const
 		getVertex(triangle.m[0],vertex[0]);
 		getVertex(triangle.m[1],vertex[1]);
 		getVertex(triangle.m[2],vertex[2]);
-		if(triangleBody.vertex0[0]!=vertex[0][0] || triangleBody.vertex0[1]!=vertex[0][1] || triangleBody.vertex0[2]!=vertex[0][2])
+		if (triangleBody.vertex0[0]!=vertex[0][0] || triangleBody.vertex0[1]!=vertex[0][1] || triangleBody.vertex0[2]!=vertex[0][2])
 		{
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
@@ -514,7 +514,7 @@ unsigned RRMesh::checkConsistency() const
 			fabs(vertex[1][0]-vertex[0][0]-triangleBody.side1[0])+
 			fabs(vertex[1][1]-vertex[0][1]-triangleBody.side1[1])+
 			fabs(vertex[1][2]-vertex[0][2]-triangleBody.side1[2]);
-		if(dif>scale*1e-5)
+		if (dif>scale*1e-5)
 		{
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
@@ -532,7 +532,7 @@ unsigned RRMesh::checkConsistency() const
 			fabs(vertex[2][0]-vertex[0][0]-triangleBody.side2[0])+
 			fabs(vertex[2][1]-vertex[0][1]-triangleBody.side2[1])+
 			fabs(vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
-		if(dif>scale*1e-5)
+		if (dif>scale*1e-5)
 		{
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
@@ -554,20 +554,20 @@ unsigned RRMesh::checkConsistency() const
 		bool denormalized = false;
 		bool badDirection = false;
 		bool notOrthogonal = false;
-		for(unsigned j=0;j<3;j++)
+		for (unsigned j=0;j<3;j++)
 		{
-			if(!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
-			if(!IS_VEC3(triangleNormals.vertex[j].tangent)) nanOrInf = true;
-			if(!IS_VEC3(triangleNormals.vertex[j].bitangent)) nanOrInf = true;
-			if(fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
-			if(fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
-			if(fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
-			if(size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
-			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
-			if(fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
-			if(fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].tangent)) nanOrInf = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].bitangent)) nanOrInf = true;
+			if (fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
+			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
+			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
+			if (size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
+			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
+			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
+			if (fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
 		}
-		if(nanOrInf)
+		if (nanOrInf)
 		{
 			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
@@ -575,7 +575,7 @@ unsigned RRMesh::checkConsistency() const
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
 		} 
 		else
-		if(denormalized)
+		if (denormalized)
 		{
 			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
@@ -583,12 +583,12 @@ unsigned RRMesh::checkConsistency() const
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
 		}
 		else
-		if(badDirection)
+		if (badDirection)
 		{
 			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 		}
 		else
-		if(notOrthogonal)
+		if (notOrthogonal)
 		{
 			// they are orthogonal in UE3, but they are not in Gamebryo
 			// RRReporter::report(WARN,"getTriangleNormals(%d) are not orthogonal (normal,tangent,bitangent).\n",i);
@@ -598,13 +598,13 @@ unsigned RRMesh::checkConsistency() const
 		TriangleMapping triangleMapping;
 		getTriangleMapping(i,triangleMapping);
 		bool outOfRange = false;
-		for(unsigned j=0;j<3;j++)
+		for (unsigned j=0;j<3;j++)
 		{
-			for(unsigned k=0;k<2;k++)
-				if(triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
+			for (unsigned k=0;k<2;k++)
+				if (triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
 					outOfRange = true;
 		}
-		if(outOfRange)
+		if (outOfRange)
 		{
 			RRReporter::report(WARN,"getTriangleMapping(%d) out of range, %f %f  %f %f  %f %f.\n",
 				i,
@@ -622,14 +622,14 @@ unsigned RRMesh::getNumPreImportVertices() const
 {
 	unsigned numPreImportVertices = 0;
 	unsigned numPostTriangles = getNumTriangles();
-	for(unsigned postTriangle=0;postTriangle<numPostTriangles;postTriangle++)
+	for (unsigned postTriangle=0;postTriangle<numPostTriangles;postTriangle++)
 	{
 		Triangle postVertices;
 		getTriangle(postTriangle,postVertices);
-		for(unsigned i=0;i<3;i++)
+		for (unsigned i=0;i<3;i++)
 		{
 			PreImportNumber preVertex = getPreImportVertex(postVertices[i],postTriangle);
-			if(preVertex.index!=UINT_MAX)
+			if (preVertex.index!=UINT_MAX)
 				numPreImportVertices = MAX(numPreImportVertices,preVertex.index+1);
 		}
 	}

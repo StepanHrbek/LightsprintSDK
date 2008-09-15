@@ -77,10 +77,10 @@ namespace rr
 		void              setKd(bool k)         {RR_ASSERT(allows_kd || !k);kd.kd=k;}
 		bool              contains(TriInfo tri) const
 		{
-			if(bsp.kd==1)
+			if (bsp.kd==1)
 				return kd.getFront()->contains(tri) || kd.getBack()->contains(tri);
-			for(const TriInfo* t=bsp.getTrianglesBegin();t<getTrianglesEnd();t++)
-				if(*t==tri) return true;
+			for (const TriInfo* t=bsp.getTrianglesBegin();t<getTrianglesEnd();t++)
+				if (*t==tri) return true;
 			return (bsp.front && bsp.getFront()->contains(tri)) 
 				|| (bsp.back && bsp.getBack()->contains(tri));
 		}
@@ -195,14 +195,14 @@ namespace rr
 	template IBP
 	PRIVATE BspTree* load(FILE *f)
 	{
-		if(!f) return NULL;
+		if (!f) return NULL;
 		BspTree head;
 		size_t read = fread(&head,sizeof(head),1,f);
-		if(!read) return NULL;
+		if (!read) return NULL;
 		fseek(f,-(int)sizeof(head),SEEK_CUR);
 		BspTree* tree = (BspTree*)malloc(head.bsp.size);
 		read = fread(tree,1,head.bsp.size,f);
-		if(read == head.bsp.size) return tree;
+		if (read == head.bsp.size) return tree;
 		free(tree);
 		return NULL;
 	}
@@ -210,11 +210,11 @@ namespace rr
 	template IBP
 	PRIVATE BspTree* load(const RRMesh* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
-		if(!intersector) return NULL;
-		if(!importer) return NULL;
+		if (!intersector) return NULL;
+		if (!importer) return NULL;
 		unsigned triangles = importer->getNumTriangles();
-		if(!triangles) return NULL;
-		if(!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
+		if (!triangles) return NULL;
+		if (!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
 		BspTree* tree = NULL;
 		char name[300];
 		getFileName(name,300,TREE_VERSION,importer,cacheLocation,ext);
@@ -222,11 +222,11 @@ namespace rr
 
 		// try to load tree from disk
 		FILE* f;
-		if(!buildParams->forceRebuild && (f=fopen(name,"rb")))
+		if (!buildParams->forceRebuild && (f=fopen(name,"rb")))
 		{
 			tree = load IBP2(f);
 			fclose(f);
-			if(tree)
+			if (tree)
 				return tree;
 		}
 
@@ -238,7 +238,7 @@ namespace rr
 			obj.vertex_num = importer->getNumVertices();
 			obj.face = new FACE[obj.face_num];
 			obj.vertex = new VERTEX[obj.vertex_num];
-			for(int i=0;i<obj.vertex_num;i++)
+			for (int i=0;i<obj.vertex_num;i++)
 			{
 				RRMesh::Vertex v;
 				importer->getVertex(i,v);
@@ -250,7 +250,7 @@ namespace rr
 				obj.vertex[i].used = 1;
 			}
 			unsigned ii=0;
-			for(int i=0;i<obj.face_num;i++)
+			for (int i=0;i<obj.face_num;i++)
 			{
 				RRMesh::Triangle v;
 				importer->getTriangle(i,v);
@@ -258,11 +258,11 @@ namespace rr
 				obj.face[ii].vertex[1] = &obj.vertex[v[1]];
 				obj.face[ii].vertex[2] = &obj.vertex[v[2]];
 				// invalid triangles are skipped, but triangle numbers (id) are preserved
-				if(intersector->isValidTriangle(i)) obj.face[ii++].id=i;
+				if (intersector->isValidTriangle(i)) obj.face[ii++].id=i;
 			}
-			if(ii)
+			if (ii)
 			{
-				if(obj.face_num-ii)
+				if (obj.face_num-ii)
 					RRReporter::report(INF2,"%d degenerated triangles removed form collider.\n",obj.face_num-ii);
 				obj.face_num = ii;
 				RR_ASSERT(!tree);
@@ -277,10 +277,10 @@ namespace rr
 		}
 
 		// save tree to disk (gcc warning on following line is innocent but hard to prevent)
-		if(tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
+		if (tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
 		{
 			f = fopen(name,"wb");
-			if(f)
+			if (f)
 			{
 				fwrite(tree,tree->bsp.size,1,f);
 				fclose(f);

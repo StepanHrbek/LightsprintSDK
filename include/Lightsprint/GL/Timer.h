@@ -87,11 +87,11 @@ public:
 	{
 #ifdef WINDOWS_TIME
 		MyFILETIME creationtime,exittime;
-		if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kernelstart.ft,&userstart.ft))
+		if (!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kernelstart.ft,&userstart.ft))
 		{
 			assert(0);
 		}
-		if(perffreq)
+		if (perffreq)
 		{
 			QueryPerformanceCounter((LARGE_INTEGER *)&perfstart);
 		}
@@ -108,17 +108,17 @@ public:
 	double Watch(double* usertime=NULL, double* kerneltime=NULL)
 	{
 #ifdef WINDOWS_TIME
-		if(usertime || kerneltime)
+		if (usertime || kerneltime)
 		{
 			MyFILETIME creationtime,exittime,kerneltime2,usertime2;
-			if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kerneltime2.ft,&usertime2.ft))
+			if (!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kerneltime2.ft,&usertime2.ft))
 			{
 				assert(0);
 			}
-			if(kerneltime) *kerneltime = (kerneltime2.u-kernelstart.u)*1e-7;
-			if(usertime) *usertime = (usertime2.u-userstart.u)*1e-7;
+			if (kerneltime) *kerneltime = (kerneltime2.u-kernelstart.u)*1e-7;
+			if (usertime) *usertime = (usertime2.u-userstart.u)*1e-7;
 		}
-		if(perffreq)
+		if (perffreq)
 		{
 			__int64 perftime;
 			QueryPerformanceCounter((LARGE_INTEGER *)&perftime);

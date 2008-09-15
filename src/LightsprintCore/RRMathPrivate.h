@@ -58,8 +58,8 @@ namespace rr
 	// is not continuous (such function doesn't exist)
 	inline RRVec3 orthogonalTo(const RRVec3& a)
 	{
-		//if(!a.x) return RRVec3(0,a.z,-a.y); else return RRVec3(-a.y,a.x,0); // plane of discontinuity
-		if(!a.x && !a.y) return RRVec3(0,1,0); else return RRVec3(-a.y,a.x,0); // line of discontinuity
+		//if (!a.x) return RRVec3(0,a.z,-a.y); else return RRVec3(-a.y,a.x,0); // plane of discontinuity
+		if (!a.x && !a.y) return RRVec3(0,1,0); else return RRVec3(-a.y,a.x,0); // line of discontinuity
 	}
 
 	inline RRVec3 orthogonalTo(const RRVec3& a,const RRVec3& b)

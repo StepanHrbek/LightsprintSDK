@@ -62,22 +62,22 @@ unsigned Interpolator::getDestinationSize() const
 void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler* scaler) const
 {
 	RR_ASSERT(dst);
-	if(!dst->getScaled()) scaler = NULL;
+	if (!dst->getScaled()) scaler = NULL;
 	unsigned char* locked = dst->lock(BL_DISCARD_AND_WRITE);
 	RRBufferFormat format = dst->getFormat();
 #pragma omp parallel for schedule(static) // fastest: static, dynamic, static,1
-	for(int i=0;i<(int)headers.size();i++)
+	for (int i=0;i<(int)headers.size();i++)
 	{
 		RRVec4 sum = RRVec4(0);
 		RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
-		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
+		for (unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
 			RR_ASSERT(_finite(contributors[j].srcContributionHdr));
 			RR_ASSERT(contributors[j].srcContributionHdr>0);
 			sum.RRVec3::operator+=(src[contributors[j].srcOffset] * contributors[j].srcContributionHdr);
 		}
-		if(scaler) scaler->getCustomScale(sum);
-		if(locked)
+		if (scaler) scaler->getCustomScale(sum);
+		if (locked)
 		{
 			switch(format)
 			{
@@ -108,7 +108,7 @@ void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler*
 			dst->setElement(headers[i].dstOffset1,sum);
 		}
 	}
-	if(locked) dst->unlock();
+	if (locked) dst->unlock();
 }
 
 } // namespace

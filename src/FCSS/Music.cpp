@@ -26,12 +26,12 @@ Music* Music::load(const char* filename)
 
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&music->system);
-	if(result!=FMOD_OK) goto err;
+	if (result!=FMOD_OK) goto err;
 
 	unsigned int version;
 	result = music->system->getVersion(&version);
-	if(result!=FMOD_OK) goto err;
-	if(version < FMOD_VERSION)
+	if (result!=FMOD_OK) goto err;
+	if (version < FMOD_VERSION)
 	{
 		rr::RRReporter::report(rr::ERRO,"Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
 		goto err_printed;
@@ -39,16 +39,16 @@ Music* Music::load(const char* filename)
 
 
 	result = music->system->setStreamBufferSize(0x40000, FMOD_TIMEUNIT_RAWBYTES);
-	if(result!=FMOD_OK) goto err;
+	if (result!=FMOD_OK) goto err;
 
 	result = music->system->init(1, FMOD_INIT_NORMAL, 0);
-	if(result!=FMOD_OK) goto err;
+	if (result!=FMOD_OK) goto err;
 
 	result = music->system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D | FMOD_ACCURATETIME, 0, &music->sound);
-	if(result!=FMOD_OK) goto err;
+	if (result!=FMOD_OK) goto err;
 
 	result = music->system->playSound(FMOD_CHANNEL_FREE, music->sound, true, &music->channel);
-	if(result!=FMOD_OK) goto err;
+	if (result!=FMOD_OK) goto err;
 
 	return music;
 
@@ -72,14 +72,14 @@ void Music::poll()
 void Music::setPaused(bool paused)
 {
 //	printf("musicPaused(%d)\n",paused?1:0);
-	if(channel)
+	if (channel)
 		channel->setPaused(paused);
 }
 
 float Music::getPosition()
 {
 	unsigned ms = 0;
-	if(channel)
+	if (channel)
 	{
 		// kdyz loopne, zacne vracet casy od 0
 		channel->getPosition(&ms,FMOD_TIMEUNIT_MS);
@@ -91,7 +91,7 @@ float Music::getPosition()
 void Music::setPosition(float seconds)
 {
 //	printf("musicSetPos(%f)\n",seconds);
-	if(channel)
+	if (channel)
 	{
 		channel->setPosition((unsigned)(seconds*1000),FMOD_TIMEUNIT_MS);
 	}
@@ -100,7 +100,7 @@ void Music::setPosition(float seconds)
 float Music::getLength()
 {
 	unsigned ms = 0;
-	if(sound)
+	if (sound)
 	{
 		sound->getLength(&ms,FMOD_TIMEUNIT_MS);
 	}
@@ -109,18 +109,18 @@ float Music::getLength()
 
 void Music::setVolume(float volume)
 {
-	if(channel)
+	if (channel)
 		channel->setVolume(volume);
 }
 
 Music::~Music()
 {
 	FMOD_RESULT result;
-	if(sound)
+	if (sound)
 	{
 		result = sound->release();
 	}
-	if(system)
+	if (system)
 	{
 		result = system->close();
 		result = system->release();

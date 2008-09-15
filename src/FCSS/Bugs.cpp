@@ -16,16 +16,16 @@ public:
 		dir = RRVec3(0);
 		dist = 0;
 		face = 0;
-		for(unsigned i=0;i<4;i++) col[i]=rand();
+		for (unsigned i=0;i<4;i++) col[i]=rand();
 	}
 	void tick(float seconds, const RRStaticSolver* scene, const RRObject* object, RRRay* ray, float avgFaceArea)
 	{
-		//if(face!=UINT_MAX)
+		//if (face!=UINT_MAX)
 		{
 			// get light 1 for old dir
 			RRVec3 light1 = RRVec3(0);
 			RRVec3 light2 = RRVec3(0);
-			if(face!=UINT_MAX)
+			if (face!=UINT_MAX)
 				scene->getTriangleMeasure(face,3,RM_IRRADIANCE_PHYSICAL,NULL,light1);
 			// get light 2 for random new dir
 			RRVec3 dir2 = RRVec3(rand()/(float)RAND_MAX,rand()/(float)RAND_MAX,rand()/(float)RAND_MAX);
@@ -38,14 +38,14 @@ public:
 			ray->rayLengthMax = 1000;
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE|RRRay::TEST_SINGLESIDED;
 			unsigned face2 = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
-			if(face2!=UINT_MAX)
+			if (face2!=UINT_MAX)
 			{
 				scene->getTriangleMeasure(face2,3,RM_IRRADIANCE_PHYSICAL,NULL,light2);
 				float area = object->getCollider()->getMesh()->getTriangleArea(face2);
-				if(area<avgFaceArea/5) face2 = UINT_MAX;
+				if (area<avgFaceArea/5) face2 = UINT_MAX;
 			}
 			// switch to darker dir
-			if(face==UINT_MAX // escaping
+			if (face==UINT_MAX // escaping
 				|| (face2!=UINT_MAX && light2.sum()<light1.sum())) // dir2 is darker
 			{
 				dir = dir2;
@@ -82,12 +82,12 @@ public:
 		numBugs = anumBugs;
 		bugs = new Bug[numBugs];
 		ray = RRRay::create();
-		for(unsigned i=0;i<bugMaps;i++)
+		for (unsigned i=0;i<bugMaps;i++)
 		{
 			char name[]="maps\\rrbugs_bug0.tga";
 			name[15] = '0'+i;
 			bugMap[i] = rr::RRBuffer::load(name);
-			if(!bugMap[i])
+			if (!bugMap[i])
 			{
 				printf("Texture %s not found or invalid.\n",name);
 				error("",false);
@@ -96,12 +96,12 @@ public:
 		avgFaceArea = 0;
 		const RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
-		if(numTriangles)
+		if (numTriangles)
 		{
-			for(unsigned t=0;t<numTriangles;t++) avgFaceArea += mesh->getTriangleArea(t);
+			for (unsigned t=0;t<numTriangles;t++) avgFaceArea += mesh->getTriangleArea(t);
 			avgFaceArea /= numTriangles;
 			//unsigned numDwarfs = 0;
-			//for(unsigned t=0;t<numTriangles;t++) if(mesh->getTriangleArea(t)<avgFaceArea) numDwarfs++;
+			//for (unsigned t=0;t<numTriangles;t++) if (mesh->getTriangleArea(t)<avgFaceArea) numDwarfs++;
 		}
 		else
 			avgFaceArea = 1;
@@ -109,14 +109,14 @@ public:
 
 	virtual ~MyBugs()
 	{
-		for(unsigned i=0;i<bugMaps;i++) delete bugMap[i];
+		for (unsigned i=0;i<bugMaps;i++) delete bugMap[i];
 		delete[] bugs;
 		delete ray;
 	}
 
 	virtual void tick(float seconds)
 	{
-		for(unsigned i=0;i<numBugs;i++)
+		for (unsigned i=0;i<numBugs;i++)
 			bugs[i].tick(seconds,scene,object,ray,avgFaceArea);
 	}
 
@@ -135,7 +135,7 @@ public:
 		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION,att);
 		glPointParameterf(GL_POINT_SPRITE_COORD_ORIGIN,GL_LOWER_LEFT);
 
-		for(unsigned i=0;i<numBugs;i++)
+		for (unsigned i=0;i<numBugs;i++)
 		{
 			rr_gl::getTexture(bugMap[rand()%2])->bindTexture();
 			bugs[i].render();

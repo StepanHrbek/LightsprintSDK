@@ -103,9 +103,9 @@ inline RRReal avg(const RRVec3& a)
 }
 inline void clampToZero(RRVec3& a)
 {
-	if(a.x<0) a.x=0;
-	if(a.y<0) a.y=0;
-	if(a.z<0) a.z=0;
+	if (a.x<0) a.x=0;
+	if (a.y<0) a.y=0;
+	if (a.z<0) a.z=0;
 }
 
 RRReal angleBetween(const RRVec3& a,const RRVec3& b);

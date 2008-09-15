@@ -142,38 +142,38 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
 bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned inputSet, unsigned floatsPerVertexExpected, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
 	RR_ASSERT(itemSize==12*floatsPerVertexExpected);
-	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
+	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if(polygons)
+		if (polygons)
 		{
 			LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
 			size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
-			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 			{
 				bool reverse = inputSet==LIGHTMAP_CHANNEL; // iterate from highest to lowers inputSet
-				for(size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
+				for (size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
 				{
 					const FCDGeometryPolygonsInput* polygonsInput = polygons->GetInput(m);
-					if(polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
+					if (polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
 					{
 						const FCDGeometrySource* source = polygonsInput->GetSource();
-						if(source)
+						if (source)
 						{
 							const float* data = source->GetData();
 							size_t dataCount = source->GetDataCount();
 							unsigned floatsPerVertexPresent = source->GetStride();
 							const uint32* indices = polygonsInput->GetIndices();
-							if(indices)
+							if (indices)
 							{
 								RR_ASSERT(relativeIndex*3+2<polygonsInput->GetIndexCount());
 								float* out = (float*)itemData;
-								for(unsigned j=0;j<3;j++)
+								for (unsigned j=0;j<3;j++)
 								{
-									for(unsigned k=0;k<floatsPerVertexExpected;k++)
+									for (unsigned k=0;k<floatsPerVertexExpected;k++)
 									{
 										unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
-										if(dataIndex>=dataCount)
+										if (dataIndex>=dataCount)
 										{
 											LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
 											return false;
@@ -202,7 +202,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 unsigned RRMeshCollada::getNumVertices() const
 {
 	const FCDGeometrySource* source = mesh->GetVertexSource(0);
-	if(!source)
+	if (!source)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -214,7 +214,7 @@ void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
 {
 	RR_ASSERT(v<RRMeshCollada::getNumVertices());
 	const FCDGeometrySource* source = mesh->GetVertexSource(0);
-	if(!source)
+	if (!source)
 	{
 		RR_ASSERT(0);
 		return;
@@ -232,32 +232,32 @@ unsigned RRMeshCollada::getNumTriangles() const
 void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 {
 	// mesh must be triangulated
-	if(t>=RRMeshCollada::getNumTriangles()) 
+	if (t>=RRMeshCollada::getNumTriangles()) 
 	{
 		RR_ASSERT(0);
 		return;
 	}
 	const FCDGeometrySource* source = mesh->FindSourceByType(FUDaeGeometryInput::POSITION);
-	if(!source)
+	if (!source)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
+	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if(!polygons)
+		if (!polygons)
 		{
 			RR_ASSERT(0);
 			return;
 		}
-		if(t<polygons->GetFaceCount())
+		if (t<polygons->GetFaceCount())
 		{
 			const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
-			if(polygonsInput)
+			if (polygonsInput)
 			{
 				const uint32* indices = polygonsInput->GetIndices();
-				if(indices)
+				if (indices)
 				{
 					RR_ASSERT(3*t+2<polygonsInput->GetIndexCount());
 					out[0] = indices[3*t+0];
@@ -279,16 +279,16 @@ void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	RRVec3 normal[3];
 	RRVec3 tangent[3];
 	RRVec3 bitangent[3];
-	if(!getTriangleVerticesData(mesh,FUDaeGeometryInput::NORMAL,0,3,t,&normal,sizeof(normal)))
+	if (!getTriangleVerticesData(mesh,FUDaeGeometryInput::NORMAL,0,3,t,&normal,sizeof(normal)))
 	{
 		// all data generated
 		RRMesh::getTriangleNormals(t,out);
 	}
 	else
-	if(getTriangleVerticesData(mesh,FUDaeGeometryInput::GEOTANGENT,0,3,t,&tangent,sizeof(tangent)) && getTriangleVerticesData(mesh,FUDaeGeometryInput::GEOBINORMAL,0,3,t,&bitangent,sizeof(bitangent)))
+	if (getTriangleVerticesData(mesh,FUDaeGeometryInput::GEOTANGENT,0,3,t,&tangent,sizeof(tangent)) && getTriangleVerticesData(mesh,FUDaeGeometryInput::GEOBINORMAL,0,3,t,&bitangent,sizeof(bitangent)))
 	{
 		// all data from collada
-		for(unsigned v=0;v<3;v++)
+		for (unsigned v=0;v<3;v++)
 		{
 			out.vertex[v].normal = normal[v];
 			out.vertex[v].tangent = tangent[v];
@@ -298,7 +298,7 @@ void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	else
 	{
 		// normals from collada, tangent+bitangent generated
-		for(unsigned v=0;v<3;v++)
+		for (unsigned v=0;v<3;v++)
 		{
 			out.vertex[v].normal = normal[v];
 			out.vertex[v].buildBasisFromNormal();
@@ -309,7 +309,7 @@ void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
 	// if collada contains no unwrap,
-	if(!getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,LIGHTMAP_CHANNEL,2,t,&out,sizeof(out)))
+	if (!getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,LIGHTMAP_CHANNEL,2,t,&out,sizeof(out)))
 	{
 		// fallback to autogenerated one
 		LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
@@ -327,7 +327,7 @@ class ImageCache
 public:
 	ImageCache(const char* _pathToTextures, bool _stripPaths)
 	{
-		if(_pathToTextures)
+		if (_pathToTextures)
 			pathToTextures = _strdup(_pathToTextures);
 		else
 			// _strdup on NULL string causes crash on Unix platforms
@@ -336,13 +336,13 @@ public:
 	}
 	RRBuffer* load(const FCDTexture* texture)
 	{
-		if(!texture) return NULL;
+		if (!texture) return NULL;
 		const FCDImage* image = texture->GetImage();
-		if(!image) return NULL;
+		if (!image) return NULL;
 		fstring strippedName = image->GetFilename();
-		if(stripPaths)
+		if (stripPaths)
 		{
-			while(strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
+			while (strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
 		}
 		strippedName.insert(0,pathToTextures);
 		return load(strippedName.c_str(),NULL,false,false);
@@ -350,7 +350,7 @@ public:
 	RRBuffer* load(fstring filename, const char* cubeSideName[6], bool flipV, bool flipH)
 	{
 		Cache::iterator i = cache.find(filename);
-		if(i!=cache.end())
+		if (i!=cache.end())
 		{
 			return i->second;
 		}
@@ -362,16 +362,16 @@ public:
 	size_t getMemoryOccupied()
 	{
 		size_t memoryOccupied = 0;
-		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
-			if(i->second)
+			if (i->second)
 				memoryOccupied += i->second->getMemoryOccupied();
 		}
 		return memoryOccupied;
 	}
 	~ImageCache()
 	{
-		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
 			delete i->second;
 		}
@@ -400,13 +400,13 @@ protected:
 
 fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
 {
-	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
+	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if(polygons)
+		if (polygons)
 		{
 			size_t relativeIndex = triangle - polygons->GetFaceOffset();
-			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 			{
 				return polygons->GetMaterialSemantic();
 			}
@@ -430,8 +430,8 @@ RRVec4 getAvgColor(RRBuffer* buffer)
 {
 	enum {size = 8};
 	RRVec4 avg = RRVec4(0);
-	for(unsigned i=0;i<size;i++)
-		for(unsigned j=0;j<size;j++)
+	for (unsigned i=0;i<size;i++)
+		for (unsigned j=0;j<size;j++)
 			avg += buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
 	return avg/(size*size);
 }
@@ -442,11 +442,11 @@ RRVec4 getAvgColor(RRBuffer* buffer)
 // result: 0.02..0.5 blending probably better
 RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
 {
-	if(!buffer) return 0;
+	if (!buffer) return 0;
 	enum {size = 16};
 	RRReal blendImportance = 0;
-	for(unsigned i=0;i<size;i++)
-		for(unsigned j=0;j<size;j++)
+	for (unsigned i=0;i<size;i++)
+		for (unsigned j=0;j<size;j++)
 		{
 			RRVec4 color = buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
 			RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
@@ -465,33 +465,33 @@ public:
 	}
 	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
-		if(!materialInstance)
+		if (!materialInstance)
 		{
 			return NULL;
 		}
 
 #ifdef AGGRESSIVE_CACHE
 		const FCDMaterial* material = materialInstance->GetMaterial();
-		if(!material)
+		if (!material)
 		{
 			return NULL;
 		}
 
 		const FCDEffect* effect = material->GetEffect();
-		if(!effect)
+		if (!effect)
 		{
 			return NULL;
 		}
 
 		const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
-		if(!effectProfile)
+		if (!effectProfile)
 		{
 			return NULL;
 		}
 
 		const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
 		Cache::iterator i = cache.find(effectStandard);
-		if(i!=cache.end())
+		if (i!=cache.end())
 		{
 			return &( i->second );
 		}
@@ -501,26 +501,26 @@ public:
 		}
 #else
 		Cache::iterator i = cache.find(materialInstance);
-		if(i!=cache.end())
+		if (i!=cache.end())
 		{
 			return &( i->second );
 		}
 		else
 		{
 			const FCDMaterial* material = materialInstance->GetMaterial();
-			if(!material)
+			if (!material)
 			{
 				return NULL;
 			}
 
 			const FCDEffect* effect = material->GetEffect();
-			if(!effect)
+			if (!effect)
 			{
 				return NULL;
 			}
 
 			const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
-			if(!effectProfile)
+			if (!effectProfile)
 			{
 				return NULL;
 			}
@@ -533,7 +533,7 @@ public:
 	}
 	~MaterialCache()
 	{
-		for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
 			// we created it in updateMaterials() and stored in const char* so no one can edit it
 			// now it's time to free it
@@ -549,19 +549,19 @@ private:
 		// load texture
 		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : NULL;
 		materialProperty.texture = imageCache->load(texture);
-		if(materialProperty.texture)
+		if (materialProperty.texture)
 		{
 			materialProperty.color = getAvgColor(materialProperty.texture);
 		}
 		// load texcoord
 		materialProperty.texcoord = 0;
-		if(texture && materialInstance)
+		if (texture && materialInstance)
 		{
 			const FCDEffectParameterInt* set = texture->GetSet();
-			if(set)
+			if (set)
 			{
 				const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
-				if(materialInstanceBindVertexInput) // is NULL in kalasatama.dae
+				if (materialInstanceBindVertexInput) // is NULL in kalasatama.dae
 				{
 					materialProperty.texcoord = materialInstanceBindVertexInput->inputSet;
 				}
@@ -587,29 +587,29 @@ private:
 			? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 			: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
 		material.refractionIndex = effectStandard->GetIndexOfRefraction();
-		if(material.refractionIndex==0) material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
+		if (material.refractionIndex==0) material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
 
 		loadTexture(FUDaeTextureChannel::DIFFUSE,material.diffuseReflectance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::EMISSION,material.diffuseEmittance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
 		material.specularTransmittanceKeyed = getBlendImportance(material.specularTransmittance.texture,material.specularTransmittanceInAlpha)<0.02f;
-		if(material.specularTransmittance.texture)
+		if (material.specularTransmittance.texture)
 		{
-			if(material.specularTransmittanceInAlpha)
+			if (material.specularTransmittanceInAlpha)
 			{
 				RRVec4 avg = getAvgColor(material.specularTransmittance.texture);
 				material.specularTransmittance.color = RRVec3(1-avg[3]);
 			}
 
-			if(effectStandard->GetTranslucencyFactor()!=1)
+			if (effectStandard->GetTranslucencyFactor()!=1)
 				LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
 
 			// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
 			// It makes calculation much slower, so enable it only when necessary.
 			// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
 			// Here, for simplicity, we enable it for textures with at least 1% transparency in texture.
-			if(material.specularTransmittance.color.avg()>0.01f)
+			if (material.specularTransmittance.color.avg()>0.01f)
 				material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 		}
 
@@ -672,17 +672,17 @@ private:
 void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
 {
 	FMMatrix44 world = node->CalculateWorldTransform();
-	if(worldMatrix)
+	if (worldMatrix)
 	{
-		for(unsigned i=0;i<3;i++)
-			for(unsigned j=0;j<4;j++)
+		for (unsigned i=0;i<3;i++)
+			for (unsigned j=0;j<4;j++)
 				worldMatrix->m[i][j] = world.m[j][i];
 	}
-	if(invWorldMatrix)
+	if (invWorldMatrix)
 	{
 		const FMMatrix44 inv = world.Inverted();
-		for(unsigned i=0;i<3;i++)
-			for(unsigned j=0;j<4;j++)
+		for (unsigned i=0;i<3;i++)
+			for (unsigned j=0;j<4;j++)
 				invWorldMatrix->m[i][j] = world.m[j][i];
 	}
 }
@@ -711,8 +711,8 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 		case RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
-			if(itemSize) *itemSize = sizeof(RRVec2[3]);
+			if (numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
+			if (itemSize) *itemSize = sizeof(RRVec2[3]);
 			return;
 
 		default:
@@ -723,7 +723,7 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 
 bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
-	if(!itemData)
+	if (!itemData)
 	{
 		RR_ASSERT(0);
 		return false;
@@ -734,13 +734,13 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
 			{
-				if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
+				if (itemIndex>=getCollider()->getMesh()->getNumTriangles())
 				{
 					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 					return false;
 				}
 				const RRMaterial* material = getTriangleMaterial(itemIndex,NULL,NULL);
-				if(!material)
+				if (!material)
 				{
 					return false;
 				}
@@ -755,14 +755,14 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 
 		case RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 			{
-				if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
+				if (itemIndex>=getCollider()->getMesh()->getNumTriangles())
 				{
 					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 					return false;
 				}
 				typedef RRObjectIllumination* Out;
 				Out* out = (Out*)itemData;
-				if(sizeof(*out)!=itemSize)
+				if (sizeof(*out)!=itemSize)
 				{
 					RR_ASSERT(0);
 					return false;
@@ -784,19 +784,19 @@ const RRCollider* RRObjectCollada::getCollider() const
 
 const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
-	if(!geometryInstance)
+	if (!geometryInstance)
 	{
 		return NULL;
 	}
 
 	const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
-	if(!geometry)
+	if (!geometry)
 	{
 		return NULL;
 	}
 
 	const FCDGeometryMesh* mesh = geometry->GetMesh();
-	if(!mesh)
+	if (!mesh)
 	{
 		return NULL;
 	}
@@ -814,7 +814,7 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	// In your implementations, prefer simple lookups, avoid for cycles.
 	// Use profiler to see what percentage of time is spent in getPointMaterial().
 	const RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
-	if(material)
+	if (material)
 	{
 		out = *material;
 	}
@@ -822,24 +822,24 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	{
 		out.reset(false);
 	}
-	if(material->diffuseEmittance.texture)
+	if (material->diffuseEmittance.texture)
 	{
 		RRVec2 mapping[3];
 		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
 	}
-	if(material->specularTransmittance.texture)
+	if (material->specularTransmittance.texture)
 	{
 		RRVec2 mapping[3];
 		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,mapping,sizeof(mapping));
 		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 		RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
 		out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
-		if(out.specularTransmittance.color==RRVec3(1))
+		if (out.specularTransmittance.color==RRVec3(1))
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 	}
-	if(material->diffuseReflectance.texture)
+	if (material->diffuseReflectance.texture)
 	{
 		RRVec2 mapping[3];
 		getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
@@ -895,13 +895,13 @@ private:
 // Caching on, first query creates collider, second query reads it from cache.
 const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh)
 {
-	if(!mesh)
+	if (!mesh)
 	{
 		RR_ASSERT(0);
 		return NULL;
 	}
 	ColliderCache::iterator i = colliderCache.find(mesh);
-	if(i!=colliderCache.end())
+	if (i!=colliderCache.end())
 	{
 		return (*i).second;
 	}
@@ -915,22 +915,22 @@ const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* 
 // Always creates, no caching (only internal caching of colliders and meshes).
 RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
 {
-	if(!geometryInstance)
+	if (!geometryInstance)
 	{
 		return NULL;
 	}
 	const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
-	if(!geometry)
+	if (!geometry)
 	{
 		return NULL;
 	}
 	const FCDGeometryMesh* mesh = geometry->GetMesh();
-	if(!mesh)
+	if (!mesh)
 	{
 		return NULL;
 	}
 	const RRCollider* collider = newColliderCached(mesh);
-	if(!collider)
+	if (!collider)
 	{
 		return NULL;
 	}
@@ -940,27 +940,27 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 // Adds all instances from node and his subnodes to 'objects'.
 void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 {
-	if(!node)
+	if (!node)
 		return;
 	// add instances from node
-	for(size_t i=0;i<node->GetInstanceCount();i++)
+	for (size_t i=0;i<node->GetInstanceCount();i++)
 	{
 		const FCDEntityInstance* entityInstance = node->GetInstance(i);
-		if(entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
+		if (entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
 			RRObjectCollada* object = newObject(node,geometryInstance);
-			if(object)
+			if (object)
 			{
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
 			}
 		}
 	}
 	// add children
-	for(size_t i=0;i<node->GetChildrenCount();i++)
+	for (size_t i=0;i<node->GetChildrenCount();i++)
 	{
 		const FCDSceneNode* child = node->GetChild(i);
-		if(child)
+		if (child)
 		{
 			addNode(child);
 		}
@@ -970,7 +970,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
 	: imageCache(pathToTextures,stripPaths), materialCache(&imageCache)
 {
-	if(!document)
+	if (!document)
 		return;
 
 	// standardize up axis and units
@@ -983,13 +983,13 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	{
 		RRReportInterval report(INF3,"Triangulating geometry...\n");
 		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
-		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
+		for (size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 		{
 			FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
 			FCDGeometryMesh* mesh = geometry->GetMesh();
-			if(mesh)
+			if (mesh)
 			{	
-				if(!mesh->IsTriangles())
+				if (!mesh->IsTriangles())
 					FCDGeometryPolygonsTools::Triangulate(mesh);
 			}
 		}
@@ -1002,11 +1002,11 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	{
 		RRReportInterval report(INF2,"Generating unique indices...\n");
 		FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
-		for(size_t i=0;i<geometryLibrary->GetEntityCount();i++)
+		for (size_t i=0;i<geometryLibrary->GetEntityCount();i++)
 		{
 			FCDGeometry* geometry = static_cast<FCDGeometry*>(geometryLibrary->GetEntity(i));
 			FCDGeometryMesh* mesh = geometry->GetMesh();
-			if(mesh)
+			if (mesh)
 			{	
 				FCDGeometryPolygonsTools::GenerateUniqueIndices(mesh);
 			}
@@ -1017,7 +1017,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	{
 		RRReportInterval report(INF3,"Adapting objects...\n");
 		const FCDSceneNode* root = document->GetVisualSceneInstance();
-		if(!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
+		if (!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
 		addNode(root);
 	}
 }
@@ -1025,7 +1025,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 ObjectsFromFCollada::~ObjectsFromFCollada()
 {
 	// delete objects
-	for(unsigned i=0;i<size();i++)
+	for (unsigned i=0;i<size();i++)
 	{
 		// no need to delete illumination separately,
 		//  object created it, object deletes it
@@ -1033,7 +1033,7 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 		delete (*this)[i].object;
 	}
 	// delete meshes and colliders (stored in cache)
-	for(ColliderCache::iterator i = colliderCache.begin(); i!=colliderCache.end(); i++)
+	for (ColliderCache::iterator i = colliderCache.begin(); i!=colliderCache.end(); i++)
 	{
 		const RRCollider* collider = (*i).second;
 		delete collider->getMesh();
@@ -1056,7 +1056,7 @@ public:
 
 LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 {
-	if(!document)
+	if (!document)
 		return;
 
 	// normalize geometry
@@ -1068,16 +1068,16 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 
 void LightsFromFCollada::addNode(const FCDSceneNode* node)
 {
-	if(!node)
+	if (!node)
 		return;
 	// add instances from node
-	for(size_t i=0;i<node->GetInstanceCount();i++)
+	for (size_t i=0;i<node->GetInstanceCount();i++)
 	{
 		const FCDEntityInstance* entityInstance = node->GetInstance(i);
-		if(entityInstance->GetEntityType()==FCDEntity::LIGHT)
+		if (entityInstance->GetEntityType()==FCDEntity::LIGHT)
 		{
 			const FCDLight* light = static_cast<const FCDLight*>(entityInstance->GetEntity());
-			if(light)
+			if (light)
 			{
 				// get position and direction
 				RRMatrix3x4 invWorldMatrix;
@@ -1104,10 +1104,10 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 		}
 	}
 	// add children
-	for(size_t i=0;i<node->GetChildrenCount();i++)
+	for (size_t i=0;i<node->GetChildrenCount();i++)
 	{
 		const FCDSceneNode* child = node->GetChild(i);
-		if(child)
+		if (child)
 		{
 			addNode(child);
 		}
@@ -1117,7 +1117,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 LightsFromFCollada::~LightsFromFCollada()
 {
 	// delete lights
-	for(unsigned i=0;i<size();i++)
+	for (unsigned i=0;i<size();i++)
 		delete (*this)[i];
 }
 

@@ -59,7 +59,7 @@ static int face_callback(p_ply_argument argument)
 	long length, value_index;
     ply_get_argument_property(argument, NULL, &length, &value_index);
 
-	if(value_index >= 0 && value_index <= 2)
+	if (value_index >= 0 && value_index <= 2)
 	{
 		current_mesh->tris[tri_index].vert_indices[value_index] = (int)ply_get_argument_value(argument);
 	}
@@ -88,10 +88,10 @@ void PlyMeshReader::readFile(const std::string& pathname,
 {
     p_ply ply = ply_open(pathname.c_str(), NULL);
 
-    if(!ply) 
+    if (!ply) 
 		throw new PlyMeshReaderExcep("could not open file '" + pathname + "' for reading.");
     
-	if(!ply_read_header(ply))
+	if (!ply_read_header(ply))
 		throw new PlyMeshReaderExcep("could not read header.");
 		
     const long nvertices = ply_set_read_cb(ply, "vertex", "x", vertex_callback, &mesh_out, 0);
@@ -105,7 +105,7 @@ void PlyMeshReader::readFile(const std::string& pathname,
 
 	mesh_out.tris.resize(ntriangles);
 	
-    if(!ply_read(ply)) 
+    if (!ply_read(ply)) 
 		throw new PlyMeshReaderExcep("read of body failed.");
 
     ply_close(ply);

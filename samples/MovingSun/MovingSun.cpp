@@ -78,10 +78,10 @@ void precalculateOneLayer(rr::RRDynamicSolver* _solver, rr::RRLightField* _light
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for(unsigned i=0;i<_solver->getNumObjects();i++)
+	for (unsigned i=0;i<_solver->getNumObjects();i++)
 	{
 		unsigned numVertices = _solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
-		if(numVertices)
+		if (numVertices)
 		{
 			_solver->getIllumination(i)->getLayer(_layerNumber) =
 				(i==SELECTED_STATIC_OBJECT)
@@ -112,7 +112,7 @@ void precalculateAllLayers(rr_gl::RRDynamicSolverGL* _solver, const rr::RRLightF
 	rr::RRLightField* lightfield = rr::RRLightField::create(lfMin,lfMax-lfMin,2,4,0,NUM_FRAMES); // disabled specular reflection
 	_lightfield = lightfield;
 
-	for(unsigned layerNumber=0;layerNumber<NUM_FRAMES;layerNumber++)
+	for (unsigned layerNumber=0;layerNumber<NUM_FRAMES;layerNumber++)
 	{
 		setupLights(_solver,NULL,layerNumber/float(NUM_FRAMES-1));
 		precalculateOneLayer(_solver,lightfield,layerNumber);
@@ -122,8 +122,8 @@ void precalculateAllLayers(rr_gl::RRDynamicSolverGL* _solver, const rr::RRLightF
 bool loadPrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLightField*& _lightfield, std::string _path)
 {
 	_lightfield = rr::RRLightField::load((_path+"lightfield.lf").c_str());
-	if(!_lightfield) return false;
-	for(unsigned i=0;i<NUM_FRAMES;i++)
+	if (!_lightfield) return false;
+	for (unsigned i=0;i<NUM_FRAMES;i++)
 		_staticObjects.loadIllumination(_path.c_str(),i);
 	return true;
 }
@@ -136,7 +136,7 @@ void savePrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLigh
 #if defined(LINUX) || defined(linux)
 	mkdir(_path.c_str(), 0744);
 #endif
-	for(unsigned i=0;i<NUM_FRAMES;i++)
+	for (unsigned i=0;i<NUM_FRAMES;i++)
 		_staticObjects.saveIllumination(_path.c_str(),i);
 	_lightfield->save((_path+"lightfield.lf").c_str());
 }
@@ -174,7 +174,7 @@ rr_io::ImportScene*        scene = NULL;
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	if(gfxRelated)
+	if (gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -222,7 +222,7 @@ public:
 		// enable object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// when not rendering into shadowmaps, enable environment maps
-		if(uberProgramSetup.LIGHT_DIRECT)
+		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
@@ -231,7 +231,7 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 		}
 		// render objects
-		for(unsigned i=0;i<DYNAMIC_OBJECTS;i++)
+		for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 		{
 			float a = 1;
 			float b = 0.2f;
@@ -243,7 +243,7 @@ public:
 				(aabbMin.z+aabbMax.z)/2+(aabbMax.z-aabbMin.z)*0.45*( b*sin(t)*cos(s)+a*cos(t)*sin(s) ));
 			dynamicObject[i]->rotYZ = rr::RRVec2(3.14f+3*objectTime+i,0);
 			dynamicObject[i]->updatePosition();
-			if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			{
 				lightField->updateEnvironmentMap(dynamicObject[i]->illumination,lightTime01);
 				rr_gl::getTexture(dynamicObject[i]->illumination->diffuseEnvMap,false,false)->reset(false,false);
@@ -289,7 +289,7 @@ void keyboard(unsigned char c, int x, int y)
 			delete solver->getLights()[0];
 			delete solver;
 			delete scene;
-			for(unsigned i=0;i<DYNAMIC_OBJECTS;i++) delete dynamicObject[i];
+			for (unsigned i=0;i<DYNAMIC_OBJECTS;i++) delete dynamicObject[i];
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
 			exit(0);
@@ -315,13 +315,13 @@ void reshape(int w, int h)
 void mouse(int button, int state, int x, int y)
 {
 #ifdef GLUT_WHEEL_UP
-	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+		if (eye.fieldOfView>13) eye.fieldOfView -= 10;
 	}
-	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+		if (eye.fieldOfView<130) eye.fieldOfView+=10;
 	}
 #endif
 	solver->reportInteraction();
@@ -329,11 +329,11 @@ void mouse(int button, int state, int x, int y)
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
@@ -351,11 +351,11 @@ void passive(int x, int y)
 void display(void)
 {
 	//rr::RRReportInterval report(rr::INF1,"display...\n");
-	if(!winWidth || !winHeight)
+	if (!winWidth || !winHeight)
 	{
 		winWidth = glutGet(GLUT_WINDOW_WIDTH);
 		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
-		if(!winWidth || !winHeight) return; // can't display without window
+		if (!winWidth || !winHeight) return; // can't display without window
 		reshape(winWidth,winHeight);
 	}
 
@@ -383,7 +383,7 @@ void display(void)
 	solver->renderScene(uberProgramSetup,NULL);
 
 	// adjust tonemapping operator
-	if(toneMapping)
+	if (toneMapping)
 	{
 		float secondsSinceLastFrame;
 		{
@@ -392,7 +392,7 @@ void display(void)
 			secondsSinceLastFrame = oldTime ? (newTime-oldTime)/float(PER_SEC) : 0;
 			oldTime = newTime;
 		}
-		if(secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
+		if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
 			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,contrast);
 	}
 
@@ -401,29 +401,29 @@ void display(void)
 
 void idle()
 {
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 
 	// smooth keyboard movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.1f);
 		float distance = seconds * cameraSpeed;
 		rr_gl::Camera* cam = &eye;
-		if(autopilot) lightTime += seconds*SUN_SPEED;
-		if(keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
-		if(keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
-		if(keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
-		if(keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
-		if(keyPressed['w']) cam->moveForward(distance);
-		if(keyPressed['s']) cam->moveBack(distance);
-		if(keyPressed['a']) cam->moveLeft(distance);
-		if(keyPressed['d']) cam->moveRight(distance);
-		if(keyPressed['q']) cam->moveUp(distance);
-		if(keyPressed['z']) cam->moveDown(distance);
-		if(autopilot) objectTime += seconds*OBJ_SPEED;
+		if (autopilot) lightTime += seconds*SUN_SPEED;
+		if (keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
+		if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
+		if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
+		if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
+		if (keyPressed['w']) cam->moveForward(distance);
+		if (keyPressed['s']) cam->moveBack(distance);
+		if (keyPressed['a']) cam->moveLeft(distance);
+		if (keyPressed['d']) cam->moveRight(distance);
+		if (keyPressed['q']) cam->moveUp(distance);
+		if (keyPressed['z']) cam->moveDown(distance);
+		if (autopilot) objectTime += seconds*OBJ_SPEED;
 		lightTime01 = fabs(fmod(lightTime,2.0f)-1);
 	}
 	prev = now;
@@ -468,11 +468,11 @@ int main(int argc, char **argv)
 	glutCreateWindow("Lightsprint Moving Sun"); // for windowed mode
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -483,14 +483,14 @@ int main(int argc, char **argv)
 #ifdef _MSC_VER
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
-	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
+	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	SetCurrentDirectoryA(exedir);
 	free(exedir);
 #endif // _MSC_VER
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 	solver = new Solver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
@@ -499,7 +499,7 @@ int main(int argc, char **argv)
 
 	// load scene
 	scene = new rr_io::ImportScene(sceneFilename,1,true);
-	if(!scene->getObjects())
+	if (!scene->getObjects())
 		error("No objects in scene.",false);
 
 	solver->setStaticObjects(*scene->getObjects(), NULL);
@@ -510,7 +510,7 @@ int main(int argc, char **argv)
 	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
-	if(!solver->getMultiObjectCustom())
+	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init lights
@@ -525,7 +525,7 @@ int main(int argc, char **argv)
 	{
 		std::string path = std::string(sceneFilename)+".precalc/";
 #ifndef FORCE_PRECALCULATE
-		if(!loadPrecalculatedData(solver->getStaticObjects(),lightField,path))
+		if (!loadPrecalculatedData(solver->getStaticObjects(),lightField,path))
 #endif
 		{
 			precalculateAllLayers(solver,lightField,groundLevel,aabbMin,aabbMax);
@@ -534,7 +534,7 @@ int main(int argc, char **argv)
 	}
 
 	// auto-set camera, speed
-	if(solver->getMultiObjectCustom())
+	if (solver->getMultiObjectCustom())
 	{
 		//srand((unsigned)time(NULL));
 		solver->getMultiObjectCustom()->generateRandomCamera(eye.pos,eye.dir,eye.afar);
@@ -551,7 +551,7 @@ int main(int argc, char **argv)
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
-	for(unsigned i=0;i<DYNAMIC_OBJECTS;i++)
+	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		char filename[100];
 		sprintf(filename,"../../data/objects/lowpoly/lwpg%04d.3ds",1+(i%9));

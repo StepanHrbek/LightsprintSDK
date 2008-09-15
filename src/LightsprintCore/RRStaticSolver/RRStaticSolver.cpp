@@ -53,19 +53,19 @@ RRStaticSolver::~RRStaticSolver()
 
 RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing, bool& _aborting)
 {
-	if(!_object)
+	if (!_object)
 	{
 		return NULL; // no input
 	}
 	const RRMesh* mesh = _object->getCollider()->getMesh();
 	Object *obj = Object::create(mesh->getNumVertices(),mesh->getNumTriangles());
-	if(!obj)
+	if (!obj)
 	{
 		return NULL; // not enough memory (already reported)
 	}
 	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj,_aborting); // obj is filled but not yet adopted
 	   
-	if(!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle,_aborting))
+	if (!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle,_aborting))
 	{
 		delete solver;
 		delete obj;
@@ -82,23 +82,23 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 	RR_ASSERT(importer);
 	RR_ASSERT(obj);
 	RRDynamicSolver::SmoothingParameters defaultSmoothing;
-	if(!smoothing) smoothing = &defaultSmoothing;
+	if (!smoothing) smoothing = &defaultSmoothing;
 	const RRMesh* mesh = importer->getCollider()->getMesh();
 	obj->importer = importer;
 
 	// import triangles
 	DBG(printf(" triangles...\n"));
-	for(unsigned fi=0;fi<obj->triangles;fi++)
+	for (unsigned fi=0;fi<obj->triangles;fi++)
 	{
-		if(aborting) break;
+		if (aborting) break;
 		RRMesh::Triangle tv;
 		mesh->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
-		if(!s) LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has NULL material -> expect crash.\n"));
+		if (!s) LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has NULL material -> expect crash.\n"));
 		Triangle *t = &obj->triangle[fi];
 		RRMesh::TriangleBody body;
 		mesh->getTriangleBody(fi,body);
-		if(!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
+		if (!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
 		{
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,RRVec3(0),true));
 		}
@@ -149,10 +149,10 @@ RRReal RRStaticSolver::illuminationAccuracy()
 RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride, Triangle* triangles, unsigned numTriangles) const
 {
 	// prevent NaN (triangle with 1 corner with power=0 gets here in MovingSun+kalasatama.dae)
-	if(!powerTopLevel) return RRVec3(0);
+	if (!powerTopLevel) return RRVec3(0);
 
 	RRVec3 result = RRVec3(0);
-	for(unsigned i=0;i<corners;i++)
+	for (unsigned i=0;i<corners;i++)
 	{
 		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);
 		RR_ASSERT(triangleIndex<numTriangles);
@@ -181,14 +181,14 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
 {
 	RR_ASSERT(surface);
 
-	if(!measure.direct && !measure.indirect)
+	if (!measure.direct && !measure.indirect)
 	{
 		return RRVec3(0);
 	}
 	else
-	if(measure.direct && !measure.indirect)
+	if (measure.direct && !measure.indirect)
 	{
-		if(measure.exiting)
+		if (measure.exiting)
 		{
 			return getDirectExitance();
 		}
@@ -198,9 +198,9 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
 		}
 	}
 	else
-	if(measure.direct && measure.indirect) 
+	if (measure.direct && measure.indirect) 
 	{
-		if(measure.exiting)
+		if (measure.exiting)
 		{
 			return getTotalExitance();
 		}
@@ -211,7 +211,7 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
 	}
 	else
 	{
-		if(measure.exiting)
+		if (measure.exiting)
 		{
 			return getIndirectExitance();
 		}
@@ -229,25 +229,25 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	Triangle* tri;
 
 	obj = scene->object;
-	if(triangle>=obj->triangles)
+	if (triangle>=obj->triangles)
 	{
 		RR_ASSERT(0);
 		goto zero;
 	}
 	tri = &obj->triangle[triangle];
 
-	if(!tri->surface)
+	if (!tri->surface)
 	{
 		goto zero;
 	}
 
 	// enhanced by smoothing
-	if(vertex<3 && measure.smoothed)
+	if (vertex<3 && measure.smoothed)
 	{
 		// measure direct/indirect (without emissivity)
 		irrad = tri->topivertex[vertex]->irradiance(measure);
 		// measure exiting
-		if(measure.exiting)
+		if (measure.exiting)
 		{
 			irrad *= tri->surface->diffuseReflectance.color;
 		}
@@ -258,9 +258,9 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		irrad = tri->getMeasure(measure);
 	}
 
-	if(measure.scaled)
+	if (measure.scaled)
 	{
-		if(scaler)
+		if (scaler)
 		{
 			// scaler applied on density, not flux
 			scaler->getCustomScale(irrad);
@@ -271,7 +271,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 			RR_ASSERT(0);
 		}
 	}
-	if(measure.flux)
+	if (measure.flux)
 	{
 		irrad *= tri->area;
 	}

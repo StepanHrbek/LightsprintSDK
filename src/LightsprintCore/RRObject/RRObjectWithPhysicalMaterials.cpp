@@ -18,7 +18,7 @@ RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const
 {
 	/*
 	//!!! zatim nejde zoptimalizovat, protoze update() neni v RRObjectu
-	if(!scaler)
+	if (!scaler)
 	{
 		RR_ASSERT(0);
 		return this;
@@ -35,7 +35,7 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 {
 	const RRMesh* mesh = getCollider()->getMesh();
 	unsigned numVertices = mesh->getNumVertices();
-	if(!numVertices)
+	if (!numVertices)
 	{
 		_pos = RRVec3(0);
 		_dir = RRVec3(1,0,0);
@@ -45,26 +45,26 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 	rr::RRVec3 mini,maxi,center;
 	mesh->getAABB(&mini,&maxi,&center);
 	_maxdist = (maxi-mini).length();
-	if(!_maxdist) _maxdist = 10;
+	if (!_maxdist) _maxdist = 10;
 	unsigned bestNumFaces = 0;
 	RRRay* ray = RRRay::create();
 	std::set<unsigned> hitTriangles;
-	for(unsigned i=0;i<20;i++)
+	for (unsigned i=0;i<20;i++)
 	{
 		// generate random pos+dir
 		RRVec3 pos;
 		mesh->getVertex(rand()%numVertices,pos);
-		for(unsigned j=0;j<3;j++)
-			if(!_finite(pos[j]))
+		for (unsigned j=0;j<3;j++)
+			if (!_finite(pos[j]))
 				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
 		RRVec3 dir = (center-pos);
-		if(dir==RRVec3(0)) dir = RRVec3(1,0,0);
+		if (dir==RRVec3(0)) dir = RRVec3(1,0,0);
 		dir.normalize();
 		pos += dir*_maxdist*0.1f;
 
 		// measure quality (=number of unique triangles hit by 100 rays)
 		hitTriangles.clear();
-		for(unsigned j=0;j<100;j++)
+		for (unsigned j=0;j<100;j++)
 		{
 			RRVec3 rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
 			ray->rayOrigin = pos;
@@ -73,10 +73,10 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 			ray->rayDirInv[2] = 1/rayDir[2];
 			ray->rayLengthMax = _maxdist;
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
-			if(getCollider()->intersect(ray))
+			if (getCollider()->intersect(ray))
 				hitTriangles.insert(ray->hitTriangle);
 		}
-		if(hitTriangles.size()>=bestNumFaces)
+		if (hitTriangles.size()>=bestNumFaces)
 		{
 			bestNumFaces = (unsigned)hitTriangles.size();
 			_pos = pos;

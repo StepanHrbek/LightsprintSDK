@@ -48,10 +48,10 @@ void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
 	// update fast conversion table for our setDirectIllumination
-	for(unsigned i=0;i<256;i++)
+	for (unsigned i=0;i<256;i++)
 	{
 		rr::RRVec3 c(i*priv->boostCustomIrradiance/255);
-		if(_scaler) _scaler->getPhysicalScale(c);
+		if (_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
 }
@@ -73,7 +73,7 @@ const RRBuffer* RRDynamicSolver::getEnvironment() const
 
 void RRDynamicSolver::setLights(const RRLights& _lights)
 {
-	if(!&_lights)
+	if (!&_lights)
 	{
 		RRReporter::report(WARN,"setLights: Invalid input, lights=NULL.\n");
 		return;
@@ -89,20 +89,20 @@ const RRLights& RRDynamicSolver::getLights() const
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
 {
 	// check inputs
-	if(!&_objects)
+	if (!&_objects)
 	{
 		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=NULL.\n");
 		return;
 	}
 	unsigned nullObjects = 0;
 	unsigned nullIllums = 0;
-	for(unsigned i=0;i<_objects.size();i++)
+	for (unsigned i=0;i<_objects.size();i++)
 	{
-		if(!_objects[i].object) nullObjects++;
-		if(!_objects[i].illumination) nullIllums++;
+		if (!_objects[i].object) nullObjects++;
+		if (!_objects[i].illumination) nullIllums++;
 	}
-	if(nullObjects) RRReporter::report(WARN,"setStaticObjects: Bad input, object==NULL in %d/%d objects, may crash.\n",nullObjects,_objects.size());
-	if(nullIllums) RRReporter::report(WARN,"setStaticObjects: Bad input, illumination==NULL in %d/%d objects, may crash.\n",nullIllums,_objects.size());
+	if (nullObjects) RRReporter::report(WARN,"setStaticObjects: Bad input, object==NULL in %d/%d objects, may crash.\n",nullObjects,_objects.size());
+	if (nullIllums) RRReporter::report(WARN,"setStaticObjects: Bad input, illumination==NULL in %d/%d objects, may crash.\n",nullIllums,_objects.size());
 
 	priv->objects = _objects;
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
@@ -119,10 +119,10 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	RRObject** importers = new RRObject*[priv->objects.size()];
 	unsigned origNumVertices = 0;
 	unsigned origNumTriangles = 0;
-	for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
+	for (unsigned i=0;i<(unsigned)priv->objects.size();i++)
 	{
 		importers[i] = priv->objects[i].object;
-		if(importers[i])
+		if (importers[i])
 		{
 			origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
 			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
@@ -136,7 +136,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
 
 	// update minimalSafeDistance
-	if(priv->multiObjectCustom)
+	if (priv->multiObjectCustom)
 	{
 		RRVec3 mini,maxi,center;
 		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
@@ -147,21 +147,21 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	priv->staticSceneContainsEmissiveMaterials = false;
 	priv->staticSceneContainsLods = false;
 	std::set<const RRBuffer*> allTextures;
-	if(priv->multiObjectCustom)
+	if (priv->multiObjectCustom)
 	{
 		unsigned numTrianglesMulti = priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();
-		for(unsigned t=0;t<numTrianglesMulti;t++)
+		for (unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
-			if(material && material->diffuseEmittance.color!=rr::RRVec3(0))
+			if (material && material->diffuseEmittance.color!=rr::RRVec3(0))
 				priv->staticSceneContainsEmissiveMaterials = true;
 
 			RRObject::LodInfo lodInfo;
 			priv->multiObjectCustom->getTriangleLod(t,lodInfo);
-			if(lodInfo.level)
+			if (lodInfo.level)
 				priv->staticSceneContainsLods = true;
 
-			if(material)
+			if (material)
 			{
 				allTextures.insert(material->diffuseReflectance.texture);
 				allTextures.insert(material->diffuseEmittance.texture);
@@ -169,9 +169,9 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			}
 		}
 		size_t memoryOccupiedByTextures = 0;
-		for(std::set<const RRBuffer*>::iterator i=allTextures.begin();i!=allTextures.end();i++)
+		for (std::set<const RRBuffer*>::iterator i=allTextures.begin();i!=allTextures.end();i++)
 		{
-			if(*i)
+			if (*i)
 				memoryOccupiedByTextures += (*i)->getMemoryOccupied();
 		}
 
@@ -196,7 +196,7 @@ unsigned RRDynamicSolver::getNumObjects() const
 
 RRObject* RRDynamicSolver::getObject(unsigned i)
 {
-	if(i>=priv->objects.size()) return NULL;
+	if (i>=priv->objects.size()) return NULL;
 	return priv->objects[i].object;
 }
 
@@ -212,24 +212,24 @@ const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() c
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
 {
-	if(i>=priv->objects.size()) return NULL;
+	if (i>=priv->objects.size()) return NULL;
 	return priv->objects[i].illumination;
 }
 
 const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 {
-	if(i>=priv->objects.size()) return NULL;
+	if (i>=priv->objects.size()) return NULL;
 	return priv->objects[i].illumination;
 }
 
 bool RRDynamicSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
 {
-	if(priv->packedSolver)
+	if (priv->packedSolver)
 	{
 		return priv->packedSolver->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
 	}
 	else
-	if(priv->scene)
+	if (priv->scene)
 	{
 		return priv->scene->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
 	}
@@ -240,7 +240,7 @@ void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	priv->dirtyMaterials = true;
-	if(priv->multiObjectPhysical) priv->multiObjectPhysical->update();
+	if (priv->multiObjectPhysical) priv->multiObjectPhysical->update();
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
@@ -256,7 +256,7 @@ void RRDynamicSolver::reportInteraction()
 
 void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
 {
-	if(priv->customIrradianceRGBA8 || directIllumination)
+	if (priv->customIrradianceRGBA8 || directIllumination)
 	{
 		priv->customIrradianceRGBA8 = directIllumination;
 		priv->dirtyCustomIrradiance = true;
@@ -266,7 +266,7 @@ void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
 
 void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 {
-	if(priv->boostCustomIrradiance != boost)
+	if (priv->boostCustomIrradiance != boost)
 	{
 		priv->boostCustomIrradiance = boost;
 		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
@@ -305,16 +305,16 @@ public:
 	}
 	C smooth(C c)
 	{
-		if(toSkip)
+		if (toSkip)
 		{
 			toSkip--;
 			return c;
 		}
-		if(loaded<I) loaded++;
+		if (loaded<I) loaded++;
 		history[i] = c;
 		i++; i%=I;
 		C avg = 0;
-		for(unsigned i=0;i<loaded;i++) avg += history[i];
+		for (unsigned i=0;i<loaded;i++) avg += history[i];
 		return avg/loaded;
 	}
 private:
@@ -328,20 +328,20 @@ private:
 //  does no timing adjustments
 void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
-	if(!getMultiObjectCustom()) return;
+	if (!getMultiObjectCustom()) return;
 
 	// replace NULL by default parameters
 	static CalculateParameters s_params;
-	if(!_params) _params = &s_params;
+	if (!_params) _params = &s_params;
 
 	bool dirtyFactors = false;
-	if(priv->dirtyMaterials)
+	if (priv->dirtyMaterials)
 	{
 		priv->dirtyMaterials = false;
 		dirtyFactors = true;
 		//RR_SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
-	if(!priv->scene
+	if (!priv->scene
 		&& !priv->packedSolver
 		)
 	{
@@ -349,31 +349,31 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		dirtyFactors = true;
 		// create new
 		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
-		if(priv->scene) updateVertexLookupTableDynamicSolver();
-		if(aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
+		if (priv->scene) updateVertexLookupTableDynamicSolver();
+		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
-	if(dirtyFactors)
+	if (dirtyFactors)
 	{
 		dirtyFactors = false;
 		priv->dirtyCustomIrradiance = false;
 		priv->dirtyResults = true;
 		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
 		RR_SAFE_DELETE(priv->packedSolver);
-		if(priv->scene)
+		if (priv->scene)
 		{
 			priv->scene->illuminationReset(true,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 	}
-	if(priv->dirtyCustomIrradiance)
+	if (priv->dirtyCustomIrradiance)
 	{
 		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));
-		if(priv->packedSolver)
+		if (priv->packedSolver)
 		{
 			priv->packedSolver->illuminationReset(priv->customIrradianceRGBA8,priv->customToPhysical);
 		}
 		else
-		if(priv->scene)
+		if (priv->scene)
 		{
 			priv->scene->illuminationReset(false,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
@@ -387,7 +387,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 
 	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
 	TIME now = GETTIME;
-	if(priv->packedSolver)
+	if (priv->packedSolver)
 	{
 		//unsigned oldVer = priv->packedSolver->getSolutionVersion();
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
@@ -395,12 +395,12 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		//priv->dirtyResults = priv->packedSolver->getSolutionVersion()>oldVer;
 	}
 	else
-	if(priv->scene)
+	if (priv->scene)
 	{
 		EBTContext context;
 		context.aborting = &aborting;
 		context.endTime = (TIME)(now+improveStep*PER_SEC);
-		if(priv->scene->illuminationImprove(endByTime,(void*)&context)==RRStaticSolver::IMPROVED)
+		if (priv->scene->illuminationImprove(endByTime,(void*)&context)==RRStaticSolver::IMPROVED)
 			priv->dirtyResults = true;
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
@@ -410,16 +410,16 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	static Smoother<unsigned,20,3> s1,s2,s3;
 	TIME thisFrameEnd = GETTIME;
 	static TIME prevFrameEnd = 0;
-	if(prevFrameEnd)
+	if (prevFrameEnd)
 		printf("##### frame time %d+%d=%dms #####\n",s1.smooth((now - prevFrameEnd)*1000/PER_SEC),s2.smooth((thisFrameEnd - now)*1000/PER_SEC),s3.smooth((thisFrameEnd - prevFrameEnd)*1000/PER_SEC));
 	prevFrameEnd = thisFrameEnd;
 	reportDirectIlluminationChange(true);
 #endif
 
-	if(priv->dirtyResults && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriod*PER_SEC))
+	if (priv->dirtyResults && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriod*PER_SEC))
 	{
 		priv->lastReadingResultsTime = now;
-		if(priv->readingResultsPeriod<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
+		if (priv->readingResultsPeriod<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
 		priv->dirtyResults = false;
 		priv->solutionVersion++;
 	}
@@ -433,11 +433,11 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 
 	// adjust userStep
 	float lastUserStep = (float)((calcBeginTime-priv->lastCalcEndTime)/(float)PER_SEC);
-	if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
-	if(priv->lastInteractionTime && priv->lastInteractionTime>=priv->lastCalcEndTime)
+	if (!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
+	if (priv->lastInteractionTime && priv->lastInteractionTime>=priv->lastCalcEndTime)
 	{
 		// reportInteraction was called between this and previous calculate
-		if(priv->lastCalcEndTime && lastUserStep<1.0f)
+		if (priv->lastCalcEndTime && lastUserStep<1.0f)
 		{
 			priv->userStep = lastUserStep;
 		}
@@ -453,7 +453,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 	}
 
 	// adjust improveStep
-	if(!priv->userStep || !priv->calcStep || !priv->improveStep)
+	if (!priv->userStep || !priv->calcStep || !priv->improveStep)
 	{
 		REPORT(RRReporter::report(INF1,"Reset to NO_INTERACT(%f,%f,%f).\n",priv->userStep,priv->calcStep,priv->improveStep));
 		priv->improveStep = IMPROVE_STEP_NO_INTERACTION;
@@ -480,10 +480,10 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 	// adjust calcStep
 	priv->lastCalcEndTime = GETTIME;
 	float lastCalcStep = (float)((priv->lastCalcEndTime-calcBeginTime)/(float)PER_SEC);
-	if(!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
-	if(lastCalcStep<1.0)
+	if (!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
+	if (lastCalcStep<1.0)
 	{
-		if(!priv->calcStep)
+		if (!priv->calcStep)
 			priv->calcStep = lastCalcStep;
 		else
 			priv->calcStep = 0.6f*priv->calcStep + 0.4f*lastCalcStep;
@@ -508,7 +508,7 @@ static char *bp(const char *fmt, ...)
 static bool exists(const char* filename)
 {
 	FILE* f = fopen(filename,"rb");
-	if(!f) return false;
+	if (!f) return false;
 	fclose(f);
 	return true;
 }
@@ -517,14 +517,14 @@ unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) con
 {
 	unsigned result = 0;
 	unsigned numObjects = size();
-	for(unsigned i=0;i<numObjects;i++)
+	for (unsigned i=0;i<numObjects;i++)
 	{
 		rr::RRObjectIllumination* illumination = (*this)[i].illumination;
-		if(illumination)
+		if (illumination)
 		{
 			delete illumination->getLayer(layerNumber);
 			const char* filename = bp("%sobj%04d_%02d.png",path?path:"",i,layerNumber);
-			if( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
+			if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 			{
 				result++;
 				rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
@@ -532,10 +532,10 @@ unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) con
 			else
 			{
 				filename = bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber);
-				if( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
+				if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 				{
 					result++;
-					if(illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
+					if (illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
 					{
 						LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size, must belong to different scene.\n",filename));
 					}
@@ -555,13 +555,13 @@ unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) con
 {
 	unsigned result = 0;
 	unsigned numObjects = size();
-	for(unsigned i=0;i<numObjects;i++)
+	for (unsigned i=0;i<numObjects;i++)
 	{
 		RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
-		if(buffer)
+		if (buffer)
 		{
 			const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.png",path?path:"",i,layerNumber );
-			if(buffer->save(filename,NULL))
+			if (buffer->save(filename,NULL))
 			{
 				result++;
 				rr::RRReporter::report(rr::INF3,"Saved %s.\n",filename);
@@ -581,29 +581,29 @@ unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) con
 void RRDynamicSolver::checkConsistency()
 {
 	RRReporter::report(INF1,"Solver diagnose:\n");
-	if(!getMultiObjectCustom())
+	if (!getMultiObjectCustom())
 	{
 		RRReporter::report(WARN,"  No static objects in solver, see setStaticObjects().\n");
 		return;
 	}
-	if(!getLights().size())
+	if (!getLights().size())
 	{
 		RRReporter::report(WARN,"  No lights in solver, see setLights().\n");
 	}
 	const unsigned* detected = priv->customIrradianceRGBA8;
-	if(!detected)
+	if (!detected)
 	{
 		RRReporter::report(WARN,"  setDirectIllumination() not called yet (or called with NULL), no realtime lighting.\n");
 		return;
 	}
 
-	if(!priv->scene&&priv->packedSolver) RRReporter::report(INF1,"  Solver type: Fireball\n"); else
-		if(priv->scene&&!priv->packedSolver) RRReporter::report(INF1,"  Solver type: Architect\n"); else
-		if(!priv->scene&&!priv->packedSolver) RRReporter::report(WARN,"  Solver type: none\n"); else
-		if(priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n");
+	if (!priv->scene&&priv->packedSolver) RRReporter::report(INF1,"  Solver type: Fireball\n"); else
+		if (priv->scene&&!priv->packedSolver) RRReporter::report(INF1,"  Solver type: Architect\n"); else
+		if (!priv->scene&&!priv->packedSolver) RRReporter::report(WARN,"  Solver type: none\n"); else
+		if (priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n");
 
 	// boost
-	if(priv->boostCustomIrradiance<=0.1f || priv->boostCustomIrradiance>=10)
+	if (priv->boostCustomIrradiance<=0.1f || priv->boostCustomIrradiance>=10)
 	{
 		RRReporter::report(WARN,"  setDirectIlluminationBoost(%f) was called, is it intentional? Scene may get too %s.\n",
 			priv->boostCustomIrradiance,
@@ -615,14 +615,14 @@ void RRDynamicSolver::checkConsistency()
 	unsigned numLit = 0;
 	unsigned histo[256][3];
 	memset(histo,0,sizeof(histo));
-	for(unsigned i=0;i<numTriangles;i++)
+	for (unsigned i=0;i<numTriangles;i++)
 	{
 		histo[detected[i]>>24][0]++;
 		histo[(detected[i]>>16)&255][1]++;
 		histo[(detected[i]>>8)&255][2]++;
-		if(detected[i]>>8) numLit++;
+		if (detected[i]>>8) numLit++;
 	}
-	if(histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
+	if (histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
 	{
 		RRReporter::report(WARN,"  setDirectIllumination() was called with array of zeros, no lights in scene?\n");
 		return;
@@ -631,23 +631,23 @@ void RRDynamicSolver::checkConsistency()
 
 	// average irradiance
 	unsigned avg[3] = {0,0,0};
-	for(unsigned i=0;i<256;i++)
-		for(unsigned j=0;j<3;j++)
+	for (unsigned i=0;i<256;i++)
+		for (unsigned j=0;j<3;j++)
 			avg[j] += histo[i][j]*i;
-	for(unsigned j=0;j<3;j++)
+	for (unsigned j=0;j<3;j++)
 		avg[j] /= numTriangles;
 	RRReporter::report(INF1,"  Average realtime direct irradiance: %d %d %d.\n",avg[0],avg[1],avg[2]);
 
 	// scaler
 	RRReal avgPhys = 0;
 	unsigned hist3[3] = {0,0,0};
-	for(unsigned i=0;i<256;i++)
+	for (unsigned i=0;i<256;i++)
 	{
 		hist3[(priv->customToPhysical[i]<0)?0:((priv->customToPhysical[i]==0)?1:2)]++;
 		avgPhys += priv->customToPhysical[i];
 	}
 	avgPhys /= 256;
-	if(hist3[0]||hist3[1]!=1)
+	if (hist3[0]||hist3[1]!=1)
 	{
 		RRReporter::report(WARN,"  Wrong scaler set, see setScaler().\n");
 		RRReporter::report(WARN,"    Scaling to negative/zero/positive result: %d/%d/%d (should be 0/1/255).\n",hist3[0],hist3[1],hist3[2]);
@@ -662,7 +662,7 @@ unsigned RRDynamicSolver::getSolutionVersion() const
 
 RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType()
 {
-	if(priv->scene)
+	if (priv->scene)
 		return priv->packedSolver?BOTH:ARCHITECT;
 	return priv->packedSolver?FIREBALL:NONE;
 }

@@ -44,7 +44,7 @@ public:
 		//             useful only for RRStaticSolver where only position matters
 		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
 		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
-		for(unsigned i=0;i<numVertices;i++)
+		for (unsigned i=0;i<numVertices;i++)
 		{
 			inherited->getVertex(i,vertices[i]);
 			sortedVertices[i] = &vertices[i];
@@ -53,21 +53,21 @@ public:
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
-		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
+		for (unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			RR_ASSERT(d<numVertices);
 			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
-			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
+			for (unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
 				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
 				#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
-				if(!CLOSE(dfl[0],ufl[0])) break;
+				if (!CLOSE(dfl[0],ufl[0])) break;
 				// this is candidate for stitching, do final test
-				if(CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
+				if (CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
 				{
 					Dupl2Unique[d] = u;
 					goto dupl;
@@ -92,16 +92,16 @@ dupl:;
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		inherited->getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000) == INDEXED_BY_VERTEX)
+		if (numItems && *numItems && (channelId&0x7ffff000) == INDEXED_BY_VERTEX)
 		{
 			*numItems = UniqueVertices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == INDEXED_BY_VERTEX)
+		if ((channelId&0x7ffff000) == INDEXED_BY_VERTEX)
 		{
-			if(itemIndex<UniqueVertices)
+			if (itemIndex<UniqueVertices)
 			{
 				itemIndex = Unique2Dupl[itemIndex];
 			}
@@ -126,7 +126,7 @@ dupl:;
 	}
 	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
-		if(postImportVertex>=UniqueVertices)
+		if (postImportVertex>=UniqueVertices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return PreImportNumber(UNDEFINED,UNDEFINED);
@@ -136,16 +136,16 @@ dupl:;
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
-		if(midImportTriangle==UNDEFINED)
+		if (midImportTriangle==UNDEFINED)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return PreImportNumber(UNDEFINED,UNDEFINED);
 		}
 		RRMesh::Triangle midImportVertices;
 		inherited->getTriangle(midImportTriangle,midImportVertices);
-		for(unsigned v=0;v<3;v++)
+		for (unsigned v=0;v<3;v++)
 		{
-			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
+			if (Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return inherited->getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
 
@@ -156,7 +156,7 @@ dupl:;
 	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const
 	{
 		unsigned midImportVertex = inherited->getPostImportVertex(preImportVertex,preImportTriangle);
-		if(midImportVertex>=inherited->getNumVertices()) 
+		if (midImportVertex>=inherited->getNumVertices()) 
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
@@ -201,7 +201,7 @@ public:
 		// build temporary x-sorted array of vertices
 		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
 		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
-		for(unsigned i=0;i<numVertices;i++)
+		for (unsigned i=0;i<numVertices;i++)
 		{
 			INHERITED::getVertex(i,vertices[i]);
 			sortedVertices[i] = &vertices[i];
@@ -210,21 +210,21 @@ public:
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
-		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
+		for (unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			RR_ASSERT(d<numVertices);
 			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
-			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
+			for (unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
 				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
 #define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
-				if(!CLOSE(dfl[0],ufl[0])) break;
+				if (!CLOSE(dfl[0],ufl[0])) break;
 				// this is candidate for stitching, do final test
-				if(CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
+				if (CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
 				{
 					Dupl2Unique[d] = u;
 					goto dupl;
@@ -249,16 +249,16 @@ dupl:;
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		INHERITED::getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
+		if (numItems && *numItems && (channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
 		{
 			*numItems = UniqueVertices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
+		if ((channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
 		{
-			if(itemIndex<UniqueVertices)
+			if (itemIndex<UniqueVertices)
 			{
 				itemIndex = Unique2Dupl[itemIndex];
 			}
@@ -286,7 +286,7 @@ dupl:;
 	}
 	virtual RRMesh::PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
-		if(postImportVertex>=UniqueVertices)
+		if (postImportVertex>=UniqueVertices)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
@@ -296,16 +296,16 @@ dupl:;
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
-		if(midImportTriangle==RRMesh::UNDEFINED)
+		if (midImportTriangle==RRMesh::UNDEFINED)
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 		}
 		RRMesh::Triangle midImportVertices;
 		INHERITED::getTriangle(midImportTriangle,midImportVertices);
-		for(unsigned v=0;v<3;v++)
+		for (unsigned v=0;v<3;v++)
 		{
-			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
+			if (Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return INHERITED::getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
 
@@ -316,7 +316,7 @@ dupl:;
 	virtual unsigned getPostImportVertex(RRMesh::PreImportNumber preImportVertex, RRMesh::PreImportNumber preImportTriangle) const
 	{
 		unsigned midImportVertex = INHERITED::getPostImportVertex(preImportVertex,preImportTriangle);
-		if(midImportVertex>=INHERITED::getNumVertices()) 
+		if (midImportVertex>=INHERITED::getNumVertices()) 
 		{
 			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;

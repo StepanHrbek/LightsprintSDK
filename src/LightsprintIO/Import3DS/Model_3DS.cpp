@@ -238,7 +238,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	// Load the file
 	bin3ds = fopen(name,"rb");
 
-	if(!bin3ds)
+	if (!bin3ds)
 	{
 		printf("file not found: %s\n",name);
 		return false;
@@ -313,20 +313,20 @@ bool Model_3DS::Load(const char *filename, float ascale)
 
 	// check that transformations are identity
 	bool identity = true;
-	/*if(pos.x||pos.y||pos.z||rot.x||rot.y||rot.z||scale!=1)
+	/*if (pos.x||pos.y||pos.z||rot.x||rot.y||rot.z||scale!=1)
 	{
 		identity=false;
 		assert(0);
 	}*/
 	for (int i = 0; i < numObjects; i++)
 	{
-		if(Objects[i].pos.x||Objects[i].pos.y||Objects[i].pos.z||Objects[i].rot.x||Objects[i].rot.y||Objects[i].rot.z)
+		if (Objects[i].pos.x||Objects[i].pos.y||Objects[i].pos.z||Objects[i].rot.x||Objects[i].rot.y||Objects[i].rot.z)
 		{
 			identity=false;
 			assert(0);
 		}
 	}
-	if(!identity)
+	if (!identity)
 		printf("Object transformations are not supported.\n");
 
 	return true;
@@ -338,9 +338,9 @@ void Model_3DS::UpdateCenter()
 	localCenter.y = 0;
 	localCenter.z = 0;
 	localMinY = 1e10;
-	for(int o=0;o<numObjects;o++)
+	for (int o=0;o<numObjects;o++)
 	{
-		for(int v=0;v<Objects[o].numVerts;v++)
+		for (int v=0;v<Objects[o].numVerts;v++)
 		{
 			localCenter.x += Objects[o].Vertexes[3*v];
 			localCenter.y += Objects[o].Vertexes[3*v+1];
@@ -383,14 +383,14 @@ void Model_3DS::Draw(
 		for (int i = 0; i < numObjects; i++)
 		{
 			// additional exitance
-			if(acquireVertexColors)
+			if (acquireVertexColors)
 			{
 				const float* vertexColors = acquireVertexColors(model,i);
-				if(vertexColors)
+				if (vertexColors)
 				{
 					glEnableClientState(GL_COLOR_ARRAY);
 					glColorPointer(3, GL_FLOAT, 0, vertexColors);
-					if(releaseVertexColors) releaseVertexColors(model,i);
+					if (releaseVertexColors) releaseVertexColors(model,i);
 				}
 			}
 			else
@@ -953,7 +953,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	sprintf(fullname, "%s%s", path, name);
 	Materials[matindex].tex = rr::RRBuffer::load(fullname,NULL);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
-	if(!Materials[matindex].textured)
+	if (!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);
 
 	// move the file pointer back to where we got it so
@@ -1245,7 +1245,7 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		n.y = (u[2]*v[0] - u[0]*v[2]);
 		n.z = (u[0]*v[1] - u[1]*v[0]);
 
-		if(!smoothAll)
+		if (!smoothAll)
 		{
 			// Add this normal to its verts' normals
 			Objects[objindex].Normals[vertA*3]   += n.x;
@@ -1262,11 +1262,11 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		{
 			// smooth all vertices in the same position
 			// warning: slow for big scenes
-			for(unsigned k=0;k<3;k++)
+			for (unsigned k=0;k<3;k++)
 			{
 				unsigned v = k?((k>1)?vertC:vertB):vertA;
-				for(int j=0;j<Objects[objindex].numVerts;j++)
-					if(!memcmp(&Objects[objindex].Vertexes[j*3],&Objects[objindex].Vertexes[v*3],3*sizeof(float)))
+				for (int j=0;j<Objects[objindex].numVerts;j++)
+					if (!memcmp(&Objects[objindex].Vertexes[j*3],&Objects[objindex].Vertexes[v*3],3*sizeof(float)))
 					{
 						Objects[objindex].Normals[j*3]   += n.x;
 						Objects[objindex].Normals[j*3+1] += n.y;

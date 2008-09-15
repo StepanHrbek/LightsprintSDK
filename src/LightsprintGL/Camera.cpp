@@ -32,7 +32,7 @@ Camera::Camera(const rr::RRLight& light)
 {
 	pos = light.position;
 	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
-	if(light.type==rr::RRLight::POINT)
+	if (light.type==rr::RRLight::POINT)
 	{
 		angleX = 0;
 		angle = 0;
@@ -56,10 +56,10 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 {
 	dir = _dir.normalized();
 	angleX = asin(dir[1]);
-	if(fabs(cos(angleX))>0.0001f)
+	if (fabs(cos(angleX))>0.0001f)
 	{
 		angle = asin(dir[0]/cos(angleX));
-		if(dir[2]<0) angle = (rr::RRReal)(M_PI-angle);
+		if (dir[2]<0) angle = (rr::RRReal)(M_PI-angle);
 	}
 	else
 		angle = 0;	
@@ -79,7 +79,7 @@ bool Camera::operator!=(const Camera& a) const
 void Camera::update(const Camera* observer, unsigned shadowmapSize)
 {
 	// update dir
-	if(updateDirFromAngles)
+	if (updateDirFromAngles)
 	{
 		dir[0] = sin(angle)*cos(angleX);
 		dir[1] = sin(angleX);
@@ -99,7 +99,7 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	right = tmpup*s-tmpright*c;
 
 	// update pos (the same for all cascade steps)
-	if(observer)
+	if (observer)
 	{
 		// update matrices
 		//update(NULL,0);
@@ -127,8 +127,8 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 		up[0], up[1], up[2]);
 
 	// update frustumMatrix
-	for(unsigned i=0;i<16;i++) frustumMatrix[i] = 0;
-	if(orthogonal)
+	for (unsigned i=0;i<16;i++) frustumMatrix[i] = 0;
+	if (orthogonal)
 	{
 		frustumMatrix[0] = 1/(orthoSize*aspect);
 		frustumMatrix[5] = 1/orthoSize;

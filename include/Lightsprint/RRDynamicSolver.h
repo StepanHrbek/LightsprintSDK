@@ -831,7 +831,7 @@ namespace rr
 	// Checks dll at runtime, detects wrong dll configuration or version
 	//
 	// First step of your application should be
-	//   if(!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
+	//   if (!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Returns id of interface offered by library.

@@ -38,14 +38,14 @@ public:
 
 const RRVec3& check(const RRVec3& a)
 {
-	if(a[0]<0 && a[1]<0 && a[2]<0)
+	if (a[0]<0 && a[1]<0 && a[2]<0)
 		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative value (%f %f %f).\n",a[0],a[1],a[2]));
 	return a;
 }
 
 RRReal check(RRReal a)
 {
-	if(a<0)
+	if (a<0)
 		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative scalar (%f).\n",a));
 	return a;
 }
@@ -64,7 +64,7 @@ public:
 		distanceAttenuationType = NONE;
 		direction = _direction.normalized();
 		color = check(_color);
-		if(!_physicalScale)
+		if (!_physicalScale)
 		{
 			color[0] = pow(color[0],2.2222f);
 			color[1] = pow(color[1],2.2222f);
@@ -167,7 +167,7 @@ public:
 	{
 		float distanceAttenuation = 1/(PREVENT_INF+polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
 		RRVec3 irradiance = color * distanceAttenuation;
-		if(scaler) scaler->getPhysicalScale(irradiance);
+		if (scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
 };
@@ -293,7 +293,7 @@ public:
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
 		RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;
-		if(scaler) scaler->getPhysicalScale(irradiance);
+		if (scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
 	}
 };

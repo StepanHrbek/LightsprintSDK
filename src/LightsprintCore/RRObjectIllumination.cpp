@@ -32,14 +32,14 @@ RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 RRBuffer*& RRObjectIllumination::getLayer(unsigned layerNumber)
 {
 	LayersType::iterator i = layers->find(layerNumber);
-	if(i!=layers->end()) return i->second;
+	if (i!=layers->end()) return i->second;
 	return (*layers)[layerNumber] = NULL;
 }
 
 RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 {
 	LayersType::iterator i = layers->find(layerNumber);
-	if(i!=layers->end()) return i->second;
+	if (i!=layers->end()) return i->second;
 	return NULL;
 }
 
@@ -57,7 +57,7 @@ RRObjectIllumination::~RRObjectIllumination()
 	delete diffuseEnvMap;
 
 	// static
-	for(LayersType::iterator i=layers->begin();i!=layers->end();i++)
+	for (LayersType::iterator i=layers->begin();i!=layers->end();i++)
 	{
 		delete i->second;
 	}

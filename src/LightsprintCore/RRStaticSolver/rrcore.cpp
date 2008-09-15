@@ -43,16 +43,16 @@ namespace rr
 void* realloc(void* p,size_t oldsize,size_t newsize)
 {
 #ifdef SIMULATE_REALLOC
-	//if(newsize>500000) return realloc(p,newsize);
+	//if (newsize>500000) return realloc(p,newsize);
 	// this simulated realloc prevents real but buggy realloc from crashing rr (seen in DJGPP)
 	// it is also faster (seen in MinGW)
 	void *q=malloc(newsize);
-	if(!q)
+	if (!q)
 	{
 		RRReporter::report(ERRO,"Out of memory, exiting!\n");
 		exit(0);
 	}
-	if(p)
+	if (p)
 	{
 		memcpy(q,p,MIN(oldsize,newsize));
 		free(p);
@@ -90,7 +90,7 @@ void Triangle::reset(bool resetFactors)
 	totalExitingFlux=Channels(0);
 	totalIncidentFlux=Channels(0);
 	isReflector=0;
-	if(resetFactors)
+	if (resetFactors)
 	{
 		factors.clear();
 		shotsForFactors=0;
@@ -124,33 +124,33 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 {
 	RRVec3 qn3=normalized(orthogonalTo(body.side1,body.side2));
 	//qn3.w=-dot(body.vertex0,qn3);
-	if(!IS_VEC3(qn3)) return -3; // throw out degenerated triangle
+	if (!IS_VEC3(qn3)) return -3; // throw out degenerated triangle
 
 	real rsize=size(body.side1);
 	real lsize=size(body.side2);
-	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
+	if (rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
 	real psqr=size2(body.side1/rsize-(body.side2/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
-	if(psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
-	if(psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
+	if (psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
+	if (psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
 	#endif
 	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(1-psqr/2)); //first is probably faster
 	area=sina/2*rsize*lsize;
-	if(psqr<=0) return -7;
-	if(psqr>=4) return -9;
-	if(1-psqr/4<=0) return -8;
-	if(sina<=0) return -6;
-	if(area<=0) return -4;
-	if(area<=ignoreSmallerArea) return -5;
+	if (psqr<=0) return -7;
+	if (psqr>=4) return -9;
+	if (1-psqr/4<=0) return -8;
+	if (sina<=0) return -6;
+	if (area<=0) return -4;
+	if (area<=ignoreSmallerArea) return -5;
 
 	// premerit min angle v localspace (mohlo by byt i ve world)
 	real minangle = minAngle(lsize,rsize,size(body.side2-body.side1));
-	if(!IS_NUMBER(area)) return -13;
-	if(minangle<=ignoreSmallerAngle) return -14;
+	if (!IS_NUMBER(area)) return -13;
+	if (minangle<=ignoreSmallerAngle) return -14;
 
 	area = calculateArea(body);
-	if(!IS_NUMBER(area)) return -11;
-	if(area<=ignoreSmallerArea) return -12;
+	if (!IS_NUMBER(area)) return -11;
+	if (area<=ignoreSmallerArea) return -12;
 
 	return 0;
 }
@@ -171,12 +171,12 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	// aby to necrashlo kdyz uzivatel neopravnene zada NULL
 	static RRMaterial emergencyMaterial;
 	static bool emergencyInited = false;
-	if(!emergencyInited)
+	if (!emergencyInited)
 	{
 		emergencyInited = true;
 		emergencyMaterial.reset(false);
 	}
-	if(!s) s = &emergencyMaterial;
+	if (!s) s = &emergencyMaterial;
 
 	surface=s;
 #if CHANNELS == 1
@@ -195,7 +195,7 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	RR_ASSERT(_sourceIrradiance.y>=0);
 	RR_ASSERT(_sourceIrradiance.z>=0);
 	// set this primary illum
-	if(resetPropagation)
+	if (resetPropagation)
 	{
 		// set primary illum
 		totalExitingFluxToDiffuse = newSourceExitingFlux;
@@ -233,7 +233,7 @@ Reflectors::Reflectors()
 
 void Reflectors::reset()
 {
-	for(int i=nodes;i--;) node[i]->isReflector=0;
+	for (int i=nodes;i--;) node[i]->isReflector=0;
 	nodes=0;
 	bests=0;
 	refreshing=1;
@@ -247,15 +247,15 @@ void Reflectors::resetBest()
 
 bool Reflectors::insert(Triangle* anode)
 {
-	if(anode->isReflector || !anode->isLod0) return false;
-	if(anode->totalExitingFlux==Channels(0) && anode->totalExitingFluxToDiffuse==Channels(0)) return false;
-	if(!nodesAllocated)
+	if (anode->isReflector || !anode->isLod0) return false;
+	if (anode->totalExitingFlux==Channels(0) && anode->totalExitingFluxToDiffuse==Channels(0)) return false;
+	if (!nodesAllocated)
 	{
 		nodesAllocated=1024;
 		node=(Triangle**)malloc(nodesAllocated*sizeof(Triangle*));
 	}
 	else
-	if(nodes==nodesAllocated)
+	if (nodes==nodesAllocated)
 	{
 		size_t oldsize=nodesAllocated*sizeof(Triangle*);
 		nodesAllocated*=4;
@@ -268,7 +268,7 @@ bool Reflectors::insert(Triangle* anode)
 
 void Reflectors::insertObject(Object *o)
 {
-	for(unsigned i=0;i<o->triangles;i++) insert(&o->triangle[i]);
+	for (unsigned i=0;i<o->triangles;i++) insert(&o->triangle[i]);
 }
 
 
@@ -276,7 +276,7 @@ Triangle* Reflectors::best(real allEnergyInScene)
 {
 	STATISTIC_INC(numCallsBest);
 	// if cache empty, fill cache
-	if(!bests && nodes)
+	if (!bests && nodes)
 	{
 		// start accumulating nodes for refresh
 		refreshing=1;
@@ -285,23 +285,23 @@ restart:
 		//RRReal shot = 0;
 		// search reflector with low accuracy, high totalExitingFluxToDiffuse etc
 		real bestQ[BESTS];
-		for(unsigned i=0;i<nodes;i++)
+		for (unsigned i=0;i<nodes;i++)
 		{
 			// calculate q for node
 			real q;
 			real toDiffuse=sum(abs(node[i]->totalExitingFluxToDiffuse));
 			// distributor found -> switch from accumulating refreshers to accumulating distributors
-			if(refreshing && node[i]->factors.size() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
+			if (refreshing && node[i]->factors.size() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
 			{
 				refreshing=0;
 				bests=0;
 				goto restart;
 			}
 			// calculate quality of distributor
-			if(!refreshing)
+			if (!refreshing)
 			{
-				if(!node[i]->factors.size()) continue;
-				if(toDiffuse<DISTRIB_LEVEL_LOW*abs(allEnergyInScene)) continue;
+				if (!node[i]->factors.size()) continue;
+				if (toDiffuse<DISTRIB_LEVEL_LOW*abs(allEnergyInScene)) continue;
 				q=toDiffuse;
 			}
 			else
@@ -313,28 +313,28 @@ restart:
 
 			// sort [q,node] into best cache, bestQ[0] is highest
 			unsigned pos=bests;
-			while(pos>0 && bestQ[pos-1]<q)
+			while (pos>0 && bestQ[pos-1]<q)
 			{
-				if(pos<BESTS)
+				if (pos<BESTS)
 				{
 					bestNode[pos]=bestNode[pos-1];
 					bestQ[pos]=bestQ[pos-1];
 				}
 				pos--;
 			}
-			if(pos<BESTS)
+			if (pos<BESTS)
 			{
 				bestNode[pos]=node[i];
 				bestQ[pos]=q;
-				if(bests<BESTS) bests++;
+				if (bests<BESTS) bests++;
 			}
 		}
 
 		// throw out nodes too good for refreshing
 		// 1.6% faster when deleted, but danger of infinitely unbalanced refreshing
-		if(refreshing)
+		if (refreshing)
 		{
-			while(bests && bestQ[bests-1]*REFRESH_MULTIPLY*MAX_REFRESH_DISBALANCE<bestQ[0]) bests--;
+			while (bests && bestQ[bests-1]*REFRESH_MULTIPLY*MAX_REFRESH_DISBALANCE<bestQ[0]) bests--;
 		}
 
 		// update convergence
@@ -343,10 +343,10 @@ restart:
 		//printf(refreshing?"*%d ":">%d ",bests);
 	}
 	// get best from cache
-	if(!bests) return NULL;
+	if (!bests) return NULL;
 	Triangle* best=bestNode[0];
 	bests--;
-	for(unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
+	for (unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
 	RR_ASSERT(best);
 	return best;
 }
@@ -364,7 +364,7 @@ int CompareNodeQ(const void* elem1, const void* elem2)
 
 Reflectors::~Reflectors()
 {
-	if(node) free(node);
+	if (node) free(node);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -385,7 +385,7 @@ void Triangles::reset()
 
 void Triangles::insert(Triangle *key)
 {
-	if(triangles==trianglesAllocated)
+	if (triangles==trianglesAllocated)
 	{
 		size_t oldsize=trianglesAllocated*sizeof(Triangle *);
 		trianglesAllocated*=2;
@@ -397,8 +397,8 @@ void Triangles::insert(Triangle *key)
 //removes triangle from set
 Triangle *Triangles::get()
 {
-	if(!triangles) return NULL;
-//        if(!trianglesAfterResurrection) trianglesAfterResurrection=triangles;
+	if (!triangles) return NULL;
+//        if (!trianglesAfterResurrection) trianglesAfterResurrection=triangles;
 	triangles--;
 	return triangle[triangles];
 }
@@ -452,10 +452,10 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, c
 	RRReal tmpy = 0;
 	RRReal tmpz = 0;
 #pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
-	for(int t=0;(unsigned)t<triangles;t++) if(triangle[t].surface) 
+	for (int t=0;(unsigned)t<triangles;t++) if (triangle[t].surface) 
 	{
 		// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
-		if(resetPropagation)
+		if (resetPropagation)
 		{
 			unsigned flag=triangle[t].isReflector;
 			triangle[t].reset(resetFactors);
@@ -464,13 +464,13 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, c
 
 		// nastavi akumulatory na pocatecni hodnoty
 		RRVec3 directIrradiancePhysical(0);
-		if(directIrradianceCustomRGBA8)
+		if (directIrradianceCustomRGBA8)
 		{
 			unsigned color = directIrradianceCustomRGBA8[t];
 			directIrradiancePhysical = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]);
 		}
 		else
-		if(directIrradiancePhysicalRGB)
+		if (directIrradiancePhysicalRGB)
 		{
 			directIrradiancePhysical = directIrradiancePhysicalRGB[t];
 		}
@@ -513,19 +513,19 @@ public:
 	virtual bool collides(const RRRay* ray)
 	{
 		// don't collide with shooter
-		if(ray->hitTriangle==shooterTriangleIndex)
+		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;
 
 		// don't collide with lod!0
-		if(!triangle[ray->hitTriangle].isLod0)
+		if (!triangle[ray->hitTriangle].isLod0)
 			return false;
 
 		// don't collide when object has NULL material (illegal input)
 		//triangleMaterial = triangle[ray->hitTriangle].surface;
-		//if(!triangleMaterial)
+		//if (!triangleMaterial)
 		//	return false;
 
-		//if(!triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+		//if (!triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 		//	return false
 
 		return result = true;
@@ -582,19 +582,19 @@ void Scene::objInsertStatic(Object *o)
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
-	if(resetFactors)
+	if (resetFactors)
 		resetPropagation = true;
 
 	abortStaticImprovement();
 
-	if(resetFactors)
+	if (resetFactors)
 	{
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
 	}
 	staticSourceExitingFlux=Channels(0);
 
-	if(resetPropagation)
+	if (resetPropagation)
 	{
 		staticReflectors.reset();
 	}
@@ -621,12 +621,12 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 RRVec3 refract(RRVec3 N,RRVec3 I,real r)
 {
 	real ndoti=dot(N,I);
-	if(ndoti<0) r=1/r;
+	if (ndoti<0) r=1/r;
 	real D2=1-r*r*(1-ndoti*ndoti);
-	if(D2>=0)
+	if (D2>=0)
 	{
 		real a;
-		if(ndoti>=0) a=r*ndoti-sqrt(D2);
+		if (ndoti>=0) a=r*ndoti-sqrt(D2);
 		else a=r*ndoti+sqrt(D2);
 		return N*a-I*r;
 	} else {
@@ -661,27 +661,27 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	__shot++;
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
-	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		// ray left scene and vanished
 		return HitChannels(0);
 	}
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	static unsigned s_depth = 0;
-	if(s_depth>25) 
+	if (s_depth>25) 
 	{
 		STATISTIC_INC(numDepthOverflows);
 		return HitChannels(0);
 	}
 	s_depth++;
-	if(ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
+	if (ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
 	RR_ASSERT(side.catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
 	// stats
-	//if(!side.receiveFrom) RRStaticSolver::getSceneStatistics()->numRayTracePhotonHitsNotReceived++;
+	//if (!side.receiveFrom) RRStaticSolver::getSceneStatistics()->numRayTracePhotonHitsNotReceived++;
 	//RRStaticSolver::getSceneStatistics()->sumRayTracePhotonHitPower+=power;
 	//RRStaticSolver::getSceneStatistics()->sumRayTracePhotonDifRefl+=hitTriangle->surface->diffuseReflectance;
 	// diffuse reflection
@@ -689,23 +689,23 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	//  redistribution along existing or newly calculated form factors
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
-	if(side.receiveFrom)
-	if(sum(abs(hitTriangle->surface->diffuseReflectance.color*power))>0.01)
+	if (side.receiveFrom)
+	if (sum(abs(hitTriangle->surface->diffuseReflectance.color*power))>0.01)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReceived);
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
 		// cheap storage with accumulated power -> subdivision is not possible
 		// put triangle among other hit triangles
-		if(!hitTriangle->hits) hitTriangles.insert(hitTriangle);
+		if (!hitTriangle->hits) hitTriangles.insert(hitTriangle);
 		// inform subtriangle where and how powerfully it was hit
 		hitTriangle->hits += power;
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
-	if(side.reflect)
-	if(fabs(power*hitTriangle->surface->specularReflectance)>0.1)
-//	if(sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
+	if (side.reflect)
+	if (fabs(power*hitTriangle->surface->specularReflectance)>0.1)
+//	if (sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReflected);
 		// calculate hitpoint
@@ -718,9 +718,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	// getting through
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
-	if(side.transmitFrom)
-	if(fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f)
-//	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
+	if (side.transmitFrom)
+	if (fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f)
+//	if (sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsTransmitted);
 		// calculate hitpoint
@@ -747,7 +747,7 @@ void HomogenousFiller::Reset()
 real HomogenousFiller::GetCirclePoint(real *a,real *b)
 {
 	real dist;
-	do GetTrianglePoint(a,b); while((dist=*a**a+*b**b)>=SHOOT_FULL_RANGE);
+	do GetTrianglePoint(a,b); while ((dist=*a**a+*b**b)>=SHOOT_FULL_RANGE);
 	return dist;
 }
 
@@ -758,7 +758,7 @@ void HomogenousFiller::GetTrianglePoint(real *a,real *b)
 	real x=0;
 	real y=0;
 	real dist=1;
-	while(n)
+	while (n)
 	{
 		x+=dist*dir[n&3][0];
 		y+=dist*dir[n&3][1];
@@ -790,13 +790,13 @@ bool Scene::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits
 	real cosa=sqrt(1-tmp);
 #endif
 	// emit only inside?
-	if(!sideBits[0].emitTo && sideBits[1].emitTo)
+	if (!sideBits[0].emitTo && sideBits[1].emitTo)
 		cosa=-cosa;
 	// emit to both sides?
-	if(sideBits[0].emitTo && sideBits[1].emitTo)
-		if((rand()%2)) cosa=-cosa;
+	if (sideBits[0].emitTo && sideBits[1].emitTo)
+		if ((rand()%2)) cosa=-cosa;
 	// don't emit?
-	if(!sideBits[0].emitTo && !sideBits[1].emitTo)
+	if (!sideBits[0].emitTo && !sideBits[1].emitTo)
 		return false;
 #ifdef HOMOGENOUS_FILL
 	exitDir = basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
@@ -815,7 +815,7 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 	// select random point in source subtriangle
 	unsigned u=rand();
 	unsigned v=rand();
-	if(u+v>RAND_MAX)
+	if (u+v>RAND_MAX)
 	{
 		u=RAND_MAX-u;
 		v=RAND_MAX-v;
@@ -824,7 +824,7 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;
-	if(!getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3)) 
+	if (!getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3)) 
 		return NULL;
 	RR_ASSERT(IS_SIZE1(rayVec3));
 
@@ -843,7 +843,7 @@ void Scene::shotFromToHalfspace(Triangle* sourceNode)
 	RRVec3 srcPoint3,rayVec3;
 	Triangle* tri=getRandomExitRay(sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
-	if(tri) rayTracePhoton(srcPoint3,rayVec3,tri);
+	if (tri) rayTracePhoton(srcPoint3,rayVec3,tri);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -883,11 +883,11 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 
 void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context)
 {
-	if(phase==0)
+	if (phase==0)
 	{
 		// prepare shooting
 		shotsForNewFactors = forcedShotsForNewFactors ? forcedShotsForNewFactors : (source->shotsForFactors?REFRESH_MULTIPLY*source->shotsForFactors:REFRESH_FIRST);
-		if(!forcedShotsForNewFactors)
+		if (!forcedShotsForNewFactors)
 			RR_ASSERT(shotsForNewFactors>source->shotsForFactors);
 		RR_ASSERT(shotsAccumulated==0);
 		RR_ASSERT(!hitTriangles.get());
@@ -899,32 +899,32 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		improvingBasisOrthonormal.buildBasisFromNormal();
 		phase=1;
 	}
-	if(phase==1)
+	if (phase==1)
 	{
 		// shoot
-		while(shotsAccumulated<shotsForNewFactors
+		while (shotsAccumulated<shotsForNewFactors
 			)
 		{
 			shotFromToHalfspace(source);
 			shotsAccumulated++;
 			shotsTotal++;
-			if(shotsTotal%10==0) if(endfunc(context)) return;
+			if (shotsTotal%10==0) if (endfunc(context)) return;
 		}
 		phase=2;
 	}
-	if(phase==2)
+	if (phase==2)
 	{
 		// remove old factors
 		shotsForFactorsTotal-=source->shotsForFactors;
 		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
+		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, ch, &staticReflectors);
 		source->factors.clear();
 
 		// insert new factors
 		ChunkList<Factor>::InsertIterator i(source->factors,factorAllocator);
 		Factor f;
-		while((f.destination=hitTriangles.get())
+		while ((f.destination=hitTriangles.get())
 			)
 		{
 			f.power = f.destination->hits/shotsAccumulated;
@@ -934,7 +934,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 #endif
 			f.destination->hits = 0;
 			RR_ASSERT(f.power>0);
-			if(!i.insert(f))
+			if (!i.insert(f))
 			{
 				shotsForFactorsTotal = UINT_MAX-1; // stop improving, avgAccuracy() will return number high enough for everyone
 				break;
@@ -965,9 +965,9 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 {
 	// refresh unaccurate form factors
 	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
-	if(phase==0)
+	if (phase==0)
 	{
-		if(needsRefresh)
+		if (needsRefresh)
 		{
 			STATISTIC_INC(numCallsRefreshFactors);
 		}
@@ -976,14 +976,14 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 			STATISTIC_INC(numCallsDistribFactors);
 		}
 	}
-	if(needsRefresh)
+	if (needsRefresh)
 	{
 		refreshFormFactorsFromUntil(source,0,endfunc,context);
 	}
-	if(phase==0)
+	if (phase==0)
 	{
 		// distribute energy via form factors
-		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
+		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
@@ -1001,12 +1001,12 @@ bool Scene::distribute(real maxError)
 	bool distributed=false;
 	int steps=0;
 	int rezerva=20;
-	while(1)
+	while (1)
 	{
 		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if(!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
+		if (!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 
-		for(ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
+		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
 
 		source->totalExitingFluxToDiffuse=Channels(0);
@@ -1022,27 +1022,27 @@ bool Scene::distribute(real maxError)
 
 RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
-	if(!IS_CHANNELS(staticSourceExitingFlux))
+	if (!IS_CHANNELS(staticSourceExitingFlux))
 		return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
 	STATISTIC_INC(numCallsImprove);
 	RRStaticSolver::Improvement improved=RRStaticSolver::NOT_IMPROVED;
 
 	do
 	{
-		if(improvingStatic==NULL)
+		if (improvingStatic==NULL)
 			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if(improvingStatic==NULL) 
+		if (improvingStatic==NULL) 
 		{
 			improved = RRStaticSolver::FINISHED;
 			break;
 		}
-		if(energyFromDistributedUntil(improvingStatic,endfunc,context))
+		if (energyFromDistributedUntil(improvingStatic,endfunc,context))
 		{
 			improvingStatic=NULL;
 			improved=RRStaticSolver::IMPROVED;
 		}
 	}
-	while(!endfunc(context));
+	while (!endfunc(context));
 
 	return improved;
 }
@@ -1053,10 +1053,10 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 
 void Scene::abortStaticImprovement()
 {
-	if(improvingStatic)
+	if (improvingStatic)
 	{
 		Triangle *hitTriangle;
-		while((hitTriangle=hitTriangles.get())) hitTriangle->hits=0;
+		while ((hitTriangle=hitTriangles.get())) hitTriangle->hits=0;
 		hitTriangles.reset();
 		shotsAccumulated=0;
 		phase=0;
@@ -1069,10 +1069,10 @@ void Scene::abortStaticImprovement()
 bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 {
 	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
-	if(improvingStatic)
+	if (improvingStatic)
 	{
 		// za techto podminek at uz dal nestrili
-		if(phase==1 && shotsAccumulated>=minimalImprovement*improvingStatic->shotsForFactors) phase=2;
+		if (phase==1 && shotsAccumulated>=minimalImprovement*improvingStatic->shotsForFactors) phase=2;
 		// vraci uspech pokud uz nestrili ale jeste neskoncil
 		return phase>=2;
 	}
@@ -1087,7 +1087,7 @@ bool falsefunc(void *scene)
 bool Scene::finishStaticImprovement()
 {
 	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
-	if(improvingStatic)
+	if (improvingStatic)
 	{
 		RR_ASSERT(phase>0);
 		bool e=energyFromDistributedUntil(improvingStatic,falsefunc,NULL);

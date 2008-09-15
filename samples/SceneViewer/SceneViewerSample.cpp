@@ -36,7 +36,7 @@
 void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
-	if(gfxRelated)
+	if (gfxRelated)
 		rr::RRReporter::report(rr::ERRO,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 #endif // _WIN32
 
 	// check for version mismatch
-	if(!RR_INTERFACE_OK)
+	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
 	char* exedir = _strdup(argv[0]);
-	for(unsigned i=(unsigned)strlen(exedir);--i;) if(exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
+	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	_chdir(exedir);
 	free(exedir);
 #endif // _WIN32
@@ -77,12 +77,12 @@ int main(int argc, char **argv)
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
-	if(scene.getObjects()) solver->setStaticObjects(*scene.getObjects(),NULL);
-	if(scene.getLights()) solver->setLights(*scene.getLights());
+	if (scene.getObjects()) solver->setStaticObjects(*scene.getObjects(),NULL);
+	if (scene.getLights()) solver->setLights(*scene.getLights());
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 

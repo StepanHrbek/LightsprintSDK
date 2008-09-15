@@ -171,32 +171,32 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 	RRCollisionHandlerGatherHemisphere collisionHandler5(object,NULL,true,false); ray6[5].collisionHandler = collisionHandlers[5] = &collisionHandler5;
 #endif
 
-	if(!triangleNumbers && !exitanceHdr)
+	if (!triangleNumbers && !exitanceHdr)
 	{
 		RR_ASSERT(0);
 		return false;
 	}
-	if((!scene && !packedSolver) || !object)
+	if ((!scene && !packedSolver) || !object)
 	{
 		// this is legal, renderer asks us to build small cubemap from solver with big environment and 0 objects
 		//LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
 	}
-	if(environment && !environment->getScaled()) scalerForReadingEnv = NULL;
+	if (environment && !environment->getScaled()) scalerForReadingEnv = NULL;
 // vypnuto kdyz nas vola worker thread s nizkou prioritou (!exitanceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
 // zapnuto kdyz nas vola uzivatel (exitanceHdr)
-//#pragma omp parallel for if(exitanceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
+//#pragma omp parallel for if (exitanceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
 //!!! if je v vc2005 rozbity, zapnuto vzdy i kdyz nas vola worker thread, nevim co to udela
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
-	for(int side=0;side<6;side++)
+	for (int side=0;side<6;side++)
 	{
 		RRRay* ray = ray6+side;
-		for(unsigned j=0;j<size;j++)
-			for(unsigned i=0;i<size;i++)
+		for (unsigned j=0;j<size;j++)
+			for (unsigned i=0;i<size;i++)
 			{
 				unsigned ofs = i+(j+side*size)*size;
 				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
 				unsigned face = UINT_MAX;
-				if(object)
+				if (object)
 				{
 					RRReal dirsize = dir.length();
 					// find face
@@ -207,31 +207,31 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 					ray->rayLengthMin = 0;
 					ray->rayLengthMax = 10000; //!!! hard limit
 					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
-					if(object->getCollider()->intersect(ray))
+					if (object->getCollider()->intersect(ray))
 						face = ray->hitTriangle;
 				}
-				if(triangleNumbers)
+				if (triangleNumbers)
 				{
 					triangleNumbers[ofs] = face;
 				}
-				if(exitanceHdr)
+				if (exitanceHdr)
 				{
-					if(face==UINT_MAX)
+					if (face==UINT_MAX)
 					{
 						// read exitance of sky
 						//exitanceHdr[ofs] = environment ? environment->getValue(dir) : RRVec3(0);
-						if(!environment)
+						if (!environment)
 						{
 							exitanceHdr[ofs] = RRVec3(0);
 						}
 						else
 						{
 							exitanceHdr[ofs] = environment->getElement(dir);
-							if(scalerForReadingEnv) scalerForReadingEnv->getPhysicalScale(exitanceHdr[ofs]);
+							if (scalerForReadingEnv) scalerForReadingEnv->getPhysicalScale(exitanceHdr[ofs]);
 						}
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
-					else if(packedSolver)
+					else if (packedSolver)
 					{
 						// read face exitance
 #ifdef POINT_MATERIALS
@@ -241,7 +241,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 #endif
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
-					else if(scene)
+					else if (scene)
 					{
 						// read face exitance
 						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
@@ -258,23 +258,23 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 // converts triangle numbers to float exitance in physical scale
 static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
-	if(!scene && !packedSolver)
+	if (!scene && !packedSolver)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if(!triangleNumbers || !exitanceHdr)
+	if (!triangleNumbers || !exitanceHdr)
 	{
 		RR_ASSERT(0);
 		return;
 	}
 #pragma omp parallel for schedule(static)
-	for(int ofs=0;ofs<(int)(6*size*size);ofs++)
+	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
 		unsigned face = triangleNumbers[ofs];
-		if(face==UINT_MAX)
+		if (face==UINT_MAX)
 		{
-			if(!environment)
+			if (!environment)
 				exitanceHdr[ofs] = RRVec3(0);
 			else
 			{
@@ -283,7 +283,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 		}
-		else if(packedSolver)
+		else if (packedSolver)
 		{
 			// read face exitance
 			exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
@@ -307,22 +307,22 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 // radius = 1-minDot (dot=cos(angle) musi byt aspon tak velky jako minDot, jinak jde o prilis vzdaleny texel)
 void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
 {
-	for(int oside=0;oside<6;oside++)
+	for (int oside=0;oside<6;oside++)
 	{
-		for(unsigned oj=0;oj<oSize;oj++)
-			for(unsigned oi=0;oi<oSize;oi++)
+		for (unsigned oj=0;oj<oSize;oj++)
+			for (unsigned oi=0;oi<oSize;oi++)
 			{
 				RRVec3 odir = cubeSide[oside].getTexelDirSticky(oSize,oi,oj).normalized();
 				interpolator->learnDestinationBegin();
 				RRReal sum = 0;
-				for(unsigned iside=0;iside<6;iside++)
+				for (unsigned iside=0;iside<6;iside++)
 				{
-					for(unsigned ij=0;ij<iSize;ij++)
-						for(unsigned ii=0;ii<iSize;ii++)
+					for (unsigned ij=0;ij<iSize;ij++)
+						for (unsigned ii=0;ii<iSize;ii++)
 						{
 							RRVec3 idir = cubeSide[iside].getTexelDir(iSize,ii,ij).normalized(); //!!! lze taky predpocitat
 							RRReal contrib = dot(odir,idir)+radius-1;
-							if(contrib>0)
+							if (contrib>0)
 							{
 								RRReal iTexelSize = cubeSide[iside].getTexelSize(iSize,ii,ij); //!!! lze predpocitat pro vsechny texely
 								RR_ASSERT(contrib*iTexelSize>0);
@@ -331,14 +331,14 @@ void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator*
 						}
 				}
 				RR_ASSERT(sum>0);
-				for(unsigned iside=0;iside<6;iside++)
+				for (unsigned iside=0;iside<6;iside++)
 				{
-					for(unsigned ij=0;ij<iSize;ij++)
-						for(unsigned ii=0;ii<iSize;ii++)
+					for (unsigned ij=0;ij<iSize;ij++)
+						for (unsigned ii=0;ii<iSize;ii++)
 						{
 							RRVec3 idir = cubeSide[iside].getTexelDir(iSize,ii,ij).normalized();
 							RRReal contrib = dot(odir,idir)+radius-1;
-							if(contrib>0)
+							if (contrib>0)
 							{
 								RRReal iTexelSize = cubeSide[iside].getTexelSize(iSize,ii,ij); //!!! lze predpocitat pro vsechny texely
 								RRReal finalContrib = contrib*iTexelSize/sum;
@@ -372,7 +372,7 @@ public:
 		#pragma omp critical
 		{
 			Map::const_iterator i = interpolators.find(key);
-			if(i!=interpolators.end())
+			if (i!=interpolators.end())
 			{
 				// found in cache
 				result = i->second;
@@ -388,7 +388,7 @@ public:
 	}
 	~InterpolatorCache()
 	{
-		for(Map::iterator i=interpolators.begin();i!=interpolators.end();i++)
+		for (Map::iterator i=interpolators.begin();i!=interpolators.end();i++)
 		{
 			delete i->second;
 		}
@@ -420,12 +420,12 @@ template<class CubeColor>
 static void filterEdges(unsigned iSize, CubeColor* iExitance)
 {
 	// process only x+/x- corners&edges and y+/y- edges
-	for(unsigned side=0;side<4;side++)
+	for (unsigned side=0;side<4;side++)
 	{
 		// process all 4 edges			
-		for(unsigned edge=0;edge<4;edge++)
+		for (unsigned edge=0;edge<4;edge++)
 		{
-			for(unsigned a=(side<2)?0:1;a<iSize-1;a++)
+			for (unsigned a=(side<2)?0:1;a<iSize-1;a++)
 			{
 				unsigned i,j,edge2; // edge2: hrana stykajici se s edge v rohu, proti smeru hod.rucicek
 				switch(edge)
@@ -438,7 +438,7 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 				}
 				unsigned idx1 = side*iSize*iSize+j*iSize+i;
 				unsigned idx2 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge,i,j);
-				if(a==0)
+				if (a==0)
 				{
 					// process corner (a+b+c)/3
 					unsigned idx3 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge2,i,j);
@@ -464,7 +464,7 @@ static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, co
 	RR_ASSERT(gatheredExitance);
 	RR_ASSERT(gatherSize);
 	RR_ASSERT(filterRadius);
-	if(!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
+	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
 	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius);
 	interpolator->interpolate(gatheredExitance,buffer,scaler);
 	return 1;
@@ -473,7 +473,7 @@ static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, co
 
 void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illumination)
 {
-	if(!illumination || !illumination->gatherEnvMapSize || (!illumination->diffuseEnvMap && !illumination->specularEnvMap))
+	if (!illumination || !illumination->gatherEnvMapSize || (!illumination->diffuseEnvMap && !illumination->specularEnvMap))
 	{
 		RR_ASSERT(0);
 		return;
@@ -481,20 +481,20 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
 	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
 	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
-	if(!gatherSize)
+	if (!gatherSize)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
+	if (gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{
-		if(illumination->cachedGatherSize!=gatherSize)
+		if (illumination->cachedGatherSize!=gatherSize)
 		{
 			RR_SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
-		if(!illumination->cachedTriangleNumbers)
+		if (!illumination->cachedTriangleNumbers)
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
-		if(cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),NULL,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL))
+		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),NULL,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -512,7 +512,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 
 unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination)
 {
-	if(!illumination)
+	if (!illumination)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -520,7 +520,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
 	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
 	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
-	if(!gatherSize)
+	if (!gatherSize)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -529,17 +529,17 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	// alloc temp space
 	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
 
-	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
+	if (gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{
-		if(illumination->cachedGatherSize!=gatherSize)
+		if (illumination->cachedGatherSize!=gatherSize)
 		{
 			RR_SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
-		if(!illumination->cachedTriangleNumbers)
+		if (!illumination->cachedTriangleNumbers)
 		{
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
 		}
-		if(cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,gatheredExitance))
+		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,gatheredExitance))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -559,7 +559,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 
 	unsigned updatedMaps = 0;
-	if(illumination->cachedGatherSize)
+	if (illumination->cachedGatherSize)
 	{
 		// fill envmaps
 		unsigned minSize = MIN(gatherSize,specularSize);

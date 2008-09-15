@@ -43,7 +43,7 @@ public:
 
 	void setShooterTriangle(unsigned t)
 	{
-		if(shooterTriangleIndex!=t)
+		if (shooterTriangleIndex!=t)
 		{
 			shooterTriangleIndex = t;
 			multiObject->getTriangleLod(t,shooterLod);
@@ -58,15 +58,15 @@ public:
 	virtual bool collides(const RRRay* ray)
 	{
 		// don't collide with shooter
-		if(ray->hitTriangle==shooterTriangleIndex)
+		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;
 
 		// don't collide with wrong LODs
-		if(staticSceneContainsLods)
+		if (staticSceneContainsLods)
 		{
 			RRObject::LodInfo shadowCasterLod;
 			multiObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
-			if((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
+			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
 				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
 				return false;
 		}
@@ -75,18 +75,18 @@ public:
 		triangleMaterial = triangle
 			? triangle[ray->hitTriangle].surface // read from rrcore, faster
 			: multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL); // read from multiobject, slower
-		if(!triangleMaterial)
+		if (!triangleMaterial)
 			return false;
 
 		// per-pixel materials
-		if(allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
+		if (allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
 		{
 			// optional ray->hitPoint2d must be filled
 			// this is satisfied on 2 external places:
 			//   - existing users request 2d to be filled
 			//   - existing colliders fill hitPoint2d even when not requested by user
 			multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-			if(pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+			if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				return result = pointMaterialValid = true;
 			}
@@ -94,7 +94,7 @@ public:
 		else
 		// per-triangle materials
 		{
-			if(triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+			if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				return result = true;
 			}
@@ -109,8 +109,8 @@ public:
 	// returns contact material from previous collision
 	const RRMaterial* getContactMaterial()
 	{
-		if(!result) return NULL;
-		if(pointMaterialValid) return &pointMaterial;
+		if (!result) return NULL;
+		if (pointMaterialValid) return &pointMaterial;
 		return triangleMaterial;
 	}
 

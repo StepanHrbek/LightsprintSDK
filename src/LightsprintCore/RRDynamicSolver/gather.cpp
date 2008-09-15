@@ -16,7 +16,7 @@
 #include "gather.h"
 #include "../RRStaticSolver/gatherer.h" //!!! vola neverejny interface static solveru
 
-#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
+#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if (times_done<times_max) {times_done++;action;}}
 #define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
 //#define UNWRAP_DIAGNOSTIC // kazdy triangl dostane vlastni nahodnou barvu, tam kde bude videt prechod je spatny unwrap nebo rasterizace
@@ -70,7 +70,7 @@ public:
 		RRReal x=0;
 		RRReal y=0;
 		RRReal dist=1;
-		while(n)
+		while (n)
 		{
 			x+=dist*dir[n&3][0];
 			y+=dist*dir[n&3][1];
@@ -85,7 +85,7 @@ public:
 	RRReal GetCirclePoint(RRReal *a,RRReal *b)
 	{
 		RRReal dist;
-		do GetTrianglePoint(a,b); while((dist=*a**a+*b**b)>=1);
+		do GetTrianglePoint(a,b); while ((dist=*a**a+*b**b)>=1);
 		return dist;
 	}
 
@@ -94,7 +94,7 @@ public:
 	{
 		RRReal siz = 0.732050807568876f; // lezi na hrane trianglu, tj. x=2-2*0.86602540378444*x, x=1/(0.5+0.86602540378444)=0.73205080756887656833031125171467
 		RRReal sizInv = 1.366025403784441f;
-		do GetTrianglePoint(a,b); while(*a<-siz || *a>siz || *b<-siz || *b>siz);
+		do GetTrianglePoint(a,b); while (*a<-siz || *a>siz || *b<-siz || *b>siz);
 		*a *= sizInv;
 		*b *= sizInv;
 	}
@@ -104,7 +104,7 @@ public:
 	{
 		RRReal siz = 0.732050807568876f; // lezi na hrane trianglu, tj. x=2-2*0.86602540378444*x, x=1/(0.5+0.86602540378444)=0.73205080756887656833031125171467
 		RRReal sizInv = 1.366025403784441f/2;
-		do GetTrianglePoint(a,b); while(*a<-siz || *a>siz || *b<-siz || *b>siz);
+		do GetTrianglePoint(a,b); while (*a<-siz || *a>siz || *b<-siz || *b>siz);
 		*a = *a*sizInv+0.5f;
 		*b = *b*sizInv+0.5f;
 	}
@@ -175,7 +175,7 @@ public:
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
-		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+		for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
@@ -187,7 +187,7 @@ public:
 	//  - pti.tri.normal
 	void init()
 	{
-		if(!rays) return;
+		if (!rays) return;
 		// prepare homogenous filler
 		fillerDir.Reset(pti.resetFiller);
 		// init counters
@@ -223,7 +223,7 @@ public:
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
-		if(!pti.context.gatherAllDirections)
+		if (!pti.context.gatherAllDirections)
 		{
 			// single irradiance is computed
 			// no need to compute dot(dir,normal), it is already compensated by picking dirs close to normal more often
@@ -235,14 +235,14 @@ public:
 			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
 			float normalIncidence1 = dot(dir,basisOrthonormal.normal);
 			// dir je spocteny z neorthogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
-			if(normalIncidence1>0)
+			if (normalIncidence1>0)
 			{
 				float normalIncidence1Inv = 1/normalIncidence1;
-				for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+				for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				{
 					RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
-					if(normalIncidence2>0)
+					if (normalIncidence2>0)
 						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
 					//!!! pocita jako reliable i kdyz irradiancePhysicalHemisphere vubec nezmenim
 				}
@@ -256,22 +256,22 @@ public:
 	// once after shooting
 	void done()
 	{
-		if(!rays) return;
+		if (!rays) return;
 		// compute irradiance and reliability
-		if(hitsReliable==0)
+		if (hitsReliable==0)
 		{
 			// completely unreliable
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
 		else
-		if(hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsTreshold)
+		if (hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsTreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalHemisphere[i] = RRVec3(0);
 			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
@@ -279,7 +279,7 @@ public:
 		else
 		{
 			// get average hit, hemisphere hits don't accumulate
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalHemisphere[i] /= (RRReal)hitsReliable;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
@@ -336,7 +336,7 @@ public:
 
 	void setShooterTriangle(unsigned t)
 	{
-		if(shooterTriangleIndex!=t)
+		if (shooterTriangleIndex!=t)
 		{
 			shooterTriangleIndex = t;
 			multiObject->getTriangleLod(t,shooterLod);
@@ -350,26 +350,26 @@ public:
 	virtual bool collides(const RRRay* ray)
 	{
 		// don't collide with shooter
-		if(ray->hitTriangle==shooterTriangleIndex)
+		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;
 
 		// don't collide with wrong LODs
-		if(staticSceneContainsLods)
+		if (staticSceneContainsLods)
 		{
 			RRObject::LodInfo shadowCasterLod;
 			multiObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
-			if((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
+			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
 				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
 				return false;
 		}
 
 		// don't collide when object has shadow casting disabled
 		const RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
-		if(!triangleMaterial)
+		if (!triangleMaterial)
 			return false;
 
 		// per-pixel materials
-		if(allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
+		if (allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
 		{
 			// optional ray->hitPoint2d must be filled
 			// this is satisfied on 2 external places:
@@ -377,7 +377,7 @@ public:
 			//   - existing colliders fill hitPoint2d even when not requested by user
 			RRMaterial pointMaterial;
 			multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-			if(pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+			if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
 				visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
@@ -387,7 +387,7 @@ public:
 		else
 		// per-triangle materials
 		{
-			if(triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+			if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
 				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
@@ -448,7 +448,7 @@ public:
 		// filter lights
 		//  lights that don't illuminate subTexel[0] shall not illuminate other subtexels too
 		//  (because other subtexels are from the same object and for now, users turn off lighting per-object, not per triangle)
-		if(pti.relevantLightsFilled)
+		if (pti.relevantLightsFilled)
 		{
 			numRelevantLights = _pti.numRelevantLights;
 		}
@@ -457,14 +457,14 @@ public:
 			numRelevantLights = 0;
 			const RRLights& allLights = _pti.context.solver->getLights();
 			const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
-			for(unsigned i=0;i<allLights.size();i++)
-				if(multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
+			for (unsigned i=0;i<allLights.size();i++)
+				if (multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
 				{
 					pti.relevantLights[numRelevantLights++] = allLights[i];
 				}
 		}
 		// more init (depends on filtered lights)
-		for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+		for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
@@ -475,7 +475,7 @@ public:
 	// before shooting
 	void init()
 	{
-		if(!rays) return;
+		if (!rays) return;
 		hitsReliable = 0;
 		hitsUnreliable = 0;
 		hitsLight = 0;
@@ -491,15 +491,15 @@ public:
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
 	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basisSkewed)
 	{
-		if(!_light) return;
+		if (!_light) return;
 		RRRay* ray = &pti.rays[1];
 		// set dir to light
 		RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-ray->rayOrigin);
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
-		if(_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
+		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
 		float normalIncidence = dot(dir,_basisSkewed.normal.normalized());
-		if(normalIncidence<=0)
+		if (normalIncidence<=0)
 		{
 			// face is not oriented towards light -> reliable black (selfshadowed)
 			hitsScene++;
@@ -515,24 +515,24 @@ public:
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
 			ray->collisionHandler = &collisionHandlerGatherLight;
 			collisionHandlerGatherLight.light = _light;
-			if(!_light->castShadows || !tools.collider->intersect(ray))
+			if (!_light->castShadows || !tools.collider->intersect(ray))
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
 				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler) * (_light->castShadows?collisionHandlerGatherLight.getVisibility():1);
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
-				if(!pti.context.gatherAllDirections)
+				if (!pti.context.gatherAllDirections)
 				{
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
 //RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}
 				else
 				{
-					for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+					for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 					{
 						RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
-						if(normalIncidence>0)
+						if (normalIncidence>0)
 							irradiancePhysicalLights[i] += irrad * normalIncidence;
 					}
 				}
@@ -541,14 +541,14 @@ public:
 				hitsReliable++;
 			}
 			else
-			if(!collisionHandlerGatherLight.isLegal())
+			if (!collisionHandlerGatherLight.isLegal())
 			{
 				// illegal side encountered, ray was lost inside object or other harmful situation -> unreliable
 				hitsInside++;
 				hitsUnreliable++;
 			}
 			else
-			if(ray->hitDistance<pti.context.params->rugDistance)
+			if (ray->hitDistance<pti.context.params->rugDistance)
 			{
 				// no visibility, ray hit rug, very close object -> unreliable
 				hitsRug++;
@@ -568,29 +568,29 @@ public:
 	void shotRayPerLight(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
 	{
 		collisionHandlerGatherLight.setShooterTriangle(_skipTriangleIndex);
-		for(unsigned i=0;i<numRelevantLights;i++)
+		for (unsigned i=0;i<numRelevantLights;i++)
 			shotRay(pti.relevantLights[i],_basisSkewed);
 		shotRounds++;
 	}
 
 	void done()
 	{
-		if(!rays) return;
+		if (!rays) return;
 		// compute irradiance and reliability
-		if(hitsReliable==0)
+		if (hitsReliable==0)
 		{
 			// completely unreliable
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
 		else
-		if(hitsInside>rays*pti.context.params->insideObjectsTreshold)
+		if (hitsInside>rays*pti.context.params->insideObjectsTreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalLights[i] = RRVec3(0);
 			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
@@ -598,7 +598,7 @@ public:
 		else
 		{
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
-			for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalLights[i] /= (RRReal)shotRounds;
 			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
@@ -644,7 +644,7 @@ protected:
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
-	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		RRReporter::report(WARN,"processTexel: Empty scene.\n");
 		RR_ASSERT(0);
@@ -661,7 +661,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	GatheredIrradianceLights gilights(tools,pti);
 
 	// bail out if no work here
-	if(!hemisphere.rays && !gilights.rays)
+	if (!hemisphere.rays && !gilights.rays)
 	{
 		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, applyLights=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->applyLights,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment));
 		return ProcessTexelResult();
@@ -682,12 +682,12 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	TexelSubTexels::const_iterator subTexelIterator = pti.subTexels->begin();
 	RRReal areaAccu = -pti.subTexels->begin()->areaInMapSpace;
 	RRReal areaMax = 0;
-	for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i) areaMax += i->areaInMapSpace;
+	for (TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i) areaMax += i->areaInMapSpace;
 
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
 	g_logRay = pti.context.params->debugRay;
-	while(1)
+	while (1)
 	{
 		/////////////////////////////////////////////////////////////////
 		//
@@ -695,7 +695,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 		bool shootHemisphere = (hemisphere.hitsReliable+hemisphere.hitsUnreliable<hemisphere.rays || hemisphere.hitsReliable*10<hemisphere.rays) && hemisphere.hitsUnreliable<hemisphere.rays*100;
 		bool shootLights = (gilights.hitsReliable+gilights.hitsUnreliable<gilights.rays || gilights.hitsReliable*10<gilights.rays) && gilights.hitsUnreliable<gilights.rays*100;
-		if(!shootHemisphere && !shootLights)
+		if (!shootHemisphere && !shootLights)
 			break;
 
 		/////////////////////////////////////////////////////////////////
@@ -708,7 +708,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 		unsigned seriesNumHemisphereShootersShot = 0;
 		unsigned seriesNumGilightsShootersShot = 0;
-		for(unsigned seriesShooterNum=0;seriesShooterNum<seriesNumShootersTotal;seriesShooterNum++)
+		for (unsigned seriesShooterNum=0;seriesShooterNum<seriesNumShootersTotal;seriesShooterNum++)
 		{
 			/////////////////////////////////////////////////////////////////
 			//
@@ -716,17 +716,17 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 			// select subtexel
 			areaAccu += areaStep;
-			while(areaAccu>0)
+			while (areaAccu>0)
 			{
 				++subTexelIterator;
-				if(subTexelIterator==pti.subTexels->end())
+				if (subTexelIterator==pti.subTexels->end())
 					subTexelIterator = pti.subTexels->begin();
 				areaAccu -= subTexelIterator->areaInMapSpace;
 			}
 			const SubTexel* subTexel = *subTexelIterator;
 
 			// update cached triangle data
-			if(subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
+			if (subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
 			{
 				cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
 				const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
@@ -735,7 +735,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			}
 			// update cached subtexel data
 			// (simplification: average tangent base is used for all rays from subtexel)
-			if(subTexel!=cache_subTexelPtr)
+			if (subTexel!=cache_subTexelPtr)
 			{
 				cache_subTexelPtr = subTexel;
 				// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
@@ -752,7 +752,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			// random 2d pos in subtexel
 			unsigned u=rand();
 			unsigned v=rand();
-			if(u+v>RAND_MAX)
+			if (u+v>RAND_MAX)
 			{
 				u=RAND_MAX-u;
 				v=RAND_MAX-v;
@@ -767,9 +767,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			//
 			// shoot into hemisphere
 
-			if(shootHemisphere)
+			if (shootHemisphere)
 			{
-				if(!shootLights // shooting only hemisphere
+				if (!shootLights // shooting only hemisphere
 					|| hemisphere.rays>=gilights.rounds // shooting both, always hemisphere
 					|| seriesNumHemisphereShootersShot*(seriesNumShootersTotal-1)<hemisphere.rays*seriesShooterNum) // shooting both, sometimes hemisphere
 				{
@@ -783,10 +783,10 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			//
 			// shoot into lights
 
-			if(shootLights)
+			if (shootLights)
 			{
 				RR_ASSERT(!pti.context.params->lowDetailForLightDetailMap);
-				if(!shootHemisphere // shooting only into lights
+				if (!shootHemisphere // shooting only into lights
 					|| gilights.rounds>=hemisphere.rays // shoting both, always into lights
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
 				{
@@ -802,11 +802,11 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	gilights.done();
 
 	// convert result to indirect detail map
-	if(pti.context.params->lowDetailForLightDetailMap)
+	if (pti.context.params->lowDetailForLightDetailMap)
 	{
 		RRVec3 irradianceIndirectLowDetail(0);
 		const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
-		for(TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
+		for (TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
 		{
 			RR_ASSERT(_finite(i->areaInMapSpace));
 			RRVec2 uvInTriangleSpace = (i->uvInTriangleSpace[0]+i->uvInTriangleSpace[1]+i->uvInTriangleSpace[2])*0.33333333f; // uv of center of subtexel
@@ -814,7 +814,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			RRMesh::Triangle postImportTriangleVertex;
 			multiMesh->getTriangle(i->multiObjPostImportTriIndex,postImportTriangleVertex);
 			RRVec3 irradianceIndirect[3];
-			for(unsigned v=0;v<3;v++)
+			for (unsigned v=0;v<3;v++)
 			{
 				RRMesh::PreImportNumber preImportVertex = multiMesh->getPreImportVertex(postImportTriangleVertex[v],i->multiObjPostImportTriIndex);
 				// our caller promised that all pti.subtexels belong to object whose buffer is updated, so we may ignore preImportVertex.object
@@ -823,8 +823,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			irradianceIndirectLowDetail += ( irradianceIndirect[0]*wInTriangleSpace + irradianceIndirect[1]*uvInTriangleSpace[0] + irradianceIndirect[2]*uvInTriangleSpace[1] ) * i->areaInMapSpace;
 		}
 		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be scaled in scaleAndFlushToBuffer()
-		if(pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
-		for(unsigned i=0;i<3;i++)
+		if (pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
+		for (unsigned i=0;i<3;i++)
 		{
 			RR_ASSERT(_finite(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i]));
 			hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i] =
@@ -837,27 +837,27 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	// sum and store irradiance
 	ProcessTexelResult result;
-	for(unsigned i=0;i<NUM_LIGHTMAPS;i++)
+	for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 	{
 		result.irradiancePhysical[i] = gilights.irradiancePhysicalLights[i] + hemisphere.irradiancePhysicalHemisphere[i]; // [3] = 0
-		if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+		if (gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
 			result.irradiancePhysical[i][3] = 1; // only completely unreliable results stay at 0, others get 1 here
 		// store irradiance (no scaling yet)
-		if(pti.context.pixelBuffers[i])
+		if (pti.context.pixelBuffers[i])
 			pti.context.pixelBuffers[i]->renderTexelPhysical(pti.uv,result.irradiancePhysical[i]);
 	}
 //RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradiancePhysicalLights[LS_LIGHTMAP][0],hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
 	// sum bent normals
 	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
-	if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+	if (gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
 		result.bentNormal[3] = 1; // only completely unreliable results stay at 0, others get 1 here
-	if(result.bentNormal[0] || result.bentNormal[1] || result.bentNormal[2]) // avoid NaN
+	if (result.bentNormal[0] || result.bentNormal[1] || result.bentNormal[2]) // avoid NaN
 	{
 		result.bentNormal.RRVec3::normalize();
 	}
 	// store bent normal (no scaling)
-	if(pti.context.pixelBuffers[LS_BENT_NORMALS])
+	if (pti.context.pixelBuffers[LS_BENT_NORMALS])
 	{
 		pti.context.pixelBuffers[LS_BENT_NORMALS]->renderTexelPhysical(pti.uv,
 			// instead of result.bentNormal
@@ -876,13 +876,13 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 // may be called as first gather or final gather
 bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
-	if(aborting)
+	if (aborting)
 		return false;
-	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTrianglePhysical: Empty scene.\n");
 			RR_ASSERT(0);
@@ -895,20 +895,20 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 
 	// validate params
 	UpdateParameters params;
-	if(aparams) params = *aparams;
+	if (aparams) params = *aparams;
 	params.quality = MAX(1,params.quality);
 	
 	// optimize params
-	if(params.applyLights && !getLights().size())
+	if (params.applyLights && !getLights().size())
 		params.applyLights = false;
-	if(params.applyEnvironment && !getEnvironment())
+	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	TexelContext tc;
 	tc.solver = this;
-	for(unsigned i=0;i<NUM_BUFFERS;i++) tc.pixelBuffers[i] = NULL;
+	for (unsigned i=0;i<NUM_BUFFERS;i++) tc.pixelBuffers[i] = NULL;
 	tc.params = &params;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherDirectEmitors = _gatherDirectEmitors;
@@ -932,7 +932,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	subTexel.uvInTriangleSpace[1] = RRVec2(1,0);
 	subTexel.uvInTriangleSpace[2] = RRVec2(0,1);
 	TexelSubTexels::Allocator subTexelAllocator;
-	for(int i=0;i<numThreads;i++)
+	for (int i=0;i<numThreads;i++)
 		subTexels[i].push_back(subTexel,subTexelAllocator);
 
 	// preallocate empty relevantLights
@@ -942,26 +942,26 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	unsigned numAllLights = getLights().size();
 	unsigned numObjects = getNumObjects();
 	std::vector<const RRLight*>* relevantLightsPerObject = new std::vector<const RRLight*>[numObjects];
-	for(unsigned objectNumber=0;objectNumber<numObjects;objectNumber++)
+	for (unsigned objectNumber=0;objectNumber<numObjects;objectNumber++)
 	{
 		RRMesh::PreImportNumber preImportTriangleNumber;
 		preImportTriangleNumber.object = objectNumber;
 		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume object's triangle 0 made it into multiobject
 		unsigned postImportTriangleNumber = multiMesh->getPostImportTriangle(preImportTriangleNumber);
-		for(unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
+		for (unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
 			const RRLight* light = getLights()[lightNumber];
-			if(postImportTriangleNumber==UINT_MAX // make all lights relevant in very rare case when object's triangle 0 is not in multiobject (happens when opening kalasatama.dae in MovingSun)
+			if (postImportTriangleNumber==UINT_MAX // make all lights relevant in very rare case when object's triangle 0 is not in multiobject (happens when opening kalasatama.dae in MovingSun)
 				|| multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
 				relevantLightsPerObject[objectNumber].push_back(light);
 		}
 	}
 
 #pragma omp parallel for schedule(dynamic)
-	for(int t=0;t<(int)numPostImportTriangles;t++)
+	for (int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		if((t%10000)==0) RRReporter::report(INF3,"step %d/%d\n",t/10000,(numPostImportTriangles+10000-1)/10000);
-		if((params.debugTriangle==UINT_MAX || params.debugTriangle==t) && !aborting) // skip other triangles when debugging one
+		if ((t%10000)==0) RRReporter::report(INF3,"step %d/%d\n",t/10000,(numPostImportTriangles+10000-1)/10000);
+		if ((params.debugTriangle==UINT_MAX || params.debugTriangle==t) && !aborting) // skip other triangles when debugging one
 		{
 #ifdef _OPENMP
 			int threadNum = omp_get_thread_num();
@@ -1002,11 +1002,11 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
-	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
 			RRReporter::report(WARN,"Empty scene.\n");
@@ -1017,12 +1017,12 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 	GatheredPerTriangleData* finalGather = GatheredPerTriangleData::create(numPostImportTriangles,1,0,0);
-	if(!finalGather)
+	if (!finalGather)
 	{
 		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
 		return false;
 	}
-	if(!gatherPerTrianglePhysical(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
+	if (!gatherPerTrianglePhysical(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
 	{
 		delete finalGather;
 		return false;
@@ -1046,18 +1046,18 @@ static bool endByQuality(void *context)
 {
 	EBQContext* c = (EBQContext*)context;
 	int now = int(c->staticSolver->illuminationAccuracy());
-	static int old = -1; if(now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,c->targetQuality);}
+	static int old = -1; if (now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,c->targetQuality);}
 	return (now > c->targetQuality) || *c->aborting;
 }
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect)
 {
-	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		RRReportInterval report(INF2,"Smoothing scene ...\n");
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene.\n");
 			return false;
@@ -1069,7 +1069,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	paramsIndirect.applyLights = false;
 	paramsIndirect.applyEnvironment = false;
 	//paramsDirect.applyCurrentSolution = false;
-	if(aparamsIndirect)
+	if (aparamsIndirect)
 	{
 		paramsIndirect = *aparamsIndirect;
 		// disable debugging in first gather
@@ -1083,33 +1083,33 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 
-	if(paramsIndirect.applyCurrentSolution)
+	if (paramsIndirect.applyCurrentSolution)
 	{
 		RRReporter::report(WARN,"paramsIndirect.applyCurrentSolution ignored, set it in paramsDirect instead.\n");
 		paramsIndirect.applyCurrentSolution = 0;
 	}
 	else
-	if(!paramsIndirect.applyLights && !paramsIndirect.applyEnvironment)
+	if (!paramsIndirect.applyLights && !paramsIndirect.applyEnvironment)
 	{
 		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
 	}
 
 	// gather direct for requested indirect and propagate in solver
-	if(paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
+	if (paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0);
 		priv->scene->illuminationReset(true,true,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
-		if(!updateSolverDirectIllumination(&paramsIndirect))
+		if (!updateSolverDirectIllumination(&paramsIndirect))
 		{
 			// aborting or not enough memory
 			return false;
 		}
 
 		// propagate
-		if(!aborting)
+		if (!aborting)
 		{
 			EBQContext context;
 			context.staticSolver = priv->scene;

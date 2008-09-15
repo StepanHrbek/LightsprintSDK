@@ -38,9 +38,9 @@ Water::~Water()
 
 void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude)
 {
-	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
+	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	// adjust size
-	if(_reflWidth!=mirrorMap->getBuffer()->getWidth() || _reflHeight!=mirrorMap->getBuffer()->getHeight())
+	if (_reflWidth!=mirrorMap->getBuffer()->getWidth() || _reflHeight!=mirrorMap->getBuffer()->getHeight())
 	{
 		// RGBF improves HDR sun reflection (RGBA = LDR reflection is weak),
 		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
@@ -56,7 +56,7 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 	eye = _eye;
 	altitude = _altitude;
 
-	if(eye)
+	if (eye)
 	{
 		eye->mirror(altitude);
 		eye->update();
@@ -66,11 +66,11 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 
 void Water::updateReflectionDone()
 {
-	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
+	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorDepth->renderingToEnd();
 	mirrorMap->renderingToEnd();
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-	if(eye)
+	if (eye)
 	{
 		eye->mirror(altitude);
 		eye->update();
@@ -79,17 +79,17 @@ void Water::updateReflectionDone()
 
 void Water::render(float size, rr::RRVec3 center)
 {
-	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
+	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	mirrorMap->bindTexture();
 	mirrorProgram->sendUniform("mirrorMap",0);
 	mirrorProgram->sendUniform("time",(float)(GETTIME/(float)PER_SEC));
-	if(fresnel) mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	if (fresnel) mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
 	//GLboolean blend = glIsEnabled(GL_BLEND);
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	if(size>0)
+	if (size>0)
 	{
 		glBegin(GL_QUADS);
 		glVertex3f(center[0]-size,altitude,center[2]-size);
@@ -98,11 +98,11 @@ void Water::render(float size, rr::RRVec3 center)
 		glVertex3f(center[0]+size,altitude,center[2]-size);
 		glEnd();
 	}
-	//if(!blend)
+	//if (!blend)
 	//	glDisable(GL_BLEND);
 
 	//static TextureRenderer* textureRenderer = NULL;
-	//if(!textureRenderer) textureRenderer = new TextureRenderer("../../data/shaders/");
+	//if (!textureRenderer) textureRenderer = new TextureRenderer("../../data/shaders/");
 	//textureRenderer->render2D(mirrorMap,NULL,0,0,0.3,0.3);
 }
 

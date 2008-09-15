@@ -31,9 +31,9 @@ namespace rr_gl
 static void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
-	if(gfxRelated)
+	if (gfxRelated)
 		rr::RRReporter::report(rr::INF1,"Please update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families\n");
-	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+	if (glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 		glutLeaveGameMode();
 	else
 		glutDestroyWindow(glutGetWindow());
@@ -100,7 +100,7 @@ namespace ray_log
 	static unsigned size = 0;
 	static void push_back(const rr::RRRay* ray, bool hit)
 	{
-		if(size<MAX_RAYS)
+		if (size<MAX_RAYS)
 		{
 			log[size].begin = ray->rayOrigin;
 			log[size].end = hit ? ray->hitPoint3d : ray->rayOrigin+rr::RRVec3(1/ray->rayDirInv[0],1/ray->rayDirInv[1],1/ray->rayDirInv[2])*ray->rayLengthMax;
@@ -143,19 +143,19 @@ public:
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 
-		if(svs.renderRealtime)
+		if (svs.renderRealtime)
 		{
-			if( (!renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND) // optimized render can't sort
+			if ( (!renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND) // optimized render can't sort
 				|| (svs.renderLDM && getStaticObjects().size()>1) // optimized render can't render AO for more than 1 object
 				)
 			{
 				// render per object (properly sorting), with temporary buffers filled here
-				if(!getIllumination(0)->getLayer(svs.realtimeLayerNumber))
+				if (!getIllumination(0)->getLayer(svs.realtimeLayerNumber))
 				{
 					// allocate lightmap-buffers for realtime rendering
-					for(unsigned i=0;i<getNumObjects();i++)
+					for (unsigned i=0;i<getNumObjects();i++)
 					{
-						if(getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
+						if (getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
 							getIllumination(i)->getLayer(svs.realtimeLayerNumber) =
 								rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 					}
@@ -180,7 +180,7 @@ public:
 	}
 	void dirtyLights()
 	{
-		for(unsigned i=0;i<realtimeLights.size();i++)
+		for (unsigned i=0;i<realtimeLights.size();i++)
 		{
 			solver->reportDirectIlluminationChange(i,true,true);
 		}
@@ -209,12 +209,12 @@ public:
 		int selectHandle = glutCreateMenu(selectCallback);
 		char buf[100];
 		glutAddMenuEntry("camera", -1);
-		for(unsigned i=0;i<solver->getLights().size();i++)
+		for (unsigned i=0;i<solver->getLights().size();i++)
 		{
 			sprintf(buf,"light %d",i);
 			glutAddMenuEntry(buf, i);
 		}
-		for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		{
 			sprintf(buf,"object %d",i);
 			glutAddMenuEntry(buf, 1000+i);
@@ -333,10 +333,10 @@ public:
 			case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 			case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 			case ME_MAXIMIZE:
-				if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+				if (!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 				{
 					fullscreen = !fullscreen;
-					if(fullscreen)
+					if (fullscreen)
 					{
 						windowCoord[0] = glutGet(GLUT_WINDOW_X);
 						windowCoord[1] = glutGet(GLUT_WINDOW_Y);
@@ -352,7 +352,7 @@ public:
 				}
 				break;
 			case ME_RANDOM_CAMERA:
-				if(solver->getMultiObjectCustom())
+				if (solver->getMultiObjectCustom())
 				{
 					solver->getMultiObjectCustom()->generateRandomCamera(svs.eye.pos,svs.eye.dir,svs.eye.afar);
 					svs.cameraMetersPerSecond = svs.eye.afar*0.08f;
@@ -370,16 +370,16 @@ public:
 				#endif
 				break;
 		}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		destroy();
 		create();
 	}
 	static void selectCallback(int item)
 	{
-		if(item<0) selectedType = ST_CAMERA;
-		if(item>=0 && item<1000) {selectedType = ST_LIGHT; svs.selectedLightIndex = item;}
-		if(item>=1000) {selectedType = ST_OBJECT; svs.selectedObjectIndex = item-1000;}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (item<0) selectedType = ST_CAMERA;
+		if (item>=0 && item<1000) {selectedType = ST_LIGHT; svs.selectedLightIndex = item;}
+		if (item>=1000) {selectedType = ST_OBJECT; svs.selectedObjectIndex = item-1000;}
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void staticCallback(int item)
 	{
@@ -396,9 +396,9 @@ public:
 			case ME_STATIC_BILINEAR:
 				svs.renderBilinear = !svs.renderBilinear;
 				svs.renderRealtime = false;
-				for(unsigned i=0;i<solver->getNumObjects();i++)
+				for (unsigned i=0;i<solver->getNumObjects();i++)
 				{	
-					if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+					if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 					{
 						glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
 						rr_gl::getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->bindTexture();
@@ -446,7 +446,7 @@ public:
 					solver->updateLightmap(svs.selectedObjectIndex,solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),NULL,NULL,&params,&filtering);
 					svs.renderRealtime = false;
 					// propagate computed data from buffers to textures
-					if(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+					if (solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 						getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false);
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
@@ -458,7 +458,7 @@ public:
 			case ME_STATIC_DIAGNOSE100:
 			case ME_STATIC_DIAGNOSE1000:
 				{
-					if(centerObject!=UINT_MAX)
+					if (centerObject!=UINT_MAX)
 					{
 						solver->leaveFireball();
 						fireballLoadAttempted = false;
@@ -474,7 +474,7 @@ public:
 				break;
 #endif
 			default:
-				if(item>0)
+				if (item>0)
 				{
 					// calculate all
 					solver->leaveFireball();
@@ -485,9 +485,9 @@ public:
 					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&filtering);
 					svs.renderRealtime = false;
 					// propagate computed data from buffers to textures
-					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+						if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 							getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->reset(true,false);
 					}
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
@@ -496,9 +496,9 @@ public:
 				else
 				{
 					// allocate buffers
-					for(unsigned i=0;i<solver->getStaticObjects().size();i++)
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if(solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+						if (solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
 						{
 							delete solver->getIllumination(i)->getLayer(svs.staticLayerNumber);
 							solver->getIllumination(i)->getLayer(svs.staticLayerNumber) = item
@@ -507,13 +507,13 @@ public:
 						}
 					}
 					// reset cache, GL texture ids changed
-					if(item)
+					if (item)
 						solver->resetRenderCache();
 				}
 				break;
 		}
 		// leaving menu, mouse is not in the screen center -> center it
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void realtimeCallback(int item)
 	{
@@ -523,7 +523,7 @@ public:
 				svs.renderRealtime = 1;
 				svs.render2d = 0;
 				solver->dirtyLights();
-				if(!fireballLoadAttempted) 
+				if (!fireballLoadAttempted) 
 				{
 					fireballLoadAttempted = true;
 					solver->loadFireball(NULL);
@@ -547,7 +547,7 @@ public:
 				solver->dirtyLights();
 				svs.renderLDM = 1;
 				{
-					for(unsigned i=0;i<solver->getNumObjects();i++)
+					for (unsigned i=0;i<solver->getNumObjects();i++)
 						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024,1024,1,rr::BF_RGB,true,NULL);
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(100);
@@ -575,14 +575,14 @@ public:
 				fireballLoadAttempted = true;
 				break;
 		}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		destroy();
 		create();
 	}
 	static void speedCallback(int item)
 	{
 #ifdef OWNED_BY_3DRENDER
-		if(item==ME_GRAVITY)
+		if (item==ME_GRAVITY)
 		{
 			svs.cameraCollisions = svs.cameraGravity = !svs.cameraGravity;
 			destroy();
@@ -593,11 +593,11 @@ public:
 		{
 			svs.cameraMetersPerSecond = item/1000.f;
 		}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void envCallback(int item)
 	{
-		if(ourEnv)
+		if (ourEnv)
 			delete solver->getEnvironment();
 		ourEnv = true;
 		switch(item)
@@ -606,7 +606,7 @@ public:
 			case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
 			case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
 		}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	static void lightsCallback(int item)
 	{
@@ -618,12 +618,12 @@ public:
 			case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.fieldOfView*(3.14f/180/2),svs.eye.fieldOfView*(3.14f/180/4)); break;
 			case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
 			case ME_LIGHT_DELETE:
-				if(svs.selectedLightIndex<solver->realtimeLights.size())
+				if (svs.selectedLightIndex<solver->realtimeLights.size())
 				{
 					newList.erase(svs.selectedLightIndex);
-					if(svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
+					if (svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
 						svs.selectedLightIndex--;
-					if(!newList.size())
+					if (!newList.size())
 					{
 						selectedType = ST_CAMERA;
 						// enable ambient when deleting last light
@@ -634,14 +634,14 @@ public:
 				break;
 			case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
 		}
-		if(newLight)
+		if (newLight)
 		{
 			lightsToBeDeletedOnExit.push_back(newLight);
-			if(!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
+			if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
 			newList.push_back(newLight);
 		}
 		solver->setLights(newList);
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		destroy();
 		create();
 	}
@@ -733,8 +733,8 @@ static void keyboard(unsigned char c, int x, int y)
 		case '*': svs.gamma *= 1.2f; break;
 		case '/': svs.gamma /= 1.2f; break;
 
-		case '[': if(solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+solver->getNumObjects()-1)%solver->getNumObjects(); break;
-		case ']': if(solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+1)%solver->getNumObjects(); break;
+		case '[': if (solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+solver->getNumObjects()-1)%solver->getNumObjects(); break;
+		case ']': if (solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+1)%solver->getNumObjects(); break;
 
 		case 'a':
 		case 'A': speedLeft = 1; break;
@@ -756,7 +756,7 @@ static void keyboard(unsigned char c, int x, int y)
 		case 'o': Menu::realtimeCallback(Menu::ME_REALTIME_LDM); break;
 		case 'g': Menu::speedCallback(Menu::ME_GRAVITY); break;
 
-		case 27: if(svs.render2d) svs.render2d = 0;
+		case 27: if (svs.render2d) svs.render2d = 0;
 			//else exitRequested = 1;
 			// Exit by esc is disabled because of GLUT error:
 			//  If you create menu by right click and then press esc, menu disappears, mouse is locked.
@@ -802,26 +802,26 @@ static void reshape(int w, int h)
 
 static void mouse(int button, int state, int x, int y)
 {
-	if(svs.render2d && lv)
+	if (svs.render2d && lv)
 	{
 		LightmapViewer::mouse(button,state,x,y);
 		return;
 	}
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
 	{
-		if(selectedType!=ST_CAMERA) selectedType = ST_CAMERA;
+		if (selectedType!=ST_CAMERA) selectedType = ST_CAMERA;
 		else selectedType = ST_LIGHT;
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
-	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if(svs.eye.fieldOfView>13) svs.eye.fieldOfView -= 10;
+		if (svs.eye.fieldOfView>13) svs.eye.fieldOfView -= 10;
 		else svs.eye.fieldOfView /= 1.4f;
 	}
-	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(svs.eye.fieldOfView*1.4f<=3) svs.eye.fieldOfView *= 1.4f;
-		else if(svs.eye.fieldOfView<130) svs.eye.fieldOfView+=10;
+		if (svs.eye.fieldOfView*1.4f<=3) svs.eye.fieldOfView *= 1.4f;
+		else if (svs.eye.fieldOfView<130) svs.eye.fieldOfView+=10;
 	}
 #endif
 	solver->reportInteraction();
@@ -829,33 +829,33 @@ static void mouse(int button, int state, int x, int y)
 
 static void passive(int x, int y)
 {
-	if(menuInUse==GLUT_MENU_IN_USE) return;
-	if(svs.render2d && lv)
+	if (menuInUse==GLUT_MENU_IN_USE) return;
+	if (svs.render2d && lv)
 	{
 		LightmapViewer::passive(x,y);
 		return;
 	}
-	if(!winWidth || !winHeight) return;
-	LIMITED_TIMES(1,if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);return;);
+	if (!winWidth || !winHeight) return;
+	LIMITED_TIMES(1,if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if(selectedType==ST_CAMERA || selectedType==ST_OBJECT)
+		if (selectedType==ST_CAMERA || selectedType==ST_OBJECT)
 		{
 			svs.eye.angle -= mouseSensitivity*x*(svs.eye.fieldOfView/90);
 			svs.eye.angleX -= mouseSensitivity*y*(svs.eye.fieldOfView/90);
 			CLAMP(svs.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
-		if(selectedType==ST_LIGHT)
+		if (selectedType==ST_LIGHT)
 		{
-			if(svs.selectedLightIndex<solver->getLights().size())
+			if (svs.selectedLightIndex<solver->getLights().size())
 			{
 				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
 				Camera* light = solver->realtimeLights[svs.selectedLightIndex]->getParent();
@@ -869,14 +869,14 @@ static void passive(int x, int y)
 				light->pos -= light->dir*0.3f;
 			}
 		}
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}
 }
 
 static void textOutput(int x, int y, const char *format, ...)
 {
-	if(y>=winHeight) return; // if we render text below screen, GLUT stops rendering all texts including visible 
+	if (y>=winHeight) return; // if we render text below screen, GLUT stops rendering all texts including visible 
 	char text[1000];
 	va_list argptr;
 	va_start (argptr,format);
@@ -885,24 +885,24 @@ static void textOutput(int x, int y, const char *format, ...)
 	va_end (argptr);
 	glRasterPos2i(x,y);
 	int len = (int)strlen(text);
-	for(int i=0;i<len;i++) glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[i]);
+	for (int i=0;i<len;i++) glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[i]);
 }
 
 static void display()
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
-	if(svs.render2d && lv)
+	if (svs.render2d && lv)
 	{
 		LightmapViewer::setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.renderBilinear);
 		LightmapViewer::display();
 	}
 	else
 	{
-		if(exitRequested || !winWidth || !winHeight) return; // can't display without window
+		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
 
 		svs.eye.update();
 
-		if(svs.renderRealtime)
+		if (svs.renderRealtime)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			rr::RRDynamicSolver::CalculateParameters params;
@@ -941,8 +941,8 @@ static void display()
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderTransparent && hasTra && miss.MATERIAL_TRANSPARENCY_BLEND;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
-			if(svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
-			if(svs.renderWater && water && !svs.renderWireframe)
+			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+			if (svs.renderWater && water && !svs.renderWireframe)
 			{
 				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,0);
 				glClear(GL_DEPTH_BUFFER_BIT);
@@ -951,24 +951,24 @@ static void display()
 				water->updateReflectionDone();
 			}
 			solver->renderScene(uberProgramSetup,NULL);
-			if(svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.afar*2,svs.eye.pos);
-			if(svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if(svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
+			if (svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.afar*2,svs.eye.pos);
+			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			if (svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;
 				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
-				if(secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
+				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
 					toneMapping->adjustOperator(secondsSinceLastFrame,svs.brightness,svs.gamma);
 				oldTime = newTime;
 			}
 		}
 
-		if(svs.renderHelpers)
+		if (svs.renderHelpers)
 		{
 			rr::RRReportInterval report(rr::INF3,"render helpers 1...\n");
 			// render light field
-			if(lightField)
+			if (lightField)
 			{
 				// update cube
 				lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(svs.eye.pos[0]+svs.eye.dir[0],svs.eye.pos[1]+svs.eye.dir[1],svs.eye.pos[2]+svs.eye.dir[2]);
@@ -1016,9 +1016,9 @@ static void display()
 			// render lines
 			glBegin(GL_LINES);
 			enum {LINES=100, SIZE=100};
-			for(unsigned i=0;i<LINES+1;i++)
+			for (unsigned i=0;i<LINES+1;i++)
 			{
-				if(i==LINES/2)
+				if (i==LINES/2)
 				{
 					glColor3f(0,0,1);
 					glVertex3f(0,-0.5*SIZE,0);
@@ -1036,7 +1036,7 @@ static void display()
 		}
 	}
 
-	if(svs.renderHelpers)
+	if (svs.renderHelpers)
 	{
 		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
 		// render properties
@@ -1059,7 +1059,7 @@ static void display()
 		textOutput(x,y+=18,"controls: right mouse button, wasdqzxc, mouse, +-*/");
 		unsigned numObjects = solver->getNumObjects();
 		{
-			if(svs.renderRealtime)
+			if (svs.renderRealtime)
 			{
 				const char* solverType = "";
 				switch(solver->getInternalSolverType())
@@ -1075,18 +1075,18 @@ static void display()
 			{
 				unsigned vbuf = 0;
 				unsigned lmap = 0;
-				for(unsigned i=0;i<numObjects;i++)
+				for (unsigned i=0;i<numObjects;i++)
 				{
-					if(solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+					if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
 					{
-						if(solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
-						if(solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
+						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
+						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
 					}
 				}
 				textOutput(x,y+=18,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
 			}
 		}
-		if(!svs.render2d || !lv)
+		if (!svs.render2d || !lv)
 		{
 			textOutput(x,y+=18*2,"[camera]");
 			textOutput(x,y+=18,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
@@ -1099,7 +1099,7 @@ static void display()
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
-		if(!svs.render2d || !lv) if(svs.selectedLightIndex<solver->realtimeLights.size())
+		if (!svs.render2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
 			const rr::RRLight* rrlight = rtlight->origin;
@@ -1116,22 +1116,22 @@ static void display()
 				case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
 				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
 			}
-			if(numTrianglesMulti<100000) // skip this expensive step for big scenes
+			if (numTrianglesMulti<100000) // skip this expensive step for big scenes
 			{
 				static RealtimeLight* lastLight = NULL;
 				static unsigned numLightReceivers = 0;
 				static unsigned numShadowCasters = 0;
-				if(rtlight!=lastLight)
+				if (rtlight!=lastLight)
 				{
 					lastLight = rtlight;
 					numLightReceivers = 0;
 					numShadowCasters = 0;
-					for(unsigned t=0;t<numTrianglesMulti;t++)
+					for (unsigned t=0;t<numTrianglesMulti;t++)
 					{
-						if(multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
-						for(unsigned j=0;j<numObjects;j++)
+						if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
+						for (unsigned j=0;j<numObjects;j++)
 						{
-							if(multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+							if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
 						}
 					}
 				}
@@ -1139,7 +1139,7 @@ static void display()
 				textOutput(x,y+=18,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 			}
 		}
-		if(singleMesh && svs.selectedObjectIndex<solver->getNumObjects())
+		if (singleMesh && svs.selectedObjectIndex<solver->getNumObjects())
 		{
 			textOutput(x,y+=18*2,"[static object %d/%d]",svs.selectedObjectIndex,numObjects);
 			textOutput(x,y+=18,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
@@ -1153,7 +1153,7 @@ static void display()
 			static rr::RRVec3 centerW;
 			static unsigned numReceivedLights = 0;
 			static unsigned numShadowsCast = 0;
-			if(singleObject!=lastObject)
+			if (singleObject!=lastObject)
 			{
 				lastObject = singleObject;
 				singleObject->getCollider()->getMesh()->getAABB(&bboxMinL,&bboxMaxL,&centerL);
@@ -1162,21 +1162,21 @@ static void display()
 				delete singleWorldMesh;
 				numReceivedLights = 0;
 				numShadowsCast = 0;
-				for(unsigned i=0;i<numLights;i++)
+				for (unsigned i=0;i<numLights;i++)
 				{
 					rr::RRLight* rrlight = solver->getLights()[i];
-					for(unsigned t=0;t<numTrianglesSingle;t++)
+					for (unsigned t=0;t<numTrianglesSingle;t++)
 					{
-						if(singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
-						for(unsigned j=0;j<numObjects;j++)
+						if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
+						for (unsigned j=0;j<numObjects;j++)
 						{
-							if(singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
+							if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
 						}
 					}
 				}
 			}
 
-			if(numTrianglesSingle)
+			if (numTrianglesSingle)
 			{
 				textOutput(x,y+=18,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
 				textOutput(x,y+=18,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
@@ -1187,9 +1187,9 @@ static void display()
 			}
 			textOutput(x,y+=18,"lit: %s",svs.renderRealtime?"realtime":"static");
 			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
-			if(bufferSelectedObj)
+			if (bufferSelectedObj)
 			{
-				if(svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
+				if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
 				textOutput(x,y+=18,"[lightmap]");
 				textOutput(x,y+=18,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
 				textOutput(x,y+=18,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
@@ -1198,7 +1198,7 @@ static void display()
 				glColor3f(1,1,1);
 			}
 		}
-		if(multiMesh && (!svs.render2d || !lv))
+		if (multiMesh && (!svs.render2d || !lv))
 		{
 			rr::RRRay* ray = rr::RRRay::create();
 			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
@@ -1209,12 +1209,12 @@ static void display()
 			ray->rayLengthMin = 0;
 			ray->rayLengthMax = 10000;
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-			if(solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 				const rr::RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 				rr::RRMaterial pointMaterial;
-				if(material && material->sideBits[ray->hitFrontSide?0:1].pointDetails)
+				if (material && material->sideBits[ray->hitFrontSide?0:1].pointDetails)
 				{
 					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 					material = &pointMaterial;
@@ -1235,12 +1235,12 @@ static void display()
 				textOutput(x,y+=18,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 				textOutput(x,y+=18,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 				rr::RRBuffer* bufferCenter = solver->getIllumination(preTriangle.object) ? solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber) : NULL;
-				if(bufferCenter)
+				if (bufferCenter)
 				{
 					int i = int(uvInLightmap[0]*bufferCenter->getWidth());
 					int j = int(uvInLightmap[1]*bufferCenter->getHeight());
 					textOutput(x,y+=18,"ij in lightmap: %d %d",i,j);
-					if(i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
+					if (i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
 					{
 						centerObject = preTriangle.object;
 						centerTexel = i + j*bufferCenter->getWidth();
@@ -1255,9 +1255,9 @@ static void display()
 				textOutput(x,y+=18,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
 				textOutput(x,y+=18,"side: %s",ray->hitFrontSide?"front":"back");
 				textOutput(x,y+=18,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-pixel"):"NULL!!!");
-				if(material)
+				if (material)
 				{
-					if(material->name)
+					if (material->name)
 						textOutput(x,y+=18,"name: %s",material->name);
 					textOutput(x,y+=18,"diffuse refl: %f %f %f",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2]);
 					textOutput(x,y+=18,"specular refl: %f",material->specularReflectance);
@@ -1267,13 +1267,13 @@ static void display()
 				}
 				unsigned numReceivedLights = 0;
 				unsigned numShadowsCast = 0;
-				for(unsigned i=0;i<numLights;i++)
+				for (unsigned i=0;i<numLights;i++)
 				{
 					rr::RRLight* rrlight = solver->getLights()[i];
-					if(multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
-					for(unsigned j=0;j<numObjects;j++)
+					if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
+					for (unsigned j=0;j<numObjects;j++)
 					{
-						if(multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
+						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
 					}
 				}
 				textOutput(x,y+=18,"received lights: %d/%d",numReceivedLights,numLights);
@@ -1282,18 +1282,18 @@ static void display()
 			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
 			delete ray;
 		}
-		if(multiMesh && svs.render2d && lv)
+		if (multiMesh && svs.render2d && lv)
 		{
 			rr::RRVec2 uv = LightmapViewer::getCenterUv();
 			textOutput(x,y+=18*2,"[point in the middle of viewport]");
 			textOutput(x,y+=18,"uv: %f %f",uv[0],uv[1]);
 			rr::RRBuffer* buffer = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
-			if(buffer && buffer->getType()==rr::BT_2D_TEXTURE)
+			if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
 			{
 				int i = int(uv[0]*buffer->getWidth());
 				int j = int(uv[1]*buffer->getHeight());
 				textOutput(x,y+=18,"ij: %d %d",i,j);
-				if(i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
+				if (i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
 				{
 					centerObject = svs.selectedObjectIndex;
 					centerTexel = i + j*buffer->getWidth();
@@ -1307,15 +1307,15 @@ static void display()
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glEnable(GL_DEPTH_TEST);
-		if((!svs.render2d || !lv) && ray_log::size)
+		if ((!svs.render2d || !lv) && ray_log::size)
 		{
 			glBegin(GL_LINES);
-			for(unsigned i=0;i<ray_log::size;i++)
+			for (unsigned i=0;i<ray_log::size;i++)
 			{
-				if(ray_log::log[i].unreliable)
+				if (ray_log::log[i].unreliable)
 					glColor3ub(255,0,0);
 				else
-				if(ray_log::log[i].infinite)
+				if (ray_log::log[i].infinite)
 					glColor3ub(0,0,255);
 				else
 					glColor3ub(0,255,0);
@@ -1333,12 +1333,12 @@ static void display()
 
 static void idle()
 {
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 
 	// camera/light movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	if (prev && now!=prev)
 	{
 		// camera/light keyboard move
 		float seconds = (now-prev)/(float)PER_SEC;
@@ -1360,23 +1360,23 @@ static void idle()
 		ray->rayLengthMin = 0;
 		ray->rayLengthMax = FLOOR_DISTANCE*1.01f; // 1.01 prevents free fall on flat ground due to float precision error
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-		if(!svs.cameraGravity || !collider || collider->intersect(ray))
+		if (!svs.cameraGravity || !collider || collider->intersect(ray))
 #endif
 		{
 			// yes -> respond to keyboard
-			if(speedForward) cam->moveForward(speedForward*meters);
-			if(speedBack) cam->moveBack(speedBack*meters);
-			if(speedRight) cam->moveRight(speedRight*meters);
-			if(speedLeft) cam->moveLeft(speedLeft*meters);
-			if(speedUp) cam->moveUp(speedUp*meters);
-			if(speedDown) cam->moveDown(speedDown*meters);
-			if(speedLean) cam->lean(speedLean*meters);
+			if (speedForward) cam->moveForward(speedForward*meters);
+			if (speedBack) cam->moveBack(speedBack*meters);
+			if (speedRight) cam->moveRight(speedRight*meters);
+			if (speedLeft) cam->moveLeft(speedLeft*meters);
+			if (speedUp) cam->moveUp(speedUp*meters);
+			if (speedDown) cam->moveDown(speedDown*meters);
+			if (speedLean) cam->lean(speedLean*meters);
 		}
 #ifdef OWNED_BY_3DRENDER
 		else
 		{
 			// no -> continue free fall
-			if(svs.cameraGravity)
+			if (svs.cameraGravity)
 			{
 				lastSecondMovement[1] += -9.81f*seconds;
 				svs.eye.pos += lastSecondMovement*seconds;
@@ -1384,7 +1384,7 @@ static void idle()
 		}
 
 		// camera collisions
-		if(collider && svs.cameraCollisions && svs.eye.pos!=oldEyePos)
+		if (collider && svs.cameraCollisions && svs.eye.pos!=oldEyePos)
 		{
 			// keep WALL_DISTANCE
 			rr::RRVec3 dir = (svs.eye.pos-oldEyePos).normalized();
@@ -1393,7 +1393,7 @@ static void idle()
 			ray->rayLengthMin = 0;
 			ray->rayLengthMax = (svs.eye.pos-oldEyePos).length() + WALL_DISTANCE;
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-			if(collider->intersect(ray))
+			if (collider->intersect(ray))
 			{
 				// movement partially or fully blocked, move back
 				svs.eye.pos = oldEyePos + dir * MAX(0,ray->hitDistance-WALL_DISTANCE);
@@ -1401,7 +1401,7 @@ static void idle()
 		}
 
 		// camera gravity
-		if(svs.cameraGravity)
+		if (svs.cameraGravity)
 		{
 			// keep FLOOR_DISTANCE
 			ray->rayOrigin = svs.eye.pos;
@@ -1409,7 +1409,7 @@ static void idle()
 			ray->rayLengthMin = 0;
 			ray->rayLengthMax = FLOOR_DISTANCE*1.2f; // 1.2 prevents walker from doing small jumps when camera points slightly up
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-			if(collider->intersect(ray))
+			if (collider->intersect(ray))
 			{
 				float aboveGround = ray->hitDistance;
 
@@ -1419,7 +1419,7 @@ static void idle()
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = FLOOR_DISTANCE+CEILING_DISTANCE-aboveGround; // test up to full person height from ground
 				ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-				if(collider->intersect(ray))
+				if (collider->intersect(ray))
 				{
 					// camera too low in tight space, keep camera in the middle
 					float underCeiling = ray->hitDistance;
@@ -1436,15 +1436,15 @@ static void idle()
 		}
 
 		lastSecondMovement = (svs.eye.pos-oldEyePos)/seconds;
-		if(svs.cameraGravity && lastSecondMovement.y<-30) Menu::mainCallback(Menu::ME_RANDOM_CAMERA); // respawn when falling outside world
+		if (svs.cameraGravity && lastSecondMovement.y<-30) Menu::mainCallback(Menu::ME_RANDOM_CAMERA); // respawn when falling outside world
 
 		delete ray;
 #endif
 
 		// light change report
-		if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
+		if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 		{
-			if(cam!=&svs.eye) 
+			if (cam!=&svs.eye) 
 			{
 				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
 			}
@@ -1466,7 +1466,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	// init GLUT
 	int window;
-	if(_createWindow)
+	if (_createWindow)
 	{
 		int argc=1;
 		char argv0[2] = "a";
@@ -1483,11 +1483,11 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 		glutPopWindow();
 
 		// init GLEW
-		if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+		if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 		// init GL
 		int major, minor;
-		if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+		if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 			error("OpenGL 2.0 capable graphics card is required.\n",true);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -1518,8 +1518,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	lv = LightmapViewer::create(_pathToShaders);
 	svs.renderAmbient = _solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 	ourEnv = 0;
-	if(svs.selectedLightIndex>_solver->getLights().size()) svs.selectedLightIndex = 0;
-	if(svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
+	if (svs.selectedLightIndex>_solver->getLights().size()) svs.selectedLightIndex = 0;
+	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
@@ -1538,14 +1538,14 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutIdleFunc(idle);
 	glutMenuStatusFunc(menuStatus);
 	Menu* menu = new Menu(solver);
-	if(svs.autodetectCamera) menu->mainCallback(Menu::ME_RANDOM_CAMERA);
-	if(svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
+	if (svs.autodetectCamera) menu->mainCallback(Menu::ME_RANDOM_CAMERA);
+	if (svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
 	water = new Water(_pathToShaders,true,false);
 	toneMapping = new ToneMapping(_pathToShaders);
 
 	exitRequested = false;
 #if defined(GLUT_WITH_WHEEL_AND_LOOP)
-	while(!exitRequested && !_solver->aborting)
+	while (!exitRequested && !_solver->aborting)
 		glutMainLoopUpdate();
 #else
 	glutMainLoop();
@@ -1565,31 +1565,31 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutIdleFunc(NULL);
 	glutMenuStatusFunc(NULL);
 
-	for(unsigned i=0;i<solver->getNumObjects();i++)
+	for (unsigned i=0;i<solver->getNumObjects();i++)
 	{
 		// free lightmap-buffers for realtime rendering
-		if(solver->getIllumination(i))
+		if (solver->getIllumination(i))
 			RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
 	}
-	if(_createWindow)
+	if (_createWindow)
 	{
 		// delete all textures created by us
 		deleteAllTextures();
-		if(solver->getEnvironment())
+		if (solver->getEnvironment())
 			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
-		for(unsigned i=0;i<solver->getNumObjects();i++)
-			if(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+		for (unsigned i=0;i<solver->getNumObjects();i++)
+			if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
 				solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->customData = NULL;
 
 		glutDestroyWindow(window);
 	}
-	if(ourEnv)
+	if (ourEnv)
 		delete solver->getEnvironment();
 	RR_SAFE_DELETE(solver);
 	RR_SAFE_DELETE(lv);
 	RR_SAFE_DELETE(lightField);
 	RR_SAFE_DELETE(lightFieldObjectIllumination);
-	for(unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
+	for (unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
 	lightsToBeDeletedOnExit.clear();
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;

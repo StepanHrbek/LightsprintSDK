@@ -31,7 +31,7 @@ public:
 	virtual void getVertex(unsigned v, Vertex& out) const
 	{
 		inherited->getVertex(v,out);
-		if(m)
+		if (m)
 		{
 			m->transformPosition(out);
 		}
@@ -39,9 +39,9 @@ public:
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
 		inherited->getTriangleNormals(t,out);
-		if(m)
+		if (m)
 		{
-			for(unsigned v=0;v<3;v++)
+			for (unsigned v=0;v<3;v++)
 			{
 				// nonuniform scale breaks orthogonality
 				out.vertex[v].normal = m->transformedDirection(out.vertex[v].normal).normalized();

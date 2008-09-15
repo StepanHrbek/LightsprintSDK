@@ -116,7 +116,7 @@ SphereUnitVecPool::SphereUnitVecPool(int poolsize)
 
 	vecs.resize(poolsize);
 
-	for(int i=0; i<poolsize; ++i)
+	for (int i=0; i<poolsize; ++i)
 		vecs[i] = randomVec();
 
 }
@@ -136,14 +136,14 @@ const PoolVec3 SphereUnitVecPool::getVec()
 
 const PoolVec3 SphereUnitVecPool::randomVec()
 {
-	while(1)
+	while (1)
 	{
 		//generate random vector in unit cube
 		PoolVec3 vec(-1.0f + randomUnit() * 2.0f, -1.0f + randomUnit() * 2.0f, -1.0f + randomUnit() * 2.0f);
 
 		const float length_sqrd = vec.x*vec.x + vec.y*vec.y + vec.z*vec.z;
 
-		if(length_sqrd <= 1.0f)
+		if (length_sqrd <= 1.0f)
 		{
 			//return normalised vector
 			const float len = sqrt(length_sqrd);

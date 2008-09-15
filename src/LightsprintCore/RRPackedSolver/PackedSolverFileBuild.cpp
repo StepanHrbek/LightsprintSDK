@@ -34,20 +34,20 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 	//
 	// update factors
 
-	if(raysFromTriangle)
+	if (raysFromTriangle)
 	{
 		abortStaticImprovement();
 		RRReal sceneArea = 0;
-		for(unsigned t=0;t<object->triangles;t++)
+		for (unsigned t=0;t<object->triangles;t++)
 		{
-			if(object->triangle[t].surface)
+			if (object->triangle[t].surface)
 				sceneArea += object->triangle[t].area;
 		}
-		if(sceneArea)
+		if (sceneArea)
 		{
-			for(unsigned t=0;t<object->triangles;t++)
+			for (unsigned t=0;t<object->triangles;t++)
 			{
-				if(object->triangle[t].surface)
+				if (object->triangle[t].surface)
 					refreshFormFactorsFromUntil(&object->triangle[t],MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverend,NULL);
 			}
 		}
@@ -56,7 +56,7 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 
 PackedSolverFile* Scene::packSolver() const
 {
-	if(object->triangles>PackedFactor::MAX_TRIANGLES)
+	if (object->triangles>PackedFactor::MAX_TRIANGLES)
 	{
 		RRReporter::report(WARN,"Fireball not created, max %d triangles per solver supported.\n",PackedFactor::MAX_TRIANGLES);
 		return NULL;
@@ -70,7 +70,7 @@ PackedSolverFile* Scene::packSolver() const
 
 	// calculate size
 	unsigned numFactors = 0;
-	for(unsigned i=0;i<object->triangles;i++)
+	for (unsigned i=0;i<object->triangles;i++)
 	{
 		//!!! optimize, sort factors
 		numFactors += object->triangle[i].factors.size();
@@ -80,11 +80,11 @@ PackedSolverFile* Scene::packSolver() const
 	// alloc thread
 	packedSolverFile->packedFactors = new PackedFactorsThread(object->triangles,numFactors);
 	// fill thread
-	for(unsigned i=0;i<object->triangles;i++)
+	for (unsigned i=0;i<object->triangles;i++)
 	{
 		// write factors
 		packedSolverFile->packedFactors->newC1(i);
-		for(ChunkList<Factor>::const_iterator j=object->triangle[i].factors.begin(); *j; ++j)
+		for (ChunkList<Factor>::const_iterator j=object->triangle[i].factors.begin(); *j; ++j)
 		{
 			unsigned destinationTriangle = (unsigned)( (*j)->destination-object->triangle );
 			RR_ASSERT(destinationTriangle<object->triangles);
@@ -114,11 +114,11 @@ PackedSolverFile* Scene::packSolver() const
 
 	// 1 pruchod pres triangly:
 	//     ivertexu vynuluje poradove cislo
-	for(unsigned t=0;t<object->triangles;t++)
-		for(unsigned v=0;v<3;v++)
+	for (unsigned t=0;t<object->triangles;t++)
+		for (unsigned v=0;v<3;v++)
 		{
 			IVertex* ivertex = object->triangle[t].topivertex[v];
-			if(ivertex) ivertex->packedIndex = UINT_MAX;
+			if (ivertex) ivertex->packedIndex = UINT_MAX;
 		}
 
 	// 2 pruchod pres triangly:
@@ -126,16 +126,16 @@ PackedSolverFile* Scene::packSolver() const
 	//     ziska pocet ivertexu a corneru
 	unsigned numIvertices = 0;
 	unsigned numWeights = 0;
-	for(unsigned t=0;t<object->triangles;t++)
-		for(unsigned v=0;v<3;v++)
+	for (unsigned t=0;t<object->triangles;t++)
+		for (unsigned v=0;v<3;v++)
 		{
 			IVertex* ivertex = object->triangle[t].topivertex[v];
-			if(ivertex && ivertex->packedIndex==UINT_MAX)
+			if (ivertex && ivertex->packedIndex==UINT_MAX)
 			{
 				unsigned oldNumWeights = numWeights;
-				for(unsigned k=0;k<ivertex->corners;k++)
+				for (unsigned k=0;k<ivertex->corners;k++)
 					numWeights++;
-				if(numWeights>oldNumWeights)
+				if (numWeights>oldNumWeights)
 				{
 					ivertex->packedIndex = numIvertices++;
 				}
@@ -151,12 +151,12 @@ PackedSolverFile* Scene::packSolver() const
 	//     do packed zapisuje ivertexy
 	//     do packed zapisuje poradova cisla
 	unsigned numIverticesPacked = 0;
-	for(unsigned t=0;t<object->triangles;t++)
-		for(unsigned v=0;v<3;v++)
+	for (unsigned t=0;t<object->triangles;t++)
+		for (unsigned v=0;v<3;v++)
 		{
 			const IVertex* ivertex = object->triangle[t].topivertex[v];
 			/* toto nema zadny efekt, z nejakeho duvodu pokud chybi 1 ivertex, chybi vsechny 3
-			if(!ivertex)
+			if (!ivertex)
 			{
 				// pokud chybi ivertex, zkus pouzit nejblizsi vertex tehoz trianglu
 				// nepomuze to vsude (shluk vice jehel), ale tam kde ted potrebuji ano (ojedinele jehly)
@@ -166,12 +166,12 @@ PackedSolverFile* Scene::packSolver() const
 				ivertex = object->triangle[t].topivertex[(v+(v1Closer?1:2))%3];
 				RRReporter::report(INF1,"t=%d v=%d->%d%s\n",t,v,v1Closer?v+1:v+2,ivertex?"":" !");
 			}*/
-			if(ivertex)
+			if (ivertex)
 			{
-				if(ivertex->packedIndex==numIverticesPacked)
+				if (ivertex->packedIndex==numIverticesPacked)
 				{
 					packedSolverFile->packedIvertices->newC1(numIverticesPacked++);
-					for(unsigned k=0;k<ivertex->corners;k++)
+					for (unsigned k=0;k<ivertex->corners;k++)
 					{
 						PackedSmoothTriangleWeight* triangleWeight = packedSolverFile->packedIvertices->newC2();
 						triangleWeight->triangleIndex = (unsigned)(ivertex->getCorner(k).node-object->triangle);
@@ -226,7 +226,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	calculateCore(0); // create static solver if not created yet
 	RR_ASSERT(priv->scene);
 	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle);
-	if(!packedSolverFile)
+	if (!packedSolverFile)
 		return false;
 	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",
 		( packedSolverFile->getMemoryOccupied() )/1024,
@@ -235,15 +235,15 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		);
 
 	char filenameauto[1000];
-	if(!filename)
+	if (!filename)
 	{
 		getFireballFilename(getMultiObjectCustom(),filenameauto);
 		filename = filenameauto;
 	}
 
-	if(filename[0])
+	if (filename[0])
 	{
-		if(packedSolverFile->save(filename))
+		if (packedSolverFile->save(filename))
 			RRReporter::report(INF2,"Saved to %s\n",filename);
 		else
 		{
@@ -252,7 +252,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		}
 	}
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
-	if(priv->packedSolver)
+	if (priv->packedSolver)
 	{
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
@@ -268,14 +268,14 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
 	char filenameauto[1000];
-	if(!filename)
+	if (!filename)
 	{
 		getFireballFilename(getMultiObjectCustom(),filenameauto);
 		filename = filenameauto;
 	}
 
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename));
-	if(priv->packedSolver)
+	if (priv->packedSolver)
 	{
 		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 		updateVertexLookupTablePackedSolver();

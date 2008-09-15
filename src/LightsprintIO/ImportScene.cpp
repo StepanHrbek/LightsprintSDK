@@ -54,10 +54,10 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 #ifdef SUPPORT_3DS
 	// load .3ds scene
 	scene_3ds = NULL;
-	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".3ds")==0)
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".3ds")==0)
 	{
 		scene_3ds = new Model_3DS;
-		if(!scene_3ds->Load(filename,scale))
+		if (!scene_3ds->Load(filename,scale))
 		{
 			RR_SAFE_DELETE(scene_3ds);
 		}
@@ -71,10 +71,10 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 #ifdef SUPPORT_BSP
 	// load quake 3 map
 	scene_bsp = NULL;
-	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0)
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0)
 	{
 		scene_bsp = new TMapQ3;
-		if(!readMap(filename,*scene_bsp))
+		if (!readMap(filename,*scene_bsp))
 		{
 			RR_SAFE_DELETE(scene_bsp);
 		}
@@ -82,11 +82,11 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 		{
 			char* maps = _strdup(filename);
 			char* mapsEnd;
-			if(!stripPaths)
+			if (!stripPaths)
 			{
-				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[0] = 0;
 			}
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
+			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
 			objects = adaptObjectsFromTMapQ3(scene_bsp,maps,stripPaths,NULL);
 			free(maps);
 		}
@@ -96,13 +96,13 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 #ifdef SUPPORT_DAE
 	// load collada document
 	scene_dae = NULL;
-	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".dae")==0)
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".dae")==0)
 	{
 		FCollada::Initialize();
 		scene_dae = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
 		FCollada::LoadDocumentFromFile(scene_dae,filename);
-		if(!errorHandler.IsSuccessful())
+		if (!errorHandler.IsSuccessful())
 		{
 			rr::RRReporter::report(rr::ERRO,"%s\n",errorHandler.GetErrorString());
 			RR_SAFE_DELETE(scene_dae);
@@ -110,10 +110,10 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 		else
 		{
 			char* pathToFile = _strdup(filename);
-			if(stripPaths)
+			if (stripPaths)
 			{
 				char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
-				if(tmp) tmp[1] = 0;
+				if (tmp) tmp[1] = 0;
 			}			
 			rr::RRReportInterval report(rr::INF3,"Adapting scene...\n");
 			objects = adaptObjectsFromFCollada(scene_dae,stripPaths?pathToFile:"",stripPaths);
@@ -125,7 +125,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 
 #ifdef SUPPORT_OBJ
 	// load obj scene
-	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".obj")==0)
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".obj")==0)
 	{
 		objects = adaptObjectsFromOBJ(filename,scale);
 	}
@@ -133,13 +133,13 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 
 #ifdef SUPPORT_MGF
 	// load mgf scene
-	if(filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".mgf")==0)
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".mgf")==0)
 	{
 		objects = adaptObjectsFromMGF(filename);
 	}
 #endif
 
-	if((!objects || !objects->size()) && !lights)
+	if ((!objects || !objects->size()) && !lights)
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",filename);
 	}
@@ -155,7 +155,7 @@ ImportScene::~ImportScene()
 #endif
 
 #ifdef SUPPORT_BSP
-	if(scene_bsp) freeMap(*scene_bsp);
+	if (scene_bsp) freeMap(*scene_bsp);
 	delete scene_bsp;
 #endif
 

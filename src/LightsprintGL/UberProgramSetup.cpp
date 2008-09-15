@@ -19,7 +19,7 @@ namespace rr_gl
 const char* UberProgramSetup::getSetupString()
 {
 	static bool SHADOW_BILINEAR = true;
-	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
+	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
@@ -94,15 +94,15 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	GLint maxTextureImageUnits = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&maxTextureImageUnits);
 	int maxShadowmapUnits = maxTextureImageUnits-TEXTURE_2D_SHADOWMAP_0; // should be 1 on mesa, 9 on radeon, 25 on geforce
-	if(maxShadowmapUnits<1) return 0;
+	if (maxShadowmapUnits<1) return 0;
 
-	while(argc--)
+	while (argc--)
 	{
 		int tmp;
-		if(sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp>=1 && tmp<=8) // accept only penumbra1..8
+		if (sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp>=1 && tmp<=8) // accept only penumbra1..8
 		{
 			SHADOW_MAPS = tmp;
-			if(tmp<1 || tmp>8 || tmp>maxShadowmapUnits || !getProgram(uberProgram)) 
+			if (tmp<1 || tmp>8 || tmp>maxShadowmapUnits || !getProgram(uberProgram)) 
 			{
 				rr::RRReporter::report(rr::ERRO,"GPU is not able to produce given penumbra quality, set lower quality.\n");
 				SHADOW_MAPS = 0;
@@ -112,38 +112,38 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		}
 	}
 	// try max 8 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
-	for(SHADOW_MAPS=1;SHADOW_MAPS<=(unsigned)MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
+	for (SHADOW_MAPS=1;SHADOW_MAPS<=(unsigned)MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
 	{
 		Program* program = getProgram(uberProgram);
-		if(!program // stop when !compiled or !linked
+		if (!program // stop when !compiled or !linked
 			|| (LIGHT_DIRECT && !program->uniformExists("worldLightPos")) // stop when uniform missing, workaround for Nvidia bug
 			) break;
 	}
 	unsigned instancesPerPassOrig = --SHADOW_MAPS;
 	char* renderer = (char*)glGetString(GL_RENDERER);
-	if(renderer)
+	if (renderer)
 	{
 		// find 4digit number
 		unsigned number = 0;
 		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-		for(unsigned i=0;renderer[i];i++)
-			if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+		for (unsigned i=0;renderer[i];i++)
+			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
 			{
 				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
 				break;
 			}
 
 		// workaround for Catalyst bug (driver crashes or outputs garbage on long shader)
-		if( strstr(renderer,"Radeon")||strstr(renderer,"RADEON") )
+		if ( strstr(renderer,"Radeon")||strstr(renderer,"RADEON") )
 		{
-			if( (number>=1300 && number<=1999) )
+			if ( (number>=1300 && number<=1999) )
 			{
 				// X1950 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
 				// X1650 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
 				SHADOW_MAPS = MIN(SHADOW_MAPS,4);
 			}
 			else
-			if( (number>=9500 || number<=1299) )
+			if ( (number>=9500 || number<=1299) )
 			{
 				// X300 in Lightsmark2008 5->2or1, otherwise reads garbage from last shadowmap
 				SHADOW_MAPS = MIN(SHADOW_MAPS,1);
@@ -151,7 +151,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		}
 	}
 	// 2 is ugly, prefer 1
-	if(SHADOW_MAPS==2) SHADOW_MAPS--;
+	if (SHADOW_MAPS==2) SHADOW_MAPS--;
 	rr::RRReporter::report(rr::INF1,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
 	return SHADOW_MAPS;
 }
@@ -160,7 +160,7 @@ void UberProgramSetup::checkCapabilities()
 {
 	GLint maxTextureImageUnits = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&maxTextureImageUnits);
-	if(maxTextureImageUnits<16)
+	if (maxTextureImageUnits<16)
 	{
 		rr::RRReporter::report(rr::WARN,"Only %d textures per shader supported, some features will be disabled.\n",maxTextureImageUnits);
 	}
@@ -168,7 +168,7 @@ void UberProgramSetup::checkCapabilities()
 
 void UberProgramSetup::validate()
 {
-	if(!LIGHT_DIRECT)
+	if (!LIGHT_DIRECT)
 	{
 		SHADOW_MAPS = 0;
 		SHADOW_SAMPLES = 0;
@@ -179,28 +179,28 @@ void UberProgramSetup::validate()
 		LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 	}
-	if(!LIGHT_INDIRECT_VCOLOR)
+	if (!LIGHT_INDIRECT_VCOLOR)
 	{
 		LIGHT_INDIRECT_VCOLOR2 = 0;
 	}
-	if(!LIGHT_INDIRECT_MAP)
+	if (!LIGHT_INDIRECT_MAP)
 	{
 		LIGHT_INDIRECT_MAP2 = 0;
 	}
-	if(LIGHT_INDIRECT_MAP && LIGHT_INDIRECT_DETAIL_MAP)
+	if (LIGHT_INDIRECT_MAP && LIGHT_INDIRECT_DETAIL_MAP)
 	{
 		LIGHT_INDIRECT_DETAIL_MAP = 0; // LIGHT_INDIRECT_DETAIL_MAP information is already baked in LIGHT_INDIRECT_MAP
 	}
-	if(!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_VCOLOR && !LIGHT_INDIRECT_MAP && !LIGHT_INDIRECT_MAP2 && !LIGHT_INDIRECT_ENV_DIFFUSE)
+	if (!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_VCOLOR && !LIGHT_INDIRECT_MAP && !LIGHT_INDIRECT_MAP2 && !LIGHT_INDIRECT_ENV_DIFFUSE)
 	{
 		LIGHT_INDIRECT_DETAIL_MAP = 0;
 		MATERIAL_DIFFUSE = 0; // diffuse reflection requested, but there's no suitable light
 	}
-	if(!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_ENV_SPECULAR)
+	if (!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
 	}
-	if(!MATERIAL_DIFFUSE)
+	if (!MATERIAL_DIFFUSE)
 	{
 		MATERIAL_DIFFUSE_X2 = 0;
 		MATERIAL_DIFFUSE_CONST = 0;
@@ -208,7 +208,7 @@ void UberProgramSetup::validate()
 		MATERIAL_DIFFUSE_MAP = 0;
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
-	if(!MATERIAL_SPECULAR)
+	if (!MATERIAL_SPECULAR)
 	{
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
@@ -216,7 +216,7 @@ void UberProgramSetup::validate()
 	}
 	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
 	bool emission = MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP;
-	if(!light && !emission)
+	if (!light && !emission)
 	{
 		UberProgramSetup uberProgramSetupBlack;
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
@@ -231,7 +231,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	LIMITED_TIMES(1,checkCapabilities());
 
 	Program* program = getProgram(uberProgram);
-	if(!program)
+	if (!program)
 	{
 		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n"));
 		return NULL;
@@ -247,9 +247,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		1,1,1,2
 	};
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
-	for(unsigned i=0;i<SHADOW_MAPS;i++)
+	for (unsigned i=0;i<SHADOW_MAPS;i++)
 	{
-		if(!light)
+		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
@@ -272,33 +272,33 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
 
-	if(SHADOW_SAMPLES>1)
+	if (SHADOW_SAMPLES>1)
 	{
 		rr::RRBuffer* buffer = light->getShadowMap(firstInstance)->getBuffer();
 		unsigned shadowmapSize = buffer->getWidth()+buffer->getHeight();
 		program->sendUniform("shadowBlurWidth",6.f/shadowmapSize,-6.f/shadowmapSize,0.0f,3.f/shadowmapSize);
 	}
 
-	if(LIGHT_DIRECT)
+	if (LIGHT_DIRECT)
 	{
-		if(!light)
+		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		if(!light->getParent())
+		if (!light->getParent())
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: light->getParent()==NULL.\n");
 			return false;
 		}
 
-		if(LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
+		if (LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
 			program->sendUniform("worldLightDir",light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);
 		}
-		if(!LIGHT_DIRECTIONAL)
+		if (!LIGHT_DIRECTIONAL)
 		{
-			if(!program->uniformExists("worldLightPos"))
+			if (!program->uniformExists("worldLightPos"))
 			{
 				LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Miscompiled shader, this is known driver bug.\n"));
 				return NULL;
@@ -307,20 +307,20 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		}
 	}
 
-	if(LIGHT_DIRECT_COLOR)
+	if (LIGHT_DIRECT_COLOR)
 	{
-		if(!light)
+		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		if(!light->origin)
+		if (!light->origin)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
 		}
 		rr::RRVec3 color = light->origin->color;
-		if(light->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
+		if (light->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
 			color[0] = pow(color[0],0.45f);
 			color[1] = pow(color[1],0.45f);
@@ -329,9 +329,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDirectColor",color[0],color[1],color[2],1.0f);
 	}
 
-	if(LIGHT_DIRECT_MAP)
+	if (LIGHT_DIRECT_MAP)
 	{
-		if(!light->lightDirectMap)
+		if (!light->lightDirectMap)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: lightDirectMap==NULL (projected texture is missing).\n");
 			return false;
@@ -342,20 +342,20 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDirectMap", id);
 	}
 
-	if(LIGHT_DIRECT_ATT_SPOT)
+	if (LIGHT_DIRECT_ATT_SPOT)
 	{
 		program->sendUniform("lightDirectSpotOuterAngleRad",light->origin->outerAngleRad);
 		program->sendUniform("lightDirectSpotFallOffAngleRad",light->origin->fallOffAngleRad);
 	}
 
-	if(LIGHT_DIRECT_ATT_PHYSICAL)
+	if (LIGHT_DIRECT_ATT_PHYSICAL)
 	{
 		RR_ASSERT(light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
 	}
 
-	if(LIGHT_DIRECT_ATT_POLYNOMIAL)
+	if (LIGHT_DIRECT_ATT_POLYNOMIAL)
 	{
-		if(!light->origin)
+		if (!light->origin)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
@@ -364,9 +364,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z);
 	}
 
-	if(LIGHT_DIRECT_ATT_EXPONENTIAL)
+	if (LIGHT_DIRECT_ATT_EXPONENTIAL)
 	{
-		if(!light->origin)
+		if (!light->origin)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
@@ -376,89 +376,89 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform("lightDistanceFallOffExponent",light->origin->fallOffExponent);
 	}
 
-	if(LIGHT_INDIRECT_CONST)
+	if (LIGHT_INDIRECT_CONST)
 	{
 		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,1.0f);
 	}
 
-	if(LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_DETAIL_MAP)
+	if (LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_DETAIL_MAP)
 	{
 		int id=TEXTURE_2D_LIGHT_INDIRECT;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectMap", id);
 	}
 
-	if(LIGHT_INDIRECT_MAP2)
+	if (LIGHT_INDIRECT_MAP2)
 	{
 		int id=TEXTURE_2D_LIGHT_INDIRECT2;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectMap2", id);
 	}
 
-	if(LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
+	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
 	{
 		int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectDiffuseEnvMap", id);
 	}
 
-	if(LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
+	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
 	{
 		int id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectSpecularEnvMap", id);
 	}
 
-	if(MATERIAL_DIFFUSE_CONST)
+	if (MATERIAL_DIFFUSE_CONST)
 	{
 		// set default value, caller may override it by additional sendUniform call
 		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
 	}
 
-	if(MATERIAL_DIFFUSE_MAP)
+	if (MATERIAL_DIFFUSE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_DIFFUSE;
 		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
 		program->sendUniform("materialDiffuseMap", id);
 	}
 
-	if(MATERIAL_SPECULAR_CONST)
+	if (MATERIAL_SPECULAR_CONST)
 	{
 		// set default value, caller may override it by additional sendUniform call
 		program->sendUniform("materialSpecularConst",.5f,.5f,.5f,1.0f);
 	}
 
-	if(MATERIAL_EMISSIVE_CONST)
+	if (MATERIAL_EMISSIVE_CONST)
 	{
 		// set default value, caller may override it by additional sendUniform call
 		program->sendUniform("materialEmissiveConst",1.0f,1.0f,1.0f,0.0f);
 	}
 
-	if(MATERIAL_EMISSIVE_MAP)
+	if (MATERIAL_EMISSIVE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
 		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active (EMISSIVE is typically used without DIFFUSE)
 		program->sendUniform("materialEmissiveMap", id);
 	}
 
-	if(MATERIAL_TRANSPARENCY_CONST)
+	if (MATERIAL_TRANSPARENCY_CONST)
 	{
 		// set default value, caller may override it by additional sendUniform call
 		program->sendUniform("materialTransparencyConst", 0.5f, 0.5f, 0.5f, 0.5f);
 	}
 
-	if(MATERIAL_TRANSPARENCY_MAP)
+	if (MATERIAL_TRANSPARENCY_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_TRANSPARENCY;
 		program->sendUniform("materialTransparencyMap", id);
 	}
 
-	if(POSTPROCESS_BRIGHTNESS
+	if (POSTPROCESS_BRIGHTNESS
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
 		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))
 	{
-		if(!brightness)
+		if (!brightness)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: brightness==NULL.\n");
 			return false;
@@ -466,7 +466,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		program->sendUniform4fv("postprocessBrightness", &brightness->x);
 	}
 
-	if(POSTPROCESS_GAMMA
+	if (POSTPROCESS_GAMMA
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
 		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_VCOLOR || MATERIAL_EMISSIVE_MAP))

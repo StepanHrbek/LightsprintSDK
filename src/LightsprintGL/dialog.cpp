@@ -40,7 +40,7 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	case WM_INITDIALOG:
 		g_hDlg = hDlg;
 		// init quality
-		if(g_updateParams)
+		if (g_updateParams)
 		{
 			char buf[20];
 			_itoa(g_updateParams->quality,buf,10);
@@ -60,7 +60,7 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		break;
 
 	case WM_COMMAND:
-		if(LOWORD(wParam)==IDOK)
+		if (LOWORD(wParam)==IDOK)
 		{
 build:
 			rr::RRReporter::report(rr::INF1,"--- BUILD ---\n");
@@ -72,13 +72,13 @@ build:
 			g_cmdBuild = true;
 			return (INT_PTR)TRUE;
 		}
-		if(LOWORD(wParam)==IDC_UEBUILD)
+		if (LOWORD(wParam)==IDC_UEBUILD)
 		{
 			g_cmdCustom = true;
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
 		}
-		if(LOWORD(wParam)==IDC_VIEWER)
+		if (LOWORD(wParam)==IDC_VIEWER)
 		{
 			rr::RRReporter::report(rr::INF1,"--- VIEWER ---\n");
 			SendDlgItemMessageA(hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)true,0);
@@ -89,14 +89,14 @@ build:
 			g_cmdViewer = true;
 			return (INT_PTR)TRUE;
 		}
-		if(LOWORD(wParam)==IDC_ABORT)
+		if (LOWORD(wParam)==IDC_ABORT)
 		{
 			rr::RRReporter::report(rr::INF1,"ABORTING\n");
 			g_solver->aborting = true;
 			ShowWindow(GetDlgItem(hDlg,IDC_ABORT),SW_HIDE);
 			return (INT_PTR)TRUE;
 		}
-		if(LOWORD(wParam)==IDCANCEL)
+		if (LOWORD(wParam)==IDCANCEL)
 		{
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
@@ -131,20 +131,20 @@ public:
 	virtual void customReport(rr::RRReportType type, int indentation, const char* message)
 	{
 		// send it also to old reporter
-		if(type!=rr::INF2 && type!=rr::INF3 && type!=rr::TIMI) // send only most important messages
+		if (type!=rr::INF2 && type!=rr::INF3 && type!=rr::TIMI) // send only most important messages
 			g_oldReporter->customReport(type,indentation,message);
 
 		// indentation
 		char space[1000];
 		space[0] = 0;
 		indentation *= 2;
-		if(indentation>0 && indentation<999)
+		if (indentation>0 && indentation<999)
 		{
 			memset(space,' ',indentation);
 			space[indentation] = 0;
 		}
 		// type
-		if(type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
+		if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
 		strcat(space,typePrefix[type]);
 		// message
@@ -185,24 +185,24 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 	// Temporary fix: Main thread opens dialog that closes itself immediately.
 	// Tested: XP SP2 32bit
 	// If you know proper fix, please help.
-	while(!g_shown) Sleep(10);
+	while (!g_shown) Sleep(10);
 	DialogBoxIndirect(GetModuleHandle(NULL),(LPDLGTEMPLATE)g_dialogResource,NULL,BringMainThreadToForeground);
 
-	while(!g_cmdEnd)
+	while (!g_cmdEnd)
 	{
-		if(g_cmdBuild)
+		if (g_cmdBuild)
 		{
 			g_cmdBuild = false;
 			char buf[100];
 			buf[0] = 0;
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,WM_GETTEXT,99,(LPARAM)buf);
-			if(paramsDirect) paramsDirect->quality = atoi(buf);
-			if(paramsIndirect) paramsIndirect->quality = atoi(buf);
+			if (paramsDirect) paramsDirect->quality = atoi(buf);
+			if (paramsIndirect) paramsIndirect->quality = atoi(buf);
 
 			int startTime = GetTickCount();
 			g_solver->updateLightmaps(layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,paramsDirect,paramsIndirect,filtering);
 			int timeToWait = startTime+2000-GetTickCount();
-			if(timeToWait>0)
+			if (timeToWait>0)
 			{
 				rr::RRReporter::report(rr::INF2,"Finished, waiting for eventual abort...\n");
 				Sleep(timeToWait);
@@ -210,7 +210,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)false,0);
 			ShowWindow(GetDlgItem(g_hDlg,IDOK),SW_SHOWNORMAL);
-			if(customButton)
+			if (customButton)
 			{
 				SendDlgItemMessageA(g_hDlg,IDC_UEBUILD,WM_SETTEXT,0,(LPARAM)customButton);
 				ShowWindow(GetDlgItem(g_hDlg,IDC_UEBUILD),SW_SHOWNORMAL);
@@ -218,11 +218,11 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 			ShowWindow(GetDlgItem(g_hDlg,IDC_VIEWER),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(g_hDlg,IDC_ABORT),SW_HIDE);
 			updated = !g_solver->aborting;
-			if(!g_solver->aborting)
+			if (!g_solver->aborting)
 				EndDialog(g_hDlg, IDCANCEL);
 			g_solver->aborting = false;
 		}
-		if(g_cmdViewer)
+		if (g_cmdViewer)
 		{
 			g_cmdViewer = false;
 			rr_gl::SceneViewerState svs;
@@ -232,7 +232,7 @@ rr_gl::UpdateResult rr_gl::updateLightmapsWithDialog(rr::RRDynamicSolver* solver
 			rr_gl::sceneViewer(g_solver,createWindow,pathToShaders,&svs);
 			SendDlgItemMessageA(g_hDlg,IDC_QUALITY,EM_SETREADONLY,(WPARAM)false,0);
 			ShowWindow(GetDlgItem(g_hDlg,IDOK),SW_SHOWNORMAL);
-			if(customButton)
+			if (customButton)
 			{
 				SendDlgItemMessageA(g_hDlg,IDC_UEBUILD,WM_SETTEXT,0,(LPARAM)customButton);
 				ShowWindow(GetDlgItem(g_hDlg,IDC_UEBUILD),SW_SHOWNORMAL);

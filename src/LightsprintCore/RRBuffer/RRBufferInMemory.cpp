@@ -48,7 +48,7 @@ RRBufferInMemory::RRBufferInMemory()
 bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
 {
 	// check params
-	if((_format==BF_RGB || _format==BF_RGBA || _format==BF_RGBF || _format==BF_RGBAF || _format==BF_DEPTH) && (
+	if ((_format==BF_RGB || _format==BF_RGBA || _format==BF_RGBF || _format==BF_RGBAF || _format==BF_DEPTH) && (
 		(_type==BT_VERTEX_BUFFER && (_width && _height==1 && _depth==1)) ||
 		//(_type==BT_1D_TEXTURE && (_width && _height==1 && _depth==1)) ||
 		(_type==BT_2D_TEXTURE && (_width && _height && _depth==1)) ||
@@ -63,11 +63,11 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 		RRReporter::report(WARN,"Invalid parameters in RRBuffer::create(,%d,%d,%d,,,)%s\n",_width,_height,_depth,(_type==BT_VERTEX_BUFFER && !_width)?", object with 0 vertices?":".");
 		return false;
 	}
-	if((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
+	if ((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
 	{
 //		LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
 	}
-	if((_format==BF_RGBF || _format==BF_RGBAF) && _scaled && _width>2) // ignore it for tiny buffers like 2*2*6 cube from createSky()
+	if ((_format==BF_RGBF || _format==BF_RGBAF) && _scaled && _width>2) // ignore it for tiny buffers like 2*2*6 cube from createSky()
 	{
 //		LIMITED_TIMES(1,RRReporter::report(WARN,"Float buffer used for data in custom scale (screen colors). Maybe you can save space by using integer buffer.\n"));
 	}
@@ -75,7 +75,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	unsigned bytesTotal = _width*_height*_depth*getBytesPerPixel(_format);
 
 	// copy data
-	if(!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
+	if (!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
 	{
 		RR_SAFE_DELETE_ARRAY(data);
 		try
@@ -88,9 +88,9 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 			return false;
 		}
 	}
-	if(data && data!=_data)
+	if (data && data!=_data)
 	{
-		if(_data)
+		if (_data)
 			memcpy(data,_data,bytesTotal);
 		else
 			memset(data,0,bytesTotal);
@@ -120,12 +120,12 @@ unsigned RRBufferInMemory::getMemoryOccupied() const
 
 void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 {
-	if(!data)
+	if (!data)
 	{
 		RRReporter::report(WARN,"setElement() called on an uninitialized buffer.\n");
 		return;
 	}
-	if(index>=width*height*depth)
+	if (index>=width*height*depth)
 	{
 		RRReporter::report(WARN,"setElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
 		return;
@@ -158,12 +158,12 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 
 RRVec4 RRBufferInMemory::getElement(unsigned index) const
 {
-	if(!data)
+	if (!data)
 	{
 		RRReporter::report(WARN,"getElement() called on uninitialized buffer.\n");
 		return RRVec4(0);
 	}
-	if(index>=width*height*depth)
+	if (index>=width*height*depth)
 	{
 		RRReporter::report(WARN,"getElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
 		return RRVec4(0);
@@ -242,14 +242,14 @@ RRBufferInMemory::~RRBufferInMemory()
 RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char *_data)
 {
 	RRBuffer* buffer = new RRBufferInMemory();
-	if(!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
+	if (!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
 		RR_SAFE_DELETE(buffer);
 	return buffer;
 }
 
 RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
 {
-	if(upper==lower)
+	if (upper==lower)
 	{
 		RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
 		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(unsigned char*)data);
@@ -271,7 +271,7 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
 	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if(!texture->reload(filename,cubeSideName,flipV,flipH))
+	if (!texture->reload(filename,cubeSideName,flipV,flipH))
 	{
 		RR_SAFE_DELETE(texture);
 	}

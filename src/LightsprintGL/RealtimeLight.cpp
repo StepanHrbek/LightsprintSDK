@@ -65,7 +65,7 @@ namespace rr_gl
 	RealtimeLight::~RealtimeLight()
 	{
 		delete[] smallMapCPU;
-		if(deleteParent) delete getParent();
+		if (deleteParent) delete getParent();
 		setNumInstances(0);
 	}
 
@@ -76,16 +76,16 @@ namespace rr_gl
 
 	void RealtimeLight::setNumInstances(unsigned instances)
 	{
-		if(instances!=numInstances)
+		if (instances!=numInstances)
 		{
-			for(unsigned i=0;i<numInstances;i++)
+			for (unsigned i=0;i<numInstances;i++)
 				delete shadowMaps[i];
 			RR_SAFE_DELETE_ARRAY(shadowMaps);
 			numInstances = instances;
-			if(numInstances)
+			if (numInstances)
 			{
 				shadowMaps = new Texture*[numInstances];
-				for(unsigned i=0;i<numInstances;i++)
+				for (unsigned i=0;i<numInstances;i++)
 					shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
 			}
 		}
@@ -98,10 +98,10 @@ namespace rr_gl
 
 	Camera* RealtimeLight::getInstance(unsigned instance, bool jittered) const
 	{
-		if(!parent || instance>=numInstances)
+		if (!parent || instance>=numInstances)
 			return NULL;
 		Camera* c = new Camera(*parent);
-		if(!c)
+		if (!c)
 			return NULL;
 		instanceMakeup(*c,instance,jittered);
 		return c;
@@ -110,7 +110,7 @@ namespace rr_gl
 	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
 		shadowMapSize = newSize;
-		for(unsigned i=0;i<numInstances;i++)
+		for (unsigned i=0;i<numInstances;i++)
 		{
 			shadowMaps[i]->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
 			shadowMaps[i]->reset(false,false);
@@ -119,7 +119,7 @@ namespace rr_gl
 
 	Texture* RealtimeLight::getShadowMap(unsigned instance) const
 	{
-		if(instance>=numInstances)
+		if (instance>=numInstances)
 		{
 			assert(0);
 			return NULL;
@@ -129,14 +129,14 @@ namespace rr_gl
 
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
-		if(instance>=numInstances) return 0;
-		if(!origin)
+		if (instance>=numInstances) return 0;
+		if (!origin)
 		{
 			// special code for fcss
 			return softShadowsAllowed ? 4 : 1;
 		}
-		if(!origin->castShadows) return 0;
-		if(!softShadowsAllowed) return 1;
+		if (!origin->castShadows) return 0;
+		if (!softShadowsAllowed) return 1;
 		switch(origin->type)
 		{
 			case rr::RRLight::POINT: return 1;
@@ -149,22 +149,22 @@ namespace rr_gl
 
 	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
 	{
-		if(instance>=numInstances) 
+		if (instance>=numInstances) 
 		{
 			rr::RRReporter::report(rr::WARN,"RealtimeLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
 			return;
 		}
-		if(numInstances==1)
+		if (numInstances==1)
 		{
 			light.update();
 			return; // only 1 instance -> use unmodified parent
 		}
-		if(origin && origin->type==rr::RRLight::DIRECTIONAL)
+		if (origin && origin->type==rr::RRLight::DIRECTIONAL)
 		{
 			// setup second map in cascade
 			// DDI needs map0 big, so map0 is big, map1 is smaller
 			RR_ASSERT(numInstances==2); // dir must have 1 or 2 instances
-			if(instance==1)
+			if (instance==1)
 			{
 				light.orthoSize *= 0.2f; // cascade goes in 5x size steps
 			}
@@ -202,7 +202,7 @@ namespace rr_gl
 				light.rotateViewMatrix(instance%6);
 				return;
 		}
-		if(jittered)
+		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
 			light.angle += light.fieldOfView*light.aspect/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][0]*0.22f;

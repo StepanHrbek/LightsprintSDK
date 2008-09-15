@@ -167,10 +167,10 @@ public:
 	static Fps* create()
 	{
 		Fps* fps = new Fps();
-		if(!fps->mapFps) goto err;
-		for(unsigned i=0;i<10;i++)
+		if (!fps->mapFps) goto err;
+		for (unsigned i=0;i<10;i++)
 		{
-			if(!fps->mapDigit[i]) goto err;
+			if (!fps->mapDigit[i]) goto err;
 		}
 		return fps;
 err:
@@ -179,7 +179,7 @@ err:
 	}
 	void render()
 	{
-		if(skyRenderer->render2dBegin(NULL))
+		if (skyRenderer->render2dBegin(NULL))
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -191,7 +191,7 @@ err:
 			float hpix = 1/960.f;
 			skyRenderer->render2dQuad(rr_gl::getTexture(mapFps),x,y-0.012f,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
 			x += mapFps->getWidth()*wpix+0.01f;
-			for(char* c=fpsstr;*c;c++)
+			for (char* c=fpsstr;*c;c++)
 			{
 				rr::RRBuffer* digit = mapDigit[*c-'0'];
 				skyRenderer->render2dQuad(rr_gl::getTexture(digit),x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
@@ -203,12 +203,12 @@ err:
 	}
 	void update()
 	{
-		//if(demoPlayer->getPaused()) return;
+		//if (demoPlayer->getPaused()) return;
 		TIME now = GETTIME;
-		while(times.size() && now-times.front()>PER_SEC) times.pop();
+		while (times.size() && now-times.front()>PER_SEC) times.pop();
 		times.push(GETTIME);
 		fpsToRender = (unsigned)times.size();
-		if(!demoPlayer->getPaused()) frames++;
+		if (!demoPlayer->getPaused()) frames++;
 		float seconds = demoPlayer->getDemoPosition();
 		fpsAvg = frames/MAX(0.01f,seconds);
 	}
@@ -218,14 +218,14 @@ err:
 	}
 	~Fps()
 	{
-		for(unsigned i=0;i<10;i++) delete mapDigit[i];
+		for (unsigned i=0;i<10;i++) delete mapDigit[i];
 		delete mapFps;
 	}
 protected:
 	Fps()
 	{
 		mapFps = rr::RRBuffer::load("maps/txt-fps.png");
-		for(unsigned i=0;i<10;i++)
+		for (unsigned i=0;i<10;i++)
 		{
 			char buf[40];
 			sprintf(buf,"maps/txt-%d.png",i);
@@ -252,9 +252,9 @@ bool exiting = false;
 void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
-	if(gfxRelated)
+	if (gfxRelated)
 		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
-	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+	if (glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 		glutLeaveGameMode();
 	else
 		glutDestroyWindow(glutGetWindow());
@@ -271,14 +271,14 @@ void setShadowTechnique()
 {
 	// early exit
 	static unsigned oldShadowType = 999;
-	if(currentFrame.shadowType == oldShadowType) return;
+	if (currentFrame.shadowType == oldShadowType) return;
 	oldShadowType = currentFrame.shadowType;
 
 	// cheap changes (no GL commands)
 	realtimeLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
 
 	// expensive changes (GL commands)
-	if(currentFrame.shadowType>=2)
+	if (currentFrame.shadowType>=2)
 	{
 		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
 		realtimeLight->softShadowsAllowed = true;
@@ -298,7 +298,7 @@ void init_gl_resources()
 	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 //	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 //	realtimeLight->parent = &currentFrame.light;
-	if(!alphashadows)
+	if (!alphashadows)
 		realtimeLight->transparentMaterialShadows = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
 #ifdef CORNER_LOGO
@@ -317,7 +317,7 @@ void init_gl_resources()
 #endif
 	skyRenderer = new rr_gl::TextureRenderer("shaders/");
 
-	if(!ambientProgram)
+	if (!ambientProgram)
 		error("\nFailed to compile or link GLSL program.\n",true);
 }
 
@@ -347,7 +347,7 @@ public:
 	{
 		work = NULL;
 		workNumber = 0;
-		for(unsigned i=0;i<4;i++)
+		for (unsigned i=0;i<4;i++)
 		{
 			InitializeCriticalSection(&cs[i]);
 		}
@@ -387,7 +387,7 @@ protected:
 		EnterCriticalSection(&worker->cs[1]);
 		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
 		unsigned localWorkNumber = 0;
-		while(1)
+		while (1)
 		{
 		//printf(" %d] waitforjob[%d...",localWorkNumber+1,localWorkNumber);
 			EnterCriticalSection(&worker->cs[(localWorkNumber+0)&3]); // wait for incoming job 0
@@ -422,7 +422,7 @@ public:
 	}
 	void waitForCompletion()
 	{
-		while(work) Sleep(0);
+		while (work) Sleep(0);
 	}
 protected:
 	DemoPlayer* work;
@@ -430,9 +430,9 @@ protected:
 	{
 		BackgroundWorker* worker = (BackgroundWorker*)w;
 		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
-		while(1)
+		while (1)
 		{
-			while(!worker->work) Sleep(0);
+			while (!worker->work) Sleep(0);
 			worker->work->getDynamicObjects()->updateSceneDynamic(level->solver);
 			worker->work = NULL;
 		}
@@ -468,11 +468,11 @@ protected:
 	virtual void calculate(CalculateParameters* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
-		if(g_backgroundWorker) g_backgroundWorker->addWork(demoPlayer);
+		if (g_backgroundWorker) g_backgroundWorker->addWork(demoPlayer);
 		// possibly calculate (update shadowmaps, DDI)
 		RRDynamicSolverGL::calculate(params);
 		// possibly wait for background work completion
-		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
+		if (g_backgroundWorker) g_backgroundWorker->waitForCompletion();
 	}
 #endif
 };
@@ -491,7 +491,7 @@ rr_gl::RRDynamicSolverGL* createSolver()
 
 const rr::RRCollider* getSceneCollider()
 {
-	if(!level) return NULL;
+	if (!level) return NULL;
 	return level->solver->getMultiObjectCustom()->getCollider();
 }
 
@@ -520,20 +520,20 @@ void updateMatrices(void)
 
 void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, const rr::RRLight* renderingFromThisLight)
 {
-	if(!level) return;
+	if (!level) return;
 
 #ifdef RENDER_OPTIMIZED
 	level->rendererOfScene->useOptimizedScene();
 #else
 	// update realtime layer 0
 	static unsigned solutionVersion = 0;
-	if((uberProgramSetup.LIGHT_INDIRECT_auto || uberProgramSetup.LIGHT_INDIRECT_VCOLOR) && // update vbuf only when needed (update may call calculate()!)
+	if ((uberProgramSetup.LIGHT_INDIRECT_auto || uberProgramSetup.LIGHT_INDIRECT_VCOLOR) && // update vbuf only when needed (update may call calculate()!)
 		level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
 		level->solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
 	}
-	if(demoPlayer->getPaused())
+	if (demoPlayer->getPaused())
 	{
 		// paused -> show realtime layer 0
 		level->rendererOfScene->useOriginalScene(0);
@@ -574,7 +574,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	glEnable(GL_CULL_FACE); // make scene 1sided, light is sometimes above roof
 	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
 	// render scene dynamic
-	if(uberProgramSetup.FORCE_2D_POSITION) return;
+	if (uberProgramSetup.FORCE_2D_POSITION) return;
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	assert(demoPlayer);
@@ -588,7 +588,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
-	if(!level) return;
+	if (!level) return;
 
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
@@ -606,7 +606,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye,NULL);
 
 #ifdef BUGS
-	if(gameOn)
+	if (gameOn)
 	{
 		static Timer t;
 		static bool runs = false;
@@ -614,15 +614,15 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		CLAMP(seconds,0.001f,0.5f);
 		t.Start();
 		runs = true;
-		if(!demoPlayer->getPaused())
+		if (!demoPlayer->getPaused())
 			level->bugs->tick(seconds);
 		level->bugs->render();
 	}
 #endif
 
-	if(supportEditor)
+	if (supportEditor)
 		drawLight();
-	if(showLightViewFrustum)
+	if (showLightViewFrustum)
 	{
 		level->solver->renderLights();
 	}
@@ -638,7 +638,7 @@ void drawEyeViewSoftShadowed(void)
 
 #ifdef SUPPORT_WATER
 		// update water reflection
-		if(water && level->pilot.setup->renderWater)
+		if (water && level->pilot.setup->renderWater)
 		{
 			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->pilot.setup->waterLevel);
 			glClear(GL_DEPTH_BUFFER_BIT);
@@ -657,7 +657,7 @@ void drawEyeViewSoftShadowed(void)
 		}
 #endif
 		glClear(GL_DEPTH_BUFFER_BIT);
-		if(splitscreen)
+		if (splitscreen)
 		{
 			glEnable(GL_SCISSOR_TEST);
 			glScissor(0,0,(unsigned)(winWidth*splitscreen),winHeight);
@@ -675,7 +675,7 @@ void drawEyeViewSoftShadowed(void)
 			glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
 		}
 
-		if(numInstances>1)
+		if (numInstances>1)
 		{
 			// Z only pre-pass before expensive penumbra shadows
 			// optional but improves fps from 60 to 80
@@ -707,12 +707,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
 
-		if(splitscreen)
+		if (splitscreen)
 			glDisable(GL_SCISSOR_TEST);
 
 #ifdef SUPPORT_WATER
 		// render water
-		if(water && level->pilot.setup->renderWater)
+		if (water && level->pilot.setup->renderWater)
 		{
 			water->render(100,rr::RRVec3(0));
 		}
@@ -728,7 +728,7 @@ void updateThumbnail(AnimationFrame& frame)
 	// calculate
 	level->solver->calculate();
 	// render into thumbnail
-	if(!frame.thumbnail)
+	if (!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
 	glViewport(0,0,160,120);
 	frame.eye.update(); currentFrame.eye = frame.eye; // while rendering, we call currentFrame.eye.setupForRender();
@@ -753,7 +753,7 @@ static void output(int x, int y, const char *string)
 {
 	glRasterPos2i(x, y);
 	int len = (int) strlen(string);
-	for(int i = 0; i < len; i++)
+	for (int i = 0; i < len; i++)
 	{
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
 	}
@@ -762,12 +762,12 @@ static void output(int x, int y, const char *string)
 
 static void drawHelpMessage(int screen)
 {
-	if(shotRequested) return;
-//	if(!big && gameOn) return;
+	if (shotRequested) return;
+//	if (!big && gameOn) return;
 
 /* misto glutu pouzije truetype fonty z windows
 	static bool fontInited = false;
-	if(!fontInited)
+	if (!fontInited)
 	{
 		fontInited = true;
 		HFONT font = CreateFont(	-24,							// Height Of Font
@@ -918,7 +918,7 @@ static void drawHelpMessage(int screen)
 	glColor4f(0,0,0,0.6f);
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
-	if(screen /*|| demoPlayer->getPaused()*/)
+	if (screen /*|| demoPlayer->getPaused()*/)
 	{
 		unsigned rectWidth = 530;
 		unsigned rectHeight = 360;
@@ -928,7 +928,7 @@ static void drawHelpMessage(int screen)
 		glColor3f(1,1,1);
 		int x = (winWidth-rectWidth)/2+20;
 		int y = (winHeight-rectHeight)/2+30;
-		for(i=0; message[screen][i] != NULL; i++) 
+		for (i=0; message[screen][i] != NULL; i++) 
 		{
 			if (message[screen][i][0] != '\0')
 			{
@@ -938,7 +938,7 @@ static void drawHelpMessage(int screen)
 		}
 	}
 	else
-	if(showTimingInfo)
+	if (showTimingInfo)
 	{
 		int x = 40, y = 50;
 		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
@@ -955,7 +955,7 @@ static void drawHelpMessage(int screen)
 		float transitionDone;
 		float transitionTotal;
 		unsigned frameIndex;
-		if(demoPlayer->getPaused())
+		if (demoPlayer->getPaused())
 		{
 			// paused: frame index = editor cursor
 			frameIndex = level->animationEditor->frameCursor;
@@ -993,14 +993,14 @@ static void drawHelpMessage(int screen)
 
 void showImage(const rr_gl::Texture* tex)
 {
-	if(!tex) return;
+	if (!tex) return;
 	skyRenderer->render2D(tex,NULL,0,0,1,1);
 	glutSwapBuffers();
 }
 
 void showOverlay(const rr::RRBuffer* tex)
 {
-	if(!tex) return;
+	if (!tex) return;
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
@@ -1011,7 +1011,7 @@ void showOverlay(const rr::RRBuffer* tex)
 
 void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float w,float h)
 {
-	if(!logo) return;
+	if (!logo) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	float color[4] = {intensity,intensity,intensity,intensity};
@@ -1030,9 +1030,9 @@ void enableInteraction(bool enable);
 void display()
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 	//printf("<Display.>\n");
-	if(!level) return; // we can't render without scene, idle() should create it first
+	if (!level) return; // we can't render without scene, idle() should create it first
 
 	// pro jednoduchost je to tady
 	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
@@ -1040,7 +1040,7 @@ void display()
 	// zisk by ale byl miniaturni
 	level->solver->reportInteraction();
 
-	if(needMatrixUpdate)
+	if (needMatrixUpdate)
 		updateMatrices();
 
 	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
@@ -1056,10 +1056,10 @@ void display()
 
 	drawEyeViewSoftShadowed();
 
-	if(wireFrame)
+	if (wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if(renderInfo && (!shotRequested || captureVideo))
+	if (renderInfo && (!shotRequested || captureVideo))
 	{
 #ifdef CORNER_LOGO
 		float w = 230/(float)winWidth;
@@ -1070,12 +1070,12 @@ void display()
 #endif
 		float now = demoPlayer->getPartPosition();
 		float frameStart = 0;
-		if(!demoPlayer->getPaused())
+		if (!demoPlayer->getPaused())
 		{
-			for(LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
+			for (LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
 			{
 				rr::RRBuffer* texture = (*i)->overlayMap;
-				if(texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
+				if (texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
 				{
 					switch((*i)->overlayMode)
 					{
@@ -1095,13 +1095,13 @@ void display()
 				frameStart += (*i)->transitionToNextTime;
 			}
 		}
-		if(g_fps && !captureVideo)
+		if (g_fps && !captureVideo)
 		{
 			g_fps->update();
 			g_fps->render();
 		}
 
-		if(demoPlayer->getPaused() && level->animationEditor)
+		if (demoPlayer->getPaused() && level->animationEditor)
 		{
 			level->animationEditor->renderThumbnails(skyRenderer);
 		}
@@ -1109,12 +1109,12 @@ void display()
 		drawHelpMessage(showHelp);
 	}
 
-	if(shotRequested)
+	if (shotRequested)
 	{
 		static unsigned manualShots = 0;
 		static unsigned videoShots = 0;
 		char buf[1000];
-		if(captureVideo)
+		if (captureVideo)
 			sprintf(buf,"%s/frame%04d.%s",globalOutputDirectory,++videoShots,captureVideo);
 		else
 			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
@@ -1123,7 +1123,7 @@ void display()
 		glReadBuffer(GL_BACK);
 		glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
 		sshot->unlock();
-		if(sshot->save(buf))
+		if (sshot->save(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else
 			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
@@ -1140,7 +1140,7 @@ void display()
 		// behem kresleni prvnich snimku driver kompiluje shadery nebo co, pauza by narusila fps
 		static int framesDisplayed = 0;
 		framesDisplayed++;
-		if(framesDisplayed==2 && demoPlayer)
+		if (framesDisplayed==2 && demoPlayer)
 		{
 			demoPlayer->setPaused(supportEditor);
 		}
@@ -1162,13 +1162,13 @@ void changeSpotlight()
 {
 	currentFrame.projectorIndex = (currentFrame.projectorIndex+1)%demoPlayer->getNumProjectors();
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
-	if(!level) return;
+	if (!level) return;
 	level->solver->reportDirectIlluminationChange(0,false,true);
 }
 
 void reportEyeMovement()
 {
-	if(!level) return;
+	if (!level) return;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
@@ -1176,13 +1176,13 @@ void reportEyeMovement()
 
 void reportEyeMovementEnd()
 {
-	if(!level) return;
+	if (!level) return;
 	movingEye = 0;
 }
 
 void reportLightMovement()
 {
-	if(!level) return;
+	if (!level) return;
 	level->solver->reportDirectIlluminationChange(0,true,true);
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -1191,14 +1191,14 @@ void reportLightMovement()
 
 void reportLightMovementEnd()
 {
-	if(!level) return;
+	if (!level) return;
 	movingLight = 0;
 }
 
 void reportObjectMovement()
 {
 	// shadowType 0 is static hard shadow, it doesn't need updates
-	if(currentFrame.shadowType!=0)
+	if (currentFrame.shadowType!=0)
 		level->solver->reportDirectIlluminationChange(0,true,false);
 }
 
@@ -1214,12 +1214,12 @@ void setupSceneDynamicAccordingToCursor(Level* level)
 {
 	// novy kod: jsme paused, takze zobrazime co je pod kurzorem, neridime se casem
 	// makame jen pokud vubec existuji framy (pokud neex, nechame kameru jak je)
-	if(level->pilot.setup->frames.size())
+	if (level->pilot.setup->frames.size())
 	{
 		// pokud je kurzor za koncem, vezmeme posledni frame
 		unsigned existingFrameNumber = MIN(level->animationEditor->frameCursor,(unsigned)level->pilot.setup->frames.size()-1);
 		AnimationFrame* frame = level->pilot.setup->getFrameByIndex(existingFrameNumber);
-		if(frame)
+		if (frame)
 			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup, *frame, true);
 		else
 			RR_ASSERT(0); // tohle se nemelo stat
@@ -1232,7 +1232,7 @@ void special(int c, int x, int y)
 {
 	needImmediateDDI = true; // chceme okamzitou odezvu kdyz klavesa hne svetlem
 
-	if(level 
+	if (level 
 		&& demoPlayer->getPaused()
 		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
 		&& level->animationEditor
@@ -1240,7 +1240,7 @@ void special(int c, int x, int y)
 	{
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
 		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
-		if(c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
+		if (c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
 		{
 			setupSceneDynamicAccordingToCursor(level);
 		}
@@ -1251,9 +1251,9 @@ void special(int c, int x, int y)
 
 	int modif = glutGetModifiers();
 	float scale = 1;
-	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
-	if(modif&GLUT_ACTIVE_CTRL) scale=3;
-	if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+	if (modif&GLUT_ACTIVE_SHIFT) scale=10;
+	if (modif&GLUT_ACTIVE_CTRL) scale=3;
+	if (modif&GLUT_ACTIVE_ALT) scale=0.1f;
 	scale *= 3;
 
 	switch (c) 
@@ -1262,7 +1262,7 @@ void special(int c, int x, int y)
 
 		case GLUT_KEY_F2: currentFrame.shadowType = 1; break;
 		case GLUT_KEY_F3: currentFrame.shadowType = 2; break;
-		case GLUT_KEY_F4: currentFrame.shadowType = 3; if(modif&GLUT_ACTIVE_ALT) keyboard(27,0,0); break;
+		case GLUT_KEY_F4: currentFrame.shadowType = 3; if (modif&GLUT_ACTIVE_ALT) keyboard(27,0,0); break;
 
 		case GLUT_KEY_F5: currentFrame.indirectType = 0; break;
 		case GLUT_KEY_F6: currentFrame.indirectType = 1; break;
@@ -1354,7 +1354,7 @@ void keyboard(unsigned char c, int x, int y)
 	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 #endif
 
-	if(level
+	if (level
 		&& demoPlayer->getPaused()
 		&& level->animationEditor
 		&& level->animationEditor->keyboard(c,x,y))
@@ -1371,14 +1371,14 @@ void keyboard(unsigned char c, int x, int y)
 
 	int modif = glutGetModifiers();
 	float scale = 1;
-	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
-	if(modif&GLUT_ACTIVE_CTRL) scale=3;
-	if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+	if (modif&GLUT_ACTIVE_SHIFT) scale=10;
+	if (modif&GLUT_ACTIVE_CTRL) scale=3;
+	if (modif&GLUT_ACTIVE_ALT) scale=0.1f;
 
 	switch (c)
 	{
 		case 27:
-			if(showHelp)
+			if (showHelp)
 			{
 				// first esc only closes help
 				showHelp = 0;
@@ -1387,7 +1387,7 @@ void keyboard(unsigned char c, int x, int y)
 
 			rr::RRReporter::report(rr::INF1,supportEditor ? "Quitting editor.\n" : "Escaped by user, benchmarking unfinished.\n");
 			// rychlejsi ukonceni:
-			//if(supportEditor) delete level; // aby se ulozily zmeny v animaci
+			//if (supportEditor) delete level; // aby se ulozily zmeny v animaci
 			// pomalejsi ukonceni s uvolnenim pameti:
 			delete demoPlayer;
 
@@ -1436,10 +1436,10 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case 13:
-			if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+			if (!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 			{
 				fullscreen = !fullscreen;
-				if(fullscreen)
+				if (fullscreen)
 					glutFullScreen();
 				else
 				{
@@ -1474,24 +1474,24 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
 				// kdyz neni kolize se scenou, najit kolizi s vodou
-				if(!level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				if (!level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 				{
 					float cameraLevel = currentFrame.eye.pos[1];
 					float waterLevel = level->pilot.setup->waterLevel;
 					float levelChangeIn1mDistance = dir[1];
 					float distance = levelChangeIn1mDistance ? (waterLevel-cameraLevel)/levelChangeIn1mDistance : 10;
-					if(distance<0) distance=10;
+					if (distance<0) distance=10;
 					ray->hitPoint3d = ray->rayOrigin+dir*distance;
 				}
 				// keys 1/2/3... index one of few sceneobjects
 				unsigned selectedObject_indexInScene = c-'1';
-				if(selectedObject_indexInScene<level->pilot.setup->objects.size())
+				if (selectedObject_indexInScene<level->pilot.setup->objects.size())
 				{
 					// we have more dynaobjects
 					selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
-					if(!modif)
+					if (!modif)
 					{
-						if(demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray->hitPoint3d)
+						if (demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray->hitPoint3d)
 							// hide (move to 0)
 							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,rr::RRVec3(0));
 						else
@@ -1521,10 +1521,10 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case '+':
-			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] *= 1.2f;
+			for (unsigned i=0;i<4;i++) currentFrame.brightness[i] *= 1.2f;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] /= 1.2f;
+			for (unsigned i=0;i<4;i++) currentFrame.brightness[i] /= 1.2f;
 			break;
 		case '*':
 			currentFrame.gamma *= 1.2f;
@@ -1699,9 +1699,9 @@ void mainMenu(int item)
 
 				// update 1 object
 				static unsigned obj=0;
-				if(level->solver->getIllumination(obj))
+				if (level->solver->getIllumination(obj))
 				{
-					if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
+					if (!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
 						level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512*2,512*2);
 					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
 				}
@@ -1719,11 +1719,11 @@ void mainMenu(int item)
 				rr::RRDynamicSolver::UpdateParameters paramsDirect();
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 
-				for(LevelSetup::Frames::const_iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+				for (LevelSetup::Frames::const_iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
 				{
 					demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,**i,true);
 					printf("(");
-					for(unsigned j=0;j<10+LIGHTMAP_QUALITY/10;j++)
+					for (unsigned j=0;j<10+LIGHTMAP_QUALITY/10;j++)
 						level->solver->calculate();
 					printf(")");
 					unsigned layerNumber = (*i)->layerNumber;
@@ -1731,7 +1731,7 @@ void mainMenu(int item)
 					level->solver->updateLightmaps(layerNumber,-1,NULL,NULL);
 					// update 1 lmap
 					static unsigned obj=12;
-					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)
+					if (!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)
 						level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
 					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirect);
 				}
@@ -1748,10 +1748,10 @@ void mainMenu(int item)
 				static unsigned captureIndex = 0;
 				char filename[100];
 				// save all ambient maps (static objects)
-				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
 					rr::RRBuffer* map = level->solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
-					if(map)
+					if (map)
 					{
 						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
 						bool saved = map->save(filename);
@@ -1759,15 +1759,15 @@ void mainMenu(int item)
 					}
 				}
 				/*/ save all environment maps (dynamic objects)
-				for(unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
 				{
-					if(dynaobjects->getObject(objectIndex)->diffuseMap)
+					if (dynaobjects->getObject(objectIndex)->diffuseMap)
 					{
 						sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
 						bool saved = dynaobjects->getObject(objectIndex)->diffuseMap->save(filename,cubeSideNames);
 						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 					}
-					if(dynaobjects->getObject(objectIndex)->specularMap)
+					if (dynaobjects->getObject(objectIndex)->specularMap)
 					{
 						sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
 						bool saved = dynaobjects->getObject(objectIndex)->specularMap->save(filename,cubeSideNames);
@@ -1784,25 +1784,25 @@ void mainMenu(int item)
 				unsigned captureIndex = 0;
 				char filename[200];
 				// load all ambient maps (static objects)
-				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
 					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
 					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if(loaded)
+					if (loaded)
 					{
 						delete level->solver->getIllumination(objectIndex)->getLayer(0);
 						level->solver->getIllumination(objectIndex)->getLayer(0) = loaded;
 					}
 				}
 				/*/ load all environment maps (dynamic objects)
-				for(unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
 				{
 					// diffuse
 					sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
 					rr::RRBuffer* loaded = rr::RRBuffer::load(filename,cubeSideNames);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if(loaded)
+					if (loaded)
 					{
 						delete dynaobjects->getObject(objectIndex)->diffuseMap;
 						dynaobjects->getObject(objectIndex)->diffuseMap = loaded;
@@ -1811,7 +1811,7 @@ void mainMenu(int item)
 					sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
 					loaded = rr::RRBuffer::load(filename,cubeSideNames);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if(loaded)
+					if (loaded)
 					{
 						delete dynaobjects->getObject(objectIndex)->specularMap;
 						dynaobjects->getObject(objectIndex)->specularMap = loaded;
@@ -1826,12 +1826,12 @@ void mainMenu(int item)
 
 		case ME_SAVE_LIGHTMAPS_ALL:
 			// save all illumination maps
-			if(level) rr::RRReporter::report(rr::INF1,"Saved %d buffers.\n",level->saveIllumination("export/",true,true));
+			if (level) rr::RRReporter::report(rr::INF1,"Saved %d buffers.\n",level->saveIllumination("export/",true,true));
 			break;
 
 		case ME_LOAD_LIGHTMAPS_ALL:
 			// load all illumination from disk
-			if(level) rr::RRReporter::report(rr::INF1,"Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
+			if (level) rr::RRReporter::report(rr::INF1,"Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
 			break;
 #endif // SUPPORT_LIGHTMAPS
 
@@ -1840,7 +1840,7 @@ void mainMenu(int item)
 		//	break;
 
 		case ME_NEXT_SCENE:
-			if(supportEditor)
+			if (supportEditor)
 				level->pilot.setup->save();
 			//delete level;
 			level = NULL;
@@ -1878,14 +1878,14 @@ void initMenu()
 void reshape(int w, int h)
 {
 	// we are called with desktop resolution in vista from exit(), glViewport crashes in HD2400 driver
-	if(exiting) return;
+	if (exiting) return;
 
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	needMatrixUpdate = 1;
 
-	if(!demoPlayer)
+	if (!demoPlayer)
 	{
 		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor,preciseTimer);
 		demoPlayer->setBigscreen(bigscreenCompensation);
@@ -1896,21 +1896,21 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if(level && state==GLUT_DOWN) level->pilot.reportInteraction();
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (level && state==GLUT_DOWN) level->pilot.reportInteraction();
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		modeMovingEye = !modeMovingEye;
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
-	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if(currentFrame.eye.fieldOfView>13) currentFrame.eye.fieldOfView -= 10;
+		if (currentFrame.eye.fieldOfView>13) currentFrame.eye.fieldOfView -= 10;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
-	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(currentFrame.eye.fieldOfView<130) currentFrame.eye.fieldOfView+=10;
+		if (currentFrame.eye.fieldOfView<130) currentFrame.eye.fieldOfView+=10;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
@@ -1919,19 +1919,19 @@ void mouse(int button, int state, int x, int y)
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(level && (x || y)) level->pilot.reportInteraction();
-	if(x || y)
+	if (level && (x || y)) level->pilot.reportInteraction();
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if(modeMovingEye)
+		if (modeMovingEye)
 		{
 			currentFrame.eye.angle -= mouseSensitivity*x;
 			currentFrame.eye.angleX -= mouseSensitivity*y;
@@ -1957,9 +1957,9 @@ void passive(int x, int y)
 void idle()
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"idle()\n"));
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 
-	if(level && level->pilot.isTimeToChangeLevel())
+	if (level && level->pilot.isTimeToChangeLevel())
 	{
 		//showImage(loadingMap);
 		//delete level;
@@ -1969,12 +1969,12 @@ void idle()
 
 #ifdef PLAY_WITH_FIXED_ADVANCE
 	static double timeStart = 0;
-	if(timeStart==2) timeStart = GETSEC;
-	if(timeStart==1) timeStart = 2;
-	if(timeStart==0) timeStart = 1;
+	if (timeStart==2) timeStart = GETSEC;
+	if (timeStart==1) timeStart = 2;
+	if (timeStart==0) timeStart = 1;
 #endif
 
-	if(!level)
+	if (!level)
 	{
 		//		showImage(loadingMap);
 		//		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
@@ -1984,7 +1984,7 @@ void idle()
 		needRedisplay = 1;
 
 		// end of the demo
-		if(!level)
+		if (!level)
 		{
 #ifdef PLAY_WITH_FIXED_ADVANCE
 			rr::RRReporter::report(rr::INF1,"Finished in %fs.\n",(float)(GETSEC-timeStart));
@@ -1999,14 +1999,14 @@ void idle()
 		// implant our light into solver
 		level->solver->realtimeLights.push_back(realtimeLight);
 
-		//for(unsigned i=0;i<6;i++)
+		//for (unsigned i=0;i<6;i++)
 		//	level->solver->calculate();
 
 		// capture thumbnails
-		if(supportEditor)
+		if (supportEditor)
 		{
 			rr::RRReportInterval report(rr::INF1,"Updating thumbnails...\n");
-			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+			for (LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
 			{
 				updateThumbnail(**i);
 			}
@@ -2025,24 +2025,24 @@ void idle()
 	static TIME prev = 0;
 	TIME now = GETTIME;
 	float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
-	if(!prev || now==prev) seconds = 0;
+	if (!prev || now==prev) seconds = 0;
 	CLAMP(seconds,0.001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
-	if(speedForward) cam->moveForward(speedForward*seconds);
-	if(speedBack) cam->moveBack(speedBack*seconds);
-	if(speedRight) cam->moveRight(speedRight*seconds);
-	if(speedLeft) cam->moveLeft(speedLeft*seconds);
-	if(speedUp) cam->moveUp(speedUp*seconds);
-	if(speedDown) cam->moveDown(speedDown*seconds);
-	if(speedLean) cam->lean(speedLean*seconds);
-	if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
+	if (speedForward) cam->moveForward(speedForward*seconds);
+	if (speedBack) cam->moveBack(speedBack*seconds);
+	if (speedRight) cam->moveRight(speedRight*seconds);
+	if (speedLeft) cam->moveLeft(speedLeft*seconds);
+	if (speedUp) cam->moveUp(speedUp*seconds);
+	if (speedDown) cam->moveDown(speedDown*seconds);
+	if (speedLean) cam->lean(speedLean*seconds);
+	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
-		if(cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
+		if (cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
-	if(!demoPlayer->getPaused())
+	if (!demoPlayer->getPaused())
 	{
-		if(captureVideo)
+		if (captureVideo)
 		{
 			// advance by 1/30
 			demoPlayer->advanceBy(1/30.f);
@@ -2057,32 +2057,32 @@ void idle()
 			demoPlayer->advance();
 #endif
 		}
-		if(level)
+		if (level)
 		{
 			// najde aktualni frame
 			const AnimationFrame* frame = level->pilot.setup ? level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
-			if(frame)
+			if (frame)
 			{
 				// pokud existuje, nastavi ho
 				demoPlayer->setVolume(frame->volume);
 				static AnimationFrame prevFrame(0);
 				bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
 				bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
-				if(objMoved)
+				if (objMoved)
 					reportObjectMovement();
-				for(unsigned i=0;i<10;i++)
+				for (unsigned i=0;i<10;i++)
 				{
 					// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
 					DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
-					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
+					if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
 				}
-				if(frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
+				if (frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
 				prevFrame = *frame;
 			}
 			else
 			{
 				// pokud neexistuje, jde na dalsi level nebo skonci 
-				if(level->animationEditor)
+				if (level->animationEditor)
 				{
 					// play scene finished, jump to editor
 					demoPlayer->setPaused(true);
@@ -2102,11 +2102,11 @@ void idle()
 	else
 	{
 		// paused
-		if(!supportEditor)
+		if (!supportEditor)
 		{
 			float secondsSincePrevFrame = demoPlayer->advance();
 			demoPlayer->getDynamicObjects()->advanceRot(secondsSincePrevFrame);
-			//if(object on screen)
+			//if (object on screen)
 				reportObjectMovement();
 			needRedisplay = 1;
 		}
@@ -2114,15 +2114,15 @@ void idle()
 	prev = now;
 	setShadowTechnique();
 
-	if(movingEye && !--movingEye)
+	if (movingEye && !--movingEye)
 	{
 		reportEyeMovementEnd();
 	}
-	if(movingLight && !--movingLight)
+	if (movingLight && !--movingLight)
 	{
 		reportLightMovementEnd();
 	}
-	if(!demoPlayer->getPaused())
+	if (!demoPlayer->getPaused())
 	{
 		needRedisplay = 1;
 	}
@@ -2131,7 +2131,7 @@ void idle()
 
 void enableInteraction(bool enable)
 {
-	if(enable)
+	if (enable)
 	{
 		glutSpecialFunc(special);
 		glutSpecialUpFunc(specialUp);
@@ -2139,7 +2139,7 @@ void enableInteraction(bool enable)
 		glutPassiveMotionFunc(passive);
 		glutKeyboardFunc(keyboard);
 		glutKeyboardUpFunc(keyboardUp);
-		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
 	else
 	{
@@ -2182,7 +2182,7 @@ void init_gl_states()
 	glFrontFace(GL_CCW);
 
 #if defined(_WIN32)
-	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 }
 
@@ -2191,88 +2191,88 @@ void parseOptions(int argc, const char*const*argv)
 	int i,tmp;
 	bool badArgument = false;
 
-	for(i=1; i<argc; i++)
+	for (i=1; i<argc; i++)
 	{
-		if(strstr(argv[i],".cfg"))
+		if (strstr(argv[i],".cfg"))
 		{
 			cfgFile = argv[i];
 		}
 		else
-		if(!strcmp("editor", argv[i]))
+		if (!strcmp("editor", argv[i]))
 		{
 			supportEditor = 1;
 			fullscreen = 0;
 			showTimingInfo = 1;
 		}
 		else
-		if(!strcmp("bigscreen", argv[i]))
+		if (!strcmp("bigscreen", argv[i]))
 		{
 			bigscreenCompensation = 1;
 		}
 		else
-		if(sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony)==2)
+		if (sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony)==2)
 		{
 			resolutionSet = true;
 		}
 		else
-		if(!strcmp("window", argv[i]))
+		if (!strcmp("window", argv[i]))
 		{
 			fullscreen = 0;
 		}
 		else
-		if(!strcmp("fullscreen", argv[i]))
+		if (!strcmp("fullscreen", argv[i]))
 		{
 			fullscreen = 1;
 		}
 		else
-		if(!strcmp("stability=low", argv[i]))
+		if (!strcmp("stability=low", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_4X4;
 		}
 		else
-		if(!strcmp("stability=auto", argv[i]))
+		if (!strcmp("stability=auto", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
 		}
 		else
-		if(!strcmp("stability=high", argv[i]))
+		if (!strcmp("stability=high", argv[i]))
 		{
 			lightStability = rr_gl::RRDynamicSolverGL::DDI_8X8;
 		}
 		else
-		if(!strcmp("silent", argv[i]))
+		if (!strcmp("silent", argv[i]))
 		{
 			supportMusic = false;
 		}
 		else
-		if(!strcmp("opaqueshadows", argv[i]))
+		if (!strcmp("opaqueshadows", argv[i]))
 		{
 			alphashadows = false;
 		}
 		else
-		if(!strcmp("timer_precision=high", argv[i]))
+		if (!strcmp("timer_precision=high", argv[i]))
 		{
 			preciseTimer = true;
 		}
 		else
-		if(sscanf(argv[i],"penumbra%d", &tmp)==1)
+		if (sscanf(argv[i],"penumbra%d", &tmp)==1)
 		{
 			// handled elsewhere
 		}
 		else
-		if(!strcmp("verbose", argv[i]))
+		if (!strcmp("verbose", argv[i]))
 		{
 			rr::RRReporter::setFilter(true,2,true);
 			rr_gl::Program::logMessages(true);
 		}
 		else
-		if(!strcmp("capture=jpg", argv[i]))
+		if (!strcmp("capture=jpg", argv[i]))
 		{
 			captureVideo = "jpg";
 			supportMusic = false;
 		}
 		else
-		if(!strcmp("capture=tga", argv[i]))
+		if (!strcmp("capture=tga", argv[i]))
 		{
 			captureVideo = "tga";
 			supportMusic = false;
@@ -2283,7 +2283,7 @@ void parseOptions(int argc, const char*const*argv)
 			badArgument = true;
 		}
 	}
-	if(badArgument)
+	if (badArgument)
 	{
 		const char* caption = 
 			"Lightsmark 2008 back-end                                       (C) Stepan Hrbek";
@@ -2324,7 +2324,7 @@ int main(int argc, char **argv)
 	//_crtBreakAlloc = 1154356;
 
 	// check for version mismatch
-	if(!RR_INTERFACE_OK)
+	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
@@ -2355,12 +2355,12 @@ int main(int argc, char **argv)
 	// this is windows only code
 	// designed to work on vista with restricted write access
 	rr::RRReporter* r = rr::RRReporter::createFileReporter("../log.txt",false);
-	if(!r)
+	if (!r)
 	{
 		// primary output directory is . (data)
 		// if it fails (program files in vista is not writeable), secondary is created in appdata
 		const char* appdata = getenv("LOCALAPPDATA");
-		if(appdata)
+		if (appdata)
 		{
 			sprintf(globalOutputDirectory,"%s\\%s",appdata,PRODUCT_NAME);
 			_mkdir(globalOutputDirectory);
@@ -2377,7 +2377,7 @@ int main(int argc, char **argv)
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 	rr::RRReporter::report(rr::INF1,"Started: %s in %s\n",GetCommandLine(),cwd);
 	free(cwd);
-	if(globalOutputDirectory[1])
+	if (globalOutputDirectory[1])
 		rr::RRReporter::report(rr::INF1,"Program directory not writeable, log+screenshots sent to %s\n",globalOutputDirectory);
 #else
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
@@ -2389,7 +2389,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
 retry:
-	if(fullscreen)
+	if (fullscreen)
 	{
 		char buf[100];
 		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
@@ -2404,9 +2404,9 @@ retry:
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
 		glutCreateWindow(PRODUCT_NAME);
-		if(resolutionx==w && resolutiony==h)
+		if (resolutionx==w && resolutiony==h)
 			glutFullScreen();
-		if(supportEditor)
+		if (supportEditor)
 			initMenu();
 	}
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -2414,10 +2414,10 @@ retry:
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
-	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
+	if (glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
 	    || (fullscreen && (glutGet(GLUT_SCREEN_WIDTH)<resolutionx || glutGet(GLUT_SCREEN_HEIGHT)<resolutiony)))
 	{
-		if(!resolutionSet)
+		if (!resolutionSet)
 		{
 			rr::RRReporter::report(rr::WARN,"Failed to set default 1280x1024 fullscreen, falling back to 1024x768 fullscreen.\n");
 			resolutionx = 1024;
@@ -2431,11 +2431,11 @@ retry:
 	};
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("Graphics card driver doesn't support OpenGL 2.0.\n",true);
 	init_gl_states();
 	const char* vendor = (const char*)glGetString(GL_VENDOR);
@@ -2469,16 +2469,16 @@ retry:
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 #endif
-	if(!INSTANCES_PER_PASS) error("",true);
+	if (!INSTANCES_PER_PASS) error("",true);
 	realtimeLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 
 	const char* licError = rr::loadLicense("licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 
 #ifdef BACKGROUND_WORKER
 #ifdef _OPENMP
-	if(omp_get_max_threads()>1)
+	if (omp_get_max_threads()>1)
 #endif
 		g_backgroundWorker = new BackgroundWorker;
 #endif
@@ -2500,7 +2500,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 	int argc;
 	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
 	char** argv = new char*[argc+1];
-	for(int i=0;i<argc;i++)
+	for (int i=0;i<argc;i++)
 	{
 		argv[i] = (char*)malloc(wcslen(argvw[i])+1);
 		sprintf(argv[i], "%ws", argvw[i]);

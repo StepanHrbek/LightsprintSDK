@@ -57,7 +57,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat)
 {
 	// uncomment if you wish to skip loading from network
-//	if(filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
+//	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
 
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
@@ -65,19 +65,19 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 	// check the file signature and deduce its format
 	fif = FreeImage_GetFileType(filename, 0);
 	// no signature? try to guess the file format from the file extension
-	if(fif == FIF_UNKNOWN)
+	if (fif == FIF_UNKNOWN)
 	{
 		fif = FreeImage_GetFIFFromFilename(filename);
 	}
 	// check that the plugin has reading capabilities
-	if(fif!=FIF_UNKNOWN && FreeImage_FIFSupportsReading(fif))
+	if (fif!=FIF_UNKNOWN && FreeImage_FIFSupportsReading(fif))
 	{
 		// load the file
 		FIBITMAP* dib1 = FreeImage_Load(fif, filename);
-		if(dib1)
+		if (dib1)
 		{
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
-			if(bpp1==96)
+			if (bpp1==96)
 			{
 				// RGBF, conversion to 32bit doesn't work
 				FreeImage_FlipVertical(dib1);
@@ -93,11 +93,11 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 			{
 				// try conversion to 32bit BGRA
 				FIBITMAP* dib2 = FreeImage_ConvertTo32Bits(dib1);
-				if(dib2)
+				if (dib2)
 				{
-					if(flipV)
+					if (flipV)
 						FreeImage_FlipVertical(dib2);
-					if(flipH)
+					if (flipH)
 						FreeImage_FlipHorizontal(dib2);
 					// read size
 					width = FreeImage_GetWidth(dib2);
@@ -107,9 +107,9 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 					pixels = new unsigned char[4*width*height];
 					BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);
 					unsigned pitch = FreeImage_GetPitch(dib2);
-					for(unsigned j=0;j<height;j++)
+					for (unsigned j=0;j<height;j++)
 					{
-						for(unsigned i=0;i<width;i++)
+						for (unsigned i=0;i<width;i++)
 						{
 #ifdef RR_BIG_ENDIAN
 							pixels[j*4*width+4*i+0] = fipixels[j*pitch+4*i+0];
@@ -145,17 +145,17 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 
 static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip=false)
 {
-	if(flip)
-		for(unsigned j=blockHeight;j--;)
+	if (flip)
+		for (unsigned j=blockHeight;j--;)
 		{
-			for(unsigned i=blockWidth;i--;)
+			for (unsigned i=blockWidth;i--;)
 			{
 				memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs+i)*bytesPerPixel,bytesPerPixel);
 				dst += bytesPerPixel;
 			}
 		}
 	else
-		for(unsigned j=0;j<blockHeight;j++)
+		for (unsigned j=0;j<blockHeight;j++)
 		{
 			memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs)*bytesPerPixel,blockWidth*bytesPerPixel);
 			dst += blockWidth*bytesPerPixel;
@@ -176,7 +176,7 @@ static void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, un
 	shuffleBlock(dst,pixelsOld,widthNew*1,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
 	shuffleBlock(dst,pixelsOld,widthNew*1,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
 	shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
-	if(widthOld>heightOld)
+	if (widthOld>heightOld)
 		shuffleBlock(dst,pixelsOld,widthNew*3,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z-
 	else
 		shuffleBlock(dst,pixelsOld,widthNew*1,3*heightNew,widthNew,heightNew,widthOld,bytesPerPixel,true); // Z-
@@ -196,7 +196,7 @@ struct VBUHeader
 	VBUHeader(RRBuffer* buffer)
 	{
 		memset(this,0,sizeof(*this));
-		if(buffer)
+		if (buffer)
 		{
 			format = buffer->getFormat();
 			scaled = buffer->getScaled()?1:0;
@@ -214,7 +214,7 @@ static bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
 {
 	// open
 	FILE* f = fopen(filename,"rb");
-	if(!f) return false;
+	if (!f) return false;
 	// get filesize
 	fseek(f,0,SEEK_END);
 	unsigned datasize = ftell(f)-sizeof(VBUHeader);
@@ -222,7 +222,7 @@ static bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
 	// read header
 	VBUHeader header(NULL);
 	fread(&header,sizeof(header),1,f);
-	if(header.getDataSize()!=datasize)
+	if (header.getDataSize()!=datasize)
 	{
 		fclose(f);
 		return false;
@@ -243,7 +243,7 @@ static bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool f
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
 	unsigned char* pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format);
-	if(!pixels)
+	if (!pixels)
 	{
 		return false;
 	}
@@ -263,18 +263,18 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	RRBufferFormat format = BF_DEPTH;
 	unsigned char* pixels = NULL;
 	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
-	if(!sixFiles)
+	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
 		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format);
-		if(!pixels) return false;
+		if (!pixels) return false;
 		shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format));
 	}
 	else
 	{
 		// LOAD PIXELS FROM SIX FILES
 		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
-		for(unsigned side=0;side<6;side++)
+		for (unsigned side=0;side<6;side++)
 		{
 			char buf[1000];
 			_snprintf(buf,999,filenameMask,cubeSideName[side]);
@@ -284,10 +284,10 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 			RRBufferFormat tmpFormat;
 
 			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat);
-			if(!sides[side])
+			if (!sides[side])
 				return false;
 
-			if(!side)
+			if (!side)
 			{
 				width = tmpWidth;
 				height = tmpHeight;
@@ -295,7 +295,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 			}
 			else
 			{
-				if(tmpWidth!=width || tmpHeight!=height || tmpFormat!=format || width!=height)
+				if (tmpWidth!=width || tmpHeight!=height || tmpFormat!=format || width!=height)
 					return false;
 			}
 			//unsigned int type;
@@ -307,7 +307,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 		// pack 6 images into 1 array
 		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
 		pixels = new unsigned char[width*height*getBytesPerPixel(format)*6];
-		for(unsigned side=0;side<6;side++)
+		for (unsigned side=0;side<6;side++)
 		{
 			memcpy(pixels+width*height*getBytesPerPixel(format)*side,sides[side],width*height*getBytesPerPixel(format));
 			RR_SAFE_DELETE_ARRAY(sides[side]);
@@ -327,7 +327,7 @@ bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideNam
 		: (cubeSideName
 		? reloadCube(buffer,filename,cubeSideName,flipV,flipH)
 		: reload2d(buffer,filename,flipV,flipH) );
-	if(!reloaded)
+	if (!reloaded)
 	{
 		rr::RRReporter::report(rr::ERRO,"Failed to reload %s.\n",filename);
 	}
@@ -358,18 +358,18 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 
 	// default cube side names
 	const char* cubeSideNameBackup[6] = {"0","1","2","3","4","5"};
-	if(!cubeSideName)
+	if (!cubeSideName)
 		cubeSideName = cubeSideNameBackup;
 
 	const unsigned char* rawData = buffer->lock(BL_READ);
-	if(rawData)
+	if (rawData)
 	{
 		// save vertex buffer
-		if(buffer->getType()==BT_VERTEX_BUFFER)
+		if (buffer->getType()==BT_VERTEX_BUFFER)
 		{
 			VBUHeader header(buffer);
 			FILE* f = fopen(filename,"wb");
-			if(f)
+			if (f)
 			{
 				fwrite(&header,sizeof(header),1,f);
 				unsigned written = (unsigned)fwrite(rawData,buffer->getElementBits()/8,buffer->getWidth(),f);
@@ -401,10 +401,10 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 			};
 		unsigned dstbipp;
 		RR_ASSERT(BF_RGB==0 && BF_RGBA==1 && BF_RGBF==2 && BF_RGBAF==3);
-		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
-		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
-		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
-		if(!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
 		{
 			RRReporter::report(WARN,"Save not supported for %s format.\n",filename);
 			goto ende;
@@ -413,20 +413,20 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 		unsigned dstbypp = (dstbipp+7)/8;
 
 		FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
-		if(dib)
+		if (dib)
 		{
 			BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
-			if(fipixels)
+			if (fipixels)
 			{
 				// process all sides
-				for(unsigned side=0;side<6;side++)
+				for (unsigned side=0;side<6;side++)
 				{
-					if(!side || buffer->getType()==BT_CUBE_TEXTURE)
+					if (!side || buffer->getType()==BT_CUBE_TEXTURE)
 					{
 						// every one image must succeed
 						result = false;
 						// fill it with texture data
-						/*if(dstbypp==srcbypp)
+						/*if (dstbypp==srcbypp)
 						{
 							// use native format
 							memcpy(fipixels,rawData+side*getWidth()*getHeight()*dstbypp,getWidth()*getHeight()*dstbypp);
@@ -440,7 +440,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 							unsigned width = buffer->getWidth();
 							unsigned numPixels = width*buffer->getHeight();
 							bool swaprb = dstbipp<=32;//(srcbipp>32) != (dstbipp>32);
-							for(unsigned i=0;i<numPixels;i++)
+							for (unsigned i=0;i<numPixels;i++)
 							{
 								// read src pixel
 								float pixel[4];
@@ -488,14 +488,14 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 								}
 								src += srcbypp;
 								// swap r<->b
-								if(swaprb)
+								if (swaprb)
 								{
 									float tmp = pixel[0];
 									pixel[0] = pixel[2];
 									pixel[2] = tmp;
 								}
 								// write dst pixel
-								if((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
+								if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
 								switch(dstbipp)
 								{
 									case 128:
@@ -533,7 +533,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 						// save single side
 						result = FreeImage_Save(fif, dib, filenameCube)!=0;
 						// if any one of 6 images fails, don't try other and report fail
-						if(!result) break;
+						if (!result) break;
 					}
 				}
 			}
@@ -542,7 +542,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 	}
 
 ende:
-	if(rawData)
+	if (rawData)
 	{
 		buffer->unlock();
 	}

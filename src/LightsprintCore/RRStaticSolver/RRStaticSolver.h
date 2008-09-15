@@ -34,9 +34,9 @@ namespace rr
 	//! user to continue work and see illumination improving on the background.
 	//! This could be done by inserting following code into your main loop
 	//! \code
-	//    if(!paused) {
+	//    if (!paused) {
 	//      scene->illuminationImprove(endIfUserWantsToInteract);
-	//      if(once a while) read back results using scene->getTriangleMeasure();
+	//      if (once a while) read back results using scene->getTriangleMeasure();
 	//    } \endcode
 	//! \n For smooth integration without feel of slowing down, it is good to pause 
 	//! calculation after each user interaction and resume it again once there is

@@ -34,7 +34,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
 	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
-	if(!triangles)
+	if (!triangles)
 	{
 		// although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		RR_ASSERT(0);
@@ -45,13 +45,13 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 	ray->rayDirInv[1] = 1/direction[1];
 	ray->rayDirInv[2] = 1/direction[2];
 	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
-	if(!collider->intersect(ray))
+	if (!collider->intersect(ray))
 	{
 		// ray left scene
-		if(environment)
+		if (environment)
 		{
 			RRVec3 irrad = environment->getElement(direction);
-			if(scaler) scaler->getPhysicalScale(irrad);
+			if (scaler) scaler->getPhysicalScale(irrad);
 			return visibility * irrad;
 		}
 		return Channels(0);
@@ -62,17 +62,17 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray->hitFrontSide?0:1];
 	Channels exitance = Channels(0);
-	if(side.legal && (side.catchFrom || side.emitTo))
+	if (side.legal && (side.catchFrom || side.emitTo))
 	{
 		// diffuse reflection + emission
-		if(side.emitTo)
+		if (side.emitTo)
 		{
 			// we admit we emit everything to both sides of 2sided face, thus doubling energy
 			// this behaviour will be probably changed later
 			//float splitToTwoSides = material->sideBits[ray->hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// diffuse reflection
-			if(gatherIndirectLight)
+			if (gatherIndirectLight)
 			{
 				// used in GI final gather
 				// point detail version
@@ -81,7 +81,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 				//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
 			}
 			// diffuse emission
-			if(gatherDirectEmitors)
+			if (gatherDirectEmitors)
 			{
 				// used in direct lighting final gather [per pixel emittance]
 				exitance += visibility * material->diffuseEmittance.color;// * splitToTwoSides;
@@ -90,8 +90,8 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		}
 
 		// specular reflection
-		if(side.reflect)
-		if(sum(abs(visibility*material->specularReflectance))>0.1)
+		if (side.reflect)
+		if (sum(abs(visibility*material->specularReflectance))>0.1)
 		{
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
@@ -103,8 +103,8 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		}
 
 		// specular transmittance
-		if(side.transmitFrom)
-		if(sum(abs(visibility*material->specularTransmittance.color))>0.1)
+		if (side.transmitFrom)
+		if (sum(abs(visibility*material->specularTransmittance.color))>0.1)
 		{
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;

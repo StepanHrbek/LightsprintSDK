@@ -24,14 +24,14 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 
 	unsigned size = width*height;
 	bool changed = false;
-	if(_wrap)
+	if (_wrap)
 	{
 		// faster version with wrap
 		#pragma omp parallel for schedule(static)
-		for(int i=0;i<(int)size;i++)
+		for (int i=0;i<(int)size;i++)
 		{
 			RRVec4 c = inputs[i];
-			if(c[3]>=1)
+			if (c[3]>=1)
 			{
 				outputs[i] = c;
 			}
@@ -58,10 +58,10 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 	{
 		// slower version without wrap
 		#pragma omp parallel for schedule(static)
-		for(int i=0;i<(int)size;i++)
+		for (int i=0;i<(int)size;i++)
 		{
 			RRVec4 c = inputs[i];
-			if(c[3]>=1)
+			if (c[3]>=1)
 			{
 				outputs[i] = c;
 			}
@@ -103,12 +103,12 @@ LightmapFilter::LightmapFilter(unsigned _width, unsigned _height)
 
 void LightmapFilter::renderTexelPhysical(const unsigned uv[2], const RRVec4& colorPhysical)
 {
-	if(uv[0]>=width)
+	if (uv[0]>=width)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if(uv[1]>=height)
+	if (uv[1]>=height)
 	{
 		RR_ASSERT(0);
 		return;
@@ -120,17 +120,17 @@ void LightmapFilter::renderTexelPhysical(const unsigned uv[2], const RRVec4& col
 RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringParameters* _params)
 {
 	RRDynamicSolver::FilteringParameters params;
-	if(_params) params = *_params;
+	if (_params) params = *_params;
 
 	unsigned numTexels = width*height;
 
-	if(!numRenderedTexels)
+	if (!numRenderedTexels)
 	{
-		if(width*height<=64*64 || width<=16 || height<=16)
+		if (width*height<=64*64 || width<=16 || height<=16)
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, low resolution(%dx%d) or bad unwrap (see RRMesh::getTriangleMapping)?\n",width,height);
 		else
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
-		for(int i=0;i<(int)numTexels;i++)
+		for (int i=0;i<(int)numTexels;i++)
 		{
 			renderedTexelsPhysical[i] = params.backgroundColor;
 		}
@@ -145,9 +145,9 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 	//   but prevents unwanted leaks from distant areas into low reliability areas)
 	// outputs: normalized rgb, alpha is always 0 or 1
 #pragma omp parallel for schedule(static)
-	for(int i=0;i<(int)numTexels;i++)
+	for (int i=0;i<(int)numTexels;i++)
 	{
-		if(renderedTexelsPhysical[i][3])
+		if (renderedTexelsPhysical[i][3])
 		{
 			renderedTexelsPhysical[i] /= renderedTexelsPhysical[i][3];
 		}
@@ -165,7 +165,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 	{
 		0,0xff0000ff,0xff00ff00,0xffff0000,0xffffff00,0xffff00ff,0xff00ffff,0xffffffff
 	};
-	for(unsigned i=0;i<numTexels;i++)
+	for (unsigned i=0;i<numTexels;i++)
 	{
 		renderedTexelsPhysical[i].color = diagColors[CLAMPED(renderedTexelsPhysical[i].color&255,0,7)];
 	}
@@ -178,7 +178,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 
 	// spread foreground color
 	bool changed = true;
-	for(unsigned pass=0;pass<params.spreadForegroundColor && changed;pass++)
+	for (unsigned pass=0;pass<params.spreadForegroundColor && changed;pass++)
 	{
 		filter(renderedTexelsPhysical,workspaceTexels,width,height,&changed,params.wrap);
 		filter(workspaceTexels,renderedTexelsPhysical,width,height,&changed,params.wrap);
@@ -188,19 +188,19 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 	RR_SAFE_DELETE_ARRAY(workspaceTexels);
 
 	// set background color
-	for(unsigned i=0;i<numTexels;i++)
+	for (unsigned i=0;i<numTexels;i++)
 	{
 		RRReal alpha = renderedTexelsPhysical[i][3];
-		if(params.smoothBackground)
+		if (params.smoothBackground)
 		{
-			if(alpha<1)
+			if (alpha<1)
 			{
 				renderedTexelsPhysical[i] = renderedTexelsPhysical[i] + params.backgroundColor*(1-alpha);
 			}
 		}
 		else
 		{
-			if(alpha<=0)
+			if (alpha<=0)
 			{
 				renderedTexelsPhysical[i] = params.backgroundColor;
 			}

@@ -141,41 +141,41 @@ trivial_vertex_tests(int nverts, const real verts[][3],
 	 * still be within the cube.
 	 */
 	cum_and = ~0L;  /* Set to all "1" bits */
-	if(already_know_verts_are_outside_cube) {
-		for(i=0; i<nverts; i++)
-			if(0L == (cum_and = face_plane(verts[i], cum_and)))
+	if (already_know_verts_are_outside_cube) {
+		for (i=0; i<nverts; i++)
+			if (0L == (cum_and = face_plane(verts[i], cum_and)))
 				break; /* No planes left to trivially reject */
 	}
 	else {
-		for(i=0; i<nverts; i++) {
+		for (i=0; i<nverts; i++) {
 			/* Note the ~0L mask below to always test all planes */
 			unsigned long face_bits = face_plane(verts[i], ~0L);
-			if(0L == face_bits)  /* vertex is inside the cube */
+			if (0L == face_bits)  /* vertex is inside the cube */
 				return 1; /* trivial accept */
 			cum_and &= face_bits;
 		}
 	}
-	if(cum_and != 0L)  /* All vertices outside some face plane. */
+	if (cum_and != 0L)  /* All vertices outside some face plane. */
 		return 0;  /* Trivial reject */
 
 	/*
 	 * Now do the just the trivial reject test against the 12 edge planes.
 	 */
 	cum_and = ~0L;  /* Set to all "1" bits */
-	for(i=0; i<nverts; i++)
-		if(0L == (cum_and = bevel_2d(verts[i], cum_and)))
+	for (i=0; i<nverts; i++)
+		if (0L == (cum_and = bevel_2d(verts[i], cum_and)))
 			break; /* No planes left that might trivially reject */
-	if(cum_and != 0L)  /* All vertices outside some edge plane. */
+	if (cum_and != 0L)  /* All vertices outside some edge plane. */
 		return 0;  /* Trivial reject */
 
 	/*
 	 * Now do the trivial reject test against the 8 corner planes.
 	 */
 	cum_and = ~0L;  /* Set to all "1" bits */
-	for(i=0; i<nverts; i++)
-		if(0L == (cum_and = bevel_3d(verts[i], cum_and)))
+	for (i=0; i<nverts; i++)
+		if (0L == (cum_and = bevel_3d(verts[i], cum_and)))
 			break; /* No planes left that might trivially reject */
-	if(cum_and != 0L)  /* All vertices outside some corner plane. */
+	if (cum_and != 0L)  /* All vertices outside some corner plane. */
 		return 0;  /* Trivial reject */
 
 	/*
@@ -203,7 +203,7 @@ fast_polygon_intersects_cube(int nverts, const real verts[][3],
 {
 	int quick_test = trivial_vertex_tests(nverts, verts,
 				already_know_verts_are_outside_cube);
-	if(-1 == quick_test)
+	if (-1 == quick_test)
 		return polygon_intersects_cube(nverts, verts, polynormal, 1,
 				already_know_edges_are_outside_cube);
 	else

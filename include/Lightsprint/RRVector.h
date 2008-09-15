@@ -57,7 +57,7 @@ public:
 	//! Does shallow copy at relocation (unlike std::vector).
 	void push_back(C a)
 	{
-		if(numUsed==numAllocated)
+		if (numUsed==numAllocated)
 		{
 			numAllocated *= 2;
 			c = (C*)std::realloc(c,sizeof(C)*numAllocated);
@@ -68,10 +68,10 @@ public:
 	//! Destructor is not called (unlike std::vector).
 	void erase(unsigned i)
 	{
-		if(numUsed)
+		if (numUsed)
 		{
 			numUsed--;
-			for(;i<numUsed;i++) c[i] = c[i+1];
+			for (;i<numUsed;i++) c[i] = c[i+1];
 		}
 	}
 	//! Returns number of elements in vector (like std::vector).

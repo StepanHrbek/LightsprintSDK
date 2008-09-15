@@ -38,7 +38,7 @@
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	if(gfxRelated)
+	if (gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -74,11 +74,11 @@ float                  speedLeft = 0;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	if(uberProgramSetup.LIGHT_DIRECT)
+	if (uberProgramSetup.LIGHT_DIRECT)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL);
 
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
+	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -86,17 +86,17 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 
 	// render dynamic objects
 	uberProgramSetup.OBJECT_SPACE = true; // enable object space
-	if(uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
+	if (uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70;
+	if (!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70;
 	// render objects
-	if(potato)
+	if (potato)
 	{
 		potato->worldFoot[0] = 2.2f*sin(rotation*0.005f);
 		potato->worldFoot[1] = 1.0f;
 		potato->worldFoot[2] = 2.2f;
-		if(uberProgramSetup.LIGHT_DIRECT)
+		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
@@ -107,12 +107,12 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		}
 		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation/2);
 	}
-	if(robot)
+	if (robot)
 	{
 		robot->worldFoot[0] = -1.83f;
 		robot->worldFoot[1] = 0;
 		robot->worldFoot[2] = -3;
-		if(uberProgramSetup.LIGHT_DIRECT)
+		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
@@ -149,13 +149,13 @@ void updateShadowmap(unsigned mapIndex)
 
 void display(void)
 {
-	if(!winWidth || !winHeight) return; // can't display without window
+	if (!winWidth || !winHeight) return; // can't display without window
 
 	// update shadowmaps
 	eye.update();
 	realtimeLight->getParent()->update();
 	unsigned numInstances = realtimeLight->getNumInstances();
-	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+	for (unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
@@ -216,24 +216,24 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		modeMovingEye = !modeMovingEye;
 }
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if(x || y)
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if(modeMovingEye)
+		if (modeMovingEye)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
@@ -255,20 +255,20 @@ void passive(int x, int y)
 
 void idle()
 {
-	if(!winWidth) return; // can't work without window
+	if (!winWidth) return; // can't work without window
 
 	// smooth keyboard movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
-		if(speedForward) cam->moveForward(speedForward*seconds);
-		if(speedBack) cam->moveBack(speedBack*seconds);
-		if(speedRight) cam->moveRight(speedRight*seconds);
-		if(speedLeft) cam->moveLeft(speedLeft*seconds);
+		if (speedForward) cam->moveForward(speedForward*seconds);
+		if (speedBack) cam->moveBack(speedBack*seconds);
+		if (speedRight) cam->moveRight(speedRight*seconds);
+		if (speedLeft) cam->moveLeft(speedLeft*seconds);
 	}
 	prev = now;
 
@@ -303,11 +303,11 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -328,7 +328,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	unsigned shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-	if(!shadowmapsPerPass) error("",true);
+	if (!shadowmapsPerPass) error("",true);
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
 	realtimeLight->setNumInstances(shadowmapsPerPass);
 
 	// init static .3ds scene
-	if(!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
 		error("",false);
 
 	// init dynamic objects

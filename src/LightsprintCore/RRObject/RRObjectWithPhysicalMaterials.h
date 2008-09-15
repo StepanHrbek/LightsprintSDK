@@ -43,12 +43,12 @@ public:
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		const RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);
-		if(!scaler || !custom)
+		if (!scaler || !custom)
 		{
 			return custom;
 		}
 		const Cache::const_iterator i = cache.find(custom);
-		if(i==cache.end())
+		if (i==cache.end())
 		{
 			// all materials should be stuffed into cache in update
 			// this could happen only if underlying RRObject returns
@@ -62,7 +62,7 @@ public:
 	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 	{
 		original->getPointMaterial(t,uv,out);
-		if(scaler)
+		if (scaler)
 		{
 			out.convertToPhysicalScale(scaler);
 		}
@@ -74,15 +74,15 @@ public:
 	}
 	virtual void update()
 	{
-		if(!scaler) return;
+		if (!scaler) return;
 		cache.erase(cache.begin(),cache.end());
 		RR_ASSERT(original->getCollider());
 		RR_ASSERT(original->getCollider()->getMesh());
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
-		for(unsigned i=0;i<numTriangles;i++)
+		for (unsigned i=0;i<numTriangles;i++)
 		{
 			const RRMaterial* custom = original->getTriangleMaterial(i,NULL,NULL);
-			if(custom && cache.find(custom)==cache.end())
+			if (custom && cache.find(custom)==cache.end())
 			{
 				RRMaterial physical;
 				convertToPhysical(*custom,physical);

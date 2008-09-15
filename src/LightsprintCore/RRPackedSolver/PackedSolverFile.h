@@ -48,10 +48,10 @@ public:
 	//
 	//! Size must be known in advance.
 	//! Filling scheme:
-	//! for(index1=0;index1<numC1;index1++)
+	//! for (index1=0;index1<numC1;index1++)
 	//! {
 	//!   newC1(index1);
-	//!   for(index2=0;index2<...;index2++) newC2();
+	//!   for (index2=0;index2<...;index2++) newC2();
 	//! }
 	//! newC1(numC1);
 	ArrayWithArrays(unsigned _numC1, unsigned _numC2)
@@ -64,7 +64,7 @@ public:
 	static ArrayWithArrays* load(const char* filename)
 	{
 		FILE* f = fopen(filename,"rb");
-		if(!f) return NULL;
+		if (!f) return NULL;
 		fseek(f,0,SEEK_END);
 		unsigned sizeInBytes = ftell(f);
 		char* data = new char[sizeInBytes];
@@ -76,9 +76,9 @@ public:
 	//! Saves instance to disk, returns success.
 	bool save(const char* filename) const
 	{
-		if(!data) return false;
+		if (!data) return false;
 		FILE* f = fopen(filename,"wb");
-		if(!f) return false;
+		if (!f) return false;
 		fwrite(data,sizeInBytes,1,f);
 		fclose(f);
 		return true;
@@ -318,7 +318,7 @@ public:
 	{
 		// create file
 		FILE* f = fopen(filename,"wb");
-		if(!f) return false;
+		if (!f) return false;
 		// write data with invalid header
 		Header header;
 		header.version = 0xffffffff;
@@ -330,7 +330,7 @@ public:
 		ok += fwrite(packedIvertices->getC1(0),packedIvertices->getMemoryOccupied(),1,f);
 		ok += fwrite(packedSmoothTriangles,packedSmoothTrianglesBytes,1,f);
 		// fix header
-		if(ok==4)
+		if (ok==4)
 		{
 			header.version = FIREBALL_STRUCTURE_VERSION;
 			fseek(f,0,SEEK_SET);
@@ -342,9 +342,9 @@ public:
 	static PackedSolverFile* load(const char* filename)
 	{
 		FILE* f = fopen(filename,"rb");
-		if(!f) return NULL;
+		if (!f) return NULL;
 		Header header;
-		if(fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION)
+		if (fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION)
 		{
 			fclose(f);
 			return NULL;
@@ -367,13 +367,13 @@ public:
 		psf->packedSmoothTrianglesBytes = header.packedSmoothTrianglesBytes;
 		// done
 		fclose(f);
-		if(ok!=3) RR_SAFE_DELETE(psf);
+		if (ok!=3) RR_SAFE_DELETE(psf);
 		return psf;
 	}
 	bool isCompatible(const RRObject* object) const
 	{
-		if(!object) return false;
-		if(packedSmoothTrianglesBytes/sizeof(PackedSmoothTriangle)!=object->getCollider()->getMesh()->getNumTriangles()) return false;
+		if (!object) return false;
+		if (packedSmoothTrianglesBytes/sizeof(PackedSmoothTriangle)!=object->getCollider()->getMesh()->getNumTriangles()) return false;
 		return true;
 	}
 	~PackedSolverFile()

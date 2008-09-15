@@ -65,7 +65,7 @@ public:
 	{
 		rawField = NULL;
 		rawCell = NULL;
-		for(unsigned i=0;i<256;i++)
+		for (unsigned i=0;i<256;i++)
 			customToPhysical[i] = (unsigned)pow(float(i),2.2222f);
 	}
 	virtual ~LightField()
@@ -76,20 +76,20 @@ public:
 
 	virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot)
 	{
-		if(!solver) return;
+		if (!solver) return;
 		RRReportInterval report(INF2,"Filling lightfield %d*%d*%d dif=%d spec=%d size=%d.%dM...\n",header.gridSize[0],header.gridSize[1],header.gridSize[2],header.diffuseSize,header.specularSize,header.fieldSize()/1024/1024,(header.fieldSize()*10/1024/1024)%10);
-		if(timeSlot>=header.gridSize[3])
+		if (timeSlot>=header.gridSize[3])
 		{
 			RRReporter::report(WARN,"timeSlot %d is out of valid range 0..%d\n",timeSlot,header.gridSize[3]);
 			return;
 		}
 		RRObjectIllumination objectIllum(0);
 		//objectIllum.gatherEnvMapSize = 32; // default 16 is usually good enough
-		if(header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,rr::BF_RGB,true,NULL);
-		if(header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,rr::BF_RGB,true,NULL);
-		for(unsigned k=0;k<header.gridSize[2];k++)
-		for(unsigned j=0;j<header.gridSize[1];j++)
-		for(unsigned i=0;i<header.gridSize[0];i++)
+		if (header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,rr::BF_RGB,true,NULL);
+		if (header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,rr::BF_RGB,true,NULL);
+		for (unsigned k=0;k<header.gridSize[2];k++)
+		for (unsigned j=0;j<header.gridSize[1];j++)
+		for (unsigned i=0;i<header.gridSize[0];i++)
 		{
 			// update single cell in objectIllum
 			objectIllum.envMapWorldCenter = RRVec3(header.aabbMin) + RRVec3(header.aabbSize) *
@@ -97,13 +97,13 @@ public:
 			solver->updateEnvironmentMap(&objectIllum);
 			// copy single cell to grid
 			unsigned cellIndex = i+header.gridSize[0]*(j+header.gridSize[1]*(k+timeSlot*header.gridSize[2]));
-			if(objectIllum.diffuseEnvMap)
+			if (objectIllum.diffuseEnvMap)
 			{
 				memcpy(rawField+cellIndex*header.diffuseSize*header.diffuseSize*6*3+cellIndex*header.specularSize*header.specularSize*6*3,
 					objectIllum.diffuseEnvMap->lock(BL_READ),header.diffuseSize*header.diffuseSize*6*3);
 				objectIllum.diffuseEnvMap->unlock();
 			}
-			if(objectIllum.specularEnvMap)
+			if (objectIllum.specularEnvMap)
 			{
 				memcpy(rawField+(cellIndex+1)*header.diffuseSize*header.diffuseSize*6*3+cellIndex*header.specularSize*header.specularSize*6*3,
 					objectIllum.specularEnvMap->lock(BL_READ),header.specularSize*header.specularSize*6*3);
@@ -111,13 +111,13 @@ public:
 			}
 			// report progress
 			enum {STEP=10000};
-			if((cellIndex%STEP)==STEP-1) RRReporter::report(INF3,"%d/%d\n",cellIndex/STEP+1,(header.gridSize[0]*header.gridSize[1]*header.gridSize[2])/STEP);
+			if ((cellIndex%STEP)==STEP-1) RRReporter::report(INF3,"%d/%d\n",cellIndex/STEP+1,(header.gridSize[0]*header.gridSize[1]*header.gridSize[2])/STEP);
 		}
 	}
 
 	virtual unsigned updateEnvironmentMap(RRObjectIllumination* object, RRReal time) const
 	{
-		if(!header.isOk() || !rawField || !rawCell || !object) return 0;
+		if (!header.isOk() || !rawField || !rawCell || !object) return 0;
 
 		// find cell in field (out of 16 cells that blend together, this one has minimal coords)
 		//                              min                     max
@@ -130,14 +130,14 @@ public:
 			(time                     -header.aabbMin.w)/header.aabbSize.w*(header.gridSize[3]-1) );
 		int cellCoordInt[4] = {int(cellCoordFloat[0]),int(cellCoordFloat[1]),int(cellCoordFloat[2]),int(cellCoordFloat[3])};
 		RRVec4 cellCoordFraction = cellCoordFloat-RRVec4(RRReal(cellCoordInt[0]),RRReal(cellCoordInt[1]),RRReal(cellCoordInt[2]),RRReal(cellCoordInt[3]));
-		for(unsigned i=0;i<4;i++)
+		for (unsigned i=0;i<4;i++)
 		{
-			if(cellCoordInt[i]<0 || cellCoordFraction[i]<0) {cellCoordInt[i]=0;cellCoordFraction[i]=0;}
-			if(cellCoordInt[i]>=(int)header.gridSize[i]-1) {cellCoordInt[i]=header.gridSize[i]-1;cellCoordFraction[i]=0;}
+			if (cellCoordInt[i]<0 || cellCoordFraction[i]<0) {cellCoordInt[i]=0;cellCoordFraction[i]=0;}
+			if (cellCoordInt[i]>=(int)header.gridSize[i]-1) {cellCoordInt[i]=header.gridSize[i]-1;cellCoordFraction[i]=0;}
 		}
 
 		// blend it with neighbour cells
-		if(header.gridSize[3]==1)
+		if (header.gridSize[3]==1)
 		{
 			// faster 3D blend
 			unsigned cellSize = header.cellSize();
@@ -145,12 +145,12 @@ public:
 			unsigned cellIndex = cellCoordInt[0]+cellCoordInt[1]*header.gridSize[0]+cellCoordInt[2]*header.gridSize[0]*header.gridSize[1];
 			unsigned cellOffset[8];
 			unsigned cellWeight[8];
-			for(unsigned i=0;i<8;i++)
+			for (unsigned i=0;i<8;i++)
 			{
 				cellOffset[i] = cellSize*(( cellIndex+(i&1)+((i>>1)&1)*header.gridSize[0]+((i>>2)&1)*header.gridSize[0]*header.gridSize[1] )%numFields);
 				cellWeight[i] = unsigned( 8192 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) );
 			}
-			for(unsigned i=0;i<cellSize;i++)
+			for (unsigned i=0;i<cellSize;i++)
 			{
 				rawCell[i] = (unsigned)pow(float((
 					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
@@ -171,7 +171,7 @@ public:
 			unsigned cellIndex = cellCoordInt[0]+header.gridSize[0]*(cellCoordInt[1]+header.gridSize[1]*(cellCoordInt[2]+header.gridSize[2]*cellCoordInt[3]));
 			unsigned cellOffset[16];
 			unsigned cellWeight[16];
-			for(unsigned i=0;i<16;i++)
+			for (unsigned i=0;i<16;i++)
 			{
 				cellOffset[i] =
 					cellSize*((
@@ -187,7 +187,7 @@ public:
 					)%numFields);
 				cellWeight[i] = unsigned( 8192 * ((i&1)?cellCoordFraction[0]:1-cellCoordFraction[0]) * ((i&2)?cellCoordFraction[1]:1-cellCoordFraction[1]) * ((i&4)?cellCoordFraction[2]:1-cellCoordFraction[2]) * ((i&8)?cellCoordFraction[3]:1-cellCoordFraction[3]) );
 			}
-			for(unsigned i=0;i<cellSize;i++)
+			for (unsigned i=0;i<cellSize;i++)
 			{
 				rawCell[i] = (unsigned)pow(float((
 					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
@@ -211,12 +211,12 @@ public:
 
 		// copy into buffers
 		unsigned numUpdates = 0;
-		if(object->diffuseEnvMap && header.diffuseSize)
+		if (object->diffuseEnvMap && header.diffuseSize)
 		{
 			object->diffuseEnvMap->reset(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,BF_RGB,true,rawCell);
 			numUpdates++;
 		}
-		if(object->specularEnvMap && header.specularSize)
+		if (object->specularEnvMap && header.specularSize)
 		{
 			object->specularEnvMap->reset(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,BF_RGB,true,rawCell+header.diffuseSize*header.diffuseSize*6*3);
 			numUpdates++;
@@ -244,10 +244,10 @@ public:
 	bool reload(const char* filename)
 	{
 		bool success = false;
-		if(filename)
+		if (filename)
 		{
 			FILE* f = fopen(filename,"rb");
-			if(f)
+			if (f)
 			{
 				success = fread(&header,sizeof(header),1,f) && header.isOk() && reallocData() && fread(rawField,header.fieldSize(),1,f);
 				fclose(f);
@@ -259,10 +259,10 @@ public:
 	virtual bool save(const char* filename) const
 	{
 		bool success = false;
-		if(filename && header.isOk() && rawField)
+		if (filename && header.isOk() && rawField)
 		{
 			FILE* f = fopen(filename,"wb");
-			if(f)
+			if (f)
 			{
 				success = fwrite(&header,sizeof(header),1,f) && fwrite(rawField,header.fieldSize(),1,f);
 				fclose(f);
@@ -293,7 +293,7 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 	lightField->header.gridSize[3] = numTimeSlots;
 	lightField->header.diffuseSize = diffuseSize;
 	lightField->header.specularSize = specularSize;
-	if(!lightField->reallocData())
+	if (!lightField->reallocData())
 	{
 		delete lightField;
 		return NULL;
@@ -304,7 +304,7 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 RRLightField* RRLightField::load(const char* filename)
 {
 	LightField* lightField = new LightField();
-	if(!lightField->reload(filename))
+	if (!lightField->reload(filename))
 	{
 		RR_SAFE_DELETE(lightField);
 	}

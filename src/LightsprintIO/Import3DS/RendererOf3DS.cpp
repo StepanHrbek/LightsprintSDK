@@ -27,7 +27,7 @@ const void* RendererOf3DS::getParams(unsigned& length) const
 
 void RendererOf3DS::render()
 {
-	if(model)
+	if (model)
 	{
 		// warning: setting for lit, diffuse map, no emissive map is selected here
 		model->Draw(NULL,lit,texturedDiffuse,texturedEmissive,NULL,NULL);

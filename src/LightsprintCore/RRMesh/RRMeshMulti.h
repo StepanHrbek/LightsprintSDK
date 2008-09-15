@@ -29,7 +29,7 @@ public:
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh
 	{
-		if(!mesh)
+		if (!mesh)
 		{
 			RR_ASSERT(0);
 			return NULL;
@@ -53,11 +53,11 @@ public:
 		//!!! check equality at construction time
 		unsigned itemSizeLocal = 0;
 		singles[0].mesh->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if(itemSize) *itemSize = itemSizeLocal;
+		if (itemSize) *itemSize = itemSizeLocal;
 		// Now we know object[0] properties.
 		// But whole multiobject has more objects, we must correct *numItems.
 		// If channels exists...
-		if(itemSizeLocal)
+		if (itemSizeLocal)
 		{
 			// ...let's skip adding all objects, use known sum.
 			switch(channelId&0x7ffff000)
@@ -142,7 +142,7 @@ public:
 		RR_ASSERT(postImportVertex<numVerticesMulti);
 		RR_ASSERT(postImportToMidImportVertex[postImportVertex].object<numSingles);
 		PreImportNumber preImportSingle = singles[postImportToMidImportVertex[postImportVertex].object].mesh->getPreImportVertex(postImportToMidImportVertex[postImportVertex].index,postImportToMidImportTriangle[postImportTriangle].index);
-		if(preImportSingle.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
+		if (preImportSingle.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
 		PreImportNumber preImportMulti;
 		preImportMulti.object = postImportToMidImportVertex[postImportVertex].object;
 		preImportMulti.index = preImportSingle.index;
@@ -155,7 +155,7 @@ public:
 		RR_ASSERT(preImportV.object<numSingles);
 		RR_ASSERT(preImportT.object<numSingles);
 		unsigned midImportVertex = singles[preImportV.object].mesh->getPostImportVertex(PreImportNumber(0,preImportV.index),PreImportNumber(0,preImportT.index));
-		if(midImportVertex==UNDEFINED) return UNDEFINED;
+		if (midImportVertex==UNDEFINED) return UNDEFINED;
 		return singles[preImportV.object].numVerticesBefore+midImportVertex;
 	}
 	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
@@ -163,7 +163,7 @@ public:
 		RR_ASSERT(postImportTriangle<numTrianglesMulti);
 		RR_ASSERT(postImportToMidImportTriangle[postImportTriangle].object<numSingles);
 		PreImportNumber preImportSingle = singles[postImportToMidImportTriangle[postImportTriangle].object].mesh->getPreImportTriangle(postImportToMidImportTriangle[postImportTriangle].index);
-		if(preImportSingle.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
+		if (preImportSingle.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
 		PreImportNumber preImportMulti;
 		preImportMulti.object = postImportToMidImportTriangle[postImportTriangle].object;
 		preImportMulti.index = preImportSingle.index;
@@ -174,7 +174,7 @@ public:
 		PreImportNumber preImport = preImportTriangle;
 		RR_ASSERT(preImport.object<numSingles);
 		unsigned midImportTriangle = singles[preImport.object].mesh->getPostImportTriangle(PreImportNumber(0,preImport.index));
-		if(midImportTriangle==UNDEFINED) return UNDEFINED;
+		if (midImportTriangle==UNDEFINED) return UNDEFINED;
 		return singles[preImport.object].numTrianglesBefore+midImportTriangle;
 	}
 
@@ -193,7 +193,7 @@ private:
 		singles = new Single[numSingles];
 		numTrianglesMulti = 0;
 		numVerticesMulti = 0;
-		for(unsigned i=0;i<_numMeshes;i++)
+		for (unsigned i=0;i<_numMeshes;i++)
 		{
 			singles[i].mesh = _meshes[i];
 			singles[i].numTrianglesBefore = numTrianglesMulti;
@@ -205,19 +205,19 @@ private:
 		postImportToMidImportVertex = new PreImportNumber[numVerticesMulti];
 		unsigned numTrianglesInserted = 0;
 		unsigned numVerticesInserted = 0;
-		for(unsigned i=0;i<_numMeshes;i++)
+		for (unsigned i=0;i<_numMeshes;i++)
 		{
-			if(singles[i].mesh)
+			if (singles[i].mesh)
 			{
 				unsigned numTrianglesSingle = singles[i].mesh->getNumTriangles();
-				for(unsigned j=0;j<numTrianglesSingle;j++)
+				for (unsigned j=0;j<numTrianglesSingle;j++)
 				{
 					postImportToMidImportTriangle[numTrianglesInserted].object = i;
 					postImportToMidImportTriangle[numTrianglesInserted].index = j;
 					numTrianglesInserted++;
 				}
 				unsigned numVerticesSingle = singles[i].mesh->getNumVertices();
-				for(unsigned j=0;j<numVerticesSingle;j++)
+				for (unsigned j=0;j<numVerticesSingle;j++)
 				{
 					postImportToMidImportVertex[numVerticesInserted].object = i;
 					postImportToMidImportVertex[numVerticesInserted].index = j;
@@ -258,7 +258,7 @@ public:
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh
 	{
-		if(!mesh)
+		if (!mesh)
 		{
 			RR_ASSERT(0);
 			return NULL;
@@ -284,11 +284,11 @@ public:
 		//!!! check equality at construction time
 		unsigned itemSizeLocal = 0;
 		pack[0].getMesh()->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if(itemSize) *itemSize = itemSizeLocal;
+		if (itemSize) *itemSize = itemSizeLocal;
 		// Now we know object[0] properties.
 		// But whole multiobject has more objects, we must correct *numItems.
 		// If channels exists...
-		if(itemSizeLocal)
+		if (itemSizeLocal)
 		{
 			// ...let's skip adding all objects, use known sum.
 			switch(channelId&0x7ffff000)
@@ -319,7 +319,7 @@ public:
 			default:
 				return false;
 		}
-		if(itemIndex<pack0Items)
+		if (itemIndex<pack0Items)
 			return pack[0].getMesh()->getChannelData(channelId,itemIndex,itemData,itemSize);
 		else
 			return pack[1].getMesh()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
@@ -332,7 +332,7 @@ public:
 	}
 	virtual void         getVertex(unsigned v, Vertex& out) const
 	{
-		if(v<pack[0].getNumVertices()) 
+		if (v<pack[0].getNumVertices()) 
 			pack[0].getMesh()->getVertex(v,out);
 		else
 			pack[1].getMesh()->getVertex(v-pack[0].getNumVertices(),out);
@@ -345,7 +345,7 @@ public:
 	}
 	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
-		if(t<pack[0].getNumTriangles()) 
+		if (t<pack[0].getNumTriangles()) 
 			pack[0].getMesh()->getTriangle(t,out);
 		else
 		{
@@ -358,7 +358,7 @@ public:
 
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
-		if(t<pack[0].getNumTriangles()) 
+		if (t<pack[0].getNumTriangles()) 
 			pack[0].getMesh()->getTriangleNormals(t,out);
 		else
 			pack[1].getMesh()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
@@ -366,7 +366,7 @@ public:
 	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
 		// warning: all mappings overlap
-		if(t<pack[0].getNumTriangles()) 
+		if (t<pack[0].getNumTriangles()) 
 			pack[0].getMesh()->getTriangleMapping(t,out);
 		else
 			pack[1].getMesh()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
@@ -379,13 +379,13 @@ public:
 
 	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
-		if(postImportVertex<pack[0].getNumVertices()) 
+		if (postImportVertex<pack[0].getNumVertices()) 
 		{
 			return pack[0].getMesh()->getPreImportVertex(postImportVertex, postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getMesh()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
-			if(preImport.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
-			if(preImport.object>=pack[1].getNumObjects())
+			if (preImport.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
+			if (preImport.object>=pack[1].getNumObjects())
 			{
 				RR_ASSERT(0); // internal error
 				return PreImportNumber(UNDEFINED,UNDEFINED);
@@ -398,36 +398,36 @@ public:
 	{
 		PreImportNumber preImportV = preImportVertex;
 		PreImportNumber preImportT = preImportTriangle;
-		if(preImportV.object<pack[0].getNumObjects()) 
+		if (preImportV.object<pack[0].getNumObjects()) 
 		{
 			return pack[0].getMesh()->getPostImportVertex(preImportV, preImportT);
 		} else {
 			preImportV.object -= pack[0].getNumObjects();
 			preImportT.object -= pack[0].getNumObjects();
-			if(preImportV.object>=pack[1].getNumObjects()) 
+			if (preImportV.object>=pack[1].getNumObjects()) 
 			{
 				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
-			if(preImportT.object>=pack[1].getNumObjects()) 
+			if (preImportT.object>=pack[1].getNumObjects()) 
 			{
 				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
 			unsigned tmp = pack[1].getMesh()->getPostImportVertex(preImportV, preImportT);
-			if(tmp==UNDEFINED) return UNDEFINED;
+			if (tmp==UNDEFINED) return UNDEFINED;
 			return pack[0].getNumVertices() + tmp;
 		}
 	}
 	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
 	{
-		if(postImportTriangle<pack[0].getNumTriangles()) 
+		if (postImportTriangle<pack[0].getNumTriangles()) 
 		{
 			return pack[0].getMesh()->getPreImportTriangle(postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getMesh()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
-			if(preImport.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
-			if(preImport.object>=pack[1].getNumObjects())
+			if (preImport.index==UNDEFINED) return PreImportNumber(UNDEFINED,UNDEFINED);
+			if (preImport.object>=pack[1].getNumObjects())
 			{
 				RR_ASSERT(0); // internal error
 				return PreImportNumber(UNDEFINED,UNDEFINED);
@@ -439,18 +439,18 @@ public:
 	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const 
 	{
 		PreImportNumber preImport = preImportTriangle;
-		if(preImport.object<pack[0].getNumObjects()) 
+		if (preImport.object<pack[0].getNumObjects()) 
 		{
 			return pack[0].getMesh()->getPostImportTriangle(preImport);
 		} else {
 			preImport.object -= pack[0].getNumObjects();
-			if(preImport.object>=pack[1].getNumObjects()) 
+			if (preImport.object>=pack[1].getNumObjects()) 
 			{
 				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
 			unsigned tmp = pack[1].getMesh()->getPostImportTriangle(preImport);
-			if(tmp==UNDEFINED) 
+			if (tmp==UNDEFINED) 
 			{
 				return UNDEFINED;
 			}
@@ -462,8 +462,8 @@ public:
 	{
 		// Never delete lowest level of tree = input importers.
 		// Delete only higher levels = multi mesh importers created by our create().
-		if(pack[0].getNumObjects()>1) delete pack[0].getMesh();
-		if(pack[1].getNumObjects()>1) delete pack[1].getMesh();
+		if (pack[0].getNumObjects()>1) delete pack[0].getMesh();
+		if (pack[1].getNumObjects()>1) delete pack[1].getMesh();
 	}
 private:
 	RRMeshMultiSmall(const RRMesh* mesh1, unsigned mesh1Objects, const RRMesh* mesh2, unsigned mesh2Objects)

@@ -74,7 +74,7 @@ struct ProcessTexelResult
 	RRVec4 bentNormal; // alpha = 0|1
 	ProcessTexelResult()
 	{
-		for(unsigned i=0;i<NUM_LIGHTMAPS;i++) irradiancePhysical[i] = RRVec4(0);
+		for (unsigned i=0;i<NUM_LIGHTMAPS;i++) irradiancePhysical[i] = RRVec4(0);
 		bentNormal = RRVec4(0);
 	}
 };
@@ -107,19 +107,19 @@ public:
 	}
 	~GatheredPerTriangleData()
 	{
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			delete[] data[i];
 	}
 	void store(unsigned triangleNumber, const ProcessTexelResult& a) const
 	{
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
-			if(data[i])
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
+			if (data[i])
 				data[i][triangleNumber] = a.irradiancePhysical[i];
 	}
 protected:
 	GatheredPerTriangleData()
 	{
-		for(unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			data[i] = NULL;
 	}
 };

@@ -88,27 +88,27 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 			//   8x8 for others
 			detectionQuality = DDI_8X8;
 			char* renderer = (char*)glGetString(GL_RENDERER);
-			if(renderer)
+			if (renderer)
 			{
 				// find 4digit number
 				unsigned number = 0;
 				#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-				for(unsigned i=0;renderer[i];i++)
-					if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+				for (unsigned i=0;renderer[i];i++)
+					if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
 					{
 						number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
 						break;
 					}
 					else
-					if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
+					if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
 					{
 						number = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
 						break;
 					}
 
-				if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500) ) detectionQuality = DDI_4X4; // fixes X300
-				//if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<6000) ) detectionQuality = DDI_4X4; // never tested
-				if( strstr(renderer,"FireGL") ) detectionQuality = DDI_4X4; // fixes FireGL 3200
+				if ( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500) ) detectionQuality = DDI_4X4; // fixes X300
+				//if ( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<6000) ) detectionQuality = DDI_4X4; // never tested
+				if ( strstr(renderer,"FireGL") ) detectionQuality = DDI_4X4; // fixes FireGL 3200
 			}
 			break;
 		}
@@ -126,7 +126,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	char buf3[100];
 	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY);
 	scaleDownProgram = Program::create(buf3,buf1,buf2);
-	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
+	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
@@ -143,12 +143,12 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
 {
-	for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
+	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	delete[] detectedDirectSum;
 	delete rendererCaching;
 	delete rendererNonCaching;
 	delete scaleDownProgram;
-	if(detectBigMap) delete detectBigMap->getBuffer();
+	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
 	delete captureUv;
 	delete uberProgram1;
@@ -158,11 +158,11 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 {
 	// create realtime lights
 	RRDynamicSolver::setLights(_lights);
-	for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
+	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	realtimeLights.clear();
-	for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
+	for (unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
 	// reset detected direct lighting
-	if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
 void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRDynamicSolver* copyFrom)
@@ -181,59 +181,59 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 	unsigned numTrianglesWithNonDifMapATransp = 0;
 	unsigned numTrianglesWithTranspBlend = 0;
 	unsigned numTrianglesWithTranspKeyed = 0;
-	if(getMultiObjectCustom())
+	if (getMultiObjectCustom())
 	{
 		unsigned numTrianglesMulti = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-		for(unsigned t=0;t<numTrianglesMulti;t++)
+		for (unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			const rr::RRMaterial* material = getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
-			if(material)
+			if (material)
 			{
 				// dif
-				if(material->diffuseReflectance.texture)
+				if (material->diffuseReflectance.texture)
 				{
 					numTrianglesWithDifMap++;
 				}
 				else
-				if(material->diffuseReflectance.color!=rr::RRVec3(0))
+				if (material->diffuseReflectance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithDifConst++;
 				}
 
 				// spec
-				if(material->specularReflectance!=0)
+				if (material->specularReflectance!=0)
 				{
 					numTrianglesWithSpecConst++;
 				}
 
 				// emi
-				if(material->diffuseEmittance.texture)
+				if (material->diffuseEmittance.texture)
 				{
 					numTrianglesWithEmiMap++;
 				}
 				else
-				if(material->diffuseEmittance.color!=rr::RRVec3(0))
+				if (material->diffuseEmittance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithEmiConst++;
 				}
 
 				// transp
-				if(material->specularTransmittance.texture)
+				if (material->specularTransmittance.texture)
 				{
-					if(material->specularTransmittance.texture==material->diffuseReflectance.texture)
+					if (material->specularTransmittance.texture==material->diffuseReflectance.texture)
 						numTrianglesWithDifMapATransp++;
 					else 
-					if(material->specularTransmittanceInAlpha)
+					if (material->specularTransmittanceInAlpha)
 						numTrianglesWithNonDifMapATransp++;
 					else 
 						numTrianglesWithMapRGBTransp++;
-					if(material->specularTransmittanceKeyed)
+					if (material->specularTransmittanceKeyed)
 						numTrianglesWithTranspKeyed++;
 					else
 						numTrianglesWithTranspBlend++;
 				}
 				else
-				if(material->specularTransmittance.color!=rr::RRVec3(0))
+				if (material->specularTransmittance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithConstTransp++;
 					numTrianglesWithTranspBlend++;
@@ -256,11 +256,11 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 	materialsInStaticScene.MATERIAL_EMISSIVE_CONST = numTrianglesWithEmiConst>0 && numTrianglesWithEmiMap==0;
 
 	// transp
-	if(numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
+	if (numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
 	{
 		//LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
 	}
-	if(numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
+	if (numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
 	{
 		// transparency mostly in rgb map
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
@@ -268,7 +268,7 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 	}
 	else
-	if(numTrianglesWithNonDifMapATransp>0)
+	if (numTrianglesWithNonDifMapATransp>0)
 	{
 		// transparency mostly in a map
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
@@ -276,7 +276,7 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 	}
 	else
-	if(numTrianglesWithDifMapATransp>0)
+	if (numTrianglesWithDifMapATransp>0)
 	{
 		// transparency mostly in a of diffuse map
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 0;
@@ -284,7 +284,7 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 	}
 	else
-	if(numTrianglesWithConstTransp>0)
+	if (numTrianglesWithConstTransp>0)
 	{
 		// transparency mostly constant
 		materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST = 1;
@@ -319,17 +319,17 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 
 	// early exit if quality=0
 	// used in "no radiosity" part of Lightsmark
-	if(params.qualityIndirectDynamic==0) return;
+	if (params.qualityIndirectDynamic==0) return;
 
 	// detect only dirty lights
-	if(realtimeLights.size())
+	if (realtimeLights.size())
 	{
 		bool dirtyGI = false;
-		for(unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
-		if(dirtyGI)
+		for (unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
+		if (dirtyGI)
 		{
 			double now = GETSEC;
-			if(fabs(now-lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
+			if (fabs(now-lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
 			{
 				lastDDITime = now;
 				setDirectIllumination(detectDirectIllumination());
@@ -348,42 +348,42 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 
 void RRDynamicSolverGL::updateShadowmaps()
 {
-	if(!getMultiObjectCustom()) return;
+	if (!getMultiObjectCustom()) return;
 
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
 	// after camera change, dirty travelling lights
-	if(observer && observer->pos!=oldObserverPos)
+	if (observer && observer->pos!=oldObserverPos)
 	{
 		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
 		oldObserverPos = observer->pos;
-		for(unsigned i=0;i<realtimeLights.size();i++)
-			if(realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
+		for (unsigned i=0;i<realtimeLights.size();i++)
+			if (realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
 			{
 				// dirty shadowmap always
 				realtimeLights[i]->dirtyShadowmap = true;
 				// dirty GI only when observer moved too far
 				// (direct illum is detected and indirect calculated only in orthoSize*orthoSize range around observer,
 				//  so when observer moves far enough, we redetect direct illum automatically)
-				if((observer->pos-realtimeLights[i]->positionOfLastDDI).length()>realtimeLights[i]->getParent()->orthoSize/4)
+				if ((observer->pos-realtimeLights[i]->positionOfLastDDI).length()>realtimeLights[i]->getParent()->orthoSize/4)
 				{
 					realtimeLights[i]->dirtyGI = true;
 				}
 			}
 	}
 
-	for(unsigned i=0;i<realtimeLights.size();i++)
+	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		RealtimeLight* light = realtimeLights[i];
-		if(!light)
+		if (!light)
 		{
 			RR_ASSERT(0);
 			continue;
 		}
 
 		// update dirlight position
-		if(light->getParent()->orthogonal && light->getNumInstances())
+		if (light->getParent()->orthogonal && light->getNumInstances())
 		{
 			Texture* shadowmap = light->getShadowMap(0);
 			light->getParent()->update(observer,MIN(shadowmap->getBuffer()->getWidth(),shadowmap->getBuffer()->getHeight()));
@@ -393,16 +393,16 @@ void RRDynamicSolverGL::updateShadowmaps()
 
 		// sync RRLight pos/dir with realtimeLight pos/dir
 		// (not necessary for us, but user might want to calculate offline later and he would be surprised that RRLight is at old position while he moved RealtimeLight)
-		if(getLights().size()>i && getLights()[i])
+		if (getLights().size()>i && getLights()[i])
 		{
-			//if(getLights()[i]->position != light->getParent()->pos) rr::RRReporter::report(rr::INF1,"Changing light[%d].pos from %f %f %f to %f %f %f.\n",i,getLights()[i]->position[0],getLights()[i]->position[1],getLights()[i]->position[2],light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
+			//if (getLights()[i]->position != light->getParent()->pos) rr::RRReporter::report(rr::INF1,"Changing light[%d].pos from %f %f %f to %f %f %f.\n",i,getLights()[i]->position[0],getLights()[i]->position[1],getLights()[i]->position[2],light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
 			getLights()[i]->position = light->getParent()->pos;
-			//if(getLights()[i]->direction != light->getParent()->dir) rr::RRReporter::report(rr::INF1,"Changing light[%d].dir from %f %f %f to %f %f %f.\n",i,getLights()[i]->direction[0],getLights()[i]->direction[1],getLights()[i]->direction[2],light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);
+			//if (getLights()[i]->direction != light->getParent()->dir) rr::RRReporter::report(rr::INF1,"Changing light[%d].dir from %f %f %f to %f %f %f.\n",i,getLights()[i]->direction[0],getLights()[i]->direction[1],getLights()[i]->direction[2],light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);
 			getLights()[i]->direction = light->getParent()->dir;
 		}
 
 		// update shadowmap[s]
-		if(light->dirtyShadowmap)
+		if (light->dirtyShadowmap)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
@@ -430,7 +430,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				default:
 					RR_ASSERT(0);
 			}
-			for(unsigned i=0;i<light->getNumInstances();i++)
+			for (unsigned i=0;i<light->getNumInstances();i++)
 			{
 				Camera* lightInstance = light->getInstance(i);
 				lightInstance->setupForRender();
@@ -439,7 +439,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				float bias = 1.f*light->getNumShadowSamples(i);
 				glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
-				if(!shadowmap->renderingToBegin())
+				if (!shadowmap->renderingToBegin())
 				{
 					// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
 					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed.\n"));
@@ -452,7 +452,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);
-			if(light->getNumInstances())
+			if (light->getNumInstances())
 				light->getShadowMap(0)->renderingToEnd();
 		}
 	}
@@ -460,15 +460,15 @@ void RRDynamicSolverGL::updateShadowmaps()
 
 const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 {
-	if(!getMultiObjectCustom()) return NULL;
+	if (!getMultiObjectCustom()) return NULL;
 	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-	if(!numTriangles) return NULL;
+	if (!numTriangles) return NULL;
 
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
 	// alloc space for detected direct illum
-	if(numTriangles!=detectedNumTriangles)
+	if (numTriangles!=detectedNumTriangles)
 	{
 		delete[] detectedDirectSum;
 		detectedNumTriangles = numTriangles;
@@ -478,15 +478,15 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 
 	// update smallMapsCPU
 	unsigned updatedSmallMaps = 0;
-	for(unsigned i=0;i<realtimeLights.size();i++)
+	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		RealtimeLight* light = realtimeLights[i];
-		if(!light)
+		if (!light)
 		{
 			RR_ASSERT(0);
 			continue;
 		}
-		if(numTriangles!=light->numTriangles)
+		if (numTriangles!=light->numTriangles)
 		{
 			delete[] light->smallMapCPU;
 			light->numTriangles = numTriangles;
@@ -495,30 +495,30 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		}
 
 		// update smallmap
-		if(light->dirtyGI)
+		if (light->dirtyGI)
 		{
 			light->dirtyGI = false;
-			if(observer) light->positionOfLastDDI = observer->pos;
+			if (observer) light->positionOfLastDDI = observer->pos;
 			setupShaderLight = light;
 			updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
 		}
 	}
 
 	// sum smallMapsCPU into detectedDirectSum
-	if(updatedSmallMaps && realtimeLights.size()>1)
+	if (updatedSmallMaps && realtimeLights.size()>1)
 	{
 		unsigned numLights = realtimeLights.size();
 #pragma omp parallel for
-		for(int b=0;b<(int)numTriangles*4;b++)
+		for (int b=0;b<(int)numTriangles*4;b++)
 		{
 			unsigned sum = 0;
-			for(unsigned l=0;l<numLights;l++)
+			for (unsigned l=0;l<numLights;l++)
 				sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
 			((unsigned char*)detectedDirectSum)[b] = CLAMPED(sum,0,255);
 		}
 	}
 
-	if(realtimeLights.size()==1) return realtimeLights[0]->smallMapCPU;
+	if (realtimeLights.size()==1) return realtimeLights[0]->smallMapCPU;
 	return detectedDirectSum;
 }
 
@@ -538,7 +538,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.FORCE_2D_POSITION = true;
 	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1);
-	if(!program)
+	if (!program)
 	{
 		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
 	}
@@ -547,7 +547,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 
 unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsigned _space)
 {
-	if(!scaleDownProgram || !_results)
+	if (!scaleDownProgram || !_results)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -556,7 +556,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	REPORT(rr::RRReportInterval report(rr::INF1,"detectDirectIllumination()\n"));
 
 	// update renderer after geometry change
-	if(getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
+	if (getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
 	{
 		// delete old renderer
 		RR_SAFE_DELETE(rendererCaching);
@@ -564,17 +564,17 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		// create new renderer
 		// for empty scene, stay without renderer
 		rendererObject = getMultiObjectCustom();
-		if(rendererObject)
+		if (rendererObject)
 		{
 			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this,getScaler(),true);
 			rendererCaching = rendererNonCaching->createDisplayList();
 		}
 	}
-	if(!rendererObject) return 0;
+	if (!rendererObject) return 0;
 
 	const rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
-	if(!numTriangles)
+	if (!numTriangles)
 	{
 		RR_ASSERT(0); // legal, but should not happen in well coded program
 		return 0;
@@ -597,12 +597,12 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 	captureUv->triCountX = BIG_MAP_SIZEX/faceSizeX; // number of triangles in one row
 	captureUv->triCountY = BIG_MAP_SIZEY/faceSizeY; // number of triangles in one column
-	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
+	while (captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZEX; // used width in pixels
 	unsigned height = captureUv->triCountY*faceSizeY; // used height in pixels
 
 	// for each set of triangles (if all triangles don't fit into one texture)
-	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
+	for (captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
 		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
 
@@ -610,7 +610,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		//  unused space is located at the end of last readback buffer (last iteration of this for cycle)
 		//  without this code, we would read it back, but it could be too long (e.g. 2.5K) for our _results buffer
 		//  with this code, we reduce unused space read back to less than 1 line (that fits in our safety 2K buffer)
-		while(captureUv->triCountY && captureUv->triCountX*(captureUv->triCountY-1)>=captureUv->lastCapturedTrianglePlus1-captureUv->firstCapturedTriangle) captureUv->triCountY--;
+		while (captureUv->triCountY && captureUv->triCountX*(captureUv->triCountY-1)>=captureUv->lastCapturedTrianglePlus1-captureUv->firstCapturedTriangle) captureUv->triCountY--;
 
 		// prepare for scaling down -> render to texture
 		detectBigMap->renderingToBegin();
@@ -634,7 +634,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererNonCaching->setLightingShadowingFlags(NULL,setupShaderLight->origin);
 		glDisable(GL_CULL_FACE);
-		if(renderedChannels.LIGHT_INDIRECT_MAP)
+		if (renderedChannels.LIGHT_INDIRECT_MAP)
 			rendererNonCaching->render();
 		else
 			rendererCaching->render();
@@ -673,7 +673,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 
 void drawCamera(Camera* camera)
 {
-	if(camera)
+	if (camera)
 	{
 		glPushMatrix();
 		glMultMatrixd(camera->inverseViewMatrix);
@@ -711,8 +711,8 @@ void drawCamera(Camera* camera)
 
 void drawRealtimeLight(RealtimeLight* light)
 {
-	if(light)
-		for(unsigned i=0;i<light->getNumInstances();i++)
+	if (light)
+		for (unsigned i=0;i<light->getNumInstances();i++)
 		{
 			Camera* camera = light->getInstance(i);
 			drawCamera(camera);
@@ -726,7 +726,7 @@ void RRDynamicSolverGL::renderLights()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
 	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,0,NULL,1);
-	for(unsigned i=0;i<getLights().size();i++)
+	for (unsigned i=0;i<getLights().size();i++)
 	{
 		drawRealtimeLight(realtimeLights[i]);
 	}
@@ -735,9 +735,9 @@ void RRDynamicSolverGL::renderLights()
 unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination)
 {
 	unsigned updated = rr::RRDynamicSolver::updateEnvironmentMap(illumination);
-	if(illumination->diffuseEnvMap)
+	if (illumination->diffuseEnvMap)
 		getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
-	if(illumination->specularEnvMap)
+	if (illumination->specularEnvMap)
 		getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
 	return updated;
 }

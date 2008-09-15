@@ -115,17 +115,17 @@ public:
 		// search 200 shooters with most energy to diffuse
 		RRReal bestQ[MAX_BESTS];
 		bestQ[maxBests-1] = 0; // last is always valid
-		for(unsigned i=indexBegin;i<indexEnd;i++)
+		for (unsigned i=indexBegin;i<indexEnd;i++)
 		{
 			// calculate quality of distributor
 			RRReal q = triangle[i].incidentFluxToDiffuse.sum();
 
-			if(q>bestQ[maxBests-1])
+			if (q>bestQ[maxBests-1])
 			{
 				// sort [q,node] into best cache, bestQ[0] is highest
-				if(bests<maxBests) bests++;
+				if (bests<maxBests) bests++;
 				unsigned pos = bests-1;
-				for(; pos>0 && q>bestQ[pos-1]; pos--)
+				for (; pos>0 && q>bestQ[pos-1]; pos--)
 				{
 					// probublavam mezi spravne velkymi besty smerem k lepsim
 					bestNode[pos] = bestNode[pos-1];
@@ -135,7 +135,7 @@ public:
 				bestQ[pos] = q;
 			}
 		}
-	//if(bests) RRReporter::report(INF2,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
+	//if (bests) RRReporter::report(INF2,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
 
 
 		highestFluxToDistribute = bests ? bestQ[0] : 0;
@@ -183,7 +183,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	const RRMesh* mesh = object->getCollider()->getMesh();
 	numTriangles = mesh->getNumTriangles();
 	triangles = new PackedTriangle[numTriangles];
-	for(unsigned t=0;t<numTriangles;t++)
+	for (unsigned t=0;t<numTriangles;t++)
 	{
 		const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 		triangles[t].diffuseReflectance = material ? material->diffuseReflectance.color : RRVec3(0.5f);
@@ -206,7 +206,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 
 RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolverFile* adopt_packedSolverFile)
 {
-	if(object && adopt_packedSolverFile && adopt_packedSolverFile->isCompatible(object))
+	if (object && adopt_packedSolverFile && adopt_packedSolverFile->isCompatible(object))
 		return new RRPackedSolver(object,adopt_packedSolverFile);
 	return NULL;
 }
@@ -214,10 +214,10 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical)
 {
 	packedBests->reset();
-	if(customDirectIrradiance)
+	if (customDirectIrradiance)
 	{
 #pragma omp parallel for schedule(static)
-		for(int t=0;(unsigned)t<numTriangles;t++)
+		for (int t=0;(unsigned)t<numTriangles;t++)
 		{
 			unsigned color = customDirectIrradiance[t];
 			triangles[t].incidentFluxDiffused = RRVec3(0);
@@ -226,7 +226,7 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 	}
 	else
 	{
-		for(int t=0;(unsigned)t<numTriangles;t++)
+		for (int t=0;(unsigned)t<numTriangles;t++)
 		{
 			triangles[t].incidentFluxDiffused = RRVec3(0);
 			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(0);
@@ -238,7 +238,7 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 
 void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic)
 {
-	if(currentQuality>=qualityStatic) return; // improving in static scene (without reset) is more and more expensive, stop it after n improves
+	if (currentQuality>=qualityStatic) return; // improving in static scene (without reset) is more and more expensive, stop it after n improves
 	//RRReportInterval report(INF2,"Improving...\n");
 
 
@@ -249,27 +249,27 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 
 	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
-	for(unsigned group=0;group<qualityDynamic;group++)
+	for (unsigned group=0;group<qualityDynamic;group++)
 	{
 		unsigned bests = packedBests->selectBests((currentQuality+1==qualityStatic)?maxBests/2:maxBests); // shorten last set of bests
-		if(bests)
+		if (bests)
 		{
 			RRReal q = packedBests->getHighestFluxToDistribute();
 			//RRReporter::report(INF1,"%f\n",q);
-			if(currentQuality==0)
+			if (currentQuality==0)
 			{
 				// this is first improve, set termination criteria
 				terminalFluxToDistribute = q/MAX(10000,packedSolverFile->packedIvertices->getNumC1());
 			}
 			else
-			if(q<terminalFluxToDistribute) // terminate
+			if (q<terminalFluxToDistribute) // terminate
 			{
 				currentQuality = qualityStatic; // don't improve next time
 				return; // don't improve now
 			}
 		}
 		currentVersionInTriangles += bests;
-		for(unsigned i=0;i<bests;i++)
+		for (unsigned i=0;i<bests;i++)
 		{
 			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
 			RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
@@ -279,7 +279,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 			source->incidentFluxToDiffuse = RRVec3(0);
 			const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
 			const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
-			for(;start<stop;start++)
+			for (;start<stop;start++)
 			{
 				RR_ASSERT(start->getDestinationTriangle()<numTriangles);
 				triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
@@ -306,17 +306,17 @@ RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const
 
 void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 {
-	if(currentVersionInVertices==currentVersionInTriangles) return;
+	if (currentVersionInVertices==currentVersionInTriangles) return;
 	currentVersionInVertices = currentVersionInTriangles;
 	PackedIvertices* packedIvertices = packedSolverFile->packedIvertices;
 	int numIvertices = (int)packedIvertices->getNumC1();
 #pragma omp parallel for schedule(static)
-	for(int i=0;i<numIvertices;i++)
+	for (int i=0;i<numIvertices;i++)
 	{
 		RRVec3 irrad = RRVec3(0);
 		const PackedSmoothTriangleWeight* begin = packedIvertices->getC2(i);
 		const PackedSmoothTriangleWeight* end = packedIvertices->getC2(i+1);
-		for(;begin<end;begin++)
+		for (;begin<end;begin++)
 		{
 			irrad += triangles[begin->triangleIndex].getIncidentFluxIndirect() * begin->weight;
 		}
@@ -326,7 +326,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 
 const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
-	if(triangle>=0x3fffffff || vertex>=3 // wrong inputs, shouldn't happen (btw, it's not ffff, UNDEFINED is clamped to 30 + 2 bits)
+	if (triangle>=0x3fffffff || vertex>=3 // wrong inputs, shouldn't happen (btw, it's not ffff, UNDEFINED is clamped to 30 + 2 bits)
 		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1()) // ffff in packed file -> triangle is degen or needle
 	{
 		return NULL;
@@ -338,19 +338,19 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 {
 	RRVec3 irrad;
 
-	if(triangle>=numTriangles)
+	if (triangle>=numTriangles)
 	{
 		RR_ASSERT(0);
 		goto zero;
 	}
 
 	// enhanced by smoothing
-	if(vertex<3 && measure.smoothed)
+	if (vertex<3 && measure.smoothed)
 	{
-		if(!measure.direct && measure.indirect)
+		if (!measure.direct && measure.indirect)
 		{
 			const RRVec3* ptr = getTriangleIrradianceIndirect(triangle,vertex);
-			if(!ptr) goto zero;
+			if (!ptr) goto zero;
 			irrad = *ptr;
 		}
 		else
@@ -360,17 +360,17 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	}
 	else
 	// basic, fast
-	if(!measure.direct && !measure.indirect) 
+	if (!measure.direct && !measure.indirect) 
 	{
 		irrad = RRVec3(0);
 	}
 	else
-	if(measure.direct && !measure.indirect) 
+	if (measure.direct && !measure.indirect) 
 	{
 		irrad = triangles[triangle].incidentFluxDirect*triangles[triangle].areaInv;
 	}
 	else
-	if(measure.direct && measure.indirect) 
+	if (measure.direct && measure.indirect) 
 	{
 		irrad = (triangles[triangle].incidentFluxDiffused+triangles[triangle].incidentFluxToDiffuse)*triangles[triangle].areaInv;
 	}
@@ -379,14 +379,14 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		irrad = (triangles[triangle].incidentFluxDiffused+triangles[triangle].incidentFluxToDiffuse-triangles[triangle].incidentFluxDirect)*triangles[triangle].areaInv;
 	}
 
-	if(measure.exiting)
+	if (measure.exiting)
 	{
 		// diffuse applied on physical scale, not custom scale
 		irrad *= triangles[triangle].diffuseReflectance;
 	}
-	if(measure.scaled)
+	if (measure.scaled)
 	{
-		if(scaler)
+		if (scaler)
 		{
 			// scaler applied on density, not flux
 			scaler->getCustomScale(irrad);
@@ -397,7 +397,7 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 			RR_ASSERT(0);
 		}
 	}
-	if(measure.flux)
+	if (measure.flux)
 	{
 		irrad *= triangles[triangle].area;
 	}

@@ -14,11 +14,11 @@
 DynamicObject* DynamicObject::create(const char* filename,float scale)
 {
 	DynamicObject* d = new DynamicObject();
-	if(d->model.Load(filename,scale) && d->model.numObjects)
+	if (d->model.Load(filename,scale) && d->model.numObjects)
 	{
 		return d;
 	}
-	if(!d->model.numObjects) printf("Model %s contains no objects.\n",filename);
+	if (!d->model.numObjects) printf("Model %s contains no objects.\n",filename);
 	delete d;
 	return NULL;
 }
@@ -31,15 +31,15 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 {
 	// use program
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1);
-	if(!program)
+	if (!program)
 	{
 		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
 	// set specular environment map
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+	if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
-		if(!lightIndirectEnvSpecular)
+		if (!lightIndirectEnvSpecular)
 		{
 			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering dynamic object with NULL cubemap.\n"));
 			return;
@@ -52,7 +52,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		glActiveTexture(activeTexture);
 	}
 	// set matrices
-	if(uberProgramSetup.OBJECT_SPACE)
+	if (uberProgramSetup.OBJECT_SPACE)
 	{
 		float m[16];
 		glPushMatrix();

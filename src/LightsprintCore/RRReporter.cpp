@@ -28,7 +28,7 @@ public:
 	static RRReporter* create(const char* filename, bool flush)
 	{
 		RRReporterFile* r = new RRReporterFile(filename,flush);
-		if(!r->file) RR_SAFE_DELETE(r);
+		if (!r->file) RR_SAFE_DELETE(r);
 		return r;
 	}
 	virtual void customReport(RRReportType type, int indentation, const char* message)
@@ -37,21 +37,21 @@ public:
 		char space[1000];
 		space[0] = 0;
 		indentation *= 2;
-		if(indentation>0 && indentation<999)
+		if (indentation>0 && indentation<999)
 		{
 			memset(space,' ',indentation);
 			space[indentation] = 0;
 		}
 		// type
-		if(type<ERRO || type>TIMI) type = INF9;
+		if (type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
 		// message
 		// print
-		if(flush)
+		if (flush)
 			file = fopen(filename,"at");
-		if(file)
+		if (file)
 			fprintf(file,"%s%s%s",space,typePrefix[type],message);
-		if(file && flush)
+		if (file && flush)
 		{
 			fclose(file);
 			file = NULL;
@@ -59,7 +59,7 @@ public:
 	}
 	~RRReporterFile()
 	{
-		if(file) fclose(file);
+		if (file) fclose(file);
 		free(filename);
 	}
 private:
@@ -68,7 +68,7 @@ private:
 		filename = _strdup(_filename);
 		file = fopen(filename,"wt");
 		flush = _flush;
-		if(file && flush)
+		if (file && flush)
 			fclose(file);
 	}
 	char* filename;
@@ -92,7 +92,7 @@ public:
 		char space[1000];
 		space[0] = 0;
 		indentation *= 2;
-		if(indentation>0 && indentation<999)
+		if (indentation>0 && indentation<999)
 		{
 			memset(space,' ',indentation);
 			space[indentation] = 0;
@@ -121,7 +121,7 @@ public:
 		char space[1000];
 		space[0] = 0;
 		indentation *= 2;
-		if(indentation>0 && indentation<999)
+		if (indentation>0 && indentation<999)
 		{
 			memset(space,' ',indentation);
 			space[indentation] = 0;
@@ -149,7 +149,7 @@ public:
 	{
 		// indentation
 		indentation *= 2;
-		if(indentation>0 && indentation<999)
+		if (indentation>0 && indentation<999)
 		{
 			char space[1000];
 			memset(space,' ',indentation);
@@ -157,7 +157,7 @@ public:
 			OutputDebugString(space);
 		}
 		// type
-		if(type<ERRO || type>TIMI) type = INF9;
+		if (type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","",""};
 		OutputDebugString(typePrefix[type]);
 		// message
@@ -190,7 +190,7 @@ void RRReporter::indent(int delta)
 
 void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 {
-	if(reporter && type>=ERRO && type<=TIMI && typeEnabled[type])
+	if (reporter && type>=ERRO && type<=TIMI && typeEnabled[type])
 	{
 		char msg[1000];
 		_vsnprintf(msg,999,format,vars);
@@ -209,7 +209,7 @@ void RRReporter::report(RRReportType type, const char* format, ...)
 
 void RRReporter::assertionFailed(const char* expression, const char* func, const char* file, unsigned line)
 {
-	if(reporter)
+	if (reporter)
 	{
 		report(ASSE,"%s in %s, file %s, line %d.\n",expression,func,file,line);
 #if defined(_DEBUG) && defined(RR_STATIC) && defined(_MSC_VER)
@@ -255,7 +255,7 @@ RRReporter* RRReporter::createOutputDebugStringReporter()
 RRReportInterval::RRReportInterval(RRReportType type, const char* format, ...)
 {
 	enabled = type>=ERRO && type<=TIMI && typeEnabled[type];
-	if(enabled)
+	if (enabled)
 	{
 		creationTime = GETTIME;
 		va_list argptr;
@@ -268,7 +268,7 @@ RRReportInterval::RRReportInterval(RRReportType type, const char* format, ...)
 
 RRReportInterval::~RRReportInterval()
 {
-	if(enabled)
+	if (enabled)
 	{
 		float doneIn = (float)((GETTIME-creationTime)/(float)PER_SEC);
 		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":((doneIn>0.01f)?"done in %.0fms.\n":"done in %.1fms.\n")),(doneIn>0.1f)?doneIn:doneIn*1000);

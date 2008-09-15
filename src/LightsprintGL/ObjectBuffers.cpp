@@ -24,7 +24,7 @@ namespace rr_gl
 
 ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended)
 {
-	if(!object) return NULL;
+	if (!object) return NULL;
 
 	// ObjectBuffers with indexed=true fail if object has preimport vertex indices so high
 	// that vertex buffer with such indices can't be reasonably created.
@@ -33,7 +33,7 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 	// It is optional, other more reliable detection would catch this problem deeper inside init()
 	// (however it would misleadingly report not enough memory)
 	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
-	if(!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1).object))
+	if (!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1).object))
 		return NULL;
 
 	ObjectBuffers* ob = NULL;
@@ -53,7 +53,7 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 	{
 		RR_SAFE_DELETE(ob);
 	}
-	if(ob)
+	if (ob)
 	{
 		containsNonBlended = ob->containsNonBlended;
 		containsBlended = ob->containsBlended;
@@ -87,7 +87,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		: 3*numTriangles; // nonindexed (when rendering multiobject or force_2d)
 	numIndices = 0;
 	indices = NULL;
-	if(indexed)
+	if (indexed)
 	{
 		indices = new unsigned[3*numTriangles]; // exact, we always have 3*numTriangles indices
 	}
@@ -102,21 +102,21 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 
 	unsigned hasDiffuseMap = 1;
 	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
-	if(hasDiffuseMap)
+	if (hasDiffuseMap)
 		NEW_ARRAY(atexcoordDiffuse,RRVec2)
 	else
 		atexcoordDiffuse = NULL;
 
 	unsigned hasEmissiveMap = 1;
 	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
-	if(hasEmissiveMap)
+	if (hasEmissiveMap)
 		NEW_ARRAY(atexcoordEmissive,RRVec2)
 	else
 		atexcoordEmissive = NULL;
 
 	unsigned hasTransparencyMap = 1;
 	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,&hasTransparencyMap,NULL);
-	if(hasTransparencyMap)
+	if (hasTransparencyMap)
 		NEW_ARRAY(atexcoordTransparency,RRVec2)
 	else
 		atexcoordTransparency = NULL;
@@ -127,7 +127,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;
-	for(unsigned t=0;t<numTriangles;t++)
+	for (unsigned t=0;t<numTriangles;t++)
 	{
 		// read triangle params
 		rr::RRMesh::Triangle triangleVertices;
@@ -137,17 +137,17 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		rr::RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping);
 		rr::RRVec2 diffuseUv[3];
-		if(hasDiffuseMap)
+		if (hasDiffuseMap)
 		{
 			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
 		}
 		rr::RRVec2 emissiveUv[3];
-		if(hasEmissiveMap)
+		if (hasEmissiveMap)
 		{
 			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
 		}
 		rr::RRVec2 transparencyUv[3];
-		if(hasTransparencyMap)
+		if (hasTransparencyMap)
 		{
 			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,transparencyUv,sizeof(transparencyUv));
 		}
@@ -160,7 +160,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		//    -> test t,light,NULL
 		//       kdyz pro aspon 1 light true, kreslit, tj.osvitit (muze byt nepresne, ale nebudu delat extra ObjectBuffers pro kazde svetlo)
 		const rr::RRMaterial* material;
-		if(!params.light // rendering indirect, so no skipping, everything is rendered
+		if (!params.light // rendering indirect, so no skipping, everything is rendered
 			|| !params.renderingShadowCasters) // accumulating lit renders, so skipping render=disabling lighting
 		{
 			material = object->getTriangleMaterial(t,params.light,NULL);
@@ -169,19 +169,19 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		{
 			// rendering into shadowmap, so skipping render=disabling shadow
 			// kdyz pro aspon 1 receiver true, kreslit, tj.vrhat stiny (muze byt nepresne, ale nebudu delat extra shadowmapu pro kazdy receiver)
-			for(unsigned i=0;i<params.scene->getNumObjects();i++)
+			for (unsigned i=0;i<params.scene->getNumObjects();i++)
 			{
-				if(material = object->getTriangleMaterial(t,params.light,params.scene->getObject(i)))
+				if (material = object->getTriangleMaterial(t,params.light,params.scene->getObject(i)))
 					break;
 			}
 		}
-		if(!material) continue; // skip rendering triangles without material
+		if (!material) continue; // skip rendering triangles without material
 */
 		const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
-		if(!t || material!=previousMaterial)
+		if (!t || material!=previousMaterial)
 		{
 			FaceGroup fg;
-			if(indexed)
+			if (indexed)
 			{
 				fg.firstIndex = numIndices;
 			}
@@ -189,7 +189,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			{
 				fg.firstIndex = numVertices;
 			}
-			if(!material) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
+			if (!material) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
 			fg.renderFront = !material || material->sideBits[0].renderFrom;
 			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;
@@ -198,13 +198,13 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()) : rr::RRVec4(0,0,0,1);
 			fg.specular = material ? material->specularReflectance : 0;
 			fg.needsBlend = fg.transparencyColor!=rr::RRVec4(0,0,0,1);
-			if(fg.needsBlend)
+			if (fg.needsBlend)
 				containsBlended = true;
 			else
 				containsNonBlended = true;
 
 			fg.diffuseTexture = material ? material->diffuseReflectance.texture : NULL;
-			if(!fg.diffuseTexture)
+			if (!fg.diffuseTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
 				fg.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
@@ -214,7 +214,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			getTexture(fg.diffuseTexture); // prebuild texture so we don't do it in display list
 
 			fg.emissiveTexture = material ? material->diffuseEmittance.texture : NULL;
-			if(!fg.emissiveTexture)
+			if (!fg.emissiveTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
 				fg.emissiveTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
@@ -224,7 +224,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			getTexture(fg.emissiveTexture); // prebuild texture so we don't do it in display list
 
 			fg.transparencyTexture = material ? material->specularTransmittance.texture : NULL;
-			if(!fg.transparencyTexture)
+			if (!fg.transparencyTexture)
 			{
 				// create 1x1 stub so we can support even shaders that request texture
 				fg.transparencyTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
@@ -237,10 +237,10 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			previousMaterial = material;
 		}
 		// generate vertices and indices into buffers
-		for(unsigned v=0;v<3;v++)
+		for (unsigned v=0;v<3;v++)
 		{
 			unsigned currentVertex;
-			if(indexed)
+			if (indexed)
 			{
 				//numVertices = triangleVertices[v];
 
@@ -260,7 +260,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				currentVertex = numVertices;
 				numVertices++;
 			}
-			if(currentVertex>=numVerticesExpected)
+			if (currentVertex>=numVerticesExpected)
 			{
 				// preimport vertex number is out of range, fail
 				// warning: could happen with correct inputs, RRMesh is allowed 
@@ -273,11 +273,11 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
 			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
-			if(hasDiffuseMap)
+			if (hasDiffuseMap)
 				atexcoordDiffuse[currentVertex] = diffuseUv[v];
-			if(hasEmissiveMap)
+			if (hasEmissiveMap)
 				atexcoordEmissive[currentVertex] = emissiveUv[v];
-			if(hasTransparencyMap)
+			if (hasTransparencyMap)
 				atexcoordTransparency[currentVertex] = transparencyUv[v];
 		}
 		// generate facegroups
@@ -285,7 +285,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	}
 #ifdef USE_VBO
 #define CREATE_VBO(array, elementType, vboType, vboId) \
-	{ vboId = 0; if(array) { \
+	{ vboId = 0; if (array) { \
 		glGenBuffers(1,&vboId); \
 		glBindBuffer(GL_ARRAY_BUFFER, vboId); \
 		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(rr::elementType), array, vboType); \
@@ -301,8 +301,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 #endif
-	if(indexed)
-		for(unsigned i=0;i<numTriangles*3;i++)
+	if (indexed)
+		for (unsigned i=0;i<numTriangles*3;i++)
 			RR_ASSERT(indices[i]<numVerticesExpected);
 }
 
@@ -331,7 +331,7 @@ ObjectBuffers::~ObjectBuffers()
 	delete[] indices;
 
 	// temp 1x1 textures
-	for(unsigned i=0;i<tempTextures.size();i++) delete tempTextures[i];
+	for (unsigned i=0;i<tempTextures.size();i++) delete tempTextures[i];
 }
 
 GLint getBufferNumComponents(const rr::RRBuffer* buffer)
@@ -378,7 +378,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
 	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
-	if(setNormals)
+	if (setNormals)
 	{
 		BIND_VBO2(Normal,3,normal);
 		glEnableClientState(GL_NORMAL_ARRAY);
@@ -387,18 +387,18 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	bool blendKnown = false;
 	bool blendEnabled = false;
 	// set indirect illumination vertices
-	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
+	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		if(indices)
+		if (indices)
 		{
-			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
+			if (params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
 				// INDEXED FROM SOLVER
 				// should never get here, must be handled by RendererOfRRObject
 				RR_ASSERT(0);
 			}
 			else
-			if(params.indirectIlluminationSource==RendererOfRRObject::BUFFERS && params.availableIndirectIlluminationVColors)
+			if (params.indirectIlluminationSource==RendererOfRRObject::BUFFERS && params.availableIndirectIlluminationVColors)
 			{
 				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
@@ -410,9 +410,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					getBufferNumComponents(params.availableIndirectIlluminationVColors),
 					getBufferComponentType(params.availableIndirectIlluminationVColors),
 					0, params.availableIndirectIlluminationVColors->lock(rr::BL_READ));
-				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
+				if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
-					if(params.availableIndirectIlluminationVColors2)
+					if (params.availableIndirectIlluminationVColors2)
 					{
 						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getWidth();
 						RR_ASSERT(bufferSize2==bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
@@ -444,15 +444,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		}
 		else
 		{
-			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
+			if (params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
 				// NON-INDEXED FROM SOLVER
-				if(params.scene)
+				if (params.scene)
 				{
 					// fill our own vertex buffer
 					// optimization:
 					//  remember params used at alightIndirectVcolor filling and refill it only when params change
-					if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
+					if (solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
 					{
 						lightIndirectVcolorFirst = params.firstCapturedTriangle;
 						lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
@@ -485,13 +485,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		}
 	}
 	// set indirect illumination texcoords + map (lightmap or light detail map)
-	if((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
+	if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		BIND_VBO(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-		if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
+		if (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 			getTexture(params.availableIndirectIlluminationMap)->bindTexture(); // bind lightmap
 		else
 			getTexture(params.availableIndirectIlluminationLDMap)->bindTexture(); // bind light detail map
@@ -499,7 +499,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 	// set indirect illumination map2
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
+	if (params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 		getTexture(params.availableIndirectIlluminationMap2)->bindTexture();
@@ -507,7 +507,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 	// set 2d_position texcoords
-	if(params.renderedChannels.FORCE_2D_POSITION)
+	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
 		//!!! possible optimizations
 		// a) remember params used at atexcoordForced2D filling
@@ -517,9 +517,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 
 		// this should not be executed in every frame, generated texcoords change rarely
 		RR_ASSERT(!indices); // needs non-indexed trilist
-		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
+		//for (unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
 #pragma omp parallel for schedule(static,1)
-		for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
+		for (int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
 			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
 		}
@@ -528,38 +528,38 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordForced2D[0].x);
 	}
 	// set material diffuse texcoords
-	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
 		BIND_VBO(TexCoord,2,texcoordDiffuse);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material emissive texcoords
-	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+	if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
 		BIND_VBO(TexCoord,2,texcoordEmissive);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material transparency texcoords
-	if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+	if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
 		BIND_VBO(TexCoord,2,texcoordTransparency);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// render facegroups (facegroups differ by material)
-	if(params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
+	if (params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
 		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP
 		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
 		|| params.renderedChannels.MATERIAL_CULLING
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
-		for(unsigned fg=0;fg<faceGroups.size();fg++) if((faceGroups[fg].needsBlend && params.renderBlended) || (!faceGroups[fg].needsBlend && params.renderNonBlended))
+		for (unsigned fg=0;fg<faceGroups.size();fg++) if ((faceGroups[fg].needsBlend && params.renderBlended) || (!faceGroups[fg].needsBlend && params.renderNonBlended))
 		{
 			// skip whole facegroup when alpha keying with constant alpha below 0.5
 			// GPU would do the same for all pixels, this is faster
-			if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && !params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND && faceGroups[fg].transparencyColor[3]<0.5f)
+			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && !params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND && faceGroups[fg].transparencyColor[3]<0.5f)
 			{
 				continue;
 			}
@@ -569,12 +569,12 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			// limit rendered indices to capture range
 			numIndices = MIN(firstIndex+numIndices,3*params.lastCapturedTrianglePlus1) - MAX(firstIndex,3*params.firstCapturedTriangle);
 			firstIndex = MAX(firstIndex,3*params.firstCapturedTriangle);
-			if(numIndices>0)
+			if (numIndices>0)
 			{
 				// set face culling
-				if(params.renderedChannels.MATERIAL_CULLING)
+				if (params.renderedChannels.MATERIAL_CULLING)
 				{
-					if(faceGroups[fg].renderFront && faceGroups[fg].renderBack)
+					if (faceGroups[fg].renderFront && faceGroups[fg].renderBack)
 					{
 						glDisable(GL_CULL_FACE);
 					}
@@ -586,14 +586,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				}
 
 				// set blending
-				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP || params.renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA)
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP || params.renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA)
 				{
 					bool transparency = faceGroups[fg].transparencyColor[3]<1;
-					if(transparency!=blendEnabled || !blendKnown)
+					if (transparency!=blendEnabled || !blendKnown)
 					{
-						if(transparency)
+						if (transparency)
 						{
-							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
 							{
 								// current blendfunc is used, caller is responsible for setting it
 								glEnable(GL_BLEND);
@@ -606,7 +606,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						}
 						else
 						{
-							if(params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
 							{
 								glDisable(GL_BLEND);
 							}
@@ -620,15 +620,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 				}
 				// set diffuse color
-				if(params.renderedChannels.MATERIAL_DIFFUSE_CONST)
+				if (params.renderedChannels.MATERIAL_DIFFUSE_CONST)
 				{
-					if(params.program)
+					if (params.program)
 						params.program->sendUniform4fv("materialDiffuseConst",&faceGroups[fg].diffuseColor[0]);
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
 				// set diffuse vcolor
-				if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
+				if (params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
 				{
 					GLint program;
 					glGetIntegerv(GL_CURRENT_PROGRAM,&program);
@@ -636,11 +636,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					glVertexAttrib4fv(materialDiffuseVColorIndex,&faceGroups[fg].diffuseColor[0]);
 				}
 				// set diffuse map
-				if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+				if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 					rr::RRBuffer* tex = faceGroups[fg].diffuseTexture;
-					if(tex)
+					if (tex)
 					{
 						getTexture(tex)->bindTexture();
 					}
@@ -650,23 +650,23 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 				}
 				// set specular
-				if(params.renderedChannels.MATERIAL_SPECULAR_CONST)
+				if (params.renderedChannels.MATERIAL_SPECULAR_CONST)
 				{
-					if(params.program)
+					if (params.program)
 						params.program->sendUniform("materialSpecularConst",faceGroups[fg].specular,faceGroups[fg].specular,faceGroups[fg].specular,1.0f);
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
 				// set emissive color
-				if(params.renderedChannels.MATERIAL_EMISSIVE_CONST)
+				if (params.renderedChannels.MATERIAL_EMISSIVE_CONST)
 				{
-					if(params.program)
+					if (params.program)
 						params.program->sendUniform("materialEmissiveConst",faceGroups[fg].emissiveColor[0],faceGroups[fg].emissiveColor[1],faceGroups[fg].emissiveColor[2],0.0f);
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
 				// set emissive vcolor
-				if(params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
+				if (params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
 				{
 					GLint program;
 					glGetIntegerv(GL_CURRENT_PROGRAM,&program);
@@ -674,11 +674,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					glVertexAttrib4f(materialEmissiveVColorIndex,faceGroups[fg].emissiveColor[0],faceGroups[fg].emissiveColor[1],faceGroups[fg].emissiveColor[2],0);
 				}
 				// set emissive map
-				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+				if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
 					rr::RRBuffer* tex = faceGroups[fg].emissiveTexture;
-					if(tex)
+					if (tex)
 					{
 						getTexture(tex)->bindTexture();
 					}
@@ -688,19 +688,19 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 				}
 				// set transparency color
-				if(params.renderedChannels.MATERIAL_TRANSPARENCY_CONST)
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST)
 				{
-					if(params.program)
+					if (params.program)
 						params.program->sendUniform("materialTransparencyConst",faceGroups[fg].transparencyColor[0],faceGroups[fg].transparencyColor[1],faceGroups[fg].transparencyColor[2],faceGroups[fg].transparencyColor[3]);
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
 				// set transparency map
-				if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
 					rr::RRBuffer* tex = faceGroups[fg].transparencyTexture;
-					if(tex)
+					if (tex)
 					{
 						getTexture(tex)->bindTexture();
 					}
@@ -710,9 +710,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 				}
 				// render one facegroup
-				if(indices)
+				if (indices)
 				{
-					for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
+					for (unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
 					glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
 				}
 				else
@@ -728,9 +728,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		// (but only captured range)
 		unsigned firstIndex = 3*params.firstCapturedTriangle;
 		int numIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
-		if(indices)
+		if (indices)
 		{
-			for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
+			for (unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
 			glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
 		}
 		else
@@ -739,59 +739,59 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		}
 	}
 	// unset material diffuse texcoords
-	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset material transparency texcoords
-	if(params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+	if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset material emissive texcoords
-	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+	if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset 2d_position texcoords
-	if(params.renderedChannels.FORCE_2D_POSITION)
+	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset indirect illumination map2
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
+	if (params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination texcoords + map (lightmap or light detail map)
-	if((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
+	if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
-	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
+	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 	{
 		glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
-		if(indices && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
+		if (indices && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
 	}
 	// unset indirect illumination colors
-	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
+	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
-		if(indices && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
+		if (indices && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
 	}
 	// unset normals
-	if(setNormals)
+	if (setNormals)
 	{
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}

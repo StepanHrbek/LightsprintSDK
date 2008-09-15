@@ -20,13 +20,13 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
 	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
-	if(d->model->Load(_filename,_scale) && d->model->numObjects)
+	if (d->model->Load(_filename,_scale) && d->model->numObjects)
 	{
 		d->material = _material;
 		// create envmaps
-		if(d->material.MATERIAL_DIFFUSE)
+		if (d->material.MATERIAL_DIFFUSE)
 			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBF,true,NULL);
-		if(d->material.MATERIAL_SPECULAR)
+		if (d->material.MATERIAL_SPECULAR)
 			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_specularCubeSize,_specularCubeSize,6,rr::BF_RGBF,true,NULL);
 		d->illumination->gatherEnvMapSize = _gatherCubeSize;
 		d->updatePosition();
@@ -37,7 +37,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		return d;
 	}
-	if(!d->model->numObjects) rr::RRReporter::report(rr::WARN,"Model %s contains no objects.\n",_filename);
+	if (!d->model->numObjects) rr::RRReporter::report(rr::WARN,"Model %s contains no objects.\n",_filename);
 	delete d;
 	return NULL;
 }
@@ -65,7 +65,7 @@ DynamicObject::~DynamicObject()
 void DynamicObject::updatePosition()
 {
 	// set object's world matrix
-	if(model)
+	if (model)
 	{
 		/*
 		glPushMatrix();
@@ -73,7 +73,7 @@ void DynamicObject::updatePosition()
 		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
 		glRotatef(rotYZ[1],0,0,1);
 		glRotatef(rotYZ[0],0,1,0);
-		if(model) glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
+		if (model) glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
 		glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 		glPopMatrix();
 		*/
@@ -111,13 +111,13 @@ void DynamicObject::updatePosition()
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
-	if(!uberProgramSetup.LIGHT_DIRECT)
+	if (!uberProgramSetup.LIGHT_DIRECT)
 	{
 		// direct light is disabled in shader so let's ignore direct lights
 		// (withouth this, we would enable SHADOW_SAMPLES and it's invalid with LIGHT_DIRECT=0)
 		lights = NULL;
 	}
-	if(uberProgramSetup.LIGHT_INDIRECT_auto)
+	if (uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
 		uberProgramSetup.LIGHT_INDIRECT_auto = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
@@ -126,7 +126,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
 	// when indirect illum is off, do nothing, it's probably render of shadow into shadowmap.
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+	if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
 		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = material.MATERIAL_DIFFUSE_VCOLOR;
@@ -140,13 +140,13 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	uberProgramSetup.ANIMATION_WAVE = material.ANIMATION_WAVE;
 	// temporary simplification, select only 1 light from list
 	const rr_gl::RealtimeLight* light = NULL;
-	if(lights)
-		for(unsigned i=0;i<lights->size();i++)
+	if (lights)
+		for (unsigned i=0;i<lights->size();i++)
 		{
-			if(!light || ((*lights)[i]->getParent()->pos-worldFoot).length2()<(light->getParent()->pos-worldFoot).length2()	)
+			if (!light || ((*lights)[i]->getParent()->pos-worldFoot).length2()<(light->getParent()->pos-worldFoot).length2()	)
 				light = (*lights)[i];
 		}
-	if(!light || (light->origin && !light->origin->castShadows))
+	if (!light || (light->origin && !light->origin->castShadows))
 	{
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0; // for 3ds draw, not reset by MultiPass
@@ -155,9 +155,9 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	{
 		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0); // for 3ds draw, not reset by MultiPass
-		//if(uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects // don't reduce, looks bad in Lightsmark
-		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
-		if(uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
+		//if (uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects // don't reduce, looks bad in Lightsmark
+		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
+		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 	}
 
 	uberProgramSetup.LIGHT_DIRECT_COLOR           = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->color!=rr::RRVec3(1);
@@ -167,31 +167,31 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	// use program
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,brightness,gamma);
-	if(!program)
+	if (!program)
 	{
 		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
 	// set matrix
-	if(uberProgramSetup.OBJECT_SPACE)
+	if (uberProgramSetup.OBJECT_SPACE)
 	{
 		program->sendUniform("worldMatrix",worldMatrix,false,4);
 	}
 	// set envmap
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+	if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		GLint activeTexture;
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE)
+		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			if(illumination->diffuseEnvMap)
+			if (illumination->diffuseEnvMap)
 				rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && uberProgramSetup.MATERIAL_SPECULAR)
+		if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			if(illumination->specularEnvMap)
+			if (illumination->specularEnvMap)
 				rr_gl::getTexture(illumination->specularEnvMap,false,false)->bindTexture();
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
@@ -200,7 +200,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		glActiveTexture(activeTexture);
 	}
 	// set animation
-	if(uberProgramSetup.ANIMATION_WAVE)
+	if (uberProgramSetup.ANIMATION_WAVE)
 	{
 		program->sendUniform("animationTime",animationTime);
 	}

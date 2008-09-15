@@ -42,7 +42,7 @@
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	if(gfxRelated)
+	if (gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
@@ -87,17 +87,17 @@ const float* lockVertexIllum(void* solver,unsigned object)
 void unlockVertexIllum(void* solver,unsigned object)
 {
 	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0);
-	if(vertexBuffer) vertexBuffer->unlock();
+	if (vertexBuffer) vertexBuffer->unlock();
 }
 
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	if(uberProgramSetup.LIGHT_DIRECT && environmentMap)
+	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL);
 
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
+	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -107,7 +107,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	// enable object space
 	uberProgramSetup.OBJECT_SPACE = true;
 	// when not rendering shadows, enable environment maps
-	if(uberProgramSetup.LIGHT_DIRECT)
+	if (uberProgramSetup.LIGHT_DIRECT)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
@@ -116,23 +116,23 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
-	if(robot)
+	if (!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
+	if (robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 		//robot->rotYZ = rr::RRVec2(rotation,0); // rotate
 		robot->rotYZ = rr::RRVec2(55,0); robot->animationTime = rotation*0.01f; // wave
 		robot->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination);
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
-	if(potato)
+	if (potato)
 	{
 		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(potato->illumination);
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
@@ -165,7 +165,7 @@ protected:
 
 void display(void)
 {
-	if(!winWidth || !winHeight) return; // can't display without window
+	if (!winWidth || !winHeight) return; // can't display without window
 
 	// this would print diagnostic messages from solver internals
 	//solver->checkConsistency();
@@ -176,7 +176,7 @@ void display(void)
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
 	static unsigned solutionVersion = 0;
-	if(solver->getSolutionVersion()!=solutionVersion)
+	if (solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
 		solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
@@ -240,25 +240,25 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		modeMovingEye = !modeMovingEye;
 }
 
 void passive(int x, int y)
 {
-	if(!winWidth || !winHeight) return;
+	if (!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
 
-	if(x || y)
+	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
 		const float mouseSensitivity = 0.0002f;
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if(modeMovingEye)
+		if (modeMovingEye)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
@@ -284,18 +284,18 @@ void idle()
 	// smooth keyboard movement
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
-		if(speedForward) cam->moveForward(speedForward*seconds);
-		if(speedBack) cam->moveBack(speedBack*seconds);
-		if(speedRight) cam->moveRight(speedRight*seconds);
-		if(speedLeft) cam->moveLeft(speedLeft*seconds);
-		if(speedForward || speedBack || speedRight || speedLeft)
+		if (speedForward) cam->moveForward(speedForward*seconds);
+		if (speedBack) cam->moveBack(speedBack*seconds);
+		if (speedRight) cam->moveRight(speedRight*seconds);
+		if (speedLeft) cam->moveLeft(speedLeft*seconds);
+		if (speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
+			if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
 		}
 	}
 	prev = now;
@@ -311,7 +311,7 @@ void idle()
 int main(int argc, char **argv)
 {
 	// check for version mismatch
-	if(!RR_INTERFACE_OK)
+	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
@@ -338,11 +338,11 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);
 
 	// init GLEW
-	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
-	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -363,14 +363,14 @@ int main(int argc, char **argv)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-	if(!shadowmapsPerPass) error("",true);
+	if (!shadowmapsPerPass) error("",true);
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init static .3ds scene
-	if(!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
 		error("",false);
 
 	// init dynamic objects
@@ -386,20 +386,20 @@ int main(int argc, char **argv)
 
 	// init realtime radiosity solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
-	if(licError)
+	if (licError)
 		error(licError,false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->setEnvironment(environmentMap);
-	if(!solver->getMultiObjectCustom())
+	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for(unsigned i=0;i<solver->getNumObjects();i++)
-		if(solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+	for (unsigned i=0;i<solver->getNumObjects();i++)
+		if (solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
 			solver->getIllumination(i)->getLayer(0) =
 				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 

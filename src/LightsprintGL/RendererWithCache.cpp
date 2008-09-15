@@ -24,7 +24,7 @@ RendererWithCache::RendererWithCache(Renderer* arenderer)
 
 RendererWithCache::~RendererWithCache()
 {
-	for(Map::iterator i=mapa.begin();i!=mapa.end();i++)
+	for (Map::iterator i=mapa.begin();i!=mapa.end();i++)
 	{
 		setStatus(CS_NEVER_COMPILE,i->second);
 	}
@@ -36,9 +36,9 @@ RendererWithCache::Info& RendererWithCache::findInfo()
 	memset(&key,0,sizeof(key));
 	unsigned length;
 	const void* params = renderer->getParams(length);
-	if(length)
+	if (length)
 	{
-		if(length>sizeof(key))
+		if (length>sizeof(key))
 		{
 			assert(0);
 			length = sizeof(key); //!!! params delsi nez 16 jsou oriznuty
@@ -50,13 +50,13 @@ RendererWithCache::Info& RendererWithCache::findInfo()
 
 void RendererWithCache::setStatus(ChannelStatus cs,RendererWithCache::Info& info)
 {
-	if(info.status==CS_COMPILED && cs!=CS_COMPILED)
+	if (info.status==CS_COMPILED && cs!=CS_COMPILED)
 	{
 		assert(info.displayList!=UINT_MAX);
 		glDeleteLists(info.displayList,1);
 		info.displayList = UINT_MAX;
 	}
-	if(info.status!=CS_COMPILED && cs==CS_COMPILED)
+	if (info.status!=CS_COMPILED && cs==CS_COMPILED)
 	{
 		assert(info.displayList==UINT_MAX);
 		cs = CS_READY_TO_COMPILE;
@@ -75,7 +75,7 @@ void RendererWithCache::render()
 	switch(info.status)
 	{
 	case CS_READY_TO_COMPILE:
-		if(!COMPILE) goto never;
+		if (!COMPILE) goto never;
 		assert(info.displayList==UINT_MAX);
 		info.displayList = glGenLists(1);
 		glNewList(info.displayList,GL_COMPILE);
@@ -103,7 +103,7 @@ never:
 
 Renderer* Renderer::createDisplayList()
 {
-	if(!this) return NULL;
+	if (!this) return NULL;
 	return new RendererWithCache(this);
 }
 

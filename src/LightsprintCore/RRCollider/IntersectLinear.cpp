@@ -69,30 +69,30 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 
 	// cull test
 	bool hitFrontSide = det>0;
-	if(!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
+	if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
-	if(det==0) return false;
+	if (det==0) return false;
 	//#define EPSILON 1e-10 // 1e-6 good for all except bunny, 1e-10 good for bunny
-	//if(det>-EPSILON && det<EPSILON) return false;
+	//if (det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
 	Vec3 tvec = ray->rayOrigin-t->vertex0;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
-	if(u<0 || u>1) return false;
+	if (u<0 || u>1) return false;
 
 	// prepare to test V parameter
 	Vec3 qvec = orthogonalTo(tvec,t->side1);
 
 	// calculate V parameter and test bounds
 	real v = dot(ray->rayDir,qvec)/det;
-	if(v<0 || u+v>1) return false;
+	if (v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
 	real dist = dot(t->side2,qvec)/det;
-	if(dist<ray->hitDistanceMin || dist>ray->hitDistanceMax) return false;
+	if (dist<ray->hitDistanceMin || dist>ray->hitDistanceMax) return false;
 
 	ray->hitDistance = dist;
 #ifdef FILL_HITPOINT2D
@@ -108,7 +108,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 {
 #ifdef USE_SSE
-	if((long long)(&box)%16) 
+	if ((long long)(&box)%16) 
 	{
 		RRReporter::report(ERRO,"You created unaligned structure. Try static or heap if it's on stack now.\n");
 		RR_ASSERT(!((long long)(&box)%16));
@@ -131,7 +131,7 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	RRReal tmpz = MAX(fabs(box.max.z),fabs(box.min.z));
 	RRReal maxCoord = MAX(MAX(tmpx,tmpy),tmpz);
 	RR_ASSERT(IS_NUMBER(maxCoord));
-	if(maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
+	if (maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
 	DELTA_BSP = maxCoord*1e-5f;
 }
 
@@ -157,13 +157,13 @@ bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
-	if(!importer) return false; // this shouldn't happen but linear is so slow that we can test it
-	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
+	if (!importer) return false; // this shouldn't happen but linear is so slow that we can test it
+	if (!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	ray->hitDistance = ray->hitDistanceMax;
 
 #ifdef USE_EXPECT_HIT
-	if(ray->rayFlags&RRRay::EXPECT_HIT) 
+	if (ray->rayFlags&RRRay::EXPECT_HIT) 
 	{
 		ray->hitDistanceMin = ray->rayLengthMin;
 		ray->hitDistanceMax = ray->rayLengthMax;
@@ -171,7 +171,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	else
 #endif
 	{
-		if(!box.intersect(ray)) return false;
+		if (!box.intersect(ray)) return false;
 	}
 
 	bool hit = false;
@@ -180,33 +180,33 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];
-	if(ray->collisionHandler)
+	if (ray->collisionHandler)
 		ray->collisionHandler->init();
 #endif
-	for(unsigned t=0;t<triangles;t++)
+	for (unsigned t=0;t<triangles;t++)
 	{
 		RRMesh::TriangleBody t2;
 		importer->getTriangleBody(t,t2);
-		if(intersect_triangle(ray,&t2))
+		if (intersect_triangle(ray,&t2))
 		{
 			ray->hitTriangle = t;
 #ifdef COLLISION_HANDLER
-			if(ray->collisionHandler) 
+			if (ray->collisionHandler) 
 			{
 #ifdef FILL_HITPOINT3D
-				if(ray->rayFlags&RRRay::FILL_POINT3D)
+				if (ray->rayFlags&RRRay::FILL_POINT3D)
 				{
 					update_hitPoint3d(ray,ray->hitDistance);
 				}
 #endif
 #ifdef FILL_HITPLANE
-				if(ray->rayFlags&RRRay::FILL_PLANE)
+				if (ray->rayFlags&RRRay::FILL_PLANE)
 				{
 					update_hitPlane(ray,importer);
 				}
 #endif
 				// hits are reported in random order
-				if(ray->collisionHandler->collides(ray)) 
+				if (ray->collisionHandler->collides(ray)) 
 				{
 					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
 					ray->hitDistanceMax = ray->hitDistance;
@@ -222,25 +222,25 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		}
 	}
 #ifdef COLLISION_HANDLER
-	if(ray->collisionHandler)
+	if (ray->collisionHandler)
 		hit = ray->collisionHandler->done();
 #endif
-	if(hit) 
+	if (hit) 
 	{
 #ifdef COLLISION_HANDLER
-		if(ray->collisionHandler)
+		if (ray->collisionHandler)
 		{
 			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 		}
 #endif
 #ifdef FILL_HITPOINT3D
-		if(ray->rayFlags&RRRay::FILL_POINT3D)
+		if (ray->rayFlags&RRRay::FILL_POINT3D)
 		{
 			update_hitPoint3d(ray,ray->hitDistance);
 		}
 #endif
 #ifdef FILL_HITPLANE
-		if(ray->rayFlags&RRRay::FILL_PLANE)
+		if (ray->rayFlags&RRRay::FILL_PLANE)
 		{
 			update_hitPlane(ray,importer);
 		}
@@ -294,13 +294,13 @@ public:
 		#endif
 		// some data are autogenerated
 		#ifdef FILL_HITPOINT3D
-			if(ray->rayFlags&RRRay::FILL_POINT3D)
+			if (ray->rayFlags&RRRay::FILL_POINT3D)
 			{
 				update_hitPoint3d(ray,ray->hitDistance);
 			}
 		#endif
 		#ifdef FILL_HITPLANE
-			if(ray->rayFlags&RRRay::FILL_PLANE)
+			if (ray->rayFlags&RRRay::FILL_PLANE)
 			{
 				update_hitPlane(ray,mesh);
 			}
@@ -345,23 +345,23 @@ void RayHits::insertHitUnordered(RRRay* ray)
 {
 	RR_ASSERT(ray);
 	backupSlot[backupSlotsUsed++].createBackupOf(ray);
-	if(ray->hitDistance<backupSlot[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
+	if (ray->hitDistance<backupSlot[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
 }
 
 bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
-	if(backupSlotsUsed)
+	if (backupSlotsUsed)
 	{
 		// restore the most close hit
 		backupSlot[theBestSlot].restoreBackupTo(ray,mesh);
 
 #ifdef COLLISION_HANDLER
-		if(ray->collisionHandler)
+		if (ray->collisionHandler)
 		{
 			// optimization: try theBestSlot first, before qsort
-			if(ray->collisionHandler->collides(ray)) 
+			if (ray->collisionHandler->collides(ray)) 
 			{
 				hit = true;
 			}
@@ -372,10 +372,10 @@ bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 
 				// run collisionHandler on sorted hits
 				// skip 0th element, it was theBestSlot before sort
-				for(unsigned i=1;i<backupSlotsUsed;i++)
+				for (unsigned i=1;i<backupSlotsUsed;i++)
 				{
 					backupSlot[i].restoreBackupTo(ray,mesh);
-					if(ray->collisionHandler->collides(ray)) 
+					if (ray->collisionHandler->collides(ray)) 
 					{
 						hit = true;
 						break;
