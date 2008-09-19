@@ -406,7 +406,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
-			glClearDepth(0.9999); // prevents backprojection
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap

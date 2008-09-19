@@ -575,7 +575,7 @@ void RendererOfOriginalScene::render()
 			else
 				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
-				const GLfloat depth = 0.999f; // must be less than 0.9999 set in some samples
+				const GLfloat depth = 1;
 				glVertex3f(-1,-1,depth);
 				glVertex3f(1,-1,depth);
 				glVertex3f(1,1,depth);
