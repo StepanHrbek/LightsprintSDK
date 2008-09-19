@@ -1209,6 +1209,7 @@ static void display()
 			ray->rayLengthMin = svs.eye.anear;
 			ray->rayLengthMax = svs.eye.afar;
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+			ray->collisionHandler = multiObject->createCollisionHandlerFirstVisible();
 			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
@@ -1280,6 +1281,7 @@ static void display()
 				textOutput(x,y+=18,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 			}
 			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
+			delete ray->collisionHandler;
 			delete ray;
 		}
 		if (multiMesh && svs.render2d && lv)

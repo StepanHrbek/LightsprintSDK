@@ -17,9 +17,9 @@ namespace rr
 class RRCollisionHandlerFirstVisible : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerFirstVisible(const RRObject* aobject)
+	RRCollisionHandlerFirstVisible(const RRObject* _object)
 	{
-		object = aobject;
+		object = _object;
 	}
 	virtual void init()
 	{
@@ -67,7 +67,7 @@ private:
 //
 // RRObject
 
-RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible()
+RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible() const
 {
 	return new RRCollisionHandlerFirstVisible(this);
 }

@@ -31,7 +31,7 @@ RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const
 // This function logically belongs to RRObject.cpp
 // We put it here where exceptions are enabled.
 // Enabling them in RRObject.cpp would be expensive.
-void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
+void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist) const
 {
 	const RRMesh* mesh = getCollider()->getMesh();
 	unsigned numVertices = mesh->getNumVertices();
