@@ -505,13 +505,16 @@ public:
 		shooterTriangleIndex = t;
 	}
 
-	virtual void init()
+	virtual void init(RRRay* ray)
 	{
+		ray->rayFlags |= RRRay::FILL_TRIANGLE;
 		result = false;
 	}
 
 	virtual bool collides(const RRRay* ray)
 	{
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
+
 		// don't collide with shooter
 		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;

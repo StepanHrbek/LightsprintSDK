@@ -39,9 +39,9 @@ namespace rr
 
 		//! Prepares for single intersection test.
 		//
-		//! Is called at the beginning of 
-		//! RRCollider::intersect().
-		virtual void init() = 0;
+		//! Is called at the beginning of RRCollider::intersect().
+		//! May set additional flags in ray.
+		virtual void init(class RRRay* ray) = 0;
 
 		//! Handles each collision detected by single intersection test.
 		//
@@ -98,7 +98,7 @@ namespace rr
 		RRVec3p         rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
-		unsigned        rayFlags;       ///< In. Flags that specify what to find.
+		unsigned        rayFlags;       ///< InOut. Flags that specify what to find. Additional flags may be set by collision handler.
 
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.

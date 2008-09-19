@@ -21,20 +21,23 @@ public:
 	{
 		object = _object;
 	}
-	virtual void init()
+	virtual void init(RRRay* ray)
 	{
+		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 		result = false;
 	}
 	virtual bool collides(const RRRay* ray)
 	{
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
+
 		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 		if (material)
 		{
 			// per-pixel materials
 			if (material->sideBits[ray->hitFrontSide?0:1].pointDetails)
 			{
-				// optional ray->hitPoint2d must be filled
-				// this is satisfied by existing colliders, they fill hitPoint2d even when not requested by user
 				RRMaterial pointMaterial;
 				object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)

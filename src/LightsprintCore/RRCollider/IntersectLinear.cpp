@@ -181,7 +181,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];
 	if (ray->collisionHandler)
-		ray->collisionHandler->init();
+		ray->collisionHandler->init(ray);
 #endif
 	for (unsigned t=0;t<triangles;t++)
 	{

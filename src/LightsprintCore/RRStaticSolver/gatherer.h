@@ -50,13 +50,18 @@ public:
 		}
 	}
 
-	virtual void init()
+	virtual void init(RRRay* ray)
 	{
+		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 		result = pointMaterialValid = false;
 	}
 
 	virtual bool collides(const RRRay* ray)
 	{
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
+
 		// don't collide with shooter
 		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;
@@ -81,10 +86,6 @@ public:
 		// per-pixel materials
 		if (allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
 		{
-			// optional ray->hitPoint2d must be filled
-			// this is satisfied on 2 external places:
-			//   - existing users request 2d to be filled
-			//   - existing colliders fill hitPoint2d even when not requested by user
 			multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 			if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 			{

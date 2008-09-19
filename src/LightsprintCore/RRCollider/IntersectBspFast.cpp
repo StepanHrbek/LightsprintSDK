@@ -790,7 +790,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 #ifdef COLLISION_HANDLER
 	if (ray->collisionHandler)
-		ray->collisionHandler->init();
+		ray->collisionHandler->init(ray);
 #endif
 	switch(intersectTechnique)
 	{

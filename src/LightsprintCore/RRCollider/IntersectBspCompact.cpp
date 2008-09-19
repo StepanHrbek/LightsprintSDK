@@ -318,7 +318,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	{
 #ifdef COLLISION_HANDLER
 		if (ray->collisionHandler)
-			ray->collisionHandler->init();
+			ray->collisionHandler->init(ray);
 #endif
 		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
 #ifdef COLLISION_HANDLER
