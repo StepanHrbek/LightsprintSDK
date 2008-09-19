@@ -1206,8 +1206,8 @@ static void display()
 			ray->rayDirInv[0] = 1/dir[0];
 			ray->rayDirInv[1] = 1/dir[1];
 			ray->rayDirInv[2] = 1/dir[2];
-			ray->rayLengthMin = 0;
-			ray->rayLengthMax = 10000;
+			ray->rayLengthMin = svs.eye.anear;
+			ray->rayLengthMax = svs.eye.afar;
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
