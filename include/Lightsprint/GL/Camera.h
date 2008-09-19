@@ -35,14 +35,16 @@ public:
 	float    leanAngle;
 	//! Rotation around X axis, radians, controls looking up/down. Ignored if !updateDirFromAngles.
 	float    angleX;
+private:
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
 	//! Camera's vertical field of view in degrees. Must be positive and less than 180.
-	float    fieldOfView;
+	float    fieldOfViewVerticalDeg;
 	//! Camera's near plane distance in world units. Must be positive.
 	float    anear;
 	//! Camera's far plane distance in world units. Must be greater than near.
 	float    afar;
+public:
 	//! Whether camera is orthogonal, set for directional lights.
 	union
 	{
@@ -60,14 +62,14 @@ public:
 
 	// inputs or outputs
 
-	//! View direction. Input if !updateDirFromAngles, output if updateDirFromAngles.
+	//! Normalized view direction. Input if !updateDirFromAngles, output if updateDirFromAngles.
 	rr::RRVec4 dir;
 
 	// outputs, to be calculated by update() and possibly read by user
 
-	//! Up vector.
+	//! Normalized up vector.
 	rr::RRVec3 up;
-	//! Right vector.
+	//! Normalized right vector.
 	rr::RRVec3 right;
 	//! View matrix in format suitable for OpenGL.
 	double   viewMatrix[16];
@@ -86,6 +88,23 @@ public:
 	Camera(const rr::RRLight& light);
 	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
+
+	float getAspect()                   const {return aspect;}
+	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}
+	float getFieldOfViewHorizontalDeg() const {return fieldOfViewVerticalDeg*aspect;}
+	float getFieldOfViewVerticalRad()   const {return fieldOfViewVerticalDeg*(3.14159f/180);}
+	float getFieldOfViewHorizontalRad() const {return fieldOfViewVerticalDeg*(3.14159f/180)*aspect;}
+	float getNear()                     const {return anear;}
+	float getFar()                      const {return afar;}
+	void  setAspect(float aspect);
+	void  setFieldOfViewVerticalDeg(float fieldOfViewVerticalDeg);
+	void  setRange(float _near, float _far);
+	//! Sets pos and dir randomly, and near-far range based on scene size. Uses raycasting (~1000 rays).
+	void  setPosDirRangeRandomly(const rr::RRObject* scene);
+	//! Sets near to be a bit smaller than distance from scene in front of camera.
+	//! Uses raycasting (~10 rays). May be called in each frame.
+	void  setNearDynamically(const rr::RRObject* scene);
+	
 	//! == operator, true when inputs are equal.
 	bool operator==(const Camera& a) const;
 	//! != operator, true when inputs differ.

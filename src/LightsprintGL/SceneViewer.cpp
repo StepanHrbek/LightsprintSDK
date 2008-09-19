@@ -75,6 +75,8 @@ static unsigned                   centerTexel = UINT_MAX; // texel in the middle
 static unsigned                   centerTriangle = UINT_MAX; // triangle in the middle of screen, multiObjPostImport
 static int                        menuInUse = GLUT_MENU_NOT_IN_USE; // GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
 static rr::RRVec3                 lastSecondMovement(0); // last movement vector extended to 1 second, updated in each frame, used during free fall
+static rr::RRRay*                 ray = NULL; // all users use this ray to prevent allocations in every frame
+static rr::RRCollisionHandler*    collisionHandler = NULL; // all users use this collision handler to prevent allocations in every frame
 
 // all we need for testing lightfield
 static rr::RRLightField*          lightField = NULL;
@@ -352,14 +354,8 @@ public:
 				}
 				break;
 			case ME_RANDOM_CAMERA:
-				if (solver->getMultiObjectCustom())
-				{
-					solver->getMultiObjectCustom()->generateRandomCamera(svs.eye.pos,svs.eye.dir,svs.eye.afar);
-					svs.cameraMetersPerSecond = svs.eye.afar*0.08f;
-					svs.eye.anear = MAX(0.1f,svs.eye.afar/500); // increase from 0.1 to prevent z fight in big scenes
-					svs.eye.afar = MAX(svs.eye.anear+1,svs.eye.afar); // adjust to fit all objects in range
-					svs.eye.setDirection(svs.eye.dir);
-				}
+				svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
+				svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
 				break;
 			case ME_CHECK_SOLVER: solver->checkConsistency(); break;
 			case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
@@ -615,7 +611,7 @@ public:
 		switch(item)
 		{
 			case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); break;
-			case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.fieldOfView*(3.14f/180/2),svs.eye.fieldOfView*(3.14f/180/4)); break;
+			case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
 			case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
 			case ME_LIGHT_DELETE:
 				if (svs.selectedLightIndex<solver->realtimeLights.size())
@@ -797,7 +793,7 @@ static void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	svs.eye.aspect = winWidth/(float)winHeight;
+	svs.eye.setAspect( winWidth/(float)winHeight );
 }
 
 static void mouse(int button, int state, int x, int y)
@@ -813,16 +809,16 @@ static void mouse(int button, int state, int x, int y)
 		else selectedType = ST_LIGHT;
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
+	float fov = svs.eye.getFieldOfViewVerticalDeg();
 	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if (svs.eye.fieldOfView>13) svs.eye.fieldOfView -= 10;
-		else svs.eye.fieldOfView /= 1.4f;
+		if (fov>13) fov -= 10; else fov /= 1.4f;
 	}
 	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if (svs.eye.fieldOfView*1.4f<=3) svs.eye.fieldOfView *= 1.4f;
-		else if (svs.eye.fieldOfView<130) svs.eye.fieldOfView+=10;
+		if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
 	}
+	svs.eye.setFieldOfViewVerticalDeg(fov);
 #endif
 	solver->reportInteraction();
 }
@@ -848,8 +844,8 @@ static void passive(int x, int y)
 #endif
 		if (selectedType==ST_CAMERA || selectedType==ST_OBJECT)
 		{
-			svs.eye.angle -= mouseSensitivity*x*(svs.eye.fieldOfView/90);
-			svs.eye.angleX -= mouseSensitivity*y*(svs.eye.fieldOfView/90);
+			svs.eye.angle -= mouseSensitivity*x*(svs.eye.getFieldOfViewVerticalDeg()/90);
+			svs.eye.angleX -= mouseSensitivity*y*(svs.eye.getFieldOfViewVerticalDeg()/90);
 			CLAMP(svs.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
 		}
 		else
@@ -902,6 +898,12 @@ static void display()
 
 		svs.eye.update();
 
+		if (svs.cameraDynamicNear)
+		{
+			svs.eye.setNearDynamically(solver->getMultiObjectCustom());
+			svs.eye.update();
+		}
+
 		if (svs.renderRealtime)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
@@ -951,7 +953,7 @@ static void display()
 				water->updateReflectionDone();
 			}
 			solver->renderScene(uberProgramSetup,NULL);
-			if (svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.afar*2,svs.eye.pos);
+			if (svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.getFar()*2,svs.eye.pos);
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if (svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
 			{
@@ -1091,6 +1093,12 @@ static void display()
 			textOutput(x,y+=18*2,"[camera]");
 			textOutput(x,y+=18,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
 			textOutput(x,y+=18,"dir: %f %f %f",svs.eye.dir[0],svs.eye.dir[1],svs.eye.dir[2]);
+			//textOutput(x,y+=18,"rig: %f %f %f",svs.eye.right[0],svs.eye.right[1],svs.eye.right[2]);
+			//textOutput(x,y+=18,"up : %f %f %f",svs.eye.up[0],svs.eye.up[1],svs.eye.up[2]);
+			//textOutput(x,y+=18,"FOV deg: x=%f y=%f asp=%f",svs.eye.getFieldOfViewHorizontalDeg(),svs.eye.getFieldOfViewVerticalDeg(),svs.eye.getAspect());
+			GLint depthBits;
+			glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+			textOutput(x,y+=18,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
 		}
 		unsigned numLights = solver->getLights().size();
 		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
@@ -1200,16 +1208,16 @@ static void display()
 		}
 		if (multiMesh && (!svs.render2d || !lv))
 		{
-			rr::RRRay* ray = rr::RRRay::create();
+			// ray and collisionHandler are used in this block
 			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
 			ray->rayOrigin = svs.eye.pos;
 			ray->rayDirInv[0] = 1/dir[0];
 			ray->rayDirInv[1] = 1/dir[1];
 			ray->rayDirInv[2] = 1/dir[2];
-			ray->rayLengthMin = svs.eye.anear;
-			ray->rayLengthMax = svs.eye.afar;
+			ray->rayLengthMin = svs.eye.getNear();
+			ray->rayLengthMax = svs.eye.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-			ray->collisionHandler = multiObject->createCollisionHandlerFirstVisible();
+			ray->collisionHandler = collisionHandler;
 			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
@@ -1281,8 +1289,6 @@ static void display()
 				textOutput(x,y+=18,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 			}
 			textOutput(x,y+=18*2,"numbers of casters/lights show potential, what is allowed");
-			delete ray->collisionHandler;
-			delete ray;
 		}
 		if (multiMesh && svs.render2d && lv)
 		{
@@ -1338,12 +1344,14 @@ static void idle()
 	if (!winWidth) return; // can't work without window
 
 	// camera/light movement
-	static TIME prev = 0;
-	TIME now = GETTIME;
-	if (prev && now!=prev)
+	static TIME prevTime = 0;
+	TIME nowTime = GETTIME;
+	if (prevTime && nowTime!=prevTime)
 	{
+		// ray is used in this block
+
 		// camera/light keyboard move
-		float seconds = (now-prev)/(float)PER_SEC;
+		float seconds = (nowTime-prevTime)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
 		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getParent();
@@ -1356,12 +1364,12 @@ static void idle()
 		#define LIFT_SPEED       1.0f // m/s
 		rr::RRVec3 oldEyePos = svs.eye.pos;
 		const rr::RRCollider* collider = (solver && solver->getMultiObjectCustom()) ? solver->getMultiObjectCustom()->getCollider() : NULL;
-		rr::RRRay* ray = rr::RRRay::create();
 		ray->rayOrigin = svs.eye.pos;
 		ray->rayDirInv = rr::RRVec3(1e10f,-1,1e10f);
 		ray->rayLengthMin = 0;
 		ray->rayLengthMax = FLOOR_DISTANCE*1.01f; // 1.01 prevents free fall on flat ground due to float precision error
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+		ray->collisionHandler = NULL;
 		if (!svs.cameraGravity || !collider || collider->intersect(ray))
 #endif
 		{
@@ -1439,8 +1447,6 @@ static void idle()
 
 		lastSecondMovement = (svs.eye.pos-oldEyePos)/seconds;
 		if (svs.cameraGravity && lastSecondMovement.y<-30) Menu::mainCallback(Menu::ME_RANDOM_CAMERA); // respawn when falling outside world
-
-		delete ray;
 #endif
 
 		// light change report
@@ -1452,7 +1458,7 @@ static void idle()
 			}
 		}
 	}
-	prev = now;
+	prevTime = nowTime;
 
 	glutPostRedisplay();
 }
@@ -1544,6 +1550,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	if (svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
 	water = new Water(_pathToShaders,true,false);
 	toneMapping = new ToneMapping(_pathToShaders);
+	ray = rr::RRRay::create();
+	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
 	exitRequested = false;
 #if defined(GLUT_WITH_WHEEL_AND_LOOP)
@@ -1553,6 +1561,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutMainLoop();
 #endif
 
+	delete collisionHandler;
+	delete ray;
 	delete toneMapping;
 	delete water;
 	delete menu;

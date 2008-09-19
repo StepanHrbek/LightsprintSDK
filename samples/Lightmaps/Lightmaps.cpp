@@ -315,7 +315,7 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = winWidth/(float)winHeight;
+	eye.setAspect( winWidth/(float)winHeight );
 }
 
 void mouse(int button, int state, int x, int y)
@@ -323,14 +323,16 @@ void mouse(int button, int state, int x, int y)
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		modeMovingEye = !modeMovingEye;
 #ifdef GLUT_WHEEL_UP
+	float fov = eye.getFieldOfViewVerticalDeg();
 	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if (eye.fieldOfView>13) eye.fieldOfView -= 10;
+		if (fov>13) fov -= 10; else fov /= 1.4f;
 	}
 	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if (eye.fieldOfView<130) eye.fieldOfView+=10;
+		if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
 	}
+	eye.setFieldOfViewVerticalDeg(fov);
 #endif
 }
 

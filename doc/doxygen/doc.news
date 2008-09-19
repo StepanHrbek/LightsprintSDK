@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news64 ------------------------------------ 2008.9.x -------------------------------------
+
+CHANGES
+
+- in rr_gl::Camera, several variables were made private, use new get/setters to access them
+  \n Setters guarantee that values are always consistent.
+- rr_gl::Camera::setNearDynamically() sets near dynamically to prevent clipping of near objects
+  \n rr_gl::sceneViewer() uses it by default
+- RRCollisionHandler::init() has new parameter
+
 \section news63 ------------------------------------ 2008.9.14 -------------------------------------
 
 NEWS

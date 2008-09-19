@@ -4,13 +4,14 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
+#include <set> // setRangeDynamically
 #include "Lightsprint/GL/Camera.h"
 #include "matrix.h"
 
 namespace rr_gl
 {
 
-Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfView, float _anear, float _afar)
+Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
 	pos[0] = _posx;
 	pos[1] = _posy;
@@ -18,10 +19,9 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	angle = _angle;
 	leanAngle = _leanAngle;
 	angleX = _angleX;
-	aspect = _aspect;
-	fieldOfView = _fieldOfView;
-	anear = _anear;
-	afar = _afar;
+	setAspect(_aspect);
+	setFieldOfViewVerticalDeg(_fieldOfViewVerticalDeg); // aspect must be already set
+	setRange(_anear,_afar);
 	orthogonal = 0;
 	orthoSize = 0;
 	updateDirFromAngles = true;
@@ -42,10 +42,9 @@ Camera::Camera(const rr::RRLight& light)
 	{
 		setDirection(light.direction);
 	}
-	aspect = 1;
-	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
-	anear = (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f;
-	afar = (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f;
+	setAspect(1);
+	setFieldOfViewVerticalDeg( (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90 ); // aspect must be already set
+	setRange( (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f, (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f );
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
 	updateDirFromAngles = true;
@@ -66,9 +65,91 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 	leanAngle = 0;
 }
 
+void Camera::setAspect(float _aspect)
+{
+	aspect = CLAMPED(_aspect,0.001f,1000);
+}
+
+void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
+{
+	if(aspect>1)
+	{
+		// wide screen, horizontal fov is closer to 180deg limit
+		fieldOfViewVerticalDeg = CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f/aspect);
+	}
+	else
+	{
+		// tall screen, vertical fov is closer to 180deg limit
+		fieldOfViewVerticalDeg = CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
+	}
+}
+
+void Camera::setRange(float _near, float _far)
+{
+	anear = MAX(0.00000001f,_near);
+	afar = MAX(_near*2,_far);
+}
+
+void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
+{
+	// generate new values
+	rr::RRVec3 newPos, newDir;
+	float maxDistance;
+	object->generateRandomCamera(newPos,newDir,maxDistance);
+	// set them
+	pos = newPos;
+	setDirection(dir);
+	setRange(maxDistance/500,maxDistance);
+}
+
+void Camera::setNearDynamically(const rr::RRObject* object)
+{
+	if (!object)
+	{
+		return;
+	}
+	rr::RRRay* ray = rr::RRRay::create(1);
+	ray->rayOrigin = pos;
+	ray->rayLengthMin = 0;
+	ray->rayLengthMax = 1e12f;
+	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+	ray->collisionHandler = object->createCollisionHandlerFirstVisible();
+	std::set<float> objDistance;
+	enum {RAYS=9};
+	for (int i=0;i<RAYS;i++)
+	{
+		RR_ASSERT(!orthogonal);
+		// builds and shoots 9 rays to screen center, corners, edge centers
+		rr::RRVec3 rayDir = (
+			dir.RRVec3::normalized()
+			+ up    * ( (( i   %3)-1) * tan(getFieldOfViewVerticalRad()  /2) )
+			+ right * ( (((i/3)%3)-1) * tan(getFieldOfViewHorizontalRad()/2) )
+			);
+		float rayDirLength = rayDir.length();
+		rayDir.normalize();
+		ray->rayDirInv[0] = 1/rayDir[0];
+		ray->rayDirInv[1] = 1/rayDir[1];
+		ray->rayDirInv[2] = 1/rayDir[2];
+		if (object->getCollider()->intersect(ray))
+		{
+			objDistance.insert(ray->hitDistance/rayDirLength);
+		}
+	}
+	if (objDistance.size())
+	{
+		float min = *objDistance.begin();
+		setRange( CLAMPED(min,0.0001f,getFar()/100), getFar() );
+	}
+	delete ray->collisionHandler;
+	delete ray;
+}
+
 bool Camera::operator==(const Camera& a) const
 {
-	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2] && angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX && aspect==a.aspect && fieldOfView==a.fieldOfView && anear==a.anear && afar==a.afar;
+	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2]
+		&& angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX
+		&& aspect==a.aspect && fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
+		&& anear==a.anear && afar==a.afar;
 }
 
 bool Camera::operator!=(const Camera& a) const
@@ -93,10 +174,11 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	dir.RRVec3::normalize();
 	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
 	CROSS(dir,tmpup,tmpright);
+	CROSS(tmpright,dir,tmpup);
 	float s = sin(leanAngle);
 	float c = cos(leanAngle);
-	up = tmpup*c+tmpright*s;
-	right = tmpup*s-tmpright*c;
+	up = (tmpup*c+tmpright*s).normalized();
+	right = (tmpup*s-tmpright*c).normalized();
 
 	// update pos (the same for all cascade steps)
 	if (observer)
@@ -138,8 +220,8 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	}
 	else
 	{
-		frustumMatrix[0] = 1/(tan(fieldOfView*M_PI/360)*aspect);
-		frustumMatrix[5] = 1/tan(fieldOfView*M_PI/360);
+		frustumMatrix[0] = 1/(tan(fieldOfViewVerticalDeg*M_PI/360)*aspect);
+		frustumMatrix[5] = 1/tan(fieldOfViewVerticalDeg*M_PI/360);
 		frustumMatrix[10] = -(afar+anear)/(afar-anear);
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);

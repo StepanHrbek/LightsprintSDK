@@ -41,6 +41,7 @@ struct SceneViewerState
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
 	bool             cameraGravity;       //! Camera responds to gravity.
 	bool             cameraCollisions;    //! Camera collides with geometry.
+	bool             cameraDynamicNear;   //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
 	rr::RRVec4       brightness;          //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;               //! Gamma correction applied at render time, 1=no correction.
@@ -72,6 +73,7 @@ struct SceneViewerState
 		adjustTonemapping = 1;
 		cameraGravity = 0;
 		cameraCollisions = 0;
+		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		brightness = rr::RRVec4(1);
 		gamma = 1;

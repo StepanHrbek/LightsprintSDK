@@ -512,7 +512,7 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
-	currentFrame.eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
+	currentFrame.eye.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
 	currentFrame.eye.update();
 	currentFrame.light.update();
 	needMatrixUpdate = false;
@@ -1902,18 +1902,20 @@ void mouse(int button, int state, int x, int y)
 		modeMovingEye = !modeMovingEye;
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
+	float fov = currentFrame.eye.getFieldOfViewVerticalDeg();
 	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if (currentFrame.eye.fieldOfView>13) currentFrame.eye.fieldOfView -= 10;
+		if (fov>13) fov -= 10; else fov /= 1.4f;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
 	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if (currentFrame.eye.fieldOfView<130) currentFrame.eye.fieldOfView+=10;
+		if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
+	currentFrame.eye.setFieldOfViewVerticalDeg(fov);
 #endif
 }
 

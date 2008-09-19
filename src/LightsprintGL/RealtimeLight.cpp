@@ -205,8 +205,8 @@ namespace rr_gl
 		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.angle += light.fieldOfView*light.aspect/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][0]*0.22f;
-			light.angleX += light.fieldOfView/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][1]*0.22f;
+			light.angle += light.getFieldOfViewHorizontalRad()/shadowMapSize*jitterSample[instance%10][0]*0.22f;
+			light.angleX += light.getFieldOfViewVerticalRad()/shadowMapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update();
 	}

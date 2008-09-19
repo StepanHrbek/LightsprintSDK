@@ -235,7 +235,7 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = winWidth/(float)winHeight;
+	eye.setAspect( winWidth/(float)winHeight );
 }
 
 void mouse(int button, int state, int x, int y)

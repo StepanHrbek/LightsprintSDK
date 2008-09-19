@@ -151,8 +151,21 @@ bool AnimationFrame::loadOver(FILE* f)
 	//if (1!=fscanf(f,"layer_number = %d\n",&layerNumber))
 	//	return false;
 	// load eye+light
-	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.angle,&eye.leanAngle,&eye.angleX,&eye.aspect,&eye.fieldOfView,&eye.anear,&eye.afar)==10) loaded = true;
-	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.angle,&light.leanAngle,&light.angleX,&light.aspect,&light.fieldOfView,&light.anear,&light.afar)==10) loaded = true;
+	float aspect, fov, anear, afar;
+	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.angle,&eye.leanAngle,&eye.angleX,&aspect,&fov,&anear,&afar)==10)
+	{
+		eye.setAspect(aspect);
+		eye.setFieldOfViewVerticalDeg(fov);
+		eye.setRange(anear,afar);
+		loaded = true;
+	}
+	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.angle,&light.leanAngle,&light.angleX,&aspect,&fov,&anear,&afar)==10)
+	{
+		light.setAspect(aspect);
+		light.setFieldOfViewVerticalDeg(fov);
+		light.setRange(anear,afar);
+		loaded = true;
+	}
 	if (fscanf(f,"brightness = {%f,%f,%f,%f}\n",&brightness[0],&brightness[1],&brightness[2],&brightness[3])==4) loaded = true;
 	if (fscanf(f,"gamma = %f\n",&gamma)==1) loaded = true;
 	// load dynaPosRot
@@ -201,9 +214,9 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	fprintf(f,"layer_number = %d\n",layerNumber);
 	// save eye+light
 	if (!(eye==prev.eye))
-		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.getAspect(),eye.getFieldOfViewVerticalDeg(),eye.getNear(),eye.getFar());
 	if (!(light==prev.light))
-		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+100*3.14159265f,2*3.14159265f),light.leanAngle,light.angleX,light.aspect,light.fieldOfView,light.anear,light.afar);
+		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+100*3.14159265f,2*3.14159265f),light.leanAngle,light.angleX,light.getAspect(),light.getFieldOfViewVerticalDeg(),light.getNear(),light.getFar());
 	if (brightness!=prev.brightness)//brightness[0]!=1 || brightness[1]!=1 || brightness[2]!=1 || brightness[3]!=1)
 		fprintf(f,"brightness = {%f,%f,%f,%f}\n",brightness[0],brightness[1],brightness[2],brightness[3]);
 	if (gamma!=prev.gamma)//gamma!=1)
