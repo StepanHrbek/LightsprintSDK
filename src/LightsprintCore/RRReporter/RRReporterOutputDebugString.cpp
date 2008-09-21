@@ -6,8 +6,8 @@
 #include "Lightsprint/RRDebug.h"
 
 #ifdef _WIN32
-	#include <windows.h>
-#endif
+
+#include <windows.h>
 
 namespace rr
 {
@@ -16,7 +16,6 @@ namespace rr
 //
 // RRReporterOutputDebugString
 
-#ifdef _WIN32
 class RRReporterOutputDebugString : public RRReporter
 {
 public:
@@ -39,15 +38,19 @@ public:
 		OutputDebugString(message);
 	}
 };
-#endif
 
 RRReporter* RRReporter::createOutputDebugStringReporter()
 {
-#ifdef _WIN32
 	return new RRReporterOutputDebugString;
-#else
-	return NULL;
-#endif
 }
 
 } //namespace
+
+#else // _WIN32
+
+rr::RRReporter* rr::RRReporter::createOutputDebugStringReporter()
+{
+	return NULL;
+}
+
+#endif // !_WIN32

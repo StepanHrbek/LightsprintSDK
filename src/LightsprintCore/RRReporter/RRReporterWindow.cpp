@@ -225,14 +225,9 @@ RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver)
 
 #else // _WIN32
 
-namespace rr
-{
-
-RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver)
+rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRDynamicSolver*& _solver)
 {
 	return NULL;
 }
-
-} //namespace
 
 #endif

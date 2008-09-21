@@ -4,9 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRDebug.h"
-//#include <cstring>
 #include <cstdio>
-//#include <cstdlib>
 
 #ifdef _WIN32
 	#include <windows.h>
