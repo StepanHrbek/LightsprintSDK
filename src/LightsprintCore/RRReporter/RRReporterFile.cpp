@@ -6,6 +6,7 @@
 #include "Lightsprint/RRDebug.h"
 #include <cstring>
 #include <cstdio>
+#include <cstdlib> // free
 
 namespace rr
 {
