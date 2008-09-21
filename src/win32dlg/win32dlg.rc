@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "../LightsprintGL/dialog.h"
+#include "../LightsprintCore/RRReporter/reporterWindow.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
 
 1 TEXTINCLUDE 
 BEGIN
-    "../LightsprintGL/dialog.h\0"
+    "../LightsprintCore/RRReporter/reporterWindow.h\0"
 END
 
 2 TEXTINCLUDE 
@@ -52,18 +52,13 @@ END
 // Dialog
 //
 
-IDD_DIALOG1 DIALOGEX 0, 0, 316, 134
+IDD_DIALOG1 DIALOGEX 0, 0, 351, 269
 STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Lightsprint lightmap build"
+CAPTION "Lightsprint log"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "BUILD",IDOK,88,7,50,14
-    PUSHBUTTON      "debugger",IDC_VIEWER,260,7,49,14
-    EDITTEXT        IDC_QUALITY,35,7,40,14,ES_AUTOHSCROLL
-    LTEXT           "Quality",IDC_STATIC,7,9,24,8
-    EDITTEXT        IDC_LOG,7,29,302,98,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
-    PUSHBUTTON      "Abort",IDC_ABORT,147,7,50,14,NOT WS_VISIBLE
-    PUSHBUTTON      "custom",IDC_CUSTOM,205,7,50,14
+    RTEXT           "..abort action by closing this window..",IDC_STATIC,7,254,337,8,WS_DISABLED
+    EDITTEXT        IDC_LOG,7,7,337,246,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
 END
 
 
@@ -78,9 +73,9 @@ BEGIN
     IDD_DIALOG1, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 344
         TOPMARGIN, 7
-        BOTTOMMARGIN, 127
+        BOTTOMMARGIN, 262
     END
 END
 #endif    // APSTUDIO_INVOKED

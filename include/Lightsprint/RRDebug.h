@@ -78,7 +78,7 @@ namespace rr
 		//! Thread safe: yes, correct implementation must be thread safe.
 		virtual void customReport(RRReportType type, int indentation, const char* message) = 0;
 
-		virtual ~RRReporter() {}
+		virtual ~RRReporter();
 
 		/////////////////////////////////////////////////////////////
 		// tools
@@ -127,6 +127,22 @@ namespace rr
 
 		//! Creates reporter that calls OutputDebugString() on each message.
 		static RRReporter* createOutputDebugStringReporter();
+
+		//! Creates reporter with its own window to display messages.
+		//
+		//! Supported only in Windows.
+		//! If user tries to close the window manually, all tasks for given solver are aborted
+		//! (by setting solver->aborting).
+		//! Window is closed when you delete returned reporter (this also clears solver->aborting).
+		//! \n Usage example: \code
+		//! // create window, set it as current reporter
+		//! RRReporter::setReporter(RRReporter::createWindowedReporter(solver));
+		//! // do any work here, it is logged to window, may be aborted
+		//! solver->updateLightmaps();
+		//! // close window, set current reporter to NULL
+		//! delete RRReporter::getReporter();
+		//! \endcode
+		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -154,6 +170,7 @@ namespace rr
 		#endif
 		bool enabled;
 	};
+
 
 } // namespace
 

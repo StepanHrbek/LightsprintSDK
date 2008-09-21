@@ -103,29 +103,6 @@ struct SceneViewerState
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
 void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, SceneViewerState* svs);
 
-enum UpdateResult
-{
-	UR_UPDATED, // update of lightmaps finished
-	UR_ABORTED, // update was aborted and dialog closed
-	UR_CUSTOM   // update was aborted and custom button pressed
-};
-//! RRDynamicSolver::updateLightmaps() with dialog.
-//
-//! This function can be used to replace RRDynamicSolver::updateLightmaps().
-//! It has benefits
-//! - shows log
-//! - has abort button
-//! - when aborted, it lets user change quality setting and rerun, or run sceneViewer
-//! - has custom button for custom action
-//!
-//! and drawbacks
-//! - depends on LightsprintGL library (because of sceneViewer)
-//! - it's forbidden to run this function from multiple threads at the same time
-UpdateResult RR_GL_API updateLightmapsWithDialog(rr::RRDynamicSolver* solver,
-					int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, rr::RRDynamicSolver::UpdateParameters* paramsDirect, rr::RRDynamicSolver::UpdateParameters* paramsIndirect, const rr::RRDynamicSolver::FilteringParameters* filtering,
-					bool createWindowForSceneViewer, const char* pathToShaders,
-					const char* customButtonCaption);
-
 }; // namespace
 
 #endif

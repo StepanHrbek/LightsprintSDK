@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../LightsprintGL/dialog.h"
+#include "../LightsprintCore/RRReporter/reporterWindow.h"
 
 void Error(char *msg)
 {

@@ -35,6 +35,12 @@ CPP_FLAGS += -DRR_STATIC
 SOURCES = \
 RRBuffer/RRBuffer.cpp \
 RRBuffer/RRBufferInMemory.cpp \
+RRReporter/RRReporter.cpp \
+RRReporter/RRReporterFile.cpp \
+RRReporter/RRReporterOutputDebugString.cpp \
+RRReporter/RRReporterPrintf.cpp \
+RRReporter/RRReporterWindow.cpp \
+RRReporter/RRReportInterval.cpp \
 RRCollider/bsp.cpp \
 RRCollider/cache.cpp \
 RRCollider/fpcube.cpp \
@@ -77,8 +83,7 @@ RRStaticSolver/RRVision.cpp \
 RRLight.cpp \
 RRLightField.cpp \
 RRMemory.cpp \
-RRObjectIllumination.cpp \
-RRReporter.cpp
+RRObjectIllumination.cpp
 
 # libraries
 

@@ -166,11 +166,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\LightsprintCore\dialog.h"
-			>
-		</File>
-		<File
-			RelativePath="..\LightsprintGL\dialog.h"
+			RelativePath="..\LightsprintCore\RRReporter\reporterWindow.h"
 			>
 		</File>
 		<File

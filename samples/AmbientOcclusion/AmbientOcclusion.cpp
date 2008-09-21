@@ -24,7 +24,6 @@
 // --------------------------------------------------------------------------
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel AO, others get per-vertex AO
-//#define TB
 
 #include <stdio.h>
 #ifdef _WIN32
@@ -32,9 +31,6 @@
 #endif
 
 #include "Lightsprint/RRMath.h"    // TODO: Platform.h
-#ifdef TB
-#include "../../samples/ImportTB/RRObjectTB.h"
-#endif
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/IO/ImportScene.h"
@@ -83,11 +79,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::UpdateParameters params(2000);
 	rr::RRDynamicSolver::FilteringParameters filtering;
 	filtering.wrap = false;
-#ifdef _WIN32
-	rr_gl::updateLightmapsWithDialog(solver,layerNumber,-1,-1,&params,&params,&filtering,true,"../../data/shaders/",NULL);
-#else
 	solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering); 
-#endif
 }
 
 int main(int argc, char **argv)
@@ -98,8 +90,15 @@ int main(int argc, char **argv)
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
 	}
+
+	rr::RRDynamicSolver* solver = NULL;
+
 	// log messages to console
+#ifdef _WIN32
+	rr::RRReporter::setReporter(rr::RRReporter::createWindowedReporter(solver));
+#else
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+#endif
 
 	rr_io::setImageLoader();
 
@@ -107,35 +106,15 @@ int main(int argc, char **argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
+	solver = new rr::RRDynamicSolver();
+
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-#ifdef TB
-	// these are our peice chunk AO textures names to match on
-	std::vector< std::string > mapNames;
-	//mapNames.push_back( "1_0" );
-	mapNames.push_back( "1_1" );
-	//mapNames.push_back( "1_2" );
-	//mapNames.push_back( "1_3" );
-	//mapNames.push_back( "1_4" );
-	//mapNames.push_back( "1_5" );
-	//mapNames.push_back( "1_6" );
-	//mapNames.push_back( "1_7" );
-	//mapNames.push_back( "1_8" );
-	//mapNames.push_back( "1_9" ); //missing
-	//mapNames.push_back( "1_10" ); //missing
-	//mapNames.push_back( "1_11" );
-	//mapNames.push_back( "1_12" );
-	//mapNames.push_back( "1_13" );
-	//mapNames.push_back( "1_14" );
-	solver->setStaticObjects( *adaptObjectsFromTB( mapNames ), NULL );
-#else
 
 	// load scene
 	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
 	solver->setStaticObjects(*scene.getObjects(), NULL);
 
-#endif
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 	
