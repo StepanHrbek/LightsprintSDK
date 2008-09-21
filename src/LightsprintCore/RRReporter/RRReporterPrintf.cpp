@@ -5,6 +5,7 @@
 
 #include "Lightsprint/RRDebug.h"
 #include <cstdio>
+#include <cstring> // memset
 
 #ifdef _WIN32
 	#include <windows.h>
