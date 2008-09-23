@@ -14,17 +14,24 @@ namespace rr
 //
 // RRObject
 
-RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const RRScaler* scaler)
+RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const RRScaler* scaler, bool& aborting)
 {
-	/*
-	//!!! zatim nejde zoptimalizovat, protoze update() neni v RRObjectu
-	if (!scaler)
+	if (!this)
 	{
-		RR_ASSERT(0);
-		return this;
+		return NULL;
 	}
-	*/
-	return this ? new RRObjectWithPhysicalMaterialsImpl(this,scaler) : NULL;
+	RRObjectWithPhysicalMaterials* result = new RRObjectWithPhysicalMaterialsImpl(this,scaler,aborting);
+	if (aborting)
+	{
+		// Delete or not to delete?
+		//   Delete to return NULL.
+		//   Don't delete to return working, just not updated copy.
+		// Both are equally efficient.
+		// Working copy would be safer for users that don't check pointers for NULL.
+		// However NULL is probably what user expects.
+		RR_SAFE_DELETE(result);
+	}
+	return result;
 }
 
 

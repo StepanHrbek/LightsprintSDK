@@ -685,7 +685,7 @@ begin:
 }
 
 template IBP
-IntersectBspFast IBP2::IntersectBspFast(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspFast IBP2::IntersectBspFast(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 	RRReportInterval report(INF3,"Building collider for %d triangles ...\n",aimporter?aimporter->getNumTriangles():0);
 
@@ -718,7 +718,7 @@ IntersectBspFast IBP2::IntersectBspFast(const RRMesh* aimporter, IntersectTechni
 			if (triangleSRLNP) triangleSRLNP[i].setGeometry(i,&v[0],&v[1],&v[2]);
 		}
 
-	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
+	tree = load IBP2(aimporter,aborting,cacheLocation,ext,buildParams,this);
 	if (!tree)
 	{
 		RR_SAFE_DELETE_ARRAY(triangleNP); // must be deleted -> getMemoryOccupied is low -> RRCollider::create sees failure and switches to IT_LINEAR

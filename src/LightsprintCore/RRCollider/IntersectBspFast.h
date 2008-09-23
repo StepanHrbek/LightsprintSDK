@@ -54,14 +54,14 @@ namespace rr
 	class IntersectBspFast : public IntersectLinear
 	{
 	public:
-		static IntersectBspFast* create(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspFast(aimporter,aintersectTechnique,cacheLocation,ext,buildParams);}
+		static IntersectBspFast* create(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspFast(aimporter,aintersectTechnique,aborting,cacheLocation,ext,buildParams);}
 		virtual ~IntersectBspFast();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
 		virtual IntersectTechnique getTechnique() const {return intersectTechnique;}
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
-		IntersectBspFast(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams);
+		IntersectBspFast(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams);
 		bool              intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const;
 		bool              intersect_bspNP(RRRay* ray, const BspTree *t, real distanceMax) const;
 		BspTree*          tree;

@@ -907,7 +907,8 @@ const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* 
 	}
 	else
 	{
-		return colliderCache[mesh] = RRCollider::create(new RRMeshCollada(mesh),RRCollider::IT_LINEAR);
+		bool aborting = false;
+		return colliderCache[mesh] = RRCollider::create(new RRMeshCollada(mesh),RRCollider::IT_LINEAR,aborting);
 	}
 }
 

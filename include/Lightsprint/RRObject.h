@@ -322,11 +322,13 @@ namespace rr
 		//!  detects always front sides, so it won't work with negative scale and negScaleMakesOuterInner=false.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
+		//! \param aborting
+		//!  May be set asynchronously, aborts creation.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
 		//!  It is passed to RRCollider::create(), so
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation);
+		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation);
 
 		//! Creates and returns union of multiple objects (contains geometry and materials from all objects).
 		//
@@ -347,6 +349,8 @@ namespace rr
 		//!  Number of objects in array.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
+		//! \param aborting
+		//!  May be set asynchronously, aborts creation.
 		//! \param vertexWeldDistance
 		//!  Distance in world units. Vertices with lower or equal distance will be stitched into one vertex.
 		//!  Zero stitches only identical vertices, negative value means no action.
@@ -363,7 +367,7 @@ namespace rr
 		//!  Directory for caching intermediate files used by RRCollider.
 		//!  It is passed to RRCollider::create(), so
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
+		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
 
 		//! Creates and returns object with materials converted to physical space.
 		//
@@ -373,7 +377,9 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used for custom scale -> physical scale conversion.
 		//!  Provide the same scaler you use for the rest of calculation.
-		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const class RRScaler* scaler);
+		//! \param aborting
+		//!  May be set asynchronously, aborts creation.
+		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
 
 
 		// collision helper
@@ -415,7 +421,9 @@ namespace rr
 	{
 	public:
 		//! Updates materials in physical scale according to actual scaler and materials in custom scale.
-		virtual void update() = 0;
+		//! \param aborting
+		//!  May be set asynchronously, aborts update.
+		virtual void update(bool& aborting) = 0;
 	};
 
 

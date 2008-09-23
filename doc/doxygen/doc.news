@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- many functions get new parameter <code>bool& aborting</code> that lets you abort them asynchronously
 - RRReporter::createWindowedReporter()
   \n Creates new window to display messages.
   \n User can abort tasks between reporter create and reporter delete be closing the window.

@@ -163,7 +163,8 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 #endif
 
 	// create collider
-	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
+	bool aborting = false;
+	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
 
 	// create illumination
 	illumination = new rr::RRObjectIllumination((unsigned)object->numVerts);

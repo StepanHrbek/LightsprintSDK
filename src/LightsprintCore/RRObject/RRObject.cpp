@@ -58,18 +58,18 @@ RRMesh* RRObject::createWorldSpaceMesh()
 	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
 
-RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, const char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation)
 {
-	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
+	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,aborting,cacheLocation);
 }
 
-RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
 {
 	switch(speed)
 	{
-		case 0: return RRObjectMultiSmall::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,false,cacheLocation);
-		case 1: return RRObjectMultiFast::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,false,cacheLocation);
-		default: return RRObjectMultiFast::create(objects,numObjects,intersectTechnique,vertexWeldDistance,optimizeTriangles,true,cacheLocation);
+		case 0: return RRObjectMultiSmall::create(objects,numObjects,intersectTechnique,aborting,vertexWeldDistance,optimizeTriangles,false,cacheLocation);
+		case 1: return RRObjectMultiFast::create(objects,numObjects,intersectTechnique,aborting,vertexWeldDistance,optimizeTriangles,false,cacheLocation);
+		default: return RRObjectMultiFast::create(objects,numObjects,intersectTechnique,aborting,vertexWeldDistance,optimizeTriangles,true,cacheLocation);
 	}
 		
 }

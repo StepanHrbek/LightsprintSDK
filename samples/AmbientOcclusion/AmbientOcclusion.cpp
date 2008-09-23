@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 
-	rr::RRDynamicSolver* solver = NULL;
+	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 
 	// log messages to console
 #ifdef _WIN32
@@ -106,7 +106,6 @@ int main(int argc, char **argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr::RRDynamicSolver();
 
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
@@ -145,6 +144,7 @@ int main(int argc, char **argv)
 	rr_gl::SceneViewerState svs;
 	svs.renderRealtime = 0; // switch from default realtime GI to static GI
 	svs.staticLayerNumber = 0; // switch from default layer to our layer 0
+
 	rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
 
 	return 0;

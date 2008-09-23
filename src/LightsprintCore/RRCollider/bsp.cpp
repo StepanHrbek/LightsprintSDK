@@ -159,6 +159,7 @@ unsigned    nodes,faces;
 BSP_TREE*   bsptree;
 unsigned    bsptree_id;
 BuildParams buildParams;
+bool&       aborting;
 
 struct BBOX
 {
@@ -185,7 +186,7 @@ struct BBOX
 	float minSafeDistance;
 };
 
-BspBuilder() : buildParams(RRCollider::IT_BSP_FASTEST)
+BspBuilder(bool& _aborting) : buildParams(RRCollider::IT_BSP_FASTEST), aborting(_aborting)
 {
 	bsptree = NULL;
 	bsptree_id = CACHE_SIZE;
@@ -200,10 +201,13 @@ BSP_TREE *new_node()
 
 static void free_node(BSP_TREE* t)
 {
-	free(t->plane);
-	if (t->front) free_node(t->front);
-	if (t->back) free_node(t->back);
-	free(t->leaf);
+	if (t)
+	{
+		free(t->plane);
+		if (t->front) free_node(t->front);
+		if (t->back) free_node(t->back);
+		free(t->leaf);
+	}
 }
 
 ~BspBuilder()
@@ -683,6 +687,11 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DEL
 
 BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 {
+	if (aborting)
+	{
+		return NULL;
+	}
+
 	unsigned pn=0;
 	for (int i=0;space[i];i++) pn++;
 
@@ -900,6 +909,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 
 void guess_size_bsp(BSP_TREE *t)
 {
+	RR_ASSERT(t);
 	unsigned n = 0;
 	if (t->plane) for (unsigned i=0;t->plane[i];i++) n++; 
 	if (t->leaf) for (unsigned i=0;t->leaf[i];i++) n++;
@@ -1141,6 +1151,10 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 template IBP
 unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 {
+	if (!bsp)
+	{
+		return 0;
+	}
 	nodes=0; faces=0;
 
 	guess_size_bsp(bsp);
@@ -1156,15 +1170,16 @@ unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 }; // BspBuilder
 
 template IBP
-bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
+bool createAndSaveBsp(OBJECT *obj, bool& aborting, BuildParams* buildParams, FILE *f, void** m)
 {
 	RRReportInterval report(INF2,"Building acceleration structure (%d triangles)...\n",obj->face_num);
 
 	// create
-	BspBuilder* builder = new BspBuilder();
+	BspBuilder* builder = new BspBuilder(aborting);
 	RR_ASSERT(buildParams);
 	builder->buildParams = *buildParams;
-	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj,BspTree::allows_kd);
+	BspBuilder::BSP_TREE* bsp;
+	bsp = builder->create_bsp(obj,BspTree::allows_kd);
 
 	// save
 	bool ok;
@@ -1198,7 +1213,7 @@ bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 #define INSTANTIATE(BspTree) \
 	template unsigned BspBuilder::save_bsp<BspTree>(BSP_TREE* t, FILE* f, void* m);\
 	template unsigned BspBuilder::save_bsp<BspTree>(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m);\
-	template bool createAndSaveBsp<BspTree>(OBJECT* obj, BuildParams* buildParams, FILE* f, void** m)
+	template bool createAndSaveBsp<BspTree>(OBJECT* obj, bool& aborting, BuildParams* buildParams, FILE* f, void** m)
 
 // single-level bsp
 INSTANTIATE(BspTree44);

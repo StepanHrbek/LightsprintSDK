@@ -208,7 +208,7 @@ namespace rr
 	}
 
 	template IBP
-	PRIVATE BspTree* load(const RRMesh* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	PRIVATE BspTree* load(const RRMesh* importer, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if (!intersector) return NULL;
 		if (!importer) return NULL;
@@ -218,7 +218,6 @@ namespace rr
 		BspTree* tree = NULL;
 		char name[300];
 		getFileName(name,300,TREE_VERSION,importer,cacheLocation,ext);
-
 
 		// try to load tree from disk
 		FILE* f;
@@ -266,7 +265,7 @@ namespace rr
 					RRReporter::report(INF2,"%d degenerated triangles removed form collider.\n",obj.face_num-ii);
 				obj.face_num = ii;
 				RR_ASSERT(!tree);
-				createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
+				createAndSaveBsp IBP2(&obj,aborting,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
 			}
 			else
 			{

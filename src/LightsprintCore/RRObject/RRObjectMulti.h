@@ -24,7 +24,7 @@ namespace rr
 class RRObjectMultiFast : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
 		if (!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -44,21 +44,21 @@ public:
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// stitch vertices
-			if (vertexWeldDistance>=0)
+			if (vertexWeldDistance>=0 && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(vertexWeldDistance);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
-			if (optimizeTriangles)
+			if (optimizeTriangles && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
 			}
 			// accelerate (saves time but needs more memory)
-			if (accelerate)
+			if (accelerate && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createAccelerated();
@@ -68,7 +68,7 @@ public:
 
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{
@@ -239,7 +239,7 @@ private:
 class RRObjectMultiSmall : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float vertexWeldDistance, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
 		if (!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -258,21 +258,21 @@ public:
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// stitch vertices
-			if (vertexWeldDistance>=0)
+			if (vertexWeldDistance>=0 && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(vertexWeldDistance);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
-			if (optimizeTriangles)
+			if (optimizeTriangles && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
 			}
 			// accelerate (saves time but needs more memory)
-			if (accelerate)
+			if (accelerate && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createAccelerated();
@@ -294,7 +294,7 @@ public:
 			}*/
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{

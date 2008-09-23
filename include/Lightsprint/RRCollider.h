@@ -150,11 +150,12 @@ namespace rr
 		//
 		//! \param importer Importer of mesh you want to collide with.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
+		//! \param aborting May be set asynchronously. When set, collider creation is aborted.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
 		//!        Default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
 		//! \return Created collider.
-		static const RRCollider* create(const RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
+		static const RRCollider* create(const RRMesh* importer, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//

@@ -87,7 +87,7 @@ namespace rr
 	};
 
 	template <class BspTree>
-	extern bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m);
+	extern bool createAndSaveBsp(OBJECT *obj, bool& aborting, BuildParams* buildParams, FILE *f, void** m);
 }
 
 #endif

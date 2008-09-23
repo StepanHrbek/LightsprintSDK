@@ -128,19 +128,26 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 		}
 	}
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 	delete[] importers;
 
 	// convert it to physical scale
-	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
+	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler(),aborting) : NULL; // no scaler -> physical==custom
 
 	// update minimalSafeDistance
 	if (priv->multiObjectCustom)
 	{
-		RRVec3 mini,maxi,center;
-		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
+		if (aborting)
+		{
+			priv->minimalSafeDistance = 1e-6f;
+		}
+		else
+		{
+			RRVec3 mini,maxi,center;
+			priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+			priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
+		}
 	}
 
 	// update staticSceneContainsEmissiveMaterials, staticSceneContainsLods
@@ -152,20 +159,23 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		unsigned numTrianglesMulti = priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();
 		for (unsigned t=0;t<numTrianglesMulti;t++)
 		{
-			const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
-			if (material && material->diffuseEmittance.color!=rr::RRVec3(0))
-				priv->staticSceneContainsEmissiveMaterials = true;
-
-			RRObject::LodInfo lodInfo;
-			priv->multiObjectCustom->getTriangleLod(t,lodInfo);
-			if (lodInfo.level)
-				priv->staticSceneContainsLods = true;
-
-			if (material)
+			if (!aborting)
 			{
-				allTextures.insert(material->diffuseReflectance.texture);
-				allTextures.insert(material->diffuseEmittance.texture);
-				allTextures.insert(material->specularTransmittance.texture);
+				const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
+				if (material && material->diffuseEmittance.color!=rr::RRVec3(0))
+					priv->staticSceneContainsEmissiveMaterials = true;
+
+				RRObject::LodInfo lodInfo;
+				priv->multiObjectCustom->getTriangleLod(t,lodInfo);
+				if (lodInfo.level)
+					priv->staticSceneContainsLods = true;
+
+				if (material)
+				{
+					allTextures.insert(material->diffuseReflectance.texture);
+					allTextures.insert(material->diffuseEmittance.texture);
+					allTextures.insert(material->specularTransmittance.texture);
+				}
 			}
 		}
 		size_t memoryOccupiedByTextures = 0;
@@ -240,7 +250,7 @@ void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	priv->dirtyMaterials = true;
-	if (priv->multiObjectPhysical) priv->multiObjectPhysical->update();
+	if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)

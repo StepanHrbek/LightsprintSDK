@@ -20,11 +20,11 @@ namespace rr
 class RRObjectWithPhysicalMaterialsImpl : public RRObjectWithPhysicalMaterials
 {
 public:
-	RRObjectWithPhysicalMaterialsImpl(RRObject* aoriginal, const RRScaler* ascaler)
+	RRObjectWithPhysicalMaterialsImpl(RRObject* aoriginal, const RRScaler* ascaler, bool& aborting)
 	{
 		original = aoriginal;
 		scaler = ascaler;
-		update();
+		update(aborting);
 	}
 	virtual ~RRObjectWithPhysicalMaterialsImpl() 
 	{
@@ -72,7 +72,7 @@ public:
 		physical = custom;
 		physical.convertToPhysicalScale(scaler);
 	}
-	virtual void update()
+	virtual void update(bool& aborting)
 	{
 		if (!scaler) return;
 		cache.erase(cache.begin(),cache.end());
@@ -81,12 +81,15 @@ public:
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for (unsigned i=0;i<numTriangles;i++)
 		{
-			const RRMaterial* custom = original->getTriangleMaterial(i,NULL,NULL);
-			if (custom && cache.find(custom)==cache.end())
+			if (!aborting)
 			{
-				RRMaterial physical;
-				convertToPhysical(*custom,physical);
-				cache.insert(Pair(custom,physical));
+				const RRMaterial* custom = original->getTriangleMaterial(i,NULL,NULL);
+				if (custom && cache.find(custom)==cache.end())
+				{
+					RRMaterial physical;
+					convertToPhysical(*custom,physical);
+					cache.insert(Pair(custom,physical));
+				}
 			}
 		}
 	}

@@ -15,12 +15,12 @@
 namespace rr
 {
 
-IntersectVerification::IntersectVerification(const RRMesh* importer) 
+IntersectVerification::IntersectVerification(const RRMesh* importer, bool& aborting)
 	: IntersectLinear(importer)
 {
 	for (unsigned i=0;i<IT_VERIFICATION;i++)
 	{
-		collider[i] = RRCollider::create(importer,(RRCollider::IntersectTechnique)i);
+		collider[i] = RRCollider::create(importer,(RRCollider::IntersectTechnique)i,aborting);
 		/*if (collider[i]->getTechnique()!=i)
 		{
 			RR_ASSERT(0);

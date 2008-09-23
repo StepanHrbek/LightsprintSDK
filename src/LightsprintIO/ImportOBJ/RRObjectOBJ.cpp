@@ -61,7 +61,8 @@ public:
 		}
 		material.reset(false);
 //		checkConsistency();
-		collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
+		bool aborting = false;
+		collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
 		illumination = new rr::RRObjectIllumination((unsigned)vertices.size());
 	}
 	rr::RRObjectIllumination* getIllumination()
