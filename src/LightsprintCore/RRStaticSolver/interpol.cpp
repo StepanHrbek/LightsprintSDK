@@ -569,9 +569,9 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 		{
 			// check that local array topivertex is not referenced here
 			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
-			if(idx<vertices)
+			if (idx<vertices)
 			{
-				if(aborting || outOfMemory)
+				if (aborting || outOfMemory)
 				{
 					// it could be broken after abort, fix it
 					triangle[t].topivertex[i] = NULL;

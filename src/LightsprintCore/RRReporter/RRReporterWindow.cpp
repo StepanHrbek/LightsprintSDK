@@ -186,7 +186,7 @@ public:
 	virtual void run()
 	{
 		// Ask solver to abort all actions.
-		if(solver[0])
+		if (solver[0])
 		{
 			rr::RRReporter::report(rr::INF2,"******** abort ********\n");
 			solver[0]->aborting = true;
