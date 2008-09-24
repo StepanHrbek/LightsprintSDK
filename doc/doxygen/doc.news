@@ -12,22 +12,22 @@ namespace rr
 
 NEWS
 
-- many functions get new parameter <code>bool& aborting</code> that lets you abort them asynchronously
+- faster asynchronous abort, parameter <code>bool& aborting</code> added to several functions
 - RRReporter::createWindowedReporter()
-  \n Creates new window to display messages.
+  \n Creates window to display messages.
   \n User can abort tasks between reporter create and reporter delete be closing the window.
+- rr_gl::Camera::setNearDynamically() sets near dynamically to prevent clipping of near objects
+  \n rr_gl::sceneViewer() uses it by default
+- in rr_gl::Camera, dir, right and up vectors are guaranteed to be orthonormal
+  \n (previously they were denormalized and up was not orthogonal to dir)
+- RRCollisionHandler::init() has new parameter that allows it to set required ray flags
+  \n (caller is no longer reponsible for setting ray flags for collision handler)
 
 CHANGES
 
 - rr_gl::updateLightmapsWithDialog() removed, use more generic RRReporter::createWindowedReporter()
 - in rr_gl::Camera, several variables were made private, use new get/setters to access them
   \n (it's no longer possible to set invalid values like FOV over 180 degrees)
-- in rr_gl::Camera, dir, right and up vectors are guaranteed to be orthonormal
-  \n (previously they were denormalized and up was not orthogonal to dir)
-- rr_gl::Camera::setNearDynamically() sets near dynamically to prevent clipping of near objects
-  \n rr_gl::sceneViewer() uses it by default
-- RRCollisionHandler::init() has new parameter that allows it to set required ray flags
-  \n (caller is no longer reponsible for setting ray flags for collision handler)
 
 \section news63 ------------------------------------ 2008.9.14 -------------------------------------
 

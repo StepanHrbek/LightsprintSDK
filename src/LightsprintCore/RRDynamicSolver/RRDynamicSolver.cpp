@@ -134,6 +134,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 	// convert it to physical scale
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler(),aborting) : NULL; // no scaler -> physical==custom
+	priv->staticSolverCreationFailed = false;
 
 	// update minimalSafeDistance
 	if (priv->multiObjectCustom)
@@ -351,7 +352,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		dirtyFactors = true;
 		//RR_SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
-	if (!priv->scene
+	if (!priv->scene && !priv->staticSolverCreationFailed
 		&& !priv->packedSolver
 		)
 	{
@@ -359,6 +360,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		dirtyFactors = true;
 		// create new
 		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
+		if (!priv->scene && !aborting) priv->staticSolverCreationFailed = true; // set after failure so that we don't try again
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}

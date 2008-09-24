@@ -57,6 +57,7 @@ namespace rr
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
 		RRStaticSolver*   scene;
+		bool       staticSolverCreationFailed; // set after failure so that we don't try again
 		unsigned   solutionVersion;
 		RRPackedSolver* packedSolver;
 
@@ -90,6 +91,7 @@ namespace rr
 
 			// calculate
 			scene = NULL;
+			staticSolverCreationFailed = false;
 			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
 			dirtyResults = true;
