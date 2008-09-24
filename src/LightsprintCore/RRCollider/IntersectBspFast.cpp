@@ -336,7 +336,7 @@ begin:
 			// size of kd leaf
 			typename BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
 			typename BspTree::_TriInfo* trianglesEnd = (typename BspTree::_TriInfo*)t->getTrianglesEnd();
-			unsigned trianglesCount = trianglesEnd-trianglesBegin;
+			unsigned trianglesCount = (unsigned)(trianglesEnd-trianglesBegin);
 			RR_ASSERT(trianglesCount);
 
 			// container for all hits in kd leaf
@@ -545,7 +545,7 @@ begin:
 			// size of kd leaf
 			typename BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
 			typename BspTree::_TriInfo* trianglesEnd = (typename BspTree::_TriInfo*)t->getTrianglesEnd();
-			unsigned trianglesCount = trianglesEnd-trianglesBegin;
+			unsigned trianglesCount = (unsigned)(trianglesEnd-trianglesBegin);
 			RR_ASSERT(trianglesCount);
 
 			// container for all hits in kd leaf
