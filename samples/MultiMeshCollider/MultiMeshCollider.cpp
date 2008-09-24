@@ -56,7 +56,8 @@ int main()
 	printf("Vertices in multimesh = %d\n\n",multiMesh->getNumVertices()); // 6+6
 
 	// create collider (able to find ray x mesh intersections)
-	const RRCollider* collider = RRCollider::create(multiMesh,RRCollider::IT_BSP_FAST);
+	bool aborting = false;
+	const RRCollider* collider = RRCollider::create(multiMesh,RRCollider::IT_BSP_FAST,aborting);
 
 	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();
