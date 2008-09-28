@@ -26,11 +26,6 @@ public:
 	virtual void run() = 0;
 };
 
-// static because I don't know how to access current instance from DlgProc
-// static is evil, we can't have multiple reporter windows
-static class RRReporterWindow* s_thisReporter = NULL;
-static bool s_shown = false;
-
 class RRReporterWindow : public RRReporter
 {
 public:
@@ -38,14 +33,14 @@ public:
 	{
 		hWnd = 0;
 		exitCallback = _exitCallback;
-		s_shown = false;
+		shown = false;
 		_beginthread(windowThreadFunc,0,this);
 
 		// When helper thread opens dialog, main thread loses right to create foreground windows.
 		// Temporary fix: Main thread opens dialog that closes itself immediately.
 		// Tested: XP SP2 32bit
 		// If you know proper fix, please help.
-		while (!s_shown) Sleep(1);
+		while (!shown) Sleep(1);
 		DialogBoxIndirect(GetModuleHandle(NULL),getDialogResource(),NULL,BringMainThreadToForeground);
 
 		// If we manage to get rid of hack above, we will have to:
@@ -94,12 +89,20 @@ public:
 		switch (message)
 		{
 			case WM_INITDIALOG:
-				s_thisReporter = (RRReporterWindow*)lParam;
-				s_thisReporter->hWnd = hWnd;
+				{
+					RRReporterWindow* thisReporter = (RRReporterWindow*)lParam;
+					RR_ASSERT(thisReporter);
+					thisReporter->hWnd = hWnd;
+					SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)thisReporter);
+				}
 				return (INT_PTR)TRUE;
 
 			case WM_SHOWWINDOW:
-				s_shown = true;
+				{
+					RRReporterWindow* thisReporter = (RRReporterWindow*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+					RR_ASSERT(thisReporter);
+					thisReporter->shown = true;
+				}
 				break;
 
 			case WM_COMMAND:
@@ -107,9 +110,11 @@ public:
 				{
 					// Request abort, but do not close this window yet.
 					// It will close only when user manually deletes window.
-					if (s_thisReporter->exitCallback)
+					RRReporterWindow* thisReporter = (RRReporterWindow*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+					RR_ASSERT(thisReporter);
+					if (thisReporter->exitCallback)
 					{
-						s_thisReporter->exitCallback->run();
+						thisReporter->exitCallback->run();
 					}
 					return (INT_PTR)TRUE;
 				}
@@ -153,6 +158,7 @@ public:
 private:
 	HWND hWnd;
 	RRCallback* exitCallback;
+	bool shown;
 };
 
 /*
