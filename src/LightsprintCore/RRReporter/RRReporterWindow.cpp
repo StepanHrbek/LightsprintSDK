@@ -40,16 +40,16 @@ class RRReporterWindow : public RRReporter
 		bool reporterDeleted; // code deleted reporter
 		HWND* hWndInReporter; // pointer to HWND in reporter; we set it so reporter can send us messages
 		RRCallback* abortCallback;
+		unsigned numLines[TIMI+1];
 	};
+
 public:
 	RRReporterWindow(RRCallback* _abortCallback)
 	{
 		hWnd = 0;
 		// instance data are allocated here, deleted at the end of thread life
 		InstanceData* instanceData = new InstanceData;
-		instanceData->shown = false;
-		instanceData->abortRequested = false;
-		instanceData->reporterDeleted = false;
+		memset(instanceData,0,sizeof(InstanceData));
 		instanceData->hWndInReporter = &hWnd;
 		instanceData->abortCallback = _abortCallback;
 		_beginthread(windowThreadFunc,0,instanceData);
@@ -58,9 +58,7 @@ public:
 		// It is necessary: in case of immediate end, first messages would be sent to uninitialized window and lost.
 		while (!instanceData->shown) Sleep(1);
 		time_t t = time(NULL);
-		char buf[200];
-		sprintf(buf,"STARTED %s\n",asctime(localtime(&t)));
-		RRReporterWindow::customReport(INF1,0,buf);
+		localReport("STARTED %s\n",asctime(localtime(&t)));
 
 		// When helper thread opens dialog, main thread loses right to create foreground windows.
 		// Temporary fix: Main thread opens dialog that closes itself immediately.
@@ -70,6 +68,58 @@ public:
 		DialogBoxIndirect(GetModuleHandle(NULL),getDialogResource(),NULL,BringMainThreadToForeground);
 	}
 
+	virtual void customReport(RRReportType type, int indentation, const char* message)
+	{
+		// indentation
+		char space[1000];
+		space[0] = 0;
+		indentation *= 2;
+		if (indentation>0 && indentation<999)
+		{
+			memset(space,' ',indentation);
+			space[indentation] = 0;
+		}
+		// type
+		if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
+		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
+		strcat(space,typePrefix[type]);
+		// statistics
+		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+		RR_ASSERT(instanceData);
+		if (instanceData)
+		{
+			instanceData->numLines[type]++;
+		}
+		// message
+		strcat(space,message);
+		// crlf
+		space[strlen(space)-1]=0;
+		strcat(space,"\r\n");
+		// send
+		int pos = GetWindowTextLength(GetDlgItem(hWnd,IDC_LOG));
+		SendDlgItemMessageA(hWnd,IDC_LOG,EM_SETSEL,(pos>29000)?0:pos,pos);
+		SendDlgItemMessageA(hWnd,IDC_LOG,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
+		SendDlgItemMessageA(hWnd,IDC_LOG,WM_VSCROLL,SB_BOTTOM,0);
+	}
+
+	virtual ~RRReporterWindow()
+	{
+		time_t t = time(NULL);
+		localReport("FINISHED %s, CLOSE THE WINDOW\n",asctime(localtime(&t)));
+		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+		RR_ASSERT(instanceData);
+		if (instanceData)
+		{
+			if (instanceData->numLines[ERRO]) localReport(" %d ERRORS\n",instanceData->numLines[ERRO]);
+			if (instanceData->numLines[ASSE]) localReport(" %d ASSERTS\n",instanceData->numLines[ASSE]);
+			if (instanceData->numLines[WARN]) localReport(" %d WARNINGS\n",instanceData->numLines[WARN]);
+			instanceData->reporterDeleted = true;
+			instanceData->abortCallback = NULL;
+			considerWindowEnd(hWnd);
+		}
+	}
+
+private:
 	static LPDLGTEMPLATE getDialogResource()
 	{
 		static unsigned char dialogResource[] =
@@ -167,50 +217,17 @@ public:
 		return (INT_PTR)FALSE;
 	}
 
-	virtual void customReport(RRReportType type, int indentation, const char* message)
+	void localReport(const char* format, ...)
 	{
-		// indentation
-		char space[1000];
-		space[0] = 0;
-		indentation *= 2;
-		if (indentation>0 && indentation<999)
-		{
-			memset(space,' ',indentation);
-			space[indentation] = 0;
-		}
-		// type
-		if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
-		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
-		strcat(space,typePrefix[type]);
-		// message
-		strcat(space,message);
-		// crlf
-		space[strlen(space)-1]=0;
-		strcat(space,"\r\n");
-		// send
-		int pos = GetWindowTextLength(GetDlgItem(hWnd,IDC_LOG));
-		SendDlgItemMessageA(hWnd,IDC_LOG,EM_SETSEL,(pos>29000)?0:pos,pos);
-		SendDlgItemMessageA(hWnd,IDC_LOG,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
-		SendDlgItemMessageA(hWnd,IDC_LOG,WM_VSCROLL,SB_BOTTOM,0);
+		va_list argptr;
+		va_start (argptr,format);
+		char msg[1000];
+		_vsnprintf(msg,999,format,argptr);
+		msg[999] = 0;
+		RRReporterWindow::customReport(INF1,0,msg);
+		va_end (argptr);
 	}
 
-	virtual ~RRReporterWindow()
-	{
-		time_t t = time(NULL);
-		char buf[200];
-		sprintf(buf,"FINISHED %s, CLOSE THE WINDOW\n",asctime(localtime(&t)));
-		RRReporterWindow::customReport(INF1,0,buf);
-		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-		RR_ASSERT(instanceData);
-		if (instanceData)
-		{
-			instanceData->reporterDeleted = true;
-			instanceData->abortCallback = NULL;
-			considerWindowEnd(hWnd);
-		}
-	}
-
-private:
 	HWND hWnd;
 };
 
