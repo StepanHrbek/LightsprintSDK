@@ -7,10 +7,13 @@
 
 #ifdef _WIN32
 
-#include <windows.h>
+#include <ctime> // time
+#include <cstdio> // sprintf
 #include <process.h> // _beginthread
+#include <windows.h>
 #include "reporterWindow.h"
 #include "Lightsprint/RRDynamicSolver.h"
+
 
 namespace rr
 {
@@ -28,25 +31,43 @@ public:
 
 class RRReporterWindow : public RRReporter
 {
+	// data that live with window instance
+	// when reporter is deleted, window and instance data may still exist
+	struct InstanceData
+	{
+		bool shown; // set by WM_SHOWWINDOW
+		bool abortRequested; // user attemted to close window
+		bool reporterDeleted; // code deleted reporter
+		HWND* hWndInReporter; // pointer to HWND in reporter; we set it so reporter can send us messages
+		RRCallback* abortCallback;
+	};
 public:
-	RRReporterWindow(RRCallback* _exitCallback)
+	RRReporterWindow(RRCallback* _abortCallback)
 	{
 		hWnd = 0;
-		exitCallback = _exitCallback;
-		shown = false;
-		_beginthread(windowThreadFunc,0,this);
+		// instance data are allocated here, deleted at the end of thread life
+		InstanceData* instanceData = new InstanceData;
+		instanceData->shown = false;
+		instanceData->abortRequested = false;
+		instanceData->reporterDeleted = false;
+		instanceData->hWndInReporter = &hWnd;
+		instanceData->abortCallback = _abortCallback;
+		_beginthread(windowThreadFunc,0,instanceData);
+
+		// Wait until window initializes.
+		// It is necessary: in case of immediate end, first messages would be sent to uninitialized window and lost.
+		while (!instanceData->shown) Sleep(1);
+		time_t t = time(NULL);
+		char buf[200];
+		sprintf(buf,"STARTED %s\n",asctime(localtime(&t)));
+		RRReporterWindow::customReport(INF1,0,buf);
 
 		// When helper thread opens dialog, main thread loses right to create foreground windows.
 		// Temporary fix: Main thread opens dialog that closes itself immediately.
-		// Tested: XP SP2 32bit
+		//                Must be done after first window receives WM_SHOWWINDOW.
+		// Tested: XP SP2 32bit, Vista SP1 x64
 		// If you know proper fix, please help.
-		while (!shown) Sleep(1);
 		DialogBoxIndirect(GetModuleHandle(NULL),getDialogResource(),NULL,BringMainThreadToForeground);
-
-		// If we manage to get rid of hack above, we will have to:
-		// Wait for thread to create window.
-		// If we don't wait, first messages may be sent to uninitialized hWnd and lost.
-		//while (!hWnd) Sleep(1);
 	}
 
 	static LPDLGTEMPLATE getDialogResource()
@@ -67,9 +88,10 @@ public:
 		return (LPDLGTEMPLATE)dialogResource;
 	}
 
-	static void windowThreadFunc(void* _thisReporter)
+	static void windowThreadFunc(void* instanceData)
 	{
-		DialogBoxIndirectParam(GetModuleHandle(NULL),getDialogResource(),NULL,DlgProc,(LPARAM)_thisReporter);
+		DialogBoxIndirectParam(GetModuleHandle(NULL),getDialogResource(),NULL,DlgProc,(LPARAM)instanceData);
+		delete instanceData;
 	}
 
 	static INT_PTR CALLBACK BringMainThreadToForeground(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -84,42 +106,64 @@ public:
 		return (INT_PTR)FALSE;
 	}
 
+	static void considerWindowEnd(HWND hWnd)
+	{
+		// close window only if both code and user request it
+		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+		if (instanceData && instanceData->abortRequested && instanceData->reporterDeleted)
+		{
+			EndDialog(hWnd,0);
+		}
+	}
+
 	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		switch (message)
 		{
 			case WM_INITDIALOG:
 				{
-					RRReporterWindow* thisReporter = (RRReporterWindow*)lParam;
-					RR_ASSERT(thisReporter);
-					thisReporter->hWnd = hWnd;
-					SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)thisReporter);
+					InstanceData* instanceData = (InstanceData*)lParam;
+					RR_ASSERT(instanceData);
+					if (instanceData)
+					{
+						*instanceData->hWndInReporter = hWnd;
+						//instanceData->hWndInReporter = NULL; // we don't need it anymore
+						SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)instanceData);
+					}
 				}
 				return (INT_PTR)TRUE;
 
 			case WM_SHOWWINDOW:
 				{
-					RRReporterWindow* thisReporter = (RRReporterWindow*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-					RR_ASSERT(thisReporter);
-					thisReporter->shown = true;
+					InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+					RR_ASSERT(instanceData);
+					if (instanceData)
+					{
+						instanceData->shown = true;
+					}
 				}
 				break;
 
 			case WM_COMMAND:
 				if (LOWORD(wParam)==IDCANCEL)
 				{
-					// Request abort, but do not close this window yet.
-					// It will close only when user manually deletes window.
-					RRReporterWindow* thisReporter = (RRReporterWindow*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-					RR_ASSERT(thisReporter);
-					if (thisReporter->exitCallback)
+					// Request abort, but do not necessarily close the window now.
+					InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+					RR_ASSERT(instanceData);
+					if (instanceData)
 					{
-						thisReporter->exitCallback->run();
+						if (instanceData->abortCallback)
+						{
+							instanceData->abortCallback->run();
+						}
+						instanceData->abortRequested = true;
+						considerWindowEnd(hWnd);
 					}
 					return (INT_PTR)TRUE;
 				}
 				break;
 		}
+
 		return (INT_PTR)FALSE;
 	}
 
@@ -152,13 +196,22 @@ public:
 
 	virtual ~RRReporterWindow()
 	{
-		EndDialog(hWnd, 0);
+		time_t t = time(NULL);
+		char buf[200];
+		sprintf(buf,"FINISHED %s, CLOSE THE WINDOW\n",asctime(localtime(&t)));
+		RRReporterWindow::customReport(INF1,0,buf);
+		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
+		RR_ASSERT(instanceData);
+		if (instanceData)
+		{
+			instanceData->reporterDeleted = true;
+			instanceData->abortCallback = NULL;
+			considerWindowEnd(hWnd);
+		}
 	}
 
 private:
 	HWND hWnd;
-	RRCallback* exitCallback;
-	bool shown;
 };
 
 /*

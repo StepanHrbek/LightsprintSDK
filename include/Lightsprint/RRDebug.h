@@ -131,15 +131,15 @@ namespace rr
 		//! Creates reporter with its own window to display messages.
 		//
 		//! Supported only in Windows.
-		//! If user tries to close the window manually, all tasks for given solver are aborted
-		//! (by setting solver->aborting).
-		//! Window is closed when you delete returned reporter (this also clears solver->aborting).
+		//! If user tries to close the window manually, solver->aborting is set and it is cleared back when you delete this reporter.
+		//! Window is closed when both user attempts to close the window and you delete returned reporter.
+		//! This means that window may exist even when you delete reporter.
 		//! \n Usage example: \code
 		//! // create window, set it as current reporter
 		//! RRReporter::setReporter(RRReporter::createWindowedReporter(solver));
 		//! // do any work here, it is logged to window, may be aborted
 		//! solver->updateLightmaps();
-		//! // close window, set current reporter to NULL
+		//! // leave window, set current reporter to NULL. window passively exists until user closes it
 		//! delete RRReporter::getReporter();
 		//! \endcode
 		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver);
