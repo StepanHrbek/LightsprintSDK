@@ -377,6 +377,10 @@
 		<File
 			RelativePath=".\ImportScene.cpp">
 		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

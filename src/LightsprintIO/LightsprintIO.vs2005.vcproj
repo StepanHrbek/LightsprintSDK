@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="LightsprintIO.vs2005"
 	ProjectGUID="{43212345-3E69-234A-306C-243C989A3411}"
 	RootNamespace="LightsprintIO"
@@ -517,6 +517,10 @@
 		</File>
 		<File
 			RelativePath=".\ImportScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h"
 			>
 		</File>
 	</Files>
