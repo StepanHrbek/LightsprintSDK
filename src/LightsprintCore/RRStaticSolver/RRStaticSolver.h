@@ -115,14 +115,17 @@ namespace rr
 		//!  \n False: Illumination already propagated using old factors is preserved for 
 		//!     future calculation. It is only updated. It is faster option when illumination 
 		//!     changes by small amount -> use after tiny light movement, small color/intensity change.
-		//! \param directIrradiancePhysicalRGBA8
+		//! \param directIrradianceCustomRGBA8
 		//!  Array of per-triangle detected direct irradiances in RGBA8 format, one value per multiobject triangle.
 		//!  May be NULL.
+		//! \param customToPhysical
+		//!  Table used to convert custom scale bytes to physical scale floats.
+		//!  May be NULL if directIrradianceCustomRGBA8 is NULL.
 		//! \param directIrradiancePhysicalRGB
 		//!  Array of per-triangle detected direct irradiances in RGB format, one value per multiobject triangle.
 		//!  May be NULL.
 		//! \return Calculation state, see Improvement.
-		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradiancePhysicalRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
+		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
 		//! Improve illumination until endfunc returns true.
 		//

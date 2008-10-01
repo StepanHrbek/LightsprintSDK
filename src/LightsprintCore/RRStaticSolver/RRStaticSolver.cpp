@@ -119,10 +119,10 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 //
 // calculate radiosity
 
-RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradiancePhysicalRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
+RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	__frameNumber++;
-	return scene->resetStaticIllumination(resetFactors,resetPropagation,directIrradiancePhysicalRGBA8,customToPhysical,directIrradiancePhysicalRGB);
+	return scene->resetStaticIllumination(resetFactors,resetPropagation,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 }
 
 RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(void*), void* context)
