@@ -343,7 +343,10 @@ restart:
 		//printf(refreshing?"*%d ":">%d ",bests);
 	}
 	// get best from cache
-	if (!bests) return NULL;
+	if (!bests)
+	{
+		return NULL;
+	}
 	Triangle* best=bestNode[0];
 	bests--;
 	for (unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
@@ -547,6 +550,58 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// ShootingKernel
+
+ShootingKernel::ShootingKernel()
+{
+	sceneRay = RRRay::create();
+	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::FILL_PLANE;
+	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+	sceneRay->rayLengthMax = BIG_REAL;
+	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
+}
+
+ShootingKernel::~ShootingKernel()
+{
+	delete collisionHandlerLod0;
+	delete sceneRay;
+}
+
+ShootingKernels::ShootingKernels()
+{
+#ifdef _OPENMP
+	numKernels = omp_get_max_threads();
+#else
+	numKernels = 1;
+#endif
+	shootingKernel = new ShootingKernel[numKernels];
+}
+
+void ShootingKernels::setGeometry(Triangle* sceneGeometry)
+{
+	for (unsigned i=0;i<numKernels;i++)
+	{
+		shootingKernel[i].sceneRay->collisionHandler = shootingKernel[i].collisionHandlerLod0 = new RRCollisionHandlerLod0(sceneGeometry);
+	}
+}
+
+void ShootingKernels::reset(unsigned maxQueries)
+{
+	for (unsigned i=0;i<numKernels;i++)
+	{
+		shootingKernel[i].filler.Reset(i,numKernels,maxQueries);
+		shootingKernel[i].hitTriangles.reset();
+	}
+}
+
+ShootingKernels::~ShootingKernels()
+{
+	delete[] shootingKernel;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // scene
 
 Scene::Scene()
@@ -559,19 +614,12 @@ Scene::Scene()
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
-	sceneRay = RRRay::create();
-	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::FILL_PLANE;
-	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-	sceneRay->rayLengthMax = BIG_REAL;
-	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
 	delete object;
-	delete collisionHandlerLod0;
-	delete sceneRay;
 }
 
 void Scene::objInsertStatic(Object *o)
@@ -580,7 +628,7 @@ void Scene::objInsertStatic(Object *o)
 	object = o;
 	staticReflectors.insertObject(o);
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
-	sceneRay->collisionHandler = collisionHandlerLod0 = new RRCollisionHandlerLod0(object->triangle);
+	shootingKernels.setGeometry(object->triangle);
 }
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
@@ -647,19 +695,19 @@ unsigned __shot=0;
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
 
-HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power)
+HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
 	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
-	RRRay& ray = *sceneRay;
+	RRRay& ray = *shootingKernel->sceneRay;
 	ray.rayOrigin = eye;
 	ray.rayDirInv[0] = 1/direction[0];
 	ray.rayDirInv[1] = 1/direction[1];
 	ray.rayDirInv[2] = 1/direction[2];
-	collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
+	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	__shot++;
@@ -670,13 +718,13 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		return HitChannels(0);
 	}
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	static unsigned s_depth = 0;
-	if (s_depth>25) 
-	{
-		STATISTIC_INC(numDepthOverflows);
-		return HitChannels(0);
-	}
-	s_depth++;
+	//static unsigned s_depth = 0;
+	//if (s_depth>25) 
+	//{
+	//	STATISTIC_INC(numDepthOverflows);
+	//	return HitChannels(0);
+	//}
+	//s_depth++;
 	if (ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
@@ -697,11 +745,14 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReceived);
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
-		// cheap storage with accumulated power -> subdivision is not possible
-		// put triangle among other hit triangles
-		if (!hitTriangle->hits) hitTriangles.insert(hitTriangle);
-		// inform subtriangle where and how powerfully it was hit
-		hitTriangle->hits += power;
+#pragma omp critical
+		{
+			// cheap storage with accumulated power -> subdivision is not possible
+			// put triangle among other hit triangles
+			if (!hitTriangle->hits) shootingKernel->hitTriangles.insert(hitTriangle);
+			// inform subtriangle where and how powerfully it was hit
+			hitTriangle->hits += power;
+		}
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
@@ -716,7 +767,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		// calculate new direction after ideal mirror reflection
 		RRVec3 newDirection=ray.hitPlane*(-2*dot(direction,ray.hitPlane)/size2(ray.hitPlane))+direction;
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
+		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}
 	// getting through
 	// speedup: weaker rays continue less often but with
@@ -731,9 +782,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 		// calculate new direction after refraction
 		RRVec3 newDirection=-refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
+		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
 	}
-	s_depth--;
+	//s_depth--;
 	return hitPower;
 }
 
@@ -742,9 +793,10 @@ HitChannels Scene::rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,Hit
 // homogenous filling:
 //   generates points that nearly homogenously (low density fluctuations) fill some 2d area
 
-void HomogenousFiller::Reset()
+void HomogenousFiller::Reset(unsigned kernelNum, unsigned numKernels, unsigned maxQueries)
 {
-	num=0;
+	num = maxQueries*kernelNum/numKernels
+		*3/2; // compensate that some rays don't fit in circle and we increment num multiple times
 }
 
 real HomogenousFiller::GetCirclePoint(real *a,real *b)
@@ -779,7 +831,7 @@ void HomogenousFiller::GetTrianglePoint(real *a,real *b)
 //
 // random exiting ray
 
-bool Scene::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
+bool ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
 // orthonormal basis
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
@@ -812,7 +864,7 @@ bool Scene::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits
 	return true;
 }
 
-Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
+Triangle* Scene::getRandomExitRay(ShootingKernel* shootingKernel, Triangle* source, RRVec3* src, RRVec3* dir)
 // returns random point and direction exiting sourceNode
 {
 	// select random point in source subtriangle
@@ -827,7 +879,7 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;
-	if (!getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3)) 
+	if (!shootingKernel->getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3))
 		return NULL;
 	RR_ASSERT(IS_SIZE1(rayVec3));
 
@@ -841,12 +893,12 @@ Triangle* Scene::getRandomExitRay(Triangle* source, RRVec3* src, RRVec3* dir)
 //
 // one shot from subtriangle to whole halfspace
 
-void Scene::shotFromToHalfspace(Triangle* sourceNode)
+void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
 {
 	RRVec3 srcPoint3,rayVec3;
-	Triangle* tri=getRandomExitRay(sourceNode,&srcPoint3,&rayVec3);
+	Triangle* tri=getRandomExitRay(shootingKernel,sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
-	if (tri) rayTracePhoton(srcPoint3,rayVec3,tri);
+	if (tri) rayTracePhoton(shootingKernel,srcPoint3,rayVec3,tri);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -894,7 +946,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			RR_ASSERT(shotsForNewFactors>source->shotsForFactors);
 		RR_ASSERT(shotsAccumulated==0);
 		RR_ASSERT(!hitTriangles.get());
-		filler.Reset(); // prepare homogenous shooting
+		shootingKernels.reset(shotsForNewFactors); // prepare homogenous shooting
 		// prepare data for shooting
 		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
 		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
@@ -904,15 +956,44 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 	}
 	if (phase==1)
 	{
-		// shoot
-		while (shotsAccumulated<shotsForNewFactors
-			)
+		if (endfunc.requestsRealtimeResponse())
 		{
-			shotFromToHalfspace(source);
-			shotsAccumulated++;
-			shotsTotal++;
-			if (shotsTotal%10==0) if (endfunc.requestsEnd()) return;
+			// shoot in 1 thread, slower, can be aborted
+			// this is used by real-time Architect solver
+			while (shotsAccumulated<shotsForNewFactors
+				)
+			{
+				shotFromToHalfspace(shootingKernels.shootingKernel,source);
+				shotsAccumulated++;
+				shotsTotal++;
+				if (shotsTotal%10==0 && endfunc.requestsEnd()) return;
+			}
 		}
+		else
+		{
+			// shoot in multiple threads, faster, can't be aborted
+			// this is used by offline solver
+			int shotsTodo = shotsForNewFactors-shotsAccumulated;
+			#if defined(_MSC_VER) && (_MSC_VER<1500)
+				#pragma omp parallel for // 2005 SP1 has broken if
+			#else
+				#pragma omp parallel for if(shotsTodo>30)
+			#endif
+			for (int i=0;i<shotsTodo;i++)
+			{
+				{
+					#ifdef _OPENMP
+						int threadNum = omp_get_thread_num();
+					#else
+						int threadNum = 0;
+					#endif
+					shotFromToHalfspace(shootingKernels.shootingKernel+threadNum,source);
+				}
+			}
+			shotsAccumulated += shotsTodo;
+			shotsTotal += shotsTodo;
+		}
+	
 		phase=2;
 	}
 	if (phase==2)
@@ -927,23 +1008,26 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		// insert new factors
 		ChunkList<Factor>::InsertIterator i(source->factors,factorAllocator);
 		Factor f;
-		while ((f.destination=hitTriangles.get())
-			)
+		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
 		{
-			f.power = f.destination->hits/shotsAccumulated;
-#ifndef CLEAN_FACTORS
-			// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
-			f.power *= f.destination->surface->diffuseReflectance;
-#endif
-			f.destination->hits = 0;
-			RR_ASSERT(f.power>0);
-			if (!i.insert(f))
+			while ((f.destination=shootingKernels.shootingKernel[kernelNum].hitTriangles.get())
+				)
 			{
-				shotsForFactorsTotal = UINT_MAX-1; // stop improving, avgAccuracy() will return number high enough for everyone
-				break;
+				f.power = f.destination->hits/shotsAccumulated;
+				#ifndef CLEAN_FACTORS
+					// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
+					f.power *= f.destination->surface->diffuseReflectance;
+				#endif
+				f.destination->hits = 0;
+				RR_ASSERT(f.power>0);
+				if (!i.insert(f))
+				{
+					shotsForFactorsTotal = UINT_MAX-1; // stop improving, avgAccuracy() will return number high enough for everyone
+					break;
+				}
 			}
+			shootingKernels.shootingKernel[kernelNum].hitTriangles.reset();
 		}
-		hitTriangles.reset();
 		source->totalExitingFluxToDiffuse=source->totalExitingFlux;
 		source->shotsForFactors=shotsAccumulated;
 		shotsAccumulated=0;
@@ -1059,8 +1143,11 @@ void Scene::abortStaticImprovement()
 	if (improvingStatic)
 	{
 		Triangle *hitTriangle;
-		while ((hitTriangle=hitTriangles.get())) hitTriangle->hits=0;
-		hitTriangles.reset();
+		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
+		{
+			while ((hitTriangle=shootingKernels.shootingKernel[kernelNum].hitTriangles.get())) hitTriangle->hits=0;
+			shootingKernels.shootingKernel[kernelNum].hitTriangles.reset();
+		}
 		shotsAccumulated=0;
 		phase=0;
 		improvingStatic=NULL;

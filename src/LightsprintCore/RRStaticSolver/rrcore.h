@@ -246,11 +246,45 @@ private:
 class HomogenousFiller
 {
 public:
-	void Reset();
+	void Reset(unsigned kernelNum, unsigned numKernels, unsigned maxQueries);
 	real GetCirclePoint(real *a,real *b);
 private:
 	void GetTrianglePoint(real *a,real *b);
 	unsigned num;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// ShootingKernel
+
+// used in radiosity form factor calculation, one kernel per thread
+// when all rays are shot, all hitTriangles from all kernels are processed
+// triangle is never inserted into multiple hitTriangles containers
+
+class ShootingKernel
+{
+public:
+	ShootingKernel();
+	bool getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
+	~ShootingKernel();
+
+	RRRay*  sceneRay;
+	class RRCollisionHandlerLod0* collisionHandlerLod0;
+	HomogenousFiller filler;
+	Triangles hitTriangles;
+};
+
+class ShootingKernels
+{
+public:
+	ShootingKernels();
+	void setGeometry(Triangle* sceneGeometry);
+	void reset(unsigned maxQueries);
+	~ShootingKernels();
+
+	unsigned numKernels;
+	ShootingKernel* shootingKernel;
 };
 
 
@@ -266,7 +300,7 @@ public:
 
 	Object* object;        // the only object that contains whole static scene
 
-	HitChannels rayTracePhoton(Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
+	HitChannels rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
 
 	void    objInsertStatic(Object *aobject);
 
@@ -286,10 +320,9 @@ public:
 	private:
 		int     phase;
 		Triangle* improvingStatic;
-		Triangles hitTriangles;
 		RRMesh::TriangleBody improvingBody;
 		RRMesh::TangentBasis improvingBasisOrthonormal;
-		void    shotFromToHalfspace(Triangle* sourceNode);
+		void    shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode);
 		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,RRStaticSolver::EndFunc& endfunc);
 		bool    energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc& endfunc);
 
@@ -300,21 +333,13 @@ public:
 		unsigned shotsTotal;
 		Reflectors staticReflectors; // top nodes in static Triangle trees
 
-		// previously global ray+levels, now allocated per scene
-		// -> multiple independent scenes are legal
-		RRRay*  sceneRay;
-		class RRCollisionHandlerLod0* collisionHandlerLod0;
+		// array of kernels, one per core
+		ShootingKernels shootingKernels;
+		Triangle* getRandomExitRay(ShootingKernel* shootingKernel, Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 
 		// all factors allocated by this scene
 		// deallocated only in scene destructor
 		ChunkList<Factor>::Allocator factorAllocator;
-
-		// previously global filler, now allocated per scene
-		// -> multiple independent scenes are legal
-		HomogenousFiller filler;
-		bool getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
-	public:
-		Triangle* getRandomExitRay(Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 };
 
 } // namespace
