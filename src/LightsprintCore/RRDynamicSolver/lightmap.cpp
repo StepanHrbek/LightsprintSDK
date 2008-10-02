@@ -591,6 +591,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	paramsIndirect.applyCurrentSolution = false;
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
+	
+	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
+	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
 	if (paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
