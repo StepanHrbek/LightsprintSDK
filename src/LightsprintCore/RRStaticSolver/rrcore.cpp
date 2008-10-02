@@ -884,7 +884,7 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 //
 // refresh form factors from one source to all destinations that need it
 
-void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context)
+void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,RRStaticSolver::EndFunc& endfunc)
 {
 	if (phase==0)
 	{
@@ -911,7 +911,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			shotFromToHalfspace(source);
 			shotsAccumulated++;
 			shotsTotal++;
-			if (shotsTotal%10==0) if (endfunc(context)) return;
+			if (shotsTotal%10==0) if (endfunc.requestsEnd()) return;
 		}
 		phase=2;
 	}
@@ -964,7 +964,7 @@ real Scene::avgAccuracy()
 // return if everything was distributed
 
 // vraci true pri improved
-bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),void *context)
+bool Scene::energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc& endfunc)
 {
 	// refresh unaccurate form factors
 	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
@@ -981,7 +981,7 @@ bool Scene::energyFromDistributedUntil(Triangle* source,bool endfunc(void *),voi
 	}
 	if (needsRefresh)
 	{
-		refreshFormFactorsFromUntil(source,0,endfunc,context);
+		refreshFormFactorsFromUntil(source,0,endfunc);
 	}
 	if (phase==0)
 	{
@@ -1023,7 +1023,7 @@ bool Scene::distribute(real maxError)
 //
 // improve global illumination in scene
 
-RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
+RRStaticSolver::Improvement Scene::improveStatic(RRStaticSolver::EndFunc& endfunc)
 {
 	if (!IS_CHANNELS(staticSourceExitingFlux))
 		return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
@@ -1039,13 +1039,13 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 			improved = RRStaticSolver::FINISHED;
 			break;
 		}
-		if (energyFromDistributedUntil(improvingStatic,endfunc,context))
+		if (energyFromDistributedUntil(improvingStatic,endfunc))
 		{
 			improvingStatic=NULL;
 			improved=RRStaticSolver::IMPROVED;
 		}
 	}
-	while (!endfunc(context));
+	while (!endfunc.requestsEnd());
 
 	return improved;
 }
@@ -1082,10 +1082,12 @@ bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 	return false;
 }
 
-bool falsefunc(void *scene)
+class NeverEnd : public RRStaticSolver::EndFunc
 {
-	return false;
-}
+public:
+	virtual bool requestsEnd() {return false;}
+	virtual bool requestsRealtimeResponse() {return false;}
+};
 
 bool Scene::finishStaticImprovement()
 {
@@ -1093,7 +1095,8 @@ bool Scene::finishStaticImprovement()
 	if (improvingStatic)
 	{
 		RR_ASSERT(phase>0);
-		bool e=energyFromDistributedUntil(improvingStatic,falsefunc,NULL);
+		NeverEnd neverEnd;
+		bool e=energyFromDistributedUntil(improvingStatic,neverEnd);
 		RR_ASSERT(e); e=e;
 		RR_ASSERT(phase==0);
 		improvingStatic=NULL;

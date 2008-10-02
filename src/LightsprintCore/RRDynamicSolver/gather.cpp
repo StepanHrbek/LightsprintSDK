@@ -1037,19 +1037,24 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	return true;
 }
 
-struct EBQContext
+class EndByQuality : public RRStaticSolver::EndFunc
 {
+public:
+	virtual bool requestsEnd()
+	{
+		int now = int(staticSolver->illuminationAccuracy());
+		static int old = -1; if (now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,targetQuality);}
+		return (now > targetQuality) || *aborting;
+	}
+	virtual bool requestsRealtimeResponse()
+	{
+		// used by offline solver, go for lower responsiveness, faster calculation
+		return false;
+	}
 	RRStaticSolver* staticSolver;
 	int targetQuality;
 	bool* aborting;
 };
-static bool endByQuality(void *context)
-{
-	EBQContext* c = (EBQContext*)context;
-	int now = int(c->staticSolver->illuminationAccuracy());
-	static int old = -1; if (now/10!=old/10) {old=now;RRReporter::report(INF3,"%d/%d \n",now,c->targetQuality);}
-	return (now > c->targetQuality) || *c->aborting;
-}
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect)
 {
@@ -1116,12 +1121,12 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		// propagate
 		if (!aborting)
 		{
-			EBQContext context;
-			context.staticSolver = priv->scene;
-			context.targetQuality = (int)MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
-			context.aborting = &aborting;
-			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",context.targetQuality);
-			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&context);
+			EndByQuality endByQuality;
+			endByQuality.staticSolver = priv->scene;
+			endByQuality.targetQuality = (int)MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
+			endByQuality.aborting = &aborting;
+			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",endByQuality.targetQuality);
+			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality);
 			switch(improvement)
 			{
 				case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;

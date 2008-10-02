@@ -127,18 +127,26 @@ namespace rr
 		//! \return Calculation state, see Improvement.
 		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
-		//! Improve illumination until endfunc returns true.
+		class EndFunc
+		{
+		public:
+			//! Return true to stop calculation.
+			//! It should be very fast, just checking system variables like time or event queue length.
+			//! It may be called very often, slow code may have big impact on performance.
+			virtual bool requestsEnd() = 0;
+			//! Return true to use slower calculation path that queries requestsEnd() more often.
+			virtual bool requestsRealtimeResponse() = 0;
+		};
+
+		//! Improve illumination until endfunc requests end.
 		//
 		//! If you want calculation as fast as possible, make sure that most of time
 		//! is spent here. You may want to interleave calculation by reading results, rendering and processing
 		//! event queue, but stop rendering and idle looping when nothing changes and user doesn't interact,
 		//! don't read results too often etc.
-		//! \param endfunc Callback used to determine whether to stop or continue calculating.
-		//!  It should be very fast, just checking system variables like time or event queue length.
-		//!  It is called very often, slow endfunc may have big impact on performance.
-		//! \param context Value is passed to endfunc without any modification.
+		//! \param endfunc Custom callback used to determine whether to stop or continue calculating.
 		//! \return Calculation state, see Improvement.
-		Improvement   illuminationImprove(bool endfunc(void*), void* context);
+		Improvement   illuminationImprove(EndFunc& endfunc);
 
 		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate. Fast, reads single number.
 		RRReal        illuminationAccuracy();

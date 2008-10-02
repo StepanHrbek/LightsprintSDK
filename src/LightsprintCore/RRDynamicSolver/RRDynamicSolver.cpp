@@ -284,25 +284,30 @@ void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 	}
 }
 
-struct EBTContext
+class EndByTime : public RRStaticSolver::EndFunc
 {
+public:
+	virtual bool requestsEnd()
+	{
+		#if PER_SEC==1
+			// floating point time without overflows
+			return (GETTIME>endTime) || aborting;
+		#else
+			// fixed point time with overlaps
+			TIME now = GETTIME;
+			TIME end = endTime;
+			TIME max = (TIME)(end+ULONG_MAX/2);
+			return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now ) || *aborting;
+		#endif
+	}
+	virtual bool requestsRealtimeResponse()
+	{
+		// used by architect solver, go for realtime responsiveness, slower calculation
+		return true;
+	}
 	bool* aborting;
 	TIME endTime;
 };
-static bool endByTime(void *context)
-{
-	EBTContext* c = (EBTContext*)context;
-#if PER_SEC==1
-	// floating point time without overflows
-	return (GETTIME>c->endTime) || c->aborting;
-#else
-	// fixed point time with overlaps
-	TIME now = GETTIME;
-	TIME end = c->endTime;
-	TIME max = (TIME)(end+ULONG_MAX/2);
-	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now ) || *c->aborting;
-#endif
-}
 
 template <class C, int I, int InitialNoSmooth>
 class Smoother
@@ -409,10 +414,10 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	else
 	if (priv->scene)
 	{
-		EBTContext context;
-		context.aborting = &aborting;
-		context.endTime = (TIME)(now+improveStep*PER_SEC);
-		if (priv->scene->illuminationImprove(endByTime,(void*)&context)==RRStaticSolver::IMPROVED)
+		EndByTime endByTime;
+		endByTime.aborting = &aborting;
+		endByTime.endTime = (TIME)(now+improveStep*PER_SEC);
+		if (priv->scene->illuminationImprove(endByTime)==RRStaticSolver::IMPROVED)
 			priv->dirtyResults = true;
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));

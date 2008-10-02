@@ -23,10 +23,12 @@ namespace rr
 //
 // Scene
 
-bool neverend(void *)
+class NeverEnd : public RRStaticSolver::EndFunc
 {
-	return false;
-}
+public:
+	virtual bool requestsEnd() {return false;}
+	virtual bool requestsRealtimeResponse() {return false;}
+};
 
 void Scene::updateFactors(unsigned raysFromTriangle)
 {
@@ -48,7 +50,10 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 			for (unsigned t=0;t<object->triangles;t++)
 			{
 				if (object->triangle[t].surface)
-					refreshFormFactorsFromUntil(&object->triangle[t],MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverend,NULL);
+				{
+					NeverEnd neverEnd;
+					refreshFormFactorsFromUntil(&object->triangle[t],MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverEnd);
+				}
 			}
 		}
 	}

@@ -125,10 +125,10 @@ RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors,
 	return scene->resetStaticIllumination(resetFactors,resetPropagation,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 }
 
-RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(void*), void* context)
+RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(EndFunc& endfunc)
 {
 	__frameNumber++;
-	return scene->improveStatic(endfunc, context);
+	return scene->improveStatic(endfunc);
 }
 
 RRReal RRStaticSolver::illuminationAccuracy()

@@ -271,7 +271,7 @@ public:
 	void    objInsertStatic(Object *aobject);
 
 	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
-	RRStaticSolver::Improvement improveStatic(bool endfunc(void*), void* context);
+	RRStaticSolver::Improvement improveStatic(RRStaticSolver::EndFunc& endfunc);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
@@ -290,8 +290,8 @@ public:
 		RRMesh::TriangleBody improvingBody;
 		RRMesh::TangentBasis improvingBasisOrthonormal;
 		void    shotFromToHalfspace(Triangle* sourceNode);
-		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
-		bool    energyFromDistributedUntil(Triangle* source,bool endfunc(void *),void *context);
+		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,RRStaticSolver::EndFunc& endfunc);
+		bool    energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc& endfunc);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
 		unsigned shotsForNewFactors;
