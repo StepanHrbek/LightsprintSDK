@@ -72,7 +72,7 @@ void Camera::setAspect(float _aspect)
 
 void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 {
-	if(aspect>1)
+	if (aspect>1)
 	{
 		// wide screen, horizontal fov is closer to 180deg limit
 		fieldOfViewVerticalDeg = CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f/aspect);

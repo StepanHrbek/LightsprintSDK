@@ -27,29 +27,6 @@ RRStaticSolver::~RRStaticSolver()
 //
 // import geometry
 
-// je dulezite neakceptovat scenu kde neco odrazi vic jak 99%
-// 
-// 1. kdyz si dva facy se 100% odrazivosti v nektery slozce pinkaj foton tam a zpet
-//    a DISTRIB_LEVEL_HIGH vynucuje neustale dalsi pinkani (protoze foton je dost velky),
-//    je nutne to poznat a prejit na refresh. ted to znamena zastaveni vypoctu.
-// 2. kdyz si facy pinkaj cim dal vic fotonu protoze matrose odrazej vic nez 1,
-//    je nutne to poznat a skoncit s vhodnou hlaskou. ted to znamena nesmyslne vysledky.
-// 3. i 99.9% odrazivost ma vazne nasledky. ted to mozna zpusobuje nezadouci indirecty ktere bez resetu nezmizej.
-//    koupelna: vzajemnym pinkanim pod kouli se naakumuluje mnoho zluteho svetla.
-//    kdyz refreshnu, zmizi. bez refreshe se ale likviduje velice obtizne,
-//    pouze opetovnym dlouhym pinkanim opacnym smerem.
-//    je nutne maximalni odrazivost srazit co nejniz aby tento jev zeslabl, pod 98%?
-//
-// jak to ale zaridit, kdyz si schovavam pointery na surface a ten muze byt zlym importerem kdykoliv zmenen?
-//!!! zatim nedoreseno
-// a) udelat si kopie vsech surfacu
-//    -sezere trosku pameti a casu
-//    +maximalni bezpeci, kazda zmena surfacu za behu je fatalni, i banalni zmena odrazivosti z 0.5 na 0.4 to rozbije
-//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
-// b) behem pouzivani neustale kontrolovat ze neco nepreteklo
-//    -sezere moc vykonu
-// c) zkontrolovat na zacatku a pak duverovat
-//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
 
 RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing, bool& _aborting)
 {
