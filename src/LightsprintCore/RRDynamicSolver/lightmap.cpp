@@ -677,10 +677,6 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	// 2. propagate: solver.direct -> solver.indirect
 	if (containsFirstGather)
 	{
-		// shoot 2x less indirect rays than direct
-		// (but only if direct.quality was specified)
-		if (_paramsDirect) paramsIndirect.quality = paramsDirect.quality/2;
-
 		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
 		// 2. propagate: solver.direct -> solver.indirect
 		if (!updateSolverIndirectIllumination(&paramsIndirect))

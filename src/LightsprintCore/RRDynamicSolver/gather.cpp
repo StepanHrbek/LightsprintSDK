@@ -1103,7 +1103,11 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		priv->scene->illuminationReset(true,true,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
-		if (!updateSolverDirectIllumination(&paramsIndirect))
+		unsigned tmp = paramsIndirect.quality;
+		paramsIndirect.quality /= 2; // at 50% quality
+		bool updated = updateSolverDirectIllumination(&paramsIndirect);
+		paramsIndirect.quality = tmp;
+		if (!updated)
 		{
 			// aborting or not enough memory
 			return false;
@@ -1114,7 +1118,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		{
 			EBQContext context;
 			context.staticSolver = priv->scene;
-			context.targetQuality = (int)MAX(5,(2*paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
+			context.targetQuality = (int)MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
 			context.aborting = &aborting;
 			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",context.targetQuality);
 			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality,(void*)&context);
