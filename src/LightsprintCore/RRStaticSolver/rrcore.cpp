@@ -945,7 +945,10 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		if (!forcedShotsForNewFactors)
 			RR_ASSERT(shotsForNewFactors>source->shotsForFactors);
 		RR_ASSERT(shotsAccumulated==0);
-		RR_ASSERT(!hitTriangles.get());
+		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
+		{
+			RR_ASSERT(!shootingKernels.shootingKernel[kernelNum].hitTriangles.get());
+		}
 		shootingKernels.reset(shotsForNewFactors); // prepare homogenous shooting
 		// prepare data for shooting
 		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
