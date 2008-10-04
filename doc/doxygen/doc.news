@@ -8,11 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news65 ------------------------------------ 2008.10.x -------------------------------------
+\section news65 ------------------------------------ 2008.10.4 -------------------------------------
 
 NEWS
 
 - parallel radiosity, offline lightmap build 5-50% faster
+- \ref vs2005_64 "Visual Studio 2005 x64 support" (partial)
 
 \section news64 ------------------------------------ 2008.9.24 -------------------------------------
 

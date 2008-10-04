@@ -1878,17 +1878,16 @@ Remarks:
 Lightsprint fully supports 64bit code in Visual Studio 2008 and
 in gcc.
 
-We don't provide samples for Visual Studio 2005 x64,
-however it is possible to use our 2008 libraries there.
+For 64bit targets in Visual Studio 2005,
+we don't provide projects (.vcproj),
+however, it is possible to use our 2008 libraries there.
+Simply make sure you use 2008 libraries in your projects.
  -# put our lib/x64 into your project's "Additional Library Directories"
  -# disable "Link Library Dependencies" in your project
  -# chage 2005 to 2008 in
     - include/RRMath.h
     - include/GL/DemoEngine.h
-    - include/GL/DemoEngine.h
-
-When you include our header, Visual Studio 2005 will automatically 
-use our 2008 libraries.
+    - include/IO/ImportScene.h
 
 
 
