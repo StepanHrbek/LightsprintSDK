@@ -38,8 +38,8 @@ class RRReporterWindow : public RRReporter
 		bool shown; // set by WM_SHOWWINDOW
 		bool abortRequested; // user attemted to close window
 		bool reporterDeleted; // code deleted reporter
-		HWND* hWndInReporter; // pointer to HWND in reporter; we set it so reporter can send us messages
-		RRCallback* abortCallback;
+		HWND* hWndInReporter; // pointer to HWND in reporter; we set it so reporter can send us messages. <deleted with reporter>
+		RRCallback* abortCallback; // <deleted with reporter>
 		unsigned numLines[TIMI+1];
 	};
 
@@ -106,6 +106,7 @@ public:
 	{
 		time_t t = time(NULL);
 		localReport("FINISHED %s, CLOSE THE WINDOW\n",asctime(localtime(&t)));
+		SetWindowText(hWnd,"Lightsprint log [FINISHED]");
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		RR_ASSERT(instanceData);
 		if (instanceData)
@@ -256,6 +257,7 @@ public:
 	Abort(rr::RRDynamicSolver** _solver)
 	{
 		solver = _solver;
+		aborted = false;
 	}
 	// This is called from any other thread when user requests abort (e.g. by closing log window).
 	// It is important to have solver set, otherwise abort has no effect.
@@ -266,19 +268,25 @@ public:
 		{
 			rr::RRReporter::report(rr::INF2,"******** abort ********\n");
 			solver[0]->aborting = true;
+			aborted = true;
 		}
 	}
 	// This is called from main thread when work is done (finished or aborted).
 	~Abort()
 	{
 		// Stop aborting solver functions.
-		if (solver[0])
+		if (aborted && solver[0])
 		{
+			// This is very dangerous place.
+			// It's common error in main program to 'delete solver' rather than RR_SAFE_DELETE(solver),
+			// it makes our pointer invalid and we overwrite freed memory here.
+			// TODO: enforce some form of smart pointer on solver to prevent this error
 			solver[0]->aborting = false;
 		}
 	}
 private:
 	RRDynamicSolver** solver;
+	bool aborted;
 };
 
 class RRReporterWindowAbortSolver : public RRReporterWindow
