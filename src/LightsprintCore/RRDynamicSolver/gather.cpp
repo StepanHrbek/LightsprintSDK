@@ -664,7 +664,12 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// bail out if no work here
 	if (!hemisphere.rays && !gilights.rays)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, applyLights=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->applyLights,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment));
+		// This is actual performance warning, we should detect this condition sooner and skip whole triangle or mesh.
+		// It's commented out because
+		// - copying this condition to distant place would make code unnecessarily complex
+		//   (this simple condition depends on 2 other places that set rays)
+		// - performance loss is very small
+		//LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, applyLights=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->applyLights,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment));
 		return ProcessTexelResult();
 	}
 
