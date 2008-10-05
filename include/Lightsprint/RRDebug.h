@@ -176,6 +176,10 @@ namespace rr
 	};
 
 
+	//! To be described later.
+	RR_API bool offlineSetup(bool& enabled, unsigned& quality);
+
+
 } // namespace
 
 #endif

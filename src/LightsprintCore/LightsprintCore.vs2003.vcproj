@@ -813,6 +813,10 @@
 			RelativePath="LicGen.h">
 		</File>
 		<File
+			RelativePath="OfflineSetup.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h">
 		</File>
 		<File

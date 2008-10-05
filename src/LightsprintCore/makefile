@@ -80,6 +80,7 @@ RRStaticSolver/interpol.cpp \
 RRStaticSolver/rrcore.cpp \
 RRStaticSolver/RRStaticSolver.cpp \
 RRStaticSolver/RRVision.cpp \
+OfflineSetup.cpp \
 RRLight.cpp \
 RRLightField.cpp \
 RRMemory.cpp \

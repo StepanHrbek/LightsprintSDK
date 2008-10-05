@@ -58,9 +58,9 @@ CAPTION "Lightsprint log"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_LOG_SHORT,"RichEdit20W",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,1,1,351,252
-    CONTROL         "Close automatically",IDC_CHECK_AUTO_CLOSE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,87,258,86,10
+    CONTROL         "Close when finished",IDC_CHECK_AUTO_CLOSE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,87,258,86,10
     DEFPUSHBUTTON   "Abort",IDC_BUTTON_ABORT_CLOSE,290,256,62,12
-    CONTROL         "Detailed",IDC_CHECK_DETAILED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,1,258,47,10
+    CONTROL         "Detailed log",IDC_CHECK_DETAILED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,1,258,59,10
     CONTROL         "",IDC_LOG_DETAILED,"RichEdit20W",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,1,1,351,252
 END
 
@@ -84,6 +84,58 @@ END
 #endif    // APSTUDIO_INVOKED
 
 #endif    // Czech resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG2 DIALOGEX 0, 0, 260, 97
+STYLE DS_SYSMODAL | DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOPMOST
+CAPTION "Build static lighting"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Build lightmaps",IDOK,168,76,85,14
+    CONTROL         "Use Lightsprint for more realistic lightmaps (global illumination)",IDC_CHECK_ENABLE_LIGHTSPRINT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,22,213,10
+    EDITTEXT        IDC_EDIT_QUALITY,16,44,37,13,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Quality, 10 is good for preview, 300-3000 for production. 300 is rougly 10x faster than 3000.",IDC_STATIC,61,41,192,21
+    GROUPBOX        "Lightsprint",IDC_STATIC,7,7,246,61
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_DIALOG2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 253
+        VERTGUIDE, 16
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 90
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
