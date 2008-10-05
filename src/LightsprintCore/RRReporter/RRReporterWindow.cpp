@@ -11,6 +11,7 @@
 #include <cstdio> // sprintf
 #include <process.h> // _beginthread
 #include <windows.h>
+#include <richedit.h> // setting text color
 #include "reporterWindow.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
@@ -46,6 +47,9 @@ class RRReporterWindow : public RRReporter
 public:
 	RRReporterWindow(RRCallback* _abortCallback)
 	{
+		// necessary for changing text color
+		LoadLibrary("riched20.dll");
+
 		hWnd = 0;
 		// instance data are allocated here, deleted at the end of thread life
 		InstanceData* instanceData = new InstanceData;
@@ -58,7 +62,7 @@ public:
 		// It is necessary: in case of immediate end, first messages would be sent to uninitialized window and lost.
 		while (!instanceData->shown) Sleep(1);
 		time_t t = time(NULL);
-		localReport("STARTED %s\n",asctime(localtime(&t)));
+		localReport(INF1,"STARTED %s",asctime(localtime(&t)));
 
 		// When helper thread opens dialog, main thread loses right to create foreground windows.
 		// Temporary fix: Main thread opens dialog that closes itself immediately.
@@ -81,7 +85,9 @@ public:
 		}
 		// type
 		if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
-		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
+		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ",""                    ,""           ,""           ,""           ,""      };
+		static COLORREF         color[] = {0x2222FF ,0x2222FF            ,0x2222FF   ,0                     ,0            ,0            ,0            ,0x777700};
+		static DWORD          effects[] = {CFE_BOLD ,0                   ,0          ,CFE_BOLD|CFE_AUTOCOLOR,CFE_AUTOCOLOR,CFE_AUTOCOLOR,CFE_AUTOCOLOR,0       };
 		strcat(space,typePrefix[type]);
 		// statistics
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
@@ -95,25 +101,58 @@ public:
 		// crlf
 		space[strlen(space)-1]=0;
 		strcat(space,"\r\n");
-		// send
-		int pos = GetWindowTextLength(GetDlgItem(hWnd,IDC_LOG));
-		SendDlgItemMessageA(hWnd,IDC_LOG,EM_SETSEL,(pos>29000)?0:pos,pos);
-		SendDlgItemMessageA(hWnd,IDC_LOG,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
-		SendDlgItemMessageA(hWnd,IDC_LOG,WM_VSCROLL,SB_BOTTOM,0);
+		
+		// send to short log
+		if (type!=INF2 && type!=INF3 && type!=TIMI)
+		{
+			int dlgItem = IDC_LOG_SHORT;
+			int pos = GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
+			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
+
+			CHARFORMAT cf;
+			memset( &cf, 0, sizeof(CHARFORMAT) );
+			cf.cbSize = sizeof(CHARFORMAT);
+			cf.dwMask = (type==ERRO?CFM_BOLD:0) | CFM_COLOR;
+			cf.dwEffects = effects[type];
+			cf.crTextColor = color[type];
+			SendDlgItemMessageA(hWnd,dlgItem,EM_SETCHARFORMAT,(WPARAM)SCF_SELECTION,(LPARAM)&cf);
+
+			SendDlgItemMessageA(hWnd,dlgItem,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
+			SendDlgItemMessageA(hWnd,dlgItem,WM_VSCROLL,SB_BOTTOM,0);
+		}
+
+		// send to detailed log
+		{
+			int dlgItem = IDC_LOG_DETAILED;
+			int pos = GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
+			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
+
+			CHARFORMAT cf;
+			memset( &cf, 0, sizeof(CHARFORMAT) );
+			cf.cbSize = sizeof(CHARFORMAT);
+			cf.dwMask = CFM_BOLD | CFM_COLOR;
+			cf.dwEffects = effects[type];
+			cf.crTextColor = color[type];
+			SendDlgItemMessageA(hWnd,dlgItem,EM_SETCHARFORMAT,(WPARAM)SCF_SELECTION,(LPARAM)&cf);
+
+			SendDlgItemMessageA(hWnd,dlgItem,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
+			SendDlgItemMessageA(hWnd,dlgItem,WM_VSCROLL,SB_BOTTOM,0);
+		}
 	}
 
 	virtual ~RRReporterWindow()
 	{
 		time_t t = time(NULL);
-		localReport("FINISHED %s, CLOSE THE WINDOW\n",asctime(localtime(&t)));
+		localReport(INF1,"FINISHED %s",asctime(localtime(&t)));
 		SetWindowText(hWnd,"Lightsprint log [FINISHED]");
+		SendDlgItemMessageA(hWnd,IDC_BUTTON_ABORT_CLOSE,WM_SETTEXT,0,(LPARAM)"Close");
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		RR_ASSERT(instanceData);
 		if (instanceData)
 		{
-			if (instanceData->numLines[ERRO]) localReport(" %d ERRORS\n",instanceData->numLines[ERRO]);
-			if (instanceData->numLines[ASSE]) localReport(" %d ASSERTS\n",instanceData->numLines[ASSE]);
-			if (instanceData->numLines[WARN]) localReport(" %d WARNINGS\n",instanceData->numLines[WARN]);
+			if (instanceData->numLines[ERRO]) localReport(WARN," %d ERRORS\n",instanceData->numLines[ERRO]);
+			if (instanceData->numLines[ASSE]) localReport(WARN," %d ASSERTS\n",instanceData->numLines[ASSE]);
+			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]);
 			instanceData->reporterDeleted = true;
 			instanceData->abortCallback = NULL;
 			considerWindowEnd(hWnd);
@@ -125,16 +164,21 @@ private:
 	{
 		static unsigned char dialogResource[] =
 		{
-			1,0,255,255,0,0,0,0,0,0,0,0,200,10,200,128,2,0,0,0,0,0,95,1,13,
+			1,0,255,255,0,0,0,0,0,0,0,0,200,10,192,128,5,0,0,0,0,0,97,1,13,
 			1,0,0,0,0,76,0,105,0,103,0,104,0,116,0,115,0,112,0,114,0,105,0,110,0,
 			116,0,32,0,108,0,111,0,103,0,0,0,8,0,144,1,0,1,77,0,83,0,32,0,83,
 			0,104,0,101,0,108,0,108,0,32,0,68,0,108,0,103,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,2,0,2,88,7,0,254,0,81,1,8,0,255,255,255,255,255,255,130,0,46,
-			0,46,0,97,0,98,0,111,0,114,0,116,0,32,0,97,0,99,0,116,0,105,0,111,0,
-			110,0,32,0,98,0,121,0,32,0,99,0,108,0,111,0,115,0,105,0,110,0,103,0,32,
-			0,116,0,104,0,105,0,115,0,32,0,119,0,105,0,110,0,100,0,111,0,119,0,46,0,
-			46,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,196,8,177,80,7,0,7,0,81,
-			1,246,0,235,3,0,0,255,255,129,0,0,0,0,0
+			0,0,0,0,196,8,177,80,1,0,1,0,95,1,252,0,235,3,0,0,82,0,105,0,99,
+			0,104,0,69,0,100,0,105,0,116,0,50,0,48,0,87,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,3,0,1,80,87,0,2,1,86,0,10,0,240,3,0,0,255,255,128,
+			0,67,0,108,0,111,0,115,0,101,0,32,0,97,0,117,0,116,0,111,0,109,0,97,0,
+			116,0,105,0,99,0,97,0,108,0,108,0,121,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,1,0,1,80,34,1,0,1,62,0,12,0,241,3,0,0,255,255,128,0,65,0,
+			98,0,111,0,114,0,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,1,
+			80,1,0,2,1,47,0,10,0,243,3,0,0,255,255,128,0,68,0,101,0,116,0,97,0,
+			105,0,108,0,101,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,196,8,177,64,1,
+			0,1,0,95,1,252,0,236,3,0,0,82,0,105,0,99,0,104,0,69,0,100,0,105,0,
+			116,0,50,0,48,0,87,0,0,0,0,0,0,0
 		};
 		return (LPDLGTEMPLATE)dialogResource;
 	}
@@ -161,7 +205,8 @@ private:
 	{
 		// close window only if both code and user request it
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-		if (instanceData && instanceData->abortRequested && instanceData->reporterDeleted)
+		bool autoClose = SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_GETCHECK,0,0)==BST_CHECKED;
+		if (instanceData && (instanceData->abortRequested || autoClose) && instanceData->reporterDeleted)
 		{
 			EndDialog(hWnd,0);
 		}
@@ -196,7 +241,7 @@ private:
 				break;
 
 			case WM_COMMAND:
-				if (LOWORD(wParam)==IDCANCEL)
+				if (LOWORD(wParam)==IDCANCEL || LOWORD(wParam)==IDC_BUTTON_ABORT_CLOSE)
 				{
 					// Request abort, but do not necessarily close the window now.
 					InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
@@ -212,20 +257,34 @@ private:
 					}
 					return (INT_PTR)TRUE;
 				}
+				if (LOWORD(wParam)==IDC_CHECK_DETAILED)
+				{
+					bool detailed = SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_GETCHECK,0,0)==BST_CHECKED;
+					if (detailed)
+					{
+						ShowWindow(GetDlgItem(hWnd,IDC_LOG_DETAILED),SW_SHOWNORMAL);
+						ShowWindow(GetDlgItem(hWnd,IDC_LOG_SHORT),SW_HIDE);
+					}
+					else
+					{
+						ShowWindow(GetDlgItem(hWnd,IDC_LOG_SHORT),SW_SHOWNORMAL);
+						ShowWindow(GetDlgItem(hWnd,IDC_LOG_DETAILED),SW_HIDE);
+					}
+				}
 				break;
 		}
 
 		return (INT_PTR)FALSE;
 	}
 
-	void localReport(const char* format, ...)
+	void localReport(RRReportType type, const char* format, ...)
 	{
 		va_list argptr;
 		va_start (argptr,format);
 		char msg[1000];
 		_vsnprintf(msg,999,format,argptr);
 		msg[999] = 0;
-		RRReporterWindow::customReport(INF1,0,msg);
+		RRReporterWindow::customReport(type,0,msg);
 		va_end (argptr);
 	}
 

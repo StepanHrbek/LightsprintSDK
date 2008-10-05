@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news66 ------------------------------------ 2008.10.x -------------------------------------
+
+NEWS
+
+- log window has lots of new features
+  \n (no API changes, it's still created by RRReporter::createWindowedReporter())
+
 \section news65 ------------------------------------ 2008.10.4 -------------------------------------
 
 NEWS
