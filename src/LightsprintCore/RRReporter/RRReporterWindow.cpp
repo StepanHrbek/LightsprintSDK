@@ -14,7 +14,9 @@
 #include <richedit.h> // setting text color
 #include "reporterWindow.h"
 #include "Lightsprint/RRDynamicSolver.h"
+#include "../Preferences.h"
 
+#define LOCATION "WindowedReporter"
 
 namespace rr
 {
@@ -208,6 +210,12 @@ private:
 		bool autoClose = SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_GETCHECK,0,0)==BST_CHECKED;
 		if (instanceData && (instanceData->abortRequested || autoClose) && instanceData->reporterDeleted)
 		{
+			// save preferences
+			bool detailed = SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_GETCHECK,0,0)==BST_CHECKED;
+			Preferences::setValue(LOCATION,"detailed",detailed?1.f:0);
+			bool autoclose = SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_GETCHECK,0,0)==BST_CHECKED;
+			Preferences::setValue(LOCATION,"autoclose",autoclose?1.f:0);
+
 			EndDialog(hWnd,0);
 		}
 	}
@@ -225,6 +233,17 @@ private:
 						*instanceData->hWndInReporter = hWnd;
 						//instanceData->hWndInReporter = NULL; // we don't need it anymore
 						SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)instanceData);
+
+						// load preferences
+						bool detailed = Preferences::getValue(LOCATION,"detailed",0)!=0;
+						SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_SETCHECK,detailed?BST_CHECKED:BST_UNCHECKED,0);
+						if (detailed)
+						{
+							ShowWindow(GetDlgItem(hWnd,IDC_LOG_DETAILED),SW_SHOWNORMAL);
+							ShowWindow(GetDlgItem(hWnd,IDC_LOG_SHORT),SW_HIDE);
+						}
+						bool autoclose = Preferences::getValue(LOCATION,"autoclose",0)!=0;
+						SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_SETCHECK,autoclose?BST_CHECKED:BST_UNCHECKED,0);
 					}
 				}
 				return (INT_PTR)TRUE;
@@ -325,7 +344,7 @@ public:
 		// Ask solver to abort all actions.
 		if (solver[0])
 		{
-			rr::RRReporter::report(rr::INF2,"******** abort ********\n");
+			rr::RRReporter::report(rr::INF1,"******** abort ********\n");
 			solver[0]->aborting = true;
 			aborted = true;
 		}

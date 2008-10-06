@@ -1048,27 +1048,35 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="RRReporter">
+			Name="RRReporter"
+			>
 			<File
-				RelativePath="RRReporter\RRReporter.cpp">
+				RelativePath="RRReporter\reporterWindow.h"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\reporterWindow.h">
+				RelativePath="RRReporter\RRReporter.cpp"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\RRReporterFile.cpp">
+				RelativePath="RRReporter\RRReporterFile.cpp"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\RRReporterOutputDebugString.cpp">
+				RelativePath="RRReporter\RRReporterOutputDebugString.cpp"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\RRReporterPrintf.cpp">
+				RelativePath="RRReporter\RRReporterPrintf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\RRReporterWindow.cpp">
+				RelativePath="RRReporter\RRReporterWindow.cpp"
+				>
 			</File>
 			<File
-				RelativePath="RRReporter\RRReportInterval.cpp">
+				RelativePath="RRReporter\RRReportInterval.cpp"
+				>
 			</File>
 		</Filter>
 		<File
@@ -1077,6 +1085,14 @@
 		</File>
 		<File
 			RelativePath="OfflineSetup.cpp"
+			>
+		</File>
+		<File
+			RelativePath="Preferences.cpp"
+			>
+		</File>
+		<File
+			RelativePath="Preferences.h"
 			>
 		</File>
 		<File

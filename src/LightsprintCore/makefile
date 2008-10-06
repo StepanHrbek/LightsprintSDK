@@ -81,6 +81,7 @@ RRStaticSolver/rrcore.cpp \
 RRStaticSolver/RRStaticSolver.cpp \
 RRStaticSolver/RRVision.cpp \
 OfflineSetup.cpp \
+Preferences.cpp \
 RRLight.cpp \
 RRLightField.cpp \
 RRMemory.cpp \

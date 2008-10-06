@@ -817,6 +817,14 @@
 			>
 		</File>
 		<File
+			RelativePath="Preferences.cpp"
+			>
+		</File>
+		<File
+			RelativePath="Preferences.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h">
 		</File>
 		<File

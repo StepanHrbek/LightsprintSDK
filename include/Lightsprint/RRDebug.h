@@ -176,8 +176,8 @@ namespace rr
 	};
 
 
-	//! To be described later.
-	RR_API bool offlineSetup(bool& enabled, unsigned& quality);
+	//! Will be described later.
+	RR_API bool offlineSetup(bool& enabled, unsigned& quality, bool finalQuality);
 
 
 } // namespace

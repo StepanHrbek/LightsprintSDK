@@ -10,7 +10,7 @@
 #include <cstdio> // sprintf
 #include <windows.h>
 #include "RRReporter/reporterWindow.h"
-
+#include "Preferences.h"
 
 namespace rr
 {
@@ -33,6 +33,7 @@ static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				char buf[10];
 				sprintf(buf,"%d",s_quality);
 				SendDlgItemMessage(hWnd,IDC_EDIT_QUALITY,WM_SETTEXT,0,(LPARAM)buf);
+				SendDlgItemMessage(hWnd,IDC_EDIT_QUALITY,WM_ENABLE,(WPARAM)s_enabled,0);
 			}
 			break;
 		case WM_COMMAND:
@@ -106,11 +107,32 @@ bool offlineSetup(bool& enabled, unsigned& quality)
 	return s_ok;
 }
 
+bool offlineSetup(bool& enabled, unsigned& quality, bool finalQuality)
+{
+	// read preferences
+	const char* location = "OfflineSetup";
+	enabled = Preferences::getValue(location,"enabled",enabled?1.f:0)!=0;
+	quality = (unsigned)Preferences::getValue(location,finalQuality?"qualityFinal":"qualityPreview",(float)quality);
+
+	// ask user to confirm/change
+	bool result = offlineSetup(enabled,quality);
+
+	// store preferences
+	Preferences::setValue(location,"enabled",enabled?1.f:0);
+	Preferences::setValue(location,finalQuality?"qualityFinal":"qualityPreview",(float)quality);
+	return result;
+}
+
 } //namespace
 
 #else // _WIN32
 
 bool rr::offlineSetup(bool& enabled, unsigned& quality)
+{
+	return false;
+}
+
+bool offlineSetup(const char* preferences, bool finalQuality)
 {
 	return false;
 }
