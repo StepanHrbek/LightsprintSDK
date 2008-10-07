@@ -82,6 +82,8 @@ public:
 
 	// tools, to be called by user
 
+	//! Default constructor.
+	Camera();
 	//! Initializes all inputs at once.
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
 	//! Initializes all inputs from RRLight.

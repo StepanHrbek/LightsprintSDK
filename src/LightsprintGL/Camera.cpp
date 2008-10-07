@@ -11,6 +11,21 @@
 namespace rr_gl
 {
 
+Camera::Camera()
+{
+	pos = rr::RRVec3(0);
+	angle = 0;
+	leanAngle = 0;
+	angleX = 0;
+	setAspect(1);
+	setFieldOfViewVerticalDeg(90);
+	setRange(0.1f,100);
+	orthogonal = 0;
+	orthoSize = 0;
+	updateDirFromAngles = true;
+	update();
+}
+
 Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
 	pos[0] = _posx;
