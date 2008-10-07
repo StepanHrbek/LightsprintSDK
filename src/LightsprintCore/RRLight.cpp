@@ -22,6 +22,7 @@ class CleanLight : public RRLight
 public:
 	CleanLight()
 	{
+		type = POINT;
 		position = rr::RRVec3(0);
 		direction = rr::RRVec3(0);
 		outerAngleRad = 0;
@@ -301,6 +302,50 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// MutableLight
+
+class MutableLight : public CleanLight
+{
+public:
+	MutableLight()
+	{
+	}
+
+	RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	{
+		// calls implementation from subclass
+		// we can do this because subclasses differ only in code, not in data
+		#define CALL(SUBCLASS) return ((SUBCLASS*)this)->SUBCLASS::getIrradiance(receiverPosition, scaler);
+	
+		switch(type)
+		{
+			case DIRECTIONAL: CALL(DirectionalLight);
+			case POINT:
+				switch(distanceAttenuationType)
+				{
+					case NONE: CALL(PointLightNoAtt);
+					case PHYSICAL: CALL(PointLightPhys);
+					case POLYNOMIAL: CALL(PointLightPoly);
+					case EXPONENTIAL: CALL(PointLightRadiusExp);
+				}
+			case SPOT:
+				switch(distanceAttenuationType)
+				{
+					case NONE: CALL(SpotLightNoAtt);
+					case PHYSICAL: CALL(SpotLightPhys);
+					case POLYNOMIAL: CALL(SpotLightPoly);
+					case EXPONENTIAL: CALL(SpotLightRadiusExp);
+				}
+		}
+		// invalid light, it is in unsupported internal state
+		RR_ASSERT(0);
+		return RRVec3(0);
+	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRLight
 
 RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale)
@@ -346,6 +391,11 @@ RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3&
 RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
 {
 	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad,spotExponent);
+}
+
+RRLight* RRLight::createMutableLight()
+{
+	return new MutableLight();
 }
 
 } // namespace

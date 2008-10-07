@@ -14,6 +14,7 @@ NEWS
 
 - log window has lots of new features
   \n (no API changes, it's still created by RRReporter::createWindowedReporter())
+- RRLight::createMutableLight()
 
 \section news65 ------------------------------------ 2008.10.4 -------------------------------------
 

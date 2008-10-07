@@ -96,8 +96,8 @@ namespace rr
 	//! distance attenuations are supported via createXxx functions.
 	//!
 	//! Custom lights with this interface may be created.
-	//! For offline rendering in LightsprintCore, only #type, #position, #direction and getIrradiance() are relevant.
-	//! For realtime rendering in LightsprintGL, implement(set propely) all attributes.
+	//! Offline renderer in LightsprintCore accesses #type, #position, #direction and getIrradiance().
+	//! Realtime renderer in LightsprintGL accesses all attributes.
 	//!
 	//! Contains atributes of all standard lights.
 	//! Unused attributes (e.g. fallOffExponent when distanceAttenuation=NONE) are set to zero.
@@ -381,6 +381,15 @@ namespace rr
 		//!  Exponent in (0,inf) range. \n
 		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
 		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
+
+		//! Creates mutable light.
+		//
+		//! You can turn mutable light into any light type with any attenuation model,
+		//! it has getIrradiance() supporting all types and attenuations.
+		//! Mutability doesn't make any difference in realtime solver.
+		//! In offline solver, lights created by other createXxx() are slightly faster because they 
+		//! have light type and attenuation hardcoded.
+		static RRLight* createMutableLight();
 	};
 
 
