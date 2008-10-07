@@ -73,7 +73,8 @@ int main(int argc, char **argv)
 #endif // _WIN32
 
 	// load scene
-	rr_io::ImportScene scene((argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae");
+	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
+	rr_io::ImportScene scene(sceneFilename);
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
@@ -87,7 +88,10 @@ int main(int argc, char **argv)
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 
 	// run interactive scene viewer
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",NULL);
+	rr_gl::SceneViewerState svs;
+	strncpy(svs.sceneFilename,sceneFilename,svs.MAX_FILENAME_LENGTH);
+	svs.sceneFilename[svs.MAX_FILENAME_LENGTH] = 0;
+	rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
 
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();

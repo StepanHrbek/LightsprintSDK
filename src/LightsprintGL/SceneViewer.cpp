@@ -19,7 +19,6 @@
 #endif
 
 #define DEBUG_TEXEL
-#define OWNED_BY_3DRENDER
 
 namespace rr_gl
 {
@@ -193,6 +192,7 @@ protected:
 };
 
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // menu
@@ -270,9 +270,6 @@ public:
 
 		// Movement speed...
 		int speedHandle = glutCreateMenu(speedCallback);
-#ifdef OWNED_BY_3DRENDER
-		glutAddMenuEntry(svs.cameraGravity?"Switch to flying observer":"Switch to first person", ME_GRAVITY);
-#endif
 		glutAddMenuEntry("0.001 m/s", 1);
 		glutAddMenuEntry("0.01 m/s", 10);
 		glutAddMenuEntry("0.1 m/s", 100);
@@ -577,15 +574,6 @@ public:
 	}
 	static void speedCallback(int item)
 	{
-#ifdef OWNED_BY_3DRENDER
-		if (item==ME_GRAVITY)
-		{
-			svs.cameraCollisions = svs.cameraGravity = !svs.cameraGravity;
-			destroy();
-			create();
-		}
-		else
-#endif
 		{
 			svs.cameraMetersPerSecond = item/1000.f;
 		}
@@ -684,7 +672,6 @@ public:
 		ME_STATIC_SAVE,
 		ME_STATIC_BUILD_LIGHTFIELD_2D,
 		ME_STATIC_BUILD_LIGHTFIELD_3D,
-		ME_GRAVITY,
 	};
 };
 
@@ -750,7 +737,6 @@ static void keyboard(unsigned char c, int x, int y)
 		case 'C': speedLean = +1; break;
 
 		case 'o': Menu::realtimeCallback(Menu::ME_REALTIME_LDM); break;
-		case 'g': Menu::speedCallback(Menu::ME_GRAVITY); break;
 
 		case 27: if (svs.render2d) svs.render2d = 0;
 			//else exitRequested = 1;
@@ -1356,22 +1342,6 @@ static void idle()
 		float meters = seconds * svs.cameraMetersPerSecond;
 		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getParent();
 
-#ifdef OWNED_BY_3DRENDER
-		// is feet on the ground?
-		#define WALL_DISTANCE    0.2f // m
-		#define FLOOR_DISTANCE   1.6f // m
-		#define CEILING_DISTANCE 0.2f // m
-		#define LIFT_SPEED       1.0f // m/s
-		rr::RRVec3 oldEyePos = svs.eye.pos;
-		const rr::RRCollider* collider = (solver && solver->getMultiObjectCustom()) ? solver->getMultiObjectCustom()->getCollider() : NULL;
-		ray->rayOrigin = svs.eye.pos;
-		ray->rayDirInv = rr::RRVec3(1e10f,-1,1e10f);
-		ray->rayLengthMin = 0;
-		ray->rayLengthMax = FLOOR_DISTANCE*1.01f; // 1.01 prevents free fall on flat ground due to float precision error
-		ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-		ray->collisionHandler = NULL;
-		if (!svs.cameraGravity || !collider || collider->intersect(ray))
-#endif
 		{
 			// yes -> respond to keyboard
 			if (speedForward) cam->moveForward(speedForward*meters);
@@ -1382,72 +1352,6 @@ static void idle()
 			if (speedDown) cam->moveDown(speedDown*meters);
 			if (speedLean) cam->lean(speedLean*meters);
 		}
-#ifdef OWNED_BY_3DRENDER
-		else
-		{
-			// no -> continue free fall
-			if (svs.cameraGravity)
-			{
-				lastSecondMovement[1] += -9.81f*seconds;
-				svs.eye.pos += lastSecondMovement*seconds;
-			}
-		}
-
-		// camera collisions
-		if (collider && svs.cameraCollisions && svs.eye.pos!=oldEyePos)
-		{
-			// keep WALL_DISTANCE
-			rr::RRVec3 dir = (svs.eye.pos-oldEyePos).normalized();
-			ray->rayOrigin = oldEyePos;
-			ray->rayDirInv = rr::RRVec3(1)/dir;
-			ray->rayLengthMin = 0;
-			ray->rayLengthMax = (svs.eye.pos-oldEyePos).length() + WALL_DISTANCE;
-			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-			if (collider->intersect(ray))
-			{
-				// movement partially or fully blocked, move back
-				svs.eye.pos = oldEyePos + dir * MAX(0,ray->hitDistance-WALL_DISTANCE);
-			}
-		}
-
-		// camera gravity
-		if (svs.cameraGravity)
-		{
-			// keep FLOOR_DISTANCE
-			ray->rayOrigin = svs.eye.pos;
-			ray->rayDirInv = rr::RRVec3(1e10f,-1,1e10f);
-			ray->rayLengthMin = 0;
-			ray->rayLengthMax = FLOOR_DISTANCE*1.2f; // 1.2 prevents walker from doing small jumps when camera points slightly up
-			ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-			if (collider->intersect(ray))
-			{
-				float aboveGround = ray->hitDistance;
-
-				// keep CEILING_DISTANCE
-				ray->rayOrigin = svs.eye.pos;
-				ray->rayDirInv = rr::RRVec3(1e10f,1,1e10f);
-				ray->rayLengthMin = 0;
-				ray->rayLengthMax = FLOOR_DISTANCE+CEILING_DISTANCE-aboveGround; // test up to full person height from ground
-				ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-				if (collider->intersect(ray))
-				{
-					// camera too low in tight space, keep camera in the middle
-					float underCeiling = ray->hitDistance;
-					float liftMetersRequested = MAX( underCeiling-CEILING_DISTANCE, (underCeiling-aboveGround)*0.5f );
-					svs.eye.pos.y += MIN(liftMetersRequested,LIFT_SPEED*seconds);
-				}
-				else
-				{
-					// camera too low in big space, lift camera up
-					float liftMetersRequested = FLOOR_DISTANCE-aboveGround;
-					svs.eye.pos.y += MIN(liftMetersRequested,LIFT_SPEED*seconds);
-				}
-			}
-		}
-
-		lastSecondMovement = (svs.eye.pos-oldEyePos)/seconds;
-		if (svs.cameraGravity && lastSecondMovement.y<-30) Menu::mainCallback(Menu::ME_RANDOM_CAMERA); // respawn when falling outside world
-#endif
 
 		// light change report
 		if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)

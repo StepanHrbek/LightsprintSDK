@@ -11,6 +11,8 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
+//error : inserted by sunifdef: "#define CUSTOMIZED_FOR_3DRENDER" contradicts -U at R:\work2\.git-rewrite\t\include\Lightsprint\GL\SceneViewer.h~(14)
+
 namespace rr_gl
 {
 
@@ -39,10 +41,10 @@ struct SceneViewerState
 	bool             renderHelpers;       //! Show helper wireframe objects and text outputs.
 	bool             renderBilinear;      //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
-	bool             cameraGravity;       //! Camera responds to gravity.
-	bool             cameraCollisions;    //! Camera collides with geometry.
 	bool             cameraDynamicNear;   //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
+	enum {MAX_FILENAME_LENGTH=255};
+	char             sceneFilename[MAX_FILENAME_LENGTH+1]; //! Optional filename of scene passed to scene viewer.
 	rr::RRVec4       brightness;          //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;               //! Gamma correction applied at render time, 1=no correction.
 	// viewer initialization
@@ -71,10 +73,9 @@ struct SceneViewerState
 		renderWireframe = 0;
 		renderHelpers = 0;
 		adjustTonemapping = 1;
-		cameraGravity = 0;
-		cameraCollisions = 0;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
+		sceneFilename[0] = 0;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
 		autodetectCamera = 1;
