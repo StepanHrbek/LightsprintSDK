@@ -268,8 +268,9 @@ public:
 		glutAddMenuEntry("Build light detail map",ME_REALTIME_LDM_BUILD);
 		glutAddMenuEntry(svs.renderLDM?"Disable light detail map":"Enable light detail map",ME_REALTIME_LDM);
 
-		// Movement speed...
-		int speedHandle = glutCreateMenu(speedCallback);
+		// Camera...
+		int cameraHandle = glutCreateMenu(cameraCallback);
+		glutAddMenuEntry("Set random camera",ME_CAMERA_GENERATE_RANDOM);
 		glutAddMenuEntry("0.001 m/s", 1);
 		glutAddMenuEntry("0.01 m/s", 10);
 		glutAddMenuEntry("0.1 m/s", 100);
@@ -291,7 +292,7 @@ public:
 		glutAddSubMenu("Lights...", lightsHandle);
 		glutAddSubMenu("Realtime lighting...", realtimeHandle);
 		glutAddSubMenu("Static lighting...", staticHandle);
-		glutAddSubMenu("Movement...", speedHandle);
+		glutAddSubMenu("Camera...", cameraHandle);
 		glutAddSubMenu("Environment...", envHandle);
 		glutAddMenuEntry(svs.renderDiffuse?"Disable diffuse color":"Enable diffuse color", ME_RENDER_DIFFUSE);
 		glutAddMenuEntry(svs.renderSpecular?"Disable specular reflection":"Enable specular reflection", ME_RENDER_SPECULAR);
@@ -303,7 +304,6 @@ public:
 		glutAddMenuEntry(svs.renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry(svs.renderHelpers?"Hide helpers":"Show helpers", ME_RENDER_HELPERS);
 		glutAddMenuEntry(fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
-		glutAddMenuEntry("Set random camera",ME_RANDOM_CAMERA);
 		glutAddMenuEntry("Log solver diagnose",ME_CHECK_SOLVER);
 		glutAddMenuEntry("Log scene errors",ME_CHECK_SCENE);
 		glutAddMenuEntry("Quit", ME_CLOSE);
@@ -349,10 +349,6 @@ public:
 						glutPositionWindow(windowCoord[0],windowCoord[1]);
 					}
 				}
-				break;
-			case ME_RANDOM_CAMERA:
-				svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
-				svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
 				break;
 			case ME_CHECK_SOLVER: solver->checkConsistency(); break;
 			case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
@@ -572,10 +568,16 @@ public:
 		destroy();
 		create();
 	}
-	static void speedCallback(int item)
+	static void cameraCallback(int item)
 	{
+		switch (item)
 		{
-			svs.cameraMetersPerSecond = item/1000.f;
+			case ME_CAMERA_GENERATE_RANDOM:
+				svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
+				svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
+				break;
+			default:
+				svs.cameraMetersPerSecond = item/1000.f;
 		}
 		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -650,7 +652,7 @@ public:
 		ME_LIGHT_POINT,
 		ME_LIGHT_DELETE,
 		ME_LIGHT_AMBIENT,
-		ME_RANDOM_CAMERA,
+		ME_CAMERA_GENERATE_RANDOM,
 		ME_CHECK_SOLVER,
 		ME_CHECK_SCENE,
 		// ME_REALTIME/STATIC must not collide with 1,10,100,1000,10000
@@ -771,6 +773,7 @@ static void keyboardUp(unsigned char c, int x, int y)
 		case 'X': speedLean = 0; break;
 		case 'c':
 		case 'C': speedLean = 0; break;
+
 	}
 }
 
@@ -1428,7 +1431,6 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 
 	// init rest
 	lv = LightmapViewer::create(_pathToShaders);
-	svs.renderAmbient = _solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 	ourEnv = 0;
 	if (svs.selectedLightIndex>_solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
@@ -1450,8 +1452,9 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutIdleFunc(idle);
 	glutMenuStatusFunc(menuStatus);
 	Menu* menu = new Menu(solver);
-	if (svs.autodetectCamera) menu->mainCallback(Menu::ME_RANDOM_CAMERA);
+	if (svs.autodetectCamera) menu->cameraCallback(Menu::ME_CAMERA_GENERATE_RANDOM);
 	if (svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
+	svs.renderAmbient = solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 	water = new Water(_pathToShaders,true,false);
 	toneMapping = new ToneMapping(_pathToShaders);
 	ray = rr::RRRay::create();

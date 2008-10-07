@@ -20,7 +20,7 @@ namespace rr_gl
 struct SceneViewerState
 {
 	// viewer state
-	Camera           eye;
+	Camera           eye;                 //! Current camera.
 	unsigned         staticLayerNumber;   //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
 	unsigned         realtimeLayerNumber; //! Layer used for all realtime lighting operations.
 	unsigned         ldmLayerNumber;      //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
