@@ -23,19 +23,24 @@ float Preferences::getValue(const char* location, const char* variable, float de
 {
 #ifdef _WIN32
 	float value = defaultValue;
-	HKEY   hkey;
-	DWORD  dwDisposition;
- 
+
 	char subkey[200];
 	_snprintf(subkey,199,"Software\\Lightsprint\\PM\\%s",location);
 	subkey[199] = 0;
 
-	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT(subkey), 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &dwDisposition)==ERROR_SUCCESS)
+	HKEY hkey1;
+	if(RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
 	{
-		DWORD dwType = REG_BINARY;
-		DWORD dwSize = sizeof(value);
-		RegQueryValueEx(hkey, TEXT(variable), NULL, &dwType, (PBYTE)&value, &dwSize);
-		RegCloseKey(hkey);
+		HKEY hkey2;
+		DWORD dwDisposition;
+		if(RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		{
+			DWORD dwType = REG_BINARY;
+			DWORD dwSize = sizeof(value);
+			RegQueryValueEx(hkey2, TEXT(variable), NULL, &dwType, (PBYTE)&value, &dwSize);
+			RegCloseKey(hkey2);
+		}
+		RegCloseKey(hkey1);
 	}
 	return value;
 #else
@@ -47,19 +52,23 @@ float Preferences::getValue(const char* location, const char* variable, float de
 void Preferences::setValue(const char* location, const char* variable, float value)
 {
 #ifdef _WIN32
-	HKEY hkey;
-	DWORD dwDisposition;
- 
 	char subkey[200];
 	_snprintf(subkey,199,"Software\\Lightsprint\\PM\\%s",location);
 	subkey[199] = 0;
 
-	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT(subkey), 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &dwDisposition)==ERROR_SUCCESS)
+	HKEY hkey1;
+	if(RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
 	{
-		DWORD dwType = REG_BINARY;
-		DWORD dwSize = sizeof(value);
-		RegSetValueEx(hkey, TEXT(variable), 0, dwType, (PBYTE)&value, dwSize);
-		RegCloseKey(hkey);
+		HKEY hkey2;
+		DWORD dwDisposition;
+		if(RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		{
+			DWORD dwType = REG_BINARY;
+			DWORD dwSize = sizeof(value);
+			RegSetValueEx(hkey2, TEXT(variable), 0, dwType, (PBYTE)&value, dwSize);
+			RegCloseKey(hkey2);
+		}
+		RegCloseKey(hkey1);
 	}
 #else
 	RRReporter::report(WARN,"Preferences not implemented for this platform.\n");
