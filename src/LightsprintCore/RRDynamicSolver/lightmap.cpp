@@ -663,12 +663,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		}
 	}
 
-	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
+	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
 		layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
-		paramsIndirect.applyCurrentSolution?"cur ":"");
+		paramsIndirect.applyCurrentSolution?"cur ":"",
+		getStaticObjects().size(),getLights().size());
 	
 	if (sizeOfAllBuffers>10000000 && (containsFirstGather||containsPixelBuffers||!containsRealtime))
 		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1024/1024);
