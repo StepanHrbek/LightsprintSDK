@@ -91,10 +91,10 @@ namespace rr_gl
 		//! without material. Helper function called from detectDirectIllumination().
 		virtual Program* setupShader(unsigned objectNumber);
 	private:
-		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap set.
+		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap flag set.
 		//
 		//! It also copies position and direction from RealtimeLight-s to RRLight-s.
-		//! Flag is set when you call reportDirectIlluminationChange(,true,).
+		//! dirtyShadowmap flag is set when you call reportDirectIlluminationChange(,true,).
 		//! \n Called by calculate().
 		virtual void updateShadowmaps();
 		//! Helper function called from detectDirectIllumination().

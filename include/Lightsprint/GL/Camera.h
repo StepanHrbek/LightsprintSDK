@@ -79,6 +79,8 @@ public:
 	double   frustumMatrix[16];
 	//! Inverse projection matrix in format suitable for OpenGL.
 	double   inverseFrustumMatrix[16];
+	//! When set, it's position/direction is updated in update().
+	rr::RRLight* origin;
 
 	// tools, to be called by user
 
@@ -86,8 +88,8 @@ public:
 	Camera();
 	//! Initializes all inputs at once.
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
-	//! Initializes all inputs from RRLight.
-	Camera(const rr::RRLight& light);
+	//! Initializes all inputs from RRLight. If you move light, each update() will copy new position and direction to light.
+	Camera(rr::RRLight& light);
 	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
 

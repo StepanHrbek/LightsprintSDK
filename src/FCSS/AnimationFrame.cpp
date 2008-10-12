@@ -101,10 +101,12 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alphaSmooth,(float)(2*M_PI));
 	blended.eye.orthogonal = eye.orthogonal;
 	blended.eye.updateDirFromAngles = eye.updateDirFromAngles;
+	blended.eye.origin = NULL;
 	blended.eye.update();
 	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alphaRounded,(float)(2*M_PI));
 	blended.light.orthogonal = light.orthogonal;
 	blended.light.updateDirFromAngles = light.updateDirFromAngles;
+	blended.light.origin = NULL;
 	blended.light.update();
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();

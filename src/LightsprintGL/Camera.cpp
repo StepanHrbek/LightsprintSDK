@@ -23,6 +23,7 @@ Camera::Camera()
 	orthogonal = 0;
 	orthoSize = 0;
 	updateDirFromAngles = true;
+	origin = NULL;
 	update();
 }
 
@@ -40,10 +41,11 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	orthogonal = 0;
 	orthoSize = 0;
 	updateDirFromAngles = true;
+	origin = NULL;
 	update();
 }
 
-Camera::Camera(const rr::RRLight& light)
+Camera::Camera(rr::RRLight& light)
 {
 	pos = light.position;
 	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
@@ -63,6 +65,7 @@ Camera::Camera(const rr::RRLight& light)
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
 	updateDirFromAngles = true;
+	origin = &light;
 	update();
 }
 
@@ -245,6 +248,13 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	// update inverse matrices
 	invertMatrix(inverseViewMatrix, viewMatrix);
 	invertMatrix(inverseFrustumMatrix, frustumMatrix);
+
+	// copy pos/dir to RRLight
+	if (origin)
+	{
+		origin->position = pos;
+		origin->direction = dir;
+	}
 }
 
 void Camera::rotateViewMatrix(unsigned instance)

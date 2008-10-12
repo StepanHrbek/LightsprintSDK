@@ -16,7 +16,7 @@ namespace rr_gl
 	//
 	// RealtimeLight
 
-	RealtimeLight::RealtimeLight(const rr::RRLight& _rrlight)
+	RealtimeLight::RealtimeLight(rr::RRLight& _rrlight)
 	{
 		deleteParent = true;
 		origin = &_rrlight;

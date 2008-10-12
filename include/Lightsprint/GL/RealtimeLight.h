@@ -42,7 +42,10 @@ public:
 	};
 
 	//! Creates realtime light out of standard light.
-	RealtimeLight(const rr::RRLight& origin);
+	//
+	//! Standard light must exist at least as long as realtime light.
+	//! Standard light position/direction is updated each time this->getParent()->update() is called.
+	RealtimeLight(rr::RRLight& origin);
 	//! Old interface, creates realtime spotlight out of camera.
 	RealtimeLight(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
 	virtual ~RealtimeLight();
