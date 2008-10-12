@@ -1855,7 +1855,7 @@ Remarks:
 
  3D APIs
  - OpenGL 2 (examples included)
- - Direct3D 9/10 (create device with D3DCREATE_FPU_PRESERVE. no examples yet)
+ - Direct3D 9/10 (no examples yet)
  - for offline rendering, 3D API is not needed
 
  Compilers
@@ -2084,13 +2084,6 @@ Simply make sure you use 2008 libraries in your projects.
    (But still, we fixed all known errors caused by Inf/Nan
     and if you find and report us other Inf/NaN problem,
     we will fix it too.)
-
- \section gflodoub Floats and doubles
-   Library uses both floats and doubles.
-   It is not allowed to break double arithmetics by modifying FPU states.
-   If you use Direct3D, make sure you create device with D3DCREATE_FPU_PRESERVE
-   flag, otherwise it forces single precision and 
-   breaks double precision arithmetics in whole program including dlls.
 
  \section gnull NULL
    Although NULL is obsoleted by C++ and some discourage from using it,

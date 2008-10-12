@@ -246,15 +246,7 @@ namespace rr
 	//! Loads license from file.
 	//
 	//! Must be called before any other work with library.
-	//!
-	//! Uses doubles.
-	//! If you create Direct3D device
-	//! before licence check, use D3DCREATE_FPU_PRESERVE flag,
-	//! otherwise Direct3D breaks double precision for whole
-	//! application including DLLs and this function fails.
-	//!
-	//! May connect to Lightsprint servers for verification.
-	//!
+	//! \n May connect to Lightsprint servers for verification.
 	//! \return
 	//!  Error message for failed license check, NULL for successful check.
 	//!  If it's not NULL, lighting computed by other functions
