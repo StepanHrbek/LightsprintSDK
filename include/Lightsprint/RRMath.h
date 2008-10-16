@@ -145,6 +145,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length2()                  const {return x*x+y*y;}
 		void     normalize()                      {*this /= length();}
 		RRVec2   normalized()               const {return *this/length();}
+		RRReal   dot(const RRVec2& a)       const {return x*a.x+y*a.y;}
 	};
 
 	//! Vector of 3 real numbers plus basic support.
@@ -180,6 +181,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length2()                    const {return x*x+y*y+z*z;}
 		void     normalize()                        {*this /= length();}
 		RRVec3   normalized()                 const {return *this/length();}
+		RRReal   dot(const RRVec3& a)         const {return x*a.x+y*a.y+z*a.z;}
+		RRVec3   cross(const RRVec3& a)       const {return RRVec3(y*a.z-z*a.y,-x*a.z+z*a.x,x*a.y-y*a.x);}
 	};
 
 	//! Vector of 3 real numbers plus 4th number as a padding. Operators use only 3 components.
@@ -228,6 +231,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
 		RRVec4   normalized()                 const {return *this/length();}
+		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w/a.w;}
 	};
 
 	//! Matrix of 3x4 real numbers in row-major order.

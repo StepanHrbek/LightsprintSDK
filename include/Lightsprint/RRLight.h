@@ -118,7 +118,7 @@ namespace rr
 		enum Type
 		{
 			//! Infinitely distant light source, all light rays are parallel (direction).
-			DIRECTIONAL,
+			DIRECTIONAL = 0,
 			//! Point light source, all light rays start in one point (position).
 			POINT,
 			//! Spot light source, all light rays start in one point (position) and leave it in cone (direction).

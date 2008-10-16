@@ -701,12 +701,14 @@ void drawCamera(Camera* camera)
 void drawRealtimeLight(RealtimeLight* light)
 {
 	if (light)
+	{
 		for (unsigned i=0;i<light->getNumInstances();i++)
 		{
 			Camera* camera = light->getInstance(i);
 			drawCamera(camera);
 			delete camera;
 		}
+	}
 }
 
 void RRDynamicSolverGL::renderLights()

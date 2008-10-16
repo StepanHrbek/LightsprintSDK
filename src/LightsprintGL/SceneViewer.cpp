@@ -12,6 +12,7 @@
 #include "Lightsprint/GL/Water.h"
 #include "LightmapViewer.h"
 #include <cstdio>
+#include <string>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
@@ -81,6 +82,7 @@ static rr::RRCollisionHandler*    collisionHandler = NULL; // all users use this
 static rr::RRLightField*          lightField = NULL;
 static GLUquadricObj*             lightFieldQuadric = NULL;
 static rr::RRObjectIllumination*  lightFieldObjectIllumination = NULL;
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -190,6 +192,7 @@ public:
 protected:
 	char* pathToShaders;
 };
+
 
 
 
@@ -794,8 +797,14 @@ static void mouse(int button, int state, int x, int y)
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
 	{
-		if (selectedType!=ST_CAMERA) selectedType = ST_CAMERA;
-		else selectedType = ST_LIGHT;
+		if (selectedType!=ST_CAMERA)
+		{
+			selectedType = ST_CAMERA;
+		}
+		else
+		{
+			selectedType = ST_LIGHT;
+		}
 	}
 #ifdef GLUT_WITH_WHEEL_AND_LOOP
 	float fov = svs.eye.getFieldOfViewVerticalDeg();
@@ -1001,10 +1010,14 @@ static void display()
 				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
 			}
 
-			// render light frames
-			solver->renderLights();
-
 			// render lines
+			{
+				// set shader
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
+				uberProgramSetup.MATERIAL_DIFFUSE = 1;
+				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1);
+			}
 			glBegin(GL_LINES);
 			enum {LINES=100, SIZE=100};
 			for (unsigned i=0;i<LINES+1;i++)
@@ -1024,6 +1037,9 @@ static void display()
 				glVertex3f(+0.5*SIZE,0,q);
 			}
 			glEnd();
+
+			// render light frames
+			solver->renderLights();
 		}
 	}
 
