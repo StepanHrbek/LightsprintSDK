@@ -16,7 +16,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #if (defined(LINUX) || defined(linux)) && !defined(__PPC__) // little hack to exclude PS3 which uses MesaGLUT
-#include <GL/freeglut_ext.h>
+	#include <GL/freeglut_ext.h>
 #endif
 
 #define DEBUG_TEXEL

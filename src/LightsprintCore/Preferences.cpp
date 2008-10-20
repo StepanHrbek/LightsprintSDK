@@ -29,11 +29,11 @@ float Preferences::getValue(const char* location, const char* variable, float de
 	subkey[199] = 0;
 
 	HKEY hkey1;
-	if(RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
+	if (RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if(RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);
@@ -57,11 +57,11 @@ void Preferences::setValue(const char* location, const char* variable, float val
 	subkey[199] = 0;
 
 	HKEY hkey1;
-	if(RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
+	if (RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if(RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);
