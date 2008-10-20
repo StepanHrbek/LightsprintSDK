@@ -776,7 +776,6 @@ static void keyboardUp(unsigned char c, int x, int y)
 		case 'X': speedLean = 0; break;
 		case 'c':
 		case 'C': speedLean = 0; break;
-
 	}
 }
 
