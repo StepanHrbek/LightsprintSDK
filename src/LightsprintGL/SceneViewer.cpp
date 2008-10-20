@@ -53,7 +53,6 @@ enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
 static SelectionType              selectedType = ST_CAMERA;
 static int                        winWidth = 0; // current size
 static int                        winHeight = 0; // current size
-static bool                       fullscreen = 0; // current mode
 static int                        windowCoord[4] = {0,0,800,600}; // x,y,w,h of window when user switched to fullscreen
 static Water*                     water = NULL;
 static ToneMapping*               toneMapping = NULL;
@@ -306,7 +305,7 @@ public:
 		glutAddMenuEntry(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping", ME_RENDER_TONEMAPPING);
 		glutAddMenuEntry(svs.renderWireframe?"Disable wireframe":"Wireframe", ME_RENDER_WIREFRAME);
 		glutAddMenuEntry(svs.renderHelpers?"Hide helpers":"Show helpers", ME_RENDER_HELPERS);
-		glutAddMenuEntry(fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
+		glutAddMenuEntry(svs.fullscreen?"Windowed":"Fullscreen", ME_MAXIMIZE);
 		glutAddMenuEntry("Log solver diagnose",ME_CHECK_SOLVER);
 		glutAddMenuEntry("Log scene errors",ME_CHECK_SCENE);
 		glutAddMenuEntry("Quit", ME_CLOSE);
@@ -337,8 +336,8 @@ public:
 			case ME_MAXIMIZE:
 				if (!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 				{
-					fullscreen = !fullscreen;
-					if (fullscreen)
+					svs.fullscreen = !svs.fullscreen;
+					if (svs.fullscreen)
 					{
 						windowCoord[0] = glutGet(GLUT_WINDOW_X);
 						windowCoord[1] = glutGet(GLUT_WINDOW_Y);
@@ -743,7 +742,16 @@ static void keyboard(unsigned char c, int x, int y)
 
 		case 'o': Menu::realtimeCallback(Menu::ME_REALTIME_LDM); break;
 
-		case 27: if (svs.render2d) svs.render2d = 0;
+		case 27:
+			if (svs.render2d)
+			{
+				svs.render2d = 0;
+			}
+			else if (svs.fullscreen)
+			{
+				Menu::mainCallback(Menu::ME_MAXIMIZE);
+			}
+
 			//else exitRequested = 1;
 			// Exit by esc is disabled because of GLUT error:
 			//  If you create menu by right click and then press esc, menu disappears, mouse is locked.
