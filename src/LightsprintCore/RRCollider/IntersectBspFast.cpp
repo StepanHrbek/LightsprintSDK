@@ -114,10 +114,10 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	    intersectByte+=6;//max=r3.y
 	}
 	// calculate normal
-	n3=normalized(orthogonalTo(r3,l3));
-	n3.w=-dot(s3,n3);
+	n4=normalized(orthogonalTo(r3,l3));
+	n4.w=-dot(s3,RRVec3(n4));
 
-	if (!IS_VEC3(n3)) 
+	if (!IS_VEC3(n4)) 
 	{
 		FILL_STATISTIC(intersectStats.numTrianglesInvalid++);
 		intersectByte=10;  // throw out degenerated triangle
@@ -173,10 +173,10 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	    intersectByte+=6;//max=r3.y
 	}
 	// calculate normal
-	n3=normalized(orthogonalTo(r3,l3));
-	n3.w=-dot(s3,n3);
+	n4=normalized(orthogonalTo(r3,l3));
+	n4.w=-dot(s3,RRVec3(n4));
 
-	if (!IS_VEC3(n3)) 
+	if (!IS_VEC3(n4)) 
 	{
 		FILL_STATISTIC(intersectStats.numTrianglesInvalid++);
 		intersectByte=10;  // throw out degenerated triangle
@@ -235,7 +235,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	if (ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
 		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
-		bool hitFrontSide=dot(ray->rayDir,t->n3)<0;
+		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
 		if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitFrontSide=hitFrontSide;
 	}
@@ -245,7 +245,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	ray->hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	ray->hitPlane=t->n3;
+	ray->hitPlane=t->n4;
 #endif
 	return true;
 }
@@ -279,7 +279,7 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 	if (ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
 		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
-		bool hitFrontSide=dot(ray->rayDir,t->n3)<0;
+		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
 		if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitFrontSide=hitFrontSide;
 	}
@@ -289,7 +289,7 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 	ray->hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	ray->hitPlane=t->n3;
+	ray->hitPlane=t->n4;
 #endif
 	return true;
 }
@@ -421,7 +421,7 @@ begin:
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	RR_ASSERT(triangleSRLNP);
-	Plane& n=triangleSRLNP[triangle->getTriangleIndex()].n3;
+	const RRVec4& n=triangleSRLNP[triangle->getTriangleIndex()].n4;
 
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
 	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
@@ -605,7 +605,7 @@ begin:
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	RR_ASSERT(triangleNP);
-	Plane& n=triangleNP[triangle->getTriangleIndex()].n3;
+	const RRVec4& n=triangleNP[triangle->getTriangleIndex()].n4;
 
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
 	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];

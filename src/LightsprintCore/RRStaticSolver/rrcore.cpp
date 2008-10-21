@@ -765,7 +765,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVe
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after ideal mirror reflection
-		RRVec3 newDirection=ray.hitPlane*(-2*dot(direction,ray.hitPlane)/size2(ray.hitPlane))+direction;
+		RRVec3 newDirection=RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
 		// recursively call this function
 		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}

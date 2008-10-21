@@ -20,7 +20,7 @@ namespace rr
 
 	struct TriangleNP
 	{
-		Plane   n3;             // triangle plane, first three components form normalised normal
+		RRVec4  n4;             // triangle plane, first three components form normalised normal
 		real    intersectReal;  // precalculated number for intersections
 		char    intersectByte;  // precalculated number for intersections, 0..8
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
@@ -29,7 +29,7 @@ namespace rr
 	struct TriangleSRLNP
 	{
 		// all vectors are aligned at 16byte boundaries for SSE
-		Plane   n3;             // ALIGN16 triangle plane, first three components form normalised normal
+		RRVec4  n4;             // ALIGN16 triangle plane, first three components form normalised normal
 		Vec3    s3;             // ALIGN16 vertex[0]
 		real    intersectReal;  // precalculated number for intersections
 		Vec3    r3;             // ALIGN16 vertex[1]-vertex[0]

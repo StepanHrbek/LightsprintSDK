@@ -169,7 +169,7 @@ begin:
 
 	RRMesh::TriangleBody t2;
 	importer->getTriangleBody(triangle->getTriangleIndex(),t2);
-	Plane n;
+	RRVec4 n;
 	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
 	n.y = t2.side1[2] * t2.side2[0] - t2.side1[0] * t2.side2[2];
 	n.z = t2.side1[0] * t2.side2[1] - t2.side1[1] * t2.side2[0];
@@ -244,7 +244,7 @@ begin:
 #ifdef FILL_HITPLANE
 			if (ray->rayFlags&RRRay::FILL_PLANE)
 			{
-				real siz = size(n);
+				real siz = size(RRVec3(n));
 				ray->hitPlane[0] = n.x/siz;
 				ray->hitPlane[1] = n.y/siz;
 				ray->hitPlane[2] = n.z/siz;
