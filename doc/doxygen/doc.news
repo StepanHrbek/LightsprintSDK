@@ -18,6 +18,10 @@ NEWS
   \n so if you use D3DCREATE_FPU_PRESERVE because of Lightsprint, feel free to remove it
 - RRLight::createMutableLight()
 
+CHANGES
+
+- rr_gl::Camera::dir changed from RRVec4 to RRVec3, fourth element was not used
+
 \section news65 ------------------------------------ 2008.10.4 -------------------------------------
 
 NEWS
