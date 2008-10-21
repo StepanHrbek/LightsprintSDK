@@ -151,7 +151,7 @@ void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
 	}
 }
 
-bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
+bool RRMesh::getTrianglePlane(unsigned i, RRVec4& out) const
 {
 	Triangle t;
 	getTriangle(i,t);

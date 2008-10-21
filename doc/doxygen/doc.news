@@ -21,6 +21,7 @@ NEWS
 CHANGES
 
 - rr_gl::Camera::dir changed from RRVec4 to RRVec3, fourth element was not used
+- RRMesh::Plane removed, RRMesh::getTrianglePlane() second parameter changed to RRVec4
 
 \section news65 ------------------------------------ 2008.10.4 -------------------------------------
 

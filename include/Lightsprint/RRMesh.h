@@ -243,14 +243,12 @@ namespace rr
 		//! \n Speed of this function is important for intersection tests performance.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
-		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
-		typedef RRVec3p Plane;
 		//! Writes t-th triangle plane to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
-		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
+		virtual bool         getTrianglePlane(unsigned t, RRVec4& out) const;
 
 		//! Returns area of t-th triangle.
 		//
