@@ -204,7 +204,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		explicit RRVec4(RRReal a)                   {x=y=z=w=a;}
 		RRVec4(const RRVec3& a,RRReal aw)           {x=a.x;y=a.y;z=a.z;w=aw;}
 		RRVec4(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
-		const RRVec3& operator =(const RRVec3 a)    {x=a.x;y=a.y;z=a.z;return *this;}
+		const RRVec3& operator =(const RRVec3& a)   {x=a.x;y=a.y;z=a.z;return *this;}
 
 		RRVec4 operator + (const RRVec4& a)   const {return RRVec4(x+a.x,y+a.y,z+a.z,w+a.w);}
 		RRVec4 operator - (const RRVec4& a)   const {return RRVec4(x-a.x,y-a.y,z-a.z,w-a.w);}
@@ -231,7 +231,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
 		RRVec4   normalized()                 const {return *this/length();}
-		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w/a.w;}
+		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w*a.w;}
+		RRReal   planePointDistance(const RRVec3& a)const {return x*a.x+y*a.y+z*a.z+w;}
 	};
 
 	//! Matrix of 3x4 real numbers in row-major order.
