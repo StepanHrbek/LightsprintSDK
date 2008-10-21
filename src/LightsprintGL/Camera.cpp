@@ -184,7 +184,6 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 		dir[1] = sin(angleX);
 		dir[2] = cos(angle)*cos(angleX);
 	}
-	dir[3] = 1.0;
 
 	// - leaning
 	rr::RRVec3 tmpup(0,1,0);

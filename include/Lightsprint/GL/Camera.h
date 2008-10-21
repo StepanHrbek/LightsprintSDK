@@ -63,7 +63,7 @@ public:
 	// inputs or outputs
 
 	//! Normalized view direction. Input if !updateDirFromAngles, output if updateDirFromAngles.
-	rr::RRVec4 dir;
+	rr::RRVec3 dir;
 
 	// outputs, to be calculated by update() and possibly read by user
 
