@@ -586,13 +586,16 @@ public:
 	static void envCallback(int item)
 	{
 		if (ourEnv)
+		{
 			delete solver->getEnvironment();
+		}
 		ourEnv = true;
 		switch(item)
 		{
 			case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
 			case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
 			case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
+			default: solver->setEnvironment(NULL); RR_ASSERT(0);
 		}
 		if (winWidth) glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -646,9 +649,6 @@ public:
 		ME_RENDER_HELPERS,
 		ME_MAXIMIZE,
 		ME_CLOSE,
-		ME_ENV_WHITE,
-		ME_ENV_BLACK,
-		ME_ENV_WHITE_TOP,
 		ME_LIGHT_DIR,
 		ME_LIGHT_SPOT,
 		ME_LIGHT_POINT,
@@ -676,6 +676,10 @@ public:
 		ME_STATIC_SAVE,
 		ME_STATIC_BUILD_LIGHTFIELD_2D,
 		ME_STATIC_BUILD_LIGHTFIELD_3D,
+
+		ME_ENV_WHITE,
+		ME_ENV_BLACK,
+		ME_ENV_WHITE_TOP,
 	};
 };
 
@@ -698,9 +702,10 @@ static void special(int c, int x, int y)
 	glutPostRedisplay();
 }
 
+// warning: this is not called while in menu, so movement is not terminated. this is glut error
 static void specialUp(int c, int x, int y)
 {
-	switch(c) 
+	switch(c)
 	{
 		case GLUT_KEY_UP: speedForward = 0; break;
 		case GLUT_KEY_DOWN: speedBack = 0; break;
@@ -764,6 +769,7 @@ static void keyboard(unsigned char c, int x, int y)
 	glutPostRedisplay();
 }
 
+// warning: this is not called while in menu, so movement is not terminated. this is glut error
 static void keyboardUp(unsigned char c, int x, int y)
 {
 	switch (c)

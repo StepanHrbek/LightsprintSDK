@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
-//error : inserted by sunifdef: "#define CUSTOMIZED_FOR_3DRENDER" contradicts -U at R:\work2\.git-rewrite\t\include\Lightsprint\GL\SceneViewer.h~(14)
+//#define CUSTOMIZED_FOR_3DRENDER
 
 namespace rr_gl
 {
