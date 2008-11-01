@@ -223,10 +223,12 @@ Ray-Mesh collisions
 
 Lightsprint integrated into game engine doesn't need any third party library.
 
-Standalone Lightsprint SDK uses several free open source libraries with permissive licenses,
-for scene loading and GPU access.
-You are free to download their sources and rebuild, use them in commercial applications etc.
-Use of these libraries is optional, global illumination solver works without them.
+Lightsprint without game engine needs functions for scene loading and GPU access,
+this is why several free open source libraries with permissive licenses are used.
+You are free to download their sources and modify them, use them in commercial applications
+without need to open your source code etc.
+All of these libraries serve as optional extensions, global illumination solver doesn't need them.
+
 
 Libraries used by LightsprintCore (global illumination solver):
 - none
@@ -313,6 +315,9 @@ Used by LightsprintIO (optional file format support):
     - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
     - Fedora: <code>pkcon install libxml2-devel</code>
   - used under MIT license
+- .3ds .bsp and .mgf loaders contain 3rd party open source code
+  - optional, remove loaders by deleting \#define SUPPORT_3DS, \#define SUPPORT_BSP, \#define SUPPORT_MGF in src/LightsprintIO/ImportScene.cpp
+  - for copyright information, see headers of individual files in src/LightsprintIO/Import*
 
 Remarks:
 - you can install all dependencies by single command
