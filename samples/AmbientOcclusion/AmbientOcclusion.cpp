@@ -79,7 +79,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 }
 
 #ifdef _WIN32
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
 int main(int argc, char **argv)
 #endif
