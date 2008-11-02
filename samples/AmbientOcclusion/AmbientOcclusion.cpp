@@ -15,10 +15,6 @@
 // - map quality depends on unwrap quality,
 //   make sure you have good unwrap in your scenes
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
-// - light leaks below wall due to bug in scene geometry,
-//   scene behind wall is bright, wall is infinitely thin and there's no seam
-//   in mapping between bright and dark part of floor.
-//   seam in floor mapping or thick wall would fix it
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
