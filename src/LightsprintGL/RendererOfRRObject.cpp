@@ -101,7 +101,7 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuff
 	params.availableIndirectIlluminationVColors2 = NULL;
 	params.availableIndirectIlluminationMap2 = NULL;
 	solutionVersion = 0;
-	getTexture(ambientMap); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
+	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
 void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2)
@@ -113,8 +113,8 @@ void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* verte
 	params.availableIndirectIlluminationVColors2 = vertexBuffer2;
 	params.availableIndirectIlluminationMap2 = ambientMap2;
 	solutionVersion = 0;
-	getTexture(ambientMap); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
-	getTexture(ambientMap2); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
+	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
+	getTexture(ambientMap2,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
 void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVersion)

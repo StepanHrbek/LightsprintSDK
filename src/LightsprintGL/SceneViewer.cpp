@@ -438,7 +438,7 @@ public:
 					svs.renderRealtime = false;
 					// propagate computed data from buffers to textures
 					if (solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-						getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false);
+						getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
 				}
@@ -479,7 +479,7 @@ public:
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
 						if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->reset(true,false);
+							getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
 					}
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
