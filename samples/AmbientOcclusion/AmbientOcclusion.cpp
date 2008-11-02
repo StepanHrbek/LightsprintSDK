@@ -82,7 +82,11 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	solver->updateLightmaps(layerNumber,-1,-1,&params,&params,&filtering); 
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
 int main(int argc, char **argv)
+#endif
 {
 	// check for version mismatch
 	if (!RR_INTERFACE_OK)
@@ -93,10 +97,11 @@ int main(int argc, char **argv)
 
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 
-	// log messages to console
 #ifdef _WIN32
+	// log messages to log window
 	rr::RRReporter::setReporter(rr::RRReporter::createWindowedReporter(solver));
 #else
+	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 #endif
 
