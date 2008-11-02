@@ -1998,7 +1998,7 @@ Simply make sure you use 2008 libraries in your projects.
  "Lighting build" produce global illumination lightmaps.
 
  If you are UE3 licensee, please request integration files from Lightsprint.
- Then see src/LightsprintUE3/instructions.txt and follow several simple steps to integrate Lightsprint with UE3.
+ Then see src/LightsprintUE3/instructions.txt and follow several simple steps.
 
  \image html unreal.png   
 
