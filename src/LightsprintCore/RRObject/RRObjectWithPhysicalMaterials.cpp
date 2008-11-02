@@ -42,17 +42,17 @@ void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist
 {
 	if (!this)
 	{
-		goto empty_scene;
-	}
-	const RRMesh* mesh = getCollider()->getMesh();
-	unsigned numVertices = mesh->getNumVertices();
-	if (!numVertices)
-	{
 empty_scene:
 		_pos = RRVec3(0);
 		_dir = RRVec3(1,0,0);
 		_maxdist = 10;
 		return;
+	}
+	const RRMesh* mesh = getCollider()->getMesh();
+	unsigned numVertices = mesh->getNumVertices();
+	if (!numVertices)
+	{
+		goto empty_scene;
 	}
 	rr::RRVec3 mini,maxi,center;
 	mesh->getAABB(&mini,&maxi,&center);
