@@ -472,9 +472,13 @@ namespace rr
 		//! It still depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
 		//!
 		//! It is very efficient when applied on multimesh made of hundreds of smaller meshes.
-		//! Accelerated functions are getTriangleBase() and getTriangleNormals().
-		//! They are critical for performance of BSP_COMPACT and BSP_FAST colliders
-		//! and for building lightmaps.
+		//! It accelerates getTriangleBase() and getTriangleNormals().
+		//! These functions are critical for performance of BSP_COMPACT and BSP_FAST colliders.
+		//! Colliders are critical for performance of lightmap building.
+		//!
+		//! In practice, this function is not needed for lightmap building, use collider types
+		//! BSP_COMPACT, BSP_FAST, BSP_FASTER, BSP_FASTEST in RRDynamicSolver::setStaticObjects()
+		//! to trade performance / memory.
 		const RRMesh* createAccelerated() const;
 
 		//! Creates and returns identical mesh with all optimizations and filters previously applied baked.
