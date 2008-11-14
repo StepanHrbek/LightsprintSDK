@@ -70,7 +70,7 @@
 #endif
 
 #ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
-	uniform vec3 lightDistancePolynom;
+	uniform vec4 lightDistancePolynom;
 #endif
 
 #ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
@@ -159,7 +159,7 @@ void main()
 				lightDirectVColor *= pow(distance,-0.9);
 			#endif
 			#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
-				lightDirectVColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
+				lightDirectVColor /= max( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z, lightDistancePolynom.w );
 			#endif
 			#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
 				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);

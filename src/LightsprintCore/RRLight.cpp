@@ -28,7 +28,7 @@ public:
 		outerAngleRad = 0;
 		radius = 0;
 		color = rr::RRVec3(0);
-		polynom = rr::RRVec3(0);
+		polynom = rr::RRVec4(0,0,0,1);
 		fallOffExponent = 0;
 		fallOffAngleRad = 0;
 		spotExponent = 1;
@@ -37,17 +37,24 @@ public:
 	}
 };
 
-const RRVec3& check(const RRVec3& a)
+const RRVec4& check(const RRVec4& a, const char* name)
 {
-	if (a[0]<0 && a[1]<0 && a[2]<0)
-		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative value (%f %f %f).\n",a[0],a[1],a[2]));
+	if (a[0]<0 || a[1]<0 || a[2]<0 || a[3]<0)
+		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f %f).\n",name,a[0],a[1],a[2],a[3]));
 	return a;
 }
 
-RRReal check(RRReal a)
+const RRVec3& check(const RRVec3& a, const char* name)
+{
+	if (a[0]<0 || a[1]<0 || a[2]<0)
+		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f).\n",name,a[0],a[1],a[2]));
+	return a;
+}
+
+RRReal check(RRReal a, const char* name)
 {
 	if (a<0)
-		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative scalar (%f).\n",a));
+		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f).\n",name,a));
 	return a;
 }
 
@@ -64,7 +71,7 @@ public:
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
 		direction = _direction.normalized();
-		color = check(_color);
+		color = check(_color,"color");
 		if (!_physicalScale)
 		{
 			color[0] = pow(color[0],2.2222f);
@@ -92,7 +99,7 @@ public:
 		type = POINT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = check(_color);
+		color = check(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -114,7 +121,7 @@ public:
 		type = POINT;
 		distanceAttenuationType = NONE;
 		position = _position;
-		color = check(_color);
+		color = check(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -136,8 +143,8 @@ public:
 		type = POINT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = check(_color);
-		radius = check(_radius);
+		color = check(_color,"color");
+		radius = check(_radius,"radius");
 		fallOffExponent = _fallOffExponent;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -156,17 +163,17 @@ public:
 class PointLightPoly : public CleanLight
 {
 public:
-	PointLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec3 _polynom)
+	PointLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec4 _polynom)
 	{
 		type = POINT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = check(_color);
-		polynom = check(_polynom);
+		color = check(_color,"color");
+		polynom = check(_polynom,"polynom");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
-		float distanceAttenuation = 1/(PREVENT_INF+polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
+		float distanceAttenuation = 1/MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
 		RRVec3 irradiance = color * distanceAttenuation;
 		if (scaler) scaler->getPhysicalScale(irradiance);
 		return irradiance;
@@ -187,7 +194,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = check(_color);
+		color = check(_color,"color");
 		direction = _direction.normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
@@ -218,7 +225,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = NONE;
 		position = _position;
-		color = check(_color);
+		color = check(_color,"color");
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
@@ -247,8 +254,8 @@ public:
 		type = SPOT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = check(_color);
-		radius = check(_radius);
+		color = check(_color,"color");
+		radius = check(_radius,"radius");
 		fallOffExponent = _fallOffExponent;
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
@@ -274,13 +281,13 @@ public:
 class SpotLightPoly : public CleanLight
 {
 public:
-	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec3 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad, RRReal _spotExponent)
+	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec4 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad, RRReal _spotExponent)
 	{
 		type = SPOT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = check(_color);
-		polynom = _polynom;
+		color = check(_color,"color");
+		polynom = check(_polynom,"polynom");
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
@@ -289,7 +296,7 @@ public:
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
-		float distanceAttenuation = 1/(PREVENT_INF+polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2());
+		float distanceAttenuation = 1/MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
 		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
@@ -368,7 +375,7 @@ RRLight* RRLight::createPointLightRadiusExp(const RRVec3& position, const RRVec3
 	return new PointLightRadiusExp(position,color,radius,fallOffExponent);
 }
 
-RRLight* RRLight::createPointLightPoly(const RRVec3& position, const RRVec3& color, RRVec3 polynom)
+RRLight* RRLight::createPointLightPoly(const RRVec3& position, const RRVec3& color, RRVec4 polynom)
 {
 	return new PointLightPoly(position,color,polynom);
 }
@@ -388,7 +395,7 @@ RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3&
 	return new SpotLightRadiusExp(position,color,radius,fallOffExponent,majorDirection,outerAngleRad,fallOffAngleRad);
 }
 
-RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
+RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
 {
 	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad,spotExponent);
 }

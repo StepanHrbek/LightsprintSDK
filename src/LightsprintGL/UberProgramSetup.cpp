@@ -361,7 +361,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 			return false;
 		}
 		RR_ASSERT(light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL);
-		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z);
+		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z,light->origin->polynom.w);
 	}
 
 	if (LIGHT_DIRECT_ATT_EXPONENTIAL)

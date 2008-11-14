@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news67 ------------------------------------ 2008.11.x -------------------------------------
+
+NEWS
+
+- distance attenuation model POLYNOMIAL was extended to support Gamebryo,
+  \n RRLight::polynom extended from RRVec3 to RRVec4
+
 \section news66 ------------------------------------ 2008.11.2 -------------------------------------
 
 NEWS

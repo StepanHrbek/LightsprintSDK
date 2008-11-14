@@ -92,8 +92,8 @@ namespace rr
 	//
 	//! Direct light source, directional/point/spot light with programmable function.
 	//
-	//! Standard point/spot/dir lights with physical, polynomial or exponential
-	//! distance attenuations are supported via createXxx functions.
+	//! Standard point/spot/dir lights with physical, polynomial
+	//! or exponential distance attenuations are supported via createXxx functions.
 	//!
 	//! Custom lights with this interface may be created.
 	//! Offline renderer in LightsprintCore accesses #type, #position, #direction and getIrradiance().
@@ -162,7 +162,7 @@ namespace rr
 			NONE,
 			//! Intensity in physical scale is color/distance^2. This is exactly how reality works.
 			PHYSICAL,
-			//! Intensity in custom scale is color*pow(CLAMPED(1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2),0,1),spotExponent). Used in fixed pipeline engines.
+			//! Intensity in custom scale is color/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]). Used in fixed pipeline engines. polynom[3] was added to support Gamebryo.
 			POLYNOMIAL,
 			//! Intensity in physical scale is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.
 			EXPONENTIAL,
@@ -171,14 +171,14 @@ namespace rr
 		DistanceAttenuationType distanceAttenuationType;
 
 		//! Relevant only for distanceAttenuation==POLYNOMIAL.
-		//! Distance attenuation in custom scale is computed as colorCustom/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
-		RRVec3 polynom;
+		//! Distance attenuation in custom scale is computed as colorCustom/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3])
+		RRVec4 polynom;
 
 		//! Relevant only for distanceAttenuation==EXPONENTIAL.
 		//! Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
 		RRReal fallOffExponent;
 
-		//! Relevant only for distanceAttenuation==POLYNOMIAL and type=SPOT.
+		//! Relevant only for type=SPOT.
 		//! Exponent that controls attenuation from innerAngle to outerAngle in spotlight.
 		RRReal spotExponent;
 
@@ -288,8 +288,8 @@ namespace rr
 		//! \param colorCustom
 		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param polynom
-		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
-		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom);
+		//!  Distance attenuation in custom scale is computed as 1/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]).
+		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom);
 
 		//! Creates spot light with physically correct distance attenuation.
 		//
@@ -364,7 +364,7 @@ namespace rr
 		//! \param colorCustom
 		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param polynom
-		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
+		//!  Distance attenuation in custom scale is computed as 1/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]).
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
@@ -380,7 +380,7 @@ namespace rr
 		//!  Insight: This is how intensity changes in blurry part. Default 1 makes it linear. \n
 		//!  Exponent in (0,inf) range. \n
 		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
-		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
+		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
 
 		//! Creates mutable light.
 		//

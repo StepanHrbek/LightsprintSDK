@@ -1088,18 +1088,18 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 
 				// create RRLight
 				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
-				RRVec3 polynom = RRVec3(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor());
+				RRVec4 polynom = RRVec4(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor(),0.0001f);
 				switch(light->GetLightType())
 				{
-				case FCDLight::POINT:
-					push_back(RRLight::createPointLightPoly(position,color,polynom));
-					break;
-				case FCDLight::SPOT:
-					push_back(RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
-					break;
-				case FCDLight::DIRECTIONAL:
-					push_back(RRLight::createDirectionalLight(direction,color,false));
-					break;
+					case FCDLight::POINT:
+						push_back(RRLight::createPointLightPoly(position,color,polynom));
+						break;
+					case FCDLight::SPOT:
+						push_back(RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
+						break;
+					case FCDLight::DIRECTIONAL:
+						push_back(RRLight::createDirectionalLight(direction,color,false));
+						break;
 				}
 			}
 		}
