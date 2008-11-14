@@ -1481,7 +1481,7 @@ void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _
 	glutIdleFunc(idle);
 	glutMenuStatusFunc(menuStatus);
 	Menu* menu = new Menu(solver);
-	if (svs.autodetectCamera) menu->cameraCallback(Menu::ME_CAMERA_GENERATE_RANDOM);
+	if (svs.autodetectCamera && !_solver->aborting) menu->cameraCallback(Menu::ME_CAMERA_GENERATE_RANDOM);
 	if (svs.fullscreen) menu->mainCallback(Menu::ME_MAXIMIZE);
 	svs.renderAmbient = solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 	water = new Water(_pathToShaders,true,false);
