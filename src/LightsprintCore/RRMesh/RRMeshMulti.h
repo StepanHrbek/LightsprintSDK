@@ -346,9 +346,12 @@ public:
 	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
 		if (t<pack[0].getNumTriangles()) 
+		{
 			pack[0].getMesh()->getTriangle(t,out);
+		}
 		else
 		{
+			RR_ASSERT(t<pack[0].getNumTriangles()+pack[1].getNumTriangles());
 			pack[1].getMesh()->getTriangle(t-pack[0].getNumTriangles(),out);
 			out[0] += pack[0].getNumVertices();
 			out[1] += pack[0].getNumVertices();
