@@ -1440,7 +1440,24 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				fullscreen = !fullscreen;
 				if (fullscreen)
+				{
+/*
+ Workaround for glut bug "broken fullscreen in linux"
+
+ Use glutFullScreen() instead of game mode,
+  and set the _NET_WM_STATE_FULLSCREEN atom in the Window properties
+  XInternAtom(xdisplay, "_NET_WM_STATE_FULLSCREEN", True);
+ 
+ The "stock" glut uses _MOTIF_WM_HINTS to 
+ set the application fullscreen.  Most modern window managers ignore the 
+ MOTIF hints and use the NET_WM settings instead.
+ Freeglut already has already talked about making the move, but the stock 
+ glut doesn't seem to have been updated.
+
+ What should be done: fix glut, don't touch Lightsmark
+*/
 					glutFullScreen();
+				}
 				else
 				{
 					unsigned w = glutGet(GLUT_SCREEN_WIDTH);
