@@ -97,6 +97,34 @@ public:
 	{
 		numUsed = 0;
 	}
+	//! Returns iterator pointing to first element (like std::vector).
+	C* begin()
+	{
+		return c;
+	}
+	//! Returns iterator pointing beyond last element (like std::vector).
+	C* end()
+	{
+		return c+numUsed;
+	}
+	//! Inserts range of elements.
+	//! Destination must be end of current vector (unlike std::vector).
+	void insert(C* _where, const C* _first, const C* _last)
+	{
+		if (_where==end())
+		{
+			// append
+			for (;_first<_last;_first++)
+			{
+				push_back(*_first);
+			}
+		}
+		else
+		{
+			// insert, not supported yet
+			assert(0);
+		}
+	}
 	//! Frees elements.
 	//! Doesn't call element destructors (unlike std::vector).
 	~RRVector()
