@@ -11,6 +11,8 @@
 #define IDC_CHECK_DETAILED              1011
 #define IDC_CHECK_ENABLE_LIGHTSPRINT    1012
 #define IDC_EDIT_QUALITY                1014
+#define IDC_COMBO1                      1016
+#define IDC_WHENDONE                    1016
 
 // Next default values for new objects
 // 
@@ -18,7 +20,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1018
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

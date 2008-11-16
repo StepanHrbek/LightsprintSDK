@@ -1055,6 +1055,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\Lightsprint\RRDebug.h"
+				>
+			</File>
+			<File
 				RelativePath="RRReporter\RRReporter.cpp"
 				>
 			</File>
@@ -1093,10 +1097,6 @@
 		</File>
 		<File
 			RelativePath="Preferences.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRDebug.h"
 			>
 		</File>
 		<File

@@ -41,9 +41,17 @@ class RRReporterWindow : public RRReporter
 		bool shown; // set by WM_SHOWWINDOW
 		bool abortRequested; // user attemted to close window
 		bool reporterDeleted; // code deleted reporter
-		HWND* hWndInReporter; // pointer to HWND in reporter; we set it so reporter can send us messages. <deleted with reporter>
+		HWND* hWndInReporter; // pointer to HWND in reporter; set at window open so reporter can send us messages
 		RRCallback* abortCallback; // <deleted with reporter>
 		unsigned numLines[TIMI+1];
+	};
+
+	// what to do when work is done = when reporter is deleted
+	enum WhenDone
+	{
+		WD_CLOSE = 0, // close window and continue
+		WD_WAIT,      // wait until user closes the window
+		WD_CONTINUE,  // continue, keep window open
 	};
 
 public:
@@ -157,7 +165,40 @@ public:
 			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]);
 			instanceData->reporterDeleted = true;
 			instanceData->abortCallback = NULL;
-			considerWindowEnd(hWnd);
+
+			// manual abort was requested in past (window stayed open because reporterDeleted = false)
+			// now we finally reached "delete reporter"
+			// call abort button again, this time it will save prefs and close window (becuase reporterDeleted = true)
+			if (instanceData->abortRequested)
+			{
+				SendMessage(hWnd,WM_COMMAND,IDC_BUTTON_ABORT_CLOSE,0);
+			}
+			else
+			// tasks completed with WD_CLOSE -> simulate manual close
+			if ((WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0)==WD_CLOSE)
+			{
+				SendMessage(hWnd,WM_COMMAND,IDC_BUTTON_ABORT_CLOSE,0);
+			}
+			else
+			// tasks completed with WD_WAIT -> wait for manual close
+			if ((WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0)==WD_WAIT)
+			{
+				// we must not repeatedly query window state, window may be deleted while we sleep for 1 ms
+				// so we install callback and let window notify us that it is closed
+				class CloseWindowCallback : public RRCallback
+				{
+				public:
+					bool closed;
+					virtual void run() {closed=true;}
+				};
+				CloseWindowCallback window;
+				window.closed = false;
+				instanceData->abortCallback = &window;
+				while (!window.closed)
+				{
+					Sleep(1);
+				}
+			}
 		}
 	}
 
@@ -166,21 +207,22 @@ private:
 	{
 		static unsigned char dialogResource[] =
 		{
-			1,0,255,255,0,0,0,0,0,0,0,0,200,10,192,128,5,0,0,0,0,0,97,1,13,
+			1,0,255,255,0,0,0,0,0,0,0,0,200,10,192,128,6,0,0,0,0,0,97,1,13,
 			1,0,0,0,0,76,0,105,0,103,0,104,0,116,0,115,0,112,0,114,0,105,0,110,0,
 			116,0,32,0,108,0,111,0,103,0,0,0,8,0,144,1,0,1,77,0,83,0,32,0,83,
 			0,104,0,101,0,108,0,108,0,32,0,68,0,108,0,103,0,0,0,0,0,0,0,0,0,
 			0,0,0,0,196,8,177,80,1,0,1,0,95,1,252,0,235,3,0,0,82,0,105,0,99,
 			0,104,0,69,0,100,0,105,0,116,0,50,0,48,0,87,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,3,0,1,80,87,0,2,1,86,0,10,0,240,3,0,0,255,255,128,
-			0,67,0,108,0,111,0,115,0,101,0,32,0,119,0,104,0,101,0,110,0,32,0,102,0,
-			105,0,110,0,105,0,115,0,104,0,101,0,100,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,1,0,1,80,34,1,0,1,62,0,12,0,241,3,0,0,255,255,128,0,65,0,
-			98,0,111,0,114,0,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,1,
-			80,1,0,2,1,59,0,10,0,243,3,0,0,255,255,128,0,68,0,101,0,116,0,97,0,
-			105,0,108,0,101,0,100,0,32,0,108,0,111,0,103,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,196,8,177,64,1,0,1,0,95,1,252,0,236,3,0,0,82,0,105,0,99,0,
-			104,0,69,0,100,0,105,0,116,0,50,0,48,0,87,0,0,0,0,0,0,0
+			0,0,0,0,0,0,1,0,1,80,34,1,0,1,62,0,12,0,241,3,0,0,255,255,128,
+			0,65,0,98,0,111,0,114,0,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			3,0,1,80,1,0,0,1,59,0,12,0,243,3,0,0,255,255,128,0,68,0,101,0,116,
+			0,97,0,105,0,108,0,101,0,100,0,32,0,108,0,111,0,103,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,196,8,177,64,1,0,1,0,95,1,252,0,236,3,0,0,82,0,105,
+			0,99,0,104,0,69,0,100,0,105,0,116,0,50,0,48,0,87,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,3,0,33,80,132,0,0,1,64,0,99,0,248,3,0,0,255,
+			255,133,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,80,87,0,2,1,42,0,
+			10,0,255,255,255,255,255,255,130,0,87,0,104,0,101,0,110,0,32,0,100,0,111,0,110,
+			0,101,0,44,0,0,0,0,0
 		};
 		return (LPDLGTEMPLATE)dialogResource;
 	}
@@ -203,23 +245,6 @@ private:
 		return (INT_PTR)FALSE;
 	}
 
-	static void considerWindowEnd(HWND hWnd)
-	{
-		// close window only if both code and user request it
-		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-		bool autoClose = SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_GETCHECK,0,0)==BST_CHECKED;
-		if (instanceData && (instanceData->abortRequested || autoClose) && instanceData->reporterDeleted)
-		{
-			// save preferences
-			bool detailed = SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_GETCHECK,0,0)==BST_CHECKED;
-			Preferences::setValue(LOCATION,"detailed",detailed?1.f:0);
-			bool autoclose = SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_GETCHECK,0,0)==BST_CHECKED;
-			Preferences::setValue(LOCATION,"autoclose",autoclose?1.f:0);
-
-			EndDialog(hWnd,0);
-		}
-	}
-
 	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		switch (message)
@@ -230,8 +255,8 @@ private:
 					RR_ASSERT(instanceData);
 					if (instanceData)
 					{
-						*instanceData->hWndInReporter = hWnd;
-						//instanceData->hWndInReporter = NULL; // we don't need it anymore
+						*instanceData->hWndInReporter = hWnd; // set at window birth
+						instanceData->hWndInReporter = NULL; // we don't need it anymore
 						SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)instanceData);
 
 						// load preferences
@@ -242,8 +267,12 @@ private:
 							ShowWindow(GetDlgItem(hWnd,IDC_LOG_DETAILED),SW_SHOWNORMAL);
 							ShowWindow(GetDlgItem(hWnd,IDC_LOG_SHORT),SW_HIDE);
 						}
-						bool autoclose = Preferences::getValue(LOCATION,"autoclose",0)!=0;
-						SendDlgItemMessage(hWnd,IDC_CHECK_AUTO_CLOSE,BM_SETCHECK,autoclose?BST_CHECKED:BST_UNCHECKED,0);
+
+						WhenDone whenDone = (WhenDone)(int)Preferences::getValue(LOCATION,"whendone",WD_CONTINUE);
+						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"close log");
+						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"wait");
+						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"continue");
+						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_SETCURSEL,whenDone,0);
 					}
 				}
 				return (INT_PTR)TRUE;
@@ -272,7 +301,18 @@ private:
 							instanceData->abortCallback->run();
 						}
 						instanceData->abortRequested = true;
-						considerWindowEnd(hWnd);
+
+						// close window only if reporter was already deleted
+						if (instanceData->reporterDeleted)
+						{
+							// save preferences
+							bool detailed = SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_GETCHECK,0,0)==BST_CHECKED;
+							Preferences::setValue(LOCATION,"detailed",detailed?1.f:0);
+							WhenDone whenDone = (WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0);
+							Preferences::setValue(LOCATION,"whendone",(float)whenDone);
+
+							EndDialog(hWnd,0);
+						}
 					}
 					return (INT_PTR)TRUE;
 				}

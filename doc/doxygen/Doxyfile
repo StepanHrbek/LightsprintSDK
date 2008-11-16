@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
-PROJECT_NUMBER         = 2008.11.15
+PROJECT_NUMBER         = 2008.11.16
 OUTPUT_DIRECTORY       = "../../doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
