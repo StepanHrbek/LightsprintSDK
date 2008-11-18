@@ -314,13 +314,8 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		if (!light->origin)
-		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
-			return false;
-		}
-		rr::RRVec3 color = light->origin->color;
-		if (light->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
+		rr::RRVec3 color = light->getRRLight().color;
+		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
 			color[0] = pow(color[0],0.45f);
 			color[1] = pow(color[1],0.45f);
@@ -344,36 +339,26 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if (LIGHT_DIRECT_ATT_SPOT)
 	{
-		program->sendUniform("lightDirectSpotOuterAngleRad",light->origin->outerAngleRad);
-		program->sendUniform("lightDirectSpotFallOffAngleRad",light->origin->fallOffAngleRad);
+		program->sendUniform("lightDirectSpotOuterAngleRad",light->getRRLight().outerAngleRad);
+		program->sendUniform("lightDirectSpotFallOffAngleRad",light->getRRLight().fallOffAngleRad);
 	}
 
 	if (LIGHT_DIRECT_ATT_PHYSICAL)
 	{
-		RR_ASSERT(light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
+		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL);
 	}
 
 	if (LIGHT_DIRECT_ATT_POLYNOMIAL)
 	{
-		if (!light->origin)
-		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
-			return false;
-		}
-		RR_ASSERT(light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL);
-		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z,light->origin->polynom.w);
+		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL);
+		program->sendUniform("lightDistancePolynom",light->getRRLight().polynom.x,light->getRRLight().polynom.y,light->getRRLight().polynom.z,light->getRRLight().polynom.w);
 	}
 
 	if (LIGHT_DIRECT_ATT_EXPONENTIAL)
 	{
-		if (!light->origin)
-		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
-			return false;
-		}
-		RR_ASSERT(light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL);
-		program->sendUniform("lightDistanceRadius",light->origin->radius);
-		program->sendUniform("lightDistanceFallOffExponent",light->origin->fallOffExponent);
+		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL);
+		program->sendUniform("lightDistanceRadius",light->getRRLight().radius);
+		program->sendUniform("lightDistanceFallOffExponent",light->getRRLight().fallOffExponent);
 	}
 
 	if (LIGHT_INDIRECT_CONST)

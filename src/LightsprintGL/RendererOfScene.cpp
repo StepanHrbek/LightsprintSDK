@@ -264,7 +264,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getIllumination(0)->getLayer(params.layerNumberLDM) : NULL);
-		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?light->origin:NULL);
+		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?&light->getRRLight():NULL);
 
 		if (uberProgramSetup.MATERIAL_SPECULAR)
 			initSpecularReflection(program);

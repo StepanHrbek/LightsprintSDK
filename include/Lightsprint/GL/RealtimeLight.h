@@ -41,12 +41,17 @@ public:
 		RGB_SHADOWS,          ///< not yet implemented
 	};
 
-	//! Creates realtime light out of standard light.
+	//! Extends RRLight, adding properties and functions for realtime rendering.
 	//
-	//! Standard light must exist at least as long as realtime light.
-	//! Standard light position/direction is updated each time this->getParent()->update() is called.
-	RealtimeLight(rr::RRLight& origin);
+	//! RRLight must exist at least as long as realtime light.
+	//! RRLight position/direction is updated each time this->getParent()->update() is called.
+	RealtimeLight(rr::RRLight& rrlight);
 	virtual ~RealtimeLight();
+
+	//! Returns our RRLight with standard light properties like color.
+	rr::RRLight& getRRLight() {return rrlight;}
+	//! Returns our RRLight with standard light properties like color.
+	const rr::RRLight& getRRLight() const {return rrlight;}
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;
@@ -106,13 +111,13 @@ public:
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;
 
-	//! Original RRLight used at our creation, contains additional parameters like color. Must not be NULL.
-	const rr::RRLight* origin;
-
 	//! Texture projected by light. May be set from outside.
 	const Texture* lightDirectMap;
 
 protected:
+	//! RRLight used at our creation, contains standard light properties like color.
+	rr::RRLight& rrlight;
+
 	//! Modifies light to become given instance.
 	//
 	//! \param light

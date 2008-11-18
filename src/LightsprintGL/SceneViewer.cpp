@@ -1128,7 +1128,7 @@ static void display()
 		if (!svs.render2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
-			const rr::RRLight* rrlight = rtlight->origin;
+			const rr::RRLight* rrlight = &rtlight->getRRLight();
 			Camera* light = rtlight->getParent();
 			textOutput(x,y+=18*2,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
 			textOutput(x,y+=18,"type: %s",(rrlight->type==rr::RRLight::POINT)?"point":((rrlight->type==rr::RRLight::SPOT)?"spot":"dir"));

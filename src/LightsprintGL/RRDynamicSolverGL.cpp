@@ -436,7 +436,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				else
 				{
 					glClear(GL_DEPTH_BUFFER_BIT);
-					renderScene(uberProgramSetup,light->origin);
+					renderScene(uberProgramSetup,&light->getRRLight());
 				}
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -517,13 +517,13 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->areaType==RealtimeLight::POINT)?setupShaderLight->getNumInstances():(setupShaderLight->getNumInstances()?1:0);
 	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
+	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->getRRLight().color!=rr::RRVec3(1);
 	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;
 	uberProgramSetup.LIGHT_DIRECTIONAL = setupShaderLight->getParent()->orthogonal;
-	uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = setupShaderLight->origin && setupShaderLight->origin->type==rr::RRLight::SPOT && !setupShaderLight->lightDirectMap;
-	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = setupShaderLight->getRRLight().type==rr::RRLight::SPOT && !setupShaderLight->lightDirectMap;
+	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.FORCE_2D_POSITION = true;
 	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1);
@@ -621,7 +621,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
-		rendererNonCaching->setLightingShadowingFlags(NULL,setupShaderLight->origin);
+		rendererNonCaching->setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
 		if (renderedChannels.LIGHT_INDIRECT_MAP)
 			rendererNonCaching->render();

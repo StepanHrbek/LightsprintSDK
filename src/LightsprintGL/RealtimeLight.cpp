@@ -17,9 +17,10 @@ namespace rr_gl
 	// RealtimeLight
 
 	RealtimeLight::RealtimeLight(rr::RRLight& _rrlight)
+		: rrlight(_rrlight)
 	{
-		deleteParent = true;
-		origin = &_rrlight;
+		RR_ASSERT(&_rrlight);
+
 		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		smallMapCPU = NULL;
 		numTriangles = 0;
@@ -27,6 +28,7 @@ namespace rr_gl
 		dirtyGI = true;
 
 		parent = new Camera(_rrlight);
+		deleteParent = true;
 		shadowMapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
 		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
 		areaSize = 0.2f;
@@ -115,14 +117,9 @@ namespace rr_gl
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
 		if (instance>=numInstances) return 0;
-		if (!origin)
-		{
-			// special code for fcss
-			return softShadowsAllowed ? 4 : 1;
-		}
-		if (!origin->castShadows) return 0;
+		if (!getRRLight().castShadows) return 0;
 		if (!softShadowsAllowed) return 1;
-		switch(origin->type)
+		switch(getRRLight().type)
 		{
 			case rr::RRLight::POINT: return 1;
 			case rr::RRLight::SPOT: return 4;
@@ -144,7 +141,7 @@ namespace rr_gl
 			light.update();
 			return; // only 1 instance -> use unmodified parent
 		}
-		if (origin && origin->type==rr::RRLight::DIRECTIONAL)
+		if (getRRLight().type==rr::RRLight::DIRECTIONAL)
 		{
 			// setup second map in cascade
 			// DDI needs map0 big, so map0 is big, map1 is smaller
