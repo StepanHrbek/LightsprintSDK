@@ -194,7 +194,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	}
 }
 
-const RRObjects& RRDynamicSolver::getStaticObjects()
+const RRObjects& RRDynamicSolver::getStaticObjects() const
 {
 	return priv->objects;
 }

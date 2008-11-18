@@ -271,7 +271,7 @@ namespace rr
 		//!  Should stay NULL (used by sceneViewer to reuse multiObjectCustom and smoothing from old solver).
 		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRDynamicSolver* copyFrom = NULL);
 		//! Returns static contents of scene, all static objects at once.
-		const RRObjects& getStaticObjects();
+		const RRObjects& getStaticObjects() const;
 
 		//! Returns number of static objects in scene. Shortcut for getStaticObjects().size().
 		unsigned getNumObjects() const;
