@@ -28,6 +28,7 @@ public:
 		outerAngleRad = 0;
 		radius = 0;
 		color = rr::RRVec3(0);
+		distanceAttenuationType = NONE;
 		polynom = rr::RRVec4(0,0,0,1);
 		fallOffExponent = 0;
 		fallOffAngleRad = 0;
