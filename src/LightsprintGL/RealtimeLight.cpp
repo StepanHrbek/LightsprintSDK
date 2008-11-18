@@ -39,29 +39,6 @@ namespace rr_gl
 		softShadowsAllowed = true;
 	}
 
-	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
-	{
-		deleteParent = false;
-		origin = NULL;
-		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-		smallMapCPU = NULL;
-		numTriangles = 0;
-		dirtyShadowmap = true;
-		dirtyGI = true;
-
-		parent = _camera;
-		shadowMapSize = _resolution;
-		areaType = LINE;
-		areaSize = 0.2f;
-		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
-		lightDirectMap = NULL;
-		numInstances = 0;
-		shadowMaps = NULL;
-		positionOfLastDDI = rr::RRVec3(1e6);
-		setNumInstances(_numInstances);
-		softShadowsAllowed = true;
-	}
-
 	RealtimeLight::~RealtimeLight()
 	{
 		delete[] smallMapCPU;
@@ -72,6 +49,14 @@ namespace rr_gl
 	Camera* RealtimeLight::getParent() const
 	{
 		return parent;
+	}
+
+	Camera* RealtimeLight::setParent(Camera* _parent)
+	{
+		Camera* oldParent = parent;
+		parent = _parent;
+		deleteParent = false;
+		return oldParent;
 	}
 
 	void RealtimeLight::setNumInstances(unsigned instances)

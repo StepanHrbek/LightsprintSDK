@@ -46,12 +46,14 @@ public:
 	//! Standard light must exist at least as long as realtime light.
 	//! Standard light position/direction is updated each time this->getParent()->update() is called.
 	RealtimeLight(rr::RRLight& origin);
-	//! Old interface, creates realtime spotlight out of camera.
-	RealtimeLight(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
 	virtual ~RealtimeLight();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;
+	//! Sets parent instance, returns old parent.
+	//! You are responsible for deleting both parents when they are no longer needed.
+	//! Should not be used in new programs.
+	Camera* setParent(Camera* parent);
 
 	//! Sets number of virtual light instances (usually 1 for spotlight, 6 for point light, 1+ for approximation of area light, 1 for dirlight, 2 for cascaded dirlight...)
 	virtual void setNumInstances(unsigned instances);
@@ -104,14 +106,13 @@ public:
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;
 
-	//! Original RRLight used at our creation, contains additional parameters like color. May be NULL.
+	//! Original RRLight used at our creation, contains additional parameters like color. Must not be NULL.
 	const rr::RRLight* origin;
 
 	//! Texture projected by light. May be set from outside.
 	const Texture* lightDirectMap;
 
 protected:
-	bool deleteParent;
 	//! Modifies light to become given instance.
 	//
 	//! \param light
@@ -132,6 +133,7 @@ protected:
 	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
 	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
 	Camera* parent;
+	bool deleteParent;
 	unsigned numInstances;
 	Texture** shadowMaps;
 	unsigned shadowMapSize;

@@ -44,6 +44,9 @@ float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambie
 bool supportMusic = 1;
 bool alphashadows = 1; // 0=opaque shadows, bad sun's shadow, 1=alpha keyed, fixes sun, danger:driver might optimize lightIndirectConstColor away
 /*
+!kamera nebo svetlo jsou mirne posunute, chyba je nejlip videt v prvnim snimku lightsmarku
+ myslel jsem ze to zpusobila rev 2319 kdy jsem zrusil RealtimeLight bez originu, ale chyba byla pritomna uz nejmin 10 revizi driv
+
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
 20% za 8 dnu:
@@ -295,9 +298,11 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
-//	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-//	realtimeLight->parent = &currentFrame.light;
+	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),40*3.14159f/180,0.1f));
+	realtimeLight->setParent(&currentFrame.light);
+	realtimeLight->setNumInstances(MAX_INSTANCES);
+	realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
+
 	if (!alphashadows)
 		realtimeLight->transparentMaterialShadows = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
