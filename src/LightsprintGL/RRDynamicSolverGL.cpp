@@ -702,11 +702,20 @@ void drawRealtimeLight(RealtimeLight* light)
 {
 	if (light)
 	{
-		for (unsigned i=0;i<light->getNumInstances();i++)
+		if (light->getNumInstances())
 		{
-			Camera* camera = light->getInstance(i);
-			drawCamera(camera);
-			delete camera;
+			// light with shadows has all instances rendered
+			for (unsigned i=0;i<light->getNumInstances();i++)
+			{
+				Camera* camera = light->getInstance(i);
+				drawCamera(camera);
+				delete camera;
+			}
+		}
+		else
+		{
+			// light without shadows has parent rendered
+			drawCamera(light->getParent());
 		}
 	}
 }
