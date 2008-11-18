@@ -29,15 +29,13 @@ namespace rr_gl
 
 		parent = new Camera(_rrlight);
 		deleteParent = true;
-		shadowMapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
-		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
+		shadowmapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
+		areaType = LINE;
 		areaSize = 0.2f;
 		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
 		lightDirectMap = NULL;
-		numInstances = 0;
-		shadowMaps = NULL;
+		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
-		setNumInstances(_rrlight.castShadows?((_rrlight.type==rr::RRLight::POINT)?6:((_rrlight.type==rr::RRLight::DIRECTIONAL)?2:1)):0);
 		softShadowsAllowed = true;
 	}
 
@@ -45,7 +43,10 @@ namespace rr_gl
 	{
 		delete[] smallMapCPU;
 		if (deleteParent) delete getParent();
-		setNumInstances(0);
+		for (unsigned i=0;i<shadowmaps.size();i++)
+		{
+			delete shadowmaps[i];
+		}
 	}
 
 	Camera* RealtimeLight::getParent() const
@@ -61,31 +62,21 @@ namespace rr_gl
 		return oldParent;
 	}
 
-	void RealtimeLight::setNumInstances(unsigned instances)
+	unsigned RealtimeLight::getNumShadowmaps() const
 	{
-		if (instances!=numInstances)
+		if (!rrlight.castShadows) return 0;
+		switch (rrlight.type)
 		{
-			for (unsigned i=0;i<numInstances;i++)
-				delete shadowMaps[i];
-			RR_SAFE_DELETE_ARRAY(shadowMaps);
-			numInstances = instances;
-			if (numInstances)
-			{
-				shadowMaps = new Texture*[numInstances];
-				for (unsigned i=0;i<numInstances;i++)
-					shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
-			}
+			case rr::RRLight::POINT: return 6;
+			case rr::RRLight::SPOT: return numInstancesInArea;
+			case rr::RRLight::DIRECTIONAL: return 2;
+			default: RR_ASSERT(0); return 0;
 		}
 	}
 
-	unsigned RealtimeLight::getNumInstances() const
+	Camera* RealtimeLight::getShadowmapCamera(unsigned instance, bool jittered) const
 	{
-		return numInstances;
-	}
-
-	Camera* RealtimeLight::getInstance(unsigned instance, bool jittered) const
-	{
-		if (!parent || instance>=numInstances)
+		if (!parent || instance>=getNumShadowmaps())
 			return NULL;
 		Camera* c = new Camera(*parent);
 		if (!c)
@@ -96,34 +87,50 @@ namespace rr_gl
 
 	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
-		shadowMapSize = newSize;
-		for (unsigned i=0;i<numInstances;i++)
+		shadowmapSize = newSize;
+		for (unsigned i=0;i<getNumShadowmaps();i++)
 		{
-			shadowMaps[i]->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
-			shadowMaps[i]->reset(false,false);
+			getShadowmap(i)->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
+			getShadowmap(i)->reset(false,false);
 		}
 	}
 
-	Texture* RealtimeLight::getShadowMap(unsigned instance) const
+	Texture* RealtimeLight::getShadowmap(unsigned instance)
 	{
-		if (instance>=numInstances)
+		// check inputs
+		unsigned numShadowmaps = getNumShadowmaps();
+		if (instance>=numShadowmaps)
 		{
 			assert(0);
 			return NULL;
 		}
-		return shadowMaps[instance];
+		// free or allocate shadowmaps to match with current number
+		if (shadowmaps.size()!=numShadowmaps)
+		{
+			for (unsigned i=0;i<shadowmaps.size();i++)
+			{
+				delete shadowmaps[i];
+			}
+			shadowmaps.clear();
+			for (unsigned i=0;i<numShadowmaps;i++)
+			{
+				shadowmaps.push_back(Texture::createShadowmap(shadowmapSize,shadowmapSize));
+			}
+		}
+		// return one
+		return shadowmaps[instance];
 	}
 
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
-		if (instance>=numInstances) return 0;
+		if (instance>=getNumShadowmaps()) return 0;
 		if (!getRRLight().castShadows) return 0;
 		if (!softShadowsAllowed) return 1;
 		switch(getRRLight().type)
 		{
 			case rr::RRLight::POINT: return 1;
 			case rr::RRLight::SPOT: return 4;
-			case rr::RRLight::DIRECTIONAL: return (instance==numInstances-1)?4:1;
+			case rr::RRLight::DIRECTIONAL: return (instance==getNumShadowmaps()-1)?4:1;
 			default: RR_ASSERT(0);
 		}
 		return 1;
@@ -131,6 +138,7 @@ namespace rr_gl
 
 	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
 	{
+		unsigned numInstances = getNumShadowmaps();
 		if (instance>=numInstances) 
 		{
 			rr::RRReporter::report(rr::WARN,"RealtimeLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
@@ -153,7 +161,14 @@ namespace rr_gl
 			light.update();
 			return;
 		}
-
+		if (getRRLight().type==rr::RRLight::POINT)
+		{
+			// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
+			RR_ASSERT(instance<6);
+			light.update();
+			light.rotateViewMatrix(instance%6);
+			return;
+		}
 		//light.update(0.3f);
 
 		switch(areaType)
@@ -177,18 +192,12 @@ namespace rr_gl
 				light.pos[1] += light.right[1]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[1]*areaSize*cos(instance*2*3.14159f/numInstances);
 				light.pos[2] += light.right[2]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[2]*areaSize*cos(instance*2*3.14159f/numInstances);
 				break;
-			case POINT:
-				// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
-				RR_ASSERT(instance<6);
-				light.update();
-				light.rotateViewMatrix(instance%6);
-				return;
 		}
 		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.angle += light.getFieldOfViewHorizontalRad()/shadowMapSize*jitterSample[instance%10][0]*0.22f;
-			light.angleX += light.getFieldOfViewVerticalRad()/shadowMapSize*jitterSample[instance%10][1]*0.22f;
+			light.angle += light.getFieldOfViewHorizontalRad()/shadowmapSize*jitterSample[instance%10][0]*0.22f;
+			light.angleX += light.getFieldOfViewVerticalRad()/shadowmapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update();
 	}

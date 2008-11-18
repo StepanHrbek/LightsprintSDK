@@ -28,10 +28,10 @@ public:
 
 	// Returns true and all outXxx are set, do render,
 	// or returns false and outXxx stay unchanged, rendering is done.
-	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
+	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight);
 
 protected:
-	Program* getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight);
+	Program* getPass(int lightIndex, UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight);
 
 	// inputs
 	const RealtimeLights* lights;

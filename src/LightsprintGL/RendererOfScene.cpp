@@ -256,7 +256,7 @@ void RendererOfRRDynamicSolver::render()
 	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
-	const RealtimeLight* light;
+	RealtimeLight* light;
 	Program* program;
 	while (program=multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
 	{
@@ -435,7 +435,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
-	const RealtimeLight* light;
+	RealtimeLight* light;
 	Program* program;
 	// here we cached uberProgramSetup and skipped shader+uniforms set when setup didn't change
 	// it had to go, but if performance tests show regression, we will return it back somehow

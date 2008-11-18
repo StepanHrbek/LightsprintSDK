@@ -184,7 +184,7 @@ void display(void)
 
 	// render
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
+	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumShadowmaps();
 	uberProgramSetup.SHADOW_SAMPLES = 4; // for 3ds draw, won't be reset by MultiPass
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -408,9 +408,9 @@ int main(int argc, char **argv)
 	lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
+	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
-	realtimeLight->setNumInstances(shadowmapsPerPass);
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.

@@ -124,11 +124,11 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = realtimeLight->getShadowmapCamera(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
+	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
 	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -154,7 +154,7 @@ void display(void)
 	// update shadowmaps
 	eye.update();
 	realtimeLight->getParent()->update();
-	unsigned numInstances = realtimeLight->getNumInstances();
+	unsigned numInstances = realtimeLight->getNumShadowmaps();
 	for (unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -210,7 +210,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.setAspect( winWidth/(float)winHeight );
-	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
+	GLint shadowDepthBits = realtimeLight->getShadowmap(0)->getTexelBits();
 	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
 }
 
@@ -336,8 +336,8 @@ int main(int argc, char **argv)
 	// init light
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
 	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 	realtimeLight->setShadowmapSize(512);
-	realtimeLight->setNumInstances(shadowmapsPerPass);
 
 	// init static .3ds scene
 	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))

@@ -139,7 +139,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	uberProgramSetup.ANIMATION_WAVE = material.ANIMATION_WAVE;
 	// temporary simplification, select only 1 light from list
-	const rr_gl::RealtimeLight* light = NULL;
+	rr_gl::RealtimeLight* light = NULL;
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
 		{
@@ -153,7 +153,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	else
 	{
-		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
+		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumShadowmaps()>1;
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0); // for 3ds draw, not reset by MultiPass
 		//if (uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects // don't reduce, looks bad in Lightsmark
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)

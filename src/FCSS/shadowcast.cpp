@@ -278,7 +278,7 @@ void setShadowTechnique()
 	oldShadowType = currentFrame.shadowType;
 
 	// cheap changes (no GL commands)
-	realtimeLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
+	realtimeLight->numInstancesInArea = (currentFrame.shadowType<3)?1:INSTANCES_PER_PASS;
 
 	// expensive changes (GL commands)
 	if (currentFrame.shadowType>=2)
@@ -300,7 +300,7 @@ void init_gl_resources()
 
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),40*3.14159f/180,0.1f));
 	realtimeLight->setParent(&currentFrame.light);
-	realtimeLight->setNumInstances(MAX_INSTANCES);
+	realtimeLight->numInstancesInArea = MAX_INSTANCES;
 	realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
 
 	if (!alphashadows)
@@ -635,7 +635,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 
 void drawEyeViewSoftShadowed(void)
 {
-	unsigned numInstances = realtimeLight->getNumInstances();
+	unsigned numInstances = realtimeLight->getNumShadowmaps();
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -2494,7 +2494,7 @@ retry:
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 #endif
 	if (!INSTANCES_PER_PASS) error("",true);
-	realtimeLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
+	realtimeLight->numInstancesInArea = startWithSoftShadows?INSTANCES_PER_PASS:1;
 
 	const char* licError = rr::loadLicense("licence_number");
 	if (licError)

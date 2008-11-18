@@ -359,7 +359,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
 		oldObserverPos = observer->pos;
 		for (unsigned i=0;i<realtimeLights.size();i++)
-			if (realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumInstances())
+			if (realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumShadowmaps())
 			{
 				// dirty shadowmap always
 				realtimeLights[i]->dirtyShadowmap = true;
@@ -383,9 +383,9 @@ void RRDynamicSolverGL::updateShadowmaps()
 		}
 
 		// update dirlight position
-		if (light->getParent()->orthogonal && light->getNumInstances())
+		if (light->getParent()->orthogonal && light->getNumShadowmaps())
 		{
-			Texture* shadowmap = light->getShadowMap(0);
+			Texture* shadowmap = light->getShadowmap(0);
 			light->getParent()->update(observer,MIN(shadowmap->getBuffer()->getWidth(),shadowmap->getBuffer()->getHeight()));
 		}
 		else
@@ -419,12 +419,12 @@ void RRDynamicSolverGL::updateShadowmaps()
 				default:
 					RR_ASSERT(0);
 			}
-			for (unsigned i=0;i<light->getNumInstances();i++)
+			for (unsigned i=0;i<light->getNumShadowmaps();i++)
 			{
-				Camera* lightInstance = light->getInstance(i);
+				Camera* lightInstance = light->getShadowmapCamera(i);
 				lightInstance->setupForRender();
 				delete lightInstance;
-				Texture* shadowmap = light->getShadowMap(i);
+				Texture* shadowmap = light->getShadowmap(i);
 				float bias = 1.f*light->getNumShadowSamples(i);
 				glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
 				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
@@ -441,8 +441,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);
-			if (light->getNumInstances())
-				light->getShadowMap(0)->renderingToEnd();
+			if (light->getNumShadowmaps())
+				light->getShadowmap(0)->renderingToEnd();
 		}
 	}
 }
@@ -514,11 +514,11 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 {
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->areaType==RealtimeLight::POINT)?setupShaderLight->getNumInstances():(setupShaderLight->getNumInstances()?1:0);
+	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->getRRLight().type==rr::RRLight::POINT)?setupShaderLight->getNumShadowmaps():(setupShaderLight->getNumShadowmaps()?1:0);
 	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->getRRLight().color!=rr::RRVec3(1);
-	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;
+	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->getRRLight().type!=rr::RRLight::POINT && uberProgramSetup.SHADOW_MAPS && setupShaderLight->lightDirectMap;
 	uberProgramSetup.LIGHT_DIRECTIONAL = setupShaderLight->getParent()->orthogonal;
 	uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = setupShaderLight->getRRLight().type==rr::RRLight::SPOT && !setupShaderLight->lightDirectMap;
 	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
@@ -702,12 +702,12 @@ void drawRealtimeLight(RealtimeLight* light)
 {
 	if (light)
 	{
-		if (light->getNumInstances())
+		if (light->getNumShadowmaps())
 		{
 			// light with shadows has all instances rendered
-			for (unsigned i=0;i<light->getNumInstances();i++)
+			for (unsigned i=0;i<light->getNumShadowmaps();i++)
 			{
-				Camera* camera = light->getInstance(i);
+				Camera* camera = light->getShadowmapCamera(i);
 				drawCamera(camera);
 				delete camera;
 			}

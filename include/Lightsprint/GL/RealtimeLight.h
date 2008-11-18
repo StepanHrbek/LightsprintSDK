@@ -12,6 +12,7 @@
 #include <cmath>
 #include "Camera.h"
 #include "Texture.h"
+#include "Lightsprint/RRVector.h"
 
 namespace rr_gl
 {
@@ -24,10 +25,9 @@ namespace rr_gl
 class RR_GL_API RealtimeLight
 {
 public:
-	//! Shapes of light source area.
+	//! Shapes of light source area, relevant only for SPOT.
 	enum AreaType
 	{
-		POINT,     ///< point light, must have exactly 6 instances for cube shadow map generation
 		LINE,      ///< n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
 		CIRCLE,    ///< n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
 		RECTANGLE, ///< n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
@@ -60,14 +60,12 @@ public:
 	//! Should not be used in new programs.
 	Camera* setParent(Camera* parent);
 
-	//! Sets number of virtual light instances (usually 1 for spotlight, 6 for point light, 1+ for approximation of area light, 1 for dirlight, 2 for cascaded dirlight...)
-	virtual void setNumInstances(unsigned instances);
-	//! Returns number of virtual light instances.
-	virtual unsigned getNumInstances() const;
+	//! Returns number of shadowmaps.
+	virtual unsigned getNumShadowmaps() const;
 
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
-	virtual Camera* getInstance(unsigned instance, bool jittered = false) const;
+	virtual Camera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
 
 	//! Sets shadowmap resolution.
 	//! Set higher resolution for hard and sharper shadows,
@@ -75,7 +73,7 @@ public:
 	void setShadowmapSize(unsigned newSize);
 
 	//! Returns shadowmap for given light instance (element of area light).
-	Texture* getShadowMap(unsigned instance) const;
+	Texture* getShadowmap(unsigned instance);
 
 	//! Whether soft shadows are allowed. Modified only by user, default=true. Affects getNumShadowSamples().
 	bool softShadowsAllowed;
@@ -114,6 +112,9 @@ public:
 	//! Texture projected by light. May be set from outside.
 	const Texture* lightDirectMap;
 
+	//! Number of instances approximating area light. Used only for SPOT, 1 = standard spot, more = area light.
+	unsigned numInstancesInArea;
+
 protected:
 	//! RRLight used at our creation, contains standard light properties like color.
 	rr::RRLight& rrlight;
@@ -139,9 +140,8 @@ protected:
 	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
 	Camera* parent;
 	bool deleteParent;
-	unsigned numInstances;
-	Texture** shadowMaps;
-	unsigned shadowMapSize;
+	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
+	unsigned shadowmapSize;
 };
 
 typedef rr::RRVector<RealtimeLight*> RealtimeLights;

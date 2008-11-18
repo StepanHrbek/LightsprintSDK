@@ -23,17 +23,17 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	lightIndex = -separatedAmbientPass;
 }
 
-Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, const RealtimeLight*& outLight)
+Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight)
 {
 	return getPass(lightIndex++,outUberProgramSetup,outRenderedChannels,outLight);
 }
 
 // returns true and all outXxx are set, do render
 // or returns false and outXxx stay unchanged, rendering is done
-Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, const RealtimeLight*& _outLight)
+Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, RealtimeLight*& _outLight)
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
-	const RealtimeLight* light;
+	RealtimeLight* light;
 	if (_lightIndex==-1)
 	{
 		// adjust program for render without lights
@@ -57,15 +57,15 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		// adjust program for n-th light (0-th includes indirect, others have it disabled)
 		light = (*lights)[_lightIndex];
 		RR_ASSERT(light);
-		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
+		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowmaps() : 0;
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0);
-		uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
-		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumInstances()>1;
+		uberProgramSetup.SHADOW_PENUMBRA = light->getRRLight().type!=rr::RRLight::POINT;
+		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumShadowmaps()>1;
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects, for DDI
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->getRRLight().color!=rr::RRVec3(1);
-		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->areaType!=RealtimeLight::POINT && light->lightDirectMap;
+		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->getRRLight().type!=rr::RRLight::POINT && light->lightDirectMap;
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT;
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;

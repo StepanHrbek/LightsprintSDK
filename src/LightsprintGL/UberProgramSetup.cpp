@@ -226,7 +226,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
 {
 	LIMITED_TIMES(1,checkCapabilities());
 
@@ -256,13 +256,13 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 		}
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
 		// prepare samplers
-		light->getShadowMap(firstInstance+i)->bindTexture();
+		light->getShadowmap(firstInstance+i)->bindTexture();
 		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
 		char name[] = "shadowMap0"; // for individual samplers
 		name[9] = '0'+i; // for individual samplers
 		program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i)); // for individual samplers
 		// prepare and send matrices
-		Camera* lightInstance = light->getInstance(firstInstance+i,true);
+		Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
 		glActiveTexture(GL_TEXTURE0+i); // for feeding gl_TextureMatrix[0..maps-1]
 		glLoadMatrixd(tmp);
 		glMultMatrixd(lightInstance->frustumMatrix);
@@ -274,7 +274,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if (SHADOW_SAMPLES>1)
 	{
-		rr::RRBuffer* buffer = light->getShadowMap(firstInstance)->getBuffer();
+		rr::RRBuffer* buffer = light->getShadowmap(firstInstance)->getBuffer();
 		unsigned shadowmapSize = buffer->getWidth()+buffer->getHeight();
 		program->sendUniform("shadowBlurWidth",6.f/shadowmapSize,-6.f/shadowmapSize,0.0f,3.f/shadowmapSize);
 	}
