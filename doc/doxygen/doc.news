@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news68 ------------------------------------ 2008.11.x -------------------------------------
+
+CHANGES
+
+- minor changes in RealtimeLight
+  \n it always extends RRLight, accessible via RealtimeLight::getRRLight()
+  \n it's legal to modify RRLight properties, RealtimeLight changes on the fly
+
 \section news67 ------------------------------------ 2008.11.16 -------------------------------------
 
 NEWS
