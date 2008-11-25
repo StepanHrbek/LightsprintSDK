@@ -24,7 +24,7 @@ namespace rr_gl
 // SVCanvas
 
 SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProperties** parentsLightProperties)
-	: wxGLCanvas(_parent, (wxGLCanvas*)NULL, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas"))
+	: wxGLCanvas(_parent, (wxGLCanvas*)NULL, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(params.svs)
 {
 	parent = _parent;
 	originalSolver = params.solver;

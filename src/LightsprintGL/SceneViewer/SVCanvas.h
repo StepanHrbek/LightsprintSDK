@@ -36,7 +36,7 @@ namespace rr_gl
 
 	private:
 		class SVFrame*             parent;
-		SceneViewerState           svs;
+		SceneViewerState&          svs;
 		const class rr::RRDynamicSolver* originalSolver;
 		class SVSolver*            solver;
 		enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
