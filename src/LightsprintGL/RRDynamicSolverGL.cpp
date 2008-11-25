@@ -12,6 +12,7 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "PreserveState.h"
+#include "tmpstr.h"
 
 #define BIG_MAP_SIZEX            2048 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            2048
@@ -119,13 +120,10 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 
 	captureUv = new CaptureUv;
 	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,BIG_MAP_SIZEX,BIG_MAP_SIZEY,1,rr::BF_RGBA,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
-	char buf1[400]; buf1[399] = 0;
-	char buf2[400]; buf2[399] = 0;
-	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
-	_snprintf(buf2,399,"%sscaledown_filter.fs",pathToShaders);
-	char buf3[100];
-	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY);
-	scaleDownProgram = Program::create(buf3,buf1,buf2);
+	scaleDownProgram = Program::create(
+		tmpstr("#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY),
+		tmpstr("%sscaledown_filter.vs",pathToShaders),
+		tmpstr("%sscaledown_filter.fs",pathToShaders));
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
@@ -136,9 +134,9 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
 	
-	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
-	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	uberProgram1 = UberProgram::create(buf1,buf2);
+	uberProgram1 = UberProgram::create(
+		tmpstr("%subershader.vs",pathToShaders),
+		tmpstr("%subershader.fs",pathToShaders));
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()

@@ -10,6 +10,7 @@
 #include "Lightsprint/GL/Program.h"
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDebug.h"
+#include "tmpstr.h"
 
 namespace rr_gl
 {
@@ -20,15 +21,13 @@ namespace rr_gl
 
 TextureRenderer::TextureRenderer(const char* pathToShaders)
 {
-	char buf1[400]; buf1[399] = 0;
-	char buf2[400]; buf2[399] = 0;
-	_snprintf(buf1,399,"%ssky.vs",pathToShaders);
-	_snprintf(buf2,399,"%ssky.fs",pathToShaders);
-	skyProgram = Program::create(NULL,buf1,buf2);
+	skyProgram = Program::create(NULL,
+		tmpstr("%ssky.vs",pathToShaders),
+		tmpstr("%ssky.fs",pathToShaders));
 	if (!skyProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
-	_snprintf(buf1,399,"%stexture.vs",pathToShaders);
-	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
-	twodProgram = Program::create("#define TEXTURE\n",buf1,buf2);
+	twodProgram = Program::create("#define TEXTURE\n",
+		tmpstr("%stexture.vs",pathToShaders),
+		tmpstr("%stexture.fs",pathToShaders));
 	if (!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
 	oldCamera = NULL;
 }

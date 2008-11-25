@@ -13,6 +13,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
 #include "MultiPass.h"
+#include "tmpstr.h"
 
 
 namespace rr_gl
@@ -100,11 +101,9 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 {
 	params.solver = solver;
 	textureRenderer = new TextureRenderer(pathToShaders);
-	char buf1[400]; buf1[399] = 0;
-	char buf2[400]; buf2[399] = 0;
-	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
-	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	uberProgram = UberProgram::create(buf1,buf2);
+	uberProgram = UberProgram::create(
+		tmpstr("%subershader.vs",pathToShaders),
+		tmpstr("%subershader.fs",pathToShaders));
 	params.brightness = rr::RRVec4(1);
 	params.gamma = 1;
 	rendererNonCaching = NULL;

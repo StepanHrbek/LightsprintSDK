@@ -8,6 +8,7 @@
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/Timer.h"
 //#include "Lightsprint/GL/TextureRenderer.h"
+#include "tmpstr.h"
 
 namespace rr_gl
 {
@@ -16,13 +17,10 @@ Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
 {
 	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NULL),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = Texture::createShadowmap(16,16);
-	char buf1[400]; buf1[399] = 0;
-	char buf2[400]; buf2[399] = 0;
-	char buf3[400]; buf3[399] = 0;
-	_snprintf(buf1,399,"%swater.vs",pathToShaders);
-	_snprintf(buf2,399,"%swater.fs",pathToShaders);
-	_snprintf(buf3,399,"%s%s",afresnel?"#define FRESNEL\n":"",boostSun?"#define BOOST_SUN\n":"");
-	mirrorProgram = Program::create(buf3,buf1,buf2);
+	mirrorProgram = Program::create(
+		tmpstr("%s%s",afresnel?"#define FRESNEL\n":"",boostSun?"#define BOOST_SUN\n":""),
+		tmpstr("%swater.vs",pathToShaders),
+		tmpstr("%swater.fs",pathToShaders));
 	eye = NULL;
 	altitude = 0;
 	fresnel = afresnel;

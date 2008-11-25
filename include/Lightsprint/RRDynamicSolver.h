@@ -425,6 +425,7 @@ namespace rr
 			unsigned debugTexel;
 			//! For debugging only, to be described later. (multiObjPostImport)
 			unsigned debugTriangle;
+			//! For debugging only, to be described later.
 			void (*debugRay)(const RRRay* ray, bool hit);
 
 
