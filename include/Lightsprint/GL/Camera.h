@@ -92,16 +92,22 @@ public:
 	Camera(rr::RRLight& light);
 	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
+	//! Converts position in window (2d) to world space directions (3d) from eye to given point in scene.
+	//! Vector is not normalized, length is >=1, so that pos+getDirection() is always in depth=1 plane.
+	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow = rr::RRVec2(0));
 
 	float getAspect()                   const {return aspect;}
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}
-	float getFieldOfViewHorizontalDeg() const {return fieldOfViewVerticalDeg*aspect;}
+	float getFieldOfViewHorizontalDeg() const {return getFieldOfViewHorizontalRad()*(180/3.14159f);}
 	float getFieldOfViewVerticalRad()   const {return fieldOfViewVerticalDeg*(3.14159f/180);}
-	float getFieldOfViewHorizontalRad() const {return fieldOfViewVerticalDeg*(3.14159f/180)*aspect;}
+	float getFieldOfViewHorizontalRad() const {return atan(tan(getFieldOfViewVerticalRad()*0.5f)*aspect)*2;}
 	float getNear()                     const {return anear;}
 	float getFar()                      const {return afar;}
 	void  setAspect(float aspect);
 	void  setFieldOfViewVerticalDeg(float fieldOfViewVerticalDeg);
+	void  setNear(float _near);
+	void  setFar(float _far);
 	void  setRange(float _near, float _far);
 	//! Sets pos and dir randomly, and near-far range based on scene size. Uses raycasting (~1000 rays).
 	void  setPosDirRangeRandomly(const rr::RRObject* scene);

@@ -102,6 +102,16 @@ void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 	}
 }
 
+void Camera::setNear(float _near)
+{
+	anear = MAX(0.00000001f,_near);
+}
+
+void Camera::setFar(float _far)
+{
+	afar = MAX(anear*2,_far);
+}
+
 void Camera::setRange(float _near, float _far)
 {
 	anear = MAX(0.00000001f,_near);
@@ -118,6 +128,16 @@ void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
 	pos = newPos;
 	setDirection(dir);
 	setRange(maxDistance/500,maxDistance);
+}
+
+rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow)
+{
+	// setNearDynamically() uses length of our result, don't normalize
+	return
+		dir.RRVec3::normalized()
+		+ right * ( posInWindow[0] * tan(getFieldOfViewHorizontalRad()/2) )
+		- up    * ( posInWindow[1] * tan(getFieldOfViewVerticalRad()  /2) )
+		;
 }
 
 void Camera::setNearDynamically(const rr::RRObject* object)
@@ -138,11 +158,7 @@ void Camera::setNearDynamically(const rr::RRObject* object)
 	{
 		RR_ASSERT(!orthogonal);
 		// builds and shoots 9 rays to screen center, corners, edge centers
-		rr::RRVec3 rayDir = (
-			dir.RRVec3::normalized()
-			+ up    * ( (( i   %3)-1) * tan(getFieldOfViewVerticalRad()  /2) )
-			+ right * ( (((i/3)%3)-1) * tan(getFieldOfViewHorizontalRad()/2) )
-			);
+		rr::RRVec3 rayDir = getDirection(rr::RRVec2((i%3)-1.0f,((i/3)%3)-1.0f));
 		float rayDirLength = rayDir.length();
 		rayDir.normalize();
 		ray->rayDirInv[0] = 1/rayDir[0];
@@ -150,7 +166,9 @@ void Camera::setNearDynamically(const rr::RRObject* object)
 		ray->rayDirInv[2] = 1/rayDir[2];
 		if (object->getCollider()->intersect(ray))
 		{
-			objDistance.insert(ray->hitDistance/rayDirLength);
+			// calculation of distanceOfPotentialNearPlane depends on getDirection() length
+			float distanceOfPotentialNearPlane = ray->hitDistance/rayDirLength;
+			objDistance.insert(distanceOfPotentialNearPlane);
 		}
 	}
 	if (objDistance.size())
@@ -195,7 +213,7 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 	float s = sin(leanAngle);
 	float c = cos(leanAngle);
 	up = (tmpup*c+tmpright*s).normalized();
-	right = (tmpup*s-tmpright*c).normalized();
+	right = (tmpright*c-tmpup*s).normalized();
 
 	// update pos (the same for all cascade steps)
 	if (observer)
