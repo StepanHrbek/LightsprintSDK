@@ -239,7 +239,7 @@ Used by LightsprintGL (optional OpenGL support):
   - Linux (including PS3): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev</code>
     - Fedora: <code>pkcon install mesa-libGLU-devel</code>
-  - XBox360, PS3 with system software: not necessary
+  - XBox360, PS3 with system software: not used
 - <a href="http://glew.sourceforge.net/">GLEW</a>
   - Windows: precompiled version 1.5.0 is a part of SDK
   - Linux: install using
@@ -256,19 +256,13 @@ Used by LightsprintGL (optional OpenGL support):
       macro <code>GLAPIENTRY</code> which leads to compile errors. As a workaround, open the file
       "/usr/include/GL/glew.h" and comment-out the statement <code>\#undef GLAPIENTRY</code> at line 10767
       (valid for version 1.5.0)
-  - XBox360, PS3 System Software: not necessary
-- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
-  - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
-  - Linux (including PS3): install using
-    - Ubuntu: <code>sudo apt-get install libglut3-dev</code>
-    - Fedora: <code>pkcon install freeglut-devel</code>
-    - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
-      This ensures that version we bundle for Windows won't be used on Linux.
-      You can safely install and use different version in your Linux system.
-  - XBox360, PS3 with system software: not necessary
+  - XBox360, PS3 System Software: not used
+- <a href="http://wxwidgets.org//">wxWidgets</a> and <a href="http://wxpropgrid.sourceforge.net">wxPropertyGrid</a>
+  - Windows: precompiled wxWidgets 3.8.9 and wxPropertyGrid 1.4.1 are part of SDK
+  - other platforms: not used
 - <a href="http://mesa3d.org/">Mesa 3D</a>
-  - Windows: not necessary
-  - Linux: not necessary
+  - Windows: not used
+  - Linux: not used
   - PS3 Linux: required as a rendering front end for samples, since there are no
     hardware accelerated RSX drivers provided. Please follow these installation instructions:
     - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
@@ -290,12 +284,12 @@ Used by LightsprintIO (optional file format support):
     - Note that we <code>\#include <FreeImage.h></code>, but SDK contains <code>include/freeimage.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
-  - XBox360, PS3 with system software: not necessary
+  - XBox360, PS3 with system software: not used
   - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
   - optional, remove by deleting \#define USE_FCOLLADA in src/LightsprintIO/ImportCollada/RRObjectCollada.cpp (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B is a part of Lightsprint SDK
-  - XBox360, PS3 with the System Software: not necessary
+  - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B
     (which is the latest one available at the time of writing this document) does not yet officially support Linux.
     It is likely that this will change in the near future. Until then, please follow these instructions:
@@ -310,7 +304,7 @@ Used by LightsprintIO (optional file format support):
   - by Feeling Software, used under MIT license
 - <a href="http://xmlsoft.org/">libxml2</a>
   - optional, remove by disabling FCollada, see above
-  - Windows: not necessary
+  - Windows: not used
   - Linux (including PS3 Linux): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
     - Fedora: <code>pkcon install libxml2-devel</code>
@@ -318,6 +312,17 @@ Used by LightsprintIO (optional file format support):
 - .3ds .bsp and .mgf loaders contain 3rd party open source code
   - optional, remove loaders by deleting \#define SUPPORT_3DS, \#define SUPPORT_BSP, \#define SUPPORT_MGF in src/LightsprintIO/ImportScene.cpp
   - for copyright information, see headers of individual files in src/LightsprintIO/Import*
+
+Used by samples (completely optional):
+- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
+  - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
+  - Linux (including PS3): install using
+    - Ubuntu: <code>sudo apt-get install libglut3-dev</code>
+    - Fedora: <code>pkcon install freeglut-devel</code>
+    - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
+      This ensures that version we bundle for Windows won't be used on Linux.
+      You can safely install and use different version in your Linux system.
+  - XBox360, PS3 with system software: not used
 
 Remarks:
 - you can install all dependencies by single command

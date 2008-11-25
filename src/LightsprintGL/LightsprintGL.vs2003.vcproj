@@ -66,7 +66,8 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"/>
+				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -127,7 +128,8 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1029"/>
+				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -191,7 +193,8 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"/>
+				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -254,7 +257,8 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1029"/>
+				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -270,172 +274,189 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="SceneViewer">
 			<File
-				RelativePath="LightmapViewer.cpp">
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h">
 			</File>
 			<File
-				RelativePath="LightmapViewer.h">
+				RelativePath=".\SceneViewer\SVApp.cpp">
 			</File>
 			<File
-				RelativePath="MultiPass.cpp"
-				>
+				RelativePath=".\SceneViewer\SVApp.h">
 			</File>
 			<File
-				RelativePath="MultiPass.h"
-				>
+				RelativePath=".\SceneViewer\SVCanvas.cpp">
 			</File>
 			<File
-				RelativePath="ObjectBuffers.cpp">
+				RelativePath=".\SceneViewer\SVCanvas.h">
 			</File>
 			<File
-				RelativePath="ObjectBuffers.h">
+				RelativePath=".\SceneViewer\SVFrame.cpp">
 			</File>
 			<File
-				RelativePath="RendererOfRRObject.cpp">
+				RelativePath=".\SceneViewer\SVFrame.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h">
+				RelativePath=".\SceneViewer\SVLightIcons.cpp">
 			</File>
 			<File
-				RelativePath="RendererOfScene.cpp">
+				RelativePath=".\SceneViewer\SVLightIcons.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h">
+				RelativePath=".\SceneViewer\SVLightmapViewer.cpp">
 			</File>
 			<File
-				RelativePath="RRDynamicSolverGL.cpp">
+				RelativePath=".\SceneViewer\SVLightmapViewer.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h">
+				RelativePath=".\SceneViewer\SVLightProperties.cpp">
 			</File>
 			<File
-				RelativePath="SceneViewer.cpp"
-				>
+				RelativePath=".\SceneViewer\SVLightProperties.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
-				>
+				RelativePath=".\SceneViewer\SVRayLog.cpp">
 			</File>
 			<File
-				RelativePath="RealtimeLight.cpp"
-				>
+				RelativePath=".\SceneViewer\SVRayLog.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
-				>
+				RelativePath=".\SceneViewer\SVSaveLoad.cpp">
 			</File>
 			<File
-				RelativePath="Camera.cpp"
-				>
+				RelativePath=".\SceneViewer\SVSaveLoad.h">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\Camera.h"
-				>
+				RelativePath=".\SceneViewer\SVSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
-				>
+				RelativePath=".\SceneViewer\SVSolver.h">
 			</File>
 			<File
-				RelativePath="FBO.cpp"
-				>
+				RelativePath="..\..\include\WX\msw\wx.rc">
 			</File>
-			<File
-				RelativePath="FBO.h"
-				>
-			</File>
-			<File
-				RelativePath="matrix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="matrix.h"
-				>
-			</File>
-			<File
-				RelativePath="PreserveState.h"
-				>
-			</File>
-			<File
-				RelativePath="Program.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Program.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Renderer.h"
-				>
-			</File>
-			<File
-				RelativePath="RendererWithCache.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RendererWithCache.h"
-				>
-			</File>
-			<File
-				RelativePath="Shader.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Shader.h"
-				>
-			</File>
-			<File
-				RelativePath="Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Texture.h"
-				>
-			</File>
-			<File
-				RelativePath="TextureRenderer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Timer.h"
-				>
-			</File>
-			<File
-				RelativePath="ToneMapping.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h"
-				>
-			</File>
-			<File
-				RelativePath="UberProgram.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\UberProgram.h"
-				>
-			</File>
-			<File
-				RelativePath="UberProgramSetup.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
-				>
-			</File>
-			<File
-				RelativePath="Water.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\GL\Water.h"
-				>
-			</File>
+		</Filter>
+		<File
+			RelativePath="Camera.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Camera.h">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h">
+		</File>
+		<File
+			RelativePath="FBO.cpp">
+		</File>
+		<File
+			RelativePath="FBO.h">
+		</File>
+		<File
+			RelativePath="matrix.cpp">
+		</File>
+		<File
+			RelativePath="matrix.h">
+		</File>
+		<File
+			RelativePath="MultiPass.cpp">
+		</File>
+		<File
+			RelativePath="MultiPass.h">
+		</File>
+		<File
+			RelativePath="ObjectBuffers.cpp">
+		</File>
+		<File
+			RelativePath="ObjectBuffers.h">
+		</File>
+		<File
+			RelativePath="PreserveState.h">
+		</File>
+		<File
+			RelativePath="Program.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Program.h">
+		</File>
+		<File
+			RelativePath="RealtimeLight.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Renderer.h">
+		</File>
+		<File
+			RelativePath="RendererOfRRObject.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h">
+		</File>
+		<File
+			RelativePath="RendererOfScene.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h">
+		</File>
+		<File
+			RelativePath="RendererWithCache.cpp">
+		</File>
+		<File
+			RelativePath="RendererWithCache.h">
+		</File>
+		<File
+			RelativePath="RRDynamicSolverGL.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h">
+		</File>
+		<File
+			RelativePath="Shader.cpp">
+		</File>
+		<File
+			RelativePath="Shader.h">
+		</File>
+		<File
+			RelativePath="Texture.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Texture.h">
+		</File>
+		<File
+			RelativePath="TextureRenderer.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Timer.h">
+		</File>
+		<File
+			RelativePath="ToneMapping.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h">
+		</File>
+		<File
+			RelativePath="UberProgram.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\UberProgram.h">
+		</File>
+		<File
+			RelativePath="UberProgramSetup.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h">
+		</File>
+		<File
+			RelativePath="Water.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Water.h">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

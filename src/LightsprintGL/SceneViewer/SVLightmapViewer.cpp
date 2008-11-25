@@ -1,51 +1,22 @@
 // --------------------------------------------------------------------------
-// Viewer of lightmap.
+// Scene viewer - lightmap viewer with unwrap, zoom, panning.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
 // --------------------------------------------------------------------------
 
-#include "LightmapViewer.h"
-#include "Lightsprint/GL/UberProgram.h"
-#include <cstdio>
-#include <cstring>
-#include <GL/glew.h>
-#include <GL/glut.h>
+#include "SVLightmapViewer.h"
+#include "../tmpstr.h"
 
 namespace rr_gl
 {
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// lightmap viewer
 
-	static bool created = false; // only 1 instance is allowed
-	static bool nearest;
-	static bool alpha;
-	static rr::RRReal zoom; // 1: 1 lmap pixel has 1 screen pixel, 2: 1 lmap pixel has 0.5x0.5 screen pixels
-	static rr::RRVec2 center; // coord in pixels from center of lmap. texel with this coord is in center of screen
-	static UberProgram* uberProgram;
-	static Program* lmapProgram;
-	static Program* lmapAlphaProgram;
-	static Program* lineProgram;
-	static rr::RRBuffer* buffer;
-	static const rr::RRMesh* mesh;
-
-LightmapViewer* LightmapViewer::create(const char* _pathToShaders)
+SVLightmapViewer::SVLightmapViewer(const char* _pathToShaders)
 {
-	return (!created) ? new LightmapViewer(_pathToShaders) : NULL;
-}
-
-LightmapViewer::LightmapViewer(const char* _pathToShaders)
-{
-	created = true;
 	nearest = false;
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	char buf1[400]; buf1[399] = 0;
-	char buf2[400]; buf2[399] = 0;
-	_snprintf(buf1,399,"%stexture.vs",_pathToShaders);
-	_snprintf(buf2,399,"%stexture.fs",_pathToShaders);
-	uberProgram = UberProgram::create(buf1,buf2);
+	uberProgram = UberProgram::create(tmpstr("%stexture.vs",_pathToShaders),tmpstr("%stexture.fs",_pathToShaders));
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
@@ -53,7 +24,12 @@ LightmapViewer::LightmapViewer(const char* _pathToShaders)
 	mesh = NULL;
 }
 
-void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _mesh, bool _bilinear)
+SVLightmapViewer::~SVLightmapViewer()
+{
+	delete uberProgram;
+}
+
+void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _mesh, bool _bilinear)
 {
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
 	mesh = _mesh;
@@ -68,73 +44,51 @@ void LightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _me
 	}
 }
 
-LightmapViewer::~LightmapViewer()
+void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 {
-	created = false;
-	RR_SAFE_DELETE(uberProgram);
-}
-
-void LightmapViewer::mouse(int button, int state, int x, int y)
-{
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (event.RightDown())
 	{
 		alpha = !alpha;
 	}
-#ifdef GLUT_WITH_WHEEL_AND_LOOP
-	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (event.GetWheelRotation()>0)
 	{
 		zoom *= 0.625f;
 	}
-	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (event.GetWheelRotation()<0)
 	{
 		zoom *= 1.6f;
 	}
-#endif
-}
-
-void LightmapViewer::passive(int x, int y)
-{
-	unsigned winWidth = glutGet(GLUT_WINDOW_WIDTH);
-	unsigned winHeight = glutGet(GLUT_WINDOW_HEIGHT);
-	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
-	x -= winWidth/2;
-	y -= winHeight/2;
-	if (x || y)
+	if (event.Dragging())
 	{
-		center[0] += 2*x/zoom;
-		center[1] -= 2*y/zoom;
-		glutWarpPointer(winWidth/2,winHeight/2);
+		center[0] += 2*(event.GetX()-previousPosition.x)/zoom;
+		center[1] -= 2*(event.GetY()-previousPosition.y)/zoom;
 	}
+	previousPosition = event.GetPosition();
 }
 
-rr::RRVec2 LightmapViewer::getCenterUv()
+rr::RRVec2 SVLightmapViewer::getCenterUv(wxSize windowSize)
 {
 	// copy of code from display(), could be simplified
-	unsigned winWidth = glutGet(GLUT_WINDOW_WIDTH);
-	unsigned winHeight = glutGet(GLUT_WINDOW_HEIGHT);
 	unsigned bw = buffer ? buffer->getWidth() : 1;
 	unsigned bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(winWidth/(float)bw,winHeight/float(bh))*0.9f;
+	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
 	bw = (unsigned)(mult*bw);
 	bh = (unsigned)(mult*bh);
-	float x = 0.5f + ( center[0] - bw*0.5f )*zoom/winWidth;
-	float y = 0.5f + ( center[1] - bh*0.5f )*zoom/winHeight;
-	float w = bw*zoom/winWidth;
-	float h = bh*zoom/winHeight;
+	float x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;
+	float y = 0.5f + ( center[1] - bh*0.5f )*zoom/windowSize.y;
+	float w = bw*zoom/windowSize.x;
+	float h = bh*zoom/windowSize.y;
 	// new code
 	return rr::RRVec2(-(x-0.5f)/w,-(y-0.5f)/h);
 }
 
-void LightmapViewer::display()
+void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 {
 	if (!lmapProgram || !lmapAlphaProgram || !lineProgram)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-
-	unsigned winWidth = glutGet(GLUT_WINDOW_WIDTH);
-	unsigned winHeight = glutGet(GLUT_WINDOW_HEIGHT);
 
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -144,17 +98,17 @@ void LightmapViewer::display()
 
 	unsigned bw = buffer ? buffer->getWidth() : 1;
 	unsigned bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(winWidth/(float)bw,winHeight/float(bh))*0.9f;
+	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
 	bw = (unsigned)(mult*bw);
 	bh = (unsigned)(mult*bh);
 
 	// render lightmap
 	if (buffer)
 	{
-		float x = 0.5f + ( center[0] - bw*0.5f )*zoom/winWidth;
-		float y = 0.5f + ( center[1] - bh*0.5f )*zoom/winHeight;
-		float w = bw*zoom/winWidth;
-		float h = bh*zoom/winHeight;
+		float x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;
+		float y = 0.5f + ( center[1] - bh*0.5f )*zoom/windowSize.y;
+		float w = bw*zoom/windowSize.x;
+		float h = bh*zoom/windowSize.y;
 		Program* prg = alpha?lmapAlphaProgram:lmapProgram;
 		prg->useIt();
 		glActiveTexture(GL_TEXTURE0);
@@ -185,8 +139,8 @@ void LightmapViewer::display()
 			mesh->getTriangleMapping(i,mapping);
 			for (unsigned j=0;j<3;j++)
 			{
-				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/winWidth;
-				mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/winHeight;
+				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/windowSize.x;
+				mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/windowSize.y;
 			}
 			for (unsigned j=0;j<3;j++)
 			{

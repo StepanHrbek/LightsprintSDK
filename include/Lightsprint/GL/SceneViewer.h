@@ -84,14 +84,8 @@ struct SceneViewerState
 
 //! Runs interactive scene viewer.
 //
-//! It renders scene with realtime or precomputed GI, with interactive options.
-//!
-//! Controls:
-//! - right mouse button ... menu
-//! - mouse and wsadqzxc ... manipulate selected camera or light
-//! - wheel              ... zoom
-//! - + - * /            ... brightness/contrast
-//! - left mouse button  ... toggle selection between camera and light
+//! All lighting techniques for both realtime and precomputed GI are supported.
+//! All lights are editable.
 //!
 //! \param solver
 //!  Scene to be displayed.

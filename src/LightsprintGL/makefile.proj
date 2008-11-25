@@ -32,7 +32,6 @@ endif
 SOURCES = \
 Camera.cpp \
 FBO.cpp \
-LightmapViewer.cpp \
 matrix.cpp \
 MultiPass.cpp \
 ObjectBuffers.cpp \
@@ -42,14 +41,14 @@ RendererOfRRObject.cpp \
 RendererOfScene.cpp \
 RendererWithCache.cpp \
 RRDynamicSolverGL.cpp \
-SceneViewer.cpp \
 Shader.cpp \
 Texture.cpp \
 TextureRenderer.cpp \
 ToneMapping.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
-Water.cpp
+Water.cpp \
+SceneViewer/SVStub.spp
 
 # libraries
 

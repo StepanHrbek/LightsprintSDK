@@ -81,6 +81,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -172,6 +173,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -256,6 +258,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -341,6 +344,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -428,6 +432,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -527,6 +532,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -623,6 +629,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -719,6 +726,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
+				AdditionalIncludeDirectories="..\..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -762,6 +770,90 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="SceneViewer"
+			>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVApp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVApp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVCanvas.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVCanvas.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVFrame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightIcons.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightIcons.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightmapViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightmapViewer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLightProperties.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVRayLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVRayLog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSaveLoad.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSaveLoad.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSolver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\WX\msw\wx.rc"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="Camera.cpp"
 			>
@@ -780,14 +872,6 @@
 		</File>
 		<File
 			RelativePath="FBO.h"
-			>
-		</File>
-		<File
-			RelativePath="LightmapViewer.cpp"
-			>
-		</File>
-		<File
-			RelativePath="LightmapViewer.h"
 			>
 		</File>
 		<File
@@ -868,14 +952,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
-			>
-		</File>
-		<File
-			RelativePath="SceneViewer.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
 			>
 		</File>
 		<File
