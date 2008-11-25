@@ -49,6 +49,30 @@ namespace rr_gl
 		}
 	}
 
+	void RealtimeLight::updateAfterRRLightChanges()
+	{
+		if (!getParent()->orthogonal && rrlight.type==rr::RRLight::DIRECTIONAL)
+		{
+			// when setting directional, set orthogonal and disable distance attenuation
+			getParent()->orthogonal = true;
+			rrlight.distanceAttenuationType = rr::RRLight::NONE;
+		}
+		else
+		if (getParent()->orthogonal && rrlight.type!=rr::RRLight::DIRECTIONAL)
+		{
+			// when leaving directional, clear orthogonal and reasonable near/fat
+			getParent()->orthogonal = false;
+			getParent()->setRange(0.1f,100);
+		}
+		// Copy position/direction.
+		getParent()->pos = rrlight.position;
+		getParent()->setDirection(rrlight.direction);
+		// Nearly all changes to RRLight create need for shadowmap and GI update.
+		// At this point we don't know what was changed anyway, so let's update always.
+		dirtyShadowmap = true;
+		dirtyGI = true;
+	}
+
 	Camera* RealtimeLight::getParent() const
 	{
 		return parent;
@@ -87,11 +111,15 @@ namespace rr_gl
 
 	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
-		shadowmapSize = newSize;
-		for (unsigned i=0;i<getNumShadowmaps();i++)
+		if (newSize!=shadowmapSize)
 		{
-			getShadowmap(i)->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
-			getShadowmap(i)->reset(false,false);
+			shadowmapSize = newSize;
+			for (unsigned i=0;i<getNumShadowmaps();i++)
+			{
+				getShadowmap(i)->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
+				getShadowmap(i)->reset(false,false);
+			}
+			dirtyShadowmap = true;
 		}
 	}
 
@@ -116,6 +144,7 @@ namespace rr_gl
 			{
 				shadowmaps.push_back(Texture::createShadowmap(shadowmapSize,shadowmapSize));
 			}
+			dirtyShadowmap = true;
 		}
 		// return one
 		return shadowmaps[instance];

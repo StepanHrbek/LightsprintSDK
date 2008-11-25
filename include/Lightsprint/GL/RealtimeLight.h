@@ -49,9 +49,12 @@ public:
 	virtual ~RealtimeLight();
 
 	//! Returns our RRLight with standard light properties like color.
+	//! It's legal to edit RRLight properties at any moment as long as you call updateAfterRRLightChanges() later.
 	rr::RRLight& getRRLight() {return rrlight;}
 	//! Returns our RRLight with standard light properties like color.
 	const rr::RRLight& getRRLight() const {return rrlight;}
+	//! Updates RealtimeLight after changes made to RRLight.
+	void updateAfterRRLightChanges();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;
