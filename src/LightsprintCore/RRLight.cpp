@@ -25,12 +25,12 @@ public:
 		type = POINT;
 		position = rr::RRVec3(0);
 		direction = rr::RRVec3(0);
-		outerAngleRad = 0;
-		radius = 0;
-		color = rr::RRVec3(0);
+		outerAngleRad = 1;
+		radius = 1;
+		color = rr::RRVec3(1);
 		distanceAttenuationType = NONE;
 		polynom = rr::RRVec4(0,0,0,1);
-		fallOffExponent = 0;
+		fallOffExponent = 1;
 		fallOffAngleRad = 0;
 		spotExponent = 1;
 		castShadows = true;
