@@ -629,20 +629,19 @@ Remarks:
  is typically enough)
  and calculate average color of rendered image. Follow these steps for each material
 
- -# Create empty scene and place 1x1m rectangle covered by material in front of camera
-    in 0.5m distance (so it covers whole viewport, but nothing more).
-    If it has uv coordinates for textures, use whole texture space from 0,0 to 1,1 in rectangle.
+ -# Create an empty scene and place 1x1m rectangle covered by material in front of orthogonal camera
+    in 1m distance, so that rectangle covers whole viewport, but nothing more.
+    If material needs uv coordinates for textures, use whole texture space from 0,0 to 1,1 in rectangle.
  -# Clear to black and render rectangle.
     Store acquired average color as RRMaterial::diffuseEmittance.
  -# Clear to white and render rectangle.
     Store acquired average color minus emittance as RRMaterial::specularTransmittance.
  -# Add white point light without distance attenuation to the same position as camera.
     Clear to black and render rectangle.
-    Store acquired average color minus emittance as RRMaterial::diffuseReflectance.
- -# Call RRMaterial::validate() to clamp values to physically correct bounds.
-    This is necessary to prevent damage from materials that e.g. reflect more light
-    than they receive. Such behaviour is not possible in real world and may cause
-    unexpected results in calculation such as infinitely high indirect illumination.
+    Store (acquired average color minus emittance)*1.0805 as RRMaterial::diffuseReflectance.
+ -# If your engine's lights have separated diffuse and specular color, repeat previous step
+    for RRMaterial::specularReflectance. Use white diffuse and black specular light
+    in previous step, black diffuse and white specular light in this step.
 
  -  If you use materials with faked reflection maps (planar or cubic),
     make sure that reflection intensity drops to 0 in dark scene,
