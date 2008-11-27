@@ -424,7 +424,7 @@ void SVCanvas::OnEnterWindow(wxMouseEvent& event)
 static void textOutput(int x, int y, int h, const char *format, ...)
 {
 #ifdef _WIN32
-	if(y>=h) return;
+	if (y>=h) return;
 	char text[1000];
 	va_list argptr;
 	va_start (argptr,format);
