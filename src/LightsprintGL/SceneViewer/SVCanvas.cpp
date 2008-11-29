@@ -189,7 +189,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_NUMPAD_SUBTRACT:
 		case '-': svs.brightness /= 1.2f; needsRefresh = true; break;
 
-		case '8': if (event.GetModifiers()==0) break; // ignore '8', but accept '8' + shift as '*', continue to next case
+		//case '8': if (event.GetModifiers()==0) break; // ignore '8', but accept '8' + shift as '*', continue to next case
 		case WXK_NUMPAD_MULTIPLY:
 		case '*': svs.gamma *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_DIVIDE:
@@ -605,6 +605,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			}
 
 
+			// render light frames
+			solver->renderLights();
+
 			// render lines
 			{
 				// set shader
@@ -632,16 +635,33 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				glVertex3f(+0.5*SIZE,0,q);
 			}
 			glEnd();
-
-			// render light frames
-			solver->renderLights();
 		}
 	}
 
 	if (svs.renderHelpers)
 	{
 		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
-		// render properties
+		// render debug rays, using previously set shader
+		if ((!svs.render2d || !lv) && SVRayLog::size)
+		{
+			glBegin(GL_LINES);
+			for (unsigned i=0;i<SVRayLog::size;i++)
+			{
+				if (SVRayLog::log[i].unreliable)
+					glColor3ub(255,0,0);
+				else
+				if (SVRayLog::log[i].infinite)
+					glColor3ub(0,0,255);
+				else
+					glColor3ub(0,255,0);
+				glVertex3fv(&SVRayLog::log[i].begin[0]);
+				glColor3ub(0,0,0);
+				//glVertex3fv(&SVRayLog::log[i].end[0]);
+				glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
+			}
+			glEnd();
+		}
+		// render text, using custom shader (because text output ignores color passed to previous shader)
 		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 		centerTexel = UINT_MAX;
 		centerTriangle = UINT_MAX;
@@ -653,7 +673,14 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		glPushMatrix();
 		glLoadIdentity();
 		gluOrtho2D(0, winWidth, winHeight, 0);
-		glColor3f(1,1,1);
+		{
+			// set shader
+			UberProgramSetup uberProgramSetup;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1);
+			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+		}
 		glRasterPos2i(winWidth/2-4,winHeight/2+1);
 		int x = 10;
 		int y = 10;
@@ -796,13 +823,13 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
 			if (bufferSelectedObj)
 			{
-				if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
+				//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
 				textOutput(x,y+=18,h,"[lightmap]");
 				textOutput(x,y+=18,h,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
 				textOutput(x,y+=18,h,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
 				textOutput(x,y+=18,h,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
 				textOutput(x,y+=18,h,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
-				glColor3f(1,1,1);
+				//glColor3f(1,1,1);
 			}
 		}
 		if (multiMesh && (!svs.render2d || !lv))
@@ -914,25 +941,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glEnable(GL_DEPTH_TEST);
-		if ((!svs.render2d || !lv) && SVRayLog::size)
-		{
-			glBegin(GL_LINES);
-			for (unsigned i=0;i<SVRayLog::size;i++)
-			{
-				if (SVRayLog::log[i].unreliable)
-					glColor3ub(255,0,0);
-				else
-				if (SVRayLog::log[i].infinite)
-					glColor3ub(0,0,255);
-				else
-					glColor3ub(0,255,0);
-				glVertex3fv(&SVRayLog::log[i].begin[0]);
-				glColor3ub(0,0,0);
-				//glVertex3fv(&SVRayLog::log[i].end[0]);
-				glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
-			}
-			glEnd();
-		}
 	}
 
 
