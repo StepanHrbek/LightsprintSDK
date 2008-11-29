@@ -371,6 +371,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	}
 
+	if (svs.selectedLightIndex<solver->realtimeLights.size())
+	{
+		solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
+	}
 	solver->reportInteraction();
 }
 
@@ -413,6 +417,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		{
 			if (cam!=&svs.eye) 
 			{
+				solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
 				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
 			}
 		}

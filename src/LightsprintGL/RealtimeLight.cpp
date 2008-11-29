@@ -73,6 +73,13 @@ namespace rr_gl
 		dirtyGI = true;
 	}
 
+	void RealtimeLight::updateAfterRealtimeLightChanges()
+	{
+		// Copy position/direction.
+		rrlight.position = getParent()->pos;
+		rrlight.direction = getParent()->dir;
+	}
+
 	Camera* RealtimeLight::getParent() const
 	{
 		return parent;
