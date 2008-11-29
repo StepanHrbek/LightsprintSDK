@@ -240,6 +240,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 		ray->hitFrontSide=hitFrontSide;
 	}
 #endif
+
 #ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
 	ray->hitPoint2d[1]=v;
@@ -345,9 +346,13 @@ begin:
 			// test all triangles in kd leaf for intersection
 			for (typename BspTree::_TriInfo* triangle=trianglesBegin;triangle<trianglesEnd;triangle++)
 			{
-				if (intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
+				TriangleSRLNP* currentTriangle = triangleSRLNP+triangle->getTriangleIndex();
+				real planeDistance = currentTriangle->n4[0]*ray->rayDir[0]+currentTriangle->n4[1]*ray->rayDir[1]+currentTriangle->n4[2]*ray->rayDir[2]+currentTriangle->n4[3];
+				if (planeDistance>=ray->hitDistanceMin && planeDistance<=distanceMax
+					&& intersect_triangleSRLNP(ray,currentTriangle))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
+					ray->hitDistance = planeDistance;
 					rayHits.insertHitUnordered(ray);
 				}
 			}
@@ -556,9 +561,13 @@ begin:
 			{
 				RRMesh::TriangleBody srl;
 				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
-				if (intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&srl))
+				TriangleNP* currentTriangle = triangleNP+triangle->getTriangleIndex();
+				real planeDistance = currentTriangle->n4[0]*ray->rayDir[0]+currentTriangle->n4[1]*ray->rayDir[1]+currentTriangle->n4[2]*ray->rayDir[2]+currentTriangle->n4[3];
+				if (planeDistance>=ray->hitDistanceMin && planeDistance<=distanceMax
+					&& intersect_triangleNP(ray,currentTriangle,&srl))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
+					ray->hitDistance = planeDistance;
 					rayHits.insertHitUnordered(ray);
 				}
 			}
