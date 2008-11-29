@@ -184,9 +184,15 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_MAXIMIZE)); break;
 
+		case WXK_NUMPAD_ADD:
 		case '+': svs.brightness *= 1.2f; needsRefresh = true; break;
+		case WXK_NUMPAD_SUBTRACT:
 		case '-': svs.brightness /= 1.2f; needsRefresh = true; break;
+
+		case '8': if (event.GetModifiers()==0) break; // ignore '8', but accept '8' + shift as '*', continue to next case
+		case WXK_NUMPAD_MULTIPLY:
 		case '*': svs.gamma *= 1.2f; needsRefresh = true; break;
+		case WXK_NUMPAD_DIVIDE:
 		case '/': svs.gamma /= 1.2f; needsRefresh = true; break;
 
 		case '[': if (solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+solver->getNumObjects()-1)%solver->getNumObjects(); needsRefresh = true; break;
