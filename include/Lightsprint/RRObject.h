@@ -221,10 +221,13 @@ namespace rr
 		//! to converge than lighting computed with getTriangleMaterial().
 		//! So you should use getPointMaterial() only if you know it returns important additional details.
 		//! \n\n Solver uses getPointMaterial() when getTriangleMaterial()->sideBits[].pointDetails is set.
-		//! \n\n Default implementation returns average triangle's material.
-		//! \param t Triangle number.
-		//! \param uv 2D coordinates of point (triangle vertices are in 0,0 1,0 0,1).
-		//! \param out Returned material in given point, undefined on input, to be filled by implementation.
+		//! \n\n Default implementation takes point details from optional textures in material.
+		//! \param t
+		//!  Triangle number.
+		//! \param uv
+		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
+		//! \param out
+		//!  Returned material in given point, undefined on input, to be filled by implementation.
 		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
 
 		//! Information about single object, what LOD it is.

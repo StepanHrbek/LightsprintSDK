@@ -62,7 +62,6 @@ public:
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
-	virtual void                    getPointMaterial(unsigned t, rr::RRVec2 uv, rr::RRMaterial& out) const;
 
 private:
 	TMapQ3* model;
@@ -425,35 +424,6 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRL
 		return NULL;
 	}
 	return &materials[s];
-}
-
-void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out) const
-{
-	// When point materials are used, this is critical place for performance
-	// of updateLightmap[s]().
-	// getChannelData() called here is very slow.
-	// In your implementations, prefer simple lookups, avoid for cycles.
-	// Use profiler to see what percentage of time is spent in getPointMaterial().
-	const rr::RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
-	if (material)
-	{
-		out = *material;
-	}
-	else
-	{
-		out.reset(false);
-	}
-	if (material->diffuseReflectance.texture)
-	{
-		rr::RRMesh::TriangleMapping triangleMapping;
-		getTriangleMapping(t,triangleMapping,CH_DIFFUSE);
-		uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(uv[0],uv[1],0));
-		out.diffuseReflectance.color = rgba * rgba[3];
-		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
-		if (rgba[3]==0)
-			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
-	}
 }
 
 

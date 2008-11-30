@@ -21,7 +21,7 @@ namespace rr
 
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
 {
-	LIMITED_TIMES(1,RRReporter::report(WARN,"Slow RRObject::getPointMaterial path used, but no additional details are available."));
+	// Fill all material properties using material averages.
 	const RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
 	if (material)
 	{
@@ -32,6 +32,59 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
 		LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
 		out.reset(false);
 		RR_ASSERT(0);
+	}
+
+	// Improve precision using textures.
+	if (material->diffuseEmittance.texture)
+	{
+		RRMesh::TriangleMapping triangleMapping;
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseEmittance.texcoord);
+		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+	}
+	if (material->specularReflectance.texture)
+	{
+		RRMesh::TriangleMapping triangleMapping;
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->specularReflectance.texcoord);
+		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+		out.specularReflectance.color = material->specularReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+	}
+	if (material->diffuseReflectance.texture && material->specularTransmittance.texture==material->diffuseReflectance.texture && material->specularTransmittanceInAlpha)
+	{
+		// optional optimized path: transmittance in diffuse map alpha
+		RRMesh::TriangleMapping triangleMapping;
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseReflectance.texcoord);
+		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(materialUv[0],materialUv[1],0));
+		out.diffuseReflectance.color = rgba * rgba[3];
+		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
+		if (rgba[3]==0)
+			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	}
+	else
+	{
+		// generic path
+		if (material->specularTransmittance.texture)
+		{
+			RRMesh::TriangleMapping triangleMapping;
+			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->specularTransmittance.texcoord);
+			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+			RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+			out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
+			if (out.specularTransmittance.color==RRVec3(1))
+				out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+		}
+		if (material->diffuseReflectance.texture)
+		{
+			RRMesh::TriangleMapping triangleMapping;
+			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseReflectance.texcoord);
+			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+			out.diffuseReflectance.color = RRVec3(material->diffuseReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0)))
+				// we multiply dif texture by opacity on the fly
+				// because real world data are often in this format
+				// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
+				* (RRVec3(1)-out.specularTransmittance.color);
+		}
 	}
 }
 

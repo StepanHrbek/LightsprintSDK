@@ -651,7 +651,6 @@ public:
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
 	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
-	virtual void               getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
 	virtual const RRMatrix3x4* getWorldMatrix();
 
 private:
@@ -733,52 +732,6 @@ const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight
 	const fstring symbol = getTriangleMaterialSymbol(mesh,t);
 	const FCDMaterialInstance* materialInstance = geometryInstance->FindMaterialInstance(symbol);
 	return materialCache->getMaterial(materialInstance);
-}
-
-void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
-{
-	// When point materials are used, this is critical place for performance
-	// of updateLightmap[s]().
-	// getChannelData() called here is very slow.
-	// In your implementations, prefer simple lookups, avoid for cycles.
-	// Use profiler to see what percentage of time is spent in getPointMaterial().
-	const RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
-	if (material)
-	{
-		out = *material;
-	}
-	else
-	{
-		out.reset(false);
-	}
-	if (material->diffuseEmittance.texture)
-	{
-		RRMesh::TriangleMapping triangleMapping;
-		collider->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseEmittance.texcoord);
-		uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
-	}
-	if (material->specularTransmittance.texture)
-	{
-		RRMesh::TriangleMapping triangleMapping;
-		collider->getMesh()->getTriangleMapping(t,triangleMapping,material->specularTransmittance.texcoord);
-		uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(uv[0],uv[1],0));
-		out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
-		if (out.specularTransmittance.color==RRVec3(1))
-			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
-	}
-	if (material->diffuseReflectance.texture)
-	{
-		RRMesh::TriangleMapping triangleMapping;
-		collider->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseReflectance.texcoord);
-		uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		out.diffuseReflectance.color = RRVec3(material->diffuseReflectance.texture->getElement(RRVec3(uv[0],uv[1],0)))
-			// we multiply dif texture by opacity on the fly
-			// because real world data are often in this format
-			// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
-			* (RRVec3(1)-out.specularTransmittance.color);
-	}
 }
 
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()
