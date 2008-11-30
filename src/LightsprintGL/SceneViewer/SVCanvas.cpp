@@ -687,6 +687,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
 		}
 		glRasterPos2i(winWidth/2-4,winHeight/2+1);
+		glCallLists(1, GL_UNSIGNED_BYTE, "."); // point in the middle of canvas
 		int x = 10;
 		int y = 10;
 		int h = GetSize().y;
