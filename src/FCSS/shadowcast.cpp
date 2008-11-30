@@ -123,7 +123,7 @@ rr_gl::RealtimeLight* realtimeLight = NULL;
 #ifdef CORNER_LOGO
 	rr_gl::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
-rr_gl::Program* ambientProgram;
+rr_gl::Program* ambientProgram; // it had color controlled via glColor, but because of catalyst 8.11 bug, we switched to uniform lightIndirectConst
 rr_gl::TextureRenderer* skyRenderer;
 rr_gl::UberProgram* uberProgram;
 rr_gl::UberProgramSetup uberProgramGlobalSetup;
@@ -313,8 +313,11 @@ void init_gl_resources()
 
 	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
+	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
+	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 #ifdef SUPPORT_WATER
@@ -324,6 +327,11 @@ void init_gl_resources()
 
 	if (!ambientProgram)
 		error("\nFailed to compile or link GLSL program.\n",true);
+	else
+	{
+		ambientProgram->useIt();
+		ambientProgram->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+	}
 }
 
 void done_gl_resources()
@@ -510,7 +518,7 @@ void drawLight(void)
 	ambientProgram->useIt();
 	glPushMatrix();
 	glTranslatef(currentFrame.light.pos[0]-0.3f*currentFrame.light.dir[0], currentFrame.light.pos[1]-0.3f*currentFrame.light.dir[1], currentFrame.light.pos[2]-0.3f*currentFrame.light.dir[2]);
-	glColor3f(1,1,0);
+	ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,0.0f,1.0f);
 	gluSphere(quadric, 0.05f, 10, 10);
 	glPopMatrix();
 }
@@ -920,17 +928,17 @@ static void drawHelpMessage(int screen)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	glColor4f(0,0,0,0.6f);
+	ambientProgram->sendUniform("materialDiffuseConst",0.0f,0.0f,0.0f,0.6f);
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
 	if (screen /*|| demoPlayer->getPaused()*/)
 	{
 		unsigned rectWidth = 530;
 		unsigned rectHeight = 360;
-		glColor4f(0,0.1f,0.3f,0.6f);
+		ambientProgram->sendUniform("materialDiffuseConst",0.0f,0.1f,0.3f,0.6f);
 		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
 		glDisable(GL_BLEND);
-		glColor3f(1,1,1);
+		ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,1.0f,1.0f);
 		int x = (winWidth-rectWidth)/2+20;
 		int y = (winHeight-rectHeight)/2+30;
 		for (i=0; message[screen][i] != NULL; i++) 
@@ -948,7 +956,7 @@ static void drawHelpMessage(int screen)
 		int x = 40, y = 50;
 		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
 		glDisable(GL_BLEND);
-		glColor3f(1,1,1);
+		ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,1.0f,1.0f);
 		char buf[200];
 		float demoLength = demoPlayer->getDemoLength();
 		float musicLength = demoPlayer->getMusicLength();
@@ -986,7 +994,6 @@ static void drawHelpMessage(int screen)
 	else
 	{
 		glDisable(GL_BLEND);
-		glColor3f(1,1,1);
 	}
 
 	glPopMatrix();

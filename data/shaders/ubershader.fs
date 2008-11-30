@@ -314,6 +314,11 @@ void main()
 
 
 	float opacity = 1.0;
+	#ifdef MATERIAL_DIFFUSE_CONST
+		#if defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			opacity = materialDiffuseConst.a;
+		#endif
+	#endif
 	#ifdef MATERIAL_TRANSPARENCY_CONST
 		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
 			opacity = materialTransparencyConst.a;
