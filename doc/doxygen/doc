@@ -2210,13 +2210,12 @@ Simply make sure you use 2008 libraries in your projects.
  Header: Lightsprint/RRMesh.h
 
  - interface to 3d triangle mesh
- - knows tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
+ - tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
+ - positions, normals, tangents, bitangents, texcoords
  - can optimize:
    - vertex welding (RRMesh::createOptimizedVertices)
    - removes degenerated triangles (RRMesh::createOptimizedTriangles)
  - merges many small meshes into one big mesh without additional memory (RRMesh::createMultiMesh)
- - saves/loads to disk (RRMesh::save, RRMesh::load)
- - extensible, you can add new channels like texture coords (RRChanneledData)
  - allows for procedural meshes, requires no memory (implementing your RRMesh takes few minutes)
  - up to 2^32-2 vertices and 2^32-2 triangles in mesh
  - thread safe, you can use mesh in any number of threads at the same time

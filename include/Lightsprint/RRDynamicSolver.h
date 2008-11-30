@@ -257,7 +257,6 @@ namespace rr
 		//!  Objects should not move (in 3d space) during our lifetime.
 		//!  Object's getTriangleMaterial() and getPointMaterial() should return values
 		//!  in custom scale (usually screen colors).
-		//!  If objects provide custom data channels (see RRChanneledData), all objects must have the same channels.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.

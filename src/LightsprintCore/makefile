@@ -60,7 +60,6 @@ RRDynamicSolver/lightmap.cpp \
 RRDynamicSolver/LightmapFilter.cpp \
 RRDynamicSolver/RRDynamicSolver.cpp \
 RRDynamicSolver/vertexBuffer.cpp \
-RRMesh/RRChanneledData.cpp \
 RRMesh/RRMatrix3x4.cpp \
 RRMesh/RRMesh.cpp \
 RRMesh/RRMeshAccelerated.cpp \

@@ -648,10 +648,6 @@ public:
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
-	// RRChanneledData
-	virtual void               getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
-	virtual bool               getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
-
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
 	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
@@ -708,79 +704,6 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 
 	// create transformation matrices
 	getNodeMatrices(node,&worldMatrix,NULL);
-}
-
-void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-{
-	switch(channelId)
-	{
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if (numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
-			if (itemSize) *itemSize = sizeof(RRVec2[3]);
-			return;
-
-		default:
-			// unsupported channel
-			RRObject::getChannelSize(channelId,numItems,itemSize);
-	}
-}
-
-bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-{
-	if (!itemData)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
-	switch(channelId)
-	{
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			{
-				if (itemIndex>=getCollider()->getMesh()->getNumTriangles())
-				{
-					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
-					return false;
-				}
-				const RRMaterial* material = getTriangleMaterial(itemIndex,NULL,NULL);
-				if (!material)
-				{
-					return false;
-				}
-				const FCDGeometryMesh* mesh = static_cast<const FCDGeometry*>(geometryInstance->GetEntity())->GetMesh();
-				unsigned inputSet = (channelId==RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV)
-					? material->diffuseReflectance.texcoord
-					: ( (channelId==RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV)
-						? material->diffuseEmittance.texcoord
-						: material->specularTransmittance.texcoord );
-				return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,(int)inputSet,2,itemIndex,itemData,itemSize);
-			}
-
-		case RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
-			{
-				if (itemIndex>=getCollider()->getMesh()->getNumTriangles())
-				{
-					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
-					return false;
-				}
-				typedef RRObjectIllumination* Out;
-				Out* out = (Out*)itemData;
-				if (sizeof(*out)!=itemSize)
-				{
-					RR_ASSERT(0);
-					return false;
-				}
-				*out = illumination;
-				return true;
-			}
-
-		default:
-			// unsupported channel
-			return RRObject::getChannelData(channelId,itemIndex,itemData,itemSize);
-	}
 }
 
 const RRCollider* RRObjectCollada::getCollider() const

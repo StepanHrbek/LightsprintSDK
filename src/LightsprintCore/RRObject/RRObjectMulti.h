@@ -88,52 +88,6 @@ public:
 		return multiCollider;
 	}
 
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		// All objects have the same channels, so let's simply ask object[0].
-		// Equality must be ensured by creator of multiobject.
-		//!!! check equality at construction time
-		unsigned itemSizeLocal = 0;
-		singles[0].object->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if (itemSize) *itemSize = itemSizeLocal;
-		// Now we know object[0] properties.
-		// But whole multiobject has more objects, we must correct *numItems.
-		// If channels exists...
-		if (numItems && *numItems)
-		{
-			// ...let's skip adding all objects, use known sum.
-			switch(channelId&0x7ffff000)
-			{
-				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = numVerticesOptimized;
-					break;
-				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = numTrianglesOptimized;
-					break;
-				case RRMesh::INDEXED_BY_OBJECT:
-					*numItems = numSingles;
-					break;
-			}
-		}
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		switch(channelId&0x7ffff000)
-		{
-			case RRMesh::INDEXED_BY_VERTEX:
-				// never used in our demos -> disabled to save memory
-				//return singles[postImportToMidImportVertex[itemIndex].object].object->getChannelData(channelId,postImportToMidImportVertex[itemIndex].index,itemData,itemSize);
-				return false;
-			case RRMesh::INDEXED_BY_TRIANGLE:
-				return singles[postImportToMidImportTriangle[itemIndex].object].object->getChannelData(channelId,postImportToMidImportTriangle[itemIndex].index,itemData,itemSize);
-			case RRMesh::INDEXED_BY_OBJECT:
-				return singles[itemIndex].object->getChannelData(channelId,0,itemData,itemSize);
-			default:
-				return false;
-		}
-	}
-
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
@@ -345,57 +299,6 @@ public:
 		RRMesh::PreImportNumber preImportTriangle = getCollider()->getMesh()->getPreImportTriangle(t);
 		// convert t from "pre" to "mid"
 		t = unoptimizedMesh->getPostImportTriangle(preImportTriangle);
-	}
-
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		// All objects have the same channels, so let's simply ask object[0].
-		// Equality must be ensured by creator of multiobject.
-		//!!! check equality at construction time
-		unsigned itemSizeLocal = 0;
-		pack[0].getImporter()->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if (itemSize) *itemSize = itemSizeLocal;
-		// Now we know object[0] properties.
-		// But whole multiobject has more objects, we must correct *numItems.
-		// If channels exists...
-		if (numItems && *numItems)
-		{
-			// ...let's skip adding all objects, use known sum.
-			switch(channelId&0x7ffff000)
-			{
-				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = RRObjectMultiSmall::getCollider()->getMesh()->getNumVertices();
-					break;
-				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = RRObjectMultiSmall::getCollider()->getMesh()->getNumTriangles();
-					break;
-			}
-		}
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		unsigned pack0Items = 0;
-		switch(channelId&0x7ffff000)
-		{
-			case RRMesh::INDEXED_BY_VERTEX:
-				//!!!unoptimizeVertex(itemIndex);
-				pack0Items = pack[0].getImporter()->getCollider()->getMesh()->getNumVertices();
-				break;
-			case RRMesh::INDEXED_BY_TRIANGLE:
-				unoptimizeTriangle(itemIndex); // pokud vypustime unoptimize, CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV bude vracet spatne udaje ve scene kde doslo k optimalizaci
-				pack0Items = pack[0].getNumTriangles();
-				break;
-			case RRMesh::INDEXED_BY_OBJECT:
-				pack0Items = pack[0].getNumObjects();
-				break;
-			default:
-				return false;
-		}
-		if (itemIndex<pack0Items)
-			return pack[0].getImporter()->getChannelData(channelId,itemIndex,itemData,itemSize);
-		else
-			return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const

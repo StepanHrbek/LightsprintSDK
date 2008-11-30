@@ -30,16 +30,6 @@ public:
 	{
 	}
 
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		original->getChannelSize(channelId,numItems,itemSize);
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		return original->getChannelData(channelId,itemIndex,itemData,itemSize);
-	}
-
 	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		const RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);

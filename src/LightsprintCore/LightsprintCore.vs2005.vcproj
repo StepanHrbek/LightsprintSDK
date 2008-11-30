@@ -543,10 +543,6 @@
 			Name="RRMesh"
 			>
 			<File
-				RelativePath="RRMesh\RRChanneledData.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRMesh\RRMatrix3x4.cpp"
 				>
 			</File>

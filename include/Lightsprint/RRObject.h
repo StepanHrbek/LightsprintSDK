@@ -176,21 +176,9 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRObject : public RRChanneledData
+	class RR_API RRObject : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
-
-		//////////////////////////////////////////////////////////////////////////////
-		// Channels
-		//////////////////////////////////////////////////////////////////////////////
-
-		enum
-		{
-			CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV      = RRMesh::INDEXED_BY_TRIANGLE+8, ///< channel contains RRVec2[3] for each triangle
-			CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV     = RRMesh::INDEXED_BY_TRIANGLE+9, ///< channel contains RRVec2[3] for each triangle
-			CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV = RRMesh::INDEXED_BY_TRIANGLE+10, ///< channel contains RRVec2[3] for each triangle
-			CHANNEL_TRIANGLE_OBJECT_ILLUMINATION      = RRMesh::INDEXED_BY_TRIANGLE+11, ///< channel contains RRObjectIllumination* for each triangle
-		};
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
@@ -346,7 +334,6 @@ namespace rr
 		//!  Array of objects you want to create multiobject from.
 		//!  Objects from array should stay alive for whole life of multiobjects (this is your responsibility).
 		//!  Array alone may be destructed immediately by you.
-		//!  For now, all objects must have the same data channels (see RRChanneledData).
 		//! \param numObjects
 		//!  Number of objects in array.
 		//! \param intersectTechnique

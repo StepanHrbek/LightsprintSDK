@@ -16,59 +16,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRChanneledData
-	//! Common interface for data stored in channels - arrays of implementation defined size and type.
-	//
-	//! It is common in computer graphics applications to store many different kinds of data
-	//! for each vertex in mesh, other kind of data for each triangle in mesh etc.
-	//!
-	//! This interface gives access to all such informations and is extensible enough
-	//! so we don't need to know types of data now. Each implementation defines its own data types.
-
-	class RR_API RRChanneledData : public RRUniformlyAllocatedNonCopyable
-	{
-	public:
-		//! Writes size of selected channel into numItems and itemSize.
-		//
-		//! Call it to query channel presence and check its size.
-		//! Querying unsupported channels should not generate any warnings.
-		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
-		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
-		//!  CHANNEL_xxx.
-		//! \param numItems When not NULL, it is filled with number of items. Items are indexed by 0..numItems-1.
-		//!  Zero is filled for unknown channel.
-		//! \param itemSize When not NULL, it is filled with size of one item in bytes.
-		//!  Item type (and thus size) for each channel is part of each CHANNEL_xxx description.
-		//!  Zero is filled for unknown channel.
-		virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
-
-		//! Copies one data item from selected channel into buffer provided by you.
-		//
-		//! To query channel presence, call getChannelSize().
-		//! Querying unsupported channels here should generate warning, see RRReporter.
-		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
-		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
-		//!  CHANNEL_xxx.
-		//! \param itemIndex Index of intem inside channel. Items are indexed from 0 to numItems-1,
-		//!  see getChannelSize for numItems.
-		//! \param itemData When not NULL, data item from selected channel and index
-		//!  is copied to it. It is your responsibility to provide big enough buffer. 
-		//!  Item will be copied into first itemSize bytes of buffer.
-		//!  See getChannelSize for size of one item.
-		//! \param itemSize Size of one item. Both you and implementation must know 
-		//!  this value, this parameter exists only for security reasons. If your size 
-		//!  doesn't match what implementation expects, item is not copied.
-		//!  See getChannelSize for what implementation thinks about item size.
-		//! \return True when itemSize is correct, item exists and was copied.
-		//!  False when item doesn't exist or itemSize doesn't fit and nothing was copied.
-		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
-
-		virtual ~RRChanneledData() {};
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	//  RRMesh
 	//! Common interface for any standard or proprietary triangle mesh structure.
 	//
@@ -156,20 +103,9 @@ namespace rr
 	//! - Or swap any 2 vertices in triangle.
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRMesh : public RRChanneledData
+	class RR_API RRMesh : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
-
-		//////////////////////////////////////////////////////////////////////////////
-		// Channels
-		//////////////////////////////////////////////////////////////////////////////
-
-		enum
-		{
-			INDEXED_BY_VERTEX                = 0x0000,
-			INDEXED_BY_TRIANGLE              = 0x1000,
-			INDEXED_BY_OBJECT                = 0x3000,
-		};
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
@@ -445,7 +381,6 @@ namespace rr
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
 		//! \param meshes
 		//!  Array of meshes, source data for MultiMesh.
-		//!  For now, all meshes must have the same data channels (see RRChanneledData).
 		//! \param numMeshes
 		//!  Length of 'meshes' array.
 		//! \param fast
@@ -506,7 +441,7 @@ namespace rr
 		//! Checks mesh and reports incinsistencies found.
 		//
 		//! Reports any problems found in mesh using RRReporter.
-		//! \parameter lightmapTexcoord
+		//! \param lightmapTexcoord
 		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
 		//! \return
 		//!  Number of problem reports sent, 0 for valid mesh.

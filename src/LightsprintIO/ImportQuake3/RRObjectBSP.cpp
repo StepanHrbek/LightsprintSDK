@@ -51,10 +51,6 @@ public:
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
-	// RRChanneledData
-	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
-	virtual bool         getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
-
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
 	virtual void         getVertex(unsigned v, Vertex& out) const;
@@ -314,84 +310,6 @@ RRObjectBSP::~RRObjectBSP()
 	delete collider;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObjectBSP implements RRChanneledData
-
-void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-{
-	switch(channelId)
-	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if (numItems) *numItems = RRObjectBSP::getNumTriangles();
-			if (itemSize) *itemSize = sizeof(rr::RRVec2[3]);
-			return;
-		default:
-			// unsupported channel
-			RRMesh::getChannelSize(channelId,numItems,itemSize);
-	}
-}
-
-bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-{
-	if (!itemData)
-	{
-		assert(0);
-		return false;
-	}
-	switch(channelId)
-	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-		{
-			if (itemIndex>=RRObjectBSP::getNumTriangles())
-			{
-				assert(0); // legal, but shouldn't happen in well coded program
-				return false;
-			}
-			typedef rr::RRVec2 Out[3];
-			Out* out = (Out*)itemData;
-			if (sizeof(*out)!=itemSize)
-			{
-				assert(0);
-				return false;
-			}
-			Triangle triangle;
-			RRObjectBSP::getTriangle(itemIndex,triangle);
-			for (unsigned v=0;v<3;v++)
-			{
-#ifdef PACK_VERTICES
-				(*out)[v] = vertices[triangle[v]].texCoordDiffuse;
-#else
-				(*out)[v][0] = model->mVertices[triangle[v]].mTexCoord[0][0];
-				(*out)[v][1] = model->mVertices[triangle[v]].mTexCoord[0][1];
-#endif
-			}
-			return true;
-		}
-		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
-		{
-			if (itemIndex>=RRObjectBSP::getNumTriangles())
-			{
-				assert(0); // legal, but shouldn't happen in well coded program
-				return false;
-			}
-			typedef rr::RRObjectIllumination* Out;
-			Out* out = (Out*)itemData;
-			if (sizeof(*out)!=itemSize)
-			{
-				assert(0);
-				return false;
-			}
-			*out = illumination;
-			return true;
-		}
-		default:
-			// unsupported channel
-			return RRMesh::getChannelData(channelId,itemIndex,itemData,itemSize);
-	}
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -527,9 +445,9 @@ void RRObjectBSP::getPointMaterial(unsigned t,rr::RRVec2 uv,rr::RRMaterial& out)
 	}
 	if (material->diffuseReflectance.texture)
 	{
-		rr::RRVec2 mapping[3];
-		getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
-		uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
+		rr::RRMesh::TriangleMapping triangleMapping;
+		getTriangleMapping(t,triangleMapping,CH_DIFFUSE);
+		uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(uv[0],uv[1],0));
 		out.diffuseReflectance.color = rgba * rgba[3];
 		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);

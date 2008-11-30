@@ -45,55 +45,6 @@ public:
 		}
 	}
 
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		// All objects have the same channels, so let's simply ask object[0].
-		// Equality must be ensured by creator of multiobject.
-		//!!! check equality at construction time
-		unsigned itemSizeLocal = 0;
-		singles[0].mesh->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if (itemSize) *itemSize = itemSizeLocal;
-		// Now we know object[0] properties.
-		// But whole multiobject has more objects, we must correct *numItems.
-		// If channels exists...
-		if (itemSizeLocal)
-		{
-			// ...let's skip adding all objects, use known sum.
-			switch(channelId&0x7ffff000)
-			{
-				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = numVerticesMulti;
-					break;
-				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = numTrianglesMulti;
-					break;
-				case RRMesh::INDEXED_BY_OBJECT:
-					*numItems = numSingles;
-					break;
-			}
-		}
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		switch(channelId&0x7ffff000)
-		{
-			case INDEXED_BY_VERTEX:
-				RR_ASSERT(itemIndex<numVerticesMulti);
-				RR_ASSERT(postImportToMidImportVertex[itemIndex].object<numSingles);
-				return singles[postImportToMidImportVertex[itemIndex].object].mesh->getChannelData(channelId,postImportToMidImportVertex[itemIndex].index,itemData,itemSize);
-			case INDEXED_BY_TRIANGLE:
-				RR_ASSERT(itemIndex<numTrianglesMulti);
-				RR_ASSERT(postImportToMidImportTriangle[itemIndex].object<numSingles);
-				return singles[postImportToMidImportTriangle[itemIndex].object].mesh->getChannelData(channelId,postImportToMidImportTriangle[itemIndex].index,itemData,itemSize);
-			case INDEXED_BY_OBJECT:
-				RR_ASSERT(itemIndex<numSingles);
-				return singles[itemIndex].mesh->getChannelData(channelId,0,itemData,itemSize);
-			default:
-				return false;
-		}
-	}
-
 	// vertices
 	virtual unsigned     getNumVertices() const
 	{
@@ -277,55 +228,6 @@ public:
 					create(mesh,numMeshes/2),numMeshes/2,
 					create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
 		}
-	}
-
-	// channels
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		// All objects have the same channels, so let's simply ask object[0].
-		// Equality must be ensured by creator of multiobject.
-		//!!! check equality at construction time
-		unsigned itemSizeLocal = 0;
-		pack[0].getMesh()->getChannelSize(channelId,numItems,&itemSizeLocal);
-		if (itemSize) *itemSize = itemSizeLocal;
-		// Now we know object[0] properties.
-		// But whole multiobject has more objects, we must correct *numItems.
-		// If channels exists...
-		if (itemSizeLocal)
-		{
-			// ...let's skip adding all objects, use known sum.
-			switch(channelId&0x7ffff000)
-			{
-				case RRMesh::INDEXED_BY_VERTEX:
-					*numItems = RRMeshMultiSmall::getNumVertices();
-					break;
-				case RRMesh::INDEXED_BY_TRIANGLE:
-					*numItems = RRMeshMultiSmall::getNumTriangles();
-					break;
-			}
-		}
-	}
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		unsigned pack0Items = 0;
-		switch(channelId&0x7ffff000)
-		{
-			case INDEXED_BY_VERTEX:
-				pack0Items = pack[0].getNumVertices();
-				break;
-			case INDEXED_BY_TRIANGLE:
-				pack0Items = pack[0].getNumTriangles();
-				break;
-			case INDEXED_BY_OBJECT:
-				pack0Items = pack[0].getNumObjects();
-				break;
-			default:
-				return false;
-		}
-		if (itemIndex<pack0Items)
-			return pack[0].getMesh()->getChannelData(channelId,itemIndex,itemData,itemSize);
-		else
-			return pack[1].getMesh()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
 	// vertices

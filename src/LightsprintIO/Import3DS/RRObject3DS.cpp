@@ -10,13 +10,6 @@
 // For sake of simplicity, instancing is not used here and some data are duplicated.
 // See RRObjectCollada as an example of adapter with instancing and
 // nearly zero memory requirements.
-//
-// RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV etc.
-// It is used only by our custom renderer RendererOfRRObject
-// (during render of scene with diffuse maps or ambient maps),
-// it is never accessed by radiosity solver.
-// You may skip it in your implementation.
 
 
 #include <cassert>
@@ -53,10 +46,6 @@ public:
 	RRObject3DS(Model_3DS* model, unsigned objectIdx);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObject3DS();
-
-	// RRChanneledData
-	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
-	virtual bool         getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -188,82 +177,6 @@ RRObject3DS::~RRObject3DS()
 	delete collider;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObject3DS implements RRChanneledData
-
-void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-{
-	switch(channelId)
-	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-			if (numItems) *numItems = RRObject3DS::getNumTriangles();
-			if (itemSize) *itemSize = sizeof(rr::RRVec2[3]);
-			return;
-		default:
-			// unsupported channel
-			RRMesh::getChannelSize(channelId,numItems,itemSize);
-	}
-}
-
-bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-{
-	if (!itemData)
-	{
-		assert(0);
-		return false;
-	}
-	switch(channelId)
-	{
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
-		case rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV:
-		{
-			if (itemIndex>=RRObject3DS::getNumTriangles())
-			{
-				assert(0); // legal, but shouldn't happen in well coded program
-				return false;
-			}
-			typedef rr::RRVec2 Out[3];
-			Out* out = (Out*)itemData;
-			if (sizeof(*out)!=itemSize)
-			{
-				assert(0);
-				return false;
-			}
-			Triangle triangle;
-			RRObject3DS::getTriangle(itemIndex,triangle);
-			for (unsigned v=0;v<3;v++)
-			{
-				(*out)[v][0] = object->TexCoords[2*triangle[v]];
-				(*out)[v][1] = object->TexCoords[2*triangle[v]+1];
-			}
-			return true;
-		}
-		case rr::RRObject::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
-		{
-			if (itemIndex>=RRObject3DS::getNumTriangles())
-			{
-				assert(0); // legal, but shouldn't happen in well coded program
-				return false;
-			}
-			typedef rr::RRObjectIllumination* Out;
-			Out* out = (Out*)itemData;
-			if (sizeof(*out)!=itemSize)
-			{
-				assert(0);
-				return false;
-			}
-			*out = illumination;
-			return true;
-		}
-		default:
-			// unsupported channel
-			return RRMesh::getChannelData(channelId,itemIndex,itemData,itemSize);
-	}
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -295,32 +208,6 @@ void RRObject3DS::getTriangle(unsigned t, Triangle& out) const
 		return;
 	}
 	out = triangles[t].t;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObject3DS implements RRObject
-
-const rr::RRCollider* RRObject3DS::getCollider() const
-{
-	return collider;
-}
-
-const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
-{
-	if (t>=RRObject3DS::getNumTriangles())
-	{
-		assert(0);
-		return NULL;
-	}
-	unsigned s = triangles[t].s;
-	if (s>=materials.size())
-	{
-		assert(0);
-		return NULL;
-	}
-	return &materials[s];
 }
 
 void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -367,6 +254,32 @@ bool RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 		default:
 			return false;
 	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObject3DS implements RRObject
+
+const rr::RRCollider* RRObject3DS::getCollider() const
+{
+	return collider;
+}
+
+const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
+{
+	if (t>=RRObject3DS::getNumTriangles())
+	{
+		assert(0);
+		return NULL;
+	}
+	unsigned s = triangles[t].s;
+	if (s>=materials.size())
+	{
+		assert(0);
+		return NULL;
+	}
+	return &materials[s];
 }
 
 const rr::RRMatrix3x4* RRObject3DS::getWorldMatrix()
