@@ -161,7 +161,7 @@ void* add_material(C_MATERIAL* m)
 	mat.reset(m->sided==0);
 	mgf2rgb(&m->ed_c,m->ed/4000,mat.diffuseEmittance.color); //!!!
 	mgf2rgb(&m->rd_c,m->rd,mat.diffuseReflectance.color);
-	mat.specularReflectance = m->rs;
+	mgf2rgb(&m->rs_c,m->rs,mat.specularReflectance.color);
 	mgf2rgb(&m->ts_c,m->ts,mat.specularTransmittance.color);
 	mat.refractionIndex = m->nr;
 

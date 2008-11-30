@@ -486,7 +486,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (svs.render2d && lv)
 	{
-		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex)->getCollider()->getMesh(),svs.renderBilinear);
+		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderBilinear);
 		lv->OnPaint(event,GetSize());
 	}
 	else
@@ -860,7 +860,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 					material = &pointMaterial;
 				}
 				rr::RRMesh::TriangleMapping triangleMapping;
-				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping);
+				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 				rr::RRMesh::TriangleNormals triangleNormals;
 				multiMesh->getTriangleNormals(ray->hitTriangle,triangleNormals);
@@ -900,7 +900,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 					if (material->name)
 						textOutput(x,y+=18,h,"name: %s",material->name);
 					textOutput(x,y+=18,h,"diffuse refl: %f %f %f",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2]);
-					textOutput(x,y+=18,h,"specular refl: %f",material->specularReflectance);
+					textOutput(x,y+=18,h,"specular refl: %f %f %f",material->specularReflectance.color[0],material->specularReflectance.color[1],material->specularReflectance.color[2]);
 					textOutput(x,y+=18,h,"transmittance: %f %f %f",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2]);
 					textOutput(x,y+=18,h,"refraction index: %f",material->refractionIndex);
 					textOutput(x,y+=18,h,"dif.emittance: %f %f %f",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2]);

@@ -80,7 +80,11 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			unsigned t = multiPostImportTriangle;
 			// gather data about triangle t
 			RRMesh::TriangleMapping mapping;
-			singleMesh->getTriangleMapping(singlePostImportTriangle,mapping);
+			{
+				const RRMaterial* material = singleObject->getTriangleMaterial(singlePostImportTriangle,NULL,NULL);
+				unsigned lightmapTexcoord = material ? material->lightmapTexcoord : 0;
+				singleMesh->getTriangleMapping(singlePostImportTriangle,mapping,lightmapTexcoord);
+			}
 			// remember any triangle in selected object, for relevantLights
 			multiPostImportTriangleNumber = t;
 

@@ -286,19 +286,28 @@ namespace rr
 		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
 		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
-		//! Three uv-coords for three vertices in triangle.
+		//! Uv-coordinates of three vertices in triangle.
 		struct TriangleMapping      {RRVec2 uv[3];};
-		//! Writes t-th triangle uv mapping for mesh unwrap into 0..1 x 0..1 space.
+		//! Writes t-th triangle's uv mapping to out.
 		//
-		//! Unwrap may be used for calculated lightmaps/ambient maps.
-		//! Note that for good results, all coordinates must be in 0..1 range and two triangles
-		//! must not overlap in texture space. If it's not satisfied, results are undefined.
-		//!
-		//! \n Default implementation automatically generates unwrap of low quality.
-		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param out Caller provided storage for result.
+		//! \param t
+		//!  Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param out
+		//!  Caller provided storage for result.
 		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
-		virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const;
+		//! \param channel
+		//!  Texcoord channel to use.
+		//!  Set it to RRMaterial::lightmapTexcoord for unwrap,
+		//!  RRMaterial::diffuseReflectance.texcoord for diffuse texture mapping etc.
+		//!  \n Channel 0 in default implementation contains low quality unwrap generated on the fly.
+		//!  It may be used by adapters as a fallback mechanism when scene doesn't provide unwrap.
+		//!  \n Note that unwrap is usually used for lightmaps/ambient maps
+		//!  and for good results, all coordinates must be in 0..1 range and two triangles
+		//!  must not overlap in texture space. If it's not satisfied, results are undefined.
+		//! \return
+		//!  True for valid t and supported channel, result was written to out.
+		//!  False for invalid t or unsupported channel, out stays unmodified.
+		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
 		//! Returns axis aligned bounding box and center of mesh.
 		//
@@ -497,8 +506,11 @@ namespace rr
 		//! Checks mesh and reports incinsistencies found.
 		//
 		//! Reports any problems found in mesh using RRReporter.
-		//! \return Number of problem reports sent, 0 for valid mesh.
-		unsigned checkConsistency() const;
+		//! \parameter lightmapTexcoord
+		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
+		//! \return
+		//!  Number of problem reports sent, 0 for valid mesh.
+		unsigned checkConsistency(unsigned lightmapTexcoord = UINT_MAX) const;
 	};
 
 } // namespace

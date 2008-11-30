@@ -46,24 +46,6 @@ public:
 	unsigned triCountX, triCountY; // number of columns/rows in 0..1,0..1 texture space (not necessarily used, some of them could be empty when detecting less than triCountX*triCountY triangles)
 };
 
-//! Generates uv coords for capturing direct illumination into lightmap (takes uv from RRObject).
-class CaptureUvIntoLightmap : public rr_gl::VertexDataGenerator
-{
-public:
-	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
-	{
-		RR_ASSERT(size==sizeof(rr::RRVec2));
-		rr::RRMesh::TriangleMapping tm;
-		mesh->getTriangleMapping(triangleIndex,tm);
-		*((rr::RRVec2*)vertexData) = (tm.uv[vertexIndex]-rr::RRVec2(0.5f))*2;
-	}
-	virtual unsigned getHash()
-	{
-		return (unsigned)(unsigned long long)mesh;
-	}
-	rr::RRMesh* mesh;
-};
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -199,7 +181,7 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 				}
 
 				// spec
-				if (material->specularReflectance!=0)
+				if (material->specularReflectance.color!=rr::RRVec3(0))
 				{
 					numTrianglesWithSpecConst++;
 				}

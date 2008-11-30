@@ -92,15 +92,15 @@ public:
 		t = ValidIndex[t];
 		inherited->getTriangleNormals(t,out);
 	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 	{
 		if (t>=ValidIndices)
 		{
 			RR_ASSERT(0); // legal but bad practise, good to be warned when it happens
-			return;
+			return false;
 		}
 		t = ValidIndex[t];
-		inherited->getTriangleMapping(t,out);
+		return inherited->getTriangleMapping(t,out,channel);
 	}
 	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
 	{

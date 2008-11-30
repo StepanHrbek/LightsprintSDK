@@ -61,7 +61,7 @@ public:
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 	//virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
-	virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const;
+	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
@@ -96,6 +96,13 @@ private:
 
 	// indirect illumination (ambient maps etc)
 	rr::RRObjectIllumination* illumination;
+};
+
+// texcoord channels
+enum
+{
+	CH_LIGHTMAP,
+	CH_DIFFUSE
 };
 
 
@@ -160,10 +167,13 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	// rgb is diffuse reflectance
 	s.diffuseReflectance.color = avg;
 	s.diffuseReflectance.texture = t;
+	s.diffuseReflectance.texcoord = CH_DIFFUSE;
 	// alpha is transparency (1=opaque)
 	s.specularTransmittance.color = rr::RRVec3(1-avg[3]);
 	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
+	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
+	s.lightmapTexcoord = CH_LIGHTMAP;
 	s.sideBits[0].pointDetails = s.sideBits[1].pointDetails = s.specularTransmittance.texture ? 1 : 0;
 }
 
@@ -446,19 +456,31 @@ void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }*/
 
-void RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out) const
+bool RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 {
+	if (t>=RRObjectBSP::getNumTriangles())
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	if (channel!=CH_DIFFUSE && channel!=CH_LIGHTMAP)
+	{
+		return false;
+	}
 	Triangle triangle;
 	RRObjectBSP::getTriangle(t,triangle);
 	for (unsigned v=0;v<3;v++)
 	{
 #ifdef PACK_VERTICES
-		out.uv[v] = vertices[triangle[v]].texCoordLightmap;
+		out.uv[v] = (channel==CH_LIGHTMAP)
+			? vertices[triangle[v]].texCoordLightmap
+			: vertices[triangle[v]].texCoordDiffuse;
 #else
 		out.uv[v][0] = model->mVertices[triangle[v]].mTexCoord[0][0];
 		out.uv[v][1] = model->mVertices[triangle[v]].mTexCoord[0][1];
 #endif
 	}
+	return true;
 }
 
 

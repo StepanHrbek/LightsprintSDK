@@ -758,7 +758,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVe
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
 	if (side.reflect)
-	if (fabs(power*hitTriangle->surface->specularReflectance)>0.1)
+	if (fabs(power*hitTriangle->surface->specularReflectance.color.sum())>0.3f)
 //	if (sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReflected);
@@ -767,7 +767,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVe
 		// calculate new direction after ideal mirror reflection
 		RRVec3 newDirection=RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
 		// recursively call this function
-		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
+		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance.color.avg()));
 	}
 	// getting through
 	// speedup: weaker rays continue less often but with

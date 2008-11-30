@@ -108,7 +108,7 @@ namespace rr
 		//!  data are scaled once. In case of realtime GI where lightmaps are computed once and rendered once,
 		//!  you can save time by setting false and scaling data in renderer/shader (GPU is usually faster).
 		//! \param data
-		//!  Data to be loaded(copied) into texture. When set to NULL, contents of texture stays uninitialized.
+		//!  Data to be copied into texture. When set to NULL, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
 		//! \return
 		//!  True on success, false on failure (invalid parameters).

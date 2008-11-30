@@ -29,10 +29,19 @@ SVLightmapViewer::~SVLightmapViewer()
 	delete uberProgram;
 }
 
-void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRMesh* _mesh, bool _bilinear)
+void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
 {
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
-	mesh = _mesh;
+	mesh = _object ? _object->getCollider()->getMesh() : NULL;
+	lightmapTexcoord = 0;
+	if (_object)
+	{
+		const rr::RRMaterial* material = _object->getTriangleMaterial(0,NULL,NULL);
+		if (material)
+		{
+			lightmapTexcoord = material->lightmapTexcoord;
+		}
+	}
 	if (buffer)
 	{
 		getTexture(buffer);
@@ -136,7 +145,7 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 		for (unsigned i=0;i<mesh->getNumTriangles();i++)
 		{
 			rr::RRMesh::TriangleMapping mapping;
-			mesh->getTriangleMapping(i,mapping);
+			mesh->getTriangleMapping(i,mapping,lightmapTexcoord);
 			for (unsigned j=0;j<3;j++)
 			{
 				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/windowSize.x;

@@ -65,9 +65,9 @@ public:
 	{
 		inherited->getTriangleNormals(t,out);
 	}
-	virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const
+	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 	{
-		inherited->getTriangleMapping(t,out);
+		return inherited->getTriangleMapping(t,out,channel);
 	}
 
 	// preimport/postimport conversions

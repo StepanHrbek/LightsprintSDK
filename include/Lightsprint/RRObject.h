@@ -78,9 +78,9 @@ namespace rr
 		//! Part of material description.
 		struct Property
 		{
-			RRVec3                 color;    ///< Material property expressed as 3 floats. If texture is present, this is average color from texture.
-			class RRBuffer*        texture;  ///< Material property expressed as texture. Read texcoords via object->getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_xxx_UV,triangle,uv,sizeof(uv)).
-			unsigned               texcoord; ///< Texcoord channel used by texture. For adapter's internal use, don't use directly for reading texcoords.
+			RRVec3                 color;    ///< Material property expressed as 3 floats. If texture is present, this is average color of texture.
+			class RRBuffer*        texture;  ///< Material property expressed as a texture.
+			unsigned               texcoord; ///< Texcoord channel used by texture. Call RRMesh::getTriangleMapping(texcoord) to get mapping for texture.
 
 			//! Clears property to default zeroes.
 			Property()
@@ -120,8 +120,8 @@ namespace rr
 		Property      diffuseReflectance;
 		//! Radiant emittance in watts per square meter (each channel separately). (Adapters usually create materials in sRGB scale, so that this is screen color.)
 		Property      diffuseEmittance;
-		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
-		RRReal        specularReflectance;
+		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (each channel separately).
+		Property      specularReflectance;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		//
 		//! Whether light gets through translucent object, e.g. sphere, it depends on material sphere is made of
@@ -138,6 +138,8 @@ namespace rr
 		bool          specularTransmittanceKeyed;
 		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
+		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
+		unsigned      lightmapTexcoord;
 		//! Optional name of material, may be NULL.
 		const char*   name;
 	};

@@ -31,7 +31,7 @@ public:
 	~SVLightmapViewer();
 
 	//! Sets object presented in viewer.
-	void setObject(rr::RRBuffer* pixelBuffer, const rr::RRMesh* mesh, bool bilinear);
+	void setObject(rr::RRBuffer* pixelBuffer, const rr::RRObject* object, bool bilinear);
 
 	//! Returns uv of point in the center of screen. Range: usually 0..1, may be out of range when user moves texture away.
 	rr::RRVec2 getCenterUv(wxSize windowSize);
@@ -50,6 +50,7 @@ private:
 	Program* lineProgram;
 	rr::RRBuffer* buffer;
 	const rr::RRMesh* mesh;
+	unsigned lightmapTexcoord;
 	wxPoint previousPosition;
 };
 

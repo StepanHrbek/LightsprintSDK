@@ -101,21 +101,18 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	// (other way would be to rebuild shaders for missing data)
 
 	unsigned hasDiffuseMap = 1;
-	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
 	if (hasDiffuseMap)
 		NEW_ARRAY(atexcoordDiffuse,RRVec2)
 	else
 		atexcoordDiffuse = NULL;
 
 	unsigned hasEmissiveMap = 1;
-	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
 	if (hasEmissiveMap)
 		NEW_ARRAY(atexcoordEmissive,RRVec2)
 	else
 		atexcoordEmissive = NULL;
 
 	unsigned hasTransparencyMap = 1;
-	//object->getChannelSize(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,&hasTransparencyMap,NULL);
 	if (hasTransparencyMap)
 		NEW_ARRAY(atexcoordTransparency,RRVec2)
 	else
@@ -130,27 +127,19 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	for (unsigned t=0;t<numTriangles;t++)
 	{
 		// read triangle params
+		const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 		rr::RRMesh::Triangle triangleVertices;
 		mesh->getTriangle(t,triangleVertices);
 		rr::RRMesh::TriangleNormals triangleNormals;
 		mesh->getTriangleNormals(t,triangleNormals);
-		rr::RRMesh::TriangleMapping triangleMapping;
-		mesh->getTriangleMapping(t,triangleMapping);
-		rr::RRVec2 diffuseUv[3];
-		if (hasDiffuseMap)
-		{
-			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
-		}
-		rr::RRVec2 emissiveUv[3];
-		if (hasEmissiveMap)
-		{
-			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
-		}
-		rr::RRVec2 transparencyUv[3];
-		if (hasTransparencyMap)
-		{
-			object->getChannelData(rr::RRObject::CHANNEL_TRIANGLE_VERTICES_TRANSPARENCY_UV,t,transparencyUv,sizeof(transparencyUv));
-		}
+		rr::RRMesh::TriangleMapping triangleMappingLightmap;
+		mesh->getTriangleMapping(t,triangleMappingLightmap,material?material->lightmapTexcoord:0);
+		rr::RRMesh::TriangleMapping triangleMappingDiffuse;
+		mesh->getTriangleMapping(t,triangleMappingDiffuse,material?material->diffuseReflectance.texcoord:0);
+		rr::RRMesh::TriangleMapping triangleMappingEmissive;
+		mesh->getTriangleMapping(t,triangleMappingEmissive,material?material->diffuseEmittance.texcoord:0);
+		rr::RRMesh::TriangleMapping triangleMappingTransparent;
+		mesh->getTriangleMapping(t,triangleMappingTransparent,material?material->specularTransmittance.texcoord:0);
 /*		// material change? -> start new facegroup
 		// a) rendering into shadowmap, check shadowing flags
 		//    -> test t,light,receiver
@@ -177,7 +166,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		}
 		if (!material) continue; // skip rendering triangles without material
 */
-		const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 		if (!t || material!=previousMaterial)
 		{
 			FaceGroup fg;
@@ -196,7 +184,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			fg.diffuseColor = material ? material->diffuseReflectance.color : rr::RRVec3(0);
 			fg.emissiveColor = material ? material->diffuseEmittance.color : rr::RRVec3(0);
 			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()) : rr::RRVec4(0,0,0,1);
-			fg.specular = material ? material->specularReflectance : 0;
+			fg.specular = material ? material->specularReflectance.color.avg() : 0;
 			fg.needsBlend = fg.transparencyColor!=rr::RRVec4(0,0,0,1);
 			if (fg.needsBlend)
 				containsBlended = true;
@@ -272,13 +260,13 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
-			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
+			atexcoordAmbient[currentVertex] = triangleMappingLightmap.uv[v];
 			if (hasDiffuseMap)
-				atexcoordDiffuse[currentVertex] = diffuseUv[v];
+				atexcoordDiffuse[currentVertex] = triangleMappingDiffuse.uv[v];
 			if (hasEmissiveMap)
-				atexcoordEmissive[currentVertex] = emissiveUv[v];
+				atexcoordEmissive[currentVertex] = triangleMappingEmissive.uv[v];
 			if (hasTransparencyMap)
-				atexcoordTransparency[currentVertex] = transparencyUv[v];
+				atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;

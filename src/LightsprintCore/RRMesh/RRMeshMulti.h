@@ -128,11 +128,14 @@ public:
 		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
 		singles[postImportToMidImportTriangle[t].object].mesh->getTriangleNormals(postImportToMidImportTriangle[t].index,out);
 	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 	{
-		RR_ASSERT(t<numTrianglesMulti);
-		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
-		singles[postImportToMidImportTriangle[t].object].mesh->getTriangleMapping(postImportToMidImportTriangle[t].index,out);
+		if (t>=numTrianglesMulti || postImportToMidImportTriangle[t].object>=numSingles)
+		{
+			RR_ASSERT(0);
+			return false;
+		}
+		return singles[postImportToMidImportTriangle[t].object].mesh->getTriangleMapping(postImportToMidImportTriangle[t].index,out,channel);
 		// warning: all mappings overlap
 	}
 
@@ -366,13 +369,13 @@ public:
 		else
 			pack[1].getMesh()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
 	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 	{
 		// warning: all mappings overlap
 		if (t<pack[0].getNumTriangles()) 
-			pack[0].getMesh()->getTriangleMapping(t,out);
+			return pack[0].getMesh()->getTriangleMapping(t,out,channel);
 		else
-			pack[1].getMesh()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
+			return pack[1].getMesh()->getTriangleMapping(t-pack[0].getNumTriangles(),out,channel);
 	}
 
 	//!!! default is slow

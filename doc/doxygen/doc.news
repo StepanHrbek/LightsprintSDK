@@ -19,6 +19,9 @@ NEWS
   \n rr_gl::RealtimeLight always contains RRLight and it's always legal to edit RRLight properties
   as long as you call rr_gl::RealtimeLight::updateAfterRRLightChanges() later
   \n (+ minor changes in rr_gl::RealtimeLight)
+- RRMesh::getTriangleMapping() extended to support multiple texcoord channels
+- RRMaterial::lightmapTexcoord added
+- RRMaterial::specularReflectance extended to support colors and textures
 
 CHANGES
 

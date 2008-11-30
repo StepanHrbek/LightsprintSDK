@@ -91,14 +91,14 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 
 		// specular reflection
 		if (side.reflect)
-		if (sum(abs(visibility*material->specularReflectance))>0.1)
+		if (sum(abs(visibility*material->specularReflectance.color))>0.1)
 		{
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
 			// calculate new direction after ideal mirror reflection
 			RRVec3 newDirection=RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
 			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance);
+			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance.color);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 

@@ -92,13 +92,17 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	out.vertex[2] = out.vertex[0];
 }
 
-void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
+bool RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 {
+	if (channel!=0)
+	{
+		return false;
+	}
 	unsigned numTriangles = getNumTriangles();
 	if (t>=numTriangles)
 	{
 		RR_ASSERT(0);
-		return;
+		return false;
 	}
 
 	// row with 50% fill |/|/|/|/ 1234
@@ -149,6 +153,7 @@ void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
 		out.uv[2][0] = (x+1-border)/w;
 		out.uv[2][1] = (y+2.4f*border)/h;
 	}
+	return true;
 }
 
 bool RRMesh::getTrianglePlane(unsigned i, RRVec4& out) const
@@ -418,7 +423,7 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 	return new RRHidePreImportFilter(this);
 }
 
-unsigned RRMesh::checkConsistency() const
+unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 {
 	unsigned numReports = 0;
 	// numVertices
@@ -573,6 +578,7 @@ unsigned RRMesh::checkConsistency() const
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
+			numReports++;
 		} 
 		else
 		if (denormalized)
@@ -581,11 +587,13 @@ unsigned RRMesh::checkConsistency() const
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
+			numReports++;
 		}
 		else
 		if (badDirection)
 		{
 			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
+			numReports++;
 		}
 		else
 		if (notOrthogonal)
@@ -595,23 +603,27 @@ unsigned RRMesh::checkConsistency() const
 		}
 
 		// triangleMapping
-		TriangleMapping triangleMapping;
-		getTriangleMapping(i,triangleMapping);
-		bool outOfRange = false;
-		for (unsigned j=0;j<3;j++)
+		if (lightmapTexcoord!=UINT_MAX)
 		{
-			for (unsigned k=0;k<2;k++)
-				if (triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
-					outOfRange = true;
-		}
-		if (outOfRange)
-		{
-			RRReporter::report(WARN,"getTriangleMapping(%d) out of range, %f %f  %f %f  %f %f.\n",
-				i,
-				triangleMapping.uv[0][0],triangleMapping.uv[0][1],
-				triangleMapping.uv[1][0],triangleMapping.uv[1][1],
-				triangleMapping.uv[2][0],triangleMapping.uv[2][1]
-				);
+			TriangleMapping triangleMapping;
+			getTriangleMapping(i,triangleMapping,lightmapTexcoord);
+			bool outOfRange = false;
+			for (unsigned j=0;j<3;j++)
+			{
+				for (unsigned k=0;k<2;k++)
+					if (triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
+						outOfRange = true;
+			}
+			if (outOfRange)
+			{
+				RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
+					i,lightmapTexcoord,
+					triangleMapping.uv[0][0],triangleMapping.uv[0][1],
+					triangleMapping.uv[1][0],triangleMapping.uv[1][1],
+					triangleMapping.uv[2][0],triangleMapping.uv[2][1]
+					);
+				numReports++;
+			}
 		}
 		
 	}
