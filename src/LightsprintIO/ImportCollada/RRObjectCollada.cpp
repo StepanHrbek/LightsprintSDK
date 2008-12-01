@@ -21,9 +21,6 @@
 // Internal units are automatically converted to meters.
 //
 // 'Up' vector is automatically converted to 0,1,0 (Y positive).
-//
-// 'pointDetails' flag that hints solver to use slower per-pixel material path
-// is enabled for materials with at least 1% transparency specified by texture.
 
 #define USE_FCOLLADA
 
@@ -609,17 +606,13 @@ private:
 
 			if (effectStandard->GetTranslucencyFactor()!=1)
 				LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
-
-			// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
-			// It makes calculation much slower, so enable it only when necessary.
-			// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
-			// Here, for simplicity, we enable it for textures with at least 1% transparency in texture.
-			if (material.specularTransmittance.color.avg()>0.01f)
-				material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 		}
 
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
 		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
+		RRScaler* scaler = RRScaler::createRgbScaler();
+		material.updateColorsFromTextures(scaler);
+		delete scaler;
 		return material;
 	}
 

@@ -170,8 +170,16 @@ public:
 	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti) :
 		tools(_tools),
 		pti(_pti),
-		// multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
-		gatherer(&_pti.rays[0],_pti.context.solver->getMultiObjectPhysical(),_pti.context.solver->priv->scene,_tools.environment,_tools.scaler,_pti.context.gatherDirectEmitors,_pti.context.params->applyCurrentSolution,_pti.context.staticSceneContainsLods)
+		gatherer(
+			&_pti.rays[0],
+			_pti.context.solver->getMultiObjectPhysical(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
+			_pti.context.solver->priv->scene,
+			_tools.environment,
+			_tools.scaler,
+			_pti.context.gatherDirectEmitors,
+			_pti.context.params->applyCurrentSolution,
+			_pti.context.staticSceneContainsLods,
+			_pti.context.params->quality)
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
@@ -324,12 +332,12 @@ protected:
 class RRCollisionHandlerGatherLight : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerGatherLight(const RRObject* _multiObject, const RRObject* _singleObjectReceiver, const RRLight* _light, bool _allowPointMaterials, bool _staticSceneContainsLods)
+	RRCollisionHandlerGatherLight(const RRObject* _multiObject, const RRObject* _singleObjectReceiver, const RRLight* _light, unsigned _quality, bool _staticSceneContainsLods)
 	{
 		multiObject = _multiObject;
 		singleObjectReceiver = _singleObjectReceiver;
 		light = _light;
-		allowPointMaterials = _allowPointMaterials;
+		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
 	}
@@ -373,22 +381,22 @@ public:
 		if (!triangleMaterial)
 			return false;
 
-		// per-pixel materials
-		if (allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
+		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 		{
-			RRMaterial pointMaterial;
-			multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-			if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+			// per-pixel materials
+			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
-				legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
-				return !visibility;
+				RRMaterial pointMaterial;
+				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+				{
+					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
+					visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+					return !visibility;
+				}
 			}
-		}
-		else
-		// per-triangle materials
-		{
-			if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+			else
+			// per-triangle materials
 			{
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
 				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
@@ -420,7 +428,7 @@ private:
 	RRObject::LodInfo shooterLod;
 	const RRObject* multiObject;
 	const RRObject* singleObjectReceiver;
-	bool allowPointMaterials;
+	unsigned quality; // 0 to forbid point details, more = use point details more often
 	bool staticSceneContainsLods;
 	RRReal visibility;
 	unsigned legal;
@@ -442,8 +450,13 @@ public:
 	//  - pti.ray[1]
 	//  - ...
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), collisionHandlerGatherLight(_pti.context.solver->getMultiObjectPhysical(),_pti.context.singleObjectReceiver,NULL,true,_pti.context.staticSceneContainsLods)
-		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
+		: tools(_tools),
+		pti(_pti),
+		collisionHandlerGatherLight(
+			_pti.context.solver->getMultiObjectPhysical(), // handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
+			_pti.context.singleObjectReceiver,NULL,
+			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
+			_pti.context.staticSceneContainsLods)
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// filter lights

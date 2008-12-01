@@ -49,12 +49,25 @@ public:
 		}
 		return &i->second;
 	}
-	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, RRScaler* _scaler = NULL) const
 	{
-		original->getPointMaterial(t,uv,out);
-		if (scaler)
+		// No one else is allowed to set scaler, it's our job.
+		// We also don't expect user would create chain with two instances of this filter.
+		RR_ASSERT(!_scaler);
+		// Read cached values.
+		const RRMaterial* physicalMaterial = getTriangleMaterial(t,NULL,NULL);
+		if (physicalMaterial)
 		{
-			out.convertToPhysicalScale(scaler);
+			// This is the only place in whole SDK where out is prefilled (in physical scale)
+			// and scaler set.
+			out = *physicalMaterial;
+			original->getPointMaterial(t,uv,out,scaler);
+		}
+		else
+		{
+			// Material was NULL? It's illegal, error in 'original'.
+			//! Let's protect system and return defaults.
+			out.reset(false);
 		}
 	}
 	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical) const

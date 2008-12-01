@@ -57,9 +57,9 @@ public:
 		return &surf2;
 	}
 	// compensate possible negative scale in transformation also here
-	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* scaler = NULL) const
 	{
-		inherited->getPointMaterial(t,uv,out);
+		inherited->getPointMaterial(t,uv,out,scaler);
 		if (!negScaleMakesOuterInner)
 		{
 			const RRMatrix3x4* m = inherited->getWorldMatrix();

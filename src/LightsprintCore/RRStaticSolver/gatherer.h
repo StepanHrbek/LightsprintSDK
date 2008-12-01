@@ -26,17 +26,15 @@ namespace rr
 //!
 //! Thread safe: this function yes, but created collision handler no.
 //!  Typical use case is: for n threads, use 1 collider, n rays and n handlers.
-//! \param allowPointMaterials
-//!  True to use point materials when available, false to always use only per-triangle materials.
 
 class RRCollisionHandlerGatherHemisphere : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerGatherHemisphere(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, bool _allowPointMaterials, bool _staticSceneContainsLods)
+	RRCollisionHandlerGatherHemisphere(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, unsigned _quality, bool _staticSceneContainsLods)
 	{
 		multiObject = _multiObject; // Physical
 		triangle = _staticSolver ? _staticSolver->scene->object->triangle : NULL;
-		allowPointMaterials = _allowPointMaterials;
+		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
 	}
@@ -83,19 +81,19 @@ public:
 		if (!triangleMaterial)
 			return false;
 
-		// per-pixel materials
-		if (allowPointMaterials && triangleMaterial->sideBits[ray->hitFrontSide?0:1].pointDetails)
+		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 		{
-			multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-			if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+			// per-pixel materials
+			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
-				return result = pointMaterialValid = true;
+				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+				{
+					return result = pointMaterialValid = true;
+				}
 			}
-		}
-		else
-		// per-triangle materials
-		{
-			if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+			else
+			// per-triangle materials
 			{
 				return result = true;
 			}
@@ -121,7 +119,7 @@ private:
 	bool result;
 	const RRObject* multiObject;
 	Triangle* triangle; // shortcut, direct access to materials in rrcore
-	bool allowPointMaterials;
+	unsigned quality;
 	bool staticSceneContainsLods;
 
 	// when collision is found, contact material is stored here:
@@ -153,7 +151,9 @@ public:
 	//!  Gather direct exitance from emitors (stored in material).
 	//! \param gatherIndirectLight
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
-	Gatherer(RRRay* ray, const RRObject* multiObject, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight, bool staticSceneContainsLods);
+	//! \param quality
+	//!  Desired illumination quality, used to enable/disable point materials.
+	Gatherer(RRRay* ray, const RRObject* multiObject, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale, multiplied by visibility.
 	//

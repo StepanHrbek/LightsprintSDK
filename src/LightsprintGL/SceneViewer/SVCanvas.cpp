@@ -855,7 +855,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 				const rr::RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 				rr::RRMaterial pointMaterial;
-				if (material && material->sideBits[ray->hitFrontSide?0:1].pointDetails)
+				if (material && material->minimalQualityForPointMaterials<10000)
 				{
 					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 					material = &pointMaterial;

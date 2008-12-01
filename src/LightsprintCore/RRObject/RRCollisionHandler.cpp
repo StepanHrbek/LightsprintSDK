@@ -32,29 +32,9 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 
-		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
-		if (material)
-		{
-			// per-pixel materials
-			if (material->sideBits[ray->hitFrontSide?0:1].pointDetails)
-			{
-				RRMaterial pointMaterial;
-				object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
-				{
-					return result = true;
-				}
-			}
-			else
-			// per-triangle materials
-			{
-				if (material->sideBits[ray->hitFrontSide?0:1].renderFrom)
-				{
-					return result = true;
-				}
-			}
-		}
-		return false;
+		RRMaterial pointMaterial;
+		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+		return result = pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}
 	virtual bool done()
 	{

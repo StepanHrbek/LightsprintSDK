@@ -19,71 +19,102 @@ namespace rr
 //
 // RRObject
 
-void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, const RRScaler* scaler) const
 {
-	// Fill all material properties using material averages.
-	const RRMaterial* material = getTriangleMaterial(t,NULL,NULL);
-	if (material)
+	if (!scaler)
 	{
-		out = *material;
+		// Slow path for end users, material is undefined on input, we fill it in custom scale.
+		// Start by reading per-triangle quality, adapters usually have it cached.
+		const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
+		if (perTriangleMaterial)
+		{
+			material = *perTriangleMaterial;
+		}
+		else
+		{
+			LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
+			material.reset(false);
+			RR_ASSERT(0);
+		}
 	}
 	else
 	{
-		LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
-		out.reset(false);
-		RR_ASSERT(0);
+		// Fast path for solver, material is prefilled with physical scale colors and custom scale textures
+		// (RRObjectWithPhysicalMaterialsImpl::getPointMaterial() prefilled it, no one else is expected to do it).
+		// We will only update selected colors in physical scale.
 	}
 
 	// Improve precision using textures.
-	if (material->diffuseEmittance.texture)
+	if (material.diffuseEmittance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseEmittance.texcoord);
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		out.diffuseEmittance.color = material->diffuseEmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+		material.diffuseEmittance.color = material.diffuseEmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+		if (scaler)
+		{
+			scaler->getPhysicalScale(material.diffuseEmittance.color);
+		}
 	}
-	if (material->specularReflectance.texture)
+	if (material.specularReflectance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->specularReflectance.texcoord);
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		out.specularReflectance.color = material->specularReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+		material.specularReflectance.color = material.specularReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+		if (scaler)
+		{
+			scaler->getPhysicalFactor(material.specularReflectance.color);
+		}
 	}
-	if (material->diffuseReflectance.texture && material->specularTransmittance.texture==material->diffuseReflectance.texture && material->specularTransmittanceInAlpha)
+	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
 	{
 		// optional optimized path: transmittance in diffuse map alpha
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseReflectance.texcoord);
+		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		rr::RRVec4 rgba = material->diffuseReflectance.texture->getElement(rr::RRVec3(materialUv[0],materialUv[1],0));
-		out.diffuseReflectance.color = rgba * rgba[3];
-		out.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
+		rr::RRVec4 rgba = material.diffuseReflectance.texture->getElement(rr::RRVec3(materialUv[0],materialUv[1],0));
+		material.diffuseReflectance.color = rgba * rgba[3];
+		material.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
 		if (rgba[3]==0)
-			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+		if (scaler)
+		{
+			scaler->getPhysicalFactor(material.diffuseReflectance.color);
+			scaler->getPhysicalFactor(material.specularTransmittance.color);
+		}
 	}
 	else
 	{
 		// generic path
-		if (material->specularTransmittance.texture)
+		if (material.specularTransmittance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
-			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->specularTransmittance.texcoord);
+			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			RRVec4 rgba = material->specularTransmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
-			out.specularTransmittance.color = material->specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
-			if (out.specularTransmittance.color==RRVec3(1))
-				out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+			RRVec4 rgba = material.specularTransmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+			material.specularTransmittance.color = material.specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
+			if (material.specularTransmittance.color==RRVec3(1))
+				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+			if (scaler)
+			{
+				scaler->getPhysicalFactor(material.specularTransmittance.color);
+			}
 		}
-		if (material->diffuseReflectance.texture)
+		if (material.diffuseReflectance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
-			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material->diffuseReflectance.texcoord);
+			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			out.diffuseReflectance.color = RRVec3(material->diffuseReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0)))
+			material.diffuseReflectance.color = RRVec3(material.diffuseReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0)))
 				// we multiply dif texture by opacity on the fly
 				// because real world data are often in this format
 				// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
-				* (RRVec3(1)-out.specularTransmittance.color);
+				* (RRVec3(1)-material.specularTransmittance.color);
+			if (scaler)
+			{
+				scaler->getPhysicalFactor(material.diffuseReflectance.color);
+			}
 		}
 	}
 }

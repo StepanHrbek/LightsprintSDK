@@ -169,7 +169,7 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
 	s.lightmapTexcoord = CH_LIGHTMAP;
-	s.sideBits[0].pointDetails = s.sideBits[1].pointDetails = s.specularTransmittance.texture ? 1 : 0;
+	s.minimalQualityForPointMaterials = s.specularTransmittance.texture ? 30 : 300;
 }
 
 // Creates internal copies of .bsp geometry and material properties.

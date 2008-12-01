@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRBuffer.h"
 #include "memory.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -22,8 +23,8 @@ namespace rr
 void RRMaterial::reset(bool twoSided)
 {
 	RRSideBits sideBitsTmp[2][2]={
-		{{1,1,1,1,1,1,1,0},{0,0,1,0,0,0,0,0}}, // definition of default 1-sided (front side, back side)
-		{{1,1,1,1,1,1,1,0},{1,0,1,1,1,1,1,0}}, // definition of default 2-sided (front side, back side)
+		{{1,1,1,1,1,1,1},{0,0,1,0,0,0,0}}, // definition of default 1-sided (front side, back side)
+		{{1,1,1,1,1,1,1},{1,0,1,1,1,1,1}}, // definition of default 2-sided (front side, back side)
 	};
 	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
 	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
@@ -32,7 +33,87 @@ void RRMaterial::reset(bool twoSided)
 	specularTransmittanceKeyed   = false;
 	refractionIndex              = 1;
 	lightmapTexcoord             = 0;
+	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name                         = NULL;
+}
+
+// Extract mean and variance from buffer.
+// When working with non-physical scale data, provide scaler for correct results.
+// Without scaler, mean would be a bit darker,
+//  triangle materials based on mean would produce darker lightmaps than point materials.
+RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average)
+{
+	RR_ASSERT(buffer);
+	unsigned numElements = buffer->getWidth()*buffer->getHeight();
+	RR_ASSERT(numElements);
+	RRVec4 sum = RRVec4(0);
+	RRVec4 sumOfSquares = RRVec4(0);
+	unsigned step = 1+numElements/1000;
+	unsigned numElementsTested = 0;
+	for (unsigned i=0;i<numElements;i+=1+(rand()%step)) // test approximately 1000 samples
+	{
+		RRVec4 elem = buffer->getElement(i);
+		if (scaler) scaler->getPhysicalFactor(elem);
+		sum += elem;
+		sumOfSquares += elem*elem;
+		numElementsTested++;
+	}
+	average = sum/numElementsTested;
+	RRVec4 variance = sumOfSquares/numElementsTested-average*average;
+	for (unsigned i=0;i<4;i++)
+	{
+		if (variance[i]<0) variance[i] = 0;
+	}
+	if (scaler)
+	{
+		scaler->getCustomFactor(average);
+		RRVec4 standardDeviation = RRVec4(
+			(variance[0]<0)?0:sqrt(variance[0]),
+			(variance[1]<0)?0:sqrt(variance[1]),
+			(variance[2]<0)?0:sqrt(variance[2]),
+			(variance[3]<0)?0:sqrt(variance[3]));
+		scaler->getCustomFactor(standardDeviation);
+		variance = standardDeviation*standardDeviation;
+	}
+	return variance;
+}
+
+// extract mean and variance from buffer
+// convert mean to color, variance to scalar
+RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
+{
+	RRVec4 average;
+	RRVec4 variance = getVariance(_buffer,_scaler,average);
+	if (_isTransmittanceInAlpha)
+	{
+		_average = RRVec3(1-average[3]);
+		return variance[3];
+	}
+	else
+	{
+		_average = average;
+		return variance.RRVec3::avg();
+	}
+}
+
+RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha)
+{
+	if (texture)
+	{
+		return getVariance(texture,scaler,color,isTransmittanceInAlpha);
+	}
+	return 0;
+}
+
+void RRMaterial::updateColorsFromTextures(const RRScaler* scaler)
+{
+	float variance = 0.000001f;
+	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha);
+	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0);
+	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0);
+	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0);
+	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
+RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);//!!!
 }
 
 bool clamp1(RRReal& a, RRReal min, RRReal max)

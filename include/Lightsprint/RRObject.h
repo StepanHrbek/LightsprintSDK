@@ -57,7 +57,6 @@ namespace rr
 		unsigned char receiveFrom:1; ///< 1=catched photons are reflected according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
 		unsigned char reflect:1;     ///< 1=catched photons are reflected according to specularReflectance. Reflected photon leaves to the same side.
 		unsigned char transmitFrom:1;///< 1=catched photons are transmitted according to specularTransmittance and refractionIndex. Transmitted photon leaves to other side.
-		unsigned char pointDetails:1;///< 1=material has important per-pixel details. It's hint for solver to use per-pixel materials. Solver always starts with fast RRObject::getTriangleMaterial(), but if it has pointDetails set, slower but more detailed getPointMaterial() is used instead. Save calculation time by enabling pointDetails only for materials with strong per-pixel differences, e.g. trees with transparency in alpha.
 	};
 
 	//! Description of material properties of a surface.
@@ -89,6 +88,8 @@ namespace rr
 				texture = NULL;
 				texcoord = 0;
 			}
+			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
+			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha);
 		};
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
@@ -100,6 +101,9 @@ namespace rr
 		//! In 2sided version, back side is rendered, spec.reflects, refracts, emits, but doesn't dif.reflect.
 		//! It makes good glass, but bad thin dif.reflecting wall.
 		void          reset(bool twoSided);
+
+		//! Gathers information from textures, updates color in all Properties with texture. Updates also minimalQualityForPointMaterials.
+		void          updateColorsFromTextures(const RRScaler* scaler);
 
 		//! Changes material to closest physically valid values. Returns whether changes were made.
 		//
@@ -140,6 +144,10 @@ namespace rr
 		RRReal        refractionIndex;
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		unsigned      lightmapTexcoord;
+		//! Hint for solver, material tells solver to use RRObject::getPointMaterial()
+		//! if desired lighting quality is equal or higher to this number.
+		//! Inited to UINT_MAX, automatically adjusted by updateColorFromTexture().
+		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material, may be NULL.
 		const char*   name;
 	};
@@ -216,19 +224,24 @@ namespace rr
 		//! Returns material description for point on object's surface.
 		//
 		//! Use it to query material properties for any given pixel.
-		//! This is slower per-pixel version of faster per-triangle getTriangleMaterial().
-		//! \n\n Lighting computed with getPointMaterial() is usually only slightly better, but takes much longer time
-		//! to converge than lighting computed with getTriangleMaterial().
-		//! So you should use getPointMaterial() only if you know it returns important additional details.
-		//! \n\n Solver uses getPointMaterial() when getTriangleMaterial()->sideBits[].pointDetails is set.
-		//! \n\n Default implementation takes point details from optional textures in material.
+		//! This is hiher quality but slower per-pixel version of faster per-triangle getTriangleMaterial().
+		//! \n\n Default implementation takes point details from optional textures in material returned by getTriangleMaterial().
+		//! \n\n Solver uses getPointMaterial() only if requested lightmap quality>=getTriangleMaterial()->minimalQualityForPointMaterials.
 		//! \param t
 		//!  Triangle number.
 		//! \param uv
 		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
 		//! \param out
-		//!  Returned material in given point, undefined on input, to be filled by implementation.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const;
+		//!  For default scaler=NULL, out is undefined on input, function fills it with material.
+		//!  For special case of scaler!=NULL, see explanation in scaler.
+		//! \param scaler
+		//!  You are expected to keep it NULL, only solver calls it with scaler.
+		//!  When called normally without scaler, function goal is to fill out in adapter's default(custom) scale.
+		//!  When called with scaler, out is already filled with per-triangle material in physical scale
+		//!  (colors in physical scale, textures are in adapter's default scale to save memory),
+		//!  function's goal is to modify colors in physical scale. Default implementation
+		//!  reads custom scale colors from textures and converts them to physical scale using scaler.
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* scaler = NULL) const;
 
 		//! Information about single object, what LOD it is.
 		struct LodInfo
@@ -378,8 +391,6 @@ namespace rr
 
 		//! Creates and returns collision handler, that finds closest visible surface.
 		//
-		//! If RRObject::getTriangleMaterials()->sideBits[].pointDetails is set, point details (e.g. alpha keying)
-		//! provided by RRObject::getPointMaterial() are used.
 		//! \n Finds closest surface with RRMaterial::sideBits::render.
 		//! \n It is suitable e.g for picking objects in rendering window, only rendered pixels collide.
 		//!
