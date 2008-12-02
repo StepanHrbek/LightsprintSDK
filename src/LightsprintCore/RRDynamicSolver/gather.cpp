@@ -1083,7 +1083,13 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		calculateCore(0);
 		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene.\n");
+			if (priv->packedSolver)
+				RRReporter::report(WARN,"Calculation not supported by Fireball, call leaveFireball() to enable Architect solver.\n");
+			else
+				RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene (%x %x %d).\n",
+					(unsigned)getMultiObjectCustom(),
+					(unsigned)priv->scene,
+					getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 			return false;
 		}
 	}
