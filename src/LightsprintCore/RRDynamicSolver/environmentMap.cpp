@@ -526,6 +526,15 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		return 0;
 	}
 
+	if (!priv->scene && !priv->packedSolver)
+	{
+		LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, envmap will be updated to black, call calculate().\n"));
+	}
+	if (!priv->scene && priv->packedSolver && !priv->customIrradianceRGBA8)
+	{
+		LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, envmap will be updated to black, call calculate().\n"));
+	}
+
 	// alloc temp space
 	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
 
