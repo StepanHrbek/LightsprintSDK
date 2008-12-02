@@ -693,16 +693,16 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		int h = GetSize().y;
 		unsigned numObjects = solver->getNumObjects();
 		{
+			const char* solverType = "";
+			switch(solver->getInternalSolverType())
+			{
+				case rr::RRDynamicSolver::NONE: solverType = "no solver"; break;
+				case rr::RRDynamicSolver::ARCHITECT: solverType = "Architect solver"; break;
+				case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
+				case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
+			}
 			if (svs.renderRealtime)
 			{
-				const char* solverType = "";
-				switch(solver->getInternalSolverType())
-				{
-					case rr::RRDynamicSolver::NONE: solverType = "no solver"; break;
-					case rr::RRDynamicSolver::ARCHITECT: solverType = "Architect solver"; break;
-					case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
-					case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
-				}
 				textOutput(x,y+=18,h,"realtime GI lighting, %s, light detail map %s",solverType,svs.renderLDM?"on":"off");
 			}
 			else
@@ -717,7 +717,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
 					}
 				}
-				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none)",vbuf,lmap,numObjects-vbuf-lmap);
+				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none) (%s)",vbuf,lmap,numObjects-vbuf-lmap,solverType);
 			}
 		}
 		if (!svs.render2d || !lv)
