@@ -366,6 +366,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
+				// create solver if it doesn't exist yet
+				if (solver->getInternalSolverType()==rr::RRDynamicSolver::NONE)
+				{
+					solver->calculate();
+				}
+
 				rr::RRVec4 aabbMin,aabbMax;
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.y = aabbMax.y = svs.eye.pos.y;
@@ -377,6 +383,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_3D:
 			{
+				// create solver if it doesn't exist yet
+				if (solver->getInternalSolverType()==rr::RRDynamicSolver::NONE)
+				{
+					solver->calculate();
+				}
+
 				rr::RRVec4 aabbMin,aabbMax;
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.w = aabbMax.w = 0;
