@@ -347,7 +347,9 @@ private:
 
 RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* _solver, const char* _pathToShaders) : RendererOfRRDynamicSolver(_solver,_pathToShaders)
 {
-	layerNumber = 0;
+	layerNumber = UINT_MAX; // disabled
+	layerNumber2 = UINT_MAX; // disabled
+	layerNumberFallback = UINT_MAX; // disabled
 	perObjectPermanent = NULL;
 	perObjectSorted = NULL;
 }
@@ -361,9 +363,9 @@ RendererOfOriginalScene::~RendererOfOriginalScene()
 void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned alayerNumber)
 {
 	layerNumber = alayerNumber;
-	layerNumber2 = 0;
+	layerNumber2 = UINT_MAX; // disabled
 	layerBlend = 0;
-	layerNumberFallback = 0;
+	layerNumberFallback = UINT_MAX; // disabled
 }
 
 void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned alayerNumber1, unsigned alayerNumber2, float alayerBlend, unsigned alayerNumberFallback)
