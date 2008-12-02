@@ -113,7 +113,7 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler)
 	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0);
 	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0);
 	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
-RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);//!!!
+	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 
 bool clamp1(RRReal& a, RRReal min, RRReal max)
