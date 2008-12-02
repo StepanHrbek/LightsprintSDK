@@ -16,6 +16,95 @@
 namespace rr_gl
 {
 
+// "123abc" -> 123
+unsigned getUnsigned(const wxString& str)
+{
+	unsigned result = 0;
+	for (unsigned i=0;i<str.size() && str[i]>='0' && str[i]<='9';i++)
+	{
+		result = 10*result + str[i]-'0';
+	}
+	return result;
+}
+
+// true = valid answer
+// false = dialog was escaped
+// Future version may use incoming quality as default value.
+static bool getQuality(wxWindow* parent, unsigned& quality)
+{
+	const wxString choices[] = {
+		"1 - extremely low",
+		"10 - low",
+		"40",
+		"100 - medium",
+		"350",
+		"1000 - high",
+		"3000",
+		"10000 - extremely high"
+	};
+	wxSingleChoiceDialog dialog(parent,"","Please select quality",sizeof(choices)/sizeof(wxString*),choices);
+	if (dialog.ShowModal()==wxID_OK)
+	{
+		quality = getUnsigned(dialog.GetStringSelection());
+		return true;
+	}
+	return false;
+}
+
+// true = valid answer
+// false = dialog was escaped
+// Future version may use incoming quality as default value.
+static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerVertex)
+{
+	const wxString choices[] = {
+		"per-vertex",
+		"8x8",
+		"16x16",
+		"32x32",
+		"64x64",
+		"128x128",
+		"256x256",
+		"512x512",
+		"1024x1024",
+		"2048x2048",
+		"4096x4096",
+	};
+	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",sizeof(choices)/sizeof(wxString*)-(offerPerVertex?0:1),choices+(offerPerVertex?0:1));
+	if (dialog.ShowModal()==wxID_OK)
+	{
+		resolution = getUnsigned(dialog.GetStringSelection());
+		return true;
+	}
+	return false;
+}
+
+// true = valid answer
+// false = dialog was escaped
+// Future version may use incoming quality as default value.
+static bool getSpeed(wxWindow* parent, float& speed)
+{
+	const wxString choices[] = {
+		"0.001",
+		"0.01",
+		"0.1",
+		"0.5",
+		"2",
+		"10",
+		"100",
+		"1000",
+	};
+	wxSingleChoiceDialog dialog(parent,"","Please select camera speed (m/s)",sizeof(choices)/sizeof(wxString*),choices);
+	if (dialog.ShowModal()==wxID_OK)
+	{
+		double d = 1;
+		dialog.GetStringSelection().ToDouble(&d);
+		speed = (float)d;
+		return true;
+	}
+	return false;
+}
+
+
 SVFrame* SVFrame::Create(SceneViewerParameters& params)
 {
 	wxString str = wxT("SceneViewer with wxWidgets");
@@ -135,14 +224,7 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	// Camera...
 	winMenu = new wxMenu;
 	winMenu->Append(ME_CAMERA_GENERATE_RANDOM,_T("Set random camera"));
-	winMenu->Append(ME_CAMERA_SPEED0_001,_T("0.001 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED0_01,_T("0.01 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED0_1,_T("0.1 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED0_5,_T("0.5 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED2,_T("2 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED10,_T("10 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED100,_T("100 m/s"));
-	winMenu->Append(ME_CAMERA_SPEED1000,_T("1000 m/s"));
+	winMenu->Append(ME_CAMERA_SPEED,_T("Set camera speed..."));
 	menuBar->Append(winMenu, _T("Camera"));
 
 	// Lights...
@@ -166,23 +248,12 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	// Static lighting...
 	winMenu = new wxMenu;
 	winMenu->Append(ME_STATIC_3D,_T("Render static lighting"));
-	winMenu->Append(ME_STATIC_2D,_T("       static lighting in 2D"));
-	winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle bilinear interpolation"));
-	winMenu->Append(ME_STATIC_ASSIGN_VBUFS,_T("Assign empty vertex buffers"));
-	winMenu->Append(ME_STATIC_ASSIGN_MAPS16,_T("       empty lightmaps 16x16"));
-	winMenu->Append(ME_STATIC_ASSIGN_MAPS64,_T("       empty lightmaps 64x64"));
-	winMenu->Append(ME_STATIC_ASSIGN_MAPS256,_T("       empty lightmaps 256x256"));
-	winMenu->Append(ME_STATIC_ASSIGN_MAPS1024,_T("       empty lightmaps 1024x1024"));
-	winMenu->Append(ME_STATIC_BUILD1,_T("Build all, quality 1"));
-	winMenu->Append(ME_STATIC_BUILD10,_T("           quality 10"));
-	winMenu->Append(ME_STATIC_BUILD100,_T("           quality 100"));
-	winMenu->Append(ME_STATIC_BUILD1000,_T("           quality 1000"));
-	winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build selected obj, only direct"));
+	winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"));
+	winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
+	winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."));
+	winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."));
 #ifdef DEBUG_TEXEL
-	winMenu->Append(ME_STATIC_DIAGNOSE1,_T("Diagnose texel, quality 1"));
-	winMenu->Append(ME_STATIC_DIAGNOSE10,_T("                quality 10"));
-	winMenu->Append(ME_STATIC_DIAGNOSE100,_T("                quality 100"));
-	winMenu->Append(ME_STATIC_DIAGNOSE1000,_T("                quality 1000"));
+	winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."));
 #endif
 	winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"));
 	winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"));
@@ -194,11 +265,8 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	winMenu = new wxMenu;
 	winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect"));
 	winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball"));
-	winMenu->Append(ME_REALTIME_FIREBALL_BUILD10,_T("Build fireball, quality 10"));
-	winMenu->Append(ME_REALTIME_FIREBALL_BUILD100,_T("                quality 100"));
-	winMenu->Append(ME_REALTIME_FIREBALL_BUILD1000,_T("                quality 1000"));
-	winMenu->Append(ME_REALTIME_FIREBALL_BUILD10000,_T("                quality 10000"));
-	winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map"));
+	winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."));
+	winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."));
 	winMenu->Append(ME_REALTIME_LDM,_T(svs.renderLDM?"Disable light detail map":"Enable light detail map"));
 	menuBar->Append(winMenu, _T("Realtime lighting"));
 
@@ -319,95 +387,85 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_STATIC_BUILD_1OBJ:
 			{
-				// calculate 1 object, direct lighting
-				solver->leaveFireball();
-				fireballLoadAttempted = false;
-				rr::RRDynamicSolver::UpdateParameters params(1000);
-				rr::RRDynamicSolver::FilteringParameters filtering;
-				filtering.wrap = false;
-				solver->updateLightmap(svs.selectedObjectIndex,solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),NULL,NULL,&params,&filtering);
-				svs.renderRealtime = false;
-				// propagate computed data from buffers to textures
-				if (solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-					getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
-				// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
-				solver->resetRenderCache();
+				unsigned quality = 100;
+				if (getQuality(this,quality))
+				{
+					// calculate 1 object, direct lighting
+					solver->leaveFireball();
+					fireballLoadAttempted = false;
+					rr::RRDynamicSolver::UpdateParameters params(quality);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.wrap = false;
+					solver->updateLightmap(svs.selectedObjectIndex,solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),NULL,NULL,&params,&filtering);
+					svs.renderRealtime = false;
+					// propagate computed data from buffers to textures
+					if (solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+						getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
+					solver->resetRenderCache();
+				}
 			}
 			break;
 #ifdef DEBUG_TEXEL
-		case ME_STATIC_DIAGNOSE1:
-		case ME_STATIC_DIAGNOSE10:
-		case ME_STATIC_DIAGNOSE100:
-		case ME_STATIC_DIAGNOSE1000:
+		case ME_STATIC_DIAGNOSE:
 			{
 				if (centerObject!=UINT_MAX)
 				{
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
-					rr::RRDynamicSolver::UpdateParameters params(10);//!!!
-					params.debugObject = centerObject;
-					params.debugTexel = centerTexel;
-					params.debugTriangle = UINT_MAX;//centerTriangle;
-					params.debugRay = SVRayLog::push_back;
-					SVRayLog::size = 0;
-					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,NULL);
+					unsigned quality = 100;
+					if (getQuality(this,quality))
+					{
+						rr::RRDynamicSolver::UpdateParameters params(quality);
+						params.debugObject = centerObject;
+						params.debugTexel = centerTexel;
+						params.debugTriangle = UINT_MAX;//centerTriangle;
+						params.debugRay = SVRayLog::push_back;
+						SVRayLog::size = 0;
+						solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,NULL);
+					}
 				}
 			}
 			break;
 #endif
-		case ME_STATIC_BUILD1:
-		case ME_STATIC_BUILD10:
-		case ME_STATIC_BUILD100:
-		case ME_STATIC_BUILD1000:
+		case ME_STATIC_BUILD:
 			{
-				// calculate all
-				solver->leaveFireball();
-				fireballLoadAttempted = false;
-				rr::RRDynamicSolver::UpdateParameters params(10);//!!!
-				rr::RRDynamicSolver::FilteringParameters filtering;
-				filtering.wrap = false;
-				solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&filtering);
-				svs.renderRealtime = false;
-				// propagate computed data from buffers to textures
-				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+				unsigned res = 256; // 0=vertex buffers
+				unsigned quality = 100;
+				if (getResolution(this,res,true) && getQuality(this,quality))
 				{
-					if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-						getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
-				}
-				// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
-				solver->resetRenderCache();
-			}
-			break;
-		case ME_STATIC_ASSIGN_VBUFS:
-		case ME_STATIC_ASSIGN_MAPS16:
-		case ME_STATIC_ASSIGN_MAPS64:
-		case ME_STATIC_ASSIGN_MAPS256:
-		case ME_STATIC_ASSIGN_MAPS1024:
-			{
-				int size = 0;
-				switch (event.GetId())
-				{
-					case ME_STATIC_ASSIGN_VBUFS: size = 0; break;
-					case ME_STATIC_ASSIGN_MAPS16: size = 16; break;
-					case ME_STATIC_ASSIGN_MAPS64: size = 64; break;
-					case ME_STATIC_ASSIGN_MAPS256: size = 256; break;
-					case ME_STATIC_ASSIGN_MAPS1024: size = 1024; break;
-				}
-				// allocate buffers
-				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				{
-					if (solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+					// allocate buffers
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						delete solver->getIllumination(i)->getLayer(svs.staticLayerNumber);
-						solver->getIllumination(i)->getLayer(svs.staticLayerNumber) = size
-							? rr::RRBuffer::create(rr::BT_2D_TEXTURE,size,size,1,rr::BF_RGB,true,NULL)
-							: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						if (solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+						{
+							delete solver->getIllumination(i)->getLayer(svs.staticLayerNumber);
+							solver->getIllumination(i)->getLayer(svs.staticLayerNumber) = res
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL)
+								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						}
 					}
-				}
-				// reset cache, GL texture ids changed
-				if (size)
-				{
-					solver->resetRenderCache();
+
+					// calculate all
+					solver->leaveFireball();
+					fireballLoadAttempted = false;
+					rr::RRDynamicSolver::UpdateParameters params(quality);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.wrap = false;
+					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&filtering);
+					svs.renderRealtime = false;
+					// propagate computed data from buffers to textures
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+							getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+					}
+
+					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
+					if (res)
+					{
+						solver->resetRenderCache();
+					}
 				}
 			}
 			break;
@@ -435,59 +493,60 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLDM = !svs.renderLDM;
 			break;
 		case ME_REALTIME_LDM_BUILD:
-			svs.renderRealtime = 1;
-			svs.render2d = 0;
-			solver->dirtyLights();
-			svs.renderLDM = 1;
 			{
-				// if in fireball mode, leave it, otherwise updateLightmaps() below fails
-				fireballLoadAttempted = false;
-				solver->leaveFireball();
+				unsigned res = 256;
+				unsigned quality = 100;
+				if (getQuality(this,quality) && getResolution(this,res,false))
+				{
+					svs.renderRealtime = 1;
+					svs.render2d = 0;
+					solver->dirtyLights();
+					svs.renderLDM = 1;
 
-				for (unsigned i=0;i<solver->getNumObjects();i++)
-					solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
-						rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024/4,1024/4,1,rr::BF_RGB,true,NULL);//!!!
-				rr::RRDynamicSolver::UpdateParameters paramsDirect(100);
-				paramsDirect.applyLights = 0;
-				rr::RRDynamicSolver::UpdateParameters paramsIndirect(100);//!!!
-				paramsIndirect.applyLights = 0;
-				paramsIndirect.locality = 1;
-				const rr::RRBuffer* oldEnv = solver->getEnvironment();
-				rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
-				solver->setEnvironment(newEnv);
-				rr::RRDynamicSolver::FilteringParameters filtering;
-				filtering.backgroundColor = rr::RRVec4(0.5f);
-				filtering.wrap = false;
-				filtering.smoothBackground = true;
-				solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
-				solver->setEnvironment(oldEnv);
-				delete newEnv;
+					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
+					fireballLoadAttempted = false;
+					solver->leaveFireball();
+
+					for (unsigned i=0;i<solver->getNumObjects();i++)
+						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
+							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+					paramsDirect.applyLights = 0;
+					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
+					paramsIndirect.applyLights = 0;
+					paramsIndirect.locality = 1;
+					const rr::RRBuffer* oldEnv = solver->getEnvironment();
+					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
+					solver->setEnvironment(newEnv);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.backgroundColor = rr::RRVec4(0.5f);
+					filtering.wrap = false;
+					filtering.smoothBackground = true;
+					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+					solver->setEnvironment(oldEnv);
+					delete newEnv;
+				}
 			}
 			break;
-		case ME_REALTIME_FIREBALL_BUILD10:
-		case ME_REALTIME_FIREBALL_BUILD100:
-		case ME_REALTIME_FIREBALL_BUILD1000:
-		case ME_REALTIME_FIREBALL_BUILD10000:
-			svs.renderRealtime = 1;
-			svs.render2d = 0;
-			solver->buildFireball(10,NULL);//!!!
-			solver->dirtyLights();
-			fireballLoadAttempted = true;
+		case ME_REALTIME_FIREBALL_BUILD:
+			{
+				unsigned quality = 100;
+				if (getQuality(this,quality))
+				{
+					svs.renderRealtime = 1;
+					svs.render2d = 0;
+					solver->buildFireball(quality,NULL);
+					solver->dirtyLights();
+					fireballLoadAttempted = true;
+				}
+			}
 			break;
 
 		case ME_CAMERA_GENERATE_RANDOM:
 			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
 			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
 			break;
-		case ME_CAMERA_SPEED0_001: svs.cameraMetersPerSecond = 0.001f; break;
-		case ME_CAMERA_SPEED0_01: svs.cameraMetersPerSecond = 0.01f; break;
-		case ME_CAMERA_SPEED0_1: svs.cameraMetersPerSecond = 0.1f; break;
-		case ME_CAMERA_SPEED0_5: svs.cameraMetersPerSecond = 0.5f; break;
-		case ME_CAMERA_SPEED2: svs.cameraMetersPerSecond = 2; break;
-		case ME_CAMERA_SPEED10: svs.cameraMetersPerSecond = 10; break;
-		case ME_CAMERA_SPEED100: svs.cameraMetersPerSecond = 100; break;
-		case ME_CAMERA_SPEED1000: svs.cameraMetersPerSecond = 1000; break;
-		case ME_CAMERA_SPEED10000: svs.cameraMetersPerSecond = 10000; break;
+		case ME_CAMERA_SPEED: getSpeed(this,svs.cameraMetersPerSecond); break;
 			
 
 //		if (ourEnv)
