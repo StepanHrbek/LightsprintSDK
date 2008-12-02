@@ -440,12 +440,16 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			solver->dirtyLights();
 			svs.renderLDM = 1;
 			{
+				// if in fireball mode, leave it, otherwise updateLightmaps() below fails
+				fireballLoadAttempted = false;
+				solver->leaveFireball();
+
 				for (unsigned i=0;i<solver->getNumObjects();i++)
 					solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
-						rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024,1024,1,rr::BF_RGB,true,NULL);
+						rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024/4,1024/4,1,rr::BF_RGB,true,NULL);//!!!
 				rr::RRDynamicSolver::UpdateParameters paramsDirect(100);
 				paramsDirect.applyLights = 0;
-				rr::RRDynamicSolver::UpdateParameters paramsIndirect(100);
+				rr::RRDynamicSolver::UpdateParameters paramsIndirect(100);//!!!
 				paramsIndirect.applyLights = 0;
 				paramsIndirect.locality = 1;
 				const rr::RRBuffer* oldEnv = solver->getEnvironment();
