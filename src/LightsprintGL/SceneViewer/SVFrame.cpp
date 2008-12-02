@@ -537,7 +537,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{
 				rr::RRLights newList = solver->getLights();
-				rr::RRLight* newLight = NULL;
 				newList.erase(svs.selectedLightIndex);
 				if (svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
 					svs.selectedLightIndex--;
@@ -548,9 +547,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					//  but only when scene doesn't contain emissive materials
 					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 				}
-				lightsToBeDeletedOnExit.push_back(newLight);
 				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-				newList.push_back(newLight);
 				solver->setLights(newList);
 			}
 			break;

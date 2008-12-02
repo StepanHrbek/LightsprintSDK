@@ -140,7 +140,11 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	RRDynamicSolver::setLights(_lights);
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	realtimeLights.clear();
-	for (unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
+	for (unsigned i=0;i<_lights.size();i++)
+	{
+		RR_ASSERT(_lights[i]);
+		realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
+	}
 	// reset detected direct lighting
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
