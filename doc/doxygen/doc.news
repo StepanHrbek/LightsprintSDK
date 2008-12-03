@@ -35,6 +35,10 @@ NEWS
   - it's always legal to edit RRLight properties as long as you call rr_gl::RealtimeLight::updateAfterRRLightChanges() later
   - minor other changes in rr_gl::RealtimeLight
 
+CHANGES
+
+- samples/samples.vs200x.sln removed, all samples included in src/Lightsprint.vs200x.sln
+
 \section news67 ------------------------------------ 2008.11.16 -------------------------------------
 
 NEWS
