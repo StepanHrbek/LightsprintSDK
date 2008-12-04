@@ -13,6 +13,7 @@ namespace rr
 
  \section root_welcome Welcome to Lightsprint Software Development Kit
  - \subpage main_introduction
+ - \subpage main_gamebryo
  - \subpage main_ue3
  - \subpage main_news
  - \subpage main_scenarios
@@ -221,26 +222,48 @@ Ray-Mesh collisions
 
 \page main_credits Third party libraries
 
-Lightsprint integrated into game engine doesn't need any third party library.
+ Lightsprint integrated into game engine doesn't need any third party library.
 
-Lightsprint without game engine needs functions for scene loading and GPU access,
-this is why several free open source libraries with permissive licenses are used.
-You are free to download their sources and modify them, use them in commercial applications
-without need to open your source code etc.
-All of these libraries serve as optional extensions, global illumination solver doesn't need them.
+ Lightsprint without game engine needs functions for scene loading and GPU access,
+ this is why several free open source libraries with permissive licenses are used.
+ You are free to download their sources and modify them, use them in commercial applications
+ without need to open your source code etc.
+ All of these libraries serve as optional extensions, global illumination solver doesn't need them.
+ 
+ Libraries used by LightsprintCore (global illumination solver):
+ - none
 
+ Used by LightsprintGL (optional OpenGL support):
+ - \subpage tpl_glu
+ - \subpage tpl_glew
+ - \subpage tpl_wx
+ - \subpage tpl_mesa
 
-Libraries used by LightsprintCore (global illumination solver):
-- none
+ Used by LightsprintIO (optional file format support):
+ - \subpage tpl_freeimage
+ - \subpage tpl_fcollada
+ - \subpage tpl_libxml2
+ - \subpage tpl_fragments
+ - \subpage tpl_gamebryo
 
-Used by LightsprintGL (optional OpenGL support):
-- GLU
+ Used by samples (completely optional):
+ - \subpage tpl_glut
+
+ Installation:
+ - Windows: works out of the box
+ - Linux: all dependencies may be resolved by
+   - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
+   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code>
+
+\page tpl_glu GLU
   - Windows: should be already installed, part of PlatformSDK by Microsoft
   - Linux (including PS3): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev</code>
     - Fedora: <code>pkcon install mesa-libGLU-devel</code>
   - XBox360, PS3 with system software: not used
-- <a href="http://glew.sourceforge.net/">GLEW</a>
+
+\page tpl_glew GLEW
+  - www: <a href="http://glew.sourceforge.net/">GLEW</a>
   - Windows: precompiled version 1.5.0 is a part of SDK
   - Linux: install using
     - Ubuntu: <code>sudo apt-get install libglew1.5-dev</code>
@@ -257,10 +280,14 @@ Used by LightsprintGL (optional OpenGL support):
       "/usr/include/GL/glew.h" and comment-out the statement <code>\#undef GLAPIENTRY</code> at line 10767
       (valid for version 1.5.0)
   - XBox360, PS3 System Software: not used
-- <a href="http://wxwidgets.org//">wxWidgets</a> and <a href="http://wxpropgrid.sourceforge.net">wxPropertyGrid</a>
+
+\page tpl_wx wxWidgets and wxPropertyGrid
+  - www: <a href="http://wxwidgets.org//">wxWidgets</a>, <a href="http://wxpropgrid.sourceforge.net">wxPropertyGrid</a>
   - Windows: precompiled wxWidgets 3.8.9 and wxPropertyGrid 1.4.1 are part of SDK
   - other platforms: not used
-- <a href="http://mesa3d.org/">Mesa 3D</a>
+
+\page tpl_mesa Mesa 3D
+  - www: <a href="http://mesa3d.org/">Mesa 3D</a>
   - Windows: not used
   - Linux: not used
   - PS3 Linux: required as a rendering front end for samples, since there are no
@@ -274,9 +301,9 @@ Used by LightsprintGL (optional OpenGL support):
     - type <code>sudo make install</code>
     - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
 
-Used by LightsprintIO (optional file format support):
-- <a href="http://freeimage.sourceforge.net/">FreeImage</a>
-  - optional, remove by deleting \#define USE_FREEIMAGE in src/LightsprintIO/ImportFreeImage.cpp (for Linux, remove linking from makefile)
+\page tpl_freeimage FreeImage
+  - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
+  - optional, remove by deleting <code>\#define SUPPORT_IMAGES</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - Windows: precompiled version 3.10.0 is a part of SDK
   - Linux (including PS3 Linux): install using
     - Ubuntu: <code>sudo apt-get install libfreeimage-dev</code>
@@ -286,35 +313,47 @@ Used by LightsprintIO (optional file format support):
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not used
   - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
-- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
-  - optional, remove by deleting \#define USE_FCOLLADA in src/LightsprintIO/ImportCollada/RRObjectCollada.cpp (for Linux, remove references from makefile)
+
+\page tpl_fcollada FCollada
+  - www: <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
+  - optional, remove by deleting <code>\#define SUPPORT_DAE</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B
     (which is the latest one available at the time of writing this document) does not yet officially support Linux.
     It is likely that this will change in the near future. Until then, please follow these instructions:
     - Download and unpack the "FCollada_FREE_3.05B.zip" package from <a href="http://sourceforge.net/projects/colladamaya/">Sourceforge</a>.
-    - Rename the directory "FCollada/LibXML" to "FCollada/libxml" in order to prevent case sensitivity problems in includes.
+    - Rename the directory <code>FCollada/LibXML</code> to <code>FCollada/libxml</code> in order to prevent case sensitivity problems in includes.
     - Define preprocessor token "LINUX" in your project/makefile settings. This is necessary since FCollada sources rely on it
       and some Linux distributions define just lowercase "linux" token.
-    - Open the file "FCollada/FUtils/FUFileManager.cpp" and change "size" to "(unsigned int) size" at line 392.
-    - On 64-bit platforms, open the file "FCollada/FUtils/FUStringBuilder.h" and replace "long" by "long long" at lines 139 and 140.
+    - Open the file <code>FCollada/FUtils/FUFileManager.cpp</code> and change "size" to "(unsigned int) size" at line 392.
+    - On 64-bit platforms, open the file <code>FCollada/FUtils/FUStringBuilder.h</code> and replace "long" by "long long" at lines 139 and 140.
     - When building FCollada, use O2 optimization level for 64bit release version and O1 for 32bit to prevent linking issues with templates.
     - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
   - by Feeling Software, used under MIT license
-- <a href="http://xmlsoft.org/">libxml2</a>
-  - optional, remove by disabling FCollada, see above
+
+\page tpl_libxml2 libxml2
+  - www: <a href="http://xmlsoft.org/">libxml2</a>
+  - optional, remove by disabling \ref tpl_fcollada
   - Windows: not used
   - Linux (including PS3 Linux): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
     - Fedora: <code>pkcon install libxml2-devel</code>
   - used under MIT license
-- .3ds .bsp and .mgf loaders contain 3rd party open source code
-  - optional, remove loaders by deleting \#define SUPPORT_3DS, \#define SUPPORT_BSP, \#define SUPPORT_MGF in src/LightsprintIO/ImportScene.cpp
+
+\page tpl_fragments code fragments
+  - .3ds .bsp and .mgf loaders contain 3rd party open source code
+  - optional, remove loaders by deleting <code>\#define SUPPORT_3DS, \#define SUPPORT_BSP, \#define SUPPORT_MGF</code> in <code>src/LightsprintIO/supported_formats.h</code>
   - for copyright information, see headers of individual files in src/LightsprintIO/Import*
 
-Used by samples (completely optional):
-- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
+\page tpl_gamebryo Gamebryo
+  - www: <a href="http://emergent.net">Gamebryo</a>
+  - Gamebryo is a commercial game engine offered by Emergent Game Technologies
+  - for Gamebryo licensee, we include Gamebryo integration code developed in cooperation of Lightsprint and Emergent Game Technologies
+  - optional, remove by deleting <code>\#define SUPPORT_GSA</code> in <code>src/LightsprintIO/supported_formats.h</code>
+
+\page tpl_glut glut
+  - www: <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
   - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
   - Linux (including PS3): install using
     - Ubuntu: <code>sudo apt-get install libglut3-dev</code>
@@ -324,11 +363,6 @@ Used by samples (completely optional):
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not used
 
-Remarks:
-- you can install all dependencies by single command
-  - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
-  - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code>
-
 
 
 
@@ -336,6 +370,7 @@ Remarks:
 \page main_integration Integration
 
  \section integr_tool Precalculations / for toolchain
+  - \ref main_gamebryo "Precalculations in Gamebryo"
   - \ref main_ue3 "Precalculations in Unreal Editor"
   - \subpage integration_tool_1
   - \subpage integration_tool_2
@@ -1863,7 +1898,7 @@ Remarks:
  - for offline rendering, GPU is not needed
 
  3D APIs
- - OpenGL 2 (examples included)
+ - OpenGL 2/3 (examples included)
  - Direct3D 9/10 (no examples yet)
  - for offline rendering, 3D API is not needed
 
@@ -1902,17 +1937,21 @@ Simply make sure you use 2008 libraries in your projects.
 
 \page main_inputs Inputs
 
- \section inputs_structures Data structures
+ Lightsprint supports three major types of inputs:
+
+ \section inputs_files Files in standard formats (Collada, Gamebryo etc)
+  - see list of file formats supported by \ref api_io
+
+ \section inputs_3p_structures Third party data structures in memory (Unreal Engine 3, Gamebryo, FCollada etc)
+  - \ref api_io source code consists of 3rd party loaders and our adapters, that adapt 3rd party data structures into Lightsprint data structures, without duplicating data
+  - instead of linking whole \ref api_io, your project may directly use adapter source code <code>src/LightsprintIO/ImportXxx/RRObjectXxx.cpp+h</code>
+  - Unreal Engine 3 structures in memory are adapted using <code>src/LightsprintUE3/RRObjectUE3.cpp+h</code> (see also \ref main_ue3)
+
+ \section inputs_structures Lightsprint data structures in memory
   - \subpage inputs_light_sources
   - \subpage inputs_geometry
   - \subpage inputs_materials
 
- \section inputs_files Files
-  - 3D scenes in any of the following formats: Collada, 3DS, Quake 3, OBJ, MGF. See \ref api_io library documentation.
-  - \subpage inputs_images
-
- \section inputs_engines Engines
-  - \subpage inputs_unreal
 
 \page inputs_light_sources Light sources
 
@@ -1958,47 +1997,32 @@ Simply make sure you use 2008 libraries in your projects.
   - Supported in realtime GI: yes
 
 
-
 \page inputs_geometry Geometry
- Scene geometry is specified by RRObjects - set of RRObject objects.
- \n Each object has its own transformation matrix and pointer to RRMesh triangle mesh,
- so object is an instance of mesh.
- \n Mesh specifies vertices, triangles, normals, unwrap and custom data.
+
+ \section ig_rrobjects RRObjects
+  - RRObjects is a set of objects (RRObject)
+
+ \section ig_rrobjects RRObject
+  - RRObject is an instance of mesh (RRMesh), with transformation matrix and materials
+
+ \section ig_rrobjects RRMesh
+  - RRMesh is a set of triangles, vertices, normals, tangents, bitangents, texcoords
+
 
 \page inputs_materials Materials
- Materials are specified by RRMaterial.
 
- Objects provide two levels of material information.
- \n 1. Per-triangle, RRObject::getTriangleMaterial() returns average material properties of one triangle.
- \n 2. Per-pixel, RRObject::getPointMaterial() returns material properties of single point on object's surface.
-
- Calculations with per-triangle materials are faster, so solver uses per-pixel material only when
- its per-triangle version has sideBits[].pointDetails flag set (set by you).
-
- Materials must be physically valid. Use RRMaterial::validate() to validate your materials.
+ \section im_rrmaterial RRMaterial
+  - RRMaterial specifies material properties - diffuse, specular, emissive, opacity, refraction
+  - information is represented by colors and optional textures
+  - RRObject::getTriangleMaterial() returns average material properties of one triangle
+  - RRObject::getPointMaterial() returns material properties of single point on object's surface
  
 
-\page inputs_images Images (jpg, png, dds, hdr, gif, tga...), vertex buffers (vbu)
- Nearly all standard image formats are supported.
- \n Images with floating point colors are supported in .hdr format.
- Both 2d and cubemap images are supported.
-
- Source code of image loading/saving is in: src/LightsprintIO/ImportFreeImage.cpp.
- \n It loads/saves vertex buffers directly, textures using FreeImage library.
-
-\page inputs_unreal Unreal Engine 3
- Unreal Engine 3 is one of the most acclaimed game engines.
-
- Source code of adapter that accesses UE3 scene in memory
- is in: src/LightsprintUE3/*.*
- \n Scene is loaded by Unreal Engine 3.
-
- \ref main_ue3
 
 
 \page main_ue3 Introduction for UE3 users
 
- Lightsprint SDK integrated with UE3 editor transparently makes
+ Lightsprint SDK integrated with UnrealEd transparently makes
  "Lighting build" produce global illumination lightmaps.
 
  If you are UE3 licensee, please request integration files from Lightsprint.
@@ -2007,6 +2031,46 @@ Simply make sure you use 2008 libraries in your projects.
  \image html unreal.png   
 
  When running out of memory, see \ref howto_bigscenes
+
+
+\page main_gamebryo Introduction for Gamebryo users
+
+ \section mg_title Lightsprint SDK adds global illumination to Gamebryo
+
+ \section mg_prerequisites Prerequisites
+  - Gamebryo 2.6 - game engine by Emergent Game Technologies
+  - Gamebryo Global Illumination 1.0.0 - Emergent's support package
+  - both packages must be installed (we read their environment variables EGB_PATH and GAMEBRYO_GI_PATH)
+
+ \section mg_f Features
+  - full support for Gamebryo scene format .gsa
+  - full integration source code included
+  - all Lightsprint samples (lightmap building, realtime rediosity etc) support Gamebryo scenes
+  - lightmap building honours all Gamebryo conventions, outputs are ready for immediate use in Gamebry games
+  - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
+
+ \section mg_gs Getting started
+  - see off-line lightmap building
+    - enter samples/BuildLightmaps
+    - run Gamebryo_Build_Tutorial.bat to build GI lightmaps for Gamebryo tutorial scene
+    - run Gamebryo_SceneApp_Tutorial.bat to view GI in Gamebryo SceneApp sample application
+  - see realtime global illumination
+    - enter samples/SceneViewer
+    - run Gamebryo_View_Tutorial.bat
+    - move mouse with right button pressed to look
+    - left click to switch to light
+    - arrows or wsadqzxc to move camera or light
+    - select from menu: Lights / Delete selected light
+    - select from menu: Lights / Add spotlight, spotlights create stronger indirect lighting
+    - select from menu: Realtime lighting / Build Light Detail Maps / 1000, takes a while, increases realtime GI quality
+    - select from menu: Realtime lighting / Build Fireball / 1000, takes a while, increases realtime GI speed
+  - see source code
+    - open src/Lightsprint.vs2005.sln or src/Lightsprint.vs2008.sln
+    - see for example lightmap building source code in BuildLightmaps project,
+      feel free to customize it to match our needs
+  - see \ref main_samples "other samples"
+
+
 
  
 \page main_conventions Conventions
@@ -2326,41 +2390,56 @@ Simply make sure you use 2008 libraries in your projects.
 
  \section io_overview Overview
 
- LightsprintIO is an optional utility library that handles loading of 3D scenes from a variety
- of formats, namely:
+  LightsprintIO is an optional utility library that imports 3D scenes from a variety
+  of file formats, namely:
+  - <b>Gamebryo (.GSA)</b> - scene format of \ref main_gamebryo "Gamebryo" game engine
   - <b>Collada (.DAE)</b> - open, flexible and well supported format for digital asset exchange.
-  Adapter loads geometry, materials and lights and uses FCollada library. See comments at the
-  beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
-  for more details about features supported.
+    Adapter loads geometry, materials and lights and uses FCollada library. See comments at the
+    beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
+    for more details about features supported.
   - <b>3DS</b> - very old but popular format, despite the fact that its specification was never
-  officially released. It supports only one set of texture coordinates, therefore it is
-  not suitable for static lightmaps (which typically require another mapping channel).
-  Adapter loads geometry and materials and uses open source 3DS loader. Known limitations:
-  does not support lights, less common material properties and non-baked matrices.
+    officially released. It supports only one set of texture coordinates, therefore it is
+    not suitable for static lightmaps (which typically require another mapping channel).
+    Adapter loads geometry and materials and uses open source 3DS loader. Known limitations:
+    does not support lights, less common material properties and non-baked matrices.
   - <b>Quake 3 (.BSP)</b> - popular scene format used by Quake 3 engine. It supports only one set of
-  texture coordinates so it is not suitable for scenarios where static lighting calculation
-  into lightmaps is required (see 3DS). Adapter loads geometry and materials. Known limitations:
-  does not support lights, script-based materials and curved surfaces.
+    texture coordinates so it is not suitable for scenarios where static lighting calculation
+    into lightmaps is required (see 3DS). Adapter loads geometry and materials. Known limitations:
+    does not support lights, script-based materials and curved surfaces.
   - <b>OBJ</b> - old, plain text based format popular mainly because of its simplicity. It is suitable
-  for loading of single objects but not whole scenes, since it lacks support for lights.
-  For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>. Known limitations:
-  does not support materials and lights.
+    for loading of single objects but not whole scenes, since it lacks support for lights.
+    For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>. Known limitations:
+    does not support materials and lights.
   - <b>MGF</b> - Materials and Geometry Format is an open but old and rarely used 3D format.
-  For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">MGF homepage</a>.
-  Adapter loads .MGF file using parts of the source code taken from mgflib (see the link above).
-  Known limitations: only convex polygons are triangulated properly.
+    For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">MGF homepage</a>.
+    Adapter loads .MGF file using parts of the source code taken from mgflib (see the link above).
+    Known limitations: only convex polygons are triangulated properly.
+  - <b>source code</b> of individual adapters is located in their respective directories within
+    <code>src/LightsprintIO</code>
 
- The source code of individual adapters is located in their respective directories within
- "src/LightsprintIO".
+  LightsprintIO loads and saves 2d images and loads cubemaps in a variety of formats:
+  - <b>png</b> - widely used format with good lossles compression
+  - <b>jpg</b> - the most widely used lossy format
+  - <b>jp2</b> - jpeg 2000, lossy, even smaller files
+  - <b>dds</b> - GPU friendly lossy format, games load it directly into GPU without decompression
+  - <b>tga</b> - widely used, extremely simple format without compression
+  - <b>hdr</b> - floating point precision
+  - <b>exr</b> - floating point precision
+  - <b>bmp, gif, pcx, tiff, ico, iff, jbig, pbm, pgm, ppm, xpm etc...</b> - other 
+  - <b>source code</b> is in <code>src/LightsprintIO/ImportFreeImage.cpp</code>
+
+  LightsprintIO loads and saves vertex buffers with per-vertex lighting:
+  - <b>vbu</b> - the only Lightsprint proprietary format, extremely simple
+  - <b>source code</b> is in <code>src/LightsprintIO/ImportFreeImage.cpp</code>
 
  \section io_api API
 
- Namespace: rr_io
+  Namespace: rr_io
 
- <hr>
- Header: Lightsprint/IO/ImportScene.h
+  <hr>
+  Header: Lightsprint/IO/ImportScene.h
 
- - rr_io::ImportScene loads scene from disk
+  - rr_io::ImportScene loads scene from disk
 
 
 

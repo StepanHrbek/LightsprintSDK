@@ -3,6 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_DAE
+
 // This code implements data adapters for access to Collada meshes,
 // objects, materials, loaded by FCollada library.
 // You can replace Collada with your internal format and adapt this code
@@ -21,15 +24,6 @@
 // Internal units are automatically converted to meters.
 //
 // 'Up' vector is automatically converted to 0,1,0 (Y positive).
-
-#define USE_FCOLLADA
-
-// FCollada doesn't support Visual Studio 2003
-#if defined(_MSC_VER) && (_MSC_VER < 1400)
-#undef USE_FCOLLADA
-#endif
-
-#if defined(USE_FCOLLADA)
 
 #include <cmath>
 #include <map>
@@ -1026,4 +1020,4 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return NULL;
 }
 
-#endif // USE_FCOLLADA
+#endif // SUPPORT_DAE

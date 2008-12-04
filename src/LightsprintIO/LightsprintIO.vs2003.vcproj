@@ -381,6 +381,10 @@
 			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h"
 			>
 		</File>
+		<File
+			RelativePath=".\supported_formats.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

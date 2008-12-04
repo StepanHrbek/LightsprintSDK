@@ -3,16 +3,15 @@
 // Copyright 2006-2008 Lightsprint, Stepan Hrbek. All rights reserved.
 // --------------------------------------------------------------------------
 
+#include "supported_formats.h"
+#ifdef SUPPORT_IMAGES
+
 // This file is the only connection between Lightsprint and FreeImage.
 // Link it to project and textures from disk will be opened by FreeImage.
 // Remove it from project and textures from disk won't be opened.
 
 // You can use any other image library if you implement two simple callbacks,
 // load and save, and call RRBuffer::setLoader().
-
-#define USE_FREEIMAGE
-
-#ifdef USE_FREEIMAGE
 
 #include <cstdio>
 #include <cstring>
@@ -575,10 +574,12 @@ void rr_io::setImageLoader()
 	RRBuffer::setLoader(main_reload,main_save);
 }
 
-#else // USE_FREEIMAGE
+#else // SUPPORT_IMAGES
+
+#include "Lightsprint/IO/ImportScene.h"
 
 void rr_io::setImageLoader()
 {
 }
 
-#endif // USE_FREEIMAGE
+#endif // SUPPORT_IMAGES

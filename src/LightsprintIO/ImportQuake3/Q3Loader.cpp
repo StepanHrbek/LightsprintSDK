@@ -4,6 +4,9 @@
  * For comments or bug reports, contact : nicolas.baudrey@wanadoo.fr
  */
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_BSP
+
 #include "Q3Loader.h"
 #include <string.h>
 
@@ -799,3 +802,5 @@ void freeMap(TMapQ3& pMap)
 	pMap.mLightMaps.clear();
 	pMap.mLightVols.clear();
 }
+
+#endif // SUPPORT_BSP

@@ -3,6 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_BSP
+
 // This code implements data adapters for access to TMapQ3 meshes, objects, materials.
 // You can replace TMapQ3 with your internal format and adapt this code
 // so it works with your data.
@@ -456,3 +459,5 @@ rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,b
 {
 	return new ObjectsFromTMapQ3(model,pathToTextures,stripPaths,missingTexture);
 }
+
+#endif // SUPPORT_BSP

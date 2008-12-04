@@ -3,6 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
 // --------------------------------------------------------------------------
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_MGF
+
 // This code loads MGF scene (geometry primitives, materials) into RRObjects.
 //
 // Unlike adapters for other formats, this one doesn't adapt 3rd party structure
@@ -374,3 +377,5 @@ rr::RRObjects* adaptObjectsFromMGF(const char* filename)
 {
 	return new ObjectsFromMGF(filename);
 }
+
+#endif // SUPPORT_MGF

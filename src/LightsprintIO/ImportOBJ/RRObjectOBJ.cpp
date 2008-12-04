@@ -3,6 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2008
 // --------------------------------------------------------------------------
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_OBJ
+
 // This code loads .obj geometry into RRObjects.
 // Only raw triangles are loaded, use Collada for rich import.
 // .obj even doesn't support lights, so loaded scene is completely black.
@@ -162,3 +165,5 @@ rr::RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
 {
 	return new ObjectsFromOBJ(filename,scale);
 }
+
+#endif // SUPPORT_OBJ

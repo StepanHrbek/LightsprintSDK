@@ -88,39 +88,44 @@ namespace rr_io /// LightsprintIO - access to scenes and images on disk
 //! Loads scene from file.
 //
 //! Fully supported formats:
-//! - .dae (collada)
+//! - .dae (Collada)
+//! - .gsa (Gamebryo)
 //!
 //! Partially supported formats:
 //! - .3ds
-//! - .bsp (quake3)
+//! - .bsp (Quake3)
 //! - .obj
 //! - .mgf
 class RR_IO_API ImportScene : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
-	//! Loads .dae .3ds .bsp .obj .mgf scene from file.
+	//! Loads .dae .gsa .3ds .bsp .obj .mgf scene from file.
 	//
 	//! \param filename
 	//!  Filename of scene.
 	//! \param scale
-	//!  If it is .3ds/.obj, geometry is scaled by scale.
-	//!  .3ds/.obj formats don't contain information about units,
+	//!  If it is .gsa/.3ds/.obj, geometry is scaled by scale.
+	//!  These formats don't contain information about units,
 	//!  different files might need different scale to convert to meters.
 	//! \param stripPaths
 	//!  Tries to load all textures from the same directory where scene file is,
 	//!  ignoring full paths stored in scene file.
-	ImportScene(const char* filename, float scale = 1, bool stripPaths = false);
+	//!  This is not applicable to .gsa.
+	//! \param aborting
+	//!  Import may be asynchronously aborted by setting *aborting to true.
+	ImportScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL);
 	~ImportScene();
 
 	const rr::RRObjects* getObjects() {return objects;}
 	const rr::RRLights* getLights() {return lights;}
 
 protected:
-	rr::RRObjects*    objects;
-	rr::RRLights*     lights;
-	class Model_3DS*  scene_3ds;
-	struct TMapQ3*    scene_bsp;
-	class FCDocument* scene_dae;
+	rr::RRObjects*             objects;
+	rr::RRLights*              lights;
+	class Model_3DS*           scene_3ds;
+	struct TMapQ3*             scene_bsp;
+	class FCDocument*          scene_dae;
+	class ImportSceneGamebryo* scene_gsa;
 };
 
 

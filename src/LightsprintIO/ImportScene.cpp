@@ -1,14 +1,13 @@
-#define SUPPORT_3DS
-#define SUPPORT_BSP // Quake3
-#define SUPPORT_DAE // Collada
-#define SUPPORT_OBJ
-#ifdef _WIN32
-#define SUPPORT_MGF
+#include "supported_formats.h"
+
+#ifdef SUPPORT_BSP
+	#include "ImportQuake3/Q3Loader.h" // should be include first because it includes stl in non-default way
+	#include "ImportQuake3/RRObjectBSP.h"
 #endif
 
-// FCollada doesn't support VisualStudio 2003
-#if defined(_MSC_VER) && (_MSC_VER < 1400)
-#undef SUPPORT_DAE
+#ifdef SUPPORT_3DS
+	#include "Import3DS/Model_3DS.h"
+	#include "Import3DS/RRObject3DS.h"
 #endif
 
 #ifdef SUPPORT_DAE
@@ -17,22 +16,16 @@
 	#include "ImportCollada/RRObjectCollada.h"
 #endif
 
-#ifdef SUPPORT_3DS
-	#include "Import3DS/Model_3DS.h"
-	#include "Import3DS/RRObject3DS.h"
-#endif
-
-#ifdef SUPPORT_BSP
-	#include "ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-	#include "ImportQuake3/RRObjectBSP.h"
-#endif
-
-#ifdef SUPPORT_OBJ
-	#include "ImportOBJ/RRObjectOBJ.h"
+#ifdef SUPPORT_GSA
+	#include "ImportGamebryo/RRObjectGamebryo.h"
 #endif
 
 #ifdef SUPPORT_MGF
 	#include "ImportMGF/RRObjectMGF.h"
+#endif
+
+#ifdef SUPPORT_OBJ
+	#include "ImportOBJ/RRObjectOBJ.h"
 #endif
 
 #include "Lightsprint/IO/ImportScene.h"
@@ -45,17 +38,19 @@ using namespace rr_io;
 //
 // Scene
 
-ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
+ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, bool* aborting)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
 	objects = NULL;
 	lights = NULL;
+	bool loadAttempted = false;
 
 #ifdef SUPPORT_3DS
 	// load .3ds scene
 	scene_3ds = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".3ds")==0)
 	{
+		loadAttempted = true;
 		scene_3ds = new Model_3DS;
 		if (!scene_3ds->Load(filename,scale))
 		{
@@ -73,6 +68,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 	scene_bsp = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0)
 	{
+		loadAttempted = true;
 		scene_bsp = new TMapQ3;
 		if (!readMap(filename,*scene_bsp))
 		{
@@ -98,6 +94,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 	scene_dae = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".dae")==0)
 	{
+		loadAttempted = true;
 		FCollada::Initialize();
 		scene_dae = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
@@ -123,10 +120,24 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 	}
 #endif
 
+#ifdef SUPPORT_GSA
+	// load gamebryo scene
+	scene_gsa = NULL;
+	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".gsa")==0)
+	{
+		loadAttempted = true;
+		bool never_aborting = false;
+		scene_gsa = new ImportSceneGamebryo(filename,true,aborting?*aborting:never_aborting);
+		objects = scene_gsa->getObjects();
+		lights = scene_gsa->getLights();
+	}
+#endif
+
 #ifdef SUPPORT_OBJ
 	// load obj scene
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".obj")==0)
 	{
+		loadAttempted = true;
 		objects = adaptObjectsFromOBJ(filename,scale);
 	}
 #endif
@@ -135,20 +146,24 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths)
 	// load mgf scene
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".mgf")==0)
 	{
+		loadAttempted = true;
 		objects = adaptObjectsFromMGF(filename);
 	}
 #endif
 
 	if ((!objects || !objects->size()) && !lights)
 	{
-		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",filename);
+		rr::RRReporter::report(rr::ERRO,loadAttempted?"Scene %s load failed.\n":"Format of %s not supported or not compiled in LightsprintIO.\n",filename);
 	}
 }
 
 ImportScene::~ImportScene()
 {
-	delete lights;
-	delete objects;
+	if (!scene_gsa)
+	{
+		delete lights;
+		delete objects;
+	}
 
 #ifdef SUPPORT_3DS
 	delete scene_3ds;
@@ -162,5 +177,9 @@ ImportScene::~ImportScene()
 #ifdef SUPPORT_DAE
 	SAFE_RELEASE(scene_dae);
 	FCollada::Release();
+#endif
+
+#ifdef SUPPORT_GSA
+	delete scene_gsa;
 #endif
 }
