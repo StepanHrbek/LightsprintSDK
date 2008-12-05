@@ -46,6 +46,7 @@
 #include <string>
 #ifdef _WIN32
 #include <windows.h>
+#include <direct.h> // _chdir
 #endif
 #include "Lightsprint/RRMath.h"
 #include "Lightsprint/IO/ImportScene.h"
@@ -93,6 +94,16 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(rr::RRReporter::createWindowedReporter(solver));
 #else
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+#endif
+
+	//
+	// change current directory to exe directory, necessary when opening custom scene using drag&drop
+	//
+#ifdef _WIN32
+	char* exedir = _strdup(argv[0]);
+	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
+	_chdir(exedir);
+	free(exedir);
 #endif
 
 	//
@@ -193,7 +204,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				rr::RRReporter::report(rr::WARN,"Unknown commandline argument: %s\n",argv[i]);
+				rr::RRReporter::report(rr::WARN,"Unknown argument or file not found: %s\n",argv[i]);
 			}
 		}
 	}
