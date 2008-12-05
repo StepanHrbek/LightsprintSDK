@@ -1,1 +1,1 @@
-BuildLightmaps.bat "%GAMEBRYO_GI_PATH%Samples/Tutorial/Tutorial.gsa" "outputpath=%GAMEBRYO_GI_PATH%Samples/Tutorial/" "outputext=tga" "quality=1000" viewer
+BuildLightmaps.bat "%GAMEBRYO_GI_PATH%Samples/Tutorial/Tutorial.gsa" "outputpath=%GAMEBRYO_GI_PATH%Samples/Tutorial/LightMaps/" "outputext=tga" directional bentnormals "quality=100" viewer

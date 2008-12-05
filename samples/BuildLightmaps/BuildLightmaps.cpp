@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 	// start with defaults
 	//
 	char* sceneFilename = NULL;
-	std::string outputPath;
+	const char* outputPath;
 	const char* outputExt = "png";
 	unsigned quality = 0;
 	unsigned mapSize = 256;
@@ -339,15 +339,15 @@ int main(int argc, char **argv)
 	//
 	// save layers
 	//
-	if (scene.getObjects())
+	if (quality && scene.getObjects())
 	{
-		scene.getObjects()->saveLayer(layerLightmaps    ,(outputPath + "lightmaps/"   ).c_str(),outputExt);
-		scene.getObjects()->saveLayer(layerDirectional  ,(outputPath + "directional1/").c_str(),outputExt);
-		scene.getObjects()->saveLayer(layerDirectional+1,(outputPath + "directional2/").c_str(),outputExt);
-		scene.getObjects()->saveLayer(layerDirectional+2,(outputPath + "directional3/").c_str(),outputExt);
-		scene.getObjects()->saveLayer(layerOcclusion    ,(outputPath + "occlusion/"   ).c_str(),outputExt);
-		scene.getObjects()->saveLayer(layerBentNormals  ,(outputPath + "bentnormals/" ).c_str(),outputExt);
-		//scene.getObjects()->saveLayer(layerLDM          ,(outputPath + "ldm/"         ).c_str(),outputExt);
+		scene.getObjects()->saveLayer(layerLightmaps    ,outputPath,(std::string(""             )+outputExt).c_str());
+		scene.getObjects()->saveLayer(layerDirectional  ,outputPath,(std::string("directional1.")+outputExt).c_str());
+		scene.getObjects()->saveLayer(layerDirectional+1,outputPath,(std::string("directional2.")+outputExt).c_str());
+		scene.getObjects()->saveLayer(layerDirectional+2,outputPath,(std::string("directional3.")+outputExt).c_str());
+		scene.getObjects()->saveLayer(layerOcclusion    ,outputPath,(std::string("occlusion."   )+outputExt).c_str());
+		scene.getObjects()->saveLayer(layerBentNormals  ,outputPath,(std::string("bentnormals." )+outputExt).c_str());
+		//scene.getObjects()->saveLayer(layerLDM          ,(outputPath,(std::string("ldm."         )+outputExt).c_str());
 	}
 
 	//
