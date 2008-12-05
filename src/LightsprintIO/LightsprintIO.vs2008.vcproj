@@ -577,7 +577,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if defined EGB_PATH echo #define EGB_PATH &gt; ImportGamebryo\env.h&#x0D;&#x0A;if defined GAMEBRYO_GI_PATH echo #define GAMEBRYO_GI_PATH &gt;&gt; ImportGamebryo\env.h&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

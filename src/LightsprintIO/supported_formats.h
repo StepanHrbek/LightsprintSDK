@@ -26,15 +26,8 @@
 
 // Gamebryo doesn't support Visual Studio 2003, 64-bit code, Linux.
 // We don't support Gamebryo in static LightsprintIO (it works, but Gamebryo libs are not automatically linked to samples).
-#ifdef SUPPORT_GSA
-	#if !defined(_MSC_VER) || _MSC_VER<1400 || defined(_M_X64) || defined(RR_IO_STATIC)
-		#undef SUPPORT_GSA
-	#else
-		#include "ImportGamebryo/env.h" // created in Pre-Build Event
-		#if !defined(EGB_PATH) || !defined(GAMEBRYO_GI_PATH)
-			#undef SUPPORT_GSA
-		#endif
-	#endif
+#if defined(SUPPORT_GSA) && ( !defined(_MSC_VER) || _MSC_VER<1400 || defined(_M_X64) || defined(RR_IO_STATIC) )
+	#undef SUPPORT_GSA
 #endif
 
 // We haven't tested mgflib under Linux yet.
