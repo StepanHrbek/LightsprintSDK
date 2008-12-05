@@ -718,23 +718,7 @@ private:
 		collider = _collider;
 		lodInfo = _lodInfo;
 		worldMatrix = convertMatrix(mesh->GetWorldTransform());
-
-		// create empty lightmap
 		illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
-		if (NiLightMapUtility::IsLightMapMesh(_mesh))
-		{
-			NiCommand m_pkCommand(GetCommandLine());
-			float fPixelsPerWorldUnit = 1;
-			int iMinLightMapSize = 32;
-			int iMaxLightMapSize = 1024;
-		    m_pkCommand.Float("pixelsperworldunit", fPixelsPerWorldUnit);
-			m_pkCommand.Integer("minlightmapsize", iMinLightMapSize);
-			m_pkCommand.Integer("maxlightmapsize", iMaxLightMapSize);
-
-			int w,h;
-			NiLightMapUtility::GetLightMapResolution(w,h,_mesh,fPixelsPerWorldUnit,iMinLightMapSize,iMaxLightMapSize);
-			illumination->getLayer(0) = RRBuffer::create(BT_2D_TEXTURE,w,h,1,BF_RGBA,true,NULL);
-		}
 
 		// detect material properties
 	    NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
@@ -820,13 +804,41 @@ public:
 		}
 	}
 
-	virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const
+	unsigned createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const
+	{
+		unsigned created = 0;
+		if (layerNumber>=0)
+		{
+			for (unsigned i=0;i<size();i++)
+			{
+				unsigned numVertices = (*this)[i].object->getCollider()->getMesh()->getNumVertices();
+				NiMesh* niMesh = ((RRObjectGamebryo*)(*this)[i].object)->mesh;
+				if (numVertices && !(*this)[i].illumination->getLayer(layerNumber) && NiLightMapUtility::IsLightMapMesh(niMesh))
+				{
+					int w,h;
+					NiLightMapUtility::GetLightMapResolution(w,h,niMesh,params.pixelsPerWorldUnit,params.mapSizeMin,params.mapSizeMax);
+					(*this)[i].illumination->getLayer(layerNumber) =
+						w*h
+						?
+						// allocate lightmap for selected object
+						RRBuffer::create(BT_2D_TEXTURE,w,h,1,BF_RGBA,true,NULL)
+						:
+						// allocate vertex buffers for other objects
+						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,params.format,params.scaled,NULL);
+					created++;
+				}
+			}
+		}
+		return created;
+	}
+
+	virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const
 	{
 		rr::RRReporter::report(rr::WARN,"Gamebryo lightmap load not yet implemented.\n");
 		return 0;
 	}
 
-	virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const
+	virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const
 	{
 		class SaveLightmapFunctor : public NiVisitLightMapMeshFunctor
 		{
@@ -838,7 +850,7 @@ public:
 					RRObjectGamebryo* object = (RRObjectGamebryo*)(*objects)[i].object;
 					if (pkMesh==object->mesh)
 					{
-						NiString kDirectoryName = NiString(lightmapPath) + "/" + kProps.m_pcEntityDirectory;
+						NiString kDirectoryName = NiString(path) + "/" + kProps.m_pcEntityDirectory;
 						if (!NiFile::DirectoryExists(kDirectoryName))
 						{
 							NiFile::CreateDirectoryRecursive(kDirectoryName);
@@ -847,7 +859,7 @@ public:
 								rr::RRReporter::report(rr::WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 							}
 						}
-						if ((*objects)[i].illumination->getLayer(0)->save(kDirectoryName + "/" + kProps.m_pcLightMapFilename + ".tga"))
+						if ((*objects)[i].illumination->getLayer(0)->save(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + ext))
 						{
 							saved++;
 						}
@@ -857,18 +869,23 @@ public:
 			}
 			const RRObjects* objects;
 			unsigned saved;
-			NiString lightmapPath;
+			const char* path;
+			const char* ext;
 		};
 
 		SaveLightmapFunctor saveLightmap;
 		saveLightmap.saved = 0;
-		if (pEntityScene)
+		if (layerNumber>=0)
 		{
-			saveLightmap.objects = this;
-			saveLightmap.lightmapPath = path;
-			NiLightMapUtility::VisitLightMapMeshes(pEntityScene,saveLightmap);
+			if (pEntityScene)
+			{
+				saveLightmap.objects = this;
+				saveLightmap.path = path;
+				saveLightmap.ext = ext;
+				NiLightMapUtility::VisitLightMapMeshes(pEntityScene,saveLightmap);
+			}
+			rr::RRReporter::report(rr::INF1,"Saved %d lightmaps.\n",saveLightmap.saved);
 		}
-		rr::RRReporter::report(rr::INF1,"Saved %d lightmaps.\n",saveLightmap.saved);
 		return saveLightmap.saved;
 	}
 

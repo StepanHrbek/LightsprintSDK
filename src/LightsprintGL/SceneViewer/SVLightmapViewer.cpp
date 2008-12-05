@@ -162,7 +162,7 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 
 	// restore states
 	glEnable(GL_DEPTH_TEST);
-	glUseProgram(0); // prevents crashes in Radeon driver in AmbientOcclusion sample
+	glUseProgram(0); // prevents crashes in Radeon driver in BuildLightmaps sample
 }
 
 }; // namespace

@@ -34,6 +34,10 @@ NEWS
   - rr_gl::RealtimeLight always contains RRLight
   - it's always legal to edit RRLight properties as long as you call rr_gl::RealtimeLight::updateAfterRRLightChanges() later
   - minor other changes in rr_gl::RealtimeLight
+- RRObjects made more flexible
+  - RRObjects::createLayer() creates empty buffers for whole layer
+  - RRObjects::loadLayer() replaces RRObjects::loadIllumination()
+  - RRObjects::saveLayer() replaces RRObjects::saveIllumination()
 
 CHANGES
 

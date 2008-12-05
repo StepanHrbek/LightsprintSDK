@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="AmbientOcclusion.vs2003"
+	Name="BuildLightmaps.vs2003"
 	ProjectGUID="{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}">
 	<Platforms>
 		<Platform
@@ -32,7 +32,7 @@
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="FALSE"
-				PrecompiledHeaderFile=".\Release/AmbientOcclusion.pch"
+				PrecompiledHeaderFile=".\Release/BuildLightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -56,7 +56,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/AmbientOcclusion.tlb"
+				TypeLibraryName=".\Release/BuildLightmaps.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -120,7 +120,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/AmbientOcclusion.tlb"
+				TypeLibraryName=".\Debug/BuildLightmaps.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -166,7 +166,7 @@
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="FALSE"
-				PrecompiledHeaderFile=".\Release/AmbientOcclusion.pch"
+				PrecompiledHeaderFile=".\Release/BuildLightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -190,7 +190,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/AmbientOcclusion.tlb"
+				TypeLibraryName=".\Release/BuildLightmaps.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -229,7 +229,7 @@
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
-				PrecompiledHeaderFile=".\Debug/AmbientOcclusion.pch"
+				PrecompiledHeaderFile=".\Debug/BuildLightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -254,7 +254,7 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/AmbientOcclusion.tlb"
+				TypeLibraryName=".\Debug/BuildLightmaps.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -302,7 +302,7 @@
 			</Filter>
 		</Filter>
 		<File
-			RelativePath=".\AmbientOcclusion.cpp">
+			RelativePath=".\BuildLightmaps.cpp">
 		</File>
 	</Files>
 	<Globals>

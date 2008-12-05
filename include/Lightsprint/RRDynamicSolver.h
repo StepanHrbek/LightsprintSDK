@@ -26,6 +26,26 @@ namespace rr
 
 	struct RRIlluminatedObject
 	{
+		struct LayerParameters
+		{
+			unsigned mapSize;
+			unsigned mapSizeMin;
+			unsigned mapSizeMax;
+			float pixelsPerWorldUnit;
+			RRBufferFormat format;
+			bool scaled;
+
+			LayerParameters(unsigned size)
+			{
+				mapSize = size;
+				mapSizeMin = 32;
+				mapSizeMax = 1024;
+				pixelsPerWorldUnit = 1;
+				format = size ? BF_RGB : BF_RGBF;
+				scaled = size ? true : false;
+			}
+		};
+
 		RRObject* object;
 		RRObjectIllumination* illumination;
 		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
@@ -49,24 +69,40 @@ namespace rr
 	class RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
+		//! Creates buffers in layer according to params.
+		//
+		//! Buffers that already existed stay unmodified, even if they differ in parameters.
+		//! \return
+		//!  Number of buffers created.
+		RR_API virtual unsigned createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const;
+
 		//! Loads illumination layer from disk.
 		//
 		//! It is shortcut for calling illumination->getLayer() = rr::RRBuffer::load() on all elements in this container.
+		//! \param layerNumber
+		//!  Layer to load, nothing is done for negative number.
+		//! \param path
+		//!  Where to read files, should have trailing slash.
+		//! \param ext
+		//!  File format of maps to load, e.g. "png".
+		//!  Vertex buffers are always loaded from .vbu, without regard to ext.
 		//! \remark
-		//!  Image load/save is implemented outside this library (LightsprintCore), in LightsprintIO.
-		//!  If you don't link with LightsprintIO, load/save won't operate.
-		//!  In MSVC, link simply by including "Lightsprint/IO/ImportScene.h".
-		RR_API virtual unsigned loadIllumination(const char* path, unsigned layerNumber) const;
+		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
+		RR_API virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const;
+
 		//! Saves illumination layer to disk.
 		//
 		//! It is shortcut for calling illumination->getLayer()->save() on all elements in this container.
-		//! Format of 2d data is .png, floats are converted to bytes.
-		//! 1d data are saved to .vbu, floats are preserved.
+		//! \param layerNumber
+		//!  Layer to save, nothing is done for negative number.
+		//! \param path
+		//!  Where to store files, should have trailing slash. Subdirectories are not created.
+		//! \param ext
+		//!  File format of maps to save, e.g. "png".
+		//!  Vertex buffers are always saved to .vbu, without regard to ext.
 		//! \remark
-		//!  Image load/save is implemented outside this library (LightsprintCore), in LightsprintIO.
-		//!  If you don't link with LightsprintIO, load/save won't operate.
-		//!  In MSVC, link simply by including "Lightsprint/IO/ImportScene.h".
-		RR_API virtual unsigned saveIllumination(const char* path, unsigned layerNumber) const;
+		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
+		RR_API virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
 
 		virtual ~RRObjects() {};
 	};

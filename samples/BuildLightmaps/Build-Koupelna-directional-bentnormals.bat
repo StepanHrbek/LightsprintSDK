@@ -1,0 +1,1 @@
+BuildLightmaps.bat ../../data/scenes/koupelna/koupelna4-windows.dae "outputpath=../../data/export/koupelna/" "quality=500" directional bentnormals viewer

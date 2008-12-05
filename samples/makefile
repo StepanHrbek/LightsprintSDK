@@ -1,7 +1,7 @@
 all: .phony
 
 .phony:
-	cd AmbientOcclusion && make
+	cd BuildLightmaps && make
 	cd BunnyBenchmark && make
 	cd CPULightmaps && make
 	cd HelloCollider && make
@@ -14,7 +14,7 @@ all: .phony
 	cd SceneViewer && make
 
 clean:
-	cd AmbientOcclusion && make clean
+	cd BuildLightmaps && make clean
 	cd BunnyBenchmark && make clean
 	cd CPULightmaps && make clean
 	cd HelloCollider && make clean
@@ -27,7 +27,7 @@ clean:
 	cd SceneViewer && make clean
 
 %:
-	cd AmbientOcclusion && make $@
+	cd BuildLightmaps && make $@
 	cd BunnyBenchmark && make $@
 	cd CPULightmaps && make $@
 	cd HelloCollider && make $@

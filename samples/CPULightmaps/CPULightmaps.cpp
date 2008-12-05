@@ -47,7 +47,7 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-void calculate(rr::RRDynamicSolver* solver)
+void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
@@ -72,14 +72,17 @@ void calculate(rr::RRDynamicSolver* solver)
 					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}
+}
 
+void buildLightmaps(rr::RRDynamicSolver* solver)
+{
 	// calculate lightmaps(layer0), directional lightmaps(layer1,2,3), bent normals(layer4)
 	rr::RRDynamicSolver::UpdateParameters params(1000);
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
 
 	// save GI lightmaps, bent normals
 	for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-		solver->getStaticObjects().saveIllumination("../../data/export/",layerNumber);
+		solver->getStaticObjects().saveLayer(layerNumber,"../../data/export/","png");
 }
 
 int main(int argc, char **argv)
@@ -125,7 +128,7 @@ int main(int argc, char **argv)
 	solver->setLights(*scene.getLights());
 
 	// calculate and save results
-	calculate(solver);
+	calculate(solver,0);
 
 	// release memory
 	delete solver;

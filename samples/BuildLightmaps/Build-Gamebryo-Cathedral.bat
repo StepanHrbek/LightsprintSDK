@@ -1,0 +1,1 @@
+BuildLightmaps.bat "%GAMEBRYO_GI_PATH%Samples/Cathedral/Cathedral.gsa" "outputpath=%GAMEBRYO_GI_PATH%Samples/Cathedral/" "outputext=tga" "quality=200" "maxmapsize=1024" viewer

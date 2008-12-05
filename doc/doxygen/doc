@@ -394,7 +394,7 @@ Ray-Mesh collisions
  </td></tr></table>
 
   - Convert your scene to Collada format,
-    and load it into CPULightmaps, AmbientOcclusion, SceneViewer or Lightmaps sample.
+    and load it into CPULightmaps, BuildLightmaps, SceneViewer or Lightmaps sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -402,8 +402,8 @@ Ray-Mesh collisions
 
   - CPULightmaps sample 
     is built on top of purely numerical LightsprintCore and scene importers.
-    AmbientOcclusion, SceneViewer and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
-    Left: CPULightmaps. Right: AmbientOcclusion, SceneViewer, Lightmaps.
+    BuildLightmaps, SceneViewer and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
+    Left: CPULightmaps. Right: BuildLightmaps, SceneViewer, Lightmaps.
   <table border=0 width=95%><tr align=top><td>
   \image html Integration1c.png
   </td><td>
@@ -1644,7 +1644,7 @@ Ray-Mesh collisions
    - Global illumination can be further improved if you use <b>ambient occlusion map</b>
      for your dynamic object. Multiply global illumination read from environment map
      by ambient occlusion read from ambient occlusion map to get more precise result.
-     Ambient occlusion maps are computed for example by AmbientOcclusion sample.
+     Ambient occlusion maps are computed for example by BuildLightmaps sample.
 
  \section d37 Examples
    - OpenGL example:
@@ -1876,9 +1876,9 @@ Ray-Mesh collisions
   Note that some offline featues are disabled if you load \ref calc_fireball for realtime lighting.
 
  \section of_sample Samples
-  Offline calculations are demonstrated in CPULightmaps and AmbientOcclusion samples.
+  Offline calculations are demonstrated in CPULightmaps and BuildLightmaps samples.
   CPULightmaps is purely console application,
-  AmbientOcclusion displays results in simple interactive viewer.
+  BuildLightmaps displays results in simple interactive viewer.
 
 
 
@@ -2043,11 +2043,9 @@ Simply make sure you use 2008 libraries in your projects.
   - both packages must be installed (we read their environment variables EGB_PATH and GAMEBRYO_GI_PATH)
 
  \section mg_f Features
-  - full support for Gamebryo scene format .gsa
+  - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo scenes
+  - lightmap building honours all Gamebryo conventions, outputs are ready for immediate use in Gamebryo games
   - full integration source code included
-  - all Lightsprint samples (lightmap building, realtime rediosity etc) support Gamebryo scenes
-  - lightmap building honours all Gamebryo conventions, outputs are ready for immediate use in Gamebry games
-  - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
 
  \section mg_gs Getting started
   - see off-line lightmap building
@@ -2069,6 +2067,7 @@ Simply make sure you use 2008 libraries in your projects.
     - see for example lightmap building source code in BuildLightmaps project,
       feel free to customize it to match our needs
   - see \ref main_samples "other samples"
+  - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
 
 
 
@@ -2470,15 +2469,19 @@ Simply make sure you use 2008 libraries in your projects.
  - loads Collada scene including all lights
 
  <hr>
- <b>AmbientOcclusion</b>
+ <b>BuildLightmaps</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/AmbientOcclusion_1.jpg computed global ambient occlusion map
+  \image html samples/BuildLightmaps_1.jpg computed global ambient occlusion map
   </td><td>
-  \image html samples/AmbientOcclusion_2.jpg with materials applied
+  \image html samples/BuildLightmaps_2.jpg with materials applied
   </td></tr></table>
- - precalculates ambient occlusion maps/vertexcolors with infinite light bounces and color bleeding
- - optional viewer of results (screenshots) is not important for calculation
- - loads Collada scene
+ - commandline tool
+ - loads any Collada or Gamebryo scene
+ - precalculates lightmaps/directional lightmaps/occlusion/bent normals
+ - precalculates global/direct/indirect illumination with infinite light bounces and color bleeding
+ - saves maps/vertexcolors
+ - saves jpg/png/hdr/tga/bmp/exr/jp2/tif/pcx/etc
+ - optional viewer of results is not important for calculation
 
  <hr>
  <b>BunnyBenchmark</b>

@@ -287,7 +287,7 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
-			solver->getStaticObjects().saveIllumination("../../data/export/",2);
+			solver->getStaticObjects().saveLayer(2,"../../data/export/","png");
 			if (lightField)
 				lightField->save("../../data/export/lightfield.lf");
 			break;
@@ -295,7 +295,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
-				solver->getStaticObjects().loadIllumination("../../data/export/",2);
+				solver->getStaticObjects().loadLayer(2,"../../data/export/","png");
 				delete lightField;
 				lightField = rr::RRLightField::load("../../data/export/lightfield.lf");
 				// start rendering loaded maps

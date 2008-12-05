@@ -251,7 +251,7 @@ void RendererOfRRDynamicSolver::render()
 	PreserveAlphaTest p3;
 	PreserveAlphaFunc p4;
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
-	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
+	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha test in alpha-keying
 	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;

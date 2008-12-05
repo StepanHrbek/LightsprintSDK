@@ -1,1 +1,1 @@
-CPULightmaps and AmbientOcclusion samples store computed lightmaps to this directory.
+CPULightmaps and BuildLightmaps samples store computed lightmaps to this directory.

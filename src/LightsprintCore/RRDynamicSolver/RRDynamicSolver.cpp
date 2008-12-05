@@ -530,64 +530,95 @@ static bool exists(const char* filename)
 	return true;
 }
 
-unsigned RRObjects::loadIllumination(const char* path, unsigned layerNumber) const
+unsigned RRObjects::createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const
+{
+	unsigned created = 0;
+	if (layerNumber>=0)
+	{
+		for (unsigned i=0;i<size();i++)
+		{
+			unsigned numVertices = (*this)[i].object->getCollider()->getMesh()->getNumVertices();
+			if (numVertices && !(*this)[i].illumination->getLayer(layerNumber))
+			{
+				(*this)[i].illumination->getLayer(layerNumber) =
+					params.mapSize
+					?
+					// allocate lightmap for selected object
+					rr::RRBuffer::create(rr::BT_2D_TEXTURE,params.mapSize,params.mapSize,1,params.format,params.scaled,NULL)
+					:
+					// allocate vertex buffers for other objects
+					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,params.format,params.scaled,NULL);
+				created++;
+			}
+		}
+	}
+	return created;
+}
+
+unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext) const
 {
 	unsigned result = 0;
-	unsigned numObjects = size();
-	for (unsigned i=0;i<numObjects;i++)
+	if (layerNumber>=0)
 	{
-		rr::RRObjectIllumination* illumination = (*this)[i].illumination;
-		if (illumination)
+		unsigned numObjects = size();
+		for (unsigned i=0;i<numObjects;i++)
 		{
-			delete illumination->getLayer(layerNumber);
-			const char* filename = bp("%sobj%04d_%02d.png",path?path:"",i,layerNumber);
-			if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
+			rr::RRObjectIllumination* illumination = (*this)[i].illumination;
+			if (illumination)
 			{
-				result++;
-				rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
-			}
-			else
-			{
-				filename = bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber);
+				delete illumination->getLayer(layerNumber);
+				const char* filename = bp("%sobj%04d_%02d.%s",path?path:"",i,layerNumber,ext?ext:"png");
 				if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 				{
 					result++;
-					if (illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
+					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
+				}
+				else
+				{
+					filename = bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber);
+					if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 					{
-						LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size, must belong to different scene.\n",filename));
-					}
-					else
-					{
-						rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
+						result++;
+						if (illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
+						{
+							LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size, must belong to different scene.\n",filename));
+						}
+						else
+						{
+							rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
+						}
 					}
 				}
 			}
 		}
+		rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers from %s.\n",layerNumber,result,numObjects,path);
 	}
-	rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers from %s.\n",layerNumber,result,numObjects,path);
 	return result;
 }
 
-unsigned RRObjects::saveIllumination(const char* path, unsigned layerNumber) const
+unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext) const
 {
 	unsigned result = 0;
-	unsigned numObjects = size();
-	for (unsigned i=0;i<numObjects;i++)
+	if (layerNumber>=0)
 	{
-		RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
-		if (buffer)
+		unsigned numObjects = size();
+		for (unsigned i=0;i<numObjects;i++)
 		{
-			const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.png",path?path:"",i,layerNumber );
-			if (buffer->save(filename,NULL))
+			RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
+			if (buffer)
 			{
-				result++;
-				rr::RRReporter::report(rr::INF3,"Saved %s.\n",filename);
+				const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.%s",path?path:"",i,layerNumber,ext?ext:"png" );
+				if (buffer->save(filename,NULL))
+				{
+					result++;
+					rr::RRReporter::report(rr::INF3,"Saved %s.\n",filename);
+				}
+				else
+					rr::RRReporter::report(rr::WARN,"Not saved %s.\n",filename);
 			}
-			else
-				rr::RRReporter::report(rr::WARN,"Not saved %s.\n",filename);
 		}
+		rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,numObjects,path);
 	}
-	rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,numObjects,path);
 	return result;
 }
 

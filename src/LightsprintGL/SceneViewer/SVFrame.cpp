@@ -358,11 +358,11 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 		case ME_STATIC_LOAD:
-			solver->getStaticObjects().loadIllumination("",svs.staticLayerNumber);
+			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,"","png");
 			svs.renderRealtime = false;
 			break;
 		case ME_STATIC_SAVE:
-			solver->getStaticObjects().saveIllumination("",svs.staticLayerNumber);
+			solver->getStaticObjects().saveLayer(svs.staticLayerNumber,"","png");
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
