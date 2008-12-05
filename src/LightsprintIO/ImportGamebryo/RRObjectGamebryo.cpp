@@ -868,6 +868,7 @@ public:
 				return true;
 			}
 			const RRObjects* objects;
+			int layerNumber;
 			unsigned saved;
 			const char* path;
 			const char* ext;
@@ -882,6 +883,7 @@ public:
 				saveLightmap.objects = this;
 				saveLightmap.path = path;
 				saveLightmap.ext = ext;
+				saveLightmap.layerNumber = layerNumber;
 				NiLightMapUtility::VisitLightMapMeshes(pEntityScene,saveLightmap);
 			}
 			rr::RRReporter::report(rr::INF1,"Saved %d lightmaps.\n",saveLightmap.saved);
