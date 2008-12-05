@@ -859,7 +859,7 @@ public:
 								rr::RRReporter::report(rr::WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 							}
 						}
-						if ((*objects)[i].illumination->getLayer(0)->save(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + ext))
+						if ((*objects)[i].illumination->getLayer(layerNumber)->save(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + ext))
 						{
 							saved++;
 						}
