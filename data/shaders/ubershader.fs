@@ -339,15 +339,6 @@ void main()
 		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 			opacity = materialDiffuseMapColor.a;
 		#endif
-
-		#ifdef MATERIAL_TRANSPARENCY_BLEND
-			// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
-			// so if we want RGB modulated by opacity, it must be done here in shader
-			// Q: do we want RGB modulated by opacity?
-			// A: only for DIFFUSE_MAP (DIFFUSE_CONST, specular and emission are not affected by transparency)
-			//    and TRANSPARENCY_BLEND (without blend, GPU will force opacity 0 or 1, so here's no reason to darken our material)
-			materialDiffuseMapColor.rgb *= opacity;
-		#endif
 	#endif
 	#ifdef MATERIAL_SPECULAR_MAP
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
@@ -446,6 +437,23 @@ void main()
 				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialDiffuseReflectance *
+				#endif
+				#if defined(MATERIAL_TRANSPARENCY_BLEND) && ( (!defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_VCOLOR)) || defined(MATERIAL_TRANSPARENCY_MAP) )
+					// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
+					// so if we want RGB modulated by opacity, it must be done here in shader
+					// Q: do we want RGB modulated by opacity?
+					// A: yes, but only for 
+					//        TRANSPARENCY_BLEND (without blend, GPU will force opacity 0 or 1, so here's no reason to darken our material)
+					//        &&
+					//          pure DIFFUSE or DIFFUSE_MAP
+					//          ||
+					//          per-pixel transparency
+					//    why?
+					//        incoming pure DIFFUSE and DIFFUSE_MAP expects we will multiply them by opacity (diffuse maps have rgb rarely premultiplied by alpha)
+					//        incoming DIFFUSE_CONST and DIFFUSE_VCOLOR were already premultipled by average opacity, but multiply them again if(transparency_map)
+					//             TODO: if(MATERIAL_TRANSPARENCY_MAP), renderer should divide diffuse_const/vcolor by average opacity before sending them to GPU (it is very atypical setup, never encountered yet)
+					//        incoming specular and emission should be separated from transparency, do nothing (buggy look with real data not encountered yet, but it may come)
+					opacity *
 				#endif
 				vec4(( 
 					#ifdef LIGHT_DIRECT
