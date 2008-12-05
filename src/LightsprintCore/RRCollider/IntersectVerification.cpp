@@ -75,8 +75,8 @@ bool IntersectVerification::intersect(RRRay* ray) const
 #undef DIFFERS
 		}
 	}
-	if (diffHit) {diffAny = true; printf("%c%c%c%c ",hit[0]?'+':'-',hit[1]?'+':'-',hit[2]?'+':'-',hit[3]?'+':'-');}
-#define TEST_DIFF(diff,prefix,mask,expr) if (diff) {diffAny = true; printf(prefix); for (unsigned i=0;i<IT_VERIFICATION;i++) printf(mask "%c",expr,i<IT_VERIFICATION-1?'/':' ');}
+	if (diffHit) {diffAny = true; RRReporter::report(INF2,"%c%c%c%c ",hit[0]?'+':'-',hit[1]?'+':'-',hit[2]?'+':'-',hit[3]?'+':'-');}
+#define TEST_DIFF(diff,prefix,mask,expr) if (diff) {diffAny = true; RRReporter::report(INF2,prefix); for (unsigned i=0;i<IT_VERIFICATION;i++) RRReporter::report(INF2,mask "%c",expr,i<IT_VERIFICATION-1?'/':' ');}
 	TEST_DIFF(diffTriangle,"tri=","%d",hit[i]?rayArray[i].hitTriangle:0);
 	TEST_DIFF(diffDistance,"dist=","%f",hit[i]?rayArray[i].hitDistance:0);
 	TEST_DIFF(diffSide,"side=","%c",hit[i]?(rayArray[i].hitFrontSide?'o':'i'):'-');
@@ -84,7 +84,7 @@ bool IntersectVerification::intersect(RRRay* ray) const
 	for (unsigned j=0;j<3;j++) TEST_DIFF(diffPoint3d,"3d=","%f",hit[i]?rayArray[i].hitPoint3d[j]:0);
 	for (unsigned j=0;j<4;j++) TEST_DIFF(diffPlane,"plane=","%f",hit[i]?rayArray[i].hitPlane[j]:0);
 #undef TEST_DIFF
-	if (diffAny) printf("\n");
+	if (diffAny) RRReporter::report(INF2,"\n");
 	*ray = rayArray[0];
 	delete[] rayArray;
 	return hit[0];
