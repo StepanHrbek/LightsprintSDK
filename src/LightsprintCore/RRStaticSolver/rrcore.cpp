@@ -754,36 +754,43 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVe
 			hitTriangle->hits += power;
 		}
 	}
-	// mirror reflection
-	// speedup: weaker rays continue less often but with
-	//  proportionally increased power
-	if (side.reflect)
-	if (fabs(power*hitTriangle->surface->specularReflectance.color.sum())>0.3f)
-//	if (sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
+
+	bool specularReflect = side.reflect && fabs(power*hitTriangle->surface->specularReflectance.color.sum())>0.3f; // speedup: weaker rays continue less often but with proportionally increased power
+	bool specularTransmit = side.transmitFrom && fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f; // speedup: weaker rays continue less often but with proportionally increased power
+
+	if (specularReflect || specularTransmit)
 	{
-		STATISTIC_INC(numRayTracePhotonHitsReflected);
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
-		// calculate new direction after ideal mirror reflection
-		RRVec3 newDirection=RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
-		// recursively call this function
-		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance.color.avg()));
+
+		// calculate parameters of transmission in advance, recursive reflection destroys ray content
+		// (hitTriangle->surface is safe, reflection won't change it)
+		RRVec3 newDirectionTransmit;
+		if (specularTransmit)
+		{
+			// calculate new direction after refraction
+			newDirectionTransmit = -refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
+		}
+
+		// mirror reflection
+		if (specularReflect)
+		{
+			STATISTIC_INC(numRayTracePhotonHitsReflected);
+			// calculate new direction after ideal mirror reflection
+			RRVec3 newDirectionReflect = RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
+			// recursively call this function
+			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionReflect,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance.color.avg()));
+		}
+
+		// transmission
+		if (specularTransmit)
+		{
+			STATISTIC_INC(numRayTracePhotonHitsTransmitted);
+			// recursively call this function
+			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionTransmit,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
+		}
 	}
-	// getting through
-	// speedup: weaker rays continue less often but with
-	//  proportionally increased power
-	if (side.transmitFrom)
-	if (fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f)
-//	if (sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
-	{
-		STATISTIC_INC(numRayTracePhotonHitsTransmitted);
-		// calculate hitpoint
-		Point3 hitPoint3d=eye+direction*ray.hitDistance;
-		// calculate new direction after refraction
-		RRVec3 newDirection=-refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
-		// recursively call this function
-		hitPower+=rayTracePhoton(shootingKernel,hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
-	}
+
 	//s_depth--;
 	return hitPower;
 }

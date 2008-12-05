@@ -89,30 +89,40 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
-		// specular reflection
-		if (side.reflect)
-		if (sum(abs(visibility*material->specularReflectance.color))>0.1)
-		{
-			// calculate hitpoint
-			Point3 hitPoint3d=eye+direction*ray->hitDistance;
-			// calculate new direction after ideal mirror reflection
-			RRVec3 newDirection=RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
-			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularReflectance.color);
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-		}
+		bool specularReflect = side.reflect && sum(abs(visibility*material->specularReflectance.color))>0.1;
+		bool specularTransmit = side.transmitFrom && sum(abs(visibility*material->specularTransmittance.color))>0.1;
 
-		// specular transmittance
-		if (side.transmitFrom)
-		if (sum(abs(visibility*material->specularTransmittance.color))>0.1)
+		if (specularReflect || specularTransmit)
 		{
 			// calculate hitpoint
 			Point3 hitPoint3d=eye+direction*ray->hitDistance;
-			// calculate new direction after refraction
-			RRVec3 newDirection=-refract(ray->hitPlane,direction,material->refractionIndex);
-			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,newDirection,ray->hitTriangle,visibility*material->specularTransmittance.color);
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+
+			// parameters of transmission must be computed in advance, recursive reflection destroys ray and material content
+			RRVec3 newDirectionTransmit;
+			RRVec3 visibilityTransmit = visibility*material->specularTransmittance.color;
+			unsigned hitTriangleTransmit = ray->hitTriangle;
+			if (specularTransmit)
+			{
+				// calculate new direction after refraction
+				newDirectionTransmit = -refract(ray->hitPlane,direction,material->refractionIndex);
+			}
+
+			if (specularReflect)
+			{
+				// calculate new direction after ideal mirror reflection
+				RRVec3 newDirectionReflect = RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
+				// recursively call this function
+				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionReflect,ray->hitTriangle,visibility*material->specularReflectance.color);
+				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			}
+
+			if (specularTransmit)
+			{
+				// recursively call this function
+				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionTransmit,hitTriangleTransmit,visibilityTransmit);
+				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			}
+
 		}
 	}
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
