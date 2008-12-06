@@ -1,22 +1,8 @@
 // --------------------------------------------------------------------------
 // CPU Lightmaps sample
 //
-// This sample computes lightmaps with global illumination on CPU.
-// GPU is not required.
-//
-// It loads Collada 1.4 .DAE scene, calculates lightmaps/vertxcolors
-// and saves them to disk.
-//
-// Lightsources considered are
-// - point, spot and directional lights in scene
-// - skybox loaded from textures, separately from scene
-//
-// Remarks:
-// - map quality depends on unwrap quality,
-//   make sure you have good unwrap in your scenes
-//   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
-// - idle time of all CPUs/cores is used, so other applications don't suffer
-//   from lightmap precalculator running on the background
+// This is bare bone BuildLightmaps, it builds lightmaps in koupelna scene
+// and saves them to disk, no GUI, everything is as simple as possible.
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
