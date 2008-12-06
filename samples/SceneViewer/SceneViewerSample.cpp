@@ -45,11 +45,11 @@ void error(const char* message, bool gfxRelated)
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 65;
-#endif // _WIN32
+	//_crtBreakAlloc = 74;
+#endif
 
 	// check for version mismatch
 	if (!RR_INTERFACE_OK)

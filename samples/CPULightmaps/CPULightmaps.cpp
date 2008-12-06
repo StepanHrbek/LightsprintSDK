@@ -9,7 +9,6 @@
 //
 // Lightsources considered are
 // - point, spot and directional lights in scene
-//   (see supported light features in RRObjectCollada.cpp)
 // - skybox loaded from textures, separately from scene
 //
 // Remarks:
@@ -35,10 +34,6 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/IO/ImportScene.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// termination with error message
-
 void error(const char* message, bool gfxRelated)
 {
 	printf(message);
@@ -47,8 +42,41 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
+int main(int argc, char **argv)
 {
+#ifdef _MSC_VER
+	// check that we don't leak memory
+	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 30351;
+#endif
+
+	// check for version mismatch
+	if (!RR_INTERFACE_OK)
+	{
+		printf(RR_INTERFACE_MISMATCH_MSG);
+		error("",false);
+	}
+	// log messages to console
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
+	rr::RRReporter::setReporter(reporter);
+	//rr::RRReporter::setFilter(true,3,true);
+
+	rr_io::setImageLoader();
+
+	// init scene and solver
+	const char* licError = rr::loadLicense("../../data/licence_number");
+	if (licError)
+		error(licError,false);
+	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
+	solver->setScaler(scaler);
+
+	// load scene
+	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
+	solver->setStaticObjects(*scene.getObjects(), NULL);
+	solver->setLights(*scene.getLights());
+
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getNumObjects();i++)
@@ -72,10 +100,7 @@ void calculate(rr::RRDynamicSolver* solver, unsigned layerNumber)
 					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}
-}
 
-void buildLightmaps(rr::RRDynamicSolver* solver)
-{
 	// calculate lightmaps(layer0), directional lightmaps(layer1,2,3), bent normals(layer4)
 	rr::RRDynamicSolver::UpdateParameters params(1000);
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
@@ -83,52 +108,6 @@ void buildLightmaps(rr::RRDynamicSolver* solver)
 	// save GI lightmaps, bent normals
 	for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 		solver->getStaticObjects().saveLayer(layerNumber,"../../data/export/","png");
-}
-
-int main(int argc, char **argv)
-{
-#ifdef _MSVC
-	// this sample properly frees memory, no leaks are reported
-	// (some other samples are stripped down, they don't free memory)
-	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 30351;
-#endif // _MSC_VER
-
-	// check for version mismatch
-	if (!RR_INTERFACE_OK)
-	{
-		printf(RR_INTERFACE_MISMATCH_MSG);
-		error("",false);
-	}
-	// log messages to console
-	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
-	rr::RRReporter::setReporter(reporter);
-	//rr::RRReporter::setFilter(true,3,true);
-
-	rr_io::setImageLoader();
-
-#ifdef _MSC_VER
-	// decrease priority, so that this task runs on background using only free CPU cycles
-	// good for precalculating lightmaps on workstation
-	SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
-#endif // _MSC_VER
-
-	// init scene and solver
-	const char* licError = rr::loadLicense("../../data/licence_number");
-	if (licError)
-		error(licError,false);
-	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
-	solver->setScaler(scaler);
-
-	// load scene
-	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
-	solver->setStaticObjects(*scene.getObjects(), NULL);
-	solver->setLights(*scene.getLights());
-
-	// calculate and save results
-	calculate(solver,0);
 
 	// release memory
 	delete solver;
