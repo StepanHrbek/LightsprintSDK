@@ -78,6 +78,12 @@ void error(const char* message, const char* caption = "Houston, we have a proble
 
 int main(int argc, char **argv)
 {
+#ifdef _MSC_VER
+	// check that we don't leak memory
+	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 70;
+#endif
+
 	//
 	// check for dll version mismatch
 	//
@@ -271,7 +277,7 @@ int main(int argc, char **argv)
 	//
 	if (scene.getObjects())
 	{
-		solver->setStaticObjects(*scene.getObjects(), NULL,NULL,rr::RRCollider::IT_BSP_COMPACT);//!!!
+		solver->setStaticObjects(*scene.getObjects(), NULL);
 	}
 
 	//
@@ -391,7 +397,7 @@ int main(int argc, char **argv)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// WinMain for compatibility with Linux
+// WinMain() calls main() for compatibility with Linux
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
