@@ -13,8 +13,8 @@ namespace rr
 
  \section root_welcome Welcome to Lightsprint Software Development Kit
  - \subpage main_introduction
- - \subpage main_gamebryo
- - \subpage main_ue3
+   - \subpage main_gamebryo
+   - \subpage main_ue3
  - \subpage main_news
  - \subpage main_scenarios
  - \subpage main_features
@@ -1889,6 +1889,7 @@ Ray-Mesh collisions
  - Linux (32bit, 64bit)
  - Playstation 3
  - Xbox 360
+ - virtually any platform (static GI)
 
  GPUs on PC
  - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx
@@ -1945,7 +1946,7 @@ Simply make sure you use 2008 libraries in your projects.
  \section inputs_3p_structures Third party data structures in memory (Unreal Engine 3, Gamebryo, FCollada etc)
   - \ref api_io source code consists of 3rd party loaders and our adapters, that adapt 3rd party data structures into Lightsprint data structures, without duplicating data
   - instead of linking whole \ref api_io, your project may directly use adapter source code <code>src/LightsprintIO/ImportXxx/RRObjectXxx.cpp+h</code>
-  - Unreal Engine 3 structures in memory are adapted using <code>src/LightsprintUE3/RRObjectUE3.cpp+h</code> (see also \ref main_ue3)
+  - Unreal Engine 3 structures in memory are adapted using <code>src/LightsprintUE3/RRObjectUE3.cpp+h</code> (see also \ref main_ue3 "UE3 intro")
 
  \section inputs_structures Lightsprint data structures in memory
   - \subpage inputs_light_sources
@@ -2020,7 +2021,7 @@ Simply make sure you use 2008 libraries in your projects.
 
 
 
-\page main_ue3 Introduction for UE3 users
+\page main_ue3 for UE3 users
 
  Lightsprint SDK integrated with UnrealEd transparently makes
  "Lighting build" produce global illumination lightmaps.
@@ -2033,7 +2034,7 @@ Simply make sure you use 2008 libraries in your projects.
  When running out of memory, see \ref howto_bigscenes
 
 
-\page main_gamebryo Introduction for Gamebryo users
+\page main_gamebryo for Gamebryo users
 
  \section mg_title Lightsprint SDK adds global illumination to Gamebryo
 
@@ -2048,26 +2049,34 @@ Simply make sure you use 2008 libraries in your projects.
   - full integration source code included
 
  \section mg_gs Getting started
+  <table border=0><tr><td>
   - see off-line lightmap building
     - enter samples/BuildLightmaps
     - run Gamebryo_Build_Tutorial.bat to build GI lightmaps for Gamebryo tutorial scene
     - run Gamebryo_SceneApp_Tutorial.bat to view GI in Gamebryo SceneApp sample application
+  </td><td>
+  \image html BuildLightmaps_2.jpg
+  </td></tr><tr><td>
   - see realtime global illumination
-    - enter samples/SceneViewer
-    - run Gamebryo_View_Tutorial.bat
+    - enter samples/BuildLightmaps
+    - run Gamebryo_Realtime_Tutorial.bat
     - move mouse with right button pressed to look
     - left click to switch to light
     - arrows or wsadqzxc to move camera or light
-    - select from menu: Lights / Delete selected light
-    - select from menu: Lights / Add spotlight, spotlights create stronger indirect lighting
-    - select from menu: Realtime lighting / Build Light Detail Maps / 1000, takes a while, increases realtime GI quality
-    - select from menu: Realtime lighting / Build Fireball / 1000, takes a while, increases realtime GI speed
+    - select from menu: Realtime lighting / Build Light Detail Maps / 1000 / 128x128, takes a minute, increases realtime GI quality
+    - select from menu: Realtime lighting / Build Fireball / 1000, takes a second, increases realtime GI speed
+  </td><td>
+  \image html Gamebryo-RT2.jpg
+  </td></tr><tr><td>
   - see source code
     - open src/Lightsprint.vs2005.sln or src/Lightsprint.vs2008.sln
     - see for example lightmap building source code in BuildLightmaps project,
       feel free to customize it to match our needs
   - see \ref main_samples "other samples"
   - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
+  </td><td>
+  \image html Gamebryo-RT1.jpg
+  </td></tr></table>
 
 
 
@@ -2446,16 +2455,32 @@ Simply make sure you use 2008 libraries in your projects.
 
  \section samples_root Purpose
 
- - \subpage samples_gl
- - \subpage samples_core
+ - \subpage samples_realtime
+ - \subpage samples_offline
+ - \subpage samples_collider
 
 
 
-\page samples_core LightsprintCore - precalculations, collisions
+\page samples_offline Off-line rendering
 
- Following projects use LightsprintCore library for lighting or collision calculations.
+ Following projects use LightsprintCore library for off-line rendering.
  \n They are located in samples directory in the SDK, binaries in bin.
- \n Results are usually displayed in text console or saved to data/export directory.
+ \n Results are usually saved to data/export directory.
+
+ <hr>
+ <b>BuildLightmaps</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/BuildLightmaps_2.jpg builds standard and directional lightmaps
+  </td><td>
+  \image html samples/BuildLightmaps_1.jpg ambient occlusion, bent normals...
+  </td></tr></table>
+ - commandline tool
+ - loads Collada / Gamebryo scenes
+ - builds lightmaps / directional lightmaps / occlusion / bent normals
+ - builds global / direct / indirect illumination, with infinite light bounces and color bleeding
+ - builds per-pixel / per-vertex
+ - saves jpg / png / hdr / tga / bmp / exr / jp2 / tif / pcx / etc
+ - optional viewer of results
 
  <hr>
  <b>CPULightmaps</b>
@@ -2464,24 +2489,14 @@ Simply make sure you use 2008 libraries in your projects.
   </td><td>
   \image html samples/CPULightmaps_2.jpg computed bent normal map
   </td></tr></table>
- - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
- - no rendering, only CPU is used, runs on GPU-less machines
- - loads Collada scene including all lights
+ - builds lightmaps like BuildLightmaps sample, but this one is bare bone, no options, no GUI, very short source code
 
- <hr>
- <b>BuildLightmaps</b>
-  <table border=0 width=95%><tr align=top><td>
-  \image html samples/BuildLightmaps_1.jpg computed global ambient occlusion map
-  </td><td>
-  \image html samples/BuildLightmaps_2.jpg with materials applied
-  </td></tr></table>
- - commandline tool
- - loads any Collada or Gamebryo scene
- - precalculates lightmaps/directional lightmaps/occlusion/bent normals
- - precalculates global/direct/indirect illumination with infinite light bounces and color bleeding
- - saves maps/vertexcolors
- - saves jpg/png/hdr/tga/bmp/exr/jp2/tif/pcx/etc
- - optional viewer of results is not important for calculation
+
+\page samples_collider Ray-mesh intersections
+
+ Following projects use LightsprintCore library for ray-mesh collision calculations.
+ \n They are located in samples directory in the SDK, binaries in bin.
+ \n Results are displayed in text console.
 
  <hr>
  <b>BunnyBenchmark</b>
@@ -2503,7 +2518,7 @@ Simply make sure you use 2008 libraries in your projects.
 
 
 
-\page samples_gl LightsprintGL - realtime rendering
+\page samples_realtime Real-time rendering
 
  Following projects use LightsprintGL library for rendering
  and LightsprintCore for lighting calculations.

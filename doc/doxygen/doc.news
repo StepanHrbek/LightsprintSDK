@@ -8,10 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news68 ------------------------------------ 2008.12.3 -------------------------------------
+\section news68 ------------------------------------ 2008.12.6 -------------------------------------
 
 NEWS
 
+- \ref main_gamebryo "Gamebryo support"
+- new \ref samples_offline "BuildLightmaps tool"
 - new GUI in rr_gl::sceneViewer()
   - all light properties editable in new Light Properties window
   - context menu changed to menu bar
@@ -41,7 +43,8 @@ NEWS
 
 CHANGES
 
-- samples/samples.vs200x.sln removed, all samples included in src/Lightsprint.vs200x.sln
+- sample AmbientOcclusion removed, replaced by BuildLightmaps
+- samples/samples.vs200x.sln removed, replaced by src/Lightsprint.vs200x.sln
 
 \section news67 ------------------------------------ 2008.11.16 -------------------------------------
 
@@ -165,144 +168,6 @@ CHANGES
 
 - Lightfield creation moved from RRDynamicSolver::createLightField()
   to RRLightField::create() and RRLightField::captureLighting()
-
-\section news58 ------------------------------------ 2008.6.3 -------------------------------------
-
-NEWS
-
-- rr_gl::ToneMapping, support for automatic tone mapping,
-  \n demonstrated in SceneViewer sample
-- improved Collada support (faster load, reads more textures, more texcoords, workaround for broken documents)
-- improved LightsprintGL renderer (renders more textures)
-- improved rr_gl::sceneViewer() (inserting and deleting lights)
-- rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
-  that enables texture compression.
-  \n WARNING: If you call rr_gl::getTexture() or rr_gl::Texture() with more than two parameters,
-   old code is incorrect now, it needs new parameter to be inserted between second and third one.
-
-CHANGES
-
-- extended RRMaterial, now it includes textures
-  \n In your code, change material->diffuseReflectance to material->diffuseReflectance.color.
-   Do the same for diffuseEmittance and specularTransmittance.
-- removed texture channels CHANNEL_TRIANGLE_DIFFUSE_TEX, CHANNEL_TRIANGLE_EMISSIVE_TEX, CHANNEL_TRIANGLE_TRANSPARENCY_TEX
-  (use e.g. material->diffuseReflectance.texture instead)
-- moved texcoord channels (CHANNEL_TRIANGLE_VERTICES_*_UV) from RRMesh to RRObject
-  \n As adapter writer, move your getChannelData() and getChannelSize() from your RRMesh
-     implementation to your RRObject implementation.
-  \n As adapter user, change mesh->getChannelData(RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,...);
-  \n to object->getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,...);
-
-\section news57 ------------------------------------ 2008.5.13 -------------------------------------
-
-NEWS
-
-- RRLightField
-  \n new structure for fast GI with dynamic objects and static lights
-  \n demonstrated in sample Lightmaps, see \ref samples_gl
-- cascaded shadowmapping
-  \n automatically used by rr_gl::RRDynamicSolverGL for higher quality directional lights
-- RRDynamicSolver::leaveFireball() switches back from game to architect solver
-- improved rr_gl::sceneViewer() (optional Fireball, LightField)
-- Fireball size limit relaxed to 4 billion triangles
-
-\section news56 ------------------------------------ 2008.5.9 -------------------------------------
-
-NEWS
-
-- improved Collada import (transparency, image cache)
-- improved rr_gl::sceneViewer() (textures, transparency)
-
-\section news55 ------------------------------------ 2008.5.2 -------------------------------------
-
-NEWS
-
-- rr_gl::sceneViewer() initializes more quickly, reduced memory requirements
-- Collada adapter supports directory flattening, loading all textures from selected directory
-- improved precision in scenes with geometry translated far (tens of km) from center
-  \n however, it's still recommended to place objects near world center
-
-CHANGES
-
-- RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
-- more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
-- classes that don't support copying now throw compile error on attempt to copy
-- more RRMesh and RRCollider functions and instances are const (to emphasize fact that they never change)
-
-\section news54 ------------------------------------ 2008.4.14 -------------------------------------
-
-NEWS
-
-- supports scenes with up to 4 billion meshes and 4 billion triangles/vertices per mesh (was 8k and 512k)
-- supports spot exponent (in RRLight::createSpotPoly())
-- import of .obj files (geometry only, no materials)
-- RRDynamicSolver::setStaticObjects()'s new parameter cacheLocation (you can disable collider cache)
-
-CHANGES
-
-- RRMesh::MultiMeshPreImportNumber renamed to RRMesh::PreImportNumber
-- all PreImport numbers changed from unsigned to RRMesh::PreImportNumber
-  \n so compiler prevents you from accidentally using PreImport number for PostImport and vice versa
-  \n If you implemented following functions from RRMesh interface, change your declarations to match
-     new interface:
-  - RRMesh::getPreImportVertex()
-  - RRMesh::getPostImportVertex()
-  - RRMesh::getPreImportTriangle()
-  - RRMesh::getPostImportTriangle()
-- moved RRDynamicSolver::SmoothingParams::intersectTechnique to RRDynamicSolver::setStaticObjects() parameter
-  \n (default value was preserved)
-- removed RRMesh::createCopy()
-
-\section news53 ------------------------------------ 2008.4.6 -------------------------------------
-
-NEWS
-
-- native 64bit support for all libraries and samples
-
-CHANGES
-
-- removed RRObject::getTriangleIllumination
-
-\section news52 ------------------------------------ 2008.3.26 -------------------------------------
-
-NEWS
-
-- 5x faster lightmap build in scenes with hundreds of lights
-
-\section news51 ------------------------------------ 2008.3.21 -------------------------------------
-
-NEWS
-
-- global illumination is computed for all LODs at the same time
-  \n implement RRObject::getTriangleLod() to enable calculation with LODs
-
-CHANGES
-
-- RRDynamicSolver::updateEnvironmentMap() preserves size and format of your maps,
-  \n RRObjectIllumination::diffuseEnvMapSize and specularEnvMapSize no longer needed, deleted
-
-\section news50 ------------------------------------ 2008.3.11 -------------------------------------
-
-NEWS
-
-- directional lightmaps support new format
-  \n for 3 or 4 normal directions, 3 or 4 lightmaps are generated per object
-  \n compatible with Unreal Engine 3
-  \n see additional parameter in RRDynamicSolver::updateLightmap()
-     and RRDynamicSolver::updateLightmaps()
-- 1.2-10x faster lightmap build
-- alpha in lightmaps with alpha channel is set to 0/1 for unused/used texels or vertices
-- RRMesh::createAccelerated()
-  \n creates faster mesh, duplicating most frequently accessed data
-  \n new parameter in RRObject::createMultiObject() enables it
-- RRDynamicSolver::UpdateParameters::qualityFactorRadiosity
-  \n finer quality control
-
-CHANGES
-
-- RRMesh::TriangleNormals newly contains also tangents
-- RRBuffer::setElement accepts RRVec4 rather than RRVec3
-- newer FCollada 3.05B is used in samples accessing Collada files
 
 */
 
