@@ -159,7 +159,9 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 
 ImportScene::~ImportScene()
 {
+#ifdef SUPPORT_GSA
 	if (!scene_gsa)
+#endif
 	{
 		delete lights;
 		delete objects;
