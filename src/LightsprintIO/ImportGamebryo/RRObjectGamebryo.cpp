@@ -993,7 +993,7 @@ public:
 
 					RRVec3 pos = convertWorldPos(pointLight->GetWorldLocation()) * SCALE_GEOMETRY;
 					RRVec3 color = convertColor(pointLight->GetDiffuseColor()) * pointLight->GetDimmer();
-					RRVec4 poly(pointLight->GetConstantAttenuation(),pointLight->GetLinearAttenuation(),pointLight->GetQuadraticAttenuation(),1);
+					RRVec4 poly(pointLight->GetConstantAttenuation(),pointLight->GetLinearAttenuation()*SCALE_GEOMETRY,pointLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
 
 					rrLight = RRLight::createPointLightPoly(pos, color, poly);
 				}
@@ -1006,7 +1006,7 @@ public:
 					RRVec3 pos = convertWorldPos(spotLight->GetWorldLocation()) * SCALE_GEOMETRY;
 					RRVec3 dir = convertWorldDir(spotLight->GetWorldDirection());
 					RRVec3 color = convertColor(spotLight->GetDiffuseColor()) * spotLight->GetDimmer();
-					RRVec4 poly(spotLight->GetConstantAttenuation(),spotLight->GetLinearAttenuation(),spotLight->GetQuadraticAttenuation(),1);
+					RRVec4 poly(spotLight->GetConstantAttenuation(),spotLight->GetLinearAttenuation()*SCALE_GEOMETRY,spotLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
 					float innerAngle = 0.0174533f * spotLight->GetInnerSpotAngle();
 					float outerAngle = 0.0174533f * spotLight->GetSpotAngle();
 					float spotExponent = spotLight->GetSpotExponent();
