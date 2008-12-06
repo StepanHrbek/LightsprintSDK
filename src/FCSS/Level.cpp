@@ -170,7 +170,7 @@ unsigned Level::saveIllumination(const char* path)
 	{
 		for (LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
 		{
-			result += solver->getStaticObjects().saveIllumination(path,(*i)->layerNumber);
+			result += solver->getStaticObjects().saveLayer((*i)->layerNumber,path,"png");
 		}
 	}
 	return result;
@@ -183,7 +183,7 @@ unsigned Level::loadIllumination(const char* path)
 	{
 		for (LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
 		{
-			result += solver->getStaticObjects().loadIllumination(path,(*i)->layerNumber);
+			result += solver->getStaticObjects().loadLayer((*i)->layerNumber,path,"png");
 		}
 	}
 	return result;
