@@ -13,13 +13,15 @@ namespace rr
 
  \section root_welcome Welcome to Lightsprint Software Development Kit
  - \subpage main_introduction
-   - \subpage main_gamebryo
-   - \subpage main_ue3
  - \subpage main_news
  - \subpage main_scenarios
  - \subpage main_features
  - \subpage main_platforms
  - \subpage main_credits
+
+ \section root_integrations Integrations
+ - \subpage main_gamebryo
+ - \subpage main_ue3
 
  \section root_guide Programming guide
  - \subpage main_integration
@@ -2021,7 +2023,7 @@ Simply make sure you use 2008 libraries in your projects.
 
 
 
-\page main_ue3 for UE3 users
+\page main_ue3 Unreal Engine 3
 
  Lightsprint SDK integrated with UnrealEd transparently makes
  "Lighting build" produce global illumination lightmaps.
@@ -2034,7 +2036,8 @@ Simply make sure you use 2008 libraries in your projects.
  When running out of memory, see \ref howto_bigscenes
 
 
-\page main_gamebryo for Gamebryo users
+
+\page main_gamebryo Gamebryo
 
  \section mg_title Lightsprint SDK adds global illumination to Gamebryo
 
@@ -2491,7 +2494,8 @@ Simply make sure you use 2008 libraries in your projects.
   </td><td>
   \image html samples/CPULightmaps_2.jpg computed bent normal map
   </td></tr></table>
- - builds lightmaps like BuildLightmaps sample, but this one is bare bone, no options, no GUI, very short source code
+ - builds lightmaps like BuildLightmaps sample
+ - very short source code, no options, no GUI
 
 
 \page samples_collider Ray-mesh intersections

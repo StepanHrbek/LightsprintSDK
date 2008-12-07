@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- \ref main_gamebryo "Gamebryo support"
+- \ref main_gamebryo "Gamebryo integration"
 - new \ref samples_offline "BuildLightmaps tool"
 - new GUI in rr_gl::sceneViewer()
   - all light properties editable in new Light Properties window
