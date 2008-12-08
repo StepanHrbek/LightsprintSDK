@@ -606,6 +606,7 @@ private:
 		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
 		RRScaler* scaler = RRScaler::createRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
+		material.updateSideBitsFromColors();
 		delete scaler;
 		return material;
 	}

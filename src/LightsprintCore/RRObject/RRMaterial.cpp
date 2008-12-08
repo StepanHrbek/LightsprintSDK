@@ -127,6 +127,14 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTexture
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 
+void RRMaterial::updateSideBitsFromColors()
+{
+	sideBits[0].reflect = sideBits[0].catchFrom && specularReflectance.color!=RRVec3(0);
+	sideBits[1].reflect = sideBits[1].catchFrom && specularReflectance.color!=RRVec3(0);
+	sideBits[0].transmitFrom = sideBits[0].catchFrom && specularTransmittance.color!=RRVec3(0);
+	sideBits[1].transmitFrom = sideBits[1].catchFrom && specularTransmittance.color!=RRVec3(0);
+}
+
 bool clamp1(RRReal& a, RRReal min, RRReal max)
 {
 	if (a<min) a=min; else

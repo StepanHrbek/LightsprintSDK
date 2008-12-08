@@ -119,6 +119,8 @@ namespace rr
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
 		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
+		//! Updates sideBits, clears bits with relevant color black. This may make rendering faster.
+		void          updateSideBitsFromColors();
 
 		//! Changes material to closest physically valid values. Returns whether changes were made.
 		//

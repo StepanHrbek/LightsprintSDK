@@ -770,6 +770,7 @@ private:
 			// optional - corrects invalid properties
 			//material.validate();
 		}
+		material.updateSideBitsFromColors();
 	}
 
 	const RRCollider* collider;
