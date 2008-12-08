@@ -765,7 +765,7 @@ private:
 			material.specularTransmittanceInAlpha = false;
 			material.lightmapTexcoord = CH_LIGHTMAP;
 			RRScaler* scaler = RRScaler::createFastRgbScaler();
-			material.updateColorsFromTextures(scaler);
+			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 			delete scaler;
 			// optional - corrects invalid properties
 			//material.validate();

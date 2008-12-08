@@ -605,7 +605,7 @@ private:
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
 		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
 		RRScaler* scaler = RRScaler::createRgbScaler();
-		material.updateColorsFromTextures(scaler);
+		material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
 		delete scaler;
 		return material;
 	}

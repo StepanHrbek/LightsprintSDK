@@ -48,9 +48,9 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	RR_ASSERT(numElements);
 	RRVec4 sum = RRVec4(0);
 	RRVec4 sumOfSquares = RRVec4(0);
-	unsigned step = 1+numElements/1000;
+	unsigned step = 1+numElements/2000; // test approximately 2000 samples
 	unsigned numElementsTested = 0;
-	for (unsigned i=0;i<numElements;i+=1+(rand()%step)) // test approximately 1000 samples
+	for (unsigned i=0;i<numElements;i+=1+(rand()%step))
 	{
 		RRVec4 elem = buffer->getElement(i);
 		if (scaler) scaler->getPhysicalFactor(elem);
@@ -96,22 +96,33 @@ RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _av
 	}
 }
 
-RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha)
+RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction)
 {
 	if (texture)
 	{
-		return getVariance(texture,scaler,color,isTransmittanceInAlpha);
+		RRReal variance = getVariance(texture,scaler,color,isTransmittanceInAlpha);
+		if (!variance)
+		{
+			switch (uniformTextureAction)
+			{
+				case UTA_DELETE: delete texture;
+				case UTA_NULL: texture = NULL;
+				case UTA_KEEP:
+				default:;
+			}
+		}
+		return variance;
 	}
 	return 0;
 }
 
-void RRMaterial::updateColorsFromTextures(const RRScaler* scaler)
+void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction)
 {
 	float variance = 0.000001f;
-	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha);
-	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0);
-	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0);
-	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0);
+	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction);
+	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction);
+	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction);
+	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction);
 	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }

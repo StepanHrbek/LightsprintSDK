@@ -74,6 +74,14 @@ namespace rr
 	//!   you can access them via RRDynamicSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial
 	{
+		//! What to do with completely uniform textures.
+		enum UniformTextureAction
+		{
+			UTA_KEEP,   ///< Keep uniform texture.
+			UTA_DELETE, ///< Delete uniform texture.
+			UTA_NULL    ///< NULL pointer to uniform texture, but don't delete it.
+		};
+
 		//! Part of material description.
 		struct Property
 		{
@@ -89,7 +97,7 @@ namespace rr
 				texcoord = 0;
 			}
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
-			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha);
+			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction);
 		};
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
@@ -102,8 +110,15 @@ namespace rr
 		//! It makes good glass, but bad thin dif.reflecting wall.
 		void          reset(bool twoSided);
 
-		//! Gathers information from textures, updates color in all Properties with texture. Updates also minimalQualityForPointMaterials.
-		void          updateColorsFromTextures(const RRScaler* scaler);
+		//! Gathers information from textures, updates color for all Properties with texture. Updates also minimalQualityForPointMaterials.
+		//
+		//! \param scaler
+		//!  Textures are expected in custom scale of this scaler.
+		//!  Average colors are computed in the same scale.
+		//!  Without scaler, computed averages may slightly differ from physically correct averages.
+		//! \param uniformTextureAction
+		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
+		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
 
 		//! Changes material to closest physically valid values. Returns whether changes were made.
 		//
