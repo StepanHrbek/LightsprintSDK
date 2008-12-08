@@ -1086,9 +1086,9 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			if (priv->packedSolver)
 				RRReporter::report(WARN,"Calculation not supported by Fireball, call leaveFireball() to enable Architect solver.\n");
 			else
-				RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene (%x %x %d).\n",
-					(unsigned)getMultiObjectCustom(),
-					(unsigned)priv->scene,
+				RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene (%d %d %d).\n",
+					getMultiObjectCustom()?1:0,
+					priv->scene?1:0,
 					getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 			return false;
 		}

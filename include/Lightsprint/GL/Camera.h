@@ -95,7 +95,7 @@ public:
 	//! Converts position in window (2d) to world space directions (3d) from eye to given point in scene.
 	//! Vector is not normalized, length is >=1, so that pos+getDirection() is always in depth=1 plane.
 	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-	rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow = rr::RRVec2(0));
+	rr::RRVec3 getDirection(rr::RRVec2 posInWindow = rr::RRVec2(0));
 
 	float getAspect()                   const {return aspect;}
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}
