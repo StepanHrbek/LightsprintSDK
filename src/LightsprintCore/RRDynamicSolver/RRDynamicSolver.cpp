@@ -555,6 +555,44 @@ unsigned RRObjects::createLayer(int layerNumber, const RRIlluminatedObject::Laye
 	return created;
 }
 
+// formats filename from prefix(path), object number and postfix(ext)
+const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
+{
+	char* tmp = NULL;
+	const char* finalExt;
+	if (isVertexBuffer)
+	{
+		if (!ext)
+		{
+			finalExt = "vbu";
+		}
+		else
+		{
+			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
+			tmp = new char[strlen(ext)+5];
+			strcpy(tmp,ext);
+			unsigned i = strlen(ext);
+			while (i && tmp[i-1]!='.') i--;
+			strcpy(tmp+i,"vbu");
+			finalExt = tmp;
+		}
+	}
+	else
+	{
+		if (!ext)
+		{
+			finalExt = "png";
+		}
+		else
+		{
+			finalExt = ext;
+		}
+	}
+	const char* result = bp("%s%05d.%s",path?path:"",objectIndex,finalExt);
+	delete[] tmp;
+	return result;
+}
+
 unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext) const
 {
 	unsigned result = 0;
@@ -567,7 +605,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			if (illumination)
 			{
 				delete illumination->getLayer(layerNumber);
-				const char* filename = bp("%sobj%04d_%02d.%s",path?path:"",i,layerNumber,ext?ext:"png");
+				const char* filename = formatFilename(path,i,ext,false);
 				if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 				{
 					result++;
@@ -575,7 +613,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 				}
 				else
 				{
-					filename = bp("%sobj%04d_%02d.vbu",path?path:"",i,layerNumber);
+					filename = formatFilename(path,i,ext,true);
 					if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
 					{
 						result++;
@@ -607,7 +645,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 			RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
 			if (buffer)
 			{
-				const char* filename = bp( (buffer->getType()==BT_VERTEX_BUFFER) ? "%sobj%04d_%02d.vbu" : "%sobj%04d_%02d.%s",path?path:"",i,layerNumber,ext?ext:"png" );
+				const char* filename = formatFilename(path,i,ext,buffer->getType()==BT_VERTEX_BUFFER);
 				if (buffer->save(filename,NULL))
 				{
 					result++;

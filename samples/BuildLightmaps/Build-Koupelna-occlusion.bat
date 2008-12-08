@@ -1,1 +1,1 @@
-BuildLightmaps.bat ../../data/scenes/koupelna/koupelna4-windows.dae "outputpath=../../data/export/koupelna/" "quality=2000" occlusion viewer
+BuildLightmaps.bat ../../data/scenes/koupelna/koupelna4-windows.dae "outputpath=../../data/export/koupelna" "quality=2000" occlusion viewer
