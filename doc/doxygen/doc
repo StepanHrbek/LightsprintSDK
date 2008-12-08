@@ -2005,10 +2005,13 @@ Simply make sure you use 2008 libraries in your projects.
  \section ig_rrobjects RRObjects
   - RRObjects is a set of objects (RRObject)
 
- \section ig_rrobjects RRObject
-  - RRObject is an instance of mesh (RRMesh), with transformation matrix and materials
+ \section ig_rrobject RRObject
+  - RRObject is a collider (RRCollider) with transformation matrix and materials
 
- \section ig_rrobjects RRMesh
+ \section ig_rrcollider RRCollider
+  - RRCollider is a mesh (RRMesh) with an acceleration structure for ray-mesh intersections
+
+ \section ig_rrmesh RRMesh
   - RRMesh is a set of triangles, vertices, normals, tangents, bitangents, texcoords
 
 
@@ -2089,29 +2092,30 @@ Simply make sure you use 2008 libraries in your projects.
 \page main_conventions Conventions
 
  \section gobjects Terminology
-   <b>Mesh</b> is set of triangles with fixed positions in local space.
+   <b>Mesh</b> is a set of triangles and vertices with fixed positions in local space.
    \n\n
    <b>Object</b> is an instance of mesh, with position, rotation, scale
    and material properties.
    <b>Static object</b> never moves, rotates, deforms or changes material properties.
    <b>Dynamic object</b> freely changes these properties.
    \n\n
-   <b>Scene</b> is set of objects.
+   <b>Scene</b> is a set of objects.
    \n\n
-   <b>Lightmap</b> is texture with irradiance values (incoming light)
-   of object's surface, not modulated by material color.
+   <b>Lightmap</b> is a per-pixel buffer (texture) or a per-vertex buffer with irradiance values (incoming light),
+   not modulated by material color.
    \n Lightmap could contain direct, indirect or global (both) illumination.
    \n Lightmap with indirect illumination is sometimes called <b>ambient map</b>.
-   \n Irradiance values are typically stored in custom scale to fit 
-   in 8bit precision, but physical or other HDR scale could be used too.
+   \n Textures are typically created in sRGB scale and 8bit per channel precision,
+   vertex buffers are typically created in physical scale and float precision, but this is completely user defined,
+   all combinations are supported.
 
  \section glinking Automatic library linking
    By default, including library header automatically links Lightsprint DLLs using \#pragma comment(lib,name).
    Debug library is linked to debug exe, Release library to release exe.
-   \n \#define RR_STATIC / RR_GL_STATIC selects static library instead of DLL.
-   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic library linking,
+   \n \#define RR_STATIC / RR_GL_STATIC / RR_IO_STATIC selects static library instead of DLL.
+   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK  / RR_IO_MANUAL_LINK disables automatic library linking,
       so you can e.g. manually link release library with debug exe.
-   \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL)
+   \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL, RR_IO_ affects LightsprintIO)
 
  \section gunits Illumination units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
@@ -2458,7 +2462,7 @@ Simply make sure you use 2008 libraries in your projects.
 
 \page main_samples Samples
 
- \section samples_root Purpose
+ \section samples_root By purpose
 
  - \subpage samples_realtime
  - \subpage samples_offline
