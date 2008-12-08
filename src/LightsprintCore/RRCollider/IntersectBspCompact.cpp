@@ -5,7 +5,7 @@
 
 #include "IntersectBspCompact.h"
 
-#define DBG(a) //a
+#define DBG(a) //a // enables log of tree traversal, for debugging individual rays
 
 #include <cmath>
 #include <cstdio>
@@ -19,9 +19,9 @@ namespace rr
 //  it tests inside <ray->hitDistanceMin,distanceMax>,
 //  which is required by kd-leaf
 static bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t, RRReal distanceMax)
-// input:                ray, t
+// input:                ray, t, distanceMax
 // returns:              true if ray hits t
-// modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
+// modifies when hit:    ray->hitDistance, ray->hitPoint2D, ray->hitFrontSide
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
@@ -70,6 +70,8 @@ static bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t, RRReal
 	return true;
 }
 
+DBG(static int q1=0);
+
 template IBP
 bool IntersectBspCompact IBP2::intersect_bsp(RRRay* ray, const BspTree* t, real distanceMax) const
 {
@@ -84,6 +86,7 @@ begin:
 		#define intersect_bsp_type(type,ray,tree,distanceMax) intersect_bsp_type_func(type,intersect_bsp,ray,tree,distanceMax)
 		return intersect_bsp_type(BspTree::Transitioneer,ray,t,distanceMax);
 	}
+	DBG(q1++;RRReporter::report(INF1,"intersect_bsp(%s%d) %d %f..%f\n",t->bsp.kd?"kd":"bsp",t->kd.splitAxis,q1,ray->hitDistanceMin,distanceMax));
 	
 	// KD
 	if (t->bsp.kd)
@@ -94,6 +97,7 @@ begin:
 		// test leaf
 		if (t->kd.isLeaf()) 
 		{
+			DBG(RRReporter::report(INF1," kd leaf\n"));
 			// kd leaf contains bunch of unsorted triangles
 			// RayHits gathers all hits, sorts them by distance and then calls collisionHandler in proper order
 
@@ -111,11 +115,14 @@ begin:
 			{
 				RRMesh::TriangleBody srl;
 				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
+				DBG(bool hit=false);
 				if (intersect_triangle(ray,&srl,distanceMax))
 				{
+					DBG(hit=true);
 					ray->hitTriangle = triangle->getTriangleIndex();
 					rayHits.insertHitUnordered(ray);
 				}
+				DBG(RRReporter::report(INF1," kd leaf tri %d dist %f %s\n",triangle->getTriangleIndex(),ray->hitDistance,hit?"hit":""));
 			}
 			return rayHits.getHitOrdered(ray,importer);
 		}
@@ -129,13 +136,16 @@ begin:
 			// front only
 			if (pointMaxVal>=splitValue) 
 			{
+				DBG(RRReporter::report(INF1," kd front\n"));
 				if (t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distanceMax);
 				t = (BspTree*)t->kd.getFront();
 				goto begin;
 			}
 			// front and back
+			DBG(RRReporter::report(INF1," kd FRONT+back\n"));
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if (intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			DBG(RRReporter::report(INF1," kd front+BACK\n"));
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if (t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distanceMax);
 			t = (BspTree*)t->kd.getBack();
@@ -147,11 +157,14 @@ begin:
 			{
 				if (t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distanceMax);
 				t = (BspTree*)t->kd.getBack();
+				DBG(RRReporter::report(INF1," kd back\n"));
 				goto begin;
 			}
 			// back and front
+			DBG(RRReporter::report(INF1," kd BACK+front\n"));
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if (intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			DBG(RRReporter::report(INF1," kd back+FRONT\n"));
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if (t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distanceMax);
 			t = (BspTree*)t->kd.getFront();
@@ -199,11 +212,15 @@ begin:
 	{
 		if (frontback)
 		{
+			DBG(RRReporter::report(INF1," bsp front\n"));
 			if (!t->bsp.front) return false;
+			DBG(RRReporter::report(INF1," bsp FRONT\n"));
 			if (t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
 			t=(BspTree*)front;
 		} else {
+			DBG(RRReporter::report(INF1," bsp back\n"));
 			if (!t->bsp.back) return false;
+			DBG(RRReporter::report(INF1," bsp BACK\n"));
 			if (t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
 			t=(BspTree*)back;
 		}
@@ -223,12 +240,15 @@ begin:
 	// test first half
 	if (frontback)
 	{
+		DBG(RRReporter::report(INF1," bsp FRONT+back\n"));
 		if (t->bsp.front && intersect_bsp_type(BspTree::Son,ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
+		DBG(RRReporter::report(INF1," bsp BACK+front\n"));
 		if (t->bsp.back && intersect_bsp_type(BspTree::Son,ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
+	DBG(RRReporter::report(INF1," bsp plane\n"));
 	void* trianglesEnd=t->getTrianglesEnd();
 	while (triangle<trianglesEnd)
 	{
@@ -268,12 +288,16 @@ begin:
 	// test other half
 	if (frontback)
 	{
+		DBG(RRReporter::report(INF1," bsp front+BACK pokus\n"));
 		if (!t->bsp.back) return false;
+		DBG(RRReporter::report(INF1," bsp front+BACK go\n"));
 		ray->hitDistanceMin=distancePlane-DELTA_BSP;
 		if (t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
 		t=(BspTree*)back;
 	} else {
+		DBG(RRReporter::report(INF1," bsp back+FRONT pokus\n"));
 		if (!t->bsp.front) return false;
+		DBG(RRReporter::report(INF1," bsp back+FRONT go\n"));
 		ray->hitDistanceMin=distancePlane-DELTA_BSP;
 		if (t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
 		t=(BspTree*)front;
