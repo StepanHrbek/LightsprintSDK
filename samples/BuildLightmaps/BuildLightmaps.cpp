@@ -119,10 +119,6 @@ int main(int argc, char **argv)
 	const char* outputPath;
 	const char* outputExt = "png";
 	unsigned quality = 0;
-	unsigned mapSize = 256;
-	unsigned mapSizeMin = 32;
-	unsigned mapSizeMax = 1024;
-	float pixelsPerWorldUnit = 1;
 	bool buildDirect = true;
 	bool buildIndirect = true;
 	bool buildDirectional = false;
@@ -130,6 +126,7 @@ int main(int argc, char **argv)
 	bool buildBentNormals = false;
 	//bool buildLDM = false;
 	bool runViewer = false;
+	rr::RRIlluminatedObject::LayerParameters layerParams(256);
 
 	//
 	// parse commandline
@@ -170,19 +167,19 @@ int main(int argc, char **argv)
 			buildBentNormals = true;
 		}
 		else
-		if (sscanf(argv[i],"mapsize=%d",&mapSize)==1)
+		if (sscanf(argv[i],"mapsize=%d",&layerParams.mapSize)==1)
 		{
 		}
 		else
-		if (sscanf(argv[i],"minmapsize=%d",&mapSizeMin)==1)
+		if (sscanf(argv[i],"minmapsize=%d",&layerParams.mapSizeMin)==1)
 		{
 		}
 		else
-		if (sscanf(argv[i],"maxmapsize=%d",&mapSizeMax)==1)
+		if (sscanf(argv[i],"maxmapsize=%d",&layerParams.mapSizeMax)==1)
 		{
 		}
 		else
-		if (sscanf(argv[i],"pixelsperworldunit=%f",&pixelsPerWorldUnit)==1)
+		if (sscanf(argv[i],"pixelsperworldunit=%f",&layerParams.pixelsPerWorldUnit)==1)
 		{
 		}
 		else
@@ -309,17 +306,15 @@ int main(int argc, char **argv)
 	//
 	if (scene.getObjects())
 	{
-		rr::RRIlluminatedObject::LayerParameters params(mapSize);
-		params.mapSizeMin = mapSizeMin;
-		params.mapSizeMax = mapSizeMax;
-		params.pixelsPerWorldUnit = pixelsPerWorldUnit;
-		scene.getObjects()->createLayer(layerLightmaps,params);
-		scene.getObjects()->createLayer(layerOcclusion,params);
-		scene.getObjects()->createLayer(layerDirectional,params);
-		scene.getObjects()->createLayer(layerDirectional+1,params);
-		scene.getObjects()->createLayer(layerDirectional+2,params);
-		scene.getObjects()->createLayer(layerBentNormals,params);
-		//scene.getObjects()->createLayer(layerLDM,params);
+		layerParams.format = layerParams.mapSize ? rr::BF_RGB : rr::BF_RGBF;
+		layerParams.scaled = layerParams.mapSize ? true : false;
+		scene.getObjects()->createLayer(layerLightmaps,layerParams);
+		scene.getObjects()->createLayer(layerOcclusion,layerParams);
+		scene.getObjects()->createLayer(layerDirectional,layerParams);
+		scene.getObjects()->createLayer(layerDirectional+1,layerParams);
+		scene.getObjects()->createLayer(layerDirectional+2,layerParams);
+		scene.getObjects()->createLayer(layerBentNormals,layerParams);
+		//scene.getObjects()->createLayer(layerLDM,layerParams);
 	}
 
 	//
