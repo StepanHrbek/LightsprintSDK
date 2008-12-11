@@ -8,7 +8,7 @@
 
 // TODO
 // - test LODs (implemented but not tested)
-// - support FLOAT16_n
+// - support FLOAT16_n vertex attributes
 
 // This constant is used to scale geometry for Lightsprint.
 // Lightsprint recommended unit is meter.
@@ -40,12 +40,6 @@
 #include <NiEntity.h>
 #pragma comment(lib,"NiEntity")
 #pragma comment(lib,"TinyXML")
-
-// commandline
-#include <windows.h>
-#include <NiCommand.h>
-#pragma comment(lib,"NiApplication")
-#pragma comment(lib,"NiInput")
 
 // cache
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
