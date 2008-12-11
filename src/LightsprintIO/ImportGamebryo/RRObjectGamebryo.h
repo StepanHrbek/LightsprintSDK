@@ -11,16 +11,14 @@
 //! Creates Lightsprint interface for Gamebryo geometry + materials in memory.
 //
 //! \param scene
-//!  NiScene instance used only to query lightmap names.
-//! \param objects
-//!  Scene tree with meshes to adapt.
+//!  NiScene with meshes to adapt.
 //! \param aborting
 //!  It could take up to several seconds for scene with many materials.
 //!  It's possible to abort it asynchronously by setting aborting.
-rr::RRObjects* adaptObjectsFromGamebryo(class NiScene* scene, class NiAVObject* objects, bool& aborting);
+rr::RRObjects* adaptObjectsFromGamebryo(class NiScene* scene, bool& aborting);
 
 //! Creates Lightsprint interface for Gamebryo lights in memory.
-rr::RRLights* adaptLightsFromGamebryo(class NiAVObject* objects);
+rr::RRLights* adaptLightsFromGamebryo(class NiScene* scene);
 
 //! Creates Lightsprint interface for Gamebryo scene in .gsa file.
 class ImportSceneGamebryo : public rr::RRUniformlyAllocatedNonCopyable
@@ -46,7 +44,7 @@ protected:
 	rr::RRObjects*            objects;
 	rr::RRLights*             lights;
 	bool                      initGamebryo;
-	class NiScene*            pEntityScene;
+	class NiScene*            pkEntityScene;
 };
 
 

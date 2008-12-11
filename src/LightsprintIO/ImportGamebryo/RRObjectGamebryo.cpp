@@ -58,6 +58,7 @@ NiEmbedGamebryoLicenseCode;
 
 using namespace rr;
 
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // utility functions
@@ -788,13 +789,36 @@ private:
 class RRObjectsGamebryo : public RRObjects
 {
 public:
-	RRObjectsGamebryo(NiScene* scene, NiAVObject* rootNode, bool& aborting)
+	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting)
 	{
-		pEntityScene = scene;
+		pkEntityScene = _pkEntityScene;
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
 		lodInfo.level = 0;
-		addNode(rootNode,lodInfo,aborting);
+		unsigned uiCount = pkEntityScene->GetEntityCount();
+		for (unsigned int uiEntity=0; uiEntity < uiCount; uiEntity++)
+		{
+			NiEntityInterface* pkEntity = pkEntityScene->GetEntityAt(uiEntity);
+			const char* pcName = pkEntity->GetName();
+			unsigned int uiSceneRootCount;
+			NiFixedString kSceneRootPointer = "Scene Root Pointer";
+			NIASSERT(pkEntity);
+			if (pkEntity->GetElementCount(kSceneRootPointer, uiSceneRootCount))
+			{
+	 			for (unsigned int ui = 0; ui < uiSceneRootCount; ui++)
+				{
+					NiObject* pkObject;
+					if (pkEntity->GetPropertyData( kSceneRootPointer, pkObject, ui))
+					{
+						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
+						if (pkRoot)
+						{
+							addNode(pkRoot,lodInfo,_aborting);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	virtual ~RRObjectsGamebryo()
@@ -879,13 +903,13 @@ public:
 		saveLightmap.saved = 0;
 		if (layerNumber>=0)
 		{
-			if (pEntityScene)
+			if (pkEntityScene)
 			{
 				saveLightmap.objects = this;
 				saveLightmap.path = path;
 				saveLightmap.ext = ext;
 				saveLightmap.layerNumber = layerNumber;
-				NiLightMapUtility::VisitLightMapMeshes(pEntityScene,saveLightmap);
+				NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,saveLightmap);
 			}
 			rr::RRReporter::report(rr::INF1,"Saved %d lightmaps.\n",saveLightmap.saved);
 		}
@@ -942,7 +966,7 @@ private:
 		}
 	}
 
-	NiScene* pEntityScene; // used only to query lightmap names
+	NiScene* pkEntityScene; // used only to query lightmap names
 };
 
 
@@ -953,94 +977,86 @@ private:
 class RRLightsGamebryo : public RRLights
 {
 public:
-	RRLightsGamebryo(NiAVObject* rootNode)
+	RRLightsGamebryo(NiScene* scene)
 	{
-		addLights(rootNode);
+		class AddLightFunctor : public NiVisitLightMapLightFunctor
+		{
+		public:
+			virtual bool operator() (NiLight* pkLight, NiLightMapLightProperties kProps = NiLightMapLightProperties())
+			{
+				lights->addLight(pkLight, kProps);
+				return true;
+			}
+			RRLightsGamebryo* lights;
+		};
+
+		AddLightFunctor addLightFunctor;
+		addLightFunctor.lights = this;
+		NiLightMapUtility::VisitLightMapLights(scene,addLightFunctor);
 	}
 
-	void addLights(NiAVObject* object)
+	void addLight(NiLight* light, NiLightMapLightProperties props = NiLightMapLightProperties())
 	{
-		if (!object)
-			return;
-
-		if (NiIsKindOf(NiLight, object))
+		if (light->GetSwitch())
 		{
-			NiLight* light = (NiLight*) object;
-			if (light->GetSwitch())
+			light->Update(0.f);
+
+			// diffuse color: Lightsprint supports only one light color, it's taken from Gamebryo diffuse color
+			// ambient color: we ignore ambient lights, level designers should remove them. GI replaces ambient
+			// specular color: we ignore it in hope it's rougly the same as diffuse color. this may be changed in future
+
+			RRLight* rrLight = NULL;
+
+			// directional light
+			if (NiIsExactKindOf(NiDirectionalLight, light))
 			{
-				light->Update(0.f);
+				NiDirectionalLight* directionalLight = (NiDirectionalLight*) light;
 
-				// diffuse color: Lightsprint supports only one light color, it's taken from Gamebryo diffuse color
-				// ambient color: we ignore ambient lights, level designers should remove them. GI replaces ambient
-				// specular color: we ignore it in hope it's rougly the same as diffuse color. this may be changed in future
+				RRVec3 dir = convertWorldDir(directionalLight->GetWorldDirection());
+				RRVec3 color = convertColor(directionalLight->GetDiffuseColor()) * directionalLight->GetDimmer();
 
-				RRLight* rrLight = NULL;
-
-				// directional light
-				if (NiIsExactKindOf(NiDirectionalLight, light))
-				{
-					NiDirectionalLight* directionalLight = (NiDirectionalLight*) object;
-
-					RRVec3 dir = convertWorldDir(directionalLight->GetWorldDirection());
-					RRVec3 color = convertColor(directionalLight->GetDiffuseColor()) * directionalLight->GetDimmer();
-
-					rrLight = RRLight::createDirectionalLight(dir, color, false);
-				}
-
-				// point light
-				else if (NiIsExactKindOf(NiPointLight, light))
-				{
-					NiPointLight* pointLight = (NiPointLight*) light;
-
-					RRVec3 pos = convertWorldPos(pointLight->GetWorldLocation()) * SCALE_GEOMETRY;
-					RRVec3 color = convertColor(pointLight->GetDiffuseColor()) * pointLight->GetDimmer();
-					RRVec4 poly(pointLight->GetConstantAttenuation(),pointLight->GetLinearAttenuation()*SCALE_GEOMETRY,pointLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
-
-					rrLight = RRLight::createPointLightPoly(pos, color, poly);
-				}
-	
-				// spot light
-				else if (NiIsExactKindOf(NiSpotLight, light))
-				{
-					NiSpotLight* spotLight = (NiSpotLight*) light;
-
-					RRVec3 pos = convertWorldPos(spotLight->GetWorldLocation()) * SCALE_GEOMETRY;
-					RRVec3 dir = convertWorldDir(spotLight->GetWorldDirection());
-					RRVec3 color = convertColor(spotLight->GetDiffuseColor()) * spotLight->GetDimmer();
-					RRVec4 poly(spotLight->GetConstantAttenuation(),spotLight->GetLinearAttenuation()*SCALE_GEOMETRY,spotLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
-					float innerAngle = 0.0174533f * spotLight->GetInnerSpotAngle();
-					float outerAngle = 0.0174533f * spotLight->GetSpotAngle();
-					float spotExponent = spotLight->GetSpotExponent();
-
-					rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, outerAngle, outerAngle-innerAngle, spotExponent);
-				}
-
-				// common light properties
-				if (rrLight)
-				{
-#ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-					rrLight->customData = new GamebryoLightCache(light);
-					NiShadowGenerator* shadowGenerator = light->GetShadowGenerator();
-					rrLight->castShadows = shadowGenerator && shadowGenerator->GetActive();
-#else
-					rrLight->castShadows = true;
-#endif
-					push_back(rrLight);
-				}
+				rrLight = RRLight::createDirectionalLight(dir, color, false);
 			}
-		}
 
-		// recurse into children, if any
-		if (NiIsKindOf(NiNode, object))
-		{
-			NiNode* node = (NiNode*) object;
-			for (unsigned int i = 0; i < node->GetArrayCount(); i++)
+			// point light
+			else if (NiIsExactKindOf(NiPointLight, light))
 			{
-				NiAVObject *child = node->GetAt(i);
-				if (child)
-				{
-					addLights(child);
-				}
+				NiPointLight* pointLight = (NiPointLight*) light;
+
+				RRVec3 pos = convertWorldPos(pointLight->GetWorldLocation()) * SCALE_GEOMETRY;
+				RRVec3 color = convertColor(pointLight->GetDiffuseColor()) * pointLight->GetDimmer();
+				RRVec4 poly(pointLight->GetConstantAttenuation(),pointLight->GetLinearAttenuation()*SCALE_GEOMETRY,pointLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
+
+				rrLight = RRLight::createPointLightPoly(pos, color, poly);
+			}
+
+			// spot light
+			else if (NiIsExactKindOf(NiSpotLight, light))
+			{
+				NiSpotLight* spotLight = (NiSpotLight*) light;
+
+				RRVec3 pos = convertWorldPos(spotLight->GetWorldLocation()) * SCALE_GEOMETRY;
+				RRVec3 dir = convertWorldDir(spotLight->GetWorldDirection());
+				RRVec3 color = convertColor(spotLight->GetDiffuseColor()) * spotLight->GetDimmer();
+				RRVec4 poly(spotLight->GetConstantAttenuation(),spotLight->GetLinearAttenuation()*SCALE_GEOMETRY,spotLight->GetQuadraticAttenuation()*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
+				float innerAngle = 0.0174533f * spotLight->GetInnerSpotAngle();
+				float outerAngle = 0.0174533f * spotLight->GetSpotAngle();
+				float spotExponent = spotLight->GetSpotExponent();
+
+				rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, outerAngle, outerAngle-innerAngle, spotExponent);
+			}
+
+			// common light properties
+			if (rrLight)
+			{
+#ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+				rrLight->customData = new GamebryoLightCache(light);
+				NiShadowGenerator* shadowGenerator = light->GetShadowGenerator();
+				rrLight->castShadows = shadowGenerator && shadowGenerator->GetActive();
+#else
+				rrLight->castShadows = true;
+#endif
+				push_back(rrLight);
 			}
 		}
 	}
@@ -1059,15 +1075,14 @@ public:
 //
 // main low level interface
 
-RRObjects* adaptObjectsFromGamebryo(NiScene* scene, NiAVObject* objects, bool& aborting)
+RRObjects* adaptObjectsFromGamebryo(NiScene* scene, bool& aborting)
 {
-	RRObjects* result = new RRObjectsGamebryo(scene,objects,aborting);
-	return result;
+	return new RRObjectsGamebryo(scene,aborting);
 }
 
-RRLights* adaptLightsFromGamebryo(NiAVObject* objects)
+RRLights* adaptLightsFromGamebryo(NiScene* scene)
 {
-	return new RRLightsGamebryo(objects);
+	return new RRLightsGamebryo(scene);
 }
 
 
@@ -1127,63 +1142,27 @@ ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebr
 		RRReporter::report(ERRO,"Scene %s empty.\n",_filename);
 		return;
 	}
-	pEntityScene = kStream.GetSceneAt(0);
-	pEntityScene->IncRefCount();
+	pkEntityScene = kStream.GetSceneAt(0);
+	pkEntityScene->IncRefCount();
+
+	// update scene in memory
 	NiExternalAssetManagerPtr spAsset = NiNew NiExternalAssetManager;
 	spAsset->SetAssetFactory(NiFactories::GetAssetFactory());
 	NiDefaultErrorHandlerPtr spError = NiNew NiDefaultErrorHandler;
-	pEntityScene->Update(0.0f, spError, spAsset);
+	pkEntityScene->Update(0.0f, spError, spAsset);
 
-    unsigned int uiCount = pEntityScene->GetEntityCount();
+    unsigned int uiCount = pkEntityScene->GetEntityCount();
     for (unsigned int uiEntity = 0; uiEntity < uiCount; uiEntity++)
     {
-        NiEntityInterface* pkEntity = pEntityScene->GetEntityAt(uiEntity);
+        NiEntityInterface* pkEntity = pkEntityScene->GetEntityAt(uiEntity);
         pkEntity->Update(NULL, 0.0, spError, spAsset);
     }
 
-	uiCount = pEntityScene->GetEntityCount();
-	for (unsigned int uiEntity=0; uiEntity < uiCount; uiEntity++)
-	{
-		NiEntityInterface* pkEntity = pEntityScene->GetEntityAt(uiEntity);
-		const char* pcName = pkEntity->GetName();
+	// adapt lights
+	lights = adaptLightsFromGamebryo(pkEntityScene);
 
-		unsigned int uiSceneRootCount;
-		NiFixedString kSceneRootPointer = "Scene Root Pointer";
-		NIASSERT(pkEntity);
-		// If an entity has a scene graph, visit all the meshes in that graph
-		if (pkEntity->GetElementCount(kSceneRootPointer, uiSceneRootCount))
-		{
-			for (unsigned int ui = 0; ui < uiSceneRootCount; ui++)
-			{
-				NiObject* pkObject;
-				if (pkEntity->GetPropertyData( kSceneRootPointer, pkObject, ui))
-				{
-					NiAVObject* root = NiDynamicCast(NiAVObject, pkObject);
-					if (root)
-					{
-						// adapt objects+lights
-						RRObjects* newObjects = adaptObjectsFromGamebryo(pEntityScene,root,_aborting);
-						RRLights* newLights = adaptLightsFromGamebryo(root);
-						// move them to main containers
-						if (!objects)
-						{
-							objects = newObjects;
-							lights = newLights;
-						}
-						else
-						{
-							objects->insert(objects->end(),newObjects->begin(),newObjects->end());
-							lights->insert(lights->end(),newLights->begin(),newLights->end());
-							newObjects->clear();
-							newLights->clear();
-							delete newObjects;
-							delete newLights;
-						}
-					}
-				}
-			}
-		}
-	}
+	// adapt meshes
+	objects = adaptObjectsFromGamebryo(pkEntityScene,_aborting);
 
 	updateCastersReceiversCache();
 
@@ -1203,7 +1182,7 @@ ImportSceneGamebryo::~ImportSceneGamebryo()
 #endif
 	delete lights;
 	delete objects;
-	pEntityScene->DecRefCount();
+	pkEntityScene->DecRefCount();
 
 	// Gamebryo shutdown
 	if (initGamebryo)
