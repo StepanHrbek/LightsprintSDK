@@ -318,7 +318,7 @@ Ray-Mesh collisions
 
 \page tpl_fcollada FCollada
   - www: <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
-  - optional, remove by deleting <code>\#define SUPPORT_DAE</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
+  - optional, remove by deleting <code>\#define SUPPORT_COLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B
@@ -345,14 +345,14 @@ Ray-Mesh collisions
 
 \page tpl_fragments code fragments
   - .3ds .bsp and .mgf loaders contain 3rd party open source code
-  - optional, remove loaders by deleting <code>\#define SUPPORT_3DS, \#define SUPPORT_BSP, \#define SUPPORT_MGF</code> in <code>src/LightsprintIO/supported_formats.h</code>
+  - optional, remove loaders by deleting <code>\#define SUPPORT_3DS, \#define SUPPORT_QUAKE3, \#define SUPPORT_MGF</code> in <code>src/LightsprintIO/supported_formats.h</code>
   - for copyright information, see headers of individual files in src/LightsprintIO/Import*
 
 \page tpl_gamebryo Gamebryo
   - www: <a href="http://emergent.net">Gamebryo</a>
   - Gamebryo is a commercial game engine offered by Emergent Game Technologies
   - for Gamebryo licensee, we include Gamebryo integration code developed in cooperation of Lightsprint and Emergent Game Technologies
-  - optional, remove by deleting <code>\#define SUPPORT_GSA</code> in <code>src/LightsprintIO/supported_formats.h</code>
+  - optional, remove by deleting <code>\#define SUPPORT_GAMEBRYO</code> in <code>src/LightsprintIO/supported_formats.h</code>
 
 \page tpl_glut glut
   - www: <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
