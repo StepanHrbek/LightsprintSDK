@@ -12,7 +12,7 @@
 // http://www.emergent.net
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 
 #include "NiMaterialDetector.h"
 //#include "NiTGAWriter.h"
@@ -330,4 +330,4 @@ void NiMaterialDetector::Shutdown()
 }
 //---------------------------------------------------------------------------
 
-#endif // SUPPORT_GSA
+#endif // SUPPORT_GAMEBRYO

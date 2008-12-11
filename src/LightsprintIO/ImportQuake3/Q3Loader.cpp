@@ -5,7 +5,7 @@
  */
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_BSP
+#ifdef SUPPORT_QUAKE3
 
 #include "Q3Loader.h"
 #include <string.h>
@@ -803,4 +803,4 @@ void freeMap(TMapQ3& pMap)
 	pMap.mLightVols.clear();
 }
 
-#endif // SUPPORT_BSP
+#endif // SUPPORT_QUAKE3

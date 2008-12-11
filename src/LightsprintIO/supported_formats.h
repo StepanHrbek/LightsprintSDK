@@ -7,27 +7,27 @@
 // What file formats you wish to be supported by LightsprintIO.
 // Comment out formats you don't need.
 
-#define SUPPORT_3DS    // 3D Studio
-#define SUPPORT_BSP    // Quake 3
-#define SUPPORT_DAE    // Collada
-#define SUPPORT_GSA    // Gamebryo
-#define SUPPORT_MGF    // Materials and Geometry Format 
-#define SUPPORT_OBJ    // Wavefront
-#define SUPPORT_IMAGES // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
+#define SUPPORT_GAMEBRYO  // Gamebryo .gsa
+#define SUPPORT_COLLADA   // Collada .dae
+#define SUPPORT_QUAKE3    // Quake 3 .bsp
+#define SUPPORT_3DS       // 3D Studio .3ds
+#define SUPPORT_MGF       // Materials and Geometry Format .mgf
+#define SUPPORT_OBJ       // Wavefront .obj
+#define SUPPORT_IMAGES    // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 
 
 
 // Actual support depends on your operating system, compiler etc.
 
 // FCollada doesn't support Visual Studio 2003.
-#if defined(SUPPORT_DAE) && defined(_MSC_VER) && (_MSC_VER < 1400)
-	#undef SUPPORT_DAE
+#if defined(SUPPORT_COLLADA) && defined(_MSC_VER) && (_MSC_VER < 1400)
+	#undef SUPPORT_COLLADA
 #endif
 
 // Gamebryo doesn't support Visual Studio 2003, 64-bit code, Linux.
 // We don't support Gamebryo in static LightsprintIO (it works, but Gamebryo libs are not automatically linked to samples).
-#if defined(SUPPORT_GSA) && ( !defined(_MSC_VER) || _MSC_VER<1400 || defined(_M_X64) || defined(RR_IO_STATIC) )
-	#undef SUPPORT_GSA
+#if defined(SUPPORT_GAMEBRYO) && ( !defined(_MSC_VER) || _MSC_VER<1400 || defined(_M_X64) || defined(RR_IO_STATIC) )
+	#undef SUPPORT_GAMEBRYO
 #endif
 
 // We haven't tested mgflib under Linux yet.

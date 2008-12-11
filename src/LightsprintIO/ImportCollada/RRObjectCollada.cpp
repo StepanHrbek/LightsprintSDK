@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_DAE
+#ifdef SUPPORT_COLLADA
 
 // This code implements data adapters for access to Collada meshes,
 // objects, materials, loaded by FCollada library.
@@ -1021,4 +1021,4 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return NULL;
 }
 
-#endif // SUPPORT_DAE
+#endif // SUPPORT_COLLADA

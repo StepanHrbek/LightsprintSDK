@@ -15,7 +15,7 @@
 #define NIMATERIALDETECTOR_H
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 
 #include <NiAnimation.h>
 #include <NiDebug.h>
@@ -78,6 +78,6 @@ protected:
 
 NiSmartPointer(NiMaterialDetector);
 
-#endif // SUPPORT_GSA
+#endif // SUPPORT_GAMEBRYO
 
 #endif // NIMATERIALDETECTOR_H

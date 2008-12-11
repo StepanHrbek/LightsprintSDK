@@ -1,6 +1,6 @@
 #include "supported_formats.h"
 
-#ifdef SUPPORT_BSP
+#ifdef SUPPORT_QUAKE3
 	#include "ImportQuake3/Q3Loader.h" // should be include first because it includes stl in non-default way
 	#include "ImportQuake3/RRObjectBSP.h"
 #endif
@@ -10,13 +10,13 @@
 	#include "Import3DS/RRObject3DS.h"
 #endif
 
-#ifdef SUPPORT_DAE
+#ifdef SUPPORT_COLLADA
 	#include "FCollada.h"
 	#include "FCDocument/FCDocument.h"
 	#include "ImportCollada/RRObjectCollada.h"
 #endif
 
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 	#include "ImportGamebryo/RRObjectGamebryo.h"
 #endif
 
@@ -63,7 +63,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 	}
 #endif
 
-#ifdef SUPPORT_BSP
+#ifdef SUPPORT_QUAKE3
 	// load quake 3 map
 	scene_bsp = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0)
@@ -89,7 +89,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 	}
 #endif
 
-#ifdef SUPPORT_DAE
+#ifdef SUPPORT_COLLADA
 	// load collada document
 	scene_dae = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".dae")==0)
@@ -120,7 +120,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 	}
 #endif
 
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 	// load gamebryo scene
 	scene_gsa = NULL;
 	if (filename && strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".gsa")==0)
@@ -159,7 +159,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 
 ImportScene::~ImportScene()
 {
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 	if (!scene_gsa)
 #endif
 	{
@@ -171,17 +171,17 @@ ImportScene::~ImportScene()
 	delete scene_3ds;
 #endif
 
-#ifdef SUPPORT_BSP
+#ifdef SUPPORT_QUAKE3
 	if (scene_bsp) freeMap(*scene_bsp);
 	delete scene_bsp;
 #endif
 
-#ifdef SUPPORT_DAE
+#ifdef SUPPORT_COLLADA
 	SAFE_RELEASE(scene_dae);
 	FCollada::Release();
 #endif
 
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 	delete scene_gsa;
 #endif
 }

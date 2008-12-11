@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_GSA
+#ifdef SUPPORT_GAMEBRYO
 
 // TODO
 // - test LODs (implemented but not tested)
@@ -1214,4 +1214,4 @@ void ImportSceneGamebryo::updateCastersReceiversCache()
 #endif
 }
 
-#endif // SUPPORT_GSA
+#endif // SUPPORT_GAMEBRYO
