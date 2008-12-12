@@ -80,32 +80,6 @@ static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerV
 
 // true = valid answer
 // false = dialog was escaped
-// Future version may use incoming quality as default value.
-static bool getSpeed(wxWindow* parent, float& speed)
-{
-	const wxString choices[] = {
-		"0.001",
-		"0.01",
-		"0.1",
-		"0.5",
-		"2",
-		"10",
-		"100",
-		"1000",
-	};
-	wxSingleChoiceDialog dialog(parent,"","Please select camera speed (m/s)",sizeof(choices)/sizeof(wxString*),choices);
-	if (dialog.ShowModal()==wxID_OK)
-	{
-		double d = 1;
-		dialog.GetStringSelection().ToDouble(&d);
-		speed = (float)d;
-		return true;
-	}
-	return false;
-}
-
-// true = valid answer
-// false = dialog was escaped
 static bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
 {
 	char value[30];
@@ -121,6 +95,13 @@ static bool getFactor(wxWindow* parent, float& factor, const wxString& message, 
 		}
 	}
 	return false;
+}
+
+// true = valid answer
+// false = dialog was escaped
+static bool getSpeed(wxWindow* parent, float& speed)
+{
+	return getFactor(parent,speed,"Please adjust camera speed (m/s)","Camera speed");
 }
 
 // true = valid answer
