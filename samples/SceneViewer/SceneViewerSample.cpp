@@ -22,16 +22,16 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
 // --------------------------------------------------------------------------
 
+#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/Program.h"
+#include "Lightsprint/IO/ImportScene.h"
 #include <cstdlib>
 #include <cstdio>
 #ifdef _WIN32
 #include <crtdbg.h>
 #include <direct.h>
 #endif // _WIN32
-#include "Lightsprint/GL/SceneViewer.h"
-#include "Lightsprint/GL/Texture.h"
-#include "Lightsprint/GL/Program.h"
-#include "Lightsprint/IO/ImportScene.h"
 
 void error(const char* message, bool gfxRelated)
 {
@@ -70,6 +70,7 @@ int main(int argc, char **argv)
 	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	_chdir(exedir);
 	free(exedir);
+
 #endif // _WIN32
 
 	// load scene
