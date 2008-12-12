@@ -8,6 +8,7 @@
 
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
+#include "wx/joystick.h"
 #include "SVApp.h"
 #include "SVLightProperties.h"
 #include "SVLightmapViewer.h"

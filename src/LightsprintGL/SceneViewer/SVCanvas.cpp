@@ -378,6 +378,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	solver->reportInteraction();
 }
 
+
 void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if (!winWidth) return; // can't work without window
@@ -952,6 +953,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 	SwapBuffers();
 }
+
 
 BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
     EVT_SIZE(SVCanvas::OnSize)
