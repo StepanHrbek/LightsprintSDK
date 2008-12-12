@@ -104,6 +104,37 @@ static bool getSpeed(wxWindow* parent, float& speed)
 	return false;
 }
 
+// true = valid answer
+// false = dialog was escaped
+static bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
+{
+	char value[30];
+	sprintf(value,"%f",factor);
+	wxTextEntryDialog dialog(parent,message,caption,value);
+	if (dialog.ShowModal()==wxID_OK)
+	{
+		double d = 1;
+		if (dialog.GetValue().ToDouble(&d))
+		{
+			factor = (float)d;
+			return true;
+		}
+	}
+	return false;
+}
+
+// true = valid answer
+// false = dialog was escaped
+static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
+{
+	float average = brightness.avg();
+	if (getFactor(parent,average,"Please adjust brightness.","Brightness"))
+	{
+		brightness = rr::RRVec4(average);
+		return true;
+	}
+	return false;
+}
 
 SVFrame* SVFrame::Create(SceneViewerParameters& params)
 {
@@ -280,8 +311,9 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	winMenu->Append(ME_RENDER_TRANSPARENT,_T(svs.renderTransparent?"Disable transparency":"Enable transparency"));
 	winMenu->Append(ME_RENDER_WATER,_T(svs.renderWater?"Disable water":"Enable water"));
 	winMenu->Append(ME_RENDER_TEXTURES,_T(svs.renderTextures?"Disable textures":"Enable textures"));
-	winMenu->Append(ME_RENDER_TONEMAPPING,_T(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping"));
 	winMenu->Append(ME_RENDER_WIREFRAME,_T(svs.renderWireframe?"Disable wireframe":"Wireframe"));
+	winMenu->Append(ME_RENDER_TONEMAPPING,_T(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping"));
+	winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
 	menuBar->Append(winMenu, _T("Render"));
 
 	winMenu = new wxMenu;
@@ -558,7 +590,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
 			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
 			break;
-		case ME_CAMERA_SPEED: getSpeed(this,svs.cameraMetersPerSecond); break;
+		case ME_RENDER_BRIGHTNESS:
+			getBrightness(this,svs.brightness);
+			break;
+		case ME_CAMERA_SPEED:
+			getSpeed(this,svs.cameraMetersPerSecond);
+			break;
 			
 
 //		if (ourEnv)
