@@ -17,6 +17,7 @@ namespace rr
  - \subpage main_scenarios
  - \subpage main_features
  - \subpage main_platforms
+ - \subpage main_deployment
  - \subpage main_credits
 
  \section root_integrations Integrations
@@ -250,6 +251,7 @@ Ray-Mesh collisions
 
  Used by samples (completely optional):
  - \subpage tpl_glut
+ - \subpage tpl_bunny
 
  Installation:
  - Windows: works out of the box
@@ -365,7 +367,58 @@ Ray-Mesh collisions
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not used
 
+\page tpl_bunny Bunny Benchmark framework
+  - Bunny Benchmark sample contains framework code and data provided by benchmark author
+  - framework must be present in order to get comparable results
+  - for copyright information, see headers of individual files in samples/BunnyBenchmark/*
 
+
+
+
+
+\page main_deployment Deployment
+
+  It can't be easier.
+
+ \section deploy_setup Setup
+
+  Lightsprint SDK does not need any setup, environment variables,
+  registry entries etc.
+  It works from any location in filesystem (local disk or network).
+
+ \section deploy_programmers Deployment - game programmers
+
+  Programmers need access to complete SDK.
+  For programmers evaluating Lightsprint SDK,
+  deployment consists of unpacking SDK archive to any location.
+  After acquiring full license, it is recommended to put Lightsprint
+  SDK under your version control system, so that programmers get it via
+  regular source code update.
+
+  Programmers integrate Lightsprint SDK into toolchain or engine for artists and players.
+
+ \section deploy_artists Deployment - game artists
+
+  Artists usually don't directly interact with Lightsprint files,
+  they use Lightsprint integrated into game engine and tools.
+  Integration needs access only to small subset of SDK's bin and data
+  directories. For example in case of Unreal Engine 3 integration,
+  the only new files for artists are LightsprintCore.vs2005.dll
+  and licence_number.
+  Programmers should include relevant files into game's engine/toolchain,
+  so that artists get integration next time they update,
+  without any additional effort.
+
+ \section deploy_players Deployment - game players
+
+  Games with static lighting (lightmaps) precomputed by Lightsprint SDK
+  don't need to redistribute any Lightsprint SDK files.
+
+  Games with lighting computed in real-time by Lightsprint may
+  depend on Lightsprint SDK redistributable files, similarly to game
+  tools used by artists.
+  Programmers should include relevant (and only relevant) files
+  into game's distribution.
 
 
 
