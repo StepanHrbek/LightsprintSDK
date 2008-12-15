@@ -8,6 +8,18 @@ namespace rr
 
 \page main_news What's new
 
+\section news69 ------------------------------------ 2008.12.x -------------------------------------
+
+NEWS
+
+- BuildLightmaps tool lets you change lightmap resolution, format etc for individual objects
+- new RRObjects::recommendLayerParameters() recommends lightmap resolution, filename etc
+
+CHANGES
+
+- RRObjects::LayerParameters replaces RRIlluminatedObject::LayerParameters (introduced in previous release)
+- RRObjects::createLayer() was removed (introduced in previous release)
+
 \section news68 ------------------------------------ 2008.12.8 -------------------------------------
 
 NEWS

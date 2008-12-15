@@ -26,26 +26,6 @@ namespace rr
 
 	struct RRIlluminatedObject
 	{
-		struct LayerParameters
-		{
-			unsigned mapSize;
-			unsigned mapSizeMin;
-			unsigned mapSizeMax;
-			float pixelsPerWorldUnit;
-			RRBufferFormat format;
-			bool scaled;
-
-			LayerParameters(unsigned size)
-			{
-				mapSize = size;
-				mapSizeMin = 32;
-				mapSizeMax = 1024;
-				pixelsPerWorldUnit = 1;
-				format = size ? BF_RGB : BF_RGBF;
-				scaled = size ? true : false;
-			}
-		};
-
 		RRObject* object;
 		RRObjectIllumination* illumination;
 		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
@@ -66,16 +46,72 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRObjects : public RRVector<RRIlluminatedObject>
+	class RR_API RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
-		//! Creates buffers in layer according to params.
-		//
-		//! Buffers that already existed stay unmodified, even if they differ in parameters.
-		//! \return
-		//!  Number of buffers created.
-		RR_API virtual unsigned createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const;
+		//! Structure used by recommendLayerParameters().
+		struct LayerParameters
+		{
+			// inputs to RRObjects::recommendLayerParameters()
+			int objectIndex; // -1 = global params for all objects; 0,1,2... params specific for given object
+			unsigned suggestedMapSize;
+			unsigned suggestedMinMapSize;
+			unsigned suggestedMaxMapSize;
+			float suggestedPixelsPerWorldUnit;
+			const char* suggestedPath;
+			const char* suggestedExt;
 
+			// outputs of RRObjects::recommendLayerParameters()
+			RRBufferType actualType;
+			unsigned actualWidth;
+			unsigned actualHeight;
+			RRBufferFormat actualFormat;
+			bool actualScaled;
+			char* actualFilename; // NULL in constructor, malloced in RRObjects::recommendLayerParameters(), freed in destructor
+
+			// tools
+			LayerParameters()
+			{
+				objectIndex = -1;
+				suggestedMapSize = 256;
+				suggestedMinMapSize = 32;
+				suggestedMaxMapSize = 1024;
+				suggestedPixelsPerWorldUnit = 1;
+				suggestedPath = "";
+				suggestedExt = "png";
+				actualFilename = NULL;
+			}
+
+			RRBuffer* create() const
+			{
+				return RRBuffer::create(actualType,actualWidth,actualHeight,1,actualFormat,actualScaled,NULL);
+			}
+
+			~LayerParameters()
+			{
+				free(actualFilename);
+			}
+		};
+
+		//! Recommends layer parameters (resolution, filename etc).
+		//
+		//! Nearly all tools and samples need to decide what lightmap resolutions to use, what lightmap filenames
+		//! to use etc.
+		//! Samples are free to use arbitrary resolutions and filenames and often they do.
+		//! But for convenience of undecided tools and samples, this function is provided as
+		//! a central point of their decision making.
+		//!
+		//! Applications often have some opinion, so this function takes their suggections on resolution,
+		//! path, extension etc, stored in layerParameters.
+		//! Recommended new resolution, filename etc are output into the same structure.
+		//!
+		//! Custom implementations of this function use different decision making rules.
+		//! For example adapter of Gamebryo .gsa scene never recommends vertex buffer,
+		//! because Gamebryo doesn't support lighting in vertex buffers yet.
+		//! \param layerParameters
+		//!  Structure of both inputs (suggestedXxx) and outputs (actualXxx).
+		//!  Outputs are filled by this function.
+		virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const;
 		//! Loads illumination layer from disk.
 		//
 		//! It is shortcut for calling illumination->getLayer() = rr::RRBuffer::load() on all elements in this container.
@@ -88,7 +124,7 @@ namespace rr
 		//!  Vertex buffers are always loaded from .vbu, without regard to ext.
 		//! \remark
 		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
-		RR_API virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const;
+		virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const;
 
 		//! Saves illumination layer to disk.
 		//
@@ -102,7 +138,7 @@ namespace rr
 		//!  Vertex buffers are always saved to .vbu, without regard to ext.
 		//! \remark
 		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
-		RR_API virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
+		virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
 
 		virtual ~RRObjects() {};
 	};

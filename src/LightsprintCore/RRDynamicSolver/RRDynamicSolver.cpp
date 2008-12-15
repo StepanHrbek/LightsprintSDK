@@ -530,31 +530,6 @@ static bool exists(const char* filename)
 	return true;
 }
 
-unsigned RRObjects::createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const
-{
-	unsigned created = 0;
-	if (layerNumber>=0)
-	{
-		for (unsigned i=0;i<size();i++)
-		{
-			unsigned numVertices = (*this)[i].object->getCollider()->getMesh()->getNumVertices();
-			if (numVertices && !(*this)[i].illumination->getLayer(layerNumber))
-			{
-				(*this)[i].illumination->getLayer(layerNumber) =
-					params.mapSize
-					?
-					// allocate lightmap for selected object
-					rr::RRBuffer::create(rr::BT_2D_TEXTURE,params.mapSize,params.mapSize,1,params.format,params.scaled,NULL)
-					:
-					// allocate vertex buffers for other objects
-					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,params.format,params.scaled,NULL);
-				created++;
-			}
-		}
-	}
-	return created;
-}
-
 // formats filename from prefix(path), object number and postfix(ext)
 const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
 {
@@ -593,43 +568,64 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 	return result;
 }
 
+void RRObjects::recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
+{
+	RR_ASSERT((unsigned)layerParameters.objectIndex<size());
+	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex].object->getCollider()->getMesh()->getNumPreImportVertices();
+	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
+	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
+	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
+	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
+	free(layerParameters.actualFilename);
+	layerParameters.actualFilename = _strdup(formatFilename(layerParameters.suggestedPath,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER));
+}
+
+
 unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext) const
 {
 	unsigned result = 0;
 	if (layerNumber>=0)
 	{
-		unsigned numObjects = size();
-		for (unsigned i=0;i<numObjects;i++)
+		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			rr::RRObjectIllumination* illumination = (*this)[i].illumination;
+			RRObjectIllumination* illumination = (*this)[objectIndex].illumination;
 			if (illumination)
 			{
-				delete illumination->getLayer(layerNumber);
-				const char* filename = formatFilename(path,i,ext,false);
-				if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
+				// first try to load per-pixel format
+				RRBuffer* buffer = NULL;
+				rr::RRObjects::LayerParameters layerParameters;
+				layerParameters.objectIndex = objectIndex;
+				layerParameters.suggestedPath = path;
+				layerParameters.suggestedExt = ext;
+				layerParameters.suggestedMapSize = 256;
+				recommendLayerParameters(layerParameters);
+				if ( !exists(layerParameters.actualFilename) || !(buffer=rr::RRBuffer::load(layerParameters.actualFilename,NULL)) )
 				{
+					// if it fails, try to load per-vertex format
+					layerParameters.suggestedMapSize = 0;
+					recommendLayerParameters(layerParameters);
+					if (exists(layerParameters.actualFilename))
+						buffer = rr::RRBuffer::load(layerParameters.actualFilename);
+				}
+				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=illumination->getNumPreImportVertices())
+				{
+					LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
+					RR_SAFE_DELETE(buffer);
+				}
+				if (buffer)
+				{
+					delete illumination->getLayer(layerNumber);
+					illumination->getLayer(layerNumber) = buffer;
 					result++;
-					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
+					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",layerParameters.actualFilename);
 				}
 				else
 				{
-					filename = formatFilename(path,i,ext,true);
-					if ( exists(filename) && (illumination->getLayer(layerNumber)=rr::RRBuffer::load(filename,NULL)) )
-					{
-						result++;
-						if (illumination->getLayer(layerNumber)->getWidth()!=illumination->getNumPreImportVertices())
-						{
-							LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size, must belong to different scene.\n",filename));
-						}
-						else
-						{
-							rr::RRReporter::report(rr::INF3,"Loaded %s.\n",filename);
-						}
-					}
+					rr::RRReporter::report(rr::INF3,"Not loaded %s.\n",layerParameters.actualFilename);
 				}
 			}
 		}
-		rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers from %s.\n",layerNumber,result,numObjects,path);
+		rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
 	}
 	return result;
 }
@@ -639,26 +635,31 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 	unsigned result = 0;
 	if (layerNumber>=0)
 	{
-		unsigned numObjects = size();
-		for (unsigned i=0;i<numObjects;i++)
+		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRBuffer* buffer = (*this)[i].illumination ? (*this)[i].illumination->getLayer(layerNumber) : NULL;
+			RRBuffer* buffer = (*this)[objectIndex].illumination ? (*this)[objectIndex].illumination->getLayer(layerNumber) : NULL;
 			if (buffer)
 			{
-				const char* filename = formatFilename(path,i,ext,buffer->getType()==BT_VERTEX_BUFFER);
-				if (buffer->save(filename,NULL))
+				rr::RRObjects::LayerParameters layerParameters;
+				layerParameters.objectIndex = objectIndex;
+				layerParameters.suggestedPath = path;
+				layerParameters.suggestedExt = ext;
+				layerParameters.suggestedMapSize = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
+				recommendLayerParameters(layerParameters);
+				if (buffer->save(layerParameters.actualFilename))
 				{
 					result++;
-					rr::RRReporter::report(rr::INF3,"Saved %s.\n",filename);
+					rr::RRReporter::report(rr::INF3,"Saved %s.\n",layerParameters.actualFilename);
 				}
 				else
-					rr::RRReporter::report(rr::WARN,"Not saved %s.\n",filename);
+					rr::RRReporter::report(rr::WARN,"Not saved %s.\n",layerParameters.actualFilename);
 			}
 		}
-		rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,numObjects,path);
+		rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
 	}
 	return result;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

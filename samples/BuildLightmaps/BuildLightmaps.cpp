@@ -1,6 +1,13 @@
 // --------------------------------------------------------------------------
 // BuildLightmaps command-line tool
 //
+// This is complex tool rather than simple sample.
+// For much simpler lightmap build, see CPULightmaps sample.
+//
+// Usage
+// - list of arguments is displayed when run without arguments
+// - examples are provided in samples/BuildLightmaps/*.bat files
+//
 // This sample/tool builds various types of lighting
 // - lightmaps
 // - directional lightmaps
@@ -33,8 +40,10 @@
 // - per-pixel illumination (maps)
 // - per-vertex illumination (vertex buffers)
 //
-// Map quality highly depends on unwrap provided with scene.
-// If we don't find unwrap in scene file, we build low quality unwrap automatically,
+// Nearly all parameters may be set differently for different objects.
+//
+// Quality of produced maps highly depends on unwrap provided with scene.
+// If we don't find unwrap in scene file, we build low buildQuality unwrap automatically,
 // just to show something, even though results are poor.
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
@@ -70,6 +79,179 @@ void error(const char* message, const char* caption = "Houston, we have a proble
 #endif
 	exit(0);
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// supported layers
+
+enum 
+{
+	LAYER_LIGHTMAP = 0,
+	LAYER_OCCLUSION,
+	LAYER_DIRECTIONAL1,
+	LAYER_DIRECTIONAL2,
+	LAYER_DIRECTIONAL3,
+	LAYER_BENT_NORMALS,
+	LAYER_LAST
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// commandline parsing
+
+struct Parameters
+{
+	// global
+	char* sceneFilename;
+	unsigned buildQuality;
+	bool buildDirect;
+	bool buildIndirect;
+	bool runViewer;
+
+	// per object
+	bool buildDirectional;
+	bool buildOcclusion;
+	bool buildBentNormals;
+	rr::RRObjects::LayerParameters layerParameters;
+
+	// create parameters from commandline arguments
+	Parameters(int argc, char **argv, int objectIndex=-1)
+	{
+		// set defaults
+		sceneFilename = NULL;
+		buildQuality = 0;
+		buildDirect = true;
+		buildIndirect = true;
+		buildDirectional = false;
+		buildOcclusion = false;
+		buildBentNormals = false;
+		runViewer = false;
+		layerParameters.objectIndex = objectIndex;
+
+		// parse commandline
+		int parsingObjectIndex = -1;
+		for (int i=1;i<argc;i++)
+		{
+			if (sscanf(argv[i],"object:%d",&parsingObjectIndex)==1)
+			{
+			}
+			else
+			if (parsingObjectIndex==-1 || parsingObjectIndex==objectIndex)
+			{
+				if (sscanf(argv[i],"quality=%d",&buildQuality)==1)
+				{
+				}
+				else
+				if (!strcmp(argv[i],"direct"))
+				{
+					buildDirect = true;
+				}
+				else
+				if (!strcmp(argv[i],"indirect"))
+				{
+					buildIndirect = true;
+				}
+				else
+				if (!strcmp(argv[i],"occlusion"))
+				{
+					buildOcclusion = true;
+				}
+				else
+				if (!strcmp(argv[i],"directional"))
+				{
+					buildDirectional = true;
+				}
+				else
+				if (!strcmp(argv[i],"bentnormals"))
+				{
+					buildBentNormals = true;
+				}
+				else
+				if (sscanf(argv[i],"mapsize=%d",&layerParameters.suggestedMapSize)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"minmapsize=%d",&layerParameters.suggestedMinMapSize)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"maxmapsize=%d",&layerParameters.suggestedMaxMapSize)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"pixelsperworldunit=%f",&layerParameters.suggestedPixelsPerWorldUnit)==1)
+				{
+				}
+				else
+				if (!strcmp(argv[i],"viewer"))
+				{
+					runViewer = true;
+				}
+				else
+				if (!strncmp(argv[i],"outputpath=",11))
+				{
+					layerParameters.suggestedPath = argv[i]+11;
+				}
+				else
+				if (!strncmp(argv[i],"outputext=",10))
+				{
+					layerParameters.suggestedExt = argv[i]+10;
+				}
+				else
+				{
+					FILE* f = fopen(argv[i],"rb");
+					if (f)
+					{
+						sceneFilename = argv[i];
+						fclose(f);
+					}
+					else
+					{
+						rr::RRReporter::report(rr::WARN,"Unknown argument or file not found: %s\n",argv[i]);
+					}
+				}
+			}
+		}
+		if (!buildDirect && !buildIndirect)
+		{
+			buildDirect = true;
+			buildIndirect = true;
+		}
+	}
+
+	// allocate layers for 1 object (lightmaps etc)
+	void layersCreate(const rr::RRIlluminatedObject* illuminatedObject) const
+	{
+		illuminatedObject->illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.create() : NULL;
+	}
+
+	// save layers of 1 object, returns number of successfully saved layers
+	unsigned layersSave(const rr::RRIlluminatedObject* illuminatedObject) const
+	{
+		unsigned saved = 0;
+		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
+		{
+			if (illuminatedObject->illumination->getLayer(layerIndex))
+			{
+				// insert layer name before extension
+				std::string filename = layerParameters.actualFilename;
+				const char* layerName[] = {"","occlusion.","directional1.","directional2.","directional3.","bentnormals."};
+				int ofs = filename.rfind('.',-1);
+				if (ofs>=0) filename.insert(ofs,layerName[layerIndex]);
+				// save
+				saved += illuminatedObject->illumination->getLayer(layerIndex)->save(filename.c_str());
+			}
+		}
+		return saved;
+	}
+};
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -115,134 +297,36 @@ int main(int argc, char **argv)
 	//
 	// start with defaults
 	//
-	char* sceneFilename = NULL;
-	const char* outputPath;
-	const char* outputExt = "png";
-	unsigned quality = 0;
-	bool buildDirect = true;
-	bool buildIndirect = true;
-	bool buildDirectional = false;
-	bool buildOcclusion = false;
-	bool buildBentNormals = false;
-	//bool buildLDM = false;
-	bool runViewer = false;
-	rr::RRIlluminatedObject::LayerParameters layerParams(256);
-
-	//
-	// parse commandline
-	//
-	for (int i=1;i<argc;i++)
-	{
-		if (sscanf(argv[i],"quality=%d",&quality)==1)
-		{
-		}
-		else
-		if (!strcmp(argv[i],"direct"))
-		{
-			buildDirect = true;
-		}
-		else
-		if (!strcmp(argv[i],"indirect"))
-		{
-			buildIndirect = true;
-		}
-		else
-		if (!strcmp(argv[i],"occlusion"))
-		{
-			buildOcclusion = true;
-		}
-		else
-		//if (!strcmp(argv[i],"ldm"))
-		//{
-		//	buildLDM = true;
-		//}
-		//else
-		if (!strcmp(argv[i],"directional"))
-		{
-			buildDirectional = true;
-		}
-		else
-		if (!strcmp(argv[i],"bentnormals"))
-		{
-			buildBentNormals = true;
-		}
-		else
-		if (sscanf(argv[i],"mapsize=%d",&layerParams.mapSize)==1)
-		{
-		}
-		else
-		if (sscanf(argv[i],"minmapsize=%d",&layerParams.mapSizeMin)==1)
-		{
-		}
-		else
-		if (sscanf(argv[i],"maxmapsize=%d",&layerParams.mapSizeMax)==1)
-		{
-		}
-		else
-		if (sscanf(argv[i],"pixelsperworldunit=%f",&layerParams.pixelsPerWorldUnit)==1)
-		{
-		}
-		else
-		if (!strcmp(argv[i],"viewer"))
-		{
-			runViewer = true;
-		}
-		else
-		if (!strncmp(argv[i],"outputpath=",11))
-		{
-			outputPath = argv[i]+11;
-		}
-		else
-		if (!strncmp(argv[i],"outputext=",10))
-		{
-			outputExt = argv[i]+10;
-		}
-		else
-		{
-			FILE* f = fopen(argv[i],"rb");
-			if (f)
-			{
-				sceneFilename = argv[i];
-				fclose(f);
-			}
-			else
-			{
-				rr::RRReporter::report(rr::WARN,"Unknown argument or file not found: %s\n",argv[i]);
-			}
-		}
-	}
-	if (!sceneFilename)
+	Parameters globalParameters(argc,argv);
+	if (!globalParameters.sceneFilename)
 	{
 		error(
 			"Lightsprint commandline lightmap builder\n"
 			"\n"
 			"Usage:\n"
-			"  BuildLightmaps scene [arguments]\n"
+			"  BuildLightmaps [global args] [default object args] [object:n [n-th object args]]\n"
 			"\n"
-			"Optional arguments:\n"
+			"Global arguments:\n"
+			"  scene                   (filename of scene in supported format)\n"
 			"  quality=100             (10=low, 100=medium, 1000=high)\n"
 			"  direct                  (build direct lighting only)\n"
 			"  indirect                (build indirect lighting only)\n"
+			"  occlusion               (build ambient occlusion instead of lightmaps)\n"
+#ifdef SCENE_VIEWER
+			"  viewer                  (run scene viewer after build)"
+#endif
+			"\n"
+			"Per-object arguments:\n"
 			"  directional             (build directional lightmaps)\n"
-			"  occlusion               (build occlusion)\n"
 			"  bentnormals             (build bent normals)\n"
-			//"  ldm                     (build light detail maps)\n"
 			"  outputpath=\"where/to/save/lightmaps/\"\n"
 			"  outputext=png           (format of saved maps, jpg, tga, hdr, png, bmp...)\n"
 			"  mapsize=256             (map resolution, 0=build vertex buffers)\n"
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"
 			"  maxmapsize=1024         (maximal map resolution, Gamebryo only)\n"
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
-#ifdef SCENE_VIEWER
-			"  viewer                  (run scene viewer after build)"
-#endif
 			,
 			"Scene filename not set");
-	}
-	if (!buildDirect && !buildIndirect)
-	{
-		buildDirect = true;
-		buildIndirect = true;
 	}
 
 	//
@@ -267,7 +351,7 @@ int main(int argc, char **argv)
 	//
 	// load scene
 	//
-	rr_io::ImportScene scene(sceneFilename);
+	rr_io::ImportScene scene(globalParameters.sceneFilename);
 
 	//
 	// set solver geometry
@@ -280,7 +364,7 @@ int main(int argc, char **argv)
 	//
 	// set solver lights
 	//
-	if (buildOcclusion)
+	if (globalParameters.buildOcclusion)
 	{
 		solver->setEnvironment( rr::RRBuffer::createSky() );
 	}
@@ -293,28 +377,19 @@ int main(int argc, char **argv)
 	}
 
 	//
-	// assign numbers to requested layers of information
-	//
-	int layerLightmaps = buildOcclusion ? -1 : 0;
-	int layerOcclusion = buildOcclusion ? 0 : -1;
-	int layerDirectional = buildDirectional ? 1 : -3;
-	int layerBentNormals = buildBentNormals ? 4 : -1;
-	//int layerLDM = buildLDM ? 5 : -1;
-
-	//
-	// allocate layers
+	// allocate layers (decide resolution, format)
 	//
 	if (scene.getObjects())
 	{
-		layerParams.format = layerParams.mapSize ? rr::BF_RGB : rr::BF_RGBF;
-		layerParams.scaled = layerParams.mapSize ? true : false;
-		scene.getObjects()->createLayer(layerLightmaps,layerParams);
-		scene.getObjects()->createLayer(layerOcclusion,layerParams);
-		scene.getObjects()->createLayer(layerDirectional,layerParams);
-		scene.getObjects()->createLayer(layerDirectional+1,layerParams);
-		scene.getObjects()->createLayer(layerDirectional+2,layerParams);
-		scene.getObjects()->createLayer(layerBentNormals,layerParams);
-		//scene.getObjects()->createLayer(layerLDM,layerParams);
+		for (unsigned objectIndex=0;objectIndex<scene.getObjects()->size();objectIndex++)
+		{
+			// take per-object parameters
+			Parameters objectParameters(argc,argv,objectIndex);
+			// query size, format etc
+			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
+			// allocate
+			objectParameters.layersCreate(&(*scene.getObjects())[objectIndex]);
+		}
 	}
 
 	//
@@ -325,19 +400,19 @@ int main(int argc, char **argv)
 #endif
 
 	//
-	// build layers
+	// build lighting in layers
 	//
-	if (quality)
+	if (globalParameters.buildQuality)
 	{
 		rr::RRReportInterval report(rr::INF1,"Building lighting...\n");
 
-		rr::RRDynamicSolver::UpdateParameters params(quality);
+		rr::RRDynamicSolver::UpdateParameters params(globalParameters.buildQuality);
 		solver->updateLightmaps(
-			(layerLightmaps>=0)?layerLightmaps:layerOcclusion,
-			layerDirectional,
-			layerBentNormals,
-			buildDirect ? &params : NULL,
-			buildIndirect ? &params : NULL,
+			globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP,
+			LAYER_DIRECTIONAL1,
+			LAYER_BENT_NORMALS,
+			globalParameters.buildDirect ? &params : NULL,
+			globalParameters.buildIndirect ? &params : NULL,
 			NULL);
 	}
 
@@ -351,28 +426,30 @@ int main(int argc, char **argv)
 	//
 	// save layers
 	//
-	if (quality && scene.getObjects())
+	if (globalParameters.buildQuality && scene.getObjects())
 	{
-		scene.getObjects()->saveLayer(layerLightmaps    ,outputPath,(std::string(""             )+outputExt).c_str());
-		scene.getObjects()->saveLayer(layerDirectional  ,outputPath,(std::string("directional1.")+outputExt).c_str());
-		scene.getObjects()->saveLayer(layerDirectional+1,outputPath,(std::string("directional2.")+outputExt).c_str());
-		scene.getObjects()->saveLayer(layerDirectional+2,outputPath,(std::string("directional3.")+outputExt).c_str());
-		scene.getObjects()->saveLayer(layerOcclusion    ,outputPath,(std::string("occlusion."   )+outputExt).c_str());
-		scene.getObjects()->saveLayer(layerBentNormals  ,outputPath,(std::string("bentnormals." )+outputExt).c_str());
-		//scene.getObjects()->saveLayer(layerLDM          ,(outputPath,(std::string("ldm."         )+outputExt).c_str());
+		for (unsigned objectIndex=0;objectIndex<scene.getObjects()->size();objectIndex++)
+		{
+			// take per-object parameters
+			Parameters objectParameters(argc,argv,objectIndex);
+			// query filename
+			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
+			// save
+			objectParameters.layersSave(&(*scene.getObjects())[objectIndex]);
+		}
 	}
 
 	//
 	// run interactive scene viewer
 	//
 #ifdef SCENE_VIEWER
-	if (runViewer || !quality)
+	if (globalParameters.runViewer || !globalParameters.buildQuality)
 	{
 		rr_gl::SceneViewerState svs;
 		svs.adjustTonemapping = false;
 		svs.renderHelpers = true;
-		svs.renderRealtime = quality==0; // switch from default realtime GI to static GI
-		svs.staticLayerNumber = 0; // switch from default layer to our layer 0
+		svs.renderRealtime = globalParameters.buildQuality==0; // switch from default realtime GI to static GI
+		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
 		rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
 		rr_gl::deleteAllTextures();
 	}

@@ -823,91 +823,55 @@ public:
 		}
 	}
 
-	unsigned createLayer(int layerNumber, const RRIlluminatedObject::LayerParameters& params) const
+	virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
 	{
-		unsigned created = 0;
-		if (layerNumber>=0)
-		{
-			for (unsigned i=0;i<size();i++)
-			{
-				unsigned numVertices = (*this)[i].object->getCollider()->getMesh()->getNumVertices();
-				NiMesh* niMesh = ((RRObjectGamebryo*)(*this)[i].object)->mesh;
-				if (numVertices && !(*this)[i].illumination->getLayer(layerNumber) && NiLightMapUtility::IsLightMapMesh(niMesh))
-				{
-					int w,h;
-					NiLightMapUtility::GetLightMapResolution(w,h,niMesh,params.pixelsPerWorldUnit,params.mapSizeMin,params.mapSizeMax);
-					(*this)[i].illumination->getLayer(layerNumber) =
-						w*h
-						?
-						// allocate lightmap for selected object
-						RRBuffer::create(BT_2D_TEXTURE,w,h,1,BF_RGBA,true,NULL)
-						:
-						// allocate vertex buffers for other objects
-						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,params.format,params.scaled,NULL);
-					created++;
-				}
-			}
-		}
-		return created;
-	}
-
-	virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const
-	{
-		rr::RRReporter::report(rr::WARN,"Gamebryo lightmap load not yet implemented.\n");
-		return 0;
-	}
-
-	virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const
-	{
-		class SaveLightmapFunctor : public NiVisitLightMapMeshFunctor
+		class LightmapFunctor : public NiVisitLightMapMeshFunctor
 		{
 		public:
 			virtual bool operator() (NiMesh* pkMesh, NiLightMapMeshProperties kProps)
 			{
-				for (unsigned i=0;objects && i<objects->size();i++)
+				if (pkMesh==object->mesh)
 				{
-					RRObjectGamebryo* object = (RRObjectGamebryo*)(*objects)[i].object;
-					if (pkMesh==object->mesh)
+					NiString kDirectoryName = NiString(layerParameters->suggestedPath) + "/" + kProps.m_pcEntityDirectory;
+					if (!NiFile::DirectoryExists(kDirectoryName))
 					{
-						NiString kDirectoryName = NiString(path) + "/" + kProps.m_pcEntityDirectory;
+						NiFile::CreateDirectoryRecursive(kDirectoryName);
 						if (!NiFile::DirectoryExists(kDirectoryName))
 						{
-							NiFile::CreateDirectoryRecursive(kDirectoryName);
-							if (!NiFile::DirectoryExists(kDirectoryName))
-							{
-								rr::RRReporter::report(rr::WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
-							}
-						}
-						if ((*objects)[i].illumination->getLayer(layerNumber)->save(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + ext))
-						{
-							saved++;
+							rr::RRReporter::report(rr::WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 						}
 					}
+					free(layerParameters->actualFilename);
+					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt);
+					return true;
 				}
-				return true;
+				return false;
 			}
-			const RRObjects* objects;
-			int layerNumber;
-			unsigned saved;
-			const char* path;
-			const char* ext;
+			LayerParameters* layerParameters;
+			RRObjectGamebryo* object;
 		};
 
-		SaveLightmapFunctor saveLightmap;
-		saveLightmap.saved = 0;
-		if (layerNumber>=0)
+		if ((unsigned)layerParameters.objectIndex>size())
 		{
-			if (pkEntityScene)
-			{
-				saveLightmap.objects = this;
-				saveLightmap.path = path;
-				saveLightmap.ext = ext;
-				saveLightmap.layerNumber = layerNumber;
-				NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,saveLightmap);
-			}
-			rr::RRReporter::report(rr::INF1,"Saved %d lightmaps.\n",saveLightmap.saved);
+			RRReporter::report(ERRO,"recommendLayerParameters(): objectIndex out of range\n");
+			return;
 		}
-		return saveLightmap.saved;
+
+		// fill filename
+		RR_SAFE_FREE(layerParameters.actualFilename);
+		LightmapFunctor lightmapFunctor;
+		lightmapFunctor.layerParameters = &layerParameters;
+		lightmapFunctor.object = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object;
+		NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,lightmapFunctor);
+
+		// fill size, type, format
+		int w,h;
+		NiLightMapUtility::GetLightMapResolution(w,h,lightmapFunctor.object->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+		layerParameters.actualWidth = w;
+		layerParameters.actualHeight = h;
+		layerParameters.actualType = BT_2D_TEXTURE;
+		layerParameters.actualFormat = BF_RGB;
+		layerParameters.actualScaled = true;
 	}
 
 private:
