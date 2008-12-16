@@ -119,7 +119,7 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 
 SVFrame* SVFrame::Create(SceneViewerParameters& params)
 {
-	wxString str = wxT("SceneViewer with wxWidgets");
+	wxString str = wxT("SceneViewer");
 
 	// open at ~50% of screen size
 	int x,y,width,height;
