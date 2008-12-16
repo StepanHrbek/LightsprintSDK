@@ -67,6 +67,9 @@ namespace rr_gl
 		// Copy position/direction.
 		getParent()->pos = rrlight.position;
 		getParent()->setDirection(rrlight.direction);
+		// Copy outerAngle to FOV
+		getParent()->setAspect(1);
+		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? rrlight.outerAngleRad*360/(float)M_PI : 90 ); // aspect must be already set
 		// Nearly all changes to RRLight create need for shadowmap and GI update.
 		// At this point we don't know what was changed anyway, so let's update always.
 		dirtyShadowmap = true;
