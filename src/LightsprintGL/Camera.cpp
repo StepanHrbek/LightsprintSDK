@@ -153,28 +153,31 @@ void Camera::setNearDynamically(const rr::RRObject* object)
 	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
 	ray->collisionHandler = object->createCollisionHandlerFirstVisible();
 	std::set<float> objDistance;
-	enum {RAYS=9};
-	for (int i=0;i<RAYS;i++)
+	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2
+	for (int i=-RAYS;i<=RAYS;i++)
 	{
-		RR_ASSERT(!orthogonal);
-		// builds and shoots 9 rays to screen center, corners, edge centers
-		rr::RRVec3 rayDir = getDirection(rr::RRVec2((i%3)-1.0f,((i/3)%3)-1.0f));
-		float rayDirLength = rayDir.length();
-		rayDir.normalize();
-		ray->rayDirInv[0] = 1/rayDir[0];
-		ray->rayDirInv[1] = 1/rayDir[1];
-		ray->rayDirInv[2] = 1/rayDir[2];
-		if (object->getCollider()->intersect(ray))
+		for (int j=-RAYS;j<=RAYS;j++)
 		{
-			// calculation of distanceOfPotentialNearPlane depends on getDirection() length
-			float distanceOfPotentialNearPlane = ray->hitDistance/rayDirLength;
-			objDistance.insert(distanceOfPotentialNearPlane);
+			RR_ASSERT(!orthogonal);
+			// builds and shoots 9 rays to screen center, corners, edge centers
+			rr::RRVec3 rayDir = getDirection(rr::RRVec2(i/float(RAYS),j/float(RAYS)));
+			float rayDirLength = rayDir.length();
+			rayDir.normalize();
+			ray->rayDirInv[0] = 1/rayDir[0];
+			ray->rayDirInv[1] = 1/rayDir[1];
+			ray->rayDirInv[2] = 1/rayDir[2];
+			if (object->getCollider()->intersect(ray))
+			{
+				// calculation of distanceOfPotentialNearPlane depends on getDirection() length
+				float distanceOfPotentialNearPlane = ray->hitDistance/rayDirLength;
+				objDistance.insert(distanceOfPotentialNearPlane);
+			}
 		}
 	}
 	if (objDistance.size())
 	{
-		float min = *objDistance.begin();
-		setRange( CLAMPED(min,0.0001f,getFar()/100), getFar() );
+		float min = *objDistance.begin()/2;
+		setRange( CLAMPED(min,0.0001f,getFar()/1000), getFar() );
 	}
 	delete ray->collisionHandler;
 	delete ray;
