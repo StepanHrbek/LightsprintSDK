@@ -320,6 +320,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	unsigned& centerObject = m_canvas->centerObject;
 	unsigned& centerTexel = m_canvas->centerTexel;
 	int* windowCoord = m_canvas->windowCoord;
+	bool& ourEnv = m_canvas->ourEnv;
 
 	switch (event.GetId())
 	{
@@ -579,18 +580,23 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 			
 
-//		if (ourEnv)
-	{
-//			delete solver->getEnvironment();
-	}
-//		ourEnv = true;
-//		switch(item)
-//		{
-//			case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
-//			case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
-//			case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
-//			case ME_ENV_DEFAULT: solver->setEnvironment(NULL); RR_ASSERT(0);
-			
+		case ME_ENV_WHITE:
+		case ME_ENV_BLACK:
+		case ME_ENV_WHITE_TOP:
+		case ME_ENV_DEFAULT:
+			if (ourEnv)
+			{
+				delete solver->getEnvironment();
+			}
+			ourEnv = true;
+			switch (event.GetId())
+			{
+				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
+				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
+				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
+				case ME_ENV_DEFAULT: solver->setEnvironment(NULL); RR_ASSERT(0); break;			
+			}
+			break;
 
 
 		case ME_LIGHT_DIR:
