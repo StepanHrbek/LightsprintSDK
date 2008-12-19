@@ -233,7 +233,7 @@ Ray-Mesh collisions
  without need to open your source code etc.
  All of these libraries serve as optional extensions, global illumination solver doesn't need them.
  
- Libraries used by LightsprintCore (global illumination solver):
+ Libraries used by LightsprintCore (global illumination solvers):
  - none
 
  Used by LightsprintGL (optional OpenGL support):
@@ -392,7 +392,7 @@ Ray-Mesh collisions
   For programmers evaluating Lightsprint SDK,
   deployment consists of unpacking SDK archive to any location.
   After acquiring full license, it is recommended to put Lightsprint
-  SDK under your version control system, so that programmers get it via
+  SDK under your version control system, so that all programmers get it via
   regular source code update.
 
   Programmers integrate Lightsprint SDK into toolchain or engine for artists and players.

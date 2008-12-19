@@ -53,21 +53,21 @@ namespace rr
 		struct LayerParameters
 		{
 			// inputs to RRObjects::recommendLayerParameters()
-			int objectIndex; // -1 = global params for all objects; 0,1,2... params specific for given object
-			unsigned suggestedMapSize;
-			unsigned suggestedMinMapSize;
-			unsigned suggestedMaxMapSize;
-			float suggestedPixelsPerWorldUnit;
-			const char* suggestedPath;
-			const char* suggestedExt;
+			int            objectIndex; ///< -1 = global params for all objects; 0,1,2... params specific for given object
+			unsigned       suggestedMapSize;
+			unsigned       suggestedMinMapSize;
+			unsigned       suggestedMaxMapSize;
+			float          suggestedPixelsPerWorldUnit;
+			const char*    suggestedPath;
+			const char*    suggestedExt;
 
 			// outputs of RRObjects::recommendLayerParameters()
-			RRBufferType actualType;
-			unsigned actualWidth;
-			unsigned actualHeight;
+			RRBufferType   actualType;
+			unsigned       actualWidth;
+			unsigned       actualHeight;
 			RRBufferFormat actualFormat;
-			bool actualScaled;
-			char* actualFilename; // NULL in constructor, malloced in RRObjects::recommendLayerParameters(), freed in destructor
+			bool           actualScaled;
+			char*          actualFilename; ///< NULL in constructor, malloced in RRObjects::recommendLayerParameters(), freed in destructor.
 
 			// tools
 			LayerParameters()
@@ -82,7 +82,8 @@ namespace rr
 				actualFilename = NULL;
 			}
 
-			RRBuffer* create() const
+			//! Creates buffer from actualXxx fields (filled by RRObjects::recommendLayerParameters())
+			RRBuffer* createBuffer() const
 			{
 				return RRBuffer::create(actualType,actualWidth,actualHeight,1,actualFormat,actualScaled,NULL);
 			}
@@ -102,8 +103,8 @@ namespace rr
 		//! a central point of their decision making.
 		//!
 		//! Applications often have some opinion, so this function takes their suggections on resolution,
-		//! path, extension etc, stored in layerParameters.
-		//! Recommended new resolution, filename etc are output into the same structure.
+		//! path, extension etc, stored in layerParameters (suggestedXxx fields).
+		//! Recommended new resolution, filename etc are output into the same structure (actualXxx fields).
 		//!
 		//! Custom implementations of this function use different decision making rules.
 		//! For example adapter of Gamebryo .gsa scene never recommends vertex buffer,

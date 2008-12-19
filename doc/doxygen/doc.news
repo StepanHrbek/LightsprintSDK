@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news69 ------------------------------------ 2008.12.x -------------------------------------
+\section news69 ------------------------------------ 2008.12.19 -------------------------------------
 
 NEWS
 
@@ -17,8 +17,9 @@ NEWS
 
 CHANGES
 
-- RRObjects::LayerParameters replaces RRIlluminatedObject::LayerParameters (introduced in previous release)
-- RRObjects::createLayer() was removed (introduced in previous release)
+- RRObjects::LayerParameters replaces RRIlluminatedObject::LayerParameters (added in previous release)
+- RRObjects::createLayer() was removed (added in previous release),
+  \n new RRObjects::recommendLayerParameters() is more flexible
 
 \section news68 ------------------------------------ 2008.12.8 -------------------------------------
 
