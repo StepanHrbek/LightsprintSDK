@@ -224,12 +224,12 @@ struct Parameters
 	// allocate layers for 1 object (lightmaps etc)
 	void layersCreate(const rr::RRIlluminatedObject* illuminatedObject) const
 	{
-		illuminatedObject->illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.create() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.create() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.create() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.create() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.create() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.create() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illuminatedObject->illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer() : NULL;
 	}
 
 	// save layers of 1 object, returns number of successfully saved layers
@@ -243,7 +243,7 @@ struct Parameters
 				// insert layer name before extension
 				std::string filename = layerParameters.actualFilename;
 				const char* layerName[] = {"","occlusion.","directional1.","directional2.","directional3.","bentnormals."};
-				int ofs = filename.rfind('.',-1);
+				int ofs = (int)filename.rfind('.',-1);
 				if (ofs>=0) filename.insert(ofs,layerName[layerIndex]);
 				// save
 				saved += illuminatedObject->illumination->getLayer(layerIndex)->save(filename.c_str());

@@ -583,7 +583,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_ENV_WHITE:
 		case ME_ENV_BLACK:
 		case ME_ENV_WHITE_TOP:
-		case ME_ENV_DEFAULT:
 			if (ourEnv)
 			{
 				delete solver->getEnvironment();
@@ -594,7 +593,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
 				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
 				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
-				case ME_ENV_DEFAULT: solver->setEnvironment(NULL); RR_ASSERT(0); break;			
 			}
 			break;
 
