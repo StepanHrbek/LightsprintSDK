@@ -89,14 +89,12 @@ struct SceneViewerState
 //!
 //! \param solver
 //!  Scene to be displayed.
-//! \param createWindow
-//!  True=initializes GL context and creates window. False=expects that context and window already exist.
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
 //!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, bool createWindow, const char* pathToShaders, SceneViewerState* svs);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders, SceneViewerState* svs);
 
 }; // namespace
 

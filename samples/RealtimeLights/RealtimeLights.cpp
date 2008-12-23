@@ -439,10 +439,6 @@ int main(int argc, char **argv)
 	for (unsigned i=0;i<solver->realtimeLights.size();i++)
 		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 
-	// Uncomment to view scene in sceneViewer.
-	// Note: GLUT state is reset by sceneViewer, so we must set glutDisplayFunc etc after sceneViewer.
-	//sceneViewer(solver,false,"../../data/shaders/",false);
-
 	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.
 	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);

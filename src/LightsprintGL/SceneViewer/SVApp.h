@@ -15,7 +15,6 @@ namespace rr_gl
 	struct SceneViewerParameters
 	{
 		rr::RRDynamicSolver* solver;
-		bool createWindow;
 		const char* pathToShaders;
 		SceneViewerState svs;
 	};

@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 	rr_gl::SceneViewerState svs;
 	strncpy(svs.sceneFilename,sceneFilename,svs.MAX_FILENAME_LENGTH);
 	svs.sceneFilename[svs.MAX_FILENAME_LENGTH] = 0;
-	rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
+	rr_gl::sceneViewer(solver,"../../data/shaders/",&svs);
 
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();

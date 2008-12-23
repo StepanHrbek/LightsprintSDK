@@ -27,13 +27,12 @@ static wxAppConsole *wxCreateApp()
 	return new SVApp;
 }
 
-void sceneViewer(rr::RRDynamicSolver* _solver, bool _createWindow, const char* _pathToShaders, SceneViewerState* _svs)
+void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, SceneViewerState* _svs)
 {
 	// immediately abort if requested
 	if (_solver && _solver->aborting) return;
 
 	g_params.solver = _solver;
-	g_params.createWindow = _createWindow;
 	g_params.pathToShaders = _pathToShaders;
 	g_params.svs = _svs ? *_svs : SceneViewerState();
 

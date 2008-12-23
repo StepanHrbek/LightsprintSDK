@@ -450,7 +450,7 @@ int main(int argc, char **argv)
 		svs.renderHelpers = true;
 		svs.renderRealtime = globalParameters.buildQuality==0; // switch from default realtime GI to static GI
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
-		rr_gl::sceneViewer(solver,true,"../../data/shaders/",&svs);
+		rr_gl::sceneViewer(solver,"../../data/shaders/",&svs);
 		rr_gl::deleteAllTextures();
 	}
 #endif

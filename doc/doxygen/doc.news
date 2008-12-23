@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news70 ------------------------------------ 2008.12.xx -------------------------------------
+
+CHANGES
+
+- rr_gl::sceneViewer() second parameter removed (bool createWindow)
+  \n window is always created, false was ignored since sceneViewer rewrite in 2008.12.8
+
 \section news69 ------------------------------------ 2008.12.19 -------------------------------------
 
 NEWS
