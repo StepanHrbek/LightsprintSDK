@@ -244,7 +244,7 @@ struct Parameters
 				std::string filename = layerParameters.actualFilename;
 				const char* layerName[] = {"","occlusion.","directional1.","directional2.","directional3.","bentnormals."};
 				int ofs = (int)filename.rfind('.',-1);
-				if (ofs>=0) filename.insert(ofs,layerName[layerIndex]);
+				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);
 				// save
 				saved += illuminatedObject->illumination->getLayer(layerIndex)->save(filename.c_str());
 			}
