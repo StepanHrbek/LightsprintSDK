@@ -38,7 +38,9 @@
 
 // .gsa load
 #include <NiEntity.h>
+#include <NiCollision.h>
 #pragma comment(lib,"NiEntity")
+#pragma comment(lib,"NiCollision")
 #pragma comment(lib,"TinyXML")
 
 // cache
@@ -157,9 +159,7 @@ RRBuffer* convertTextureAndSubtract(NiPixelData* _add, RRBuffer* _sub)
 		{
 			RRVec4 a = add->getElement(i);
 			RRVec4 s = _sub->getElement(i);
-			add->setElement(i,RRVec4(
-				RRVec3(a-s),
-				a[3]));
+			add->setElement(i,RRVec4(RRVec3(a-s),a[3]));
 		}
 	}
 	return add;
