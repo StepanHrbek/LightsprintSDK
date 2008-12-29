@@ -95,10 +95,13 @@ SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProp
 
 	// init solver
 	solver = new SVSolver(params.pathToShaders,params.svs);
-	solver->setScaler(params.solver->getScaler());
-	solver->setEnvironment(params.solver->getEnvironment());
-	solver->setStaticObjects(params.solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,params.solver); // smoothing and multiobject are taken from _solver
-	solver->setLights(params.solver->getLights());
+	if (params.solver)
+	{
+		solver->setScaler(params.solver->getScaler());
+		solver->setEnvironment(params.solver->getEnvironment());
+		solver->setStaticObjects(params.solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,params.solver); // smoothing and multiobject are taken from _solver
+		solver->setLights(params.solver->getLights());
+	}
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
@@ -106,7 +109,7 @@ SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProp
 	// init rest
 	lv = new SVLightmapViewer(params.pathToShaders);
 	ourEnv = 0;
-	if (svs.selectedLightIndex>params.solver->getLights().size()) svs.selectedLightIndex = 0;
+	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
@@ -383,7 +386,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if (!winWidth) return; // can't work without window
 
-	if (originalSolver->aborting || solver->aborting || exitRequested)
+	if ((originalSolver && originalSolver->aborting) || solver->aborting || exitRequested)
 	{
 		parent->Close(true);
 		return;

@@ -132,7 +132,7 @@ SVFrame* SVFrame::Create(SceneViewerParameters& params)
 	frame->m_canvas = new SVCanvas( params, frame, &frame->m_lightProperties);
 
 
-	if (params.svs.autodetectCamera && !params.solver->aborting) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
+	if (params.svs.autodetectCamera && !(params.solver && params.solver->aborting)) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
 	if (params.svs.fullscreen) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
 
 	// Show the frame
