@@ -53,6 +53,30 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	}
 }
 
+void SVLightmapViewer::updateTransformation(wxSize windowSize)
+{
+	t_bw = buffer ? buffer->getWidth() : 1;
+	t_bh = buffer ? buffer->getHeight() : 1;
+	float mult = MIN(windowSize.x/(float)t_bw,windowSize.y/float(t_bh))*0.9f;
+	t_bw = (unsigned)(mult*t_bw);
+	t_bh = (unsigned)(mult*t_bh);
+	t_x = 0.5f + ( center[0] - t_bw*0.5f )*zoom/windowSize.x;
+	t_y = 0.5f + ( center[1] - t_bh*0.5f )*zoom/windowSize.y;
+	t_w = t_bw*zoom/windowSize.x;
+	t_h = t_bh*zoom/windowSize.y;
+}
+
+rr::RRVec2 SVLightmapViewer::transformUvToScreen(rr::RRVec2 uv)
+{
+	return rr::RRVec2((t_x+t_w*uv[0])*2-1,(t_y+t_h*uv[1])*2-1);
+}
+
+rr::RRVec2 SVLightmapViewer::getCenterUv(wxSize windowSize)
+{
+	updateTransformation(windowSize);
+	return rr::RRVec2(-(t_x-0.5f)/t_w,-(t_y-0.5f)/t_h);
+}
+
 void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 {
 	if (event.RightDown())
@@ -75,22 +99,6 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 	previousPosition = event.GetPosition();
 }
 
-rr::RRVec2 SVLightmapViewer::getCenterUv(wxSize windowSize)
-{
-	// copy of code from display(), could be simplified
-	unsigned bw = buffer ? buffer->getWidth() : 1;
-	unsigned bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
-	bw = (unsigned)(mult*bw);
-	bh = (unsigned)(mult*bh);
-	float x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;
-	float y = 0.5f + ( center[1] - bh*0.5f )*zoom/windowSize.y;
-	float w = bw*zoom/windowSize.x;
-	float h = bh*zoom/windowSize.y;
-	// new code
-	return rr::RRVec2(-(x-0.5f)/w,-(y-0.5f)/h);
-}
-
 void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 {
 	if (!lmapProgram || !lmapAlphaProgram || !lineProgram)
@@ -105,19 +113,16 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 	// setup states
 	glDisable(GL_DEPTH_TEST);
 
-	unsigned bw = buffer ? buffer->getWidth() : 1;
-	unsigned bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
-	bw = (unsigned)(mult*bw);
-	bh = (unsigned)(mult*bh);
+	updateTransformation(windowSize);
+	rr::RRVec2 quad[4];
+	quad[0] = transformUvToScreen(rr::RRVec2(0,0)); // 2*x-1,2*y-1
+	quad[1] = transformUvToScreen(rr::RRVec2(1,0)); // 2*(x+w)-1,2*y-1
+	quad[2] = transformUvToScreen(rr::RRVec2(1,1)); // 2*(x+w)-1,2*(y+h)-1
+	quad[3] = transformUvToScreen(rr::RRVec2(0,1)); // 2*x-1,2*(y+h)-1
 
 	// render lightmap
 	if (buffer)
 	{
-		float x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;
-		float y = 0.5f + ( center[1] - bh*0.5f )*zoom/windowSize.y;
-		float w = bw*zoom/windowSize.x;
-		float h = bh*zoom/windowSize.y;
 		Program* prg = alpha?lmapAlphaProgram:lmapProgram;
 		prg->useIt();
 		glActiveTexture(GL_TEXTURE0);
@@ -126,13 +131,13 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 		prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
 		glBegin(GL_POLYGON);
 		glTexCoord2f(0,0);
-		glVertex2f(2*x-1,2*y-1);
+		glVertex2f(quad[0][0],quad[0][1]);
 		glTexCoord2f(1,0);
-		glVertex2f(2*(x+w)-1,2*y-1);
+		glVertex2f(quad[1][0],quad[1][1]);
 		glTexCoord2f(1,1);
-		glVertex2f(2*(x+w)-1,2*(y+h)-1);
+		glVertex2f(quad[2][0],quad[2][1]);
 		glTexCoord2f(0,1);
-		glVertex2f(2*x-1,2*(y+h)-1);
+		glVertex2f(quad[3][0],quad[3][1]);
 		glEnd();
 	}
 
@@ -140,6 +145,17 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 	if (mesh)
 	{
 		lineProgram->useIt();
+		
+		// 0,0..1,1 frame
+		lineProgram->sendUniform("color",0.0f,1.0f,0.0f,1.0f);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(quad[0][0],quad[0][1]);
+		glVertex2f(quad[1][0],quad[1][1]);
+		glVertex2f(quad[2][0],quad[2][1]);
+		glVertex2f(quad[3][0],quad[3][1]);
+		glEnd();
+		
+		// mapping
 		lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
 		glBegin(GL_LINES);
 		for (unsigned i=0;i<mesh->getNumTriangles();i++)
@@ -148,8 +164,7 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 			mesh->getTriangleMapping(i,mapping,lightmapTexcoord);
 			for (unsigned j=0;j<3;j++)
 			{
-				mapping.uv[j][0] = ( center[0]*2 + (mapping.uv[j][0]-0.5f)*2*bw )*zoom/windowSize.x;
-				mapping.uv[j][1] = ( center[1]*2 + (mapping.uv[j][1]-0.5f)*2*bh )*zoom/windowSize.y;
+				mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
 			}
 			for (unsigned j=0;j<3;j++)
 			{
