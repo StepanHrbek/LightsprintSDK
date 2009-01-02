@@ -55,15 +55,15 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 
 void SVLightmapViewer::updateTransformation(wxSize windowSize)
 {
-	t_bw = buffer ? buffer->getWidth() : 1;
-	t_bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(windowSize.x/(float)t_bw,windowSize.y/float(t_bh))*0.9f;
-	t_bw = (unsigned)(mult*t_bw);
-	t_bh = (unsigned)(mult*t_bh);
-	t_x = 0.5f + ( center[0] - t_bw*0.5f )*zoom/windowSize.x;
-	t_y = 0.5f + ( center[1] - t_bh*0.5f )*zoom/windowSize.y;
-	t_w = t_bw*zoom/windowSize.x;
-	t_h = t_bh*zoom/windowSize.y;
+	unsigned bw = buffer ? buffer->getWidth() : 1;
+	unsigned bh = buffer ? buffer->getHeight() : 1;
+	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
+	bw = (unsigned)(mult*bw);
+	bh = (unsigned)(mult*bh);
+	t_x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;
+	t_y = 0.5f + ( center[1] - bh*0.5f )*zoom/windowSize.y;
+	t_w = bw*zoom/windowSize.x;
+	t_h = bh*zoom/windowSize.y;
 }
 
 rr::RRVec2 SVLightmapViewer::transformUvToScreen(rr::RRVec2 uv)

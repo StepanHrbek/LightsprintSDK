@@ -54,7 +54,6 @@ private:
 	wxPoint previousPosition;
 
 	// t_* define 2d transformation from uv space to screen space
-	unsigned t_bw,t_bh;
 	float t_x,t_y,t_w,t_h;
 	// updates t_*
 	void updateTransformation(wxSize windowSize);
