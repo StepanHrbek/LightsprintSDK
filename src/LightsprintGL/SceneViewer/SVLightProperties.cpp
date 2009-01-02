@@ -9,6 +9,11 @@
 
 #include "SVLightProperties.h"
 
+#if wxCHECK_VERSION(2,9,0)
+	// makes wxPropGrid 1.4 code compile with wxWidgets 2.9
+	#define wxPGId wxPGProperty*
+#endif
+
 namespace rr_gl
 {
 

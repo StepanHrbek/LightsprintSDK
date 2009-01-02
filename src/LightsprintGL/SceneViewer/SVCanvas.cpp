@@ -24,8 +24,9 @@ namespace rr_gl
 // SVCanvas
 
 SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProperties** parentsLightProperties)
-	: wxGLCanvas(_parent, (wxGLCanvas*)NULL, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(params.svs)
+	: wxGLCanvas(_parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(params.svs)
 {
+	context = NULL;
 	parent = _parent;
 	originalSolver = params.solver;
 	solver = NULL;
@@ -62,8 +63,12 @@ SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProp
 	lightFieldObjectIllumination = NULL;
 
 	lightProperties = parentsLightProperties;
+}
 
-	SetCurrent();
+void SVCanvas::createContext(SceneViewerParameters& params)
+{
+	context = new wxGLContext(this);
+	SetCurrent(*context);
 
 	// init GLEW
 	if (glewInit()!=GLEW_OK)
@@ -157,6 +162,7 @@ SVCanvas::~SVCanvas()
 	lightsToBeDeletedOnExit.clear();
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;
+	delete context;
 }
 
 void SVCanvas::OnSize(wxSizeEvent& event)
@@ -167,11 +173,9 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	int w, h;
 	GetClientSize(&w, &h);
-	#ifndef __WXMOTIF__
-	if (GetContext())
-	#endif
+	if (context)
 	{
-		SetCurrent();
+		SetCurrent(*context);
 		glViewport(0, 0, (GLint) w, (GLint) h);
 		winWidth = w;
 		winHeight = h;
@@ -455,11 +459,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC dc(this);
 
-	#ifndef __WXMOTIF__
-	if (!GetContext()) return;
-	#endif
-
-	SetCurrent();
+	if (!context) return;
+	SetCurrent(*context);
 
 #ifdef _WIN32
 	// init font for text outputs
@@ -480,7 +481,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			CLIP_DEFAULT_PRECIS,			// Clipping Precision
 			ANTIALIASED_QUALITY,			// Output Quality
 			FF_DONTCARE|DEFAULT_PITCH,		// Family And Pitch
-			"Arial");					// Font Name
+			_T("Arial"));					// Font Name
 		SelectObject(wglGetCurrentDC(), font); 
 		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000); 
 		glListBase(1000);

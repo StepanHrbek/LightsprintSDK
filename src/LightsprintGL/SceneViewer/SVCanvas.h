@@ -25,6 +25,10 @@ namespace rr_gl
 		SVCanvas( SceneViewerParameters& params, class SVFrame* parent, SVLightProperties** parentsLightProps);
 		~SVCanvas();
 
+		// initializes gl context and other stuff, must be called once after canvas is created and Show()n
+		// (wx asserts if we do it before our parent calls Show())
+		void createContext(SceneViewerParameters& params);
+
 		void OnPaint(wxPaintEvent& event);
 		void OnSize(wxSizeEvent& event);
 		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.
@@ -36,6 +40,7 @@ namespace rr_gl
 
 
 	private:
+		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerState&          svs;
 		const class rr::RRDynamicSolver* originalSolver;

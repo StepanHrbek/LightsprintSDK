@@ -22,7 +22,7 @@ unsigned getUnsigned(const wxString& str)
 	unsigned result = 0;
 	for (unsigned i=0;i<str.size() && str[i]>='0' && str[i]<='9';i++)
 	{
-		result = 10*result + str[i]-'0';
+		result = 10*result + (char)str[i]-'0';
 	}
 	return result;
 }
@@ -130,13 +130,14 @@ SVFrame* SVFrame::Create(SceneViewerParameters& params)
 	frame->UpdateMenuBar(params.svs);
 
 	frame->m_canvas = new SVCanvas( params, frame, &frame->m_lightProperties);
+	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
+	frame->Show(true);
+	// must go after Show() otherwise SetCurrent() in createContext() fails
+	frame->m_canvas->createContext( params );
 
 
 	if (params.svs.autodetectCamera && !(params.solver && params.solver->aborting)) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
 	if (params.svs.fullscreen) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
-
-	// Show the frame
-	frame->Show(true);
 
 	return frame;
 }
@@ -246,7 +247,7 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light"));
 	winMenu->Append(ME_LIGHT_POINT,_T("Add point light"));
 	winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
-	winMenu->Append(ME_LIGHT_AMBIENT,_T(svs.renderAmbient?"Delete constant ambient":"Add constant ambient"));
+	winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"));
 	menuBar->Append(winMenu, _T("Lights"));
 
 
@@ -279,21 +280,21 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball"));
 	winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."));
 	winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."));
-	winMenu->Append(ME_REALTIME_LDM,_T(svs.renderLDM?"Disable light detail map":"Enable light detail map"));
+	winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"));
 	menuBar->Append(winMenu, _T("Realtime lighting"));
 
 	// Render...
 	winMenu = new wxMenu;
-	winMenu->Append(ME_MAXIMIZE,_T(svs.fullscreen?"Windowed":"Fullscreen"));
-	winMenu->Append(ME_RENDER_HELPERS,_T(svs.renderHelpers?"Hide helpers":"Show helpers"));
-	winMenu->Append(ME_RENDER_DIFFUSE,_T(svs.renderDiffuse?"Disable diffuse color":"Enable diffuse color"));
-	winMenu->Append(ME_RENDER_SPECULAR,_T(svs.renderSpecular?"Disable specular reflection":"Enable specular reflection"));
-	winMenu->Append(ME_RENDER_EMISSION,_T(svs.renderEmission?"Disable emissivity":"Enable emissivity"));
-	winMenu->Append(ME_RENDER_TRANSPARENT,_T(svs.renderTransparent?"Disable transparency":"Enable transparency"));
-	winMenu->Append(ME_RENDER_WATER,_T(svs.renderWater?"Disable water":"Enable water"));
-	winMenu->Append(ME_RENDER_TEXTURES,_T(svs.renderTextures?"Disable textures":"Enable textures"));
-	winMenu->Append(ME_RENDER_WIREFRAME,_T(svs.renderWireframe?"Disable wireframe":"Wireframe"));
-	winMenu->Append(ME_RENDER_TONEMAPPING,_T(svs.adjustTonemapping?"Disable tone mapping":"Enable tone mapping"));
+	winMenu->Append(ME_MAXIMIZE,svs.fullscreen?_T("Windowed"):_T("Fullscreen"));
+	winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"));
+	winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"));
+	winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"));
+	winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"));
+	winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"));
+	winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"));
+	winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures"):_T("Enable textures"));
+	winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe"):_T("Wireframe"));
+	winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"));
 	winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
 	menuBar->Append(winMenu, _T("Render"));
 
@@ -313,6 +314,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	RR_ASSERT(m_canvas);
 	SVSolver*& solver = m_canvas->solver;
+	RR_ASSERT(solver);
 	SceneViewerState& svs = m_canvas->svs;
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
