@@ -455,6 +455,20 @@ static void textOutput(int x, int y, int h, const char *format, ...)
 #endif
 }
 
+static void textOutputMaterialProperty(int x, int y, int h, const char* name, const rr::RRMaterial::Property& triangle, const rr::RRMaterial::Property& point)
+{
+	if (&triangle==&point || !triangle.texture)
+	{
+		// triangle equals point, no need to print it
+		textOutput(x,y,h,"%s tri=%f %f %f",name,triangle.color[0],triangle.color[1],triangle.color[2]);
+	}
+	else
+	{
+		// point differs from triangle, print it
+		textOutput(x,y,h,"%s tri=%f %f %f uv=%d point=%f %f %f",name,triangle.color[0],triangle.color[1],triangle.color[2],triangle.texcoord,point.color[0],point.color[1],point.color[2]);
+	}
+}
+
 void SVCanvas::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC dc(this);
@@ -480,10 +494,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			OUT_TT_PRECIS,					// Output Precision
 			CLIP_DEFAULT_PRECIS,			// Clipping Precision
 			ANTIALIASED_QUALITY,			// Output Quality
-			FF_DONTCARE|DEFAULT_PITCH,		// Family And Pitch
-			_T("Arial"));					// Font Name
-		SelectObject(wglGetCurrentDC(), font); 
-		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000); 
+			FF_DONTCARE|FIXED_PITCH,		// Family And Pitch
+			_T("System"));					// Font Name
+		SelectObject(wglGetCurrentDC(), font);
+		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000);
 		glListBase(1000);
 	}
 #endif
@@ -858,7 +872,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
-				const rr::RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+				const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+				const rr::RRMaterial* material = triangleMaterial;
 				rr::RRMaterial pointMaterial;
 				if (material && material->minimalQualityForPointMaterials<10000)
 				{
@@ -900,16 +915,20 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"tangent: %f %f %f",tangent[0],tangent[1],tangent[2]);
 				textOutput(x,y+=18,h,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
 				textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
-				textOutput(x,y+=18,h,"material: %s",material?((material!=&pointMaterial)?"per-triangle":"per-pixel"):"NULL!!!");
 				if (material)
 				{
-					if (material->name)
-						textOutput(x,y+=18,h,"name: %s",material->name);
-					textOutput(x,y+=18,h,"diffuse refl: %f %f %f",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2]);
-					textOutput(x,y+=18,h,"specular refl: %f %f %f",material->specularReflectance.color[0],material->specularReflectance.color[1],material->specularReflectance.color[2]);
-					textOutput(x,y+=18,h,"transmittance: %f %f %f",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2]);
-					textOutput(x,y+=18,h,"refraction index: %f",material->refractionIndex);
-					textOutput(x,y+=18,h,"dif.emittance: %f %f %f",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2]);
+					textOutput(x,y+=18,h,"material: %s",material->name?material->name:"");
+					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance);
+					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance);
+					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance);
+					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance);
+					textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
+					textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
+					textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);
+				}
+				else
+				{
+					textOutput(x,y+=18,h,"material=NULL!!!");
 				}
 				unsigned numReceivedLights = 0;
 				unsigned numShadowsCast = 0;
