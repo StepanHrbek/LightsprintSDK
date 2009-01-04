@@ -126,8 +126,8 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 
 	if (!numRenderedTexels)
 	{
-		if (width*height<=64*64 || width<=16 || height<=16)
-			rr::RRReporter::report(rr::WARN,"No texels rendered into map, low resolution(%dx%d) or bad unwrap (see RRMesh::getTriangleMapping)?\n",width,height);
+		if (width*height==0)
+			rr::RRReporter::report(rr::WARN,"No texels rendered into map, resolution %dx%d.\n",width,height);
 		else
 			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
 		for (int i=0;i<(int)numTexels;i++)
