@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - lightmap viewer with unwrap, zoom, panning.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SVLIGHTMAPVIEWER_H

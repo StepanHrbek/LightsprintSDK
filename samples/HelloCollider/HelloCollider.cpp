@@ -3,7 +3,7 @@
 //
 // Simple mesh is constructed and collision with one ray detected.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008
+// Copyright (C) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRCollider.h"

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
-// Chunk list - single linked list allocated from non-global pool
-// Copyright 2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Chunk list - single linked list allocated from local pool
+// Copyright (c) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef CHUNK_LIST_H

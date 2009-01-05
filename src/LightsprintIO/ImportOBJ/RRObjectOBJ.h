@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Creates Lightsprint interface for OBJ scene
-// Copyright (C) Stepan Hrbek, Lightsprint, 2008
+// Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTOBJ_H

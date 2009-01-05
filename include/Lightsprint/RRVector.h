@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVector.h
 //! \brief LightsprintCore | portable but limited std::vector replacement
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

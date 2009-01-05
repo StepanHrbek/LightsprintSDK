@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
-// Imports Collada scene (FCDocument) into RRDynamicSolver
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
+// Adapts FCollada document.
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"

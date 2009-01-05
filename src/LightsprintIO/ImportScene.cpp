@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------
+// Format independent scene import.
+// Copyright (C) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
 #include "supported_formats.h"
 
 #ifdef SUPPORT_QUAKE3

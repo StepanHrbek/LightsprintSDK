@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // RendererOf3DS, Renderer implementation that renders 3DS.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RENDEREROF3DS_H

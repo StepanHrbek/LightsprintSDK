@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Texture, OpenGL extension to RRBuffer.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2008, All rights reserved
+// Copyright (C) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <climits> // UINT_MAX

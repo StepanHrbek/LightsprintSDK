@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumination.h
 //! \brief LightsprintCore | storage for calculated illumination
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

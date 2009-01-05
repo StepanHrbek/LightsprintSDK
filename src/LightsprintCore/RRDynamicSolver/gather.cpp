@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Final gathering.
-// Copyright 2006-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

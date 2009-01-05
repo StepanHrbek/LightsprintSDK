@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Creates Lightsprint interface for 3DS scene
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 // This code implements data adapters for access to Model_3DS meshes, objects, materials.

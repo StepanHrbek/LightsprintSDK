@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Creates Lightsprint interface for Quake3 map (.bsp)
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTBSP_H

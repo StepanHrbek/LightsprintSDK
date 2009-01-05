@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Matrix for object transformations.
-// Copyright 2005-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRObject.h"

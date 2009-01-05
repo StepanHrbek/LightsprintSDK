@@ -19,7 +19,7 @@
 //
 // If it doesn't render your scene properly, please send us sample so we can fix it.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/SceneViewer.h"

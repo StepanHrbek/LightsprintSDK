@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Water with reflection and waves.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007-2008, All rights reserved
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>

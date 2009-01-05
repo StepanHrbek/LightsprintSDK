@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Creates Lightsprint interface for 3DS scene
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECT3DS_H

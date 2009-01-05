@@ -14,7 +14,7 @@
 // arrows = move sun
 // space  = toggle automatic movement of sun and objects
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2008
+// Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // Sponza atrium model by Marko Dabrovic
 // Character models by 3DRender.fi
 // --------------------------------------------------------------------------

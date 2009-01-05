@@ -25,7 +25,7 @@
 //
 // To increase quality and fps, see last comment in this file.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef _WIN32

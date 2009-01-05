@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Fireball, lightning fast realtime GI solver.
-// Copyright 2007-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

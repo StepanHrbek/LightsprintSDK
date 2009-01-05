@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Program, OpenGL 2.0 object with optional vertex and fragment shaders.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2008, All rights reserved
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cassert>

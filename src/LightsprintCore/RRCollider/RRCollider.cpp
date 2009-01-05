@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // RRCollider class - generic code for ray-mesh intersections.
-// Copyright 2000-2008 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRCollider.h"

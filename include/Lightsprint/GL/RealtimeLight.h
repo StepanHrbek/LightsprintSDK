@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file RealtimeLight.h
 //! \brief LightsprintGL | Extends RRLight for realtime rendering with GI
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2008
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2009
 //! All rights reserved
 //----------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Timer.h
 //! \brief LightsprintGL | measures real time, processor time in userspace and in kernel
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2008
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2009
 //! All rights reserved
 //----------------------------------------------------------------------------
 

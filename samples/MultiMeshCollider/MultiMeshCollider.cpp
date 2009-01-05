@@ -4,7 +4,7 @@
 // Multimesh is set of meshes glued together without data duplication.
 // Simple multimesh is constructed and collision with one ray detected.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2007-2008
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRCollider.h"

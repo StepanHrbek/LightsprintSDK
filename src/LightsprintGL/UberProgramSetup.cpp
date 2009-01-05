@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // UberProgramSetup, settings specific for our single UberProgram.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2008, All rights reserved
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdio>
