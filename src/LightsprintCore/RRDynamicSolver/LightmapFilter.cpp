@@ -126,10 +126,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 
 	if (!numRenderedTexels)
 	{
-		if (width*height==0)
-			rr::RRReporter::report(rr::WARN,"No texels rendered into map, resolution %dx%d.\n",width,height);
-		else
-			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
+		// No texels were rendered -> clear to background color.
 		for (int i=0;i<(int)numTexels;i++)
 		{
 			renderedTexelsPhysical[i] = params.backgroundColor;

@@ -17,9 +17,10 @@ class LightmapFilter
 {
 public:
 	LightmapFilter(unsigned _width, unsigned _height);
-	unsigned getWidth() {return width;}
-	unsigned getHeight() {return height;}
+	unsigned getWidth() const {return width;}
+	unsigned getHeight() const {return height;}
 	void renderTexelPhysical(const unsigned uv[2], const RRVec4& colorPhysical);
+	unsigned getNumRenderedTexels() const {return numRenderedTexels;}
 	RRVec4* getFilteredPhysical(const RRDynamicSolver::FilteringParameters* _params);
 	~LightmapFilter();
 private:

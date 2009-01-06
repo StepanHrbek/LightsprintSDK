@@ -558,6 +558,8 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
 
+		unsigned numBuffersEmpty = 0;
+		unsigned numBuffersFull = 0;
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
 			if (tc.pixelBuffers[i])
@@ -566,11 +568,64 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
+					if (!tc.pixelBuffers[i]->getNumRenderedTexels())
+					{
+						numBuffersEmpty++;
+					}
+					else
+					{
+						numBuffersFull++;
+					}
 					scaleAndFlushToBuffer(allPixelBuffers[i],tc.pixelBuffers[i]->getFilteredPhysical(filtering),(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
 					updatedBuffers++;
 				}
 				delete tc.pixelBuffers[i];
 			}
+		}
+		if (numBuffersEmpty && !aborting)
+		{
+			// We are in trouble, no pixels were rendered into buffer.
+			// Let's try to be helpful, can we log also _why_ did it happen?
+
+			// Uv index is defined by material.
+			// Object may have multiple materials, but they should use the same uv index. Let's check it.
+			unsigned uvIndex = 0;
+			bool uvIndexSet = false;
+			bool multipleUvIndicesUsed = false;
+			const RRObject* object = getObject(objectNumber);
+			const RRMesh* mesh = object->getCollider()->getMesh();
+			unsigned numTriangles = mesh->getNumTriangles();
+			unsigned numVertices = mesh->getNumVertices();
+			for (unsigned t=0;t<numTriangles;t++)
+			{
+				const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+				if (material)
+				{
+					if (uvIndexSet && material->lightmapTexcoord!=uvIndex)
+						multipleUvIndicesUsed = true;
+					uvIndex = material->lightmapTexcoord;
+					uvIndexSet = true;
+				}
+			}
+
+			// Reason is unknown, just guessing.
+			const char* hint = "bad unwrap or wrong uv index?";
+			// We found something unrelated but important to say.
+			if (multipleUvIndicesUsed) hint = "is it intentional that materials in object use different uv indices for lightmap?";
+			// This is probably unrelated, but serious problem that must be fixed.
+			if (uvIndexSet==false) hint = "all materials are NULL!";
+			// We found the reasons.
+			if (pixelBufferWidth*pixelBufferHeight==0) hint = "map size is 0!";
+			if (numTriangles==0) hint = "mesh has 0 triangles!";
+
+			rr::RRReporter::report(rr::WARN,
+				"No texels rendered into map, %s (object=%d/%d numTriangles=%d numVertices=%d emptyBuffers=%d/%d resolution=%dx%d uvIndex=%d)\n",
+				hint,
+				objectNumber,getNumObjects(),
+				numTriangles,numVertices,
+				numBuffersEmpty,numBuffersFull+numBuffersEmpty,
+				pixelBufferWidth,pixelBufferHeight,
+				uvIndex);
 		}
 	}
 
