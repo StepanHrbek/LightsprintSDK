@@ -253,7 +253,7 @@ Ray-Mesh collisions
  - \subpage tpl_glut
  - \subpage tpl_bunny
 
- Installation:
+ Installation of 3rd party components:
  - Windows: works out of the box
  - Linux: all dependencies may be resolved by
    - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
