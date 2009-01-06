@@ -44,6 +44,9 @@ class RRReporterWindow : public RRReporter
 		HWND* hWndInReporter; // pointer to HWND in reporter; set at window open so reporter can send us messages
 		RRCallback* abortCallback; // <deleted with reporter>
 		unsigned numLines[TIMI+1];
+
+		unsigned numCharsShort; // number of characters in short log edit control
+		unsigned numCharsDetailed; // number of characters in detailed log edit control
 	};
 
 	// what to do when work is done = when reporter is deleted
@@ -116,8 +119,9 @@ public:
 		if (type!=INF2 && type!=INF3 && type!=TIMI)
 		{
 			int dlgItem = IDC_LOG_SHORT;
-			int pos = GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
+			int pos = instanceData->numCharsShort;//GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
+			instanceData->numCharsShort += strlen(space);
 
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );
@@ -134,8 +138,9 @@ public:
 		// send to detailed log
 		{
 			int dlgItem = IDC_LOG_DETAILED;
-			int pos = GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
+			int pos = instanceData->numCharsDetailed;//GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
+			instanceData->numCharsDetailed += strlen(space);
 
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );

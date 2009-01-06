@@ -8,7 +8,13 @@ namespace rr
 
 \page main_news What's new
 
-\section news70 ------------------------------------ 2008.12.xx -------------------------------------
+\section news70 ------------------------------------ 2009.01.06 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: static mesh and bsp materials are evaluated per-pixel
+- 2x faster windowed reporter (RRReporter::createWindowedReporter())
+  \n (real world example: building preview quality lightmaps in scene with 11000 meshes and windowed reporter took 600s, now 500s)
 
 CHANGES
 
