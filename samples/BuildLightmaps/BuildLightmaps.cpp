@@ -43,7 +43,7 @@
 // Nearly all parameters may be set differently for different objects.
 //
 // Quality of produced maps highly depends on unwrap provided with scene.
-// If we don't find unwrap in scene file, we build low buildQuality unwrap automatically,
+// If we don't find unwrap in scene file, we build low quality unwrap automatically,
 // just to show something, even though results are poor.
 //
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
