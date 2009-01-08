@@ -8,11 +8,23 @@ namespace rr
 
 \page main_news What's new
 
+\section news71 ------------------------------------ 2009.01.08 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: now also SpeedTree materials are evaluated per-pixel
+
+CHANGES
+
+- default behaviour of back side of one sided material was changed
+  \n Previously, photons that hit back side of one-sided face were removed from simulation. Windows had to be made of 2-sided faces to transmit light in both directions.
+  \n Now photons are allowed to go through back side and refract according to material transmittance and refraction index. Windows transmit light in both directions even if they are made of 1-sided faces.
+
 \section news70 ------------------------------------ 2009.01.07 -------------------------------------
 
 NEWS
 
-- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: staticmesh/bspsurface/speedtree materials are evaluated per-pixel
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: staticmesh and bspsurface materials are evaluated per-pixel
 - 2x faster windowed reporter (RRReporter::createWindowedReporter())
   \n (real world example: building preview quality lightmaps in scene with 11000 meshes and windowed reporter took 600s, now 500s)
 

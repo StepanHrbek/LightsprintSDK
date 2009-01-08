@@ -102,12 +102,17 @@ namespace rr
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
 		//
-		//! In 1sided version, back side is not rendered, but light doesn't get through it.
-		//! It is good for making solid (3d) objects. Light that accidentally gets inside object and hits
-		//! invisible back side is deleted.
-		//!
-		//! In 2sided version, back side is rendered, spec.reflects, refracts, emits, but doesn't dif.reflect.
-		//! It makes good glass, but bad thin dif.reflecting wall.
+		//! Also behaviour of both front and back side (sideBits) is reset to defaults.
+		//! - Back side of 1-sided material is not rendered and it does not emit or reflect light.
+		//! - Back side of 1-sided material stops light:
+		//!   Imagine interior with 1-sided walls. Skylight should not get in through back sides od walls.
+		//!   Photons that hit back side are removed from simulation.
+		//! - However, back side of 1-sided material allows transmittance and refraction:
+		//!   Imagine previous example with alpha-keyed window in 1-sided wall.
+		//!   Skylight should get through window in both directions.
+		//!   It gets through according to material transmittance and refraction index.
+		//! - Back side of 1-sided material does not emit or reflect light.
+		//! - Sides of 2-sided material behave nearly identically, only back side doesn't have diffuse reflection.
 		void          reset(bool twoSided);
 
 		//! Gathers information from textures, updates color for all Properties with texture. Updates also minimalQualityForPointMaterials.
