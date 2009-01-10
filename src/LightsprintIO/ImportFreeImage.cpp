@@ -32,8 +32,6 @@
 #define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
-#define SCALED_DETECTED_FROM_FILE true // textures are always loaded as custom scale data
-
 using namespace rr;
 
 static unsigned getBytesPerPixel(RRBufferFormat format)
@@ -53,7 +51,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 //
 // FreeImage
 
-static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat)
+static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
 	// uncomment if you wish to skip loading from network
 //	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
@@ -76,6 +74,7 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 		if (dib1)
 		{
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
+			outScaled = bpp1<64; // high bpp images are usually in physical scale
 			if (bpp1==96)
 			{
 				// RGBF, conversion to 32bit doesn't work
@@ -241,14 +240,15 @@ static bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool f
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
-	unsigned char* pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format);
+	bool scaled = true;
+	unsigned char* pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format,scaled);
 	if (!pixels)
 	{
 		return false;
 	}
 	else
 	{
-		texture->reset(BT_2D_TEXTURE,width,height,1,format,SCALED_DETECTED_FROM_FILE,pixels);
+		texture->reset(BT_2D_TEXTURE,width,height,1,format,scaled,pixels);
 		delete[] pixels;
 		return true;
 	}
@@ -260,12 +260,13 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
+	bool scaled = true;
 	unsigned char* pixels = NULL;
 	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
 	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
-		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format);
+		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format,scaled);
 		if (!pixels) return false;
 		shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format));
 	}
@@ -282,7 +283,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 			unsigned tmpWidth, tmpHeight;
 			RRBufferFormat tmpFormat;
 
-			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat);
+			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat,scaled);
 			if (!sides[side])
 				return false;
 
@@ -314,7 +315,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	}
 
 	// load cube from 1 array
-	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,SCALED_DETECTED_FROM_FILE,pixels);
+	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,scaled,pixels);
 	delete[] pixels;
 	return true;
 }
