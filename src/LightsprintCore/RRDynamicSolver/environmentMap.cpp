@@ -181,7 +181,11 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 		// this is legal, renderer asks us to build small cubemap from solver with big environment and 0 objects
 		//LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
 	}
-	if (environment && !environment->getScaled()) scalerForReadingEnv = NULL;
+	if (environment && !environment->getScaled())
+	{
+		// env not scaled -> don't scale in loop below
+		scalerForReadingEnv = NULL;
+	}
 // vypnuto kdyz nas vola worker thread s nizkou prioritou (!exitanceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
 // zapnuto kdyz nas vola uzivatel (exitanceHdr)
 //#pragma omp parallel for if (exitanceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
@@ -256,7 +260,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
 	if (!scene && !packedSolver)
 	{
@@ -267,6 +271,11 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 	{
 		RR_ASSERT(0);
 		return;
+	}
+	if (!environment->getScaled())
+	{
+		// env not scaled -> don't scale in loop below
+		scalerForReadingEnv = NULL;
 	}
 #pragma omp parallel for schedule(static)
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
@@ -280,6 +289,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			{
 				// read exitance of sky
 				exitanceHdr[ofs] = environment->getElement(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
+				if (scalerForReadingEnv) scalerForReadingEnv->getPhysicalScale(exitanceHdr[ofs]);
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 		}
@@ -564,7 +574,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	else
 	{
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
 
 	unsigned updatedMaps = 0;

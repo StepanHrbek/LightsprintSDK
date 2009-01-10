@@ -51,7 +51,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		if (environment)
 		{
 			RRVec3 irrad = environment->getElement(direction);
-			if (scaler) scaler->getPhysicalScale(irrad);
+			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
 			return visibility * irrad;
 		}
 		return Channels(0);
