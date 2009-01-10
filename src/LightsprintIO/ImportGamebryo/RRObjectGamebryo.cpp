@@ -38,10 +38,15 @@
 
 // .gsa load
 #include <NiEntity.h>
-#include <NiCollision.h>
 #pragma comment(lib,"NiEntity")
-#pragma comment(lib,"NiCollision")
 #pragma comment(lib,"TinyXML")
+// necessary for processing certain .gsa nodes that would be otherwise ignored
+#include <NiCollision.h>
+#pragma comment(lib,"NiCollision")
+#include <NiPortal.h>
+#pragma comment(lib,"NiPortal")
+#include <NiParticle.h>
+#pragma comment(lib,"NiParticle")
 
 // cache
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
@@ -603,6 +608,11 @@ public:
 		{
 			return NULL;
 		}
+		if (!NiLightMapUtility::IsLightMapMesh(_mesh))
+		{
+			return NULL;
+		}
+
 		_mesh->UpdateEffects();
 		RRMesh* mesh = new RRMeshGamebryo(_mesh);
 		if (mesh->getNumTriangles()==0)
@@ -1050,7 +1060,7 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 
 ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting)
 {
-	RRReportInterval report(INF1,"Loading scene %s...\n",_filename);
+	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
 	objects = NULL;
 	lights = NULL;
 	initGamebryo = _initGamebryo;
