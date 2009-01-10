@@ -28,7 +28,7 @@
 // - hdr (floats)
 // - exr (floats)
 // - bmp
-// - jp2
+// - jp2 (jpeg2000)
 // - and more
 //
 // It supports building
@@ -40,7 +40,14 @@
 // - per-pixel illumination (maps)
 // - per-vertex illumination (vertex buffers)
 //
-// Nearly all parameters may be set differently for different objects.
+// It supports skylight
+// - uniform sky color
+// - upper and lower hemisphere colors
+// - 1 skybox texture (may be hdr)
+// - 6 skybox textures (may be hdr)
+// - custom: emissive sky mesh in scene
+//
+// Many parameters may be set differently for different objects.
 //
 // Quality of produced maps highly depends on unwrap provided with scene.
 // If we don't find unwrap in scene file, we build low quality unwrap automatically,
@@ -105,6 +112,9 @@ struct Parameters
 {
 	// global
 	char* sceneFilename;
+	rr::RRVec4 skyUpper;
+	rr::RRVec4 skyLower;
+	const char* skyBox;
 	unsigned buildQuality;
 	bool buildDirect;
 	bool buildIndirect;
@@ -121,6 +131,9 @@ struct Parameters
 	{
 		// set defaults
 		sceneFilename = NULL;
+		skyUpper = rr::RRVec4(0);
+		skyLower = rr::RRVec4(0);
+		skyBox = NULL;
 		buildQuality = 0;
 		buildDirect = true;
 		buildIndirect = true;
@@ -140,6 +153,24 @@ struct Parameters
 			else
 			if (parsingObjectIndex==-1 || parsingObjectIndex==objectIndex)
 			{
+				if (sscanf(argv[i],"skyupper=%f;%f;%f",&skyUpper.x,&skyUpper.y,&skyUpper.z)==3)
+				{
+				}
+				else
+				if (sscanf(argv[i],"skylower=%f;%f;%f",&skyLower.x,&skyLower.y,&skyLower.z)==3)
+				{
+				}
+				else
+				if (sscanf(argv[i],"skycolor=%f;%f;%f",&skyUpper.x,&skyUpper.y,&skyUpper.z)==3)
+				{
+					skyLower = skyUpper;
+				}
+				else
+				if (!strncmp(argv[i],"skybox=",7))
+				{
+					skyBox = argv[i]+7;
+				}
+				else
 				if (sscanf(argv[i],"quality=%d",&buildQuality)==1)
 				{
 				}
@@ -308,6 +339,11 @@ int main(int argc, char **argv)
 			"\n"
 			"Global arguments:\n"
 			"  scene                   (filename of scene in supported format)\n"
+			"  skycolor=0.5;0.5;0.5    (color of both sky hemispheres)\n"
+			"  skyupper=1;1;1          (color of upper sky hemisphere)\n"
+			"  skylower=0;0;0          (color of lower sky hemisphere)\n"
+			"  skybox=pisa.hdr         (1 texture of skybox)\n"
+			"  skybox=quake_%s.tga     (6 textures of skybox a-la Quake)\n"
 			"  quality=100             (10=low, 100=medium, 1000=high)\n"
 			"  direct                  (build direct lighting only)\n"
 			"  indirect                (build indirect lighting only)\n"
@@ -374,6 +410,17 @@ int main(int argc, char **argv)
 		{
 			solver->setLights(*scene.getLights());
 		}
+		rr::RRBuffer* environment = NULL;
+		if (globalParameters.skyBox)
+		{
+			const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+			environment = rr::RRBuffer::load(globalParameters.skyBox,cubeSideNames,true,true);
+		}
+		else
+		{
+			environment = rr::RRBuffer::createSky(globalParameters.skyUpper,globalParameters.skyLower);
+		}
+		solver->setEnvironment(environment);
 	}
 
 	//

@@ -8,6 +8,19 @@ namespace rr
 
 \page main_news What's new
 
+\section news72 ------------------------------------ 2009.01.10 -------------------------------------
+
+NEWS
+
+- sample BuildLightmaps supports setting sky from commandline (HDR or LDR texture or 6 textures or flat color or upper and lower hemisphere color)
+- improved realtime render of float textures
+  - uses floats where available, falls back to 8bit on ancient GPUs
+  - HDR skyboxes in physical scale are converted to sRGB in shader
+
+FIXED
+
+- Gamebryo adapter allocated too much memory and crashed in some scenes
+
 \section news71 ------------------------------------ 2009.01.08 -------------------------------------
 
 NEWS
