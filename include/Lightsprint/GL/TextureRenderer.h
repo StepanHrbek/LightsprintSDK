@@ -39,7 +39,8 @@ public:
 	//! Initializes shader and render states for rendering cubemap.
 	//! It is one component of renderEnvironment().
 	//! For non-NULL color, texture is multiplied by color.
-	bool renderEnvironmentBegin(float color[4], bool allowDepthTest);
+	//! With physical set, shader will convert texture samples from physical scale to sRGB.
+	bool renderEnvironmentBegin(float color[4], bool allowDepthTest, bool physical);
 
 	//! Restores original render states after renderEnvironmentBegin().
 	//! It is one component of renderEnvironment().
@@ -62,7 +63,8 @@ public:
 	void render2dEnd();
 
 private:
-	class Program *skyProgram;
+	class Program *skyScaledProgram;
+	class Program *skyPhysicalProgram;
 	class Program *twodProgram;
 	unsigned char culling;
 	unsigned char depthTest;

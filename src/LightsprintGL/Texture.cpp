@@ -64,8 +64,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 	{
 		case rr::BF_RGB: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_RGBA: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8; glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_RGBF: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8;/*GL_RGB16F_ARB;*/ glformat = GL_RGB; gltype = GL_FLOAT; break;
-		case rr::BF_RGBAF: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8;/*GL_RGBA16F_ARB;*/ glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		case rr::BF_RGBF: glinternal = GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; break;
+		case rr::BF_RGBAF: glinternal = GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; break;
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
@@ -94,7 +94,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 				rr::RRReporter::report(rr::INF1,"Texture::reset RGBAF (-inf..0)=%d <0>=%d (0..1>=%d (1..inf)=%d\n",group[0],group[1],group[2],group[3]);
 			}
 			break;
-	}*/
+	}/**/
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -114,7 +114,12 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 			if (_buildMipmaps && sideData)
 				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,buffer->getWidth(),buffer->getHeight(),glformat,gltype,sideData);
 			else
+			{
+				glGetError();
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
+				if (glGetError())
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
+			}
 		}
 	}
 	else
@@ -124,7 +129,12 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		if (_buildMipmaps && data)
 			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,buffer->getWidth(),buffer->getHeight(),glformat,gltype,data);
 		else
+		{
+			glGetError();
 			glTexImage2D(GL_TEXTURE_2D,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
+			if (glGetError())
+				glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
+		}
 	}
 
 	// for shadow2D() instead of texture2D()

@@ -194,9 +194,11 @@ void RendererOfRRDynamicSolver::render()
 		if (textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0],false);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],false,!env->getScaled());
+			// no mipmaps because gluBuild2DMipmaps works incorrectly for values >1 (integer part is removed)
+			// no compression because artifacts are usually clearly visible
 			if (env->getWidth()>2)
-				getTexture(env,true,false)->bindTexture(); // smooth
+				getTexture(env,false,false)->bindTexture(); // smooth
 			else
 				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
@@ -570,7 +572,7 @@ void RendererOfOriginalScene::render()
 		if (textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true,!env->getScaled());
 			if (env->getWidth()>2)
 				getTexture(env,true,false)->bindTexture(); // smooth
 			else
