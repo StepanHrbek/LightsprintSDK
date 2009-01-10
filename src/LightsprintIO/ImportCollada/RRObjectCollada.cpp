@@ -452,10 +452,10 @@ RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
 	return blendImportance/(size*size); 
 }
 
-class MaterialCache
+class MaterialCacheCollada
 {
 public:
-	MaterialCache(ImageCache* _imageCache)
+	MaterialCacheCollada(ImageCache* _imageCache)
 	{
 		imageCache = _imageCache;
 	}
@@ -527,7 +527,7 @@ public:
 		}
 #endif
 	}
-	~MaterialCache()
+	~MaterialCacheCollada()
 	{
 		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
@@ -632,7 +632,7 @@ private:
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, MaterialCache* materialCache);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, MaterialCacheCollada* materialCache);
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
@@ -646,7 +646,7 @@ private:
 	const FCDGeometryInstance* geometryInstance;
 
 	// materials
-	MaterialCache*             materialCache;
+	MaterialCacheCollada*      materialCache;
 
 	// collider for ray-mesh collisions
 	const RRCollider*          collider;
@@ -676,7 +676,7 @@ void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatri
 	}
 }
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, MaterialCache* _materialCache)
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, MaterialCacheCollada* _materialCache)
 {
 	RR_ASSERT(_node);
 	RR_ASSERT(_collider);
@@ -758,7 +758,7 @@ private:
 	typedef std::map<const FCDGeometryMesh*,const RRCollider*> ColliderCache;
 	ColliderCache              colliderCache;
 	ImageCache                 imageCache;
-	MaterialCache              materialCache;
+	MaterialCacheCollada       materialCache;
 };
 
 // Creates new RRCollider from FCDGeometryMesh.

@@ -49,6 +49,7 @@
 #pragma comment(lib,"NiParticle")
 
 // cache
+#include <map>
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 #include <vector>
 #endif
@@ -591,144 +592,60 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// RRObject
+// MaterialCache
 
-class RRObjectGamebryo : public RRObjectGamebryoBase
+//bool operator <(const NiPropertyState& a1,const NiPropertyState& a2)
+//{
+//	return memcmp(&a1,&a2,sizeof(a1))<0;
+//}
+
+class MaterialCacheGamebryo
 {
 public:
-	// creates new RRObject from NiMesh
-	// return NULL for meshes of unsupported formats
-	static RRObjectGamebryo* create(NiMesh* _mesh, RRObject::LodInfo _lodInfo, bool& _aborting)
+	MaterialCacheGamebryo()
 	{
-		if (!_mesh)
-		{
-			return NULL;
-		}
-		if (_aborting)
-		{
-			return NULL;
-		}
-		if (!NiLightMapUtility::IsLightMapMesh(_mesh))
-		{
-			return NULL;
-		}
-
-		_mesh->UpdateEffects();
-		RRMesh* mesh = new RRMeshGamebryo(_mesh);
-		if (mesh->getNumTriangles()==0)
-		{
-			delete mesh;
-			return NULL;
-		}
-		//mesh->checkConsistency();
-		const RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
-		if (!collider)
-		{
-			delete mesh;
-			return NULL;
-		}
-		return new RRObjectGamebryo(_mesh, collider, _lodInfo);
+		defaultMaterial.reset(false);
 	}
-	virtual ~RRObjectGamebryo()
+	RRMaterial* getMaterial(NiMesh* mesh)
 	{
-		delete material.diffuseReflectance.texture;
-		delete material.specularReflectance.texture;
-		delete material.specularTransmittance.texture;
-		delete material.diffuseEmittance.texture;
-		delete illumination;
-		delete collider->getMesh();
-		delete collider;
-	}
-
-	RRObjectIllumination* getIllumination()
-	{
-		return illumination;
-	}
-	virtual const RRCollider* getCollider() const
-	{
-		return collider;
-	}
-	virtual const RRMatrix3x4* getWorldMatrix()
-	{
-		return &worldMatrix;
-	}
-
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-	{
-#ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-		// Support for disabled lighting or shadowing.
-		if (light)
+		if (!mesh)
 		{
-			NiDynamicEffectState* dynamicEffectState = mesh->GetEffectState();
-			if (!dynamicEffectState)
-			{
-				// This mesh is not lit and it does not cast shadows.
-				return NULL;
-			}
-			const GamebryoLightCache* gamebryoLightCache = (GamebryoLightCache*)light->customData;
-			if (!gamebryoLightCache)
-			{
-				// This light was added manually, it's not adapted from Gamebryo.
-				// It illuminates all objects / casts all shadows.
-				return &material;
-			}
-			if (receiver)
-			{
-				// Does this mesh cast shadows from light to receiver?
-				if (gamebryoLightCache->areCasterAndReceiver(this,(RRObjectGamebryo*)receiver))
-				{
-					// Yes, this mesh casts shadow from light to receiver.
-					return &material;
-				}
-				// No, this mesh doesn't cast shadow from light to receiver.
-				return NULL;
-			}
-			else
-			{
-				// Is this mesh lit by light?
-				NiDynEffectStateIter relevantLightIter = dynamicEffectState->GetLightHeadPos();
-				NiLight* relevantLight;
-				while (relevantLight=dynamicEffectState->GetNextLight(relevantLightIter))
-				{
-					if (relevantLight==gamebryoLightCache->gamebryoLight)
-					{
-						// Yes, light affects this mesh.
-						return &material;
-					}
-				}
-				// No, light does not affect this mesh.
-				return NULL;
-			}
+			return &defaultMaterial;
 		}
-		else
-#endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
-		// Standard unconditional query: what is this triangle's material?
+		Key key(mesh->GetPropertyState(),mesh->GetActiveMaterial());
+		Cache::iterator i = cache.find(key);
+		if (i!=cache.end())
 		{
-			return &material;
+			//RRReporter::report(INF1,"in cache\n");
+			return &(*i).second;
+		}
+		//RRReporter::report(INF1,"new\n");
+		return &( cache[key] = detectMaterial(mesh) );
+	}
+	~MaterialCacheGamebryo()
+	{
+		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
+		{
+			RRMaterial& material = (*i).second;
+			RR_SAFE_DELETE(material.diffuseReflectance.texture);
+			RR_SAFE_DELETE(material.specularReflectance.texture);
+			RR_SAFE_DELETE(material.specularTransmittance.texture);
+			RR_SAFE_DELETE(material.diffuseEmittance.texture);
 		}
 	}
-
-	virtual void getTriangleLod(unsigned t, RRObject::LodInfo& out) const
-	{
-		out = lodInfo;
-	}
-
 private:
-	RRObjectGamebryo(NiMesh* _mesh, const RRCollider* _collider, RRObject::LodInfo _lodInfo)
-	{
-		NIASSERT(_mesh);
-		NIASSERT(_collider);
-		mesh = _mesh;
-		meshIndex = 0;
-		collider = _collider;
-		lodInfo = _lodInfo;
-		worldMatrix = convertMatrix(mesh->GetWorldTransform());
-		illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
+	RRMaterial defaultMaterial;
+	typedef std::pair<const NiPropertyState*,const NiMaterial*> Key; //!!! change key, two meshes never have the same Key
+	typedef std::map<Key,RRMaterial> Cache;
+	Cache cache;
 
+	static RRMaterial detectMaterial(NiMesh* mesh)
+	{
+		RRMaterial material;
 		// detect material properties
-	    NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
+		NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
 		NiStencilProperty::DrawMode drawMode = pkStencilProperty ? pkStencilProperty->GetDrawMode() : NiStencilProperty::DRAW_CCW;
-	    switch(drawMode)
+		switch(drawMode)
 		{
 			case NiStencilProperty::DRAW_CCW:
 				// visible from front side
@@ -776,12 +693,150 @@ private:
 			//material.validate();
 		}
 		material.updateSideBitsFromColors();
+		material.name = mesh->GetActiveMaterial()->GetName();
+		return material;
+	}
+};
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// RRObject
+
+class RRObjectGamebryo : public RRObjectGamebryoBase
+{
+public:
+	// creates new RRObject from NiMesh
+	// return NULL for meshes of unsupported formats
+	static RRObjectGamebryo* create(NiMesh* _mesh, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
+	{
+		if (!_mesh)
+		{
+			return NULL;
+		}
+		if (_aborting)
+		{
+			return NULL;
+		}
+		if (!NiLightMapUtility::IsLightMapMesh(_mesh))
+		{
+			return NULL;
+		}
+
+		_mesh->UpdateEffects();
+		RRMesh* mesh = new RRMeshGamebryo(_mesh);
+		if (mesh->getNumTriangles()==0)
+		{
+			delete mesh;
+			return NULL;
+		}
+		//mesh->checkConsistency();
+		const RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
+		if (!collider)
+		{
+			delete mesh;
+			return NULL;
+		}
+		return new RRObjectGamebryo(_mesh, collider, _lodInfo, _materialCache);
+	}
+	virtual ~RRObjectGamebryo()
+	{
+		delete illumination;
+		delete collider->getMesh();
+		delete collider;
+	}
+
+	RRObjectIllumination* getIllumination()
+	{
+		return illumination;
+	}
+	virtual const RRCollider* getCollider() const
+	{
+		return collider;
+	}
+	virtual const RRMatrix3x4* getWorldMatrix()
+	{
+		return &worldMatrix;
+	}
+
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	{
+#ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+		// Support for disabled lighting or shadowing.
+		if (light)
+		{
+			NiDynamicEffectState* dynamicEffectState = mesh->GetEffectState();
+			if (!dynamicEffectState)
+			{
+				// This mesh is not lit and it does not cast shadows.
+				return NULL;
+			}
+			const GamebryoLightCache* gamebryoLightCache = (GamebryoLightCache*)light->customData;
+			if (!gamebryoLightCache)
+			{
+				// This light was added manually, it's not adapted from Gamebryo.
+				// It illuminates all objects / casts all shadows.
+				return material;
+			}
+			if (receiver)
+			{
+				// Does this mesh cast shadows from light to receiver?
+				if (gamebryoLightCache->areCasterAndReceiver(this,(RRObjectGamebryo*)receiver))
+				{
+					// Yes, this mesh casts shadow from light to receiver.
+					return material;
+				}
+				// No, this mesh doesn't cast shadow from light to receiver.
+				return NULL;
+			}
+			else
+			{
+				// Is this mesh lit by light?
+				NiDynEffectStateIter relevantLightIter = dynamicEffectState->GetLightHeadPos();
+				NiLight* relevantLight;
+				while (relevantLight=dynamicEffectState->GetNextLight(relevantLightIter))
+				{
+					if (relevantLight==gamebryoLightCache->gamebryoLight)
+					{
+						// Yes, light affects this mesh.
+						return material;
+					}
+				}
+				// No, light does not affect this mesh.
+				return NULL;
+			}
+		}
+		else
+#endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
+		// Standard unconditional query: what is this triangle's material?
+		{
+			return material;
+		}
+	}
+
+	virtual void getTriangleLod(unsigned t, RRObject::LodInfo& out) const
+	{
+		out = lodInfo;
+	}
+
+private:
+	RRObjectGamebryo(NiMesh* _mesh, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
+	{
+		NIASSERT(_mesh);
+		NIASSERT(_collider);
+		mesh = _mesh;
+		meshIndex = 0;
+		collider = _collider;
+		lodInfo = _lodInfo;
+		worldMatrix = convertMatrix(mesh->GetWorldTransform());
+		illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
+		material = _materialCache.getMaterial(mesh);
 	}
 
 	const RRCollider* collider;
 	RRObjectIllumination* illumination;
 	RRMatrix3x4 worldMatrix;
-	RRMaterial material;
+	RRMaterial* material;
 	LodInfo lodInfo;
 };
 
@@ -926,7 +981,7 @@ private:
 				lodInfo.base = object;
 				lodInfo.level = 0;
 			}
-			RRObjectGamebryo* rrObject = RRObjectGamebryo::create((NiMesh*)object,lodInfo,aborting);
+			RRObjectGamebryo* rrObject = RRObjectGamebryo::create((NiMesh*)object,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
 				push_back(RRIlluminatedObject(rrObject, rrObject->getIllumination()));
@@ -934,6 +989,7 @@ private:
 		}
 	}
 
+	MaterialCacheGamebryo materialCache;
 	NiScene* pkEntityScene; // used only to query lightmap names
 };
 
