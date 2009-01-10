@@ -1,6 +1,7 @@
 // LightsprintGL: fragment ubershader
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
 //
-// options controlled by program:
+// Options:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define SHADOW_BILINEAR
@@ -47,8 +48,6 @@
 //  #define OBJECT_SPACE
 //  #define CLIP_PLANE
 //  #define FORCE_2D_POSITION
-//
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2008
 
 #if SHADOW_SAMPLES>0
 #if SHADOW_MAPS>0

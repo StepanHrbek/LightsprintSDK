@@ -1,6 +1,6 @@
 // LightsprintGL: Lightmap build
 // Used by RRIlluminationPixelBufferInOpenGL
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
 
 varying vec4 color;
 

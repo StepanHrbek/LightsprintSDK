@@ -1,7 +1,7 @@
 // Water with planar reflection, fresnel and waves
-// Copyright (C) Stepan Hrbek, Lightsprint 2007-2008
-
-// Options controlled from outside:
+// Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//
+// Options:
 // #define FRESNEL
 // #define BOOST_SUN
 

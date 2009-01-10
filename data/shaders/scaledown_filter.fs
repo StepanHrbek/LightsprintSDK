@@ -1,8 +1,8 @@
 // LightsprintGL: Scale down filter
 // Used by RRDynamicSolverGL::detectDirectIllumination()
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
 //
-// Parameters:
+// Options:
 // #define SIZEX n
 // #define SIZEY n
 

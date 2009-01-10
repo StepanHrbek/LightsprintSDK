@@ -86,7 +86,7 @@ namespace rr
 		struct Property
 		{
 			RRVec3                 color;    ///< Material property expressed as 3 floats. If texture is present, this is average color of texture.
-			class RRBuffer*        texture;  ///< Material property expressed as a texture.
+			class RRBuffer*        texture;  ///< Material property expressed as a texture. Not deleted in destructor.
 			unsigned               texcoord; ///< Texcoord channel used by texture. Call RRMesh::getTriangleMapping(texcoord) to get mapping for texture.
 
 			//! Clears property to default zeroes.
@@ -170,7 +170,7 @@ namespace rr
 		//! if desired lighting quality is equal or higher to this number.
 		//! Inited to UINT_MAX, automatically adjusted by updateColorFromTexture().
 		unsigned      minimalQualityForPointMaterials;
-		//! Optional name of material, may be NULL.
+		//! Optional name of material, may be NULL. Not freed/deleted in destructor.
 		const char*   name;
 	};
 

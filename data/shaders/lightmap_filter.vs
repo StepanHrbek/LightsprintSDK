@@ -1,6 +1,6 @@
 // LightsprintGL: Lightmap postprocess
 // Used by RRIlluminationPixelBufferInOpenGL
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
 
 varying vec2 lightmapCoord;
 

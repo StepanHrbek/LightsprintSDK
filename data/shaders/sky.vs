@@ -1,5 +1,8 @@
 // Sky
-// Copyright (C) Stepan Hrbek, Lightsprint 2007
+// Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//
+// Options:
+// #define PHYSICAL
 
 varying vec3 dir;
 

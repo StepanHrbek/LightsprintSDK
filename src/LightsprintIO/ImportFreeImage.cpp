@@ -84,8 +84,13 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 				height = FreeImage_GetHeight(dib1);
 				outFormat = BF_RGBF;
 				pixels = new unsigned char[12*width*height];
-				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib1);
+				float* fipixels = (float*)FreeImage_GetBits(dib1);
 				memcpy(pixels,fipixels,width*height*12);
+				// clamp float values to 0,1 (test only)
+				//for (unsigned i=0;i<width*height*3;i++)
+				//{
+				//	((float*)pixels)[i] = CLAMPED(fipixels[i],0,1);
+				//}
 			}
 			else
 			{

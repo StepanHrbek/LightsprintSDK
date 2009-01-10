@@ -1,5 +1,7 @@
-// Plain texturing with options:
+// Plain texturing
+// Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //
+// Options:
 // #define TEXTURE
 // #define SHOW_ALPHA0
 
