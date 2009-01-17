@@ -127,6 +127,8 @@ struct Parameters
 	rr::RRObjects::LayerParameters layerParameters;
 
 	// create parameters from commandline arguments
+	//  objectIndex=-1 -> gather global parameters
+	//  objectIndex=n -> gather parameters for object n
 	Parameters(int argc, char **argv, int objectIndex=-1)
 	{
 		// set defaults
@@ -239,6 +241,7 @@ struct Parameters
 						fclose(f);
 					}
 					else
+					if (objectIndex<0 || parsingObjectIndex>=0) // skip errors in global args in non-global pass (to avoid reporting it many times)
 					{
 						rr::RRReporter::report(rr::WARN,"Unknown argument or file not found: %s\n",argv[i]);
 					}
@@ -250,6 +253,12 @@ struct Parameters
 			buildDirect = true;
 			buildIndirect = true;
 		}
+		// outputpath is relative to currentdirectory=exedirectory
+		// TODO: make it relative to scenepath
+		//  outputpath not set -> outputpath=scenepath
+		//  outputpath= -> outputpath=scenepath
+		//  outputpath=. -> outputpath=scenepath/.
+		//  outputpath=aga -> outputpath=scenepath/aga
 	}
 
 	// allocate layers for 1 object (lightmaps etc)
