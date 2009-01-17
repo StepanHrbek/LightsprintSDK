@@ -349,7 +349,7 @@ int main(int argc, char **argv)
 			"  indirect                (build indirect lighting only)\n"
 			"  occlusion               (build ambient occlusion instead of lightmaps)\n"
 #ifdef SCENE_VIEWER
-			"  viewer                  (run scene viewer after build)"
+			"  viewer                  (run scene viewer after build)\n"
 #endif
 			"\n"
 			"Per-object arguments:\n"

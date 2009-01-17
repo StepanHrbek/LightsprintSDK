@@ -897,7 +897,12 @@ public:
 			{
 				if (pkMesh==object->mesh)
 				{
-					NiString kDirectoryName = NiString(layerParameters->suggestedPath) + "/" + kProps.m_pcEntityDirectory;
+					NiString kDirectoryName = NiString(layerParameters->suggestedPath);
+					size_t pathlen = strlen(layerParameters->suggestedPath);
+					if (pathlen
+						&& layerParameters->suggestedPath[pathlen-1]!='/'
+						&& layerParameters->suggestedPath[pathlen-1]!='\\') kDirectoryName += "/";
+					kDirectoryName += kProps.m_pcEntityDirectory;
 					if (!NiFile::DirectoryExists(kDirectoryName))
 					{
 						NiFile::CreateDirectoryRecursive(kDirectoryName);
