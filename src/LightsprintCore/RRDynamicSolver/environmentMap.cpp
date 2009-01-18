@@ -272,7 +272,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		RR_ASSERT(0);
 		return;
 	}
-	if (!environment->getScaled())
+	if (environment && !environment->getScaled())
 	{
 		// env not scaled -> don't scale in loop below
 		scalerForReadingEnv = NULL;
