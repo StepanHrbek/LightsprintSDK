@@ -50,6 +50,7 @@
 
 // cache
 #include <map>
+#include <list>
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 #include <vector>
 #endif
@@ -592,12 +593,77 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// MaterialCache
+// Material detection
+//
+// Non cached, to be called at most once per mesh.
 
-//bool operator <(const NiPropertyState& a1,const NiPropertyState& a2)
-//{
-//	return memcmp(&a1,&a2,sizeof(a1))<0;
-//}
+static RRMaterial detectMaterial(NiMesh* mesh)
+{
+	RRMaterial material;
+	// detect material properties
+	NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
+	NiStencilProperty::DrawMode drawMode = pkStencilProperty ? pkStencilProperty->GetDrawMode() : NiStencilProperty::DRAW_CCW;
+	switch(drawMode)
+	{
+		case NiStencilProperty::DRAW_CCW:
+			// visible from front side
+			material.reset(false);
+			break;
+		case NiStencilProperty::DRAW_CW:
+			// visible from back side
+			{
+				material.reset(false);
+				RRSideBits sb = material.sideBits[0];
+				material.sideBits[0] = material.sideBits[1];
+				material.sideBits[1] = sb;
+			}
+			break;
+		case NiStencilProperty::DRAW_BOTH:
+			// visible from both sides
+			material.reset(true);
+			break;
+		case NiStencilProperty::DRAW_CCW_OR_BOTH:
+			// visible at least from front side (camera never gets behind face to see its back side)
+			material.reset(true);
+			break;
+		default:
+			NIASSERT(0);
+	}
+	// use material detector if available
+	NiMaterialDetector* materialDetector = NiMaterialDetector::GetInstance();
+	if (materialDetector)
+	{
+		NiMaterialPointValuesPtr spColorValues = materialDetector->CreatePointMaterialTextures(mesh);
+		material.diffuseEmittance.texture = convertTexture(spColorValues->m_spEmittanceTexture);
+		material.diffuseEmittance.texcoord = CH_EMISSIVE;
+		material.diffuseReflectance.texture = convertTextureAndSubtract(spColorValues->m_spDiffuseTexture,material.diffuseEmittance.texture);
+		material.diffuseReflectance.texcoord = CH_DIFFUSE;
+		material.specularReflectance.texture = convertTextureAndSubtract(spColorValues->m_spSpecularTexture,material.diffuseEmittance.texture);
+		material.specularReflectance.texcoord = CH_SPECULAR;
+		material.specularTransmittance.texture = convertTextureAndSubtract(spColorValues->m_spTransmittedTexture,material.diffuseEmittance.texture);
+		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
+		material.specularTransmittanceInAlpha = false;
+		material.lightmapTexcoord = CH_LIGHTMAP;
+		RRScaler* scaler = RRScaler::createFastRgbScaler();
+		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+		delete scaler;
+		// optional - corrects invalid properties
+		//material.validate();
+	}
+	material.updateSideBitsFromColors();
+	material.name = mesh->GetActiveMaterial()->GetName();
+	return material;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// MaterialCacheGamebryo
+//
+// In Gamebryo, each mesh has unique material.
+// However, after closer inspection, some materials are identical.
+// MaterialCacheGamebryo groups meshes with identical material and creates only one RRMaterial per group of meshes, to save memory and time.
+// MaterialCacheGamebryo::getMaterial() replaces detectMaterial().
 
 class MaterialCacheGamebryo
 {
@@ -606,95 +672,91 @@ public:
 	{
 		defaultMaterial.reset(false);
 	}
+	// Looks for material in cache. Not found -> creates new material and stores it in cache.
+	// Called once per mesh.
 	RRMaterial* getMaterial(NiMesh* mesh)
 	{
 		if (!mesh)
 		{
 			return &defaultMaterial;
 		}
-		Key key(mesh->GetPropertyState(),mesh->GetActiveMaterial());
-		Cache::iterator i = cache.find(key);
-		if (i!=cache.end())
+		// quickly search in map by NiMaterial
+		SlowCache* slowCache;
 		{
-			//RRReporter::report(INF1,"in cache\n");
-			return &(*i).second;
+			FastCache::iterator i = fastCache.find(mesh->GetActiveMaterial());
+			if (i!=fastCache.end())
+			{
+				//RRReporter::report(INF1,"1 in cache\n");
+				slowCache = &(*i).second;
+			}
+			else
+			{
+				//RRReporter::report(INF1,"1 new\n");
+				slowCache = &( fastCache[mesh->GetActiveMaterial()] );
+			}
 		}
-		//RRReporter::report(INF1,"new\n");
-		return &( cache[key] = detectMaterial(mesh) );
-	}
-	~MaterialCacheGamebryo()
-	{
-		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
+		// slowly scan whole list by isEqualMaterial
+		for (SlowCache::iterator i=slowCache->begin();i!=slowCache->end();++i)
 		{
-			RRMaterial& material = (*i).second;
+			if (isEqualMaterial(mesh,(*i).mesh))
+			{
+				//RRReporter::report(INF1,"2 in cache\n");
+				return &(*i).material;
+			}
+		}
+		//RRReporter::report(INF1,"2 new\n");
+		// push CacheElement, then assign material
+		// (RRMaterial must not be assigned to temporary CacheElement, becuase ~CacheElement at the end of this scope would delete material textures)
+		slowCache->push_front(CacheElement(mesh));
+		return &( slowCache->begin()->material = detectMaterial(mesh) );
+	}
+private:
+	RRMaterial defaultMaterial;
+
+	struct CacheElement
+	{
+		const NiMesh* mesh;
+		RRMaterial material;
+
+		CacheElement(const NiMesh* _mesh)
+		{
+			mesh = _mesh;
+		}
+		~CacheElement()
+		{
+			// clean what we allocated in detectMaterial()
 			RR_SAFE_DELETE(material.diffuseReflectance.texture);
 			RR_SAFE_DELETE(material.specularReflectance.texture);
 			RR_SAFE_DELETE(material.specularTransmittance.texture);
 			RR_SAFE_DELETE(material.diffuseEmittance.texture);
 		}
-	}
-private:
-	RRMaterial defaultMaterial;
-	typedef std::pair<const NiPropertyState*,const NiMaterial*> Key; //!!! change key, two meshes never have the same Key
-	typedef std::map<Key,RRMaterial> Cache;
-	Cache cache;
+	};
+	typedef std::list<CacheElement> SlowCache;
+	typedef std::map<const NiMaterial*,SlowCache> FastCache;
+	FastCache fastCache;
 
-	static RRMaterial detectMaterial(NiMesh* mesh)
+	static bool isEqualMaterial(const NiMesh* mesh1, const NiMesh* mesh2)
 	{
-		RRMaterial material;
-		// detect material properties
-		NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
-		NiStencilProperty::DrawMode drawMode = pkStencilProperty ? pkStencilProperty->GetDrawMode() : NiStencilProperty::DRAW_CCW;
-		switch(drawMode)
-		{
-			case NiStencilProperty::DRAW_CCW:
-				// visible from front side
-				material.reset(false);
-				break;
-			case NiStencilProperty::DRAW_CW:
-				// visible from back side
-				{
-					material.reset(false);
-					RRSideBits sb = material.sideBits[0];
-					material.sideBits[0] = material.sideBits[1];
-					material.sideBits[1] = sb;
-				}
-				break;
-			case NiStencilProperty::DRAW_BOTH:
-				// visible from both sides
-				material.reset(true);
-				break;
-			case NiStencilProperty::DRAW_CCW_OR_BOTH:
-				// visible at least from front side (camera never gets behind face to see its back side)
-				material.reset(true);
-				break;
-			default:
-				NIASSERT(0);
-		}
-		// use material detector if available
-		NiMaterialDetector* materialDetector = NiMaterialDetector::GetInstance();
-		if (materialDetector)
-		{
-			NiMaterialPointValuesPtr spColorValues = materialDetector->CreatePointMaterialTextures(mesh);
-			material.diffuseEmittance.texture = convertTexture(spColorValues->m_spEmittanceTexture);
-			material.diffuseEmittance.texcoord = CH_EMISSIVE;
-			material.diffuseReflectance.texture = convertTextureAndSubtract(spColorValues->m_spDiffuseTexture,material.diffuseEmittance.texture);
-			material.diffuseReflectance.texcoord = CH_DIFFUSE;
-			material.specularReflectance.texture = convertTextureAndSubtract(spColorValues->m_spSpecularTexture,material.diffuseEmittance.texture);
-			material.specularReflectance.texcoord = CH_SPECULAR;
-			material.specularTransmittance.texture = convertTextureAndSubtract(spColorValues->m_spTransmittedTexture,material.diffuseEmittance.texture);
-			material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
-			material.specularTransmittanceInAlpha = false;
-			material.lightmapTexcoord = CH_LIGHTMAP;
-			RRScaler* scaler = RRScaler::createFastRgbScaler();
-			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
-			delete scaler;
-			// optional - corrects invalid properties
-			//material.validate();
-		}
-		material.updateSideBitsFromColors();
-		material.name = mesh->GetActiveMaterial()->GetName();
-		return material;
+		// proper use of FastCache ensures that only meshes with identical active material are compared
+		RR_ASSERT(mesh1->GetActiveMaterial()==mesh2->GetActiveMaterial());
+
+		NiPropertyState* ps1 = mesh1->GetPropertyState();
+		NiPropertyState* ps2 = mesh2->GetPropertyState();
+		#define TEST_FAST(prop) if (!ps1->Get##prop()->IsEqualFast(*ps2->Get##prop())) return false;
+		#define TEST_SLOW(prop) if (!ps1->Get##prop()->IsEqual    ( ps2->Get##prop())) return false;
+		TEST_FAST(Alpha);
+		TEST_FAST(Dither);
+		TEST_FAST(Fog);
+		TEST_FAST(Material);
+		TEST_FAST(RendererSpecific);
+		TEST_FAST(Shade);
+		TEST_FAST(Specular);
+		TEST_FAST(Stencil);
+		TEST_FAST(VertexColor);
+		TEST_FAST(Wireframe);
+		TEST_FAST(ZBuffer);
+		TEST_SLOW(Texturing); // fast test does not work for Texturing, always sees difference
+		return true;
 	}
 };
 

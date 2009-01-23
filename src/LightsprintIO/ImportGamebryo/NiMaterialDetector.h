@@ -31,7 +31,7 @@
 #include <NiD3D10RenderedTextureData.h>
 
 #ifndef NIMD_RENDER_TEXTURE_SIZE
-#define NIMD_RENDER_TEXTURE_SIZE 64
+#define NIMD_RENDER_TEXTURE_SIZE 128
 #endif
 
 class NiMaterialPointValues : public NiRefObject 
