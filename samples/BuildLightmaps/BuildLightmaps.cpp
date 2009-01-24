@@ -482,8 +482,11 @@ int main(int argc, char **argv)
 	//
 	// save layers
 	//
-	if (globalParameters.buildQuality && scene.getObjects())
+	if (globalParameters.buildQuality && scene.getObjects() && !solver->aborting)
 	{
+		rr::RRReportInterval report(rr::INF1,"Saving results...\n");
+		unsigned saved = 0;
+
 		for (unsigned objectIndex=0;objectIndex<scene.getObjects()->size();objectIndex++)
 		{
 			// take per-object parameters
@@ -491,8 +494,10 @@ int main(int argc, char **argv)
 			// query filename
 			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
 			// save
-			objectParameters.layersSave(&(*scene.getObjects())[objectIndex]);
+			saved += objectParameters.layersSave(&(*scene.getObjects())[objectIndex]);
 		}
+
+		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);
 	}
 
 	//
