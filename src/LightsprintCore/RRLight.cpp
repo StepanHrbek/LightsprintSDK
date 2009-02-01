@@ -35,6 +35,11 @@ public:
 		spotExponent = 1;
 		castShadows = true;
 		customData = NULL;
+		projectedTextureFilename = NULL;
+	}
+	~CleanLight()
+	{
+		free(projectedTextureFilename);
 	}
 };
 

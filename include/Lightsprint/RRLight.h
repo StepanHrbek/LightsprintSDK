@@ -200,9 +200,19 @@ namespace rr
 		//! you should remove such lights.
 		bool castShadows;
 
+
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc
 		//////////////////////////////////////////////////////////////////////////////
+
+		//! Only for realtime render: Filename of projected texture, with colors in custom scale.
+		//
+		//! Initialized to NULL, free()d in destructor.
+		//! You may set/change it at any time.
+		//!
+		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
+		//! When set, realtime spotlight is modulated only by texture.
+		char* projectedTextureFilename;
 
 		//! For your private use, not accessed by Lightsprint. Initialized to NULL.
 		void* customData;
