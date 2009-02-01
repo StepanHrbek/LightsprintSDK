@@ -22,7 +22,7 @@ namespace rr_gl
 class RR_GL_API Texture : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
-	//! Creates texture.
+	//! Creates texture. Buffer is not adopted, not deleted in destructor.
 	Texture(rr::RRBuffer* buffer, bool buildMipMaps, bool compress, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 	//! Creates depth texture (shadowmap).
 	static Texture* createShadowmap(unsigned width, unsigned height);
