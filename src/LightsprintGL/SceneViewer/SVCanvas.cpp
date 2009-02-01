@@ -543,6 +543,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = svs.renderRealtime;
 			uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderRealtime;
+			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderRealtime;
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderRealtime;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderAmbient;
 			uberProgramSetup.LIGHT_INDIRECT_auto = true;
