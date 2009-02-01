@@ -536,13 +536,14 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		return 0;
 	}
 
-	if (!priv->scene && !priv->packedSolver)
+	if (!priv->scene && !priv->packedSolver && !getEnvironment())
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, envmap will be updated to black, call calculate().\n"));
+		// BTW environment without solver is nothing unusual, called from RendererOfRRDynamicSolver::initSpecularReflection()
+		LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, no environment, reflection map will be updated to black, call calculate().\n"));
 	}
 	if (!priv->scene && priv->packedSolver && !priv->customIrradianceRGBA8)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, envmap will be updated to black, call calculate().\n"));
+		LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
 	}
 
 	// alloc temp space
