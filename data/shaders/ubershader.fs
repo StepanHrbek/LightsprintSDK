@@ -259,8 +259,10 @@ void main()
 		#endif // SHADOW_SAMPLES!=1
 
 		#if defined(LIGHT_DIRECT_MAP) || defined(LIGHT_DIRECT_ATT_SPOT)
+			// optimized path, but in case of direct_map, clamp to black border must be used (used to be faster than standard path)
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index)
 		#else
+			// standard path
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index) * step(0.0,shadowCoord[index].z)
 		#endif
 
