@@ -116,10 +116,13 @@ public:
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;
 
-	//! Texture projected by spotlight.
+	//! Sets texture projected by spotlight.
 	//
-	//! Change getRRLight().rtProjectedTextureFilename to change the texture.
-	//! Texture will be loaded from disk when used for first time.
+	//! Texture is not adopted, not deleted.
+	//! If you never call setProjectedTexture() or set it to NULL,
+	//! light projects texture specified by getRRLight().rtProjectedTextureFilename.
+	void setProjectedTexture(const Texture* projectedTexture);
+	//! Returns texture projected by spotlight.
 	const Texture* getProjectedTexture();
 
 	//! Number of instances approximating area light. Used only for SPOT, 1 = standard spot, more = area light.
@@ -153,8 +156,9 @@ protected:
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
 	unsigned shadowmapSize;
 
-	char* projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded
-	const Texture* projectedTexture; //! Created out of projectedTextureFilenameCopy
+	char* projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
+	const Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
+	const Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
 };
 
 typedef rr::RRVector<RealtimeLight*> RealtimeLights;

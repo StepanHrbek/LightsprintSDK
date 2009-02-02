@@ -38,16 +38,17 @@ namespace rr_gl
 		softShadowsAllowed = true;
 
 		projectedTextureFilenameCopy = NULL;
-		projectedTexture = NULL;
+		projectedTextureSpecifiedByFilename = NULL;
+		projectedTextureSpecifiedByTexture = NULL;
 	}
 
 	RealtimeLight::~RealtimeLight()
 	{
 		free(projectedTextureFilenameCopy);
-		if (projectedTexture)
+		if (projectedTextureSpecifiedByFilename)
 		{
-			delete projectedTexture->getBuffer();
-			delete projectedTexture;
+			delete projectedTextureSpecifiedByFilename->getBuffer();
+			delete projectedTextureSpecifiedByFilename;
 		}
 		delete[] smallMapCPU;
 		if (deleteParent) delete getParent();
@@ -57,6 +58,11 @@ namespace rr_gl
 		}
 	}
 
+	void RealtimeLight::setProjectedTexture(const Texture* _projectedTexture)
+	{
+		projectedTextureSpecifiedByTexture = _projectedTexture;
+	}
+
 	const Texture* RealtimeLight::getProjectedTexture()
 	{
 		// Ignore projected texture for point and dir lights.
@@ -64,23 +70,28 @@ namespace rr_gl
 		{
 			return NULL;
 		}
-		// Update projected texture if user changed filename.
+		// First, check texture specified by setProjectedTexture(), it has higher priority.
+		if (projectedTextureSpecifiedByTexture)
+		{
+			return projectedTextureSpecifiedByTexture;
+		}
+		// Next, update and return projected texture specified by filename.
 		if (strcmp(rrlight.rtProjectedTextureFilename?rrlight.rtProjectedTextureFilename:"",projectedTextureFilenameCopy?projectedTextureFilenameCopy:""))
 		{
 			RR_SAFE_FREE(projectedTextureFilenameCopy);
-			if (projectedTexture)
+			if (projectedTextureSpecifiedByFilename)
 			{
-				delete projectedTexture->getBuffer();
-				RR_SAFE_DELETE(projectedTexture);
+				delete projectedTextureSpecifiedByFilename->getBuffer();
+				RR_SAFE_DELETE(projectedTextureSpecifiedByFilename);
 			}
 			if (rrlight.rtProjectedTextureFilename && rrlight.rtProjectedTextureFilename[0])
 			{
 				projectedTextureFilenameCopy = _strdup(rrlight.rtProjectedTextureFilename);
-				rr::RRBuffer* lightDirectBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
-				projectedTexture = lightDirectBuffer ? new Texture(lightDirectBuffer,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER) : NULL;
+				rr::RRBuffer* projectedBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
+				projectedTextureSpecifiedByFilename = projectedBuffer ? new Texture(projectedBuffer,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER) : NULL;
 			}
 		}
-		return projectedTexture;
+		return projectedTextureSpecifiedByFilename;
 	}
 
 	void RealtimeLight::updateAfterRRLightChanges()

@@ -10,12 +10,16 @@ namespace rr
 
 \section news73 ------------------------------------ 2009.02.xx -------------------------------------
 
+NEWS
+
+- RRLight::rtProjectedTextureFilename
+  \n you can specify texture projected by spotlight in realtime render
+
 CHANGES
 
 - rr_gl::RealtimeLight::lightDirectMap replaced by
-  RRLight::projectedTextureFilename and rr_gl::RealtimeLight::getProjectedTexture()
-  \n This change simplifies realtime render with projected textures,
-  you set only filename, previously you had to load and set texture.
+  - rr_gl::RealtimeLight::setProjectedTexture()
+  - rr_gl::RealtimeLight::getProjectedTexture()
 
 \section news72 ------------------------------------ 2009.01.10 -------------------------------------
 
