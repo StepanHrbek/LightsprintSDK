@@ -87,7 +87,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 		}
 
 		{
-			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->projectedTextureFilename);
+			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename);
 			pg->Append( propTexture );
 			//pg->SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
 		}
@@ -247,8 +247,8 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	if (property==propTexture)
 	{
-		free(light->projectedTextureFilename);
-		light->projectedTextureFilename = _strdup(property->GetValue().GetString());
+		free(light->rtProjectedTextureFilename);
+		light->rtProjectedTextureFilename = _strdup(property->GetValue().GetString());
 	}
 	if (property==propDistanceAttType)
 	{

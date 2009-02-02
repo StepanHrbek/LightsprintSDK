@@ -432,7 +432,7 @@ int main(int argc, char **argv)
 
 	// init lights
 	for (unsigned i=0;i<scene->getLights()->size();i++)
-		(*scene->getLights())[i]->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
+		(*scene->getLights())[i]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	solver->setLights(*scene->getLights());
 
 	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.

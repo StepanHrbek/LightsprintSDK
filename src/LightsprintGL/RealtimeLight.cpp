@@ -65,7 +65,7 @@ namespace rr_gl
 			return NULL;
 		}
 		// Update projected texture if user changed filename.
-		if (strcmp(rrlight.projectedTextureFilename?rrlight.projectedTextureFilename:"",projectedTextureFilenameCopy?projectedTextureFilenameCopy:""))
+		if (strcmp(rrlight.rtProjectedTextureFilename?rrlight.rtProjectedTextureFilename:"",projectedTextureFilenameCopy?projectedTextureFilenameCopy:""))
 		{
 			RR_SAFE_FREE(projectedTextureFilenameCopy);
 			if (projectedTexture)
@@ -73,9 +73,9 @@ namespace rr_gl
 				delete projectedTexture->getBuffer();
 				RR_SAFE_DELETE(projectedTexture);
 			}
-			if (rrlight.projectedTextureFilename && rrlight.projectedTextureFilename[0])
+			if (rrlight.rtProjectedTextureFilename && rrlight.rtProjectedTextureFilename[0])
 			{
-				projectedTextureFilenameCopy = _strdup(rrlight.projectedTextureFilename);
+				projectedTextureFilenameCopy = _strdup(rrlight.rtProjectedTextureFilename);
 				rr::RRBuffer* lightDirectBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
 				projectedTexture = lightDirectBuffer ? new Texture(lightDirectBuffer,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER) : NULL;
 			}

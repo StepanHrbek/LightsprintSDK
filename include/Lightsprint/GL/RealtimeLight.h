@@ -118,7 +118,7 @@ public:
 
 	//! Texture projected by spotlight.
 	//
-	//! Change getRRLight().projectedTextureFilename to change the texture.
+	//! Change getRRLight().rtProjectedTextureFilename to change the texture.
 	//! Texture will be loaded from disk when used for first time.
 	const Texture* getProjectedTexture();
 
@@ -153,7 +153,7 @@ protected:
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
 	unsigned shadowmapSize;
 
-	char* projectedTextureFilenameCopy; //! Copy of getRRLight().projectedTextureFilename when projectedTexture was loaded
+	char* projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded
 	const Texture* projectedTexture; //! Created out of projectedTextureFilenameCopy
 };
 

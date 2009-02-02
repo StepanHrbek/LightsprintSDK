@@ -405,7 +405,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
-	rrlight->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	rrlight->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);
 	solver->setLights(rrlights);

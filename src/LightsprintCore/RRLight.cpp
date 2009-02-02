@@ -35,11 +35,11 @@ public:
 		spotExponent = 1;
 		castShadows = true;
 		customData = NULL;
-		projectedTextureFilename = NULL;
+		rtProjectedTextureFilename = NULL;
 	}
 	~CleanLight()
 	{
-		free(projectedTextureFilename);
+		free(rtProjectedTextureFilename);
 	}
 };
 
