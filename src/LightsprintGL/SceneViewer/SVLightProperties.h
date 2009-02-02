@@ -9,6 +9,7 @@
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
 #include "Lightsprint/GL/RealtimeLight.h"
+#include "Lightsprint/GL/SceneViewer.h"
 
 namespace rr_gl
 {

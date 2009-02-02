@@ -77,6 +77,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			pg->AppendIn( idType, propSpotExponent );
 		}
 
+		// color
 		{
 			propColor = new wxStringProperty(wxT("Color"),wxPG_LABEL,wxT("<composed>"));
 			wxPGId colId = pg->Append( propColor );
@@ -85,7 +86,6 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			pg->AppendIn( colId, new wxFloatProperty(wxT("b"),wxPG_LABEL,light->color[2]) );
 			pg->Collapse( colId );
 		}
-
 		{
 			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename);
 			pg->Append( propTexture );
@@ -176,14 +176,15 @@ static unsigned updateFloat(wxPGProperty* prop,float value)
 void SVLightProperties::updatePosDir()
 {
 	unsigned numChanges =
+		updateFloat(propNear,rtlight->getParent()->getNear()) +
+		updateFloat(propFar,rtlight->getParent()->getFar()) +
 		updateFloat(propPosition->GetPropertyByName("x"),rtlight->getParent()->pos[0]) +
 		updateFloat(propPosition->GetPropertyByName("y"),rtlight->getParent()->pos[1]) +
 		updateFloat(propPosition->GetPropertyByName("z"),rtlight->getParent()->pos[2]) +
 		updateFloat(propDirection->GetPropertyByName("x"),rtlight->getParent()->dir[0]) +
 		updateFloat(propDirection->GetPropertyByName("y"),rtlight->getParent()->dir[1]) +
-		updateFloat(propDirection->GetPropertyByName("z"),rtlight->getParent()->dir[2]) +
-		updateFloat(propNear,rtlight->getParent()->getNear()) +
-		updateFloat(propFar,rtlight->getParent()->getFar()) ;
+		updateFloat(propDirection->GetPropertyByName("z"),rtlight->getParent()->dir[2])
+		;
 	if (numChanges)
 	{
 		Refresh();
