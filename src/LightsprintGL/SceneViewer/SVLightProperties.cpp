@@ -147,7 +147,7 @@ void SVLightProperties::updateHide()
 	propDirection->Hide(light->type==rr::RRLight::POINT,false);
 	propOuterAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
 	propRadius->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
-	propTexture->Hide(light->type==rr::RRLight::DIRECTIONAL,false);
+	propTexture->Hide(light->type!=rr::RRLight::SPOT,false);
 	propDistanceAttType->Hide(light->type==rr::RRLight::DIRECTIONAL,false);
 	propConstant->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propLinear->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
