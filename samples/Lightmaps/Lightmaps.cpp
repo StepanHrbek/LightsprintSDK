@@ -525,10 +525,11 @@ int main(int argc, char **argv)
 	}
 
 	// init light
-	rr::RRLights lights;
-	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	solver->setLights(lights);
-	solver->realtimeLights[0]->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
+	rrlight->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	rr::RRLights rrlights;
+	rrlights.push_back(rrlight);
+	solver->setLights(rrlights);
 	light = solver->realtimeLights[0]->getParent();
 
 	glutMainLoop();

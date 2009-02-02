@@ -66,7 +66,6 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Texture*	           lightDirectMap = NULL;
 class Solver*              solver = NULL;
 DynamicObject*             robot;
 DynamicObject*             potato;
@@ -221,8 +220,6 @@ void keyboard(unsigned char c, int x, int y)
 			delete scene;
 			delete robot;
 			delete potato;
-			delete lightDirectMap->getBuffer();
-			delete lightDirectMap;
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
 			exit(0);
@@ -434,10 +431,9 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init lights
+	for (unsigned i=0;i<scene->getLights()->size();i++)
+		(*scene->getLights())[i]->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	solver->setLights(*scene->getLights());
-	lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	for (unsigned i=0;i<solver->realtimeLights.size();i++)
-		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
 
 	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// Takes seconds in small or minutes in big scene, when it is opened for first time.

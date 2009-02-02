@@ -334,8 +334,9 @@ int main(int argc, char **argv)
 	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init light
-	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
+	rrlight->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 	realtimeLight->setShadowmapSize(512);
 

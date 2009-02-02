@@ -65,9 +65,15 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->getRRLight().color!=rr::RRVec3(1);
-		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light->getRRLight().type!=rr::RRLight::POINT && light->lightDirectMap;
+		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && light->getProjectedTexture();
+		if (uberProgramSetup.LIGHT_DIRECT_MAP && !uberProgramSetup.SHADOW_MAPS)
+		{
+			// early correction (affects LIGHT_DIRECT_ATT_SPOT, unlike late correction)
+			uberProgramSetup.LIGHT_DIRECT_MAP = false;
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture supported only for shadow casting lights.\n"));
+		}
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
-		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT && !uberProgramSetup.LIGHT_DIRECT_MAP; // disables spot attenuation in presence of projected texture
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;

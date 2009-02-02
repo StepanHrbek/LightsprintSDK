@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news73 ------------------------------------ 2009.02.xx -------------------------------------
+
+CHANGES
+
+- rr_gl::RealtimeLight::lightDirectMap replaced by
+  RRLight::projectedTextureFilename and rr_gl::RealtimeLight::getProjectedTexture()
+  \n This change simplifies realtime render with projected textures,
+  you set only filename, previously you had to load and set texture.
+
 \section news72 ------------------------------------ 2009.01.10 -------------------------------------
 
 NEWS

@@ -230,6 +230,13 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 {
 	LIMITED_TIMES(1,checkCapabilities());
 
+	if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
+	{
+		// late correction. we rarely get here, see early correction
+		LIGHT_DIRECT_MAP = 0;
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture without shadows not supported yet.\n"));
+	}
+
 	Program* program = getProgram(uberProgram);
 	if (!program)
 	{
@@ -326,14 +333,14 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 
 	if (LIGHT_DIRECT_MAP)
 	{
-		if (!light->lightDirectMap)
+		if (!light->getProjectedTexture())
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: lightDirectMap==NULL (projected texture is missing).\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: LIGHT_DIRECT_MAP set, but getProjectedTexture()==NULL.\n");
 			return false;
 		}
 		int id=TEXTURE_2D_LIGHT_DIRECT;
 		glActiveTexture(GL_TEXTURE0+id);
-		light->lightDirectMap->bindTexture();
+		light->getProjectedTexture()->bindTexture();
 		program->sendUniform("lightDirectMap", id);
 	}
 

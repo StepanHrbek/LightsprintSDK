@@ -188,7 +188,7 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4; // for 3ds draw, won't be reset by MultiPass
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
+	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->getProjectedTexture()?true:false;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
@@ -404,12 +404,13 @@ int main(int argc, char **argv)
 				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 	// init light
-	rr::RRLights lights;
-	lights.push_back(rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
-	solver->setLights(lights);
+	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
+	rrlight->projectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	rr::RRLights rrlights;
+	rrlights.push_back(rrlight);
+	solver->setLights(rrlights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
-	realtimeLight->lightDirectMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/spot0.png"), true,true, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	realtimeLight->setShadowmapSize(512);
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.

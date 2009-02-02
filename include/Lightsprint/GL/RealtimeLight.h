@@ -76,6 +76,8 @@ public:
 	//! Set higher resolution for hard and sharper shadows,
 	//! set lower resolution for area and more blurry shadows.
 	void setShadowmapSize(unsigned newSize);
+	//! Returns shadowmap size previously set by setShadowmapSize().
+	unsigned getShadowmapSize() {return shadowmapSize;}
 
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowmap(unsigned instance);
@@ -114,8 +116,11 @@ public:
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;
 
-	//! Texture projected by light. May be set from outside.
-	const Texture* lightDirectMap;
+	//! Texture projected by spotlight.
+	//
+	//! Change getRRLight().projectedTextureFilename to change the texture.
+	//! Texture will be loaded from disk when used for first time.
+	const Texture* getProjectedTexture();
 
 	//! Number of instances approximating area light. Used only for SPOT, 1 = standard spot, more = area light.
 	unsigned numInstancesInArea;
@@ -147,6 +152,9 @@ protected:
 	bool deleteParent;
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
 	unsigned shadowmapSize;
+
+	char* projectedTextureFilenameCopy; //! Copy of getRRLight().projectedTextureFilename when projectedTexture was loaded
+	const Texture* projectedTexture; //! Created out of projectedTextureFilenameCopy
 };
 
 typedef rr::RRVector<RealtimeLight*> RealtimeLights;

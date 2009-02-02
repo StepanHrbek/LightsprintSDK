@@ -33,20 +33,54 @@ namespace rr_gl
 		areaType = LINE;
 		areaSize = 0.2f;
 		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
-		lightDirectMap = NULL;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		softShadowsAllowed = true;
+
+		projectedTextureFilenameCopy = NULL;
+		projectedTexture = NULL;
 	}
 
 	RealtimeLight::~RealtimeLight()
 	{
+		free(projectedTextureFilenameCopy);
+		if (projectedTexture)
+		{
+			delete projectedTexture->getBuffer();
+			delete projectedTexture;
+		}
 		delete[] smallMapCPU;
 		if (deleteParent) delete getParent();
 		for (unsigned i=0;i<shadowmaps.size();i++)
 		{
 			delete shadowmaps[i];
 		}
+	}
+
+	const Texture* RealtimeLight::getProjectedTexture()
+	{
+		// Ignore projected texture for point and dir lights.
+		if (getRRLight().type!=rr::RRLight::SPOT)
+		{
+			return NULL;
+		}
+		// Update projected texture if user changed filename.
+		if (strcmp(rrlight.projectedTextureFilename?rrlight.projectedTextureFilename:"",projectedTextureFilenameCopy?projectedTextureFilenameCopy:""))
+		{
+			RR_SAFE_FREE(projectedTextureFilenameCopy);
+			if (projectedTexture)
+			{
+				delete projectedTexture->getBuffer();
+				RR_SAFE_DELETE(projectedTexture);
+			}
+			if (rrlight.projectedTextureFilename && rrlight.projectedTextureFilename[0])
+			{
+				projectedTextureFilenameCopy = _strdup(rrlight.projectedTextureFilename);
+				rr::RRBuffer* lightDirectBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
+				projectedTexture = lightDirectBuffer ? new Texture(lightDirectBuffer,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER) : NULL;
+			}
+		}
+		return projectedTexture;
 	}
 
 	void RealtimeLight::updateAfterRRLightChanges()
