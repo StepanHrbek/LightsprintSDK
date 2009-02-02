@@ -216,6 +216,14 @@ namespace rr
 		//! When set, realtime spotlight is modulated only by texture.
 		char* rtProjectedTextureFilename;
 
+		//! Limits area where shadows are computed.
+		//
+		//! Relevant only for realtime render, only for type=DIRECTIONAL.
+		//!
+		//! This is temporary control, it will be removed later.
+		//! Default value is 1000, so area with shadows computed is 1000x1000 or smaller.
+		float rtMaxShadowSize;
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

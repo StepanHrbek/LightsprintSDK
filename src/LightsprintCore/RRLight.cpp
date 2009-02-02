@@ -36,6 +36,7 @@ public:
 		castShadows = true;
 		customData = NULL;
 		rtProjectedTextureFilename = NULL;
+		rtMaxShadowSize = 1000;
 	}
 	~CleanLight()
 	{

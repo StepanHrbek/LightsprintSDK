@@ -65,7 +65,7 @@ void setupLights(const rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _
 	RR_ASSERT(_solver->getLights().size()==1);
 	_solver->realtimeLights[0]->getParent()->dir = _solver->getLights()[0]->direction = rr::RRVec3(-0.5f,-sin(_lightTime01*3.14f),-cos(_lightTime01*3.14f));
 	_solver->realtimeLights[0]->getParent()->updateDirFromAngles = false;
-	_solver->realtimeLights[0]->getParent()->update(_observer);
+	_solver->realtimeLights[0]->getParent()->update(_observer,_solver->realtimeLights[0]->getRRLight().rtMaxShadowSize);
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
 }
 

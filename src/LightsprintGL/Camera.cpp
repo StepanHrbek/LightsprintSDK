@@ -196,7 +196,7 @@ bool Camera::operator!=(const Camera& a) const
 	return !(*this==a);
 }
 
-void Camera::update(const Camera* observer, unsigned shadowmapSize)
+void Camera::update(const Camera* observer, float maxShadowArea)
 {
 	// update dir
 	if (updateDirFromAngles)
@@ -224,7 +224,7 @@ void Camera::update(const Camera* observer, unsigned shadowmapSize)
 		// update matrices
 		//update(NULL,0);
 		// update visible range to roughly match observer range
-		orthoSize = MIN(1500,observer->afar);
+		orthoSize = MIN(maxShadowArea,observer->afar);
 		afar = orthoSize*2.6f; // light must have 2x bigger range because it goes in 2 directions from observer. for unknown reason, sponza needs at least 2.6
 		anear = afar/10;
 		// set new pos

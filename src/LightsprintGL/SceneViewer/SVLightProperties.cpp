@@ -132,7 +132,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			propFar = new wxFloatProperty(wxT("Far"),wxPG_LABEL,rtlight->getParent()->getFar());
 			pg->AppendIn( idShad, propFar );
 
-			propOrthoSize = new wxFloatProperty(wxT("Ortho size"),wxPG_LABEL,rtlight->getParent()->orthoSize);
+			propOrthoSize = new wxFloatProperty(wxT("Max shadow size"),wxPG_LABEL,light->rtMaxShadowSize);
 			pg->AppendIn( idShad, propOrthoSize );
 		}
 
@@ -302,7 +302,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	if (property==propOrthoSize)
 	{
-		rtlight->getParent()->orthoSize = property->GetValue().GetDouble();
+		light->rtMaxShadowSize = property->GetValue().GetDouble();
 	}
 	//rtlight->dirtyShadowmap = true;
 	//rtlight->dirtyGI = true;

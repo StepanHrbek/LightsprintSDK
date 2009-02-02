@@ -370,7 +370,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 		if (light->getParent()->orthogonal && light->getNumShadowmaps())
 		{
 			Texture* shadowmap = light->getShadowmap(0);
-			light->getParent()->update(observer,MIN(shadowmap->getBuffer()->getWidth(),shadowmap->getBuffer()->getHeight()));
+			light->getParent()->update(observer,light->getRRLight().rtMaxShadowSize);
 		}
 		else
 			light->getParent()->update();

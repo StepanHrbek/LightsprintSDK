@@ -13,7 +13,7 @@ namespace rr
 NEWS
 
 - RRLight::rtProjectedTextureFilename
-  \n you can specify texture projected by spotlight in realtime render
+  \n lets you specify texture projected by light
 
 CHANGES
 
