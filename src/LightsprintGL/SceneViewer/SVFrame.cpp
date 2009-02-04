@@ -600,36 +600,26 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 
 		case ME_LIGHT_DIR:
-			{
-			rr::RRLights newList = solver->getLights();
-			rr::RRLight* newLight = NULL;
-			newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true);
-			lightsToBeDeletedOnExit.push_back(newLight);
-			if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-			newList.push_back(newLight);
-			solver->setLights(newList);
-			}
-			break;
 		case ME_LIGHT_SPOT:
-			{
-			rr::RRLights newList = solver->getLights();
-			rr::RRLight* newLight = NULL;
-			newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4);
-			lightsToBeDeletedOnExit.push_back(newLight);
-			if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-			newList.push_back(newLight);
-			solver->setLights(newList);
-			}
-			break;
 		case ME_LIGHT_POINT:
 			{
-			rr::RRLights newList = solver->getLights();
-			rr::RRLight* newLight = NULL;
-			newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1));
-			lightsToBeDeletedOnExit.push_back(newLight);
-			if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-			newList.push_back(newLight);
-			solver->setLights(newList);
+				rr::RRLights newList = solver->getLights();
+				rr::RRLight* newLight = NULL;
+				switch (event.GetId())
+				{
+					case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); break;
+					case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
+					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
+				}
+				lightsToBeDeletedOnExit.push_back(newLight);
+				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
+				newList.push_back(newLight);
+				solver->setLights(newList); // RealtimeLight in light props is deleted here
+				svs.selectedLightIndex = newList.size()-1; // select new light
+				if (m_lightProperties)
+				{
+					m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
+				}
 			}
 			break;
 		case ME_LIGHT_DELETE:
@@ -647,7 +637,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 				}
 				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-				solver->setLights(newList);
+				RR_SAFE_DELETE(m_lightProperties); // delete light props
+				solver->setLights(newList); // RealtimeLight in light props is deleted here
 			}
 			break;
 		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
