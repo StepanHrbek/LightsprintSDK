@@ -172,6 +172,24 @@ RRBuffer* convertTextureAndSubtract(NiPixelData* _add, RRBuffer* _sub)
 	return add;
 }
 
+//! Deletes old buffer, creates and returns new float buffer with all elements multiplied.
+RRBuffer* multiplyTexture(RRBuffer* source, float factor)
+{
+	if (!source)
+	{
+		return NULL;
+	}
+	RRBuffer* destination = RRBuffer::create(source->getType(),source->getWidth(),source->getHeight(),source->getDepth(),BF_RGBAF,source->getScaled(),NULL);
+	unsigned numElements = source->getWidth()*source->getHeight()*source->getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = source->getElement(i);
+		destination->setElement(i,color*factor);
+	}
+	delete source;
+	return destination;
+}
+
 //! Texcoord channel numbers.
 enum Channel
 {
@@ -644,6 +662,8 @@ static RRMaterial detectMaterial(NiMesh* mesh)
 		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
+		// optional emissivity boost
+		//material.diffuseEmittance.texture = multiplyTexture(material.diffuseEmittance.texture,emissivity_boost_factor);
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 		delete scaler;
