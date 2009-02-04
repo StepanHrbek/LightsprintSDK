@@ -121,7 +121,7 @@ public:
 			int dlgItem = IDC_LOG_SHORT;
 			int pos = instanceData->numCharsShort;//GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
-			instanceData->numCharsShort += strlen(space);
+			instanceData->numCharsShort += (unsigned)strlen(space);
 
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );
@@ -140,7 +140,7 @@ public:
 			int dlgItem = IDC_LOG_DETAILED;
 			int pos = instanceData->numCharsDetailed;//GetWindowTextLength(GetDlgItem(hWnd,dlgItem));
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETSEL,pos,pos);
-			instanceData->numCharsDetailed += strlen(space);
+			instanceData->numCharsDetailed += (unsigned)strlen(space);
 
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );

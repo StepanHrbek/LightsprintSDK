@@ -546,7 +546,7 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
 			tmp = new char[strlen(ext)+5];
 			strcpy(tmp,ext);
-			unsigned i = strlen(ext);
+			unsigned i = (unsigned)strlen(ext);
 			while (i && tmp[i-1]!='.') i--;
 			strcpy(tmp+i,"vbu");
 			finalExt = tmp;
