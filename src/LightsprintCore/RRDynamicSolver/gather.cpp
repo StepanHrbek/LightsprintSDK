@@ -1089,7 +1089,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene (%d %d %d).\n",
 					getMultiObjectCustom()?1:0,
 					priv->scene?1:0,
-					getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
+					getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 			return false;
 		}
 	}
