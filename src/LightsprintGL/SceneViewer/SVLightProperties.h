@@ -52,9 +52,9 @@ namespace rr_gl
 		wxPGProperty*     propQuadratic;
 		wxPGProperty*     propClamp;
 		wxPGProperty*     propFallOffExponent;
-		wxPGProperty*     propSpotExponent;
 		wxPGProperty*     propFallOffAngleRad;
 		wxPGProperty*     propCastShadows;
+		wxPGProperty*     propSpotExponent;
 		wxPGProperty*     propShadowmapRes;
 		wxPGProperty*     propNear;
 		wxPGProperty*     propFar;

@@ -154,8 +154,8 @@ void SVLightProperties::updateHide()
 	propQuadratic->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propClamp->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propFallOffExponent->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
-	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
 	propFallOffAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
+	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
 	propFar->Hide(!light->castShadows,false);
@@ -276,10 +276,6 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		light->fallOffExponent = property->GetValue().GetDouble();
 	}
-	if (property==propSpotExponent)
-	{
-		light->spotExponent = property->GetValue().GetDouble();
-	}
 	if (property==propFallOffAngleRad)
 	{
 		light->fallOffAngleRad = property->GetValue().GetDouble();
@@ -288,6 +284,10 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		light->castShadows = property->GetValue().GetBool();
 		updateHide();
+	}
+	if (property==propSpotExponent)
+	{
+		light->spotExponent = property->GetValue().GetDouble();
 	}
 	if (property==propShadowmapRes)
 	{
