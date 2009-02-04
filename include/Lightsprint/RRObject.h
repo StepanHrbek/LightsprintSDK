@@ -168,7 +168,7 @@ namespace rr
 		unsigned      lightmapTexcoord;
 		//! Hint for solver, material tells solver to use RRObject::getPointMaterial()
 		//! if desired lighting quality is equal or higher to this number.
-		//! Inited to UINT_MAX, automatically adjusted by updateColorFromTexture().
+		//! Inited to UINT_MAX (=never use point materials), automatically adjusted by updateColorsFromTextures().
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material, may be NULL. Not freed/deleted in destructor. Shallow copied in assignment operator and copy constructor.
 		const char*   name;
@@ -246,9 +246,10 @@ namespace rr
 		//! Returns material description for point on object's surface.
 		//
 		//! Use it to query material properties for any given pixel.
-		//! This is hiher quality but slower per-pixel version of faster per-triangle getTriangleMaterial().
+		//! This is higher quality but slower per-pixel version of faster per-triangle getTriangleMaterial().
 		//! \n\n Default implementation takes point details from optional textures in material returned by getTriangleMaterial().
-		//! \n\n Solver uses getPointMaterial() only if requested lightmap quality>=getTriangleMaterial()->minimalQualityForPointMaterials.
+		//! \n\n Offline GI solver uses getPointMaterial() only if requested lightmap quality>=getTriangleMaterial()->minimalQualityForPointMaterials.
+		//! Realtime GI solvers never call getPointMaterial().
 		//! \param t
 		//!  Triangle number.
 		//! \param uv
@@ -258,7 +259,7 @@ namespace rr
 		//!  For special case of scaler!=NULL, see explanation in scaler.
 		//! \param scaler
 		//!  You are expected to keep it NULL, only solver calls it with scaler.
-		//!  When called normally without scaler, function goal is to fill out in adapter's default(custom) scale.
+		//!  When called normally without scaler, function goal is to fill out in adapter's native(custom) scale.
 		//!  When called with scaler, out is already filled with per-triangle material in physical scale
 		//!  (colors in physical scale, textures are in adapter's default scale to save memory),
 		//!  function's goal is to modify colors in physical scale. Default implementation
