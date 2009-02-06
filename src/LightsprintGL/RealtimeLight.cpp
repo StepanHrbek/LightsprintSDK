@@ -88,7 +88,7 @@ namespace rr_gl
 			{
 				projectedTextureFilenameCopy = _strdup(rrlight.rtProjectedTextureFilename);
 				rr::RRBuffer* projectedBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
-				projectedTextureSpecifiedByFilename = projectedBuffer ? new Texture(projectedBuffer,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER) : NULL;
+				projectedTextureSpecifiedByFilename = projectedBuffer ? new Texture(projectedBuffer,true,true) : NULL;
 			}
 		}
 		return projectedTextureSpecifiedByFilename;

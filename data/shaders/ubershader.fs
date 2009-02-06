@@ -258,8 +258,10 @@ void main()
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
-		#if defined(LIGHT_DIRECT_MAP) || defined(LIGHT_DIRECT_ATT_SPOT)
-			// optimized path, but in case of direct_map, clamp to black border must be used (used to be faster than standard path)
+		#if defined(LIGHT_DIRECT_ATT_SPOT)
+			// optimized path, step() not necessary
+			// previosuly used also if defined(LIGHT_DIRECT_MAP), with projected texture set to clamp to black border,
+			//  but it projected also backwards in areas where Z was never written to SM after clear (e.g. spotlight looking into the sky), at least on 4870 cat811-901
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index)
 		#else
 			// standard path
