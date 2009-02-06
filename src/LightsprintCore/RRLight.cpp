@@ -44,21 +44,21 @@ public:
 	}
 };
 
-const RRVec4& check(const RRVec4& a, const char* name)
+const RRVec4& warnIfNegative(const RRVec4& a, const char* name)
 {
 	if (a[0]<0 || a[1]<0 || a[2]<0 || a[3]<0)
 		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f %f).\n",name,a[0],a[1],a[2],a[3]));
 	return a;
 }
 
-const RRVec3& check(const RRVec3& a, const char* name)
+const RRVec3& warnIfNegative(const RRVec3& a, const char* name)
 {
 	if (a[0]<0 || a[1]<0 || a[2]<0)
 		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f).\n",name,a[0],a[1],a[2]));
 	return a;
 }
 
-RRReal check(RRReal a, const char* name)
+RRReal warnIfNegative(RRReal a, const char* name)
 {
 	if (a<0)
 		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f).\n",name,a));
@@ -78,7 +78,7 @@ public:
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
 		direction = _direction.normalized();
-		color = check(_color,"color");
+		color = warnIfNegative(_color,"color");
 		if (!_physicalScale)
 		{
 			color[0] = pow(color[0],2.2222f);
@@ -106,7 +106,7 @@ public:
 		type = POINT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = check(_color,"color");
+		color = warnIfNegative(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -128,7 +128,7 @@ public:
 		type = POINT;
 		distanceAttenuationType = NONE;
 		position = _position;
-		color = check(_color,"color");
+		color = warnIfNegative(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -150,8 +150,8 @@ public:
 		type = POINT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = check(_color,"color");
-		radius = check(_radius,"radius");
+		color = warnIfNegative(_color,"color");
+		radius = warnIfNegative(_radius,"radius");
 		fallOffExponent = _fallOffExponent;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -175,8 +175,8 @@ public:
 		type = POINT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = check(_color,"color");
-		polynom = check(_polynom,"polynom");
+		color = warnIfNegative(_color,"color");
+		polynom = warnIfNegative(_polynom,"polynom");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -201,7 +201,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = PHYSICAL;
 		position = _position;
-		color = check(_color,"color");
+		color = warnIfNegative(_color,"color");
 		direction = _direction.normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
@@ -232,7 +232,7 @@ public:
 		type = SPOT;
 		distanceAttenuationType = NONE;
 		position = _position;
-		color = check(_color,"color");
+		color = warnIfNegative(_color,"color");
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
@@ -261,8 +261,8 @@ public:
 		type = SPOT;
 		distanceAttenuationType = EXPONENTIAL;
 		position = _position;
-		color = check(_color,"color");
-		radius = check(_radius,"radius");
+		color = warnIfNegative(_color,"color");
+		radius = warnIfNegative(_radius,"radius");
 		fallOffExponent = _fallOffExponent;
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
@@ -293,8 +293,8 @@ public:
 		type = SPOT;
 		distanceAttenuationType = POLYNOMIAL;
 		position = _position;
-		color = check(_color,"color");
-		polynom = check(_polynom,"polynom");
+		color = warnIfNegative(_color,"color");
+		polynom = warnIfNegative(_polynom,"polynom");
 		direction = _direction.normalized();
 		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,M_PI*0.5f-DELTA);
 		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
