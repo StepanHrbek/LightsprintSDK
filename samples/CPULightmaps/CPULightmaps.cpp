@@ -22,7 +22,7 @@
 
 void error(const char* message, bool gfxRelated)
 {
-	printf(message);
+	printf("%s",message);
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
