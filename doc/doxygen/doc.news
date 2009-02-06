@@ -20,6 +20,8 @@ CHANGES
 - rr_gl::RealtimeLight::lightDirectMap replaced by
   - rr_gl::RealtimeLight::setProjectedTexture()
   - rr_gl::RealtimeLight::getProjectedTexture()
+- RRLight::createMutableLight() replaced by new RRLight
+- RRLight is not only interface, it is fully implemented now
 
 \section news72 ------------------------------------ 2009.01.10 -------------------------------------
 

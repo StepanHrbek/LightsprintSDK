@@ -104,10 +104,16 @@ namespace rr
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
+	//!
+	//! Nearly all light properties can be changed at any moment in light's life.
+	//! There is only one exception - getIrradiance() in lights created by createXxx() functions
+	//! has light type and distance attenuation hardcoded for higher speed in offline solver.
+	//! So if you use createXxx(), then change type or distanceAttenuation and then use
+	//! light in offline solver, original type and attenuation will be used.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRLight : public RRUniformlyAllocated
+	class RR_API RRLight : public RRUniformlyAllocatedNonCopyable
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -232,8 +238,10 @@ namespace rr
 		//! For your private use, not accessed by Lightsprint. Initialized to NULL.
 		void* customData;
 
+		//! Initialize light to defaults.
+		RRLight();
 		//! Destruct light.
-		virtual ~RRLight() {}
+		virtual ~RRLight();
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -258,7 +266,7 @@ namespace rr
 		//!  assuming that receiver is oriented towards light.
 		//!  Lights must return finite number, even when lighting model
 		//!  predicts infinite number (some types of attenuation + zero distance).
-		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const = 0;
+		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -406,15 +414,6 @@ namespace rr
 		//!  Exponent in (0,inf) range. \n
 		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
 		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
-
-		//! Creates mutable light.
-		//
-		//! You can turn mutable light into any light type with any attenuation model,
-		//! it has getIrradiance() supporting all types and attenuations.
-		//! Mutability doesn't make any difference in realtime solver.
-		//! In offline solver, lights created by other createXxx() are slightly faster because they 
-		//! have light type and attenuation hardcoded.
-		static RRLight* createMutableLight();
 	};
 
 

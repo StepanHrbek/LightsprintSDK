@@ -13,37 +13,6 @@ namespace rr
 #define PREVENT_INF 0.000000000137289f // used to avoid INFs and NaNs or make them extremely rare
 #define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// helps clean unused attributes
-
-class CleanLight : public RRLight
-{
-public:
-	CleanLight()
-	{
-		type = POINT;
-		position = rr::RRVec3(0);
-		direction = rr::RRVec3(0);
-		outerAngleRad = 1;
-		radius = 1;
-		color = rr::RRVec3(1);
-		distanceAttenuationType = NONE;
-		polynom = rr::RRVec4(0,0,0,1);
-		fallOffExponent = 1;
-		fallOffAngleRad = 0;
-		spotExponent = 1;
-		castShadows = true;
-		customData = NULL;
-		rtProjectedTextureFilename = NULL;
-		rtMaxShadowSize = 1000;
-	}
-	~CleanLight()
-	{
-		free(rtProjectedTextureFilename);
-	}
-};
-
 const RRVec4& warnIfNegative(const RRVec4& a, const char* name)
 {
 	if (a[0]<0 || a[1]<0 || a[2]<0 || a[3]<0)
@@ -65,12 +34,13 @@ RRReal warnIfNegative(RRReal a, const char* name)
 	return a;
 }
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // DirectionalLight
 // color is in physical scale
 
-class DirectionalLight : public CleanLight
+class DirectionalLight : public RRLight
 {
 public:
 	DirectionalLight(const RRVec3& _direction, const RRVec3& _color, bool _physicalScale)
@@ -98,7 +68,7 @@ public:
 // PointLightPhys
 // color is in physical scale
 
-class PointLightPhys : public CleanLight
+class PointLightPhys : public RRLight
 {
 public:
 	PointLightPhys(const RRVec3& _position, const RRVec3& _color)
@@ -120,7 +90,7 @@ public:
 // PointLightNoAtt
 // color is in physical scale
 
-class PointLightNoAtt : public CleanLight
+class PointLightNoAtt : public RRLight
 {
 public:
 	PointLightNoAtt(const RRVec3& _position, const RRVec3& _color)
@@ -142,7 +112,7 @@ public:
 // PointLightRadiusExp
 // color is in custom scale
 
-class PointLightRadiusExp : public CleanLight
+class PointLightRadiusExp : public RRLight
 {
 public:
 	PointLightRadiusExp(const RRVec3& _position, const RRVec3& _color, RRReal _radius, RRReal _fallOffExponent)
@@ -167,7 +137,7 @@ public:
 // PointLightPoly
 // color is in custom scale
 
-class PointLightPoly : public CleanLight
+class PointLightPoly : public RRLight
 {
 public:
 	PointLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec4 _polynom)
@@ -193,7 +163,7 @@ public:
 // SpotLightPhys
 // color is in physical scale
 
-class SpotLightPhys : public CleanLight
+class SpotLightPhys : public RRLight
 {
 public:
 	SpotLightPhys(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
@@ -224,7 +194,7 @@ public:
 // SpotLightNoAtt
 // color is in physical scale
 
-class SpotLightNoAtt : public CleanLight
+class SpotLightNoAtt : public RRLight
 {
 public:
 	SpotLightNoAtt(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
@@ -253,7 +223,7 @@ public:
 // SpotLightRadiusExp
 // color is in custom scale
 
-class SpotLightRadiusExp : public CleanLight
+class SpotLightRadiusExp : public RRLight
 {
 public:
 	SpotLightRadiusExp(const RRVec3& _position, const RRVec3& _color, RRReal _radius, RRReal _fallOffExponent, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
@@ -285,7 +255,7 @@ public:
 // SpotLightPoly
 // color is in custom scale
 
-class SpotLightPoly : public CleanLight
+class SpotLightPoly : public RRLight
 {
 public:
 	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec4 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad, RRReal _spotExponent)
@@ -316,51 +286,62 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MutableLight
-
-class MutableLight : public CleanLight
-{
-public:
-	MutableLight()
-	{
-	}
-
-	RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
-	{
-		// calls implementation from subclass
-		// we can do this because subclasses differ only in code, not in data
-		#define CALL(SUBCLASS) return ((SUBCLASS*)this)->SUBCLASS::getIrradiance(receiverPosition, scaler);
-	
-		switch(type)
-		{
-			case DIRECTIONAL: CALL(DirectionalLight);
-			case POINT:
-				switch(distanceAttenuationType)
-				{
-					case NONE: CALL(PointLightNoAtt);
-					case PHYSICAL: CALL(PointLightPhys);
-					case POLYNOMIAL: CALL(PointLightPoly);
-					case EXPONENTIAL: CALL(PointLightRadiusExp);
-				}
-			case SPOT:
-				switch(distanceAttenuationType)
-				{
-					case NONE: CALL(SpotLightNoAtt);
-					case PHYSICAL: CALL(SpotLightPhys);
-					case POLYNOMIAL: CALL(SpotLightPoly);
-					case EXPONENTIAL: CALL(SpotLightRadiusExp);
-				}
-		}
-		// invalid light, it is in unsupported internal state
-		RR_ASSERT(0);
-		return RRVec3(0);
-	}
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RRLight
+
+RRLight::RRLight()
+{
+	type = POINT;
+	position = rr::RRVec3(0);
+	direction = rr::RRVec3(0);
+	outerAngleRad = 1;
+	radius = 1;
+	color = rr::RRVec3(1);
+	distanceAttenuationType = NONE;
+	polynom = rr::RRVec4(0,0,0,1);
+	fallOffExponent = 1;
+	fallOffAngleRad = 0;
+	spotExponent = 1;
+	castShadows = true;
+	customData = NULL;
+	rtProjectedTextureFilename = NULL;
+	rtMaxShadowSize = 1000;
+}
+
+RRLight::~RRLight()
+{
+	free(rtProjectedTextureFilename);
+}
+
+RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+{
+	// calls implementation from subclass
+	// we can do this because subclasses differ only in code, not in data
+	#define CALL(SUBCLASS) return ((SUBCLASS*)this)->SUBCLASS::getIrradiance(receiverPosition, scaler);
+
+	switch(type)
+	{
+		case DIRECTIONAL: CALL(DirectionalLight);
+		case POINT:
+			switch(distanceAttenuationType)
+			{
+				case NONE: CALL(PointLightNoAtt);
+				case PHYSICAL: CALL(PointLightPhys);
+				case POLYNOMIAL: CALL(PointLightPoly);
+				case EXPONENTIAL: CALL(PointLightRadiusExp);
+			}
+		case SPOT:
+			switch(distanceAttenuationType)
+			{
+				case NONE: CALL(SpotLightNoAtt);
+				case PHYSICAL: CALL(SpotLightPhys);
+				case POLYNOMIAL: CALL(SpotLightPoly);
+				case EXPONENTIAL: CALL(SpotLightRadiusExp);
+			}
+	}
+	// invalid light, it is in an unsupported internal state
+	RR_ASSERT(0);
+	return RRVec3(0);
+}
 
 RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale)
 {
@@ -405,11 +386,6 @@ RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3&
 RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
 {
 	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad,spotExponent);
-}
-
-RRLight* RRLight::createMutableLight()
-{
-	return new MutableLight();
 }
 
 } // namespace
