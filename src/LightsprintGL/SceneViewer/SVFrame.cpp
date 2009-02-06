@@ -615,7 +615,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
-				svs.selectedLightIndex = newList.size()-1; // select new light
+				svs.selectedLightIndex = newList.size()?newList.size()-1:0; // select new light
 				if (m_lightProperties)
 				{
 					m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
@@ -636,7 +636,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					//  but only when scene doesn't contain emissive materials
 					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 				}
-				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
 				RR_SAFE_DELETE(m_lightProperties); // delete light props
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
 			}
