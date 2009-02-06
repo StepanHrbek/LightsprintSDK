@@ -261,20 +261,24 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
-		// prepare samplers
-		light->getShadowmap(firstInstance+i)->bindTexture();
-		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
-		char name[] = "shadowMap0"; // for individual samplers
-		name[9] = '0'+i; // for individual samplers
-		program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i)); // for individual samplers
-		// prepare and send matrices
-		Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
-		glActiveTexture(GL_TEXTURE0+i); // for feeding gl_TextureMatrix[0..maps-1]
-		glLoadMatrixd(tmp);
-		glMultMatrixd(lightInstance->frustumMatrix);
-		glMultMatrixd(lightInstance->viewMatrix);
-		delete lightInstance;
+		Texture* shadowmap = light->getShadowmap(0);
+		if (shadowmap)
+		{
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
+			// prepare samplers
+			shadowmap->bindTexture();
+			//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
+			char name[] = "shadowMap0"; // for individual samplers
+			name[9] = '0'+i; // for individual samplers
+			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i)); // for individual samplers
+			// prepare and send matrices
+			Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
+			glActiveTexture(GL_TEXTURE0+i); // for feeding gl_TextureMatrix[0..maps-1]
+			glLoadMatrixd(tmp);
+			glMultMatrixd(lightInstance->frustumMatrix);
+			glMultMatrixd(lightInstance->viewMatrix);
+			delete lightInstance;
+		}
 	}
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);

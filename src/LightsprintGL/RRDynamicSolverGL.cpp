@@ -409,24 +409,39 @@ void RRDynamicSolverGL::updateShadowmaps()
 				lightInstance->setupForRender();
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowmap(i);
-				float bias = 1.f*light->getNumShadowSamples(i);
-				glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
-				glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
-				if (!shadowmap->renderingToBegin())
+				if (!shadowmap)
 				{
-					// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed.\n"));
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (texture=NULL).\n"));
 				}
 				else
 				{
-					glClear(GL_DEPTH_BUFFER_BIT);
-					renderScene(uberProgramSetup,&light->getRRLight());
+					float bias = 1.f*light->getNumShadowSamples(i);
+					glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
+					if (!shadowmap->getBuffer())
+					{
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (buffer=NULL).\n"));
+					}
+					else
+					{
+						glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
+						if (!shadowmap->renderingToBegin())
+						{
+							// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
+							LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
+						}
+						else
+						{
+							glClear(GL_DEPTH_BUFFER_BIT);
+							renderScene(uberProgramSetup,&light->getRRLight());
+						}
+					}
 				}
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);
 			if (light->getNumShadowmaps())
-				light->getShadowmap(0)->renderingToEnd();
+				if (light->getShadowmap(0)) // shadowmap must exist. FBO shutdown skipped if shadowmap does not exist (because someone set shadowmap size 0)
+					light->getShadowmap(0)->renderingToEnd();
 		}
 	}
 }

@@ -260,7 +260,15 @@ static GLenum filtering()
 
 Texture* Texture::createShadowmap(unsigned width, unsigned height)
 {
-	Texture* texture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,NULL),false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	if (width==0 || height==0)
+	{
+		rr::RRReporter::report(rr::ERRO,"Attempt to create %dx%d shadowmap.\n",width,height);
+		return NULL;
+	}
+	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,NULL);
+	if (!buffer)
+		return NULL;
+	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	texture->ownBuffer = true;
 	return texture;
 }
