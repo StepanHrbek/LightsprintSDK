@@ -270,6 +270,8 @@ void main()
 
 		vec3 center;
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
+			// Catalyst drivers recently introduced new bug (observed on 4870, cat811-901)
+			// if neighboring pixels use different path in following "if", some of them incorrectly get visibility=0
 			center = shadowCoord[1].xyz/shadowCoord[1].w;
 			if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04)
 				visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);

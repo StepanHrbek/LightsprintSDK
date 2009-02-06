@@ -109,7 +109,7 @@ namespace rr
 	//! There is only one exception - getIrradiance() in lights created by createXxx() functions
 	//! has light type and distance attenuation hardcoded for higher speed in offline solver.
 	//! So if you use createXxx(), then change type or distanceAttenuation and then use
-	//! light in offline solver, original type and attenuation will be used.
+	//! light in offline solver, original type and attenuation are used.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
