@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news73 ------------------------------------ 2009.02.xx -------------------------------------
+\section news73 ------------------------------------ 2009.02.06 -------------------------------------
 
 NEWS
 
@@ -20,8 +20,8 @@ CHANGES
 - rr_gl::RealtimeLight::lightDirectMap replaced by
   - rr_gl::RealtimeLight::setProjectedTexture()
   - rr_gl::RealtimeLight::getProjectedTexture()
-- RRLight::createMutableLight() replaced by new RRLight
-- RRLight is not only interface, it is fully implemented now
+- RRLight::createMutableLight() replaced by new RRLight()
+  \n RRLight is now fully implemented, previously RRLight::getIrradiance() was pure/abstract
 
 \section news72 ------------------------------------ 2009.01.10 -------------------------------------
 
