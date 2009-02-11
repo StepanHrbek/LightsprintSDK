@@ -90,12 +90,12 @@ public:
 		bool     MATERIAL_DIFFUSE_MAP          :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     MATERIAL_SPECULAR_CONST       :1; ///< feeds uniform materialSpecularConst
 		bool     MATERIAL_EMISSIVE_CONST       :1; ///< feeds uniform materialEmissiveConst
-		bool     MATERIAL_EMISSIVE_VCOLOR      :1;///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
+		bool     MATERIAL_EMISSIVE_VCOLOR      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
 		bool     MATERIAL_EMISSIVE_MAP         :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
-		bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< enables alphatest/blend, feeds uniform materialTransparencyConst
-		bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< enables alphatest/blend, feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]
-		bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< enables alphatest/blend
-		bool     MATERIAL_TRANSPARENCY_BLEND   :1; ///< enables alphatest/blend
+		bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< feeds uniform materialTransparencyConst
+		bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]
+		bool     MATERIAL_TRANSPARENCY_KEYING  :1; ///< feeds alphatest enable bit
+		bool     MATERIAL_TRANSPARENCY_BLENDING:1; ///< feeds alphablend enable bit
 		bool     MATERIAL_CULLING              :1; ///< sets 1/2-sided face according to material (0=defaults in GL pipeline are used)
 		bool     FORCE_2D_POSITION             :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		//! Creates setup with everything off, only vertex positions are rendered.

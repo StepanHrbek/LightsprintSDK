@@ -147,11 +147,17 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			return NULL;
 		}
 	}
+
+	bool hasTransparency = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST || uberProgramSetup.MATERIAL_TRANSPARENCY_MAP || uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA;
+
 	if (_lightIndex==-separatedAmbientPass+1)
 	{
 		// additional passes add to framebuffer
+		// 1. set blend mode
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
+		// 2. disable any further changes of blendmode
+		hasTransparency = false;
 	}
 
 	RendererOfRRObject::RenderedChannels renderedChannels;
@@ -171,8 +177,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
 	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;
-	renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA = uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA;
-	renderedChannels.MATERIAL_TRANSPARENCY_BLEND = uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
+	renderedChannels.MATERIAL_TRANSPARENCY_BLENDING = hasTransparency && uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
+	renderedChannels.MATERIAL_TRANSPARENCY_KEYING = hasTransparency && !uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
 	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 

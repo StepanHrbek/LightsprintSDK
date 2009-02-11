@@ -547,7 +547,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		{
 			// skip whole facegroup when alpha keying with constant alpha below 0.5
 			// GPU would do the same for all pixels, this is faster
-			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && !params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND && faceGroups[fg].transparencyColor[3]<0.5f)
+			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && faceGroups[fg].transparencyColor[3]<0.5f)
 			{
 				continue;
 			}
@@ -574,14 +574,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				}
 
 				// set blending
-				if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP || params.renderedChannels.MATERIAL_TRANSPARENCY_IN_ALPHA)
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING || params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 				{
 					bool transparency = faceGroups[fg].transparencyColor[3]<1;
 					if (transparency!=blendEnabled || !blendKnown)
 					{
 						if (transparency)
 						{
-							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 							{
 								// current blendfunc is used, caller is responsible for setting it
 								glEnable(GL_BLEND);
@@ -594,7 +594,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						}
 						else
 						{
-							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLEND)
+							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 							{
 								glDisable(GL_BLEND);
 							}
