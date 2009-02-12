@@ -245,20 +245,6 @@ namespace rr
 		//!  False for invalid t or unsupported channel, out stays unmodified.
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
-		//! Returns axis aligned bounding box and center of mesh.
-		//
-		//! \param mini
-		//!  NULL or pointer to vec3 to be filled with minimum of computed AABB.
-		//! \param maxi
-		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
-		//! \param center
-		//!  NULL or pointer to vec3 to be filled with average vertex position.
-		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
-		
-		//! Returns y coordinate of plane where triangles facing straight up have the biggest total area.
-		//! In CG scenes, this is usually ground.
-		virtual RRReal       findGroundLevel() const;
-
 
 		//
 		// optional for advanced importers
@@ -307,7 +293,32 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
-		// instance factory
+		//! Returns axis aligned bounding box and center of mesh.
+		//
+		//! \param mini
+		//!  NULL or pointer to vec3 to be filled with minimum of computed AABB.
+		//! \param maxi
+		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
+		//! \param center
+		//!  NULL or pointer to vec3 to be filled with average vertex position.
+		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
+		
+		//! Returns y coordinate of plane where triangles facing straight up have the biggest total area.
+		//! In CG scenes, this is usually flat ground.
+		virtual RRReal       findGroundLevel() const;
+
+		//! Reports incinsistencies found in mesh.
+		//
+		//! \param lightmapTexcoord
+		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
+		//! \return
+		//!  Number of problem reported, 0 for valid mesh.
+		unsigned checkConsistency(unsigned lightmapTexcoord = UINT_MAX) const;
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Instance factory
+		//////////////////////////////////////////////////////////////////////////////
 
 		//! Identifiers of data formats.
 		enum Format
@@ -436,16 +447,6 @@ namespace rr
 		//! PreImport numbers are used by RRDynamicSolver for vertex buffer layout, so this filter
 		//! adjusts layout of generated vertex buffers to use current vertex numbers.
 		RRMesh* createVertexBufferRuler() const;
-
-
-		//! Checks mesh and reports incinsistencies found.
-		//
-		//! Reports any problems found in mesh using RRReporter.
-		//! \param lightmapTexcoord
-		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
-		//! \return
-		//!  Number of problem reports sent, 0 for valid mesh.
-		unsigned checkConsistency(unsigned lightmapTexcoord = UINT_MAX) const;
 	};
 
 } // namespace
