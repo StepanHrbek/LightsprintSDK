@@ -235,6 +235,27 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 	if (_maxi) RR_ASSERT(IS_VEC3(_mini[0]));
 }
 
+RRReal RRMesh::getAverageVertexDistance() const
+{
+	unsigned numVertices = getNumVertices();
+	if (numVertices<2)
+	{
+		// no distances available, returning 1 probably won't hurt while 0 could
+		return 1;
+	}
+	RRVec3 v1;
+	getVertex(0,v1);
+	RRReal distanceSum = 0;
+	enum {TESTS=1000};
+	for (unsigned i=0;i<TESTS;i++)
+	{
+		RRVec3 v2;
+		getVertex(rand()%numVertices,v2);
+		distanceSum += (v2-v1).length();
+		v1 = v2;
+	}
+	return distanceSum/TESTS;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
