@@ -24,14 +24,18 @@ namespace rr
  - \subpage main_gamebryo
  - \subpage main_ue3
 
- \section root_guide Programming guide
+ \section root_artists_guide Artist's guide
+ - \subpage main_artist_offline
+ - \subpage main_artist_realtime
+
+ \section root_programmers_guide Programmer's guide
  - \subpage main_integration
  - \subpage main_inputs
  - \subpage main_data_access
  - \subpage main_conventions "Conventions (units, scale, floats...)"
  - \subpage main_api
 
- \section root_samples Samples and tutorials
+ \section root_samples Samples
  - \subpage main_samples
  - \subpage main_howto
 
@@ -422,6 +426,114 @@ Ray-Mesh collisions
 
 
 
+
+\page main_artist_offline Static GI
+
+  Static lighting is a mainstream approach today.
+  Superior lighting quality is reached at cost of fixing lights in static positions,
+  global illumination is precomputed.
+
+  Lightsprint SDK helps by building
+  - lightmaps, directional lightmaps, bent normals and ambient occlusion
+    for static objects
+  - lightfields for dynamic objects
+
+ \section artist_offline_buildlightmaps BuildLightmaps tool
+  BuildLightmaps is a commandline tool ready for immediate use.
+  \ref samples_offline "More about BuildLightmaps".
+  \n Enter LightsprintSDK/samples/BuildLightmaps directory and see .bat files
+  that demonstrate how to use it (comments inside).
+  Run BuildLightmaps.bat for complete list of commandline arguments.
+  \n BuildLightmaps comes with source code, so programmers can customize it.
+
+ \section artist_offline_custom Custom tools
+  If you prefer lightmap building integrated into your existing tools 
+  (e.g. game editor),
+  consult your programmers. Lightsprint functions are easily
+  accessible for tool programmers, they were already integrated into
+  several game editors.
+
+ \section artist_offline_geometry Geometry
+  Any triangle-based geometry is supported without restrictions.
+  \n Scene size is virtually unlimited with 64bit code.
+  With 32bit code, read how to relax \ref main_howto "scene size limits".
+  \n In rare cases, artifacts may appear in proximity of huge triangles.
+  Solution is to avoid or temporarily tessellate huge triangles.
+
+ \section artist_offline_materials Materials
+  All material types are supported.
+  There's no need for any additional information,
+  Lightsprint automatically converts your engine's native materials to
+  Lightsprint materials used during calculation.
+
+ \section artist_offline_lights Lights
+  All light sources are supported - point, spot, directional, emissive materials,
+  sky (flat color, LDR or HDR texture).
+
+
+
+\page main_artist_realtime Realtime GI
+
+  Realtime lighting using dynamic lights is a mainstream approach today,
+  however its realism was always
+  severely limited by lack of properly computed indirect light.
+  \n Lightsprint solved realtime global illumination problem (see \ref samples_realtime "samples").
+  \n Following hints help you get good performance and quality in your projects.
+
+  For purpose of realtime GI calculation, we expect scene split in two parts, static and dynamic.
+
+ \section artist_realtime_static Static scene
+  Static scene is a scene skeleton, big objects that never move, e.g. walls.
+  Number of triangles in static scene is the most important performance and memory footprint factor,
+  so we recommend creating as lowpoly walls as possible, with eventual details
+  baked into normal maps or parallax occlusion maps.
+
+  Realtime GI consists of several components mixed together: per-pixel direct lighting,
+  per-pixel indirect lighting and per-vertex indirect lighting.
+  Because of per-vertex component, all static meshes must satisfy one simple rule
+  required by all engines with per-vertex lighting:
+  \n Two triangles are disjunct, share 1 vertex or share 1 edge and 2 vertices.
+  \n So in other words, it is not allowed to
+  - overlap triangles
+  - intersect triangles
+  - place edge in the middle of other triangle
+  - place vertex in the middle of other edge
+
+  \image html triangles.png
+
+  See that all forbidden cases can be easily fixed.
+  This operation can be automated.
+
+  It is also recommended to avoid 'needles', triangles with needle-like shape,
+  as artifacts may appear in their proximity.
+
+ \section artist_realtime_dynamic Dynamic scene
+  Dynamic scene is made of objects that freely move and of small objects.
+  Number of triangles in dynamic scene has no impact on performance,
+  so we recommend using as detailed models as suitable.
+
+  Realtime GI is fully per-pixel, so restrictions related to per-vertex lighting
+  don't apply to dynamic objects.
+
+ \section artist_realtime_materials Materials
+  All material types are supported.
+  There's no need for any additional information,
+  Lightsprint automatically converts your engine's native materials to
+  Lightsprint materials used during calculation.
+  Complex materials don't slow down GI calculation,
+  so we recommend using as good looking materials as possible.
+
+ \section artist_realtime_lights Lights
+  All light sources are supported - point, spot, directional, emissive materials,
+  sky (flat color, LDR or HDR texture) and they may arbitrarily change -
+  with one exception.
+  Skylight does not automatically affect static scene,
+  skylight's effect must be precomputed into lightmaps.
+
+
+
+
+
 \page main_integration Integration
 
  \section integr_tool Precalculations / for toolchain
@@ -469,7 +581,6 @@ Ray-Mesh collisions
  Steps:
  </td></tr></table>
 
-  - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
   - Convert scenes to Collada 1.4 (.DAE).
   - If you plan to compute maps rather than per-vertex values, include unwrap in second uv channel.
   - Change name of scene in sample .cpp, so it loads your scene. Or drop your scene on SceneViewer*.exe.
@@ -557,7 +668,7 @@ Ray-Mesh collisions
  Steps:
  </td></tr></table>
 
-  - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
+  - Make sure static scene is suitable for per-vertex lighting (more in \ref artist_realtime_static "artist's guide")
   - Convert scenes to Collada 1.4 (.DAE).
   - Change name of scene in Lightmaps.cpp, so it loads your scene.
 
@@ -646,44 +757,6 @@ Ray-Mesh collisions
  </td></tr></table>
 
   - 1-3 weeks
-
-
-
-
-
-
-\page integration_step_1 Validate static meshes
-
- This step is typically executed by 3d artists.
-
- Calculation produces better results
- when static 3d triangle meshes satisfy these conditions:
-
- \section cond_matching Cleanly connected triangles
- Two triangles are disjunct,
- share 1 vertex or share 1 edge and 2 vertices.
-
- So it is not allowed to
- - overlap triangles
- - intersect triangles
- - place edge in the middle of other triangle
- - place vertex in the middle of other edge
-
- \image html triangles.png
-
- See that all forbidden cases can be easily fixed.
- This operation can be automated.
-
- \section cond_no_needles No needles
-
- Angle sizes in triangles should be greater than 5 degrees.
-
- \section cond_no_hihpoly Prefer maps over high poly
-
- Polygon counts in dynamic objects have no influence on speed,
- but excessive polygon counts in static scene reduce performance.
- So for static scene,
- prefer normal maps or other tricks that reduce polygon count.
 
 
 
