@@ -245,7 +245,7 @@ public:
 				NiTexturingProperty::Map* pkGlowMap = pkTexProp->GetGlowMap();
 				if (pkGlowMap)
 				{
-					diffuseTexcoord = pkGlowMap->GetTextureIndex();
+					emissiveTexcoord = pkGlowMap->GetTextureIndex();
 				}
 			}
 		}
