@@ -143,7 +143,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
 		{
-			if (!light || ((*lights)[i]->getParent()->pos-worldFoot).length2()<(light->getParent()->pos-worldFoot).length2()	)
+			if (!light || ((*lights)[i]->getParent()->pos-worldFoot).length2()<(light->getParent()->pos-worldFoot).length2())
 				light = (*lights)[i];
 		}
 	if (!light || (!light->getRRLight().castShadows))

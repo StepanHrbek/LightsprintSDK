@@ -473,25 +473,12 @@ public:
 		return true;
 	}
 
-	//! uv is in/out, function converts it from coordinate in triangle to coordinate in material.
-	void convertTriangleUvToMaterialUv(unsigned t, RRVec2& uv) const
-	{
-		Channel channel = hasTexcoord[CH_EMISSIVE] ? CH_EMISSIVE : CH_DIFFUSE;
-		TriangleMapping triangleMapping;
-		if (getTriangleMapping(t,triangleMapping,channel))
-		{
-			uv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		}
-	}
-
-
 	NiMesh* mesh;
-	//! Unique mesh index, used by GamebryoLightCache
 private:
 	unsigned numVertices;
 	unsigned numTriangles;
 
-	// locks and iterators created in constructor and used in getXxx() functions
+	// iterators created in constructor and used in getXxx() functions
 	// it's more complicated but faster than creating them temporarily in getXxx()
 	struct SubmeshData
 	{
@@ -662,7 +649,7 @@ static RRMaterial detectMaterial(NiMesh* mesh)
 		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
-		// optional emissivity boost
+		// optional emissivity boost (converts texture to floats)
 		//material.diffuseEmittance.texture = multiplyTexture(material.diffuseEmittance.texture,emissivity_boost_factor);
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
