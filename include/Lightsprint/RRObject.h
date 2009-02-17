@@ -83,7 +83,7 @@ namespace rr
 		};
 
 		//! Part of material description.
-		struct Property
+		struct RR_API Property
 		{
 			RRVec3                 color;    ///< Material property expressed as 3 floats. If texture is present, this is average color of texture.
 			class RRBuffer*        texture;  ///< Material property expressed as a texture. Not deleted in destructor. Shallow copied in assignment operator and copy constructor.
@@ -96,6 +96,9 @@ namespace rr
 				texture = NULL;
 				texcoord = 0;
 			}
+			//! Multiplies property by multiplier.
+			//! Both color and texture are multiplied. 8bit texture may be deleted and new float texture created to avoid clamping.
+			void multiply(RRReal multiplier);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
 			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction);
 		};

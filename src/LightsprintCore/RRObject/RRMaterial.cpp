@@ -96,6 +96,29 @@ RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _av
 	}
 }
 
+static RRBuffer* multiplyBuffer(RRBuffer* source, float factor)
+{
+	RR_ASSERT(source && factor!=1);
+	RRBuffer* destination = RRBuffer::create(source->getType(),source->getWidth(),source->getHeight(),source->getDepth(),BF_RGBAF,source->getScaled(),NULL);
+	unsigned numElements = source->getWidth()*source->getHeight()*source->getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = source->getElement(i);
+		destination->setElement(i,color*factor);
+	}
+	delete source;
+	return destination;
+}
+
+void RRMaterial::Property::multiply(RRReal multiplier)
+{
+	color *= multiplier;
+	if (texture && multiplier!=1)
+	{
+		texture = multiplyBuffer(texture,multiplier);
+	}
+}
+
 RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction)
 {
 	if (texture)
