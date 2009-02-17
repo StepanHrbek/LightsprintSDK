@@ -53,7 +53,7 @@ struct SceneViewerState
 	SceneViewerState()
 		: eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
 	{
-		staticLayerNumber = 192837464;
+		staticLayerNumber = 192837464; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
 		realtimeLayerNumber = 192837465;
 		ldmLayerNumber = 192837466;
 		selectedLightIndex = 0;

@@ -106,7 +106,7 @@ public:
 	//! \param scale
 	//!  If it is .gsa/.3ds/.obj, geometry is scaled by scale.
 	//!  These formats don't contain information about units,
-	//!  different files might need different scale to convert to meters.
+	//!  different files need different scale to convert to meters.
 	//! \param stripPaths
 	//!  Tries to load all textures from the same directory where scene file is,
 	//!  ignoring full paths stored in scene file.
