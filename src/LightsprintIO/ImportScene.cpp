@@ -43,7 +43,7 @@ using namespace rr_io;
 //
 // Scene
 
-ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, bool* aborting)
+ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
 	objects = NULL;
@@ -118,7 +118,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 				if (tmp) tmp[1] = 0;
 			}			
 			rr::RRReportInterval report(rr::INF3,"Adapting scene...\n");
-			objects = adaptObjectsFromFCollada(scene_dae,stripPaths?pathToFile:"",stripPaths);
+			objects = adaptObjectsFromFCollada(scene_dae,stripPaths?pathToFile:"",stripPaths,emissiveMultiplier);
 			lights = adaptLightsFromFCollada(scene_dae);
 			free(pathToFile);
 		}
@@ -132,7 +132,7 @@ ImportScene::ImportScene(const char* filename, float scale, bool stripPaths, boo
 	{
 		loadAttempted = true;
 		bool never_aborting = false;
-		scene_gsa = new ImportSceneGamebryo(filename,true,aborting?*aborting:never_aborting);
+		scene_gsa = new ImportSceneGamebryo(filename,true,aborting?*aborting:never_aborting,emissiveMultiplier);
 		objects = scene_gsa->getObjects();
 		lights = scene_gsa->getLights();
 	}

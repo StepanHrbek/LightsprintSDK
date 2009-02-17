@@ -13,9 +13,10 @@
 //! \param scene
 //!  NiScene with meshes to adapt.
 //! \param aborting
-//!  It could take up to several seconds for scene with many materials.
-//!  It's possible to abort it asynchronously by setting aborting.
-rr::RRObjects* adaptObjectsFromGamebryo(class NiScene* scene, bool& aborting);
+//!  Import may be asynchronously aborted by setting *aborting to true.
+//! \param emissiveMultiplier
+//!  Multiplies emittance in all materials. Default 1 keeps original values.
+rr::RRObjects* adaptObjectsFromGamebryo(class NiScene* scene, bool& aborting, float emissiveMultiplier = 1);
 
 //! Creates Lightsprint interface for Gamebryo lights in memory.
 rr::RRLights* adaptLightsFromGamebryo(class NiScene* scene);
@@ -32,7 +33,11 @@ public:
 	//!  To be used when importing .gsa into generic Lightsprint samples.
 	//!  \n False to skip initialization/shutdown sequence,
 	//!  to be used when running Lightsprint code from Gamebryo app, with Gamebryo already initialized.
-	ImportSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting);
+	//! \param aborting
+	//!  Import may be asynchronously aborted by setting *aborting to true.
+	//! \param emissiveMultiplier
+	//!  Multiplies emittance in all materials. Default 1 keeps original values.
+	ImportSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
 	~ImportSceneGamebryo();
 
 	rr::RRObjects* getObjects() {return objects;}

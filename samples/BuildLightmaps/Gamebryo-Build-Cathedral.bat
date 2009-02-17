@@ -8,4 +8,5 @@ BuildLightmaps.bat ^
  "outputpath=%GAMEBRYO_GI_PATH%Samples/Cathedral/LightMaps/" ^
  "outputext=tga" ^
  "quality=200" ^
+ "emissivemultiplier=3" ^
  "maxmapsize=1024"

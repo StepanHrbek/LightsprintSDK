@@ -172,24 +172,6 @@ RRBuffer* convertTextureAndSubtract(NiPixelData* _add, RRBuffer* _sub)
 	return add;
 }
 
-//! Deletes old buffer, creates and returns new float buffer with all elements multiplied.
-RRBuffer* multiplyTexture(RRBuffer* source, float factor)
-{
-	if (!source)
-	{
-		return NULL;
-	}
-	RRBuffer* destination = RRBuffer::create(source->getType(),source->getWidth(),source->getHeight(),source->getDepth(),BF_RGBAF,source->getScaled(),NULL);
-	unsigned numElements = source->getWidth()*source->getHeight()*source->getDepth();
-	for (unsigned i=0;i<numElements;i++)
-	{
-		RRVec4 color = source->getElement(i);
-		destination->setElement(i,color*factor);
-	}
-	delete source;
-	return destination;
-}
-
 //! Texcoord channel numbers.
 enum Channel
 {
@@ -602,7 +584,7 @@ private:
 //
 // Non cached, to be called at most once per mesh.
 
-static RRMaterial detectMaterial(NiMesh* mesh)
+static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 {
 	RRMaterial material;
 	// detect material properties
@@ -649,8 +631,7 @@ static RRMaterial detectMaterial(NiMesh* mesh)
 		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
-		// optional emissivity boost (converts texture to floats)
-		//material.diffuseEmittance.texture = multiplyTexture(material.diffuseEmittance.texture,emissivity_boost_factor);
+		material.diffuseEmittance.multiply(emissiveMultiplier); // must be done after all subtractions
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 		delete scaler;
@@ -675,9 +656,10 @@ static RRMaterial detectMaterial(NiMesh* mesh)
 class MaterialCacheGamebryo
 {
 public:
-	MaterialCacheGamebryo()
+	MaterialCacheGamebryo(float _emissiveMultiplier)
 	{
 		defaultMaterial.reset(false);
+		emissiveMultiplier = _emissiveMultiplier;
 	}
 	// Looks for material in cache. Not found -> creates new material and stores it in cache.
 	// Called once per mesh.
@@ -715,10 +697,11 @@ public:
 		// push CacheElement, then assign material
 		// (RRMaterial must not be assigned to temporary CacheElement, becuase ~CacheElement at the end of this scope would delete material textures)
 		slowCache->push_front(CacheElement(mesh));
-		return &( slowCache->begin()->material = detectMaterial(mesh) );
+		return &( slowCache->begin()->material = detectMaterial(mesh,emissiveMultiplier) );
 	}
 private:
 	RRMaterial defaultMaterial;
+	float emissiveMultiplier;
 
 	struct CacheElement
 	{
@@ -917,7 +900,8 @@ private:
 class RRObjectsGamebryo : public RRObjects
 {
 public:
-	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting)
+	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting, float _emissiveMultiplier)
+		: materialCache(_emissiveMultiplier)
 	{
 		pkEntityScene = _pkEntityScene;
 		RRObject::LodInfo lodInfo;
@@ -1173,9 +1157,9 @@ public:
 //
 // main low level interface
 
-RRObjects* adaptObjectsFromGamebryo(NiScene* scene, bool& aborting)
+RRObjects* adaptObjectsFromGamebryo(NiScene* scene, bool& aborting, float emissiveMultiplier)
 {
-	return new RRObjectsGamebryo(scene,aborting);
+	return new RRObjectsGamebryo(scene,aborting,emissiveMultiplier);
 }
 
 RRLights* adaptLightsFromGamebryo(NiScene* scene)
@@ -1188,7 +1172,7 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 //
 // import .gsa from disk - main high level interface
 
-ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting)
+ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
 {
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
 	objects = NULL;
@@ -1260,7 +1244,7 @@ ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebr
 	lights = adaptLightsFromGamebryo(pkEntityScene);
 
 	// adapt meshes
-	objects = adaptObjectsFromGamebryo(pkEntityScene,_aborting);
+	objects = adaptObjectsFromGamebryo(pkEntityScene,_aborting,_emissiveMultiplier);
 
 	updateCastersReceiversCache();
 

@@ -113,7 +113,9 @@ public:
 	//!  This is not applicable to .gsa.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
-	ImportScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL);
+	//! \param emissiveMultiplier
+	//!  Multiplies emittance in all materials. Default 1 keeps original values.
+	ImportScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL, float emissiveMultiplier = 1);
 	~ImportScene();
 
 	const rr::RRObjects* getObjects() {return objects;}

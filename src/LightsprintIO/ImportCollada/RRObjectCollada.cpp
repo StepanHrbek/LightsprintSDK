@@ -455,9 +455,10 @@ RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
 class MaterialCacheCollada
 {
 public:
-	MaterialCacheCollada(ImageCache* _imageCache)
+	MaterialCacheCollada(ImageCache* _imageCache, float _emissiveMultiplier)
 	{
 		imageCache = _imageCache;
+		emissiveMultiplier = _emissiveMultiplier;
 	}
 	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
@@ -587,6 +588,7 @@ private:
 
 		loadTexture(FUDaeTextureChannel::DIFFUSE,material.diffuseReflectance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::EMISSION,material.diffuseEmittance,materialInstance,effectStandard);
+		material.diffuseEmittance.multiply(emissiveMultiplier);
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
 		material.specularTransmittanceKeyed = getBlendImportance(material.specularTransmittance.texture,material.specularTransmittanceInAlpha)<0.02f;
@@ -619,6 +621,7 @@ private:
 	Cache cache;
 
 	ImageCache* imageCache;
+	float emissiveMultiplier;
 };
 
 
@@ -746,7 +749,7 @@ RRObjectCollada::~RRObjectCollada()
 class ObjectsFromFCollada : public RRObjects
 {
 public:
-	ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths);
+	ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier);
 	virtual ~ObjectsFromFCollada();
 
 private:
@@ -838,8 +841,8 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
-	: imageCache(pathToTextures,stripPaths), materialCache(&imageCache)
+ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
+	: imageCache(pathToTextures,stripPaths), materialCache(&imageCache,emissiveMultiplier)
 {
 	if (!document)
 		return;
@@ -997,9 +1000,9 @@ LightsFromFCollada::~LightsFromFCollada()
 //
 // main
 
-RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
 {
-	return new ObjectsFromFCollada(document,pathToTextures,stripPaths);
+	return new ObjectsFromFCollada(document,pathToTextures,stripPaths,emissiveMultiplier);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)
@@ -1012,7 +1015,7 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
 using namespace rr;
-RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
 {
 	return NULL;
 }

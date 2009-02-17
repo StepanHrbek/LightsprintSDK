@@ -115,6 +115,7 @@ struct Parameters
 	rr::RRVec4 skyUpper;
 	rr::RRVec4 skyLower;
 	const char* skyBox;
+	float emissiveMultiplier;
 	unsigned buildQuality;
 	bool buildDirect;
 	bool buildIndirect;
@@ -136,6 +137,7 @@ struct Parameters
 		skyUpper = rr::RRVec4(0);
 		skyLower = rr::RRVec4(0);
 		skyBox = NULL;
+		emissiveMultiplier = 1;
 		buildQuality = 0;
 		buildDirect = true;
 		buildIndirect = true;
@@ -171,6 +173,10 @@ struct Parameters
 				if (!strncmp(argv[i],"skybox=",7))
 				{
 					skyBox = argv[i]+7;
+				}
+				else
+				if (sscanf(argv[i],"emissivemultiplier=%f",&emissiveMultiplier)==1)
+				{
 				}
 				else
 				if (sscanf(argv[i],"quality=%d",&buildQuality)==1)
@@ -353,6 +359,7 @@ int main(int argc, char **argv)
 			"  skylower=0;0;0          (color of lower sky hemisphere)\n"
 			"  skybox=pisa.hdr         (1 texture of skybox)\n"
 			"  skybox=quake_%s.tga     (6 textures of skybox a-la Quake)\n"
+			"  emissivemultiplier=1    (multiplies emittance in materials)\n"
 			"  quality=100             (10=low, 100=medium, 1000=high)\n"
 			"  direct                  (build direct lighting only)\n"
 			"  indirect                (build indirect lighting only)\n"
@@ -396,7 +403,7 @@ int main(int argc, char **argv)
 	//
 	// load scene
 	//
-	rr_io::ImportScene scene(globalParameters.sceneFilename);
+	rr_io::ImportScene scene(globalParameters.sceneFilename,1,false,NULL,globalParameters.emissiveMultiplier);
 
 	//
 	// set solver geometry

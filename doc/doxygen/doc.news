@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news74 ------------------------------------ 2009.02.xx -------------------------------------
+
+NEWS
+
+- emissive multiplier, lets you boost or reduce emissivity in materials
+  - new parameter "emissivemultiplier=1" in BuildLightmaps tool
+  - new parameter in rr_io::ImportSceneRRLight::ImportSceneRRLight()
+  - adapters call new RRMaterial::Property::multiply() to apply emissive multiplier
+
 \section news73 ------------------------------------ 2009.02.06 -------------------------------------
 
 NEWS
