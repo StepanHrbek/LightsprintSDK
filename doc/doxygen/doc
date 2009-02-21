@@ -2162,7 +2162,7 @@ Simply make sure you use 2008 libraries in your projects.
 
  \image html unreal.png   
 
- When running out of memory, see \ref howto_bigscenes
+ In case you run out of memory, see \ref howto_bigscenes
 
 
 
