@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news75 ------------------------------------ 2009.02.23 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps in proximity of SpeedTree meshes
+  (fixed per-pixel material detection)
+
 \section news74 ------------------------------------ 2009.02.19 -------------------------------------
 
 NEWS
