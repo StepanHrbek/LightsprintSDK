@@ -395,20 +395,22 @@ Ray-Mesh collisions
   Programmers need access to complete SDK.
   For programmers evaluating Lightsprint SDK,
   deployment consists of unpacking SDK archive to any location.
-  After acquiring full license, it is recommended to put Lightsprint
-  SDK under your version control system, so that all programmers get it via
-  regular source code update.
+  After acquiring full license, the easiest deployment technique is
+  to put Lightsprint SDK under your version control system,
+  so that all programmers get it via regular source code update.
 
   Programmers integrate Lightsprint SDK into toolchain or engine for artists and players.
 
  \section deploy_artists Deployment - game artists
 
-  Artists usually don't directly interact with Lightsprint files,
+  Artists usually don't interact with Lightsprint files directly,
   they use Lightsprint integrated into game engine and tools.
   Integration needs access only to small subset of SDK's bin and data
   directories. For example in case of Unreal Engine 3 integration,
   the only new files for artists are LightsprintCore.vs2005.dll
   and licence_number.
+  Artists may also need documentation (doc/Lightsprint.chm) to
+  check brief \ref root_artists_guide.
   Programmers should include relevant files into game's engine/toolchain,
   so that artists get integration next time they update,
   without any additional effort.
