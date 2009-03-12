@@ -243,7 +243,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			else if (svs.fullscreen)
 			{
-				GetParent()->ProcessEvent(event);
+				GetParent()->GetEventHandler()->ProcessEvent(event);
 			}
 			else
 			{
@@ -251,7 +251,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 		default:
-			GetParent()->ProcessEvent(event);
+			GetParent()->GetEventHandler()->ProcessEvent(event);
 			return;
 	}
 	solver->reportInteraction();
