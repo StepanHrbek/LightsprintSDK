@@ -42,7 +42,7 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 		"3000",
 		"10000 - extremely high"
 	};
-	wxSingleChoiceDialog dialog(parent,"","Please select quality",sizeof(choices)/sizeof(wxString*),choices);
+	wxSingleChoiceDialog dialog(parent,"","Please select quality",sizeof(choices)/sizeof(*choices),choices);
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		quality = getUnsigned(dialog.GetStringSelection());
@@ -69,7 +69,7 @@ static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerV
 		"2048x2048",
 		"4096x4096",
 	};
-	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",sizeof(choices)/sizeof(wxString*)-(offerPerVertex?0:1),choices+(offerPerVertex?0:1));
+	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",sizeof(choices)/sizeof(*choices)-(offerPerVertex?0:1),choices+(offerPerVertex?0:1));
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		resolution = getUnsigned(dialog.GetStringSelection());
