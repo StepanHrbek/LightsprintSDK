@@ -32,17 +32,16 @@ unsigned getUnsigned(const wxString& str)
 // Future version may use incoming quality as default value.
 static bool getQuality(wxWindow* parent, unsigned& quality)
 {
-	const wxString choices[] = {
-		"1 - extremely low",
-		"10 - low",
-		"40",
-		"100 - medium",
-		"350",
-		"1000 - high",
-		"3000",
-		"10000 - extremely high"
-	};
-	wxSingleChoiceDialog dialog(parent,"","Please select quality",sizeof(choices)/sizeof(*choices),choices);
+	wxArrayString choices;
+	choices.Add("1 - extremely low");
+	choices.Add("10 - low");
+	choices.Add("40");
+	choices.Add("100 - medium");
+	choices.Add("350");
+	choices.Add("1000 - high");
+	choices.Add("3000");
+	choices.Add("10000 - extremely high");
+	wxSingleChoiceDialog dialog(parent,"","Please select quality",choices);
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		quality = getUnsigned(dialog.GetStringSelection());
@@ -56,20 +55,19 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 // Future version may use incoming quality as default value.
 static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerVertex)
 {
-	const wxString choices[] = {
-		"per-vertex",
-		"8x8",
-		"16x16",
-		"32x32",
-		"64x64",
-		"128x128",
-		"256x256",
-		"512x512",
-		"1024x1024",
-		"2048x2048",
-		"4096x4096",
-	};
-	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",sizeof(choices)/sizeof(*choices)-(offerPerVertex?0:1),choices+(offerPerVertex?0:1));
+	wxArrayString choices;
+	if (offerPerVertex)	choices.Add("per-vertex");
+	choices.Add("8x8");
+	choices.Add("16x16");
+	choices.Add("32x32");
+	choices.Add("64x64");
+	choices.Add("128x128");
+	choices.Add("256x256");
+	choices.Add("512x512");
+	choices.Add("1024x1024");
+	choices.Add("2048x2048");
+	choices.Add("4096x4096");
+	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",choices);
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		resolution = getUnsigned(dialog.GetStringSelection());
