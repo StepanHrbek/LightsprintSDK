@@ -261,7 +261,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		Texture* shadowmap = light->getShadowmap(0);
+		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
 		{
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
