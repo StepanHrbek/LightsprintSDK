@@ -469,6 +469,31 @@ static void textOutputMaterialProperty(int x, int y, int h, const char* name, co
 	}
 }
 
+static void drawTangentBasis(rr::RRVec3 point, rr::RRMesh::TangentBasis basis)
+{
+	glBegin(GL_LINES);
+	glColor3f(1,0,0);
+	glVertex3fv(&point[0]);
+	glVertex3f(point[0]+basis.normal[0],point[1]+basis.normal[1],point[2]+basis.normal[2]);
+	glColor3f(0,1,0);
+	glVertex3fv(&point[0]);
+	glVertex3f(point[0]+basis.tangent[0],point[1]+basis.tangent[1],point[2]+basis.tangent[2]);
+	glColor3f(0,0,1);
+	glVertex3fv(&point[0]);
+	glVertex3f(point[0]+basis.bitangent[0],point[1]+basis.bitangent[1],point[2]+basis.bitangent[2]);
+	glEnd();
+}
+
+static void drawTriangle(rr::RRMesh::TriangleBody body)
+{
+	glBegin(GL_LINE_LOOP);
+	glColor3f(1,1,1);
+	glVertex3fv(&body.vertex0[0]);
+	glVertex3f(body.vertex0[0]+body.side1[0],body.vertex0[1]+body.side1[1],body.vertex0[2]+body.side1[2]);
+	glVertex3f(body.vertex0[0]+body.side2[0],body.vertex0[1]+body.side2[1],body.vertex0[2]+body.side2[2]);
+	glEnd();
+}
+
 void SVCanvas::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC dc(this);
@@ -666,6 +691,46 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	if (svs.renderHelpers)
 	{
 		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
+
+		// gather information about scene
+		unsigned numLights = solver->getLights().size();
+		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
+		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
+		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
+
+		// gather information about selected object (by [ ] keys)
+		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
+		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
+		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
+
+		// gather information about selected point and triangle (by point in the middle of screen)
+		bool selectedPointValid = false; // true = all selectedXxx below are valid
+		rr::RRMesh::TangentBasis selectedPointBasis;
+		rr::RRMesh::TriangleBody selectedTriangleBody;
+		rr::RRMesh::TriangleNormals selectedTriangleNormals;
+		if (multiMesh && (!svs.render2d || !lv))
+		{
+			// ray and collisionHandler are used in this block
+			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
+			ray->rayOrigin = svs.eye.pos;
+			ray->rayDirInv[0] = 1/dir[0];
+			ray->rayDirInv[1] = 1/dir[1];
+			ray->rayDirInv[2] = 1/dir[2];
+			ray->rayLengthMin = svs.eye.getNear();
+			ray->rayLengthMax = svs.eye.getFar();
+			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+			ray->collisionHandler = collisionHandler;
+			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+			{
+				selectedPointValid = true;
+				multiMesh->getTriangleBody(ray->hitTriangle,selectedTriangleBody);
+				multiMesh->getTriangleNormals(ray->hitTriangle,selectedTriangleNormals);
+				selectedPointBasis.normal = selectedTriangleNormals.vertex[0].normal + (selectedTriangleNormals.vertex[1].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
+				selectedPointBasis.tangent = selectedTriangleNormals.vertex[0].tangent + (selectedTriangleNormals.vertex[1].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
+				selectedPointBasis.bitangent = selectedTriangleNormals.vertex[0].bitangent + (selectedTriangleNormals.vertex[1].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[1];
+			}
+		}
+
 		// render debug rays, using previously set shader
 		if ((!svs.render2d || !lv) && SVRayLog::size)
 		{
@@ -686,6 +751,17 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			}
 			glEnd();
 		}
+
+		// render arrows, using previously set shader
+		if (!svs.render2d)
+		{
+			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
+			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
+			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
+			drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
+			drawTriangle(selectedTriangleBody);
+		}
+
 		// render text, using custom shader (because text output ignores color passed to previous shader)
 		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 		centerTexel = UINT_MAX;
@@ -752,13 +828,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 			textOutput(x,y+=18,h,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
 		}
-		unsigned numLights = solver->getLights().size();
-		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
-		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
-		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
-		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
-		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
-		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 		if (!svs.render2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
@@ -860,17 +929,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		}
 		if (multiMesh && (!svs.render2d || !lv))
 		{
-			// ray and collisionHandler are used in this block
-			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
-			ray->rayOrigin = svs.eye.pos;
-			ray->rayDirInv[0] = 1/dir[0];
-			ray->rayDirInv[1] = 1/dir[1];
-			ray->rayDirInv[2] = 1/dir[2];
-			ray->rayLengthMin = svs.eye.getNear();
-			ray->rayLengthMax = svs.eye.getFar();
-			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-			ray->collisionHandler = collisionHandler;
-			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+			if (selectedPointValid)
 			{
 				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 				const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
@@ -884,11 +943,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				rr::RRMesh::TriangleMapping triangleMapping;
 				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
-				rr::RRMesh::TriangleNormals triangleNormals;
-				multiMesh->getTriangleNormals(ray->hitTriangle,triangleNormals);
-				rr::RRVec3 normal = triangleNormals.vertex[0].normal + (triangleNormals.vertex[1].normal-triangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].normal-triangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
-				rr::RRVec3 tangent = triangleNormals.vertex[0].tangent + (triangleNormals.vertex[1].tangent-triangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].tangent-triangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
-				rr::RRVec3 bitangent = triangleNormals.vertex[0].bitangent + (triangleNormals.vertex[1].bitangent-triangleNormals.vertex[0].bitangent)*ray->hitPoint2d[0] + (triangleNormals.vertex[2].bitangent-triangleNormals.vertex[0].bitangent)*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,h,"[point in the middle of viewport]");
 				textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
 				textOutput(x,y+=18,h,"object lit: %s",svs.renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber)?(solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
@@ -912,9 +966,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"distance: %f",ray->hitDistance);
 				textOutput(x,y+=18,h,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
 				textOutput(x,y+=18,h,"plane:  %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
-				textOutput(x,y+=18,h,"normal: %f %f %f",normal[0],normal[1],normal[2]);
-				textOutput(x,y+=18,h,"tangent: %f %f %f",tangent[0],tangent[1],tangent[2]);
-				textOutput(x,y+=18,h,"bitangent: %f %f %f",bitangent[0],bitangent[1],bitangent[2]);
+				textOutput(x,y+=18,h,"normal: %f %f %f",selectedPointBasis.normal[0],selectedPointBasis.normal[1],selectedPointBasis.normal[2]);
+				textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
+				textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
 				textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
 				if (material)
 				{
