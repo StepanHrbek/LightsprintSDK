@@ -208,7 +208,7 @@ public:
 		// init watchdogs
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
-		pti.rays[0].rayLengthMin = 0; // kdybych na to nesahal, bude tam od volajiciho pekne male cislo
+		//pti.rays[0].rayLengthMin = 0; // Our caller already set rayLengthMin to nice small value, keep it. Small bias is important for UE3 terrain segments that overlap. 0 would be better only if triangles don't overlap.
 		pti.rays[0].rayLengthMax = pti.context.params->locality;
 	}
 

@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news75 ------------------------------------ 2009.03.xx -------------------------------------
+
+NEWS
+
+- It's still recommended to avoid overlapping triangles, but if you must use them,
+  chances are that precomputed lightmaps will be ok.
+  Previously \ref main_ue3 "UE3" skylight created dark strips where terrain segments overlap.
+
 \section news75 ------------------------------------ 2009.02.23 -------------------------------------
 
 NEWS
