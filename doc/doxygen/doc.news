@@ -8,13 +8,19 @@ namespace rr
 
 \page main_news What's new
 
-\section news75 ------------------------------------ 2009.03.xx -------------------------------------
+\section news76 ------------------------------------ 2009.03.14 -------------------------------------
 
 NEWS
 
-- It's still recommended to avoid overlapping triangles, but if you must use them,
-  chances are that precomputed lightmaps will be ok.
-  Previously \ref main_ue3 "UE3" skylight created dark strips where terrain segments overlap.
+- Improved handling of overlapping triangles.
+  \n It's still recommended to avoid them, but if you must use them, chances are that precomputed lightmaps will be ok.
+  \n Previously \ref main_ue3 "UE3" skylight created dark strips where terrain segments overlap.
+- tangent space vectors are displayed in rr_gl::sceneViewer() with helpers enabled
+
+FIXES
+
+- UE3 materials had swapped R and B (incorrect color bleeding)
+- one of cascaded shadow mapps was not updated (incorrect realtime sunlight shadows)
 
 \section news75 ------------------------------------ 2009.02.23 -------------------------------------
 
