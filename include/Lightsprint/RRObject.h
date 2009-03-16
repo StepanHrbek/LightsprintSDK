@@ -564,7 +564,7 @@ namespace rr
 		//!  File format of maps to load, e.g. "png".
 		//!  Vertex buffers are always loaded from .vbu, without regard to ext.
 		//! \remark
-		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
+		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const;
 
 		//! Saves illumination layer to disk.
@@ -578,7 +578,7 @@ namespace rr
 		//!  File format of maps to save, e.g. "png".
 		//!  Vertex buffers are always saved to .vbu, without regard to ext.
 		//! \remark
-		//!  rr_io::setImageLoader() must be called for image saves/loads to work.
+		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
 
 		virtual ~RRObjects() {};

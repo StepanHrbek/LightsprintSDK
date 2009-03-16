@@ -2414,7 +2414,7 @@ int main(int argc, char **argv)
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init GLUT
 	glutInit(&argc, argv);

@@ -450,7 +450,7 @@ int main(int argc, char **argv)
 	//rr::RRReporter::setFilter(true,1,true);
 	//rr_gl::Program::logMessages(1);
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init keys
 	memset(keyPressed,sizeof(keyPressed),0);

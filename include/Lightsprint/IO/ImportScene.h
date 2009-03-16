@@ -136,7 +136,7 @@ protected:
 // Texture load/save
 
 //! Registers callbacks for loading and saving textures using FreeImage 3rd party library.
-void RR_IO_API setImageLoader();
+void RR_IO_API registerLoaders();
 
 } // namespace rr_io
 

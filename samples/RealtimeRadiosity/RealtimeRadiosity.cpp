@@ -320,7 +320,7 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr_gl::Program::showLog = true; // log also results of shader compiler
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init GLUT
 	glutInit(&argc, argv);

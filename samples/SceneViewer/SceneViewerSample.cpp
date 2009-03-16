@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(1);
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop

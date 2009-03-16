@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init GLUT
 	glutInit(&argc, argv);

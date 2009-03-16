@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(reporter);
 	//rr::RRReporter::setFilter(true,3,true);
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init scene and solver
 	const char* licError = rr::loadLicense("../../data/licence_number");

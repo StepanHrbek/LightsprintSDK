@@ -575,7 +575,7 @@ static AutoRegister a;
 //
 // manual registration
 
-void rr_io::setImageLoader()
+void rr_io::registerLoaders()
 {
 	RRBuffer::setLoader(main_reload,main_save);
 }
@@ -584,7 +584,7 @@ void rr_io::setImageLoader()
 
 #include "Lightsprint/IO/ImportScene.h"
 
-void rr_io::setImageLoader()
+void rr_io::registerLoaders()
 {
 }
 

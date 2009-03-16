@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,3,true);
 
-	rr_io::setImageLoader();
+	rr_io::registerLoaders();
 
 	// init GLUT
 	glutInit(&argc, argv);
