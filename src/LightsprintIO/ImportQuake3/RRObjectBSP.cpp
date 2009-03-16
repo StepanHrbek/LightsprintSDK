@@ -44,17 +44,17 @@ using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectBSP
+// RRObjectQuake3
 
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObjectBSP : public RRObject, public RRMesh
+class RRObjectQuake3 : public RRObject, public RRMesh
 {
 public:
-	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture);
+	RRObjectQuake3(TMapQ3* model, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture);
 	RRObjectIllumination* getIllumination();
-	virtual ~RRObjectBSP();
+	virtual ~RRObjectQuake3();
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -108,7 +108,7 @@ enum
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectBSP load
+// RRObjectQuake3 load
 
 // Inputs: m
 // Outputs: t, s
@@ -179,7 +179,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture)
+RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture)
 {
 	model = amodel;
 
@@ -299,15 +299,15 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
 
 	// create illumination
-	illumination = new RRObjectIllumination(RRObjectBSP::getNumVertices());
+	illumination = new RRObjectIllumination(RRObjectQuake3::getNumVertices());
 }
 
-RRObjectIllumination* RRObjectBSP::getIllumination()
+RRObjectIllumination* RRObjectQuake3::getIllumination()
 {
 	return illumination;
 }
 
-RRObjectBSP::~RRObjectBSP()
+RRObjectQuake3::~RRObjectQuake3()
 {
 	for (unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
 	delete illumination;
@@ -317,9 +317,9 @@ RRObjectBSP::~RRObjectBSP()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectBSP implements RRMesh
+// RRObjectQuake3 implements RRMesh
 
-unsigned RRObjectBSP::getNumVertices() const
+unsigned RRObjectQuake3::getNumVertices() const
 {
 #ifdef PACK_VERTICES
 	return (unsigned)vertices.size();
@@ -328,9 +328,9 @@ unsigned RRObjectBSP::getNumVertices() const
 #endif
 }
 
-void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
+void RRObjectQuake3::getVertex(unsigned v, Vertex& out) const
 {
-	assert(v<RRObjectBSP::getNumVertices());
+	assert(v<RRObjectQuake3::getNumVertices());
 #ifdef PACK_VERTICES
 	out = vertices[v].position;
 #else
@@ -344,14 +344,14 @@ void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 #endif
 }
 
-unsigned RRObjectBSP::getNumTriangles() const
+unsigned RRObjectQuake3::getNumTriangles() const
 {
 	return (unsigned)triangles.size();
 }
 
-void RRObjectBSP::getTriangle(unsigned t, Triangle& out) const
+void RRObjectQuake3::getTriangle(unsigned t, Triangle& out) const
 {
-	if (t>=RRObjectBSP::getNumTriangles()) 
+	if (t>=RRObjectQuake3::getNumTriangles()) 
 	{
 		assert(0);
 		return;
@@ -360,15 +360,15 @@ void RRObjectBSP::getTriangle(unsigned t, Triangle& out) const
 }
 
 /*
-void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
+void RRObjectQuake3::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if (t>=RRObjectBSP::getNumTriangles())
+	if (t>=RRObjectQuake3::getNumTriangles())
 	{
 		assert(0);
 		return;
 	}
 	Triangle triangle;
-	RRObjectBSP::getTriangle(t,triangle);
+	RRObjectQuake3::getTriangle(t,triangle);
 	for (unsigned v=0;v<3;v++)
 	{
 		// nejsem si jisty jestli je to takhle dobre
@@ -378,9 +378,9 @@ void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }*/
 
-bool RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+bool RRObjectQuake3::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 {
-	if (t>=RRObjectBSP::getNumTriangles())
+	if (t>=RRObjectQuake3::getNumTriangles())
 	{
 		RR_ASSERT(0);
 		return false;
@@ -390,7 +390,7 @@ bool RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 		return false;
 	}
 	Triangle triangle;
-	RRObjectBSP::getTriangle(t,triangle);
+	RRObjectQuake3::getTriangle(t,triangle);
 	for (unsigned v=0;v<3;v++)
 	{
 #ifdef PACK_VERTICES
@@ -408,16 +408,16 @@ bool RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectBSP implements RRObject
+// RRObjectQuake3 implements RRObject
 
-const RRCollider* RRObjectBSP::getCollider() const
+const RRCollider* RRObjectQuake3::getCollider() const
 {
 	return collider;
 }
 
-const RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+const RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
-	if (t>=RRObjectBSP::getNumTriangles())
+	if (t>=RRObjectQuake3::getNumTriangles())
 	{
 		assert(0);
 		return NULL;
@@ -441,7 +441,7 @@ class RRObjectsQuake3 : public RRObjects
 public:
 	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 	{
-		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,stripPaths,missingTexture);
+		RRObjectQuake3* object = new RRObjectQuake3(model,pathToTextures,stripPaths,missingTexture);
 		push_back(RRIlluminatedObject(object,object->getIllumination()));
 	}
 	virtual ~RRObjectsQuake3()
