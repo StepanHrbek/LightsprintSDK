@@ -1110,6 +1110,10 @@
 				>
 			</File>
 			<File
+				RelativePath="RRObject\RRObjects.cpp"
+				>
+			</File>
+			<File
 				RelativePath="RRObject\RRObjectWithPhysicalMaterials.cpp"
 				>
 				<FileConfiguration
