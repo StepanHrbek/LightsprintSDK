@@ -138,12 +138,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectsFromOBJ
+// RRObjectsOBJ
 
-class ObjectsFromOBJ : public RRObjects
+class RRObjectsOBJ : public RRObjects
 {
 public:
-	ObjectsFromOBJ(const char* filename, float scale)
+	RRObjectsOBJ(const char* filename, float scale)
 	{
 		RRObjectOBJ* object = new RRObjectOBJ(filename,scale);
 		if (object->getNumTriangles())
@@ -151,7 +151,7 @@ public:
 		else
 			delete object;
 	}
-	virtual ~ObjectsFromOBJ()
+	virtual ~RRObjectsOBJ()
 	{
 		if (size())
 			delete (*this)[0].object;
@@ -165,7 +165,7 @@ public:
 
 RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
 {
-	return new ObjectsFromOBJ(filename,scale);
+	return new RRObjectsOBJ(filename,scale);
 }
 
 #endif // SUPPORT_OBJ

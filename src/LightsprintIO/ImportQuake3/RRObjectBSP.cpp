@@ -434,17 +434,17 @@ const RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const RRLight* li
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectsFromTMapQ3
+// RRObjectsQuake3
 
-class ObjectsFromTMapQ3 : public RRObjects
+class RRObjectsQuake3 : public RRObjects
 {
 public:
-	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
+	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 	{
 		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,stripPaths,missingTexture);
 		push_back(RRIlluminatedObject(object,object->getIllumination()));
 	}
-	virtual ~ObjectsFromTMapQ3()
+	virtual ~RRObjectsQuake3()
 	{
 		// no need to delete illumination separately, we created it as part of object
 		//delete (*this)[0].illumination;
@@ -459,7 +459,7 @@ public:
 
 RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 {
-	return new ObjectsFromTMapQ3(model,pathToTextures,stripPaths,missingTexture);
+	return new RRObjectsQuake3(model,pathToTextures,stripPaths,missingTexture);
 }
 
 #endif // SUPPORT_QUAKE3

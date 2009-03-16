@@ -350,12 +350,12 @@ const RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* li
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectsFromMGF
+// RRObjectsMGF
 
-class ObjectsFromMGF : public RRObjects
+class RRObjectsMGF : public RRObjects
 {
 public:
-	ObjectsFromMGF(const char* filename)
+	RRObjectsMGF(const char* filename)
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if (object->getNumTriangles())
@@ -363,7 +363,7 @@ public:
 		else
 			delete object;
 	}
-	virtual ~ObjectsFromMGF()
+	virtual ~RRObjectsMGF()
 	{
 		if (size())
 			delete (*this)[0].object;
@@ -377,7 +377,7 @@ public:
 
 RRObjects* adaptObjectsFromMGF(const char* filename)
 {
-	return new ObjectsFromMGF(filename);
+	return new RRObjectsMGF(filename);
 }
 
 #endif // SUPPORT_MGF

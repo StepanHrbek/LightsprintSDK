@@ -744,13 +744,13 @@ RRObjectCollada::~RRObjectCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectsFromFCollada
+// RRObjectsCollada
 
-class ObjectsFromFCollada : public RRObjects
+class RRObjectsCollada : public RRObjects
 {
 public:
-	ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier);
-	virtual ~ObjectsFromFCollada();
+	RRObjectsCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier);
+	virtual ~RRObjectsCollada();
 
 private:
 	const RRCollider*          newColliderCached(const FCDGeometryMesh* mesh);
@@ -766,7 +766,7 @@ private:
 
 // Creates new RRCollider from FCDGeometryMesh.
 // Caching on, first query creates collider, second query reads it from cache.
-const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh)
+const RRCollider* RRObjectsCollada::newColliderCached(const FCDGeometryMesh* mesh)
 {
 	if (!mesh)
 	{
@@ -787,7 +787,7 @@ const RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* 
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders and meshes).
-RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
+RRObjectCollada* RRObjectsCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
 {
 	if (!geometryInstance)
 	{
@@ -812,7 +812,7 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
+void RRObjectsCollada::addNode(const FCDSceneNode* node)
 {
 	if (!node)
 		return;
@@ -841,7 +841,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
+RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
 	: imageCache(pathToTextures,stripPaths), materialCache(&imageCache,emissiveMultiplier)
 {
 	if (!document)
@@ -896,7 +896,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document, const char* pathT
 	}
 }
 
-ObjectsFromFCollada::~ObjectsFromFCollada()
+RRObjectsCollada::~RRObjectsCollada()
 {
 	// delete objects
 	for (unsigned i=0;i<size();i++)
@@ -918,17 +918,17 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// LightsFromFCollada
+// RRLightsCollada
 
-class LightsFromFCollada : public RRLights
+class RRLightsCollada : public RRLights
 {
 public:
-	LightsFromFCollada(FCDocument* document);
+	RRLightsCollada(FCDocument* document);
 	void addNode(const FCDSceneNode* node);
-	virtual ~LightsFromFCollada();
+	virtual ~RRLightsCollada();
 };
 
-LightsFromFCollada::LightsFromFCollada(FCDocument* document)
+RRLightsCollada::RRLightsCollada(FCDocument* document)
 {
 	if (!document)
 		return;
@@ -940,7 +940,7 @@ LightsFromFCollada::LightsFromFCollada(FCDocument* document)
 	addNode(document->GetVisualSceneInstance());
 }
 
-void LightsFromFCollada::addNode(const FCDSceneNode* node)
+void RRLightsCollada::addNode(const FCDSceneNode* node)
 {
 	if (!node)
 		return;
@@ -988,7 +988,7 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-LightsFromFCollada::~LightsFromFCollada()
+RRLightsCollada::~RRLightsCollada()
 {
 	// delete lights
 	for (unsigned i=0;i<size();i++)
@@ -1002,12 +1002,12 @@ LightsFromFCollada::~LightsFromFCollada()
 
 RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
 {
-	return new ObjectsFromFCollada(document,pathToTextures,stripPaths,emissiveMultiplier);
+	return new RRObjectsCollada(document,pathToTextures,stripPaths,emissiveMultiplier);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)
 {
-	return new LightsFromFCollada(document);
+	return new RRLightsCollada(document);
 }
 
 #else // USE_FCOLLADA

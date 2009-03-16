@@ -295,12 +295,12 @@ const RRMatrix3x4* RRObject3DS::getWorldMatrix()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectsFrom3DS
+// RRObjects3DS
 
-class ObjectsFrom3DS : public RRObjects
+class RRObjects3DS : public RRObjects
 {
 public:
-	ObjectsFrom3DS(Model_3DS* model)
+	RRObjects3DS(Model_3DS* model)
 	{
 		for (unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
@@ -308,7 +308,7 @@ public:
 			push_back(RRIlluminatedObject(object,object->getIllumination()));
 		}
 	}
-	virtual ~ObjectsFrom3DS()
+	virtual ~RRObjects3DS()
 	{
 		for (unsigned i=0;i<size();i++)
 		{
@@ -326,5 +326,5 @@ public:
 
 RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 {
-	return new ObjectsFrom3DS(model);
+	return new RRObjects3DS(model);
 }
