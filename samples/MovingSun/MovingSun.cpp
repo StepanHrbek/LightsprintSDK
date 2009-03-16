@@ -124,7 +124,11 @@ bool loadPrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLigh
 	_lightfield = rr::RRLightField::load((_path+"lightfield.lf").c_str());
 	if (!_lightfield) return false;
 	for (unsigned i=0;i<NUM_FRAMES;i++)
-		_staticObjects.loadLayer(i,_path.c_str(),"png");
+	{
+		char buf[10];
+		sprintf(buf,"%02d_",i);
+		_staticObjects.loadLayer(i,(_path+buf).c_str(),"png");
+	}
 	return true;
 }
 
@@ -137,7 +141,11 @@ void savePrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLigh
 	mkdir(_path.c_str(), 0744);
 #endif
 	for (unsigned i=0;i<NUM_FRAMES;i++)
-		_staticObjects.saveLayer(i,_path.c_str(),"png");
+	{
+		char buf[10];
+		sprintf(buf,"%02d_",i);
+		_staticObjects.saveLayer(i,(_path+buf).c_str(),"png");
+	}
 	_lightfield->save((_path+"lightfield.lf").c_str());
 }
 
