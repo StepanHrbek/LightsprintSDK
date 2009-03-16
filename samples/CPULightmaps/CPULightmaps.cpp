@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	solver->setScaler(scaler);
 
 	// load scene
-	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
+	rr::RRScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
 	solver->setStaticObjects(*scene.getObjects(), NULL);
 	solver->setLights(*scene.getLights());
 

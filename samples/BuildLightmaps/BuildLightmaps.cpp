@@ -403,7 +403,7 @@ int main(int argc, char **argv)
 	//
 	// load scene
 	//
-	rr_io::ImportScene scene(globalParameters.sceneFilename,1,false,NULL,globalParameters.emissiveMultiplier);
+	rr::RRScene scene(globalParameters.sceneFilename,1,false,NULL,globalParameters.emissiveMultiplier);
 
 	//
 	// set solver geometry

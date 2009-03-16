@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Adapts FCollada document.
+// Lightsprint adapters for FCollada document.
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -63,6 +63,7 @@
 #endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 using namespace rr;
 
@@ -998,6 +999,66 @@ RRLightsCollada::~RRLightsCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRSceneCollada
+
+class RRSceneCollada : public RRScene
+{
+public:
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		RRSceneCollada* scene = new RRSceneCollada;
+		FCollada::Initialize();
+		scene->scene_dae = FCollada::NewTopDocument();
+		FUErrorSimpleHandler errorHandler;
+		FCollada::LoadDocumentFromFile(scene->scene_dae,filename);
+		if (!errorHandler.IsSuccessful())
+		{
+			RRReporter::report(ERRO,"%s\n",errorHandler.GetErrorString());
+			scene->objects = NULL;
+			scene->lights = NULL;
+			delete scene;
+			return NULL;
+		}
+		else
+		{
+			char* pathToFile = _strdup(filename);
+			if (stripPaths)
+			{
+				char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
+				if (tmp) tmp[1] = 0;
+			}			
+			RRReportInterval report(INF3,"Adapting scene...\n");
+			scene->objects = adaptObjectsFromFCollada(scene->scene_dae,stripPaths?pathToFile:"",stripPaths,emissiveMultiplier);
+			scene->lights = adaptLightsFromFCollada(scene->scene_dae);
+			free(pathToFile);
+			return scene;
+		}
+	}
+	virtual const RRObjects* getObjects()
+	{
+		return objects;
+	}
+	virtual const RRLights* getLights()
+	{
+		return lights;
+	}
+	virtual ~RRSceneCollada()
+	{
+		delete objects;
+		delete lights;
+		delete scene_dae;
+		FCollada::Release();
+	}
+
+private:
+	RRObjects*                 objects;
+	RRLights*                  lights;
+	FCDocument*                scene_dae;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
@@ -1010,18 +1071,9 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return new RRLightsCollada(document);
 }
 
-#else // USE_FCOLLADA
-
-// stub - for quickly disabled collada support
-#include "RRObjectCollada.h"
-using namespace rr;
-RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
+void registerLoaderCollada()
 {
-	return NULL;
-}
-RRLights* adaptLightsFromFCollada(class FCDocument* document)
-{
-	return NULL;
+	RRScene::registerLoader("dae",RRSceneCollada::load);
 }
 
 #endif // SUPPORT_COLLADA

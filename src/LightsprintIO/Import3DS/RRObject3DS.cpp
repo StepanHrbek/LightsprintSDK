@@ -1,7 +1,10 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for 3DS scene
+// Lightsprint adapters for 3DS scene.
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
+
+#include "../supported_formats.h"
+#ifdef SUPPORT_3DS
 
 // This code implements data adapters for access to Model_3DS meshes, objects, materials.
 // You can replace Model_3DS with your internal format and adapt this code
@@ -15,8 +18,8 @@
 #include <cassert>
 #include <cmath>
 #include <vector>
-#include "Lightsprint/RRIllumination.h"
 #include "RRObject3DS.h"
+#include "Model_3DS.h"
 
 using namespace rr;
 
@@ -322,9 +325,49 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRScene3DS
+
+class RRScene3DS : public RRScene
+{
+public:
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		RRScene3DS* scene = new RRScene3DS;
+		if (!scene->scene_3ds.Load(filename,scale))
+		{
+			scene->objects = NULL;
+			delete scene;
+			RRReporter::report(WARN,"Failed loading scene %s.\n");
+			return NULL;
+		}
+		else
+		{
+			scene->objects = adaptObjectsFrom3DS(&scene->scene_3ds);
+			return scene;
+		}
+	}
+	virtual const RRObjects* getObjects()
+	{
+		return objects;
+	}
+private:
+	RRObjects*                 objects;
+	Model_3DS                  scene_3ds;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 {
 	return new RRObjects3DS(model);
 }
+
+void registerLoader3DS()
+{
+	RRScene::registerLoader("3ds",RRScene3DS::load);
+}
+
+#endif // SUPPORT_3DS

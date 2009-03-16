@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for OBJ scene
+// Lightsprint adapters for OBJ scene.
 // Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -161,11 +161,42 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRSceneOBJ
+
+class RRSceneOBJ : public RRScene
+{
+public:
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		RRSceneOBJ* scene = new RRSceneOBJ;
+		scene->objects = adaptObjectsFromOBJ(filename);
+		return scene;
+	}
+	virtual const RRObjects* getObjects()
+	{
+		return objects;
+	}
+	virtual ~RRSceneOBJ()
+	{
+		delete objects;
+	}
+private:
+	RRObjects*             objects;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
 {
 	return new RRObjectsOBJ(filename,scale);
+}
+
+void registerLoaderOBJ()
+{
+	RRScene::registerLoader("obj",RRSceneOBJ::load);
 }
 
 #endif // SUPPORT_OBJ

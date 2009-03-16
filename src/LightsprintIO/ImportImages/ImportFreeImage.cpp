@@ -3,7 +3,7 @@
 // Copyright (C) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "supported_formats.h"
+#include "../supported_formats.h"
 #ifdef SUPPORT_IMAGES
 
 // This file is the only connection between Lightsprint and FreeImage.
@@ -17,8 +17,8 @@
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include "ImportFreeImage.h"
 #include "FreeImage.h"
-#include "Lightsprint/IO/ImportScene.h"
 
 #pragma comment(lib,"FreeImage.lib")
 
@@ -334,7 +334,7 @@ bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideNam
 		: reload2d(buffer,filename,flipV,flipH) );
 	if (!reloaded)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to reload %s.\n",filename);
+		RRReporter::report(ERRO,"Failed to reload %s.\n",filename);
 	}
 	return reloaded;
 }
@@ -558,34 +558,12 @@ ende:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// automatic registration - does not work inside library
+// main
 
-struct AutoRegister
-{
-	AutoRegister()
-	{
-		RRBuffer::setLoader(main_reload,main_save);
-	}
-};
-
-static AutoRegister a;
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// manual registration
-
-void rr_io::registerLoaders()
+void registerLoaderImages()
 {
 	RRBuffer::setLoader(main_reload,main_save);
 }
 
-#else // SUPPORT_IMAGES
-
-#include "Lightsprint/IO/ImportScene.h"
-
-void rr_io::registerLoaders()
-{
-}
-
 #endif // SUPPORT_IMAGES
+

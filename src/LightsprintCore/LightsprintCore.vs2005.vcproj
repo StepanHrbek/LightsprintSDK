@@ -1083,6 +1083,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="RRScene"
+			>
+			<File
+				RelativePath="RRScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRScene.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="LicGen.h"
 			>

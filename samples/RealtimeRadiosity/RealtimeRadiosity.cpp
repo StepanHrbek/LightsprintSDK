@@ -25,12 +25,14 @@
 #include <cassert>
 #include <ctime>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
+#include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 #include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
 #include "Lightsprint/IO/ImportScene.h"

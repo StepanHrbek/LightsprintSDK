@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for MGF scene (testing only)
+// Lightsprint adapters for MGF scene (testing only)
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -373,11 +373,42 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRSceneMGF
+
+class RRSceneMGF : public RRScene
+{
+public:
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		RRSceneMGF* scene = new RRSceneMGF;
+		scene->objects = adaptObjectsFromMGF(filename);
+		return scene;
+	}
+	virtual const RRObjects* getObjects()
+	{
+		return objects;
+	}
+	virtual ~RRSceneMGF()
+	{
+		delete objects;
+	}
+private:
+	RRObjects*             objects;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 RRObjects* adaptObjectsFromMGF(const char* filename)
 {
 	return new RRObjectsMGF(filename);
+}
+
+void registerLoaderMGF()
+{
+	RRScene::registerLoader("mgf",RRSceneMGF::load);
 }
 
 #endif // SUPPORT_MGF

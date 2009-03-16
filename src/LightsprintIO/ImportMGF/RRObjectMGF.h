@@ -1,12 +1,12 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for MGF scene (testing only)
+// Lightsprint adapters for MGF scene (testing only)
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTMGF_H
 #define RROBJECTMGF_H
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRScene.h"
 
 //! Creates Lightsprint interface for MGF scene.
 //
@@ -17,5 +17,8 @@
 //! Loader doesn't contain proper triangulation,
 //! polygons more complicated than quad are often incorrectly triangulated.
 rr::RRObjects* adaptObjectsFromMGF(const char* filename);
+
+//! Makes it possible to load .mgf scenes from disk via RRScene::RRScene().
+void registerLoaderMGF();
 
 #endif

@@ -172,7 +172,7 @@ rr_gl::ToneMapping*        toneMapping = NULL;
 bool                       keyPressed[512];
 rr::RRVec3                 aabbMin,aabbMax; // AABB of static scene
 rr::RRReal                 groundLevel = 0;
-rr_io::ImportScene*        scene = NULL;
+rr::RRScene*               scene = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -508,7 +508,7 @@ int main(int argc, char **argv)
 	const char* sceneFilename = (argc>1)?argv[1]:DEFAULT_SCENE;
 
 	// load scene
-	scene = new rr_io::ImportScene(sceneFilename,1,true);
+	scene = new rr::RRScene(sceneFilename,1,true);
 	if (!scene->getObjects())
 		error("No objects in scene.",false);
 

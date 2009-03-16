@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 
 	// load scene
 	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
-	rr_io::ImportScene scene(sceneFilename);
+	rr::RRScene scene(sceneFilename);
 
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");

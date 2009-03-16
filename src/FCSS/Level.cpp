@@ -14,7 +14,7 @@ extern void error(const char* message, bool gfxRelated);
 
 Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) : pilot(levelSetup)
 {
-	// loading scenename will be reported by ImportScene, don't make it confusing by 2 reports
+	// loading scenename will be reported by RRScene, don't make it confusing by 2 reports
 	//rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
 
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
@@ -40,7 +40,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		light = tmplight;
 	}*/
 
-	scene = new rr_io::ImportScene(pilot.setup->filename, pilot.setup->scale, true);
+	scene = new rr::RRScene(pilot.setup->filename, pilot.setup->scale, true);
 	objects = scene->getObjects();
 
 	if (!objects || !objects->size())

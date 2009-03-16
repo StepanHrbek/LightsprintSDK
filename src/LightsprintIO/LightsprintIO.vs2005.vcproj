@@ -531,10 +531,18 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ImportFreeImage.cpp"
+		<Filter
+			Name="Images"
 			>
-		</File>
+			<File
+				RelativePath=".\ImportImages\ImportFreeImage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportImages\ImportFreeImage.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp"
 			>

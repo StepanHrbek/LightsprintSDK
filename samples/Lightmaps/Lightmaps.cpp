@@ -499,7 +499,7 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 
 	// load scene
-	rr_io::ImportScene scene("../../data/scenes/koupelna/koupelna4.dae");
+	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
 	solver->setStaticObjects(*scene.getObjects(), NULL);
 
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};

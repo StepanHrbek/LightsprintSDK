@@ -1,12 +1,12 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for Quake3 map (.bsp)
+// Lightsprint adapters for Quake3 map (.bsp).
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTBSP_H
 #define RROBJECTBSP_H
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRScene.h"
 #include "Q3Loader.h"
 
 //! Creates Lightsprint interface for Quake3 map.
@@ -16,5 +16,7 @@
 //! Parts of path are present in texture names. You may remove them with stripPaths.
 rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture);
 
+//! Makes it possible to load .bsp scenes from disk via rr::RRScene::RRScene().
+void registerLoaderQuake3();
 
 #endif

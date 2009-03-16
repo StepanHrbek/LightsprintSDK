@@ -2379,6 +2379,12 @@ Simply make sure you use 2008 libraries in your projects.
 
  <hr>
 
+ Headers: Lightsprint/RRScene.h
+
+ - data structure (RRScene): 3d scene loaded from disk (objects, lights)
+
+ <hr>
+
  Headers: Lightsprint/RRIllumination.h
 
  - data structure (RRObjectIllumination): object's illumination and more
@@ -2387,7 +2393,7 @@ Simply make sure you use 2008 libraries in your projects.
 
  Header: Lightsprint/RRBuffer.h
 
- - data structure (RRBuffer): texture, vertex buffer
+ - data structure (RRBuffer): texture, cube map, vertex buffer
 
  <hr>
 
@@ -2571,11 +2577,11 @@ Simply make sure you use 2008 libraries in your projects.
   - <b>hdr</b> - floating point precision
   - <b>exr</b> - floating point precision
   - <b>bmp, gif, pcx, tiff, ico, iff, jbig, pbm, pgm, ppm, xpm etc...</b> - other 
-  - <b>source code</b> is in <code>src/LightsprintIO/ImportFreeImage.cpp</code>
+  - <b>source code</b> is in <code>src/LightsprintIO/ImportImages/ImportFreeImage.cpp</code>
 
   LightsprintIO loads and saves vertex buffers with per-vertex lighting:
   - <b>vbu</b> - the only Lightsprint proprietary format, extremely simple
-  - <b>source code</b> is in <code>src/LightsprintIO/ImportFreeImage.cpp</code>
+  - <b>source code</b> is in <code>src/LightsprintIO/ImportImages/ImportFreeImage.cpp</code>
 
  \section io_api API
 
@@ -2584,7 +2590,8 @@ Simply make sure you use 2008 libraries in your projects.
   <hr>
   Header: Lightsprint/IO/ImportScene.h
 
-  - rr_io::ImportScene loads scene from disk
+  - rr_io::registerLoaders() registers all loaders implemented in this library,
+    \n use RRScene and RRBuffer to load and save files
 
 
 

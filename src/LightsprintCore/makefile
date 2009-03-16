@@ -84,7 +84,8 @@ Preferences.cpp \
 RRLight.cpp \
 RRLightField.cpp \
 RRMemory.cpp \
-RRObjectIllumination.cpp
+RRObjectIllumination.cpp \
+RRScene.cpp
 
 # libraries
 

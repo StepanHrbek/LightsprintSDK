@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Lightsprint adapters for accesing Gamebryo scene.
+// Lightsprint adapters for Gamebryo scene.
 // Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ enum Channel
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// RRMesh
+// RRMeshGamebryo
 
 class RRMeshGamebryo : public RRMesh
 {
@@ -753,7 +753,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// RRObject
+// RRObjectGamebryo
 
 class RRObjectGamebryo : public RRObjectGamebryoBase
 {
@@ -895,7 +895,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// RRObjects
+// RRObjectsGamebryo
 
 class RRObjectsGamebryo : public RRObjects
 {
@@ -1054,7 +1054,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// RRLights
+// RRLightsGamebryo
 
 class RRLightsGamebryo : public RRLights
 {
@@ -1155,24 +1155,47 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// main low level interface
+// RRSceneGamebryo
 
-RRObjects* adaptObjectsFromGamebryo(NiScene* scene, bool& aborting, float emissiveMultiplier)
+//! Lightsprint interface for Gamebryo scene in .gsa file.
+class RRSceneGamebryo : public RRScene
 {
-	return new RRObjectsGamebryo(scene,aborting,emissiveMultiplier);
-}
+public:
+	//! Imports scene from .gsa file.
+	//! \param filename
+	//!  Scene file name.
+	//! \param initGamebryo
+	//!  True to treat Gamebryo as completely unitialized and initialize/shutdown it.
+	//!  To be used when importing .gsa into generic Lightsprint samples.
+	//!  \n False to skip initialization/shutdown sequence,
+	//!  to be used when running Lightsprint code from Gamebryo app, with Gamebryo already initialized.
+	//! \param aborting
+	//!  Import may be asynchronously aborted by setting *aborting to true.
+	//! \param emissiveMultiplier
+	//!  Multiplies emittance in all materials. Default 1 keeps original values.
+	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
+	virtual ~RRSceneGamebryo();
+	
+	//! Loader suitable for RRScene::registerLoader().
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		bool not_aborting = false;
+		return new RRSceneGamebryo(filename,false,aborting ? *aborting : not_aborting,emissiveMultiplier);
+	}
 
-RRLights* adaptLightsFromGamebryo(NiScene* scene)
-{
-	return new RRLightsGamebryo(scene);
-}
+	virtual const RRObjects* getObjects() {return objects;}
+	virtual const RRLights* getLights() {return lights;}
 
+protected:
+	void updateCastersReceiversCache();
 
-////////////////////////////////////////////////////////////////////////////
-//
-// import .gsa from disk - main high level interface
+	RRObjects*                objects;
+	RRLights*                 lights;
+	bool                      initGamebryo;
+	class NiScene*            pkEntityScene;
+};
 
-ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
+RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
 {
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
 	objects = NULL;
@@ -1254,7 +1277,7 @@ ImportSceneGamebryo::ImportSceneGamebryo(const char* _filename, bool _initGamebr
 	}
 }
 
-ImportSceneGamebryo::~ImportSceneGamebryo()
+RRSceneGamebryo::~RRSceneGamebryo()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 	for (unsigned i=0;lights && i<lights->size();i++)
@@ -1276,7 +1299,7 @@ ImportSceneGamebryo::~ImportSceneGamebryo()
 	}
 }
 
-void ImportSceneGamebryo::updateCastersReceiversCache()
+void RRSceneGamebryo::updateCastersReceiversCache()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 	if (objects && lights)
@@ -1294,6 +1317,26 @@ void ImportSceneGamebryo::updateCastersReceiversCache()
 		}
 	}
 #endif
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// main
+
+RRObjects* adaptObjectsFromGamebryo(NiScene* scene, bool& aborting, float emissiveMultiplier)
+{
+	return new RRObjectsGamebryo(scene,aborting,emissiveMultiplier);
+}
+
+RRLights* adaptLightsFromGamebryo(NiScene* scene)
+{
+	return new RRLightsGamebryo(scene);
+}
+
+void registerLoaderGamebryo()
+{
+	RRScene::registerLoader("gsa",RRSceneGamebryo::load);
 }
 
 #endif // SUPPORT_GAMEBRYO

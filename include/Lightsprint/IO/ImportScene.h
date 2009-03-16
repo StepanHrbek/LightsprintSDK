@@ -75,68 +75,43 @@
 	#endif
 #endif
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRScene.h"
 
 namespace rr_io /// LightsprintIO - access to scenes and images on disk
 {
 
-
-/////////////////////////////////////////////////////////////////////////////
+//! Registers callbacks for loading and saving textures using FreeImage 3rd party library.
 //
-// Scene load
-
-//! Loads scene from file.
-//
-//! Fully supported formats:
+//! After registering loaders, use
+//! - RRScene::RRScene(filename) to load 3d scenes
+//! - RRBuffer::load(filename) to load 2d images, cube maps, vertex buffers
+//! 
+//! Fully supported 3d formats:
 //! - .dae (Collada)
 //! - .gsa (Gamebryo)
 //!
-//! Partially supported formats:
+//! Partially supported 3d formats:
 //! - .3ds
 //! - .bsp (Quake3)
 //! - .obj
 //! - .mgf
-class RR_IO_API ImportScene : public rr::RRUniformlyAllocatedNonCopyable
-{
-public:
-	//! Loads .dae .gsa .3ds .bsp .obj .mgf scene from file.
-	//
-	//! \param filename
-	//!  Filename of scene.
-	//! \param scale
-	//!  If it is .gsa/.3ds/.obj, geometry is scaled by scale.
-	//!  These formats don't contain information about units,
-	//!  different files need different scale to convert to meters.
-	//! \param stripPaths
-	//!  Tries to load all textures from the same directory where scene file is,
-	//!  ignoring full paths stored in scene file.
-	//!  This is not applicable to .gsa.
-	//! \param aborting
-	//!  Import may be asynchronously aborted by setting *aborting to true.
-	//! \param emissiveMultiplier
-	//!  Multiplies emittance in all materials. Default 1 keeps original values.
-	ImportScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL, float emissiveMultiplier = 1);
-	~ImportScene();
-
-	const rr::RRObjects* getObjects() {return objects;}
-	const rr::RRLights* getLights() {return lights;}
-
-protected:
-	rr::RRObjects*             objects;
-	rr::RRLights*              lights;
-	class Model_3DS*           scene_3ds;
-	struct TMapQ3*             scene_bsp;
-	class FCDocument*          scene_dae;
-	class ImportSceneGamebryo* scene_gsa;
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Texture load/save
-
-//! Registers callbacks for loading and saving textures using FreeImage 3rd party library.
+//!
+//! Supported 2d formats, cube maps, vertex buffers:
+//! - .jpg
+//! - .png
+//! - .hdr (float colors)
+//! - .exr (float colors)
+//! - .tga
+//! - .bmp
+//! - .dds
+//! - .tif
+//! - .jp2
+//! - .gif
+//! - .ico
+//! - .vbu (vertex buffer)
+//! - etc, see FreeImage for complete list
 void RR_IO_API registerLoaders();
+
 
 } // namespace rr_io
 

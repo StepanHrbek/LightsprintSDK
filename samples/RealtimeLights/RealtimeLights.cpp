@@ -81,7 +81,7 @@ float                      speedLeft = 0;
 rr::RRVec4                 brightness(1);
 float                      contrast = 1;
 float                      rotation = 0;
-rr_io::ImportScene*        scene = NULL;
+rr::RRScene*               scene = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -412,7 +412,7 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load scene
-	scene = new rr_io::ImportScene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	scene = new rr::RRScene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 	solver->setStaticObjects(*scene->getObjects(), NULL);
 
 	// init dynamic objects

@@ -1,17 +1,20 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for OBJ scene
+// Lightsprint adapters for OBJ scene.
 // Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTOBJ_H
 #define RROBJECTOBJ_H
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRScene.h"
 
 //! Creates Lightsprint interface for .OBJ file.
 //
 //! All sizes are multiplied by scale at load time, use scale to normalize
 //! unit to recommended 1 meter. OBJ doesn't specify unit length.
 rr::RRObjects* adaptObjectsFromOBJ(const char* filename, float scale=1);
+
+//! Makes it possible to load .obj scenes from disk via rr::RRScene::RRScene().
+void registerLoaderOBJ();
 
 #endif

@@ -1,0 +1,83 @@
+#ifndef RRSCENE_H
+#define RRSCENE_H
+
+//////////////////////////////////////////////////////////////////////////////
+//! \file RRScene.h
+//! \brief LightsprintCore | 3d scene and its import
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
+//! All rights reserved
+//////////////////////////////////////////////////////////////////////////////
+
+#include "RRDynamicSolver.h"
+
+namespace rr
+{
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Interface of 3d scene and its load from file.
+
+//! 3d scene loaded from file.
+class RR_API RRScene : public RRUniformlyAllocatedNonCopyable
+{
+public:
+	//! Loads 3d scene from file.
+	//
+	//! Scene load is attempted using loaders registered via registerLoader().
+	//! Several loaders are implemented in LightsprintIO library,
+	//! rr_io::registerLoaders() will register all of them for you.
+	//! See rr_io::registerLoaders() for details on formats/features supported.
+	//!
+	//! \param filename
+	//!  Filename of scene.
+	//! \param scale
+	//!  If it is .gsa/.3ds/.obj, geometry is scaled(multiplied) by scale.
+	//!  These formats don't contain information about units,
+	//!  different files need different scale to convert to meters.
+	//!  Scale is size of scene unit in meters.
+	//! \param stripPaths
+	//!  Tries to load all textures from the same directory where scene file is,
+	//!  ignoring full paths stored in scene file.
+	//!  This is not applicable to .gsa.
+	//! \param aborting
+	//!  Import may be asynchronously aborted by setting *aborting to true.
+	//! \param emissiveMultiplier
+	//!  Multiplies emittance in all materials. Default 1 keeps original values.
+	RRScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL, float emissiveMultiplier = 1);
+	//! Creates empty scene.
+	RRScene() {implementation = NULL;}
+	//! Deletes scene including all objects and lights.
+	virtual ~RRScene();
+
+	//! Returns collection of objects in scene.
+	//! It should be empty collection for intentionally empty scene,
+	//! but NULL after failed scene load.
+	virtual const rr::RRObjects* getObjects();
+	//! Returns collection of lights in scene.
+	//! It should be empty collection for scenes without lights,
+	//! but NULL for scene formats that don't support lights at all.
+	virtual const rr::RRLights* getLights();
+	//! Returns scene environment, skybox.
+	//! This is often NULL as scene formats usually don't specify environment.
+	virtual const rr::RRBuffer* getEnvironment();
+
+	//! Template of custom scene loader.
+	typedef RRScene* Loader(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier);
+	//! Registers scene loader so it can be used by RRScene constructor.
+	//
+	//! Extension is case insensitive, without dot, e.g. "3ds".
+	//!
+	//! Several loaders are implemented in LightsprintIO library,
+	//! rr_io::registerLoaders() will register all of them for you (by calling this function several times).
+	//!
+	//! Multiple loaders may be registered, even for the same extension.
+	//! If first loader fails to load scene, second one is tried etc.
+	static void registerLoader(const char* extension, Loader* loader);
+
+private:
+	RRScene* implementation;
+};
+
+} // namespace rr
+
+#endif

@@ -34,6 +34,7 @@ SOURCES = \
 Import3DS/Model_3DS.cpp \
 Import3DS/RRObject3DS.cpp \
 ImportCollada/RRObjectCollada.cpp \
+ImportImages/ImportFreeImage.cpp \
 ImportMGF/RRObjectMGF.cpp \
 ImportMGF/badarg.c \
 ImportMGF/context.c \
@@ -46,7 +47,6 @@ ImportMGF/xf.c \
 ImportOBJ/RRObjectOBJ.cpp \
 ImportQuake3/Q3Loader.cpp \
 ImportQuake3/RRObjectBSP.cpp \
-ImportFreeImage.cpp \
 ImportScene.cpp
 
 # libraries

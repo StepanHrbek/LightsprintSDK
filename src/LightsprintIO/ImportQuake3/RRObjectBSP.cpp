@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Creates Lightsprint interface for Quake3 map (.bsp)
+// Lightsprint adapters for Quake3 map (.bsp).
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -23,6 +23,8 @@
 #endif
 
 #define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
+
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 using namespace rr;
 
@@ -455,11 +457,62 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRSceneQuake3
+
+class RRSceneQuake3 : public RRScene
+{
+public:
+	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	{
+		RRSceneQuake3* scene = new RRSceneQuake3;
+		if (!readMap(filename,scene->scene_bsp))
+		{
+			scene->objects = NULL;
+			delete scene;
+			RRReporter::report(WARN,"Failed loading scene %s.\n");
+			return NULL;
+		}
+		else
+		{
+			char* maps = _strdup(filename);
+			char* mapsEnd;
+			if (!stripPaths)
+			{
+				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[0] = 0;
+			}
+			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
+			scene->objects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,stripPaths,NULL);
+			free(maps);
+			return scene;
+		}
+	}
+	virtual const RRObjects* getObjects()
+	{
+		return objects;
+	}
+	virtual ~RRSceneQuake3()
+	{
+		delete objects;
+		freeMap(scene_bsp);
+	}
+private:
+	RRObjects*                 objects;
+	TMapQ3                     scene_bsp;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 {
 	return new RRObjectsQuake3(model,pathToTextures,stripPaths,missingTexture);
+}
+
+void registerLoaderQuake3()
+{
+	RRScene::registerLoader("bsp",RRSceneQuake3::load);
 }
 
 #endif // SUPPORT_QUAKE3

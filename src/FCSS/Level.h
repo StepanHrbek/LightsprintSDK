@@ -19,7 +19,7 @@ public:
 
 	Autopilot pilot;
 	AnimationEditor* animationEditor;
-	rr_io::ImportScene* scene;
+	rr::RRScene* scene;
 	const rr::RRObjects* objects; // objects adapted from native format
 	rr_gl::RRDynamicSolverGL* solver;
 	class Bugs* bugs;

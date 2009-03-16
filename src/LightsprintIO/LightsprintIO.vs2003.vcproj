@@ -271,7 +271,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Import3DS"
+			Name="3DS"
 			Filter="">
 			<File
 				RelativePath=".\Import3DS\Model_3DS.cpp">
@@ -287,7 +287,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ImportCollada"
+			Name="Collada"
 			Filter="">
 			<File
 				RelativePath=".\ImportCollada\RRObjectCollada.cpp">
@@ -303,7 +303,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ImportMGF"
+			Name="MGF"
 			Filter="">
 			<File
 				RelativePath=".\ImportMGF\badarg.c">
@@ -346,7 +346,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ImportOBJ"
+			Name="OBJ"
 			Filter="">
 			<File
 				RelativePath=".\ImportOBJ\RRObjectOBJ.cpp">
@@ -356,7 +356,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ImportQuake3"
+			Name="Quake3"
 			Filter="">
 			<File
 				RelativePath=".\ImportQuake3\Q3Loader.cpp">
@@ -371,9 +371,18 @@
 				RelativePath=".\ImportQuake3\RRObjectBSP.h">
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ImportFreeImage.cpp">
-		</File>
+		<Filter
+			Name="Images"
+			>
+			<File
+				RelativePath=".\ImportImages\ImportFreeImage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportImages\ImportFreeImage.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp">
 		</File>

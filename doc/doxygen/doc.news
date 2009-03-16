@@ -8,6 +8,19 @@ namespace rr
 
 \page main_news What's new
 
+\section news77 ------------------------------------ 2009.03.x -------------------------------------
+
+CHANGES
+
+- rr_io::ImportScene replaced by RRScene
+- rr_io::setImageLoader() replaced by rr_io::registerLoaders()
+  \n new function registers also 3d scene loaders that did not need registration before
+- RRObjects moved from RRDynamicSolver.h to RRObject.h
+
+FIXES
+
+- MovingSun sample lighting was incorrect
+
 \section news76 ------------------------------------ 2009.03.14 -------------------------------------
 
 NEWS
