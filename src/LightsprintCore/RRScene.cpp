@@ -3,8 +3,9 @@
 // Copyright (c) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRScene.h"
+#include <cstdio>
 #include <vector>
+#include "Lightsprint/RRScene.h"
 
 namespace rr
 {
