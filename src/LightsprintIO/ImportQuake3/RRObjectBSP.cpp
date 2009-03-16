@@ -24,6 +24,8 @@
 
 #define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
 
+using namespace rr;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -47,11 +49,11 @@
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObjectBSP : public rr::RRObject, public rr::RRMesh
+class RRObjectBSP : public RRObject, public RRMesh
 {
 public:
-	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture);
-	rr::RRObjectIllumination* getIllumination();
+	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture);
+	RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
 	// RRMesh
@@ -63,8 +65,8 @@ public:
 	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
 	// RRObject
-	virtual const rr::RRCollider*   getCollider() const;
-	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
+	virtual const RRCollider*   getCollider() const;
+	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 private:
 	TMapQ3* model;
@@ -72,28 +74,28 @@ private:
 	// copy of object's geometry
 	struct TriangleInfo
 	{
-		rr::RRMesh::Triangle t;
+		RRMesh::Triangle t;
 		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 #ifdef PACK_VERTICES
 	struct VertexInfo
 	{
-		rr::RRVec3 position;
-		rr::RRVec2 texCoordDiffuse;
-		rr::RRVec2 texCoordLightmap;
+		RRVec3 position;
+		RRVec2 texCoordDiffuse;
+		RRVec2 texCoordLightmap;
 	};
 	std::vector<VertexInfo> vertices;
 #endif
 
 	// copy of object's materials
-	std::vector<rr::RRMaterial> materials;
+	std::vector<RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
-	const rr::RRCollider* collider;
+	const RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
-	rr::RRObjectIllumination* illumination;
+	RRObjectIllumination* illumination;
 };
 
 // texcoord channels
@@ -110,14 +112,14 @@ enum
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextures, bool stripPaths, rr::RRBuffer* fallback)
+static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, bool stripPaths, RRBuffer* fallback)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
 	// load texture
-	rr::RRBuffer* t = NULL;
-	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-	rr::RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
+	RRBuffer* t = NULL;
+	RRReporter* oldReporter = RRReporter::getReporter();
+	RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
 	const char* strippedName = m->mName;
 	if (stripPaths)
 	{
@@ -129,7 +131,7 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,strippedName,exts[e]);
 		buf[299]=0;
-		t = rr::RRBuffer::load(buf,NULL,true,false);
+		t = RRBuffer::load(buf,NULL,true,false);
 #ifdef MARK_OPENED
 		if (t) _chmod(buf,_S_IREAD); // mark opened files read only
 #endif
@@ -137,23 +139,23 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 		if (t) break;
 		//if (e==2) printf("Not found: %s\n",buf);
 	}
-	rr::RRReporter::setReporter(oldReporter);
+	RRReporter::setReporter(oldReporter);
 	if (!t)
 	{
 		t = fallback;
 		if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
-			rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
+			RRReporter::report(ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
-	rr::RRVec4 avg = rr::RRVec4(0);
+	RRVec4 avg = RRVec4(0);
 	if (t)
 	{
 		for (unsigned i=0;i<size;i++)
 			for (unsigned j=0;j<size;j++)
 			{
-				avg += t->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
+				avg += t->getElement(RRVec3(i/(float)size,j/(float)size,0));
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha
@@ -167,7 +169,7 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 	s.diffuseReflectance.texture = t;
 	s.diffuseReflectance.texcoord = CH_DIFFUSE;
 	// alpha is transparency (1=opaque)
-	s.specularTransmittance.color = rr::RRVec3(1-avg[3]);
+	s.specularTransmittance.color = RRVec3(1-avg[3]);
 	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
 	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
@@ -177,7 +179,7 @@ static void fillMaterial(rr::RRMaterial& s, TTexture* m,const char* pathToTextur
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture)
+RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture)
 {
 	model = amodel;
 
@@ -192,7 +194,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 
 	for (unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
-		rr::RRMaterial material;
+		RRMaterial material;
 		bool triedLoadTexture = false;
 		for (unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
 		for (unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
@@ -294,13 +296,13 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 
 	// create collider
 	bool aborting = false;
-	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
+	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
 
 	// create illumination
-	illumination = new rr::RRObjectIllumination(RRObjectBSP::getNumVertices());
+	illumination = new RRObjectIllumination(RRObjectBSP::getNumVertices());
 }
 
-rr::RRObjectIllumination* RRObjectBSP::getIllumination()
+RRObjectIllumination* RRObjectBSP::getIllumination()
 {
 	return illumination;
 }
@@ -408,12 +410,12 @@ bool RRObjectBSP::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 //
 // RRObjectBSP implements RRObject
 
-const rr::RRCollider* RRObjectBSP::getCollider() const
+const RRCollider* RRObjectBSP::getCollider() const
 {
 	return collider;
 }
 
-const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
+const RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObjectBSP::getNumTriangles())
 	{
@@ -434,13 +436,13 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t, const rr::RRL
 //
 // ObjectsFromTMapQ3
 
-class ObjectsFromTMapQ3 : public rr::RRObjects
+class ObjectsFromTMapQ3 : public RRObjects
 {
 public:
-	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr::RRBuffer* missingTexture)
+	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 	{
 		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,stripPaths,missingTexture);
-		push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+		push_back(RRIlluminatedObject(object,object->getIllumination()));
 	}
 	virtual ~ObjectsFromTMapQ3()
 	{
@@ -455,7 +457,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr::RRBuffer* missingTexture)
+RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
 {
 	return new ObjectsFromTMapQ3(model,pathToTextures,stripPaths,missingTexture);
 }

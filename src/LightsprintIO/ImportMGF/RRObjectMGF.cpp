@@ -20,6 +20,8 @@
 // polygons won't share vertices if you say 0...
 #define shared_vertices 1
 
+using namespace rr;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -66,7 +68,7 @@ FLOAT	xyz2rgbmat[3][3] = {		/* XYZ to RGB conversion matrix */
 };
 
 
-void xy2rgb(double cx,double cy,double intensity,rr::RRVec3& cout)
+void xy2rgb(double cx,double cy,double intensity,RRVec3& cout)
 /* convert MGF color to RGB */
 /* input MGF chrominance */
 /* input luminance or reflectance */
@@ -78,15 +80,15 @@ void xy2rgb(double cx,double cy,double intensity,rr::RRVec3& cout)
 	cie[1] = intensity;
 	cie[2] = intensity*(1.f/cy - 1.f) - cie[0];
 	/* convert to RGB */
-	cout[0] = rr::RRReal( xyz2rgbmat[0][0]*cie[0] + xyz2rgbmat[0][1]*cie[1]	+ xyz2rgbmat[0][2]*cie[2] );
+	cout[0] = RRReal( xyz2rgbmat[0][0]*cie[0] + xyz2rgbmat[0][1]*cie[1]	+ xyz2rgbmat[0][2]*cie[2] );
 	if (cout[0] < 0.f) cout[0] = 0.f;
-	cout[1] = rr::RRReal( xyz2rgbmat[1][0]*cie[0] + xyz2rgbmat[1][1]*cie[1] + xyz2rgbmat[1][2]*cie[2] );
+	cout[1] = RRReal( xyz2rgbmat[1][0]*cie[0] + xyz2rgbmat[1][1]*cie[1] + xyz2rgbmat[1][2]*cie[2] );
 	if (cout[1] < 0.f) cout[1] = 0.f;
-	cout[2] = rr::RRReal( xyz2rgbmat[2][0]*cie[0] + xyz2rgbmat[2][1]*cie[1] + xyz2rgbmat[2][2]*cie[2] );
+	cout[2] = RRReal( xyz2rgbmat[2][0]*cie[0] + xyz2rgbmat[2][1]*cie[1] + xyz2rgbmat[2][2]*cie[2] );
 	if (cout[2] < 0.f) cout[2] = 0.f;
 }
 
-void mgf2rgb(C_COLOR *cin,FLOAT intensity,rr::RRVec3& cout)
+void mgf2rgb(C_COLOR *cin,FLOAT intensity,RRVec3& cout)
 {
 	c_ccvt(cin, C_CSXY);
 	xy2rgb(cin->cx,cin->cy,intensity,cout);
@@ -100,11 +102,11 @@ void mgf2rgb(C_COLOR *cin,FLOAT intensity,rr::RRVec3& cout)
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObjectMGF : public rr::RRObject, rr::RRMesh
+class RRObjectMGF : public RRObject, RRMesh
 {
 public:
 	RRObjectMGF(const char* filename);
-	rr::RRObjectIllumination* getIllumination();
+	RRObjectIllumination* getIllumination();
 	virtual ~RRObjectMGF();
 
 	// RRMesh
@@ -114,32 +116,32 @@ public:
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 
 	// RRObject
-	virtual const rr::RRCollider*   getCollider() const;
-	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
+	virtual const RRCollider*   getCollider() const;
+	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 	// copy of object's vertices
 	struct VertexInfo
 	{
-		rr::RRVec3 pos;
+		RRVec3 pos;
 	};
 	std::vector<VertexInfo> vertices;
 
 	// copy of object's triangles
 	struct TriangleInfo
 	{
-		rr::RRMesh::Triangle indices;
+		RRMesh::Triangle indices;
 		unsigned material; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 
 	// copy of object's materials
-	std::vector<rr::RRMaterial> materials;
+	std::vector<RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
-	const rr::RRCollider* collider;
+	const RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
-	rr::RRObjectIllumination* illumination;
+	RRObjectIllumination* illumination;
 };
 
 
@@ -153,14 +155,14 @@ RRObjectMGF* g_scene; // global scene necessary for callbacks
 void* add_vertex(FLOAT* p,FLOAT* n)
 {
 	RRObjectMGF::VertexInfo v;
-	v.pos = rr::RRVec3(rr::RRReal(p[0]),rr::RRReal(p[1]),rr::RRReal(p[2]));
+	v.pos = RRVec3(RRReal(p[0]),RRReal(p[1]),RRReal(p[2]));
 	g_scene->vertices.push_back(v);
 	return (void *)(g_scene->vertices.size()-1);
 }
 
 void* add_material(C_MATERIAL* m)
 {
-	rr::RRMaterial mat;
+	RRMaterial mat;
 	mat.reset(m->sided==0);
 	mgf2rgb(&m->ed_c,m->ed/4000,mat.diffuseEmittance.color); //!!!
 	mgf2rgb(&m->rd_c,m->rd,mat.diffuseReflectance.color);
@@ -169,7 +171,7 @@ void* add_material(C_MATERIAL* m)
 	mat.refractionIndex = m->nr;
 
 	// convert from physical scale, all samples expect inputs in screen colors
-	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
+	RRScaler* scaler = RRScaler::createRgbScaler();
 	mat.convertToCustomScale(scaler);
 	delete scaler;
 
@@ -271,13 +273,13 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 
 	// create collider
 	bool aborting = false;
-	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
+	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
 
 	// create illumination
-	illumination = new rr::RRObjectIllumination(getNumVertices());
+	illumination = new RRObjectIllumination(getNumVertices());
 }
 
-rr::RRObjectIllumination* RRObjectMGF::getIllumination()
+RRObjectIllumination* RRObjectMGF::getIllumination()
 {
 	return illumination;
 }
@@ -324,12 +326,12 @@ void RRObjectMGF::getTriangle(unsigned t, Triangle& out) const
 //
 // RRObjectMGF implements RRObject
 
-const rr::RRCollider* RRObjectMGF::getCollider() const
+const RRCollider* RRObjectMGF::getCollider() const
 {
 	return collider;
 }
 
-const rr::RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
+const RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObjectMGF::getNumTriangles())
 	{
@@ -350,14 +352,14 @@ const rr::RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const rr::RRL
 //
 // ObjectsFromMGF
 
-class ObjectsFromMGF : public rr::RRObjects
+class ObjectsFromMGF : public RRObjects
 {
 public:
 	ObjectsFromMGF(const char* filename)
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if (object->getNumTriangles())
-			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+			push_back(RRIlluminatedObject(object,object->getIllumination()));
 		else
 			delete object;
 	}
@@ -373,7 +375,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromMGF(const char* filename)
+RRObjects* adaptObjectsFromMGF(const char* filename)
 {
 	return new ObjectsFromMGF(filename);
 }

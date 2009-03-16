@@ -18,6 +18,8 @@
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectOBJ.h"
 
+using namespace rr;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -26,7 +28,7 @@
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObjectOBJ : public rr::RRObject, rr::RRMesh
+class RRObjectOBJ : public RRObject, RRMesh
 {
 public:
 	RRObjectOBJ(const char* filename, float scale)
@@ -65,10 +67,10 @@ public:
 		material.reset(false);
 //		checkConsistency();
 		bool aborting = false;
-		collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
-		illumination = new rr::RRObjectIllumination((unsigned)vertices.size());
+		collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
+		illumination = new RRObjectIllumination((unsigned)vertices.size());
 	}
-	rr::RRObjectIllumination* getIllumination()
+	RRObjectIllumination* getIllumination()
 	{
 		return illumination;
 	}
@@ -99,11 +101,11 @@ public:
 	}
 
 	// RRObject implementation
-	virtual const rr::RRCollider* getCollider() const
+	virtual const RRCollider* getCollider() const
 	{
 		return collider;
 	}
-	virtual const rr::RRMaterial* getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		return &material;
 	}
@@ -112,25 +114,25 @@ private:
 	// copy of object's vertices
 	struct VertexInfo
 	{
-		rr::RRVec3 pos;
+		RRVec3 pos;
 	};
 	std::vector<VertexInfo> vertices;
 
 	// copy of object's triangles
 	struct TriangleInfo
 	{
-		rr::RRMesh::Triangle indices;
+		RRMesh::Triangle indices;
 	};
 	std::vector<TriangleInfo> triangles;
 
 	// default material
-	rr::RRMaterial material;
+	RRMaterial material;
 	
 	// collider for ray-mesh collisions
-	const rr::RRCollider* collider;
+	const RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
-	rr::RRObjectIllumination* illumination;
+	RRObjectIllumination* illumination;
 };
 
 
@@ -138,14 +140,14 @@ private:
 //
 // ObjectsFromOBJ
 
-class ObjectsFromOBJ : public rr::RRObjects
+class ObjectsFromOBJ : public RRObjects
 {
 public:
 	ObjectsFromOBJ(const char* filename, float scale)
 	{
 		RRObjectOBJ* object = new RRObjectOBJ(filename,scale);
 		if (object->getNumTriangles())
-			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+			push_back(RRIlluminatedObject(object,object->getIllumination()));
 		else
 			delete object;
 	}
@@ -161,7 +163,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
+RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
 {
 	return new ObjectsFromOBJ(filename,scale);
 }

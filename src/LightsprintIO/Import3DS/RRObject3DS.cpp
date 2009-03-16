@@ -18,6 +18,8 @@
 #include "Lightsprint/RRIllumination.h"
 #include "RRObject3DS.h"
 
+using namespace rr;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -40,11 +42,11 @@
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObject3DS : public rr::RRObject, rr::RRMesh
+class RRObject3DS : public RRObject, RRMesh
 {
 public:
 	RRObject3DS(Model_3DS* model, unsigned objectIdx);
-	rr::RRObjectIllumination* getIllumination();
+	RRObjectIllumination* getIllumination();
 	virtual ~RRObject3DS();
 
 	// RRMesh
@@ -56,9 +58,9 @@ public:
 	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
 	// RRObject
-	virtual const rr::RRCollider*   getCollider() const;
-	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const;
-	virtual const rr::RRMatrix3x4*  getWorldMatrix();
+	virtual const RRCollider*   getCollider() const;
+	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
+	virtual const RRMatrix3x4*  getWorldMatrix();
 
 private:
 	Model_3DS* model;
@@ -67,19 +69,19 @@ private:
 	// copy of object's geometry
 	struct TriangleInfo
 	{
-		rr::RRMesh::Triangle t;
+		RRMesh::Triangle t;
 		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 
 	// copy of object's material properties
-	std::vector<rr::RRMaterial> materials;
+	std::vector<RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
-	const rr::RRCollider* collider;
+	const RRCollider* collider;
 
 	// indirect illumination (ambient maps etc)
-	rr::RRObjectIllumination* illumination;
+	RRObjectIllumination* illumination;
 };
 
 
@@ -93,19 +95,19 @@ enum Channel
 	CH_DIFFUSE,
 };
 
-static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
+static void fillMaterial(RRMaterial* s,Model_3DS::Material* m)
 {
 	enum {size = 8};
 
 	// for diffuse textures provided by 3ds, 
 	// it is sufficient to compute average texture color
-	rr::RRVec3 avg = rr::RRVec3(0);
+	RRVec3 avg = RRVec3(0);
 	if (m->tex)
 	{
 		for (unsigned i=0;i<size;i++)
 			for (unsigned j=0;j<size;j++)
 			{
-				avg += m->tex->getElement(rr::RRVec3(i/(float)size,j/(float)size,0));
+				avg += m->tex->getElement(RRVec3(i/(float)size,j/(float)size,0));
 			}
 		avg /= size*size;
 		//avg[0] *= m->color.r/255.0f;
@@ -151,7 +153,7 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 
 	for (unsigned i=0;i<(unsigned)model->numMaterials;i++)
 	{
-		rr::RRMaterial s;
+		RRMaterial s;
 		fillMaterial(&s,&model->Materials[i]);
 		materials.push_back(s);
 	}
@@ -162,13 +164,13 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 
 	// create collider
 	bool aborting = false;
-	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR,aborting);
+	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
 
 	// create illumination
-	illumination = new rr::RRObjectIllumination((unsigned)object->numVerts);
+	illumination = new RRObjectIllumination((unsigned)object->numVerts);
 }
 
-rr::RRObjectIllumination* RRObject3DS::getIllumination()
+RRObjectIllumination* RRObject3DS::getIllumination()
 {
 	return illumination;
 }
@@ -263,12 +265,12 @@ bool RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 //
 // RRObject3DS implements RRObject
 
-const rr::RRCollider* RRObject3DS::getCollider() const
+const RRCollider* RRObject3DS::getCollider() const
 {
 	return collider;
 }
 
-const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRLight* light, const RRObject* receiver) const
+const RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObject3DS::getNumTriangles())
 	{
@@ -284,7 +286,7 @@ const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const rr::RRL
 	return &materials[s];
 }
 
-const rr::RRMatrix3x4* RRObject3DS::getWorldMatrix()
+const RRMatrix3x4* RRObject3DS::getWorldMatrix()
 {
 	// transformation matrices from 3ds are ignored
 	return NULL;
@@ -295,7 +297,7 @@ const rr::RRMatrix3x4* RRObject3DS::getWorldMatrix()
 //
 // ObjectsFrom3DS
 
-class ObjectsFrom3DS : public rr::RRObjects
+class ObjectsFrom3DS : public RRObjects
 {
 public:
 	ObjectsFrom3DS(Model_3DS* model)
@@ -303,7 +305,7 @@ public:
 		for (unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
 			RRObject3DS* object = new RRObject3DS(model,i);
-			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+			push_back(RRIlluminatedObject(object,object->getIllumination()));
 		}
 	}
 	virtual ~ObjectsFrom3DS()
@@ -322,7 +324,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
+RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 {
 	return new ObjectsFrom3DS(model);
 }

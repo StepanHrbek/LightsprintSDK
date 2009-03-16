@@ -961,7 +961,7 @@ public:
 						NiFile::CreateDirectoryRecursive(kDirectoryName);
 						if (!NiFile::DirectoryExists(kDirectoryName))
 						{
-							rr::RRReporter::report(rr::WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
+							RRReporter::report(WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 						}
 					}
 					free(layerParameters->actualFilename);
