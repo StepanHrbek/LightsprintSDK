@@ -6,6 +6,7 @@ set ERR=build_SDK_win.err
 call "%VS71COMNTOOLS%\vsvars32.bat" >nul
 
 echo Building VS2003 Debug DLL...
+rem Schvalne nebuilduju Lightsprint.sln urceny pro zakazniky ale privatni RR.sln obsahujici navic mimo jine rsa.lib
 devenv src\RR.vs2003.sln /build "Debug DLL" >%ERR%
 if ERRORLEVEL 1 goto error
 echo Building VS2003 Release DLL...
