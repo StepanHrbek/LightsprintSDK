@@ -350,6 +350,10 @@ public:
 	{
 		return objects;
 	}
+	virtual ~RRScene3DS()
+	{
+		delete objects;
+	}
 private:
 	RRObjects*                 objects;
 	Model_3DS                  scene_3ds;
