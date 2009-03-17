@@ -136,6 +136,9 @@ void SVFrame::UpdateEverything(rr::RRScene* newScene)
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
 	m_canvas->createContext( svs );
+	
+	// without SetFocus, keyboard events may be sent to frame instead of canvas
+	m_canvas->SetFocus();
 
 
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
@@ -696,8 +699,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
-    EVT_KEY_DOWN(SVFrame::OnKeyDown)
-    EVT_KEY_UP(SVFrame::OnKeyUp)
 	EVT_MENU(wxID_EXIT, SVFrame::OnExit)
 	EVT_MENU(wxID_ANY, SVFrame::OnMenuEvent)
 END_EVENT_TABLE()

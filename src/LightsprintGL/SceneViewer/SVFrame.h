@@ -81,17 +81,6 @@ namespace rr_gl
 		//! May be called repeatedly.
 		void UpdateEverything(rr::RRScene* newScene);
 
-		//! After file/open action, wx starts sending events to frame instead of canvas.
-		//! Reason not understood yet, so for now, we forward them back.
-		void OnKeyDown(wxKeyEvent& event)
-		{
-			m_canvas->OnKeyDown(event);
-		}
-		void OnKeyUp(wxKeyEvent& event)
-		{
-			m_canvas->OnKeyUp(event);
-		}
-
 		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
 		void UpdateMenuBar();
 
