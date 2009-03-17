@@ -7,6 +7,7 @@
 //
 // include
 
+#include "Lightsprint/RRScene.h"
 #include "SVFrame.h"
 #include "SVRayLog.h"
 #include "SVSolver.h"
@@ -115,7 +116,33 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 	return false;
 }
 
-SVFrame* SVFrame::Create(SceneViewerParameters& params)
+void SVFrame::UpdateEverything(rr::RRScene* newScene)
+{
+	// workaround for 2.8.9 problem fixed in 2.9.0
+	// remember canvas size, only first canvas is sized automatically
+	wxSize newSize = m_canvas ? m_canvas->GetSize() : wxDefaultSize;
+
+	RR_SAFE_DELETE(m_lightProperties);
+	RR_SAFE_DELETE(m_canvas);
+
+	svs.manuallyOpenedScene = newScene;
+
+	m_canvas = new SVCanvas( svs, this, &m_lightProperties, newSize);
+
+	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
+	Show(true);
+
+	UpdateMenuBar();
+
+	// must go after Show() otherwise SetCurrent() in createContext() fails
+	m_canvas->createContext( svs );
+
+
+	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
+	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
+}
+
+SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
 	wxString str = wxT("SceneViewer");
 
@@ -123,31 +150,11 @@ SVFrame* SVFrame::Create(SceneViewerParameters& params)
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
 	const int border = (width+height)/25;
-	SVFrame *frame = new SVFrame(NULL, str, wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border));
+	SVFrame *frame = new SVFrame(NULL, str, wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 
-	frame->UpdateMenuBar(params.svs);
-
-	frame->m_canvas = new SVCanvas( params, frame, &frame->m_lightProperties);
-	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
-	frame->Show(true);
-	// must go after Show() otherwise SetCurrent() in createContext() fails
-	frame->m_canvas->createContext( params );
-
-
-	if (params.svs.autodetectCamera && !(params.solver && params.solver->aborting)) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
-	if (params.svs.fullscreen) frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
+	frame->UpdateEverything(NULL);
 
 	return frame;
-}
-
-void SVFrame::OnKeyDown(wxKeyEvent& event)
-{
-	long evkey = event.GetKeyCode();
-	switch(evkey)
-	{
-		case 'o': OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_REALTIME_LDM)); break;
-		case 27: OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE)); break;
-	}
 }
 
 void SVFrame::OnExit(wxCommandEvent& event)
@@ -156,8 +163,8 @@ void SVFrame::OnExit(wxCommandEvent& event)
 	Close(true);
 }
 
-SVFrame::SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size)
-	: wxFrame(parent, wxID_ANY, title, pos, size, wxDEFAULT_FRAME_STYLE)
+SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
+	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
 	m_canvas = NULL;
 	m_lightProperties = NULL;
@@ -208,7 +215,7 @@ SVFrame::SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 	SetIcon(wxIcon(sample_xpm));
 }
 
-void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
+void SVFrame::UpdateMenuBar()
 {
 	//const SVSolver* solver = m_canvas->solver;
 	//SceneViewerState& svs = m_canvas->svs;
@@ -231,6 +238,13 @@ void SVFrame::UpdateMenuBar(const SceneViewerState& svs)
 	//	winMenu->Append(1000+i,_T(buf));
 	//}
 	//menuBar->Append(winMenu, _T("Select"));
+
+	// File...
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
+		menuBar->Append(winMenu, _T("File"));
+	}
 
 	// Camera...
 	winMenu = new wxMenu;
@@ -313,7 +327,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	RR_ASSERT(m_canvas);
 	SVSolver*& solver = m_canvas->solver;
 	RR_ASSERT(solver);
-	SceneViewerState& svs = m_canvas->svs;
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
 	rr::RRLights& lightsToBeDeletedOnExit = m_canvas->lightsToBeDeletedOnExit;
@@ -639,6 +652,25 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
+		case ME_FILE_OPEN_SCENE:
+			{
+				wxFileDialog dialog(this,"Choose a scene","");
+				dialog.SetPath(svs.sceneFilename);
+				if (dialog.ShowModal()==wxID_OK)
+				{
+					wxString newFilename = dialog.GetPath();
+					rr::RRScene* newScene = new rr::RRScene(newFilename);
+					if (newScene->getObjects())
+					{
+						UpdateEverything(newScene);
+					}
+					else
+					{
+						delete newScene;
+					}
+				}
+			}
+			break;
 		case ME_SHOW_LIGHT_PROPERTIES:
 			if (svs.selectedLightIndex<solver->getLights().size())
 			{
@@ -660,11 +692,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 	}
 
-	UpdateMenuBar(m_canvas->svs);
+	UpdateMenuBar();
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
-	EVT_KEY_DOWN(SVFrame::OnKeyDown)
+    EVT_KEY_DOWN(SVFrame::OnKeyDown)
+    EVT_KEY_UP(SVFrame::OnKeyUp)
 	EVT_MENU(wxID_EXIT, SVFrame::OnExit)
 	EVT_MENU(wxID_ANY, SVFrame::OnMenuEvent)
 END_EVENT_TABLE()

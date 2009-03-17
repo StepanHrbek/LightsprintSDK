@@ -10,6 +10,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "SVApp.h"
 
 namespace rr_gl
 {
@@ -17,7 +18,7 @@ namespace rr_gl
 	class SVSolver : public RRDynamicSolverGL
 	{
 	public:
-		SVSolver(const char* _pathToShaders, SceneViewerState& _svs);
+		SVSolver(SceneViewerStateEx& svs);
 		~SVSolver();
 
 		void resetRenderCache();
@@ -25,8 +26,7 @@ namespace rr_gl
 		void dirtyLights();
 
 	protected:
-		char* pathToShaders;
-		SceneViewerState& svs;
+		SceneViewerStateEx& svs;
 		RendererOfScene* rendererOfScene;
 	};
 

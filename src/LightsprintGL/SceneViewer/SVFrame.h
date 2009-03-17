@@ -19,8 +19,8 @@ namespace rr_gl
 	class SVFrame: public wxFrame
 	{
 	public:
-		static SVFrame *Create(SceneViewerParameters& params);
-		void OnKeyDown(wxKeyEvent& event);
+		static SVFrame *Create(SceneViewerStateEx& svse);
+
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 
@@ -42,6 +42,7 @@ namespace rr_gl
 			ME_LIGHT_POINT,
 			ME_LIGHT_DELETE,
 			ME_LIGHT_AMBIENT,
+			ME_FILE_OPEN_SCENE,
 			ME_CAMERA_GENERATE_RANDOM,
 			ME_CAMERA_SPEED,
 			ME_CHECK_SOLVER,
@@ -73,13 +74,31 @@ namespace rr_gl
 		};
 
 	private:
-		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size);
-		//! Updates menu. May be called before m_canvas creation, doesn't read m_canvas.
-		void UpdateMenuBar(const SceneViewerState& svs);
+		//! Creates empty frame.
+		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
 
-		SVCanvas*          m_canvas;
-		SVLightProperties* m_lightProperties;
+		//! Updates everything in frame according to svs and newScene (deletes and recreates everything).
+		//! May be called repeatedly.
+		void UpdateEverything(rr::RRScene* newScene);
 
+		//! After file/open action, wx starts sending events to frame instead of canvas.
+		//! Reason not understood yet, so for now, we forward them back.
+		void OnKeyDown(wxKeyEvent& event)
+		{
+			m_canvas->OnKeyDown(event);
+		}
+		void OnKeyUp(wxKeyEvent& event)
+		{
+			m_canvas->OnKeyUp(event);
+		}
+
+		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
+		void UpdateMenuBar();
+
+		SceneViewerStateEx&    svs; // the only svs instance used throughout whole scene viewer
+		SVCanvas*              m_canvas;
+		SVLightProperties*     m_lightProperties;
+		
 		DECLARE_EVENT_TABLE()
 	};
  

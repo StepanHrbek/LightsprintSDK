@@ -9,14 +9,15 @@
 namespace rr_gl
 {
 
-SceneViewerParameters g_params;
+// the only instance used by whole scene viewer
+SceneViewerStateEx g_svse;
 
 class SVApp: public wxApp
 {
 public:
 	bool OnInit()
 	{
-		SVFrame::Create(g_params);
+		SVFrame::Create(g_svse);
 		return true;
 	}
 };
@@ -32,9 +33,11 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, Scene
 	// immediately abort if requested
 	if (_solver && _solver->aborting) return;
 
-	g_params.solver = _solver;
-	g_params.pathToShaders = _pathToShaders;
-	g_params.svs = _svs ? *_svs : SceneViewerState();
+	// set initial values (user may change them interactively in scene viewer)
+	(SceneViewerState)g_svse = _svs ? *_svs : SceneViewerState();
+	g_svse.initialInputSolver = _solver;
+	g_svse.manuallyOpenedScene = NULL;
+	g_svse.pathToShaders = _pathToShaders;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	wxEntry(0,NULL);

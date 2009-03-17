@@ -10,6 +10,10 @@ namespace rr
 
 \section news77 ------------------------------------ 2009.03.x -------------------------------------
 
+NEWS
+
+- File/Open... added to SceneViewer sample and rr_gl::sceneViewer()
+
 CHANGES
 
 - rr_io::ImportScene replaced by RRScene

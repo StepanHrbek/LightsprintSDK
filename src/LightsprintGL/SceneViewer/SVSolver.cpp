@@ -8,22 +8,20 @@
 namespace rr_gl
 {
 
-SVSolver::SVSolver(const char* _pathToShaders, SceneViewerState& _svs) : RRDynamicSolverGL(_pathToShaders), svs(_svs)
+SVSolver::SVSolver(SceneViewerStateEx& _svs) : RRDynamicSolverGL(_svs.pathToShaders), svs(_svs)
 {
-	pathToShaders = _strdup(_pathToShaders);
-	rendererOfScene = new RendererOfScene(this,pathToShaders);
+	rendererOfScene = new RendererOfScene(this,svs.pathToShaders);
 }
 
 SVSolver::~SVSolver()
 {
-	free(pathToShaders);
 	delete rendererOfScene;
 }
 
 void SVSolver::resetRenderCache()
 {
 	delete rendererOfScene;
-	rendererOfScene = new RendererOfScene(this,pathToShaders);
+	rendererOfScene = new RendererOfScene(this,svs.pathToShaders);
 }
 
 void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)

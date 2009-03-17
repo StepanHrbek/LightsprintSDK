@@ -23,12 +23,11 @@ namespace rr_gl
 //
 // SVCanvas
 
-SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProperties** parentsLightProperties)
-	: wxGLCanvas(_parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(params.svs)
+SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightProperties** _parentsLightProperties, wxSize _size)
+	: wxGLCanvas(_parent, wxID_ANY, NULL, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(_svs)
 {
 	context = NULL;
 	parent = _parent;
-	originalSolver = params.solver;
 	solver = NULL;
 	selectedType = ST_CAMERA;
 	winWidth = 0;
@@ -62,10 +61,10 @@ SVCanvas::SVCanvas( SceneViewerParameters& params, SVFrame *_parent, SVLightProp
 	lightFieldQuadric = NULL;
 	lightFieldObjectIllumination = NULL;
 
-	lightProperties = parentsLightProperties;
+	lightProperties = _parentsLightProperties;
 }
 
-void SVCanvas::createContext(SceneViewerParameters& params)
+void SVCanvas::createContext(SceneViewerStateEx& svse)
 {
 	context = new wxGLContext(this);
 	SetCurrent(*context);
@@ -99,20 +98,28 @@ void SVCanvas::createContext(SceneViewerParameters& params)
 	}
 
 	// init solver
-	solver = new SVSolver(params.pathToShaders,params.svs);
-	if (params.solver)
+	solver = new SVSolver(svse);
+	solver->setScaler(svs.initialInputSolver->getScaler());
+	if (svs.manuallyOpenedScene)
 	{
-		solver->setScaler(params.solver->getScaler());
-		solver->setEnvironment(params.solver->getEnvironment());
-		solver->setStaticObjects(params.solver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,params.solver); // smoothing and multiobject are taken from _solver
-		solver->setLights(params.solver->getLights());
+		solver->setEnvironment(svs.manuallyOpenedScene->getEnvironment());
+		if (svs.manuallyOpenedScene->getObjects())
+			solver->setStaticObjects(*svs.manuallyOpenedScene->getObjects(),NULL);
+		if (svs.manuallyOpenedScene->getLights())
+			solver->setLights(*svs.manuallyOpenedScene->getLights());
+	}
+	else
+	{
+		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
+		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
+		solver->setLights(svs.initialInputSolver->getLights());
 	}
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
 
 	// init rest
-	lv = new SVLightmapViewer(params.pathToShaders);
+	lv = new SVLightmapViewer(svs.pathToShaders);
 	ourEnv = 0;
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
@@ -122,8 +129,8 @@ void SVCanvas::createContext(SceneViewerParameters& params)
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 	svs.renderAmbient = solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 
-	water = new Water(params.pathToShaders,true,false);
-	toneMapping = new ToneMapping(params.pathToShaders);
+	water = new Water(svs.pathToShaders,true,false);
+	toneMapping = new ToneMapping(svs.pathToShaders);
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
@@ -139,21 +146,29 @@ SVCanvas::~SVCanvas()
 
 	// delete all textures created by us
 	deleteAllTextures();
-	if (solver->getEnvironment())
-		((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
-	for (unsigned i=0;i<solver->getNumObjects();i++)
-		if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
-			solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->customData = NULL;
-
-	// delete all lightmap for realtime rendering
-	for (unsigned i=0;i<solver->getNumObjects();i++)
+	if (solver)
 	{
-		if (solver->getIllumination(i))
-			RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
+		if (solver->getEnvironment())
+			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
+		for (unsigned i=0;i<solver->getNumObjects();i++)
+			if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+				solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->customData = NULL;
 	}
 
-	if (ourEnv)
+	// delete all lightmap for realtime rendering
+	if (solver)
+	{
+		for (unsigned i=0;i<solver->getNumObjects();i++)
+		{
+			if (solver->getIllumination(i))
+				RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
+		}
+	}
+
+	if (solver && ourEnv)
+	{
 		delete solver->getEnvironment();
+	}
 	RR_SAFE_DELETE(solver);
 	RR_SAFE_DELETE(lv);
 	RR_SAFE_DELETE(lightField);
@@ -163,6 +178,7 @@ SVCanvas::~SVCanvas()
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;
 	delete context;
+	RR_SAFE_DELETE(svs.manuallyOpenedScene);
 }
 
 void SVCanvas::OnSize(wxSizeEvent& event)
@@ -190,6 +206,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	switch(evkey)
 	{
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_MAXIMIZE)); break;
+		case 'o': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_LDM)); break;
 
 		case WXK_NUMPAD_ADD:
 		case '+': svs.brightness *= 1.2f; needsRefresh = true; break;
@@ -250,9 +267,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 				exitRequested = true;
 			}
 			break;
-		default:
-			GetParent()->GetEventHandler()->ProcessEvent(event);
-			return;
+//		default:
+//			GetParent()->GetEventHandler()->ProcessEvent(event);
+//			return;
 	}
 	solver->reportInteraction();
 	if (needsRefresh)
@@ -390,7 +407,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if (!winWidth) return; // can't work without window
 
-	if ((originalSolver && originalSolver->aborting) || solver->aborting || exitRequested)
+	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || solver->aborting || exitRequested)
 	{
 		parent->Close(true);
 		return;
