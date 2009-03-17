@@ -84,7 +84,7 @@ RRScene::RRScene(const char* filename, float scale, bool stripPaths, bool* abort
 	// test whether loader exists
 	if (!loaderFound)
 	{
-		RRReporter::report(WARN,"Scene %s not loaded, no loader for this extension was registered.\n");
+		RRReporter::report(WARN,"Scene %s not loaded, no loader for this extension was registered.\n",filename);
 		return;
 	}
 
