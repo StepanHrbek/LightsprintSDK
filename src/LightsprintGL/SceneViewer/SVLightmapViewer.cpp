@@ -36,7 +36,8 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	lightmapTexcoord = 0;
 	if (_object)
 	{
-		const rr::RRMaterial* material = _object->getTriangleMaterial(0,NULL,NULL);
+		unsigned numTriangles = _object->getCollider()->getMesh()->getNumTriangles();
+		const rr::RRMaterial* material = numTriangles ? _object->getTriangleMaterial(0,NULL,NULL) : NULL;
 		if (material)
 		{
 			lightmapTexcoord = material->lightmapTexcoord;
