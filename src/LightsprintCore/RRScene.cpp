@@ -56,7 +56,7 @@ RRScene::RRScene(const char* filename, float scale, bool stripPaths, bool* abort
 	FILE* f = fopen(filename,"rb");
 	if (!f)
 	{
-		RRReporter::report(WARN,"Scene %s does not exist.\n");
+		RRReporter::report(WARN,"Scene %s does not exist.\n",filename);
 		return;
 	}
 	else
