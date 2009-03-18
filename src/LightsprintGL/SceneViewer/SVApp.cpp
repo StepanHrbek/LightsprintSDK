@@ -34,7 +34,8 @@ void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, Scene
 	if (_solver && _solver->aborting) return;
 
 	// set initial values (user may change them interactively in scene viewer)
-	(SceneViewerState)g_svse = _svs ? *_svs : SceneViewerState();
+	g_svse = SceneViewerStateEx();
+	if (_svs) memcpy(&g_svse,_svs,sizeof(*_svs));
 	g_svse.initialInputSolver = _solver;
 	g_svse.manuallyOpenedScene = NULL;
 	g_svse.pathToShaders = _pathToShaders;
