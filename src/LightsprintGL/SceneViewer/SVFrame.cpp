@@ -140,7 +140,6 @@ void SVFrame::UpdateEverything(rr::RRScene* newScene)
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
 
-
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
 	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
 }
@@ -156,6 +155,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 	SVFrame *frame = new SVFrame(NULL, str, wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 
 	frame->UpdateEverything(NULL);
+
 
 	return frame;
 }
