@@ -332,7 +332,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	RR_ASSERT(solver);
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
-	rr::RRLights& lightsToBeDeletedOnExit = m_canvas->lightsToBeDeletedOnExit;
 	unsigned& centerObject = m_canvas->centerObject;
 	unsigned& centerTexel = m_canvas->centerTexel;
 	int* windowCoord = m_canvas->windowCoord;
@@ -625,7 +624,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
 					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
 				}
-				lightsToBeDeletedOnExit.push_back(newLight);
+				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
@@ -657,14 +656,17 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a scene","");
+				wxFileDialog dialog(this,"Choose a 3d scene","","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					wxString newFilename = dialog.GetPath();
-					rr::RRScene* newScene = new rr::RRScene(newFilename);
+					wxString newSceneFilename = dialog.GetPath();
+					rr::RRScene* newScene = new rr::RRScene(newSceneFilename);
 					if (newScene->getObjects())
 					{
+						strncpy(svs.sceneFilename,newSceneFilename.c_str(),svs.MAX_FILENAME_LENGTH);
+						svs.sceneFilename[svs.MAX_FILENAME_LENGTH] = 0;
+						svs.autodetectCamera = true;
 						UpdateEverything(newScene);
 					}
 					else
