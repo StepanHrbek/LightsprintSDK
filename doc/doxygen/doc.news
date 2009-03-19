@@ -20,6 +20,7 @@ NEWS
   - RRBuffer::invert()
   - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
   - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
+- improved .3ds import (transparency, opacity map, self illum map...)
 
 CHANGES
 

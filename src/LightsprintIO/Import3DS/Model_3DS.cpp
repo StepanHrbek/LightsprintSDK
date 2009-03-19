@@ -9,24 +9,9 @@
 // 3D Studio model files (.3ds). It supports models
 // with multiple objects. It also supports multiple
 // textures per object. It does not support the animation
-// for 3D Studio models b/c there are simply too many
-// ways for an artist to animate a 3D Studio model and
-// I didn't want to impose huge limitations on the artists.
-// However, I have imposed a limitation on how the models are
-// textured:
-// 1) Every faces must be assigned a material
-// 2) If you want the face to be textured assign the
-//    texture to the Diffuse Color map
-// 3) The texture must be supported by the GLTexture class
-//    which only supports bitmap and targa right now
-// 4) The texture must be located in the same directory as
-//    the model
+// for 3D Studio models.
 //
-// Support for non-textured faces is done by reading the color
-// from the material's diffuse color.
-//
-// Some models have problems loading even if you follow all of
-// the restrictions I have stated and I don't know why. If you
+// Some models have problems loading and I don't know why. If you
 // can import the 3D Studio file into Milkshape 3D 
 // (http://www.swissquake.ch/chumbalum-soft) and then export it
 // to a new 3D Studio file. This seems to fix many of the problems
@@ -39,17 +24,7 @@
 // m.Load("model.3ds"); // Load the model
 // m.Draw();			// Renders the model to the screen
 //
-// // If you want to show the model's normals
-// m.shownormals = true;
-//
-// // If the model is not going to be lit then set the lit
-// // variable to false. It defaults to true.
-// m.lit = false;
-//
-// // You can disable the rendering of the model
-// m.visible = false;
-// 
-// // You can move and rotate the model like this:
+// You can move and rotate the model like this:
 // m.rot.x = 90.0f;
 // m.rot.y = 30.0f;
 // m.rot.z = 0.0f;
@@ -69,12 +44,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// This is used to generate a warning from the compiler
-#define _QUOTE(x) # x
-#define QUOTE(x) _QUOTE(x)
-#define __FILE__LINE__ __FILE__ "(" QUOTE(__LINE__) ") : "
-#define warn( x )  message( __FILE__LINE__ #x "\n" ) 
-
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -86,57 +55,13 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #endif
 
-// The chunk's id numbers
-#define MAIN3DS				0x4D4D
- #define MAIN_VERS			0x0002
- #define EDIT3DS			0x3D3D
-  #define MESH_VERS			0x3D3E
-  #define OBJECT			0x4000
-   #define TRIG_MESH		0x4100
-    #define VERT_LIST		0x4110
-    #define FACE_DESC		0x4120
-     #define FACE_MAT		0x4130
-    #define TEX_VERTS		0x4140
-     #define SMOOTH_GROUP	0x4150
-    #define LOCAL_COORDS	0x4160
-  #define MATERIAL			0xAFFF
-   #define MAT_NAME			0xA000
-   #define MAT_AMBIENT		0xA010
-   #define MAT_DIFFUSE		0xA020
-   #define MAT_SPECULAR		0xA030
-   #define SHINY_PERC		0xA040
-   #define SHINY_STR_PERC	0xA041
-   #define TRANS_PERC		0xA050
-   #define TRANS_FOFF_PERC	0xA052
-   #define REF_BLUR_PERC	0xA053
-   #define RENDER_TYPE		0xA100
-   #define SELF_ILLUM		0xA084
-   #define MAT_SELF_ILPCT	0xA08A
-   #define WIRE_THICKNESS	0xA087
-   #define MAT_TEXMAP		0xA200
-    #define MAT_MAPNAME		0xA300
-  #define ONE_UNIT			0x0100
- #define KEYF3DS			0xB000
-  #define FRAMES			0xB008
-  #define MESH_INFO			0xB002
-   #define HIER_POS			0xB030
-   #define HIER_FATHER		0xB010
-   #define PIVOT_PT			0xB013
-   #define TRACK00			0xB020
-   #define TRACK01			0xB021
-   #define TRACK02			0xB022
-#define	COLOR_RGB			0x0010
-#define COLOR_TRU			0x0011
-#define COLOR_TRUG			0x0012
-#define COLOR_RGBG			0x0013
-#define PERC_INT			0x0030
-#define PERC_FLOAT			0x0031
-
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+//////////////////////////////////////////////////////////////////////
 // utility functions for handling little endian on a big endian system
+//////////////////////////////////////////////////////////////////////
 
 #ifdef __PPC__
 #define RR_BIG_ENDIAN
@@ -174,9 +99,6 @@ Model_3DS::Model_3DS()
 {
 	// Initialization
 	memset(this,0,sizeof(*this));
-
-	// The model is visible by default
-	visible = true;
 
 	// Set up the path
 	path = new char[580];
@@ -259,8 +181,14 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	// Don't need the file anymore so close it
 	fclose(bin3ds);
 
-	// Calculate the vertex normals
-	CalculateNormals();
+	// Normalize the vertex normals
+	for (int i = 0; i < numObjects; i++)
+	{
+		for (int g = 0; g < Objects[i].numVerts; g++)
+		{
+			Objects[i].Normals[g].normalize();
+		}
+	}
 
 	// For future reference
 	modelname = name;
@@ -284,13 +212,12 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			Objects[k].numTexCoords = Objects[k].numVerts;
 
 			// Allocate an array to hold the texture coordinates
-			Objects[k].TexCoords = new float[Objects[k].numTexCoords * 2];
+			Objects[k].TexCoords = new rr::RRVec2[Objects[k].numTexCoords];
 
 			// Make some texture coords
 			for (int m = 0; m < Objects[k].numTexCoords; m++)
 			{
-				Objects[k].TexCoords[2*m] = Objects[k].Vertexes[3*m];
-				Objects[k].TexCoords[2*m+1] = Objects[k].Vertexes[3*m+1];
+				Objects[k].TexCoords[m] = Objects[k].Vertexes[m];
 			}
 		}
 	}
@@ -298,15 +225,9 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	// Let's build simple colored textures for the materials w/o a texture
 	for (int j = 0; j < numMaterials; j++)
 	{
-		if (Materials[j].textured == false)
+		if (!Materials[j].diffuseReflectance.texture)
 		{
-			unsigned char rgba[4];
-			rgba[0] = Materials[j].color.r;
-			rgba[1] = Materials[j].color.g;
-			rgba[2] = Materials[j].color.b;
-			rgba[3] = Materials[j].color.a;
-			Materials[j].tex = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,rgba);
-			Materials[j].textured = true;
+			Materials[j].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[j].diffuseReflectance.color[0]);
 		}
 	}
 	UpdateCenter();
@@ -327,30 +248,24 @@ bool Model_3DS::Load(const char *filename, float ascale)
 		}
 	}
 	if (!identity)
-		printf("Object transformations are not supported.\n");
+		rr::RRReporter::report(rr::WARN,"Object transformations in .3ds are not supported.\n");
 
 	return true;
 }
 
 void Model_3DS::UpdateCenter()
 {
-	localCenter.x = 0;
-	localCenter.y = 0;
-	localCenter.z = 0;
+	localCenter = rr::RRVec3(0);
 	localMinY = 1e10;
 	for (int o=0;o<numObjects;o++)
 	{
 		for (int v=0;v<Objects[o].numVerts;v++)
 		{
-			localCenter.x += Objects[o].Vertexes[3*v];
-			localCenter.y += Objects[o].Vertexes[3*v+1];
-			localCenter.z += Objects[o].Vertexes[3*v+2];
-			localMinY = MIN(localMinY,Objects[o].Vertexes[3*v+1]);
+			localCenter += Objects[o].Vertexes[v];
+			localMinY = MIN(localMinY,Objects[o].Vertexes[v].y);
 		}
 	}
-	localCenter.x /= (float)totalVerts;
-	localCenter.y /= (float)totalVerts;
-	localCenter.z /= (float)totalVerts;
+	localCenter /= (float)totalVerts;
 }
 
 void Model_3DS::Draw(
@@ -364,154 +279,96 @@ void Model_3DS::Draw(
 
 #ifndef RR_IO_BUILD
 
-	if (visible)
+	glShadeModel(GL_SMOOTH);
+	/*glPushMatrix();
+
+	// Move the model
+	glTranslatef(pos.x, pos.y, pos.z);
+
+	// Rotate the model
+	glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
+	glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
+	glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
+
+	//glScalef(scale, scale, scale);*/
+
+	// Loop through the objects
+	for (int i = 0; i < numObjects; i++)
 	{
-		glShadeModel(GL_SMOOTH);
-		/*glPushMatrix();
-
-		// Move the model
-		glTranslatef(pos.x, pos.y, pos.z);
-
-		// Rotate the model
-		glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
-		glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
-		glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
-
-		//glScalef(scale, scale, scale);*/
-
-		// Loop through the objects
-		for (int i = 0; i < numObjects; i++)
+		// additional exitance
+		if (acquireVertexColors)
 		{
-			// additional exitance
-			if (acquireVertexColors)
+			const float* vertexColors = acquireVertexColors(model,i);
+			if (vertexColors)
 			{
-				const float* vertexColors = acquireVertexColors(model,i);
-				if (vertexColors)
-				{
-					glEnableClientState(GL_COLOR_ARRAY);
-					glColorPointer(3, GL_FLOAT, 0, vertexColors);
-					if (releaseVertexColors) releaseVertexColors(model,i);
-				}
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3, GL_FLOAT, 0, vertexColors);
+				if (releaseVertexColors) releaseVertexColors(model,i);
 			}
-			else
-			{
-				glColor3f(0,0,0);
-			}
-
-			// Enable texture coordiantes, normals, and vertices arrays
-			if (texturedDiffuse && Objects[i].textured)
-			{
-				glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_DIFFUSE);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			}
-			if (texturedEmissive && Objects[i].textured)
-			{
-				glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_EMISSIVE);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			}
-			if (lit)
-				glEnableClientState(GL_NORMAL_ARRAY);
-			glEnableClientState(GL_VERTEX_ARRAY);
-
-			// Point them to the objects arrays
-			if ((texturedDiffuse || texturedEmissive) && Objects[i].textured)
-				glTexCoordPointer(2, GL_FLOAT, 0, Objects[i].TexCoords);
-			if (lit)
-				glNormalPointer(GL_FLOAT, 0, Objects[i].Normals);
-			glVertexPointer(3, GL_FLOAT, 0, Objects[i].Vertexes);
-
-			// Loop through the faces as sorted by material and draw them
-			for (int j = 0; j < Objects[i].numMatFaces; j ++)
-			{
-				// Use the material's texture
-				if ((texturedDiffuse || texturedEmissive) && Objects[i].textured)
-					rr_gl::getTexture(Materials[Objects[i].MatFaces[j].MatIndex].tex)->bindTexture();
-
-				/*glPushMatrix();
-
-					// Move the model
-					glTranslatef(Objects[i].pos.x, Objects[i].pos.y, Objects[i].pos.z);
-
-					// Rotate the model
-					//glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
-					//glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
-					//glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
-
-					glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
-					glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
-					glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);*/
-
-					// Draw the faces using an index to the vertex array
-					glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
-
-				//glPopMatrix();
-			}
-
-			/*/ Show the normals?
-			if (shownormals)
-			{
-				// Loop through the vertices and normals and draw the normal
-				for (int k = 0; k < Objects[i].numVerts * 3; k += 3)
-				{
-					// Disable texturing
-					glDisable(GL_TEXTURE_2D);
-					// Disbale lighting if the model is lit
-					// Draw the normals blue
-					glColor3f(0.0f, 0.0f, 1.0f);
-
-					// Draw a line between the vertex and the end of the normal
-					glBegin(GL_LINES);
-						glVertex3f(Objects[i].Vertexes[k], Objects[i].Vertexes[k+1], Objects[i].Vertexes[k+2]);
-						glVertex3f(Objects[i].Vertexes[k]+Objects[i].Normals[k], Objects[i].Vertexes[k+1]+Objects[i].Normals[k+1], Objects[i].Vertexes[k+2]+Objects[i].Normals[k+2]);
-					glEnd();
-
-					// Reset the color to white
-					glColor3f(1.0f, 1.0f, 1.0f);
-					// If the model is lit then renable lighting
-				}
-			}*/
-
+		}
+		else
+		{
+			glColor3f(0,0,0);
 		}
 
-	//glPopMatrix();
+		// Enable texture coordiantes, normals, and vertices arrays
+		if (texturedDiffuse)
+		{
+			glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_DIFFUSE);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+		if (texturedEmissive)
+		{
+			glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_EMISSIVE);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+		if (lit)
+			glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		// Point them to the objects arrays
+		if (texturedDiffuse || texturedEmissive)
+			glTexCoordPointer(2, GL_FLOAT, 0, Objects[i].TexCoords);
+		if (lit)
+			glNormalPointer(GL_FLOAT, 0, Objects[i].Normals);
+		glVertexPointer(3, GL_FLOAT, 0, Objects[i].Vertexes);
+
+		// Loop through the faces as sorted by material and draw them
+		for (int j = 0; j < Objects[i].numMatFaces; j ++)
+		{
+			// Use the material's texture
+			if (texturedDiffuse || texturedEmissive)
+				rr_gl::getTexture(Materials[Objects[i].MatFaces[j].MatIndex].diffuseReflectance.texture)->bindTexture();
+
+			/*glpushmatrix();
+
+				// move the model
+				gltranslatef(Objects[i].pos.x, Objects[i].pos.y, Objects[i].pos.z);
+
+				// Rotate the model
+				//glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
+				//glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
+				//glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
+
+				glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
+				glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
+				glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);*/
+
+				// Draw the faces using an index to the vertex array
+				glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
+
+			//glPopMatrix();
+		}
 	}
+
+	//glPopMatrix();
+
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 
 #endif // RR_IO_BUILD
-}
-
-void Model_3DS::CalculateNormals()
-{
-	// Let's build some normals
-	for (int i = 0; i < numObjects; i++)
-	{
-		for (int g = 0; g < Objects[i].numVerts; g++)
-		{
-			// Reduce each vert's normal to unit
-			float length;
-			Vector unit;
-
-			unit.x = Objects[i].Normals[g*3];
-			unit.y = Objects[i].Normals[g*3+1];
-			unit.z = Objects[i].Normals[g*3+2];
-
-			length = (float)sqrt((unit.x*unit.x) + (unit.y*unit.y) + (unit.z*unit.z));
-
-			if (length == 0.0f)
-				length = 1.0f;
-
-			unit.x /= length;
-			unit.y /= length;
-			unit.z /= length;
-
-			Objects[i].Normals[g*3]   = unit.x;
-			Objects[i].Normals[g*3+1] = unit.y;
-			Objects[i].Normals[g*3+2] = unit.z;
-		}
-	}
 }
 
 void Model_3DS::MainChunkProcessor(long length, long findex)
@@ -532,14 +389,8 @@ void Model_3DS::MainChunkProcessor(long length, long findex)
 		switch (h.id)
 		{
 			// This is the mesh information like vertices, faces, and materials
-			case EDIT3DS	:
+			case 0x3D3D:
 				EditChunkProcessor(h.len, ftell(bin3ds));
-				break;
-			// I left this in case anyone gets very ambitious
-			case KEYF3DS	:
-				//KeyFrameChunkProcessor(h.len, ftell(bin3ds));
-				break;
-			default			:
 				break;
 		}
 
@@ -570,13 +421,11 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 
 		switch (h.id)
 		{
-			case OBJECT	:
+			case 0x4000:
 				numObjects++;
 				break;
-			case MATERIAL	:
+			case 0xAFFF:
 				numMaterials++;
-				break;
-			default			:
 				break;
 		}
 
@@ -601,11 +450,9 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 
 			switch (h.id)
 			{
-				case MATERIAL	:
+				case 0xAFFF:
 					MaterialChunkProcessor(h.len, ftell(bin3ds), i);
 					i++;
-					break;
-				default			:
 					break;
 			}
 
@@ -617,29 +464,6 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 	if (numObjects > 0)
 	{
 		Objects = new Object[numObjects];
-
-		// init to zeroes
-		memset(Objects,0,sizeof(Object)*numObjects);
-
-		// Set the textured variable to false until we find a texture
-		for (int k = 0; k < numObjects; k++)
-			Objects[k].textured = false;
-
-		// Zero the objects position and rotation
-		for (int m = 0; m < numObjects; m++)
-		{
-			Objects[m].pos.x = 0.0f;
-			Objects[m].pos.y = 0.0f;
-			Objects[m].pos.z = 0.0f;
-
-			Objects[m].rot.x = 0.0f;
-			Objects[m].rot.y = 0.0f;
-			Objects[m].rot.z = 0.0f;
-		}
-
-		// Zero out the number of texture coords
-		for (int n = 0; n < numObjects; n++)
-			Objects[n].numTexCoords = 0;
 
 		fseek(bin3ds, findex, SEEK_SET);
 
@@ -654,11 +478,9 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 
 			switch (h.id)
 			{
-				case OBJECT	:
+				case 0x4000:
 					ObjectChunkProcessor(h.len, ftell(bin3ds), j);
 					j++;
-					break;
-				default			:
 					break;
 			}
 
@@ -689,67 +511,47 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 		switch (h.id)
 		{
-			case MAT_NAME	:
-				// Loads the material's names
+			case 0xA000:
+				// Material name
 				MaterialNameChunkProcessor(h.len, ftell(bin3ds), matindex);
 				break;
-			case MAT_AMBIENT	:
-				//ColorChunkProcessor(h.len, ftell(bin3ds));
+			case 0xA020:
+				// Diffuse color
+				ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
 				break;
-			case MAT_DIFFUSE	:
-				// store diffuse color to color.rgb
-				{
-					unsigned char a = Materials[matindex].color.a;
-					DiffuseColorChunkProcessor(h.len, ftell(bin3ds), matindex);
-					Materials[matindex].color.a = a;
-				}
+			case 0xA030:
+				// Specular color
+				//ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance);
 				break;
-			case MAT_SPECULAR	:
-				/*/ store specular level to color.a
-				{
-					Color4i tmp = Materials[matindex].color;
-					DiffuseColorChunkProcessor(h.len, ftell(bin3ds), matindex);
-					tmp.a *= (Materials[matindex].color.r+Materials[matindex].color.g+Materials[matindex].color.b)/3;
-					Materials[matindex].color = tmp;
-				}*/
-				break;
-			case MAT_TEXMAP	:
-				// Finds the names of the textures of the material and loads them
-				TextureMapChunkProcessor(h.len, ftell(bin3ds), matindex);
-				break;
-			case 0xa040:
-				// MAT_SHININESS
-				//Materials[matindex].color.a = ReadPercentage();
-				break;
-			case 0xa041:
-				// MAT_SHIN2PCT
-				Materials[matindex].color.a = ReadPercentage();
-				break;
-			case 0xa084: 
-				// MAT_SELF_ILPCT
+			case 0xA084:
+				// Self illum... what type is it?
+				//ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance);
 				break;
 			case 0xa050:
-				// MAT_TRANSPARENCY
+				// Transparency percent
+				Materials[matindex].specularTransmittance.color = rr::RRVec3(ReadPercentage()*0.01f);
 				break;
-			case 0xa052:
-				// MAT_XPFALL
+			case 0xa041:
+				// Shininess strength percent
+				Materials[matindex].specularReflectance.color = rr::RRVec3(ReadPercentage()*0.01f);
 				break;
-			case 0xa053:
-				// MAT_REFBLUR
+
+			case 0xA200:
+				// Texture map 1
+				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
 				break;
-			case 0xa100:
-				// MAT_SHADING short
+			case 0xA210:
+				// Opacity map
+				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularTransmittance);
+				Materials[matindex].specularTransmittance.texture->invert();
 				break;
-			case 0xa08a:
-				// MAT_XPFALLIN
+			case 0xA204:
+				// Specular map
+				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance);
 				break;
-			case 0xa087:
-				// MAT_WIRESIZE
-				break;
-			case 0xa081:
-				// MAT_TWO_SIDE
-				break;
-			default			:
+			case 0xA33D:
+				// Self illum map
+				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance);
 				break;
 		}
 
@@ -779,15 +581,14 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Read the material's name
+	char buf[580];
 	for (int i = 0; i < 580; i++)
 	{
-		Materials[matindex].name[i] = fgetc(bin3ds);
-		if (Materials[matindex].name[i] == 0)
-		{
-			Materials[matindex].name[i] = 0;//!!! ???
+		buf[i] = fgetc(bin3ds);
+		if (buf[i] == 0)
 			break;
-		}
 	}
+	Materials[matindex].name = _strdup(buf);
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -795,7 +596,7 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matindex)
+void Model_3DS::ColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	ChunkHeader h;
 
@@ -813,23 +614,21 @@ void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matinde
 		// Determine the format of the color and load it
 		switch (h.id)
 		{
-			case COLOR_RGB	:
+			case 0x0010:
 				// A rgb float color chunk
-				FloatColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+				FloatColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
-			case COLOR_TRU	:
+			case 0x0011:
 				// A rgb int color chunk
-				IntColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+				IntColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
-			case COLOR_RGBG	:
+			case 0x0013:
 				// A rgb gamma corrected float color chunk
-				FloatColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+				FloatColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
-			case COLOR_TRUG	:
+			case 0x0012:
 				// A rgb gamma corrected int color chunk
-				IntColorChunkProcessor(h.len, ftell(bin3ds), matindex);
-				break;
-			default			:
+				IntColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
 		}
 
@@ -842,7 +641,7 @@ void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matinde
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
+void Model_3DS::FloatColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	float r;
 	float g;
@@ -859,10 +658,9 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
 	swap32(&g);
 	swap32(&b);
 
-	Materials[matindex].color.r = (unsigned char)(r*255.0f);
-	Materials[matindex].color.g = (unsigned char)(g*255.0f);
-	Materials[matindex].color.b = (unsigned char)(b*255.0f);
-	Materials[matindex].color.a = 255;
+	materialProperty.color[0] = r;
+	materialProperty.color[1] = g;
+	materialProperty.color[2] = b;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -870,7 +668,7 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::IntColorChunkProcessor(long length, long findex, int matindex)
+void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	unsigned char r;
 	unsigned char g;
@@ -884,10 +682,9 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, int matindex)
 	fread(&g,sizeof(g),1,bin3ds);
 	fread(&b,sizeof(b),1,bin3ds);
 
-	Materials[matindex].color.r = r;
-	Materials[matindex].color.g = g;
-	Materials[matindex].color.b = b;
-	Materials[matindex].color.a = 255;
+	materialProperty.color[0] = r/255.0f;
+	materialProperty.color[1] = g/255.0f;
+	materialProperty.color[2] = b/255.0f;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -895,7 +692,7 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, int matindex)
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
+void Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	ChunkHeader h;
 
@@ -912,11 +709,9 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
 
 		switch (h.id)
 		{
-			case MAT_MAPNAME:
+			case 0xA300:
 				// Read the name of texture in the Diffuse Color map
-				MapNameChunkProcessor(h.len, ftell(bin3ds), matindex);
-				break;
-			default			:
+				MapNameChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
 		}
 
@@ -929,7 +724,7 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
+void Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	char name[580];
 
@@ -942,19 +737,22 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	{
 		name[i] = fgetc(bin3ds);
 		if (name[i] == 0)
-		{
-			name[i] = 0;//!!! ???
 			break;
-		}
 	}
 
-	// Load the name and indicate that the material has a texture
+	// Load the texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = rr::RRBuffer::load(fullname,NULL);
-	Materials[matindex].textured = Materials[matindex].tex!=NULL;
-	if (!Materials[matindex].textured)
-		printf("Texture %s not found.\n",fullname);
+	materialProperty.texture = rr::RRBuffer::load(fullname,NULL);
+	materialProperty.texcoord = Material::CH_DIFFUSE_SPECULAR_EMISSIVE_OPACITY;
+	if (materialProperty.texture)
+	{
+		rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
+		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE);
+		delete scaler;
+	}
+	else
+		rr::RRReporter::report(rr::WARN,"Texture %s not found.\n",fullname);
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -975,10 +773,7 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 	{
 		Objects[objindex].name[i] = fgetc(bin3ds);
 		if (Objects[objindex].name[i] == 0)
-		{
-			Objects[objindex].name[i] = 0;//!!! ???
 			break;
-		}
 	}
 
 	while (ftell(bin3ds) < (findex + length - 6))
@@ -990,11 +785,9 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 
 		switch (h.id)
 		{
-			case TRIG_MESH	:
+			case 0x4100:
 				// Process the triangles of the object
 				TriangularMeshChunkProcessor(h.len, ftell(bin3ds), objindex);
-				break;
-			default			:
 				break;
 		}
 
@@ -1024,19 +817,16 @@ void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objin
 
 		switch (h.id)
 		{
-			case VERT_LIST	:
+			case 0x4110:
 				// Load the vertices of the onject
 				VertexListChunkProcessor(h.len, ftell(bin3ds), objindex);
 				break;
-			case LOCAL_COORDS	:
+			case 0x4160:
 				//LocalCoordinatesChunkProcessor(h.len, ftell(bin3ds));
 				break;
-			case TEX_VERTS	:
+			case 0x4140:
 				// Load the texture coordinates for the vertices
 				TexCoordsChunkProcessor(h.len, ftell(bin3ds), objindex);
-				Objects[objindex].textured = true;
-				break;
-			default			:
 				break;
 		}
 
@@ -1055,11 +845,9 @@ void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objin
 
 		switch (h.id)
 		{
-			case FACE_DESC	:
+			case 0x4120:
 				// Load the faces of the object
 				FacesDescriptionChunkProcessor(h.len, ftell(bin3ds), objindex);
-				break;
-			default			:
 				break;
 		}
 
@@ -1085,21 +873,21 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 	swap16(&numVerts);
 
 	// Allocate arrays for the vertices and normals
-	Objects[objindex].Vertexes = new float[numVerts * 3];
-	Objects[objindex].Normals = new float[numVerts * 3];
+	Objects[objindex].Vertexes = new rr::RRVec3[numVerts];
+	Objects[objindex].Normals = new rr::RRVec3[numVerts];
 
 	// Assign the number of vertices for future use
 	Objects[objindex].numVerts = numVerts;
 
 	// Zero out the normals array
-	for (int j = 0; j < numVerts * 3; j++)
-		Objects[objindex].Normals[j] = 0.0f;
+	for (int j = 0; j < numVerts; j++)
+		Objects[objindex].Normals[j] = rr::RRVec3(0);
 
 	// Read the vertices, switching the y and z coordinates and changing the sign of the z coordinate
 	
 	float v0, v1, v2;
 
-	for (int i = 0; i < numVerts * 3; i+=3)
+	for (int i = 0; i < numVerts; i++)
 	{
 		fread(&v0, sizeof(float), 1, bin3ds);
 		fread(&v1, sizeof(float), 1, bin3ds);
@@ -1108,17 +896,7 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 		swap32(&v1);
 		swap32(&v2);
 
-		Objects[objindex].Vertexes[i + 0] = v0;
-		Objects[objindex].Vertexes[i + 2] = v1;
-		Objects[objindex].Vertexes[i + 1] = v2;
-
-		// Change the sign of the z coordinate
-		Objects[objindex].Vertexes[i+2] = -Objects[objindex].Vertexes[i+2];
-
-		// Scale
-		Objects[objindex].Vertexes[i+0] *= scale;
-		Objects[objindex].Vertexes[i+1] *= scale;
-		Objects[objindex].Vertexes[i+2] *= scale;
+		Objects[objindex].Vertexes[i] = rr::RRVec3(v0,v2,-v1) * scale;
 	}
 
 	// move the file pointer back to where we got it so
@@ -1141,27 +919,22 @@ void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
 	swap16(&numCoords);
 
 	// Allocate an array to hold the texture coordinates
-	Objects[objindex].TexCoords = new float[numCoords * 2];
+	Objects[objindex].TexCoords = new rr::RRVec2[numCoords];
 
 	// Set the number of texture coords
 	Objects[objindex].numTexCoords = numCoords;
 
 	// Read the texture coordiantes into the array
-
 	float t0, t1;
 
-	for (int i = 0; i < numCoords * 2; i+=2)
+	for (int i = 0; i < numCoords; i++)
 	{
 		fread(&t0, sizeof(float), 1, bin3ds);
 		fread(&t1, sizeof(float), 1, bin3ds);
 		swap32(&t0);
 		swap32(&t1);
 
-		Objects[objindex].TexCoords[i + 0] = t0;
-		Objects[objindex].TexCoords[i + 1] = t1;
-
-//		fread(&Objects[objindex].TexCoords[i],sizeof(float),1,bin3ds);
-//		fread(&Objects[objindex].TexCoords[i+1],sizeof(float),1,bin3ds);
+		Objects[objindex].TexCoords[i] = rr::RRVec2(t0,t1);
 	}
 
 	// move the file pointer back to where we got it so
@@ -1213,34 +986,14 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		Objects[objindex].Faces[i+2] = vertC;
 
 		// Calculate the face's normal
-		Vector n;
-		Vertex v1;
-		Vertex v2;
-		Vertex v3;
-
-		v1.x = Objects[objindex].Vertexes[vertA*3];
-		v1.y = Objects[objindex].Vertexes[vertA*3+1];
-		v1.z = Objects[objindex].Vertexes[vertA*3+2];
-		v2.x = Objects[objindex].Vertexes[vertB*3];
-		v2.y = Objects[objindex].Vertexes[vertB*3+1];
-		v2.z = Objects[objindex].Vertexes[vertB*3+2];
-		v3.x = Objects[objindex].Vertexes[vertC*3];
-		v3.y = Objects[objindex].Vertexes[vertC*3+1];
-		v3.z = Objects[objindex].Vertexes[vertC*3+2];
+		rr::RRVec3 v1 = Objects[objindex].Vertexes[vertA];
+		rr::RRVec3 v2 = Objects[objindex].Vertexes[vertB];
+		rr::RRVec3 v3 = Objects[objindex].Vertexes[vertC];
 
 		// calculate the normal
-		float u[3], v[3];
-
-		// V2 - V3;
-		u[0] = v2.x - v3.x;
-		u[1] = v2.y - v3.y;
-		u[2] = v2.z - v3.z;
-
-		// V2 - V1;
-		v[0] = v2.x - v1.x;
-		v[1] = v2.y - v1.y;
-		v[2] = v2.z - v1.z;
-
+		rr::RRVec3 u = v2 - v3;
+		rr::RRVec3 v = v2 - v1;
+		rr::RRVec3 n;
 		n.x = (u[1]*v[2] - u[2]*v[1]);
 		n.y = (u[2]*v[0] - u[0]*v[2]);
 		n.z = (u[0]*v[1] - u[1]*v[0]);
@@ -1248,15 +1001,9 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		if (!smoothAll)
 		{
 			// Add this normal to its verts' normals
-			Objects[objindex].Normals[vertA*3]   += n.x;
-			Objects[objindex].Normals[vertA*3+1] += n.y;
-			Objects[objindex].Normals[vertA*3+2] += n.z;
-			Objects[objindex].Normals[vertB*3]   += n.x;
-			Objects[objindex].Normals[vertB*3+1] += n.y;
-			Objects[objindex].Normals[vertB*3+2] += n.z;
-			Objects[objindex].Normals[vertC*3]   += n.x;
-			Objects[objindex].Normals[vertC*3+1] += n.y;
-			Objects[objindex].Normals[vertC*3+2] += n.z;
+			Objects[objindex].Normals[vertA] += n;
+			Objects[objindex].Normals[vertB] += n;
+			Objects[objindex].Normals[vertC] += n;
 		}
 		else
 		{
@@ -1266,11 +1013,9 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 			{
 				unsigned v = k?((k>1)?vertC:vertB):vertA;
 				for (int j=0;j<Objects[objindex].numVerts;j++)
-					if (!memcmp(&Objects[objindex].Vertexes[j*3],&Objects[objindex].Vertexes[v*3],3*sizeof(float)))
+					if (!memcmp(&Objects[objindex].Vertexes[j],&Objects[objindex].Vertexes[v],sizeof(rr::RRVec3)))
 					{
-						Objects[objindex].Normals[j*3]   += n.x;
-						Objects[objindex].Normals[j*3+1] += n.y;
-						Objects[objindex].Normals[j*3+2] += n.z;
+						Objects[objindex].Normals[j] += n;
 					}
 			}
 		}
@@ -1289,11 +1034,8 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 
 		switch (h.id)
 		{
-			case FACE_MAT	:
-				//FacesMaterialsListChunkProcessor(h.len, ftell(bin3ds), objindex);
+			case 0x4130:
 				numMatFaces++;
-				break;
-			default			:
 				break;
 		}
 
@@ -1322,12 +1064,10 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 
 			switch (h.id)
 			{
-				case FACE_MAT	:
+				case 0x4130:
 					// Process the faces and split them up
 					FacesMaterialsListChunkProcessor(h.len, ftell(bin3ds), objindex, j);
 					j++;
-					break;
-				default			:
 					break;
 			}
 
@@ -1357,16 +1097,13 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	{
 		name[i] = fgetc(bin3ds);
 		if (name[i] == 0)
-		{
-			name[i] = 0;//!!! ???
 			break;
-		}
 	}
 
-	// Faind the material's index in the Materials array
+	// Find the material's index in the Materials array
 	for (material = 0; material < numMaterials; material++)
 	{
-		if (strcmp(name, Materials[material].name) == 0)
+		if (Materials[material].name && !strcmp(name,Materials[material].name))
 			break;
 	}
 

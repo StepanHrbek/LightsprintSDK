@@ -9,24 +9,9 @@
 // 3D Studio model files (.3ds). It supports models
 // with multiple objects. It also supports multiple
 // textures per object. It does not support the animation
-// for 3D Studio models b/c there are simply too many
-// ways for an artist to animate a 3D Studio model and
-// I didn't want to impose huge limitations on the artists.
-// However, I have imposed a limitation on how the models are
-// textured:
-// 1) Every faces must be assigned a material
-// 2) If you want the face to be textured assign the
-//    texture to the Diffuse Color map
-// 3) The texture must be supported by the GLTexture class
-//    which only supports bitmap and targa right now
-// 4) The texture must be located in the same directory as
-//    the model
+// for 3D Studio models.
 //
-// Support for non-textured faces is done by reading the color
-// from the material's diffuse color.
-//
-// Some models have problems loading even if you follow all of
-// the restrictions I have stated and I don't know why. If you
+// Some models have problems loading and I don't know why. If you
 // can import the 3D Studio file into Milkshape 3D 
 // (http://www.swissquake.ch/chumbalum-soft) and then export it
 // to a new 3D Studio file. This seems to fix many of the problems
@@ -38,18 +23,8 @@
 //
 // m.Load("model.3ds"); // Load the model
 // m.Draw();			// Renders the model to the screen
-//
-// // If you want to show the model's normals
-// m.shownormals = true;
-//
-// // If the model is not going to be lit then set the lit
-// // variable to false. It defaults to true.
-// m.lit = false;
-//
-// // You can disable the rendering of the model
-// m.visible = false;
 // 
-// // You can move and rotate the model like this:
+// You can move and rotate the model like this:
 // m.rot.x = 90.0f;
 // m.rot.y = 30.0f;
 // m.rot.z = 0.0f;
@@ -74,59 +49,45 @@
 
 #include <cstdio>
 #include <cstring>
-#include "Lightsprint/RRBuffer.h"
+#include "Lightsprint/RRObject.h" // RRVec3, RRMaterial
 
-class Model_3DS  
+class Model_3DS
 {
 public:
-	// A VERY simple vector struct
-	// I could have included a complex class but I wanted the model class to stand alone
-	struct Vector {
-		float x;
-		float y;
-		float z;
-	};
-
-	// Vertex struct to make code easier to read in places
-	struct Vertex {
-		float x;
-		float y;
-		float z;
-	};
-
-	// Color struct holds the diffuse color of the material
-	struct Color4i {
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
-	};
-
-	// Holds the material info
-	// TODO: add color support for non textured polys
-	struct Material {
-		char name[80];	// The material's name
-		rr::RRBuffer* tex;	// The texture (this is the only outside reference in this class)
-		bool textured;	// whether or not it is textured
-		Color4i color;
+	// Material is read directly to Lightsprint's RRMaterial
+	struct Material : public rr::RRMaterial
+	{
+		enum // uv channels
+		{
+			CH_DIFFUSE_SPECULAR_EMISSIVE_OPACITY,
+			CH_LIGHTMAP,
+		};
 		Material()
 		{
-			memset(this,0,sizeof(*this));
+			reset(false);
+			lightmapTexcoord = CH_LIGHTMAP;
+			name = NULL;
 		}
 		~Material()
 		{
-			delete tex;
+			delete diffuseReflectance.texture;
+			delete diffuseEmittance.texture;
+			delete specularReflectance.texture;
+			delete specularTransmittance.texture;
+			free((void*)name);
 		}
 	};
 
 	// Every chunk in the 3ds file starts with this struct
-	struct ChunkHeader {
+	struct ChunkHeader
+	{
 		unsigned short id;	// The chunk's id
 		unsigned int   len;	// The lenght of the chunk
 	};
 
 	// I sort the mesh by material so that I won't have to switch textures a great deal
-	struct MaterialFaces {
+	struct MaterialFaces
+	{
 		unsigned short *subFaces;	// Index to our vertex array of all the faces that use this material
 		int numSubFaces;			// The number of faces
 		int MatIndex;				// An index to our materials
@@ -141,20 +102,20 @@ public:
 	};
 
 	// The 3ds file can be made up of several objects
-	struct Object {
+	struct Object
+	{
 		char name[80];				// The object name
-		float *Vertexes;			// The array of vertices
-		float *Normals;				// The array of the normals for the vertices
-		float *TexCoords;			// The array of texture coordinates for the vertices
+		rr::RRVec3* Vertexes;		// The array of vertices
+		rr::RRVec3* Normals;		// The array of the normals for the vertices
+		rr::RRVec2* TexCoords;		// The array of texture coordinates for the vertices
 		unsigned short *Faces;		// The array of face indices
 		int numFaces;				// The number of faces
 		int numMatFaces;			// The number of differnet material faces
 		int numVerts;				// The number of vertices
 		int numTexCoords;			// The number of vertices
-		bool textured;				// True: the object has textures
 		MaterialFaces *MatFaces;	// The faces are divided by materials
-		Vector pos;					// The position to move the object to
-		Vector rot;					// The angles to rotate the object
+		rr::RRVec3 pos;				// The position to move the object to
+		rr::RRVec3 rot;				// The angles to rotate the object
 		Object()
 		{
 			memset(this,0,sizeof(*this));
@@ -175,15 +136,13 @@ public:
 	int numMaterials;		// Total number of materials in the model
 	int totalVerts;			// Total number of vertices in the model
 	int totalFaces;			// Total number of faces in the model
-	bool shownormals;		// True: show the normals
 	Material *Materials;	// The array of materials
 	Object *Objects;		// The array of objects in the model
-	Vector pos;				// The position to move the model to
-	Vector rot;				// The angles to rotate the model
+	rr::RRVec3 pos;			// The position to move the model to
+	rr::RRVec3 rot;			// The angles to rotate the model
 	float scale;			// The size you want the model scaled to
-	bool visible;			// True: the model gets rendered
 	bool smoothAll;         // True: average normals of all vertices on the same position
-	Vertex localCenter;
+	rr::RRVec3 localCenter;
 	float localMinY;
 	bool Load(const char *name, float scale); // Loads a model
 	void Draw(
@@ -200,8 +159,8 @@ public:
 
 private:
 	void UpdateCenter();
-	void IntColorChunkProcessor(long length, long findex, int matindex);
-	void FloatColorChunkProcessor(long length, long findex, int matindex);
+	void IntColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
+	void FloatColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 	unsigned ReadPercentage(); // PercentageChunkProcessor
 	// Processes the Main Chunk that all the other chunks exist is
 	void MainChunkProcessor(long length, long findex);
@@ -213,11 +172,11 @@ private:
 				// Processes the names of the materials
 				void MaterialNameChunkProcessor(long length, long findex, int matindex);
 				// Processes the material's diffuse color
-				void DiffuseColorChunkProcessor(long length, long findex, int matindex);
+				void ColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 				// Processes the material's texture maps
-				void TextureMapChunkProcessor(long length, long findex, int matindex);
+				void TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 					// Processes the names of the textures and load the textures
-					void MapNameChunkProcessor(long length, long findex, int matindex);
+					void MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 			
 			// Processes the model's geometry
 			void ObjectChunkProcessor(long length, long findex, int objindex);
@@ -231,10 +190,6 @@ private:
 					void FacesDescriptionChunkProcessor(long length, long findex, int objindex);
 						// Processes the materials of the faces and splits them up by material
 						void FacesMaterialsListChunkProcessor(long length, long findex, int objindex, int subfacesindex);
-
-	// Calculates the normals of the vertices by averaging
-	// the normals of the faces that use that vertex
-	void CalculateNormals();
 };
 
 #endif // MODEL_3DS_H
