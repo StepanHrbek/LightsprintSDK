@@ -1180,7 +1180,7 @@ public:
 	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
 	{
 		bool not_aborting = false;
-		return new RRSceneGamebryo(filename,false,aborting ? *aborting : not_aborting,emissiveMultiplier);
+		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,emissiveMultiplier);
 	}
 
 	virtual const RRObjects* getObjects() {return objects;}
