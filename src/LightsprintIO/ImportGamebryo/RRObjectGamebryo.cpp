@@ -631,7 +631,7 @@ static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
-		material.diffuseEmittance.multiply(emissiveMultiplier); // must be done after all subtractions
+		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0)); // must be done after all subtractions
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 		delete scaler;

@@ -13,6 +13,13 @@ namespace rr
 NEWS
 
 - File/Open... added to SceneViewer sample and rr_gl::sceneViewer()
+- texture manipulation functions
+  - RRBuffer::createCopy()
+  - RRBuffer::setFormat()
+  - RRBuffer::setFormatFloats()
+  - RRBuffer::invert()
+  - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
+  - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
 
 CHANGES
 

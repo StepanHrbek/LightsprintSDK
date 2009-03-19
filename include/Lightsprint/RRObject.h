@@ -97,9 +97,9 @@ namespace rr
 				texture = NULL;
 				texcoord = 0;
 			}
-			//! Multiplies property by multiplier.
-			//! Both color and texture are multiplied. 8bit texture may be deleted and new float texture created to avoid clamping.
-			void multiply(RRReal multiplier);
+			//! Changes property to property*multiplier+addend.
+			//! Both color and texture are changed. 8bit texture may be changed to floats to avoid clamping.
+			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
 			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction);
 		};

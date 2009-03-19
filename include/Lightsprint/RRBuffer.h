@@ -154,10 +154,9 @@ namespace rr
 		//! \n Not mandatory, implementation may always return 0.
 		//! Used by offline solver to read illumination from environment (cube map).
 		virtual RRVec4 getElement(const RRVec3& coord) const;
-		//! Locks the buffer for reading array of all elements at once. Not mandatory, may return NULL.
+		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
 		//
-		//! For writing into buffer, use reset().
-		//! \n Behaviour of lock is not defined when buffer is already locked.
+		//! Behaviour of lock is not defined when buffer is already locked.
 		//! \return
 		//!  Pointer to array of all width*height*depth elements, in format specified by getFormat().
 		virtual unsigned char* lock(RRBufferLock lock);
@@ -184,6 +183,9 @@ namespace rr
 
 		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid.
 		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
+
+		//! Creates copy of buffer. Copy is located in system memory and is not connected to its origin, both may be deleted independently.
+		RRBuffer* createCopy();
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
@@ -245,6 +247,21 @@ namespace rr
 		//! \n If functions are not set, attempts to load/save buffer are ignored,
 		//! both reload() and save() return false.
 		static void setLoader(bool (*reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH), bool (*save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]));
+
+		//! Changes buffer format.
+		void setFormat(RRBufferFormat newFormat);
+		//! Changes buffer format to floats, RGB to RGBF, RGBA to RGBAF.
+		void setFormatFloats();
+		//! Changes all colors in buffer to 1-color.
+		//
+		//! Preserves buffer format.
+		//! This operation is lossless for all formats.
+		void invert();
+		//! Changes all colors in buffer to color*multiplier+addend.
+		//
+		//! Preserves buffer format.
+		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
+		void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 	};
 
 } // namespace

@@ -589,7 +589,7 @@ private:
 
 		loadTexture(FUDaeTextureChannel::DIFFUSE,material.diffuseReflectance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::EMISSION,material.diffuseEmittance,materialInstance,effectStandard);
-		material.diffuseEmittance.multiply(emissiveMultiplier);
+		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
 		material.specularTransmittanceKeyed = getBlendImportance(material.specularTransmittance.texture,material.specularTransmittanceInAlpha)<0.02f;

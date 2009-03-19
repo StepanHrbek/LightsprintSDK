@@ -60,6 +60,70 @@ unsigned RRBuffer::getMemoryOccupied() const
 	return getWidth()*getHeight()*getDepth()*((getElementBits()+7)/8);
 }
 
+RRBuffer* RRBuffer::createCopy()
+{
+	unsigned char* data = lock(BL_READ);
+	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),getFormat(),getScaled(),data);
+	unlock();
+	return copy;
+}
+
+void RRBuffer::setFormat(RRBufferFormat newFormat)
+{
+	if (newFormat==getFormat())
+	{
+		return;
+	}
+	RRBuffer* copy = createCopy();
+	reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = copy->getElement(i);
+		setElement(i,color);
+	}
+	delete copy;
+}
+
+void RRBuffer::setFormatFloats()
+{
+	switch (getFormat())
+	{
+		case BF_RGB:
+			setFormat(BF_RGBF);
+			break;
+		case BF_RGBA:
+			setFormat(BF_RGBAF);
+			break;
+	}
+}
+
+void RRBuffer::invert()
+{
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = getElement(i);
+		color = rr::RRVec4(1)-color;
+		setElement(i,color);
+	}
+}
+
+void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
+{
+	if (multiplier==RRVec4(1) && addend==RRVec4(0))
+	{
+		return;
+	}
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = getElement(i);
+		color = color*multiplier+addend;
+		setElement(i,color);
+	}
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
