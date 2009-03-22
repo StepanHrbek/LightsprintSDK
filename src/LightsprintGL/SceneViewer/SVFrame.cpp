@@ -165,7 +165,9 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 	const int border = (width+height)/25;
 	SVFrame *frame = new SVFrame(NULL, APP_NAME+" - loading", wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 
+
 	frame->UpdateEverything(); // slow. if specified by filename, loads scene from disk
+	//frame->Update();
 
 	return frame;
 }
