@@ -6,6 +6,7 @@
 #include "SVCanvas.h"
 #include "SVLightIcons.h"
 #include "SVRayLog.h"
+#include "SVSaveLoad.h"
 #include "SVSolver.h"
 #include "SVFrame.h"
 #include "Lightsprint/GL/Timer.h"
@@ -29,6 +30,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	context = NULL;
 	parent = _parent;
 	solver = NULL;
+	manuallyOpenedScene = NULL;
 	selectedType = ST_CAMERA;
 	winWidth = 0;
 	winHeight = 0;
@@ -64,7 +66,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	lightProperties = _parentsLightProperties;
 }
 
-void SVCanvas::createContext(SceneViewerStateEx& svse)
+void SVCanvas::createContext()
 {
 	context = new wxGLContext(this);
 	SetCurrent(*context);
@@ -98,22 +100,30 @@ void SVCanvas::createContext(SceneViewerStateEx& svse)
 	}
 
 	// init solver
-	solver = new SVSolver(svse);
-	solver->setScaler(svs.initialInputSolver->getScaler());
-	if (svs.manuallyOpenedScene)
+	solver = new SVSolver(svs);
+	if (svs.initialInputSolver)
 	{
-		solver->setEnvironment(svs.manuallyOpenedScene->getEnvironment());
-		if (svs.manuallyOpenedScene->getObjects())
-			solver->setStaticObjects(*svs.manuallyOpenedScene->getObjects(),NULL);
-		if (svs.manuallyOpenedScene->getLights())
-			solver->setLights(*svs.manuallyOpenedScene->getLights());
-	}
-	else
-	{
+		solver->setScaler(svs.initialInputSolver->getScaler());
 		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
+		ourEnv = true;
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setLights(svs.initialInputSolver->getLights());
 	}
+	else
+	if (svs.sceneFilename)
+	{
+		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename);
+		solver->setScaler(rr::RRScaler::createRgbScaler());
+		solver->setEnvironment(manuallyOpenedScene->getEnvironment());
+		ourEnv = false;
+		if (manuallyOpenedScene->getObjects())
+			solver->setStaticObjects(*manuallyOpenedScene->getObjects(),NULL);
+		if (manuallyOpenedScene->getLights())
+			solver->setLights(*manuallyOpenedScene->getLights());
+		ourEnv = false;
+		svs.autodetectCamera = true; // new scene, camera is not set
+	}
+
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
@@ -144,32 +154,38 @@ SVCanvas::~SVCanvas()
 	RR_SAFE_DELETE(toneMapping);
 	RR_SAFE_DELETE(water);
 
-	// delete all textures created by us
 	deleteAllTextures();
+	// delete objects referenced by solver
 	if (solver)
 	{
+		// delete all textures created by us
 		if (solver->getEnvironment())
 			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
 		for (unsigned i=0;i<solver->getNumObjects();i++)
 			if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
 				solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->customData = NULL;
-	}
 
-	// delete all lightmap for realtime rendering
-	if (solver)
-	{
+		// delete all lightmaps for realtime rendering
 		for (unsigned i=0;i<solver->getNumObjects();i++)
 		{
 			if (solver->getIllumination(i))
 				RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
 		}
-	}
 
-	if (solver && ourEnv)
-	{
-		delete solver->getEnvironment();
+		// delete env manually loaded by user
+		if (ourEnv)
+		{
+			delete solver->getEnvironment();
+		}
+
+		// delete scaler created for scene loaded from disk
+		if (!svs.initialInputSolver)
+		{
+			delete solver->getScaler();
+		}
 	}
 	RR_SAFE_DELETE(solver);
+	RR_SAFE_DELETE(manuallyOpenedScene);
 	RR_SAFE_DELETE(lv);
 	RR_SAFE_DELETE(lightField);
 	RR_SAFE_DELETE(lightFieldObjectIllumination);
@@ -178,7 +194,6 @@ SVCanvas::~SVCanvas()
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;
 	delete context;
-	RR_SAFE_DELETE(svs.manuallyOpenedScene);
 }
 
 void SVCanvas::OnSize(wxSizeEvent& event)

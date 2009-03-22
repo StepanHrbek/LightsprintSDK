@@ -6,7 +6,7 @@
 #ifndef SVSAVELOAD_H
 #define SVSAVELOAD_H
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "SVApp.h"
 
 
 #endif

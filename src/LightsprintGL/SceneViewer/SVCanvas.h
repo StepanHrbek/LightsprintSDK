@@ -27,7 +27,7 @@ namespace rr_gl
 
 		// initializes gl context and other stuff, must be called once after canvas is created and Show()n
 		// (wx asserts if we do it before our parent calls Show())
-		void createContext(SceneViewerStateEx& svse);
+		void createContext();
 
 		void OnPaint(wxPaintEvent& event);
 		void OnSize(wxSizeEvent& event);
@@ -43,6 +43,7 @@ namespace rr_gl
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerStateEx&        svs;
+		rr::RRScene*               manuallyOpenedScene; // Inited to NULL, created by user via menu File/Open, deleted when no longer needed.
 		class SVSolver*            solver;
 		enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
 		SelectionType              selectedType;

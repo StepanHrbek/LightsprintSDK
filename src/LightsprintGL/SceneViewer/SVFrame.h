@@ -43,6 +43,7 @@ namespace rr_gl
 			ME_LIGHT_DELETE,
 			ME_LIGHT_AMBIENT,
 			ME_FILE_OPEN_SCENE,
+			ME_FILE_SAVE_SCREENSHOT,
 			ME_CAMERA_GENERATE_RANDOM,
 			ME_CAMERA_SPEED,
 			ME_CHECK_SOLVER,
@@ -77,9 +78,12 @@ namespace rr_gl
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
 
-		//! Updates everything in frame according to svs and newScene (deletes and recreates everything).
+		//! Updates window title bar.
+		void UpdateTitle();
+
+		//! Updates everything in frame according to svs (deletes and recreates everything).
 		//! May be called repeatedly.
-		void UpdateEverything(rr::RRScene* newScene);
+		void UpdateEverything();
 
 		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
 		void UpdateMenuBar();

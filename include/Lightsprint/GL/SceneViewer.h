@@ -43,12 +43,11 @@ struct SceneViewerState
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
 	bool             cameraDynamicNear;   //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
-	enum {MAX_FILENAME_LENGTH=255};
-	char             sceneFilename[MAX_FILENAME_LENGTH+1]; //! Optional filename of scene passed to scene viewer.
 	rr::RRVec4       brightness;          //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;               //! Gamma correction applied at render time, 1=no correction.
 	// viewer initialization
 	bool             autodetectCamera;    //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
+
 	// sets default state with realtime GI and random camera
 	SceneViewerState()
 		: eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
@@ -75,7 +74,6 @@ struct SceneViewerState
 		adjustTonemapping = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
-		sceneFilename[0] = 0;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
 		autodetectCamera = 1;
@@ -87,14 +85,15 @@ struct SceneViewerState
 //! All lighting techniques for both realtime and precomputed GI are supported.
 //! All lights are editable.
 //!
-//! \param solver
-//!  Scene to be displayed.
+//! \param inputSolver
+//!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.
+//! \param inputFilename
+//!  If inputSolver is NULL, we attempt to open and display this file. This is handy for scene viewer applications.
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
-//!  Texture projected by spotlights is loaded from pathToShaders + "../maps/spot0.png".
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* solver, const char* pathToShaders, SceneViewerState* svs);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* pathToShaders, SceneViewerState* svs);
 
 }; // namespace
 

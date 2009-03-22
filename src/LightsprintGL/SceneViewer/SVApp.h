@@ -18,10 +18,21 @@ namespace rr_gl
 	{
 		//! Initial scene to be displayed, never deleted, never NULLed even when no longer displayed (because solver->aborting is still used).
 		rr::RRDynamicSolver* initialInputSolver;
-		//! Inited to NULL, created by user via menu File/Open, deleted when no longer needed.
-		rr::RRScene* manuallyOpenedScene;
-		//! Initial and never changing path to shaders.
+		//! Initial and never changing path to shaders. Not freed.
 		const char* pathToShaders;
+		//! _strduped and freed.
+		char* sceneFilename;
+
+		SceneViewerStateEx()
+		{
+			initialInputSolver = NULL;
+			pathToShaders = NULL;
+			sceneFilename = NULL;
+		}
+		~SceneViewerStateEx()
+		{
+			free(sceneFilename);
+		}
 	};
 
 }; // namespace

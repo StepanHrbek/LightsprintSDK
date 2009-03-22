@@ -12,7 +12,9 @@ namespace rr
 
 NEWS
 
-- File/Open... added to SceneViewer sample and rr_gl::sceneViewer()
+- improved rr_gl::sceneViewer()
+  - one new parameter makes it possible to view scene from file rather than from solver in memory
+  - File/Open... added to menu
 - texture manipulation functions
   - RRBuffer::createCopy()
   - RRBuffer::setFormat()

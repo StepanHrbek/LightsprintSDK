@@ -13,6 +13,9 @@
 #include "SVSolver.h"
 #include "SVSaveLoad.h"
 #include "../tmpstr.h"
+#ifdef _WIN32
+#include <shlobj.h> // SHGetSpecialFolderPath
+#endif
 
 namespace rr_gl
 {
@@ -116,7 +119,17 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 	return false;
 }
 
-void SVFrame::UpdateEverything(rr::RRScene* newScene)
+	#define APP_NAME wxString("SceneViewer")
+
+void SVFrame::UpdateTitle()
+{
+	if (svs.sceneFilename)
+		SetTitle(APP_NAME+" - "+svs.sceneFilename);
+	else
+		SetTitle(APP_NAME);
+}
+
+void SVFrame::UpdateEverything()
 {
 	// workaround for 2.8.9 problem fixed in 2.9.0
 	// remember canvas size, only first canvas is sized automatically
@@ -124,8 +137,6 @@ void SVFrame::UpdateEverything(rr::RRScene* newScene)
 
 	RR_SAFE_DELETE(m_lightProperties);
 	RR_SAFE_DELETE(m_canvas);
-
-	svs.manuallyOpenedScene = newScene;
 
 	m_canvas = new SVCanvas( svs, this, &m_lightProperties, newSize);
 
@@ -135,27 +146,26 @@ void SVFrame::UpdateEverything(rr::RRScene* newScene)
 	UpdateMenuBar();
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
-	m_canvas->createContext( svs );
+	m_canvas->createContext();
 	
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
 
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
 	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
+
+	UpdateTitle();
 }
 
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
-	wxString str = wxT("SceneViewer");
-
 	// open at ~50% of screen size
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
 	const int border = (width+height)/25;
-	SVFrame *frame = new SVFrame(NULL, str, wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
+	SVFrame *frame = new SVFrame(NULL, APP_NAME+" - loading", wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 
-	frame->UpdateEverything(NULL);
-
+	frame->UpdateEverything(); // slow. if specified by filename, loads scene from disk
 
 	return frame;
 }
@@ -246,6 +256,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
 		menuBar->Append(winMenu, _T("File"));
 	}
 
@@ -661,19 +672,31 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					wxString newSceneFilename = dialog.GetPath();
-					rr::RRScene* newScene = new rr::RRScene(newSceneFilename);
-					if (newScene->getObjects())
-					{
-						strncpy(svs.sceneFilename,newSceneFilename.c_str(),svs.MAX_FILENAME_LENGTH);
-						svs.sceneFilename[svs.MAX_FILENAME_LENGTH] = 0;
-						svs.autodetectCamera = true;
-						UpdateEverything(newScene);
-					}
-					else
-					{
-						delete newScene;
-					}
+					free(svs.sceneFilename);
+					svs.sceneFilename = _strdup(newSceneFilename.c_str());
+					UpdateEverything();
 				}
+			}
+			break;
+		case ME_FILE_SAVE_SCREENSHOT:
+			{
+				wxSize size = m_canvas->GetSize();
+				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+				glReadBuffer(GL_BACK);
+				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+				sshot->unlock();
+				char screenshotFilename[1000]=".";
+#ifdef _WIN32
+				SHGetSpecialFolderPath(NULL, screenshotFilename, CSIDL_PERSONAL, FALSE);
+#endif
+				time_t t = time(NULL);
+				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.png",t%10000);
+				if (sshot->save(screenshotFilename))
+					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
+				else
+					rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",screenshotFilename);
+				delete sshot;
 			}
 			break;
 		case ME_SHOW_LIGHT_PROPERTIES:

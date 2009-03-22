@@ -5,19 +5,16 @@
 // - realtime GI: all lights freely movable
 // - offline GI: build/save/load lightmaps
 //
-// This is implemented in two steps
-// 1. load scene (Collada .dae, .3ds, Quake3 .bsp, .mgf)
-// 2. call sceneViewer() function
+// This is implemented in one step
+// 1. call sceneViewer() function
 //
-// Use commandline argument or drag&drop to open custom scene.
+// Use commandline argument or drag&drop or File/Open... to open custom scene.
 //
 // Controls:
-// right mouse button ... menu
 // arrows or wsadqz   ... movement
+// right mouse button ... movement
 // wheel              ... zoom
 // + -                ... brightness adjustment
-//
-// If it doesn't render your scene properly, please send us sample so we can fix it.
 //
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
@@ -51,17 +48,18 @@ int main(int argc, char **argv)
 	//_crtBreakAlloc = 74;
 #endif
 
-	// check for version mismatch
+	// Check for version mismatch
 	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
 	}
-	// log messages to console
+	// Log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(1);
 
+	// Necessary for sceneViewer to use our file loaders.
 	rr_io::registerLoaders();
 
 #ifdef _WIN32
@@ -73,14 +71,20 @@ int main(int argc, char **argv)
 
 #endif // _WIN32
 
-	// load scene
-	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
-	rr::RRScene scene(sceneFilename);
-
-	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
+
+	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
+
+#if 1
+	// View scene in scene viewer
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/shaders/",NULL);
+#else
+	// Load scene
+	rr::RRScene scene(sceneFilename);
+
+	// Load it into solver
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	if (scene.getObjects()) solver->setStaticObjects(*scene.getObjects(),NULL);
@@ -88,16 +92,16 @@ int main(int argc, char **argv)
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 
-	// run interactive scene viewer
-	rr_gl::SceneViewerState svs;
-	strncpy(svs.sceneFilename,sceneFilename,svs.MAX_FILENAME_LENGTH);
-	svs.sceneFilename[svs.MAX_FILENAME_LENGTH] = 0;
-	rr_gl::sceneViewer(solver,"../../data/shaders/",&svs);
+	// View solver in scene viewer
+	rr_gl::sceneViewer(solver,sceneFilename,"../../data/shaders/",NULL);
 
+	// Cleanup
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();
 	delete solver->getScaler();
 	delete solver;
+#endif
+
 	delete rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(NULL);
 
