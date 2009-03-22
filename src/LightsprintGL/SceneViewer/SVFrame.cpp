@@ -320,8 +320,8 @@ void SVFrame::UpdateMenuBar()
 	winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"));
 	winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"));
 	winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"));
-	winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures"):_T("Enable textures"));
-	winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe"):_T("Wireframe"));
+	winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"));
+	winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"));
 	winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"));
 	winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
 	menuBar->Append(winMenu, _T("Render"));

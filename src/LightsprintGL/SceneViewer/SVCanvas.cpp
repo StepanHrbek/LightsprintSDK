@@ -218,7 +218,16 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
 	bool needsRefresh = false;
 	long evkey = event.GetKeyCode();
-	switch(evkey)
+	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
+	{
+		case 'T':
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_TEXTURES));
+			break;
+		case 'W':
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_WIREFRAME));
+			break;
+	}
+	else switch(evkey)
 	{
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_MAXIMIZE)); break;
 		case 'o': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_LDM)); break;
@@ -286,6 +295,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 //			GetParent()->GetEventHandler()->ProcessEvent(event);
 //			return;
 	}
+
 	solver->reportInteraction();
 	if (needsRefresh)
 	{
