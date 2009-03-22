@@ -41,9 +41,14 @@ static bool extensionMatches(const char* filename, const char* extension)
 
 RRScene::RRScene(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
 {
-	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
-
 	implementation = NULL;
+	if (!filename)
+	{
+		RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
+		return;
+	}
+
+	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
 
 	// test whether loaders were registered
 	if (s_loaders.empty())
