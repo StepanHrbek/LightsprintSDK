@@ -19,8 +19,9 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	brightness = _brightness;
 	gamma = _gamma;
 	numLights = lights?lights->size():0;
+	separatedZPass = (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && (mainUberProgramSetup.MATERIAL_TRANSPARENCY_CONST || mainUberProgramSetup.MATERIAL_TRANSPARENCY_MAP || mainUberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA) && !mainUberProgramSetup.FORCE_2D_POSITION)?1:0;
 	separatedAmbientPass = (!numLights)?1:0;
-	lightIndex = -separatedAmbientPass;
+	lightIndex = -separatedZPass-separatedAmbientPass;
 }
 
 Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight)
@@ -34,7 +35,50 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	RealtimeLight* light;
-	if (_lightIndex==-1)
+
+	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass)
+	{
+		// before Z pass: write z only
+		glColorMask(0,0,0,0);
+		//glDepthMask(GL_TRUE); does not work
+	}
+	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass+1)
+	{
+		// after Z pass: write color only
+		glColorMask(1,1,1,1);
+		//glDepthMask(0);
+	}
+
+	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass)
+	{
+		light = NULL;
+		uberProgramSetup.SHADOW_MAPS = 0;
+		uberProgramSetup.SHADOW_SAMPLES = 0;
+		uberProgramSetup.LIGHT_DIRECT = 0;
+		uberProgramSetup.LIGHT_DIRECT_COLOR = 0;
+		uberProgramSetup.LIGHT_DIRECT_MAP = 0;
+		uberProgramSetup.LIGHT_DIRECTIONAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
+		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+		uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
+		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+		uberProgramSetup.LIGHT_INDIRECT_auto = 0;
+		uberProgramSetup.MATERIAL_DIFFUSE = 0;
+		uberProgramSetup.MATERIAL_SPECULAR = 0;
+		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
+		uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
+	}
+	else
+	if (separatedAmbientPass && _lightIndex==-separatedAmbientPass)
 	{
 		// adjust program for render without lights
 		//uberProgramSetup.setLightDirect(NULL,NULL);

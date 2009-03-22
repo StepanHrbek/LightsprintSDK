@@ -26,8 +26,8 @@ class MultiPass
 public:
 	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma);
 
-	// Returns true and all outXxx are set, do render,
-	// or returns false and outXxx stay unchanged, rendering is done.
+	//! Returns true and all outXxx are set, do render.
+	//! Or returns false and outXxx stay unchanged, rendering is done.
 	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight);
 
 protected:
@@ -42,7 +42,8 @@ protected:
 
 	// intermediates
 	unsigned numLights;
-	int separatedAmbientPass;
+	int separatedZPass; //! Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
+	int separatedAmbientPass; //! Ambient pass is separated if there are no lights to piggyback on.
 	int lightIndex;
 };
 
