@@ -459,7 +459,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			if (speedLeft) cam->moveLeft(speedLeft*meters);
 			if (speedUp) cam->moveUp(speedUp*meters);
 			if (speedDown) cam->moveDown(speedDown*meters);
-			if (speedLean) cam->lean(speedLean*meters);
+			if (speedLean) cam->lean(speedLean*seconds*0.5f);
 		}
 
 		// light change report
