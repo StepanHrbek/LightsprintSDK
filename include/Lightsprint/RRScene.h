@@ -72,6 +72,11 @@ public:
 	//! Multiple loaders may be registered, even for the same extension.
 	//! If first loader fails to load scene, second one is tried etc.
 	static void registerLoader(const char* extension, Loader* loader);
+	//! Returns list of supported extensions, e.g. "*.dae;*.3ds".
+	//
+	//! All extensions of registered loaders are returned in one static string, don't free() it.
+	//! NULL is returned if no loaders were registered.
+	static const char* getSupportedExtensions();
 
 private:
 	RRScene* implementation;

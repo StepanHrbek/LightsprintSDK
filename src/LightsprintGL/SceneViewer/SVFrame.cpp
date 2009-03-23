@@ -256,6 +256,7 @@ void SVFrame::UpdateMenuBar()
 	//menuBar->Append(winMenu, _T("Select"));
 
 	// File...
+	if (rr::RRScene::getSupportedExtensions() && rr::RRScene::getSupportedExtensions()[0])
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
@@ -670,9 +671,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene","","",
-					"*.dae;*.gsa;*.bsp;*.3ds;*.mgf;*.obj", // this is only guess, RRScene has no function to query supported formats
-					wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,"Choose a 3d scene","","",rr::RRScene::getSupportedExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{

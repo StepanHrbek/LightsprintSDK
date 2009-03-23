@@ -19,6 +19,9 @@ struct LoaderExtension
 // static collection of registered loaders
 std::vector<LoaderExtension> s_loaders;
 
+#define S_EXTENSIONS_LEN 200
+char s_extensions[S_EXTENSIONS_LEN];
+
 // case insensitive match
 static bool extensionMatches(const char* filename, const char* extension)
 {
@@ -128,11 +131,28 @@ void RRScene::registerLoader(const char* extension, Loader* loader)
 		le.loader = loader;
 		le.extension = extension;
 		s_loaders.push_back(le);
+
+		// update s_extensions
+		if (s_loaders.size()==1)
+			_snprintf(s_extensions,S_EXTENSIONS_LEN,"*.%s",extension);
+		else
+			_snprintf(s_extensions+strlen(s_extensions),S_EXTENSIONS_LEN-strlen(s_extensions),";*.%s",extension);
+		s_extensions[S_EXTENSIONS_LEN-1] = 0;
 	}
 	else
 	{
 		RRReporter::report(WARN,"Invalid argument (NULL) in RRScene::registerLoader().\n");
 	}
+}
+
+const char* RRScene::getSupportedExtensions()
+{
+	if (s_loaders.empty())
+	{
+		// s_extensions not initialized yet
+		return "";
+	}
+	return s_extensions;
 }
 
 } // namespace rr
