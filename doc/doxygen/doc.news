@@ -13,7 +13,7 @@ namespace rr
 NEWS
 
 - improved rr_gl::sceneViewer()
-  - one new parameter makes it possible to view scene from file rather than from solver in memory
+  - new parameter makes it possible to view scene from file rather than from solver in memory
   - File/Open... added to menu
 - texture manipulation functions
   - RRBuffer::createCopy()
@@ -22,7 +22,11 @@ NEWS
   - RRBuffer::invert()
   - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
   - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
+- simplified scene import (parameter stripPaths was removed,
+  all loaders load textures from full paths as if stripPaths=false,
+  but if it fails, second attempt is made automatically in scene directory as if stripPaths=true).
 - improved .3ds import (transparency, opacity map, self illum map...)
+- improved transparency rendering
 
 CHANGES
 

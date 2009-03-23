@@ -54,7 +54,7 @@ using namespace rr;
 class RRObjectQuake3 : public RRObject, public RRMesh
 {
 public:
-	RRObjectQuake3(TMapQ3* model, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture);
+	RRObjectQuake3(TMapQ3* model, const char* pathToTextures, RRBuffer* missingTexture);
 	RRObjectIllumination* getIllumination();
 	virtual ~RRObjectQuake3();
 
@@ -114,7 +114,7 @@ enum
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, bool stripPaths, RRBuffer* fallback)
+static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, RRBuffer* fallback)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
@@ -122,31 +122,38 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 	RRBuffer* t = NULL;
 	RRReporter* oldReporter = RRReporter::getReporter();
 	RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
-	const char* strippedName = m->mName;
-	if (stripPaths)
+	// first try to load from proper path, then strip paths and look in scene directory
+	for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
 	{
-		while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
-	}
-	const char* exts[3]={".jpg",".png",".tga"};
-	for (unsigned e=0;e<3;e++)
-	{
-		char buf[300];
-		_snprintf(buf,299,"%s%s%s",pathToTextures,strippedName,exts[e]);
-		buf[299]=0;
-		t = RRBuffer::load(buf,NULL,true,false);
+		const char* strippedName = m->mName;
+		if (stripPaths)
+		{
+			while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
+		}
+		const char* exts[3]={".jpg",".png",".tga"};
+		for (unsigned e=0;e<3;e++)
+		{
+			char buf[300];
+			_snprintf(buf,299,"%s%s%s%s",pathToTextures,stripPaths?"":"../",strippedName,exts[e]);
+			buf[299]=0;
+			t = RRBuffer::load(buf,NULL,true,false);
 #ifdef MARK_OPENED
-		if (t) _chmod(buf,_S_IREAD); // mark opened files read only
+			if (t) _chmod(buf,_S_IREAD); // mark opened files read only
 #endif
-		//if (t) {puts(buf);break;}
-		if (t) break;
-		//if (e==2) printf("Not found: %s\n",buf);
+			//if (t) {puts(buf);break;}
+			if (t) goto loaded;
+			//if (e==2) printf("Not found: %s\n",buf);
+		}
 	}
+loaded:
 	RRReporter::setReporter(oldReporter);
 	if (!t)
 	{
 		t = fallback;
+		const char* strippedName = m->mName;
+		while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
 		if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
-			RRReporter::report(ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
+			RRReporter::report(WARN,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
 	// for diffuse textures provided by bsp,
@@ -181,7 +188,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, RRBuffer* missingTexture)
+RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuffer* missingTexture)
 {
 	model = amodel;
 
@@ -211,7 +218,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, bool 
 						// try load texture when it is mapped on at least 1 triangle
 						if (!triedLoadTexture)
 						{
-							fillMaterial(material,&model->mTextures[s],pathToTextures,stripPaths,missingTexture);
+							fillMaterial(material,&model->mTextures[s],pathToTextures,missingTexture);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
@@ -441,9 +448,9 @@ const RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight*
 class RRObjectsQuake3 : public RRObjects
 {
 public:
-	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
+	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,RRBuffer* missingTexture)
 	{
-		RRObjectQuake3* object = new RRObjectQuake3(model,pathToTextures,stripPaths,missingTexture);
+		RRObjectQuake3* object = new RRObjectQuake3(model,pathToTextures,missingTexture);
 		push_back(RRIlluminatedObject(object,object->getIllumination()));
 	}
 	virtual ~RRObjectsQuake3()
@@ -462,7 +469,7 @@ public:
 class RRSceneQuake3 : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneQuake3* scene = new RRSceneQuake3;
 		if (!readMap(filename,scene->scene_bsp))
@@ -476,12 +483,8 @@ public:
 		{
 			char* maps = _strdup(filename);
 			char* mapsEnd;
-			if (!stripPaths)
-			{
-				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[0] = 0;
-			}
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
-			scene->objects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,stripPaths,NULL);
+			scene->objects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,NULL);
 			free(maps);
 			return scene;
 		}
@@ -505,9 +508,9 @@ private:
 //
 // main
 
-RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,RRBuffer* missingTexture)
+RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,RRBuffer* missingTexture)
 {
-	return new RRObjectsQuake3(model,pathToTextures,stripPaths,missingTexture);
+	return new RRObjectsQuake3(model,pathToTextures,missingTexture);
 }
 
 void registerLoaderQuake3()

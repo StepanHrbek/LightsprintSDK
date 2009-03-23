@@ -12,9 +12,10 @@
 //! Creates Lightsprint interface for Quake3 map.
 //
 //! If you use standard Quake3 directory structure and scene was loaded from "foo/bar/maps/map1.bsp",
-//! set pathToTextures to "foo/bar/".
-//! Parts of path are present in texture names. You may remove them with stripPaths.
-rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr::RRBuffer* missingTexture);
+//! set pathToTextures to "foo/bar/maps/".
+//! Textures will be loaded from proper paths specified by .bsp, but if it fails, second attempt will be made
+//! directly in pathToTextures directory, with original image paths stripped.
+rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model, const char* pathToTextures, rr::RRBuffer* missingTexture);
 
 //! Makes it possible to load .bsp scenes from disk via rr::RRScene::RRScene().
 void registerLoaderQuake3();

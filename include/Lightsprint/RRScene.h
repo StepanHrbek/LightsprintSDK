@@ -28,6 +28,9 @@ public:
 	//! rr_io::registerLoaders() will register all of them for you.
 	//! See rr_io::registerLoaders() for details on formats/features supported.
 	//!
+	//! Known loaders try to load all textures from proper paths specified by scene file,
+	//! but if it fails, second attempts are made in the same directory where scene file is.
+	//!
 	//! \param filename
 	//!  Filename of scene.
 	//! \param scale
@@ -35,15 +38,11 @@ public:
 	//!  These formats don't contain information about units,
 	//!  different files need different scale to convert to meters.
 	//!  Scale is size of scene unit in meters.
-	//! \param stripPaths
-	//!  Tries to load all textures from the same directory where scene file is,
-	//!  ignoring full paths stored in scene file.
-	//!  This is not applicable to .gsa.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
-	RRScene(const char* filename, float scale = 1, bool stripPaths = false, bool* aborting = NULL, float emissiveMultiplier = 1);
+	RRScene(const char* filename, float scale = 1, bool* aborting = NULL, float emissiveMultiplier = 1);
 	//! Creates empty scene.
 	RRScene() {implementation = NULL;}
 	//! Deletes scene including all objects and lights.
@@ -62,7 +61,7 @@ public:
 	virtual const rr::RRBuffer* getEnvironment();
 
 	//! Template of custom scene loader.
-	typedef RRScene* Loader(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier);
+	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
 	//! Registers scene loader so it can be used by RRScene constructor.
 	//
 	//! Extension is case insensitive, without dot, e.g. "3ds".

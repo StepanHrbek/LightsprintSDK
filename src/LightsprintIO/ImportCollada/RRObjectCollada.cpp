@@ -322,27 +322,47 @@ bool RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigne
 class ImageCache
 {
 public:
-	ImageCache(const char* _pathToTextures, bool _stripPaths)
+	ImageCache(const char* _pathToTextures)
 	{
 		if (_pathToTextures)
 			pathToTextures = _strdup(_pathToTextures);
 		else
 			// _strdup on NULL string causes crash on Unix platforms
 			pathToTextures = _strdup("");
-		stripPaths = _stripPaths;
 	}
 	RRBuffer* load(const FCDTexture* texture)
 	{
 		if (!texture) return NULL;
 		const FCDImage* image = texture->GetImage();
 		if (!image) return NULL;
-		fstring strippedName = image->GetFilename();
-		if (stripPaths)
+		RRBuffer* buffer = NULL;
+		RRReporter* oldReporter = RRReporter::getReporter();
+		RRReporter::setReporter(NULL); // disable reporting temporarily while we try texture load at 2 locations
+		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
 		{
-			while (strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
+			fstring strippedName = image->GetFilename();
+			if (stripPaths)
+			{
+				while (strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
+			}
+			if (stripPaths || (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':'))
+			{
+				strippedName.insert(0,pathToTextures);
+			}
+			buffer = load(strippedName.c_str(),NULL,false,false);
+			if (buffer) break;
 		}
-		strippedName.insert(0,pathToTextures);
-		return load(strippedName.c_str(),NULL,false,false);
+		RRReporter::setReporter(oldReporter);
+		if (!buffer)
+		{
+			fstring strippedName = image->GetFilename();
+			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
+			{
+				strippedName.insert(0,pathToTextures);
+			}
+			RRReporter::report(WARN,"Can't load texture %s\n",strippedName.c_str());
+		}
+		return buffer;
 	}
 	RRBuffer* load(fstring filename, const char* cubeSideName[6], bool flipV, bool flipH)
 	{
@@ -378,7 +398,6 @@ protected:
 	typedef std::map<fstring,RRBuffer*> Cache;
 	Cache cache;
 	char* pathToTextures;
-	bool stripPaths;
 };
 
 
@@ -750,7 +769,7 @@ RRObjectCollada::~RRObjectCollada()
 class RRObjectsCollada : public RRObjects
 {
 public:
-	RRObjectsCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier);
+	RRObjectsCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier);
 	virtual ~RRObjectsCollada();
 
 private:
@@ -842,8 +861,8 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
-	: imageCache(pathToTextures,stripPaths), materialCache(&imageCache,emissiveMultiplier)
+RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
+	: imageCache(pathToTextures), materialCache(&imageCache,emissiveMultiplier)
 {
 	if (!document)
 		return;
@@ -1004,7 +1023,7 @@ RRLightsCollada::~RRLightsCollada()
 class RRSceneCollada : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneCollada* scene = new RRSceneCollada;
 		FCollada::Initialize();
@@ -1021,16 +1040,13 @@ public:
 		}
 		else
 		{
-			char* pathToFile = _strdup(filename);
-			if (stripPaths)
-			{
-				char* tmp = MAX(strrchr(pathToFile,'\\'),strrchr(pathToFile,'/'));
-				if (tmp) tmp[1] = 0;
-			}			
+			char* pathToTextures = _strdup(filename);
+			char* tmp = MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
+			if (tmp) tmp[1] = 0;
 			RRReportInterval report(INF3,"Adapting scene...\n");
-			scene->objects = adaptObjectsFromFCollada(scene->scene_dae,stripPaths?pathToFile:"",stripPaths,emissiveMultiplier);
+			scene->objects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures,emissiveMultiplier);
 			scene->lights = adaptLightsFromFCollada(scene->scene_dae);
-			free(pathToFile);
+			free(pathToTextures);
 			return scene;
 		}
 	}
@@ -1061,9 +1077,9 @@ private:
 //
 // main
 
-RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, bool stripPaths, float emissiveMultiplier)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
 {
-	return new RRObjectsCollada(document,pathToTextures,stripPaths,emissiveMultiplier);
+	return new RRObjectsCollada(document,pathToTextures,emissiveMultiplier);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)

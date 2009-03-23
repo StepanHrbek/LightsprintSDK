@@ -39,7 +39,7 @@ static bool extensionMatches(const char* filename, const char* extension)
 //
 // RRScene
 
-RRScene::RRScene(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 {
 	implementation = NULL;
 	if (!filename)
@@ -76,7 +76,7 @@ RRScene::RRScene(const char* filename, float scale, bool stripPaths, bool* abort
 		if (extensionMatches(filename,s_loaders[i].extension))
 		{
 			loaderFound = true;
-			implementation = s_loaders[i].loader(filename,scale,stripPaths,aborting,emissiveMultiplier);
+			implementation = s_loaders[i].loader(filename,scale,aborting,emissiveMultiplier);
 			if (implementation)
 			{
 				return; // loaded, success

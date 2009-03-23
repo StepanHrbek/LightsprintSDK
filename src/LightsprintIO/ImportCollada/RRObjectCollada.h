@@ -10,8 +10,9 @@
 
 //! Creates Lightsprint interface for Collada objects (geometry+materials).
 //! You can search for textures in given directory (with trailing slash) rather than in default one.
-//! You can remove original paths from texture filenames with stripPaths.
-rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document, const char* pathToTextures=NULL, bool stripPaths=false, float emissiveMultiplier=1);
+//! Textures will be loaded from proper paths specified by collada, but if it fails, second attempt will be made
+//! directly in pathToTextures directory, with original image paths stripped.
+rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document, const char* pathToTextures=NULL, float emissiveMultiplier=1);
 
 //! Creates Lightsprint interface for Collada lights.
 rr::RRLights* adaptLightsFromFCollada(class FCDocument* document);

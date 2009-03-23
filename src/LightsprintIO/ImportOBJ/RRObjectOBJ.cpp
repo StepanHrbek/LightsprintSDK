@@ -166,7 +166,7 @@ public:
 class RRSceneOBJ : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool stripPaths, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneOBJ* scene = new RRSceneOBJ;
 		scene->objects = adaptObjectsFromOBJ(filename);
