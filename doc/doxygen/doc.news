@@ -14,23 +14,24 @@ NEWS
 
 - improved rr_gl::sceneViewer()
   - new parameter makes it possible to view scene from file rather than from solver in memory
-  - File/Open... added to menu
-- texture manipulation functions
+  - new File menu with Open scene, Save screenshot
+- new texture manipulation functions
   - RRBuffer::createCopy()
   - RRBuffer::setFormat()
   - RRBuffer::setFormatFloats()
   - RRBuffer::invert()
   - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
   - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
-- simplified scene import (parameter stripPaths was removed,
-  all loaders load textures from full paths as if stripPaths=false,
-  but if it fails, second attempt is made automatically in scene directory as if stripPaths=true).
-- improved .3ds import (transparency, opacity map, self illum map...)
-- improved transparency rendering
+- improved scene import
+  - rr_io::ImportScene with fixed set of formats replaced by extensible RRScene
+  - parameter stripPaths was removed, all loaders load textures from full paths as if stripPaths=false,
+    but if it fails, second attempt is made automatically in scene directory as if stripPaths=true
+  - RRScene::getSupportedFormats()
+  - improved .3ds import (transparency, opacity map, self illum map...)
+- improved transparency realtime rendering
 
 CHANGES
 
-- rr_io::ImportScene replaced by RRScene
 - rr_io::setImageLoader() replaced by rr_io::registerLoaders()
   \n new function registers also 3d scene loaders that did not need registration before
 - RRObjects moved from RRDynamicSolver.h to RRObject.h
