@@ -226,6 +226,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'W':
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_WIREFRAME));
 			break;
+		case 'G':
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_GRAVITY));
+			break;
 	}
 	else switch(evkey)
 	{
