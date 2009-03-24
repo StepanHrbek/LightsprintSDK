@@ -168,7 +168,6 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 
 	frame->UpdateEverything(); // slow. if specified by filename, loads scene from disk
 	frame->Update();
-	splash->Hide();
 
 	return frame;
 }
