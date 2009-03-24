@@ -40,7 +40,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		light = tmplight;
 	}*/
 
-	scene = new rr::RRScene(pilot.setup->filename, pilot.setup->scale, true);
+	scene = new rr::RRScene(pilot.setup->filename, pilot.setup->scale);
 	objects = scene->getObjects();
 
 	if (!objects || !objects->size())

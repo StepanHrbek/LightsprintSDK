@@ -508,7 +508,7 @@ int main(int argc, char **argv)
 	const char* sceneFilename = (argc>1)?argv[1]:DEFAULT_SCENE;
 
 	// load scene
-	scene = new rr::RRScene(sceneFilename,1,true);
+	scene = new rr::RRScene(sceneFilename,1);
 	if (!scene->getObjects())
 		error("No objects in scene.",false);
 
