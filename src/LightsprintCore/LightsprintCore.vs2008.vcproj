@@ -468,6 +468,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName).dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -666,6 +668,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -962,7 +966,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRMesh\RRMeshAccelerated.cpp"
+				RelativePath="RRMesh\RRMeshAccelerated.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -1242,11 +1246,11 @@
 			Name="RRStaticSolver"
 			>
 			<File
-				RelativePath=".\RRStaticSolver\ChunkList.h"
+				RelativePath="RRStaticSolver\ChunkList.h"
 				>
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\exceptions.cpp"
+				RelativePath="RRStaticSolver\exceptions.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -1690,7 +1694,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRReporter\RRReportInterval.cpp"
+				RelativePath="RRReporter\RRReportInterval.cpp"
 				>
 			</File>
 		</Filter>

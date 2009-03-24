@@ -16,11 +16,18 @@ if ERRORLEVEL 1 goto error
 set PATH=%PATH0%
 call "%VS80COMNTOOLS%\vsvars32.bat" >%ERR%
 
-echo Building VS2005 Debug DLL...
-devenv src\RR.vs2005.sln /build "Debug DLL" >%ERR%
+echo Building VS2005 Debug DLL/Win32...
+devenv src\RR.vs2005.sln /build "Debug DLL|Win32" >%ERR%
 if ERRORLEVEL 1 goto error
-echo Building VS2005 Release DLL...
-devenv src\RR.vs2005.sln /build "Release DLL" >%ERR%
+echo Building VS2005 Release DLL/Win32...
+devenv src\RR.vs2005.sln /build "Release DLL|Win32" >%ERR%
+if ERRORLEVEL 1 goto error
+
+echo Building VS2005 Debug DLL/x64...
+devenv src\RR.vs2005.sln /build "Debug DLL|x64" >%ERR%
+if ERRORLEVEL 1 goto error
+echo Building VS2005 Release DLL/x64...
+devenv src\RR.vs2005.sln /build "Release DLL|x64" >%ERR%
 if ERRORLEVEL 1 goto error
        
 set PATH=%PATH0%

@@ -2035,34 +2035,17 @@ Ray-Mesh collisions
 
  Compilers
  - Visual C++ 2008 (32bit, 64bit)
- - Visual C++ 2005 SP1 (32bit, \subpage vs2005_64 "64bit")
+ - Visual C++ 2005 SP1 (32bit, 64bit)
  - Visual C++ 2003 SP1
  - gcc (32bit, 64bit)
 
  Library configurations
  - Release DLL/so
  - Debug DLL/so
- - Release Static (source code license only)
- - Debug Static (source code license only)
+ - Release static (source code license only)
+ - Debug static (source code license only)
 
 
-
-\page vs2005_64 Visual C++ 2005 x64
-
-64bit code will gradually replace 32bit code.
-Lightsprint fully supports 64bit code in Visual Studio 2008 and
-in gcc.
-
-For 64bit targets in Visual Studio 2005,
-we don't provide projects (.vcproj),
-however, it is possible to use our 2008 libraries there.
-Simply make sure you use 2008 libraries in your projects.
- -# put our lib/x64 into your project's "Additional Library Directories"
- -# disable "Link Library Dependencies" in your project
- -# chage 2005 to 2008 in
-    - include/RRMath.h
-    - include/GL/DemoEngine.h
-    - include/IO/ImportScene.h
 
 
 

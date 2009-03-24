@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- native VS2005 x64 support
 - improved rr_gl::sceneViewer()
   - new parameter makes it possible to view scene from file rather than from solver in memory
   - new File menu with Open scene, Save screenshot
