@@ -69,13 +69,12 @@ int main(int argc, char **argv)
 	_chdir(exedir);
 	free(exedir);
 
+	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 #endif // _WIN32
 
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-
-	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 
 #if 1
 	// View scene in scene viewer
@@ -107,3 +106,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
