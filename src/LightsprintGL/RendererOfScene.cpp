@@ -551,10 +551,13 @@ void RendererOfOriginalScene::render()
 	if (params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 	{
 		// Render opaque objects from 0 to inf
+		//  Do it with disabled blend to 1) improve speed 2) avoid MultiPass to prerender Z for opaque object, because it is both useless and dangerous. For some reason it renders opaque objects lit by more than 2 lights as lit only by last light.
+		params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = false;
 		for (unsigned i=0;i<numObjectsToRender;i++)
 		{
 			renderOriginalObject(perObjectSorted[i].permanent,true,false);
 		}
+		params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
 	}
 	else
 	{
