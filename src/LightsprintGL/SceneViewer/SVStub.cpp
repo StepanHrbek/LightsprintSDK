@@ -8,7 +8,7 @@
 namespace rr_gl
 {
 
-void sceneViewer(rr::RRDynamicSolver* _solver, const char* _pathToShaders, SceneViewerState* _svs)
+void sceneViewer(rr::RRDynamicSolver* _solver, const char* _inputFilename, const char* _pathToShaders, SceneViewerState* _svs)
 {
 	rr::RRReporter::report(rr::WARN,"Scene Viewer was disabled for this platform for lack of demand, please let us know if you need it.\n");
 }
