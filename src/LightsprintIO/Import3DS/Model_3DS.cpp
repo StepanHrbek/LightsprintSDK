@@ -4,6 +4,8 @@
 // by: Matthew Fairfax
 // modified by: Stepan Hrbek
 //
+// http://www.jalix.org/ressources/graphics/3DS/_unofficials/3ds-info.txt
+//
 // Model_3DS.cpp: implementation of the Model_3DS class.
 // This is a simple class for loading and viewing
 // 3D Studio model files (.3ds). It supports models
