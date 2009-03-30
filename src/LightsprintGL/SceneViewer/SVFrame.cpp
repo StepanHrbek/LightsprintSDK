@@ -13,6 +13,7 @@
 #include "SVSolver.h"
 #include "SVSaveLoad.h"
 #include "../tmpstr.h"
+#include "wx/aboutdlg.h"
 #ifdef _WIN32
 #include <shlobj.h> // SHGetSpecialFolderPath
 #endif
@@ -120,6 +121,7 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 }
 
 	#define APP_NAME wxString("SceneViewer")
+	#define APP_VERSION ""
 
 void SVFrame::UpdateTitle()
 {
@@ -135,8 +137,15 @@ void SVFrame::UpdateEverything()
 	// remember canvas size, only first canvas is sized automatically
 	wxSize newSize = m_canvas ? m_canvas->GetSize() : wxDefaultSize;
 
+	bool firstUpdate = !m_canvas;
+
 	RR_SAFE_DELETE(m_lightProperties);
 	RR_SAFE_DELETE(m_canvas);
+
+	// initialInputSolver may be changed only if canvas is NULL
+	// we NULL it to avoid rendering solver contents again (new scene was opened)
+	// it has also minor drawback: initialInputSolver->abort will be ignored
+	if (!firstUpdate) svs.initialInputSolver = NULL;
 
 	m_canvas = new SVCanvas( svs, this, &m_lightProperties, newSize);
 
@@ -152,7 +161,7 @@ void SVFrame::UpdateEverything()
 	m_canvas->SetFocus();
 
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
-	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_MAXIMIZE));
+	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_RENDER_FULLSCREEN));
 
 	UpdateTitle();
 }
@@ -232,111 +241,133 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 void SVFrame::UpdateMenuBar()
 {
-	//const SVSolver* solver = m_canvas->solver;
-	//SceneViewerState& svs = m_canvas->svs;
-
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *winMenu = NULL;
-
-	// Select...
-	//winMenu = new wxMenu;
-	//char buf[100];
-	//winMenu->Append(-1,_T("camera"));
-	//for (unsigned i=0;i<solver->getLights().size();i++)
-	//{
-	//	sprintf(buf,"light %d",i);
-	//	winMenu->Append(i,_T(buf));
-	//}
-	//for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-	//{
-	//	sprintf(buf,"object %d",i);
-	//	winMenu->Append(1000+i,_T(buf));
-	//}
-	//menuBar->Append(winMenu, _T("Select"));
 
 	// File...
 	if (rr::RRScene::getSupportedExtensions() && rr::RRScene::getSupportedExtensions()[0])
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
-		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
+			winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
+		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
 
+
 	// Camera...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_CAMERA_GENERATE_RANDOM,_T("Set random camera"));
-	winMenu->Append(ME_CAMERA_SPEED,_T("Set camera speed..."));
-	menuBar->Append(winMenu, _T("Camera"));
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_CAMERA_SPEED,_T("Set camera speed..."));
+		winMenu->Append(ME_CAMERA_GENERATE_RANDOM,_T("Set random camera"));
+		menuBar->Append(winMenu, _T("Camera"));
+	}
+
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_ENV_WHITE,_T("Set white"));
+		winMenu->Append(ME_ENV_BLACK,_T("Set black"));
+		winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"));
+		menuBar->Append(winMenu, _T("Environment"));
+	}
 
 	// Lights...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_SHOW_LIGHT_PROPERTIES,_T("Show light properties"));
-	winMenu->Append(ME_LIGHT_DIR,_T("Add dir light"));
-	winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light"));
-	winMenu->Append(ME_LIGHT_POINT,_T("Add point light"));
-	winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
-	winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"));
-	menuBar->Append(winMenu, _T("Lights"));
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_LIGHT_PROPERTIES,_T("Show light properties"));
+		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
+		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light"));
+		winMenu->Append(ME_LIGHT_POINT,_T("Add point light"));
+		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
+		winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"));
+		menuBar->Append(winMenu, _T("Lights"));
+	}
 
-
-	// Environment...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_ENV_WHITE,_T("Set white"));
-	winMenu->Append(ME_ENV_BLACK,_T("Set black"));
-	winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"));
-	menuBar->Append(winMenu, _T("Environment"));
-
-	// Static lighting...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_STATIC_3D,_T("Render static lighting"));
-	winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"));
-	winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
-	winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."));
-	winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."));
-#ifdef DEBUG_TEXEL
-	winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."));
-#endif
-	winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"));
-	winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"));
-	winMenu->Append(ME_STATIC_SAVE,_T("Save"));
-	winMenu->Append(ME_STATIC_LOAD,_T("Load"));
-	menuBar->Append(winMenu, _T("Static lighting"));
 
 	// Realtime lighting...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect"));
-	winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball"));
-	winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."));
-	winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."));
-	winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"));
-	menuBar->Append(winMenu, _T("Realtime lighting"));
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect"));
+		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball"));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."));
+		winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"));
+		menuBar->Append(winMenu, _T("Realtime lighting"));
+	}
+
+	// Static lighting...
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_STATIC_3D,_T("Render static lighting"));
+		winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"));
+		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
+		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."));
+		winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."));
+#ifdef DEBUG_TEXEL
+		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."));
+#endif
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"));
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"));
+		winMenu->Append(ME_STATIC_SAVE,_T("Save"));
+		winMenu->Append(ME_STATIC_LOAD,_T("Load"));
+		menuBar->Append(winMenu, _T("Static lighting"));
+	}
 
 	// Render...
-	winMenu = new wxMenu;
-	winMenu->Append(ME_MAXIMIZE,svs.fullscreen?_T("Windowed"):_T("Fullscreen"));
-	winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"));
-	winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"));
-	winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"));
-	winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"));
-	winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"));
-	winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"));
-	winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"));
-	winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"));
-	winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"));
-	winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
-	menuBar->Append(winMenu, _T("Render"));
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed"):_T("Fullscreen"));
+		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"));
+		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"));
+		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"));
+		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"));
+		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"));
+		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"));
+		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"));
+		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"));
+		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"));
+		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
+		menuBar->Append(winMenu, _T("Render"));
+	}
 
-	winMenu = new wxMenu;
-	winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"));
-	winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"));
-	winMenu->Append(ME_HELP,_T("Help"));
-	menuBar->Append(winMenu, _T("Misc"));
-
+	// About...
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_HELP,_T("Help"));
+		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"));
+		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"));
+		winMenu->Append(ME_ABOUT,_T("About"));
+		menuBar->Append(winMenu, _T("Help"));
+	}
 
 	wxMenuBar* oldMenuBar = GetMenuBar();
 	SetMenuBar(menuBar);
 	delete oldMenuBar;
+}
+
+wxImage* loadImage(const char* filename)
+{
+	// Q: why do we read images via RRBuffer::load()?
+	// A: wx file loaders are not compiled in, to reduce size
+	//    wxIcon(fname.ico) works only in Windows and reduces icon resolution
+	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
+	rr::RRBuffer* buffer = rr::RRBuffer::load(filename,NULL,true);
+	if (!buffer)
+		return NULL;
+	unsigned width = buffer->getWidth();
+	unsigned height = buffer->getHeight();
+	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
+	wxImage* image = new wxImage(width,height,false);
+	image->InitAlpha();
+	for (unsigned j=0;j<height;j++)
+		for (unsigned i=0;i<width;i++)
+		{
+			rr::RRVec4 element = buffer->getElement(j*width+i);
+			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
+			image->SetAlpha(i,j,(unsigned)(element[3]*255));
+		}
+	delete buffer;
+	return image;
 }
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
@@ -353,30 +384,215 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 	switch (event.GetId())
 	{
-		// Select...
-		//if (item<0) selectedType = ST_CAMERA;
-		//if (item>=0 && item<1000) {selectedType = ST_LIGHT; svs.selectedLightIndex = item;}
-		//if (item>=1000) {selectedType = ST_OBJECT; svs.selectedObjectIndex = item-1000;}
 
-		case ME_RENDER_DIFFUSE: svs.renderDiffuse = !svs.renderDiffuse; break;
-		case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
-		case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
-		case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
-		case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
-		case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
-		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
-		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
-		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
+		//////////////////////////////// FILE ///////////////////////////////
 
-		case ME_MAXIMIZE:
-			svs.fullscreen = !svs.fullscreen;
-			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
-			GetPosition(windowCoord+0,windowCoord+1);
-			GetSize(windowCoord+2,windowCoord+3);
+		case ME_FILE_OPEN_SCENE:
+			{
+				wxFileDialog dialog(this,"Choose a 3d scene","","",rr::RRScene::getSupportedExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				dialog.SetPath(svs.sceneFilename);
+				if (dialog.ShowModal()==wxID_OK)
+				{
+					wxString newSceneFilename = dialog.GetPath();
+					free(svs.sceneFilename);
+					svs.sceneFilename = _strdup(newSceneFilename.c_str());
+					UpdateEverything();
+				}
+			}
+			break;
+		case ME_FILE_SAVE_SCREENSHOT:
+			{
+				wxSize size = m_canvas->GetSize();
+				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+				glReadBuffer(GL_BACK);
+				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+				sshot->unlock();
+				char screenshotFilename[1000]=".";
+#ifdef _WIN32
+				SHGetSpecialFolderPath(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+#endif
+				time_t t = time(NULL);
+				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.png",t%10000);
+				if (sshot->save(screenshotFilename))
+					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
+				else
+					rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",screenshotFilename);
+				delete sshot;
+			}
+			break;
+		case ME_EXIT:
+			Close();
 			break;
 
-		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
-		case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
+
+		//////////////////////////////// CAMERA ///////////////////////////////
+
+		case ME_CAMERA_GENERATE_RANDOM:
+			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
+			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
+			break;
+		case ME_CAMERA_SPEED:
+			getSpeed(this,svs.cameraMetersPerSecond);
+			break;
+
+
+		//////////////////////////////// ENVIRONMENT ///////////////////////////////
+
+		case ME_ENV_WHITE:
+		case ME_ENV_BLACK:
+		case ME_ENV_WHITE_TOP:
+			if (ourEnv)
+			{
+				delete solver->getEnvironment();
+			}
+			ourEnv = true;
+			switch (event.GetId())
+			{
+				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
+				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
+				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
+			}
+			break;
+
+			
+		//////////////////////////////// LIGHTS ///////////////////////////////
+
+		case ME_LIGHT_DIR:
+		case ME_LIGHT_SPOT:
+		case ME_LIGHT_POINT:
+			{
+				rr::RRLights newList = solver->getLights();
+				rr::RRLight* newLight = NULL;
+				switch (event.GetId())
+				{
+					case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); break;
+					case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
+					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
+				}
+				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
+				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
+				newList.push_back(newLight);
+				solver->setLights(newList); // RealtimeLight in light props is deleted here
+				svs.selectedLightIndex = newList.size()?newList.size()-1:0; // select new light
+				if (m_lightProperties)
+				{
+					m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
+				}
+			}
+			break;
+		case ME_LIGHT_DELETE:
+			if (svs.selectedLightIndex<solver->realtimeLights.size())
+			{
+				rr::RRLights newList = solver->getLights();
+				newList.erase(svs.selectedLightIndex);
+				if (svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
+					svs.selectedLightIndex--;
+				if (!newList.size())
+				{
+					m_canvas->selectedType = SVCanvas::ST_CAMERA;
+					// enable ambient when deleting last light
+					//  but only when scene doesn't contain emissive materials
+					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
+				}
+				RR_SAFE_DELETE(m_lightProperties); // delete light props
+				solver->setLights(newList); // RealtimeLight in light props is deleted here
+			}
+			break;
+		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
+		case ME_LIGHT_PROPERTIES:
+			if (svs.selectedLightIndex<solver->getLights().size())
+			{
+				if (!m_lightProperties)
+				{
+					m_lightProperties = new SVLightProperties( this );
+				}
+				m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]);
+				m_lightProperties->Show(true);
+			}
+			break;
+
+
+		//////////////////////////////// SETTINGS ///////////////////////////////
+
+
+
+		//////////////////////////////// REALTIME LIGHTING ///////////////////////////////
+
+		case ME_REALTIME_FIREBALL:
+			svs.renderRealtime = 1;
+			svs.render2d = 0;
+			solver->dirtyLights();
+			if (!fireballLoadAttempted) 
+			{
+				fireballLoadAttempted = true;
+				solver->loadFireball(NULL);
+			}
+			break;
+		case ME_REALTIME_ARCHITECT:
+			svs.renderRealtime = 1;
+			svs.render2d = 0;
+			solver->dirtyLights();
+			fireballLoadAttempted = false;
+			solver->leaveFireball();
+			break;
+		case ME_REALTIME_LDM:
+			svs.renderRealtime = 1;
+			solver->dirtyLights();
+			svs.renderLDM = !svs.renderLDM;
+			break;
+		case ME_REALTIME_LDM_BUILD:
+			{
+				unsigned res = 256;
+				unsigned quality = 100;
+				if (getQuality(this,quality) && getResolution(this,res,false))
+				{
+					svs.renderRealtime = 1;
+					svs.render2d = 0;
+					solver->dirtyLights();
+					svs.renderLDM = 1;
+
+					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
+					fireballLoadAttempted = false;
+					solver->leaveFireball();
+
+					for (unsigned i=0;i<solver->getNumObjects();i++)
+						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
+							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+					paramsDirect.applyLights = 0;
+					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
+					paramsIndirect.applyLights = 0;
+					paramsIndirect.locality = 1;
+					const rr::RRBuffer* oldEnv = solver->getEnvironment();
+					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
+					solver->setEnvironment(newEnv);
+					rr::RRDynamicSolver::FilteringParameters filtering;
+					filtering.backgroundColor = rr::RRVec4(0.5f);
+					filtering.wrap = false;
+					filtering.smoothBackground = true;
+					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+					solver->setEnvironment(oldEnv);
+					delete newEnv;
+				}
+			}
+			break;
+		case ME_REALTIME_FIREBALL_BUILD:
+			{
+				unsigned quality = 100;
+				if (getQuality(this,quality))
+				{
+					svs.renderRealtime = 1;
+					svs.render2d = 0;
+					solver->buildFireball(quality,NULL);
+					solver->dirtyLights();
+					fireballLoadAttempted = true;
+				}
+			}
+			break;
+
+
+		//////////////////////////////// STATIC LIGHTING ///////////////////////////////
 
 		case ME_STATIC_3D:
 			svs.renderRealtime = 0;
@@ -525,194 +741,31 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 
-		case ME_REALTIME_FIREBALL:
-			svs.renderRealtime = 1;
-			svs.render2d = 0;
-			solver->dirtyLights();
-			if (!fireballLoadAttempted) 
-			{
-				fireballLoadAttempted = true;
-				solver->loadFireball(NULL);
-			}
-			break;
-		case ME_REALTIME_ARCHITECT:
-			svs.renderRealtime = 1;
-			svs.render2d = 0;
-			solver->dirtyLights();
-			fireballLoadAttempted = false;
-			solver->leaveFireball();
-			break;
-		case ME_REALTIME_LDM:
-			svs.renderRealtime = 1;
-			solver->dirtyLights();
-			svs.renderLDM = !svs.renderLDM;
-			break;
-		case ME_REALTIME_LDM_BUILD:
-			{
-				unsigned res = 256;
-				unsigned quality = 100;
-				if (getQuality(this,quality) && getResolution(this,res,false))
-				{
-					svs.renderRealtime = 1;
-					svs.render2d = 0;
-					solver->dirtyLights();
-					svs.renderLDM = 1;
 
-					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
-					fireballLoadAttempted = false;
-					solver->leaveFireball();
+		//////////////////////////////// RENDER ///////////////////////////////
 
-					for (unsigned i=0;i<solver->getNumObjects();i++)
-						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
-							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
-					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
-					paramsDirect.applyLights = 0;
-					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
-					paramsIndirect.applyLights = 0;
-					paramsIndirect.locality = 1;
-					const rr::RRBuffer* oldEnv = solver->getEnvironment();
-					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
-					solver->setEnvironment(newEnv);
-					rr::RRDynamicSolver::FilteringParameters filtering;
-					filtering.backgroundColor = rr::RRVec4(0.5f);
-					filtering.wrap = false;
-					filtering.smoothBackground = true;
-					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
-					solver->setEnvironment(oldEnv);
-					delete newEnv;
-				}
-			}
+		case ME_RENDER_FULLSCREEN:
+			svs.fullscreen = !svs.fullscreen;
+			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
+			GetPosition(windowCoord+0,windowCoord+1);
+			GetSize(windowCoord+2,windowCoord+3);
 			break;
-		case ME_REALTIME_FIREBALL_BUILD:
-			{
-				unsigned quality = 100;
-				if (getQuality(this,quality))
-				{
-					svs.renderRealtime = 1;
-					svs.render2d = 0;
-					solver->buildFireball(quality,NULL);
-					solver->dirtyLights();
-					fireballLoadAttempted = true;
-				}
-			}
-			break;
-
-		case ME_CAMERA_GENERATE_RANDOM:
-			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
-			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
-			break;
+		case ME_RENDER_DIFFUSE: svs.renderDiffuse = !svs.renderDiffuse; break;
+		case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
+		case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
+		case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
+		case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
+		case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
+		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
+		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
+		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 		case ME_RENDER_BRIGHTNESS:
 			getBrightness(this,svs.brightness);
 			break;
-		case ME_CAMERA_SPEED:
-			getSpeed(this,svs.cameraMetersPerSecond);
-			break;
-			
-
-		case ME_ENV_WHITE:
-		case ME_ENV_BLACK:
-		case ME_ENV_WHITE_TOP:
-			if (ourEnv)
-			{
-				delete solver->getEnvironment();
-			}
-			ourEnv = true;
-			switch (event.GetId())
-			{
-				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
-				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
-				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
-			}
-			break;
 
 
-		case ME_LIGHT_DIR:
-		case ME_LIGHT_SPOT:
-		case ME_LIGHT_POINT:
-			{
-				rr::RRLights newList = solver->getLights();
-				rr::RRLight* newLight = NULL;
-				switch (event.GetId())
-				{
-					case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); break;
-					case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
-					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
-				}
-				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
-				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
-				newList.push_back(newLight);
-				solver->setLights(newList); // RealtimeLight in light props is deleted here
-				svs.selectedLightIndex = newList.size()?newList.size()-1:0; // select new light
-				if (m_lightProperties)
-				{
-					m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
-				}
-			}
-			break;
-		case ME_LIGHT_DELETE:
-			if (svs.selectedLightIndex<solver->realtimeLights.size())
-			{
-				rr::RRLights newList = solver->getLights();
-				newList.erase(svs.selectedLightIndex);
-				if (svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
-					svs.selectedLightIndex--;
-				if (!newList.size())
-				{
-					m_canvas->selectedType = SVCanvas::ST_CAMERA;
-					// enable ambient when deleting last light
-					//  but only when scene doesn't contain emissive materials
-					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
-				}
-				RR_SAFE_DELETE(m_lightProperties); // delete light props
-				solver->setLights(newList); // RealtimeLight in light props is deleted here
-			}
-			break;
-		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
-		case ME_FILE_OPEN_SCENE:
-			{
-				wxFileDialog dialog(this,"Choose a 3d scene","","",rr::RRScene::getSupportedExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.sceneFilename);
-				if (dialog.ShowModal()==wxID_OK)
-				{
-					wxString newSceneFilename = dialog.GetPath();
-					free(svs.sceneFilename);
-					svs.sceneFilename = _strdup(newSceneFilename.c_str());
-					UpdateEverything();
-				}
-			}
-			break;
-		case ME_FILE_SAVE_SCREENSHOT:
-			{
-				wxSize size = m_canvas->GetSize();
-				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
-				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-				glReadBuffer(GL_BACK);
-				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-				sshot->unlock();
-				char screenshotFilename[1000]=".";
-#ifdef _WIN32
-				SHGetSpecialFolderPath(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-				time_t t = time(NULL);
-				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.png",t%10000);
-				if (sshot->save(screenshotFilename))
-					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
-				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",screenshotFilename);
-				delete sshot;
-			}
-			break;
-		case ME_SHOW_LIGHT_PROPERTIES:
-			if (svs.selectedLightIndex<solver->getLights().size())
-			{
-				if (!m_lightProperties)
-				{
-					m_lightProperties = new SVLightProperties( this );
-				}
-				m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]);
-				m_lightProperties->Show(true);
-			}
-			break;
+		//////////////////////////////// HELP ///////////////////////////////
+
 		case ME_HELP:
 			wxMessageBox("To LOOK, move mouse with right button pressed.\n"
 				"To MOVE, use arrows or wsadqzxc.\n"
@@ -720,6 +773,26 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				"\n"
 				"To change lights or lighting techniques, use menu.",
 				"Controls");
+			break;
+		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
+		case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
+		case ME_ABOUT:
+			{
+				wxImage* image = loadImage(tmpstr("%s../maps/lightsprint230.png",svs.pathToShaders));
+				wxIcon icon;
+				if (image)
+				{
+					wxBitmap bitmap(*image);
+					icon.CopyFromBitmap(bitmap);
+				}
+
+				wxAboutDialogInfo info;
+				info.SetIcon(icon);
+				info.SetName("Lightsprint SDK");
+				info.SetWebSite("http://lightsprint.com");
+				info.SetCopyright("(c) 1999-2009 Stepan Hrbek, Lightsprint");
+				wxAboutBox(info);
+			}
 			break;
 	}
 

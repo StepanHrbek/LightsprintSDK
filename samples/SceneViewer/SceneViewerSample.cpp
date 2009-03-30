@@ -79,7 +79,8 @@ int main(int argc, char **argv)
 
 #if 1
 	// View scene in scene viewer
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/shaders/",NULL);
+	rr_gl::SceneViewerState svs;
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs);
 #else
 	// Load scene
 	rr::RRScene scene(sceneFilename);
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
 	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
 
 	// View solver in scene viewer
-	rr_gl::sceneViewer(solver,sceneFilename,"../../data/shaders/",NULL);
+	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/shaders/",NULL);
 
 	// Cleanup
 	rr_gl::deleteAllTextures();

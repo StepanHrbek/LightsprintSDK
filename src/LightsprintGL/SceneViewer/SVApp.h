@@ -20,14 +20,17 @@ namespace rr_gl
 		rr::RRDynamicSolver* initialInputSolver;
 		//! Initial and never changing path to shaders. Not freed.
 		const char* pathToShaders;
-		//! _strduped and freed.
+		//! Current scene filename, e.g. scene.dae or scene.3ds. It is free()d in destructor.
 		char* sceneFilename;
+		//! Current skybox filename, e.g. skybox.hdr or skybox_%s.tga. It is free()d in destructor.
+		char* skyboxFilename;
 
 		SceneViewerStateEx()
 		{
 			initialInputSolver = NULL;
 			pathToShaders = NULL;
 			sceneFilename = NULL;
+			skyboxFilename = NULL;
 		}
 		~SceneViewerStateEx()
 		{

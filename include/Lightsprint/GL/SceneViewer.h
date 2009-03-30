@@ -16,6 +16,7 @@
 namespace rr_gl
 {
 
+
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
@@ -89,11 +90,17 @@ struct SceneViewerState
 //!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.
 //! \param inputFilename
 //!  If inputSolver is NULL, we attempt to open and display this file. This is handy for scene viewer applications.
+//!  Your string is not free()d.
+//! \param skyboxFilename
+//!  If it is valid skybox, it is used, overriding eventual environment from inputSolver.
+//!  Examples: skybox.hdr or skybox_%s.jpg for Quake3 style skybox made of 6 images, %s is replaced by "bk","ft","up","dn","rt","lf".
+//!  Your string is not free()d.
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
+//!  Your string is not free()d.
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* pathToShaders, SceneViewerState* svs);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToShaders, SceneViewerState* svs);
 
 }; // namespace
 

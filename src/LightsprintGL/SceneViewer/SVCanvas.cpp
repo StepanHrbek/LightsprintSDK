@@ -124,6 +124,21 @@ void SVCanvas::createContext()
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
+	if (svs.skyboxFilename)
+	{
+		bool quakeStyle = strstr(svs.skyboxFilename,"%s")!=NULL;
+		const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+		rr::RRBuffer* skybox = rr::RRBuffer::load(svs.skyboxFilename,quakeStyle?cubeSideNames:NULL,quakeStyle,quakeStyle);
+		// skybox is used only if it exists
+		if (skybox)
+		{
+			if (ourEnv)
+				delete solver->getEnvironment();
+			ourEnv = true;
+			solver->setEnvironment(skybox);
+		}
+	}
+
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
 	fireballLoadAttempted = 1;
@@ -218,6 +233,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
 	bool needsRefresh = false;
 	long evkey = event.GetKeyCode();
+	float speed = (event.GetModifiers()==wxMOD_SHIFT) ? 3 : 1;
 	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
 	{
 		case 'T':
@@ -229,7 +245,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	}
 	else switch(evkey)
 	{
-		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_MAXIMIZE)); break;
+		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_FULLSCREEN)); break;
 		case 'o': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_LDM)); break;
 
 		case WXK_NUMPAD_ADD:
@@ -248,43 +264,39 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 		case WXK_LEFT:
 		case 'a':
-		case 'A': speedLeft = 1; break;
+		case 'A': speedLeft = speed; break;
 
 		case WXK_DOWN:
 		case 's':
-		case 'S': speedBack = 1; break;
+		case 'S': speedBack = speed; break;
 
 		case WXK_RIGHT:
 		case 'd':
-		case 'D': speedRight = 1; break;
+		case 'D': speedRight = speed; break;
 
 		case WXK_UP:
 		case 'w':
-		case 'W': speedForward = 1; break;
+		case 'W': speedForward = speed; break;
 
 		case WXK_PAGEUP:
 		case 'q':
-		case 'Q': speedUp = 1; break;
+		case 'Q': speedUp = speed; break;
 
 		case WXK_PAGEDOWN:
 		case 'z':
-		case 'Z': speedDown = 1; break;
+		case 'Z': speedDown = speed; break;
 
 		case 'x':
-		case 'X': speedLean = -1; break;
+		case 'X': speedLean = -speed; break;
 
 		case 'c':
-		case 'C': speedLean = +1; break;
+		case 'C': speedLean = +speed; break;
 
 
 		case 27:
 			if (svs.render2d)
 			{
 				svs.render2d = 0;
-			}
-			else if (svs.fullscreen)
-			{
-				GetParent()->GetEventHandler()->ProcessEvent(event);
 			}
 			else
 			{
