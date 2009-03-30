@@ -217,6 +217,8 @@ namespace rr
 		//!
 		//! Initialized to NULL, free()d in destructor.
 		//! You may set/change it at any time.
+		//! In VC++, make sure you use the same Runtime Library as all Lightsprint libraries and samples,
+		//! otherwise free() in destructor would use wrong heap.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
 		//! When set, realtime spotlight is modulated only by texture.
