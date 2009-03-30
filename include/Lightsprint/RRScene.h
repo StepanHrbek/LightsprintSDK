@@ -32,7 +32,7 @@ public:
 	//! but if it fails, second attempts are made in the same directory where scene file is.
 	//!
 	//! \param filename
-	//!  Filename of scene.
+	//!  Filename of scene. If it is NULL, scene will be empty.
 	//! \param scale
 	//!  If it is .gsa/.3ds/.obj, geometry is scaled(multiplied) by scale.
 	//!  These formats don't contain information about units,

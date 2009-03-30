@@ -47,7 +47,8 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 	implementation = NULL;
 	if (!filename)
 	{
-		RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
+		// don't warn, it's documented as a valid way to create empty scene
+		//RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
 		return;
 	}
 
