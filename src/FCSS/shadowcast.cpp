@@ -307,7 +307,7 @@ void init_gl_resources()
 		realtimeLight->transparentMaterialShadows = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
 #ifdef CORNER_LOGO
-	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 	g_fps = Fps::create();
 
