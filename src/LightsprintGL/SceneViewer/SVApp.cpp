@@ -49,6 +49,11 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	wxEntry(0,NULL);
+
+	// don't wait for destructor, free strings now to avoid false positive in memleak detector
+	RR_SAFE_FREE(g_svs.sceneFilename);
+	RR_SAFE_FREE(g_svs.projectFilename);
+	RR_SAFE_FREE(g_svs.skyboxFilename);
 }
  
 }; // namespace
