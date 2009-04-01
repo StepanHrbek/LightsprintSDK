@@ -122,6 +122,10 @@ struct RR_GL_API UberProgramSetup
 		MATERIAL_CULLING = true;
 	}
 
+	//! Rewrites all MATERIAL_XXX by values it recommends for given object.
+	//! Only features present in object's materials are enabled.
+	//! It is slow, not for use in every frame.
+	void recommendMaterialSetup(rr::RRObject* object);
 	//! Returns our attribute values in format suitable for our uberprogram.
 	//! Example: "#define SHADOW_MAPS 2\n#define SHADOW_SAMPLES 4\n#define MATERIAL_DIFFUSE\n".
 	const char* getSetupString();

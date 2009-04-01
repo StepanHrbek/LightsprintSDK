@@ -15,6 +15,161 @@ namespace rr_gl
 //
 // UberProgramSetup - options for UberShader.vs/fs
 
+void UberProgramSetup::recommendMaterialSetup(rr::RRObject* object)
+{
+	// update MATERIAL_* recommendations
+	unsigned numTrianglesWithDifConst = 0;
+	unsigned numTrianglesWithDifMap = 0;
+	unsigned numTrianglesWithSpecConst = 0;
+	unsigned numTrianglesWithSpecMap = 0;
+	unsigned numTrianglesWithEmiConst = 0;
+	unsigned numTrianglesWithEmiMap = 0;
+	unsigned numTrianglesWithConstTransp = 0;
+	unsigned numTrianglesWithMapRGBTransp = 0;
+	unsigned numTrianglesWithDifMapATransp = 0;
+	unsigned numTrianglesWithNonDifMapATransp = 0;
+	unsigned numTrianglesWithTranspBlend = 0;
+	unsigned numTrianglesWithTranspKeyed = 0;
+	unsigned numTriangles01Sided = 0;
+	unsigned numTriangles2Sided = 0;
+	if (object)
+	{
+		unsigned numTrianglesMulti = object->getCollider()->getMesh()->getNumTriangles();
+		for (unsigned t=0;t<numTrianglesMulti;t++)
+		{
+			const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+			if (material)
+			{
+				// dif
+				if (material->diffuseReflectance.texture)
+				{
+					numTrianglesWithDifMap++;
+				}
+				else
+				if (material->diffuseReflectance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithDifConst++;
+				}
+
+				// spec
+				if (material->specularReflectance.texture)
+				{
+					numTrianglesWithSpecMap++;
+				}
+				else
+				if (material->specularReflectance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithSpecConst++;
+				}
+
+				// emi
+				if (material->diffuseEmittance.texture)
+				{
+					numTrianglesWithEmiMap++;
+				}
+				else
+				if (material->diffuseEmittance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithEmiConst++;
+				}
+
+				// transp
+				if (material->specularTransmittance.texture)
+				{
+					if (material->specularTransmittance.texture==material->diffuseReflectance.texture)
+						numTrianglesWithDifMapATransp++;
+					else 
+					if (material->specularTransmittanceInAlpha)
+						numTrianglesWithNonDifMapATransp++;
+					else 
+						numTrianglesWithMapRGBTransp++;
+					if (material->specularTransmittanceKeyed)
+						numTrianglesWithTranspKeyed++;
+					else
+						numTrianglesWithTranspBlend++;
+				}
+				else
+				if (material->specularTransmittance.color!=rr::RRVec3(0))
+				{
+					numTrianglesWithConstTransp++;
+					numTrianglesWithTranspBlend++;
+				}
+
+				// culling
+				if (material->sideBits[0].renderFrom && material->sideBits[1].renderFrom)
+					numTriangles2Sided++;
+				else
+					numTriangles01Sided++;
+			}
+		}
+	}
+
+	// dif
+	MATERIAL_DIFFUSE_X2 = false;
+	MATERIAL_DIFFUSE_CONST = numTrianglesWithDifConst>0 && numTrianglesWithDifMap==0;
+	MATERIAL_DIFFUSE_VCOLOR = false;
+	MATERIAL_DIFFUSE_MAP = numTrianglesWithDifMap>0;
+	MATERIAL_DIFFUSE = MATERIAL_DIFFUSE_CONST || MATERIAL_DIFFUSE_MAP;
+
+	// spec
+	MATERIAL_SPECULAR_CONST = numTrianglesWithSpecConst>0;
+	MATERIAL_SPECULAR_MAP = numTrianglesWithSpecMap>0;
+	MATERIAL_SPECULAR = MATERIAL_SPECULAR_CONST || MATERIAL_SPECULAR_MAP;
+
+	// emi
+	MATERIAL_EMISSIVE_CONST = numTrianglesWithEmiConst>0 && numTrianglesWithEmiMap==0;
+	MATERIAL_EMISSIVE_VCOLOR = false;
+	MATERIAL_EMISSIVE_MAP = numTrianglesWithEmiMap>0;
+
+	// transp
+	if (numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
+	{
+		//LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
+	}
+	if (numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
+	{
+		// transparency mostly in rgb map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 1;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+	}
+	else
+	if (numTrianglesWithNonDifMapATransp>0)
+	{
+		// transparency mostly in a map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 1;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	}
+	else
+	if (numTrianglesWithDifMapATransp>0)
+	{
+		// transparency mostly in a of diffuse map
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	}
+	else
+	if (numTrianglesWithConstTransp>0)
+	{
+		// transparency mostly constant
+		MATERIAL_TRANSPARENCY_CONST = 1;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+	}
+	else
+	{
+		// no transparency
+		MATERIAL_TRANSPARENCY_CONST = 0;
+		MATERIAL_TRANSPARENCY_MAP = 0;
+		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+	}
+	MATERIAL_TRANSPARENCY_BLEND = numTrianglesWithTranspBlend>numTrianglesWithTranspKeyed;
+
+	// misc
+	MATERIAL_NORMAL_MAP = false;
+	MATERIAL_CULLING = numTriangles01Sided>0;
+}
 
 const char* UberProgramSetup::getSetupString()
 {
