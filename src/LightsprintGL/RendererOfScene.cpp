@@ -320,6 +320,7 @@ private:
 		rr::RRVec3 objectCenter;
 		Renderer* rendererCaching;
 		RendererOfRRObject* rendererNonCaching;
+		UberProgramSetup recommendedMaterialSetup;
 		PerObjectPermanent()
 		{
 			object = NULL;
@@ -327,6 +328,20 @@ private:
 			objectCenter = rr::RRVec3(0);
 			rendererCaching = NULL;
 			rendererNonCaching = NULL;
+		}
+		void init(rr::RRObject* _object, rr::RRObjectIllumination* _illumination)
+		{
+			object = _object;
+			illumination = _illumination;
+			if (object)
+			{
+				rr::RRMesh* mesh = object->createWorldSpaceMesh();
+				mesh->getAABB(NULL,NULL,&objectCenter);
+				delete mesh;
+				rendererNonCaching = RendererOfRRObject::create(object,NULL,NULL,true);
+				rendererCaching = rendererNonCaching ? rendererNonCaching->createDisplayList() : NULL;
+				recommendedMaterialSetup.recommendMaterialSetup(object);
+			}
 		}
 		~PerObjectPermanent()
 		{
@@ -517,16 +532,7 @@ void RendererOfOriginalScene::render()
 		perObjectSorted = new PerObjectSorted[params.solver->getNumObjects()];
 		for (unsigned i=0;i<params.solver->getNumObjects();i++)
 		{
-			perObjectPermanent[i].object = params.solver->getObject(i);
-			perObjectPermanent[i].illumination = params.solver->getIllumination(i);
-			if (perObjectPermanent[i].object)
-			{
-				rr::RRMesh* mesh = perObjectPermanent[i].object->createWorldSpaceMesh();
-				mesh->getAABB(NULL,NULL,&perObjectPermanent[i].objectCenter);
-				delete mesh;
-				perObjectPermanent[i].rendererNonCaching = RendererOfRRObject::create(perObjectPermanent[i].object,NULL,NULL,true);
-				perObjectPermanent[i].rendererCaching = perObjectPermanent[i].rendererNonCaching ? perObjectPermanent[i].rendererNonCaching->createDisplayList() : NULL;
-			}
+			perObjectPermanent[i].init(params.solver->getObject(i),params.solver->getIllumination(i));
 			perObjectSorted[i].permanent = perObjectPermanent+i;
 			perObjectSorted[i].distance = 0;
 		}
