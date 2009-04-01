@@ -62,8 +62,8 @@ namespace rr_gl
 		float                      speedLean;
 		bool                       exitRequested;
 		int                        menuHandle;
-		bool                       ourEnv; // whether environment is owned by us
-		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned by us
+		bool                       envToBeDeletedOnExit; // whether environment is owned and deleted by us
+		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 		SVLightmapViewer*          lv; // 2d lightmap viewer
 		unsigned                   centerObject; // object in the middle of screen
 		unsigned                   centerTexel; // texel in the middle of screen

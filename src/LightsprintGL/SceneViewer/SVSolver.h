@@ -24,6 +24,8 @@ namespace rr_gl
 		void resetRenderCache();
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight);
 		void dirtyLights();
+		
+		bool usingOptimizedScene() {return rendererOfScene ? rendererOfScene->usingOptimizedScene() : false;}
 
 	protected:
 		SceneViewerStateEx& svs;

@@ -40,7 +40,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	windowCoord[3] = 600;
 	water = NULL;
 	toneMapping = NULL;
-	fireballLoadAttempted = 1;
+	fireballLoadAttempted = 0;
 	speedForward = 0;
 	speedBack = 0;
 	speedRight = 0;
@@ -50,7 +50,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	speedLean = 0;
 	exitRequested = 0;
 	menuHandle = 0;
-	ourEnv = 0;
+	envToBeDeletedOnExit = false;
 	lv = NULL;
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
@@ -105,7 +105,7 @@ void SVCanvas::createContext()
 	{
 		solver->setScaler(svs.initialInputSolver->getScaler());
 		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
-		ourEnv = true;
+		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setLights(svs.initialInputSolver->getLights());
 	}
@@ -115,12 +115,11 @@ void SVCanvas::createContext()
 		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename);
 		solver->setScaler(rr::RRScaler::createRgbScaler());
 		solver->setEnvironment(manuallyOpenedScene->getEnvironment());
-		ourEnv = false;
+		envToBeDeletedOnExit = false;
 		if (manuallyOpenedScene->getObjects())
 			solver->setStaticObjects(*manuallyOpenedScene->getObjects(),NULL);
 		if (manuallyOpenedScene->getLights())
 			solver->setLights(*manuallyOpenedScene->getLights());
-		ourEnv = false;
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
@@ -132,20 +131,23 @@ void SVCanvas::createContext()
 		// skybox is used only if it exists
 		if (skybox)
 		{
-			if (ourEnv)
+			if (envToBeDeletedOnExit)
 				delete solver->getEnvironment();
-			ourEnv = true;
 			solver->setEnvironment(skybox);
+			envToBeDeletedOnExit = true;
 		}
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
-	solver->loadFireball(NULL); // if fireball file already exists in temp, use it
-	fireballLoadAttempted = 1;
+	if (svs.renderRealtime)
+	{
+		// if fireball file already exists, use it
+		fireballLoadAttempted = false;
+		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL));
+	}
 
 	// init rest
 	lv = new SVLightmapViewer(svs.pathToShaders);
-	ourEnv = 0;
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
@@ -188,7 +190,7 @@ SVCanvas::~SVCanvas()
 		}
 
 		// delete env manually loaded by user
-		if (ourEnv)
+		if (envToBeDeletedOnExit)
 		{
 			delete solver->getEnvironment();
 		}
@@ -851,9 +853,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
 				case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
 			}
+			const char* rendererType = solver->usingOptimizedScene() ? "scene at once" : "object at once";
 			if (svs.renderRealtime)
 			{
-				textOutput(x,y+=18,h,"realtime GI lighting, %s, light detail map %s",solverType,svs.renderLDM?"on":"off");
+				textOutput(x,y+=18,h,"realtime GI lighting, %s, %s, light detail map %s",solverType,rendererType,svs.renderLDM?"on":"off");
 			}
 			else
 			{
@@ -867,7 +870,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
 					}
 				}
-				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none) (%s)",vbuf,lmap,numObjects-vbuf-lmap,solverType);
+				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none) (%s, %s)",vbuf,lmap,numObjects-vbuf-lmap,solverType,rendererType);
 			}
 		}
 		if (!svs.render2d || !lv)

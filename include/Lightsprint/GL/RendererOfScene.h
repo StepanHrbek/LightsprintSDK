@@ -73,6 +73,7 @@ public:
 	//!    Only LIGHT_INDIRECT_VCOLOR is supported. Nothing is rendered
 	//!    if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
 	void useOptimizedScene();
+	bool usingOptimizedScene() {return useOptimized;}
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;

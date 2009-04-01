@@ -380,7 +380,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	unsigned& centerObject = m_canvas->centerObject;
 	unsigned& centerTexel = m_canvas->centerTexel;
 	int* windowCoord = m_canvas->windowCoord;
-	bool& ourEnv = m_canvas->ourEnv;
+	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
 
 	switch (event.GetId())
 	{
@@ -442,11 +442,11 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_ENV_WHITE:
 		case ME_ENV_BLACK:
 		case ME_ENV_WHITE_TOP:
-			if (ourEnv)
+			if (envToBeDeletedOnExit)
 			{
 				delete solver->getEnvironment();
 			}
-			ourEnv = true;
+			envToBeDeletedOnExit = true;
 			switch (event.GetId())
 			{
 				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
@@ -523,7 +523,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderRealtime = 1;
 			svs.render2d = 0;
 			solver->dirtyLights();
-			if (!fireballLoadAttempted) 
+			if (!fireballLoadAttempted)
 			{
 				fireballLoadAttempted = true;
 				solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
