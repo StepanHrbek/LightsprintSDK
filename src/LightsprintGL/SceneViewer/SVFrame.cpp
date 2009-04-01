@@ -526,7 +526,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			if (!fireballLoadAttempted) 
 			{
 				fireballLoadAttempted = true;
-				solver->loadFireball(NULL);
+				solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 			}
 			break;
 		case ME_REALTIME_ARCHITECT:
@@ -584,7 +584,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				{
 					svs.renderRealtime = 1;
 					svs.render2d = 0;
-					solver->buildFireball(quality,NULL);
+					solver->buildFireball(quality,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 					solver->dirtyLights();
 					fireballLoadAttempted = true;
 				}
