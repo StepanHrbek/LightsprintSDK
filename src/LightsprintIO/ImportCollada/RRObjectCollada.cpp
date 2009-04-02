@@ -459,6 +459,7 @@ public:
 	{
 		imageCache = _imageCache;
 		emissiveMultiplier = _emissiveMultiplier;
+		invertedA_ONETransparency = false;
 	}
 	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
@@ -583,6 +584,18 @@ private:
 		material.specularTransmittance.color = (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
 			? RRVec3( 1 - effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor().w )
 			: colorToColor( effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor() );
+		if (effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE)
+		{
+			if (effectStandard->GetTranslucencyFactor()==0 && !invertedA_ONETransparency)
+			{
+				invertedA_ONETransparency = true;
+				RRReporter::report(WARN,"Transparency looks inverted. Enabling workaround for Google Sketch Up bug.\n");
+			}
+			if (invertedA_ONETransparency)
+			{
+				material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
+			}
+		}
 		material.refractionIndex = effectStandard->GetIndexOfRefraction();
 		if (material.refractionIndex==0) material.refractionIndex = 1; // FCollada returns 0 when information is missing, but default refraction is 1
 
@@ -631,6 +644,7 @@ private:
 
 	ImageCache* imageCache;
 	float emissiveMultiplier;
+	bool invertedA_ONETransparency; // workaround for Google Sketch Up bug
 };
 
 
