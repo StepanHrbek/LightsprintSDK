@@ -128,6 +128,11 @@ namespace rr
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
 		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
+		//! Updates specularTransmittanceKeyed.
+		//
+		//! Looks at specularTransmittance and tries to guess what user expects, keying or blending.
+		//! If you know what user prefers, set it instead of calling this function.
+		void          updateKeyingFromTransmittance();
 		//! Updates sideBits, clears bits with relevant color black. This may make rendering faster.
 		void          updateSideBitsFromColors();
 

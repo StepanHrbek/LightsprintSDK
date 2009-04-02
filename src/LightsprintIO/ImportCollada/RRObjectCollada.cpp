@@ -452,26 +452,6 @@ RRVec4 getAvgColor(RRBuffer* buffer)
 	return avg/(size*size);
 }
 
-// opacityInAlpha -> avg distance from 0 or 1 (what's closer)
-// !opacityInAlpha -> avg distance from 0,0,0 or 1,1,1 (what's closer)
-// result: 0..0.02 keying probably better
-// result: 0.02..0.5 blending probably better
-RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
-{
-	if (!buffer) return 0;
-	enum {size = 16};
-	RRReal blendImportance = 0;
-	for (unsigned i=0;i<size;i++)
-		for (unsigned j=0;j<size;j++)
-		{
-			RRVec4 color = buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
-			RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
-			RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
-			blendImportance += MIN(distFrom0,distFrom1);
-		}
-	return blendImportance/(size*size); 
-}
-
 class MaterialCacheCollada
 {
 public:
@@ -611,7 +591,6 @@ private:
 		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
-		material.specularTransmittanceKeyed = getBlendImportance(material.specularTransmittance.texture,material.specularTransmittanceInAlpha)<0.02f;
 		if (material.specularTransmittance.texture)
 		{
 			if (material.specularTransmittanceInAlpha)
@@ -621,15 +600,25 @@ private:
 			}
 
 			if (effectStandard->GetTranslucencyFactor()!=1)
+			{
 				LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
+			}
 		}
 
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
 		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
+
+		// get average colors from textures
 		RRScaler* scaler = RRScaler::createRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
-		material.updateSideBitsFromColors();
 		delete scaler;
+
+		// autodetect keying
+		material.updateKeyingFromTransmittance();
+
+		// optimize material flags
+		material.updateSideBitsFromColors();
+
 		return material;
 	}
 
