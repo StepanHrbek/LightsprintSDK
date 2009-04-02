@@ -81,7 +81,10 @@ float FACE::getArea() const
 
 void FACE::fillNormal()
 {
-	VECTOR u,v,n; float l;
+	// calculate normal in doubles
+	// floats lead to error observed in RoppongiHills/models/model.dae, locate_face_bsp(face,face) finds 1 vertex in front, 1 in back, only 1 in plane
+
+	double u[3],v[3],n[3],l;
 
 	u[0]=vertex[1]->x-vertex[0]->x;
 	u[1]=vertex[1]->y-vertex[0]->y;
@@ -91,19 +94,19 @@ void FACE::fillNormal()
 	v[1]=vertex[2]->y-vertex[0]->y;
 	v[2]=vertex[2]->z-vertex[0]->z;
 
-	cross_product(n,v,u);
+	n[0]=u[1]*v[2]-v[1]*u[2];
+	n[1]=u[2]*v[0]-v[2]*u[0];
+	n[2]=u[0]*v[1]-v[0]*u[1];
 
-	l=(float)sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
+	l=sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
 
 	n[0]/=l; n[1]/=l; n[2]/=l;
 	if (!( IS_NUMBER(n[0]) && IS_NUMBER(n[1]) && IS_NUMBER(n[2]) )) { n[0]=0; n[1]=0; n[2]=0; }
 
-	normal.a=n[0];
-	normal.b=n[1];
-	normal.c=n[2];
-	normal.d=-(n[0]*vertex[0]->x+
-		n[1]*vertex[0]->y+
-		n[2]*vertex[0]->z);
+	normal.a=(float)n[0];
+	normal.b=(float)n[1];
+	normal.c=(float)n[2];
+	normal.d=-(float)(n[0]*vertex[0]->x+n[1]*vertex[0]->y+n[2]*vertex[0]->z);
 }
 
 void FACE::fillMinMax()
@@ -239,7 +242,7 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 
 	if (plane==face)
 	{
-		RR_ASSERT(p==3);
+		RR_ASSERT(p==3); // face not in its own plane? happened before because of imprecise normals calculated in floats, fixed by calculating normals in doubles
 		return PLANE;
 	}
 	if (p==3 && normals_match(plane,face)) return PLANE;
