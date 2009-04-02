@@ -184,6 +184,17 @@ loaded:
 	s.specularTransmittanceInAlpha = true;
 	s.lightmapTexcoord = CH_LIGHTMAP;
 	s.minimalQualityForPointMaterials = s.specularTransmittance.texture ? 30 : 300;
+
+	// get average colors from textures. we already set them, but this will be slightly more precise thanks to scaler
+	RRScaler* scaler = RRScaler::createFastRgbScaler();
+	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+	delete scaler;
+
+	// autodetect keying
+	s.updateKeyingFromTransmittance();
+
+	// optimize material flags
+	s.updateSideBitsFromColors();
 }
 
 // Creates internal copies of .bsp geometry and material properties.

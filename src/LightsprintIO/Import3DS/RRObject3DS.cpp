@@ -109,6 +109,20 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 		}
 	}
 
+	for (unsigned i=0;i<(unsigned)model->numMaterials;i++)
+	{
+		// get average colors from textures
+		RRScaler* scaler = RRScaler::createFastRgbScaler();
+		model->Materials[i].updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+		delete scaler;
+
+		// autodetect keying
+		model->Materials[i].updateKeyingFromTransmittance();
+
+		// optimize material flags
+		model->Materials[i].updateSideBitsFromColors();
+	}
+
 #ifdef VERIFY
 	checkConsistency();
 #endif

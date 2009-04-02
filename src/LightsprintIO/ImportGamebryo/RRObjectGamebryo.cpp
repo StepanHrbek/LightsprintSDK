@@ -632,13 +632,21 @@ static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
 		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0)); // must be done after all subtractions
+
+		// get average colors from textures
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 		delete scaler;
+
+		// autodetect keying
+		material.updateKeyingFromTransmittance();
+
 		// optional - corrects invalid properties
 		//material.validate();
 	}
+	// optimize material flags
 	material.updateSideBitsFromColors();
+
 	material.name = mesh->GetActiveMaterial()->GetName();
 	return material;
 }
