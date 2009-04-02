@@ -796,6 +796,13 @@ const RRCollider* RRObjectsCollada::newColliderCached(const FCDGeometryMesh* mes
 		RR_ASSERT(0);
 		return NULL;
 	}
+	if (mesh->GetFaceVertexCount()<3)
+	{
+		// is it legal to have 2 vertices per face?
+		// observed in modern stoel.dae created by Google Sketchup 6
+		// if we don't stop here, later code would crash trying to create triangle from polygon that has 2 vertices
+		return NULL;
+	}
 	ColliderCache::iterator i = colliderCache.find(mesh);
 	if (i!=colliderCache.end())
 	{
