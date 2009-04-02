@@ -1034,6 +1034,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance);
 					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance);
 					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance);
+					textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"keyed":"blended");
 					textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
 					textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
 					textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);
