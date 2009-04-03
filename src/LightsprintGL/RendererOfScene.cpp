@@ -442,6 +442,9 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = pbufferldm?true:false;
 		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // enable always, will affect only specular materials
 	}
+	// removes all material settings not necessary for given object
+	mainUberProgramSetup.reduceMaterialSetup(perObject->recommendedMaterialSetup);
+	// final touch
 	mainUberProgramSetup.validate();
 
 	PreserveBlend p1;

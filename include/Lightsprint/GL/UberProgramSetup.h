@@ -126,6 +126,9 @@ struct RR_GL_API UberProgramSetup
 	//! Only features present in object's materials are enabled.
 	//! It is slow, not for use in every frame.
 	void recommendMaterialSetup(rr::RRObject* object);
+	//! Reduces material setup, removes all properties not present in fullMaterial.
+	void reduceMaterialSetup(const UberProgramSetup& fullMaterial);
+
 	//! Returns our attribute values in format suitable for our uberprogram.
 	//! Example: "#define SHADOW_MAPS 2\n#define SHADOW_SAMPLES 4\n#define MATERIAL_DIFFUSE\n".
 	const char* getSetupString();
