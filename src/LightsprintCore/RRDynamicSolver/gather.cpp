@@ -392,6 +392,8 @@ public:
 				{
 					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
 					visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+					RR_ASSERT(_finite(pointMaterial.specularTransmittance.color.avg()));
+					RR_ASSERT(_finite(visibility));
 					return !visibility;
 				}
 			}
@@ -400,6 +402,8 @@ public:
 			{
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
 				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+				RR_ASSERT(_finite(triangleMaterial->specularTransmittance.color.avg()));
+				RR_ASSERT(_finite(visibility));
 				return !visibility;
 			}
 		}
@@ -533,8 +537,14 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler) * (_light->castShadows?collisionHandlerGatherLight.getVisibility():1);
+				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler);
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
+				if (_light->castShadows)
+				{
+					irrad *= collisionHandlerGatherLight.getVisibility();
+					RR_ASSERT(collisionHandlerGatherLight.getVisibility());
+					RR_ASSERT(IS_VEC3(irrad));
+				}
 				if (!pti.context.gatherAllDirections)
 				{
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
