@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news78 ------------------------------------ 2009.04.xx -------------------------------------
+
+NEWS
+
+- improved Collada import, workarounds for Google SketchUp bugs
+
+FIXES
+
+- under rare circumstances, random pixels in lightmaps received random colors
+
 \section news77 ------------------------------------ 2009.03.25 -------------------------------------
 
 NEWS
@@ -53,7 +63,7 @@ NEWS
 FIXES
 
 - UE3 materials had swapped R and B (incorrect color bleeding)
-- one of cascaded shadow mapps was not updated (incorrect realtime sunlight shadows)
+- one of cascaded shadow maps was not updated (incorrect realtime sunlight shadows)
 
 \section news75 ------------------------------------ 2009.02.23 -------------------------------------
 

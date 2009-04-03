@@ -157,64 +157,69 @@ bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
-	if (!importer) return false; // this shouldn't happen but linear is so slow that we can test it
-	if (!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-
-	ray->hitDistance = ray->hitDistanceMax;
-
-	if (!box.intersect(ray)) return false;
-
 	bool hit = false;
-	update_rayDir(ray);
-	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
-	FILL_STATISTIC(intersectStats.intersect_linear++);
+
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];
 	if (ray->collisionHandler)
 		ray->collisionHandler->init(ray);
 #endif
-	for (unsigned t=0;t<triangles;t++)
+
+	// collisionHandler->init/done must be called _always_, users depend on it,
+	// having ray rejected early by box.intersect test is no excuse
+	// (!importer) shouldn't happen but linear is so slow that we can test it
+	// (!triangles) is valid case, we probably generate collider even for mesh without triangles
+	if (importer && triangles && box.intersect(ray))
 	{
-		RRMesh::TriangleBody t2;
-		importer->getTriangleBody(t,t2);
-		if (intersect_triangle(ray,&t2))
+		ray->hitDistance = ray->hitDistanceMax;
+		update_rayDir(ray);
+		RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+		FILL_STATISTIC(intersectStats.intersect_linear++);
+		for (unsigned t=0;t<triangles;t++)
 		{
-			ray->hitTriangle = t;
-#ifdef COLLISION_HANDLER
-			if (ray->collisionHandler) 
+			RRMesh::TriangleBody t2;
+			importer->getTriangleBody(t,t2);
+			if (intersect_triangle(ray,&t2))
 			{
-#ifdef FILL_HITPOINT3D
-				if (ray->rayFlags&RRRay::FILL_POINT3D)
+				ray->hitTriangle = t;
+	#ifdef COLLISION_HANDLER
+				if (ray->collisionHandler) 
 				{
-					update_hitPoint3d(ray,ray->hitDistance);
+	#ifdef FILL_HITPOINT3D
+					if (ray->rayFlags&RRRay::FILL_POINT3D)
+					{
+						update_hitPoint3d(ray,ray->hitDistance);
+					}
+	#endif
+	#ifdef FILL_HITPLANE
+					if (ray->rayFlags&RRRay::FILL_PLANE)
+					{
+						update_hitPlane(ray,importer);
+					}
+	#endif
+					// hits are reported in random order
+					if (ray->collisionHandler->collides(ray)) 
+					{
+						memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
+						ray->hitDistanceMax = ray->hitDistance;
+						hit = true;
+					}
 				}
-#endif
-#ifdef FILL_HITPLANE
-				if (ray->rayFlags&RRRay::FILL_PLANE)
+				else
+	#endif
 				{
-					update_hitPlane(ray,importer);
-				}
-#endif
-				// hits are reported in random order
-				if (ray->collisionHandler->collides(ray)) 
-				{
-					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
 					ray->hitDistanceMax = ray->hitDistance;
 					hit = true;
 				}
 			}
-			else
-#endif
-			{
-				ray->hitDistanceMax = ray->hitDistance;
-				hit = true;
-			}
 		}
 	}
+
 #ifdef COLLISION_HANDLER
 	if (ray->collisionHandler)
 		hit = ray->collisionHandler->done();
 #endif
+
 	if (hit) 
 	{
 #ifdef COLLISION_HANDLER

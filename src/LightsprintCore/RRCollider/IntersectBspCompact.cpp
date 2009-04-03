@@ -323,23 +323,28 @@ template IBP
 bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 {
 	RR_ASSERT(tree);
-
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
-	if (!box.intersect(ray)) return false;
-	update_rayDir(ray);
-	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
-	bool hit;
+	bool hit = false;
+
+#ifdef COLLISION_HANDLER
+	if (ray->collisionHandler)
+		ray->collisionHandler->init(ray);
+#endif
+
+	// collisionHandler->init/done must be called _always_, users depend on it,
+	// having ray rejected early by box.intersect test is no excuse
+	if (box.intersect(ray))
 	{
-#ifdef COLLISION_HANDLER
-		if (ray->collisionHandler)
-			ray->collisionHandler->init(ray);
-#endif
+		update_rayDir(ray);
+		RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
-#ifdef COLLISION_HANDLER
-		if (ray->collisionHandler)
-			hit = ray->collisionHandler->done();
-#endif
 	}
+
+#ifdef COLLISION_HANDLER
+	if (ray->collisionHandler)
+		hit = ray->collisionHandler->done();
+#endif
+
 	FILL_STATISTIC(if (hit) intersectStats.hit_mesh++);
 	return hit;
 }
