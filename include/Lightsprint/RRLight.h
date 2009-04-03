@@ -84,6 +84,7 @@ namespace rr
 		static RRScaler* createRgbScaler(RRReal power=0.45f);
 
 		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
+		//! Be cautious and fall back to createRgbScaler() in case you find regression.
 		static RRScaler* createFastRgbScaler(RRReal power=0.45f);
 	};
 
