@@ -162,17 +162,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	ray->hitDistance = ray->hitDistanceMax;
 
-#ifdef USE_EXPECT_HIT
-	if (ray->rayFlags&RRRay::EXPECT_HIT) 
-	{
-		ray->hitDistanceMin = ray->rayLengthMin;
-		ray->hitDistanceMax = ray->rayLengthMax;
-	}
-	else
-#endif
-	{
-		if (!box.intersect(ray)) return false;
-	}
+	if (!box.intersect(ray)) return false;
 
 	bool hit = false;
 	update_rayDir(ray);

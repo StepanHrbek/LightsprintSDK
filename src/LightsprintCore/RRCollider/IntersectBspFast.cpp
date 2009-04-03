@@ -811,28 +811,19 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit = false;
 	RR_ASSERT(tree);
 
-#ifdef USE_EXPECT_HIT
-	if (ray->rayFlags&RRRay::EXPECT_HIT) 
-	{
-		ray->hitDistanceMin = ray->rayLengthMin;
-		ray->hitDistanceMax = ray->rayLengthMax;
-	}
-	else 
-#endif
-	{
-		if (!box.intersect(ray)) goto test_no;
-		// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
-		// hitDistanceMin/Max i kdyz se s paprskem neprotina 
-		// (nastava kdyz v nejake ose (origin==min || origin==max) && dir==0)
-		// Pokud jsou nahodne Min/Max konecna cisla, vse vykryje tree traversal,
-		// ktery bude sice nadbytecny, ale nakonec vrati false.
-		// Pokud je Min/Max nekonecno, traversal vrati ?
-		// Pokud je Min/Max NaN, traversal vrati ?
-		// Pri korektnim prubehu by nekonecno ani NaN nastat nemelo
-		//  (pokud je konecny mesh, vyjde konecny interval Min/Max).
-		// Muzeme tedy nekonecno i NaN zachytit jako nasledek vyse popsane udalosti.
-		//if (!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
-	}
+	if (!box.intersect(ray)) goto test_no;
+	// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
+	// hitDistanceMin/Max i kdyz se s paprskem neprotina 
+	// (nastava kdyz v nejake ose (origin==min || origin==max) && dir==0)
+	// Pokud jsou nahodne Min/Max konecna cisla, vse vykryje tree traversal,
+	// ktery bude sice nadbytecny, ale nakonec vrati false.
+	// Pokud je Min/Max nekonecno, traversal vrati ?
+	// Pokud je Min/Max NaN, traversal vrati ?
+	// Pri korektnim prubehu by nekonecno ani NaN nastat nemelo
+	//  (pokud je konecny mesh, vyjde konecny interval Min/Max).
+	// Muzeme tedy nekonecno i NaN zachytit jako nasledek vyse popsane udalosti.
+	//if (!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
+
 	update_rayDir(ray);
 	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 #ifdef COLLISION_HANDLER

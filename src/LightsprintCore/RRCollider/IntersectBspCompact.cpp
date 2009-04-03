@@ -325,17 +325,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	RR_ASSERT(tree);
 
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
-#ifdef USE_EXPECT_HIT
-	if (ray->rayFlags&RRRay::EXPECT_HIT) 
-	{
-		ray->hitDistanceMin = ray->rayLengthMin;
-		ray->hitDistanceMax = ray->rayLengthMax;
-	}
-	else
-#endif
-	{
-		if (!box.intersect(ray)) return false;
-	}
+	if (!box.intersect(ray)) return false;
 	update_rayDir(ray);
 	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	bool hit;

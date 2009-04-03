@@ -14,7 +14,6 @@
 	#define USE_SSE // by default, code is pure ANSI C++. gcc compiles but crashes with sse, probably alignment issue
 #endif
 #define USE_FAST_BOX // fast box can't handle 2 special cases -> rare errors
-//#define USE_EXPECT_HIT // always slower in rr, but may be useful for someone else later
 
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	// limited outputs
