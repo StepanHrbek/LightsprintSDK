@@ -8,11 +8,18 @@ namespace rr
 
 \page main_news What's new
 
+\section news79 ------------------------------------ 2009.04.xx -------------------------------------
+
+FIXES
+
+- under specific circumstances, generic getPointMaterial() was called instead of custom one
+
 \section news78 ------------------------------------ 2009.04.03 -------------------------------------
 
 NEWS
 
 - improved Collada import, workarounds for Google SketchUp bugs
+- rr_gl::sceneViewer() additional parameter makes it possible to specify skybox by filename
 
 FIXES
 

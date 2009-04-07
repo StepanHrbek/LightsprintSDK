@@ -49,7 +49,7 @@ public:
 		}
 		return &i->second;
 	}
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, RRScaler* _scaler = NULL) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* _scaler = NULL) const
 	{
 		// No one else is allowed to set scaler, it's our job.
 		// We also don't expect user would create chain with two instances of this filter.
