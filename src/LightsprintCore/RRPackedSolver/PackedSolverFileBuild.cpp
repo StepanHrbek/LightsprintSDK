@@ -229,7 +229,11 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 	calculateCore(0); // create static solver if not created yet
-	RR_ASSERT(priv->scene);
+	if (!priv->scene)
+	{
+		RRReporter::report(WARN,"Fireball not built, empty scene.\n");
+		return false;
+	}
 	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle);
 	if (!packedSolverFile)
 		return false;
