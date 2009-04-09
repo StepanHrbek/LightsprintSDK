@@ -198,14 +198,17 @@ namespace rr
 		//! \n Example1: load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
 		//! \n Example2: load("path/lightmap.vbu") - loads vertex buffer
 		//! \n Example3: load("path/cube_%s.png", {"ft","bk","dn","up","rt","lf"}) - loads cubemap from 6 files
-		//! \n Example4: load("path/cube.hdr", NULL) - loads cubemap from 1 file
+		//! \n Example4: load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 2:3 or 3:2
+		//! \n Example5: load("path/cube.hdr", NULL) - loads the same file as 2d texture
 		//! \param filename
-		//!  Filename of 1 image/vertexbuffer or mask of 6 images (sides of cubemap) to be loaded from disk.
+		//!  Filename of 2d image or vertexbuffer or cubemap or mask of 6 images (sides of cubemap) to be loaded from disk.
 		//!  All common file formats are supported.
 		//!  Proprietary .vbu format is used for vertex buffers.
-		//! \param cubeSideName When cubemap is loaded, array of six unique names of cube sides in following order:
+		//! \param cubeSideName
+		//!  Array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
-		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//!  \n Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//!  \n Must be NULL for vertex buffers and 2d textures, non-NULL for cubemaps (even cubemaps in 1 file).
 		//! \param flipV
 		//!  Flip all sides vertically at load time.
 		//! \param flipH

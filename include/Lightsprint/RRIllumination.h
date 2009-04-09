@@ -70,13 +70,13 @@ namespace rr
 
 		//! Diffuse reflection cube map.
 		//
-		//! Created by you, updated by updateEnvironmentMap(), deleted automatically. May stay NULL.
+		//! Created by you, updated by updateEnvironmentMap(), deleted automatically in destructor. May stay NULL.
 		//! Size doesn't have to be power of two.
 		//! Reasonable initialization is RRBuffer::create(BT_CUBE_TEXTURE,4,4,6,BF_RGBF,true,NULL).
 		RRBuffer* diffuseEnvMap;
 		//! Specular reflection cube map.
 		//
-		//! Created by you, updated by updateEnvironmentMap(), deleted automatically. May stay NULL.
+		//! Created by you, updated by updateEnvironmentMap(), deleted automatically in destructor. May stay NULL.
 		//! Size doesn't have to be power of two.
 		//! Reasonable initialization is RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBF,true,NULL).
 		RRBuffer* specularEnvMap;
