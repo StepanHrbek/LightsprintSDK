@@ -27,13 +27,11 @@
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
-//  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_CONST
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_EMISSIVE_CONST
-//  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
 //  #define MATERIAL_TRANSPARENCY_CONST
 //  #define MATERIAL_TRANSPARENCY_MAP
@@ -145,10 +143,6 @@
 	uniform vec4 materialDiffuseConst;
 #endif
 
-#ifdef MATERIAL_DIFFUSE_VCOLOR
-	varying vec4 materialDiffuseColor;
-#endif
-
 #ifdef MATERIAL_DIFFUSE_MAP
 	uniform sampler2D materialDiffuseMap;
 	varying vec2 materialDiffuseCoord;
@@ -168,10 +162,6 @@
 
 #ifdef MATERIAL_EMISSIVE_CONST
 	uniform vec4 materialEmissiveConst;
-#endif
-
-#ifdef MATERIAL_EMISSIVE_VCOLOR
-	varying vec4 materialEmissiveColor;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
@@ -399,7 +389,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_VCOLOR) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
@@ -434,16 +424,13 @@ void main()
 				#ifdef MATERIAL_DIFFUSE_CONST
 					materialDiffuseConst *
 				#endif
-				#ifdef MATERIAL_DIFFUSE_VCOLOR
-					materialDiffuseColor *
-				#endif
 				#ifdef MATERIAL_DIFFUSE_MAP
 					materialDiffuseMapColor *
 				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialDiffuseReflectance *
 				#endif
-				#if defined(MATERIAL_TRANSPARENCY_BLEND) && ( (!defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_VCOLOR)) || defined(MATERIAL_TRANSPARENCY_MAP) )
+				#if defined(MATERIAL_TRANSPARENCY_BLEND) && ( !defined(MATERIAL_DIFFUSE_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) )
 					// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
 					// so if we want RGB modulated by opacity, it must be done here in shader
 					// Q: do we want RGB modulated by opacity?
@@ -455,8 +442,8 @@ void main()
 					//          per-pixel transparency
 					//    why?
 					//        incoming pure DIFFUSE and DIFFUSE_MAP expects we will multiply them by opacity (diffuse maps have rgb rarely premultiplied by alpha)
-					//        incoming DIFFUSE_CONST and DIFFUSE_VCOLOR were already premultipled by average opacity, but multiply them again if(transparency_map)
-					//             TODO: if(MATERIAL_TRANSPARENCY_MAP), renderer should divide diffuse_const/vcolor by average opacity before sending them to GPU (it is very atypical setup, never encountered yet)
+					//        incoming DIFFUSE_CONST were already premultipled by average opacity, but multiply them again if(transparency_map)
+					//             TODO: if(MATERIAL_TRANSPARENCY_MAP), renderer should divide diffuse_const by average opacity before sending them to GPU (it is very atypical setup, never encountered yet)
 					//        incoming specular and emission should be separated from transparency, do nothing (buggy look with real data not encountered yet, but it may come)
 					opacity *
 				#endif
@@ -529,9 +516,6 @@ void main()
 
 			#ifdef MATERIAL_EMISSIVE_CONST
 				+ materialEmissiveConst
-			#endif
-			#ifdef MATERIAL_EMISSIVE_VCOLOR
-				+ materialEmissiveColor
 			#endif
 			#ifdef MATERIAL_EMISSIVE_MAP
 				+ materialEmissiveMapColor

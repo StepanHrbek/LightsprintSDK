@@ -84,7 +84,6 @@ DynamicObjects::DynamicObjects()
 	// diffuse
 	material.MATERIAL_DIFFUSE = 1;
 	material.MATERIAL_DIFFUSE_CONST = 0;
-	material.MATERIAL_DIFFUSE_VCOLOR = 0;
 	material.MATERIAL_DIFFUSE_MAP = 1;
 	material.MATERIAL_SPECULAR = 0;
 	material.MATERIAL_SPECULAR_MAP = 0;
@@ -101,7 +100,6 @@ DynamicObjects::DynamicObjects()
 	// diff+specular map+normalmap
 	material.MATERIAL_DIFFUSE = 1;
 	material.MATERIAL_DIFFUSE_CONST = 0;
-	material.MATERIAL_DIFFUSE_VCOLOR = 0;
 	material.MATERIAL_DIFFUSE_MAP = 1;
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 1;
@@ -111,7 +109,6 @@ DynamicObjects::DynamicObjects()
 	// diff+specular
 	material.MATERIAL_DIFFUSE = 1;
 	material.MATERIAL_DIFFUSE_CONST = 0;
-	material.MATERIAL_DIFFUSE_VCOLOR = 0;
 	material.MATERIAL_DIFFUSE_MAP = 1;
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 0;
@@ -129,7 +126,6 @@ DynamicObjects::DynamicObjects()
 	// diff+specular map
 	material.MATERIAL_DIFFUSE = 1;
 	material.MATERIAL_DIFFUSE_CONST = 0;
-	material.MATERIAL_DIFFUSE_VCOLOR = 0;
 	material.MATERIAL_DIFFUSE_MAP = 1;
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 1;
@@ -140,7 +136,6 @@ DynamicObjects::DynamicObjects()
 	// specular
 	material.MATERIAL_DIFFUSE = 0;
 	material.MATERIAL_DIFFUSE_CONST = 0;
-	material.MATERIAL_DIFFUSE_VCOLOR = 0;
 	material.MATERIAL_DIFFUSE_MAP = 0;
 	material.MATERIAL_SPECULAR = 1;
 	material.MATERIAL_SPECULAR_MAP = 0;

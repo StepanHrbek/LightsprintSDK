@@ -27,13 +27,11 @@
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
-//  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_CONST
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_EMISSIVE_CONST
-//  #define MATERIAL_EMISSIVE_VCOLOR
 //  #define MATERIAL_EMISSIVE_MAP
 //  #define MATERIAL_TRANSPARENCY_CONST
 //  #define MATERIAL_TRANSPARENCY_MAP
@@ -98,22 +96,12 @@ varying
 #endif
 	vec3 worldNormalSmooth;
 
-#ifdef MATERIAL_DIFFUSE_VCOLOR
-	attribute vec4 materialDiffuseVColor;
-	varying vec4 materialDiffuseColor;
-#endif
-
 #ifdef MATERIAL_DIFFUSE_MAP
 	varying vec2 materialDiffuseCoord;
 #endif
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
 	uniform vec3 worldEyePos;
-#endif
-
-#ifdef MATERIAL_EMISSIVE_VCOLOR
-	attribute vec4 materialEmissiveVColor;
-	varying vec4 materialEmissiveColor;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
@@ -192,14 +180,6 @@ void main()
 
 	#ifdef MATERIAL_DIFFUSE_MAP
 		materialDiffuseCoord = gl_MultiTexCoord0.xy;
-	#endif
-
-	#ifdef MATERIAL_DIFFUSE_VCOLOR
-		materialDiffuseColor = materialDiffuseVColor;
-	#endif
-
-	#ifdef MATERIAL_EMISSIVE_VCOLOR
-		materialEmissiveColor = materialEmissiveVColor;
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP

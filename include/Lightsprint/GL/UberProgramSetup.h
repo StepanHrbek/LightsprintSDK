@@ -84,7 +84,6 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
 	bool     MATERIAL_DIFFUSE_X2           :1; ///< Enables material's diffuse reflectance multiplied by 2. (used by Quake3 engine scenes)
 	bool     MATERIAL_DIFFUSE_CONST        :1; ///< Enables material's diffuse reflectance modulated by constant color.
-	bool     MATERIAL_DIFFUSE_VCOLOR       :1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
 	bool     MATERIAL_DIFFUSE_MAP          :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
 
 	bool     MATERIAL_SPECULAR             :1; ///< Enables material's specular reflectance. All enabled MATERIAL_SPECULAR_XXX are multiplied. When only MATERIAL_SPECULAR is enabled, specular color is 1 (white).
@@ -92,7 +91,6 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_SPECULAR_MAP         :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 
 	bool     MATERIAL_EMISSIVE_CONST       :1; ///< Enables material's emission stored in constant. All enabled MATERIAL_EMISSIVE_XXX are accumulated.
-	bool     MATERIAL_EMISSIVE_VCOLOR      :1; ///< Enables material's emission stored per vertex.
 	bool     MATERIAL_EMISSIVE_MAP         :1; ///< Enables material's emission stored in sRGB map.
 
 	bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< Enables materials's specular transmittance modulated by constant.

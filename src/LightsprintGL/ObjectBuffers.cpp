@@ -537,8 +537,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// render facegroups (facegroups differ by material)
-	if (params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP
-		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR || params.renderedChannels.MATERIAL_EMISSIVE_MAP
+	if (params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_MAP
+		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_MAP
 		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
 		|| params.renderedChannels.MATERIAL_CULLING
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
@@ -615,14 +615,6 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
 				}
-				// set diffuse vcolor
-				if (params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
-				{
-					GLint program;
-					glGetIntegerv(GL_CURRENT_PROGRAM,&program);
-					GLint materialDiffuseVColorIndex = glGetAttribLocation(program,"materialDiffuseVColor");
-					glVertexAttrib4fv(materialDiffuseVColorIndex,&faceGroups[fg].diffuseColor[0]);
-				}
 				// set diffuse map
 				if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 				{
@@ -652,14 +644,6 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						params.program->sendUniform("materialEmissiveConst",faceGroups[fg].emissiveColor[0],faceGroups[fg].emissiveColor[1],faceGroups[fg].emissiveColor[2],0.0f);
 					else
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
-				}
-				// set emissive vcolor
-				if (params.renderedChannels.MATERIAL_EMISSIVE_VCOLOR)
-				{
-					GLint program;
-					glGetIntegerv(GL_CURRENT_PROGRAM,&program);
-					GLint materialEmissiveVColorIndex = glGetAttribLocation(program,"materialEmissiveVColor");
-					glVertexAttrib4f(materialEmissiveVColorIndex,faceGroups[fg].emissiveColor[0],faceGroups[fg].emissiveColor[1],faceGroups[fg].emissiveColor[2],0);
 				}
 				// set emissive map
 				if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)

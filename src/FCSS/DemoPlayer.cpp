@@ -83,7 +83,6 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		material.MATERIAL_DIFFUSE = diffuse?1:0;
 		material.MATERIAL_DIFFUSE_X2 = 0;
 		material.MATERIAL_DIFFUSE_CONST = (diffuse && diffuse!=1)?1:0;
-		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = diffuse?1:0;
 		material.MATERIAL_SPECULAR = specular?1:0;
 		material.MATERIAL_SPECULAR_CONST = (specular && specular!=1)?1:0;

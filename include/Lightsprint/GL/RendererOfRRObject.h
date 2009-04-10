@@ -86,11 +86,9 @@ public:
 		bool     LIGHT_INDIRECT_MAP2           :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
 		bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT_AO]
 		bool     MATERIAL_DIFFUSE_CONST        :1; ///< feeds uniform materialDiffuseConst
-		bool     MATERIAL_DIFFUSE_VCOLOR       :1; ///< feeds materialDiffuseVColor
 		bool     MATERIAL_DIFFUSE_MAP          :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     MATERIAL_SPECULAR_CONST       :1; ///< feeds uniform materialSpecularConst
 		bool     MATERIAL_EMISSIVE_CONST       :1; ///< feeds uniform materialEmissiveConst
-		bool     MATERIAL_EMISSIVE_VCOLOR      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE_VCOLOR]
 		bool     MATERIAL_EMISSIVE_MAP         :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     MATERIAL_TRANSPARENCY_CONST   :1; ///< feeds uniform materialTransparencyConst
 		bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_TRANSPARENCY] + texture[TEXTURE_2D_MATERIAL_TRANSPARENCY]

@@ -74,7 +74,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
-		uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 	}
 	else
@@ -135,7 +134,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
-			uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			//printf(" %d: direct\n",_lightIndex);
 		}
@@ -213,11 +211,9 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
 	renderedChannels.LIGHT_INDIRECT_DETAIL_MAP = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP;
 	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
-	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_SPECULAR_CONST = uberProgramSetup.MATERIAL_SPECULAR_CONST;
 	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
-	renderedChannels.MATERIAL_EMISSIVE_VCOLOR = uberProgramSetup.MATERIAL_EMISSIVE_VCOLOR;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
 	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;

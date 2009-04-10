@@ -1608,10 +1608,6 @@ void keyboard(unsigned char c, int x, int y)
 			light.afar /= 1.2;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
-			break;
-		case 't':
-			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
-			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
 			break;*/
 		default:
 			return;
