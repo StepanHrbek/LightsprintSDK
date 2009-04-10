@@ -189,6 +189,8 @@ loaded:
 	RRScaler* scaler = RRScaler::createFastRgbScaler();
 	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 	delete scaler;
+	// apply quake map boost again, updateColorsFromTextures removed it
+	s.diffuseReflectance.color *= 2;
 
 	// autodetect keying
 	s.updateKeyingFromTransmittance();
