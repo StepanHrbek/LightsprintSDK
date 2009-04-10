@@ -16,8 +16,15 @@
 //#define USE_VBO // use VBO to save unnecessary CPU<->GPU data transfers
 // 1.using advanced features may trigger driver bugs, better avoid VBO for now
 //   as I haven't registered any significant speedup in real world scenarios
+//                lmark2008 fps in first 3 scenes
+//                8800 182.50
+//   array+dlist  300 450..400 300 234MB
+//   array        250 420..360 300 227MB
+//   vbo+dlist    300 450..400 300 229MB
+//   vbo          290 450..400 290 222MB
 // 2.it seems that mixed VBO+vertex array renders don't work correctly(8800+17x.xx),
 //   try full VBO render (predelat na VBO i indirect_vcolor, forced_2d)
+//   (VBO Lightsmark looks ok, but VBO koupelna4 in SceneViewer is buggy)
 
 namespace rr_gl
 {
