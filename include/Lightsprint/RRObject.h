@@ -130,7 +130,7 @@ namespace rr
 		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
 		//! Updates specularTransmittanceKeyed.
 		//
-		//! Looks at specularTransmittance and tries to guess what user expects, keying or blending.
+		//! Looks at specularTransmittance and tries to guess what user expects when realtime rendering, 1-bit keying or smooth blending.
 		//! If you know what user prefers, set it instead of calling this function.
 		void          updateKeyingFromTransmittance();
 		//! Updates sideBits, clears bits with relevant color black. This may make rendering faster.
@@ -167,9 +167,9 @@ namespace rr
 		//! Note that higher transmittance does not decrease reflectance and emittance, they are independent properties.
 		//! There's single exception to this rule: higher transmittance decreases diffuseReflectance.texture (we multiply rgb from diffuse texture by opacity on the fly).
 		Property      specularTransmittance;
-		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
+		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1,1,1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
 		bool          specularTransmittanceInAlpha;
-		///< Whether alpha keying is used instead of alpha blend while realtime rendering. Alpha keying is faster but removes semi-translucency. Alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
+		//! Whether 1-bit alpha keying is used instead of smooth alpha blending in realtime render. 1-bit alpha keying is faster but removes semi-translucency. Smooth alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		bool          specularTransmittanceKeyed;
 		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
