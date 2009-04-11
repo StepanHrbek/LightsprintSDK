@@ -140,29 +140,37 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTexture
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 
-// opacityInAlpha -> avg distance from 0 or 1 (what's closer)
-// !opacityInAlpha -> avg distance from 0,0,0 or 1,1,1 (what's closer)
-// result: 0 .. 0.06 keying probably better (3DRender trees that need keying have 0.03)
-// result: 0.06 .. 0.5 blending probably better
-static RRReal getBlendImportance(RRBuffer* buffer, bool opacityInAlpha)
+// opacityInAlpha -> distance of color[3] from 0 or 1 (what's closer)
+// !opacityInAlpha -> distance of color[0,1,2] from 0,0,0 or 1,1,1 (what's closer)
+static RRReal getBlendImportance(RRVec4 color, bool opacityInAlpha)
 {
-	if (!buffer) return 0;
-	enum {size = 16};
-	RRReal blendImportance = 0;
-	for (unsigned i=0;i<size;i++)
-		for (unsigned j=0;j<size;j++)
-		{
-			RRVec4 color = buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
-			RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
-			RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
-			blendImportance += MIN(distFrom0,distFrom1);
-		}
-	return blendImportance/(size*size); 
+	RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
+	RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
+	return MIN(distFrom0,distFrom1);
 }
 
 void RRMaterial::updateKeyingFromTransmittance()
 {
-	specularTransmittanceKeyed = getBlendImportance(specularTransmittance.texture,specularTransmittanceInAlpha)<0.06f;
+	RRReal blendImportance = 0;
+	if (specularTransmittance.texture)
+	{
+		enum {size = 16};
+		for (unsigned i=0;i<size;i++)
+			for (unsigned j=0;j<size;j++)
+			{
+				RRVec4 color = specularTransmittance.texture->getElement(RRVec3(i/(float)size,j/(float)size,0));
+				blendImportance += getBlendImportance(color,specularTransmittanceInAlpha);
+			}
+		blendImportance /= (size*size);
+	}
+	else
+	{
+		blendImportance = getBlendImportance(RRVec4(specularTransmittance.color,0),false);
+	}
+	// result
+	//  0 .. 0.06: keying probably better (3DRender trees that need keying have 0.03)
+	//  0.06 .. 0.5: blending probably better
+	specularTransmittanceKeyed = blendImportance<0.06f;
 }
 
 void RRMaterial::updateSideBitsFromColors()
