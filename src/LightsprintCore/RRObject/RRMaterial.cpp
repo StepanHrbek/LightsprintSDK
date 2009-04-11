@@ -140,6 +140,27 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTexture
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 
+unsigned RRMaterial::Property::createTextureFromColor(bool isTransmittance)
+{
+	if (texture)
+		return 0;
+	// isTransmittance:
+	//   specularTransmittanceInAlpha was irrelevant without texture
+	//   it will be relevant when we create texture, should we clear it?
+	//   no, instead we are adding alpha to satisfy both specularTransmittanceInAlpha=false and true
+	texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,NULL);
+	texture->setElement(0,RRVec4(color,1-color.avg()));
+	return 1;
+}
+
+unsigned RRMaterial::createTexturesFromColors()
+{
+	return diffuseReflectance.createTextureFromColor(false)
+		+ specularReflectance.createTextureFromColor(false)
+		+ diffuseEmittance.createTextureFromColor(false)
+		+ specularTransmittance.createTextureFromColor(true);
+}
+
 // opacityInAlpha -> distance of color[3] from 0 or 1 (what's closer)
 // !opacityInAlpha -> distance of color[0,1,2] from 0,0,0 or 1,1,1 (what's closer)
 static RRReal getBlendImportance(RRVec4 color, bool opacityInAlpha)

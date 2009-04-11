@@ -63,17 +63,12 @@ private:
 	struct FaceGroup
 	{
 		unsigned firstIndex;
-		unsigned numIndices:29;
-		unsigned renderFront:1;
-		unsigned renderBack:1;
-		unsigned needsBlend:1; // whether material needs blending on output = needs draw calls sorted by distance, farthest first
-		rr::RRBuffer* diffuseTexture;
-		rr::RRBuffer* emissiveTexture;
-		rr::RRBuffer* transparencyTexture;
-		rr::RRVec3 diffuseColor;
-		rr::RRVec3 emissiveColor;
-		rr::RRVec4 transparencyColor;
-		rr::RRReal specular;
+		unsigned numIndices;
+		rr::RRMaterial material;
+		bool needsBlend()
+		{
+			return material.specularTransmittance.color!=rr::RRVec3(0) && !material.specularTransmittanceKeyed;
+		}
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)

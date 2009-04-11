@@ -574,12 +574,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("lightIndirectSpecularEnvMap", id);
 	}
 
-	if (MATERIAL_DIFFUSE_CONST)
-	{
-		// set default value, caller may override it by additional sendUniform call
-		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
-	}
-
 	if (MATERIAL_DIFFUSE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_DIFFUSE;
@@ -587,29 +581,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("materialDiffuseMap", id);
 	}
 
-	if (MATERIAL_SPECULAR_CONST)
-	{
-		// set default value, caller may override it by additional sendUniform call
-		program->sendUniform("materialSpecularConst",.5f,.5f,.5f,1.0f);
-	}
-
-	if (MATERIAL_EMISSIVE_CONST)
-	{
-		// set default value, caller may override it by additional sendUniform call
-		program->sendUniform("materialEmissiveConst",1.0f,1.0f,1.0f,0.0f);
-	}
-
 	if (MATERIAL_EMISSIVE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
 		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active (EMISSIVE is typically used without DIFFUSE)
 		program->sendUniform("materialEmissiveMap", id);
-	}
-
-	if (MATERIAL_TRANSPARENCY_CONST)
-	{
-		// set default value, caller may override it by additional sendUniform call
-		program->sendUniform("materialTransparencyConst", 0.5f, 0.5f, 0.5f, 0.5f);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)

@@ -102,6 +102,8 @@ namespace rr
 			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
 			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction);
+			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
+			unsigned createTextureFromColor(bool isTransmittance);
 		};
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
@@ -128,6 +130,13 @@ namespace rr
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
 		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
+		//! Creates stub 1x1 textures for properties without texture.
+		//
+		//! LightsprintCore fully supports materials without textures, and working with flat colors instead of textures is faster.
+		//! But in case of need, this function would create 1x1 textures out of material colors.
+		//! Don't call it unless you know what you are doing, risk of reduced performance.
+		//! \return Number of textures created.
+		unsigned      createTexturesFromColors();
 		//! Updates specularTransmittanceKeyed.
 		//
 		//! Looks at specularTransmittance and tries to guess what user expects when realtime rendering, 1-bit keying or smooth blending.

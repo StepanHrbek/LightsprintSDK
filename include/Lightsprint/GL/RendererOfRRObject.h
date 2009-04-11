@@ -102,6 +102,9 @@ public:
 		{
 			memset(this,0,sizeof(*this));
 		}
+		//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
+		//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
+		void useMaterial(Program* program, const rr::RRMaterial* material);
 	};
 
 	//! Sets what program to use for changing uniform colors. (This class doesn't bind it, only changes some uniforms.)

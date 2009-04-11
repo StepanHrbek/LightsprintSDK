@@ -17,6 +17,87 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RenderedChannels
+
+void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const rr::RRMaterial* material)
+{
+	if (!program)
+	{
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=NULL\n"));
+		return;
+	}
+	if (!material)
+	{
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=NULL\n"));
+		rr::RRMaterial s_material;
+		LIMITED_TIMES(1,s_material.reset(false));
+		material = &s_material;
+	}
+	if (MATERIAL_DIFFUSE_CONST)
+	{
+		program->sendUniform("materialDiffuseConst",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1.0f);
+	}
+
+	if (MATERIAL_SPECULAR_CONST)
+	{
+		program->sendUniform("materialSpecularConst",material->specularReflectance.color[0],material->specularReflectance.color[1],material->specularReflectance.color[2],1.0f);
+	}
+
+	if (MATERIAL_EMISSIVE_CONST)
+	{
+		program->sendUniform("materialEmissiveConst",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2],0.0f);
+	}
+
+	if (MATERIAL_TRANSPARENCY_CONST)
+	{
+		program->sendUniform("materialTransparencyConst",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2],1-material->specularTransmittance.color.avg());
+	}
+
+	if (MATERIAL_DIFFUSE_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		rr::RRBuffer* buffer = material->diffuseReflectance.texture;
+		if (buffer)
+		{
+			getTexture(buffer)->bindTexture();
+		}
+		else
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+		}
+	}
+
+	if (MATERIAL_EMISSIVE_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
+		rr::RRBuffer* buffer = material->diffuseEmittance.texture;
+		if (buffer)
+		{
+			getTexture(buffer)->bindTexture();
+		}
+		else
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but emissive texture not available, expect incorrect render.\n"));
+		}
+	}
+
+	if (MATERIAL_TRANSPARENCY_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
+		rr::RRBuffer* buffer = material->specularTransmittance.texture;
+		if (buffer)
+		{
+			getTexture(buffer)->bindTexture();
+		}
+		else
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but transparency texture not available, expect incorrect render.\n"));
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RendererOfRRObject
 
 RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers)

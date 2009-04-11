@@ -185,48 +185,30 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				fg.firstIndex = numVertices;
 			}
 			if (!material) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
-			fg.renderFront = !material || material->sideBits[0].renderFrom;
-			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;
-			fg.diffuseColor = material ? material->diffuseReflectance.color : rr::RRVec3(0);
-			fg.emissiveColor = material ? material->diffuseEmittance.color : rr::RRVec3(0);
-			fg.transparencyColor = material ? rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()) : rr::RRVec4(0,0,0,1);
-			fg.specular = material ? material->specularReflectance.color.avg() : 0;
-			fg.needsBlend = fg.transparencyColor!=rr::RRVec4(0,0,0,1);
-			if (fg.needsBlend)
+			if (material)
+				fg.material = *material;
+			else
+				fg.material.reset(false);
+			if (fg.needsBlend())
 				containsBlended = true;
 			else
 				containsNonBlended = true;
 
-			fg.diffuseTexture = material ? material->diffuseReflectance.texture : NULL;
-			if (!fg.diffuseTexture)
-			{
-				// create 1x1 stub so we can support even shaders that request texture
-				fg.diffuseTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
-				fg.diffuseTexture->setElement(0,rr::RRVec4(fg.diffuseColor,1));
-				tempTextures.push_back(fg.diffuseTexture); // remember it for destruction time
-			}
-			getTexture(fg.diffuseTexture); // prebuild texture so we don't do it in display list
+			// create 1x1 stub textures
+			fg.material.createTexturesFromColors();
 
-			fg.emissiveTexture = material ? material->diffuseEmittance.texture : NULL;
-			if (!fg.emissiveTexture)
-			{
-				// create 1x1 stub so we can support even shaders that request texture
-				fg.emissiveTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
-				fg.emissiveTexture->setElement(0,rr::RRVec4(fg.emissiveColor,1));
-				tempTextures.push_back(fg.emissiveTexture); // remember it for destruction time
-			}
-			getTexture(fg.emissiveTexture); // prebuild texture so we don't do it in display list
+			// remember created textures for destruction time
+			if (!material || !material->diffuseReflectance.texture) tempTextures.push_back(fg.material.diffuseReflectance.texture);
+			if (!material || !material->specularReflectance.texture) tempTextures.push_back(fg.material.specularReflectance.texture);
+			if (!material || !material->diffuseEmittance.texture) tempTextures.push_back(fg.material.diffuseEmittance.texture);
+			if (!material || !material->specularTransmittance.texture) tempTextures.push_back(fg.material.specularTransmittance.texture);
 
-			fg.transparencyTexture = material ? material->specularTransmittance.texture : NULL;
-			if (!fg.transparencyTexture)
-			{
-				// create 1x1 stub so we can support even shaders that request texture
-				fg.transparencyTexture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,NULL);
-				fg.transparencyTexture->setElement(0,fg.transparencyColor);
-				tempTextures.push_back(fg.transparencyTexture); // remember it for destruction time
-			}
-			getTexture(fg.transparencyTexture); // prebuild texture so we don't do it in display list
+			// preload textures to GPU so we don't do it in display list
+			getTexture(fg.material.diffuseReflectance.texture);
+			getTexture(fg.material.specularReflectance.texture);
+			getTexture(fg.material.diffuseEmittance.texture);
+			getTexture(fg.material.specularTransmittance.texture);
 
 			faceGroups.push_back(fg);
 			previousMaterial = material;
@@ -550,11 +532,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		|| params.renderedChannels.MATERIAL_CULLING
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
-		for (unsigned fg=0;fg<faceGroups.size();fg++) if ((faceGroups[fg].needsBlend && params.renderBlended) || (!faceGroups[fg].needsBlend && params.renderNonBlended))
+		for (unsigned fg=0;fg<faceGroups.size();fg++) if ((faceGroups[fg].needsBlend() && params.renderBlended) || (!faceGroups[fg].needsBlend() && params.renderNonBlended))
 		{
 			// skip whole facegroup when alpha keying with constant alpha below 0.5
 			// GPU would do the same for all pixels, this is faster
-			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && faceGroups[fg].transparencyColor[3]<0.5f)
+			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && faceGroups[fg].material.specularTransmittance.color.avg()>0.5f)
 			{
 				continue;
 			}
@@ -569,21 +551,23 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// set face culling
 				if (params.renderedChannels.MATERIAL_CULLING)
 				{
-					if (faceGroups[fg].renderFront && faceGroups[fg].renderBack)
+					bool renderFront = faceGroups[fg].material.sideBits[0].renderFrom;
+					bool renderBack = faceGroups[fg].material.sideBits[1].renderFrom;
+					if (renderFront && renderBack)
 					{
 						glDisable(GL_CULL_FACE);
 					}
 					else
 					{
 						glEnable(GL_CULL_FACE);
-						glCullFace(faceGroups[fg].renderFront?GL_BACK:( faceGroups[fg].renderBack?GL_FRONT:GL_FRONT_AND_BACK ));
+						glCullFace(renderFront?GL_BACK:( renderBack?GL_FRONT:GL_FRONT_AND_BACK ));
 					}
 				}
 
 				// set blending
 				if (params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING || params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 				{
-					bool transparency = faceGroups[fg].transparencyColor[3]<1;
+					bool transparency = faceGroups[fg].material.specularTransmittance.color!=rr::RRVec3(0);
 					if (transparency!=blendEnabled || !blendKnown)
 					{
 						if (transparency)
@@ -614,80 +598,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						blendEnabled = transparency;
 					}
 				}
-				// set diffuse color
-				if (params.renderedChannels.MATERIAL_DIFFUSE_CONST)
-				{
-					if (params.program)
-						params.program->sendUniform4fv("materialDiffuseConst",&faceGroups[fg].diffuseColor[0]);
-					else
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
-				}
-				// set diffuse map
-				if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
-				{
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-					rr::RRBuffer* tex = faceGroups[fg].diffuseTexture;
-					if (tex)
-					{
-						getTexture(tex)->bindTexture();
-					}
-					else
-					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
-					}
-				}
-				// set specular
-				if (params.renderedChannels.MATERIAL_SPECULAR_CONST)
-				{
-					if (params.program)
-						params.program->sendUniform("materialSpecularConst",faceGroups[fg].specular,faceGroups[fg].specular,faceGroups[fg].specular,1.0f);
-					else
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
-				}
-				// set emissive color
-				if (params.renderedChannels.MATERIAL_EMISSIVE_CONST)
-				{
-					if (params.program)
-						params.program->sendUniform("materialEmissiveConst",faceGroups[fg].emissiveColor[0],faceGroups[fg].emissiveColor[1],faceGroups[fg].emissiveColor[2],0.0f);
-					else
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
-				}
-				// set emissive map
-				if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
-				{
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
-					rr::RRBuffer* tex = faceGroups[fg].emissiveTexture;
-					if (tex)
-					{
-						getTexture(tex)->bindTexture();
-					}
-					else
-					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but emissive texture not available, expect incorrect render.\n"));
-					}
-				}
-				// set transparency color
-				if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST)
-				{
-					if (params.program)
-						params.program->sendUniform("materialTransparencyConst",faceGroups[fg].transparencyColor[0],faceGroups[fg].transparencyColor[1],faceGroups[fg].transparencyColor[2],faceGroups[fg].transparencyColor[3]);
-					else
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: program=NULL, call setProgram().\n"));
-				}
-				// set transparency map
-				if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
-				{
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
-					rr::RRBuffer* tex = faceGroups[fg].transparencyTexture;
-					if (tex)
-					{
-						getTexture(tex)->bindTexture();
-					}
-					else
-					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but transparency texture not available, expect incorrect render.\n"));
-					}
-				}
+				// set material
+				params.renderedChannels.useMaterial(params.program,&faceGroups[fg].material);
 				// render one facegroup
 				if (indices)
 				{
