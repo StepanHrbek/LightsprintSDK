@@ -21,7 +21,7 @@ namespace rr_gl
 // Outputs: each getNextPass() sets shader and returns uberProgramSetup, renderedChannels
 // We schedule one light per pass, but it's possible to reimplement MultiPass and shader to render multiple lights per pass.
 
-class MultiPass
+class RR_GL_API MultiPass
 {
 public:
 	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma);
