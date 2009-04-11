@@ -52,7 +52,7 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 		return;
 	}
 
-	rr::RRReportInterval report(rr::INF1,"Loading scene %s...\n",filename);
+	RRReportInterval report(INF1,"Loading scene %s...\n",filename);
 
 	// test whether loaders were registered
 	if (s_loaders.empty())
@@ -119,7 +119,7 @@ const RRLights* RRScene::getLights()
 	return implementation ? implementation->getLights() : NULL;
 }
 
-const rr::RRBuffer* RRScene::getEnvironment()
+const RRBuffer* RRScene::getEnvironment()
 {
 	return implementation ? implementation->getEnvironment() : NULL;
 }

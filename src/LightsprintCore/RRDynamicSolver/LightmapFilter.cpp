@@ -96,7 +96,7 @@ LightmapFilter::LightmapFilter(unsigned _width, unsigned _height)
 {
 	width = _width;
 	height = _height;
-	renderedTexelsPhysical = new rr::RRVec4[width*height];
+	renderedTexelsPhysical = new RRVec4[width*height];
 	memset(renderedTexelsPhysical,0,width*height*sizeof(RRVec4));
 	numRenderedTexels = 0;
 }
@@ -170,7 +170,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 
 #ifndef DIAGNOSTIC_RED_UNRELIABLE
 	// alloc second workspace
-	RRVec4* workspaceTexels = new rr::RRVec4[numTexels];
+	RRVec4* workspaceTexels = new RRVec4[numTexels];
 	memset(workspaceTexels,0,numTexels*sizeof(RRVec4));
 
 	// spread foreground color

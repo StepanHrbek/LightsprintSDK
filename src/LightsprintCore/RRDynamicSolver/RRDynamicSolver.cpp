@@ -48,7 +48,7 @@ void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
 	{
-		rr::RRVec3 c(i*priv->boostCustomIrradiance/255);
+		RRVec3 c(i*priv->boostCustomIrradiance/255);
 		if (_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
@@ -161,7 +161,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			if (!aborting)
 			{
 				const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
-				if (material && material->diffuseEmittance.color!=rr::RRVec3(0))
+				if (material && material->diffuseEmittance.color!=RRVec3(0))
 					priv->staticSceneContainsEmissiveMaterials = true;
 
 				RRObject::LodInfo lodInfo;

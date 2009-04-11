@@ -97,7 +97,7 @@ public:
 			space[indentation] = 0;
 		}
 		// type
-		if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
+		if (type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ",""                    ,""           ,""           ,""           ,""      };
 		static COLORREF         color[] = {0x2222FF ,0x2222FF            ,0x2222FF   ,0                     ,0            ,0            ,0            ,0x777700};
 		static DWORD          effects[] = {CFE_BOLD ,0                   ,0          ,CFE_BOLD|CFE_AUTOCOLOR,CFE_AUTOCOLOR,CFE_AUTOCOLOR,CFE_AUTOCOLOR,0       };
@@ -377,7 +377,7 @@ class Abort : public RRCallback
 {
 public:
 	// This is called from main thread when work begins.
-	Abort(rr::RRDynamicSolver** _solver)
+	Abort(RRDynamicSolver** _solver)
 	{
 		solver = _solver;
 		aborted = false;
@@ -389,7 +389,7 @@ public:
 		// Ask solver to abort all actions.
 		if (solver[0])
 		{
-			rr::RRReporter::report(rr::INF1,"******** abort ********\n");
+			RRReporter::report(INF1,"******** abort ********\n");
 			solver[0]->aborting = true;
 			aborted = true;
 		}

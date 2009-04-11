@@ -158,11 +158,11 @@ void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
 			tmpSolver.updateEnvironmentMap(&tmpObjIllum);
 			tmpObjIllum.specularEnvMap = NULL;
 		}
-		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		getTexture(lastRenderSpecularEnv,false,false)->bindTexture();
 
 		// reflect original environment (might be too sharp)
-		//glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		//glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		//if (env->getWidth()>2)
 		//	getTexture(env,true,false)->bindTexture(); // smooth
 		//else

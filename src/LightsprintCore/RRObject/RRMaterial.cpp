@@ -148,7 +148,7 @@ unsigned RRMaterial::Property::createTextureFromColor(bool isTransmittance)
 	//   specularTransmittanceInAlpha was irrelevant without texture
 	//   it will be relevant when we create texture, should we clear it?
 	//   no, instead we are adding alpha to satisfy both specularTransmittanceInAlpha=false and true
-	texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,NULL);
+	texture = RRBuffer::create(BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,NULL);
 	texture->setElement(0,RRVec4(color,1-color.avg()));
 	return 1;
 }

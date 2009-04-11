@@ -73,9 +73,9 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, con
 		RRMesh::TriangleMapping triangleMapping;
 		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		rr::RRVec4 rgba = material.diffuseReflectance.texture->getElement(rr::RRVec3(materialUv[0],materialUv[1],0));
+		RRVec4 rgba = material.diffuseReflectance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
 		material.diffuseReflectance.color = rgba * rgba[3];
-		material.specularTransmittance.color = rr::RRVec3(1-rgba[3]);
+		material.specularTransmittance.color = RRVec3(1-rgba[3]);
 		if (rgba[3]==0)
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 		if (scaler)

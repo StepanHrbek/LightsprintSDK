@@ -291,13 +291,13 @@ public:
 RRLight::RRLight()
 {
 	type = POINT;
-	position = rr::RRVec3(0);
-	direction = rr::RRVec3(0);
+	position = RRVec3(0);
+	direction = RRVec3(0);
 	outerAngleRad = 1;
 	radius = 1;
-	color = rr::RRVec3(1);
+	color = RRVec3(1);
 	distanceAttenuationType = NONE;
-	polynom = rr::RRVec4(0,0,0,1);
+	polynom = RRVec4(0,0,0,1);
 	fallOffExponent = 1;
 	fallOffAngleRad = 0;
 	spotExponent = 1;

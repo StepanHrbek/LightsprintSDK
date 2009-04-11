@@ -85,8 +85,8 @@ public:
 		}
 		RRObjectIllumination objectIllum(0);
 		//objectIllum.gatherEnvMapSize = 32; // default 16 is usually good enough
-		if (header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,rr::BF_RGB,true,NULL);
-		if (header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,rr::BF_RGB,true,NULL);
+		if (header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,BF_RGB,true,NULL);
+		if (header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,BF_RGB,true,NULL);
 		for (unsigned k=0;k<header.gridSize[2];k++)
 		for (unsigned j=0;j<header.gridSize[1];j++)
 		for (unsigned i=0;i<header.gridSize[0];i++)

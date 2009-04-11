@@ -54,7 +54,7 @@ empty_scene:
 	{
 		goto empty_scene;
 	}
-	rr::RRVec3 mini,maxi,center;
+	RRVec3 mini,maxi,center;
 	mesh->getAABB(&mini,&maxi,&center);
 	_maxdist = (maxi-mini).length();
 	if (!_maxdist) _maxdist = 10;

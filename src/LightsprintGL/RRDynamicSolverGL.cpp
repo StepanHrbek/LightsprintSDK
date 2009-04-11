@@ -26,7 +26,7 @@ namespace rr_gl
 // CaptureUv
 
 //! Generates uv coords for capturing direct illumination into map with matrix of triangles.
-class CaptureUv : public rr_gl::VertexDataGenerator
+class CaptureUv : public VertexDataGenerator
 {
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
@@ -143,7 +143,7 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	for (unsigned i=0;i<_lights.size();i++)
 	{
 		RR_ASSERT(_lights[i]);
-		realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
+		realtimeLights.push_back(new RealtimeLight(*_lights[i]));
 	}
 	// reset detected direct lighting
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
@@ -382,7 +382,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 
 Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 {
-	rr_gl::UberProgramSetup uberProgramSetup;
+	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->getRRLight().type==rr::RRLight::POINT)?setupShaderLight->getNumShadowmaps():(setupShaderLight->getNumShadowmaps()?1:0);
 	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;

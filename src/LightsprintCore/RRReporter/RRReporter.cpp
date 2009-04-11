@@ -75,9 +75,9 @@ RRReporter* RRReporter::getReporter()
 RRReporter::~RRReporter()
 {
 	// This reporter no longer exists, stop sending messages to it.
-	if (rr::RRReporter::getReporter()==this)
+	if (RRReporter::getReporter()==this)
 	{
-		rr::RRReporter::setReporter(NULL);
+		RRReporter::setReporter(NULL);
 	}
 }
 

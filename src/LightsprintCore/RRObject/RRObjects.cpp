@@ -96,19 +96,19 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			{
 				// first try to load per-pixel format
 				RRBuffer* buffer = NULL;
-				rr::RRObjects::LayerParameters layerParameters;
+				RRObjects::LayerParameters layerParameters;
 				layerParameters.objectIndex = objectIndex;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapSize = 256;
 				recommendLayerParameters(layerParameters);
-				if ( !exists(layerParameters.actualFilename) || !(buffer=rr::RRBuffer::load(layerParameters.actualFilename,NULL)) )
+				if ( !exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
 				{
 					// if it fails, try to load per-vertex format
 					layerParameters.suggestedMapSize = 0;
 					recommendLayerParameters(layerParameters);
 					if (exists(layerParameters.actualFilename))
-						buffer = rr::RRBuffer::load(layerParameters.actualFilename);
+						buffer = RRBuffer::load(layerParameters.actualFilename);
 				}
 				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=illumination->getNumPreImportVertices())
 				{
@@ -120,15 +120,15 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 					delete illumination->getLayer(layerNumber);
 					illumination->getLayer(layerNumber) = buffer;
 					result++;
-					rr::RRReporter::report(rr::INF3,"Loaded %s.\n",layerParameters.actualFilename);
+					RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename);
 				}
 				else
 				{
-					rr::RRReporter::report(rr::INF3,"Not loaded %s.\n",layerParameters.actualFilename);
+					RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename);
 				}
 			}
 		}
-		rr::RRReporter::report(rr::INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
 	}
 	return result;
 }
@@ -143,7 +143,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 			RRBuffer* buffer = (*this)[objectIndex].illumination ? (*this)[objectIndex].illumination->getLayer(layerNumber) : NULL;
 			if (buffer)
 			{
-				rr::RRObjects::LayerParameters layerParameters;
+				RRObjects::LayerParameters layerParameters;
 				layerParameters.objectIndex = objectIndex;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
@@ -152,13 +152,13 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 				if (buffer->save(layerParameters.actualFilename))
 				{
 					result++;
-					rr::RRReporter::report(rr::INF3,"Saved %s.\n",layerParameters.actualFilename);
+					RRReporter::report(INF3,"Saved %s.\n",layerParameters.actualFilename);
 				}
 				else
-					rr::RRReporter::report(rr::WARN,"Not saved %s.\n",layerParameters.actualFilename);
+					RRReporter::report(WARN,"Not saved %s.\n",layerParameters.actualFilename);
 			}
 		}
-		rr::RRReporter::report(rr::INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+		RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
 	}
 	return result;
 }

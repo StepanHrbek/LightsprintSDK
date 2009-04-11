@@ -23,36 +23,36 @@ RRBuffer::RRBuffer()
 
 unsigned RRBuffer::getElementBits() const
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElementBits() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementBits() called.\n"));
 	return 0;
 }
 
 void RRBuffer::setElement(unsigned index, const RRVec4& element)
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::setElement() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::setElement() called.\n"));
 }
 
 RRVec4 RRBuffer::getElement(unsigned index) const
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElement() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
 	return RRVec4(0);
 }
 
 RRVec4 RRBuffer::getElement(const RRVec3& coord) const
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::getElement() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
 	return RRVec4(0);
 }
 
 unsigned char* RRBuffer::lock(RRBufferLock lock)
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::lock() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::lock() called.\n"));
 	return NULL;
 }
 
 void RRBuffer::unlock()
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Default empty RRBuffer::unlock() called.\n"));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::unlock() called.\n"));
 }
 
 unsigned RRBuffer::getMemoryOccupied() const
@@ -104,7 +104,7 @@ void RRBuffer::invert()
 	for (unsigned i=0;i<numElements;i++)
 	{
 		RRVec4 color = getElement(i);
-		color = rr::RRVec4(1)-color;
+		color = RRVec4(1)-color;
 		setElement(i,color);
 	}
 }

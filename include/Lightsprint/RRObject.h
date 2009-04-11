@@ -569,7 +569,7 @@ namespace rr
 		virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const;
 		//! Loads illumination layer from disk.
 		//
-		//! It is shortcut for calling illumination->getLayer() = rr::RRBuffer::load() on all elements in this container.
+		//! It is shortcut for calling illumination->getLayer() = RRBuffer::load() on all elements in this container.
 		//! \param layerNumber
 		//!  Layer to load, nothing is done for negative number.
 		//! \param path

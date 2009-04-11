@@ -363,13 +363,13 @@ void scaleAndFlushToBuffer(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler
 	}
 }
 
-rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
+RRBuffer* onlyVbuf(RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER) ? buffer : NULL;
+	return (buffer && buffer->getType()==BT_VERTEX_BUFFER) ? buffer : NULL;
 }
-rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
+RRBuffer* onlyLmap(RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
+	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
 }
 
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
@@ -618,7 +618,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			if (pixelBufferWidth*pixelBufferHeight==0) hint = "map size is 0!";
 			if (numTriangles==0) hint = "mesh has 0 triangles!";
 
-			rr::RRReporter::report(rr::WARN,
+			RRReporter::report(WARN,
 				"No texels rendered into map, %s (object=%d/%d numTriangles=%d numVertices=%d emptyBuffers=%d/%d resolution=%dx%d uvIndex=%d)\n",
 				hint,
 				objectNumber,getNumObjects(),

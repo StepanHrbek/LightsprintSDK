@@ -609,8 +609,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			{	
 				if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 				{
-					glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
-					rr_gl::getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->bindTexture();
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
+					getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->bindTexture();
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
 				}

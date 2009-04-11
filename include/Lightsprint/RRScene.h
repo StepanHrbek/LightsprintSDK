@@ -51,14 +51,14 @@ public:
 	//! Returns collection of objects in scene.
 	//! It should be empty collection for intentionally empty scene,
 	//! but NULL after failed scene load.
-	virtual const rr::RRObjects* getObjects();
+	virtual const RRObjects* getObjects();
 	//! Returns collection of lights in scene.
 	//! It should be empty collection for scenes without lights,
 	//! but NULL for scene formats that don't support lights at all.
-	virtual const rr::RRLights* getLights();
+	virtual const RRLights* getLights();
 	//! Returns scene environment, skybox.
 	//! This is often NULL as scene formats usually don't specify environment.
-	virtual const rr::RRBuffer* getEnvironment();
+	virtual const RRBuffer* getEnvironment();
 
 	//! Template of custom scene loader.
 	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);

@@ -632,22 +632,22 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 	}
 	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
 	{
-		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 		if (illumination->diffuseEnvMap)
 		{
 			if (updateTexturesFromBuffers)
 				getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
-			rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
+			getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
 	}
 	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
 	{
-		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		if (illumination->specularEnvMap)
 		{
 			if (updateTexturesFromBuffers)
 				getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
-			rr_gl::getTexture(illumination->specularEnvMap,false,false)->bindTexture();
+			getTexture(illumination->specularEnvMap,false,false)->bindTexture();
 		}
 
 		const Camera* camera = Camera::getRenderCamera();
