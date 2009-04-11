@@ -194,7 +194,7 @@ void main()
 	// clipping
 
 	#ifdef CLIP_PLANE
-		if(worldPos.y<0) discard;
+		if(worldPos.y<0.0) discard;
 	#endif
 
 	/////////////////////////////////////////////////////////////////////
