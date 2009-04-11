@@ -682,10 +682,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.brightness!=rr::RRVec4(1);
 				uberProgramSetup.POSTPROCESS_GAMMA = svs.gamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
-				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false,false)->reset(false,false);
-				getTexture(lightFieldObjectIllumination->diffuseEnvMap,false,false)->bindTexture();
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
+				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
 				// render
 				glPushMatrix();
 				glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
@@ -699,11 +697,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				uberProgramSetup.MATERIAL_DIFFUSE = false;
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
-				program->sendUniform("worldEyePos",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
-				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-				getTexture(lightFieldObjectIllumination->specularEnvMap,false,false)->reset(false,false);
-				getTexture(lightFieldObjectIllumination->specularEnvMap,false,false)->bindTexture();
+				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
+				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
 				program->sendUniform("worldMatrix",worldMatrix,false,4);

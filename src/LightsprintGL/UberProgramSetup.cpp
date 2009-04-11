@@ -642,4 +642,48 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	return program;
 }
 
+void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination, bool updateTexturesFromBuffers)
+{
+	if (!program)
+	{
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
+		return;
+	}
+	if (!illumination)
+	{
+		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(illumination=NULL).\n"));
+		return;
+	}
+	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
+	{
+		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+		if (illumination->diffuseEnvMap)
+		{
+			if (updateTexturesFromBuffers)
+				getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
+			rr_gl::getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
+		}
+	}
+	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
+	{
+		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		if (illumination->specularEnvMap)
+		{
+			if (updateTexturesFromBuffers)
+				getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
+			rr_gl::getTexture(illumination->specularEnvMap,false,false)->bindTexture();
+		}
+
+		const Camera* camera = Camera::getRenderCamera();
+		if (camera)
+		{
+			program->sendUniform("worldEyePos",camera->pos[0],camera->pos[1],camera->pos[2]);
+		}
+		else
+		{
+			RR_ASSERT(0);
+		}
+	}
+}
+
 }; // namespace

@@ -146,9 +146,12 @@ struct RR_GL_API UberProgramSetup
 	static void checkCapabilities();
 	//! Change invalid settings to closest valid settings.
 	void validate();
-	//! Sets rendering pipeline so that following primitives are rendered using
-	//! our program.
+	//! Sets rendering pipeline so that following primitives are rendered by our program.
+	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps() should follow to set them.
 	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma);
+	//! Sets shader illumination environment maps, should be called after useProgram() or getNextPass().
+	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
+	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination, bool updateTexturesFromBuffers);
 };
 
 }; // namespace
