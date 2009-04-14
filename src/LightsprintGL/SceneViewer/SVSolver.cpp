@@ -33,7 +33,7 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 
 	if (svs.renderRealtime)
 	{
-		if ( (!renderingFromThisLight && getMaterialsInStaticScene().MATERIAL_TRANSPARENCY_BLEND) // optimized render can't sort
+		if ( (!renderingFromThisLight && uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND) // optimized render can't sort
 			|| (svs.renderLDM && getStaticObjects().size()>1) // optimized render can't render AO for more than 1 object
 			)
 		{
@@ -53,7 +53,8 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 		}
 		else
 		{
-			// render whole scene at once (no sorting -> semitranslucency would render incorrectly)
+			// render whole scene at once (no sort)
+			// (whole scene is blended or keyed -> scene with trees and windows renders incorrectly)
 			rendererOfScene->useOptimizedScene();
 		}
 	}

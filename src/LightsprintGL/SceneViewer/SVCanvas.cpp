@@ -638,7 +638,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_CONST || !svs.renderTextures);
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_MAP && svs.renderTextures);
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_IN_ALPHA && svs.renderTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderTransparent && hasTra && miss.MATERIAL_TRANSPARENCY_BLEND;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_BLEND
+				// here we intentionally enable blend if alpha-keyed textures are disabled.
+				// why? imagine alpha keyed tree, now disable transparency map. tree is 70% transparent, not blended, so whole tree disappears. better enable blend
+				|| !svs.renderTextures);
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
