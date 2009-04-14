@@ -42,8 +42,8 @@ protected:
 
 	// intermediates
 	unsigned numLights;
-	int separatedZPass; //! Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
-	int separatedAmbientPass; //! Ambient pass is separated if there are no lights to piggyback on.
+	int separatedZPass; ///< Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
+	int separatedAmbientPass; ///< Ambient pass is separated if there are no lights to piggyback on.
 	int lightIndex;
 };
 

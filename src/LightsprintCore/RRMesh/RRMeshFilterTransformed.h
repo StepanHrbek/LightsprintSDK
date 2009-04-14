@@ -23,9 +23,9 @@ public:
 		m = matrix;
 	}
 	/*RRTransformedMeshFilter(RRObject* object)
-	: RRMeshFilter(object->getCollider()->getMesh())
+		: RRMeshFilter(object->getCollider()->getMesh())
 	{
-	m = object->getWorldMatrix();
+		m = object->getWorldMatrix();
 	}*/
 
 	virtual void getVertex(unsigned v, Vertex& out) const
