@@ -121,10 +121,19 @@ struct RR_GL_API UberProgramSetup
 	}
 
 	//! Rewrites all MATERIAL_XXX by values it recommends for given object.
-	//! Only features present in object's materials are enabled.
+	//
+	//! RRMaterial specifies single property as a flat color and as a texture,
+	//! but only one (any one) of them is used, they are not modulated together.
+	//! Thus we never set both MATERIAL_XXX_CONST and MATERIAL_XXX_MAP,
+	//! e.g. MATERIAL_DIFFUSE_MAP is set only if object contains diffuse map(s),
+	//! MATERIAL_DIFFUSE_CONST is set only if object contains flat diffuse colors and no maps.
 	//! It is slow, not for use in every frame.
 	void recommendMaterialSetup(rr::RRObject* object);
-	//! Reduces material setup, removes all properties not present in fullMaterial.
+	//! Reduces material setup, removes properties not present in fullMaterial.
+	//
+	//! MATERIAL_XXX_MAP is considered superset of MATERIAL_XXX_CONST, so
+	//! mixing MATERIAL_XXX_CONST in this or fullMaterial, and MATERIAL_XXX_MAP in the other input,
+	//! leads to MATERIAL_XXX_CONST set.
 	void reduceMaterialSetup(const UberProgramSetup& fullMaterial);
 
 	//! Returns our attribute values in format suitable for our uberprogram.
