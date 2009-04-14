@@ -3,7 +3,8 @@
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRMath.h"
 
 namespace rr
 {

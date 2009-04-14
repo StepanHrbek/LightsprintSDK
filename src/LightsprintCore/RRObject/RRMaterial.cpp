@@ -5,7 +5,8 @@
 
 #include <math.h>
 
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRMaterial.h"
 #include "Lightsprint/RRBuffer.h"
 #include "memory.h"
 

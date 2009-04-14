@@ -4,13 +4,13 @@
 // --------------------------------------------------------------------------
 
 
-#include <cassert>
 #include <cfloat>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
 #include "Interpolator.h"
+#include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))

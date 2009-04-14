@@ -49,7 +49,7 @@
 
 #include <cstdio>
 #include <cstring>
-#include "Lightsprint/RRObject.h" // RRVec3, RRMaterial
+#include "Lightsprint/RRMaterial.h"
 
 class Model_3DS
 {

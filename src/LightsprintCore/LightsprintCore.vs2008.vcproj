@@ -1090,10 +1090,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRObject\RRMaterial.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRObject\RRObject.cpp"
 				>
 			</File>
@@ -1155,10 +1151,6 @@
 			</File>
 			<File
 				RelativePath="RRObject\RRObjectWithPhysicalMaterials.h"
-				>
-			</File>
-			<File
-				RelativePath="RRObject\RRScaler.cpp"
 				>
 			</File>
 		</Filter>
@@ -1710,6 +1702,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="RRMaterial"
+			>
+			<File
+				RelativePath="RRObject\RRMaterial.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRMaterial.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="LicGen.h"
 			>
@@ -1744,6 +1748,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRMemory.h"
+			>
+		</File>
+		<File
+			RelativePath="RRObject\RRScaler.cpp"
 			>
 		</File>
 	</Files>

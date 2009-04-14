@@ -276,20 +276,16 @@
 			<File
 				RelativePath="RRCollider\bsp.cpp">
 				<FileConfiguration
-					Name="Release static|Win32"
-					>
+					Name="Release static|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -340,20 +336,16 @@
 			<File
 				RelativePath="RRCollider\RRCollider.cpp">
 				<FileConfiguration
-					Name="Release static|Win32"
-					>
+					Name="Release static|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -397,6 +389,21 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRMesh.h">
+			</File>
+			<File
+				RelativePath="RRMesh\RRMeshAccelerated.cpp">
+				<FileConfiguration
+					Name="Release static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshCopy.cpp">
@@ -446,34 +453,11 @@
 			<File
 				RelativePath="RRMesh\RRMeshTriStrip.h">
 			</File>
-			<File
-				RelativePath="RRMesh\RRMeshAccelerated.cpp"
-				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="RRObject">
 			<File
 				RelativePath="RRObject\RRCollisionHandler.cpp">
-			</File>
-			<File
-				RelativePath="RRObject\RRMaterial.cpp">
 			</File>
 			<File
 				RelativePath="RRObject\RRObject.cpp">
@@ -511,9 +495,6 @@
 			<File
 				RelativePath="RRObject\RRObjectWithPhysicalMaterials.h">
 			</File>
-			<File
-				RelativePath="RRObject\RRScaler.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="RRIllumination">
@@ -521,23 +502,18 @@
 				RelativePath="..\..\include\Lightsprint\RRIllumination.h">
 			</File>
 			<File
-				RelativePath="RRLightField.cpp"
-				>
+				RelativePath="RRLightField.cpp">
 				<FileConfiguration
-					Name="Release static|Win32"
-					>
+					Name="Release static|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -559,27 +535,21 @@
 		<Filter
 			Name="RRStaticSolver">
 			<File
-				RelativePath=".\RRStaticSolver\ChunkList.h"
-				>
+				RelativePath=".\RRStaticSolver\ChunkList.h">
 			</File>
 			<File
-				RelativePath="RRStaticSolver\exceptions.cpp"
-				>
+				RelativePath="RRStaticSolver\exceptions.cpp">
 				<FileConfiguration
-					Name="Release static|Win32"
-					>
+					Name="Release static|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -765,20 +735,16 @@
 			<File
 				RelativePath="RRBuffer\RRBufferInMemory.cpp">
 				<FileConfiguration
-					Name="Release static|Win32"
-					>
+					Name="Release static|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
+						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -788,10 +754,10 @@
 		<Filter
 			Name="RRReporter">
 			<File
-				RelativePath="RRReporter\RRReporter.cpp">
+				RelativePath="RRReporter\reporterWindow.h">
 			</File>
 			<File
-				RelativePath="RRReporter\reporterWindow.h">
+				RelativePath="RRReporter\RRReporter.cpp">
 			</File>
 			<File
 				RelativePath="RRReporter\RRReporterFile.cpp">
@@ -810,31 +776,35 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="RRScene"
-			>
+			Name="RRScene">
 			<File
-				RelativePath="RRScene.cpp"
-				>
+				RelativePath="RRScene.cpp">
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\RRScene.h"
-				>
+				RelativePath="..\..\include\Lightsprint\RRScene.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="RRMaterial"
+			Filter="">
+			<File
+				RelativePath="RRObject\RRMaterial.cpp">
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRMaterial.h">
 			</File>
 		</Filter>
 		<File
 			RelativePath="LicGen.h">
 		</File>
 		<File
-			RelativePath="OfflineSetup.cpp"
-			>
+			RelativePath="OfflineSetup.cpp">
 		</File>
 		<File
-			RelativePath="Preferences.cpp"
-			>
+			RelativePath="Preferences.cpp">
 		</File>
 		<File
-			RelativePath="Preferences.h"
-			>
+			RelativePath="Preferences.h">
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h">
@@ -850,6 +820,9 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRMemory.h">
+		</File>
+		<File
+			RelativePath="RRObject\RRScaler.cpp">
 		</File>
 	</Files>
 	<Globals>

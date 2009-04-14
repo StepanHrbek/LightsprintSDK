@@ -3,11 +3,11 @@
 // Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <assert.h>
-#include <math.h>
+#include <cmath>
 #include <memory.h>
 #include "geometry_v.h"
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRMath.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr
 {

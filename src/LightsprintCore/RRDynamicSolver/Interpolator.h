@@ -8,13 +8,11 @@
 #define INTERPOLATOR_H
 
 #include <vector>
-#include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRBuffer.h"
+#include "Lightsprint/RRLight.h" // RRScaler
 
 namespace rr
 {
-
-typedef unsigned short u16;
 
 class Interpolator
 {

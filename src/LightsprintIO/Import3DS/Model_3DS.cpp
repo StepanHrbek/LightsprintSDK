@@ -56,6 +56,7 @@
 #ifndef RR_IO_BUILD
 #include "Lightsprint/GL/UberProgramSetup.h"
 #endif
+#include "Lightsprint/RRDebug.h"
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
