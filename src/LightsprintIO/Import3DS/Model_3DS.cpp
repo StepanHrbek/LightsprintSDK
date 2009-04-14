@@ -754,8 +754,6 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::
 		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE);
 		delete scaler;
 	}
-	else
-		rr::RRReporter::report(rr::WARN,"Texture %s not found.\n",fullname);
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
