@@ -74,7 +74,7 @@ public:
 			IVertex* previousAllocBlock; // used by newIVertex() allocator 
 		};
 
-		unsigned packedIndex; // night edition: index ivertexu v PackedSmoothing
+		unsigned packedIndex; // index ivertexu v PackedSmoothing
 };
 
 } // namespace

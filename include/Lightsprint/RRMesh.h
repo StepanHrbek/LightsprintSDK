@@ -126,21 +126,22 @@ namespace rr
 
 		//! Writes position of v-th vertex in mesh to out.
 		//
-		//! Be sure to provide valid v is in range <0..getNumVertices()-1>.
-		//! Implementators are allowed to expect valid v, so result is completely undefined for invalid v (possible crash).
+		//! Make sure you provide valid v is in range <0..getNumVertices()-1>.
+		//! Implementations are allowed to expect valid v,
+		//! result is undefined for invalid v (possible assert in debug, crash in release).
 		//! 
 		//! What exactly is vertex, do boxes have 8 or 24 vertices?
-		//! \n RRMesh, RRCollider and RRVision create no constraints, you are free
+		//! \n RRMesh, RRCollider and RRObject create no constraints, you are free
 		//!  to use your favorite approach - create box with 8 or 24
 		//!  or any other number of vertices greater than 8, collisions and 
 		//!  illumination will be computed correctly.
 		//!  (24 because each one of 8 vertices is used by 3 sides with different normal)
 		//! \n RRDynamicSolver depends on vertex list defined here.
-		//!  If you request vertex buffer with per-vertex irradiance,
+		//!  If you request vertex buffer with per-vertex illumination,
 		//!  vertex buffer will have getNumVertices() items.
 		//!  So when writing new RRMesh implementations, create vertex list
 		//!  so that vertex buffers with the same size and vertex order
-		//!  are friendly for your renderer.
+		//!  are compatible with your renderer.
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
 

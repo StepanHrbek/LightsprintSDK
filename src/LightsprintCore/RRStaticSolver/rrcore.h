@@ -313,7 +313,6 @@ public:
 
 	real    avgAccuracy();
 
-	// night edition
 	void    updateFactors(unsigned raysFromTriangle);
 	class PackedSolverFile* packSolver() const;
 

@@ -151,14 +151,6 @@ unsigned IVertex::splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float ma
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
 	// return: number of new ivertices
-
-	//while zbyvaji cornery
-	// set=empty
-	// for each zbyvajici corner
-	//  kdyz ma normalu dost blizkou aspon jednomu corneru ze setu, vloz ho do setu
-	//  zaloz ivertex s timto setem corneru
-	//  NEDOKONALE, vrchol jehlanu bude mit jednu barvu
-
 	const RRMesh* mesh = obj->importer->getCollider()->getMesh();
 
 	unsigned numSplitted = 0;

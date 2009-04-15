@@ -184,7 +184,7 @@ namespace rr
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
-				maxSmoothAngle = 0.33f; // default angle for automatic smoothing
+				maxSmoothAngle = 0.33f; // default angle for automatic smoothing, 18.9 degrees
 				vertexWeldDistance = 0; // weld enabled for identical vertices
 				minFeatureSize = 0; // disabled
 				ignoreSmallerAngle = 0; // ignores degerated triangles
