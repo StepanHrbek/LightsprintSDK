@@ -9,6 +9,7 @@
 #include "Lightsprint/RRMaterial.h"
 #include "Lightsprint/RRBuffer.h"
 #include "memory.h"
+#include <climits> // UINT_MAX
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
