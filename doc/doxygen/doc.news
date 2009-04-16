@@ -12,10 +12,15 @@ namespace rr
 
 NEWS
 
-- improved smoothing of per-vertex illumination
-  \n RRDynamicSolver::SmoothingParameters::maxSmoothAngle default was changed from 0.33 to 0
-  to smooth per-vertex illumination where vertex normals match
-  rather than where face normals are similar.
+- new per-vertex illumination smoothing mode, enabled by default
+  - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ 0
+    this smooths per-vertex illumination only where vertex normals match,
+    ignoring RRDynamicSolver::SmoothingParameters::minFeatureSize.
+  - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _was_ 0.33,
+    this smoothed illumination where face normals were similar,
+    with additional blur specified by RRDynamicSolver::SmoothingParameters::minFeatureSize.
+  - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject(),
+    makes it possible to stitch only vertices with similar normals
 - common math macros prefixed RR_ added to RRMath.h
 
 \section news79 ------------------------------------ 2009.04.15 -------------------------------------

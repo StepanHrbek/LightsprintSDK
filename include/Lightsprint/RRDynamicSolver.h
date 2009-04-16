@@ -161,12 +161,14 @@ namespace rr
 			//! Distance in world units. Smaller indirect light features will be smoothed. This could be imagined as a kind of blur.
 			//! Use default 0 for no blur and watch for possible artifacts in areas with small geometry details
 			//! and 'needle' triangles. Increase until artifacts disappear.
-			//! 15cm (0.15 for game with 1m units) could be good for typical interior game.
+			//! 0.15 could be good for typical interior game with 1m units.
 			//! Only indirect lighting is affected, so even 15cm blur is mostly invisible.
+			//! \n Note: minFeatureSize is ignored if maxSmoothAngle is 0.
 			float minFeatureSize;
 			//! Angle in radians, controls smoothing.
-			//! Default 0 makes illumination smooth where vertex normals match.
-			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle.
+			//! Default 0 makes illumination smooth only where vertex normals match, ignoring minFeatureSize.
+			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle,
+			//! with additional blur specified by minFeatureSize.
 			//! Optimal positive value depends on your geometry, but reasonable value could be 0.33 (approx 19 degrees).
 			float maxSmoothAngle;
 			//! Makes needle-like triangles with equal or smaller angle (rad) ignored.
@@ -185,9 +187,9 @@ namespace rr
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
-				maxSmoothAngle = 0; // smooth illumination where vertex normals match
 				vertexWeldDistance = 0; // weld enabled for identical vertices
 				minFeatureSize = 0; // disabled
+				maxSmoothAngle = 0; // smooth illumination where vertex normals match
 				ignoreSmallerAngle = 0; // ignores degerated triangles
 				ignoreSmallerArea = 0; // ignores degerated triangles
 			}
