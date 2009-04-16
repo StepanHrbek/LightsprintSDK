@@ -14,7 +14,7 @@ IVertex *Object::newIVertex()
 	if (IVertexPoolItemsUsed>=IVertexPoolItems) 
 	{
 		IVertex *old=IVertexPool;
-		unsigned newIVertexPoolItems=MIN(MAX(IVertexPoolItems,128)*2,32768);
+		unsigned newIVertexPoolItems=RR_MIN(RR_MAX(IVertexPoolItems,128)*2,32768);
 		try
 		{
 			IVertexPool=new IVertex[newIVertexPoolItems];

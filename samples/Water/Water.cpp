@@ -100,7 +100,7 @@ void passive(int x, int y)
 	{
 		eye.angle -= 0.005*x;
 		eye.angleX -= 0.005*y;
-		CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+		CLAMP(eye.angleX,-RR_PI*0.49f,RR_PI*0.49f);
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }

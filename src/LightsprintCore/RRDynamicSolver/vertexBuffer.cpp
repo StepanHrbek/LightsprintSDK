@@ -246,7 +246,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
 			// make it optional when negative values are supported
 			//for (unsigned i=0;i<3;i++)
-			//	indirect[i] = MAX(0,indirect[i]);
+			//	indirect[i] = RR_MAX(0,indirect[i]);
 			for (unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(_finite(indirect[i]));

@@ -27,8 +27,6 @@ namespace rr
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
 
-#define MAX(a,b)         (((a)>(b))?(a):(b))
-#define MIN(a,b)         (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 RRDynamicSolver::RRDynamicSolver()
@@ -395,7 +393,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->solutionVersion++;
 		// following improvement should be so big that single frames after big reset are not visibly darker
 		// so...calculate at least 20ms?
-		improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
+		improveStep = RR_MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		priv->dirtyCustomIrradiance = false;
 		priv->dirtyResults = true;
 	}
@@ -484,7 +482,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 			// standardni vyvazovani s tlumenim prudkych vykyvu
 			( (priv->calcStep>priv->userStep)?0.8f:1.2f );
 		// always spend at least 40% of our time in improve, don't spend too much by reading results etc
-		priv->improveStep = MAX(priv->improveStep,MIN_PORTION_SPENT_IMPROVING*priv->calcStep);
+		priv->improveStep = RR_MAX(priv->improveStep,MIN_PORTION_SPENT_IMPROVING*priv->calcStep);
 		// stick in interactive bounds
 		priv->improveStep = CLAMP(priv->improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
 	}

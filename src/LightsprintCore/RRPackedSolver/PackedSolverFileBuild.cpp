@@ -52,7 +52,7 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 				if (object->triangle[t].surface)
 				{
 					NeverEnd neverEnd;
-					refreshFormFactorsFromUntil(&object->triangle[t],MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverEnd);
+					refreshFormFactorsFromUntil(&object->triangle[t],RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverEnd);
 				}
 			}
 		}

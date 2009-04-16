@@ -353,13 +353,13 @@ void passive(int x, int y)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
-			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			light->angle -= mouseSensitivity*x;
 			light->angleX -= mouseSensitivity*y;
-			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation
 			light->pos += light->dir*0.3f;
@@ -525,7 +525,7 @@ int main(int argc, char **argv)
 	}
 
 	// init light
-	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
+	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
 	rrlight->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);

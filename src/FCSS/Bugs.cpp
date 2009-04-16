@@ -53,7 +53,7 @@ public:
 				dist = (face2==UINT_MAX) ? 1e10f : ray->hitDistance;
 			}
 		}
-		float step = MIN(seconds,MAX(dist-0.1f,0));
+		float step = RR_MIN(seconds,RR_MAX(dist-0.1f,0));
 		pos += dir * step;
 		dist -= step;
 	}

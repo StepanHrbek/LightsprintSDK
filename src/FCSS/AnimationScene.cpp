@@ -175,7 +175,7 @@ float LevelSetup::getFrameTime(unsigned index) const
 
 float LevelSetup::getTotalTime() const
 {
-	return getFrameTime(MAX(1,(unsigned)frames.size())-1);
+	return getFrameTime(RR_MAX(1,(unsigned)frames.size())-1);
 }
 
 const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)

@@ -113,8 +113,8 @@ void FACE::fillMinMax()
 {
 	for (unsigned i=0;i<3;i++)
 	{
-		min[i] = MIN3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
-		max[i] = MAX3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
+		min[i] = RR_MIN3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
+		max[i] = RR_MAX3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
 	}
 }
 
@@ -180,9 +180,9 @@ struct BBOX
 	}
 	void updateMaxVertexValue()
 	{
-		float a = MAX(MAX(hi[0],hi[1]),hi[2]);
-		float b = MIN(MIN(lo[0],lo[1]),lo[2]);
-		maxVertexValue = MAX(a,-b);
+		float a = RR_MAX3(hi[0],hi[1],hi[2]);
+		float b = RR_MIN3(lo[0],lo[1],lo[2]);
+		maxVertexValue = RR_MAX(a,-b);
 		minSafeDistance = maxVertexValue * SAFE_DISTANCE_IN_UNIT_SCENE; // min distance from plane to be recognized as non-plane
 	}
 	float maxVertexValue;
@@ -1128,12 +1128,12 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		obj->vertex[i].used=0;
 
 
-		bbox.hi[0]=MAX(bbox.hi[0],obj->vertex[i].x);
-		bbox.hi[1]=MAX(bbox.hi[1],obj->vertex[i].y);
-		bbox.hi[2]=MAX(bbox.hi[2],obj->vertex[i].z);
-		bbox.lo[0]=MIN(bbox.lo[0],obj->vertex[i].x);
-		bbox.lo[1]=MIN(bbox.lo[1],obj->vertex[i].y);
-		bbox.lo[2]=MIN(bbox.lo[2],obj->vertex[i].z);
+		bbox.hi[0]=RR_MAX(bbox.hi[0],obj->vertex[i].x);
+		bbox.hi[1]=RR_MAX(bbox.hi[1],obj->vertex[i].y);
+		bbox.hi[2]=RR_MAX(bbox.hi[2],obj->vertex[i].z);
+		bbox.lo[0]=RR_MIN(bbox.lo[0],obj->vertex[i].x);
+		bbox.lo[1]=RR_MIN(bbox.lo[1],obj->vertex[i].y);
+		bbox.lo[2]=RR_MIN(bbox.lo[2],obj->vertex[i].z);
 	}
 
 	for (int i=0;i<obj->face_num;i++) 

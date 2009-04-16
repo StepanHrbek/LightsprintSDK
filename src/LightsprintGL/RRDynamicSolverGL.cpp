@@ -462,7 +462,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	// for each set of triangles (if all triangles don't fit into one texture)
 	for (captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
-		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
+		captureUv->lastCapturedTrianglePlus1 = RR_MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
 
 		// reduce number of lines read back if possible
 		//  unused space is located at the end of last readback buffer (last iteration of this for cycle)

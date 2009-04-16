@@ -352,7 +352,7 @@ void passive(int x, int y)
 #endif
 		eye.angle -= mouseSensitivity*x;
 		eye.angleX -= mouseSensitivity*y;
-		CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+		CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}

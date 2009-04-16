@@ -237,13 +237,13 @@ void passive(int x, int y)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
-			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			realtimeLight->getParent()->angle -= mouseSensitivity*x;
 			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
-			CLAMP(realtimeLight->getParent()->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(realtimeLight->getParent()->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			// changes also position a bit, together with rotation
 			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
 			realtimeLight->getParent()->update();
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
 	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init light
-	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f);
+	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
 	rrlight->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;

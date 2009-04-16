@@ -411,7 +411,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			{
 				svs.eye.angle -= mouseSensitivity*x*(svs.eye.getFieldOfViewVerticalDeg()/90);
 				svs.eye.angleX -= mouseSensitivity*y*(svs.eye.getFieldOfViewVerticalDeg()/90);
-				CLAMP(svs.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+				CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			}
 			else
 			if (selectedType==ST_LIGHT)
@@ -422,7 +422,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					Camera* light = solver->realtimeLights[svs.selectedLightIndex]->getParent();
 					light->angle -= mouseSensitivity*x;
 					light->angleX -= mouseSensitivity*y;
-					CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+					CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 					// changes position a bit, together with rotation
 					// if we don't call it, solver updates light in a standard way, without position change
 					light->pos += light->dir*0.3f;

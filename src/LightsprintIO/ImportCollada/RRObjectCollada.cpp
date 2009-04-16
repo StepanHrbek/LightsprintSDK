@@ -62,9 +62,6 @@
 	#endif
 #endif
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
 using namespace rr;
 
 enum
@@ -1051,7 +1048,7 @@ public:
 		else
 		{
 			char* pathToTextures = _strdup(filename);
-			char* tmp = MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
+			char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 			if (tmp) tmp[1] = 0;
 			RRReportInterval report(INF3,"Adapting scene...\n");
 			scene->objects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures,emissiveMultiplier);

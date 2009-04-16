@@ -26,9 +26,6 @@
 #define RR_BIG_ENDIAN
 #endif
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 #define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
@@ -168,8 +165,8 @@ static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, un
 static void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
 {
 	// alloc new
-	unsigned widthNew = MIN(widthOld,heightOld)/3;
-	unsigned heightNew = MAX(widthOld,heightOld)/4;
+	unsigned widthNew = RR_MIN(widthOld,heightOld)/3;
+	unsigned heightNew = RR_MAX(widthOld,heightOld)/4;
 	unsigned char* pixelsNew = new unsigned char[widthNew*heightNew*bytesPerPixel*6];
 
 	// shuffle from old to new

@@ -263,7 +263,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		}
 	}
 	// try max 8 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
-	for (SHADOW_MAPS=1;SHADOW_MAPS<=(unsigned)MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
+	for (SHADOW_MAPS=1;SHADOW_MAPS<=(unsigned)RR_MIN(maxShadowmapUnits,8);SHADOW_MAPS++)
 	{
 		Program* program = getProgram(uberProgram);
 		if (!program // stop when !compiled or !linked
@@ -291,13 +291,13 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 			{
 				// X1950 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
 				// X1650 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = MIN(SHADOW_MAPS,4);
+				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,4);
 			}
 			else
 			if ( (number>=9500 || number<=1299) )
 			{
 				// X300 in Lightsmark2008 5->2or1, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = MIN(SHADOW_MAPS,1);
+				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,1);
 			}
 		}
 	}

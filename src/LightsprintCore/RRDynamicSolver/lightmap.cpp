@@ -92,13 +92,13 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			//  find minimal bounding box
 			unsigned xminu, xmaxu, yminu, ymaxu;
 			{
-				RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
-				RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
-				xminu = (unsigned)MAX(xmin,rectXMin); // !negative
+				RRReal xmin = mapWidth  * RR_MIN(mapping.uv[0][0],RR_MIN(mapping.uv[1][0],mapping.uv[2][0]));
+				RRReal xmax = mapWidth  * RR_MAX(mapping.uv[0][0],RR_MAX(mapping.uv[1][0],mapping.uv[2][0]));
+				xminu = (unsigned)RR_MAX(xmin,rectXMin); // !negative
 				xmaxu = (unsigned)CLAMPED(xmax+1,0,rectXMaxPlus1); // !negative
-				RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
-				RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-				yminu = (unsigned)MAX(ymin,rectYMin); // !negative
+				RRReal ymin = mapHeight * RR_MIN(mapping.uv[0][1],RR_MIN(mapping.uv[1][1],mapping.uv[2][1]));
+				RRReal ymax = mapHeight * RR_MAX(mapping.uv[0][1],RR_MAX(mapping.uv[1][1],mapping.uv[2][1]));
+				yminu = (unsigned)RR_MAX(ymin,rectYMin); // !negative
 				ymaxu = (unsigned)CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
 				if (yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
 				if (!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))

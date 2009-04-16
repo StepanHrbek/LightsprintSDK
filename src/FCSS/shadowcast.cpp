@@ -213,7 +213,7 @@ err:
 		fpsToRender = (unsigned)times.size();
 		if (!demoPlayer->getPaused()) frames++;
 		float seconds = demoPlayer->getDemoPosition();
-		fpsAvg = frames/MAX(0.01f,seconds);
+		fpsAvg = frames/RR_MAX(0.01f,seconds);
 	}
 	float getAvg()
 	{
@@ -298,7 +298,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),40*3.14159f/180,0.1f));
+	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f));
 	realtimeLight->setParent(&currentFrame.light);
 	realtimeLight->numInstancesInArea = MAX_INSTANCES;
 	realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
@@ -815,7 +815,7 @@ static void drawHelpMessage(int screen)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glColor4f(0.0,0.0,0.0,0.6);
-		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
+		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
 		glDisable(GL_BLEND);
 		// text
 		glColor3f(1,1,1);
@@ -954,7 +954,7 @@ static void drawHelpMessage(int screen)
 	if (showTimingInfo)
 	{
 		int x = 40, y = 50;
-		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
+		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
 		glDisable(GL_BLEND);
 		ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,1.0f,1.0f);
 		char buf[200];
@@ -1097,7 +1097,7 @@ void display()
 						case 1:
 							float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
 							//float rand01 = rand()/float(RAND_MAX);
-							float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* MAX(0,MIN(rand01*20,1)-rand01/10);
+							float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* RR_MAX(0,RR_MIN(rand01*20,1)-rand01/10);
 							float h = 0.13f+0.11f*pos;
 							float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
 							showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
@@ -1229,7 +1229,7 @@ void setupSceneDynamicAccordingToCursor(Level* level)
 	if (level->pilot.setup->frames.size())
 	{
 		// pokud je kurzor za koncem, vezmeme posledni frame
-		unsigned existingFrameNumber = MIN(level->animationEditor->frameCursor,(unsigned)level->pilot.setup->frames.size()-1);
+		unsigned existingFrameNumber = RR_MIN(level->animationEditor->frameCursor,(unsigned)level->pilot.setup->frames.size()-1);
 		AnimationFrame* frame = level->pilot.setup->getFrameByIndex(existingFrameNumber);
 		if (frame)
 			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup, *frame, true);
@@ -1962,14 +1962,14 @@ void passive(int x, int y)
 		{
 			currentFrame.eye.angle -= mouseSensitivity*x;
 			currentFrame.eye.angleX -= mouseSensitivity*y;
-			CLAMP(currentFrame.eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(currentFrame.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			reportEyeMovement();
 		}
 		else
 		{
 			currentFrame.light.angle -= mouseSensitivity*x;
 			currentFrame.light.angleX -= mouseSensitivity*y;
-			CLAMP(currentFrame.light.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(currentFrame.light.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			// changes also position a bit, together with rotation
 			currentFrame.light.pos += currentFrame.light.dir*0.3f;
 			currentFrame.light.update();
@@ -2114,7 +2114,7 @@ void idle()
 					// play scene finished, jump to editor
 					demoPlayer->setPaused(true);
 					enableInteraction(true);
-					level->animationEditor->frameCursor = MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
+					level->animationEditor->frameCursor = RR_MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
 				}
 				else
 				{

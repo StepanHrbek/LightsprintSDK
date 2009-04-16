@@ -7,7 +7,6 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 #define MAX_BESTS 1000
-#define MIN(a,b) (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 #include "RRPackedSolver.h"
@@ -259,7 +258,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 			if (currentQuality==0)
 			{
 				// this is first improve, set termination criteria
-				terminalFluxToDistribute = q/MAX(10000,packedSolverFile->packedIvertices->getNumC1());
+				terminalFluxToDistribute = q/RR_MAX(10000,packedSolverFile->packedIvertices->getNumC1());
 			}
 			else
 			if (q<terminalFluxToDistribute) // terminate

@@ -128,7 +128,7 @@ static RRVec3 getRandomExitDirNormalized(HomogenousFiller2& filler, const RRMesh
 	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
 	RRReal cosa=sqrt(1-tmp);
 	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	RRReal b=rand()*2*3.14159265f/RAND_MAX;         // b = rotation angle around normal
+	RRReal b=rand()*2*RR_PI/RAND_MAX;         // b = rotation angle around normal
 	return basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
 #endif
 }
@@ -187,7 +187,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? RR_MAX(1,pti.context.params->quality) : 0;
 	}
 
 	// once before shooting (full init)
@@ -732,7 +732,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		// shoot 1 series
 
 		// update subtexel selector
-		unsigned seriesNumShootersTotal = MAX(shootHemisphere?hemisphere.rays:0,shootLights?gilights.rounds:0);
+		unsigned seriesNumShootersTotal = RR_MAX(shootHemisphere?hemisphere.rays:0,shootLights?gilights.rounds:0);
 		RRReal areaStep = areaMax/(seriesNumShootersTotal+0.91f);
 
 		unsigned seriesNumHemisphereShootersShot = 0;
@@ -925,7 +925,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	// validate params
 	UpdateParameters params;
 	if (aparams) params = *aparams;
-	params.quality = MAX(1,params.quality);
+	params.quality = RR_MAX(1,params.quality);
 	
 	// optimize params
 	if (params.applyLights && !getLights().size())
@@ -1157,7 +1157,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		{
 			EndByQuality endByQuality;
 			endByQuality.staticSolver = priv->scene;
-			endByQuality.targetQuality = (int)MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
+			endByQuality.targetQuality = (int)RR_MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
 			endByQuality.aborting = &aborting;
 			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",endByQuality.targetQuality);
 			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality);

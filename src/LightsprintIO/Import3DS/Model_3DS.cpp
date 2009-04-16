@@ -265,7 +265,7 @@ void Model_3DS::UpdateCenter()
 		for (int v=0;v<Objects[o].numVerts;v++)
 		{
 			localCenter += Objects[o].Vertexes[v];
-			localMinY = MIN(localMinY,Objects[o].Vertexes[v].y);
+			localMinY = RR_MIN(localMinY,Objects[o].Vertexes[v].y);
 		}
 	}
 	localCenter /= (float)totalVerts;

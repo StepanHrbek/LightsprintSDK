@@ -23,7 +23,7 @@ AnimationEditor::~AnimationEditor()
 void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
-	unsigned count = MAX(6,(unsigned)setup->frames.size()+1);
+	unsigned count = RR_MAX(6,(unsigned)setup->frames.size()+1);
 	//for (LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
 	//	if ((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
 	for (LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
@@ -94,7 +94,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
 				if (frame)
 				{
-					frame->transitionToNextTime = MAX(0.00f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
+					frame->transitionToNextTime = RR_MAX(0.00f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else

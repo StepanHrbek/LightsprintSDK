@@ -13,7 +13,6 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
 #define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 
 namespace rr
@@ -35,7 +34,7 @@ void Interpolator::learnSource(unsigned offset, float contribution)
 {
 	Contributor c;
 	c.srcOffset = offset;
-	sourceSize = MAX(sourceSize,offset+1);
+	sourceSize = RR_MAX(sourceSize,offset+1);
 	c.srcContributionHdr = contribution;
 	RR_ASSERT(_finite(contribution));
 	contributors.push_back(c);
@@ -50,7 +49,7 @@ void Interpolator::learnDestinationEnd(unsigned offset1)
 	RR_ASSERT(h.srcContributorsEnd>h.srcContributorsBegin); // radius too small -> no neighbour texels put into interoplation
 	h.dstOffset1 = offset1;
 	headers.push_back(h);
-	destinationSize = MAX(offset1+1,destinationSize);
+	destinationSize = RR_MAX(offset1+1,destinationSize);
 }
 
 unsigned Interpolator::getDestinationSize() const

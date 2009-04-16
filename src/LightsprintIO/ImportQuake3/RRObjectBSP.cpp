@@ -24,8 +24,6 @@
 
 #define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
 using namespace rr;
 
 
@@ -496,7 +494,7 @@ public:
 		{
 			char* maps = _strdup(filename);
 			char* mapsEnd;
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
+			mapsEnd = RR_MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
 			scene->objects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,NULL);
 			free(maps);
 			return scene;

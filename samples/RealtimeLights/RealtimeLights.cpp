@@ -192,7 +192,7 @@ void keyboard(unsigned char c, int x, int y)
 			contrast /= 1.2f;
 			break;
 		case ' ':
-			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*RR_PI,2*RR_PI),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			rotation = (clock()%10000000)*0.07f;
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 			{
@@ -208,7 +208,7 @@ void keyboard(unsigned char c, int x, int y)
 		case '7':
 		case '8':
 		case '9':
-			selectedLightIndex = MIN(c-'1',(int)solver->getLights().size()-1);
+			selectedLightIndex = RR_MIN(c-'1',(int)solver->getLights().size()-1);
 			if (solver->realtimeLights.size()) modeMovingEye = false;
 			break;
 
@@ -271,14 +271,14 @@ void passive(int x, int y)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
-			CLAMP(eye.angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
 			light->angle -= mouseSensitivity*x;
 			light->angleX -= mouseSensitivity*y;
-			CLAMP(light->angleX,(float)(-M_PI*0.49),(float)(M_PI*0.49));
+			CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
 			// changes position a bit, together with rotation
 			// if we don't call it, solver updates light in a standard way, without position change

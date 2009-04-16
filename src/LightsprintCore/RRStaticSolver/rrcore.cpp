@@ -54,7 +54,7 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 	}
 	if (p)
 	{
-		memcpy(q,p,MIN(oldsize,newsize));
+		memcpy(q,p,RR_MIN(oldsize,newsize));
 		free(p);
 	}
 	return q;
@@ -108,7 +108,7 @@ static real minAngle(real a,real b,real c) // delky stran
 	real angleA = fast_acos((b*b+c*c-a*a)/(2*b*c));
 	real angleB = fast_acos((a*a+c*c-b*b)/(2*a*c));
 	real angleC = fast_acos((a*a+b*b-c*c)/(2*a*b));
-	return MIN(MIN(angleA,angleB),angleC);
+	return RR_MIN3(angleA,angleB,angleC);
 }
 
 // calculates triangle area from triangle vertices
@@ -864,7 +864,7 @@ bool ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const R
 	exitDir = basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
 #else
 	real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
+	Angle b=rand()*2*RR_PI/RAND_MAX;         // b = rotation angle around normal
 	exitDir = basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
 #endif
 	RR_ASSERT(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir

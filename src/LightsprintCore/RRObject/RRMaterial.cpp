@@ -11,9 +11,6 @@
 #include "memory.h"
 #include <climits> // UINT_MAX
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
 namespace rr
 {
 
@@ -169,7 +166,7 @@ static RRReal getBlendImportance(RRVec4 color, bool opacityInAlpha)
 {
 	RRReal distFrom0 = opacityInAlpha ? fabs(color[3]) : color.RRVec3::abs().avg();
 	RRReal distFrom1 = opacityInAlpha ? fabs(color[3]-1) : (color-RRVec4(1)).RRVec3::abs().avg();
-	return MIN(distFrom0,distFrom1);
+	return RR_MIN(distFrom0,distFrom1);
 }
 
 void RRMaterial::updateKeyingFromTransmittance()
@@ -234,7 +231,7 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 	if (clamp3(diffuseEmittance.color,0,1e6f)) changed = true;
 
 	RRVec3 sum = diffuseReflectance.color+specularTransmittance.color+specularReflectance.color;
-	RRReal max = MAX(sum[0],MAX(sum[1],sum[2]));
+	RRReal max = RR_MAX3(sum[0],sum[1],sum[2]);
 	if (max>redistributedPhotonsLimit)
 	{
 		diffuseReflectance.color *= redistributedPhotonsLimit/max;

@@ -114,7 +114,7 @@ namespace rr_gl
 		getParent()->setDirection(rrlight.direction);
 		// Copy outerAngle to FOV
 		getParent()->setAspect(1);
-		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? rrlight.outerAngleRad*360/(float)M_PI : 90 ); // aspect must be already set
+		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
 		// Nearly all changes to RRLight create need for shadowmap and GI update.
 		// At this point we don't know what was changed anyway, so let's update always.
 		dirtyShadowmap = true;
@@ -272,9 +272,9 @@ namespace rr_gl
 				break;}
 			case CIRCLE:
 				// edit inputs, update outputs
-				light.pos[0] += light.right[0]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[0]*areaSize*cos(instance*2*3.14159f/numInstances);
-				light.pos[1] += light.right[1]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[1]*areaSize*cos(instance*2*3.14159f/numInstances);
-				light.pos[2] += light.right[2]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[2]*areaSize*cos(instance*2*3.14159f/numInstances);
+				light.pos[0] += light.right[0]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[0]*areaSize*cos(instance*2*RR_PI/numInstances);
+				light.pos[1] += light.right[1]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[1]*areaSize*cos(instance*2*RR_PI/numInstances);
+				light.pos[2] += light.right[2]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[2]*areaSize*cos(instance*2*RR_PI/numInstances);
 				break;
 		}
 		if (jittered)

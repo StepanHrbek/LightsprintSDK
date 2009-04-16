@@ -582,7 +582,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	if (illumination->cachedGatherSize)
 	{
 		// fill envmaps
-		unsigned minSize = MIN(gatherSize,specularSize);
+		unsigned minSize = RR_MIN(gatherSize,specularSize);
 		RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
 		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
 		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,1-minDot,illumination->specularEnvMap);

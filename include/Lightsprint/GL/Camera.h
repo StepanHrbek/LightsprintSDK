@@ -99,8 +99,8 @@ public:
 
 	float getAspect()                   const {return aspect;}
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}
-	float getFieldOfViewHorizontalDeg() const {return getFieldOfViewHorizontalRad()*(180/3.14159f);}
-	float getFieldOfViewVerticalRad()   const {return fieldOfViewVerticalDeg*(3.14159f/180);}
+	float getFieldOfViewHorizontalDeg() const {return RR_RAD2DEG(getFieldOfViewHorizontalRad());}
+	float getFieldOfViewVerticalRad()   const {return RR_DEG2RAD(fieldOfViewVerticalDeg);}
 	float getFieldOfViewHorizontalRad() const {return atan(tan(getFieldOfViewVerticalRad()*0.5f)*aspect)*2;}
 	float getNear()                     const {return anear;}
 	float getFar()                      const {return afar;}

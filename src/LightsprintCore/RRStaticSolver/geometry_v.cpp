@@ -91,7 +91,7 @@ void clampToZero(RRReal& a)
 RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
 {
 	RRReal d = dot(a,b);
-	RRReal angle = fast_acos(MAX(MIN(d,1),-1));
+	RRReal angle = fast_acos(RR_MAX(RR_MIN(d,1),-1));
 	RR_ASSERT(IS_NUMBER(angle));
 	return angle;
 }

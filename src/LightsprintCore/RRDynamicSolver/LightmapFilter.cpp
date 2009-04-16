@@ -48,7 +48,7 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 
 				RRVec4 cc = ( c + (c1+c2+c3+c4)*0.25f + (c5+c6+c7+c8)*0.166f )*1.3f;
 
-				outputs[i] = cc/MAX(cc.w,1.0f);
+				outputs[i] = cc/RR_MAX(cc.w,1.0f);
 
 				changed = true;
 			}
@@ -71,18 +71,18 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 				int y = i/width;
 				int w = (int)width;
 				int h = (int)height;
-				RRVec4 c1 = inputs[MIN(x+1,w-1) + y*w];
-				RRVec4 c2 = inputs[MAX(x-1,0)   + y*w];
-				RRVec4 c3 = inputs[x            + MIN(y+1,h-1)*w];
-				RRVec4 c4 = inputs[x            + MAX(y-1,0)*w];
-				RRVec4 c5 = inputs[MIN(x+1,w-1) + MIN(y+1,h-1)*w];
-				RRVec4 c6 = inputs[MIN(x+1,w-1) + MAX(y-1,0)*w];
-				RRVec4 c7 = inputs[MAX(x-1,0)   + MIN(y+1,h-1)*w];
-				RRVec4 c8 = inputs[MAX(x-1,0)   + MAX(y-1,0)*w];
+				RRVec4 c1 = inputs[RR_MIN(x+1,w-1) + y*w];
+				RRVec4 c2 = inputs[RR_MAX(x-1,0)   + y*w];
+				RRVec4 c3 = inputs[x               + RR_MIN(y+1,h-1)*w];
+				RRVec4 c4 = inputs[x               + RR_MAX(y-1,0)*w];
+				RRVec4 c5 = inputs[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w];
+				RRVec4 c6 = inputs[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w];
+				RRVec4 c7 = inputs[RR_MAX(x-1,0)   + RR_MIN(y+1,h-1)*w];
+				RRVec4 c8 = inputs[RR_MAX(x-1,0)   + RR_MAX(y-1,0)*w];
 
 				RRVec4 cc = ( c + (c1+c2+c3+c4)*0.25f + (c5+c6+c7+c8)*0.166f )*1.3f;
 
-				outputs[i] = cc/MAX(cc.w,1.0f);
+				outputs[i] = cc/RR_MAX(cc.w,1.0f);
 
 				changed = true;
 			}

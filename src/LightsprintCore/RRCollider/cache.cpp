@@ -23,8 +23,6 @@
 namespace rr
 {
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 static unsigned getBit(unsigned char* data, unsigned bit)
 {
 	return (data[bit/8]>>(bit%8))&1;
@@ -40,9 +38,9 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
 	const char* letter="0123456789abcdefghijklmnopqrstuv";
-	for (unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
-		buf[i]=letter[getBits(hash, i*5, MIN(5,bits-i*5))];
-	buf[MIN((bits+4)/5,bufsize-1)]=0;
+	for (unsigned i=0;i<RR_MIN((bits+4)/5,bufsize-1);i++)
+		buf[i]=letter[getBits(hash, i*5, RR_MIN(5,bits-i*5))];
+	buf[RR_MIN((bits+4)/5,bufsize-1)]=0;
 }
 
 PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer)

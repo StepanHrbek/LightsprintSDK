@@ -60,7 +60,7 @@ Camera::Camera(rr::RRLight& light)
 		setDirection(light.direction);
 	}
 	setAspect(1);
-	setFieldOfViewVerticalDeg( (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90 ); // aspect must be already set
+	setFieldOfViewVerticalDeg( (light.type==rr::RRLight::SPOT) ? RR_RAD2DEG(light.outerAngleRad)*2 : 90 ); // aspect must be already set
 	setRange( (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f, (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f );
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
@@ -76,7 +76,7 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 	if (fabs(cos(angleX))>0.0001f)
 	{
 		angle = asin(dir[0]/cos(angleX));
-		if (dir[2]<0) angle = (rr::RRReal)(M_PI-angle);
+		if (dir[2]<0) angle = (rr::RRReal)(RR_PI-angle);
 	}
 	else
 		angle = 0;	
@@ -104,18 +104,18 @@ void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 
 void Camera::setNear(float _near)
 {
-	anear = MAX(0.00000001f,_near);
+	anear = RR_MAX(0.00000001f,_near);
 }
 
 void Camera::setFar(float _far)
 {
-	afar = MAX(anear*2,_far);
+	afar = RR_MAX(anear*2,_far);
 }
 
 void Camera::setRange(float _near, float _far)
 {
-	anear = MAX(0.00000001f,_near);
-	afar = MAX(_near*2,_far);
+	anear = RR_MAX(0.00000001f,_near);
+	afar = RR_MAX(_near*2,_far);
 }
 
 void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
@@ -224,7 +224,7 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 		// update matrices
 		//update(NULL,0);
 		// update visible range to roughly match observer range
-		orthoSize = MIN(maxShadowArea,observer->afar);
+		orthoSize = RR_MIN(maxShadowArea,observer->afar);
 		afar = orthoSize*2.6f; // light must have 2x bigger range because it goes in 2 directions from observer. for unknown reason, sponza needs at least 2.6
 		anear = afar/10;
 		// set new pos
@@ -258,8 +258,8 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 	}
 	else
 	{
-		frustumMatrix[0] = 1/(tan(fieldOfViewVerticalDeg*M_PI/360)*aspect);
-		frustumMatrix[5] = 1/tan(fieldOfViewVerticalDeg*M_PI/360);
+		frustumMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect);
+		frustumMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2);
 		frustumMatrix[10] = -(afar+anear)/(afar-anear);
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);

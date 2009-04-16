@@ -93,6 +93,15 @@
 #endif
 #endif
 
+// Common math macros.
+#define RR_PI           ((float)3.14159265358979323846)
+#define RR_DEG2RAD(deg) ((deg)*(RR_PI/180))
+#define RR_RAD2DEG(rad) ((rad)*(180/RR_PI))
+#define RR_MAX(a,b)     (((a)>(b))?(a):(b))
+#define RR_MIN(a,b)     (((a)<(b))?(a):(b))
+#define RR_MAX3(a,b,c)  RR_MAX(a,RR_MAX(b,c))
+#define RR_MIN3(a,b,c)  RR_MIN(a,RR_MIN(b,c))
+
 namespace rr /// LightsprintCore - platform independent realtime global illumination solver.
 {
 

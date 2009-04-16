@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 	//    via scene->getLights() and scene->realtimeLights.
 	//    Call scene->realtimeLights[]->updateAfterXxx() afterwards to let system know of your changes.
 	rr::RRLights lights; // temporary container used only to pass multiple lights at once
-	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-0.802f,1.7f,0.850f),rr::RRVec3(1),rr::RRVec3(1,-0.2f,1),40*3.14159f/180,0.1f));
+	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-0.802f,1.7f,0.850f),rr::RRVec3(1),rr::RRVec3(1,-0.2f,1),RR_DEG2RAD(40),0.1f));
 	lights[0]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	lights[0]->color *= 5;
 	scene1->setLights(lights);

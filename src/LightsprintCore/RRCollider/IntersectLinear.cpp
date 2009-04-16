@@ -126,10 +126,10 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	// (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 	//Vec3 tmp = box.max-box.min;
 	//DELTA_BSP = (tmp.x+tmp.y+tmp.z)/4*1e-5f;
-	RRReal tmpx = MAX(fabs(box.max.x),fabs(box.min.x));
-	RRReal tmpy = MAX(fabs(box.max.y),fabs(box.min.y));
-	RRReal tmpz = MAX(fabs(box.max.z),fabs(box.min.z));
-	RRReal maxCoord = MAX(MAX(tmpx,tmpy),tmpz);
+	RRReal tmpx = RR_MAX(fabs(box.max.x),fabs(box.min.x));
+	RRReal tmpy = RR_MAX(fabs(box.max.y),fabs(box.min.y));
+	RRReal tmpz = RR_MAX(fabs(box.max.z),fabs(box.min.z));
+	RRReal maxCoord = RR_MAX3(tmpx,tmpy,tmpz);
 	RR_ASSERT(IS_NUMBER(maxCoord));
 	if (maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
 	DELTA_BSP = maxCoord*1e-5f;

@@ -12,8 +12,6 @@ namespace rr
 
 #define LIGHTFIELD_STRUCTURE_VERSION 2 // change when file structure changes, old files will be overwritten
 
-#define MAX(a,b)         (((a)>(b))?(a):(b))
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // LightFieldParameters
@@ -287,9 +285,9 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 	LightField* lightField = new LightField();
 	lightField->header.aabbMin = aabbMin;
 	lightField->header.aabbSize = aabbSize;
-	lightField->header.gridSize[0] = unsigned(MAX(1,(aabbSize[0]+spacing*0.5f)/spacing));
-	lightField->header.gridSize[1] = unsigned(MAX(1,(aabbSize[1]+spacing*0.5f)/spacing));
-	lightField->header.gridSize[2] = unsigned(MAX(1,(aabbSize[2]+spacing*0.5f)/spacing));
+	lightField->header.gridSize[0] = unsigned(RR_MAX(1,(aabbSize[0]+spacing*0.5f)/spacing));
+	lightField->header.gridSize[1] = unsigned(RR_MAX(1,(aabbSize[1]+spacing*0.5f)/spacing));
+	lightField->header.gridSize[2] = unsigned(RR_MAX(1,(aabbSize[2]+spacing*0.5f)/spacing));
 	lightField->header.gridSize[3] = numTimeSlots;
 	lightField->header.diffuseSize = diffuseSize;
 	lightField->header.specularSize = specularSize;

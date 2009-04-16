@@ -58,7 +58,7 @@ void SVLightmapViewer::updateTransformation(wxSize windowSize)
 {
 	unsigned bw = buffer ? buffer->getWidth() : 1;
 	unsigned bh = buffer ? buffer->getHeight() : 1;
-	float mult = MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
+	float mult = RR_MIN(windowSize.x/(float)bw,windowSize.y/float(bh))*0.9f;
 	bw = (unsigned)(mult*bw);
 	bh = (unsigned)(mult*bh);
 	t_x = 0.5f + ( center[0] - bw*0.5f )*zoom/windowSize.x;

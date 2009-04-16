@@ -230,7 +230,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				RR_ASSERT(currentVertex<numVerticesExpected);
 				RR_ASSERT(numIndices<3*numTriangles);
 				indices[numIndices++] = currentVertex;
-				numVertices = MAX(numVertices,currentVertex+1);
+				numVertices = RR_MAX(numVertices,currentVertex+1);
 			}
 			else
 			{
@@ -544,8 +544,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			unsigned firstIndex = faceGroups[fg].firstIndex;
 			int numIndices = faceGroups[fg].numIndices; //!!! we are in scope of ObjectBuffers::numIndices, local variable should be renamed or naming convention changed
 			// limit rendered indices to capture range
-			numIndices = MIN(firstIndex+numIndices,3*params.lastCapturedTrianglePlus1) - MAX(firstIndex,3*params.firstCapturedTriangle);
-			firstIndex = MAX(firstIndex,3*params.firstCapturedTriangle);
+			numIndices = RR_MIN(firstIndex+numIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(firstIndex,3*params.firstCapturedTriangle);
+			firstIndex = RR_MAX(firstIndex,3*params.firstCapturedTriangle);
 			if (numIndices>0)
 			{
 				// set face culling

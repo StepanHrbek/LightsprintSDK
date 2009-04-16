@@ -212,8 +212,8 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 				if (_finite(v[j])) // filter out INF/NaN
 				{
 					center[j] += v[j];
-					mini[j] = MIN(mini[j],v[j]);
-					maxi[j] = MAX(maxi[j],v[j]);
+					mini[j] = RR_MIN(mini[j],v[j]);
+					maxi[j] = RR_MAX(maxi[j],v[j]);
 				}
 		}
 
@@ -663,7 +663,7 @@ unsigned RRMesh::getNumPreImportVertices() const
 		{
 			PreImportNumber preVertex = getPreImportVertex(postVertices[i],postTriangle);
 			if (preVertex.index!=UINT_MAX)
-				numPreImportVertices = MAX(numPreImportVertices,preVertex.index+1);
+				numPreImportVertices = RR_MAX(numPreImportVertices,preVertex.index+1);
 		}
 	}
 	return numPreImportVertices;

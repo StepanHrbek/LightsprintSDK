@@ -77,10 +77,10 @@ void DynamicObject::updatePosition()
 		glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 		glPopMatrix();
 		*/
-		float sz = sin(rotYZ[1]/180*3.14159f);
-		float cz = cos(rotYZ[1]/180*3.14159f);
-		float sy = sin(rotYZ[0]/180*3.14159f);
-		float cy = cos(rotYZ[0]/180*3.14159f);
+		float sz = sin(RR_DEG2RAD(rotYZ[1]));
+		float cz = cos(RR_DEG2RAD(rotYZ[1]));
+		float sy = sin(RR_DEG2RAD(rotYZ[0]));
+		float cy = cos(RR_DEG2RAD(rotYZ[0]));
 		float mx = -model->localCenter.x;
 		float my = -model->localMinY;
 		float mz = -model->localCenter.z;
