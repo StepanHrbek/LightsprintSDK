@@ -8,7 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news79 ------------------------------------ 2009.04.xx -------------------------------------
+\section news79 ------------------------------------ 2009.04.15 -------------------------------------
+
+CHANGES
+
+- RRMaterial moved to new header RRMaterial.h
+  \n (no changes to old code needed)
 
 FIXES
 

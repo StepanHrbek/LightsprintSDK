@@ -259,7 +259,7 @@ Ray-Mesh collisions
 
  Installation of 3rd party components:
  - Windows: works out of the box
- - Linux: all dependencies may be resolved by
+ - Linux: all dependencies can be resolved by
    - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
    - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code>
 
