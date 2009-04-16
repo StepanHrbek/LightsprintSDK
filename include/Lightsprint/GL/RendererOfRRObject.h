@@ -76,7 +76,7 @@ public:
 	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers);
 
 	//! Specifies what data channels to feed to GPU during render.
-	struct RenderedChannels
+	struct RR_GL_API RenderedChannels
 	{
 		bool     NORMALS                       :1; ///< feeds gl_Normal
 		bool     LIGHT_DIRECT                  :1; ///< feeds gl_Normal
