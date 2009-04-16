@@ -164,9 +164,10 @@ namespace rr
 			//! 15cm (0.15 for game with 1m units) could be good for typical interior game.
 			//! Only indirect lighting is affected, so even 15cm blur is mostly invisible.
 			float minFeatureSize;
-			//! Angle in radians, controls automatic smoothgrouping.
-			//! Edges with smaller angle between face normals are smoothed out.
-			//! Optimal value depends on your geometry, but reasonable value could be 0.33.
+			//! Angle in radians, controls smoothing.
+			//! Default 0 makes illumination smooth where vertex normals match.
+			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle.
+			//! Optimal positive value depends on your geometry, but reasonable value could be 0.33 (approx 19 degrees).
 			float maxSmoothAngle;
 			//! Makes needle-like triangles with equal or smaller angle (rad) ignored.
 			//! Default 0 removes only completely degenerated triangles.
@@ -184,7 +185,7 @@ namespace rr
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
-				maxSmoothAngle = 0.33f; // default angle for automatic smoothing, 18.9 degrees
+				maxSmoothAngle = 0; // smooth illumination where vertex normals match
 				vertexWeldDistance = 0; // weld enabled for identical vertices
 				minFeatureSize = 0; // disabled
 				ignoreSmallerAngle = 0; // ignores degerated triangles

@@ -51,6 +51,8 @@ void Object::deleteIVertices()
 	IVertexPool=0;
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
+
+	RR_SAFE_DELETE_ARRAY(topivertexArray);
 }
 
 /*IVertexPoolIterator::IVertexPoolIterator(const Object* object)
@@ -497,7 +499,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 	}
 
 	// build 1 ivertex for each vertex, insert all corners
-	IVertex *topivertex=new IVertex[vertices];
+	topivertexArray = new IVertex[vertices];
 	const RRMesh* mesh = importer->getCollider()->getMesh();
 	for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
 	{
@@ -512,11 +514,19 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 		{
 			unsigned un_v = un_ve[ro_v];
 			RR_ASSERT(un_v<vertices);
-			triangle[t].topivertex[ro_v]=&topivertex[un_v];
+			triangle[t].topivertex[ro_v]=&topivertexArray[un_v];
 			Angle angle=angleBetween(vertex[(ro_v+1)%3]-vertex[ro_v],vertex[(ro_v+2)%3]-vertex[ro_v]);
-			topivertex[un_v].insert(&triangle[t],true,angle);
+			topivertexArray[un_v].insert(&triangle[t],true,angle);
 		}
 	}
+
+	// no autosmoothing -> we are done
+	if (maxSmoothAngle<=0)
+	{
+		return !outOfMemory && !aborting;
+	}
+
+	// auto smoothing
 
 	// merge close ivertices into 1 big + 1 empty
 	// (empty will be later detected and reported as unused)
@@ -530,7 +540,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 		// zpomaluje cube v MSVC o 8%.
 		// Nevyresena zahada.
 		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
-		numIVertices -= mergeCloseIVertices(topivertex,minFeatureSize,aborting);
+		numIVertices -= mergeCloseIVertices(topivertexArray,minFeatureSize,aborting);
 		//printf("IVertices after merge close: %d\n",numIVertices);
 	}
 #endif
@@ -541,16 +551,16 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 		if (aborting) break;
 		RRMesh::Vertex vert;
 		mesh->getVertex(v,vert);
-		numIVertices += topivertex[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
+		numIVertices += topivertexArray[v].splitTopLevelByAngleNew((RRVec3*)&vert,this,maxSmoothAngle,outOfMemory);
 		if (outOfMemory) break;
 		// check that splitted topivertex is no more referenced
-		/*for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
-		{
-			for (unsigned i=0;i<3;i++)
-			{
-				RR_ASSERT(triangle[t].topivertex[i]!=&topivertex[v]);
-			}
-		}*/
+		//for (unsigned t=0;t<triangles;t++) if (triangle[t].surface)
+		//{
+		//	for (unsigned i=0;i<3;i++)
+		//	{
+		//		RR_ASSERT(triangle[t].topivertex[i]!=&topivertex[v]);
+		//	}
+		//}
 	}
 	//printf("IVertices after splitting: %d\n",numIVertices);
 
@@ -560,7 +570,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 		for (unsigned i=0;i<3;i++)
 		{
 			// check that local array topivertex is not referenced here
-			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
+			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertexArray);
 			if (idx<vertices)
 			{
 				if (aborting || outOfMemory)
@@ -576,7 +586,7 @@ bool Object::buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool&
 			}
 		}
 	}
-	delete[] topivertex;
+	RR_SAFE_DELETE_ARRAY(topivertexArray);
 
 	// check triangle.topivertex validity
 	for (unsigned t=0;t<triangles;t++)

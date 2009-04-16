@@ -219,9 +219,14 @@ namespace rr
 		//!  Technique used for collider construction.
 		//! \param aborting
 		//!  May be set asynchronously, aborts creation.
-		//! \param vertexWeldDistance
-		//!  Distance in world units. Vertices with lower or equal distance will be stitched into one vertex.
-		//!  Zero stitches only identical vertices, negative value means no action.
+		//! \param maxDistanceBetweenVerticesToStitch
+		//!  Distance in world units. Vertices with lower or equal distance may be stitched into one vertex
+		//!  (if they satisfy also maxRadiansBetweenNormalsToStitch).
+		//!  Zero may stitch only identical vertices, negative value means no action.
+		//! \param maxRadiansBetweenNormalsToStitch
+		//!  Vertices with lower or equal angle between normals may be stitched into one vertex
+		//!  (if they satisfy also maxDistanceBetweenVerticesToStitch).
+		//!  Zero may stitch only identical normals, negative value means no action.
 		//! \param optimizeTriangles
 		//!  True removes degenerated triangles.
 		//!  It is always good to get rid of degenerated triangles (true), but sometimes you know
@@ -235,7 +240,7 @@ namespace rr
 		//!  Directory for caching intermediate files used by RRCollider.
 		//!  It is passed to RRCollider::create(), so
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float vertexWeldDistance, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
+		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
 
 		//! Creates and returns object with materials converted to physical space.
 		//

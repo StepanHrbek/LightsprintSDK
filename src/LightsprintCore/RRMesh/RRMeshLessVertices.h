@@ -27,29 +27,48 @@ template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
 public:
-	RRLessVerticesFilter(const RRMesh* original, float MAX_STITCH_DISTANCE)
+	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch)
 		: RRMeshFilter(original)
 	{
-		RR_ASSERT(MAX_STITCH_DISTANCE>=0); // negative value would remove no vertices -> no improvement
+		RR_ASSERT(maxDistanceBetweenVerticesToStitch>=0); // negative value would remove no vertices -> no improvement
 		// prepare translation arrays
 		unsigned numVertices = inherited->getNumVertices();
+		unsigned numTriangles = inherited->getNumTriangles();
 		INDEX tmp = numVertices;
 		RR_ASSERT(tmp==numVertices);
 		Dupl2Unique = new INDEX[numVertices];
 		Unique2Dupl = new INDEX[numVertices];
 		UniqueVertices = 0;
 
-		// build temporary x-sorted array of vertices
-		//!!! warning: sorts only by position, differences in normal, uv etc are ignored
-		//             useful only for RRStaticSolver where only position matters
-		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
-		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
+		// build temporary position.x sorted array of vertices
+		struct Vertex
+		{
+			RRVec3 position;
+			RRVec3 normal;
+		};
+		Vertex* vertices = new Vertex[numVertices];
+		Vertex** sortedVertices = new Vertex*[numVertices];
 		for (unsigned i=0;i<numVertices;i++)
 		{
-			inherited->getVertex(i,vertices[i]);
+			inherited->getVertex(i,vertices[i].position);
+			vertices[i].normal = RRVec3(0,1,0); // fallback for vertices that don't belong to any triangle
 			sortedVertices[i] = &vertices[i];
 		}
-		qsort(sortedVertices,numVertices,sizeof(RRMesh::Vertex*),compareXyz);
+		for (unsigned i=0;i<numTriangles;i++)
+		{
+			RRMesh::Triangle t;
+			RRMesh::TriangleNormals tn;
+			inherited->getTriangle(i,t);
+			inherited->getTriangleNormals(i,tn);
+			vertices[t[0]].normal = tn.vertex[0].normal;
+			vertices[t[1]].normal = tn.vertex[1].normal;
+			vertices[t[2]].normal = tn.vertex[2].normal;
+		}
+		qsort(sortedVertices,numVertices,sizeof(Vertex*),compareXyz);
+
+		// expensive expressions moved out of for cycle
+		bool stitchOnlyIdenticalNormals = maxRadiansBetweenNormalsToStitch==0;
+		float minNormalDotNormalToStitch = cos(maxRadiansBetweenNormalsToStitch);
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
@@ -57,21 +76,26 @@ public:
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			RR_ASSERT(d<numVertices);
-			RRMesh::Vertex& dfl = vertices[d];
+			Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
 			for (unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
-				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
+				Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
-				#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
-				if (!CLOSE(dfl[0],ufl[0])) break;
+				#define CLOSE(i) (fabs((dfl.position[i])-(ufl.position[i]))<=maxDistanceBetweenVerticesToStitch)
+				if (!CLOSE(0)) break;
 				// this is candidate for stitching, do final test
-				if (CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
+				if (CLOSE(0) && CLOSE(1) && CLOSE(2))
 				{
-					Dupl2Unique[d] = u;
-					goto dupl;
+					if( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
+						|| (!stitchOnlyIdenticalNormals && dfl.normal.dot(ufl.normal)>=minNormalDotNormalToStitch) ) // normals must be normalized here
+					{
+						Dupl2Unique[d] = u;
+						goto dupl;
+					}
 				}
+				#undef CLOSE
 			}
 			Unique2Dupl[UniqueVertices] = d;
 			Dupl2Unique[d] = UniqueVertices++;
@@ -195,7 +219,7 @@ public:
 				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
-#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
+				#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
 				if (!CLOSE(dfl[0],ufl[0])) break;
 				// this is candidate for stitching, do final test
 				if (CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
@@ -203,6 +227,7 @@ public:
 					Dupl2Unique[d] = u;
 					goto dupl;
 				}
+				#undef CLOSE
 			}
 			Unique2Dupl[UniqueVertices] = d;
 			Dupl2Unique[d] = UniqueVertices++;

@@ -63,15 +63,9 @@ namespace rr
 
 		//! Creates new static scene.
 		//
-		//! For highest performance, stay with low number of possibly big objects 
-		//! rather than high number of small ones.
-		//! One big object can be created out of many small ones using RRObject::createMultiObject().
-		//!
-		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
-		//! sharp edge will possibly appear between them.
-		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
 		//! \param object
-		//!  World-space object wrapper that defines object shape and material.
+		//!  World-space physical-scale object that contains whole static scene.
+		//!  \n One object can be created out of multiple objects using RRObject::createMultiObject().
 		//!  \n If object has transformation different from identity, pass object->createWorldSpaceObject()
 		//!  rather than object itself, otherwise object transformation will be ignored.
 		//!  \n object->getTriangleMaterial() and getPointMaterial() should return values in physical scale.

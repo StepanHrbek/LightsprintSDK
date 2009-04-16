@@ -236,6 +236,7 @@ public:
 
 private:
 	Object();
+	IVertex* topivertexArray; // NULL if auto smoothing, array of all ivertices (1:1 to vertices) if using original smoothing
 };
 
 

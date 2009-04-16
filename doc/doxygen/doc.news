@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news80 ------------------------------------ 2009.04.xx -------------------------------------
+
+NEWS
+
+- improved smoothing of per-vertex illumination
+  \n RRDynamicSolver::SmoothingParameters::maxSmoothAngle default was changed from 0.33 to 0
+  to smooth per-vertex illumination where vertex normals match
+  rather than where face normals are similar.
+- common math macros prefixed RR_ added to RRMath.h
+
 \section news79 ------------------------------------ 2009.04.15 -------------------------------------
 
 CHANGES

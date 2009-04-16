@@ -406,16 +406,22 @@ namespace rr
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
+		//! Stitches identical or similar vertices so that number of vertices in returned mesh decreases.
+		//! Only vertex positions and/or normals are tested, so vertices with completely
+		//! different texcoords and tangents may be stitched.
+		//!
 		//! Created instance requires only small amount of additional memory, 
 		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
-		//! If 'this' is already optimal or vertexStitchMaxDistance is negative, 'this' is returned.
-		//!
-		//! Warning: Only vertex positions are tested for match, differences in normals etc are ignored.
-		//! \param vertexStitchMaxDistance
-		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
+		//! If no vertex can be removed, 'this' is returned.
+		//! \param maxDistanceBetweenVerticesToStitch
 		//!  For negative value, no stitching is performed.
-		//!  For positive value, also vertices in lower or equal distance will be stitched.
-		const RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0) const;
+		//!  For 0, vertices with identical positions may be stitched.
+		//!  For positive value, also vertices in lower or equal distance may be stitched.
+		//! \param maxRadiansBetweenNormalsToStitch
+		//!  For negative value, no stitching is performed.
+		//!  For 0, vertices with identical normals may be stitched.
+		//!  For positive value, also vertices with lower or equal angle between normals may be stitched.
+		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		//
