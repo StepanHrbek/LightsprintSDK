@@ -154,7 +154,8 @@ void SVCanvas::createContext()
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
-	svs.renderAmbient = solver->getLights().size()==0 && svs.renderRealtime && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
+	if (svs.renderRealtime)
+		svs.renderAmbient = !solver->containsRealtimeGILightSource();
 
 	water = new Water(svs.pathToShaders,true,false);
 	toneMapping = new ToneMapping(svs.pathToShaders);
@@ -656,7 +657,11 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			solver->renderScene(uberProgramSetup,NULL);
 			if (svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.getFar()*2,svs.eye.pos);
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (svs.adjustTonemapping && !svs.renderWireframe && (solver->getLights().size() || uberProgramSetup.LIGHT_INDIRECT_CONST || hasEmi)) // disable adjustment in completely dark scene
+			if (svs.adjustTonemapping
+				&& !svs.renderWireframe
+				&& ((!svs.renderRealtime && solver->containsLightSource())
+					|| (svs.renderRealtime && solver->containsRealtimeGILightSource())
+					|| svs.renderAmbient))
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;

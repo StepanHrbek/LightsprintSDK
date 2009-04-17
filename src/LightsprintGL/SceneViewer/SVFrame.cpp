@@ -491,12 +491,13 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (!newList.size())
 				{
 					m_canvas->selectedType = SVCanvas::ST_CAMERA;
-					// enable ambient when deleting last light
-					//  but only when scene doesn't contain emissive materials
-					svs.renderAmbient = !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_CONST && !solver->getMaterialsInStaticScene().MATERIAL_EMISSIVE_MAP;
 				}
 				RR_SAFE_DELETE(m_lightProperties); // delete light props
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
+				// enable ambient when deleting last light
+				//  but only if scene doesn't contain emissive materials
+				if (!solver->getLights().size() && svs.renderRealtime)
+					svs.renderAmbient = !solver->containsRealtimeGILightSource();
 			}
 			break;
 		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;

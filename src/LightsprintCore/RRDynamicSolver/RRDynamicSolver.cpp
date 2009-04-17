@@ -590,11 +590,25 @@ unsigned RRDynamicSolver::getSolutionVersion() const
 	return priv->solutionVersion;
 }
 
-RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType()
+RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType() const
 {
 	if (priv->scene)
 		return priv->packedSolver?BOTH:ARCHITECT;
 	return priv->packedSolver?FIREBALL:NONE;
+}
+
+bool RRDynamicSolver::containsLightSource() const
+{
+	return getLights().size()
+		|| priv->staticSceneContainsEmissiveMaterials
+		|| getEnvironment();
+}
+
+bool RRDynamicSolver::containsRealtimeGILightSource() const
+{
+	return getLights().size()
+		|| priv->staticSceneContainsEmissiveMaterials
+		;//|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
 }
 
 unsigned RR_INTERFACE_ID_LIB()

@@ -736,7 +736,7 @@ namespace rr
 			BOTH
 		};
 		//! Returns type of active internal solver.
-		InternalSolverType getInternalSolverType();
+		InternalSolverType getInternalSolverType() const;
 
 
 		//! Checks consistency of data in solver and reports problems found using RRReporter.
@@ -746,6 +746,18 @@ namespace rr
 		//! more expensive realtime lighting checks are done only on this request.
 		void checkConsistency();
 
+
+		//! Returns true if solver contains at least one light source.
+		//
+		//! This could be light, emissive material or environment/skybox.
+		//! Simple presence of light source is tested, it is not guaranteed
+		//! that light source actually affects objects in scene.
+		virtual bool containsLightSource() const;
+		//! Returns true if solver contains at least one realtime GI capable light source.
+		//
+		//! All light sources are realtime GI capable with Fireball,
+		//! the only light source ignored by Architect solver is environment/skybox.
+		virtual bool containsRealtimeGILightSource() const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;
