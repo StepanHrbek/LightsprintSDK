@@ -13,8 +13,8 @@ namespace rr
 NEWS
 
 - new per-vertex illumination smoothing mode, enabled by default
-  - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ 0
-    this smooths per-vertex illumination only where vertex normals match,
+  - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ -0.01
+    this smooths per-vertex illumination where vertex normals are similar,
     ignoring RRDynamicSolver::SmoothingParameters::minFeatureSize.
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _was_ 0.33,
     this smoothed illumination where face normals were similar,

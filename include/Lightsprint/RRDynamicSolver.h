@@ -145,32 +145,42 @@ namespace rr
 
 		//! Illumination smoothing parameters.
 		//
-		//! Has reasonable default values for both realtime and offline rendering, but:
-		//! - if needle artifacts appear, consider increased minFeatureSize
-		//! - if seams between scene segments appear, consider increased minFeatureSize or vertexWeldDistance
+		//! Default values are reasonable for both realtime and offline rendering, but
+		//! - if needle artifacts appear in realtime illumination,
+		//!   try increasing minFeatureSize (maxSmoothAngle must be positive)
+		//! - if seams between scene segments appear,
+		//!   try increasing minFeatureSize (maxSmoothAngle must be positive) or vertexWeldDistance
 		struct SmoothingParameters
 		{
-			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
+			//! Distance in world units. Vertices with lower or equal distance
+			//! (and angle between vertex normals smaller than maxSmoothAngle) will be internally stitched into one vertex.
 			//! Zero stitches only identical vertices, negative value generates no action.
 			//! Non-stitched vertices at the same location create illumination discontinuity.
 			//! \n Sideeffect: non-negative values protect solver against INF and NaN vertices.
-			//! \n In ideal situation where your geometry doesn't need stitching, doesn't contain NaNs and INFs
+			//! In ideal situation where geometry doesn't need stitching, doesn't contain NaNs and INFs
 			//! and adapter doesn't split vertices (Collada adapter does),
 			//! set negative value to make calculation faster.
 			float vertexWeldDistance;
+			//! Angle in radians, controls smoothing mode and intensity.
+			//
+			//! Zero or negative value makes illumination smooth only where
+			//! vertex normals differ equal or less than abs(maxSmoothAngle), ignoring minFeatureSize.
+			//! This mode preserves smoothing created by 3d artist.
+			//! It is enabled by default.
+			//!
+			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle,
+			//! with additional blur specified by minFeatureSize.
+			//! Optimal positive value depends on your geometry, but reasonable value could be 0.33 (approx 19 degrees).
+			//! This mode generates smoothing automatically, ignoring artist's work (normals).
+			//! It is suitable for models with errors in smoothing.
+			float maxSmoothAngle;
 			//! Distance in world units. Smaller indirect light features will be smoothed. This could be imagined as a kind of blur.
 			//! Use default 0 for no blur and watch for possible artifacts in areas with small geometry details
 			//! and 'needle' triangles. Increase until artifacts disappear.
 			//! 0.15 could be good for typical interior game with 1m units.
 			//! Only indirect lighting is affected, so even 15cm blur is mostly invisible.
-			//! \n Note: minFeatureSize is ignored if maxSmoothAngle is 0.
+			//! \n Note: minFeatureSize is ignored if maxSmoothAngle is <=0.
 			float minFeatureSize;
-			//! Angle in radians, controls smoothing.
-			//! Default 0 makes illumination smooth only where vertex normals match, ignoring minFeatureSize.
-			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle,
-			//! with additional blur specified by minFeatureSize.
-			//! Optimal positive value depends on your geometry, but reasonable value could be 0.33 (approx 19 degrees).
-			float maxSmoothAngle;
 			//! Makes needle-like triangles with equal or smaller angle (rad) ignored.
 			//! Default 0 removes only completely degenerated triangles.
 			//! 0.001 is a reasonable value to put extremely needle like triangles off calculation,
@@ -188,8 +198,8 @@ namespace rr
 			SmoothingParameters()
 			{
 				vertexWeldDistance = 0; // weld enabled for identical vertices
+				maxSmoothAngle = -0.01f; // smooth illumination where vertex normals differ <=0.01rad
 				minFeatureSize = 0; // disabled
-				maxSmoothAngle = 0; // smooth illumination where vertex normals match
 				ignoreSmallerAngle = 0; // ignores degerated triangles
 				ignoreSmallerArea = 0; // ignores degerated triangles
 			}

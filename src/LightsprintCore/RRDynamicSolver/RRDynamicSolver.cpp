@@ -124,7 +124,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 		}
 	}
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,priv->smoothing.maxSmoothAngle,priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 	delete[] importers;
 

@@ -1949,6 +1949,7 @@ Ray-Mesh collisions
   - smaller (needs only 50% of memory for the same quality)
   - produces higher quality lighting
   - doesn't allocate/fragment memory
+  - calculates realtime GI also from environment/skybox
 
  \section fb_precalc Precalculations
   Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
@@ -1980,6 +1981,9 @@ Ray-Mesh collisions
   Naturally only subset of functions is fast enough to be used in realtime.
   \n Features designed for realtime use include:
   - calculate global illumination in dynamic scenes
+    - freely manipulate objects
+    - freely manipulate lights
+    - freely manipulate environment/skybox (GI updated in realtime only with \ref calc_fireball)
   - update \ref data_vertex_buffer with indirect lighting for static objects
   - update \ref data_environment_map with indirect lighting for dynamic objects
 
@@ -2095,7 +2099,7 @@ Ray-Mesh collisions
   - Data structure container: none, only one environment in scene
   - Setup: RRDynamicSolver::setEnvironment()
   - Supported in offline GI: yes
-  - Supported in realtime GI: no
+  - Supported in realtime GI: yes (only in Fireball)
 
  \section lemissive Emissive materials
   - Area light source, triangles covered by materials that emit light.
