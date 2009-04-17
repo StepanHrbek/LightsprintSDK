@@ -66,13 +66,23 @@ void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVe
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	for (unsigned i=0;i<256;i++)
 		histo[i] = 0;
-	for (unsigned i=0;i<swidth*sheight*3;i++)
-		histo[buf[i]]++;
+	for (unsigned i=0;i<swidth*sheight*3;i+=3)
+		histo[RR_MAX3(buf[i],buf[i+1],buf[i+2])]++;
 	for (unsigned i=0;i<256;i++)
 		avg += histo[i]*i;
-	avg = avg/(swidth*sheight*3)+1;
-	if (histo[255]>=swidth*sheight*2) avg = 1000; // at least 66% of screen white, adjust faster
-	brightness *= pow(100.0f/avg,CLAMPED(secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
+	if (avg==0)
+	{
+		// completely black scene
+		//  extremely low brightness? -> reset it to 1
+		//  disabled lighting? -> avoid increasing brightness ad infinitum
+		brightness = rr::RRVec3(1);
+	}
+	else
+	{
+		avg = avg/(swidth*sheight)+1;
+		if (histo[255]>=swidth*sheight*7/10) avg = 1000; // at least 70% of screen overshot, adjust faster
+		brightness *= pow(100.0f/avg,CLAMPED(secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
+	}
 	//rr::RRReporter::report(rr::INF1,"%d\n",avg);
 }
 
