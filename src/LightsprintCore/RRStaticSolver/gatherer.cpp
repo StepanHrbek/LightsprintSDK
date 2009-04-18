@@ -95,7 +95,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		if (specularReflect || specularTransmit)
 		{
 			// calculate hitpoint
-			Point3 hitPoint3d=eye+direction*ray->hitDistance;
+			RRVec3 hitPoint3d=eye+direction*ray->hitDistance;
 
 			// parameters of transmission must be computed in advance, recursive reflection destroys ray and material content
 			RRVec3 newDirectionTransmit;

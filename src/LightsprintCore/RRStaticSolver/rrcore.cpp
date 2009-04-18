@@ -695,7 +695,7 @@ unsigned __shot=0;
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
 
-HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVec3 direction,Triangle *skip,HitChannels power)
+HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,RRVec3 eye,RRVec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
@@ -761,7 +761,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,Point3 eye,RRVe
 	if (specularReflect || specularTransmit)
 	{
 		// calculate hitpoint
-		Point3 hitPoint3d=eye+direction*ray.hitDistance;
+		RRVec3 hitPoint3d=eye+direction*ray.hitDistance;
 
 		// calculate parameters of transmission in advance, recursive reflection destroys ray content
 		// (hitTriangle->surface is safe, reflection won't change it)
@@ -882,7 +882,7 @@ Triangle* Scene::getRandomExitRay(ShootingKernel* shootingKernel, Triangle* sour
 		u=RAND_MAX-u;
 		v=RAND_MAX-v;
 	}
-	Point3 srcPoint3 = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
+	RRVec3 srcPoint3 = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
 
 	RR_ASSERT(source->surface);
 	RRVec3 rayVec3;

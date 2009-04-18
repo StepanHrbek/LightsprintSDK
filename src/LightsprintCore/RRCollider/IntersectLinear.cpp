@@ -151,7 +151,7 @@ bool IntersectLinear::isValidTriangle(unsigned i) const
 
 // return first intersection with object
 // but not with *skip and not more far than *hitDistance
-//bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
+//bool Object::intersection(RRVec3 eye,Vec3 direction,Triankle *skip,
 //  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitFrontSide,real *hitDistance)
 bool IntersectLinear::intersect(RRRay* ray) const
 {
