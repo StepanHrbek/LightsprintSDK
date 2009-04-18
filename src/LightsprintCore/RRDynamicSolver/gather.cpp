@@ -980,7 +980,11 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 		for (unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
 			const RRLight* light = getLights()[lightNumber];
-			if (postImportTriangleNumber==UINT_MAX // make all lights relevant in very rare case when object's triangle 0 is not in multiobject (happens when opening kalasatama.dae in MovingSun)
+			if (// make all lights relevant in rare case we picked invalid triangle
+				// - UINT_MAX is returned if triangle 0 is not in multiobject, this happens when opening kalasatama.dae in MovingSun, koupelna3.3ds+1light in SceneViewer
+				// - out of range number is returned if object has 0 triangles, this happens when building lmaps in koupelna3 with inserted light
+				postImportTriangleNumber>=numPostImportTriangles
+
 				|| multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
 				relevantLightsPerObject[objectNumber].push_back(light);
 		}
