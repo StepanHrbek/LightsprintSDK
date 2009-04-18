@@ -301,7 +301,7 @@ public:
 
 	Object* object;        // the only object that contains whole static scene
 
-	HitChannels rayTracePhoton(ShootingKernel* shootingKernel,RRVec3 eye,RRVec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
+	HitChannels rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power=HitChannels(1));
 
 	void    objInsertStatic(Object *aobject);
 

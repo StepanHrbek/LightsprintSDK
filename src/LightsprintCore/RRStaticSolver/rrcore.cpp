@@ -695,7 +695,7 @@ unsigned __shot=0;
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
 
-HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel,RRVec3 eye,RRVec3 direction,Triangle *skip,HitChannels power)
+HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
