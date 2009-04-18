@@ -454,7 +454,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
 			}
 			break;
-
 			
 		//////////////////////////////// LIGHTS ///////////////////////////////
 
