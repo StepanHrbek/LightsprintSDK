@@ -162,8 +162,15 @@ static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, un
 		}
 }
 
-static void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
+// Shuffles pixels in array so that cross shaped 3:4 or 4:3 2d image turns into 6 planes of cubemap.
+// Returns true on success.
+static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
 {
+	// expected input is cross-shaped 3:4 or 4:3 image
+	if (widthOld*3!=heightOld*4 && widthOld*4!=heightOld*3)
+	{
+		return false;
+	}
 	// alloc new
 	unsigned widthNew = RR_MIN(widthOld,heightOld)/3;
 	unsigned heightNew = RR_MAX(widthOld,heightOld)/4;
@@ -186,6 +193,7 @@ static void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, un
 	pixelsOld = pixelsNew;
 	widthOld = widthNew;
 	heightOld = heightNew;
+	return true;
 }
 
 struct VBUHeader
@@ -269,8 +277,14 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
 		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format,scaled);
-		if (!pixels) return false;
-		shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format));
+		if (!pixels)
+			return false;
+		if (!shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format)))
+		{
+			delete[] pixels;
+			RRReporter::report(WARN,"%s is 2d image, not a cubemap. Hint: provide 3:4 or 4:3 image or sequence of 6 images.\n",filenameMask);
+			return false;
+		}
 	}
 	else
 	{
