@@ -21,6 +21,8 @@ NEWS
     with additional blur specified by RRDynamicSolver::SmoothingParameters::minFeatureSize.
   - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject(),
     makes it possible to stitch only vertices with similar normals
+- improved rr_gl::sceneViewer() 
+  - new Environment / Load skybox... menu item
 - common math macros prefixed RR_ added to RRMath.h
 
 \section news79 ------------------------------------ 2009.04.15 -------------------------------------

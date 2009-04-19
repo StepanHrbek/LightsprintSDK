@@ -265,6 +265,7 @@ void SVFrame::UpdateMenuBar()
 
 	{
 		winMenu = new wxMenu;
+		winMenu->Append(ME_ENV_OPEN,_T("Load skybox..."));
 		winMenu->Append(ME_ENV_WHITE,_T("Set white"));
 		winMenu->Append(ME_ENV_BLACK,_T("Set black"));
 		winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"));
@@ -452,6 +453,46 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
 				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
 				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
+			}
+			break;
+		case ME_ENV_OPEN:
+			{
+				wxFileDialog dialog(this,"Choose a skybox image","","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				dialog.SetPath(svs.skyboxFilename);
+				if (dialog.ShowModal()!=wxID_OK)
+					break;
+
+				wxString newSkyboxFilename = dialog.GetPath();
+				free(svs.skyboxFilename);
+				svs.skyboxFilename = _strdup(newSkyboxFilename.c_str());
+			}
+			// intentionally no break
+		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
+			{
+				if (!svs.skyboxFilename)
+					break;
+				const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+				// insert %s if it is quake-style, one of 6 images
+				for (unsigned i=0;i<6;i++)
+				{
+					char* sub = strstr(svs.skyboxFilename,cubeSideNames[i]);
+					if (sub && sub[2]=='.')
+					{
+						sub[0] = '%';
+						sub[1] = 's';
+					}
+				}
+				// try to load it
+				//bool sixImages = strstr(svs.skyboxFilename,"%s")!=NULL;
+				rr::RRBuffer* skybox = rr::RRBuffer::load(svs.skyboxFilename,cubeSideNames,true,true);
+				// skybox is used only if it exists
+				if (skybox)
+				{
+					if (envToBeDeletedOnExit)
+						delete solver->getEnvironment();
+					solver->setEnvironment(skybox);
+					envToBeDeletedOnExit = true;
+				}
 			}
 			break;
 			

@@ -125,17 +125,7 @@ void SVCanvas::createContext()
 
 	if (svs.skyboxFilename)
 	{
-		bool quakeStyle = strstr(svs.skyboxFilename,"%s")!=NULL;
-		const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-		rr::RRBuffer* skybox = rr::RRBuffer::load(svs.skyboxFilename,quakeStyle?cubeSideNames:NULL,quakeStyle,quakeStyle);
-		// skybox is used only if it exists
-		if (skybox)
-		{
-			if (envToBeDeletedOnExit)
-				delete solver->getEnvironment();
-			solver->setEnvironment(skybox);
-			envToBeDeletedOnExit = true;
-		}
+		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera

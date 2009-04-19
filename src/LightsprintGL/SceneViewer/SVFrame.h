@@ -36,6 +36,8 @@ namespace rr_gl
 			ME_ENV_WHITE,
 			ME_ENV_BLACK,
 			ME_ENV_WHITE_TOP,
+			ME_ENV_OPEN,
+			ME_ENV_RELOAD, // not a menu item, just command we can call from outside. reloads env from svs.skyboxFilename
 
 			ME_LIGHT_PROPERTIES,
 			ME_LIGHT_DIR,
