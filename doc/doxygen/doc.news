@@ -23,7 +23,11 @@ NEWS
     makes it possible to stitch only vertices with similar normals
 - improved rr_gl::sceneViewer() 
   - new Environment / Load skybox... menu item
-- common math macros prefixed RR_ added to RRMath.h
+- improved cube map loading
+  - new RRBuffer::loadCube() and RRBuffer::reloadCube()
+    \n load cubemap specified by single filename, eventual filenames of other 5 sides are guessed
+- new math macros prefixed RR_ added to RRMath.h
+- new utility functions RRDynamicSolver::containsLightSources() and RRDynamicSolver::containsRealtimeGILightSources()
 
 \section news79 ------------------------------------ 2009.04.15 -------------------------------------
 

@@ -91,8 +91,7 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	if (scene.getObjects()) solver->setStaticObjects(*scene.getObjects(),NULL);
 	if (scene.getLights()) solver->setLights(*scene.getLights());
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// View solver in scene viewer
 	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/shaders/",NULL);

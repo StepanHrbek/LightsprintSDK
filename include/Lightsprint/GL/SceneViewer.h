@@ -92,8 +92,7 @@ struct SceneViewerState
 //!  If inputSolver is NULL, we attempt to open and display this file. This is handy for scene viewer applications.
 //!  Your string is not free()d.
 //! \param skyboxFilename
-//!  If it is valid skybox, it is used, overriding eventual environment from inputSolver.
-//!  Examples: skybox.hdr or skybox_%s.jpg for Quake3 style skybox made of 6 images, %s is replaced by "bk","ft","up","dn","rt","lf".
+//!  If RRBuffer::loadCube() loads this skybox successfully, it is used, overriding eventual environment from inputSolver.
 //!  Your string is not free()d.
 //! \param pathToShaders
 //!  Shaders are loaded from pathToShaders with trailing slash (or backslash).

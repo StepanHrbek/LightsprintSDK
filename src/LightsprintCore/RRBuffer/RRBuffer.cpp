@@ -148,4 +148,64 @@ bool RRBuffer::reload(const char *filename, const char* cubeSideName[6], bool fl
 	return (s_reload && this && filename) ? s_reload(this,filename,cubeSideName,flipV,flipH) : false;
 }
 
+RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+{
+	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+	if (!texture->reload(filename,cubeSideName,flipV,flipH))
+	{
+		RR_SAFE_DELETE(texture);
+	}
+	return texture;
+}
+
+RRBuffer* RRBuffer::loadCube(const char *filename)
+{
+	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+	if (!texture->reloadCube(filename))
+	{
+		RR_SAFE_DELETE(texture);
+	}
+	return texture;
+}
+
+bool RRBuffer::reloadCube(const char *_filename)
+{
+	if (!_filename)
+		return false;
+	const unsigned numConventions = 2;
+	const char* cubeSideNames[numConventions][6] =
+	{
+		{"bk","ft","up","dn","rt","lf"}, // Quake
+		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
+	};
+	const char** selectedConvention = cubeSideNames[0];
+	// inserts %s if it is one of 6 images
+	char* filename = _strdup(_filename);
+	size_t filenameLen = strlen(filename);
+	for (unsigned c=0;c<numConventions;c++)
+	{
+		for (unsigned s=0;s<6;s++)
+		{
+			const char* suffix = cubeSideNames[c][s];
+			size_t suffixLen = strlen(suffix);
+			if (filenameLen>=suffixLen+4 && strncmp(filename+filenameLen-suffixLen-4,suffix,suffixLen)==0 && filename[filenameLen-4]=='.')
+			{
+				filename[filenameLen-suffixLen-4] = '%';
+				filename[filenameLen-suffixLen-3] = 's';
+				filename[filenameLen-suffixLen-2] = '.';
+				filename[filenameLen-suffixLen-1] = filename[filenameLen-3];
+				filename[filenameLen-suffixLen  ] = filename[filenameLen-2];
+				filename[filenameLen-suffixLen+1] = filename[filenameLen-1];
+				filename[filenameLen-suffixLen+2] = 0;
+				selectedConvention = cubeSideNames[c];
+				goto done;
+			}
+		}
+	}
+done:
+	bool result = reload(filename,selectedConvention,true,true);
+	free(filename);
+	return result;
+}
+
 }; // namespace

@@ -469,41 +469,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			// intentionally no break
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
-				if (!svs.skyboxFilename)
-					break;
-				const unsigned numConventions = 2;
-				const char* cubeSideNames[numConventions][6] =
-				{
-					{"bk","ft","up","dn","rt","lf"}, // Quake
-					{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
-				};
-				const char** selectedConvention = cubeSideNames[0];
-				// inserts %s if it is one of 6 images
-				size_t filenameLen = strlen(svs.skyboxFilename);
-				for (unsigned c=0;c<numConventions;c++)
-				{
-					for (unsigned s=0;s<6;s++)
-					{
-						const char* suffix = cubeSideNames[c][s];
-						size_t suffixLen = strlen(suffix);
-						if (filenameLen>=suffixLen+4 && strncmp(svs.skyboxFilename+filenameLen-suffixLen-4,suffix,suffixLen)==0 && svs.skyboxFilename[filenameLen-4]=='.')
-						{
-							svs.skyboxFilename[filenameLen-suffixLen-4] = '%';
-							svs.skyboxFilename[filenameLen-suffixLen-3] = 's';
-							svs.skyboxFilename[filenameLen-suffixLen-2] = '.';
-							svs.skyboxFilename[filenameLen-suffixLen-1] = svs.skyboxFilename[filenameLen-3];
-							svs.skyboxFilename[filenameLen-suffixLen  ] = svs.skyboxFilename[filenameLen-2];
-							svs.skyboxFilename[filenameLen-suffixLen+1] = svs.skyboxFilename[filenameLen-1];
-							svs.skyboxFilename[filenameLen-suffixLen+2] = 0;
-							selectedConvention = cubeSideNames[c];
-							goto replaced;
-						}
-					}
-				}
-				replaced:
-				// try to load it
-				//bool sixImages = strstr(svs.skyboxFilename,"%s")!=NULL;
-				rr::RRBuffer* skybox = rr::RRBuffer::load(svs.skyboxFilename,selectedConvention,true,true);
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename);
 				// skybox is used only if it exists
 				if (skybox)
 				{

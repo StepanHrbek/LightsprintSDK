@@ -425,8 +425,7 @@ int main(int argc, char **argv)
 	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init environment
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

@@ -330,8 +330,7 @@ int main(int argc, char **argv)
 	if (!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
+	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);

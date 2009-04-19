@@ -195,11 +195,12 @@ namespace rr
 
 		//! Loads buffer from disk to system memory.
 		//
-		//! \n Example1: load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
-		//! \n Example2: load("path/lightmap.vbu") - loads vertex buffer
-		//! \n Example3: load("path/cube_%s.png", {"ft","bk","dn","up","rt","lf"}) - loads cubemap from 6 files
-		//! \n Example4: load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
-		//! \n Example5: load("path/cube.hdr", NULL) - loads the same file as 2d texture
+		//! Examples:
+		//! - load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
+		//! - load("path/lightmap.vbu") - loads vertex buffer
+		//! - load("path/cube_%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
+		//! - load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
+		//! - load("path/cube.hdr", NULL) - loads the same file as 2d texture
 		//! \param filename
 		//!  Filename of 2d image or vertexbuffer or cubemap or mask of 6 images (sides of cubemap) to be loaded from disk.
 		//!  All common file formats are supported.
@@ -207,7 +208,7 @@ namespace rr
 		//! \param cubeSideName
 		//!  Array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
-		//!  \n Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//!  \n Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
 		//!  \n Must be NULL for vertex buffers and 2d textures, non-NULL for cubemaps (even cubemaps in 1 file).
 		//! \param flipV
 		//!  Flip all sides vertically at load time.
@@ -221,9 +222,22 @@ namespace rr
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
 		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, bool flipV = false, bool flipH = false);
+		//! Loads cube texture from 1 or 6 files to system memory.
+		//
+		//! This is convenience function working with incomplete information,
+		//! it attempts to guess whether you want to load cubemap from 1 file or from 6 files.
+		//! It calls load() with guessed parameters.
+		//! If you know exactly what to load, call load() yourself and avoid any guesswork.
+		//! \parameter filename
+		//!  Filename of 1 cross shaped 4:3 or 3:4 image;
+		//!  or filename of one of 6 images that make cube map.
+		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%s.jpg.
+		static RRBuffer* loadCube(const char *filename);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
 		bool reload(const char *filename, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
+		//! Similar to loadCube(), but loads from disk into existing buffer. Supports user implemented buffers.
+		bool reloadCube(const char *filename);
 
 		//! Saves buffer to disk.
 		//
@@ -234,7 +248,7 @@ namespace rr
 		//!  Proprietary .vbu format is used for vertex buffers (it consists of 2 bytes RRBufferFormat, 2 bytes bool scaled, 4 bytes num_vertices, data from buffer).
 		//! \param cubeSideName When cubemap is saved, array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
-		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//!  Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
 		//! \return
 		//!  True on successful save of complete buffer.
 		//! \remark

@@ -61,10 +61,9 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	// load sky
 	buf[0] = 0;
 	fscanf(f,"sky = %s\n",buf);
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	if (buf[0])
 	{
-		skyMap = rr::RRBuffer::load(buf,cubeSideNames,true,true);
+		skyMap = rr::RRBuffer::loadCube(buf);
 		if (!skyMap)
 			rr::RRReporter::report(rr::WARN,"Failed to load skybox %s.\n",buf);
 	}

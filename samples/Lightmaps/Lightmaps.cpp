@@ -502,8 +502,7 @@ int main(int argc, char **argv)
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
 	solver->setStaticObjects(*scene.getObjects(), NULL);
 
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	solver->setEnvironment(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true));
+	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

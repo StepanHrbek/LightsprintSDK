@@ -149,8 +149,7 @@ int main(int argc, char **argv)
 	
 	// init textures
 	rr_io::registerLoaders();
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = new rr_gl::Texture(rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true),true,true);
+	environmentMap = new rr_gl::Texture(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"),false,false);
 
 	glutMainLoop();
 	return 0;

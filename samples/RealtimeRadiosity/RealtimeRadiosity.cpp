@@ -368,8 +368,7 @@ int main(int argc, char **argv)
 	if (!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
+	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
 	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))

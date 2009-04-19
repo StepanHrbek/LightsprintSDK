@@ -429,8 +429,7 @@ int main(int argc, char **argv)
 		rr::RRBuffer* environment = NULL;
 		if (globalParameters.skyBox)
 		{
-			const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-			environment = rr::RRBuffer::load(globalParameters.skyBox,cubeSideNames,true,true);
+			environment = rr::RRBuffer::loadCube(globalParameters.skyBox);
 		}
 		else
 		{

@@ -160,9 +160,8 @@ int main(int argc, char **argv)
 	scene1 = new Scene("../../data/scenes/koupelna/koupelna4-windows.dae",5000,2);
 
 	// Load skyboxes from disk.
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	skybox1 = rr::RRBuffer::load("../../data/maps/skybox/skybox_%s.jpg",cubeSideNames,true,true);
-	skybox2 = rr::RRBuffer::load("../../data/pool/cubemapy/real.HDR/glacier.hdr",cubeSideNames,false,false);
+	skybox1 = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
+	skybox2 = rr::RRBuffer::loadCube("../../data/pool/cubemapy/real.HDR/glacier.hdr");
 
 	// Set initial skybox (can be changed later).
 	scene1->setEnvironment(skybox1);

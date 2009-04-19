@@ -272,14 +272,4 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 	}
 }
 
-RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
-{
-	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if (!texture->reload(filename,cubeSideName,flipV,flipH))
-	{
-		RR_SAFE_DELETE(texture);
-	}
-	return texture;
-}
-
 }; // namespace
