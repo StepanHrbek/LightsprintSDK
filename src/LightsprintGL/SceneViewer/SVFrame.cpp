@@ -334,7 +334,7 @@ void SVFrame::UpdateMenuBar()
 	// About...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_HELP,_T("Help"));
+		winMenu->Append(ME_HELP,_T("Help")); winMenu->Enable(ME_HELP,false);
 		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"));
 		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"));
 		winMenu->Append(ME_ABOUT,_T("About"));
