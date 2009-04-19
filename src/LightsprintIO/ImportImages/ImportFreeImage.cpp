@@ -75,7 +75,10 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 			if (bpp1==96)
 			{
 				// RGBF, conversion to 32bit doesn't work
-				FreeImage_FlipVertical(dib1);
+				if (flipV)
+					FreeImage_FlipVertical(dib1);
+				if (flipH)
+					FreeImage_FlipHorizontal(dib1);
 				// read size
 				width = FreeImage_GetWidth(dib1);
 				height = FreeImage_GetHeight(dib1);
@@ -171,22 +174,33 @@ static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, un
 	{
 		return false;
 	}
+
 	// alloc new
 	unsigned widthNew = RR_MIN(widthOld,heightOld)/3;
 	unsigned heightNew = RR_MAX(widthOld,heightOld)/4;
 	unsigned char* pixelsNew = new unsigned char[widthNew*heightNew*bytesPerPixel*6];
 
 	// shuffle from old to new
+	bool wide = widthOld>heightOld;
 	unsigned char* dst = pixelsNew;
-	shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
-	shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
-	shuffleBlock(dst,pixelsOld,widthNew*1,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
-	shuffleBlock(dst,pixelsOld,widthNew*1,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
-	shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
-	if (widthOld>heightOld)
-		shuffleBlock(dst,pixelsOld,widthNew*3,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z-
+	if (wide)
+	{
+		shuffleBlock(dst,pixelsOld,widthNew*3,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
+		shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
+		shuffleBlock(dst,pixelsOld,widthNew*2,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
+		shuffleBlock(dst,pixelsOld,widthNew*2,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
+		shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
+		shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z-
+	}
 	else
+	{
+		shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
+		shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
+		shuffleBlock(dst,pixelsOld,widthNew*1,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
+		shuffleBlock(dst,pixelsOld,widthNew*1,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
+		shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
 		shuffleBlock(dst,pixelsOld,widthNew*1,3*heightNew,widthNew,heightNew,widthOld,bytesPerPixel,true); // Z-
+	}
 
 	// replace old
 	delete[] pixelsOld;
