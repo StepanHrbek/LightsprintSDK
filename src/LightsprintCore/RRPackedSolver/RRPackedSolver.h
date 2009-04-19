@@ -19,6 +19,8 @@ class RRPackedSolver: public RRUniformlyAllocatedNonCopyable
 public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
+	void setEnvironment(const RRBuffer* environment, const RRScaler* scaler);
+
 	void illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical);
 	void illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic);
 
@@ -28,7 +30,7 @@ public:
 	// Triangle exitance, physical, flat. For dynamic objects/point materials.
 	RRVec3 getTriangleIrradiance(unsigned triangle) const;
 
-	// Triangle indirect irradiance, physical, gouraud. For static objects.
+	// Triangle indirect irradiance, physical, gouraud, includes skylight. For static objects.
 	// Pointer is guaranteed to stay constant, you can reuse it in next frames.
 	// It may return NULL (for degenated and needle triangles).
 	// Pointers are valid even without calling update, however data behind pointers
@@ -63,7 +65,7 @@ protected:
 	// varying data
 	class PackedBests* packedBests;
 	RRVec3* ivertexIndirectIrradiance;
-	unsigned currentVersionInTriangles; // version of results available per triangle. reset and improve may increment it
+	unsigned currentVersionInTriangles; // version of results available per triangle. reset, improve and setEnvironment may increment it
 	unsigned currentVersionInVertices; // version of results available per vertex. getTriangleIrradianceIndirectUpdate() updates it to triangle version
 	unsigned currentQuality; // number of best200 groups processed since reset
 	RRReal terminalFluxToDistribute; // set during illuminationImprove(), when the best node has fluxToDistribute lower, improvement terminates

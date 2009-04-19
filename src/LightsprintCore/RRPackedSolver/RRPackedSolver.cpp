@@ -52,24 +52,25 @@ public:
 	RRReal area;
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
 	RRVec3 incidentFluxDirect;    // reset to direct illum
+	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
 #endif
 
 	// for dynamic objects (point material)
 	RRVec3 getIrradiance() const
 	{
-		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse)*areaInv)));
-		return (incidentFluxDiffused+incidentFluxToDiffuse)*areaInv;
+		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv)));
+		return (incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv;
 	}
 	// for dynamic objects (per-tri material)
 	RRVec3 getExitance() const
 	{
-		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv)));
-		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv;
+		RR_ASSERT(IS_VEC3((getIrradiance()*diffuseReflectance)));
+		return getIrradiance()*diffuseReflectance;
 	}
-	// for static objects
+	// for static objects, includes skylight
 	RRVec3 getIncidentFluxIndirect() const
 	{
-		return incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect;
+		return incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky-incidentFluxDirect;
 	}
 };
 
@@ -194,6 +195,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 		triangles[t].incidentFluxDirect = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = RRVec3(0);
 		triangles[t].incidentFluxDiffused = RRVec3(0);
+		triangles[t].incidentFluxSky = RRVec3(0);
 	}
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	packedSolverFile = _adopt_packedSolverFile;
@@ -208,6 +210,21 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 	if (object && adopt_packedSolverFile && adopt_packedSolverFile->isCompatible(object))
 		return new RRPackedSolver(object,adopt_packedSolverFile);
 	return NULL;
+}
+
+void RRPackedSolver::setEnvironment(const RRBuffer* environment, const RRScaler* scaler)
+{
+	// convert environment to 13 patches
+	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysical;
+	bool skyExitancePresent = PackedSkyTriangleFactor::getSkyExitancePhysical(environment,scaler,skyExitancePhysical);
+
+	// add environment GI to solution
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		RRVec3 triangleIrradiancePhysical = packedSolverFile->packedFactors->getC1(t)->packedSkyTriangleFactor.getTriangleIrradiancePhysical(skyExitancePhysical,packedSolverFile->intensityTable);
+		triangles[t].incidentFluxSky = triangleIrradiancePhysical * triangles[t].area;
+	}
+	currentVersionInTriangles++;
 }
 
 void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical)

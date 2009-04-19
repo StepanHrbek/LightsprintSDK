@@ -438,18 +438,9 @@ Object::~Object()
 	deleteIVertices();
 }
 
-// resetPropagation = true
-//  uvede energie v objektu do stavu po nacteni sceny
-//  akceptuje upravene surfacy
-// resetPropagation = false
-//  trianglum zaktualizuje vychozi energie
-//  akceptuje upravene surfacy
-//  nesaha na subtriangly, coz je asi v poradku
-
 void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
-	// nastavi akumulatory na pocatecni hodnoty
-	// separated to three floats because of openmp
+	// zero accumulators. separated to three floats to satisfy openmp reduction rules
 	//objSourceExitingFlux=Channels(0);
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
@@ -614,6 +605,8 @@ Scene::Scene()
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
+	skyPatchHitsForAllTriangles = NULL;
+	skyPatchHitsForCurrentTriangle = NULL;
 }
 
 Scene::~Scene()
@@ -714,6 +707,14 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
+		if (!hitTriangle && skyPatchHitsForCurrentTriangle)
+		{
+			// convert direction to patch index
+			unsigned skyPatchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
+			// store patch hit
+			#pragma omp critical
+			skyPatchHitsForCurrentTriangle->patches[skyPatchIndex][0] += power;
+		}
 		// ray left scene and vanished
 		return HitChannels(0);
 	}

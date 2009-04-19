@@ -14,7 +14,7 @@
 
 #define FACTOR_FORMAT 2 // 0: 32bit int/float overlap (lightsmark); 1: 32bit short+short; 2: 64bit int+float (SDK)
 
-#define FIREBALL_STRUCTURE_VERSION (6+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
+#define FIREBALL_STRUCTURE_VERSION (7+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
 #define FIREBALL_FILENAME_VERSION  2 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
@@ -93,7 +93,7 @@ public:
 		RR_ASSERT(index1<=numC1);
 		return (C1*)data+index1;
 	}
-	//! Returns first C2 element in of n-th C1 element. Other C2 elements follow until getC2(n+1) is reached.
+	//! Returns first C2 element of n-th C1 element. Other C2 elements follow until getC2(n+1) is reached.
 	C2* getC2(unsigned index1)
 	{
 		RR_ASSERT(index1<=numC1);
@@ -135,7 +135,7 @@ protected:
 //
 // PackedFactor
 //
-// form faktor
+// triangle-triangle form faktor
 
 #if FACTOR_FORMAT==0
 // 50% memory, 102% speed, 6bit precision, 128k triangles
@@ -248,14 +248,198 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// PackedSkyTriangleFactor
+//
+// sky-triangle form factor
+
+//! SkyTriangleFactor consists of SkyTriangleFactorColor and NUM_PATCHES PatchTriangleFactors
+class PackedSkyTriangleFactor
+{
+public:
+	//! Sky is divided into patches that emit light separately
+	enum
+	{
+		NUM_PATCHES=13,
+		NUM_EQUAL_SIZE_PATCHES=24
+	};
+
+	struct UnpackedFactor
+	{
+		RRVec3 patches[NUM_PATCHES];
+
+		UnpackedFactor()
+		{
+			for (unsigned p=0;p<NUM_PATCHES;p++)
+				patches[p] = RRVec3(0);
+		}
+	};
+
+	//! Sets sky-triangle configuration factor.
+	//! Returns relative and absolute compression error, how much compressed+decompressed factors differs from original ones.
+	RRVec2 setSkyTriangleFactor(const UnpackedFactor& factor, const float* intensityTable)
+	{
+		RRVec3 color(0);
+		for (unsigned p=0;p<NUM_PATCHES;p++)
+		{
+			color += factor.patches[p];
+		}
+		if (color.sum()==0)
+		{
+			// triangle is completely black, not affected by skylight
+			r = 0; // r and g are irrelevant at intensity 0, but let's zero them anyway
+			g = 0;
+			for (unsigned p=0;p<NUM_PATCHES;p++)
+			{
+				compressedPatchIntensities[p] = 0;
+			}
+			return RRVec2(0,0);
+		}
+		// triangle is affected by skylight
+		// - compress color
+		color *= 255/color.sum();
+		r = (unsigned char)color[0];
+		g = (unsigned char)color[1];
+		// - compress intensities
+		color = getSkyTriangleFactorColor();
+		float relativeError = 0;
+		float absoluteError = 0;
+		for (unsigned p=0;p<NUM_PATCHES;p++)
+		{
+			// compress and store intensity
+			float intensity = factor.patches[p].sum()/color.sum();
+			compressedPatchIntensities[p] = getCompressedIntensity(intensity,intensityTable);
+			// decompress factor and measure error
+			RRVec3 decompressedPatchFactor = getSkyTriangleFactorColor() * intensityTable[compressedPatchIntensities[p]];
+			relativeError += getRelativeError(factor.patches[p][0],decompressedPatchFactor[0])+getRelativeError(factor.patches[p][1],decompressedPatchFactor[1])+getRelativeError(factor.patches[p][2],decompressedPatchFactor[2]);
+			absoluteError += getAbsoluteError(factor.patches[p][0],decompressedPatchFactor[0])+getAbsoluteError(factor.patches[p][1],decompressedPatchFactor[1])+getAbsoluteError(factor.patches[p][2],decompressedPatchFactor[2]);
+		}
+		relativeError /= 3*NUM_PATCHES;
+		absoluteError /= 3*NUM_PATCHES;
+		return RRVec2(relativeError,absoluteError);
+	}
+	//! Converts environment to physical exitances, one per patch. Returns false for no valid environment.
+	//! Optimized for simplicity, can be made faster later.
+	static bool getSkyExitancePhysical(const RRBuffer* inSky, const RRScaler* scaler, UnpackedFactor& outPatchExitancesPhysical)
+	{
+		if (!inSky || inSky->getType()!=BT_CUBE_TEXTURE)
+		{
+			return false;
+		}
+		// init to zeroes
+		unsigned numSamplesGathered[NUM_PATCHES];
+		for (unsigned p=0;p<NUM_PATCHES;p++)
+		{
+			outPatchExitancesPhysical.patches[p] = RRVec3(0);
+			numSamplesGathered[p] = 0;
+		}
+		// do we have to scale sky to physical? no -> null scaler
+		if (!inSky->getScaled())
+			scaler = NULL;
+		// accumulate sky exitances
+		for (unsigned i=0;i<3000;i++)
+		{
+			RRVec3 normalizedDirection = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2)).normalized();
+			unsigned patchIndex = getPatchIndex(normalizedDirection);
+			RRVec3 exitance = inSky->getElement(normalizedDirection);
+			if (scaler)
+				scaler->getPhysicalScale(exitance);
+			outPatchExitancesPhysical.patches[patchIndex] += exitance;
+			numSamplesGathered[patchIndex]++;
+		}
+		// average
+		for (unsigned p=0;p<NUM_PATCHES;p++)
+		{
+			if (numSamplesGathered[p])
+				outPatchExitancesPhysical.patches[p] /= (RRReal)numSamplesGathered[p];
+		}
+		return true;
+	}
+	//! Returns triangle's GI from sky computed as a dot product of patch exitances and patch factors.
+	RRVec3 getTriangleIrradiancePhysical(const UnpackedFactor& patchExitancesPhysical, const float* intensityTable) const
+	{
+		RRVec3 color(0);
+		for (unsigned p=0;p<NUM_PATCHES;p++)
+		{
+			color += patchExitancesPhysical.patches[p] * intensityTable[compressedPatchIntensities[p]];
+		}
+		color *= getSkyTriangleFactorColor();
+		return color;
+	}
+	//! Returns sky patch index for given direction.
+	static unsigned getPatchIndex(const RRVec3& normalizedDirection)
+	{
+		// direction must be normalized
+		RR_ASSERT(fabs(1-normalizedDirection.length())<0.01f);
+		// find major axis
+		RRVec3 d = normalizedDirection.abs();
+		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
+		// generate index 0..23
+		unsigned index = axis +
+			((normalizedDirection.x>0)?3:0) +
+			((normalizedDirection.z>0)?6:0) +
+			((normalizedDirection.y<0)?12:0);
+		// make everything below ground patch 12
+		if (index>12) index = 12;
+		RR_ASSERT(index<NUM_PATCHES);
+		return index;
+	}
+
+private:
+	RRVec3 getSkyTriangleFactorColor() const
+	{
+		return RRVec3((RRReal)r,(RRReal)g,(RRReal)(255-r-g));
+	}
+	//! Returns relative error caused by using approximated number. E.g. using 1.8 instead of 2 = 0.1 error.
+	static float getRelativeError(float precise, float approximated)
+	{
+		if (!precise || !approximated || precise*approximated<0)
+			return (precise==approximated)?0.0f:1.0f;
+		precise = fabs(precise);
+		approximated = fabs(approximated);
+		float error = 1-RR_MIN(precise,approximated)/RR_MAX(precise,approximated);
+		return error;
+	}
+	//! Returns absolute error caused by using approximated number. E.g. using 1.8 instead of 2 = 0.2 error.
+	static float getAbsoluteError(float precise, float approximated)
+	{
+		float error = fabs(precise-approximated);
+		return error;
+	}
+	//! Returns intensity compressed to index into intensityTable.
+	static unsigned char getCompressedIntensity(float intensity, const float* intensityTable)
+	{
+		for (unsigned i=256;i--;)
+		{
+			if (intensity>intensityTable[i])
+			{
+				if (i==255 || fabs(intensity-intensityTable[i])<fabs(intensity-intensityTable[i+1]))
+					return i;
+				return i+1;
+			}
+		}
+		return 0;
+	}
+
+	//! Color of triangle's GI AO, b=255-r-g
+	unsigned char r;
+	unsigned char g;
+	//! Intensity indices of intensity of GI from individual sky patches.
+	unsigned char compressedPatchIntensities[NUM_PATCHES];
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // PackedFactorsThread
 //
-// form faktory pro celou jednu statickou scenu
+// form factors for one static scene, one header per triangle
 
 class PackedFactorHeader
 {
 public:
 	unsigned arrayOffset;
+
+	PackedSkyTriangleFactor packedSkyTriangleFactor;
 };
 
 typedef ArrayWithArrays<PackedFactorHeader,PackedFactor> PackedFactorsThread;
@@ -309,6 +493,14 @@ public:
 		packedIvertices = NULL;
 		packedSmoothTriangles = NULL;
 		packedSmoothTrianglesBytes = 0;
+
+		// build table so that intensity goes up to 0.023,
+		// intensity*color(white=85,85,85) goes up to 2
+		// usually 1 is enough, more is possible only with mirrors concentrating skylight
+		for (unsigned i=1;i<256;i++)
+			//intensityTable[i] = (float)(i*0.0033);
+			intensityTable[i] = (float)(1.7e-8*pow(2,i*0.08));
+		intensityTable[0] = 0;
 	}
 	unsigned getMemoryOccupied() const
 	{
@@ -319,18 +511,23 @@ public:
 		// create file
 		FILE* f = fopen(filename,"wb");
 		if (!f) return false;
-		// write data with invalid header
+		// save invalid header (because file contents is incomplete ATM)
 		Header header;
 		header.version = 0xffffffff;
 		header.packedFactorsBytes = packedFactors->getMemoryOccupied();
 		header.packedIverticesBytes = packedIvertices->getMemoryOccupied();
 		header.packedSmoothTrianglesBytes = packedSmoothTrianglesBytes;
 		size_t ok = fwrite(&header,sizeof(header),1,f);
+		// save intensityTable
+		ok += fwrite(intensityTable,sizeof(intensityTable),1,f);
+		// save packedFactors
 		ok += fwrite(packedFactors->getC1(0),packedFactors->getMemoryOccupied(),1,f);
+		// save packedIvertices
 		ok += fwrite(packedIvertices->getC1(0),packedIvertices->getMemoryOccupied(),1,f);
+		// save packedSmoothTriangles
 		ok += fwrite(packedSmoothTriangles,packedSmoothTrianglesBytes,1,f);
-		// fix header
-		if (ok==4)
+		// save valid header
+		if (ok==5)
 		{
 			header.version = FIREBALL_STRUCTURE_VERSION;
 			fseek(f,0,SEEK_SET);
@@ -341,8 +538,10 @@ public:
 	}
 	static PackedSolverFile* load(const char* filename)
 	{
+		// open file
 		FILE* f = fopen(filename,"rb");
 		if (!f) return NULL;
+		// load header
 		Header header;
 		if (fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION)
 		{
@@ -350,11 +549,13 @@ public:
 			return NULL;
 		}
 		PackedSolverFile* psf = new PackedSolverFile;
+		// load intensityTable
+		size_t ok = 0;
+		ok += fread(psf->intensityTable,sizeof(psf->intensityTable),1,f);
 		// load packedFactors
 		char* tmp;
-		size_t ok;
 		tmp = new char[header.packedFactorsBytes];
-		ok = fread(tmp,header.packedFactorsBytes,1,f);
+		ok += fread(tmp,header.packedFactorsBytes,1,f);
 		psf->packedFactors = new PackedFactorsThread(tmp,header.packedFactorsBytes);
 		// load packedIvertices
 		tmp = new char[header.packedIverticesBytes];
@@ -367,7 +568,7 @@ public:
 		psf->packedSmoothTrianglesBytes = header.packedSmoothTrianglesBytes;
 		// done
 		fclose(f);
-		if (ok!=3) RR_SAFE_DELETE(psf);
+		if (ok!=4) RR_SAFE_DELETE(psf);
 		return psf;
 	}
 	bool isCompatible(const RRObject* object) const
@@ -386,6 +587,7 @@ public:
 	PackedIvertices* packedIvertices;
 	PackedSmoothTriangle* packedSmoothTriangles;
 	unsigned packedSmoothTrianglesBytes;
+	float intensityTable[256]; // fixed table used to compress/decompress sky-tri factors
 protected:
 	struct Header
 	{

@@ -44,6 +44,7 @@
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "interpol.h"
 #include "ChunkList.h"
+#include "../RRPackedSolver/PackedSolverFile.h"
 
 #define STATISTIC(a)
 #define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
@@ -314,8 +315,7 @@ public:
 
 	real    avgAccuracy();
 
-	void    updateFactors(unsigned raysFromTriangle);
-	class PackedSolverFile* packSolver() const;
+	PackedSolverFile* packSolver(unsigned raysFromTriangle);
 
 	private:
 		int     phase;
@@ -340,6 +340,10 @@ public:
 		// all factors allocated by this scene
 		// deallocated only in scene destructor
 		ChunkList<Factor>::Allocator factorAllocator;
+
+		// used only during fireball build to gather sky hits
+		PackedSkyTriangleFactor::UnpackedFactor* skyPatchHitsForAllTriangles;
+		PackedSkyTriangleFactor::UnpackedFactor* skyPatchHitsForCurrentTriangle;
 };
 
 } // namespace

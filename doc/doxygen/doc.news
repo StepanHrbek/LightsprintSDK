@@ -12,6 +12,11 @@ namespace rr
 
 NEWS
 
+- realtime GI from skylight
+  - no API changes, build Fireball and set sky as usual (RRDynamicSolver::buildFireball(), RRDynamicSolver::setEnvironment()),
+    but this time, all static and dynamic objects will be illuminated also by sky
+  - infinite light bounces
+  - fully dynamic, change sky as often as you wish
 - new per-vertex illumination smoothing mode
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ -0.01
     this smooths per-vertex illumination where vertex normals are similar,

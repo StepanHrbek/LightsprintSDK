@@ -30,36 +30,7 @@ public:
 	virtual bool requestsRealtimeResponse() {return false;}
 };
 
-void Scene::updateFactors(unsigned raysFromTriangle)
-{
-	/////////////////////////////////////////////////////////////////////////
-	//
-	// update factors
-
-	if (raysFromTriangle)
-	{
-		abortStaticImprovement();
-		RRReal sceneArea = 0;
-		for (unsigned t=0;t<object->triangles;t++)
-		{
-			if (object->triangle[t].surface)
-				sceneArea += object->triangle[t].area;
-		}
-		if (sceneArea)
-		{
-			for (unsigned t=0;t<object->triangles;t++)
-			{
-				if (object->triangle[t].surface)
-				{
-					NeverEnd neverEnd;
-					refreshFormFactorsFromUntil(&object->triangle[t],RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverEnd);
-				}
-			}
-		}
-	}
-}
-
-PackedSolverFile* Scene::packSolver() const
+PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 {
 	if (object->triangles>PackedFactor::MAX_TRIANGLES)
 	{
@@ -67,11 +38,52 @@ PackedSolverFile* Scene::packSolver() const
 		return NULL;
 	}
 
-	PackedSolverFile* packedSolverFile = new PackedSolverFile;
 
 	/////////////////////////////////////////////////////////////////////////
 	//
-	// pack factors
+	// update factors (tri-tri GI factors, sky-tri direct factors)
+
+	// allocate space for sky-tri factors
+	skyPatchHitsForAllTriangles = new PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
+
+	RRReal sceneArea = 0;
+
+	if (raysFromTriangle)
+	{
+		abortStaticImprovement();
+		for (unsigned t=0;t<object->triangles;t++)
+		{
+			if (object->triangle[t].surface)
+				sceneArea += object->triangle[t].area;
+		}
+		if (sceneArea)
+		{
+			// update factors - all triangles
+			for (unsigned t=0;t<object->triangles;t++)
+			{
+				if (object->triangle[t].surface)
+				{
+					// enable update of sky-tri factors
+					skyPatchHitsForCurrentTriangle = skyPatchHitsForAllTriangles+t;
+
+					// update factors - one triangle
+					NeverEnd neverEnd;
+					unsigned shotsForFactors = RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea));
+					refreshFormFactorsFromUntil(&object->triangle[t],shotsForFactors,neverEnd);
+				}
+			}
+
+			// stop updating sky-tri factors
+			skyPatchHitsForCurrentTriangle = NULL;
+		}
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////
+	//
+	// pack tri-tri GI factors
+
+	PackedSolverFile* packedSolverFile = new PackedSolverFile;
 
 	// calculate size
 	unsigned numFactors = 0;
@@ -197,6 +209,48 @@ PackedSolverFile* Scene::packSolver() const
 	packedSolverFile->packedIvertices->newC1(numIverticesPacked);
 	RR_ASSERT(numIverticesPacked==numIvertices);
 
+
+	/////////////////////////////////////////////////////////////////////////
+	//
+	// convert sky-tri direct factors to GI factors
+
+	RRVec3* directIrradiancePhysicalRGB = new RRVec3[object->triangles];
+	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++)
+	{
+		// reset solver to direct from sky patch
+		for (unsigned t=0;t<object->triangles;t++)
+		{
+			unsigned shotsForFactors = RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea));
+			directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/shotsForFactors);
+		}
+		resetStaticIllumination(false,true,NULL,NULL,directIrradiancePhysicalRGB);
+
+		// calculate
+		//!!! disable emissive surfaces
+		distribute(0.001f);
+
+		// convert direct from sky patch to GI from sky patch
+		for (unsigned t=0;t<object->triangles;t++)
+		{
+			skyPatchHitsForAllTriangles[t].patches[p] = object->triangle[t].getTotalIrradiance();
+		}
+	}
+	RR_SAFE_DELETE_ARRAY(directIrradiancePhysicalRGB);
+
+
+	/////////////////////////////////////////////////////////////////////////
+	//
+	// pack sky-tri GI factors
+
+#pragma omp parallel for
+	for (int t=0;(unsigned)t<object->triangles;t++)
+	{
+		PackedFactorHeader* pfh = packedSolverFile->packedFactors->getC1((unsigned)t);
+		pfh->packedSkyTriangleFactor.setSkyTriangleFactor(skyPatchHitsForAllTriangles[t],packedSolverFile->intensityTable);
+	}
+	RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
+
+
 	// return
 	return packedSolverFile;
 }
@@ -208,8 +262,7 @@ PackedSolverFile* Scene::packSolver() const
 
 const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 {
-	scene->updateFactors(raysPerTriangle);
-	const PackedSolverFile* packedSolverFile = scene->packSolver();
+	const PackedSolverFile* packedSolverFile = scene->packSolver(raysPerTriangle);
 	return packedSolverFile;
 }
 
@@ -263,6 +316,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
 	if (priv->packedSolver)
 	{
+		priv->packedSolver->setEnvironment(getEnvironment(),getScaler());
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
@@ -287,6 +341,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 	if (priv->packedSolver)
 	{
 		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+		priv->packedSolver->setEnvironment(getEnvironment(),getScaler());
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver

@@ -60,6 +60,10 @@ const RRScaler* RRDynamicSolver::getScaler() const
 void RRDynamicSolver::setEnvironment(const RRBuffer* _environment)
 {
 	priv->environment = _environment;
+	if (priv->packedSolver)
+	{
+		priv->packedSolver->setEnvironment(_environment,getScaler());
+	}
 }
 
 const RRBuffer* RRDynamicSolver::getEnvironment() const
@@ -608,7 +612,7 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 {
 	return getLights().size()
 		|| priv->staticSceneContainsEmissiveMaterials
-		;//|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
+		|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
 }
 
 unsigned RR_INTERFACE_ID_LIB()
