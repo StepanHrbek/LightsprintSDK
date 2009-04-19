@@ -211,11 +211,15 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 				// find major axis
 				RRVec3 d = direction.abs();
 				unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
-				// find xy
-				coord[0] = (unsigned) CLAMPED((int)((direction[ axis   ?0:1]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
-				coord[1] = (unsigned) CLAMPED((int)((direction[(axis<2)?2:1]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
 				// find side
 				coord[2] = 2*axis + ((direction[axis]<0)?1:0); // 0..5
+				// find xy
+				static const int sx[6] = {-1,-1,+1,-1,+1,+1};
+				static const int  x[6] = { 2, 2, 0, 0, 0, 0};
+				static const int  y[6] = { 1, 1, 2, 2, 1, 1};
+				static const int sy[6] = {-1,+1,+1,+1,-1,+1};
+				coord[0] = (unsigned) CLAMPED((int)((sx[coord[2]]*direction[x[coord[2]]]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
+				coord[1] = (unsigned) CLAMPED((int)((sy[coord[2]]*direction[y[coord[2]]]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
 				break;
 			}
 		default:
