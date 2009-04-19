@@ -281,6 +281,12 @@ static bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool f
 // cube map loader
 static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH)
 {
+	// we flip all cube inputs
+	// we can alternatively modify all routines that depend on internal cubemap layout, rather than flipping data,
+	//  but advantages of such change are not clear
+	flipV = !flipV;
+	flipH = !flipH;
+
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;

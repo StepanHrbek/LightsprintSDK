@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- new per-vertex illumination smoothing mode, enabled by default
+- new per-vertex illumination smoothing mode
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ -0.01
     this smooths per-vertex illumination where vertex normals are similar,
     ignoring RRDynamicSolver::SmoothingParameters::minFeatureSize.
@@ -28,6 +28,12 @@ NEWS
     \n load cubemap specified by single filename, eventual filenames of other 5 sides are guessed
 - new math macros prefixed RR_ added to RRMath.h
 - new utility functions RRDynamicSolver::containsLightSources() and RRDynamicSolver::containsRealtimeGILightSources()
+
+CHANGES
+
+- default per-vertex smoothing technique specified by RRDynamicSolver::SmoothingParameters::maxSmoothAngle was changed, see above
+- loading cubemaps made of 6 files via RRBuffer::load() works with default parameters flipV and flipH = false,
+  previously these had to be true
 
 \section news79 ------------------------------------ 2009.04.15 -------------------------------------
 

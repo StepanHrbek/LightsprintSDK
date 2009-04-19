@@ -203,7 +203,7 @@ bool RRBuffer::reloadCube(const char *_filename)
 		}
 	}
 done:
-	bool result = reload(filename,selectedConvention,true,true);
+	bool result = reload(filename,selectedConvention);
 	free(filename);
 	return result;
 }
