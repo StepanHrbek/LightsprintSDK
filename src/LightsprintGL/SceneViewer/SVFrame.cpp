@@ -833,6 +833,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				info.SetWebSite("http://lightsprint.com");
 				info.SetCopyright("(c) 1999-2009 Stepan Hrbek, Lightsprint");
 				wxAboutBox(info);
+				delete image;
 			}
 			break;
 	}
