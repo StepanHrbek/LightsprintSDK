@@ -26,7 +26,7 @@ NEWS
     with additional blur specified by RRDynamicSolver::SmoothingParameters::minFeatureSize.
   - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject(),
     makes it possible to stitch only vertices with similar normals
-- improved rr_gl::sceneViewer() 
+- improved rr_gl::sceneViewer(), SceneViewer sample, BuildLightmaps tools
   - new Environment / Load skybox... menu item
 - improved cube map loading
   - new RRBuffer::loadCube() and RRBuffer::reloadCube()
