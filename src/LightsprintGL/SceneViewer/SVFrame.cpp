@@ -249,7 +249,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
-			winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
 		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
