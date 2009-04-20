@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 	watch->Start();
 
 	// cast all rays
-	const int NUM_RAYS = 8000000;
+	const int NUM_RAYS = 25000000;
 	int num_hits = 0; // number of rays that actually hit the model
 #ifdef _OPENMP
 	RRReporter::report(INF2,"Available processors = %d, max threads = %d.\n",omp_get_num_procs(),omp_get_max_threads());
