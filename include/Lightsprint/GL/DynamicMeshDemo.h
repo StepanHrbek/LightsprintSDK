@@ -1,10 +1,13 @@
-#ifndef DEMOLIB_H
-#define DEMOLIB_H
+#ifndef DYNAMICMESHDEMO_H
+#define DYNAMICMESHDEMO_H
 
 #include "Lightsprint/RRScene.h"
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfScene.h"
+
+namespace rr_gl
+{
 
 //! Dynamically generated vertex.
 struct DynamicVertex
@@ -18,15 +21,15 @@ struct DynamicMesh
 {
 	unsigned numVertices;
 	DynamicVertex* vertices;
-	unsigned numIndices;
-	unsigned short* indices;
+	unsigned numIndices; // numIndices = 3*numTriangles
+	unsigned short* indices; // triangle-list, 3 indices per triangle
 	rr::RRMaterial* material;
 };
 
 //! Scene with static objects, dynamic lights, dynamic skybox and realtime GI render.
 //! It's legal to have multiple scenes and call their functions in any order as long as you do it serially from main thread.
 //! Demo must already exist when creating Scene.
-class Scene : public rr_gl::RRDynamicSolverGL
+class RR_GL_API Scene : public RRDynamicSolverGL
 {
 public:
 	//! Loads scene from disk (Collada .dae, Gamebryo .gsa, Quake3 .bsp, .3ds, .mgf, .obj).
@@ -40,18 +43,18 @@ public:
 	void setEnvironment(rr::RRBuffer* skybox);
 
 	//! Renders scene. When called for first time, acceleration structures are created (slow).
-	void render(rr_gl::Camera& camera, unsigned numDynamicMeshes, DynamicMesh* dynamicMeshes);
+	void render(Camera& camera, unsigned numDynamicMeshes, DynamicMesh* dynamicMeshes);
 
 	//! Runs interactive scene viewer/debugger.
 	void debugger();
 
 protected:
 	//! Implements RRDynamicSolverGL interface.
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight);
+	virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight);
 
 private:
 	rr::RRScene* scene;
-	rr_gl::RendererOfScene* rendererOfScene;
+	RendererOfScene* rendererOfScene;
 	rr::RRVec4 brightness;
 	unsigned numDynamicMeshes;
 	DynamicMesh* dynamicMeshes;
@@ -59,11 +62,13 @@ private:
 
 //! Initializes/shuts down global stuff, create one instance when your application starts.
 //! Needs GL context.
-class Demo
+class RR_GL_API Demo
 {
 public:
 	Demo(const char* pathToShaders);
 	~Demo();
 };
+
+}; // namespace
 
 #endif // RRDEMO_H

@@ -1,7 +1,6 @@
-#include "DemoLib.h"
 #include <cstdio>
 #include <string>
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/GL/DynamicMeshDemo.h"
 #include "Lightsprint/GL/MultiPass.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/RendererOfScene.h"
@@ -9,14 +8,17 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/ToneMapping.h"
 
+namespace rr_gl
+{
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Demo, stuff shared by all scenes
 
 char* s_pathToShaders = NULL;
-rr_gl::UberProgram* s_uberProgram = NULL;
-rr_gl::ToneMapping* s_toneMapping = NULL;
+UberProgram* s_uberProgram = NULL;
+ToneMapping* s_toneMapping = NULL;
 rr::RRBuffer* s_diffuseEnvMap = NULL;
 rr::RRBuffer* s_specularEnvMap = NULL;
 
@@ -30,12 +32,10 @@ Demo::Demo(const char* pathToShaders)
 	}
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
-	// initialize scene and image loaders
-	rr_io::registerLoaders();
 	// initialize stuff shared by all scenes
 	s_pathToShaders = _strdup(pathToShaders);
-	s_uberProgram = rr_gl::UberProgram::create((std::string(pathToShaders)+"ubershader.vs").c_str(),(std::string(pathToShaders)+"ubershader.fs").c_str());
-	s_toneMapping = new rr_gl::ToneMapping(s_pathToShaders);
+	s_uberProgram = UberProgram::create((std::string(pathToShaders)+"ubershader.vs").c_str(),(std::string(pathToShaders)+"ubershader.fs").c_str());
+	s_toneMapping = new ToneMapping(s_pathToShaders);
 	s_diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBF,true,NULL);
 	s_specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBF,true,NULL);
 }
@@ -70,7 +70,7 @@ Scene::Scene(const char* _sceneFilename, unsigned _quality, float _indirectIllum
 	// light detail maps (LDM) not built yet, is unwrap available?
 
 	setDirectIlluminationBoost(_indirectIllumMultiplier);
-	rendererOfScene = new rr_gl::RendererOfScene(this,s_pathToShaders);
+	rendererOfScene = new RendererOfScene(this,s_pathToShaders);
 /*
 	// create buffers for computed GI
 	for (unsigned i=0;i<getNumObjects();i++)
@@ -86,7 +86,7 @@ void Scene::setEnvironment(rr::RRBuffer* _skybox)
 	RRDynamicSolver::setEnvironment(_skybox);
 }
 
-void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
+void Scene::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 {
 	// Render static objects.
 	rendererOfScene->setParams(uberProgramSetup,&realtimeLights,renderingFromThisLight);
@@ -105,7 +105,7 @@ void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLi
 		for (unsigned i=0;i<numDynamicMeshes;i++)
 		{
 		/*
-		rr_gl::UberProgramSetup uberProgramSetup;
+		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1);
@@ -126,7 +126,7 @@ void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLi
 			illumination.specularEnvMap = specular ? s_specularEnvMap : NULL;
 			updateEnvironmentMap(&illumination);
 			// - set shader
-			rr_gl::UberProgramSetup dynamicUberProgramSetup;
+			UberProgramSetup dynamicUberProgramSetup;
 			dynamicUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = diffuse;
 			dynamicUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = specular;
 			dynamicUberProgramSetup.MATERIAL_DIFFUSE = diffuse;
@@ -134,11 +134,11 @@ void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLi
 			dynamicUberProgramSetup.MATERIAL_SPECULAR = specular;
 			dynamicUberProgramSetup.MATERIAL_SPECULAR_CONST = specular;
 			dynamicUberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-			rr_gl::MultiPass multiPass(&realtimeLights,dynamicUberProgramSetup,s_uberProgram,&brightness,1);
-			rr_gl::UberProgramSetup outUberProgramSetup;
-			rr_gl::RendererOfRRObject::RenderedChannels outRenderedChannels;
-			rr_gl::RealtimeLight* outLight;
-			rr_gl::Program* outProgram;
+			MultiPass multiPass(&realtimeLights,dynamicUberProgramSetup,s_uberProgram,&brightness,1);
+			UberProgramSetup outUberProgramSetup;
+			RendererOfRRObject::RenderedChannels outRenderedChannels;
+			RealtimeLight* outLight;
+			Program* outProgram;
 			// - set shader for one light per pass
 			while (outProgram = multiPass.getNextPass(outUberProgramSetup,outRenderedChannels,outLight))
 			{
@@ -169,7 +169,7 @@ void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLi
 	{
 		// Render into shadowmap, Z only.
 		// - set shader
-		rr_gl::UberProgramSetup uberProgramSetup;
+		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1);
 		// - disable color writes
@@ -185,7 +185,7 @@ void Scene::renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLi
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void Scene::render(rr_gl::Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dynamicMeshes)
+void Scene::render(Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dynamicMeshes)
 {
 	//! Remember render settings, we need them in renderScene() but we can't pass them.
 	numDynamicMeshes = _numDynamicMeshes;
@@ -209,7 +209,7 @@ void Scene::render(rr_gl::Camera& _camera, unsigned _numDynamicMeshes, DynamicMe
 	_camera.setupForRender();
 
 	// Render.
-	rr_gl::UberProgramSetup uberProgramSetup = getMaterialsInStaticScene();
+	UberProgramSetup uberProgramSetup = getMaterialsInStaticScene();
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
@@ -234,7 +234,7 @@ void Scene::render(rr_gl::Camera& _camera, unsigned _numDynamicMeshes, DynamicMe
 
 void Scene::debugger()
 {
-	rr_gl::sceneViewer(this,NULL,NULL,s_pathToShaders,NULL);
+	sceneViewer(this,NULL,NULL,s_pathToShaders,NULL);
 }
 
 Scene::~Scene()
@@ -243,3 +243,5 @@ Scene::~Scene()
 	delete getScaler();
 	delete scene;
 }
+
+}; // namespace

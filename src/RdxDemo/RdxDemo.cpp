@@ -1,4 +1,5 @@
-#include "DemoLib.h"
+#include "Lightsprint/GL/DynamicMeshDemo.h"
+#include "Lightsprint/IO/ImportScene.h"
 #include <cstdio>
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -8,8 +9,8 @@
 //
 // globals, required by GLUT design with callbacks
 
-Scene*           scene1 = NULL;
-Scene*           scene2 = NULL;
+rr_gl::Scene*    scene1 = NULL;
+rr_gl::Scene*    scene2 = NULL;
 rr::RRBuffer*    skybox1 = NULL;
 rr::RRBuffer*    skybox2 = NULL;
 rr_gl::Camera    camera(-1.416f,1.741f,-3.646f, 7.0f,0,0.05f,1.3f,110,0.1f,100);
@@ -38,7 +39,7 @@ void display(void)
 	f += 0.005f;
 
 	// Pick random scene to see that swapping works.
-	Scene* scene = (int(f)%8)<4?scene1:scene2;
+	rr_gl::Scene* scene = (int(f)%8)<4?scene1:scene2;
 
 	// Pick random skybox to see that swapping works.
 	if (rand()%50==0) scene->setEnvironment((rand()%2)?skybox1:skybox2);
@@ -59,7 +60,7 @@ void display(void)
 	const unsigned numIndices = 3+6;
 	unsigned short indices[] = {0,1,2, 3,4,5,3,5,6};
 	const unsigned numVertices = 3+4;
-	static DynamicVertex vertices[] = {
+	static rr_gl::DynamicVertex vertices[] = {
 		-1,1,-0, 0,0,0,
 		-2,1,-0, 0,0,0,
 		-1,2,-0, 0,0,0,
@@ -95,7 +96,7 @@ void display(void)
 	material2.specularReflectance.color = rr::RRVec3(1);
 	// - fill structures
 	const unsigned numMeshes = 2;
-	DynamicMesh meshes[numMeshes];
+	rr_gl::DynamicMesh meshes[numMeshes];
 	meshes[0].vertices = vertices;
 	meshes[0].numVertices = 3;
 	meshes[0].indices = indices;
@@ -109,6 +110,8 @@ void display(void)
 
 	// Calculate GI and render.
 	scene->render(camera,numMeshes,meshes);
+
+	// Render 2d overlays with naked girls...
 
 	// Flush contents of backbuffer to screen.
 	glutSwapBuffers();
@@ -156,12 +159,13 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	// Initialize demo library. One instance must exist.
-	Demo demo("../../data/shaders/");
+	rr_gl::Demo demo("../../data/shaders/");
+	rr_io::registerLoaders();
 
 	// Load scenes from disk.
 	// If you change quality, delete .fireball file otherwise old quality will still be used.
-	scene1 = new Scene("../../data/scenes/koupelna/koupelna4-windows.dae",5000,2);
-	scene2 = new Scene("../../data/scenes/koule.dae",5000,2);
+	scene1 = new rr_gl::Scene("../../data/scenes/koupelna/koupelna4-windows.dae",5000,2);
+	scene2 = new rr_gl::Scene("../../data/scenes/koule.dae",5000,2);
 
 	// Load skyboxes from disk.
 	skybox1 = rr::RRBuffer::loadCube("../../data/maps/panorama.jpg");

@@ -819,15 +819,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\DemoLib.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\DemoLib.h"
-			>
-		</File>
-		<File
-			RelativePath=".\DemoMain.cpp"
+			RelativePath=".\RdxDemo.cpp"
 			>
 		</File>
 	</Files>
