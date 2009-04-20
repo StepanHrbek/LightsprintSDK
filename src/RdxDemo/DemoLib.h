@@ -30,13 +30,13 @@ class Scene : public rr_gl::RRDynamicSolverGL
 {
 public:
 	//! Loads scene from disk (Collada .dae, Gamebryo .gsa, Quake3 .bsp, .3ds, .mgf, .obj).
-	//! Quality 5000 is usually ok, 1000 is only bit worse but much faster.
+	//! Quality 5000 is usually ok, 1000 is bit worse but much faster.
 	//! Quality is baked into .fireball file created in temp,
-	//! delete .fireball if you change quality later.
+	//! delete .fireball if you want to change quality later.
 	Scene(const char* sceneFilename, unsigned quality, float indirectIllumMultiplier);
 	~Scene();
 
-	//! Sets skybox surrounding whole scene. Too expensive to be called each frame.
+	//! Sets skybox surrounding whole scene. May be called each frame if you modify skybox dynamically.
 	void setEnvironment(rr::RRBuffer* skybox);
 
 	//! Renders scene. When called for first time, acceleration structures are created (slow).

@@ -34,22 +34,25 @@ void display(void)
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
+	static float f = 0;
+	f += 0.005f;
+
+	// Pick random scene to see that swapping works.
+	Scene* scene = (int(f)%8)<4?scene1:scene2;
+
+	// Pick random skybox to see that swapping works.
+	if (rand()%50==0) scene->setEnvironment((rand()%2)?skybox1:skybox2);
+
 	// Move camera to see that it works.
 	camera.pos.z += 0.001f;
 
 	// Move lights to see that it works.
-	static float f = 0;
-	f += 0.05f;
-	scene1->realtimeLights[0]->getRRLight().position.z = -2*cos(f);
-	scene1->realtimeLights[0]->getRRLight().direction.x = sin(f);
-	scene1->realtimeLights[0]->getRRLight().direction.y = -0.4f;
-	scene1->realtimeLights[0]->getRRLight().direction.z = cos(f);
-	scene1->realtimeLights[0]->getRRLight().direction.normalize();
-	scene1->realtimeLights[0]->updateAfterRRLightChanges();
-
-	// Change skybox to see that it works.
-	// Too slow to do in every frame.
-	if (rand()%50==0) scene1->setEnvironment((rand()%2)?skybox1:skybox2);
+	scene->realtimeLights[0]->getRRLight().position.z = -2*cos(f);
+	scene->realtimeLights[0]->getRRLight().direction.x = sin(f);
+	scene->realtimeLights[0]->getRRLight().direction.y = -0.4f;
+	scene->realtimeLights[0]->getRRLight().direction.z = cos(f);
+	scene->realtimeLights[0]->getRRLight().direction.normalize();
+	scene->realtimeLights[0]->updateAfterRRLightChanges();
 
 	// Generate dynamic meshes to see that it works.
 	// - make up some geometry
@@ -66,9 +69,9 @@ void display(void)
 		 0,1,-0, 0,0,0};
 	for (unsigned i=0;i<numVertices;i++)
 	{
-		vertices[i].position[0] += ((rand()%10000)-5000)/300000.0f;
-		vertices[i].position[1] += ((rand()%10000)-5000)/500000.0f;
-		vertices[i].position[2] += ((rand()%10000)-5000)/300000.0f;
+		vertices[i].position[0] += ((rand()%10000)-4800)/300000.0f;
+		vertices[i].position[1] += ((rand()%10000)-4900)/500000.0f;
+		vertices[i].position[2] += ((rand()%10000)-4800)/300000.0f;
 	}
 	// - generate normals
 	for (unsigned i=0;i<numIndices;i+=3)
@@ -105,7 +108,7 @@ void display(void)
 	meshes[1].material = &material2;
 
 	// Calculate GI and render.
-	scene1->render(camera,numMeshes,meshes);
+	scene->render(camera,numMeshes,meshes);
 
 	// Flush contents of backbuffer to screen.
 	glutSwapBuffers();
@@ -158,13 +161,15 @@ int main(int argc, char **argv)
 	// Load scenes from disk.
 	// If you change quality, delete .fireball file otherwise old quality will still be used.
 	scene1 = new Scene("../../data/scenes/koupelna/koupelna4-windows.dae",5000,2);
+	scene2 = new Scene("../../data/scenes/koule.dae",5000,2);
 
 	// Load skyboxes from disk.
-	skybox1 = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
-	skybox2 = rr::RRBuffer::loadCube("../../data/pool/cubemapy/real.HDR/glacier.hdr");
+	skybox1 = rr::RRBuffer::loadCube("../../data/maps/panorama.jpg");
+	skybox2 = rr::RRBuffer::loadCube("../../data/maps/skybox_gradient.jpg");
 
 	// Set initial skybox (can be changed later).
 	scene1->setEnvironment(skybox1);
+	scene2->setEnvironment(skybox2);
 
 	// Modify initial lights (can be changed later).
 	//  - Initially lights loaded from scene file are present.
@@ -178,6 +183,16 @@ int main(int argc, char **argv)
 	lights[0]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	lights[0]->color *= 5;
 	scene1->setLights(lights);
+	scene2->setLights(lights);
+
+	// Runs interactive scene viewer/debugger.
+	// Bug: it may be called only here, before first render() call. It crashes if called later.
+	//scene1->debugger();
+
+	// To make scene-swapping smooth, invisibly pre-render one frame from each scene.
+	// Scene's first frame is always slow because data are sent to GPU.
+	scene1->render(camera,0,NULL);
+	scene2->render(camera,0,NULL);
 
 	// Run glut mainloop. It never returns.
 	glutMainLoop();
