@@ -1,13 +1,15 @@
-// --------------------------------------------------------------------------
-// MultiPass splits complex rendering setup into simpler ones doable per pass.
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
-// --------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//! \file MultiPass.h
+//! \brief LightsprintGL | splits complex rendering setup into simpler passes
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//! All rights reserved
+//---------------------------------------------------------------------------
 
 #ifndef MULTIPASS_H
 #define MULTIPASS_H
 
-#include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
+#include "UberProgramSetup.h"
+#include "RendererOfRRObject.h"
 
 namespace rr_gl
 {

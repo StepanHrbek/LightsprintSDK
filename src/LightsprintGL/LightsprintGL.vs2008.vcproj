@@ -887,7 +887,7 @@
 			>
 		</File>
 		<File
-			RelativePath="MultiPass.h"
+			RelativePath="..\..\include\Lightsprint\GL\MultiPass.h"
 			>
 		</File>
 		<File

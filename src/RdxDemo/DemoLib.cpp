@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <string>
 #include "Lightsprint/IO/ImportScene.h"
-#include "../src/LightsprintGL/MultiPass.h"//!!!
+#include "Lightsprint/GL/MultiPass.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/SceneViewer.h"

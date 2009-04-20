@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>
-#include "MultiPass.h"
+#include "Lightsprint/GL/MultiPass.h"
 #include "PreserveState.h"
 
 namespace rr_gl
