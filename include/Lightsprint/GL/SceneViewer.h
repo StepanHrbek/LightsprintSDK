@@ -83,8 +83,8 @@ struct SceneViewerState
 
 //! Runs interactive scene viewer.
 //
-//! All lighting techniques for both realtime and precomputed GI are supported.
-//! All lights are editable.
+//! Scene viewer includes debugging and relighting features. All lights and skybox are editable.
+//! All lighting techniques for both realtime and precomputed GI are available via menu.
 //!
 //! \param inputSolver
 //!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.

@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news80 ------------------------------------ 2009.04.xx -------------------------------------
+\section news80 ------------------------------------ 2009.04.20 -------------------------------------
 
 NEWS
 
@@ -19,20 +19,20 @@ NEWS
   - fully dynamic, change sky as often as you wish
 - new per-vertex illumination smoothing mode
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ -0.01
-    this smooths per-vertex illumination where vertex normals are similar,
+    \n this smooths per-vertex illumination where vertex normals are similar,
     ignoring RRDynamicSolver::SmoothingParameters::minFeatureSize.
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _was_ 0.33,
-    this smoothed illumination where face normals were similar,
+    \n this smoothed illumination where face normals were similar,
     with additional blur specified by RRDynamicSolver::SmoothingParameters::minFeatureSize.
-  - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject(),
-    makes it possible to stitch only vertices with similar normals
+  - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject()
+    \n makes it possible to stitch only vertices with similar normals
 - improved rr_gl::sceneViewer(), SceneViewer sample, BuildLightmaps tools
   - new Environment / Load skybox... menu item
 - improved cube map loading
   - new RRBuffer::loadCube() and RRBuffer::reloadCube()
     \n load cubemap specified by single filename, eventual filenames of other 5 sides are guessed
 - new math macros prefixed RR_ added to RRMath.h
-- new utility functions RRDynamicSolver::containsLightSources() and RRDynamicSolver::containsRealtimeGILightSources()
+- new utility functions RRDynamicSolver::containsLightSource() and RRDynamicSolver::containsRealtimeGILightSource()
 
 CHANGES
 

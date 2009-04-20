@@ -186,13 +186,13 @@ Scene formats
 
 Texture formats
 - JPG, PNG, DDS, GIF, TGA, BMP, TIF, HDR...
-- including cube textures
+- including cube textures (cross or 6 files)
 - including 96bit float colors
 
 Materials
 - supports all types of materials
 - diffuse maps, specular maps
-- normal maps, emissive maps
+- emissive maps, transparency/opacity maps
 
 Realtime/precomputed
 - supports realtime illumination

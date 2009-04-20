@@ -228,7 +228,7 @@ namespace rr
 		//! it attempts to guess whether you want to load cubemap from 1 file or from 6 files.
 		//! It calls load() with guessed parameters.
 		//! If you know exactly what to load, call load() yourself and avoid any guesswork.
-		//! \parameter filename
+		//! \param filename
 		//!  Filename of 1 cross shaped 4:3 or 3:4 image;
 		//!  or filename of one of 6 images that make cube map.
 		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%s.jpg.

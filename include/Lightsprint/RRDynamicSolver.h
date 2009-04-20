@@ -164,7 +164,7 @@ namespace rr
 			//! Angle in radians, controls smoothing mode and intensity.
 			//
 			//! Zero or negative value makes illumination smooth only where
-			//! vertex normals differ equal or less than abs(maxSmoothAngle), ignoring minFeatureSize.
+			//! difference between vertex normals is <=abs(maxSmoothAngle), ignoring minFeatureSize.
 			//! This mode preserves smoothing created by 3d artist.
 			//! It is enabled by default.
 			//!
