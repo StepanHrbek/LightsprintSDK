@@ -499,7 +499,7 @@ public:
 		// usually 1 is enough, more is possible only with mirrors concentrating skylight
 		for (unsigned i=1;i<256;i++)
 			//intensityTable[i] = (float)(i*0.0033);
-			intensityTable[i] = (float)(1.7e-8*pow(2,i*0.08));
+			intensityTable[i] = (float)(1.7e-8*pow(2.0,i*0.08));
 		intensityTable[0] = 0;
 	}
 	unsigned getMemoryOccupied() const

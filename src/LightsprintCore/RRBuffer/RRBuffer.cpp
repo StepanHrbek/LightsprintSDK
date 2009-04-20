@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
