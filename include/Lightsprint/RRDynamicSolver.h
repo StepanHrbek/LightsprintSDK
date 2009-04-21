@@ -528,6 +528,9 @@ namespace rr
 		//! may not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.
 		//!
+		//! Lightmap update is one of the most demanding functions in Lightsprint SDK.
+		//! Its \ref of_speed "time complexity" can be roughly predicted.
+		//!
 		//! Thread safe: no, but there's no need to run it from multiple threads at the same time,
 		//!   all cores are used automatically.
 		//!

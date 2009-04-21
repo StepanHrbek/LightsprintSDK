@@ -2009,6 +2009,20 @@ Ray-Mesh collisions
 
   Note that some offline featues are disabled if you load \ref calc_fireball for realtime lighting.
 
+ \section of_speed Speed
+  Estimate of time to build all lightmaps in scene is
+
+  <code>
+  log( number of triangles in scene )
+  <br> * ( quality + number of lights in scene + 10 )
+  <br> * ( number of mapped pixels in per-pixel lightmaps + number of vertices in per-vertex lightmaps )
+  </code>
+
+  Building multiple layers of information at once (e.g. directional lightmaps and bent normals) has negligible overhead,
+  count pixels in one layer only.
+
+  Note that this is only estimate, faster or slower paths are used in specific cases, depending on scene data.
+
  \section of_sample Samples
   Offline calculations are demonstrated in CPULightmaps and BuildLightmaps samples.
   CPULightmaps is purely console application,
