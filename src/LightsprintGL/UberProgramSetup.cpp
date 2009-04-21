@@ -347,6 +347,12 @@ void UberProgramSetup::reduceMaterialSetup(const UberProgramSetup& fullMaterial)
 
 void UberProgramSetup::validate()
 {
+	// removes unused bits
+	// why?
+	// because shader optimizes some parameters away
+	// we use bits to send parameters to shader
+	// sending parameter that is not present in shader wastes CPU time so we report it as error
+
 	if (!LIGHT_DIRECT)
 	{
 		SHADOW_MAPS = 0;
@@ -392,11 +398,17 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_MAP = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
 	}
-	bool light = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
-	bool emission = MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP;
-	if (!light && !emission)
+	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
+	bool reflectsLight = MATERIAL_DIFFUSE || MATERIAL_SPECULAR;
+	if (!incomingLight || !reflectsLight)
 	{
+		// no light -> disable reflection
+		// no reflection -> disable light
 		UberProgramSetup uberProgramSetupBlack;
+		uberProgramSetupBlack.MATERIAL_EMISSIVE_CONST = MATERIAL_EMISSIVE_CONST;
+		uberProgramSetupBlack.MATERIAL_EMISSIVE_MAP = MATERIAL_EMISSIVE_MAP;
+		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_CONST = MATERIAL_TRANSPARENCY_CONST;
+		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_MAP = MATERIAL_TRANSPARENCY_MAP;
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
 		uberProgramSetupBlack.CLIP_PLANE = CLIP_PLANE;
 		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
