@@ -2010,7 +2010,7 @@ Ray-Mesh collisions
   Note that some offline featues are disabled if you load \ref calc_fireball for realtime lighting.
 
  \section of_speed Speed
-  Estimate of time to build all lightmaps in scene is
+  Estimate of time to build all lightmaps in scene (using RRDynamicSolver::updateLightmaps()) is
 
   <code>
   log( number of triangles in scene )
@@ -2020,6 +2020,10 @@ Ray-Mesh collisions
 
   Building multiple layers of information at once (e.g. directional lightmaps and bent normals) has negligible overhead,
   count pixels in one layer only.
+
+  Looking at formula, it's clear that quality is major performance factor, number of lights has only minor impact (it's usually much lower).
+  If you can split scene in two parts and build them separately (light won't travel from one part to another),
+  time complexity won't change much, but problem will be better parallelized, you will be able to build the parts on different computers.
 
   Note that this is only estimate, faster or slower paths are used in specific cases, depending on scene data.
 
