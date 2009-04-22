@@ -37,18 +37,26 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 			|| (svs.renderLDM && getStaticObjects().size()>1) // optimized render can't render AO for more than 1 object
 			)
 		{
-			// render per object (properly sorting), with temporary buffers filled here
-			if (!getIllumination(0)->getLayer(svs.realtimeLayerNumber))
+			// render per object (properly sorting), with temporary realtime-indirect buffers filled here
+			// - allocate buffers
+			for (unsigned i=0;i<getNumObjects();i++)
 			{
-				// allocate lightmap-buffers for realtime rendering
-				for (unsigned i=0;i<getNumObjects();i++)
+				if (getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
 				{
-					if (getIllumination(i) && getObject(i) && getObject(i)->getCollider()->getMesh()->getNumVertices())
-						getIllumination(i)->getLayer(svs.realtimeLayerNumber) =
-							rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+					if (getIllumination(i)->getLayer(svs.realtimeLayerNumber))
+					{
+						// break from cycle as early as possible to avoid checking everything in each frame
+						// but don't skip creating buffers TOO early, this is right moment
+						// previously we skipped creation in case object(0) had buffer (caused memory leak if object 0 had 0 triangles)
+						break;
+					}
+					getIllumination(i)->getLayer(svs.realtimeLayerNumber) =
+						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 				}
 			}
+			// - update buffers
 			updateLightmaps(svs.realtimeLayerNumber,-1,-1,NULL,NULL,NULL);
+			// - render scene with buffers
 			rendererOfScene->useOriginalScene(svs.realtimeLayerNumber);
 		}
 		else
