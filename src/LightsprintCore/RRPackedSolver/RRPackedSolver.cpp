@@ -15,9 +15,6 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#if defined(USE_SSEA) || defined(USE_SSEU)
-	#include <xmmintrin.h>
-#endif
 #include "../RRDynamicSolver/report.h"
 #include "../RRMathPrivate.h"
 
@@ -29,31 +26,16 @@ namespace rr
 //
 // PackedTriangle
 
-#ifdef USE_SSEA
-class PackedTriangle : public RRAligned
-{
-public:
-	RRVec3 diffuseReflectance;
-	RRReal areaInv;
-	RRVec3p incidentFluxToDiffuse; // reset to direct illum, modified by improve
-	RRVec3p incidentFluxDiffused;  // reset to 0, modified by improve
-	RRVec3p incidentFluxDirect;    // reset to direct illum
-#else
 class PackedTriangle
 {
 public:
 	RRVec3 diffuseReflectance;
 	RRReal areaInv;
-#ifdef USE_SSEU
-	RRVec3p incidentFluxToDiffuse; // reset to direct illum, modified by improve
-#else
 	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
-#endif
 	RRReal area;
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
-#endif
 
 	// for dynamic objects (point material)
 	RRVec3 getIrradiance() const
