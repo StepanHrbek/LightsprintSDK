@@ -649,9 +649,18 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				uberProgramSetup.CLIP_PLANE = true;
 				solver->renderScene(uberProgramSetup,NULL);
 				water->updateReflectionDone();
+				float oldFar = svs.eye.getFar();
+				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
+				svs.eye.update();
+				svs.eye.setupForRender();
+				solver->renderScene(uberProgramSetup,NULL);
+				water->render(svs.eye.getFar()*10,svs.eye.pos);
+				svs.eye.setFar(oldFar);
 			}
-			solver->renderScene(uberProgramSetup,NULL);
-			if (svs.renderWater && water && !svs.renderWireframe) water->render(svs.eye.getFar()*2,svs.eye.pos);
+			else
+			{
+				solver->renderScene(uberProgramSetup,NULL);
+			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if (svs.adjustTonemapping
 				&& !svs.renderWireframe
