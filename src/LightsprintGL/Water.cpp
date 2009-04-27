@@ -72,6 +72,7 @@ void Water::updateReflectionDone()
 	{
 		eye->mirror(altitude);
 		eye->update();
+		eye->setupForRender();
 	}
 }
 
