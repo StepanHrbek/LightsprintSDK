@@ -100,7 +100,7 @@ varying
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
+#if (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR)) && !defined(FORCE_2D_POSITION)
 	uniform vec3 worldEyePos;
 #endif
 
@@ -152,12 +152,13 @@ void main()
 				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
 			#endif
 		#endif
-		#if defined(MATERIAL_SPECULAR)
-			// block specular reflection on wrong side of 2-sided face
-			lightDirectVColor = (lightDirectVColor*dot(worldPos-worldEyePos,worldNormalSmooth)>0.0) ? abs(lightDirectVColor) : 0.0;
-		#else
-			// allow diffuse reflection only on front side (ok for 1sided, might need tweak for 2sided faces)
+		#ifdef FORCE_2D_POSITION
+			// rendering solver input = direct illumination on front side of 2-sided face
+			// ignore camera position, worldEyePos is not set
 			lightDirectVColor = max(0.0,-lightDirectVColor);
+		#else
+			// direct illumination only on lit side of 2-sided face
+			lightDirectVColor = (lightDirectVColor*dot(worldPos-worldEyePos,worldNormalSmooth)>0.0) ? abs(lightDirectVColor) : 0.0;
 		#endif
 	#endif
 

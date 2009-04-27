@@ -48,7 +48,6 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
 		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		lightIndirectEnvSpecular->bindTexture();
-		program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		glActiveTexture(activeTexture);
 	}
 	// set matrices

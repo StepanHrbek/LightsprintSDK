@@ -168,9 +168,6 @@ void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
 		//else
 		//	getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 	}
-	const Camera* eye = Camera::getRenderCamera();
-	if (eye)
-		program->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
 }
 
 void RendererOfRRDynamicSolver::render()
