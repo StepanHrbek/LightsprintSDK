@@ -82,7 +82,13 @@ class Factor
 {
 public:
 	class Triangle* destination;
-	FactorChannels power; // this fraction of emited energy reaches destination. it is not modulated by destination material.
+	// Extended form factor.
+	// Fraction of emited energy that reaches destination's diffuse component.
+	// It is not modulated by destination diffuse color,
+	// but specular interreflections and interrefractions are factored in
+	// (specular fraction bounces through scene until it nearly dissipates in hits to diffuse surfaces).
+	// This way, factor may be above 1, up to 1/diffuseReflectance.
+	FactorChannels power;
 };
 
 //////////////////////////////////////////////////////////////////////////////

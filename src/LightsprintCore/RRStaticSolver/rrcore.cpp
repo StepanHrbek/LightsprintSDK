@@ -1020,6 +1020,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			{
 				f.power = f.destination->hits/shotsAccumulated;
 				RR_ASSERT(f.power>0);
+				//RR_ASSERT(f.power<=1); above 1 is ok in presence of specular reflectance/transmittance
 				f.destination->hits = 0;
 				if (!i.insert(f))
 				{
