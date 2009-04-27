@@ -505,6 +505,8 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	// chunk's data findex + the size of the header
 	fseek(bin3ds, findex, SEEK_SET);
 
+	Materials[matindex].reset(false); // 1-sided is default
+
 	while (ftell(bin3ds) < (findex + length - 6))
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
@@ -514,6 +516,12 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 		switch (h.id)
 		{
+			case 0xA081:
+				// change 1-sided to 2-sided
+				Materials[matindex].sideBits[1].renderFrom = 1;
+				Materials[matindex].sideBits[1].receiveFrom = 1;
+				Materials[matindex].sideBits[1].reflect = 1;
+				break;
 			case 0xA000:
 				// Material name
 				MaterialNameChunkProcessor(h.len, ftell(bin3ds), matindex);
