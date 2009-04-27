@@ -12,7 +12,7 @@
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (e.g. polished steel) or specular transmittance that changes light color (e.g. colored glass))
-#define FACTORCHANNELS   1 // if CLEAN_FACTORS then 1 else CHANNELS
+#define FACTORCHANNELS   1
 
 #if CHANNELS==1
 #define Channels         RRReal
@@ -82,9 +82,7 @@ class Factor
 {
 public:
 	class Triangle* destination;
-	FactorChannels power; // this fraction of emited energy reaches destination
-	               // Q: is modulated by destination's material?
-	               // A: CLEAN_FACTORS->NO, !CLEAN_FACTORS->YES
+	FactorChannels power; // this fraction of emited energy reaches destination. it is not modulated by destination material.
 };
 
 //////////////////////////////////////////////////////////////////////////////
