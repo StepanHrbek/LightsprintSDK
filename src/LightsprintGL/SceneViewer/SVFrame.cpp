@@ -147,6 +147,8 @@ void SVFrame::UpdateEverything()
 	// it has also minor drawback: initialInputSolver->abort will be ignored
 	if (!firstUpdate) svs.initialInputSolver = NULL;
 
+	// creates canvas
+	// loads scene if it is specified by filename
 	m_canvas = new SVCanvas( svs, this, &m_lightProperties, newSize);
 
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
