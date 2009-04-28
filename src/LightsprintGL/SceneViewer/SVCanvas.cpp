@@ -120,15 +120,6 @@ void SVCanvas::createContext()
 			solver->setStaticObjects(*manuallyOpenedScene->getObjects(),NULL);
 		if (manuallyOpenedScene->getLights() && manuallyOpenedScene->getLights()->size())
 			solver->setLights(*manuallyOpenedScene->getLights());
-		else
-		{
-			// no lights in non-empty scene -> insert at least sunlight (good for outdoor scenes, bad for indoor)
-			if (solver->getStaticObjects().size())
-			{
-				rr::RRReporter::report(rr::INF2,"Sunlight added to scene without lights.\n");
-				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_DIR));
-			}
-		}
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
