@@ -226,7 +226,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		// measure exiting
 		if (measure.exiting)
 		{
-			irrad *= tri->surface->diffuseReflectance.color;
+			irrad = irrad * tri->surface->diffuseReflectance.color + tri->surface->diffuseEmittance.color;
 		}
 	}
 	else
