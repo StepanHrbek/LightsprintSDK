@@ -114,6 +114,8 @@ public:
 	real    accuracy(); // shots done per energy unit
 
 	// light acumulators
+	//  exitingXxx includes emittance
+	//  incidentXxx does not include triangle's emittance
 	RRVec3  totalExitingFluxToDiffuse;
 	RRVec3  totalExitingFlux;
 	RRVec3  totalIncidentFlux;
