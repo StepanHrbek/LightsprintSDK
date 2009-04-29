@@ -507,6 +507,9 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 	Materials[matindex].reset(false); // 1-sided is default
 
+	char* diffuseName = NULL;
+	char* opacityName = NULL;
+
 	while (ftell(bin3ds) < (findex + length - 6))
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
@@ -549,20 +552,19 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 			case 0xA200:
 				// Texture map 1
-				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
+				diffuseName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
 				break;
 			case 0xA210:
 				// Opacity map
-				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularTransmittance);
-				Materials[matindex].specularTransmittance.texture->invert();
+				opacityName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularTransmittance);
 				break;
 			case 0xA204:
 				// Specular map
-				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance);
+				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance));
 				break;
 			case 0xA33D:
 				// Self illum map
-				TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance);
+				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance));
 				break;
 		}
 
@@ -573,6 +575,15 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	// that the ProcessChunk() which we interrupted will read
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
+
+	// due to lack of 3ds documentation, we interpret opacity map as follows
+	// 1. if it is the same map as diffuse map, alpha=1 is opaque
+	// 2. if it is different map, rgb=1 is opaque
+	Materials[matindex].specularTransmittanceInAlpha = diffuseName && opacityName && strcmp(diffuseName,opacityName)==0;
+	if (Materials[matindex].specularTransmittance.texture && !Materials[matindex].specularTransmittanceInAlpha)
+		Materials[matindex].specularTransmittance.texture->invert();
+	free(diffuseName);
+	free(opacityName);
 }
 
 // returns value from percentage chunk
@@ -703,8 +714,10 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRMaterial:
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
+	char* name = NULL;
+
 	ChunkHeader h;
 
 	// move the file pointer to the beginning of the main
@@ -722,7 +735,7 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMateria
 		{
 			case 0xA300:
 				// Read the name of texture in the Diffuse Color map
-				MapNameChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				name = MapNameChunkProcessor(h.len, ftell(bin3ds), materialProperty);
 				break;
 		}
 
@@ -733,9 +746,11 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMateria
 	// that the ProcessChunk() which we interrupted will read
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
+
+	return name;
 }
 
-void Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
 	char name[580];
 
@@ -767,6 +782,8 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::
 	// that the ProcessChunk() which we interrupted will read
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
+
+	return _strdup(name);
 }
 
 void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
