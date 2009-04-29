@@ -22,10 +22,6 @@
 
 #pragma comment(lib,"FreeImage.lib")
 
-#if defined(__PPC__)
-#define RR_BIG_ENDIAN
-#endif
-
 #define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 

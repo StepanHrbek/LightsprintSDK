@@ -11,9 +11,13 @@
 #include <new> // operators new/delete
 #include "RRMath.h"
 
+// Common memory macros.
 #define RR_SAFE_FREE(a)         {free(a);a=NULL;}
 #define RR_SAFE_DELETE(a)       {delete a;a=NULL;}
 #define RR_SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
+#if defined(__BIG_ENDIAN__) || defined(__PPC__)
+#define RR_BIG_ENDIAN
+#endif
 
 namespace rr
 {

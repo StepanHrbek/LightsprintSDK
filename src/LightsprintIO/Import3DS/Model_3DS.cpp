@@ -66,10 +66,6 @@
 // utility functions for handling little endian on a big endian system
 //////////////////////////////////////////////////////////////////////
 
-#ifdef __PPC__
-#define RR_BIG_ENDIAN
-#endif
-
 inline void swap16(void* p)
 {
 #ifdef RR_BIG_ENDIAN
