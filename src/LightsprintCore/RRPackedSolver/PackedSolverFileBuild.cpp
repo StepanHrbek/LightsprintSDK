@@ -316,6 +316,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
 	if (priv->packedSolver)
 	{
+		priv->packedSolver->setEmittance(1,16,false,getScaler());
 		priv->packedSolver->setEnvironment(getEnvironment(),getScaler());
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
@@ -341,6 +342,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 	if (priv->packedSolver)
 	{
 		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+		priv->packedSolver->setEmittance(1,16,false,getScaler());
 		priv->packedSolver->setEnvironment(getEnvironment(),getScaler());
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now

@@ -21,6 +21,60 @@
 namespace rr
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// PackedColor - RRVec3 in 4 bytes
+
+class PackedColor
+{
+public:
+	void clear()
+	{
+		multiplier = 0;
+	}
+	void operator =(RRVec3 _a)
+	{
+		multiplier = _a.sum();
+		if (multiplier)
+		{
+			r = (unsigned char)(255/multiplier*_a[0]);
+			g = (unsigned char)(255/multiplier*_a[1]);
+		}
+	}
+	// *this = a.get()*b;
+	void setProduct(const PackedColor& _a,float _b)
+	{
+		multiplier = _a.multiplier*_b;
+		r = _a.r;
+		g = _a.g;
+	}
+	RRVec3 get() const
+	{
+		return RRVec3((RRReal)r,(RRReal)g,(RRReal)(255-r-g))*(multiplier/255);
+	}
+	RRReal sum() const
+	{
+		return multiplier;
+	}
+
+private:
+	//unsigned char& r() {return ((unsigned char*)this)[2];}
+	//unsigned char& g() {return ((unsigned char*)this)[3];}
+	union
+	{
+		float multiplier;
+		struct
+		{
+			//!!! not tested on powerpc, could need filler first
+			//!!! not tested in gcc, could need some sacrifice to aliasing gods
+			unsigned char r;
+			unsigned char g;
+			unsigned short filler;
+		};
+	};
+};
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -29,27 +83,29 @@ namespace rr
 class PackedTriangle
 {
 public:
-	RRVec3 diffuseReflectance;
-	RRReal areaInv;
 	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
-	RRReal area;
+	PackedColor emissiveFluxToDiffuse; // reset to direct emissive flux, cleared by improve
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
+	PackedColor diffuseEmittance; // set by setEmittance
 	RRVec3 incidentFluxDirect;    // reset to direct illum
+	RRReal area;
 	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
+	RRReal areaInv;
+	const RRMaterial* material;   // may be replaced by RRVec3 diffuseReflectance,diffuseEmittance;
 
 	// used by solver during calculation
 
 	// reads diffuseReflectance from material (or possibly from our copy to make memory accesses localized)
 	const RRVec3& getDiffuseReflectance() const
 	{
-		return diffuseReflectance;
+		return material->diffuseReflectance.color;
 	}
 	// importance is amount of unshot energy. important triangles are processed first
 	RRReal getImportance() const
 	{
 		// to save time, incident flux is not multiplied by diffuseReflectance
 		// this makes importance slightly incorrect, but it probably still pays off
-		return incidentFluxToDiffuse.sum();
+		return incidentFluxToDiffuse.sum() + emissiveFluxToDiffuse.sum();
 	}
 
 	// used from outside to read results
@@ -60,11 +116,11 @@ public:
 		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv)));
 		return (incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv;
 	}
-	// for dynamic objects (per-tri material)
+	// for dynamic objects (per-tri material), includes emissivity
 	RRVec3 getExitance() const
 	{
 		RR_ASSERT(IS_VEC3((getIrradiance()*getDiffuseReflectance())));
-		return getIrradiance()*getDiffuseReflectance();
+		return getIrradiance()*getDiffuseReflectance()+diffuseEmittance.get();
 	}
 	// for static objects, includes skylight
 	RRVec3 getIncidentFluxIndirect() const
@@ -72,7 +128,6 @@ public:
 		return incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky-incidentFluxDirect;
 	}
 };
-
 
 
 
@@ -182,10 +237,11 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	const RRMesh* mesh = object->getCollider()->getMesh();
 	numTriangles = mesh->getNumTriangles();
 	triangles = new PackedTriangle[numTriangles];
+	defaultMaterial.reset(false);
 	for (unsigned t=0;t<numTriangles;t++)
 	{
 		const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
-		triangles[t].diffuseReflectance = material ? material->diffuseReflectance.color : RRVec3(0.5f);
+		triangles[t].material = material ? material : &defaultMaterial;
 		triangles[t].area = mesh->getTriangleArea(t);
 		triangles[t].areaInv = triangles[t].area ? 1/triangles[t].area : 1; // so we don't return INF exitance from degenerated triangle (now we mostly return 0)
 		RR_ASSERT(_finite(triangles[t].area));
@@ -195,6 +251,8 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 		triangles[t].incidentFluxToDiffuse = RRVec3(0);
 		triangles[t].incidentFluxDiffused = RRVec3(0);
 		triangles[t].incidentFluxSky = RRVec3(0);
+		triangles[t].diffuseEmittance.clear();
+		triangles[t].emissiveFluxToDiffuse.clear();
 	}
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	packedSolverFile = _adopt_packedSolverFile;
@@ -226,17 +284,93 @@ void RRPackedSolver::setEnvironment(const RRBuffer* environment, const RRScaler*
 	currentVersionInTriangles++;
 }
 
+void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials, const RRScaler* scaler)
+{
+	RRReportInterval report(INF1,"setEmittance(%d)\n",quality);
+	// deterministically generate points in triangle space 0,0 1,0 0,1
+	RRVec2* samplePoints = NULL;
+	if (quality)
+	{
+		samplePoints = new RRVec2[quality];
+		static const RRReal dir[4][3]={{0,0,-0.5f},{0.333333f,-0.166666f,0.5f},{-0.166666f,0.333333f,0.5f},{-0.166666f,-0.166666f,0.5f}};
+		for (unsigned i=0;i<quality;i++)
+		{
+			RRReal dist=1;
+			RRVec2 uv(0.333333f);
+			unsigned n = i;
+			while (n)
+			{
+				uv[0] += dist*dir[n&3][0];
+				uv[1] += dist*dir[n&3][1];
+				dist *= dir[n&3][2];
+				n >>= 2;
+			}
+			samplePoints[i] = uv;
+		}
+	}
+
+	#pragma omp parallel for schedule(static)
+	for (int t=0;(unsigned)t<numTriangles;t++)
+	{
+		bool useEmissiveTexture =
+			quality*1000>triangles[t].material->minimalQualityForPointMaterials // averages are ok for extremely uniform materials
+			&& (usePointMaterials // custom getPointMaterial() does not necessarily depend on diffuseEmittance.texture
+				|| triangles[t].material->diffuseEmittance.texture); // direct access depends on diffuseEmittance.texture
+
+		if (!useEmissiveTexture)
+		{
+			// super-fast per-material averages
+			triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.color * emissiveMultiplier;
+		}
+		else
+		if (!usePointMaterials)
+		{
+			// fast direct texture access
+			const RRMaterial::Property& diffuseEmittance = triangles[t].material->diffuseEmittance;
+			RRVec3 sum(0);
+			for (unsigned i=0;i<quality;i++)
+			{
+				RRMesh::TriangleMapping triangleMapping;
+				object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
+				RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
+				RRVec3 color = diffuseEmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+				if (scaler)
+				{
+					scaler->getPhysicalScale(color);
+				}
+				sum += color;
+			}
+			triangles[t].diffuseEmittance = sum * (emissiveMultiplier/quality);
+		}
+		else
+		{
+			// slow point materials
+			RRVec3 sum(0);
+			for (unsigned i=0;i<quality;i++)
+			{
+				RRMaterial material = *triangles[t].material;
+				object->getPointMaterial((unsigned)t,samplePoints[i],material);
+				sum += material.diffuseEmittance.color;
+			}
+			triangles[t].diffuseEmittance = sum * (emissiveMultiplier/quality);
+		}
+	}
+
+	delete[] samplePoints;
+}
+
 void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical)
 {
 	packedBests->reset();
 	if (customDirectIrradiance)
 	{
-#pragma omp parallel for schedule(static)
+		#pragma omp parallel for schedule(static)
 		for (int t=0;(unsigned)t<numTriangles;t++)
 		{
 			unsigned color = customDirectIrradiance[t];
 			triangles[t].incidentFluxDiffused = RRVec3(0);
 			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
+			triangles[t].emissiveFluxToDiffuse.setProduct(triangles[t].diffuseEmittance,triangles[t].area);
 		}
 	}
 	else
@@ -245,6 +379,7 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 		{
 			triangles[t].incidentFluxDiffused = RRVec3(0);
 			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(0);
+			triangles[t].emissiveFluxToDiffuse.setProduct(triangles[t].diffuseEmittance,triangles[t].area);
 		}
 	}
 	currentVersionInTriangles++;
@@ -289,7 +424,8 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
 			RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
 			PackedTriangle* source = &triangles[sourceTriangleIndex];
-			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->getDiffuseReflectance();
+			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->getDiffuseReflectance() + source->emissiveFluxToDiffuse.get();
+			source->emissiveFluxToDiffuse.clear();
 			source->incidentFluxDiffused += source->incidentFluxToDiffuse;
 			source->incidentFluxToDiffuse = RRVec3(0);
 			const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
@@ -397,7 +533,7 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	if (measure.exiting)
 	{
 		// diffuse applied on physical scale, not custom scale
-		irrad *= triangles[triangle].getDiffuseReflectance();
+		irrad = irrad * triangles[triangle].getDiffuseReflectance() + triangles[triangle].diffuseEmittance.get();
 	}
 	if (measure.scaled)
 	{

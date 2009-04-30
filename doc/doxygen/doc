@@ -1939,7 +1939,8 @@ Ray-Mesh collisions
 \page calc_fireball Fireball
 
  \section fb_features Features
-  Fireball is realtime global illumination solver, it produces realistic indirect lighting in dynamic scenes.
+  Fireball is realtime global illumination solver, it produces realistic indirect lighting in dynamic scenes,
+  taking all \ref inputs_light_sources into account.
   It is recommended for use in games.
 
   If you don't start Fireball,
@@ -1949,7 +1950,9 @@ Ray-Mesh collisions
   - smaller (needs only 50% of memory for the same quality)
   - produces higher quality lighting
   - doesn't allocate/fragment memory
+  - doesn't change performance over time
   - calculates realtime GI also from environment/skybox
+  - calculates realtime GI also from dynamically changing emissive maps
 
  \section fb_precalc Precalculations
   Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
@@ -1961,6 +1964,9 @@ Ray-Mesh collisions
   except for one additional call, see:
   - RRDynamicSolver::buildFireball()
   - RRDynamicSolver::loadFireball()
+
+  In case you change emissive maps dynamically (e.g. stream video into emissive map), call
+  - RRDynamicSolver::setEmittance()
 
  \section fb_outputs Outputs
   Fireball calculates indirect illumination and stores it into 
@@ -2123,7 +2129,7 @@ Ray-Mesh collisions
   - Area light source, triangles covered by materials that emit light.
   - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
   - Data structure container: RRObjects
-  - Setup: RRDynamicSolver::setStaticObjects()
+  - Setup: RRDynamicSolver::setStaticObjects(), RRDynamicSolver::setEmittance()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
 
@@ -2550,9 +2556,11 @@ Ray-Mesh collisions
   of file formats, namely:
   - <b>Gamebryo (.GSA)</b> - scene format of \ref main_gamebryo "Gamebryo" game engine
   - <b>Collada (.DAE)</b> - open, flexible and well supported format for digital asset exchange.
-    Adapter loads geometry, materials and lights and uses FCollada library. See comments at the
+    Adapter loads geometry, materials and lights using FCollada library. See comments at the
     beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
     for more details about features supported.
+    General Collada development is documented at <a href="http://collada.org">[collada.org]</a>.
+    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://sourceforge.net/project/showfiles.php?group_id=136478">[sourceforge.net]</a>.
   - <b>3DS</b> - very old but popular format, despite the fact that its specification was never
     officially released. It supports only one set of texture coordinates, therefore it is
     not suitable for static lightmaps (which typically require another mapping channel).

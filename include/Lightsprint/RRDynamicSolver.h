@@ -109,6 +109,42 @@ namespace rr
 		const RRLights& getLights() const;
 
 
+		//! Sets how emittance is handled by solver.
+		//
+		//! Emissive surfaces work out of the box.
+		//! This function lets you only tweak emittance in Fireball realtime GI solver.
+		//! What it does is reload emittance values from materials to Fireball,
+		//! so that following calculate() uses them to produce global illumination.
+		//!
+		//! To illuminate scene by dynamic emissive texture (e.g. streamed from video),
+		//! use Fireball and call setEmittance(multiplier,4,false) after updating emissive textures
+		//! in materials in every frame.
+		//!
+		//! \param emissiveMultiplier
+		//!  Multiplies emittance values in solver, but not emissive materials itself.
+		//!  So when realtime rendering scene, emissive materials are not affected,
+		//!  but indirect illumination they create is multiplied.
+		//! \param quality
+		//!  - 0 = max speed, flat emittance colors stored in materials are used.
+		//!    All triangles that share the same material emit the same average color.
+		//!    Eventual changes in textures and non-uniform distribution of colors in texture are ignored.
+		//!  - 1 or more = higher precision, emissive textures are sampled,
+		//!    quality specifies number of samples per triangle.
+		//!    Triangles emit their average emissive colors and changes in textures are detected.
+		//!    When updating emittance in every frame, quality 4 is good compromise between speed and quality.
+		//!    When updating once in time, reasonable quality is 16.
+		//! \param usePointMaterials
+		//!  For quality=0, this parameter is ignored.
+		//!  For quality>0, two paths exist
+		//!  - false = Fast direct access to material's emissive texture. Recommended.
+		//!    At quality 16, it is roughly 5x slower than quality 0. If you haven't overloaded getPointMaterial(),
+		//!    both paths produce identical results, but this one is faster.
+		//!  - true = Slow access via customizable virtual function getPointMaterial().
+		//!    At quality 16, it is roughly 100x slower than quality 0.
+		//!    Use it only if you need your overloaded getPointMaterial() to be used.
+		void setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials);
+
+
 		//! Sets custom irradiance for all triangles in scene.
 		//
 		//! This is one of ways how light enters solver, others are setLights(), setEnvironment(), emissive materials.

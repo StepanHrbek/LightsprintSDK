@@ -10,6 +10,15 @@ namespace rr
 
 \section news81 ------------------------------------ 2009.04.xx -------------------------------------
 
+NEWS
+
+- realtime GI from emissive surfaces
+  - \ref calc_fireball supports emissive surfaces
+    \n this makes Fireball complete, it calculates GI from all \ref inputs_light_sources in real-time
+  - new RRDynamicSolver::setEmittance()
+    \n streaming video to emissive map? Call this in every frame to update GI from updated emissive maps.
+    \n emissiveMultiplier parameter lets you multiply emittance globally
+
 \section news80 ------------------------------------ 2009.04.20 -------------------------------------
 
 NEWS

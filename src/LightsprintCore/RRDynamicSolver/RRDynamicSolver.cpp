@@ -86,6 +86,17 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
+void RRDynamicSolver::setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials)
+{
+	if (priv->packedSolver)
+	{
+		// loads emittance from materials to fireball
+		priv->packedSolver->setEmittance(emissiveMultiplier,quality,usePointMaterials,getScaler());
+		// next calculateCore() will call Fireball::illuminationReset(), to start using new emittance
+		priv->dirtyCustomIrradiance = true;
+	}
+}
+
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
 {
 	// check inputs
