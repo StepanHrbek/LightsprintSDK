@@ -34,19 +34,28 @@ unsigned getUnsigned(const wxString& str)
 
 // true = valid answer
 // false = dialog was escaped
-// Future version may use incoming quality as default value.
+// Incoming quality is taken as default value.
 static bool getQuality(wxWindow* parent, unsigned& quality)
 {
 	wxArrayString choices;
-	choices.Add("1 - extremely low");
+	choices.Add("1");
 	choices.Add("10 - low");
 	choices.Add("40");
 	choices.Add("100 - medium");
 	choices.Add("350");
 	choices.Add("1000 - high");
 	choices.Add("3000");
-	choices.Add("10000 - extremely high");
+	choices.Add("10000 - very high");
 	wxSingleChoiceDialog dialog(parent,"","Please select quality",choices);
+	for (size_t i=0;i<choices.size();i++)
+	{
+		unsigned u = getUnsigned(choices[i]);
+		if (u>=quality || i+1==choices.size())
+		{
+			dialog.SetSelection(i);
+			break;
+		}
+	}
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		quality = getUnsigned(dialog.GetStringSelection());
@@ -57,7 +66,7 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 
 // true = valid answer
 // false = dialog was escaped
-// Future version may use incoming quality as default value.
+// Incoming resolution is taken as default value.
 static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerVertex)
 {
 	wxArrayString choices;
@@ -73,6 +82,15 @@ static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerV
 	choices.Add("2048x2048");
 	choices.Add("4096x4096");
 	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",choices);
+	for (size_t i=0;i<choices.size();i++)
+	{
+		unsigned u = getUnsigned(choices[i]);
+		if (u>=resolution || i+1==choices.size())
+		{
+			dialog.SetSelection(i);
+			break;
+		}
+	}
 	if (dialog.ShowModal()==wxID_OK)
 	{
 		resolution = getUnsigned(dialog.GetStringSelection());
