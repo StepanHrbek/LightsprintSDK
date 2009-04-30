@@ -10,10 +10,6 @@ namespace rr
 
 \section news81 ------------------------------------ 2009.04.xx -------------------------------------
 
-CHANGES
-
-- rr_gl::sceneViewer() and SceneViewer sample automatically insert sun-light into scenes without light
-
 \section news80 ------------------------------------ 2009.04.20 -------------------------------------
 
 NEWS

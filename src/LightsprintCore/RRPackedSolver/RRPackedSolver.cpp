@@ -37,6 +37,23 @@ public:
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
 
+	// used by solver during calculation
+
+	// reads diffuseReflectance from material (or possibly from our copy to make memory accesses localized)
+	const RRVec3& getDiffuseReflectance() const
+	{
+		return diffuseReflectance;
+	}
+	// importance is amount of unshot energy. important triangles are processed first
+	RRReal getImportance() const
+	{
+		// to save time, incident flux is not multiplied by diffuseReflectance
+		// this makes importance slightly incorrect, but it probably still pays off
+		return incidentFluxToDiffuse.sum();
+	}
+
+	// used from outside to read results
+
 	// for dynamic objects (point material)
 	RRVec3 getIrradiance() const
 	{
@@ -46,8 +63,8 @@ public:
 	// for dynamic objects (per-tri material)
 	RRVec3 getExitance() const
 	{
-		RR_ASSERT(IS_VEC3((getIrradiance()*diffuseReflectance)));
-		return getIrradiance()*diffuseReflectance;
+		RR_ASSERT(IS_VEC3((getIrradiance()*getDiffuseReflectance())));
+		return getIrradiance()*getDiffuseReflectance();
 	}
 	// for static objects, includes skylight
 	RRVec3 getIncidentFluxIndirect() const
@@ -100,7 +117,7 @@ public:
 		for (unsigned i=indexBegin;i<indexEnd;i++)
 		{
 			// calculate quality of distributor
-			RRReal q = triangle[i].incidentFluxToDiffuse.sum();
+			RRReal q = triangle[i].getImportance();
 
 			if (q>bestQ[maxBests-1])
 			{
@@ -272,7 +289,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
 			RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
 			PackedTriangle* source = &triangles[sourceTriangleIndex];
-			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
+			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->getDiffuseReflectance();
 			source->incidentFluxDiffused += source->incidentFluxToDiffuse;
 			source->incidentFluxToDiffuse = RRVec3(0);
 			const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
@@ -380,7 +397,7 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	if (measure.exiting)
 	{
 		// diffuse applied on physical scale, not custom scale
-		irrad *= triangles[triangle].diffuseReflectance;
+		irrad *= triangles[triangle].getDiffuseReflectance();
 	}
 	if (measure.scaled)
 	{
