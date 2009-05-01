@@ -159,8 +159,8 @@ public:
 
 private:
 	void UpdateCenter();
-	void IntColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
-	void FloatColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
+	void IntColorChunkProcessor(long length, long findex, rr::RRVec3& color);
+	void FloatColorChunkProcessor(long length, long findex, rr::RRVec3& color);
 	unsigned ReadPercentage(); // PercentageChunkProcessor
 	// Processes the Main Chunk that all the other chunks exist is
 	void MainChunkProcessor(long length, long findex);
@@ -172,7 +172,7 @@ private:
 				// Processes the names of the materials
 				void MaterialNameChunkProcessor(long length, long findex, int matindex);
 				// Processes the material's diffuse color
-				void ColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
+				void ColorChunkProcessor(long length, long findex, rr::RRVec3& color);
 				// Processes the material's texture maps
 				char* TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 					// Processes the names of the textures and load the textures

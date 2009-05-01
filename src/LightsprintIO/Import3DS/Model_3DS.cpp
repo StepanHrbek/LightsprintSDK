@@ -507,6 +507,11 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	char* diffuseName = NULL;
 	char* opacityName = NULL;
 
+	rr::RRVec3 specularColor;
+	bool specularColorSet = false;
+	float shininessStrength;
+	bool shininessStrengthSet = false;
+
 	while (ftell(bin3ds) < (findex + length - 6))
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
@@ -528,15 +533,12 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 				break;
 			case 0xA020:
 				// Diffuse color
-				ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
+				ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance.color);
 				break;
 			case 0xA030:
 				// Specular color
-				//ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance);
-				break;
-			case 0xA084:
-				// Self illum... what type is it?
-				//ColorChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance);
+				ColorChunkProcessor(h.len, ftell(bin3ds), specularColor);
+				specularColorSet = true;
 				break;
 			case 0xa050:
 				// Transparency percent
@@ -544,7 +546,8 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 				break;
 			case 0xa041:
 				// Shininess strength percent
-				Materials[matindex].specularReflectance.color = rr::RRVec3(ReadPercentage()*0.01f);
+				shininessStrength = ReadPercentage()*0.01f;
+				shininessStrengthSet = true;
 				break;
 
 			case 0xA200:
@@ -572,6 +575,14 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	// that the ProcessChunk() which we interrupted will read
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
+
+	// due to lack of 3ds documentation, we only guess what to do
+	if (specularColorSet && !shininessStrengthSet)
+		Materials[matindex].specularReflectance.color = specularColor;
+	if (!specularColorSet && shininessStrengthSet)
+		Materials[matindex].specularReflectance.color = rr::RRVec3(shininessStrength);
+	if (specularColorSet && shininessStrengthSet)
+		Materials[matindex].specularReflectance.color = specularColor*shininessStrength;
 
 	// due to lack of 3ds documentation, we interpret opacity map as follows
 	// 1. if it is the same map as diffuse map, alpha=1 is opaque
@@ -615,7 +626,7 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::ColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+void Model_3DS::ColorChunkProcessor(long length, long findex, rr::RRVec3& color)
 {
 	ChunkHeader h;
 
@@ -635,19 +646,19 @@ void Model_3DS::ColorChunkProcessor(long length, long findex, rr::RRMaterial::Pr
 		{
 			case 0x0010:
 				// A rgb float color chunk
-				FloatColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				FloatColorChunkProcessor(h.len, ftell(bin3ds), color);
 				break;
 			case 0x0011:
 				// A rgb int color chunk
-				IntColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				IntColorChunkProcessor(h.len, ftell(bin3ds), color);
 				break;
 			case 0x0013:
 				// A rgb gamma corrected float color chunk
-				FloatColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				FloatColorChunkProcessor(h.len, ftell(bin3ds), color);
 				break;
 			case 0x0012:
 				// A rgb gamma corrected int color chunk
-				IntColorChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				IntColorChunkProcessor(h.len, ftell(bin3ds), color);
 				break;
 		}
 
@@ -660,7 +671,7 @@ void Model_3DS::ColorChunkProcessor(long length, long findex, rr::RRMaterial::Pr
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::FloatColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+void Model_3DS::FloatColorChunkProcessor(long length, long findex, rr::RRVec3& color)
 {
 	float r;
 	float g;
@@ -677,9 +688,9 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, rr::RRMateria
 	swap32(&g);
 	swap32(&b);
 
-	materialProperty.color[0] = r;
-	materialProperty.color[1] = g;
-	materialProperty.color[2] = b;
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -687,7 +698,7 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, rr::RRMateria
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRVec3& color)
 {
 	unsigned char r;
 	unsigned char g;
@@ -701,9 +712,9 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRMaterial:
 	fread(&g,sizeof(g),1,bin3ds);
 	fread(&b,sizeof(b),1,bin3ds);
 
-	materialProperty.color[0] = r/255.0f;
-	materialProperty.color[1] = g/255.0f;
-	materialProperty.color[2] = b/255.0f;
+	color[0] = r/255.0f;
+	color[1] = g/255.0f;
+	color[2] = b/255.0f;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
