@@ -734,7 +734,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 						rr::RRDynamicSolver::UpdateParameters params(quality);
 						params.debugObject = m_canvas->centerObject;
 						params.debugTexel = m_canvas->centerTexel;
-						params.debugTriangle = UINT_MAX;//centerTriangle;
+						params.debugTriangle = (m_canvas->centerTexel==UINT_MAX)?m_canvas->centerTriangle:UINT_MAX;
 						params.debugRay = SVRayLog::push_back;
 						SVRayLog::size = 0;
 						solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,NULL);

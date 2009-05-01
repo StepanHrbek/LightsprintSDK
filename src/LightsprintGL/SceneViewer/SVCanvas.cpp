@@ -1010,7 +1010,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 				textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 				rr::RRBuffer* bufferCenter = solver->getIllumination(preTriangle.object) ? solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber) : NULL;
-				if (bufferCenter)
+				if (bufferCenter && bufferCenter->getType()==rr::BT_2D_TEXTURE)
 				{
 					int i = int(uvInLightmap[0]*bufferCenter->getWidth());
 					int j = int(uvInLightmap[1]*bufferCenter->getHeight());
@@ -1022,6 +1022,12 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 						centerTexel = i + j*bufferCenter->getWidth();
 						centerTriangle = ray->hitTriangle;
 					}
+				}
+				if (centerObject==UINT_MAX)
+				{
+					// diagnose triangle
+					centerObject = preTriangle.object;
+					centerTriangle = ray->hitTriangle;
 				}
 				textOutput(x,y+=18,h,"distance: %f",ray->hitDistance);
 				textOutput(x,y+=18,h,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
