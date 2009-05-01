@@ -19,6 +19,13 @@ NEWS
     \n streaming video to emissive map? Call this in every frame to update GI from updated emissive maps.
     \n emissiveMultiplier parameter lets you multiply emittance globally
 
+CHANGES
+
+- default realtime GI solver in rr_gl::sceneViewer(), SceneViewer and BuildLightmaps samples changed to Fireball
+  \n Fireball makes rendering faster and GI is complete (includes skylight)
+  \n when opening scene for first time, Fireball is built automatically at quality 100
+  \n use menu Realtime lighting / Rebuild fireball to change quality
+
 \section news80 ------------------------------------ 2009.04.20 -------------------------------------
 
 NEWS

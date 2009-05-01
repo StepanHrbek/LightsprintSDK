@@ -134,6 +134,9 @@ void SVCanvas::createContext()
 		// if fireball file already exists, use it
 		fireballLoadAttempted = false;
 		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL));
+		// if it does not exist, build it
+		if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL)
+			solver->buildFireball(100,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 	}
 
 	// init rest
