@@ -678,6 +678,14 @@ RRVec3 refract(RRVec3 N,RRVec3 I,real r)
 	}
 }
 
+// survivalProbability is in 0..1 range
+static bool survivedRussianRoulette(float survivalProbability)
+{
+	RR_ASSERT(survivalProbability>=0);
+	RR_ASSERT(survivalProbability<=1);
+	return rand()<(int)(RAND_MAX*survivalProbability);
+}
+
 unsigned __shot=0;
 
 #define LOG_RAY(aeye,adir,adist,hit) { \
@@ -741,22 +749,37 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
 	if (side.receiveFrom)
-	if (sum(abs(hitTriangle->surface->diffuseReflectance.color*power))>0.01)
 	{
-		STATISTIC_INC(numRayTracePhotonHitsReceived);
-		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
-#pragma omp critical
+		RRReal diffuseReflectPower = sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
+		if (diffuseReflectPower>0.01)
 		{
-			// cheap storage with accumulated power -> subdivision is not possible
-			// put triangle among other hit triangles
-			if (!hitTriangle->hits) shootingKernel->hitTriangles.insert(hitTriangle);
-			// inform subtriangle where and how powerfully it was hit
-			hitTriangle->hits += power;
+			STATISTIC_INC(numRayTracePhotonHitsReceived);
+			hitPower += diffuseReflectPower;
+			#pragma omp critical
+			{
+				// cheap storage with accumulated power -> subdivision is not possible
+				// put triangle among other hit triangles
+				if (!hitTriangle->hits) shootingKernel->hitTriangles.insert(hitTriangle);
+				// inform subtriangle where and how powerfully it was hit
+				hitTriangle->hits += power;
+			}
 		}
 	}
 
-	bool specularReflect = side.reflect && fabs(power*hitTriangle->surface->specularReflectance.color.sum())>0.3f; // speedup: weaker rays continue less often but with proportionally increased power
-	bool specularTransmit = side.transmitFrom && fabs(power*hitTriangle->surface->specularTransmittance.color.sum())>0.3f; // speedup: weaker rays continue less often but with proportionally increased power
+	bool specularReflect = false;
+	bool specularTransmit = false;
+	RRReal specularReflectPower;
+	RRReal specularTransmitPower;
+	if (side.reflect)
+	{
+		specularReflectPower = power*hitTriangle->surface->specularReflectance.color.avg();
+		specularReflect = survivedRussianRoulette(specularReflectPower);
+	}
+	if (side.transmitFrom)
+	{
+		specularTransmitPower = power*hitTriangle->surface->specularTransmittance.color.avg();
+		specularTransmit = survivedRussianRoulette(specularTransmitPower);
+	}
 
 	if (specularReflect || specularTransmit)
 	{
@@ -779,7 +802,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 			// calculate new direction after ideal mirror reflection
 			RRVec3 newDirectionReflect = RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
 			// recursively call this function
-			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionReflect,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance.color.avg()));
+			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionReflect,hitTriangle);
 		}
 
 		// transmission
@@ -787,7 +810,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		{
 			STATISTIC_INC(numRayTracePhotonHitsTransmitted);
 			// recursively call this function
-			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionTransmit,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.color.avg()));
+			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionTransmit,hitTriangle);
 		}
 	}
 

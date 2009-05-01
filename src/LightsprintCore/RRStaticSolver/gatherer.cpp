@@ -12,6 +12,12 @@ namespace rr
 
 extern RRVec3 refract(RRVec3 N,RRVec3 I,real r);
 
+// survivalProbability is in 0..1 range
+static bool survivedRussianRoulette(float survivalProbability)
+{
+	return rand()<(int)(RAND_MAX*survivalProbability);
+}
+
 Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_multiObject,_staticSolver,_quality,_staticSceneContainsLods)
 {
@@ -89,8 +95,24 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
-		bool specularReflect = side.reflect && sum(abs(visibility*material->specularReflectance.color))>0.1;
-		bool specularTransmit = side.transmitFrom && sum(abs(visibility*material->specularTransmittance.color))>0.1;
+		RRVec3 specularReflectPower;
+		RRVec3 specularTransmitPower;
+		RRReal specularReflectMax;
+		RRReal specularTransmitMax;
+		bool specularReflect = false;
+		bool specularTransmit = false;
+		if (side.reflect)
+		{
+			specularReflectPower = visibility*material->specularReflectance.color;
+			specularReflectMax = specularReflectPower.max();
+			specularReflect = survivedRussianRoulette(specularReflectMax);
+		}
+		if (side.transmitFrom)
+		{
+			specularTransmitPower = visibility*material->specularTransmittance.color;
+			specularTransmitMax = specularTransmitPower.max();
+			specularTransmit = survivedRussianRoulette(specularTransmitMax);
+		}
 
 		if (specularReflect || specularTransmit)
 		{
@@ -99,7 +121,6 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 
 			// parameters of transmission must be computed in advance, recursive reflection destroys ray and material content
 			RRVec3 newDirectionTransmit;
-			RRVec3 visibilityTransmit = visibility*material->specularTransmittance.color;
 			unsigned hitTriangleTransmit = ray->hitTriangle;
 			if (specularTransmit)
 			{
@@ -112,14 +133,14 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 				// calculate new direction after ideal mirror reflection
 				RRVec3 newDirectionReflect = RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
 				// recursively call this function
-				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionReflect,ray->hitTriangle,visibility*material->specularReflectance.color);
+				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionReflect,ray->hitTriangle,specularReflectPower/specularReflectMax);
 				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 			}
 
 			if (specularTransmit)
 			{
 				// recursively call this function
-				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionTransmit,hitTriangleTransmit,visibilityTransmit);
+				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionTransmit,hitTriangleTransmit,specularTransmitPower/specularTransmitMax);
 				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 			}
 
