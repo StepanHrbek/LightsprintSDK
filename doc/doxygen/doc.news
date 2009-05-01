@@ -18,6 +18,13 @@ NEWS
   - new RRDynamicSolver::setEmittance()
     \n streaming video to emissive map? Call this in every frame to update GI from updated emissive maps.
     \n emissiveMultiplier parameter lets you multiply emittance globally
+- improved 3ds import
+  - imports face sidedness, specular color
+  - if opacity map is the same as diffuse map, transparency is taken from alpha channel
+- minor helper functions and macros
+  - RRVec2/RRVec3/RRVec4::min()/max()
+  - RRVec3::normalizeSafe()
+  - RR_BIG_ENDIAN
 
 CHANGES
 
@@ -25,6 +32,10 @@ CHANGES
   \n Fireball makes rendering faster and GI is complete (includes skylight)
   \n when opening scene for first time, Fireball is built automatically at quality 100
   \n use menu Realtime lighting / Rebuild fireball to change quality
+
+FIXED
+
+- realtime renderer incorrectly illuminated 2-sided faces
 
 \section news80 ------------------------------------ 2009.04.20 -------------------------------------
 

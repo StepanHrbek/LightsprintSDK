@@ -150,6 +150,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   avg()                      const {return (x+y)*0.5f;}
 		RRVec2   abs()                      const {return RRVec2(fabs(x),fabs(y));}
 		RRVec2   neg()                      const {return RRVec2(-x,-y);}
+		RRReal   max()                      const {return RR_MAX(x,y);}
+		RRReal   min()                      const {return RR_MIN(x,y);}
 		RRReal   length()                   const {return sqrtf(x*x+y*y);}
 		RRReal   length2()                  const {return x*x+y*y;}
 		void     normalize()                      {*this /= length();}
@@ -186,6 +188,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   avg()                        const {return (x+y+z)*0.33333333333333f;}
 		RRVec3   abs()                        const {return RRVec3(fabs(x),fabs(y),fabs(z));}
 		RRVec3   neg()                        const {return RRVec3(-x,-y,-z);}
+		RRReal   max()                        const {return RR_MAX3(x,y,z);}
+		RRReal   min()                        const {return RR_MIN3(x,y,z);}
 		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z);}
 		RRReal   length2()                    const {return x*x+y*y+z*z;}
 		void     normalize()                        {*this /= length();}
@@ -237,6 +241,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   avg()                        const {return (x+y+z+w)*0.25f;}
 		RRVec4   abs()                        const {return RRVec4(fabs(x),fabs(y),fabs(z),fabs(w));}
 		RRVec4   neg()                        const {return RRVec4(-x,-y,-z,-w);}
+		RRReal   max()                        const {return RR_MAX(RR_MAX(x,y),RR_MAX(z,w));}
+		RRReal   min()                        const {return RR_MIN(RR_MIN(x,y),RR_MIN(z,w));}
 		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z+w*w);}
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
