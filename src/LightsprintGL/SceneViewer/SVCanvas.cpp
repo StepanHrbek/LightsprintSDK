@@ -1017,6 +1017,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 					textOutput(x,y+=18,h,"ij in lightmap: %d %d",i,j);
 					if (i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
 					{
+						// diagnose texel
 						centerObject = preTriangle.object;
 						centerTexel = i + j*bufferCenter->getWidth();
 						centerTriangle = ray->hitTriangle;
@@ -1032,11 +1033,12 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				if (material)
 				{
 					textOutput(x,y+=18,h,"material: %s",material->name?material->name:"");
+					textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
 					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance);
 					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance);
 					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance);
 					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance);
-					textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"keyed":"blended");
+					textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"1bit-keyed":"smooth-blended");
 					textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
 					textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
 					textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);

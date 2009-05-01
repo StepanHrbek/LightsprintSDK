@@ -52,7 +52,7 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 		unsigned u = getUnsigned(choices[i]);
 		if (u>=quality || i+1==choices.size())
 		{
-			dialog.SetSelection(i);
+			dialog.SetSelection((int)i);
 			break;
 		}
 	}
@@ -87,7 +87,7 @@ static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerV
 		unsigned u = getUnsigned(choices[i]);
 		if (u>=resolution || i+1==choices.size())
 		{
-			dialog.SetSelection(i);
+			dialog.SetSelection((int)i);
 			break;
 		}
 	}
@@ -308,10 +308,10 @@ void SVFrame::UpdateMenuBar()
 	// Realtime lighting...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect"));
-		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball"));
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."));
+		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball (fast)"));
+		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect (no precalc)"));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("(Re)build fireball..."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("(Re)build light detail map..."));
 		winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"));
 		menuBar->Append(winMenu, _T("Realtime lighting"));
 	}
@@ -398,8 +398,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	RR_ASSERT(solver);
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
-	unsigned& centerObject = m_canvas->centerObject;
-	unsigned& centerTexel = m_canvas->centerTexel;
 	int* windowCoord = m_canvas->windowCoord;
 	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
 
@@ -726,7 +724,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 #ifdef DEBUG_TEXEL
 		case ME_STATIC_DIAGNOSE:
 			{
-				if (centerObject!=UINT_MAX)
+				if (m_canvas->centerObject!=UINT_MAX)
 				{
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
@@ -734,13 +732,17 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					if (getQuality(this,quality))
 					{
 						rr::RRDynamicSolver::UpdateParameters params(quality);
-						params.debugObject = centerObject;
-						params.debugTexel = centerTexel;
+						params.debugObject = m_canvas->centerObject;
+						params.debugTexel = m_canvas->centerTexel;
 						params.debugTriangle = UINT_MAX;//centerTriangle;
 						params.debugRay = SVRayLog::push_back;
 						SVRayLog::size = 0;
 						solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,NULL);
 					}
+				}
+				else
+				{
+					rr::RRReporter::report(rr::WARN,"No lightmap in center of screen.\n");
 				}
 			}
 			break;
