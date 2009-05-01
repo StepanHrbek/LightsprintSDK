@@ -755,7 +755,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 		// gather information about scene
 		unsigned numLights = solver->getLights().size();
-		const rr::RRObject* multiObject = solver->getMultiObjectCustom();
+		bool displayPhysicalMaterials = fmod(GETSEC,8)>4;
+		const rr::RRObject* multiObject = displayPhysicalMaterials ? solver->getMultiObjectPhysical() : solver->getMultiObjectCustom();
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
@@ -1041,7 +1042,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
 				if (material)
 				{
-					textOutput(x,y+=18,h,"material: %s",material->name?material->name:"");
+					textOutput(x,y+=18,h,"material: %s [%s]",material->name?material->name:"",displayPhysicalMaterials?"physical":"sRGB");
 					textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
 					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance);
 					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance);
