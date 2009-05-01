@@ -185,7 +185,8 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	{
 		for (int g = 0; g < Objects[i].numVerts; g++)
 		{
-			Objects[i].Normals[g].normalize();
+			// normalizeSafe is necessary, because vertex shared by 2 triangles with opposite planes has sum of normals 0
+			Objects[i].Normals[g].normalizeSafe();
 		}
 	}
 

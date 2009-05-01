@@ -189,6 +189,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z);}
 		RRReal   length2()                    const {return x*x+y*y+z*z;}
 		void     normalize()                        {*this /= length();}
+		void     normalizeSafe()                    {float len=length(); if(len) *this/=len; else {x=0;y=1;z=0;}}
 		RRVec3   normalized()                 const {return *this/length();}
 		RRReal   dot(const RRVec3& a)         const {return x*a.x+y*a.y+z*a.z;}
 		RRVec3   cross(const RRVec3& a)       const {return RRVec3(y*a.z-z*a.y,-x*a.z+z*a.x,x*a.y-y*a.x);}
