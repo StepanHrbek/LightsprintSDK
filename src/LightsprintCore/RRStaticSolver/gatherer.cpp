@@ -104,13 +104,13 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		if (side.reflect)
 		{
 			specularReflectPower = visibility*material->specularReflectance.color;
-			specularReflectMax = specularReflectPower.max();
+			specularReflectMax = specularReflectPower.maxi();
 			specularReflect = survivedRussianRoulette(specularReflectMax);
 		}
 		if (side.transmitFrom)
 		{
 			specularTransmitPower = visibility*material->specularTransmittance.color;
-			specularTransmitMax = specularTransmitPower.max();
+			specularTransmitMax = specularTransmitPower.maxi();
 			specularTransmit = survivedRussianRoulette(specularTransmitMax);
 		}
 
