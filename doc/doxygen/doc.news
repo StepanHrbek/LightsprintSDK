@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news81 ------------------------------------ 2009.04.xx -------------------------------------
+\section news81 ------------------------------------ 2009.05.02 -------------------------------------
 
 NEWS
 
@@ -21,10 +21,9 @@ NEWS
 - improved 3ds import
   - imports face sidedness, specular color
   - if opacity map is the same as diffuse map, transparency is taken from alpha channel
-- minor helper functions and macros
-  - RRVec2/RRVec3/RRVec4::mini()/maxi()
-  - RRVec3::normalizeSafe()
-  - RR_BIG_ENDIAN
+- minor helpers
+  - mini(), maxi(), normalizeSafe() added to RRVec2, RRVec3, RRVec4 
+  - RR_BIG_ENDIAN defined on big endian platforms
 
 CHANGES
 

@@ -155,6 +155,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length()                   const {return sqrtf(x*x+y*y);}
 		RRReal   length2()                  const {return x*x+y*y;}
 		void     normalize()                      {*this /= length();}
+		void     normalizeSafe()                  {RRReal len=length(); if(len) *this/=len; else {x=1;y=0;}}
 		RRVec2   normalized()               const {return *this/length();}
 		RRReal   dot(const RRVec2& a)       const {return x*a.x+y*a.y;}
 	};
@@ -193,7 +194,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z);}
 		RRReal   length2()                    const {return x*x+y*y+z*z;}
 		void     normalize()                        {*this /= length();}
-		void     normalizeSafe()                    {float len=length(); if(len) *this/=len; else {x=0;y=1;z=0;}}
+		void     normalizeSafe()                    {RRReal len=length(); if(len) *this/=len; else {x=1;y=0;z=0;}}
 		RRVec3   normalized()                 const {return *this/length();}
 		RRReal   dot(const RRVec3& a)         const {return x*a.x+y*a.y+z*a.z;}
 		RRVec3   cross(const RRVec3& a)       const {return RRVec3(y*a.z-z*a.y,-x*a.z+z*a.x,x*a.y-y*a.x);}
@@ -246,6 +247,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z+w*w);}
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
+		void     normalizeSafe()                    {RRReal len=length(); if(len) *this/=len; else {x=1;y=0;z=0;w=0;}}
 		RRVec4   normalized()                 const {return *this/length();}
 		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w*a.w;}
 		RRReal   planePointDistance(const RRVec3& a)const {return x*a.x+y*a.y+z*a.z+w;}
