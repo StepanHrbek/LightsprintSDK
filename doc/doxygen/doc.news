@@ -29,7 +29,7 @@ CHANGES
 
 - default realtime GI solver in rr_gl::sceneViewer(), SceneViewer and BuildLightmaps samples changed to Fireball
   \n Fireball makes rendering faster and GI is complete (includes skylight)
-  \n when opening scene for first time, Fireball is built automatically at quality 100
+  \n when opening scene for first time, Fireball is built automatically at medium quality 350
   \n use menu Realtime lighting / Rebuild fireball to change quality
 
 FIXED

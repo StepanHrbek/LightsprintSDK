@@ -286,7 +286,7 @@ void RRPackedSolver::setEnvironment(const RRBuffer* environment, const RRScaler*
 
 void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials, const RRScaler* scaler)
 {
-	RRReportInterval report(INF1,"setEmittance(%d)\n",quality);
+	//RRReportInterval report(INF2,"setEmittance(%d)\n",quality);
 	// deterministically generate points in triangle space 0,0 1,0 0,1
 	RRVec2* samplePoints = NULL;
 	if (quality)
