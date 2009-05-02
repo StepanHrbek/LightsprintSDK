@@ -58,6 +58,7 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
+		RR_ASSERT(IS_VEC3(color));
 		return color;
 	}
 };
@@ -80,7 +81,9 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
-		return color / (PREVENT_INF+(receiverPosition-position).length2());
+		RRVec3 result = color / (PREVENT_INF+(receiverPosition-position).length2());
+		RR_ASSERT(IS_VEC3(result));
+		return result;
 	}
 };
 
@@ -102,6 +105,7 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
+		RR_ASSERT(IS_VEC3(color));
 		return color;
 	}
 };
@@ -126,8 +130,13 @@ public:
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
+		RR_ASSERT(radius>0 && _finite(radius));
+		RR_ASSERT(fallOffExponent>=0 && _finite(fallOffExponent));
 		float distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
-		return color * distanceAttenuation;
+		RR_ASSERT(_finite(distanceAttenuation));
+		RRVec3 result = color * distanceAttenuation;
+		RR_ASSERT(IS_VEC3(result));
+		return result;
 	}
 };
 
@@ -153,6 +162,7 @@ public:
 		float distanceAttenuation = 1/RR_MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
 		RRVec3 irradiance = color * distanceAttenuation;
 		if (scaler) scaler->getPhysicalScale(irradiance);
+		RR_ASSERT(IS_VEC3(irradiance));
 		return irradiance;
 	}
 };
@@ -184,7 +194,9 @@ public:
 		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
-		return color * attenuation;
+		RRVec3 result = color * attenuation;
+		RR_ASSERT(IS_VEC3(result));
+		return result;
 	}
 };
 
@@ -213,7 +225,9 @@ public:
 		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = CLAMPED(angleAttenuation,0,1);
-		return color * attenuation;
+		RRVec3 result = color * attenuation;
+		RR_ASSERT(IS_VEC3(result));
+		return result;
 	}
 };
 
@@ -241,11 +255,15 @@ public:
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
+		RR_ASSERT(radius>0 && _finite(radius));
+		RR_ASSERT(fallOffExponent>=0 && _finite(fallOffExponent));
 		float distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
 		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
-		return color * attenuation;
+		RRVec3 result = color * attenuation;
+		RR_ASSERT(IS_VEC3(result));
+		return result;
 	}
 };
 
@@ -279,6 +297,7 @@ public:
 		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
 		RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;
 		if (scaler) scaler->getPhysicalScale(irradiance);
+		RR_ASSERT(IS_VEC3(irradiance));
 		return irradiance;
 	}
 };
