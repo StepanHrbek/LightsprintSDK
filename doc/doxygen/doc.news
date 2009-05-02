@@ -22,7 +22,7 @@ NEWS
   - imports face sidedness, specular color
   - if opacity map is the same as diffuse map, transparency is taken from alpha channel
 - minor helper functions and macros
-  - RRVec2/RRVec3/RRVec4::min()/max()
+  - RRVec2/RRVec3/RRVec4::mini()/maxi()
   - RRVec3::normalizeSafe()
   - RR_BIG_ENDIAN
 
@@ -36,6 +36,7 @@ CHANGES
 FIXED
 
 - realtime renderer incorrectly illuminated 2-sided faces
+- nearly opaque materials were handled as fully opaque, so light did not get through very dark glass
 
 \section news80 ------------------------------------ 2009.04.20 -------------------------------------
 
