@@ -252,7 +252,6 @@ public:
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
 					if (normalIncidence2>0)
 						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
-					//!!! pocita jako reliable i kdyz irradiancePhysicalHemisphere vubec nezmenim
 				}
 			}
 		}

@@ -1974,9 +1974,10 @@ Ray-Mesh collisions
   \ref data_environment_map for dynamic objects.
 
  \section fb_sample Sample
-  Fireball is demonstrated in RealtimeRadiosity sample.
-  \n When Fireball file is not found, it is built automatically.
-  In this sample, it takes approximately 3 seconds.
+  RealtimeRadiosity and SceneViewer samples build and use Fireball automatically.
+  SceneViewer is good for performance/quality testing as it's possible to manipulate lights,
+  skybox, change fireball quality etc. RealtimeRadiosity is simpler, but it has everything important
+  in source code form.
 
 
 
