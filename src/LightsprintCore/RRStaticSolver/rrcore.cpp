@@ -582,6 +582,7 @@ void ShootingKernels::reset(unsigned maxQueries)
 	for (unsigned i=0;i<numKernels;i++)
 	{
 		shootingKernel[i].filler.Reset(i,numKernels,maxQueries);
+		shootingKernel[i].russianRoulette.reset();
 		shootingKernel[i].hitTriangles.reset();
 	}
 }
@@ -680,14 +681,6 @@ RRVec3 refract(RRVec3 N,RRVec3 I,real r)
 	}
 }
 
-// survivalProbability is in 0..1 range
-static bool survivedRussianRoulette(float survivalProbability)
-{
-	RR_ASSERT(survivalProbability>=0);
-	RR_ASSERT(survivalProbability<=1);
-	return rand()<(int)(RAND_MAX*survivalProbability);
-}
-
 unsigned __shot=0;
 
 #define LOG_RAY(aeye,adir,adist,hit) { \
@@ -775,12 +768,12 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	if (side.reflect)
 	{
 		specularReflectPower = power*hitTriangle->surface->specularReflectance.color.avg();
-		specularReflect = survivedRussianRoulette(specularReflectPower);
+		specularReflect = shootingKernel->russianRoulette.survived(specularReflectPower);
 	}
 	if (side.transmitFrom)
 	{
 		specularTransmitPower = power*hitTriangle->surface->specularTransmittance.color.avg();
-		specularTransmit = survivedRussianRoulette(specularTransmitPower);
+		specularTransmit = shootingKernel->russianRoulette.survived(specularTransmitPower);
 	}
 
 	if (specularReflect || specularTransmit)
@@ -858,6 +851,28 @@ void HomogenousFiller::GetTrianglePoint(real *a,real *b)
 	//*b=rand()/(RAND_MAX*0.5)-1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Russian roulette
+
+
+bool RussianRoulette::survived(float survivalProbability)
+{
+	// this is not necessary, but it is expected
+	RR_ASSERT(survivalProbability>=0);
+	RR_ASSERT(survivalProbability<=1);
+
+	accumulator += survivalProbability;
+	if (accumulator>1)
+	{
+		accumulator -= 1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

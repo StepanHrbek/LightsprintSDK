@@ -12,12 +12,6 @@ namespace rr
 
 extern RRVec3 refract(RRVec3 N,RRVec3 I,real r);
 
-// survivalProbability is in 0..1 range
-static bool survivedRussianRoulette(float survivalProbability)
-{
-	return rand()<(int)(RAND_MAX*survivalProbability);
-}
-
 Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_multiObject,_staticSolver,_quality,_staticSceneContainsLods)
 {
@@ -33,6 +27,11 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	collider = object->getCollider();
 	triangle = _object->triangle;
 	triangles = _object->triangles;
+
+	// final gather in lightmap does this per-pixel, rather than per-thread
+	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
+	//  bias is related to 1/quality
+	russianRoulette.reset();
 }
 
 RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility)
@@ -105,13 +104,13 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		{
 			specularReflectPower = visibility*material->specularReflectance.color;
 			specularReflectMax = specularReflectPower.maxi();
-			specularReflect = survivedRussianRoulette(specularReflectMax);
+			specularReflect = russianRoulette.survived(specularReflectMax);
 		}
 		if (side.transmitFrom)
 		{
 			specularTransmitPower = visibility*material->specularTransmittance.color;
 			specularTransmitMax = specularTransmitPower.maxi();
-			specularTransmit = survivedRussianRoulette(specularTransmitMax);
+			specularTransmit = russianRoulette.survived(specularTransmitMax);
 		}
 
 		if (specularReflect || specularTransmit)

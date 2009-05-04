@@ -175,6 +175,7 @@ protected:
 	bool gatherIndirectLight;
 	class Triangle* triangle;
 	unsigned triangles;
+	RussianRoulette russianRoulette;
 };
 
 }; // namespace

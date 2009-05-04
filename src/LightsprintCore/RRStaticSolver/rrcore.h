@@ -264,6 +264,20 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// Russian roulette
+
+class RussianRoulette
+{
+public:
+	void reset() {accumulator = 0;}
+	bool survived(float survivalProbability);
+private:
+	float accumulator;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // ShootingKernel
 
 // used in radiosity form factor calculation, one kernel per thread
@@ -280,6 +294,7 @@ public:
 	RRRay*  sceneRay;
 	class RRCollisionHandlerLod0* collisionHandlerLod0;
 	HomogenousFiller filler;
+	RussianRoulette russianRoulette;
 	Triangles hitTriangles;
 };
 
