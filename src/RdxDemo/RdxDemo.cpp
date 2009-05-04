@@ -33,7 +33,7 @@ void reshape(int w, int h)
 
 void display(void)
 {
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	static float f = 0;
 	f += 0.005f;

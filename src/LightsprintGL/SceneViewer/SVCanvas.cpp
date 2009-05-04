@@ -606,7 +606,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 		{
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			svs.eye.setupForRender();
 
 			UberProgramSetup miss = solver->getMaterialsInStaticScene();
@@ -642,7 +642,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
 				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,0);
-				glClear(GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				uberProgramSetup.CLIP_PLANE = true;
 				solver->renderScene(uberProgramSetup,NULL);
 				water->updateReflectionDone();
@@ -650,8 +650,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
 				svs.eye.update();
 				svs.eye.setupForRender();
-				solver->renderScene(uberProgramSetup,NULL);
 				water->render(svs.eye.getFar()*10,svs.eye.pos);
+				solver->renderScene(uberProgramSetup,NULL);
 				svs.eye.setFar(oldFar);
 			}
 			else

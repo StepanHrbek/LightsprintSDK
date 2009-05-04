@@ -57,6 +57,7 @@ public:
 	}
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
+	//! Does not clear before rendering.
 	virtual void render();
 
 	virtual ~RendererOfRRDynamicSolver();
@@ -206,10 +207,6 @@ void RendererOfRRDynamicSolver::render()
 			glEnd();
 			textureRenderer->renderEnvironmentEnd();
 		}
-		else
-		{
-			glClear(GL_COLOR_BUFFER_BIT);
-		}
 	}
 
 	if (!params.solver->getMultiObjectCustom())
@@ -299,6 +296,7 @@ public:
 	void setIndirectIlluminationSourceBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
+	//! Does not clear before rendering.
 	virtual void render();
 	void renderLines(bool shortened, int onlyIndex);
 
@@ -520,10 +518,6 @@ void RendererOfOriginalScene::render()
 		RR_ASSERT(0);
 		return;
 	}
-
-	// Clear background so multi-GPU systems know frames are independent
-	// (it could hurt single-GPU systems, not yet widely tested)
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Create object renderers
 	if (!perObjectPermanent)

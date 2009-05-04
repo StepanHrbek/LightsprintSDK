@@ -654,7 +654,7 @@ void drawEyeViewSoftShadowed(void)
 		if (water && level->pilot.setup->renderWater)
 		{
 			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->pilot.setup->waterLevel);
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
@@ -669,7 +669,7 @@ void drawEyeViewSoftShadowed(void)
 			water->updateReflectionDone();
 		}
 #endif
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		if (splitscreen)
 		{
 			glEnable(GL_SCISSOR_TEST);

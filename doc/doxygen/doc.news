@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news82 ------------------------------------ 2009.05.xx -------------------------------------
+
+CHANGES
+
+- rr_gl::RendererOfScene::render() does not clear color buffer
+  \n To fix existing code, clear also color buffer before
+  rendering scene, change glClear(GL_DEPTH_BUFFER_BIT);
+  to glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+
 \section news81 ------------------------------------ 2009.05.02 -------------------------------------
 
 NEWS
