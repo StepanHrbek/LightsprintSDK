@@ -64,6 +64,9 @@ void RRDynamicSolver::setEnvironment(const RRBuffer* _environment)
 	{
 		priv->packedSolver->setEnvironment(_environment,getScaler());
 	}
+	// affects everything in fireball
+	// affects only specular cubemaps in architect
+	priv->solutionVersion++;
 }
 
 const RRBuffer* RRDynamicSolver::getEnvironment() const
