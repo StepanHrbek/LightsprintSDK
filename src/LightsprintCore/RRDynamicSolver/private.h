@@ -48,7 +48,7 @@ namespace rr
 		// calculate
 		bool       dirtyCustomIrradiance;
 		bool       dirtyMaterials;
-		bool       dirtyResults;
+		bool       dirtyResults; // solution was improved in static or packed solver, but we haven't incremented solutionVersion yet. we do this with reduce frequency of lightmap updates
 		TIME       lastInteractionTime;
 		TIME       lastCalcEndTime;
 		TIME       lastReadingResultsTime;
@@ -58,7 +58,7 @@ namespace rr
 		float      readingResultsPeriod;
 		RRStaticSolver*   scene;
 		bool       staticSolverCreationFailed; // set after failure so that we don't try again
-		unsigned   solutionVersion;
+		unsigned   solutionVersion; // incremented each time we want user to update lightmaps (not after every change in solution, slightly less frequently)
 		RRPackedSolver* packedSolver;
 
 		// read results

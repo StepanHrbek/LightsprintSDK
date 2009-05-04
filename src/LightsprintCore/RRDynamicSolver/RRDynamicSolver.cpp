@@ -417,10 +417,13 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	TIME now = GETTIME;
 	if (priv->packedSolver)
 	{
-		//unsigned oldVer = priv->packedSolver->getSolutionVersion();
+		unsigned oldVer = priv->packedSolver->getSolutionVersion();
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
-		priv->dirtyResults = true;
-		//priv->dirtyResults = priv->packedSolver->getSolutionVersion()>oldVer;
+		if (priv->packedSolver->getSolutionVersion()>oldVer)
+		{
+			// dirtyResults=true -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
+			priv->dirtyResults = true;
+		}
 	}
 	else
 	if (priv->scene)
@@ -429,7 +432,10 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		endByTime.aborting = &aborting;
 		endByTime.endTime = (TIME)(now+improveStep*PER_SEC);
 		if (priv->scene->illuminationImprove(endByTime)==RRStaticSolver::IMPROVED)
+		{
+			// dirtyResults=true -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
 			priv->dirtyResults = true;
+		}
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 
