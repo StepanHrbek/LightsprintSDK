@@ -20,6 +20,7 @@ RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 	hiddenLayers = new LayersType;
 
 	// dynamic
+	envMapWorldCenter = RRVec3(0);
 	diffuseEnvMap = NULL;
 	specularEnvMap = NULL;
 	gatherEnvMapSize = 16;
