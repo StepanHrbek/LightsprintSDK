@@ -527,6 +527,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	}
 	// render facegroups (facegroups differ by material)
 	if (params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_MAP
+		|| params.renderedChannels.MATERIAL_SPECULAR_CONST
 		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_MAP
 		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
 		|| params.renderedChannels.MATERIAL_CULLING
