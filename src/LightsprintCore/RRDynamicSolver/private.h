@@ -102,7 +102,7 @@ namespace rr
 			calcStep = 0;
 			improveStep = 0;
 			readingResultsPeriod = 0;
-			solutionVersion = 1;
+			solutionVersion = 1; // set solver to 1 so users can start with 0 and solver (even if incremented) will differ
 			minimalSafeDistance = 0;
 			packedSolver = NULL;
 		}
