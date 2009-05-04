@@ -185,6 +185,8 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	Channels newSourceExitance = surface->diffuseEmittance.color + _sourceIrradiance * surface->diffuseReflectance.color;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
+	RR_ASSERT(IS_VEC3(newSourceIncidentFlux));
+	RR_ASSERT(IS_VEC3(newSourceExitingFlux));
 #endif
 	RR_ASSERT(surface->diffuseEmittance.color[0]>=0); // teoreticky by melo jit i se zapornou
 	RR_ASSERT(surface->diffuseEmittance.color[1]>=0);
@@ -937,22 +939,35 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 
 static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Reflectors* staticReflectors)
 {
+	RR_ASSERT(IS_VEC3(energy));
+	RR_ASSERT(factor.power>=0);
+
 	// statistics
 	STATISTIC_INC(numCallsDistribFactor);
 
-	Triangle* destination=factor.destination;
+	Triangle* destination = factor.destination;
 	RR_ASSERT(destination);
-	RR_ASSERT(factor.power>=0);
-	energy*=factor.power;
-
-	destination->totalIncidentFlux+=energy;
-
 	RR_ASSERT(destination->surface);
+	RR_ASSERT(IS_VEC3(destination->totalIncidentFlux));
+	RR_ASSERT(IS_VEC3(destination->totalExitingFlux));
+	RR_ASSERT(IS_VEC3(destination->totalExitingFluxToDiffuse));
 	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.color));
-	energy *= destination->surface->diffuseReflectance.color;
 
-	destination->totalExitingFlux+=energy;
-	destination->totalExitingFluxToDiffuse+=energy;
+	energy *= factor.power;
+	RR_ASSERT(IS_VEC3(energy));
+
+	destination->totalIncidentFlux += energy;
+	RR_ASSERT(IS_VEC3(destination->totalIncidentFlux));
+
+	energy *= destination->surface->diffuseReflectance.color;
+	RR_ASSERT(IS_VEC3(energy));
+
+	destination->totalExitingFlux += energy;
+	RR_ASSERT(IS_VEC3(destination->totalExitingFlux));
+
+	destination->totalExitingFluxToDiffuse += energy;
+	RR_ASSERT(IS_VEC3(destination->totalExitingFluxToDiffuse));
+
 	staticReflectors->insert(destination);
 }
 
