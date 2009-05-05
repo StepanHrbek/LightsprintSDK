@@ -581,16 +581,16 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	free(diffuseName);
 	free(opacityName);
 
-	// build simple colored texture for the material w/o texture
-	if (!Materials[matindex].diffuseReflectance.texture)
-	{
-		Materials[matindex].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[matindex].diffuseReflectance.color[0]);
-	}
-
 	// get average colors from textures
 	rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
 	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE);
 	delete scaler;
+
+	// build simple colored texture for the material w/o texture, Draw() expects it exists
+	if (!Materials[matindex].diffuseReflectance.texture)
+	{
+		Materials[matindex].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[matindex].diffuseReflectance.color[0]);
+	}
 
 	// autodetect keying
 	Materials[matindex].updateKeyingFromTransmittance();
