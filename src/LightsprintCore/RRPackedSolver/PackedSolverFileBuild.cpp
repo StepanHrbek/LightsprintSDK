@@ -278,7 +278,7 @@ void getFireballFilename(const RRObject* object,char filename[1000])
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
-	RRReportInterval report(INF1,"Building Fireball (triangles=%d)...\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 	calculateCore(0); // create static solver if not created yet
