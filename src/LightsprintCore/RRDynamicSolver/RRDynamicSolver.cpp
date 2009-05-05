@@ -285,7 +285,8 @@ void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
 	{
 		priv->customIrradianceRGBA8 = directIllumination;
 		priv->dirtyCustomIrradiance = true;
-		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
+		priv->readingResultsPeriodSeconds = READING_RESULTS_PERIOD_MIN;
+		priv->readingResultsPeriodSteps = 0;
 	}
 }
 
@@ -387,7 +388,6 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	{
 		dirtyFactors = false;
 		priv->dirtyCustomIrradiance = false;
-		priv->dirtyResults = true;
 		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
 		RR_SAFE_DELETE(priv->packedSolver);
 		if (priv->scene)
@@ -395,6 +395,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			priv->scene->illuminationReset(true,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
+		priv->readingResultsPeriodSteps = 0;
 	}
 	if (priv->dirtyCustomIrradiance)
 	{
@@ -409,11 +410,11 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			priv->scene->illuminationReset(false,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
+		priv->readingResultsPeriodSteps = 0;
 		// following improvement should be so big that single frames after big reset are not visibly darker
 		// so...calculate at least 20ms?
 		improveStep = RR_MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		priv->dirtyCustomIrradiance = false;
-		priv->dirtyResults = true;
 	}
 
 	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
@@ -424,8 +425,8 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
 		if (priv->packedSolver->getSolutionVersion()>oldVer)
 		{
-			// dirtyResults=true -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
-			priv->dirtyResults = true;
+			// dirtyResults++ -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
+			priv->dirtyResults++;
 		}
 	}
 	else
@@ -436,8 +437,8 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		endByTime.endTime = (TIME)(now+improveStep*PER_SEC);
 		if (priv->scene->illuminationImprove(endByTime)==RRStaticSolver::IMPROVED)
 		{
-			// dirtyResults=true -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
-			priv->dirtyResults = true;
+			// dirtyResults++ -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
+			priv->dirtyResults++;
 		}
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
@@ -453,11 +454,12 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	reportDirectIlluminationChange(true);
 #endif
 
-	if (priv->dirtyResults && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriod*PER_SEC))
+	if (priv->dirtyResults>priv->readingResultsPeriodSteps && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriodSeconds*PER_SEC))
 	{
 		priv->lastReadingResultsTime = now;
-		if (priv->readingResultsPeriod<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
-		priv->dirtyResults = false;
+		if (priv->readingResultsPeriodSeconds<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriodSeconds *= READING_RESULTS_PERIOD_GROWTH;
+		priv->readingResultsPeriodSteps++;
+		priv->dirtyResults = 0;
 		priv->solutionVersion++;
 	}
 }

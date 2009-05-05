@@ -48,14 +48,15 @@ namespace rr
 		// calculate
 		bool       dirtyCustomIrradiance;
 		bool       dirtyMaterials;
-		bool       dirtyResults; // solution was improved in static or packed solver, but we haven't incremented solutionVersion yet. we do this with reduce frequency of lightmap updates
+		unsigned   dirtyResults; // solution was improved in static or packed solver (this number of times), but we haven't incremented solutionVersion yet. we do this to reduce frequency of lightmap updates
 		TIME       lastInteractionTime;
 		TIME       lastCalcEndTime;
 		TIME       lastReadingResultsTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
-		float      readingResultsPeriod;
+		float      readingResultsPeriodSeconds; // this number of seconds must pass before improvement results in solutionVersion++
+		unsigned   readingResultsPeriodSteps; // this number of steps must pass before improvement results in solutionVersion++
 		RRStaticSolver*   scene;
 		bool       staticSolverCreationFailed; // set after failure so that we don't try again
 		unsigned   solutionVersion; // incremented each time we want user to update lightmaps (not after every change in solution, slightly less frequently)
@@ -94,14 +95,15 @@ namespace rr
 			staticSolverCreationFailed = false;
 			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
-			dirtyResults = true;
+			dirtyResults = 1;
 			lastInteractionTime = 0;
 			lastCalcEndTime = 0;
 			lastReadingResultsTime = 0;
 			userStep = 0;
 			calcStep = 0;
 			improveStep = 0;
-			readingResultsPeriod = 0;
+			readingResultsPeriodSeconds = 0;
+			readingResultsPeriodSteps = 0;
 			solutionVersion = 1; // set solver to 1 so users can start with 0 and solver (even if incremented) will differ
 			minimalSafeDistance = 0;
 			packedSolver = NULL;
