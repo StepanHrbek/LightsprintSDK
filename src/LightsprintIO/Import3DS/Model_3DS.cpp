@@ -218,14 +218,6 @@ bool Model_3DS::Load(const char *filename, float ascale)
 		}
 	}
 
-	// Let's build simple colored textures for the materials w/o a texture
-	for (int j = 0; j < numMaterials; j++)
-	{
-		if (!Materials[j].diffuseReflectance.texture)
-		{
-			Materials[j].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[j].diffuseReflectance.color[0]);
-		}
-	}
 	UpdateCenter();
 
 	// check that transformations are identity
@@ -588,6 +580,23 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 		Materials[matindex].specularTransmittance.texture->invert();
 	free(diffuseName);
 	free(opacityName);
+
+	// build simple colored texture for the material w/o texture
+	if (!Materials[matindex].diffuseReflectance.texture)
+	{
+		Materials[matindex].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[matindex].diffuseReflectance.color[0]);
+	}
+
+	// get average colors from textures
+	rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
+	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE);
+	delete scaler;
+
+	// autodetect keying
+	Materials[matindex].updateKeyingFromTransmittance();
+
+	// optimize material flags
+	Materials[matindex].updateSideBitsFromColors();
 }
 
 // returns value from percentage chunk
