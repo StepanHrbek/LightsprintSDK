@@ -169,67 +169,72 @@ static RRReal getBlendImportance(RRVec4 color, bool opacityInAlpha)
 	return RR_MIN(distFrom0,distFrom1);
 }
 
-static RRReal getBlendImportance(RRBuffer* transmittanceTexture, RRVec3 transmittanceColor, bool opacityInAlpha)
+static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInAlpha)
 {
 	RRReal blendImportanceSum = 0;
-	if (transmittanceTexture)
+	RR_ASSERT(transmittanceTexture);
+	enum {size = 16};
+	unsigned width = transmittanceTexture->getWidth();
+	unsigned height = transmittanceTexture->getHeight();
+	for (unsigned i=0;i<size;i++)
 	{
-		enum {size = 16};
-		unsigned width = transmittanceTexture->getWidth();
-		unsigned height = transmittanceTexture->getHeight();
-		for (unsigned i=0;i<size;i++)
+		for (unsigned j=0;j<size;j++)
 		{
-			for (unsigned j=0;j<size;j++)
+			unsigned x = (unsigned)((i+0.5f)*width/size);
+			unsigned y = (unsigned)((j+0.5f)*height/size);
+			RRVec4 color = transmittanceTexture->getElement(x+y*width);
+			RRReal blendImportance = getBlendImportance(color,opacityInAlpha);
+			if (blendImportance)
 			{
-				unsigned x = (unsigned)((i+0.5f)*width/size);
-				unsigned y = (unsigned)((j+0.5f)*height/size);
-				RRVec4 color = transmittanceTexture->getElement(x+y*width);
-				RRReal blendImportance = getBlendImportance(color,opacityInAlpha);
-
-				if (blendImportance)
+				RRVec4 colorMin = color;
+				RRVec4 colorMax = color;
+				for (unsigned n=0;n<4;n++)
 				{
-					RRVec4 colorMin = color;
-					RRVec4 colorMax = color;
-					for (unsigned n=0;n<4;n++)
+					RRVec4 neighbour = color;
+					if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width);
+					if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width);
+					if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width);
+					if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width);
+					for (unsigned a=0;a<4;a++)
 					{
-						RRVec4 neighbour = color;
-						if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width);
-						if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width);
-						if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width);
-						if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width);
-						for (unsigned a=0;a<4;a++)
-						{
-							colorMin[a] = RR_MIN(colorMin[a],neighbour[a]);
-							colorMax[a] = RR_MAX(colorMax[a],neighbour[a]);
-						}
+						colorMin[a] = RR_MIN(colorMin[a],neighbour[a]);
+						colorMax[a] = RR_MAX(colorMax[a],neighbour[a]);
 					}
-					RRReal areaDelta = opacityInAlpha ? colorMax[3]-colorMin[3] : (colorMax-colorMin).RRVec3::avg();
-					// if max-min opacity in area is more than 50%, blend importance is decreased
-					// if max-min opacity in area is less than 50%, blend importance is increased up to 10x for completely flat area
-					RRReal areaFlatness = 1 / (areaDelta*2+0.1f);
-					blendImportanceSum += blendImportance * areaFlatness;
 				}
-				else
-				{
-					blendImportanceSum += blendImportance;
-				}
+				RRReal areaDelta = opacityInAlpha ? colorMax[3]-colorMin[3] : (colorMax-colorMin).RRVec3::avg();
+				// if max-min opacity in area is more than 50%, blend importance is decreased
+				// if max-min opacity in area is less than 50%, blend importance is increased up to 10x for completely flat area
+				RRReal areaFlatness = 1 / (areaDelta*2+0.1f);
+				blendImportanceSum += blendImportance * areaFlatness;
+			}
+			else
+			{
+				blendImportanceSum += blendImportance;
 			}
 		}
-		blendImportanceSum /= (size*size);
 	}
-	else
-	{
-		blendImportanceSum = getBlendImportance(RRVec4(transmittanceColor,0),false);
-	}
+	blendImportanceSum /= (size*size);
 	return blendImportanceSum;
 }
 
 void RRMaterial::updateKeyingFromTransmittance()
 {
-	RRReal blendImportance = getBlendImportance(specularTransmittance.texture,specularTransmittance.color,specularTransmittanceInAlpha);
-	// car windows that need blending have at least 0.13
-	// trees that need 1-bit keying have less than 0.016
-	specularTransmittanceKeyed = blendImportance<0.05f;
+	if (specularTransmittance.texture)
+	{
+		RRReal blendImportance = getBlendImportance(specularTransmittance.texture,specularTransmittanceInAlpha);
+		// car windows that need blending have at least 0.13
+		// trees that need 1-bit keying have less than 0.016
+		specularTransmittanceKeyed = blendImportance<0.05f;
+	}
+	else
+	{
+		// 0% transparent    -> render opaque, 1-bit keyed
+		// 1-99% transparent -> render blended
+		// 100% transparent  -> render blended! this is for realtime render where we use custom material properties,
+		//                      so 100% transparency still allows >0% specular, diffuse and emissive components.
+		//                      1-bit keying would drop whole object.
+		specularTransmittanceKeyed = specularTransmittance.color.avg()<0.01f;
+	}
 }
 
 void RRMaterial::updateSideBitsFromColors()
