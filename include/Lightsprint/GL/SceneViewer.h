@@ -64,7 +64,7 @@ struct SceneViewerState
 		renderAmbient = 0;
 		renderLDM = 0;
 		renderDiffuse = 1;
-		renderSpecular = 0;
+		renderSpecular = 1;
 		renderEmission = 1;
 		renderTransparent = 1;
 		renderTextures = 1;
