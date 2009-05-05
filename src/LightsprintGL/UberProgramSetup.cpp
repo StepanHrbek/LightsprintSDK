@@ -667,9 +667,9 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 	}
 	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 		if (illumination->diffuseEnvMap)
 		{
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			if (updateTexturesFromBuffers)
 				getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
@@ -677,9 +677,9 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 	}
 	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		if (illumination->specularEnvMap)
 		{
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			if (updateTexturesFromBuffers)
 				getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->specularEnvMap,false,false)->bindTexture();

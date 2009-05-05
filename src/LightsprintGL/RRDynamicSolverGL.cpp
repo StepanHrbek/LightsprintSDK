@@ -603,6 +603,11 @@ void RRDynamicSolverGL::renderLights()
 
 unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination)
 {
+	if (!illumination)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
 	unsigned updated = rr::RRDynamicSolver::updateEnvironmentMap(illumination);
 	if (illumination->diffuseEnvMap)
 		getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
