@@ -501,9 +501,10 @@ void main()
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-							// for now, engine uses skybox for indirect specular reflections on all static surfaces (not very realistic)
-							// modulating it by indirect irradiance makes it look better
-							* lightIndirectLightmap
+							// reflection maps for big complex objects like whole building tend to be very inaccurate,
+							// modulating reflection by indirect irradiance makes them look better
+							// however, it negatively affects simple objects where reflection map is accurate
+							//* lightIndirectLightmap
 						#endif
 					#endif
 				).rgb,1.0)

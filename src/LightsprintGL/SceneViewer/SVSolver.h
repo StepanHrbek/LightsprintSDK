@@ -21,6 +21,8 @@ namespace rr_gl
 		SVSolver(SceneViewerStateEx& svs);
 		~SVSolver();
 
+		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRDynamicSolver* copyFrom = NULL);
+
 		void resetRenderCache();
 		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight);
 		void dirtyLights();
@@ -30,6 +32,7 @@ namespace rr_gl
 	protected:
 		SceneViewerStateEx& svs;
 		RendererOfScene* rendererOfScene;
+		unsigned solutionVersionInRealtimeLayer;
 	};
 
 }; // namespace

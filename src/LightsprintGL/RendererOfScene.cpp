@@ -435,7 +435,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
 		mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = pbufferldm?true:false;
-		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // enable always, will affect only specular materials
+		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = perObject->illumination->specularEnvMap!=NULL; // enable if cube exists, reduceMaterialSetup will disable it if not needed
 	}
 	// removes all material settings not necessary for given object
 	mainUberProgramSetup.reduceMaterialSetup(perObject->recommendedMaterialSetup);
@@ -486,8 +486,8 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 			}
 		}
 
-		if (uberProgramSetup.MATERIAL_SPECULAR)
-			initSpecularReflection(program);
+		// set envmaps
+		uberProgramSetup.useIlluminationEnvMaps(program,perObject->illumination,false);
 
 		// render
 		perObject->rendererNonCaching->setProgram(program);

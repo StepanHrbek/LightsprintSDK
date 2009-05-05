@@ -10,6 +10,10 @@ namespace rr
 
 \section news82 ------------------------------------ 2009.05.xx -------------------------------------
 
+NEWS
+
+- realistic realtime specular reflections enabled in rr_gl::sceneViewer() and SceneViewer and BuildLightmaps samples
+
 CHANGES
 
 - rr_gl::RendererOfScene::render() does not clear color buffer
