@@ -676,6 +676,10 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 				getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
+		else
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: diffuseEnvMap==NULL.\n"));
+		}
 	}
 	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
 	{
@@ -685,6 +689,10 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 			if (updateTexturesFromBuffers)
 				getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->specularEnvMap,false,false)->bindTexture();
+		}
+		else
+		{
+			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
 		}
 	}
 }
