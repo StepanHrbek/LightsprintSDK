@@ -808,6 +808,24 @@ namespace rr
 		//! the only light source ignored by Architect solver is environment/skybox.
 		virtual bool containsRealtimeGILightSource() const;
 
+		//! Allocates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
+		//
+		//! Buffers that already exist are not touched.
+		//! \n Called automatically from updateBuffersForRealtimeGI().
+		//! \param allocateLightmapLayerNumber
+		//!  If >=0, vertex buffers in getIllumination()->getLayer(allocateLightmapLayerNumber) are allocated.
+		//! \param allocateSpecularEnvMaps
+		//!  If true, specular envmaps in getIllumination()->specularEnvMap are allocated for objects that benefit from them.
+		void allocateBuffersForRealtimeGI(int allocateLightmapLayerNumber, bool allocateSpecularEnvMaps);
+		//! Updates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
+		//
+		//! Calls allocateBuffersForRealtimeGI() automatically when buffers are to be updated for first time.
+		//! \param updateLightmapLayerNumber
+		//!  If >=0, vertex buffers in getIllumination()->getLayer(updateLightmapLayerNumber) are updated.
+		//! \param updateSpecularEnvMaps
+		//!  If true, specular envmaps in getIllumination()->specularEnvMap are updated.
+		void updateBuffersForRealtimeGI(int updateLightmapLayerNumber, bool updateSpecularEnvMaps);
+
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;
 

@@ -73,7 +73,10 @@ public:
 	//!    Only LIGHT_INDIRECT_VCOLOR is supported. Nothing is rendered
 	//!    if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
 	void useOptimizedScene();
-	bool usingOptimizedScene() {return useOptimized;}
+	bool usingOptimizedScene();
+
+	//! Specifies data source - realtime computed GI, possibly stored into given layer.
+	void useRealtimeGI(unsigned layerNumber);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -84,16 +87,12 @@ public:
 	//! Specifies source of light detail maps.
 	void setLDM(unsigned layerNumberLDM);
 
-	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
+	//! Renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
 	//
 	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),
 	//! they are respected by render().
 	//!
-	//! Note that although color buffer is cleared automatically here, depth buffer is not cleared.
-	//! You can simply clear it before render(), but you can also prerender depth
-	//! to reduce overdraw in render().
-	//! (Prerender of depth is not automatic because you may want to render also dynamic objects.
-	//! We have access only to static objects.)
+	//! Render target is not cleared automatically, so you may want to clear both color and depth before calling render().
 	virtual void render();
 
 	//! For internal use.
@@ -102,7 +101,7 @@ public:
 	virtual ~RendererOfScene();
 
 private:
-	bool  useOptimized;
+	enum DataSource {DS_LAYER_MESHES,DS_REALTIME_MULTIMESH,DS_REALTIME_AUTO} dataSource;
 	class RendererOfOriginalScene* renderer;
 };
 

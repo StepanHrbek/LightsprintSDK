@@ -12,9 +12,13 @@ namespace rr
 
 NEWS
 
-- realistic specular reflections in rr_gl::sceneViewer() and SceneViewer and BuildLightmaps samples
-  \n reflection maps are automatically generated and realtime updated for all objects
-  \n default rr_gl::SceneViewerState::renderSpecular was changed to true
+- realistic realtime specular reflections
+  - enabled in rr_gl::sceneViewer() and SceneViewer and BuildLightmaps samples
+    \n default rr_gl::SceneViewerState::renderSpecular was changed to true
+  - new RRDynamicSolver::updateBuffersForRealtimeGI()
+    \n allocates and updates vertex buffers and reflection maps, structures used to pass computed GI to external renderers
+  - new RRDynamicSolver::allocateBuffersForRealtimeGI()
+    \n allocates vertex buffers and reflection maps, structures used to pass computed GI to external renderers
 
 CHANGES
 

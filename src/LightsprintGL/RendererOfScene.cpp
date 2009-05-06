@@ -19,6 +19,8 @@
 namespace rr_gl
 {
 
+static bool g_usingOptimizedScene = false;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererOfRRDynamicSolver
@@ -174,6 +176,7 @@ void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
 void RendererOfRRDynamicSolver::render()
 {
 	rr::RRReportInterval report(rr::INF3,"Rendering optimized scene...\n");
+	g_usingOptimizedScene = true;
 	if (!params.solver)
 	{
 		RR_ASSERT(0);
@@ -299,6 +302,9 @@ public:
 	//! Does not clear before rendering.
 	virtual void render();
 	void renderLines(bool shortened, int onlyIndex);
+
+	//! Uses optimized render or updates buffers and uses this render.
+	void renderRealtimeGI();
 
 	virtual ~RendererOfOriginalScene();
 
@@ -510,9 +516,41 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	}
 }
 
+void RendererOfOriginalScene::renderRealtimeGI()
+{
+	// renders realtime GI (on meshes or multimes, what's better)
+	if (
+		// optimized render can is faster and supports rendering into shadowmaps (this will go away with colored shadows)
+		!params.renderingFromThisLight
+		// optimized render is faster and supports everything in scenes with 1 object
+		&& params.solver->getStaticObjects().size()>1
+		&& (
+			// optimized render can't sort
+			params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
+			// optimized render can't render LDM for more than 1 object
+			|| params.layerNumberLDM>=0
+			// optimized render looks bad with single specular cube per-scene
+			|| (params.uberProgramSetup.MATERIAL_SPECULAR && (params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || params.uberProgramSetup.LIGHT_INDIRECT_auto))
+		)
+		)
+	{
+		// render per object (properly sorting), with temporary realtime-indirect buffers filled here
+		// - update buffers
+		params.solver->updateBuffersForRealtimeGI(layerNumber,params.uberProgramSetup.MATERIAL_SPECULAR);
+		// - render scene with buffers
+		render();
+	}
+	else
+	{
+		// render whole scene at once, blended or keyed, but without sort
+		RendererOfRRDynamicSolver::render();
+	}
+}
+
 void RendererOfOriginalScene::render()
 {
 	rr::RRReportInterval report(rr::INF3,"Rendering original scene...\n");
+	g_usingOptimizedScene = false;
 	if (!params.solver)
 	{
 		RR_ASSERT(0);
@@ -612,7 +650,7 @@ void RendererOfOriginalScene::renderLines(bool shortened, int onlyIndex)
 RendererOfScene::RendererOfScene(rr::RRDynamicSolver* solver, const char* pathToShaders)
 {
 	renderer = new RendererOfOriginalScene(solver,pathToShaders);
-	useOptimized = true;
+	dataSource = DS_REALTIME_MULTIMESH;
 }
 
 RendererOfScene::~RendererOfScene()
@@ -642,27 +680,49 @@ const void* RendererOfScene::getParams(unsigned& length) const
 
 void RendererOfScene::useOriginalScene(unsigned layerNumber)
 {
-	useOptimized = false;
+	dataSource = DS_LAYER_MESHES;
 	renderer->setIndirectIlluminationSource(layerNumber);
 }
 
 void RendererOfScene::useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback)
 {
-	useOptimized = false;
+	dataSource = DS_LAYER_MESHES;
 	renderer->setIndirectIlluminationSourceBlend(layerNumber1,layerNumber2,transition,layerNumberFallback);
 }
 
 void RendererOfScene::useOptimizedScene()
 {
-	useOptimized = true;
+	dataSource = DS_REALTIME_MULTIMESH;
+}
+
+bool RendererOfScene::usingOptimizedScene()
+{
+	return g_usingOptimizedScene;
+}
+
+void RendererOfScene::useRealtimeGI(unsigned layerNumber)
+{
+	dataSource = DS_REALTIME_AUTO;
+	renderer->setIndirectIlluminationSource(layerNumber);
 }
 
 void RendererOfScene::render()
 {
-	if (useOptimized)
-		renderer->RendererOfRRDynamicSolver::render();
-	else
-		renderer->render();
+	switch (dataSource)
+	{
+		case DS_LAYER_MESHES:
+			// renders GI from layer on meshes
+			renderer->render();
+			break;
+		case DS_REALTIME_MULTIMESH:
+			// renders realtime GI on multimesh
+			renderer->RendererOfRRDynamicSolver::render();
+			break;
+		case DS_REALTIME_AUTO:
+			// renders realtime GI (on meshes or multimes, what's better)
+			renderer->renderRealtimeGI();
+			break;
+	}
 }
 
 void RendererOfScene::renderLines(bool shortened, int onlyIndex)

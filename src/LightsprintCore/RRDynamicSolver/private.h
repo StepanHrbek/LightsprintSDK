@@ -67,6 +67,11 @@ namespace rr
 		std::vector<std::vector<TriangleVertexPair> > preVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver. depends on static objects, must be updated when they change
 		std::vector<std::vector<const RRVec3*> > preVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject. depends on static objects and packed solver, must be updated when they change
 
+		// realtime GI (calculate & read results)
+		unsigned solutionVersionInLightmapLayer; // last solution version copied in updateBuffersForRealtimeGI()
+		unsigned solutionVersionForLightmapLayer; // last lightmap layer number sent to updateBuffersForRealtimeGI()
+		unsigned solutionVersionInSpecularEnvMaps; // last solution version copied in updateBuffersForRealtimeGI()
+
 		Private()
 		{
 			// scene: inputs
@@ -107,6 +112,11 @@ namespace rr
 			solutionVersion = 1; // set solver to 1 so users can start with 0 and solver (even if incremented) will differ
 			minimalSafeDistance = 0;
 			packedSolver = NULL;
+
+			// realtime GI (calculate & read results)
+			solutionVersionInLightmapLayer = 0;
+			solutionVersionForLightmapLayer = 0;
+			solutionVersionInSpecularEnvMaps = 0;
 		}
 		~Private()
 		{
