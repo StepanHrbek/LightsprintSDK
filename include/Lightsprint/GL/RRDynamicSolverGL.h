@@ -100,7 +100,7 @@ namespace rr_gl
 		//! Helper function called from detectDirectIllumination().
 		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
 
-		// for internal rendering
+		// for internal rendering (shadowmaps, DDI)
 		char pathToShaders[300];
 		class CaptureUv* captureUv;
 		const void* rendererObject;
@@ -111,11 +111,13 @@ namespace rr_gl
 		DDIQuality detectionQuality;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
 		double lastDDITime;
+
 		// for GI of multiple lights
 		RealtimeLight* setupShaderLight;
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 		rr::RRVec3 oldObserverPos;
+
 		// Minimal superset of all material features in static scene, recommended MATERIAL_* setting for UberProgramSetup, detected from scene materials in setStaticObjects().
 		UberProgramSetup materialsInStaticScene;
 	};

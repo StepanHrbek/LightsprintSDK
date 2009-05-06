@@ -583,9 +583,10 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	{
 		// fill envmaps
 		unsigned minSize = RR_MIN(gatherSize,specularSize);
-		RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
+		RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
+		//RRReal filterRadius = 0.25f/minSize;
 		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
-		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,1-minDot,illumination->specularEnvMap);
+		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
 	}
 
 	// cleanup
