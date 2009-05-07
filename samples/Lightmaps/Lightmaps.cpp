@@ -94,6 +94,12 @@ bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(2);
 float                      contrast = 1;
 
+enum // arbitrary layer numbers
+{
+	LAYER_REALTIME = 0,
+	LAYER_OFFLINE_VERTEX,
+	LAYER_OFFLINE_PIXEL
+};
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -103,7 +109,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
-	rendererOfScene->useOriginalScene(realtimeIllumination?0:(ambientMapsRender?2:1));
+	rendererOfScene->useOriginalScene(realtimeIllumination?LAYER_REALTIME:(ambientMapsRender?LAYER_OFFLINE_PIXEL:LAYER_OFFLINE_VERTEX));
 	rendererOfScene->setBrightnessGamma(&brightness,contrast);
 	rendererOfScene->render();
 
@@ -262,14 +268,14 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				solver->updateLightmaps(2,-1,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
-				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(2)->pixelBuffer,&paramsDirect);
+				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&paramsDirect);
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				solver->updateLightmaps(1,-1,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 
 				// update lightfield
 				rr::RRVec4 aabbMin,aabbMax;
@@ -287,7 +293,7 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
-			solver->getStaticObjects().saveLayer(2,"../../data/export/","png");
+			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_PIXEL,"../../data/export/","png");
 			if (lightField)
 				lightField->save("../../data/export/lightfield.lf");
 			break;
@@ -295,7 +301,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
-				solver->getStaticObjects().loadLayer(2,"../../data/export/","png");
+				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_PIXEL,"../../data/export/","png");
 				delete lightField;
 				lightField = rr::RRLightField::load("../../data/export/lightfield.lf");
 				// start rendering loaded maps
@@ -387,7 +393,7 @@ void display(void)
 		if (solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
+			solver->updateLightmaps(LAYER_REALTIME,-1,-1,NULL,NULL,NULL);
 		}
 	}
 
@@ -512,15 +518,15 @@ int main(int argc, char **argv)
 	for (unsigned i=0;i<solver->getNumObjects();i++)
 	{
 		unsigned numVertices = solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
-		// 0 = realtime per-vertex
-		solver->getIllumination(i)->getLayer(0) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-		// 1 = offline per-vertex
-		solver->getIllumination(i)->getLayer(1) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-		// 2 = offline per-pixel
+		// realtime per-vertex
+		solver->getIllumination(i)->getLayer(LAYER_REALTIME) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+		// offline per-vertex
+		solver->getIllumination(i)->getLayer(LAYER_OFFLINE_VERTEX) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+		// offline per-pixel
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getIllumination(i)->getLayer(2) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+		solver->getIllumination(i)->getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 
 	// init light
