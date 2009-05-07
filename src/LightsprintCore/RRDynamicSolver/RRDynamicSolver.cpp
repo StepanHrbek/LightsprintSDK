@@ -711,7 +711,7 @@ void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, 
 	unsigned solutionVersion = getSolutionVersion();
 
 	// disable unnecessary updates
-	if (priv->solutionVersionInLightmapLayer==solutionVersion || priv->solutionVersionForLightmapLayer==updateLightmapLayerNumber) updateLightmapLayerNumber = -1;
+	if (priv->solutionVersionInLightmapLayer==solutionVersion && priv->solutionVersionForLightmapLayer==updateLightmapLayerNumber) updateLightmapLayerNumber = -1;
 	if (priv->solutionVersionInSpecularEnvMaps==solutionVersion) updateSpecularEnvMaps = false;
 
 	// allocate buffers
