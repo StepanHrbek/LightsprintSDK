@@ -1,14 +1,12 @@
 // --------------------------------------------------------------------------
 // RealtimeLights sample
 //
-// Most suitable for: scene viewers, designers, editors.
+// This is a viewer of Collada/Gamebryo/3ds/etc scenes with
+// - realtime GI from lights, emissive materials, skybox
+// - lights can be moved
+// - dynamic objects can be moved
 //
-// This is a viewer of Collada .DAE scenes with
-// - realtime GI
-// - all lights from file, no hard limit on number of lights
-// - no precalculations
-//
-// Use commandline argument or drag&drop to open custom collada scene.
+// Use commandline argument or drag&drop to open custom scene.
 //
 // Controls:
 //  1..9 = switch to n-th light
@@ -23,7 +21,9 @@
 // Hint: hold space to see dynamic object occluding light
 // Hint: press 1 or 2 and left/right arrows to move lights
 //
-// To increase quality and fps, see last comment in this file.
+// In comparison to SceneViewer sample, this one is simpler,
+// but open for your experiments, customization.
+// Everything important is in source code below.
 //
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
@@ -110,7 +110,7 @@ public:
 
 		// render static scene
 		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
-		rendererOfScene->useOptimizedScene();
+		rendererOfScene->useRealtimeGI(0);
 		rendererOfScene->setBrightnessGamma(&brightness,contrast);
 		rendererOfScene->render();
 
@@ -121,10 +121,6 @@ public:
 		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 		}
 		// render objects
 		if (robot)
@@ -132,7 +128,7 @@ public:
 			robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 			robot->rotYZ = rr::RRVec2(rotation,0);
 			robot->updatePosition();
-			if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			if (uberProgramSetup.LIGHT_INDIRECT_auto)
 				updateEnvironmentMap(robot->illumination);
 			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
@@ -141,7 +137,7 @@ public:
 			potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
 			potato->rotYZ = rr::RRVec2(rotation/2,0);
 			potato->updatePosition();
-			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			if (uberProgramSetup.LIGHT_INDIRECT_auto)
 				updateEnvironmentMap(potato->illumination);
 			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
 		}
@@ -307,16 +303,16 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	eye.setupForRender();
-	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.LIGHT_DIRECT = true;
+	// configure renderer
+	rr_gl::UberProgramSetup uberProgramSetup = solver->getMaterialsInStaticScene(); // enable materials
+	uberProgramSetup.SHADOW_MAPS = 1; // enable shadows
+	uberProgramSetup.LIGHT_DIRECT = true; // enable direct illumination
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	uberProgramSetup.LIGHT_INDIRECT_auto = true; // enable indirect illumination
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
+	// render scene
 	solver->renderScene(uberProgramSetup,NULL);
 
 	solver->renderLights();
@@ -434,9 +430,8 @@ int main(int argc, char **argv)
 		(*scene->getLights())[i]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
 	solver->setLights(*scene->getLights());
 
-	// Uncomment to enable Fireball - faster, higher quality, smaller realtime global illumination solver.
-	// Takes seconds in small or minutes in big scene, when it is opened for first time.
-	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
+	solver->loadFireball(NULL) || solver->buildFireball(350,NULL);
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
