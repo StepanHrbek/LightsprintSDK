@@ -191,7 +191,8 @@ public:
 	{
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
 		float distanceAttenuation = 1/(PREVENT_INF+(receiverPosition-position).length2());
-		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
+		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
+		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
@@ -222,7 +223,8 @@ public:
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
-		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
+		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
+		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
@@ -258,7 +260,8 @@ public:
 		RR_ASSERT(radius>0 && _finite(radius));
 		RR_ASSERT(fallOffExponent>=0 && _finite(fallOffExponent));
 		float distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
-		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
+		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
+		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
@@ -292,7 +295,8 @@ public:
 	{
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
 		float distanceAttenuation = 1/RR_MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
-		float angleRad = acos(dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized()));
+		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
+		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
 		RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;

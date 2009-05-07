@@ -27,6 +27,10 @@ CHANGES
   rendering scene, change glClear(GL_DEPTH_BUFFER_BIT);
   to glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
+FIXED
+
+- black spots in lightmaps lit by spotlights
+
 \section news81 ------------------------------------ 2009.05.02 -------------------------------------
 
 NEWS
