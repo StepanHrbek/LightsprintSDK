@@ -49,33 +49,43 @@ public:
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
 	void setParams(const UberProgramSetup& uberProgramSetup, const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight);
 
-	//! Specifies data source - original scene geometry and illumination from given layer.
+	//! Specifies data source - original meshes and illumination present in given layer.
 	//
-	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setStaticObjects()).
-	//! \n Direct illumination: first light from lights passed to setParams().
+	//! Original meshes are exactly what you entered into solver (see RRDynamicSolver::setStaticObjects()).
+	//! \n Direct illumination: lights passed to setParams().
 	//! \n Indirect illumination is always taken from given layer.
-	//!    Types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP, LIGHT_INDIRECT_auto.
+	//!    Format of indirect illumination is affected by LIGHT_INDIRECT_XXX you send to setParams().
 	//! \param layerNumber
-	//!  Indirect illumination will be taken from given layer.
+	//!  Indirect illumination is taken from given layer.
 	void useOriginalScene(unsigned layerNumber);
 
-	//! Specifies data source - original scene geometry and blended of illumination from given layers.
+	//! Specifies data source - original meshes and illumination blend from given layers.
 	void useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback);
 
-	//! Specifies data source - optimized internal scene in solver and live illumination in solver.
+	//! Specifies data source - optimized meshes and live illumination from solver.
 	//
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
 	//! and other optimizations.
-	//! Optimized scene is rendered in one draw call - it is faster, but objects are not sorted,
+	//! Optimized scene rendering is faster, but objects are not sorted,
 	//! so MATERIAL_TRANSPARENCY_BLEND is not supported (scene is rendered incorrectly).
 	//! \n Direct illumination: all lights from setParams().
 	//! \n Indirect illumination is always taken directly from solver.
-	//!    Only LIGHT_INDIRECT_VCOLOR is supported. Nothing is rendered
-	//!    if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
+	//!    Format of indirect illumination is affected by LIGHT_INDIRECT_XXX you send to setParams().
+	//!    Use LIGHT_INDIRECT_VCOLOR to select per-vertex format, LIGHT_INDIRECT_MAP is not supported.
 	void useOptimizedScene();
+	//! Diagnostic aid, returns whether optimized or original mesh was rendered last time.
 	bool usingOptimizedScene();
 
-	//! Specifies data source - realtime computed GI, possibly stored into given layer.
+	//! Specifies data source - live illumination from solver, any suitable meshes.
+	//
+	//! This is recommended for realtime GI rendering.
+	//! Depending on parameters sent to setParams(), one of two internal paths is selected.
+	//! Fast path is used whenever possible, it is equivalent to calling useOptimizedScene().
+	//! Slower but more capable path is equivalent to updating GI buffers in layer and calling useOriginalScene().
+	//! \n Direct illumination: all lights from setParams().
+	//! \n Indirect illumination is always taken directly from solver.
+	//!    Format of indirect illumination is affected by LIGHT_INDIRECT_XXX you send to setParams(),
+	//!    use LIGHT_INDIRECT_auto to let renderer choose for you.
 	void useRealtimeGI(unsigned layerNumber);
 
 	//! Returns parameters with influence on render().
