@@ -650,7 +650,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
 				svs.eye.update();
 				svs.eye.setupForRender();
-				water->render(svs.eye.getFar()*10,svs.eye.pos);
+				water->render(svs.eye.getFar()*2,svs.eye.pos);
 				solver->renderScene(uberProgramSetup,NULL);
 				svs.eye.setFar(oldFar);
 			}
