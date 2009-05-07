@@ -1974,10 +1974,10 @@ Ray-Mesh collisions
   \ref data_environment_map for dynamic objects.
 
  \section fb_sample Sample
-  RealtimeRadiosity and SceneViewer samples build and use Fireball automatically.
+  RealtimeRadiosity, RealtimeLights and SceneViewer samples build and use Fireball automatically.
   SceneViewer is good for performance/quality testing as it's possible to manipulate lights,
-  skybox, change fireball quality etc. RealtimeRadiosity is simpler, but it has everything important
-  in source code form.
+  skybox, change fireball quality etc. RealtimeRadiosity and RealtimeLights are simpler,
+  but open for tweaking/customization, they have everything important in source code form.
 
 
 
@@ -2003,8 +2003,9 @@ Ray-Mesh collisions
   It takes some time, but then rendering is faster and quality higher.
 
  \section rt_sample Sample
-  Realtime lighting is demonstrated in RealtimeRadiosity sample.
-  You can comment out block that enables \ref calc_fireball to compare both realtime solvers.
+  Realtime lighting is demonstrated in RealtimeRadiosity and RealtimeLights samples.
+  You can comment out line that enables \ref calc_fireball to compare both realtime solvers.
+  SceneViewer sample supports both solvers without any source changes, you can switch them in menu.
 
 
  

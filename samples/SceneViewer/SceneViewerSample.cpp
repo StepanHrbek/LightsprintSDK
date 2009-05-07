@@ -2,7 +2,7 @@
 // SceneViewer sample
 //
 // Quick simple scene viewer with
-// - realtime GI: all lights freely movable
+// - realtime GI: insert/delete/move/edit lights, skybox
 // - offline GI: build/save/load lightmaps
 //
 // This is implemented in one step
@@ -12,9 +12,12 @@
 //
 // Controls:
 // arrows or wsadqz   ... movement
-// right mouse button ... movement
+// right mouse button ... look
 // wheel              ... zoom
-// + -                ... brightness adjustment
+// F11                ... fullscreen
+//
+// Similar features are implemented also in RealtimeLights sample,
+// its source code is more open for your experiments, customization.
 //
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------

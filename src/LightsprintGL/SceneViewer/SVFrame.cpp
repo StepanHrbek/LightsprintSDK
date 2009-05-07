@@ -818,8 +818,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			wxMessageBox("To LOOK, move mouse with right button pressed.\n"
 				"To MOVE, use arrows or wsadqzxc.\n"
 				"To ZOOM, use wheel.\n"
+				"To switch light/camera, left click.\n"
 				"\n"
-				"To change lights or lighting techniques, use menu.",
+				"To change scene, skybox, lights, lighting techniques... use menu.",
 				"Controls");
 			break;
 		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
