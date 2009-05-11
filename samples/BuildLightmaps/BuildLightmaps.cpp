@@ -329,6 +329,7 @@ int main(int argc, char **argv)
 #else
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 #endif
+	rr::RRReporter::report(rr::INF2,"This is Lightsprint SDK %s\n",rr::RR_INTERFACE_DESC_LIB());
 
 	//
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop

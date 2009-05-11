@@ -872,20 +872,20 @@ namespace rr
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
-	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 5 )
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 6 )
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.
 	RR_API const char* RR_INTERFACE_DESC_LIB();
 	// Returns description of interface expected by app + compile date.
 	#if defined(NDEBUG) && defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "RELEASE_STATIC (" __DATE__ " " __TIME__ ")"
+	#define RR_INTERFACE_DESC_APP() "release static (" __DATE__ " " __TIME__ ")"
 	#elif defined(NDEBUG) && !defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "RELEASE_DLL (" __DATE__ " " __TIME__ ")"
+	#define RR_INTERFACE_DESC_APP() "release dll (" __DATE__ " " __TIME__ ")"
 	#elif !defined(NDEBUG) && defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "DEBUG_STATIC (" __DATE__ " " __TIME__ ")"
+	#define RR_INTERFACE_DESC_APP() "debug static (" __DATE__ " " __TIME__ ")"
 	#elif !defined(NDEBUG) && !defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "DEBUG_DLL (" __DATE__ " " __TIME__ ")"
+	#define RR_INTERFACE_DESC_APP() "debug dll (" __DATE__ " " __TIME__ ")"
 	#endif
 	// Returns description of version mismatch.
 	#define RR_INTERFACE_MISMATCH_MSG "LightsprintCore dll version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
