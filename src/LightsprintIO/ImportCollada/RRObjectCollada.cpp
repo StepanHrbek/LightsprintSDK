@@ -66,8 +66,8 @@ using namespace rr;
 
 enum
 {
-	LIGHTMAP_CHANNEL = UINT_MAX,
-	UNSPECIFIED_CHANNEL = UINT_MAX-1,
+	LIGHTMAP_CHANNEL = UINT_MAX-1, // don't use UINT_MAX, checkConsistency() understands UINT_MAX as 'no check'
+	UNSPECIFIED_CHANNEL = UINT_MAX-2,
 };
 
 //////////////////////////////////////////////////////////////////////////////
