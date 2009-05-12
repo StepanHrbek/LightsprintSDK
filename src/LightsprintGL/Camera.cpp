@@ -177,7 +177,8 @@ void Camera::setNearDynamically(const rr::RRObject* object)
 	if (objDistance.size())
 	{
 		float min = *objDistance.begin()/2;
-		setRange( CLAMPED(min,0.0001f,getFar()/1000), getFar() );
+		float relativeSceneProximity = CLAMPED(getFar()/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
+		setRange( CLAMPED(min,0.0001f,getFar()/relativeSceneProximity), getFar() );
 	}
 	delete ray->collisionHandler;
 	delete ray;
