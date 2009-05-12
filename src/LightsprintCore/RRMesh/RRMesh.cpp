@@ -43,7 +43,7 @@ namespace rr
 bool RRMesh::TriangleBody::isNotDegenerated() const
 {
 	return IS_VEC3(vertex0) && IS_VEC3(side1) && IS_VEC3(side2) // NaN or INF
-		&& side1.abs().sum() && side2.abs().sum(); // degenerated
+		&& side1.abs().sum() && side2.abs().sum() && side1!=side2; // degenerated
 }
 
 
