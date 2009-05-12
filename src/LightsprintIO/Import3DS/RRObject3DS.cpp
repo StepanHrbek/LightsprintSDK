@@ -70,11 +70,11 @@ private:
 	Model_3DS* model;
 	Model_3DS::Object* object;
 
-	// copy of object's geometry
+	// copy of object's indices
 	struct TriangleInfo
 	{
 		RRMesh::Triangle t;
-		unsigned s; // material index
+		RRMaterial* material;
 	};
 	std::vector<TriangleInfo> triangles;
 
@@ -105,7 +105,16 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 			ti.t[0] = object->MatFaces[i].subFaces[3*j];
 			ti.t[1] = object->MatFaces[i].subFaces[3*j+1];
 			ti.t[2] = object->MatFaces[i].subFaces[3*j+2];
-			ti.s = object->MatFaces[i].MatIndex;
+			unsigned materialIndex = object->MatFaces[i].MatIndex;
+			if (materialIndex>=(unsigned)model->numMaterials)
+			{
+				assert(0); // wrong data in .3ds
+				ti.material = NULL;
+			}
+			else
+			{
+				ti.material = &model->Materials[materialIndex];
+			}
 			triangles.push_back(ti);
 		}
 	}
@@ -224,14 +233,7 @@ const RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* li
 		assert(0);
 		return NULL;
 	}
-	unsigned s = triangles[t].s;
-	
-	if (s>=(unsigned)model->numMaterials)
-	{
-		assert(0);
-		return NULL;
-	}
-	return &model->Materials[s];
+	return triangles[t].material;
 }
 
 const RRMatrix3x4* RRObject3DS::getWorldMatrix()
