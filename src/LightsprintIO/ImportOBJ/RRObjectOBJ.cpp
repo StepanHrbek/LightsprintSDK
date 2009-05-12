@@ -65,7 +65,7 @@ public:
 			fclose(f);
 		}
 		material.reset(false);
-//		checkConsistency();
+//		checkConsistency(UINT_MAX,UINT_MAX);
 		bool aborting = false;
 		collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
 		illumination = new RRObjectIllumination((unsigned)vertices.size());
