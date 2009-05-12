@@ -2210,10 +2210,9 @@ Ray-Mesh collisions
     - move mouse with right button pressed to look
     - left click to switch to light
     - arrows or wsadqzxc to move camera or light
-    - select from menu: Realtime lighting / Build Light Detail Maps / 1000 / 128x128, takes a minute, increases realtime GI quality
-    - select from menu: Realtime lighting / Build Fireball / 1000, takes a second, increases realtime GI speed
     - select from menu: Lights / Show properties
     - change light type from point to spot for stronger color bleeding effect
+    - select from menu: Realtime lighting / Build Light Detail Maps / 1000 / 128x128, takes a minute, increases realtime GI quality
   </td><td>
   \image html Gamebryo-RT2.jpg
   </td></tr><tr><td>
