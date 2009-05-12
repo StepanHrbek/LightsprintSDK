@@ -33,7 +33,7 @@ using namespace rr;
 //
 // Helps during development of new adapters.
 // Define VERIFY to enable verification of adapters and data.
-// Display system messages using RRReporter.
+// RRReporter will be used to warn about detected data inconsistencies.
 // Once your code/data are verified and don't emit messages via RRReporter,
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
@@ -311,7 +311,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 #endif
 
 #ifdef VERIFY
-	checkConsistency();
+	checkConsistency(CH_LIGHTMAP,UINT_MAX);
 #endif
 
 	// create collider

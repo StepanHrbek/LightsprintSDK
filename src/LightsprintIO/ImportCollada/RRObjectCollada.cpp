@@ -76,7 +76,7 @@ enum
 //
 // Helps during development of new adapters.
 // Define VERIFY to enable verification of adapters and data.
-// Display system messages using RRReporter.
+// RRReporter will be used to warn about detected data inconsistencies.
 // Once your code/data are verified and don't emit messages via RRReporter,
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
@@ -118,10 +118,6 @@ private:
 RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
 {
 	mesh = _mesh;
-
-#ifdef VERIFY
-	checkConsistency();
-#endif
 }
 
 // for non TEXCOORD semantics, inputSet is ignored
@@ -853,6 +849,9 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 			RRObjectCollada* object = newObject(node,geometryInstance);
 			if (object)
 			{
+#ifdef VERIFY
+				object->getCollider()->getMesh()->checkConsistency(LIGHTMAP_CHANNEL,size());
+#endif
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
 			}
 		}

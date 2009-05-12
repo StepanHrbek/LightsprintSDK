@@ -30,6 +30,7 @@ using namespace rr;
 //
 // Helps during development of new adapters.
 // Define VERIFY to enable verification of adapters and data.
+// RRReporter will be used to warn about detected data inconsistencies.
 // Once your code/data are verified and don't emit messages via reporter(),
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
@@ -110,7 +111,7 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 	}
 
 #ifdef VERIFY
-	checkConsistency();
+	checkConsistency(UINT_MAX,objectIdx);
 #endif
 
 	// create collider

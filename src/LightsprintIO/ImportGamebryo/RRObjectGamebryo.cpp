@@ -62,6 +62,21 @@ NiEmbedGamebryoLicenseCode;
 using namespace rr;
 
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Verificiation
+//
+// Helps during development of new wrappers.
+// Define VERIFY to enable verification of wrappers and data.
+// RRReporter will be used to warn about detected data inconsistencies.
+// Once your code/data are verified and don't emit messages via RRReporter,
+// turn verifications off.
+// If you encounter strange behaviour with new data later,
+// reenable verifications to check that your data are ok.
+
+//#define VERIFY
+
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // utility functions
@@ -790,7 +805,6 @@ public:
 			delete mesh;
 			return NULL;
 		}
-		//mesh->checkConsistency();
 		const RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
 		if (!collider)
 		{
@@ -1050,6 +1064,9 @@ private:
 			RRObjectGamebryo* rrObject = RRObjectGamebryo::create((NiMesh*)object,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
+#ifdef VERIFY
+				rrObject->getCollider()->getMesh()->checkConsistency(CH_LIGHTMAP,size());
+#endif
 				push_back(RRIlluminatedObject(rrObject, rrObject->getIllumination()));
 			}
 		}

@@ -444,22 +444,57 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 	return new RRHidePreImportFilter(this);
 }
 
-unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
+// helper for checkConsistency(), similar to unsigned, but reports object number
+class NumReports
 {
-	unsigned numReports = 0;
+public:
+	NumReports(unsigned _meshNumber)
+	{
+		numReports = 0;
+		meshNumber = _meshNumber;
+		indented = false;
+	}
+	~NumReports()
+	{
+		if (indented)
+			RRReporter::indent(-2);
+	}
+	void operator ++(int i)
+	{
+		if (!numReports && meshNumber!=UINT_MAX)
+		{
+			RRReporter::report(WARN,"Inconsistency found in mesh %d:\n",meshNumber);
+			RRReporter::indent(2);
+			indented = true;
+		}
+		numReports++;
+	}
+	operator unsigned() const
+	{
+		return numReports;
+	}
+private:
+	unsigned numReports;
+	unsigned meshNumber;
+	bool indented;
+};
+
+unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber) const
+{
+	NumReports numReports(meshNumber); // unsigned numReports = 0; would work too, although without reporting meshNumber
 	// numVertices
 	unsigned numVertices = getNumVertices();
 	if (numVertices==0 || numVertices>=10000000)
 	{
-		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 		numReports++;
+		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 	}
 	// numTriangles
 	unsigned numTriangles = getNumTriangles();
 	if (numTriangles==0 || numTriangles>=10000000)
 	{
-		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 		numReports++;
+		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 	}
 	// vertices
 	for (unsigned i=0;i<numVertices;i++)
@@ -468,8 +503,8 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 		getVertex(i,vertex);
 		if (!IS_VEC3(vertex))
 		{
-			RRReporter::report(ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
 			numReports++;
+			RRReporter::report(ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
 		}
 	}
 	// triangles
@@ -480,13 +515,13 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 		getTriangle(i,triangle);
 		if (triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
 		{
-			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 			numReports++;
+			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 		}
 		if (triangle.m[0]==triangle.m[1] || triangle.m[0]==triangle.m[2] || triangle.m[1]==triangle.m[2])
 		{
-			RRReporter::report(ERRO,"degen: getTriangle(%d)==%d %d %d\n",i,triangle.m[0],triangle.m[1],triangle.m[2]);
 			numReports++;
+			RRReporter::report(ERRO,"degen: getTriangle(%d)==%d %d %d\n",i,triangle.m[0],triangle.m[1],triangle.m[2]);
 		}
 
 		// triangleBody
@@ -494,28 +529,28 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 		getTriangleBody(i,triangleBody);
 		if (!IS_VEC3(triangleBody.vertex0))
 		{
-			RRReporter::report(ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
 			numReports++;
+			RRReporter::report(ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
 		}
 		if (!IS_VEC3(triangleBody.side1))
 		{
-			RRReporter::report(ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
 			numReports++;
+			RRReporter::report(ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
 		}
 		if (!IS_VEC3(triangleBody.side2))
 		{
-			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 			numReports++;
+			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 		}
 		if (!triangleBody.side1.length2())
 		{
-			RRReporter::report(WARN,"degen: getTriangleBody(%d).side1==0\n",i);
 			numReports++;
+			RRReporter::report(WARN,"degen: getTriangleBody(%d).side1==0\n",i);
 		}
 		if (!triangleBody.side2.length2())
 		{
-			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 			numReports++;
+			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 		}
 
 		// triangleBody equals triangle
@@ -525,12 +560,12 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 		getVertex(triangle.m[2],vertex[2]);
 		if (triangleBody.vertex0[0]!=vertex[0][0] || triangleBody.vertex0[1]!=vertex[0][1] || triangleBody.vertex0[2]!=vertex[0][2])
 		{
+			numReports++;
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
 				triangleBody.vertex0[0]-triangle[0],triangleBody.vertex0[1]-triangle[1],triangleBody.vertex0[2]-triangle[2]);
-			numReports++;
 		}
 		float scale =
 			fabs(vertex[1][0]-vertex[0][0])+fabs(triangleBody.side1[0])+
@@ -542,13 +577,13 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 			fabs(vertex[1][2]-vertex[0][2]-triangleBody.side1[2]);
 		if (dif>scale*1e-5)
 		{
+			numReports++;
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
 				triangle.m[1],vertex[1][0],vertex[1][1],vertex[1][2],
 				vertex[1][0]-vertex[0][0]-triangleBody.side1[0],vertex[1][1]-vertex[0][1]-triangleBody.side1[1],vertex[1][2]-vertex[0][2]-triangleBody.side1[2]);
-			numReports++;
 		}
 		scale =
 			fabs(vertex[2][0]-vertex[0][0])+fabs(triangleBody.side2[0])+
@@ -560,13 +595,13 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 			fabs(vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
 		if (dif>scale*1e-5)
 		{
+			numReports++;
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
 				triangle.m[2],vertex[2][0],vertex[2][1],vertex[2][2],
 				vertex[2][0]-vertex[0][0]-triangleBody.side2[0],vertex[2][1]-vertex[0][1]-triangleBody.side2[1],vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
-			numReports++;
 		}
 
 		//!!! pre/post import
@@ -595,26 +630,26 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 		}
 		if (nanOrInf)
 		{
+			numReports++;
 			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
-			numReports++;
 		} 
 		else
 		if (denormalized)
 		{
+			numReports++;
 			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
 				size(triangleNormals.vertex[2].normal),size(triangleNormals.vertex[2].tangent),size(triangleNormals.vertex[2].bitangent));
-			numReports++;
 		}
 		else
 		if (badDirection)
 		{
-			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 			numReports++;
+			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 		}
 		else
 		if (notOrthogonal)
@@ -637,13 +672,13 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord) const
 			}
 			if (outOfRange)
 			{
+				numReports++;
 				RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
 					i,lightmapTexcoord,
 					triangleMapping.uv[0][0],triangleMapping.uv[0][1],
 					triangleMapping.uv[1][0],triangleMapping.uv[1][1],
 					triangleMapping.uv[2][0],triangleMapping.uv[2][1]
 					);
-				numReports++;
 			}
 		}
 		

@@ -29,6 +29,7 @@ using namespace rr;
 //
 // Helps during development of new adapters.
 // Define VERIFY to enable verification of adapters and data.
+// RRReporter will be used to warn about detected data inconsistencies.
 // Once your code/data are verified and don't emit messages via reporter(),
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
@@ -268,7 +269,7 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 	//lu_done(&ent_tab); ent_tab is local structure inside mgflib that leaks
 
 #ifdef VERIFY
-	checkConsistency();
+	checkConsistency(UINT_MAX,UINT_MAX);
 #endif
 
 	// create collider
