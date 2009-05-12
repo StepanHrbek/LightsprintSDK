@@ -257,6 +257,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	"++++++++++++++++++++++++++++++++"
 	};
 	SetIcon(wxIcon(sample_xpm));
+
+	CreateStatusBar();
 }
 
 void SVFrame::UpdateMenuBar()
@@ -269,7 +271,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
-		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
 		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
@@ -285,22 +287,22 @@ void SVFrame::UpdateMenuBar()
 
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_ENV_OPEN,_T("Load skybox..."));
-		winMenu->Append(ME_ENV_WHITE,_T("Set white"));
-		winMenu->Append(ME_ENV_BLACK,_T("Set black"));
-		winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"));
+		winMenu->Append(ME_ENV_OPEN,_T("Load skybox..."),_T("Supported formats: cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images."));
+		winMenu->Append(ME_ENV_WHITE,_T("Set white"),_T("Sets uniform white environment."));
+		winMenu->Append(ME_ENV_BLACK,_T("Set black"),_T("Sets uniform black environment."));
+		winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"),_T("Sets uniform white environment in upper hemisphere, black in lower hemisphere."));
 		menuBar->Append(winMenu, _T("Environment"));
 	}
 
 	// Lights...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_LIGHT_PROPERTIES,_T("Show light properties"));
+		winMenu->Append(ME_LIGHT_PROPERTIES,_T("Show light properties"),_T("Opens light properties dialog window."));
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light"));
 		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
-		winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"));
+		winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"),_T("Constant ambient is rarely needed, it makes scenes less realistic."));
 		menuBar->Append(winMenu, _T("Lights"));
 	}
 
@@ -308,46 +310,46 @@ void SVFrame::UpdateMenuBar()
 	// Realtime lighting...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball (fast)"));
-		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect (no precalc)"));
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("(Re)build fireball..."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("(Re)build light detail map..."));
-		winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"));
+		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball (fast)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Rebuild fireball..."),_T("Rebuilds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default 350)."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("(Re)build light detail map..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"),_T("LDM adds per-pixel details to realtime GI. It must be built first."));
 		menuBar->Append(winMenu, _T("Realtime lighting"));
 	}
 
 	// Static lighting...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_STATIC_3D,_T("Render static lighting"));
-		winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"));
+		winMenu->Append(ME_STATIC_3D,_T("Render static lighting"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
+		winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"),_T("Shows lightmap in 2D, with unwrap wireframe."));
 		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
-		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."));
-		winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."));
+		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("Builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
 #ifdef DEBUG_TEXEL
-		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."));
+		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."),_T("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
-		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"));
-		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"));
-		winMenu->Append(ME_STATIC_SAVE,_T("Save"));
-		winMenu->Append(ME_STATIC_LOAD,_T("Load"));
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
+		winMenu->Append(ME_STATIC_SAVE,_T("Save lightmaps"));
+		winMenu->Append(ME_STATIC_LOAD,_T("Load lightmaps"));
 		menuBar->Append(winMenu, _T("Static lighting"));
 	}
 
 	// Render...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed"):_T("Fullscreen"));
-		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"));
-		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"));
-		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"));
-		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"));
-		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"));
-		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"));
-		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"));
-		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"));
-		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"));
-		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."));
+		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed"):_T("Fullscreen"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
+		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
+		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
+		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
+		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
+		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (y=0)."));
+		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
+		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
+		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
+		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
 		menuBar->Append(winMenu, _T("Render"));
 	}
 
@@ -355,8 +357,8 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_HELP,_T("Help"));
-		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"));
-		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"));
+		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"),_T("For diagnostic purposes."));
+		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"),_T("For diagnostic purposes."));
 		winMenu->Append(ME_ABOUT,_T("About"));
 		menuBar->Append(winMenu, _T("Help"));
 	}
