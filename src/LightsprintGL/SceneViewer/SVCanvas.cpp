@@ -641,7 +641,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
-				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,0);
+				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,-0.01f);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				uberProgramSetup.CLIP_PLANE = true;
 				solver->renderScene(uberProgramSetup,NULL);

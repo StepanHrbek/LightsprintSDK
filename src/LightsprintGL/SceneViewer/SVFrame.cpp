@@ -345,7 +345,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
 		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
 		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
-		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (y=0)."));
+		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
 		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
 		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
 		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
