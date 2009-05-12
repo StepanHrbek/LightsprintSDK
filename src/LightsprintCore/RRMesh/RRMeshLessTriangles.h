@@ -25,15 +25,8 @@ public:
 	RRLessTrianglesFilter(const RRMesh* original)
 		: RRMeshFilter(original)
 	{
-		ValidIndices = 0;
 		unsigned numAllTriangles = inherited->getNumTriangles();
-		for (unsigned i=0;i<numAllTriangles;i++)
-		{
-			RRMesh::TriangleBody tb;
-			inherited->getTriangleBody(i,tb);
-			if (tb.isNotDegenerated()) ValidIndices++;
-		}
-		ValidIndex = new unsigned[ValidIndices];
+		ValidIndex = new unsigned[numAllTriangles];
 		ValidIndices = 0;
 		for (unsigned i=0;i<numAllTriangles;i++)
 		{
@@ -134,15 +127,8 @@ public:
 	RRLessTrianglesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 		: INHERITED(vbuffer,vertices,stride,ibuffer,indices) 
 	{
-		ValidIndices = 0;
 		unsigned numAllTriangles = INHERITED::getNumTriangles();
-		for (unsigned i=0;i<numAllTriangles;i++)
-		{
-			RRMesh::TriangleBody tb;
-			INHERITED::getTriangleBody(i,tb);
-			if (tb.isNotDegenerated()) ValidIndices++;
-		}
-		ValidIndex = new unsigned[ValidIndices];
+		ValidIndex = new unsigned[numAllTriangles];
 		ValidIndices = 0;
 		for (unsigned i=0;i<numAllTriangles;i++)
 		{
