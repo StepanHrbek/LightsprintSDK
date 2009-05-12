@@ -399,7 +399,10 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 	// chunk's data findex + the size of the header
 	fseek(bin3ds, findex, SEEK_SET);
 
-	// First count the number of Objects and Materials
+	int numObjectsLightsCameras = 0; // meshes+lights+cameras
+	numObjects = 0;
+
+	// First count the number of meshes+lights+cameras and Materials
 	while (ftell(bin3ds) < (findex + length - 6))
 	{
 		fread(&h.id,sizeof(h.id),1,bin3ds);
@@ -410,7 +413,7 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 		switch (h.id)
 		{
 			case 0x4000:
-				numObjects++;
+				numObjectsLightsCameras++;
 				break;
 			case 0xAFFF:
 				numMaterials++;
@@ -449,9 +452,9 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 	}
 
 	// Load the Objects (individual meshes in the whole model)
-	if (numObjects > 0)
+	if (numObjectsLightsCameras > 0)
 	{
-		Objects = new Object[numObjects];
+		Objects = new Object[numObjectsLightsCameras]; // possibly wastes small amount of memory, we don't need space for lights+cameras
 
 		fseek(bin3ds, findex, SEEK_SET);
 
@@ -467,7 +470,7 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 			switch (h.id)
 			{
 				case 0x4000:
-					ObjectChunkProcessor(h.len, ftell(bin3ds), j);
+					ObjectChunkProcessor(h.len, ftell(bin3ds), numObjects);
 					j++;
 					break;
 			}
@@ -799,7 +802,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	return _strdup(name);
 }
 
-void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
+void Model_3DS::ObjectChunkProcessor(long length, long findex, int& objindex)
 {
 	ChunkHeader h;
 
@@ -826,7 +829,7 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 		{
 			case 0x4100:
 				// Process the triangles of the object
-				TriangularMeshChunkProcessor(h.len, ftell(bin3ds), objindex);
+				TriangularMeshChunkProcessor(h.len, ftell(bin3ds), objindex++);
 				break;
 		}
 

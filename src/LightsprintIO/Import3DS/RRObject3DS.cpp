@@ -46,7 +46,7 @@ using namespace rr;
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObject3DS : public RRObject, RRMesh
+class RRObject3DS : public RRObject, public RRMesh
 {
 public:
 	RRObject3DS(Model_3DS* model, unsigned objectIdx);
@@ -67,7 +67,6 @@ public:
 	virtual const RRMatrix3x4*  getWorldMatrix();
 
 private:
-	Model_3DS* model;
 	Model_3DS::Object* object;
 
 	// copy of object's indices
@@ -92,10 +91,9 @@ private:
 
 // Creates internal copies of .3ds geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
+RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 {
-	model = amodel;
-	object = &model->Objects[objectIdx];
+	object = _model->Objects+_objectIdx;
 
 	for (unsigned i=0;i<(unsigned)object->numMatFaces;i++)
 	{
@@ -106,21 +104,21 @@ RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 			ti.t[1] = object->MatFaces[i].subFaces[3*j+1];
 			ti.t[2] = object->MatFaces[i].subFaces[3*j+2];
 			unsigned materialIndex = object->MatFaces[i].MatIndex;
-			if (materialIndex>=(unsigned)model->numMaterials)
+			if (materialIndex>=(unsigned)_model->numMaterials)
 			{
 				assert(0); // wrong data in .3ds
 				ti.material = NULL;
 			}
 			else
 			{
-				ti.material = &model->Materials[materialIndex];
+				ti.material = &_model->Materials[materialIndex];
 			}
 			triangles.push_back(ti);
 		}
 	}
 
 #ifdef VERIFY
-	checkConsistency(UINT_MAX,objectIdx);
+	checkConsistency(UINT_MAX,_objectIdx);
 #endif
 
 	// create collider

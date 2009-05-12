@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news82 ------------------------------------ 2009.05.xx -------------------------------------
+
+CHANGES
+
+- 3ds loader skips lights and cameras rather than loading them as meshes with 0 triangles
+
 \section news82 ------------------------------------ 2009.05.07 -------------------------------------
 
 NEWS

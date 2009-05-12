@@ -179,7 +179,7 @@ private:
 					char* MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
 			
 			// Processes the model's geometry
-			void ObjectChunkProcessor(long length, long findex, int objindex);
+			void ObjectChunkProcessor(long length, long findex, int& objindex); // increases objindex if mesh is loaded. ignores lights, cameras
 				// Processes the triangles of the model
 				void TriangularMeshChunkProcessor(long length, long findex, int objindex);
 					// Processes the vertices of the model and loads them
