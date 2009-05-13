@@ -14,7 +14,6 @@ namespace rr_gl
 
 CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object)
 {
-	RR_ASSERT(_object);
 	object = _object;
 	distMin = 1e10f;
 	distMax = 0;
@@ -39,7 +38,7 @@ void CameraObjectDistance::addRay(const rr::RRVec3& pos, rr::RRVec3 dir)
 	ray->rayDirInv[0] = 1/dir[0];
 	ray->rayDirInv[1] = 1/dir[1];
 	ray->rayDirInv[2] = 1/dir[2];
-	if (object->getCollider()->intersect(ray))
+	if (object && object->getCollider()->intersect(ray))
 	{
 		// calculation of distanceOfPotentialNearPlane depends on dir length
 		float distanceOfPotentialNearPlane = ray->hitDistance/dirLength;
