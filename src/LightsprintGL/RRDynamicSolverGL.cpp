@@ -168,7 +168,11 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 			{
 				// SPOT
 				for (unsigned i=0;i<realtimeLight->getNumShadowmaps();i++)
-					cod.addCamera(realtimeLight->getShadowmapCamera(i));
+				{
+					Camera* camera = realtimeLight->getShadowmapCamera(i);
+					cod.addCamera(camera);
+					delete camera;
+				}
 			}
 			if (cod.getDistanceMax()>=cod.getDistanceMin())
 			{
