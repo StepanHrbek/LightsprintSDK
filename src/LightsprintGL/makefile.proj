@@ -31,6 +31,7 @@ endif
 
 SOURCES = \
 Camera.cpp \
+CameraObjectDistance.cpp \
 FBO.cpp \
 matrix.cpp \
 MultiPass.cpp \

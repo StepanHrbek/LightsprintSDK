@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "CameraObjectDistance.h"
 #include "PreserveState.h"
 #include "tmpstr.h"
 
@@ -145,6 +146,38 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 		RR_ASSERT(_lights[i]);
 		realtimeLights.push_back(new RealtimeLight(*_lights[i]));
 	}
+
+	// adjust near/far to better match current scene
+#pragma omp parallel for schedule(dynamic)
+	for (int i=0;i<(int)_lights.size();i++)
+	{
+		const rr::RRLight* light = _lights[i];
+		RR_ASSERT(light);
+		RealtimeLight* realtimeLight = realtimeLights[i];
+		RR_ASSERT(realtimeLight);
+
+		if (light->type!=rr::RRLight::DIRECTIONAL)
+		{
+			CameraObjectDistance cod(getMultiObjectCustom());
+			if (light->type==rr::RRLight::POINT)
+			{
+				// POINT
+				cod.addPoint(light->position);
+			}
+			else
+			{
+				// SPOT
+				for (unsigned i=0;i<realtimeLight->getNumShadowmaps();i++)
+					cod.addCamera(realtimeLight->getShadowmapCamera(i));
+			}
+			if (cod.getDistanceMax()>=cod.getDistanceMin())
+			{
+				realtimeLight->getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
+			}
+		}
+
+	}
+
 	// reset detected direct lighting
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }

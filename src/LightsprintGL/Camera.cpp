@@ -4,12 +4,16 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
-#include <set> // setRangeDynamically
 #include "Lightsprint/GL/Camera.h"
+#include "CameraObjectDistance.h"
 #include "matrix.h"
 
 namespace rr_gl
 {
+
+////////////////////////////////////////////////////////////////////////
+//
+// Camera
 
 Camera::Camera()
 {
@@ -130,9 +134,11 @@ void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
 	setRange(maxDistance/500,maxDistance);
 }
 
-rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow)
+rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow) const
 {
-	// setNearDynamically() uses length of our result, don't normalize
+	if (orthogonal)
+		return dir;
+	// CameraObjectDistance uses length of our result, don't normalize
 	return
 		dir.RRVec3::normalized()
 		+ right * ( posInWindow[0] * tan(getFieldOfViewHorizontalRad()/2) )
@@ -143,45 +149,15 @@ rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow)
 void Camera::setNearDynamically(const rr::RRObject* object)
 {
 	if (!object)
-	{
 		return;
-	}
-	rr::RRRay* ray = rr::RRRay::create(1);
-	ray->rayOrigin = pos;
-	ray->rayLengthMin = 0;
-	ray->rayLengthMax = 1e12f;
-	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-	ray->collisionHandler = object->createCollisionHandlerFirstVisible();
-	std::set<float> objDistance;
-	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2
-	for (int i=-RAYS;i<=RAYS;i++)
+	CameraObjectDistance cod(object);
+	cod.addCamera(this);
+	if (cod.getDistanceMax()>=cod.getDistanceMin())
 	{
-		for (int j=-RAYS;j<=RAYS;j++)
-		{
-			RR_ASSERT(!orthogonal);
-			// builds and shoots 9 rays to screen center, corners, edge centers
-			rr::RRVec3 rayDir = getDirection(rr::RRVec2(i/float(RAYS),j/float(RAYS)));
-			float rayDirLength = rayDir.length();
-			rayDir.normalize();
-			ray->rayDirInv[0] = 1/rayDir[0];
-			ray->rayDirInv[1] = 1/rayDir[1];
-			ray->rayDirInv[2] = 1/rayDir[2];
-			if (object->getCollider()->intersect(ray))
-			{
-				// calculation of distanceOfPotentialNearPlane depends on getDirection() length
-				float distanceOfPotentialNearPlane = ray->hitDistance/rayDirLength;
-				objDistance.insert(distanceOfPotentialNearPlane);
-			}
-		}
-	}
-	if (objDistance.size())
-	{
-		float min = *objDistance.begin()/2;
+		float min = cod.getDistanceMin()/2;
 		float relativeSceneProximity = CLAMPED(getFar()/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
 		setRange( CLAMPED(min,0.0001f,getFar()/relativeSceneProximity), getFar() );
 	}
-	delete ray->collisionHandler;
-	delete ray;
 }
 
 bool Camera::operator==(const Camera& a) const
