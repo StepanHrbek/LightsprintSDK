@@ -173,10 +173,11 @@ bool RRBuffer::reloadCube(const char *_filename)
 {
 	if (!_filename)
 		return false;
-	const unsigned numConventions = 2;
+	const unsigned numConventions = 3;
 	const char* cubeSideNames[numConventions][6] =
 	{
 		{"bk","ft","up","dn","rt","lf"}, // Quake
+		{"BK","FT","UP","DN","RT","LF"}, // Quake
 		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
 	};
 	const char** selectedConvention = cubeSideNames[0];
