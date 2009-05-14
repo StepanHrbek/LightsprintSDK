@@ -33,6 +33,15 @@ NEWS
     \n allocates and updates vertex buffers and reflection maps, structures used to pass computed GI to external renderers
   - new RRDynamicSolver::allocateBuffersForRealtimeGI()
     \n allocates vertex buffers and reflection maps, structures used to pass computed GI to external renderers
+
+  <table border=0><tr align=top><td>
+  \image html features/light-spot.jpg
+  </td><td>
+  \image html features/light-point.jpg
+  </td><td>
+  \image html features/light-dir.jpg
+  </td></tr></table>
+
 - new rr_gl::RendererOfScene::useRealtimeGI() function
   \n simplifies realtime GI rendering
   \n makes renderer allocate and update GI buffers automatically, using reasonable qualities and resolutions
@@ -58,6 +67,13 @@ NEWS
   - new RRDynamicSolver::setEmittance()
     \n streaming video to emissive map? Call this in every frame to update GI from updated emissive maps.
     \n emissiveMultiplier parameter lets you multiply emittance globally
+
+  <table border=0><tr align=top><td>
+  \image html features/emis1.jpg
+  </td><td>
+  \image html features/emis2.jpg
+  </td></tr></table>
+
 - improved 3ds import
   - imports face sidedness, specular color
   - if opacity map is the same as diffuse map, transparency is taken from alpha channel
@@ -86,6 +102,13 @@ NEWS
     but this time, all static and dynamic objects will be illuminated also by sky
   - infinite light bounces
   - fully dynamic, change sky as often as you wish
+
+  <table border=0><tr align=top><td>
+  \image html features/environment1.jpg
+  </td><td>
+  \image html features/environment2.jpg
+  </td></tr></table>
+
 - new per-vertex illumination smoothing mode
   - RRDynamicSolver::SmoothingParameters::maxSmoothAngle default _is_ -0.01
     \n this smooths per-vertex illumination where vertex normals are similar,

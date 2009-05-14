@@ -132,30 +132,23 @@ This is a brief list of Lightsprint features, see \ref main_data_access,
 \ref main_api and \ref main_samples for more details.
 
 Global illumination
-- realtime global illumination
+- realtime global illumination / realtime radiosity / realtime raytracing
 - realtime penumbra shadows, soft shadows
 - realtime color bleeding
 - dynamic lights
 - dynamic objects
+- dynamic skybox
 - multithreaded, all cores/CPUs and GPU work at once
 - supports work distributed in cluster of computers
 - computed and rendered in HDR
 - custom scale on inputs/outputs (HDR/sRGB/other)
 - scene size not limited
-- mesh instancing
-- mesh filters, optimizers
-- adaptive subdivision
 
-Light source formats (inputs)
-- spot light
-- point light
-- directinal light
-- skybox/cubemap
-- skybox/programmable
-- emissive material
+\ref inputs_light_sources "Light source formats (inputs)"
+- spot, point, directinal lights
 - area light
-- linear light
-- custom programmable light
+- skybox (LDR, HDR texture)
+- emissive materials (LDR, HDR texture)
 
 Lighting computed (outputs)
 - lightmap, directional lightmap
@@ -165,17 +158,17 @@ Lighting computed (outputs)
 - specular environment map
 - bent normal map
 - vertex buffer with colors or bent normals
-- illumination of triangle, including adaptively subdivided
-- illumination of vertex, including adaptively subdivided
+- illumination of triangle or vertex
 - illumination at ray end
 - any combination of direct/indirect/global illumination
 
 Renderers
 - integrates with external renderers
-- contains OpenGL 2.0 shader based renderer
+- includes OpenGL 2.0 shader based renderer
 
 Scene formats
 - Collada 1.4 (.DAE)
+- Gamebryo (.GSA)
 - 3DS Max (.3DS)
 - Quake 3 (.BSP)
 - OBJ (.OBJ)
@@ -185,9 +178,9 @@ Scene formats
 - complete source code
 
 Texture formats
-- JPG, PNG, DDS, GIF, TGA, BMP, TIF, HDR...
-- including cube textures (cross or 6 files)
-- including 96bit float colors
+- JPG, PNG, EXR, HDR, DDS, TGA, BMP, TIF, GIF...
+- cube textures
+- 96bit float textures
 
 Materials
 - supports all types of materials
@@ -2119,6 +2112,14 @@ Ray-Mesh collisions
     However, light must be emited by single point; to simulate area light,
     use e.g. triangles with emissive material.
 
+  <table border=0><tr align=top><td>
+  \image html features/light-spot.jpg realtime GI from spot light
+  </td><td>
+  \image html features/light-point.jpg point light
+  </td><td>
+  \image html features/light-dir.jpg directional light
+  </td></tr></table>
+
  \section lenv Environment / Sky
   - Area light source, emissive skybox or sphere surrounding whole scene.
   - Data structure: RRBuffer
@@ -2127,13 +2128,25 @@ Ray-Mesh collisions
   - Supported in offline GI: yes
   - Supported in realtime GI: yes (only in Fireball)
 
+  <table border=0><tr align=top><td>
+  \image html features/environment1.jpg realtime GI from environment
+  </td><td>
+  \image html features/environment2.jpg simply change texture
+  </td></tr></table>
+
  \section lemissive Emissive materials
   - Area light source, triangles covered by materials that emit light.
-  - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
+  - Data structure: RRObject with emissive materials
   - Data structure container: RRObjects
   - Setup: RRDynamicSolver::setStaticObjects(), RRDynamicSolver::setEmittance()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
+
+  <table border=0><tr align=top><td>
+  \image html features/emis1.jpg realtime GI from emissive surfaces
+  </td><td>
+  \image html features/emis2.jpg simply change texture
+  </td></tr></table>
 
  \section lrealtime Custom lights
   - Per-triangle direct irradiances set by RRDynamicSolver::setDirectIllumination()

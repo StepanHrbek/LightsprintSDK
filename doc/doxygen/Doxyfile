@@ -147,6 +147,7 @@ EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = "../../doc/doxygen" \
+                         "../../doc/doxygen/features" \
                          "../../doc/doxygen/samples"
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
