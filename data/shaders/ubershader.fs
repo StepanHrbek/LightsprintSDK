@@ -99,8 +99,11 @@
 	#endif
 #endif
 
-#ifdef LIGHT_DIRECT_ATT_SPOT
+#if defined(LIGHT_DIRECTIONAL) || defined(LIGHT_DIRECT_ATT_SPOT)
 	uniform vec3 worldLightDir;
+#endif
+
+#ifdef LIGHT_DIRECT_ATT_SPOT
 	uniform float lightDirectSpotOuterAngleRad;
 	uniform float lightDirectSpotFallOffAngleRad;
 #endif
@@ -357,11 +360,15 @@ void main()
 
 	#ifdef LIGHT_DIRECT
 		#if defined(MATERIAL_NORMAL_MAP) || defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
-			vec3 worldLightDirToPixel = normalize(worldLightPos - worldPos);
+			#if defined(LIGHT_DIRECTIONAL)
+				vec3 worldLightDirFromPixel = -worldLightDir;
+			#else
+				vec3 worldLightDirFromPixel = normalize(worldLightPos - worldPos);
+			#endif
 		#endif
 		vec4 lightDirect =
 			#ifdef MATERIAL_NORMAL_MAP
-				max(0.0,dot(worldLightDirToPixel, worldNormal)) // per pixel
+				max(0.0,dot(worldLightDirFromPixel, worldNormal)) // per pixel
 			#else
 				vec4(lightDirectVColor,lightDirectVColor,lightDirectVColor,lightDirectVColor) // per vertex
 			#endif
@@ -372,7 +379,7 @@ void main()
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
 			#ifdef LIGHT_DIRECT_ATT_SPOT
-				* clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirToPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 )
+				* clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 )
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				#ifdef SHADOW_PENUMBRA
@@ -492,7 +499,7 @@ void main()
 				#endif
 				vec4((
 					#ifdef LIGHT_DIRECT
-						+ pow(max(0.0,dot(worldLightDirToPixel,normalize(worldViewReflected))),10.0)*2.0
+						+ pow(max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))),10.0)*2.0
 						* lightDirect
 					#endif
 					#ifdef LIGHT_INDIRECT_CONST
