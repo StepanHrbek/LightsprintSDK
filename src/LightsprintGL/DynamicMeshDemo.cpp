@@ -71,14 +71,6 @@ Scene::Scene(const char* _sceneFilename, unsigned _quality, float _indirectIllum
 
 	setDirectIlluminationBoost(_indirectIllumMultiplier);
 	rendererOfScene = new RendererOfScene(this,s_pathToShaders);
-/*
-	// create buffers for computed GI
-	for (unsigned i=0;i<getNumObjects();i++)
-	{
-		unsigned numVertices = getObject(i)->getCollider()->getMesh()->getNumVertices();
-		getIllumination(i)->getLayer(0) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-	}
-*/
 }
 
 void Scene::setEnvironment(rr::RRBuffer* _skybox)
@@ -90,8 +82,7 @@ void Scene::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* re
 {
 	// Render static objects.
 	rendererOfScene->setParams(uberProgramSetup,&realtimeLights,renderingFromThisLight);
-	rendererOfScene->useOptimizedScene(); // LDM jde jen kdyz ma scena 1 static objekt, blending bez zaruky
-//	rendererOfScene->useOriginalScene(0); LDM jde vzdycky, i blending
+	rendererOfScene->useRealtimeGI(0);
 	rendererOfScene->setBrightnessGamma(&brightness,1);
 	rendererOfScene->render();
 
@@ -193,16 +184,6 @@ void Scene::render(Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dy
 
 	// Updates shadowmaps and indirect in solver.
 	calculate();
-
-	/*/ update vertex color buffers if they need it
-	{
-		static unsigned solutionVersion = 0;
-		if (solver->getSolutionVersion()!=solutionVersion)
-		{
-			solutionVersion = getSolutionVersion();
-			updateLightmaps(0,-1,-1,NULL,NULL,NULL);
-		}
-	}*/
 
 	// Set camera.
 	_camera.update();
