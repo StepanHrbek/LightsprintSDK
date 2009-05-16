@@ -7,8 +7,7 @@
 #ifdef SUPPORT_OBJ
 
 // This code loads .obj geometry into RRObjects.
-// Only raw triangles are loaded, use Collada for rich import.
-// .obj even doesn't support lights, so loaded scene is completely black.
+// Materials are not loaded, use Collada for rich import.
 //
 // Unlike adapters for other formats, this one doesn't adapt 3rd party structure
 // in memory, it loads scene directly form file.
@@ -23,6 +22,21 @@ using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// Verificiation
+//
+// Helps during development of new adapters.
+// Define VERIFY to enable verification of adapters and data.
+// RRReporter will be used to warn about detected data inconsistencies.
+// Once your code/data are verified and don't emit messages via reporter(),
+// turn verifications off.
+// If you encounter strange behaviour with new data later,
+// reenable verifications to check that your data are ok.
+
+//#define VERIFY
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRObjectOBJ
 
 // See RRObject and RRMesh documentation for details
@@ -33,42 +47,68 @@ class RRObjectOBJ : public RRObject, RRMesh
 public:
 	RRObjectOBJ(const char* filename, float scale)
 	{
+		// .obj indices start by 1, push dummy elements indexed by 0
+		positions.push_back(RRVec3(0));
+		uvs.push_back(RRVec2(0,0));
+		normals.push_back(RRVec3(0,1,0));
+
 		FILE* f = fopen(filename,"rt");
 		if (f)
 		{
-			char line[100];
-			while (fgets(line,100,f))
+			char line[1000];
+			while (fgets(line,1000,f))
 			{
-				VertexInfo v;
-				if (sscanf(line,"v %f %f %f",&v.pos[0],&v.pos[1],&v.pos[2])==3)
-				{
-					v.pos *= scale;
-					vertices.push_back(v);
-				}
-				int indices[4];
-				int unused;
+				RRVec3 v;
+				int positionIndex[4]; // always specified in file
+				int uvIndex[4] = {0,0,0,0}; // if not specified in file, index 0 is used
+				int normalIndex[4] = {0,0,0,0}; // if not specified in file, index 0 is used
 				int polySize;
-				if ((polySize=sscanf(line,"f %d %d %d %d\n",indices+0,indices+1,indices+2,indices+3))>=3
-					|| (polySize=sscanf(line,"f %d/%d %d/%d %d/%d %d/%d\n",indices+0,&unused,indices+1,&unused,indices+2,&unused,indices+3,&unused)/2)>=3
-					|| (polySize=sscanf(line,"f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n",indices+0,&unused,&unused,indices+1,&unused,&unused,indices+2,&unused,&unused,indices+3,&unused,&unused)/3)>=3)
+
+				if (sscanf(line,"v %f %f %f",&v.x,&v.y,&v.z)==3)
 				{
-					TriangleInfo t;
-					t.indices[0] = (indices[0]<0) ? (unsigned)(indices[0]+vertices.size()) : indices[0];
+					positions.push_back(v);
+				}
+				else
+				if (sscanf(line,"vn %f %f %f",&v.x,&v.y,&v.z)==3)
+				{
+					normals.push_back(v);
+				}
+				else
+				if (sscanf(line,"vt %f %f %f",&v.x,&v.y,&v.z)>=2)
+				{
+					uvs.push_back(v);
+				}
+				else
+				if ((polySize=sscanf(line,"f %d %d %d %d\n",positionIndex+0,positionIndex+1,positionIndex+2,positionIndex+3))>=3
+					|| (polySize=sscanf(line,"f %d/%d %d/%d %d/%d %d/%d\n",positionIndex+0,uvIndex+0,positionIndex+1,uvIndex+1,positionIndex+2,uvIndex+2,positionIndex+3,uvIndex+3)/2)>=3
+					|| (polySize=sscanf(line,"f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n",positionIndex+0,uvIndex+0,normalIndex+0,positionIndex+1,uvIndex+1,normalIndex+1,positionIndex+2,uvIndex+2,normalIndex+2,positionIndex+3,uvIndex+3,normalIndex+3)/3)>=3)
+				{
+					TriangleInfo ti;
+					ti.positionIndex[0] = (unsigned)( (positionIndex[0]<0) ? positionIndex[0]+positions.size() : (positionIndex[0]) );
+					ti.      uvIndex[0] = (unsigned)( (      uvIndex[0]<0) ?       uvIndex[0]+      uvs.size() : (      uvIndex[0]) );
+					ti.  normalIndex[0] = (unsigned)( (  normalIndex[0]<0) ?   normalIndex[0]+  normals.size() : (  normalIndex[0]) );
 					for (int i=2;i<polySize;i++)
 					{
-						t.indices[1] = (indices[i-1]<0) ? (unsigned)(indices[i-1]+vertices.size()) : indices[i-1];
-						t.indices[2] = (indices[i]<0) ? (unsigned)(indices[i]+vertices.size()) : indices[i];
-						triangles.push_back(t);
+						ti.positionIndex[1] = (unsigned)( (positionIndex[i-1]<0) ? positionIndex[i-1]+positions.size() : (positionIndex[i-1]) );
+						ti.      uvIndex[1] = (unsigned)( (      uvIndex[i-1]<0) ?       uvIndex[i-1]+      uvs.size() : (      uvIndex[i-1]) );
+						ti.  normalIndex[1] = (unsigned)( (  normalIndex[i-1]<0) ?   normalIndex[i-1]+  normals.size() : (  normalIndex[i-1]) );
+						ti.positionIndex[2] = (unsigned)( (positionIndex[i  ]<0) ? positionIndex[i  ]+positions.size() : (positionIndex[i  ]) );
+						ti.      uvIndex[2] = (unsigned)( (      uvIndex[i  ]<0) ?       uvIndex[i  ]+      uvs.size() : (      uvIndex[i  ]) );
+						ti.  normalIndex[2] = (unsigned)( (  normalIndex[i  ]<0) ?   normalIndex[i  ]+  normals.size() : (  normalIndex[i  ]) );
+						triangles.push_back(ti);
 					}
 				}
+				// Todo for materials: mtllib, usemtl, usemap
 			}
 			fclose(f);
 		}
 		material.reset(false);
-//		checkConsistency(UINT_MAX,UINT_MAX);
+#ifdef VERIFY
+		checkConsistency(UINT_MAX,UINT_MAX);
+#endif
 		bool aborting = false;
 		collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
-		illumination = new RRObjectIllumination((unsigned)vertices.size());
+		illumination = new RRObjectIllumination(RRObjectOBJ::getNumVertices());
 	}
 	RRObjectIllumination* getIllumination()
 	{
@@ -83,12 +123,12 @@ public:
 	// RRMesh implementation
 	unsigned getNumVertices() const
 	{
-		return (unsigned)vertices.size();
+		return (unsigned)positions.size()-1; // why -1? we make .obj vertex numbers 1,2,3... look as 0,1,2... for Lightsprint
 	}
 	void getVertex(unsigned v, Vertex& out) const
 	{
-		RR_ASSERT(v<vertices.size());
-		out = vertices[v].pos;
+		RR_ASSERT(v<RRObjectOBJ::getNumVertices());
+		out = positions[v+1];
 	}
 	unsigned getNumTriangles() const
 	{
@@ -96,8 +136,49 @@ public:
 	}
 	void getTriangle(unsigned t, Triangle& out) const
 	{
-		RR_ASSERT(t<triangles.size());
-		out = triangles[t].indices;
+		RR_ASSERT(t<RRObjectOBJ::getNumTriangles());
+		out[0] = triangles[t].positionIndex[0]-1; // why -1? we make .obj vertex numbers 1,2,3... look as 0,1,2... for Lightsprint
+		out[1] = triangles[t].positionIndex[1]-1;
+		out[2] = triangles[t].positionIndex[2]-1;
+	}
+	void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		if (t>=RRObjectOBJ::getNumTriangles())
+		{
+			RR_ASSERT(0);
+			return;
+		}
+		for (unsigned v=0;v<3;v++)
+		{
+			unsigned normalIndex = triangles[t].normalIndex[v];
+			if (!normalIndex || normalIndex>=normals.size())
+			{
+				RR_ASSERT(normalIndex<normals.size());
+				RRMesh::getTriangleNormals(t,out);
+				return;
+			}
+			out.vertex[v].normal = normals[normalIndex];
+			out.vertex[v].buildBasisFromNormal();
+		}
+	}
+	bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+	{
+		if (t>=RRObjectOBJ::getNumTriangles())
+		{
+			RR_ASSERT(0);
+			return false;
+		}
+		for (unsigned v=0;v<3;v++)
+		{
+			unsigned uvIndex = triangles[t].uvIndex[v];
+			if (!uvIndex || uvIndex>=uvs.size())
+			{
+				RR_ASSERT(uvIndex<uvs.size());
+				return RRMesh::getTriangleMapping(t,out,channel);
+			}
+			out.uv[v] = uvs[uvIndex];
+		}
+		return true;
 	}
 
 	// RRObject implementation
@@ -112,16 +193,16 @@ public:
 
 private:
 	// copy of object's vertices
-	struct VertexInfo
-	{
-		RRVec3 pos;
-	};
-	std::vector<VertexInfo> vertices;
+	std::vector<RRVec3> positions; // valid indices are 1,2,3... (as in file)
+	std::vector<RRVec3> normals; // valid indices are 1,2,3... (as in file) and 0 if not specified in file
+	std::vector<RRVec2> uvs; // valid indices are 1,2,3... (as in file) and 0 if not specified in file
 
 	// copy of object's triangles
 	struct TriangleInfo
 	{
-		RRMesh::Triangle indices;
+		RRMesh::Triangle positionIndex;
+		RRMesh::Triangle normalIndex;
+		RRMesh::Triangle uvIndex;
 	};
 	std::vector<TriangleInfo> triangles;
 

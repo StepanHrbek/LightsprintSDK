@@ -14,13 +14,14 @@ NEWS
 
 - Gamebryo integration includes new realtime GI example, run samples/BuildLightmaps/Gamebryo-Realtime-Cathedral.bat
 - UE3 integration supports work with selected objects only
-- improved diagnostics in scene loaders if VERIFY is defined
-  - unwraps are checked too
-  - mesh numbers are reported thanks to RRMesh::checkConsistency() new parameter
+- improved scene import
+  - improved diagnostics if VERIFY is defined (unwraps are checked, mesh numbers are reported thanks to RRMesh::checkConsistency() new parameter)
+  - .obj loader reads also normals and uvs
 
 CHANGES
 
-- 3ds loader skips lights and cameras rather than loading them as meshes with 0 triangles
+- different 3ds object numbers
+  \n previously, cameras and lights figured in RRObjects array as meshes with 0 triangles
 
 \section news82 ------------------------------------ 2009.05.07 -------------------------------------
 
