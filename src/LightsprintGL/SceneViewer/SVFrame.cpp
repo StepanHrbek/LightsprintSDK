@@ -299,8 +299,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu = new wxMenu;
 		winMenu->Append(ME_LIGHT_PROPERTIES,_T("Show light properties"),_T("Opens light properties dialog window."));
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
-		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light"));
-		winMenu->Append(ME_LIGHT_POINT,_T("Add point light"));
+		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
+		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
 		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
 		winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"),_T("Constant ambient is rarely needed, it makes scenes less realistic."));
 		menuBar->Append(winMenu, _T("Lights"));

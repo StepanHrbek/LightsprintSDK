@@ -232,11 +232,20 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	float speed = (event.GetModifiers()==wxMOD_SHIFT) ? 3 : 1;
 	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
 	{
-		case 'T':
+		case 'T': // ctrl-t
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_TEXTURES));
 			break;
-		case 'W':
+		case 'W': // ctrl-w
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_WIREFRAME));
+			break;
+	}
+	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
+	{
+		case 'S': // alt-s
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_SPOT));
+			break;
+		case 'O': // alt-o
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_POINT));
 			break;
 	}
 	else switch(evkey)
