@@ -7,6 +7,7 @@
 #define TMPSTR_H
 
 #include <cstdio>
+#include <cstdarg>
 
 namespace rr_gl
 {
@@ -17,7 +18,7 @@ namespace rr_gl
 //! Fully static, no allocation.
 inline const char* tmpstr(const char* fmt, ...)
 {
-	#define STRINGS 4
+	#define STRINGS 12 // FpsDisplay::FpsDisplay requires at least 12
 	static unsigned i = 0;
 	i++;
 	static char msg[STRINGS][1000];

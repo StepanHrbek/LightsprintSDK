@@ -339,8 +339,9 @@ void SVFrame::UpdateMenuBar()
 	// Render...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed"):_T("Fullscreen"),_T("Fullscreen mode uses full desktop resolution."));
-		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers"):_T("Show helpers"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
+		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed (F11)"):_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
+		winMenu->Append(ME_RENDER_FPS,svs.renderFPS?_T("Hide FPS (ctrl-f)"):_T("Show FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
 		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
 		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
 		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
@@ -800,6 +801,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			GetPosition(windowCoord+0,windowCoord+1);
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
+		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
 		case ME_RENDER_DIFFUSE: svs.renderDiffuse = !svs.renderDiffuse; break;
 		case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
 		case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;

@@ -359,6 +359,12 @@
 			RelativePath="FBO.h">
 		</File>
 		<File
+			RelativePath="FPS.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\FPS.h">
+		</File>
+		<File
 			RelativePath="matrix.cpp">
 		</File>
 		<File

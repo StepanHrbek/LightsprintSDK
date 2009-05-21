@@ -15,6 +15,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
+#include "Lightsprint/GL/FPS.h"
 
 namespace rr_gl
 {
@@ -76,6 +77,12 @@ namespace rr_gl
 		rr::RRLightField*          lightField;
 		GLUquadricObj*             lightFieldQuadric;
 		rr::RRObjectIllumination*  lightFieldObjectIllumination;
+
+		// FPS
+		TextureRenderer*           textureRenderer;
+		bool                       fpsLoadAttempted;
+		FpsCounter                 fpsCounter;
+		FpsDisplay*                fpsDisplay;
 
 
 		SVLightProperties**        lightProperties;

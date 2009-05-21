@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news83 ------------------------------------ 2009.05.xx -------------------------------------
+
+NEWS
+
+- FPS counter in rr_gl::sceneViewer() and SceneViewer sample
+
 \section news82 ------------------------------------ 2009.05.16 -------------------------------------
 
 NEWS

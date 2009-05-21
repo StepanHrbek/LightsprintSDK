@@ -97,6 +97,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/FPS.h"
 #include "Lightsprint/IO/ImportScene.h"
 #ifdef SUPPORT_WATER
 	#include "Lightsprint/GL/Water.h"
@@ -158,95 +159,16 @@ rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::
 bool preciseTimer = false;
 char globalOutputDirectory[1000] = "."; // without trailing slash
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Fps
 
-#include <queue>
+rr_gl::FpsCounter  g_fpsCounter;
+rr_gl::FpsDisplay* g_fpsDisplay = NULL;
+unsigned           g_playedFrames = 0;
+float              g_fpsAvg = 0;
 
-class Fps
-{
-public:
-	static Fps* create()
-	{
-		Fps* fps = new Fps();
-		if (!fps->mapFps) goto err;
-		for (unsigned i=0;i<10;i++)
-		{
-			if (!fps->mapDigit[i]) goto err;
-		}
-		return fps;
-err:
-		delete fps;
-		return NULL;
-	}
-	void render()
-	{
-		if (skyRenderer->render2dBegin(NULL))
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			char fpsstr[10];
-			sprintf(fpsstr,"%d",fpsToRender);
-			float x = 0.82f;
-			float y = 0.0f;
-			float wpix = 1/1280.f;
-			float hpix = 1/960.f;
-			skyRenderer->render2dQuad(rr_gl::getTexture(mapFps),x,y-0.012f,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
-			x += mapFps->getWidth()*wpix+0.01f;
-			for (char* c=fpsstr;*c;c++)
-			{
-				rr::RRBuffer* digit = mapDigit[*c-'0'];
-				skyRenderer->render2dQuad(rr_gl::getTexture(digit),x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
-				x += digit->getWidth()*wpix - 0.005f;
-			}
-			skyRenderer->render2dEnd();
-			glDisable(GL_BLEND);
-		}
-	}
-	void update()
-	{
-		//if (demoPlayer->getPaused()) return;
-		TIME now = GETTIME;
-		while (times.size() && now-times.front()>PER_SEC) times.pop();
-		times.push(GETTIME);
-		fpsToRender = (unsigned)times.size();
-		if (!demoPlayer->getPaused()) frames++;
-		float seconds = demoPlayer->getDemoPosition();
-		fpsAvg = frames/RR_MAX(0.01f,seconds);
-	}
-	float getAvg()
-	{
-		return fpsAvg;
-	}
-	~Fps()
-	{
-		for (unsigned i=0;i<10;i++) delete mapDigit[i];
-		delete mapFps;
-	}
-protected:
-	Fps()
-	{
-		mapFps = rr::RRBuffer::load("maps/txt-fps.png");
-		for (unsigned i=0;i<10;i++)
-		{
-			char buf[40];
-			sprintf(buf,"maps/txt-%d.png",i);
-			mapDigit[i] = rr::RRBuffer::load(buf);
-		}
-		frames = 0;
-		fpsToRender = 0;
-		fpsAvg = 0;
-	}
-	rr::RRBuffer* mapDigit[10];
-	rr::RRBuffer* mapFps;
-	std::queue<TIME> times;
-	unsigned frames; // kolik snimku se stihlo behem 1 prehrani animace
-	unsigned fpsToRender; // jake cislo renderovat
-	float fpsAvg;
-};
-
-Fps* g_fps;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -309,7 +231,7 @@ void init_gl_resources()
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
-	g_fps = Fps::create();
+	g_fpsDisplay = rr_gl::FpsDisplay::create("maps/");
 
 	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -338,7 +260,7 @@ void done_gl_resources()
 {
 	RR_SAFE_DELETE(skyRenderer);
 	RR_SAFE_DELETE(uberProgram);
-	RR_SAFE_DELETE(g_fps);
+	RR_SAFE_DELETE(g_fpsDisplay);
 #ifdef CORNER_LOGO
 	RR_SAFE_DELETE(lightsprintMap);
 #endif
@@ -1107,10 +1029,15 @@ void display()
 				frameStart += (*i)->transitionToNextTime;
 			}
 		}
-		if (g_fps && !captureVideo)
+
+		// fps
+		if (!demoPlayer->getPaused()) g_playedFrames++;
+		float seconds = demoPlayer->getDemoPosition();
+		g_fpsAvg = g_playedFrames/RR_MAX(0.01f,seconds);
+		if (g_fpsDisplay && !captureVideo)
 		{
-			g_fps->update();
-			g_fps->render();
+			unsigned fps = g_fpsCounter.getFps();
+			g_fpsDisplay->render(skyRenderer,fps,winWidth,winHeight);
 		}
 
 		if (demoPlayer->getPaused() && level->animationEditor)
@@ -2016,10 +1943,10 @@ void idle()
 #ifdef PLAY_WITH_FIXED_ADVANCE
 			rr::RRReporter::report(rr::INF1,"Finished in %fs.\n",(float)(GETSEC-timeStart));
 #else
-			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fps?g_fps->getAvg():0);
+			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fpsAvg);
 #endif
 			exiting = true;
-			exit(g_fps ? (unsigned)(g_fps->getAvg()*10) : 0);
+			exit((unsigned)(g_fpsAvg*10));
 			//keyboard(27,0,0);
 		}
 

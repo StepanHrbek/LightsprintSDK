@@ -63,6 +63,10 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	lightFieldQuadric = NULL;
 	lightFieldObjectIllumination = NULL;
 
+	textureRenderer = NULL;
+	fpsLoadAttempted = false;
+	fpsDisplay = NULL;
+
 	lightProperties = _parentsLightProperties;
 }
 
@@ -160,6 +164,9 @@ void SVCanvas::createContext()
 
 SVCanvas::~SVCanvas()
 {
+	RR_SAFE_DELETE(fpsDisplay);
+	RR_SAFE_DELETE(textureRenderer);
+
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
 	RR_SAFE_DELETE(toneMapping);
@@ -237,6 +244,12 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			break;
 		case 'W': // ctrl-w
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_WIREFRAME));
+			break;
+		case 'H': // ctrl-h
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_HELPERS));
+			break;
+		case 'F': // ctrl-f
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_FPS));
 			break;
 	}
 	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
@@ -1109,6 +1122,23 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		glEnable(GL_DEPTH_TEST);
 	}
 
+
+	unsigned fps = fpsCounter.getFps();
+	if (svs.renderFPS)
+	{
+		if (!fpsLoadAttempted)
+		{
+			fpsLoadAttempted = true;
+			RR_ASSERT(!textureRenderer);
+			RR_ASSERT(!fpsDisplay);
+			textureRenderer = new TextureRenderer(svs.pathToShaders);
+			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
+		}
+		if (fpsDisplay)
+		{
+			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
+		}
+	}
 
 	SwapBuffers();
 }

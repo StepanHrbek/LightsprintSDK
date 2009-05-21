@@ -39,6 +39,7 @@ struct SceneViewerState
 	bool             renderTextures;      //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderWater;         //! Render water surface at world y=0.
 	bool             renderWireframe;     //! Render all in wireframe.
+	bool             renderFPS;           //! Render FPS counter.
 	bool             renderHelpers;       //! Show helper wireframe objects and text outputs.
 	bool             renderBilinear;      //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
@@ -71,6 +72,7 @@ struct SceneViewerState
 		renderWater = 0;
 		renderBilinear = 1;
 		renderWireframe = 0;
+		renderFPS = 0;
 		renderHelpers = 0;
 		adjustTonemapping = 1;
 		cameraDynamicNear = 1;
