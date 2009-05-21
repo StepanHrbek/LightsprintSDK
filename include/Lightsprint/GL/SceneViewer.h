@@ -42,6 +42,7 @@ struct SceneViewerState
 	bool             renderFPS;           //! Render FPS counter.
 	bool             renderHelpers;       //! Show helper wireframe objects and text outputs.
 	bool             renderBilinear;      //! Render lightmaps with bilinear interpolation rather than without it.
+	bool             renderHelp;          //! Render overlay image as help. Image is loaded from <pathToShaders>../maps/sv_help.png.
 	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
 	bool             cameraDynamicNear;   //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
@@ -70,10 +71,11 @@ struct SceneViewerState
 		renderTransparent = 1;
 		renderTextures = 1;
 		renderWater = 0;
-		renderBilinear = 1;
 		renderWireframe = 0;
 		renderFPS = 0;
 		renderHelpers = 0;
+		renderBilinear = 1;
+		renderHelp = 0;
 		adjustTonemapping = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;

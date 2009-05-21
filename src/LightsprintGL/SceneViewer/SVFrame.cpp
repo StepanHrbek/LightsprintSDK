@@ -207,6 +207,43 @@ void SVFrame::OnExit(wxCommandEvent& event)
 	Close(true);
 }
 
+static wxImage* loadImage(const char* filename)
+{
+	// Q: why do we read images via RRBuffer::load()?
+	// A: wx file loaders are not compiled in, to reduce size
+	//    wxIcon(fname.ico) works only in Windows, only on some icons and it reduces icon resolution
+	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
+	rr::RRBuffer* buffer = rr::RRBuffer::load(filename,NULL,true);
+	if (!buffer)
+		return NULL;
+	unsigned width = buffer->getWidth();
+	unsigned height = buffer->getHeight();
+	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
+	wxImage* image = new wxImage(width,height,false);
+	image->InitAlpha();
+	for (unsigned j=0;j<height;j++)
+		for (unsigned i=0;i<width;i++)
+		{
+			rr::RRVec4 element = buffer->getElement(j*width+i);
+			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
+			image->SetAlpha(i,j,(unsigned)(element[3]*255));
+		}
+	delete buffer;
+	return image;
+}
+
+static wxIcon* loadIcon(const char* filename)
+{
+	wxImage* image = loadImage(filename);
+	if (!image)
+		return NULL;
+	wxBitmap bitmap(*image);
+	wxIcon* icon = new wxIcon();
+	icon->CopyFromBitmap(bitmap);
+	delete image;
+	return icon;
+}
+
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
@@ -214,7 +251,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_lightProperties = NULL;
 
 	static const char * sample_xpm[] = {
-	/* columns rows colors chars-per-pixel */
+	// columns rows colors chars-per-pixel
 	"32 32 6 1",
 	"  c black",
 	". c navy",
@@ -222,7 +259,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	"o c yellow",
 	"O c gray100",
 	"+ c None",
-	/* pixels */
+	// pixels
 	"++++++++++++++++++++++++++++++++",
 	"++++++++++++++++++++++++++++++++",
 	"++++++++++++++++++++++++++++++++",
@@ -357,7 +394,7 @@ void SVFrame::UpdateMenuBar()
 	// About...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_HELP,_T("Help"));
+		winMenu->Append(ME_HELP,_T("Help (h)"));
 		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"),_T("For diagnostic purposes."));
 		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"),_T("For diagnostic purposes."));
 		winMenu->Append(ME_ABOUT,_T("About"));
@@ -367,31 +404,6 @@ void SVFrame::UpdateMenuBar()
 	wxMenuBar* oldMenuBar = GetMenuBar();
 	SetMenuBar(menuBar);
 	delete oldMenuBar;
-}
-
-wxImage* loadImage(const char* filename)
-{
-	// Q: why do we read images via RRBuffer::load()?
-	// A: wx file loaders are not compiled in, to reduce size
-	//    wxIcon(fname.ico) works only in Windows and reduces icon resolution
-	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
-	rr::RRBuffer* buffer = rr::RRBuffer::load(filename,NULL,true);
-	if (!buffer)
-		return NULL;
-	unsigned width = buffer->getWidth();
-	unsigned height = buffer->getHeight();
-	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
-	wxImage* image = new wxImage(width,height,false);
-	image->InitAlpha();
-	for (unsigned j=0;j<height;j++)
-		for (unsigned i=0;i<width;i++)
-		{
-			rr::RRVec4 element = buffer->getElement(j*width+i);
-			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
-			image->SetAlpha(i,j,(unsigned)(element[3]*255));
-		}
-	delete buffer;
-	return image;
 }
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
@@ -818,34 +830,19 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		//////////////////////////////// HELP ///////////////////////////////
 
-		case ME_HELP:
-			wxMessageBox("To LOOK, move mouse with right button pressed.\n"
-				"To MOVE, use arrows or wsadqzxc.\n"
-				"To ZOOM, use wheel.\n"
-				"To switch light/camera, left click.\n"
-				"\n"
-				"To change scene, skybox, lights, lighting techniques... use menu.",
-				"Controls");
-			break;
+		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
 		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
 		case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
 		case ME_ABOUT:
 			{
-				wxImage* image = loadImage(tmpstr("%s../maps/lightsprint230.png",svs.pathToShaders));
-				wxIcon icon;
-				if (image)
-				{
-					wxBitmap bitmap(*image);
-					icon.CopyFromBitmap(bitmap);
-				}
-
+				wxIcon* icon = loadIcon(tmpstr("%s../maps/lightsprint230.png",svs.pathToShaders));
 				wxAboutDialogInfo info;
-				info.SetIcon(icon);
+				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
 				info.SetWebSite("http://lightsprint.com");
 				info.SetCopyright("(c) 1999-2009 Stepan Hrbek, Lightsprint");
 				wxAboutBox(info);
-				delete image;
+				delete icon;
 			}
 			break;
 	}

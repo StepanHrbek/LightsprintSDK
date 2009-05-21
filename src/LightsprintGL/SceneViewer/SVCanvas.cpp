@@ -59,6 +59,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	collisionHandler = NULL;
 	fontInited = false;
 
+	helpLoadAttempted = false;
+	helpImage = NULL;
+
 	lightField = NULL;
 	lightFieldQuadric = NULL;
 	lightFieldObjectIllumination = NULL;
@@ -133,7 +136,7 @@ void SVCanvas::createContext()
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
-	if (svs.renderRealtime)
+	if (svs.renderRealtime && solver->getNumObjects())
 	{
 		// if fireball file already exists, use it
 		fireballLoadAttempted = false;
@@ -164,8 +167,12 @@ void SVCanvas::createContext()
 
 SVCanvas::~SVCanvas()
 {
+	// fps
 	RR_SAFE_DELETE(fpsDisplay);
 	RR_SAFE_DELETE(textureRenderer);
+
+	// help
+	RR_SAFE_DELETE(helpImage);
 
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
@@ -309,6 +316,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 		case 'c':
 		case 'C': speedLean = +speed; break;
+
+		case 'h':
+		case 'H': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_HELP)); break;
 
 
 		case 27:
@@ -1123,15 +1133,62 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	}
 
 
+	// help
+	if (svs.renderHelp)
+	{
+		if (!helpLoadAttempted)
+		{
+			helpLoadAttempted = true;
+			if (!textureRenderer)
+			{
+				textureRenderer = new TextureRenderer(svs.pathToShaders);
+			}
+			RR_ASSERT(helpImage);
+			helpImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_help.png",svs.pathToShaders));
+			if (!helpImage)
+			{
+				wxMessageBox("To LOOK, move mouse with right button pressed.\n"
+					"To MOVE, use arrows or wsadqzxc.\n"
+					"To ZOOM, use wheel.\n"
+					"To switch light/camera, left click.\n"
+					"\n"
+					"To change scene, skybox, lights, lighting techniques... use menu.",
+					"Controls");
+			}
+		}
+		if (helpImage)
+		{
+			float w = helpImage->getWidth()/(float)winWidth;
+			float h = helpImage->getHeight()/(float)winHeight;
+			if (w>h)
+			{
+				h /= w;
+				w = 1;
+			}
+			else
+			{
+				w /= h;
+				h = 1;
+			}
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			glDisable(GL_BLEND);
+		}
+	}
+
+	// fps
 	unsigned fps = fpsCounter.getFps();
 	if (svs.renderFPS)
 	{
 		if (!fpsLoadAttempted)
 		{
 			fpsLoadAttempted = true;
-			RR_ASSERT(!textureRenderer);
+			if (!textureRenderer)
+			{
+				textureRenderer = new TextureRenderer(svs.pathToShaders);
+			}
 			RR_ASSERT(!fpsDisplay);
-			textureRenderer = new TextureRenderer(svs.pathToShaders);
 			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
 		}
 		if (fpsDisplay)
@@ -1140,6 +1197,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		}
 	}
 
+	// done
 	SwapBuffers();
 }
 

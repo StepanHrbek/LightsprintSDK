@@ -73,13 +73,17 @@ namespace rr_gl
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;
 
-		// all we need for testing lightfield
+		// help
+		bool                       helpLoadAttempted;
+		rr::RRBuffer*              helpImage;
+
+		// lightfield
 		rr::RRLightField*          lightField;
 		GLUquadricObj*             lightFieldQuadric;
 		rr::RRObjectIllumination*  lightFieldObjectIllumination;
 
 		// FPS
-		TextureRenderer*           textureRenderer;
+		TextureRenderer*           textureRenderer; // used also by help
 		bool                       fpsLoadAttempted;
 		FpsCounter                 fpsCounter;
 		FpsDisplay*                fpsDisplay;
