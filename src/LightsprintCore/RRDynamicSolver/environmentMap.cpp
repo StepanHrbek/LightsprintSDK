@@ -543,7 +543,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	if (!priv->scene && priv->packedSolver && !priv->customIrradianceRGBA8)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
+		// this is legal, scene may be lit by skybox
+		//LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
 	}
 
 	// alloc temp space
