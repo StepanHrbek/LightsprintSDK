@@ -130,7 +130,7 @@ static bool getSpeed(wxWindow* parent, float& speed)
 static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 {
 	float average = brightness.avg();
-	if (getFactor(parent,average,"Please adjust brightness.","Brightness"))
+	if (getFactor(parent,average,"Please adjust brightness (default is 1).","Brightness"))
 	{
 		brightness = rr::RRVec4(average);
 		return true;
@@ -377,17 +377,21 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed (F11)"):_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
-		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
-		winMenu->Append(ME_RENDER_FPS,svs.renderFPS?_T("Hide FPS (ctrl-f)"):_T("Show FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
+		winMenu->AppendSeparator();
 		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
 		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
 		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
 		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
-		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
 		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
 		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
+		winMenu->AppendSeparator();
+		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
+		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
+		winMenu->Append(ME_RENDER_FPS,svs.renderFPS?_T("Hide FPS (ctrl-f)"):_T("Show FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
+		winMenu->Append(ME_RENDER_VIGNETTE,svs.renderVignette?_T("Disable vignette"):_T("Enable vignette"));
 		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
 		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
+		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
 		menuBar->Append(winMenu, _T("Render"));
 	}
 
@@ -813,19 +817,19 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			GetPosition(windowCoord+0,windowCoord+1);
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
-		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
 		case ME_RENDER_DIFFUSE: svs.renderDiffuse = !svs.renderDiffuse; break;
 		case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
 		case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
 		case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
 		case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
 		case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
-		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
+		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
 		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
-		case ME_RENDER_BRIGHTNESS:
-			getBrightness(this,svs.brightness);
-			break;
+		case ME_RENDER_VIGNETTE: svs.renderVignette = !svs.renderVignette; break;
+		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
+		case ME_RENDER_BRIGHTNESS: getBrightness(this,svs.brightness); break;
+		case ME_RENDER_CONTRAST: getFactor(this,svs.gamma,"Please adjust contrast (default is 1).","Contrast"); break;
 
 
 		//////////////////////////////// HELP ///////////////////////////////

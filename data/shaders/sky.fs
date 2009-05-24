@@ -2,17 +2,30 @@
 // Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //
 // Options:
-// #define PHYSICAL
+//  #define POSTPROCESS_BRIGHTNESS
+//  #define POSTPROCESS_GAMMA
 
 uniform samplerCube cube;
-uniform vec4 color;
 varying vec3 dir;
+
+#ifdef POSTPROCESS_BRIGHTNESS
+	uniform vec4 postprocessBrightness;
+#endif
+
+#ifdef POSTPROCESS_GAMMA
+	uniform float postprocessGamma;
+#endif
 
 void main()
 {
-	vec4 sample = textureCube(cube,dir);
-#ifdef PHYSICAL
-	sample = pow(sample,vec4(0.45,0.45,0.45,0.45));
+	gl_FragColor = textureCube(cube,dir);
+
+#ifdef POSTPROCESS_BRIGHTNESS
+	gl_FragColor.rgb *= postprocessBrightness.rgb;
 #endif
-	gl_FragColor = sample*color;
+
+#ifdef POSTPROCESS_GAMMA
+	gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
+#endif
+
 }

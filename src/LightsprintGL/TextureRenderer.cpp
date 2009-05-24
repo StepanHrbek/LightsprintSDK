@@ -21,11 +21,11 @@ namespace rr_gl
 
 TextureRenderer::TextureRenderer(const char* pathToShaders)
 {
-	skyScaledProgram = Program::create(NULL,
+	skyScaledProgram = Program::create("#define POSTPROCESS_BRIGHTNESS\n",
 		tmpstr("%ssky.vs",pathToShaders),
 		tmpstr("%ssky.fs",pathToShaders));
 	if (!skyScaledProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
-	skyPhysicalProgram = Program::create("#define PHYSICAL\n",
+	skyPhysicalProgram = Program::create("#define POSTPROCESS_BRIGHTNESS\n#define POSTPROCESS_GAMMA\n",
 		tmpstr("%ssky.vs",pathToShaders),
 		tmpstr("%ssky.fs",pathToShaders));
 	if (!skyPhysicalProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
@@ -43,9 +43,10 @@ TextureRenderer::~TextureRenderer()
 	delete skyPhysicalProgram;
 }
 
-bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTest, bool _physical)
+bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTest, bool _physical, float _gamma)
 {
-	Program* program = _physical ? skyPhysicalProgram : skyScaledProgram;
+	if (_physical) _gamma *= 0.45f;
+	Program* program = (_gamma!=1) ? skyPhysicalProgram : skyScaledProgram;
 	if (!program)
 	{
 		assert(0);
@@ -62,7 +63,9 @@ bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTe
 	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	program->sendUniform("cube",0);
-	program->sendUniform("color",_color?_color[0]:1,_color?_color[1]:1,_color?_color[2]:1,_color?_color[3]:1);
+	program->sendUniform4fv("postprocessBrightness",_color);
+	if (_gamma!=1)
+		program->sendUniform("postprocessGamma",_gamma);
 	oldCamera = Camera::getRenderCamera();
 	if (oldCamera)
 	{
@@ -87,14 +90,14 @@ void TextureRenderer::renderEnvironmentEnd()
 	}
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
+bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4],float gamma)
 {
 	if (!texture)
 	{
 		LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
 		return false;
 	}
-	if (renderEnvironmentBegin(color,false,!texture->getBuffer()->getScaled()))
+	if (renderEnvironmentBegin(color,false,!texture->getBuffer()->getScaled(),gamma))
 	{
 		texture->bindTexture();
 		glBegin(GL_POLYGON);

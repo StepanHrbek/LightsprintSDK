@@ -195,7 +195,7 @@ void RendererOfRRDynamicSolver::render()
 		if (textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true,!env->getScaled()); // depth test allowed so that skybox does not overwrite water plane
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true,!env->getScaled(),params.gamma); // depth test allowed so that skybox does not overwrite water plane
 			// no mipmaps because gluBuild2DMipmaps works incorrectly for values >1 (integer part is removed)
 			// no compression because artifacts are usually clearly visible
 			if (env->getWidth()>2)
@@ -613,7 +613,7 @@ void RendererOfOriginalScene::render()
 		if (textureRenderer && env)
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true,!env->getScaled());
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0],true,!env->getScaled(),params.gamma);
 			if (env->getWidth()>2)
 				getTexture(env,true,false)->bindTexture(); // smooth
 			else

@@ -62,6 +62,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	helpLoadAttempted = false;
 	helpImage = NULL;
 
+	vignetteLoadAttempted = false;
+	vignetteImage = NULL;
+
 	lightField = NULL;
 	lightFieldQuadric = NULL;
 	lightFieldObjectIllumination = NULL;
@@ -170,6 +173,9 @@ SVCanvas::~SVCanvas()
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
 	RR_SAFE_DELETE(textureRenderer);
+
+	// vignette
+	RR_SAFE_DELETE(vignetteImage);
 
 	// help
 	RR_SAFE_DELETE(helpImage);
@@ -1134,6 +1140,28 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 
 	// help
+	if (svs.renderVignette)
+	{
+		if (!vignetteLoadAttempted)
+		{
+			vignetteLoadAttempted = true;
+			if (!textureRenderer)
+			{
+				textureRenderer = new TextureRenderer(svs.pathToShaders);
+			}
+			RR_ASSERT(!vignetteImage);
+			vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
+		}
+		if (vignetteImage)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
+			glDisable(GL_BLEND);
+		}
+	}
+
+	// help
 	if (svs.renderHelp)
 	{
 		if (!helpLoadAttempted)
@@ -1143,7 +1171,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			{
 				textureRenderer = new TextureRenderer(svs.pathToShaders);
 			}
-			RR_ASSERT(helpImage);
+			RR_ASSERT(!helpImage);
 			helpImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_help.png",svs.pathToShaders));
 			if (!helpImage)
 			{
