@@ -43,7 +43,7 @@ TextureRenderer::~TextureRenderer()
 	delete skyPhysicalProgram;
 }
 
-bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTest, bool _physical, float _gamma)
+bool TextureRenderer::renderEnvironmentBegin(const rr::RRVec4& _color, bool _allowDepthTest, bool _physical, float _gamma)
 {
 	if (_physical) _gamma *= 0.45f;
 	Program* program = (_gamma!=1) ? skyPhysicalProgram : skyScaledProgram;
@@ -63,7 +63,9 @@ bool TextureRenderer::renderEnvironmentBegin(float _color[4], bool _allowDepthTe
 	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	program->sendUniform("cube",0);
-	program->sendUniform4fv("postprocessBrightness",_color);
+
+	rr::RRVec4 correctedBrightness(_color*pow(_gamma,0.45f));
+	program->sendUniform4fv("postprocessBrightness",&correctedBrightness.x);
 	if (_gamma!=1)
 		program->sendUniform("postprocessGamma",_gamma);
 	oldCamera = Camera::getRenderCamera();
@@ -90,7 +92,7 @@ void TextureRenderer::renderEnvironmentEnd()
 	}
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4],float gamma)
+bool TextureRenderer::renderEnvironment(const Texture* texture,const rr::RRVec4& color,float gamma)
 {
 	if (!texture)
 	{

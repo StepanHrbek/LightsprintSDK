@@ -14,6 +14,11 @@ NEWS
 
 - FPS counter in rr_gl::sceneViewer() and SceneViewer sample
 
+CHANGES
+
+- rr_gl::TextureRenderer parameter float color[4] changed to RRVec4 color,
+  \n pass RRVec4(1) where you passed NULL
+
 \section news82 ------------------------------------ 2009.05.16 -------------------------------------
 
 NEWS

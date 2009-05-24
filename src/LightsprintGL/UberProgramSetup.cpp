@@ -628,7 +628,8 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: brightness==NULL.\n");
 			return false;
 		}
-		program->sendUniform4fv("postprocessBrightness", &brightness->x);
+		rr::RRVec4 correctedBrightness(*brightness*pow(gamma,0.45f));
+		program->sendUniform4fv("postprocessBrightness", &correctedBrightness.x);
 	}
 
 	if (POSTPROCESS_GAMMA
