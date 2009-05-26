@@ -196,43 +196,62 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 //
 // RRMesh tools
 
+RRMesh::RRMesh()
+{
+	aabbCache = NULL;
+}
+
+RRMesh::~RRMesh()
+{
+	delete aabbCache;
+}
+
 void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
-	unsigned numVertices = getNumVertices();
-	if (numVertices)
+	if (!aabbCache)
+	#pragma omp critical
 	{
-		RRVec3 center = RRVec3(0);
-		RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
-		RRVec3 maxi = RRVec3(-1e37f);
-		for (unsigned i=0;i<numVertices;i++)
+		(RRVec3*)aabbCache = new RRVec3[3]; // hack: we write to const mesh. critical section makes it safe
+		unsigned numVertices = getNumVertices();
+		if (numVertices)
 		{
-			RRMesh::Vertex v;
-			getVertex(i,v);
+			RRVec3 center = RRVec3(0);
+			RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
+			RRVec3 maxi = RRVec3(-1e37f);
+			for (unsigned i=0;i<numVertices;i++)
+			{
+				RRMesh::Vertex v;
+				getVertex(i,v);
+				for (unsigned j=0;j<3;j++)
+					if (_finite(v[j])) // filter out INF/NaN
+					{
+						center[j] += v[j];
+						mini[j] = RR_MIN(mini[j],v[j]);
+						maxi[j] = RR_MAX(maxi[j],v[j]);
+					}
+			}
+
+			// fix negative size
 			for (unsigned j=0;j<3;j++)
-				if (_finite(v[j])) // filter out INF/NaN
-				{
-					center[j] += v[j];
-					mini[j] = RR_MIN(mini[j],v[j]);
-					maxi[j] = RR_MAX(maxi[j],v[j]);
-				}
+				if (mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
+
+			aabbCache[0] = mini;
+			aabbCache[1] = maxi;
+			aabbCache[2] = center/numVertices;
 		}
-
-		// fix negative size
-		for (unsigned j=0;j<3;j++)
-			if (mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
-
-		if (_center) *_center = center/numVertices;
-		if (_mini) *_mini = mini;
-		if (_maxi) *_maxi = maxi;
+		else
+		{
+			aabbCache[0] = RRVec3(0);
+			aabbCache[1] = RRVec3(0);
+			aabbCache[2] = RRVec3(0);
+		}
+		RR_ASSERT(IS_VEC3(aabbCache[0]));
+		RR_ASSERT(IS_VEC3(aabbCache[1]));
+		RR_ASSERT(IS_VEC3(aabbCache[2]));
 	}
-	else
-	{
-		if (_center) *_center = RRVec3(0);
-		if (_mini) *_mini = RRVec3(0);
-		if (_maxi) *_maxi = RRVec3(0);
-	}
-	if (_mini) RR_ASSERT(IS_VEC3(_mini[0]));
-	if (_maxi) RR_ASSERT(IS_VEC3(_mini[0]));
+	if (_mini) *_mini = aabbCache[0];
+	if (_maxi) *_maxi = aabbCache[1];
+	if (_center) *_center = aabbCache[2];
 }
 
 RRReal RRMesh::getAverageVertexDistance() const

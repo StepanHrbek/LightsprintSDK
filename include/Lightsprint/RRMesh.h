@@ -111,7 +111,8 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual ~RRMesh() {}
+		RRMesh();
+		virtual ~RRMesh();
 
 
 		//
@@ -294,7 +295,7 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Returns axis aligned bounding box and center of mesh.
+		//! Returns axis aligned bounding box and center of mesh. Fast (cached).
 		//
 		//! \param mini
 		//!  NULL or pointer to vec3 to be filled with minimum of computed AABB.
@@ -304,11 +305,11 @@ namespace rr
 		//!  NULL or pointer to vec3 to be filled with average vertex position.
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 
-		//! Returns average distance between two vertices.
+		//! Returns average distance between two vertices. Slow (not cached).
 		virtual RRReal       getAverageVertexDistance() const;
 		
 		//! Returns y coordinate of plane where triangles facing straight up have the biggest total area.
-		//! In CG scenes, this is usually flat ground.
+		//! In CG scenes, this is usually flat ground. Slow (not cached).
 		virtual RRReal       findGroundLevel() const;
 
 		//! Reports incinsistencies found in mesh.
@@ -460,6 +461,9 @@ namespace rr
 		//! PreImport numbers are used by RRDynamicSolver for vertex buffer layout, so this filter
 		//! adjusts layout of generated vertex buffers to use current vertex numbers.
 		RRMesh* createVertexBufferRuler() const;
+
+	private:
+		RRVec3* aabbCache; //! Cached results of getAABB().
 	};
 
 } // namespace

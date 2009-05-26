@@ -21,6 +21,7 @@ NEWS
   - adjust contrast
   - render logo
   - render vignette effect
+- RRMesh::getAABB() is much faster when called multiple times (results are cached in RRMesh)
 
 CHANGES
 
