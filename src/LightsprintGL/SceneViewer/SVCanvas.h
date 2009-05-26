@@ -81,6 +81,10 @@ namespace rr_gl
 		bool                       vignetteLoadAttempted;
 		rr::RRBuffer*              vignetteImage;
 
+		// logo
+		bool                       logoLoadAttempted;
+		rr::RRBuffer*              logoImage;
+
 		// lightfield
 		rr::RRLightField*          lightField;
 		GLUquadricObj*             lightFieldQuadric;

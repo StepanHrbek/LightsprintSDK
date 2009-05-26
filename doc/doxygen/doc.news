@@ -12,10 +12,15 @@ namespace rr
 
 NEWS
 
-- FPS counter in rr_gl::sceneViewer() and SceneViewer sample
 - enhanced rr_gl::TextureRenderer
   - new parameter float gamma for gamma correction
   - parameters float color[4] changed to RRVec4 color (pass RRVec4(1) where you passed NULL)
+- enhanced rr_gl::sceneViewer() and SceneViewer sample
+  - help as overlay image
+  - new menu items: render FPS
+  - adjust contrast
+  - render logo
+  - render vignette effect
 
 CHANGES
 

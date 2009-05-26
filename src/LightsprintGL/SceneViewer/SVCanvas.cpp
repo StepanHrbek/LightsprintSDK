@@ -65,6 +65,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	vignetteLoadAttempted = false;
 	vignetteImage = NULL;
 
+	logoLoadAttempted = false;
+	logoImage = NULL;
+
 	lightField = NULL;
 	lightFieldQuadric = NULL;
 	lightFieldObjectIllumination = NULL;
@@ -173,6 +176,9 @@ SVCanvas::~SVCanvas()
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
 	RR_SAFE_DELETE(textureRenderer);
+
+	// logo
+	RR_SAFE_DELETE(logoImage);
 
 	// vignette
 	RR_SAFE_DELETE(vignetteImage);
@@ -1144,7 +1150,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	}
 
 
-	// help
+	// vignette
 	if (svs.renderVignette)
 	{
 		if (!vignetteLoadAttempted)
@@ -1206,6 +1212,30 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			glDisable(GL_BLEND);
+		}
+	}
+
+	// logo
+	if (svs.renderLogo)
+	{
+		if (!logoLoadAttempted)
+		{
+			logoLoadAttempted = true;
+			if (!textureRenderer)
+			{
+				textureRenderer = new TextureRenderer(svs.pathToShaders);
+			}
+			RR_ASSERT(!logoImage);
+			logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
+		}
+		if (logoImage)
+		{
+			float w = logoImage->getWidth()/(float)winWidth;
+			float h = logoImage->getHeight()/(float)winHeight;
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
 			glDisable(GL_BLEND);
 		}
 	}
