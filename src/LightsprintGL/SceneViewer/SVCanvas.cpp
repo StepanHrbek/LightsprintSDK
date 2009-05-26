@@ -333,6 +333,11 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 				svs.render2d = 0;
 			}
 			else
+			if (svs.renderHelp)
+			{
+				svs.renderHelp = false;
+			}
+			else
 			{
 				exitRequested = true;
 			}
