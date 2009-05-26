@@ -25,6 +25,9 @@ NEWS
 
 CHANGES
 
+- rr_gl::Camera::setNearDynamically() changed to rr_gl::Camera::setRangeDynamically()
+  as it newly sets both near and far
+
 \section news82 ------------------------------------ 2009.05.16 -------------------------------------
 
 NEWS

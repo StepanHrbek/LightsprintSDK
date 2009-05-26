@@ -146,17 +146,34 @@ rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow) const
 		;
 }
 
-void Camera::setNearDynamically(const rr::RRObject* object)
+void Camera::setRangeDynamically(const rr::RRObject* object)
 {
 	if (!object)
 		return;
+
+	// get scene size
+	rr::RRVec3 aabbMini,aabbMaxi;
+	object->getCollider()->getMesh()->getAABB(&aabbMini,&aabbMaxi,NULL);
+	float objectSize = (aabbMaxi-aabbMini).length();
+
+	// get scene distance
 	CameraObjectDistance cod(object);
 	cod.addCamera(this);
+
+	// set range
 	if (cod.getDistanceMax()>=cod.getDistanceMin())
 	{
+		// some rays intersected scene, use scene size and distance
+		float newFar = 2 * RR_MAX(objectSize,cod.getDistanceMax());
 		float min = cod.getDistanceMin()/2;
-		float relativeSceneProximity = CLAMPED(getFar()/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
-		setRange( CLAMPED(min,0.0001f,getFar()/relativeSceneProximity), getFar() );
+		float relativeSceneProximity = CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
+		float newNear = CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
+		setRange( newNear, newFar );
+	}
+	else
+	{
+		// rays did not intersect scene, use scene size
+		// or even better, don't change range at all
 	}
 }
 

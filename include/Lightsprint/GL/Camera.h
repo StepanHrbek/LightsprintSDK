@@ -111,9 +111,11 @@ public:
 	void  setRange(float _near, float _far);
 	//! Sets pos and dir randomly, and near-far range based on scene size. Uses raycasting (~1000 rays).
 	void  setPosDirRangeRandomly(const rr::RRObject* scene);
-	//! Sets near to be a bit smaller than distance from scene in front of camera.
-	//! Uses raycasting (~10 rays), performance hit is small even when called once per frame.
-	void  setNearDynamically(const rr::RRObject* scene);
+	//! Sets near and far to cover scene visible by camera, but not much more.
+	//
+	//! Uses raycasting (~100 rays), performance hit is acceptable even if called once per frame.
+	//! Camera should be up to date before call, use update() if it is not.
+	void  setRangeDynamically(const rr::RRObject* scene);
 	
 	//! == operator, true when inputs are equal.
 	bool operator==(const Camera& a) const;

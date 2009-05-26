@@ -640,7 +640,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 		if (svs.cameraDynamicNear)
 		{
-			svs.eye.setNearDynamically(solver->getMultiObjectCustom());
+			// eye must already be updated here because next line depends on up, right
+			svs.eye.setRangeDynamically(solver->getMultiObjectCustom());
 			svs.eye.update();
 		}
 
