@@ -205,7 +205,7 @@ void Scene::render(Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dy
 	TIME newTime = GETTIME;
 	float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
 	if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
-		s_toneMapping->adjustOperator(secondsSinceLastFrame,brightness,1);
+		s_toneMapping->adjustOperator(secondsSinceLastFrame,brightness,1,0.5f);
 	oldTime = newTime;
 
 	//! Forget dynamic objects.

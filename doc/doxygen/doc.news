@@ -22,6 +22,8 @@ NEWS
   - render logo
   - render vignette effect
 - RRMesh::getAABB() is much faster when called multiple times (results are cached in RRMesh)
+- tone mapping can be configured for brighter or darker results
+  \n see new parameter targetIntensity in rr_gl::ToneMapping::adjustOperator()
 
 CHANGES
 

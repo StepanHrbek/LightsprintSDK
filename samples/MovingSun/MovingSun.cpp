@@ -403,7 +403,7 @@ void display(void)
 			oldTime = newTime;
 		}
 		if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
-			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,contrast);
+			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,contrast,0.5f);
 	}
 
 	glutSwapBuffers();

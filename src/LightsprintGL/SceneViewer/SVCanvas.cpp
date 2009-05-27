@@ -719,7 +719,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				TIME newTime = GETTIME;
 				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
 				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
-					toneMapping->adjustOperator(secondsSinceLastFrame,svs.brightness,svs.gamma);
+					toneMapping->adjustOperator(secondsSinceLastFrame,svs.brightness,svs.gamma,0.6f);
 				oldTime = newTime;
 			}
 		}
