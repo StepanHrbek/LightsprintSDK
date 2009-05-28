@@ -64,7 +64,7 @@ public:
 		};
 		Material()
 		{
-			reset(false);
+			reset(false); // Model_3DS::MaterialChunkProcessor expects 1-sided is already set
 			lightmapTexcoord = CH_LIGHTMAP;
 			name = NULL;
 		}
