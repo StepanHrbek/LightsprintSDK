@@ -60,14 +60,14 @@ void FpsDisplay::render(rr_gl::TextureRenderer* textureRenderer, unsigned fpsToR
 		sprintf(fpsstr,"%d",fpsToRender);
 		float wpix = 1.f/winWidth;
 		float hpix = 1.f/winHeight;
-		float x = 1-(mapFps->getWidth()+110)*wpix;
-		float y = 2*hpix;
-		textureRenderer->render2dQuad(rr_gl::getTexture(mapFps),x,y-12*hpix,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
+		float x = 1-(mapFps->getWidth()+5+mapDigit[0]->getWidth()*3)*wpix;
+		float y = 0;
+		textureRenderer->render2dQuad(rr_gl::getTexture(mapFps),x,y,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
 		x += (mapFps->getWidth()+5)*wpix;
 		for (char* c=fpsstr;*c;c++)
 		{
 			rr::RRBuffer* digit = mapDigit[*c-'0'];
-			textureRenderer->render2dQuad(rr_gl::getTexture(digit),x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
+			textureRenderer->render2dQuad(rr_gl::getTexture(digit),x,y+(mapFps->getHeight()-digit->getHeight())*hpix,digit->getWidth()*wpix,digit->getHeight()*hpix);
 			x += (digit->getWidth()-6)*wpix;
 		}
 		textureRenderer->render2dEnd();
