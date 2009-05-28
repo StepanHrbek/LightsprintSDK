@@ -388,7 +388,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
 		winMenu->Append(ME_RENDER_FPS,svs.renderFPS?_T("Hide FPS (ctrl-f)"):_T("Show FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
-		winMenu->Append(ME_RENDER_LOGO,svs.renderLogo?_T("Disable logo"):_T("Enable logo"),_T("Logo is loaded from data/maps/sv_logo.png."));
+		winMenu->Append(ME_RENDER_LOGO,svs.renderLogo?_T("Disable logo"):_T("Enable logo"),_T("Logo is loaded from data/maps/logo.png."));
 		winMenu->Append(ME_RENDER_VIGNETTE,svs.renderVignette?_T("Disable vignette"):_T("Enable vignette"),_T("Vignette overlay is loaded from data/maps/vignette.png."));
 		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
 		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
