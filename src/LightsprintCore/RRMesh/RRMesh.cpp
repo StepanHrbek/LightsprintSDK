@@ -211,7 +211,7 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 	if (!aabbCache)
 	#pragma omp critical
 	{
-		(RRVec3*)aabbCache = new RRVec3[3]; // hack: we write to const mesh. critical section makes it safe
+		const_cast<RRMesh*>(this)->aabbCache = new RRVec3[3]; // hack: we write to const mesh. critical section makes it safe
 		unsigned numVertices = getNumVertices();
 		if (numVertices)
 		{
