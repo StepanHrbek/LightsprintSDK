@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news83 ------------------------------------ 2009.05.xx -------------------------------------
+\section news84 ------------------------------------ 2009.05.29 -------------------------------------
 
 NEWS
 
@@ -27,10 +27,10 @@ NEWS
 
 CHANGES
 
-- rr_gl::Camera::setNearDynamically() changed to rr_gl::Camera::setRangeDynamically()
-  as it newly sets both near and far
+- rr_gl::Camera::setRangeDynamically() replaces rr_gl::Camera::setNearDynamically()
+  \n new function sets both near and far
 
-\section news82 ------------------------------------ 2009.05.16 -------------------------------------
+\section news83 ------------------------------------ 2009.05.16 -------------------------------------
 
 NEWS
 

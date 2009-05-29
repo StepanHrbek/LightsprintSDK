@@ -520,10 +520,7 @@ Ray-Mesh collisions
 
  \section artist_realtime_lights Lights
   All light sources are supported - point, spot, directional, emissive materials,
-  sky (flat color, LDR or HDR texture) and they may arbitrarily change -
-  with one exception.
-  Skylight does not automatically affect static scene,
-  skylight's effect must be precomputed into lightmaps.
+  sky (flat color, LDR or HDR texture) and they may arbitrarily change in realtime.
 
 
 
@@ -2232,7 +2229,7 @@ Ray-Mesh collisions
   - see source code
     - open src/Lightsprint.vs2005.sln or src/Lightsprint.vs2008.sln
     - see for example lightmap building source code in BuildLightmaps project,
-      feel free to customize it to match our needs
+      feel free to customize it to match your needs
   - see \ref main_samples "other samples"
   - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
   </td><td>
