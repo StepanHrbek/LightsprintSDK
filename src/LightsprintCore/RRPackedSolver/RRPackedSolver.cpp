@@ -418,6 +418,12 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 				return; // don't improve now
 			}
 		}
+		else
+		{
+			// there's no light to bounce (happens in scenes lit by skylight only)
+			currentQuality = qualityStatic; // don't improve next time
+			return; // don't improve now
+		}
 		currentVersionInTriangles += bests;
 		for (unsigned i=0;i<bests;i++)
 		{
