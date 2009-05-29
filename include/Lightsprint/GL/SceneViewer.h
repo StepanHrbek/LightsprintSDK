@@ -52,6 +52,8 @@ struct SceneViewerState
 	float            gamma;               //! Gamma correction applied at render time, 1=no correction.
 	// viewer initialization
 	bool             autodetectCamera;    //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
+	// viewer end
+	bool             returnWithoutShutdown; //! True = return from scene viewer will be faster, without closing windows and releasing memory. Use it only if you plan to exit after return from scene viewer. 
 
 	// sets default state with realtime GI and random camera
 	SceneViewerState()
@@ -86,6 +88,7 @@ struct SceneViewerState
 		brightness = rr::RRVec4(1);
 		gamma = 1;
 		autodetectCamera = 1;
+		returnWithoutShutdown = 0;
 	}
 };
 

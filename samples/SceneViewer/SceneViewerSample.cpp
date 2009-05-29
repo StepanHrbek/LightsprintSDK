@@ -84,6 +84,11 @@ int main(int argc, char **argv)
 #if 1
 	// View scene in scene viewer
 	rr_gl::SceneViewerState svs;
+#ifdef NDEBUG
+	svs.returnWithoutShutdown = true; // we plan to exit shortly after sceneViewer(), so we can save time by not releasing memory etc
+#else
+	svs.returnWithoutShutdown = (_crtBreakAlloc==-1);
+#endif
 	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs);
 #else
 	// Load scene

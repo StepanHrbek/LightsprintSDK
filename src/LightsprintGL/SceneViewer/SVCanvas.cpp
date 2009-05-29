@@ -173,6 +173,11 @@ void SVCanvas::createContext()
 
 SVCanvas::~SVCanvas()
 {
+	if (svs.returnWithoutShutdown)
+	{
+		return;
+	}
+
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
 	RR_SAFE_DELETE(textureRenderer);
