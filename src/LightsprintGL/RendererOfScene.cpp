@@ -520,7 +520,7 @@ void RendererOfOriginalScene::renderRealtimeGI()
 {
 	// renders realtime GI (on meshes or multimes, what's better)
 	if (
-		// optimized render can is faster and supports rendering into shadowmaps (this will go away with colored shadows)
+		// optimized render is faster and supports rendering into shadowmaps (this will go away with colored shadows)
 		!params.renderingFromThisLight
 		// optimized render is faster and supports everything in scenes with 1 object
 		&& params.solver->getStaticObjects().size()>1
@@ -528,7 +528,7 @@ void RendererOfOriginalScene::renderRealtimeGI()
 			// optimized render can't sort
 			params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
 			// optimized render can't render LDM for more than 1 object
-			|| params.layerNumberLDM>=0
+			|| (params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && params.layerNumberLDM>=0)
 			// optimized render looks bad with single specular cube per-scene
 			|| (params.uberProgramSetup.MATERIAL_SPECULAR && (params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || params.uberProgramSetup.LIGHT_INDIRECT_auto))
 		)
