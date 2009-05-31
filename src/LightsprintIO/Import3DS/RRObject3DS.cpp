@@ -258,7 +258,7 @@ public:
 	}
 	virtual ~RRObjects3DS()
 	{
-		for (unsigned i=0;i<size();i++)
+		for (unsigned i=size();i--;)
 		{
 			// no need to delete illumination separately, we created it as part of object
 			//delete (*this)[i].illumination;
