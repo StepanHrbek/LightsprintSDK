@@ -343,7 +343,7 @@ void SVFrame::UpdateMenuBar()
 	}
 
 
-	// Realtime lighting...
+	// Global illumination...
 	{
 		winMenu = new wxMenu;
 		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_REALTIME,_T("Direct illumination: realtime"));
@@ -356,8 +356,8 @@ void SVFrame::UpdateMenuBar()
 			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: fireball (fast GI)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_T("Indirect illumination: architect (no precalc GI)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: realtime Fireball (faster)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_T("Indirect illumination: realtime Architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_T("Indirect illumination: static lightmap"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_T("Indirect illumination: constant ambient"));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_T("Indirect illumination: none"));
@@ -391,21 +391,35 @@ void SVFrame::UpdateMenuBar()
 	// Render...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed (F11)"):_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->AppendCheckItem(ME_RENDER_FULLSCREEN,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->Check(ME_RENDER_FULLSCREEN,svs.fullscreen);
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderMaterialDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
-		winMenu->Append(ME_RENDER_SPECULAR,svs.renderMaterialSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
-		winMenu->Append(ME_RENDER_EMISSION,svs.renderMaterialEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
-		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderMaterialTransparency?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
-		winMenu->Append(ME_RENDER_TEXTURES,svs.renderMaterialTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
-		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
+		winMenu->AppendCheckItem(ME_RENDER_DIFFUSE,_T("Diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
+		winMenu->Check(ME_RENDER_DIFFUSE,svs.renderMaterialDiffuse);
+		winMenu->AppendCheckItem(ME_RENDER_SPECULAR,_T("Specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
+		winMenu->Check(ME_RENDER_SPECULAR,svs.renderMaterialSpecular);
+		winMenu->AppendCheckItem(ME_RENDER_EMISSION,_T("Emittance"),_T("Toggles rendering emittance of emissive surfaces."));
+		winMenu->Check(ME_RENDER_EMISSION,svs.renderMaterialEmission);
+		winMenu->AppendCheckItem(ME_RENDER_TRANSPARENT,_T("Transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
+		winMenu->Check(ME_RENDER_TRANSPARENT,svs.renderMaterialTransparency);
+		winMenu->AppendCheckItem(ME_RENDER_TEXTURES,_T("Material textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
+		winMenu->Check(ME_RENDER_TEXTURES,svs.renderMaterialTextures);
+		winMenu->AppendCheckItem(ME_RENDER_WIREFRAME,_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
+		winMenu->Check(ME_RENDER_WIREFRAME,svs.renderWireframe);
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
-		winMenu->Append(ME_RENDER_WATER,svs.renderWater?_T("Disable water"):_T("Enable water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
-		winMenu->Append(ME_RENDER_FPS,svs.renderFPS?_T("Hide FPS (ctrl-f)"):_T("Show FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
-		winMenu->Append(ME_RENDER_LOGO,svs.renderLogo?_T("Disable logo"):_T("Enable logo"),_T("Logo is loaded from data/maps/logo.png."));
-		winMenu->Append(ME_RENDER_VIGNETTE,svs.renderVignette?_T("Disable vignette"):_T("Enable vignette"),_T("Vignette overlay is loaded from data/maps/vignette.png."));
-		winMenu->Append(ME_RENDER_TONEMAPPING,svs.adjustTonemapping?_T("Disable tone mapping"):_T("Enable tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
+		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
+		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
+		winMenu->AppendCheckItem(ME_RENDER_WATER,_T("Water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
+		winMenu->Check(ME_RENDER_WATER,svs.renderWater);
+		winMenu->AppendCheckItem(ME_RENDER_FPS,_T("FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
+		winMenu->Check(ME_RENDER_FPS,svs.renderFPS);
+		winMenu->AppendCheckItem(ME_RENDER_LOGO,_T("Logo"),_T("Logo is loaded from data/maps/logo.png."));
+		winMenu->Check(ME_RENDER_LOGO,svs.renderLogo);
+		winMenu->AppendCheckItem(ME_RENDER_VIGNETTE,_T("Vignettation"),_T("Vignette overlay is loaded from data/maps/vignette.png."));
+		winMenu->Check(ME_RENDER_VIGNETTE,svs.renderVignette);
+		winMenu->AppendCheckItem(ME_RENDER_TONEMAPPING,_T("Tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
+		winMenu->Check(ME_RENDER_TONEMAPPING,svs.adjustTonemapping);
+		winMenu->AppendSeparator();
 		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
 		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
 		menuBar->Append(winMenu, _T("Render"));
