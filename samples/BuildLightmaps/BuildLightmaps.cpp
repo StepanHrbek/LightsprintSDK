@@ -519,9 +519,9 @@ int main(int argc, char **argv)
 		svs.renderRealtime = globalParameters.buildQuality==0; // switch from default realtime GI to static GI
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
 #ifdef NDEBUG
-		svs.returnWithoutShutdown = true; // we plan to exit shortly after sceneViewer(), so we can save time by not releasing memory etc
-#else
-		svs.returnWithoutShutdown = (_crtBreakAlloc==-1);
+		// we plan to exit shortly after sceneViewer(), so release can save time by not releasing memory etc
+		// debug still releases everything to preserve memory leak reporting
+		svs.returnWithoutShutdown = true;
 #endif
 		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs);
 		rr_gl::deleteAllTextures();

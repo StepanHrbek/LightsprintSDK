@@ -85,9 +85,9 @@ int main(int argc, char **argv)
 	// View scene in scene viewer
 	rr_gl::SceneViewerState svs;
 #ifdef NDEBUG
-	svs.returnWithoutShutdown = true; // we plan to exit shortly after sceneViewer(), so we can save time by not releasing memory etc
-#else
-	svs.returnWithoutShutdown = (_crtBreakAlloc==-1);
+	// we plan to exit shortly after sceneViewer(), so release can save time by not releasing memory etc
+	// debug still releases everything to preserve memory leak reporting
+	svs.returnWithoutShutdown = true;
 #endif
 	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs);
 #else
