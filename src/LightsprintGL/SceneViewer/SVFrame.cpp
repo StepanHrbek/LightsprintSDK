@@ -667,7 +667,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightmaps2d = 1;
 			break;
 		case ME_STATIC_BILINEAR:
-			svs.renderBilinear = !svs.renderBilinear;
+			svs.renderLightmapsBilinear = !svs.renderLightmapsBilinear;
 			svs.renderRealtime = false;
 			for (unsigned i=0;i<solver->getNumObjects();i++)
 			{	
@@ -675,8 +675,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 					getTexture(solver->getIllumination(i)->getLayer(svs.staticLayerNumber))->bindTexture();
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderBilinear?GL_LINEAR:GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 				}
 			}
 			break;
