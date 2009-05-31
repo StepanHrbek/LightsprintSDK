@@ -528,7 +528,7 @@ void RendererOfOriginalScene::renderRealtimeGI()
 			// optimized render can't sort
 			params.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
 			// optimized render can't render LDM for more than 1 object
-			|| (params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && params.layerNumberLDM>=0)
+			|| ((params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto) && params.layerNumberLDM!=UINT_MAX)
 			// optimized render looks bad with single specular cube per-scene
 			|| (params.uberProgramSetup.MATERIAL_SPECULAR && (params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || params.uberProgramSetup.LIGHT_INDIRECT_auto))
 		)
