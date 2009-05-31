@@ -157,8 +157,11 @@ void SVFrame::UpdateEverything()
 
 	bool firstUpdate = !m_canvas;
 
+	bool oldReturnWithoutShutdown = svs.returnWithoutShutdown;
+	svs.returnWithoutShutdown = false; // we are not returning yet, we should shutdown
 	RR_SAFE_DELETE(m_lightProperties);
 	RR_SAFE_DELETE(m_canvas);
+	svs.returnWithoutShutdown = oldReturnWithoutShutdown;
 
 	// initialInputSolver may be changed only if canvas is NULL
 	// we NULL it to avoid rendering solver contents again (new scene was opened)
@@ -608,6 +611,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_LIGHTING_DIRECT_REALTIME:
 			svs.renderLightDirect = LD_REALTIME;
+			if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS) // indirect must not stay lightmaps
+				svs.renderLightIndirect = LI_CONSTANT;
 			svs.renderLightmaps2d = 0;
 			break;
 		case ME_LIGHTING_DIRECT_STATIC:
