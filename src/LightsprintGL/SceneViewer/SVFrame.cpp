@@ -351,7 +351,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Rebuild fireball..."),_T("Rebuilds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default 350)."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("(Re)build light detail map..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
-		winMenu->Append(ME_REALTIME_LDM,svs.renderLDM?_T("Disable light detail map"):_T("Enable light detail map"),_T("LDM adds per-pixel details to realtime GI. It must be built first."));
+		winMenu->Append(ME_REALTIME_LDM,svs.renderLightLDM?_T("Disable light detail map"):_T("Enable light detail map"),_T("LDM adds per-pixel details to realtime GI. It must be built first."));
 		menuBar->Append(winMenu, _T("Realtime lighting"));
 	}
 
@@ -378,11 +378,11 @@ void SVFrame::UpdateMenuBar()
 		winMenu = new wxMenu;
 		winMenu->Append(ME_RENDER_FULLSCREEN,svs.fullscreen?_T("Windowed (F11)"):_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
-		winMenu->Append(ME_RENDER_SPECULAR,svs.renderSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
-		winMenu->Append(ME_RENDER_EMISSION,svs.renderEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
-		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderTransparent?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
-		winMenu->Append(ME_RENDER_TEXTURES,svs.renderTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
+		winMenu->Append(ME_RENDER_DIFFUSE,svs.renderMaterialDiffuse?_T("Disable diffuse color"):_T("Enable diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
+		winMenu->Append(ME_RENDER_SPECULAR,svs.renderMaterialSpecular?_T("Disable specular reflection"):_T("Enable specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
+		winMenu->Append(ME_RENDER_EMISSION,svs.renderMaterialEmission?_T("Disable emissivity"):_T("Enable emissivity"),_T("Toggles rendering emittance of emissive surfaces."));
+		winMenu->Append(ME_RENDER_TRANSPARENT,svs.renderMaterialTransparency?_T("Disable transparency"):_T("Enable transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
+		winMenu->Append(ME_RENDER_TEXTURES,svs.renderMaterialTextures?_T("Disable textures (ctrl-t)"):_T("Enable textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
 		winMenu->Append(ME_RENDER_WIREFRAME,svs.renderWireframe?_T("Disable wireframe (ctrl-w)"):_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_RENDER_HELPERS,svs.renderHelpers?_T("Hide helpers (ctrl-h)"):_T("Show helpers (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
@@ -585,7 +585,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_REALTIME_FIREBALL:
 			svs.renderRealtime = 1;
-			svs.render2d = 0;
+			svs.renderLightmaps2d = 0;
 			solver->dirtyLights();
 			if (!fireballLoadAttempted)
 			{
@@ -595,7 +595,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_REALTIME_ARCHITECT:
 			svs.renderRealtime = 1;
-			svs.render2d = 0;
+			svs.renderLightmaps2d = 0;
 			solver->dirtyLights();
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
@@ -603,7 +603,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_REALTIME_LDM:
 			svs.renderRealtime = 1;
 			solver->dirtyLights();
-			svs.renderLDM = !svs.renderLDM;
+			svs.renderLightLDM = !svs.renderLightLDM;
 			break;
 		case ME_REALTIME_LDM_BUILD:
 			{
@@ -612,9 +612,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (getQuality(this,quality) && getResolution(this,res,false))
 				{
 					svs.renderRealtime = 1;
-					svs.render2d = 0;
+					svs.renderLightmaps2d = 0;
 					solver->dirtyLights();
-					svs.renderLDM = 1;
+					svs.renderLightLDM = 1;
 
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					fireballLoadAttempted = false;
@@ -647,7 +647,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (getQuality(this,quality))
 				{
 					svs.renderRealtime = 1;
-					svs.render2d = 0;
+					svs.renderLightmaps2d = 0;
 					solver->buildFireball(quality,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 					solver->dirtyLights();
 					fireballLoadAttempted = true;
@@ -660,11 +660,11 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_STATIC_3D:
 			svs.renderRealtime = 0;
-			svs.render2d = 0;
+			svs.renderLightmaps2d = 0;
 			break;
 		case ME_STATIC_2D:
 			svs.renderRealtime = 0;
-			svs.render2d = 1;
+			svs.renderLightmaps2d = 1;
 			break;
 		case ME_STATIC_BILINEAR:
 			svs.renderBilinear = !svs.renderBilinear;
@@ -818,12 +818,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			GetPosition(windowCoord+0,windowCoord+1);
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
-		case ME_RENDER_DIFFUSE: svs.renderDiffuse = !svs.renderDiffuse; break;
-		case ME_RENDER_SPECULAR: svs.renderSpecular = !svs.renderSpecular; break;
-		case ME_RENDER_EMISSION: svs.renderEmission = !svs.renderEmission; break;
-		case ME_RENDER_TRANSPARENT: svs.renderTransparent = !svs.renderTransparent; break;
+		case ME_RENDER_DIFFUSE: svs.renderMaterialDiffuse = !svs.renderMaterialDiffuse; break;
+		case ME_RENDER_SPECULAR: svs.renderMaterialSpecular = !svs.renderMaterialSpecular; break;
+		case ME_RENDER_EMISSION: svs.renderMaterialEmission = !svs.renderMaterialEmission; break;
+		case ME_RENDER_TRANSPARENT: svs.renderMaterialTransparency = !svs.renderMaterialTransparency; break;
 		case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
-		case ME_RENDER_TEXTURES: svs.renderTextures = !svs.renderTextures; break;
+		case ME_RENDER_TEXTURES: svs.renderMaterialTextures = !svs.renderMaterialTextures; break;
 		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
 		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;

@@ -38,7 +38,7 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 	{
 		rendererOfScene->useOriginalScene(svs.staticLayerNumber);
 	}
-	rendererOfScene->setLDM(svs.renderLDM ? svs.ldmLayerNumber : UINT_MAX);
+	rendererOfScene->setLDM(svs.renderLightLDM ? svs.ldmLayerNumber : UINT_MAX);
 	rendererOfScene->setBrightnessGamma(&svs.brightness,svs.gamma);
 	rendererOfScene->render();
 }

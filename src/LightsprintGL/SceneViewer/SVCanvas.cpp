@@ -339,9 +339,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 
 		case 27:
-			if (svs.render2d)
+			if (svs.renderLightmaps2d)
 			{
-				svs.render2d = 0;
+				svs.renderLightmaps2d = 0;
 			}
 			else
 			if (svs.renderHelp)
@@ -405,7 +405,7 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
-	if (svs.render2d && lv)
+	if (svs.renderLightmaps2d && lv)
 	{
 		lv->OnMouseEvent(event,GetSize());
 		return;
@@ -632,9 +632,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 #endif
 
 	rr::RRReportInterval report(rr::INF3,"display...\n");
-	if (svs.render2d && lv)
+	if (svs.renderLightmaps2d && lv)
 	{
-		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderBilinear);
+		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLightLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderBilinear);
 		lv->OnPaint(event,GetSize());
 	}
 	else
@@ -677,20 +677,20 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderRealtime;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderAmbient;
 			uberProgramSetup.LIGHT_INDIRECT_auto = true;
-			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
-			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderDiffuse && !svs.renderTextures && hasDif;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderDiffuse && svs.renderTextures && hasDif;
-			uberProgramSetup.MATERIAL_SPECULAR = svs.renderSpecular && miss.MATERIAL_SPECULAR;
-			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderSpecular && miss.MATERIAL_SPECULAR; // even when mixing only 0% and 100% specular, this must be enabled, otherwise all will have 100%
-			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderEmission && !svs.renderTextures && hasEmi;
-			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderEmission && svs.renderTextures && hasEmi;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_CONST || !svs.renderTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_MAP && svs.renderTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_IN_ALPHA && svs.renderTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderTransparent && hasTra && (miss.MATERIAL_TRANSPARENCY_BLEND
+			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderMaterialDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
+			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse && !svs.renderMaterialTextures && hasDif;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures && hasDif;
+			uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular && miss.MATERIAL_SPECULAR;
+			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular && miss.MATERIAL_SPECULAR; // even when mixing only 0% and 100% specular, this must be enabled, otherwise all will have 100%
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission && !svs.renderMaterialTextures && hasEmi;
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures && hasEmi;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_CONST || !svs.renderMaterialTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_MAP && svs.renderMaterialTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_IN_ALPHA && svs.renderMaterialTextures);
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_BLEND
 				// here we intentionally enable blend if alpha-keyed textures are disabled.
 				// why? imagine alpha keyed tree, now disable transparency map. tree is 70% transparent, not blended, so whole tree disappears. better enable blend
-				|| !svs.renderTextures);
+				|| !svs.renderMaterialTextures);
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 			uberProgramSetup.POSTPROCESS_GAMMA = true;
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
@@ -825,7 +825,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		rr::RRMesh::TangentBasis selectedPointBasis;
 		rr::RRMesh::TriangleBody selectedTriangleBody;
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
-		if (multiMesh && (!svs.render2d || !lv))
+		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
 			// ray and collisionHandler are used in this block
 			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
@@ -849,7 +849,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		}
 
 		// render debug rays, using previously set shader
-		if ((!svs.render2d || !lv) && SVRayLog::size)
+		if ((!svs.renderLightmaps2d || !lv) && SVRayLog::size)
 		{
 			glBegin(GL_LINES);
 			for (unsigned i=0;i<SVRayLog::size;i++)
@@ -870,7 +870,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		}
 
 		// render arrows, using previously set shader
-		if (!svs.render2d)
+		if (!svs.renderLightmaps2d)
 		{
 			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
 			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
@@ -917,7 +917,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			const char* rendererType = solver->usingOptimizedScene() ? "scene at once" : "object at once";
 			if (svs.renderRealtime)
 			{
-				textOutput(x,y+=18,h,"realtime GI lighting, %s, %s, light detail map %s",solverType,rendererType,svs.renderLDM?"on":"off");
+				textOutput(x,y+=18,h,"realtime GI lighting, %s, %s, light detail map %s",solverType,rendererType,svs.renderLightLDM?"on":"off");
 			}
 			else
 			{
@@ -934,7 +934,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none) (%s, %s)",vbuf,lmap,numObjects-vbuf-lmap,solverType,rendererType);
 			}
 		}
-		if (!svs.render2d || !lv)
+		if (!svs.renderLightmaps2d || !lv)
 		{
 			textOutput(x,y+=18*2,h,"[camera]");
 			textOutput(x,y+=18,h,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
@@ -946,7 +946,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 			textOutput(x,y+=18,h,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
 		}
-		if (!svs.render2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
+		if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 		{
 			RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
 			const rr::RRLight* rrlight = &rtlight->getRRLight();
@@ -1045,7 +1045,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				//glColor3f(1,1,1);
 			}
 		}
-		if (multiMesh && (!svs.render2d || !lv))
+		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
 			if (selectedPointValid)
 			{
@@ -1128,7 +1128,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			}
 			textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
 		}
-		if (multiMesh && svs.render2d && lv)
+		if (multiMesh && svs.renderLightmaps2d && lv)
 		{
 			rr::RRVec2 uv = lv->getCenterUv(GetSize());
 			textOutput(x,y+=18*2,h,"[point in the middle of viewport]");

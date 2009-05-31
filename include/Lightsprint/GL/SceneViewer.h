@@ -21,39 +21,41 @@ namespace rr_gl
 struct SceneViewerState
 {
 	// viewer state
-	Camera           eye;                 //! Current camera.
-	unsigned         staticLayerNumber;   //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
-	unsigned         realtimeLayerNumber; //! Layer used for all realtime lighting operations.
-	unsigned         ldmLayerNumber;      //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
-	unsigned         selectedLightIndex;  //! Index into lights array, light controlled by mouse/arrows.
-	unsigned         selectedObjectIndex; //! Index into static objects array.
-	bool             fullscreen;          //! Fullscreen rather than window.
+	Camera           eye;                       //! Current camera.
+	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
+	unsigned         realtimeLayerNumber;       //! Layer used for all realtime lighting operations.
+	unsigned         ldmLayerNumber;            //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
+	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
+	unsigned         selectedObjectIndex;       //! Index into static objects array.
+	bool             fullscreen;                //! Fullscreen rather than window.
 	bool             renderRealtime;      //! Realtime lighting (from realtimeLayerNumber) rather than static lighting (from staticLayerNumber).
-	bool             render2d;            //! When not rendering realtime, show static lightmaps in 2D.
+	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
+	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             renderAmbient;       //! Constant ambient light.
-	bool             renderLDM;           //! Render light detail map (from ldmLayerNumber).
-	bool             renderDiffuse;       //! Render diffuse color.
-	bool             renderSpecular;      //! Render specular reflections.
-	bool             renderEmission;      //! Render emissivity.
-	bool             renderTransparent;   //! Render transparency.
-	bool             renderTextures;      //! Render textures (diffuse, emissive) rather than constant colors.
-	bool             renderWater;         //! Render water surface at world y=0.
-	bool             renderWireframe;     //! Render all in wireframe.
-	bool             renderFPS;           //! Render FPS counter.
-	bool             renderHelpers;       //! Show helper wireframe objects and text outputs.
-	bool             renderBilinear;      //! Render lightmaps with bilinear interpolation rather than without it.
-	bool             renderVignette;      //! Render vignette overlay from vignette.png.
-	bool             renderHelp;          //! Render help overlay from sv_help.png.
-	bool             renderLogo;          //! Render logo overlay from sv_logo.png.
-	bool             adjustTonemapping;   //! Automatically adjust tonemapping operator.
-	bool             cameraDynamicNear;   //! Camera sets near dynamically to prevent near clipping.
-	float            cameraMetersPerSecond;//! Speed of movement controlled by user, in m/s.
-	rr::RRVec4       brightness;          //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
-	float            gamma;               //! Gamma correction applied at render time, 1=no correction.
+	bool             renderLightLDM;            //! Render light detail map (from ldmLayerNumber).
+	bool             renderMaterialDiffuse;     //! Render diffuse color.
+	bool             renderMaterialSpecular;    //! Render specular reflections.
+	bool             renderMaterialEmission;    //! Render emissivity.
+	bool             renderMaterialTransparency;//! Render transparency.
+	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
+	bool             renderWater;               //! Render water surface at world y=0.
+	bool             renderWireframe;           //! Render all in wireframe.
+	bool             renderFPS;                 //! Render FPS counter.
+	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
+	bool             renderVignette;            //! Render vignette overlay from vignette.png.
+	bool             renderHelp;                //! Render help overlay from sv_help.png.
+	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
+	bool             adjustTonemapping;         //! Automatically adjust tonemapping operator.
+	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
+	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
+	rr::RRVec4       brightness;                //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
+	float            gamma;                     //! Gamma correction applied at render time, 1=no correction.
+
 	// viewer initialization
-	bool             autodetectCamera;    //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
+	bool             autodetectCamera;          //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
+
 	// viewer end
-	bool             returnWithoutShutdown; //! True = return from scene viewer will be faster, without closing windows and releasing memory. Use it only if you plan to exit after return from scene viewer. 
+	bool             returnWithoutShutdown;     //! True = return from scene viewer will be faster, without closing windows and releasing memory. Use it only if you plan to exit after return from scene viewer. 
 
 	// sets default state with realtime GI and random camera
 	SceneViewerState()
@@ -66,14 +68,14 @@ struct SceneViewerState
 		selectedObjectIndex = 0;
 		fullscreen = 0;
 		renderRealtime = 1;
-		render2d = 0;
+		renderLightmaps2d = 0;
 		renderAmbient = 0;
-		renderLDM = 0;
-		renderDiffuse = 1;
-		renderSpecular = 1;
-		renderEmission = 1;
-		renderTransparent = 1;
-		renderTextures = 1;
+		renderLightLDM = 0;
+		renderMaterialDiffuse = 1;
+		renderMaterialSpecular = 1;
+		renderMaterialEmission = 1;
+		renderMaterialTransparency = 1;
+		renderMaterialTextures = 1;
 		renderWater = 0;
 		renderWireframe = 0;
 		renderFPS = 0;
