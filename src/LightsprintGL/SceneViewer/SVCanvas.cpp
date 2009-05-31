@@ -11,6 +11,9 @@
 #include "SVFrame.h"
 #include "Lightsprint/GL/Timer.h"
 #include "../tmpstr.h"
+#ifdef _WIN32
+	#include <GL/wglew.h>
+#endif
 
 #if !wxUSE_GLCANVAS
     #error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
@@ -167,6 +170,10 @@ void SVCanvas::createContext()
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
 	exitRequested = false;
+
+#if defined(_WIN32)
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+#endif
 }
 
 SVCanvas::~SVCanvas()
