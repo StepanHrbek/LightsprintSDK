@@ -634,7 +634,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (svs.renderLightmaps2d && lv)
 	{
-		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLightLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderBilinear);
+		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLightLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderLightmapsBilinear);
 		lv->OnPaint(event,GetSize());
 	}
 	else

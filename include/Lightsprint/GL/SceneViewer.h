@@ -80,7 +80,7 @@ struct SceneViewerState
 		renderWireframe = 0;
 		renderFPS = 0;
 		renderHelpers = 0;
-		renderBilinear = 1;
+		renderLightmapsBilinear = 1;
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
