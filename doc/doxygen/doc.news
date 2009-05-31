@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news85 ------------------------------------ 2009.06.xx -------------------------------------
+
+NEWS
+
+- enhanced rr_gl::sceneViewer() and SceneViewer sample
+  - new "Global illumination" menu adds capabilities, replaces "Realtime lighting" and "Static lighting" menus
+
+CHANGES
+
+- several members of rr_gl::SceneViewerState renamed or added to better cover new capabilities
+
 \section news84 ------------------------------------ 2009.05.29 -------------------------------------
 
 NEWS

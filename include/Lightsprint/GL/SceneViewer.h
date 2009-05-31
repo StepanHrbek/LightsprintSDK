@@ -16,6 +16,22 @@
 namespace rr_gl
 {
 
+enum LightingDirect
+{
+	LD_NONE,                ///< No direct illumination, for testing only.
+	LD_STATIC_LIGHTMAPS,    ///< Direct illumination is taken from lightmaps in staticLayerNumber.
+	LD_REALTIME,            ///< Direct illumination is realtime computed.
+};
+
+enum LightingIndirect
+{
+	LI_NONE,                ///< No indirect illumination, Doom-3 look with shadows completely black.
+	LI_CONSTANT,            ///< Constant ambient, widely used poor man's approach.
+	LI_STATIC_LIGHTMAPS,    ///< Indirect illumination is taken from lightmaps in staticLayerNumber.
+	LI_REALTIME_ARCHITECT,  ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
+	LI_REALTIME_FIREBALL,   ///< Indirect illumination is realtime computed by Fireball solver. Fast.
+};
+
 
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
@@ -28,11 +44,11 @@ struct SceneViewerState
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	bool             fullscreen;                //! Fullscreen rather than window.
-	bool             renderRealtime;      //! Realtime lighting (from realtimeLayerNumber) rather than static lighting (from staticLayerNumber).
+	LightingDirect   renderLightDirect;         //! Render direct illumination.
+	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
+	bool             renderLightLDM;            //! Render light detail map (from ldmLayerNumber).
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
-	bool             renderAmbient;       //! Constant ambient light.
-	bool             renderLightLDM;            //! Render light detail map (from ldmLayerNumber).
 	bool             renderMaterialDiffuse;     //! Render diffuse color.
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
@@ -67,9 +83,9 @@ struct SceneViewerState
 		selectedLightIndex = 0;
 		selectedObjectIndex = 0;
 		fullscreen = 0;
-		renderRealtime = 1;
+		renderLightDirect = LD_REALTIME;
+		renderLightIndirect = LI_REALTIME_FIREBALL;
 		renderLightmaps2d = 0;
-		renderAmbient = 0;
 		renderLightLDM = 0;
 		renderMaterialDiffuse = 1;
 		renderMaterialSpecular = 1;

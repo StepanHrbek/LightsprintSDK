@@ -516,7 +516,12 @@ int main(int argc, char **argv)
 		rr_gl::SceneViewerState svs;
 		svs.adjustTonemapping = false;
 		svs.renderHelpers = true;
-		svs.renderRealtime = globalParameters.buildQuality==0; // switch from default realtime GI to static GI
+		if (globalParameters.buildQuality)
+		{
+			// switch from default realtime GI to static GI
+			svs.renderLightDirect = rr_gl::LD_STATIC_LIGHTMAPS;
+			svs.renderLightIndirect = rr_gl::LI_STATIC_LIGHTMAPS;
+		}
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
 #ifdef NDEBUG
 		// we plan to exit shortly after sceneViewer(), so release can save time by not releasing memory etc

@@ -339,7 +339,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
 		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
-		winMenu->Append(ME_LIGHT_AMBIENT,svs.renderAmbient?_T("Delete constant ambient"):_T("Add constant ambient"),_T("Constant ambient is rarely needed, it makes scenes less realistic."));
 		menuBar->Append(winMenu, _T("Lights"));
 	}
 
@@ -347,21 +346,37 @@ void SVFrame::UpdateMenuBar()
 	// Realtime lighting...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_REALTIME_FIREBALL,_T("Render realtime GI: fireball (fast)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
-		winMenu->Append(ME_REALTIME_ARCHITECT,_T("Render realtime GI: architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Rebuild fireball..."),_T("Rebuilds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default 350)."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("(Re)build light detail map..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_REALTIME,_T("Direct illumination: realtime"));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_STATIC,_T("Direct illumination: static lightmap"));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_NONE,_T("Direct illumination: none"));
+		switch (svs.renderLightDirect)
+		{
+			case LD_REALTIME: winMenu->Check(ME_LIGHTING_DIRECT_REALTIME,true); break;
+			case LD_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_DIRECT_STATIC,true); break;
+			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
+		}
+		winMenu->AppendSeparator();
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: fireball (fast GI)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_T("Indirect illumination: architect (no precalc GI)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_T("Indirect illumination: static lightmap"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_T("Indirect illumination: constant ambient"));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_T("Indirect illumination: none"));
+		switch (svs.renderLightIndirect)
+		{
+			case LI_REALTIME_FIREBALL: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL,true); break;
+			case LI_REALTIME_ARCHITECT: winMenu->Check(ME_LIGHTING_INDIRECT_ARCHITECT,true); break;
+			case LI_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_INDIRECT_STATIC,true); break;
+			case LI_CONSTANT: winMenu->Check(ME_LIGHTING_INDIRECT_CONST,true); break;
+			case LI_NONE: winMenu->Check(ME_LIGHTING_INDIRECT_NONE,true); break;
+		}
+		winMenu->AppendSeparator();
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default 350)."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_REALTIME_LDM,svs.renderLightLDM?_T("Disable light detail map"):_T("Enable light detail map"),_T("LDM adds per-pixel details to realtime GI. It must be built first."));
-		menuBar->Append(winMenu, _T("Realtime lighting"));
-	}
-
-	// Static lighting...
-	{
-		winMenu = new wxMenu;
-		winMenu->Append(ME_STATIC_3D,_T("Render static lighting"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
-		winMenu->Append(ME_STATIC_2D,_T("Render static lighting in 2D"),_T("Shows lightmap in 2D, with unwrap wireframe."));
+		winMenu->AppendSeparator();
+		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_STATIC_2D,_T("Inspect lightmaps in 2D"),_T("Shows lightmap in 2D, with unwrap wireframe."));
 		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
-		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("Builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."),_T("For debugging purposes, shows rays traced from texel in final gather step."));
@@ -370,7 +385,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_SAVE,_T("Save lightmaps"));
 		winMenu->Append(ME_STATIC_LOAD,_T("Load lightmaps"));
-		menuBar->Append(winMenu, _T("Static lighting"));
+		menuBar->Append(winMenu, _T("Global illumination"));
 	}
 
 	// Render...
@@ -534,7 +549,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
 				}
 				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
-				if (!newList.size()) svs.renderAmbient = 0; // disable ambient when adding first light
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
 				svs.selectedLightIndex = newList.size()?newList.size()-1:0; // select new light
@@ -557,13 +571,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				}
 				RR_SAFE_DELETE(m_lightProperties); // delete light props
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
-				// enable ambient when deleting last light
-				//  but only if scene doesn't contain emissive materials
-				if (!solver->getLights().size() && svs.renderRealtime)
-					svs.renderAmbient = !solver->containsRealtimeGILightSource();
 			}
 			break;
-		case ME_LIGHT_AMBIENT: svs.renderAmbient = !svs.renderAmbient; break;
 		case ME_LIGHT_PROPERTIES:
 			if (svs.selectedLightIndex<solver->getLights().size())
 			{
@@ -581,10 +590,28 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 
 
-		//////////////////////////////// REALTIME LIGHTING ///////////////////////////////
+		//////////////////////////////// GLOBAL ILLUMINATION ///////////////////////////////
 
-		case ME_REALTIME_FIREBALL:
-			svs.renderRealtime = 1;
+		case ME_LIGHTING_DIRECT_REALTIME:
+			svs.renderLightDirect = LD_REALTIME;
+			svs.renderLightmaps2d = 0;
+			break;
+		case ME_LIGHTING_DIRECT_STATIC:
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS; // indirect must switch to lightmaps too
+			svs.renderLightmaps2d = 0;
+			break;
+		case ME_LIGHTING_DIRECT_NONE:
+			svs.renderLightDirect = LD_NONE;
+			if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS) // indirect must not stay lightmaps
+				svs.renderLightIndirect = LI_CONSTANT;
+			svs.renderLightmaps2d = 0;
+			break;
+
+		case ME_LIGHTING_INDIRECT_FIREBALL:
+			svs.renderLightIndirect = LI_REALTIME_FIREBALL;
+			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
+				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->dirtyLights();
 			if (!fireballLoadAttempted)
@@ -593,15 +620,38 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 			}
 			break;
-		case ME_REALTIME_ARCHITECT:
-			svs.renderRealtime = 1;
+		case ME_LIGHTING_INDIRECT_ARCHITECT:
+			svs.renderLightIndirect = LI_REALTIME_ARCHITECT;
+			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
+				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->dirtyLights();
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
 			break;
+		case ME_LIGHTING_INDIRECT_STATIC:
+			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS; // direct must switch to lightmaps too
+			svs.renderLightmaps2d = 0;
+			break;
+		case ME_LIGHTING_INDIRECT_CONST:
+			svs.renderLightIndirect = LI_CONSTANT;
+			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
+				svs.renderLightDirect = LD_REALTIME;
+			svs.renderLightmaps2d = 0;
+			break;
+		case ME_LIGHTING_INDIRECT_NONE:
+			svs.renderLightIndirect = LI_NONE;
+			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
+				svs.renderLightDirect = LD_REALTIME;
+			svs.renderLightmaps2d = 0;
+			break;
+
 		case ME_REALTIME_LDM:
-			svs.renderRealtime = 1;
+			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+				svs.renderLightDirect = LD_REALTIME;
+			if (svs.renderLightIndirect!=LI_REALTIME_ARCHITECT)
+				svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 			solver->dirtyLights();
 			svs.renderLightLDM = !svs.renderLightLDM;
 			break;
@@ -611,7 +661,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				unsigned quality = 100;
 				if (getQuality(this,quality) && getResolution(this,res,false))
 				{
-					svs.renderRealtime = 1;
+					if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+						svs.renderLightDirect = LD_REALTIME;
+					if (svs.renderLightIndirect!=LI_REALTIME_ARCHITECT)
+						svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->dirtyLights();
 					svs.renderLightLDM = 1;
@@ -646,7 +699,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				unsigned quality = 100;
 				if (getQuality(this,quality))
 				{
-					svs.renderRealtime = 1;
+					svs.renderLightDirect = LD_REALTIME;
+					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->buildFireball(quality,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
 					solver->dirtyLights();
@@ -655,20 +709,13 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 
-
-		//////////////////////////////// STATIC LIGHTING ///////////////////////////////
-
-		case ME_STATIC_3D:
-			svs.renderRealtime = 0;
-			svs.renderLightmaps2d = 0;
-			break;
 		case ME_STATIC_2D:
-			svs.renderRealtime = 0;
 			svs.renderLightmaps2d = 1;
 			break;
 		case ME_STATIC_BILINEAR:
 			svs.renderLightmapsBilinear = !svs.renderLightmapsBilinear;
-			svs.renderRealtime = false;
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 			for (unsigned i=0;i<solver->getNumObjects();i++)
 			{	
 				if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
@@ -682,7 +729,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_STATIC_LOAD:
 			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,"","png");
-			svs.renderRealtime = false;
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 			break;
 		case ME_STATIC_SAVE:
 			solver->getStaticObjects().saveLayer(svs.staticLayerNumber,"","png");
@@ -732,7 +780,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
 					solver->updateLightmap(svs.selectedObjectIndex,solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber),NULL,NULL,&params,&filtering);
-					svs.renderRealtime = false;
+					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 					// propagate computed data from buffers to textures
 					if (solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) && solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 						getTexture(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
@@ -792,7 +841,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					rr::RRDynamicSolver::FilteringParameters filtering;
 					filtering.wrap = false;
 					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&filtering);
-					svs.renderRealtime = false;
+					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 					// propagate computed data from buffers to textures
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{

@@ -142,11 +142,11 @@ void SVCanvas::createContext()
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
-	if (svs.renderRealtime && solver->getNumObjects())
+	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL && solver->getNumObjects())
 	{
 		// if fireball file already exists, use it
 		fireballLoadAttempted = false;
-		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL));
+		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
 		// if it does not exist, build it
 		if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL)
 			solver->buildFireball(350,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
@@ -160,8 +160,6 @@ void SVCanvas::createContext()
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
-	if (svs.renderRealtime)
-		svs.renderAmbient = !solver->containsRealtimeGILightSource();
 
 	water = new Water(svs.pathToShaders,true,false);
 	toneMapping = new ToneMapping(svs.pathToShaders);
@@ -650,12 +648,22 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			svs.eye.update();
 		}
 
-		if (svs.renderRealtime)
+		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			rr::RRDynamicSolver::CalculateParameters params;
-			//params.qualityIndirectDynamic = 6;
-			params.qualityIndirectStatic = 10000;
+			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+			{
+				// rendering indirect -> calculate will update shadowmaps and improve indirect
+				//params.qualityIndirectDynamic = 6;
+				params.qualityIndirectStatic = 10000;
+			}
+			else
+			{
+				// rendering direct only -> calculate will update shadowmaps only
+				params.qualityIndirectDynamic = 0;
+				params.qualityIndirectStatic = 0;
+			}
 			solver->calculate(&params);
 		}
 
@@ -671,12 +679,12 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.LIGHT_DIRECT = svs.renderRealtime;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderRealtime;
-			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderRealtime;
-			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderRealtime;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderAmbient;
-			uberProgramSetup.LIGHT_INDIRECT_auto = true;
+			uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
+			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
+			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
+			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS;
 			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderMaterialDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse && !svs.renderMaterialTextures && hasDif;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures && hasDif;
@@ -716,9 +724,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if (svs.adjustTonemapping
 				&& !svs.renderWireframe
-				&& ((!svs.renderRealtime && solver->containsLightSource())
-					|| (svs.renderRealtime && solver->containsRealtimeGILightSource())
-					|| svs.renderAmbient))
+				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
+					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
+					|| svs.renderLightIndirect==LI_CONSTANT
+					))
 			{
 				static TIME oldTime = 0;
 				TIME newTime = GETTIME;
@@ -906,33 +915,51 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		int h = GetSize().y;
 		unsigned numObjects = solver->getNumObjects();
 		{
-			const char* solverType = "";
+			// what direct
+			const char* strDirect = "?";
+			switch (svs.renderLightDirect)
+			{
+				case LD_REALTIME: strDirect = "realtime"; break;
+				case LD_STATIC_LIGHTMAPS: strDirect = "lightmap"; break;
+				case LD_NONE: strDirect = "off"; break;
+			}
+			// what indirect
+			const char* strIndirect = "?";
+			switch (svs.renderLightIndirect)
+			{
+				case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
+				case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
+				case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
+				case LI_CONSTANT: strIndirect = "constant"; break;
+				case LI_NONE: strIndirect = "off"; break;
+			}
+			// what LDM
+			const char* strLDM = svs.renderLightLDM?"on":"off";
+			// how many lightmaps
+			unsigned numVbufs = 0;
+			unsigned numLmaps = 0;
+			for (unsigned i=0;i<numObjects;i++)
+			{
+				if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+				{
+					if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
+					if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+				}
+			}
+			// what solver
+			const char* strSolver = "?";
 			switch(solver->getInternalSolverType())
 			{
-				case rr::RRDynamicSolver::NONE: solverType = "no solver"; break;
-				case rr::RRDynamicSolver::ARCHITECT: solverType = "Architect solver"; break;
-				case rr::RRDynamicSolver::FIREBALL: solverType = "Fireball solver"; break;
-				case rr::RRDynamicSolver::BOTH: solverType = "both solvers"; break;
+				case rr::RRDynamicSolver::NONE: strSolver = "none"; break;
+				case rr::RRDynamicSolver::ARCHITECT: strSolver = "Architect"; break;
+				case rr::RRDynamicSolver::FIREBALL: strSolver = "Fireball"; break;
+				case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
 			}
-			const char* rendererType = solver->usingOptimizedScene() ? "scene at once" : "object at once";
-			if (svs.renderRealtime)
-			{
-				textOutput(x,y+=18,h,"realtime GI lighting, %s, %s, light detail map %s",solverType,rendererType,svs.renderLightLDM?"on":"off");
-			}
-			else
-			{
-				unsigned vbuf = 0;
-				unsigned lmap = 0;
-				for (unsigned i=0;i<numObjects;i++)
-				{
-					if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
-					{
-						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) vbuf++; else
-						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) lmap++;
-					}
-				}
-				textOutput(x,y+=18,h,"static lighting (%dx vbuf, %dx lmap, %dx none) (%s, %s)",vbuf,lmap,numObjects-vbuf-lmap,solverType,rendererType);
-			}
+			// what renderer
+			const char* strRenderer = solver->usingOptimizedScene() ? "optimized" : "per-object";
+			// print it
+			textOutput(x,y+=18,h,"lighting direct=%s indirect=%s ldm=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
+				strDirect,strIndirect,strLDM,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
 		}
 		if (!svs.renderLightmaps2d || !lv)
 		{
@@ -1032,7 +1059,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				textOutput(x,y+=18,h,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 				textOutput(x,y+=18,h,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 			}
-			textOutput(x,y+=18,h,"lit: %s",svs.renderRealtime?"realtime":"static");
 			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
 			if (bufferSelectedObj)
 			{
@@ -1063,7 +1089,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 				textOutput(x,y+=18*2,h,"[point in the middle of viewport]");
 				textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
-				textOutput(x,y+=18,h,"object lit: %s",svs.renderRealtime?"reatime GI":(solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber)?(solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE?"static lightmap":"static per-vertex"):"not"));
+				rr::RRBuffer* objectsLightmap = solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber);
+				textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
 				textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
 				textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 				textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);

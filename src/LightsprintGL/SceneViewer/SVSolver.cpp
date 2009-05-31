@@ -26,17 +26,20 @@ void SVSolver::resetRenderCache()
 
 void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
 {
-	const RealtimeLights* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
+	// verify that settings are legal
+	RR_ASSERT((svs.renderLightDirect==LD_STATIC_LIGHTMAPS) == (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS));
+
+	const RealtimeLights* lights = (uberProgramSetup.LIGHT_DIRECT && svs.renderLightDirect==LD_REALTIME) ? &realtimeLights : NULL;
 
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
-	if (svs.renderRealtime)
+	if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
 	{
-		rendererOfScene->useRealtimeGI(svs.realtimeLayerNumber);
+		rendererOfScene->useOriginalScene(svs.staticLayerNumber);
 	}
 	else
 	{
-		rendererOfScene->useOriginalScene(svs.staticLayerNumber);
+		rendererOfScene->useRealtimeGI(svs.realtimeLayerNumber);
 	}
 	rendererOfScene->setLDM(svs.renderLightLDM ? svs.ldmLayerNumber : UINT_MAX);
 	rendererOfScene->setBrightnessGamma(&svs.brightness,svs.gamma);
