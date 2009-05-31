@@ -16,7 +16,6 @@
 namespace rr_gl
 {
 
-
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
