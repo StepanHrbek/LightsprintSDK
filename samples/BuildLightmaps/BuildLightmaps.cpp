@@ -524,11 +524,12 @@ int main(int argc, char **argv)
 		}
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
 #ifdef NDEBUG
-		// we plan to exit shortly after sceneViewer(), so release can save time by not releasing memory etc
-		// debug still releases everything to preserve memory leak reporting
-		svs.returnWithoutShutdown = true;
+		// release returns quickly without freeing resources
+		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs,false);
+		return 0;
 #endif
-		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs);
+		// debug frees everything and reports memory leaks
+		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs,true);
 		rr_gl::deleteAllTextures();
 	}
 #endif

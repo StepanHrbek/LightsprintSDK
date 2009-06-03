@@ -14,6 +14,7 @@ NEWS
 
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - new "Global illumination" menu adds capabilities, replaces "Realtime lighting" and "Static lighting" menus
+  - new parameter releaseResources lets you exit faster without releasing stuff
 
 CHANGES
 

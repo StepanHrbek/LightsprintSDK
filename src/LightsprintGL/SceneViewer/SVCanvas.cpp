@@ -178,7 +178,7 @@ void SVCanvas::createContext()
 
 SVCanvas::~SVCanvas()
 {
-	if (svs.returnWithoutShutdown)
+	if (!svs.releaseResources)
 	{
 		return;
 	}

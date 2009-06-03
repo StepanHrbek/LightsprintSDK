@@ -215,7 +215,7 @@ void Scene::render(Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dy
 
 void Scene::debugger()
 {
-	sceneViewer(this,NULL,NULL,s_pathToShaders,NULL);
+	sceneViewer(this,NULL,NULL,s_pathToShaders,NULL,true);
 }
 
 Scene::~Scene()

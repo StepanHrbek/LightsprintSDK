@@ -28,7 +28,7 @@ static wxAppConsole *wxCreateApp()
 	return new SVApp;
 }
 
-void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToShaders, SceneViewerState* _svs)
+void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToShaders, SceneViewerState* _svs, bool _releaseResources)
 {
 	// immediately abort if requested
 	if (_inputSolver && _inputSolver->aborting) return;
@@ -46,6 +46,7 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	}
 	g_svs.initialInputSolver = _inputSolver;
 	g_svs.pathToShaders = _pathToShaders;
+	g_svs.releaseResources = _releaseResources;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	wxEntry(0,NULL);

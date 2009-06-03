@@ -70,9 +70,6 @@ struct SceneViewerState
 	// viewer initialization
 	bool             autodetectCamera;          //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
-	// viewer end
-	bool             returnWithoutShutdown;     //! True = return from scene viewer will be faster, without closing windows and releasing memory. Use it only if you plan to exit after return from scene viewer. 
-
 	// sets default state with realtime GI and random camera
 	SceneViewerState()
 		: eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
@@ -106,7 +103,6 @@ struct SceneViewerState
 		brightness = rr::RRVec4(1);
 		gamma = 1;
 		autodetectCamera = 1;
-		returnWithoutShutdown = 0;
 	}
 };
 
@@ -128,7 +124,11 @@ struct SceneViewerState
 //!  Your string is not free()d.
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToShaders, SceneViewerState* svs);
+//! \param releaseResources
+//!  Resources allocated by scene viewer will be released on exit.
+//!  It could take some time in huge scenes, so there's option to not release them, let them leak.
+//!  Not releasing resources is good idea e.g. if you plan to exit application soon.
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToShaders, SceneViewerState* svs, bool releaseResources);
 
 }; // namespace
 

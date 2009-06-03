@@ -157,11 +157,11 @@ void SVFrame::UpdateEverything()
 
 	bool firstUpdate = !m_canvas;
 
-	bool oldReturnWithoutShutdown = svs.returnWithoutShutdown;
-	svs.returnWithoutShutdown = false; // we are not returning yet, we should shutdown
+	bool oldReleaseResources = svs.releaseResources;
+	svs.releaseResources = true; // we are not returning yet, we should shutdown
 	RR_SAFE_DELETE(m_lightProperties);
 	RR_SAFE_DELETE(m_canvas);
-	svs.returnWithoutShutdown = oldReturnWithoutShutdown;
+	svs.releaseResources = oldReleaseResources;
 
 	// initialInputSolver may be changed only if canvas is NULL
 	// we NULL it to avoid rendering solver contents again (new scene was opened)

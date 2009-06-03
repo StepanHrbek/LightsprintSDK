@@ -25,6 +25,7 @@ namespace rr_gl
 		//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga. It is free()d in destructor.
 		//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
 		char* skyboxFilename;
+		bool releaseResources;
 
 		SceneViewerStateEx()
 		{
@@ -32,6 +33,7 @@ namespace rr_gl
 			pathToShaders = NULL;
 			sceneFilename = NULL;
 			skyboxFilename = NULL;
+			releaseResources = true;
 		}
 		~SceneViewerStateEx()
 		{
