@@ -110,6 +110,8 @@ namespace rr
 		//! \param data
 		//!  Data to be copied into texture. When set to NULL, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
+		//!  Special value 1 creates buffer without any memory allocated for elements
+		//!  (it's good when buffer is needed, but its contents is never accessed, e.g. when creating uninitialized texture in rr_gl::Texture).
 		//! \return
 		//!  True on success, false on failure (invalid parameters).
 		virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) = 0;

@@ -80,7 +80,8 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 		RR_SAFE_DELETE_ARRAY(data);
 		try
 		{
-			data = (_data || _format!=BF_DEPTH) ? new unsigned char[bytesTotal] : NULL;
+			// pointer value 1 = don't allocate buffer, caller promises he will never use it
+			data = ((_data || _format!=BF_DEPTH) && _data!=(unsigned char*)1) ? new unsigned char[bytesTotal] : NULL;
 		}
 		catch(std::bad_alloc e)
 		{
