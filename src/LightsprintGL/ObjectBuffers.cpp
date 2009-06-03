@@ -256,6 +256,10 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				atexcoordEmissive[currentVertex] = triangleMappingEmissive.uv[v];
 			if (hasTransparencyMap)
 				atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
+			unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one row
+			unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one column
+			atexcoordForced2D[currentVertex][0] = (( t%triCountX           )+((v==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
+			atexcoordForced2D[currentVertex][1] = (((t/triCountX)%triCountY)+((v==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
@@ -274,7 +278,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	CREATE_VBO(atexcoordEmissive,RRVec2,GL_STATIC_DRAW,texcoordEmissiveVBO);
 	CREATE_VBO(atexcoordTransparency,RRVec2,GL_STATIC_DRAW,texcoordTransparencyVBO);
 	CREATE_VBO(atexcoordAmbient,RRVec2,GL_STATIC_DRAW,texcoordAmbientVBO);
-	//CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
+	CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
 	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 #endif
@@ -288,7 +292,7 @@ ObjectBuffers::~ObjectBuffers()
 #ifdef USE_VBO
 	// VBOs
 	//glDeleteBuffers(1,&lightIndirectVcolorVBO);
-	//glDeleteBuffers(1,&texcoordForced2DVBO);
+	glDeleteBuffers(1,&texcoordForced2DVBO);
 	glDeleteBuffers(1,&texcoordAmbientVBO);
 	glDeleteBuffers(1,&texcoordEmissiveVBO);
 	glDeleteBuffers(1,&texcoordDiffuseVBO);
@@ -427,12 +431,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				if (params.scene)
 				{
 					// fill our own vertex buffer
-					// optimization:
-					//  remember params used at alightIndirectVcolor filling and refill it only when params change
-					if (solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
+					if (solutionVersion!=lightIndirectVcolorVersion)
 					{
-						lightIndirectVcolorFirst = params.firstCapturedTriangle;
-						lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
 						lightIndirectVcolorVersion = solutionVersion;
 
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
@@ -486,23 +486,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set 2d_position texcoords
 	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
-		//!!! possible optimizations
-		// a) remember params used at atexcoordForced2D filling
-		//    and refill it only when params change
-		// b) predpripravit VBO se vsemi 2d pos v 1024x1024, pak jen menit pointer do VBO podle params.firstCapturedTriangle
-		//    toto VBO by melo byt spolecne pro vsechny meshe
-
-		// this should not be executed in every frame, generated texcoords change rarely
-		RR_ASSERT(!indices); // needs non-indexed trilist
-		//for (unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
-#pragma omp parallel for schedule(static,1)
-		for (int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
-		{
-			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
-		}
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
+		BIND_VBO(TexCoord,2,texcoordForced2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordForced2D[0].x);
 	}
 	// set material diffuse texcoords
 	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)

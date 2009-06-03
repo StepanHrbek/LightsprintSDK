@@ -13,6 +13,11 @@
 namespace rr_gl
 {
 
+// 256 ->  64k triangles per DDI pass, 2k or 1k texture
+// 512 -> 256k triangles per DDI pass, 4k or 2k texture
+#define DDI_TRIANGLES_X      256 // number of triangles in DDI big map row
+#define DDI_TRIANGLES_MAX_Y  256 // max number of triangles in DDI big map column
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // ObjectBuffers - RRObject data stored in buffers for faster rendering
@@ -44,6 +49,7 @@ private:
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
+	unsigned lightIndirectVcolorVersion; // version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
 	unsigned numIndices;
 	unsigned* indices;
 
@@ -54,7 +60,7 @@ private:
 	unsigned texcoordEmissiveVBO;
 	unsigned texcoordTransparencyVBO;
 	unsigned texcoordAmbientVBO;
-	//unsigned texcoordForced2DVBO;
+	unsigned texcoordForced2DVBO;
 	//unsigned lightIndirectVcolorVBO;
 
 	// temp 1x1 textures
@@ -71,10 +77,6 @@ private:
 		}
 	};
 	std::vector<FaceGroup> faceGroups;
-	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
-	unsigned lightIndirectVcolorVersion;
-	unsigned lightIndirectVcolorFirst;
-	unsigned lightIndirectVcolorLastPlus1;
 
 	bool containsNonBlended;
 	bool containsBlended;

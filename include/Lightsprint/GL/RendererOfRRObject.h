@@ -18,22 +18,6 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// per vertex data generator
-
-//! Generator of per vertex data, for internal use.
-class VertexDataGenerator
-{
-public:
-	virtual ~VertexDataGenerator() {};
-	// generates vertex data into 'size' bytes of 'vertexData'
-	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) = 0; // vertexIndex=0..2
-	// returns hash of all parameters that modify generateData behaviour.
-	virtual unsigned getHash() = 0;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RendererOfRRObject
 
 //! OpenGL renderer of 3d object with RRObject interface.
@@ -116,8 +100,8 @@ public:
 	//! Sets what subset of materials will be rendered. Returns whether the subset is non empty.
 	bool setMaterialFilter(bool renderNonBlended, bool renderBlended);
 
-	//! Sets source of uv coords for render() with FORCE_2D_POSITION enabled.
-	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
+	//! Sets range of triangles to render, used with FORCE_2D_POSITION.
+	void setCapture(unsigned firstCapturedTriangle, unsigned lastCapturedTrianglePlus1);
 
 	//! Specifies what indirect illumination to render in render(): use these buffers.
 	//
@@ -190,8 +174,6 @@ private:
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		// set by setCapture()
-		VertexDataGenerator* generateForcedUv; ///< generator of uv data for FORCE_2D_POSITION
-		unsigned otherCaptureParamsHash;       ///< hash of generator's parameters
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
 		// set by setIndirectIlluminationXxx()

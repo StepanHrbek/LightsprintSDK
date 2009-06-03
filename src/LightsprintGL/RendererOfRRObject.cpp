@@ -116,7 +116,6 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 	params.scene = _solver;
 	params.scaler = _scaler;
 	//params.renderedChannels = ... set to default by constructor
-	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
 	params.lastCapturedTrianglePlus1 = _object->getCollider()->getMesh()->getNumTriangles();
 	params.indirectIlluminationSource = NONE;
@@ -165,12 +164,10 @@ bool RendererOfRRObject::setMaterialFilter(bool _renderNonBlended, bool _renderB
 	return (_renderNonBlended && containsNonBlended) || (_renderBlended && containsBlended);
 }
 
-void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1)
+void RendererOfRRObject::setCapture(unsigned _firstCapturedTriangle, unsigned _lastCapturedTrianglePlus1)
 {
-	params.generateForcedUv = capture;
-	params.otherCaptureParamsHash = capture ? capture->getHash() : 0;
-	params.firstCapturedTriangle = afirstCapturedTriangle;
-	params.lastCapturedTrianglePlus1 = alastCapturedTrianglePlus1;
+	params.firstCapturedTriangle = _firstCapturedTriangle;
+	params.lastCapturedTrianglePlus1 = _lastCapturedTrianglePlus1;
 }
 
 void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer,const rr::RRBuffer* ambientMap)

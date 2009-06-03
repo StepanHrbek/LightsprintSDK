@@ -102,7 +102,6 @@ namespace rr_gl
 
 		// for internal rendering (shadowmaps, DDI)
 		char pathToShaders[300];
-		class CaptureUv* captureUv;
 		const void* rendererObject;
 		class RendererOfRRObject* rendererNonCaching;
 		Renderer* rendererCaching;

@@ -13,40 +13,13 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
+#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y
 #include "tmpstr.h"
 
-#define BIG_MAP_SIZEX            2048 // size of temporary texture used during detection
-#define BIG_MAP_SIZEY            2048
 #define REPORT(a) //a
 
 namespace rr_gl
 {
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// CaptureUv
-
-//! Generates uv coords for capturing direct illumination into map with matrix of triangles.
-class CaptureUv : public VertexDataGenerator
-{
-public:
-	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
-	{
-		RR_ASSERT(size==2*sizeof(GLfloat));
-		RR_ASSERT(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
-		// +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
-	}
-	virtual unsigned getHash()
-	{
-		return firstCapturedTriangle+(triCountX<<8)+(triCountY<<16);
-	}
-	unsigned firstCapturedTriangle; // offset of first captured triangle in array of all triangles
-	unsigned lastCapturedTrianglePlus1; // offset of last captured triangle + 1
-	unsigned triCountX, triCountY; // number of columns/rows in 0..1,0..1 texture space (not necessarily used, some of them could be empty when detecting less than triCountX*triCountY triangles)
-};
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -101,8 +74,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 	rr::RRReporter::report(rr::INF1,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
-	captureUv = new CaptureUv;
-	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,BIG_MAP_SIZEX,BIG_MAP_SIZEY,1,rr::BF_RGBA,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X*faceSizeX,DDI_TRIANGLES_MAX_Y*faceSizeY,1,rr::BF_RGBA,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	scaleDownProgram = Program::create(
 		tmpstr("#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY),
 		tmpstr("%sscaledown_filter.vs",pathToShaders),
@@ -131,7 +103,6 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
-	delete captureUv;
 	delete uberProgram1;
 }
 
@@ -490,22 +461,15 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	// adjust captured texture size so we don't waste pixels
 	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
-	captureUv->triCountX = BIG_MAP_SIZEX/faceSizeX; // number of triangles in one row
-	captureUv->triCountY = BIG_MAP_SIZEY/faceSizeY; // number of triangles in one column
-	while (captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
-	unsigned width = BIG_MAP_SIZEX; // used width in pixels
-	unsigned height = captureUv->triCountY*faceSizeY; // used height in pixels
 
 	// for each set of triangles (if all triangles don't fit into one texture)
-	for (captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
+	for (unsigned firstCapturedTriangle=0;firstCapturedTriangle<numTriangles;firstCapturedTriangle+=DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y)
 	{
-		captureUv->lastCapturedTrianglePlus1 = RR_MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
-
-		// reduce number of lines read back if possible
-		//  unused space is located at the end of last readback buffer (last iteration of this for cycle)
-		//  without this code, we would read it back, but it could be too long (e.g. 2.5K) for our _results buffer
-		//  with this code, we reduce unused space read back to less than 1 line (that fits in our safety 2K buffer)
-		while (captureUv->triCountY && captureUv->triCountX*(captureUv->triCountY-1)>=captureUv->lastCapturedTrianglePlus1-captureUv->firstCapturedTriangle) captureUv->triCountY--;
+		unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one DDI row
+		unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one DDI column
+		unsigned width = triCountX*faceSizeX; // used DDI width in pixels
+		unsigned height = triCountY*faceSizeY; // used DDI height in pixels
+		unsigned lastCapturedTrianglePlus1 = RR_MIN(numTriangles,firstCapturedTriangle+triCountX*triCountY);
 
 		// prepare for scaling down -> render to texture
 		detectBigMap->renderingToBegin();
@@ -526,28 +490,28 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		// render scene
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
+		rendererNonCaching->setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererNonCaching->setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
 		if (renderedChannels.LIGHT_INDIRECT_MAP)
 			rendererNonCaching->render();
 		else
 			rendererCaching->render();
-		rendererNonCaching->setCapture(NULL,0,numTriangles);
+		rendererNonCaching->setCapture(0,numTriangles);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
 		detectBigMap->renderingToEnd();
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
-		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZEX,1.0f/BIG_MAP_SIZEY);
-		glViewport(0,0,BIG_MAP_SIZEX/faceSizeX,BIG_MAP_SIZEY/faceSizeY);//!!! needs at least 256x256 backbuffer
+		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getBuffer()->getWidth(),1.0f/detectBigMap->getBuffer()->getHeight());
+		glViewport(0,0,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y);//!!! needs at least 256x256 backbuffer
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		glDisable(GL_CULL_FACE);
 		glBegin(GL_POLYGON);
 			glMultiTexCoord2f(GL_TEXTURE0,0,0);
 			glVertex2f(-1,-1);
-			float fractionOfBigMapUsed = 1.0f*captureUv->triCountY*faceSizeY/BIG_MAP_SIZEY; // we downscale only part of big map that is used
+			float fractionOfBigMapUsed = 1.0f*triCountY/DDI_TRIANGLES_MAX_Y; // we downscale only part of big map that is used
 			glMultiTexCoord2f(GL_TEXTURE0,0,fractionOfBigMapUsed);
 			glVertex2f(-1,fractionOfBigMapUsed*2-1);
 			glMultiTexCoord2f(GL_TEXTURE0,1,fractionOfBigMapUsed);
@@ -557,15 +521,13 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		glEnd();
 
 		// read downscaled image to memory
-		RR_ASSERT(captureUv->triCountX*captureUv->triCountY <= BIG_MAP_SIZEX*BIG_MAP_SIZEY/faceSizeX/faceSizeY);
-		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", captureUv->triCountX, captureUv->triCountY));
-		RR_ASSERT(_space+2047>=captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
-		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+captureUv->firstCapturedTriangle);
+		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountY));
+		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountY);
+		glReadPixels(0, 0, triCountX, triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
 	}
 
 	return 1;
 }
-
 
 void drawCamera(Camera* camera)
 {
