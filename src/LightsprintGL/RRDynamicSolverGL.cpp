@@ -547,10 +547,11 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		glBegin(GL_POLYGON);
 			glMultiTexCoord2f(GL_TEXTURE0,0,0);
 			glVertex2f(-1,-1);
-			glMultiTexCoord2f(GL_TEXTURE0,0,1);
-			glVertex2f(-1,1);
-			glMultiTexCoord2f(GL_TEXTURE0,1,1);
-			glVertex2f(1,1);
+			float fractionOfBigMapUsed = 1.0f*captureUv->triCountY*faceSizeY/BIG_MAP_SIZEY; // we downscale only part of big map that is used
+			glMultiTexCoord2f(GL_TEXTURE0,0,fractionOfBigMapUsed);
+			glVertex2f(-1,fractionOfBigMapUsed*2-1);
+			glMultiTexCoord2f(GL_TEXTURE0,1,fractionOfBigMapUsed);
+			glVertex2f(1,fractionOfBigMapUsed*2-1);
 			glMultiTexCoord2f(GL_TEXTURE0,1,0);
 			glVertex2f(1,-1);
 		glEnd();
