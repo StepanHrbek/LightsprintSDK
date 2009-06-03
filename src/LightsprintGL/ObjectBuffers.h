@@ -54,14 +54,20 @@ private:
 	unsigned* indices;
 
 	// VBOs
-	unsigned vertexVBO;
-	unsigned normalVBO;
-	unsigned texcoordDiffuseVBO;
-	unsigned texcoordEmissiveVBO;
-	unsigned texcoordTransparencyVBO;
-	unsigned texcoordAmbientVBO;
-	unsigned texcoordForced2DVBO;
-	//unsigned lightIndirectVcolorVBO;
+	enum VBOIndex
+	{
+		VBO_vertex,
+		VBO_normal,
+		VBO_texcoordDiffuse,
+		VBO_texcoordEmissive,
+		VBO_texcoordTransparency,
+		VBO_texcoordAmbient,
+		VBO_texcoordForced2D,
+		VBO_lightIndirectVcolor,
+		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
+		VBO_COUNT
+	};
+	unsigned VBO[VBO_COUNT];
 
 	// temp 1x1 textures
 	std::vector<rr::RRBuffer*> tempTextures;

@@ -265,21 +265,20 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		faceGroups[faceGroups.size()-1].numIndices += 3;
 	}
 #ifdef USE_VBO
-#define CREATE_VBO(array, elementType, vboType, vboId) \
-	{ vboId = 0; if (array) { \
-		glGenBuffers(1,&vboId); \
-		glBindBuffer(GL_ARRAY_BUFFER, vboId); \
-		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(rr::elementType), array, vboType); \
-		RR_SAFE_DELETE_ARRAY(array); } }
+#define COPY_ARRAY_TO_VBO(name) \
+	{ if (a##name) { \
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##name]); \
+		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(*a##name), a##name, GL_STATIC_DRAW); \
+		RR_SAFE_DELETE_ARRAY(a##name); } }
 
-	CREATE_VBO(avertex,RRVec3,GL_STATIC_DRAW,vertexVBO);
-	CREATE_VBO(anormal,RRVec3,GL_STATIC_DRAW,normalVBO);
-	CREATE_VBO(atexcoordDiffuse,RRVec2,GL_STATIC_DRAW,texcoordDiffuseVBO);
-	CREATE_VBO(atexcoordEmissive,RRVec2,GL_STATIC_DRAW,texcoordEmissiveVBO);
-	CREATE_VBO(atexcoordTransparency,RRVec2,GL_STATIC_DRAW,texcoordTransparencyVBO);
-	CREATE_VBO(atexcoordAmbient,RRVec2,GL_STATIC_DRAW,texcoordAmbientVBO);
-	CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
-	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
+	glGenBuffers(VBO_COUNT,VBO);
+	COPY_ARRAY_TO_VBO(vertex);
+	COPY_ARRAY_TO_VBO(normal);
+	COPY_ARRAY_TO_VBO(texcoordDiffuse);
+	COPY_ARRAY_TO_VBO(texcoordEmissive);
+	COPY_ARRAY_TO_VBO(texcoordTransparency);
+	COPY_ARRAY_TO_VBO(texcoordAmbient);
+	COPY_ARRAY_TO_VBO(texcoordForced2D);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 #endif
 	if (indexed)
@@ -291,13 +290,7 @@ ObjectBuffers::~ObjectBuffers()
 {
 #ifdef USE_VBO
 	// VBOs
-	//glDeleteBuffers(1,&lightIndirectVcolorVBO);
-	glDeleteBuffers(1,&texcoordForced2DVBO);
-	glDeleteBuffers(1,&texcoordAmbientVBO);
-	glDeleteBuffers(1,&texcoordEmissiveVBO);
-	glDeleteBuffers(1,&texcoordDiffuseVBO);
-	glDeleteBuffers(1,&normalVBO);
-	glDeleteBuffers(1,&vertexVBO);
+	glDeleteBuffers(VBO_COUNT,VBO);
 #endif
 
 	// arrays
@@ -345,23 +338,39 @@ GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 	}
 }
 
+static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned numVerticesToCopy, unsigned VBO)
+{
+	RR_ASSERT(buffer);
+	RR_ASSERT(buffer->getType()==rr::BT_VERTEX_BUFFER);
+	unsigned bufferWidth = buffer->getWidth();
+	RR_ASSERT(numVerticesToCopy<=bufferWidth);
+#ifdef USE_VBO
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, numVerticesToCopy*buffer->getElementBits()/8, buffer->lock(rr::BL_READ), GL_STREAM_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	buffer->unlock();
+#endif
+}
+
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
 {
 #ifdef USE_VBO
-#define BIND_VBO(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER, myName##VBO); gl##glName##Pointer(floats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
-#define BIND_VBO2(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER, myName##VBO); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
 #else
-#define BIND_VBO(glName,floats,myName) gl##glName##Pointer(floats, GL_FLOAT, 0, &a##myName[0].x);
-#define BIND_VBO2(glName,floats,myName) gl##glName##Pointer(GL_FLOAT, 0, &a##myName[0].x);
+	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(GL_FLOAT, 0, &a##myName[0].x);
+	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, 0, &a##myName[0].x);
+	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
 #endif
 	// set vertices
-	BIND_VBO(Vertex,3,vertex);
+	BIND_VBO3(Vertex,3,vertex);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
 	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
 	if (setNormals)
 	{
-		BIND_VBO2(Normal,3,normal);
+		BIND_VBO2(Normal,normal);
 		glEnableClientState(GL_NORMAL_ARRAY);
 	}
 	// manage blending
@@ -384,33 +393,21 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
 				// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-				unsigned bufferSize = params.availableIndirectIlluminationVColors->getWidth();
-				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+				copyBufferToVBO(params.availableIndirectIlluminationVColors,numVertices,VBO[VBO_lightIndirectVcolor]);
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(
-					getBufferNumComponents(params.availableIndirectIlluminationVColors),
-					getBufferComponentType(params.availableIndirectIlluminationVColors),
-					0, params.availableIndirectIlluminationVColors->lock(rr::BL_READ));
+				BIND_BUFFER(Color,params.availableIndirectIlluminationVColors,lightIndirectVcolor);
 				if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
 					if (params.availableIndirectIlluminationVColors2)
 					{
-						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getWidth();
-						RR_ASSERT(bufferSize2==bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+						copyBufferToVBO(params.availableIndirectIlluminationVColors2,numVertices,VBO[VBO_lightIndirectVcolor2]);
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(
-							getBufferNumComponents(params.availableIndirectIlluminationVColors2),
-							getBufferComponentType(params.availableIndirectIlluminationVColors2),
-							0, (GLvoid*)params.availableIndirectIlluminationVColors2->lock(rr::BL_READ));
+						BIND_BUFFER(SecondaryColor,params.availableIndirectIlluminationVColors2,lightIndirectVcolor2);
 					}
 					else
 					{
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Render of indirect illumination buffer blend requested, but second buffer is NULL.\n"));
 						RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
-						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(
-							getBufferNumComponents(alightIndirectVcolor),
-							getBufferComponentType(alightIndirectVcolor),
-							0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
 					}
 				}
 			}
@@ -438,6 +435,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
 						// refill
 						params.scene->updateLightmap(-1,alightIndirectVcolor,NULL,NULL,NULL);
+						copyBufferToVBO(alightIndirectVcolor,numVertices,VBO[VBO_lightIndirectVcolor]);
 					}
 				}
 				else
@@ -454,18 +452,22 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				RR_ASSERT(0);
 			}
 
-			glEnableClientState(GL_COLOR_ARRAY);
+#ifdef USE_VBO
+			BIND_VBO3(Color,3,lightIndirectVcolor);
+#else
 			glColorPointer(
 				getBufferNumComponents(alightIndirectVcolor),
 				getBufferComponentType(alightIndirectVcolor),
 				0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
+#endif
+			glEnableClientState(GL_COLOR_ARRAY);
 		}
 	}
 	// set indirect illumination texcoords + map (lightmap or light detail map)
 	if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
-		BIND_VBO(TexCoord,2,texcoordAmbient);
+		BIND_VBO3(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		if (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
@@ -487,28 +489,28 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
-		BIND_VBO(TexCoord,2,texcoordForced2D);
+		BIND_VBO3(TexCoord,2,texcoordForced2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material diffuse texcoords
 	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
-		BIND_VBO(TexCoord,2,texcoordDiffuse);
+		BIND_VBO3(TexCoord,2,texcoordDiffuse);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material emissive texcoords
 	if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
-		BIND_VBO(TexCoord,2,texcoordEmissive);
+		BIND_VBO3(TexCoord,2,texcoordEmissive);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material transparency texcoords
 	if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
-		BIND_VBO(TexCoord,2,texcoordTransparency);
+		BIND_VBO3(TexCoord,2,texcoordTransparency);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// render facegroups (facegroups differ by material)
