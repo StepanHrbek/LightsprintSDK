@@ -13,10 +13,21 @@
 namespace rr_gl
 {
 
+// USE_VBO copies vertex data to VRAM, makes rendering faster.
+// Nvidia driver with threaded optimization enabled or auto is known to render rubbish when mixing VBOs and vertex arrays,
+// so it's good idea to use VBO everywhere or nowhere. We do it.
+//#define USE_VBO
+
+// SMALL_ARRAYS stores vertex data in 8 small arrays rather than 2 big ones.
+// Roughly the same speed on GF8800.
+#define SMALL_ARRAYS
+
+// Specifies size of texture used by DDI.
 // 256 ->  64k triangles per DDI pass, 2k or 1k texture
 // 512 -> 256k triangles per DDI pass, 4k or 2k texture
 #define DDI_TRIANGLES_X      256 // number of triangles in DDI big map row
 #define DDI_TRIANGLES_MAX_Y  256 // max number of triangles in DDI big map column
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -41,13 +52,27 @@ private:
 	unsigned numVertices;
 
 	// arrays
-	rr::RRVec3* avertex;
+#ifdef SMALL_ARRAYS
+	rr::RRVec3* aposition;
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
 	rr::RRVec2* atexcoordEmissive;
 	rr::RRVec2* atexcoordTransparency;
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
+#else
+	struct VertexData
+	{
+		rr::RRVec3 position;
+		rr::RRVec3 normal;
+		rr::RRVec2 texcoordDiffuse;
+		rr::RRVec2 texcoordEmissive;
+		rr::RRVec2 texcoordTransparency;
+		rr::RRVec2 texcoordAmbient; // could be unique for each vertex (with default unwrap)
+		rr::RRVec2 texcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
+	};
+	VertexData* avertex;
+#endif
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned lightIndirectVcolorVersion; // version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
 	unsigned numIndices;
@@ -56,13 +81,17 @@ private:
 	// VBOs
 	enum VBOIndex
 	{
-		VBO_vertex,
+#ifdef SMALL_ARRAYS
+		VBO_position,
 		VBO_normal,
 		VBO_texcoordDiffuse,
 		VBO_texcoordEmissive,
 		VBO_texcoordTransparency,
 		VBO_texcoordAmbient,
 		VBO_texcoordForced2D,
+#else
+		VBO_vertex,
+#endif
 		VBO_lightIndirectVcolor,
 		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
 		VBO_COUNT
