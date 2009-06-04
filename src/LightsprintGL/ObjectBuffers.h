@@ -17,11 +17,12 @@ namespace rr_gl
 // Nvidia driver with threaded optimization enabled or auto is known to render rubbish when mixing VBOs and vertex arrays,
 // http://www.gamedev.net/community/forums/topic.asp?topic_id=506753
 // so it's good idea to use VBO everywhere or nowhere. We do it.
-//#define USE_VBO
+#define USE_VBO
 
 // SMALL_ARRAYS stores vertex data in 8 small arrays rather than 2 big ones.
-// Roughly the same speed on GF8800.
-#define SMALL_ARRAYS
+// Big arrays allocates smaller number of VBOs, it could make init/shutdown faster,
+// so we prefer it with VBO. Small arrays are faster without VBO.
+//#define SMALL_ARRAYS
 
 // Specifies size of texture used by DDI.
 // 256 ->  64k triangles per DDI pass, 2k or 1k texture
