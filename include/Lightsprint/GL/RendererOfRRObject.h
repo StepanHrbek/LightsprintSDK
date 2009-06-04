@@ -116,23 +116,26 @@ public:
 	//!  Used by render() with LIGHT_INDIRECT_MAP.
 	//!  Ambient map with indirect illumination values.
 	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
-	void setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap);
+	//! \param lightIndirectVersion
+	//!  Version of data in buffers, should be incremented each time buffer content changes.
+	//!  If lightIndirectVersion does not change, renderer may save time by using older version of data that was already copied to VRAM.
+	void setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, unsigned lightIndirectVersion);
 
 	//! Specifies what indirect illumination to render in render(): use blend of these buffers.
 	//
 	//! This is setIndirectIlluminationBuffers() extended with second set of data,
 	//! both sets are pushed into OpenGL pipeline at render time.
-	void setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2);
+	void setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2, unsigned lightIndirectVersion);
 
 	//! Specifies what indirect illumination to render in render(): read live values from the solver.
 	//
 	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
-	//! \param solutionVersion
+	//! \param lightIndirectVersion
 	//!  If you change this number, indirect illumination data are read form the solver at render() time.
 	//!  If you call render() without changing this number,
 	//!  indirect illumination from previous render() is reused and render is faster.
 	//!  RRDynamicSolver::getSolutionVersion() is usually entered here.
-	void setIndirectIlluminationFromSolver(unsigned solutionVersion);
+	void setIndirectIlluminationFromSolver(unsigned lightIndirectVersion);
 
 	//! Specifies light detail map. Default = none.
 	void setLDM(const rr::RRBuffer* aoBuffer);
@@ -195,7 +198,7 @@ private:
 	// buffers for faster rendering
 	class ObjectBuffers* indexedYes;
 	class ObjectBuffers* indexedNo;
-	unsigned solutionVersion;              ///< Version of solution in static solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
+	unsigned lightIndirectVersion;              ///< Version of indirect illumination in buffers or solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
 	bool containsNonBlended;
 	bool containsBlended;
 };

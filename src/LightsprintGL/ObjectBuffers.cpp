@@ -70,6 +70,8 @@ ObjectBuffers::ObjectBuffers()
 	avertex = NULL;
 #endif
 	alightIndirectVcolor = NULL;
+	previousLightIndirectVersion = UINT_MAX;
+	previousLightIndirectBuffer = NULL;
 	indices = NULL;
 }
 
@@ -372,7 +374,7 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned numVerticesToCopy, un
 #endif
 }
 
-void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
+void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
 #ifdef SMALL_ARRAYS
 #ifdef USE_VBO
@@ -426,14 +428,23 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
 				// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-				copyBufferToVBO(params.availableIndirectIlluminationVColors,numVertices,VBO[VBO_lightIndirectVcolor]);
+				bool copyLayerToVBO = previousLightIndirectVersion!=lightIndirectVersion || previousLightIndirectBuffer!=params.availableIndirectIlluminationVColors;
+				if (copyLayerToVBO)
+				{
+					previousLightIndirectVersion = lightIndirectVersion;
+					previousLightIndirectBuffer = params.availableIndirectIlluminationVColors;
+					copyBufferToVBO(params.availableIndirectIlluminationVColors,numVertices,VBO[VBO_lightIndirectVcolor]);
+				}
 				glEnableClientState(GL_COLOR_ARRAY);
 				BIND_BUFFER(Color,params.availableIndirectIlluminationVColors,lightIndirectVcolor);
 				if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
 					if (params.availableIndirectIlluminationVColors2)
 					{
-						copyBufferToVBO(params.availableIndirectIlluminationVColors2,numVertices,VBO[VBO_lightIndirectVcolor2]);
+						if (copyLayerToVBO)
+						{
+							copyBufferToVBO(params.availableIndirectIlluminationVColors2,numVertices,VBO[VBO_lightIndirectVcolor2]);
+						}
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
 						BIND_BUFFER(SecondaryColor,params.availableIndirectIlluminationVColors2,lightIndirectVcolor2);
 					}
@@ -461,12 +472,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				if (params.scene)
 				{
 					// fill our own vertex buffer
-					if (solutionVersion!=lightIndirectVcolorVersion)
+					if (previousLightIndirectVersion!=lightIndirectVersion)
 					{
-						lightIndirectVcolorVersion = solutionVersion;
-
+						previousLightIndirectVersion = lightIndirectVersion;
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
-						// refill
 						params.scene->updateLightmap(-1,alightIndirectVcolor,NULL,NULL,NULL);
 						copyBufferToVBO(alightIndirectVcolor,numVertices,VBO[VBO_lightIndirectVcolor]);
 					}

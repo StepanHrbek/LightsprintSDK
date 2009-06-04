@@ -93,6 +93,7 @@ bool                       realtimeIllumination = true; // true = fully realtime
 bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(2);
 float                      contrast = 1;
+unsigned                   solutionVersion = 0;
 
 enum // arbitrary layer numbers
 {
@@ -109,7 +110,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
-	rendererOfScene->useOriginalScene(realtimeIllumination?LAYER_REALTIME:(ambientMapsRender?LAYER_OFFLINE_PIXEL:LAYER_OFFLINE_VERTEX));
+	rendererOfScene->useOriginalScene(realtimeIllumination?LAYER_REALTIME:(ambientMapsRender?LAYER_OFFLINE_PIXEL:LAYER_OFFLINE_VERTEX),solutionVersion);
 	rendererOfScene->setBrightnessGamma(&brightness,contrast);
 	rendererOfScene->render();
 
@@ -288,6 +289,7 @@ void keyboard(unsigned char c, int x, int y)
 				ambientMapsRender = true;
 				realtimeIllumination = false;
 				modeMovingEye = true;
+				solutionVersion++; // change version so that illumination propagates into VRAM
 				break;
 			}
 
@@ -389,7 +391,6 @@ void display(void)
 	// update vertex color buffers if they need it
 	if (realtimeIllumination)
 	{
-		static unsigned solutionVersion = 0;
 		if (solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();

@@ -130,6 +130,7 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 	params.renderBlended = true;
 	params.renderNonBlended = true;
 
+	lightIndirectVersion = UINT_MAX;
 	indexedYes = NULL;
 	indexedNo = NULL;
 	containsNonBlended = 1;
@@ -170,7 +171,7 @@ void RendererOfRRObject::setCapture(unsigned _firstCapturedTriangle, unsigned _l
 	params.lastCapturedTrianglePlus1 = _lastCapturedTrianglePlus1;
 }
 
-void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer,const rr::RRBuffer* ambientMap)
+void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, unsigned _lightIndirectVersion)
 {
 	params.indirectIlluminationSource = BUFFERS;
 	params.indirectIlluminationBlend = 0;
@@ -178,11 +179,11 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuff
 	params.availableIndirectIlluminationMap = ambientMap;
 	params.availableIndirectIlluminationVColors2 = NULL;
 	params.availableIndirectIlluminationMap2 = NULL;
-	solutionVersion = 0;
+	lightIndirectVersion = _lightIndirectVersion;
 	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
-void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2)
+void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2, unsigned _lightIndirectVersion)
 {
 	params.indirectIlluminationSource = BUFFERS;
 	params.indirectIlluminationBlend = 0;
@@ -190,12 +191,12 @@ void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* verte
 	params.availableIndirectIlluminationMap = ambientMap;
 	params.availableIndirectIlluminationVColors2 = vertexBuffer2;
 	params.availableIndirectIlluminationMap2 = ambientMap2;
-	solutionVersion = 0;
+	lightIndirectVersion = _lightIndirectVersion;
 	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 	getTexture(ambientMap2,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
-void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVersion)
+void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned _lightIndirectVersion)
 {
 	params.indirectIlluminationSource = SOLVER;
 	params.indirectIlluminationBlend = 0;
@@ -203,7 +204,7 @@ void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVer
 	params.availableIndirectIlluminationMap = NULL;
 	params.availableIndirectIlluminationVColors2 = NULL;
 	params.availableIndirectIlluminationMap2 = NULL;
-	solutionVersion = asolutionVersion;
+	lightIndirectVersion = _lightIndirectVersion;
 }
 
 void RendererOfRRObject::setLDM(const rr::RRBuffer* ldmBuffer)
@@ -306,14 +307,14 @@ void RendererOfRRObject::render()
 	{
 		// INDEXED
 		// indexed is faster, use always when possible
-		indexedYes->render(params,solutionVersion);
+		indexedYes->render(params,lightIndirectVersion);
 	}
 	else
 	if (indexedNo && !dontUseNonIndexed)
 	{
 		// NON INDEXED
 		// non-indexed is slower
-		indexedNo->render(params,solutionVersion);
+		indexedNo->render(params,lightIndirectVersion);
 	}
 	else
 	{

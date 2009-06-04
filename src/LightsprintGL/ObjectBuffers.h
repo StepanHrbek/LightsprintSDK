@@ -15,6 +15,7 @@ namespace rr_gl
 
 // USE_VBO copies vertex data to VRAM, makes rendering faster.
 // Nvidia driver with threaded optimization enabled or auto is known to render rubbish when mixing VBOs and vertex arrays,
+// http://www.gamedev.net/community/forums/topic.asp?topic_id=506753
 // so it's good idea to use VBO everywhere or nowhere. We do it.
 //#define USE_VBO
 
@@ -45,7 +46,7 @@ public:
 	//!  Set only when returning non-NULL result, otherwise unchanged.
 	static ObjectBuffers* create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended);
 	~ObjectBuffers();
-	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
+	void render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion);
 private:
 	ObjectBuffers();
 	void init(const rr::RRObject* object, bool indexed); // throws std::bad_alloc
@@ -74,7 +75,8 @@ private:
 	VertexData* avertex;
 #endif
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
-	unsigned lightIndirectVcolorVersion; // version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
+	unsigned previousLightIndirectVersion; // version of lightIndirect data we have in VRAM
+	rr::RRBuffer* previousLightIndirectBuffer; // layer we copied to VBO_lightIndir last time
 	unsigned numIndices;
 	unsigned* indices;
 

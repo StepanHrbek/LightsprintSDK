@@ -35,7 +35,9 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 	rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
 	if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
 	{
-		rendererOfScene->useOriginalScene(svs.staticLayerNumber);
+		// changes in svs.staticLayerNumber illumination are not tracked,
+		//  but getSolutionVersion() should work as it is incremented during lightmap build
+		rendererOfScene->useOriginalScene(svs.staticLayerNumber,getSolutionVersion());
 	}
 	else
 	{

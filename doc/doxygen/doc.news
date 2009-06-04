@@ -19,6 +19,8 @@ NEWS
 CHANGES
 
 - several members of rr_gl::SceneViewerState renamed or added to better cover new capabilities
+- new parameter lightIndirectVersion in several rr_gl rendering function
+  \n changing it only when illumination changes makesrealtime render faster
 
 \section news84 ------------------------------------ 2009.05.29 -------------------------------------
 

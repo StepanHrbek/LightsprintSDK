@@ -16,7 +16,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CORNER_LOGO
 //#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
-//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery, pomalejsi. udajne nepodporuje fireball (zda se ale ze vse funguje)
+//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed s ohromnymi vertex buffery. pri pouziti VBO temer nema vliv
 //#define THREE_ONE
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
@@ -471,7 +471,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	if (demoPlayer->getPaused())
 	{
 		// paused -> show realtime layer 0
-		level->rendererOfScene->useOriginalScene(0);
+		level->rendererOfScene->useOriginalScene(0,solutionVersion);
 	}
 	else
 	{
@@ -483,7 +483,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 		unsigned frameIndex0 = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
 		const AnimationFrame* frame0 = level->pilot.setup->getFrameByIndex(frameIndex0);
 		const AnimationFrame* frame1 = level->pilot.setup->getFrameByIndex(frameIndex0+1);
-		level->rendererOfScene->useOriginalSceneBlend(frame0?frame0->layerNumber:0,frame1?frame1->layerNumber:0,transitionTotal?transitionDone/transitionTotal:0,0);
+		level->rendererOfScene->useOriginalSceneBlend(frame0?frame0->layerNumber:0,frame1?frame1->layerNumber:0,transitionTotal?transitionDone/transitionTotal:0,0,solutionVersion);
 	}
 #endif
 

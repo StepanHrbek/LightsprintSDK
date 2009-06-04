@@ -295,8 +295,8 @@ public:
 	//! Sets source of indirect illumination. It is layer 0 by default.
 	//! \param layerNumber
 	//!  Indirect illumination will be taken from given layer.
-	void setIndirectIlluminationSource(unsigned layerNumber);
-	void setIndirectIlluminationSourceBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback);
+	void setIndirectIlluminationSource(unsigned layerNumber, unsigned lightIndirectVersion);
+	void setIndirectIlluminationSourceBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback, unsigned lightIndirectVersion);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	//! Does not clear before rendering.
@@ -314,6 +314,7 @@ private:
 	unsigned layerNumber2;
 	float layerBlend; // 0..1, 0=layerNumber, 1=layerNumber2
 	unsigned layerNumberFallback;
+	unsigned lightIndirectVersion;
 	struct PerObjectPermanent
 	{
 		rr::RRObject* object;
@@ -368,6 +369,7 @@ RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* _solver, c
 	layerNumber = UINT_MAX; // disabled
 	layerNumber2 = UINT_MAX; // disabled
 	layerNumberFallback = UINT_MAX; // disabled
+	lightIndirectVersion = UINT_MAX;
 	perObjectPermanent = NULL;
 	perObjectSorted = NULL;
 }
@@ -378,20 +380,22 @@ RendererOfOriginalScene::~RendererOfOriginalScene()
 	delete[] perObjectPermanent;
 }
 
-void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned alayerNumber)
+void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned _layerNumber, unsigned _lightIndirectVersion)
 {
-	layerNumber = alayerNumber;
+	layerNumber = _layerNumber;
 	layerNumber2 = UINT_MAX; // disabled
 	layerBlend = 0;
 	layerNumberFallback = UINT_MAX; // disabled
+	lightIndirectVersion = _lightIndirectVersion;
 }
 
-void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned alayerNumber1, unsigned alayerNumber2, float alayerBlend, unsigned alayerNumberFallback)
+void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned _layerNumber1, unsigned _layerNumber2, float _layerBlend, unsigned _layerNumberFallback, unsigned _lightIndirectVersion)
 {
-	layerNumber = alayerNumber1;
-	layerNumber2 = alayerNumber2;
-	layerBlend = alayerBlend;
-	layerNumberFallback = alayerNumberFallback;
+	layerNumber = _layerNumber1;
+	layerNumber2 = _layerNumber2;
+	layerBlend = _layerBlend;
+	layerNumberFallback = _layerNumberFallback;
+	lightIndirectVersion = _lightIndirectVersion;
 }
 
 rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
@@ -500,12 +504,12 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		perObject->rendererNonCaching->setRenderedChannels(renderedChannels);
 		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
 		{
-			perObject->rendererNonCaching->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
+			perObject->rendererNonCaching->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2,lightIndirectVersion);
 			program->sendUniform("lightIndirectBlend",layerBlend);
 		}
 		else
 		{
-			perObject->rendererNonCaching->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+			perObject->rendererNonCaching->setIndirectIlluminationBuffers(vbuffer,pbuffer,lightIndirectVersion);
 		}
 		perObject->rendererNonCaching->setLDM(pbufferldm);
 
@@ -518,6 +522,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 
 void RendererOfOriginalScene::renderRealtimeGI()
 {
+	lightIndirectVersion = params.solver?params.solver->getSolutionVersion():0;
 	// renders realtime GI (on meshes or multimes, what's better)
 	if (
 		// optimized render is faster and supports rendering into shadowmaps (this will go away with colored shadows)
@@ -678,16 +683,16 @@ const void* RendererOfScene::getParams(unsigned& length) const
 	return renderer->getParams(length);
 }
 
-void RendererOfScene::useOriginalScene(unsigned layerNumber)
+void RendererOfScene::useOriginalScene(unsigned layerNumber, unsigned lightIndirectVersion)
 {
 	dataSource = DS_LAYER_MESHES;
-	renderer->setIndirectIlluminationSource(layerNumber);
+	renderer->setIndirectIlluminationSource(layerNumber,lightIndirectVersion);
 }
 
-void RendererOfScene::useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback)
+void RendererOfScene::useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback, unsigned lightIndirectVersion)
 {
 	dataSource = DS_LAYER_MESHES;
-	renderer->setIndirectIlluminationSourceBlend(layerNumber1,layerNumber2,transition,layerNumberFallback);
+	renderer->setIndirectIlluminationSourceBlend(layerNumber1,layerNumber2,transition,layerNumberFallback,lightIndirectVersion);
 }
 
 void RendererOfScene::useOptimizedScene()
@@ -703,7 +708,7 @@ bool RendererOfScene::usingOptimizedScene()
 void RendererOfScene::useRealtimeGI(unsigned layerNumber)
 {
 	dataSource = DS_REALTIME_AUTO;
-	renderer->setIndirectIlluminationSource(layerNumber);
+	renderer->setIndirectIlluminationSource(layerNumber,0); // 0 is arbitrary number, it won't be used
 }
 
 void RendererOfScene::render()

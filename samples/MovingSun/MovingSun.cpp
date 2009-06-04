@@ -221,7 +221,7 @@ public:
 		unsigned frame1 = (unsigned)(lightTime01*(NUM_FRAMES-1));
 		unsigned frame2 = (frame1+1)%NUM_FRAMES;
 		float blend = lightTime01*(NUM_FRAMES-1)-frame1;
-		rendererOfScene->useOriginalSceneBlend(frame1,frame2,blend,frame1);
+		rendererOfScene->useOriginalSceneBlend(frame1,frame2,blend,frame1,0);
 		rendererOfScene->setBrightnessGamma(&brightness,contrast);
 		rendererOfScene->render();
 

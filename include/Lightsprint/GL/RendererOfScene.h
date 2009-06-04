@@ -57,10 +57,10 @@ public:
 	//!    Format of indirect illumination is affected by LIGHT_INDIRECT_XXX you send to setParams().
 	//! \param layerNumber
 	//!  Indirect illumination is taken from given layer.
-	void useOriginalScene(unsigned layerNumber);
+	void useOriginalScene(unsigned layerNumber, unsigned lightIndirectVersion);
 
 	//! Specifies data source - original meshes and illumination blend from given layers.
-	void useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback);
+	void useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback, unsigned lightIndirectVersion);
 
 	//! Specifies data source - optimized meshes and live illumination from solver.
 	//
