@@ -36,8 +36,8 @@ Demo::Demo(const char* pathToShaders)
 	s_pathToShaders = _strdup(pathToShaders);
 	s_uberProgram = UberProgram::create((std::string(pathToShaders)+"ubershader.vs").c_str(),(std::string(pathToShaders)+"ubershader.fs").c_str());
 	s_toneMapping = new ToneMapping(s_pathToShaders);
-	s_diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBF,true,NULL);
-	s_specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBF,true,NULL);
+	s_diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBA,true,NULL);
+	s_specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
 }
 
 Demo::~Demo()

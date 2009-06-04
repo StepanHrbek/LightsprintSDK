@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- faster realtime render (up to 2x higher fps in Lightsmark)
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - new "Global illumination" menu adds capabilities, replaces "Realtime lighting" and "Static lighting" menus
   - new parameter releaseResources lets you exit faster without releasing stuff
@@ -20,7 +21,7 @@ CHANGES
 
 - several members of rr_gl::SceneViewerState renamed or added to better cover new capabilities
 - new parameter lightIndirectVersion in several rr_gl rendering function
-  \n changing it only when illumination changes makesrealtime render faster
+  \n changing it only when illumination changes makes realtime render faster
 
 \section news84 ------------------------------------ 2009.05.29 -------------------------------------
 

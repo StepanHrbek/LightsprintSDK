@@ -25,9 +25,9 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		d->material = _material;
 		// create envmaps
 		if (d->material.MATERIAL_DIFFUSE)
-			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBF,true,NULL);
+			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBA,true,NULL);
 		if (d->material.MATERIAL_SPECULAR)
-			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_specularCubeSize,_specularCubeSize,6,rr::BF_RGBF,true,NULL);
+			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_specularCubeSize,_specularCubeSize,6,rr::BF_RGBA,true,NULL);
 		d->illumination->gatherEnvMapSize = _gatherCubeSize;
 		d->updatePosition();
 

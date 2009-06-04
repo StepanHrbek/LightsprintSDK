@@ -696,7 +696,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 							const rr::RRMatrix3x4* matrix = getObject(i)->getWorldMatrix();
 							if (matrix) matrix->transformPosition(center);
 							getIllumination(i)->envMapWorldCenter = center;
-							getIllumination(i)->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBF,true,NULL);
+							getIllumination(i)->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
 							updateEnvironmentMapCache(getIllumination(i));
 						}
 					}
