@@ -13,7 +13,7 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
-#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y
+#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y, USE_VBO
 #include "tmpstr.h"
 
 #define REPORT(a) //a
@@ -435,7 +435,14 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		if (rendererObject)
 		{
 			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this,getScaler(),true);
+#ifdef USE_VBO
+			// if we already USE_VBO, wrapping it in display list would
+			// + speed up Nvidia cards by ~2%
+			// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
+			// better don't create display list
+#else
 			rendererCaching = rendererNonCaching->createDisplayList();
+#endif
 		}
 	}
 	if (!rendererObject) return 0;
@@ -495,7 +502,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererNonCaching->setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererNonCaching->setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
-		if (renderedChannels.LIGHT_INDIRECT_MAP)
+		if (renderedChannels.LIGHT_INDIRECT_MAP || !rendererCaching)
 			rendererNonCaching->render();
 		else
 			rendererCaching->render();

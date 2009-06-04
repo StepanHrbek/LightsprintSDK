@@ -12,6 +12,7 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
+#include "ObjectBuffers.h" // USE_VBO
 #include "Lightsprint/GL/MultiPass.h"
 #include "tmpstr.h"
 
@@ -223,13 +224,20 @@ void RendererOfRRDynamicSolver::render()
 	{
 		rendererNonCaching = RendererOfRRObject::create(params.solver->getMultiObjectCustom(),params.solver,params.solver->getScaler(),true);
 	}
-	if (!rendererCaching && rendererNonCaching)
-		rendererCaching = rendererNonCaching->createDisplayList();
-	if (!rendererCaching)
+	if (!rendererNonCaching)
 	{
 		// probably empty scene
 		return;
 	}
+#ifdef USE_VBO
+	// if we already USE_VBO, wrapping it in display list would
+	// + speed up Nvidia cards by ~2%
+	// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
+	// better don't create display list
+#else
+	if (!rendererCaching && rendererNonCaching)
+		rendererCaching = rendererNonCaching->createDisplayList();
+#endif
 
 	if (params.uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
@@ -268,7 +276,7 @@ void RendererOfRRDynamicSolver::render()
 			initSpecularReflection(program);
 
 		// don't cache indirect illumination in vertices, it changes often
-		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR || !rendererCaching)
 			rendererNonCaching->render();
 		else
 			// cache everything else, it's constant
@@ -341,7 +349,14 @@ private:
 				mesh->getAABB(NULL,NULL,&objectCenter);
 				delete mesh;
 				rendererNonCaching = RendererOfRRObject::create(object,NULL,NULL,true);
+#ifdef USE_VBO
+				// if we already USE_VBO, wrapping it in display list would
+				// + speed up Nvidia cards by ~2%
+				// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
+				// better don't create display list
+#else
 				rendererCaching = rendererNonCaching ? rendererNonCaching->createDisplayList() : NULL;
+#endif
 				recommendedMaterialSetup.recommendMaterialSetup(object);
 			}
 		}
@@ -513,7 +528,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		}
 		perObject->rendererNonCaching->setLDM(pbufferldm);
 
-		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR || !perObject->rendererCaching)
 			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often
 		else
 			perObject->rendererCaching->render(); // cache everything else, it's constant
