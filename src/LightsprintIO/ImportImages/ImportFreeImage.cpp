@@ -589,7 +589,8 @@ ende:
 
 void registerLoaderImages()
 {
-	RRBuffer::setLoader(main_reload,main_save);
+	RRBuffer::setLoader(main_reload);
+	RRBuffer::setSaver(main_save);
 }
 
 #endif // SUPPORT_IMAGES

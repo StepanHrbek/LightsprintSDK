@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news86 ------------------------------------ 2009.06.xx -------------------------------------
+
+CHANGES
+
+- RRBuffer::setLoader() split into RRBuffer::setLoader() and RRBuffer::setSaver(),
+  \n both return previous loader/saver
+
 \section news85 ------------------------------------ 2009.06.05 -------------------------------------
 
 NEWS

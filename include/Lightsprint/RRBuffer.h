@@ -259,13 +259,20 @@ namespace rr
 		//!  or use setLoader() to assign custom code.
 		bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
 
-		//! Sets functions that load and save buffer, usually by calling external image manipulation library.
+		//! Type of user defined function that loads buffer from file.
+		typedef bool (Loader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH);
+		//! Type of user defined function that saves buffer to file.
+		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]);
+		//! Hooks external code that handles loading images from disk.
 		//
-		//! Example of callbacks: samples/Import/ImportFreeImage.cpp. This file included into project
-		//! automatically call setLoader() and enables load/save.
-		//! \n If functions are not set, attempts to load/save buffer are ignored,
-		//! both reload() and save() return false.
-		static void setLoader(bool (*reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH), bool (*save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]));
+		//! Usually called from rr_io::registerLoaders().
+		//! If never called, attempts to load buffer are ignored, reload() returns false.
+		static Loader* setLoader(Loader* loader);
+		//! Hooks external code that handles saving images to disk.
+		//
+		//! Usually called from rr_io::registerLoaders().
+		//! If never called, attempts to save buffer are ignored, save() returns false.
+		static Saver* setSaver(Saver* saver);
 
 		//! Changes buffer format.
 		void setFormat(RRBufferFormat newFormat);

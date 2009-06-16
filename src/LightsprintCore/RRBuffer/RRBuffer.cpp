@@ -130,13 +130,21 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 //
 // save & load
 
-static bool (*s_reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH) = NULL;
-static bool (*s_save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]) = NULL;
+static RRBuffer::Loader* s_reload = NULL;
+static RRBuffer::Saver* s_save = NULL;
 
-void RRBuffer::setLoader(bool (*_reload)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH), bool (*_save)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]))
+RRBuffer::Loader* RRBuffer::setLoader(Loader* loader)
 {
-	s_reload = _reload;
-	s_save = _save;
+	Loader* result = s_reload;
+	s_reload = loader;
+	return result;
+}
+
+RRBuffer::Saver* RRBuffer::setSaver(Saver* saver)
+{
+	Saver* result = s_save;
+	s_save = saver;
+	return result;
 }
 
 bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
