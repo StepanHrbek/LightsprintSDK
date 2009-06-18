@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"

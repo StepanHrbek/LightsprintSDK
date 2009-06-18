@@ -8,9 +8,6 @@
 
 #pragma pack(push, Q3LOADER_H)
 #include <vector>
-#pragma pack(pop, Q3LOADER_H)
-
-#pragma pack(push, Q3LOADER_H)
 #include <string>
 #pragma pack(pop, Q3LOADER_H)
 

@@ -8,11 +8,11 @@
 #ifdef SUPPORT_QUAKE3
 
 #include "Q3Loader.h"
-#include <string.h>
 
-//#pragma pack(push, Q3LOADER_H)
-//#include <cstdio>
-//#pragma pack(pop, Q3LOADER_H)
+#pragma pack(push, Q3LOADER_H)
+#include <cstring>
+#include <cstdio>
+#pragma pack(pop, Q3LOADER_H)
 
 /**
  * Check if the header of the map is valid.
