@@ -266,12 +266,14 @@ namespace rr
 		//! Hooks external code that handles loading images from disk.
 		//
 		//! Usually called from rr_io::registerLoaders().
-		//! If never called, attempts to load buffer are ignored, reload() returns false.
+		//! Initial state is no code hooked, attempts to load buffer are ignored, reload() returns false.
+		//! \return Previous loader.
 		static Loader* setLoader(Loader* loader);
 		//! Hooks external code that handles saving images to disk.
 		//
 		//! Usually called from rr_io::registerLoaders().
-		//! If never called, attempts to save buffer are ignored, save() returns false.
+		//! Initial state is no code hooked, attempts to save buffer are ignored, save() returns false.
+		//! \return Previous saver.
 		static Saver* setSaver(Saver* saver);
 
 		//! Changes buffer format.

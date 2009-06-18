@@ -57,6 +57,9 @@ public:
 	//!    Format of indirect illumination is affected by LIGHT_INDIRECT_XXX you send to setParams().
 	//! \param layerNumber
 	//!  Indirect illumination is taken from given layer.
+	//! \param lightIndirectVersion
+	//!  Version of illumination in layer, increment it only when illumination changes
+	//!  to prevent unnecessary CPU-GPU data transfers.
 	void useOriginalScene(unsigned layerNumber, unsigned lightIndirectVersion);
 
 	//! Specifies data source - original meshes and illumination blend from given layers.
