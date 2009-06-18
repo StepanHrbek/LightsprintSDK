@@ -19,8 +19,3 @@ FCollada.h
 freeimage.h
  - FreeImage library
  - bundled for Windows only, lower case makes it invisible in Linux
-
-WX
- - wxWidgets library, required only in Windows for sceneViewer()
-   when building LightsprintGL from source code
- - bundled for Windows only, upper case makes it invisible in Linux

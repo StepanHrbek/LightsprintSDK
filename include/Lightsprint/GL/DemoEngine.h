@@ -31,9 +31,15 @@
 
 // autolink library when external project includes this header
 #ifdef _MSC_VER
+	// for opengl
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
+
+	// for wxWidgets
+	#pragma comment(lib,"rpcrt4.lib")
+	#pragma comment(lib,"comctl32.lib")
+
 	#if !defined(RR_GL_MANUAL_LINK) && !defined(RR_GL_BUILD)
 		#ifdef RR_GL_STATIC
 			// use static library

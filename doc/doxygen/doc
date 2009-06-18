@@ -29,6 +29,7 @@ namespace rr
  - \subpage main_artist_realtime
 
  \section root_programmers_guide Programmer's guide
+ - \subpage main_building
  - \subpage main_integration
  - \subpage main_inputs
  - \subpage main_data_access
@@ -282,9 +283,10 @@ Ray-Mesh collisions
       (valid for version 1.5.0)
   - XBox360, PS3 System Software: not used
 
-\page tpl_wx wxWidgets and wxPropertyGrid
-  - www: <a href="http://wxwidgets.org//">wxWidgets</a>, <a href="http://wxpropgrid.sourceforge.net">wxPropertyGrid</a>
-  - Windows: precompiled wxWidgets 3.8.9 and wxPropertyGrid 1.4.1 are part of SDK
+\page tpl_wx wxWidgets
+  - www: <a href="http://wxwidgets.org//">wxWidgets</a>
+  - optional, remove by removing SV*.* files from LightsprintGL project (source code licenses only)
+  - Windows: wxWidgets 3.9.0 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
 \page tpl_mesa Mesa 3D
@@ -523,6 +525,80 @@ Ray-Mesh collisions
   sky (flat color, LDR or HDR texture) and they may arbitrarily change in realtime.
 
 
+
+
+
+\page main_building Building
+
+ \section building_windows Windows
+
+  Lightsprint SDK includes solutions for all supported Visual C++ compilers,
+  simply open solution and build.
+
+ \section building_linux Linux
+
+  Lightsprint SDK includes makefiles for Linux on all supported architectures.
+  Simply run make in directory you want to make.
+
+ \section building_source LightsprintGL from source code
+
+  LightsprintGL source code licensee only:
+  \n Before building LightsprintGL from source code,
+  wxWidgets must be built. Follow \subpage building_wxwidgets instructions.
+
+
+\page building_wxwidgets Building wxWidgets
+
+ wxWidgets is 3rd party GUI library.
+ You don't have to redistribute any wxWidgets files with your application.
+ It's needed only when rebuilding LightsprintGL from source code.
+
+ \section wx_windows Windows
+   - Get wxWidgets-2.9 source code from wxWidgets.org (any official release or svn).
+   - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
+     e.g. C:\\wxWidgets-2.9. No spaces please.
+   - Open $(WXWIDGETS_DIR)\\include\\msvc\\wx\\setup.h and replace
+     \code
+	#ifdef WXUSINGDLL
+		#define wxLIB_SUBDIR vc_dll
+	#else // !DLL
+		#define wxLIB_SUBDIR vc_lib
+	#endif // DLL/!DLL
+     \endcode
+     by
+     \code
+	#if _MSC_VER<1400
+		#define wxCOMPILER 2003
+	#elif _MSC_VER<1500
+		#define wxCOMPILER 2005
+	#else
+		#define wxCOMPILER 2008
+	#endif
+
+	#ifdef _M_X64
+		#define wxBITS 64
+	#else
+		#define wxBITS 32
+	#endif
+
+	#ifdef WXUSINGDLL
+		#define wxLIB_SUBDIR wxCONCAT5(vc,wxCOMPILER,_,wxBITS,_dll)
+	#else // !DLL
+		#define wxLIB_SUBDIR wxCONCAT5(vc,wxCOMPILER,_,wxBITS,_lib)
+	#endif // DLL/!DLL
+     \endcode
+   - Run bin/build_wxWidgets.bat.
+   - LightsprintGL DLL works now. For static LightsprintGL, add wx library path
+     to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
+	- $(WXWIDGETS_DIR)\\lib\\vc2008_32_lib for vc2008 win32 target
+	- $(WXWIDGETS_DIR)\\lib\\vc2005_64_lib for vc2005 x64 target
+	- etc
+
+ \section wx_linux Ubuntu
+   \code
+	apt-get install libwxgtk2.9-dev
+   \endcode
+  
 
 
 

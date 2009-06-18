@@ -24,7 +24,7 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -50,12 +50,12 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
@@ -80,7 +80,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -88,7 +88,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_32_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -115,7 +115,7 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -142,12 +142,12 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
@@ -172,7 +172,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -207,7 +207,7 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -229,12 +229,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
@@ -257,7 +257,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -265,7 +265,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_32_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -292,7 +292,7 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -315,12 +315,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
@@ -343,7 +343,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -351,7 +351,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -378,7 +378,7 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -403,7 +403,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -431,7 +431,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -440,7 +440,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_32_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
@@ -465,7 +465,12 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName).dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -475,7 +480,7 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -501,7 +506,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -529,7 +534,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -538,7 +543,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
@@ -562,6 +567,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -574,7 +582,7 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -596,7 +604,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -624,7 +632,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -633,7 +641,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_32_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
@@ -658,7 +666,12 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copy dll to UE3"
+				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -668,7 +681,7 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -691,7 +704,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -719,7 +732,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -728,7 +741,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2005_64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
@@ -752,6 +765,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -838,10 +854,6 @@
 			</File>
 			<File
 				RelativePath=".\SceneViewer\SVSolver.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\WX\msw\wx.rc"
 				>
 			</File>
 		</Filter>

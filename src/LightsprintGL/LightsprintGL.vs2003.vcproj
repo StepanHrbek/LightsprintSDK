@@ -17,7 +17,7 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -25,12 +25,12 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="TRUE"
 				WholeProgramOptimization="FALSE"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="0"
@@ -51,7 +51,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"/>
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -84,16 +84,16 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="0">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="FALSE"
 				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableEnhancedInstructionSet="0"
 				DisableLanguageExtensions="FALSE"
@@ -113,7 +113,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -129,7 +129,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"/>
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -146,14 +146,14 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
@@ -178,7 +178,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -194,7 +194,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"/>
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -213,11 +213,11 @@
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="0">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="FALSE"
 				ExceptionHandling="TRUE"
@@ -242,7 +242,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -258,7 +258,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include"/>
+				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -332,9 +332,6 @@
 			</File>
 			<File
 				RelativePath=".\SceneViewer\SVSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\include\WX\msw\wx.rc">
 			</File>
 		</Filter>
 		<File

@@ -55,7 +55,7 @@
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
@@ -146,7 +146,7 @@
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
@@ -232,7 +232,7 @@
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
@@ -317,7 +317,7 @@
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
@@ -460,6 +460,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="copy dll to UE3"
 				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName).dll &quot;$(SolutionDir)..\..\Binaries&quot;"
@@ -560,6 +563,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -651,6 +657,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -748,6 +757,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

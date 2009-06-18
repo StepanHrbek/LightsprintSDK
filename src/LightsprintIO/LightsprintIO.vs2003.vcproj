@@ -30,7 +30,7 @@
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="0"
@@ -92,7 +92,7 @@
 				MinimalRebuild="FALSE"
 				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableEnhancedInstructionSet="0"
 				DisableLanguageExtensions="FALSE"
@@ -372,27 +372,22 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Images"
-			>
+			Name="Images">
 			<File
-				RelativePath=".\ImportImages\ImportFreeImage.cpp"
-				>
+				RelativePath=".\ImportImages\ImportFreeImage.cpp">
 			</File>
 			<File
-				RelativePath=".\ImportImages\ImportFreeImage.h"
-				>
+				RelativePath=".\ImportImages\ImportFreeImage.h">
 			</File>
 		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp">
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h"
-			>
+			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h">
 		</File>
 		<File
-			RelativePath=".\supported_formats.h"
-			>
+			RelativePath=".\supported_formats.h">
 		</File>
 	</Files>
 	<Globals>

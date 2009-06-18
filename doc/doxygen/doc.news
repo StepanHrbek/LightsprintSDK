@@ -12,8 +12,12 @@ namespace rr
 
 CHANGES
 
+- reduced number of dlls, all wxWidgets files are gone
 - RRBuffer::setLoader() split into RRBuffer::setLoader() and RRBuffer::setSaver(),
   \n both return previous loader/saver
+- source code licensee only:
+  - precompiled wxWidgets removed from SDK, \ref building_wxwidgets "build your own wxWidgets"
+  - Runtime Library in all static configurations changed to DLL
 
 \section news85 ------------------------------------ 2009.06.05 -------------------------------------
 

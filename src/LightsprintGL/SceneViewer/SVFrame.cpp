@@ -481,7 +481,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				sshot->unlock();
 				char screenshotFilename[1000]=".";
 #ifdef _WIN32
-				SHGetSpecialFolderPath(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+				SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
 #endif
 				time_t t = time(NULL);
 				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.png",t%10000);
