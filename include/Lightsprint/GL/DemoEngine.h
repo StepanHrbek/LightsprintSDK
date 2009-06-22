@@ -39,6 +39,7 @@
 	// for wxWidgets
 	#pragma comment(lib,"rpcrt4.lib")
 	#pragma comment(lib,"comctl32.lib")
+	#pragma comment(lib,"winmm.lib")
 
 	#if !defined(RR_GL_MANUAL_LINK) && !defined(RR_GL_BUILD)
 		#ifdef RR_GL_STATIC
