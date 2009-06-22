@@ -7,6 +7,7 @@
 #define SVSAVELOAD_H
 
 #include "SVApp.h"
+#include <set> // LoadedImagesList
 
 
 #endif
