@@ -738,6 +738,22 @@ const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight
 
 	const fstring symbol = getTriangleMaterialSymbol(mesh,t);
 	const FCDMaterialInstance* materialInstance = geometryInstance->FindMaterialInstance(symbol);
+	if (!materialInstance)
+	{
+		// workaround for buggy documents created by Right Hemisphere Collada Interface v146.46 with FCollada v1.13.
+		// they state e.g. <instance_material symbol="BROWN_BRONZE3452816845" target="#BROWN_BRONZE"/>
+		// where <instance_material symbol="BROWN_BRONZE" target="#BROWN_BRONZE"/> is expected
+		for (size_t materialInstanceNum=0;materialInstanceNum<geometryInstance->GetMaterialInstanceCount();materialInstanceNum++)
+		{
+			materialInstance = geometryInstance->GetMaterialInstance(materialInstanceNum);
+			if (materialInstance && materialInstance->GetSemantic().substr(0,symbol.size())==symbol)
+			{
+				// symbol we are looking for found as substring, use it
+				break;
+			}
+			// symbol we are looking for not found, use any material instance that offers binding
+		}
+	}
 	return materialCache->getMaterial(materialInstance);
 }
 
