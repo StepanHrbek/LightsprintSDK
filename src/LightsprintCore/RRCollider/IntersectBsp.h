@@ -262,7 +262,7 @@ namespace rr
 			if (ii)
 			{
 				if (obj.face_num-ii)
-					RRReporter::report(INF2,"%d degenerated triangles removed form collider.\n",obj.face_num-ii);
+					RRReporter::report(INF2,"%d degenerated triangles removed from collider.\n",obj.face_num-ii);
 				obj.face_num = ii;
 				RR_ASSERT(!tree);
 				createAndSaveBsp IBP2(&obj,aborting,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
