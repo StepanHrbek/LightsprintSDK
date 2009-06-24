@@ -8,6 +8,7 @@
 // include
 
 #include "SVLightProperties.h"
+#include "SVFrame.h" // SVFrame::ME_LIGHT_PROPERTIES
 
 #if wxCHECK_VERSION(2,9,0)
 	// makes wxPropGrid 1.4 code compile with wxWidgets 2.9
@@ -30,6 +31,10 @@ SVLightProperties::SVLightProperties( wxWindow* parent )
 	topsizer->SetSizeHints( this );
 	SetSizer( topsizer );
 	SetSize( 330, 330 );
+
+	// must be called otherwise pg destructor complains we should call it
+	// (pg constructor sets it to this, not to parent)
+	pg->OnTLPChanging(parent);
 }
 
 void SVLightProperties::setLight(RealtimeLight* _rtlight)
@@ -310,9 +315,16 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	rtlight->updateAfterRRLightChanges();
 }
 
+void SVLightProperties::OnClose(wxCloseEvent& event)
+{
+	// call parent to delete us
+	GetParent()->ProcessWindowEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_PROPERTIES));
+}
+
 BEGIN_EVENT_TABLE(SVLightProperties, wxDialog)
 	EVT_PG_CHANGED(-1,SVLightProperties::OnPropertyChange)
 	EVT_IDLE(SVLightProperties::OnIdle)
+	EVT_CLOSE(SVLightProperties::OnClose)
 END_EVENT_TABLE()
 
  

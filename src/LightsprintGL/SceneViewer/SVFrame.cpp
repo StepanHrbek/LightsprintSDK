@@ -337,7 +337,7 @@ void SVFrame::UpdateMenuBar()
 	// Lights...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_LIGHT_PROPERTIES,_T("Show light properties"),_T("Opens light properties dialog window."));
+		winMenu->Append(ME_LIGHT_PROPERTIES,m_lightProperties?_T("Close light properties"):_T("Show light properties"),_T("Opens light properties dialog window."));
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
@@ -591,12 +591,15 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 		case ME_LIGHT_PROPERTIES:
+			if (m_lightProperties)
+			{
+				m_lightProperties->Destroy();
+				m_lightProperties = NULL;
+			}
+			else
 			if (svs.selectedLightIndex<solver->getLights().size())
 			{
-				if (!m_lightProperties)
-				{
-					m_lightProperties = new SVLightProperties( this );
-				}
+				m_lightProperties = new SVLightProperties( this );
 				m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]);
 				m_lightProperties->Show(true);
 			}

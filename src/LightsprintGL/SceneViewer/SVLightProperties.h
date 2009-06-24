@@ -36,6 +36,9 @@ namespace rr_gl
 		//! Copy property -> light (all values).
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
+		//! When user closes lightprops dialog, this deletes it (default behaviour=hide it=troubles).
+		void OnClose(wxCloseEvent& event);
+
 	private:
 		RealtimeLight*    rtlight;
 		wxPropertyGrid*   pg;
