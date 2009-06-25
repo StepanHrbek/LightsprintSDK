@@ -132,41 +132,51 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
 		if (polygons)
 		{
-			LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
-			size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
-			if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
+			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
 			{
-				bool reverse = inputSet==LIGHTMAP_CHANNEL; // iterate from highest to lowers inputSet
-				for (size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
+				LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
+				size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
+				if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 				{
-					const FCDGeometryPolygonsInput* polygonsInput = polygons->GetInput(m);
-					if (polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
+					bool reverse = inputSet==LIGHTMAP_CHANNEL; // iterate from highest to lowers inputSet
+					for (size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
 					{
-						const FCDGeometrySource* source = polygonsInput->GetSource();
-						if (source)
+						const FCDGeometryPolygonsInput* polygonsInput = polygons->GetInput(m);
+						if (polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
 						{
-							const float* data = source->GetData();
-							size_t dataCount = source->GetDataCount();
-							unsigned floatsPerVertexPresent = source->GetStride();
-							const uint32* indices = polygonsInput->GetIndices();
-							if (indices)
+							const FCDGeometrySource* source = polygonsInput->GetSource();
+							if (source)
 							{
-								RR_ASSERT(relativeIndex*3+2<polygonsInput->GetIndexCount());
-								float* out = (float*)itemData;
-								for (unsigned j=0;j<3;j++)
+								const float* data = source->GetData();
+								size_t dataCount = source->GetDataCount();
+								unsigned floatsPerVertexPresent = source->GetStride();
+								const uint32* indices = polygonsInput->GetIndices();
+								if (indices)
 								{
-									for (unsigned k=0;k<floatsPerVertexExpected;k++)
+									//RR_ASSERT(relativeIndex*3+2<polygonsInput->GetIndexCount());
+									if (relativeIndex*3+2>=polygonsInput->GetIndexCount())
 									{
-										unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
-										if (dataIndex>=dataCount)
-										{
-											LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
-											return false;
-										}
-										*out++ = data[dataIndex];
+										int polyType = polygons->TestPolyType();
+										RR_ASSERT(polyType==3);
+										RR_ASSERT(0);
 									}
+									float* out = (float*)itemData;
+									for (unsigned j=0;j<3;j++)
+									{
+										for (unsigned k=0;k<floatsPerVertexExpected;k++)
+										{
+											unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
+											if (dataIndex>=dataCount)
+											{
+												LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
+												return false;
+											}
+											*out++ = data[dataIndex];
+										}
+									}
+									return true;
 								}
-								return true;
 							}
 						}
 					}
@@ -231,30 +241,32 @@ void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if (!polygons)
+		if (polygons)
 		{
-			RR_ASSERT(0);
-			return;
-		}
-		if (t<polygons->GetFaceCount())
-		{
-			const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
-			if (polygonsInput)
+			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
+			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
 			{
-				const uint32* indices = polygonsInput->GetIndices();
-				if (indices)
+				if (t<polygons->GetFaceCount())
 				{
-					RR_ASSERT(3*t+2<polygonsInput->GetIndexCount());
-					out[0] = indices[3*t+0];
-					out[1] = indices[3*t+1];
-					out[2] = indices[3*t+2];
+					const FCDGeometryPolygonsInput* polygonsInput = polygons->FindInput(source);
+					if (polygonsInput)
+					{
+						const uint32* indices = polygonsInput->GetIndices();
+						if (indices)
+						{
+							RR_ASSERT(3*t+2<polygonsInput->GetIndexCount());
+							out[0] = indices[3*t+0];
+							out[1] = indices[3*t+1];
+							out[2] = indices[3*t+2];
+							return;
+						}
+					}
+					RR_ASSERT(0);
 					return;
 				}
+				t -= (unsigned)polygons->GetFaceCount();
 			}
-			RR_ASSERT(0);
-			return;
 		}
-		t -= (unsigned)polygons->GetFaceCount();
 	}
 	RR_ASSERT(0);
 }
@@ -414,10 +426,14 @@ fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
 		if (polygons)
 		{
-			size_t relativeIndex = triangle - polygons->GetFaceOffset();
-			if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
+			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
 			{
-				return polygons->GetMaterialSemantic();
+				size_t relativeIndex = triangle - polygons->GetFaceOffset();
+				if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+				{
+					return polygons->GetMaterialSemantic();
+				}
 			}
 		}
 	}
@@ -805,13 +821,25 @@ const RRCollider* RRObjectsCollada::newColliderCached(const FCDGeometryMesh* mes
 		RR_ASSERT(0);
 		return NULL;
 	}
-	if (mesh->GetFaceVertexCount()<3)
+	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
-		// is it legal to have 2 vertices per face?
-		// observed in modern stoel.dae created by Google Sketchup 6
-		// if we don't stop here, later code would crash trying to create triangle from polygon that has 2 vertices
-		return NULL;
+		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
+		if (polygons)
+		{
+			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
+			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
+			{
+				if (polygons->GetFaceCount())
+				{
+					goto triangle_found;
+				}
+			}
+		}
 	}
+	// mesh has 0 triangles (could consist of lines, points)
+	return NULL;
+triangle_found:
+
 	ColliderCache::iterator i = colliderCache.find(mesh);
 	if (i!=colliderCache.end())
 	{
