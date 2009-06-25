@@ -14,8 +14,8 @@ namespace rr_gl
 
 //! Returns formatted string (printf-like) for immediate use.
 //
-//! Has slots for 4 string, fifth tmpstr() overwrites first one.
-//! Fully static, no allocation.
+//! Fully static, no allocations.
+//! Has slots for several strings, call to tmpstr() overwrites one of previously returned strings.
 inline const char* tmpstr(const char* fmt, ...)
 {
 	#define STRINGS 12 // FpsDisplay::FpsDisplay requires at least 12
