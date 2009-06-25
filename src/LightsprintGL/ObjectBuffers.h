@@ -20,9 +20,10 @@ namespace rr_gl
 #define USE_VBO
 
 // SMALL_ARRAYS stores vertex data in 8 small arrays rather than 2 big ones.
-// Big arrays allocates smaller number of VBOs, it could make init/shutdown faster,
-// so we prefer it with VBO. Small arrays are faster without VBO.
-//#define SMALL_ARRAYS
+// Without VBO, small arrays are faster.
+// With VBO, small arrays have init/shutdown bit slower (more VBOs),
+// but memory requirements are lower (some UVs are usually unused), it makes 2.2M triangle scene fit in 512MB VRAM = 3x higher fps.
+#define SMALL_ARRAYS
 
 // Specifies size of texture used by DDI.
 // 256 ->  64k triangles per DDI pass, 2k or 1k texture
