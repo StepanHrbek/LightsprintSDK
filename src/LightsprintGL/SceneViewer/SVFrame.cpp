@@ -18,6 +18,13 @@
 #include <shlobj.h> // SHGetSpecialFolderPath
 #endif
 
+	#define DEFAULT_FIREBALL_QUALITY 350
+// naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
+#define LMAP_PREFIX (wxString(svs.sceneFilename)+".").c_str()
+#define LMAP_POSTFIX "lightmap.png"
+#define LDM_PREFIX (wxString(svs.sceneFilename)+".").c_str()
+#define LDM_POSTFIX "ldm.png"
+
 namespace rr_gl
 {
 
@@ -35,7 +42,7 @@ unsigned getUnsigned(const wxString& str)
 // true = valid answer
 // false = dialog was escaped
 // Incoming quality is taken as default value.
-static bool getQuality(wxWindow* parent, unsigned& quality)
+static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 {
 	wxArrayString choices;
 	choices.Add("1");
@@ -46,7 +53,7 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 	choices.Add("1000 - high");
 	choices.Add("3000");
 	choices.Add("10000 - very high");
-	wxSingleChoiceDialog dialog(parent,"","Please select quality",choices);
+	wxSingleChoiceDialog dialog(parent,title,"Please select quality",choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
 		unsigned u = getUnsigned(choices[i]);
@@ -67,7 +74,7 @@ static bool getQuality(wxWindow* parent, unsigned& quality)
 // true = valid answer
 // false = dialog was escaped
 // Incoming resolution is taken as default value.
-static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerVertex)
+static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex)
 {
 	wxArrayString choices;
 	if (offerPerVertex)	choices.Add("per-vertex");
@@ -81,7 +88,7 @@ static bool getResolution(wxWindow* parent, unsigned& resolution, bool offerPerV
 	choices.Add("1024x1024");
 	choices.Add("2048x2048");
 	choices.Add("4096x4096");
-	wxSingleChoiceDialog dialog(parent,"","Please select texture resolution",choices);
+	wxSingleChoiceDialog dialog(parent,title,"Please select texture resolution",choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
 		unsigned u = getUnsigned(choices[i]);
@@ -359,13 +366,15 @@ void SVFrame::UpdateMenuBar()
 			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: realtime Fireball (faster)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL_LDM,_T("Indirect illumination: realtime Fireball+LDM (fast+detailed)"),_T("Changes lighting technique to Fireball with LDM, fast and detailed realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: realtime Fireball (fast)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_T("Indirect illumination: realtime Architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_T("Indirect illumination: static lightmap"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_T("Indirect illumination: constant ambient"));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_T("Indirect illumination: none"));
 		switch (svs.renderLightIndirect)
 		{
+			case LI_REALTIME_FIREBALL_LDM: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL_LDM,true); break;
 			case LI_REALTIME_FIREBALL: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL,true); break;
 			case LI_REALTIME_ARCHITECT: winMenu->Check(ME_LIGHTING_INDIRECT_ARCHITECT,true); break;
 			case LI_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_INDIRECT_STATIC,true); break;
@@ -373,21 +382,19 @@ void SVFrame::UpdateMenuBar()
 			case LI_NONE: winMenu->Check(ME_LIGHTING_INDIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default 350)."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build light detail map..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
-		winMenu->Append(ME_REALTIME_LDM,svs.renderLightLDM?_T("Disable light detail map"):_T("Enable light detail map"),_T("LDM adds per-pixel details to realtime GI. It must be built first."));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build Fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default ") wxSTRINGIZE_T(DEFAULT_FIREBALL_QUALITY) _T(")."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build LDM (light detail map)..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_2D,_T("Inspect lightmaps in 2D"),_T("Shows lightmap in 2D, with unwrap wireframe."));
 		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
-		winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
+		//winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."),_T("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
+		winMenu->AppendSeparator();
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
-		winMenu->Append(ME_STATIC_SAVE,_T("Save lightmaps"));
-		winMenu->Append(ME_STATIC_LOAD,_T("Load lightmaps"));
 		menuBar->Append(winMenu, _T("Global illumination"));
 	}
 
@@ -610,17 +617,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 
 
-		//////////////////////////////// GLOBAL ILLUMINATION ///////////////////////////////
+		//////////////////////////////// GLOBAL ILLUMINATION - DIRECT ///////////////////////////////
 
 		case ME_LIGHTING_DIRECT_REALTIME:
 			svs.renderLightDirect = LD_REALTIME;
 			if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS) // indirect must not stay lightmaps
 				svs.renderLightIndirect = LI_CONSTANT;
-			svs.renderLightmaps2d = 0;
-			break;
-		case ME_LIGHTING_DIRECT_STATIC:
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS; // indirect must switch to lightmaps too
 			svs.renderLightmaps2d = 0;
 			break;
 		case ME_LIGHTING_DIRECT_NONE:
@@ -630,18 +632,51 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightmaps2d = 0;
 			break;
 
+
+		//////////////////////////////// GLOBAL ILLUMINATION - INDIRECT ///////////////////////////////
+
+		case ME_LIGHTING_INDIRECT_FIREBALL_LDM:
+			// starts fireball, sets LI_REALTIME_FIREBALL
+			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
+			// enables ldm if in ram
+			for (unsigned i=0;i<solver->getNumObjects();i++)
+				if (solver->getIllumination(i)->getLayer(svs.ldmLayerNumber))
+				{
+					svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
+					break;
+				}
+			// if ldm not in ram, try to load it from disk
+			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL && solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX))
+			{
+				svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
+			}
+			// if ldm not in ram and not on disk, keep it disabled
+			break;
+
 		case ME_LIGHTING_INDIRECT_FIREBALL:
 			svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->dirtyLights();
-			if (!fireballLoadAttempted)
+			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
-				fireballLoadAttempted = true;
-				solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+				if (!fireballLoadAttempted)
+				{
+					fireballLoadAttempted = true;
+					solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+				}
+			}
+			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
+			{
+				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
+				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+				solver->dirtyLights();
+				// this would ask questions
+				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
 			}
 			break;
+
 		case ME_LIGHTING_INDIRECT_ARCHITECT:
 			svs.renderLightIndirect = LI_REALTIME_ARCHITECT;
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
@@ -651,17 +686,28 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
 			break;
+
+		case ME_LIGHTING_DIRECT_STATIC:
 		case ME_LIGHTING_INDIRECT_STATIC:
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS; // direct must switch to lightmaps too
 			svs.renderLightmaps2d = 0;
+			// checks whether lightmap exists in ram
+			for (unsigned i=0;i<solver->getNumObjects();i++)
+				if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+					goto atLeastOneLightmapBufferExists;
+			// try to load lightmaps from disk
+			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+			atLeastOneLightmapBufferExists:
 			break;
+
 		case ME_LIGHTING_INDIRECT_CONST:
 			svs.renderLightIndirect = LI_CONSTANT;
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			break;
+
 		case ME_LIGHTING_INDIRECT_NONE:
 			svs.renderLightIndirect = LI_NONE;
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
@@ -669,32 +715,20 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightmaps2d = 0;
 			break;
 
-		case ME_REALTIME_LDM:
-			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
-				svs.renderLightDirect = LD_REALTIME;
-			if (svs.renderLightIndirect!=LI_REALTIME_ARCHITECT)
-				svs.renderLightIndirect = LI_REALTIME_FIREBALL;
-			solver->dirtyLights();
-			svs.renderLightLDM = !svs.renderLightLDM;
-			break;
+
+		//////////////////////////////// GLOBAL ILLUMINATION - BUILD ///////////////////////////////
+
 		case ME_REALTIME_LDM_BUILD:
 			{
 				unsigned res = 256;
 				unsigned quality = 100;
-				if (getQuality(this,quality) && getResolution(this,res,false))
+				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
 				{
-					if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
-						svs.renderLightDirect = LD_REALTIME;
-					if (svs.renderLightIndirect!=LI_REALTIME_ARCHITECT)
-						svs.renderLightIndirect = LI_REALTIME_FIREBALL;
-					svs.renderLightmaps2d = 0;
-					solver->dirtyLights();
-					svs.renderLightLDM = 1;
-
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					fireballLoadAttempted = false;
 					solver->leaveFireball();
 
+					// build ldm
 					for (unsigned i=0;i<solver->getNumObjects();i++)
 						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
@@ -713,13 +747,19 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
 					solver->setEnvironment(oldEnv);
 					delete newEnv;
+
+					// save ldm to disk
+					solver->getStaticObjects().saveLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX);
+
+					// switch to fireball+ldm
+					OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM));
 				}
 			}
 			break;
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
-				unsigned quality = 100;
-				if (getQuality(this,quality))
+				unsigned quality = DEFAULT_FIREBALL_QUALITY;
+				if (getQuality("Fireball build",this,quality))
 				{
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
@@ -748,14 +788,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 				}
 			}
-			break;
-		case ME_STATIC_LOAD:
-			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,"","png");
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-			break;
-		case ME_STATIC_SAVE:
-			solver->getStaticObjects().saveLayer(svs.staticLayerNumber,"","png");
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
@@ -790,10 +822,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				lightField->captureLighting(solver,0);
 			}
 			break;
-		case ME_STATIC_BUILD_1OBJ:
+		/*case ME_STATIC_BUILD_1OBJ:
 			{
 				unsigned quality = 100;
-				if (getQuality(this,quality))
+				if (getQuality("Lightmap build",this,quality))
 				{
 					// calculate 1 object, direct lighting
 					solver->leaveFireball();
@@ -811,7 +843,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					solver->resetRenderCache();
 				}
 			}
-			break;
+			break;*/
 #ifdef DEBUG_TEXEL
 		case ME_STATIC_DIAGNOSE:
 			{
@@ -820,7 +852,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
 					unsigned quality = 100;
-					if (getQuality(this,quality))
+					if (getQuality("Lightmap diagnose",this,quality))
 					{
 						rr::RRDynamicSolver::UpdateParameters params(quality);
 						params.debugObject = m_canvas->centerObject;
@@ -842,7 +874,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			{
 				unsigned res = 256; // 0=vertex buffers
 				unsigned quality = 100;
-				if (getResolution(this,res,true) && getQuality(this,quality))
+				if (getResolution("Lightmap build",this,res,true) && getQuality("Lightmap build",this,quality))
 				{
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -877,6 +909,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					{
 						solver->resetRenderCache();
 					}
+
+					// save calculated lightmaps
+					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
 				}
 			}
 			break;

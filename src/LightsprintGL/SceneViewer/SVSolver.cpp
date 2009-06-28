@@ -43,7 +43,7 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 	{
 		rendererOfScene->useRealtimeGI(svs.realtimeLayerNumber);
 	}
-	rendererOfScene->setLDM(svs.renderLightLDM ? svs.ldmLayerNumber : UINT_MAX);
+	rendererOfScene->setLDM((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM) ? svs.ldmLayerNumber : UINT_MAX);
 	rendererOfScene->setBrightnessGamma(&svs.brightness,svs.gamma);
 	rendererOfScene->render();
 }

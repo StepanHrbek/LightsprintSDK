@@ -22,7 +22,6 @@
 namespace rr_gl
 {
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // SVCanvas
@@ -145,14 +144,14 @@ void SVCanvas::createContext()
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
-	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL && solver->getNumObjects())
+	if (solver->getNumObjects())
 	{
-		// if fireball file already exists, use it
-		fireballLoadAttempted = false;
-		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
-		// if it does not exist, build it
-		if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL)
-			solver->buildFireball(350,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+		switch (svs.renderLightIndirect)
+		{
+			case LI_REALTIME_FIREBALL_LDM: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM)); break;
+			case LI_REALTIME_FIREBALL:     parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL    )); break;
+			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_STATIC      )); break;
+		}
 	}
 
 	// init rest
@@ -293,7 +292,6 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	else switch(evkey)
 	{
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_FULLSCREEN)); break;
-		case 'o': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_LDM)); break;
 
 		case WXK_NUMPAD_ADD:
 		case '+': svs.brightness *= 1.2f; needsRefresh = true; break;
@@ -639,7 +637,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (svs.renderLightmaps2d && lv)
 	{
-		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.renderLightLDM?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderLightmapsBilinear);
+		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderLightmapsBilinear);
 		lv->OnPaint(event,GetSize());
 	}
 	else
@@ -655,11 +653,11 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			svs.eye.update();
 		}
 
-		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			rr::RRDynamicSolver::CalculateParameters params;
-			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps and improve indirect
 				//params.qualityIndirectDynamic = 6;
@@ -691,7 +689,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
-			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS;
+			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderMaterialDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse && !svs.renderMaterialTextures && hasDif;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures && hasDif;
@@ -732,7 +730,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			if (svs.adjustTonemapping
 				&& !svs.renderWireframe
 				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
-					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
+					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					))
 			{
@@ -934,14 +932,13 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			const char* strIndirect = "?";
 			switch (svs.renderLightIndirect)
 			{
+				case LI_REALTIME_FIREBALL_LDM: strIndirect = "fireball+LDM"; break;
 				case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 				case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
 				case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
 				case LI_CONSTANT: strIndirect = "constant"; break;
 				case LI_NONE: strIndirect = "off"; break;
 			}
-			// what LDM
-			const char* strLDM = svs.renderLightLDM?"on":"off";
 			// how many lightmaps
 			unsigned numVbufs = 0;
 			unsigned numLmaps = 0;
@@ -965,8 +962,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			// what renderer
 			const char* strRenderer = solver->usingOptimizedScene() ? "optimized" : "per-object";
 			// print it
-			textOutput(x,y+=18,h,"lighting direct=%s indirect=%s ldm=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
-				strDirect,strIndirect,strLDM,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
+			textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
+				strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
 		}
 		if (!svs.renderLightmaps2d || !lv)
 		{
