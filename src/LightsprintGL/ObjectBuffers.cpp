@@ -73,6 +73,11 @@ ObjectBuffers::ObjectBuffers()
 	previousLightIndirectVersion = UINT_MAX;
 	previousLightIndirectBuffer = NULL;
 	indices = NULL;
+
+#if defined(USE_VBO) && defined(SMALL_ARRAYS)
+	texcoordEmissiveIsInDiffuse = false;
+	texcoordTransparencyIsInDiffuse = false;
+#endif
 }
 
 // one time initialization
@@ -93,32 +98,15 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	}
 	numVertices = 0;
 #ifdef SMALL_ARRAYS
-	#define NEW_ARRAY(arr,type) {arr = new rr::type[numVerticesExpected]; memset(arr,0,sizeof(rr::type)*numVerticesExpected);}
-	NEW_ARRAY(aposition,RRVec3);
-	NEW_ARRAY(anormal,RRVec3);
-
 	// work as if all data are present, generate stubs for missing data
 	// this way renderer works even with partial data (missing texture, missing texcoord...)
 	// (other way would be to rebuild shaders for missing data)
-
-	unsigned hasDiffuseMap = 1;
-	if (hasDiffuseMap)
-		NEW_ARRAY(atexcoordDiffuse,RRVec2)
-	else
-		atexcoordDiffuse = NULL;
-
-	unsigned hasEmissiveMap = 1;
-	if (hasEmissiveMap)
-		NEW_ARRAY(atexcoordEmissive,RRVec2)
-	else
-		atexcoordEmissive = NULL;
-
-	unsigned hasTransparencyMap = 1;
-	if (hasTransparencyMap)
-		NEW_ARRAY(atexcoordTransparency,RRVec2)
-	else
-		atexcoordTransparency = NULL;
-
+	#define NEW_ARRAY(arr,type) {arr = new rr::type[numVerticesExpected]; memset(arr,0,sizeof(rr::type)*numVerticesExpected);}
+	NEW_ARRAY(aposition,RRVec3);
+	NEW_ARRAY(anormal,RRVec3);
+	NEW_ARRAY(atexcoordDiffuse,RRVec2)
+	NEW_ARRAY(atexcoordEmissive,RRVec2)
+	NEW_ARRAY(atexcoordTransparency,RRVec2)
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
 	#undef NEW_ARRAY
@@ -250,12 +238,9 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			mesh->getVertex(triangleVertices[v],aposition[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
 			atexcoordAmbient[currentVertex] = triangleMappingLightmap.uv[v];
-			if (hasDiffuseMap)
-				atexcoordDiffuse[currentVertex] = triangleMappingDiffuse.uv[v];
-			if (hasEmissiveMap)
-				atexcoordEmissive[currentVertex] = triangleMappingEmissive.uv[v];
-			if (hasTransparencyMap)
-				atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
+			atexcoordDiffuse[currentVertex] = triangleMappingDiffuse.uv[v];
+			atexcoordEmissive[currentVertex] = triangleMappingEmissive.uv[v];
+			atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
 			unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one row
 			unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one column
 			atexcoordForced2D[currentVertex][0] = (( t%triCountX           )+((v==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
@@ -279,19 +264,29 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 #ifdef USE_VBO
 	glGenBuffers(VBO_COUNT,VBO);
 #ifdef SMALL_ARRAYS
-#define COPY_ARRAY_TO_VBO(name) \
-	{ if (a##name) { \
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##name]); \
-		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(*a##name), a##name, GL_STATIC_DRAW); \
-		RR_SAFE_DELETE_ARRAY(a##name); } }
+#define COPY_ARRAY_TO_VBO(name,sameAsDiffuse) \
+	{ \
+		if (a##name) \
+		{ \
+			if (!sameAsDiffuse) \
+			{ \
+				glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##name]); \
+				glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(*a##name), a##name, GL_STATIC_DRAW); \
+			} \
+			RR_SAFE_DELETE_ARRAY(a##name); \
+		} \
+	}
+	// find redundancy, don't create two VBOs with the same data
+	texcoordEmissiveIsInDiffuse = memcmp(atexcoordEmissive,atexcoordDiffuse,sizeof(*atexcoordDiffuse)*numVertices)==0;
+	texcoordTransparencyIsInDiffuse = memcmp(atexcoordTransparency,atexcoordDiffuse,sizeof(*atexcoordDiffuse)*numVertices)==0;
 
-	COPY_ARRAY_TO_VBO(position);
-	COPY_ARRAY_TO_VBO(normal);
-	COPY_ARRAY_TO_VBO(texcoordDiffuse);
-	COPY_ARRAY_TO_VBO(texcoordEmissive);
-	COPY_ARRAY_TO_VBO(texcoordTransparency);
-	COPY_ARRAY_TO_VBO(texcoordAmbient);
-	COPY_ARRAY_TO_VBO(texcoordForced2D);
+	COPY_ARRAY_TO_VBO(position,false);
+	COPY_ARRAY_TO_VBO(normal,false);
+	COPY_ARRAY_TO_VBO(texcoordDiffuse,false);
+	COPY_ARRAY_TO_VBO(texcoordEmissive,texcoordEmissiveIsInDiffuse);
+	COPY_ARRAY_TO_VBO(texcoordTransparency,texcoordTransparencyIsInDiffuse);
+	COPY_ARRAY_TO_VBO(texcoordAmbient,false);
+	COPY_ARRAY_TO_VBO(texcoordForced2D,false);
 #else // SMALL_ARRAYS
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);
 	glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(VertexData), avertex, GL_STATIC_DRAW);
@@ -374,13 +369,22 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned numVerticesToCopy, un
 #endif
 }
 
+#if defined(USE_VBO) && defined(SMALL_ARRAYS)
+ObjectBuffers::VBOIndex ObjectBuffers::fixVBO(VBOIndex index) const
+{
+	if (index==VBO_texcoordEmissive && texcoordEmissiveIsInDiffuse) return VBO_texcoordDiffuse;
+	if (index==VBO_texcoordTransparency && texcoordTransparencyIsInDiffuse) return VBO_texcoordDiffuse;
+	return index;
+}
+#endif
+
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
 #ifdef SMALL_ARRAYS
 #ifdef USE_VBO
-	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[fixVBO(VBO_##myName)]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
 #else
 	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, 0, &a##myName[0].x);
 	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, 0, &a##myName[0].x);

@@ -101,6 +101,12 @@ private:
 		VBO_COUNT
 	};
 	unsigned VBO[VBO_COUNT];
+#if defined(USE_VBO) && defined(SMALL_ARRAYS)
+	// optimization -  removes redundant VBOs
+	bool texcoordEmissiveIsInDiffuse; // emissive not allocated, use diffuse, is identical
+	bool texcoordTransparencyIsInDiffuse; // transparent not allocated, use diffuse, is identical
+	VBOIndex fixVBO(VBOIndex index) const; // changes removed VBO index to identical valid index
+#endif
 
 	// temp 1x1 textures
 	std::vector<rr::RRBuffer*> tempTextures;
