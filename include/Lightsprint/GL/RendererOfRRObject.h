@@ -51,13 +51,7 @@ public:
 	//!  Solver used to compute object's indirect illumination.
 	//! \param scaler
 	//!  Scaler used to scale irradiances before rendering from physical scale to custom scale.
-	//! \param useBuffers
-	//!  Set true for rendering technique with vertex buffers. Makes rendering faster,
-	//!  but only if it's done many times repeatedly. More memory is needed.
-	//!  If you plan to render object only once,
-	//!  technique without buffers (false) is faster and takes less memory.
-	//!  \n Technique without buffers doesn't support setIndirectIlluminationBuffers().
-	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers);
+	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RR_GL_API RenderedChannels
@@ -161,12 +155,11 @@ public:
 
 private:
 	friend class ObjectBuffers;
-	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
+	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler);
 	enum IndirectIlluminationSource
 	{
 		NONE,
 		BUFFERS,
-		LAYER,
 		SOLVER,
 	};
 	struct Params

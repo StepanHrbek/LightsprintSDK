@@ -100,15 +100,15 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 //
 // RendererOfRRObject
 
-RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler, bool useBuffers)
+RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler)
 {
 	if (object && object->getCollider()->getMesh()->getNumTriangles())
-		return new RendererOfRRObject(object,solver,scaler,useBuffers);
+		return new RendererOfRRObject(object,solver,scaler);
 	else
 		return NULL;
 }
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver, const rr::RRScaler* _scaler, bool _useBuffers)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver, const rr::RRScaler* _scaler)
 {
 	RR_ASSERT(_object);
 	params.program = NULL;
@@ -131,15 +131,10 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynami
 	params.renderNonBlended = true;
 
 	lightIndirectVersion = UINT_MAX;
-	indexedYes = NULL;
-	indexedNo = NULL;
 	containsNonBlended = 1;
 	containsBlended = 0;
-	if (_useBuffers)
-	{
-		indexedYes = ObjectBuffers::create(_object,true,containsNonBlended,containsBlended);
-		indexedNo = ObjectBuffers::create(_object,false,containsNonBlended,containsBlended);
-	}
+	indexedYes = ObjectBuffers::create(_object,true,containsNonBlended,containsBlended);
+	indexedNo = ObjectBuffers::create(_object,false,containsNonBlended,containsBlended);
 }
 
 RendererOfRRObject::~RendererOfRRObject()
@@ -241,7 +236,6 @@ void RendererOfRRObject::render()
 	bool renderIndirect = params.renderedChannels.LIGHT_INDIRECT_VCOLOR || params.renderedChannels.LIGHT_INDIRECT_MAP;
 	bool readIndirectFromSolver = renderIndirect && params.indirectIlluminationSource==SOLVER;
 	bool readIndirectFromBuffers = renderIndirect && params.indirectIlluminationSource==BUFFERS;
-	bool readIndirectFromLayer = renderIndirect && params.indirectIlluminationSource==LAYER;
 	bool readIndirectFromNone = renderIndirect && params.indirectIlluminationSource==NONE;
 
 	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
@@ -279,12 +273,6 @@ void RendererOfRRObject::render()
 	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
 		dontUseIndexed = true;
-	}
-	// only nonbuffered can read from arbitrary layer
-	if (readIndirectFromLayer)
-	{
-		dontUseIndexed = true;
-		dontUseNonIndexed = true;
 	}
 	// error, you forgot to call setIndirectIlluminationXxx()
 	if (readIndirectFromNone)
