@@ -43,10 +43,15 @@ public:
 	//!  False = generates triangle list, numVertices == 3*numTriangles.
 	//!  True = generates indexed triangle list, numVertices <= 3*numTriangles, order specified by preimport vertex numbers
 	//! \param containsNonBlended
-	//!  Set only when returning non-NULL result, otherwise unchanged.
+	//!  Set to 0 or 1, 1=object contains materials that don't need blending.
+	//!  Touched only when returning non-NULL result, otherwise unchanged.
 	//! \param containsBlended
-	//!  Set only when returning non-NULL result, otherwise unchanged.
-	static ObjectBuffers* create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended);
+	//!  Set to 0 or 1, 1=object contains materials that need blending.
+	//!  Touched only when returning non-NULL result, otherwise unchanged.
+	//! \param unwrapSplitsVertices
+	//!  Must be inited to 0, set to 1 if unwrap assigns different uvs to single vertex.
+	//!  Touched only when returning non-NULL result, otherwise unchanged.
+	static ObjectBuffers* create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended, bool& unwrapSplitsVertices);
 	~ObjectBuffers();
 	void render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion);
 private:
@@ -125,6 +130,7 @@ private:
 
 	bool containsNonBlended;
 	bool containsBlended;
+	bool unwrapSplitsVertices; // true if indexed and unwrap needs !indexed render because it assigns different uvs to single vertex
 };
 
 }; // namespace

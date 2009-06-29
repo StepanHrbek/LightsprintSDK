@@ -194,6 +194,7 @@ private:
 	unsigned lightIndirectVersion;              ///< Version of indirect illumination in buffers or solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
 	bool containsNonBlended;
 	bool containsBlended;
+	bool unwrapSplitsVertices;
 };
 
 }; // namespace

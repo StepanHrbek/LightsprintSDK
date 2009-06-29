@@ -16,7 +16,7 @@
 namespace rr_gl
 {
 
-ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended)
+ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended, bool& unwrapSplitsVertices)
 {
 	if (!object) return NULL;
 
@@ -41,7 +41,7 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 	{
 		// delete what was allocated
 		RR_SAFE_DELETE(ob);
-		rr::RRReporter::report(rr::WARN,"Not enough memory, using emergency rendering path, might fail.\n");
+		rr::RRReporter::report(rr::WARN,"Not enough memory for rendering object.\n");
 	}
 	catch(...)
 	{
@@ -51,6 +51,7 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 	{
 		containsNonBlended = ob->containsNonBlended;
 		containsBlended = ob->containsBlended;
+		if (ob->unwrapSplitsVertices) unwrapSplitsVertices = true;
 	}
 	return ob;
 }
@@ -85,6 +86,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 {
 	containsNonBlended = false;
 	containsBlended = false;
+	unwrapSplitsVertices = false;
 	const rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	unsigned numVerticesExpected = indexed
@@ -235,6 +237,10 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				throw 1;
 			}
 #ifdef SMALL_ARRAYS
+			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
+			if (indexed && atexcoordAmbient[currentVertex]!=rr::RRVec2(0) && atexcoordAmbient[currentVertex]!=triangleMappingLightmap.uv[v])
+				unwrapSplitsVertices = true;
+			// store vertex data
 			mesh->getVertex(triangleVertices[v],aposition[currentVertex]);
 			anormal[currentVertex] = triangleNormals.vertex[v].normal;
 			atexcoordAmbient[currentVertex] = triangleMappingLightmap.uv[v];
@@ -246,6 +252,10 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			atexcoordForced2D[currentVertex][0] = (( t%triCountX           )+((v==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
 			atexcoordForced2D[currentVertex][1] = (((t/triCountX)%triCountY)+((v==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
 #else
+			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
+			if (indexed && avertex[currentVertex].texcoordAmbient!=rr::RRVec2(0) && avertex[currentVertex].texcoordAmbient!=triangleMappingLightmap.uv[v])
+				unwrapSplitsVertices = true;
+			// store vertex data
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex].position);
 			avertex[currentVertex].normal = triangleNormals.vertex[v].normal;
 			avertex[currentVertex].texcoordAmbient = triangleMappingLightmap.uv[v];
