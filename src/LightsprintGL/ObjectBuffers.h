@@ -84,12 +84,13 @@ private:
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned previousLightIndirectVersion; // version of lightIndirect data we have in VRAM
 	rr::RRBuffer* previousLightIndirectBuffer; // layer we copied to VBO_lightIndir last time
-	unsigned numIndices;
+	unsigned numIndicesObj; // 0=!indexed, !0=indexed
 	unsigned* indices;
 
 	// VBOs
 	enum VBOIndex
 	{
+		VBO_index, // used only if indexed
 #ifdef SMALL_ARRAYS
 		VBO_position,
 		VBO_normal,
@@ -97,7 +98,7 @@ private:
 		VBO_texcoordEmissive,
 		VBO_texcoordTransparency,
 		VBO_texcoordAmbient,
-		VBO_texcoordForced2D,
+		VBO_texcoordForced2D, // used only if !indexed
 #else
 		VBO_vertex,
 #endif
@@ -116,10 +117,13 @@ private:
 	// temp 1x1 textures
 	std::vector<rr::RRBuffer*> tempTextures;
 
-	struct FaceGroup
+	struct IndexGroup
 	{
 		unsigned firstIndex;
 		unsigned numIndices;
+	};
+	struct FaceGroup : public IndexGroup
+	{
 		rr::RRMaterial material;
 		bool needsBlend()
 		{

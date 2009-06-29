@@ -92,7 +92,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	unsigned numVerticesExpected = indexed
 		? mesh->getNumPreImportVertices() // indexed (when rendering 1object without force_2d)
 		: 3*numTriangles; // nonindexed (when rendering multiobject or force_2d)
-	numIndices = 0;
+	numIndicesObj = 0;
 	indices = NULL;
 	if (indexed)
 	{
@@ -167,7 +167,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			FaceGroup fg;
 			if (indexed)
 			{
-				fg.firstIndex = numIndices;
+				fg.firstIndex = numIndicesObj;
 			}
 			else
 			{
@@ -217,8 +217,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				// use preimport index, because of e.g. optimizations in RRObjectMulti
 				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t).index;
 				RR_ASSERT(currentVertex<numVerticesExpected);
-				RR_ASSERT(numIndices<3*numTriangles);
-				indices[numIndices++] = currentVertex;
+				RR_ASSERT(numIndicesObj<3*numTriangles);
+				indices[numIndicesObj++] = currentVertex;
 				numVertices = RR_MAX(numVertices,currentVertex+1);
 			}
 			else
@@ -271,6 +271,11 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
 	}
+
+	if (indexed)
+		for (unsigned i=0;i<numTriangles*3;i++)
+			RR_ASSERT(indices[i]<numVerticesExpected);
+
 #ifdef USE_VBO
 	glGenBuffers(VBO_COUNT,VBO);
 #ifdef SMALL_ARRAYS
@@ -303,10 +308,14 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	RR_SAFE_DELETE_ARRAY(avertex);
 #endif // SMALL_ARRAYS
 	glBindBuffer(GL_ARRAY_BUFFER,0);
+	if (indices)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj*sizeof(*indices), indices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+		RR_SAFE_DELETE_ARRAY(indices);
+	}
 #endif // USE_VBO
-	if (indexed)
-		for (unsigned i=0;i<numTriangles*3;i++)
-			RR_ASSERT(indices[i]<numVerticesExpected);
 }
 
 ObjectBuffers::~ObjectBuffers()
@@ -390,27 +399,29 @@ ObjectBuffers::VBOIndex ObjectBuffers::fixVBO(VBOIndex index) const
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
-#ifdef SMALL_ARRAYS
 #ifdef USE_VBO
+	#define DRAW_ELEMENTS(a,b,c,d)             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(*indices)*d)); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#ifdef SMALL_ARRAYS
 	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[fixVBO(VBO_##myName)]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
 #else
-	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, 0, &a##myName[0].x);
-	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, 0, &a##myName[0].x);
-	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
-#endif
-#else // SMALL_ARRAYS
-#ifdef USE_VBO
 	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);   gl##glName##Pointer(           GL_FLOAT, sizeof(VertexData), &((VertexData*)0)->myName);   glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);   gl##glName##Pointer(numFloats, GL_FLOAT, sizeof(VertexData), &((VertexData*)0)->myName);   glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
+#else // !USE_VBO
+	#define DRAW_ELEMENTS(a,b,c,d)             glDrawElements(a,b,c,indices+d);
+#ifdef SMALL_ARRAYS
+	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, 0, &a##myName[0].x);
+	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, 0, &a##myName[0].x);
+	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
 #else
 	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, sizeof(VertexData), &avertex->myName.x);
 	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, sizeof(VertexData), &avertex->myName.x);
 	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
 #endif
-#endif // SMALL_ARRAYS
+#endif // !USE_VBO
 
 	// set vertices
 	BIND_VBO3(Vertex,3,position);
@@ -428,7 +439,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	// set indirect illumination vertices
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		if (indices)
+		if (numIndicesObj)
 		{
 			if (params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
@@ -588,12 +599,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				continue;
 			}
 
-			unsigned firstIndex = faceGroups[fg].firstIndex;
-			int numIndices = faceGroups[fg].numIndices; //!!! we are in scope of ObjectBuffers::numIndices, local variable should be renamed or naming convention changed
+			IndexGroup fgSubset = faceGroups[fg];
 			// limit rendered indices to capture range
-			numIndices = RR_MIN(firstIndex+numIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(firstIndex,3*params.firstCapturedTriangle);
-			firstIndex = RR_MAX(firstIndex,3*params.firstCapturedTriangle);
-			if (numIndices>0)
+			fgSubset.numIndices = RR_MIN(fgSubset.firstIndex+fgSubset.numIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(fgSubset.firstIndex,3*params.firstCapturedTriangle);
+			fgSubset.firstIndex = RR_MAX(fgSubset.firstIndex,3*params.firstCapturedTriangle);
+			if (fgSubset.numIndices>0)
 			{
 				// set face culling
 				if (params.renderedChannels.MATERIAL_CULLING)
@@ -648,14 +658,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				// set material
 				params.renderedChannels.useMaterial(params.program,&faceGroups[fg].material);
 				// render one facegroup
-				if (indices)
+				if (numIndicesObj)
 				{
-					for (unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
-					glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
+					DRAW_ELEMENTS(GL_TRIANGLES, fgSubset.numIndices, GL_UNSIGNED_INT, fgSubset.firstIndex);
 				}
 				else
 				{
-					glDrawArrays(GL_TRIANGLES, firstIndex, numIndices);
+					glDrawArrays(GL_TRIANGLES, fgSubset.firstIndex, fgSubset.numIndices);
 				}
 			}
 		}
@@ -664,16 +673,16 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	{
 		// render all at once
 		// (but only captured range)
-		unsigned firstIndex = 3*params.firstCapturedTriangle;
-		int numIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
-		if (indices)
+		IndexGroup objSubset;
+		objSubset.firstIndex = 3*params.firstCapturedTriangle;
+		objSubset.numIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
+		if (numIndicesObj)
 		{
-			for (unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
-			glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
+			DRAW_ELEMENTS(GL_TRIANGLES, objSubset.numIndices, GL_UNSIGNED_INT, objSubset.firstIndex);
 		}
 		else
 		{
-			glDrawArrays(GL_TRIANGLES, firstIndex, numIndices);
+			glDrawArrays(GL_TRIANGLES, objSubset.firstIndex, objSubset.numIndices);
 		}
 	}
 	// unset material diffuse texcoords
@@ -720,13 +729,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 	{
 		glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
-		if (indices && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
+		if (numIndicesObj && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
 	}
 	// unset indirect illumination colors
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
-		if (indices && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
+		if (numIndicesObj && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
 	}
 	// unset normals
 	if (setNormals)
