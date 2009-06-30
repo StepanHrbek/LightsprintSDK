@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news87 ------------------------------------ 2009.06.29 -------------------------------------
+
+NEWS
+
+- faster realtime render (up to 10x higher fps in huge high poly scenes, 10% speedup in small scenes)
+- 2x lower video memory footprint in high poly scenes
+
 \section news86 ------------------------------------ 2009.06.19 -------------------------------------
 
 CHANGES
