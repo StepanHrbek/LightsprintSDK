@@ -320,7 +320,7 @@ Ray-Mesh collisions
 \page tpl_fcollada FCollada
   - www: <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
   - optional, remove by deleting <code>\#define SUPPORT_COLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
-  - Windows, Linux (including PS3): precompiled version 3.05B is a part of Lightsprint SDK
+  - Windows, Linux (including PS3): precompiled version 3.05B (\subpage fcollada_patch "patched") is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B
     (which is the latest one available at the time of writing this document) does not yet officially support Linux.
@@ -335,6 +335,49 @@ Ray-Mesh collisions
     - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
   - by Feeling Software, used under MIT license
 
+\page fcollada_patch FCollada patch
+  Precompiled FCollada 3.05B in Lightsprint SDK includes our bugfix:
+
+  File: FCollada/FUtils/FUUniqueStringMap.cpp
+  \code
+	// this is orifinal fcollada 3.05b code,
+	// it splits "a1" and "a01" to {"a",1}, failing in documents with a1 and a01 materials
+	//while (len > 0 && prefix[len-1] >= '0' && prefix[len-1] <= '9')
+	//{
+	//	prefix.erase(len-1, len);
+	//	--len;
+	//}
+
+	// this Lightsprint patch splits "a1" to {"a",1}, "a01" to {"a0",1}
+	size_t fullLen = len;
+	size_t goodLen = len;
+	while (len > 0 && prefix[len-1] >= '0' && prefix[len-1] <= '9')
+	{
+		if (len == fullLen || prefix[len-1] != '0') goodLen = len-1;
+		--len;
+	}
+	prefix.erase(goodLen, len);
+  \endcode
+
+  Test case. Patched Fcollada opens it without errors, original FCollada reports errors:
+  \code
+	<?xml version="1.0" encoding="utf-8"?>
+	<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+	  <library_effects>
+	    <effect id="a01">
+	    </effect>
+	    <effect id="a1">
+	    </effect>
+	  </library_effects>
+	  <library_materials>
+	    <material id="a1-material" name="a1-material">
+	      <instance_effect url="#a1"/>
+	    </material>
+	  </library_materials>
+	</COLLADA>
+  \endcode
+
+	
 \page tpl_libxml2 libxml2
   - www: <a href="http://xmlsoft.org/">libxml2</a>
   - optional, remove by disabling \ref tpl_fcollada
