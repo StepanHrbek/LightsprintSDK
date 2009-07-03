@@ -419,7 +419,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendSeparator();
 		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
-		winMenu->AppendCheckItem(ME_RENDER_WATER,_T("Water"),_T("Water is water-like surface at sea-level (precisely at y=-0.01m)."));
+		winMenu->AppendCheckItem(ME_RENDER_WATER,_T("Water"),_T("Water is water-like plane with adjustable elevation."));
 		winMenu->Check(ME_RENDER_WATER,svs.renderWater);
 		winMenu->AppendCheckItem(ME_RENDER_FPS,_T("FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
 		winMenu->Check(ME_RENDER_FPS,svs.renderFPS);
@@ -432,6 +432,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
 		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
+		winMenu->Append(ME_RENDER_WATER_LEVEL,_T("Adjust water level..."));
 		menuBar->Append(winMenu, _T("Render"));
 	}
 
@@ -939,6 +940,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 		case ME_RENDER_BRIGHTNESS: getBrightness(this,svs.brightness); break;
 		case ME_RENDER_CONTRAST: getFactor(this,svs.gamma,"Please adjust contrast (default is 1).","Contrast"); break;
+		case ME_RENDER_WATER_LEVEL: getFactor(this,svs.waterLevel,"Please adjust water level in meters(scene units).","Water level"); break;
 
 
 		//////////////////////////////// HELP ///////////////////////////////
