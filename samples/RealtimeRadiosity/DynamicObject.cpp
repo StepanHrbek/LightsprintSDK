@@ -31,7 +31,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		d->illumination->gatherEnvMapSize = _gatherCubeSize;
 		d->updatePosition();
 
-		// simple renderer
+		// simple renderer, one draw call, display list of many arrays
 		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
 		d->rendererWithoutCache->render(); // render once without cache to create textures, avoid doing so in display list
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
