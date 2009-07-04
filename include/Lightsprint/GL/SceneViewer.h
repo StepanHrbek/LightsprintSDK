@@ -66,6 +66,7 @@ struct SceneViewerState
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	rr::RRVec4       brightness;                //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;                     //! Gamma correction applied at render time, 1=no correction.
+	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 
 	// viewer initialization
 	bool             autodetectCamera;          //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
@@ -101,6 +102,7 @@ struct SceneViewerState
 		cameraMetersPerSecond = 2;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
+		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
 		autodetectCamera = 1;
 	}
 };
