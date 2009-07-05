@@ -285,8 +285,8 @@ Ray-Mesh collisions
 
 \page tpl_wx wxWidgets
   - www: <a href="http://wxwidgets.org//">wxWidgets</a>
-  - optional, remove by removing SV*.* files from LightsprintGL project (source code licenses only)
-  - Windows: wxWidgets 3.9.0 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+  - optional, remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code> (source code licenses only)
+  - Windows: wxWidgets 2.9.0 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
 \page tpl_mesa Mesa 3D
