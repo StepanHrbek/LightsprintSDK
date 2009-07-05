@@ -1,3 +1,7 @@
+// pred releasem
+// - vypnout SUPPORT_SCENEVIEWER
+// - vypnout SUPPORT_GAMEBRYO/COLLADA/MGF/OBJ
+// - prepnout FACTOR_FORMAT na 0
 //#define BUGS
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
@@ -5,6 +9,8 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
+#define SECONDS_BETWEEN_DDI        0.05f // btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
+#define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
 //#define BACKGROUND_WORKER // nejde v linuxu
 #if defined(NDEBUG) && defined(WIN32)
 	//#define SET_ICON
@@ -962,131 +968,6 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 void keyboard(unsigned char c, int x, int y);
 void enableInteraction(bool enable);
 
-void display()
-{
-	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
-	if (!winWidth) return; // can't work without window
-	//printf("<Display.>\n");
-	if (!level) return; // we can't render without scene, idle() should create it first
-
-	// pro jednoduchost je to tady
-	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
-	//  nevolalo by se to zbytecne v situaci kdy redisplay vyvola calculate() hlaskou ze zlepsil osvetleni
-	// zisk by ale byl miniaturni
-	level->solver->reportInteraction();
-
-	if (needMatrixUpdate)
-		updateMatrices();
-
-	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
-	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = 
-		// disable direct detection and indirect calculation in "no radiosity" part
-		// increase quality to 5 elsewhere (fixes book in first 5 seconds)
-		currentFrame.wantsConstantAmbient() ? 0 : 5;
-	calculateParams.secondsBetweenDDI = needImmediateDDI ? 0 : 0.05;
-	needImmediateDDI = false;
-	level->solver->calculate(&calculateParams);
-
-	needRedisplay = 0;
-
-	drawEyeViewSoftShadowed();
-
-	if (wireFrame)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	if (renderInfo && (!shotRequested || captureVideo))
-	{
-#ifdef CORNER_LOGO
-		float w = 230/(float)winWidth;
-		float h = 50/(float)winHeight;
-		float x = 1-w;
-		float y = 1-h;
-		showOverlay(lightsprintMap,x,y,w,h);
-#endif
-		float now = demoPlayer->getPartPosition();
-		float frameStart = 0;
-		if (!demoPlayer->getPaused())
-		{
-			for (LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
-			{
-				rr::RRBuffer* texture = (*i)->overlayMap;
-				if (texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
-				{
-					switch((*i)->overlayMode)
-					{
-						case 0:
-							showOverlay(texture);
-							break;
-						case 1:
-							float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
-							//float rand01 = rand()/float(RAND_MAX);
-							float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* RR_MAX(0,RR_MIN(rand01*20,1)-rand01/10);
-							float h = 0.13f+0.11f*pos;
-							float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
-							showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
-							break;
-					}
-				}
-				frameStart += (*i)->transitionToNextTime;
-			}
-		}
-
-		// fps
-		if (!demoPlayer->getPaused()) g_playedFrames++;
-		float seconds = demoPlayer->getDemoPosition();
-		g_fpsAvg = g_playedFrames/RR_MAX(0.01f,seconds);
-		if (g_fpsDisplay && !captureVideo)
-		{
-			unsigned fps = g_fpsCounter.getFps();
-			g_fpsDisplay->render(skyRenderer,fps,winWidth,winHeight);
-		}
-
-		if (demoPlayer->getPaused() && level->animationEditor)
-		{
-			level->animationEditor->renderThumbnails(skyRenderer);
-		}
-
-		drawHelpMessage(showHelp);
-	}
-
-	if (shotRequested)
-	{
-		static unsigned manualShots = 0;
-		static unsigned videoShots = 0;
-		char buf[1000];
-		if (captureVideo)
-			sprintf(buf,"%s/frame%04d.%s",globalOutputDirectory,++videoShots,captureVideo);
-		else
-			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
-		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
-		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-		glReadBuffer(GL_BACK);
-		glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-		sshot->unlock();
-		if (sshot->save(buf))
-			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
-		else
-			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
-		delete sshot;
-		shotRequested = 0;
-	}
-
-	glutSwapBuffers();
-
-	//printf("cache: hits=%d misses=%d",rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheHits,rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheMisses);
-
-	{
-		// animaci nerozjede hned ale az po 2 snimcich (po 1 nestaci)
-		// behem kresleni prvnich snimku driver kompiluje shadery nebo co, pauza by narusila fps
-		static int framesDisplayed = 0;
-		framesDisplayed++;
-		if (framesDisplayed==2 && demoPlayer)
-		{
-			demoPlayer->setPaused(supportEditor);
-		}
-	}
-}
-
 void toggleWireFrame(void)
 {
 	wireFrame = !wireFrame;
@@ -1911,7 +1792,12 @@ void passive(int x, int y)
 
 void idle()
 {
-	REPORT(rr::RRReportInterval report(rr::INF3,"idle()\n"));
+	glutPostRedisplay();
+}
+
+void display()
+{
+	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if (!winWidth) return; // can't work without window
 
 	if (level && level->pilot.isTimeToChangeLevel())
@@ -1931,9 +1817,7 @@ void idle()
 
 	if (!level)
 	{
-		//		showImage(loadingMap);
-		//		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
-		//delete level;
+no_level:
 		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
@@ -1977,19 +1861,18 @@ void idle()
 	// 3. display updates depthmaps again
 
 	// keyboard movements with key repeat turned off
-	static TIME prev = 0;
-	TIME now = GETTIME;
-	float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
-	if (!prev || now==prev) seconds = 0;
-	CLAMP(seconds,0.001f,0.3f);
+	static TIME previousFrameStartTime = 0;
+	TIME thisFrameStartTime = GETTIME;
+	float previousFrameDuration = previousFrameStartTime ? (thisFrameStartTime-previousFrameStartTime)/(float)PER_SEC : 0;
+	CLAMP(previousFrameDuration,0.0001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
-	if (speedForward) cam->moveForward(speedForward*seconds);
-	if (speedBack) cam->moveBack(speedBack*seconds);
-	if (speedRight) cam->moveRight(speedRight*seconds);
-	if (speedLeft) cam->moveLeft(speedLeft*seconds);
-	if (speedUp) cam->moveUp(speedUp*seconds);
-	if (speedDown) cam->moveDown(speedDown*seconds);
-	if (speedLean) cam->lean(speedLean*seconds);
+	if (speedForward) cam->moveForward(speedForward*previousFrameDuration);
+	if (speedBack) cam->moveBack(speedBack*previousFrameDuration);
+	if (speedRight) cam->moveRight(speedRight*previousFrameDuration);
+	if (speedLeft) cam->moveLeft(speedLeft*previousFrameDuration);
+	if (speedUp) cam->moveUp(speedUp*previousFrameDuration);
+	if (speedDown) cam->moveDown(speedDown*previousFrameDuration);
+	if (speedLean) cam->lean(speedLean*previousFrameDuration);
 	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
@@ -2012,45 +1895,44 @@ void idle()
 			demoPlayer->advance();
 #endif
 		}
-		if (level)
+
+		// najde aktualni frame
+		const AnimationFrame* frame = level->pilot.setup ? level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
+		if (frame)
 		{
-			// najde aktualni frame
-			const AnimationFrame* frame = level->pilot.setup ? level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
-			if (frame)
+			// pokud existuje, nastavi ho
+			static AnimationFrame prevFrame(0);
+			if (frame->layerNumber!=prevFrame.layerNumber && !frame->wantsConstantAmbient()) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
+			demoPlayer->setVolume(frame->volume);
+			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
+			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
+			if (objMoved)
+				reportObjectMovement();
+			for (unsigned i=0;i<10;i++)
 			{
-				// pokud existuje, nastavi ho
-				demoPlayer->setVolume(frame->volume);
-				static AnimationFrame prevFrame(0);
-				bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
-				bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
-				if (objMoved)
-					reportObjectMovement();
-				for (unsigned i=0;i<10;i++)
-				{
-					// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
-					DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
-					if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
-				}
-				if (frame->layerNumber!=prevFrame.layerNumber) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
-				prevFrame = *frame;
+				// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
+				DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
+				if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
+			}
+			prevFrame = *frame;
+		}
+		else
+		{
+			// pokud neexistuje, jde na dalsi level nebo skonci 
+			if (level->animationEditor)
+			{
+				// play scene finished, jump to editor
+				demoPlayer->setPaused(true);
+				enableInteraction(true);
+				level->animationEditor->frameCursor = RR_MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
 			}
 			else
 			{
-				// pokud neexistuje, jde na dalsi level nebo skonci 
-				if (level->animationEditor)
-				{
-					// play scene finished, jump to editor
-					demoPlayer->setPaused(true);
-					enableInteraction(true);
-					level->animationEditor->frameCursor = RR_MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
-				}
-				else
-				{
-					// play scene finished, jump to next scene
-					//delete level;
-					level = NULL;
-					seekInMusicAtSceneSwap = false;
-				}
+				// play scene finished, jump to next scene
+				//delete level;
+				level = NULL;
+				seekInMusicAtSceneSwap = false;
+				goto no_level;
 			}
 		}
 	}
@@ -2066,7 +1948,7 @@ void idle()
 			needRedisplay = 1;
 		}
 	}
-	prev = now;
+	previousFrameStartTime = thisFrameStartTime;
 	setShadowTechnique();
 
 	if (movingEye && !--movingEye)
@@ -2081,7 +1963,121 @@ void idle()
 	{
 		needRedisplay = 1;
 	}
-	glutPostRedisplay();
+
+	// pro jednoduchost je to tady
+	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
+	//  nevolalo by se to zbytecne v situaci kdy redisplay vyvola calculate() hlaskou ze zlepsil osvetleni
+	// zisk by ale byl miniaturni
+	level->solver->reportInteraction();
+
+	if (needMatrixUpdate)
+		updateMatrices();
+
+	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
+	calculateParams.secondsBetweenDDI = needImmediateDDI ? 0 : SECONDS_BETWEEN_DDI;
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY;
+	
+	needImmediateDDI = false;
+	level->solver->calculate(&calculateParams);
+
+	needRedisplay = 0;
+
+	drawEyeViewSoftShadowed();
+
+	if (wireFrame)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	if (renderInfo && (!shotRequested || captureVideo))
+	{
+#ifdef CORNER_LOGO
+		float w = 230/(float)winWidth;
+		float h = 50/(float)winHeight;
+		float x = 1-w;
+		float y = 1-h;
+		showOverlay(lightsprintMap,x,y,w,h);
+#endif
+		float now = demoPlayer->getPartPosition();
+		float frameStart = 0;
+		if (!demoPlayer->getPaused())
+		{
+			for (LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
+			{
+				rr::RRBuffer* texture = (*i)->overlayMap;
+				if (texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
+				{
+					switch((*i)->overlayMode)
+					{
+						case 0:
+							showOverlay(texture);
+							break;
+						case 1:
+							float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
+							//float rand01 = rand()/float(RAND_MAX);
+							float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* RR_MAX(0,RR_MIN(rand01*20,1)-rand01/10);
+							float h = 0.13f+0.11f*pos;
+							float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
+							showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
+							break;
+					}
+				}
+				frameStart += (*i)->transitionToNextTime;
+			}
+		}
+
+		// fps
+		if (!demoPlayer->getPaused()) g_playedFrames++;
+		float seconds = demoPlayer->getDemoPosition();
+		g_fpsAvg = g_playedFrames/RR_MAX(0.01f,seconds);
+		if (g_fpsDisplay && !captureVideo)
+		{
+			unsigned fps = g_fpsCounter.getFps();
+			g_fpsDisplay->render(skyRenderer,fps,winWidth,winHeight);
+		}
+
+		if (demoPlayer->getPaused() && level->animationEditor)
+		{
+			level->animationEditor->renderThumbnails(skyRenderer);
+		}
+
+		drawHelpMessage(showHelp);
+	}
+
+	if (shotRequested)
+	{
+		static unsigned manualShots = 0;
+		static unsigned videoShots = 0;
+		char buf[1000];
+		if (captureVideo)
+			sprintf(buf,"%s/frame%04d.%s",globalOutputDirectory,++videoShots,captureVideo);
+		else
+			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
+		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
+		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+		glReadBuffer(GL_BACK);
+		glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+		sshot->unlock();
+		if (sshot->save(buf))
+			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
+		else
+			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
+		delete sshot;
+		shotRequested = 0;
+	}
+
+	glutSwapBuffers();
+
+	//printf("cache: hits=%d misses=%d",rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheHits,rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheMisses);
+
+	{
+		// animaci nerozjede hned ale az po 2 snimcich (po 1 nestaci)
+		// behem kresleni prvnich snimku driver kompiluje shadery nebo co, pauza by narusila fps
+		static int framesDisplayed = 0;
+		framesDisplayed++;
+		if (framesDisplayed==2 && demoPlayer)
+		{
+			demoPlayer->setPaused(supportEditor);
+		}
+	}
 }
 
 void enableInteraction(bool enable)
