@@ -144,7 +144,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
-		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast);
+		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast,0);
 	}
 	if (potato)
 	{
@@ -165,7 +165,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* re
 				rr_gl::getTexture(potato->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 		}
-		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast);
+		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast,0);
 	}
 }
 

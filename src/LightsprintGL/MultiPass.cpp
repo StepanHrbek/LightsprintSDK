@@ -10,7 +10,7 @@
 namespace rr_gl
 {
 
-MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const rr::RRVec4* _brightness, float _gamma)
+MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const rr::RRVec4* _brightness, float _gamma, float _clipPlaneY)
 {
 	// inputs
 	lights = _lights;
@@ -18,6 +18,7 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	uberProgram = _uberProgram;
 	brightness = _brightness;
 	gamma = _gamma;
+	clipPlaneY = _clipPlaneY;
 	numLights = lights?lights->size():0;
 	separatedZPass = (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && (mainUberProgramSetup.MATERIAL_TRANSPARENCY_CONST || mainUberProgramSetup.MATERIAL_TRANSPARENCY_MAP || mainUberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA) && !mainUberProgramSetup.FORCE_2D_POSITION)?1:0;
 	separatedAmbientPass = (!numLights)?1:0;
@@ -145,7 +146,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		return NULL;
 	}
 	uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 	if (!program)
 	{
 		// Radeon X300 fails to run some complex shaders in one pass
@@ -155,7 +156,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
 		}
 		// disabling specular reflection saves SceneViewer sample (helps GF6150)
@@ -164,7 +165,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
-			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
 		}
 		// disabling light detail map saves Lightsmark (helps GF6150)
@@ -172,7 +173,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma);
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
 		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)

@@ -130,7 +130,7 @@ public:
 			robot->updatePosition();
 			if (uberProgramSetup.LIGHT_INDIRECT_auto)
 				updateEnvironmentMap(robot->illumination);
-			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
+			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
 		}
 		if (potato)
 		{
@@ -139,7 +139,7 @@ public:
 			potato->updatePosition();
 			if (uberProgramSetup.LIGHT_INDIRECT_auto)
 				updateEnvironmentMap(potato->illumination);
-			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast);
+			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
 		}
 	}
 };

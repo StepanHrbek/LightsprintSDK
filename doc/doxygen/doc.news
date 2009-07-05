@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news88 ------------------------------------ 2009.07.xx -------------------------------------
+
+CHANGES
+
+- additional parameter clipPlaneY in several rendering functions
+
 \section news87 ------------------------------------ 2009.06.29 -------------------------------------
 
 NEWS

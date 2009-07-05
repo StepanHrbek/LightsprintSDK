@@ -189,6 +189,10 @@
 	uniform float postprocessGamma;
 #endif
 
+#ifdef CLIP_PLANE
+	uniform float clipPlaneY;
+#endif
+
 void main()
 {
 
@@ -197,7 +201,7 @@ void main()
 	// clipping
 
 	#ifdef CLIP_PLANE
-		if(worldPos.y<0.0) discard;
+		if(worldPos.y<clipPlaneY) discard;
 	#endif
 
 	/////////////////////////////////////////////////////////////////////

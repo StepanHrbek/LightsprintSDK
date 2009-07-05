@@ -53,6 +53,9 @@ public:
 	//! Specifies global brightness and gamma factors used by following render() commands.
 	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
+	//! Specifies global clipPlaneY used by following render() commands.
+	void setClipPlane(float clipPlaneY);
+
 	//! Specifies light detail map. Default = none.
 	void setLDM(unsigned layerNumberLDM)
 	{
@@ -74,6 +77,7 @@ protected:
 		const rr::RRLight* renderingFromThisLight;
 		rr::RRVec4 brightness;
 		float gamma;
+		float clipPlaneY;
 		unsigned layerNumberLDM;
 		Params();
 	};
@@ -98,6 +102,7 @@ RendererOfRRDynamicSolver::Params::Params()
 	renderingFromThisLight = NULL;
 	brightness = rr::RRVec4(1);
 	gamma = 1;
+	clipPlaneY = 0;
 	layerNumberLDM = UINT_MAX; // UINT_MAX is usually empty, so it's like disabled ldm
 }
 
@@ -108,8 +113,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	uberProgram = UberProgram::create(
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
-	params.brightness = rr::RRVec4(1);
-	params.gamma = 1;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 	lastRenderSolverEnv = NULL;
@@ -142,6 +145,11 @@ void RendererOfRRDynamicSolver::setBrightnessGamma(const rr::RRVec4* brightness,
 {
 	params.brightness = brightness ? *brightness : rr::RRVec4(1);
 	params.gamma = gamma;
+}
+
+void RendererOfRRDynamicSolver::setClipPlane(float clipPlaneY)
+{
+	params.clipPlaneY = clipPlaneY;
 }
 
 void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
@@ -259,7 +267,7 @@ void RendererOfRRDynamicSolver::render()
 	PreserveAlphaFunc p4;
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha test in alpha-keying
-	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma);
+	MultiPass multiPass(params.lights,params.uberProgramSetup,uberProgram,&params.brightness,params.gamma,params.clipPlaneY);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	RealtimeLight* light;
@@ -473,7 +481,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	PreserveAlphaFunc p4;
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // for now, all materials with alpha use this blendmode
 	glAlphaFunc(GL_GREATER,0.5f); // for now, all materials with alpha use this alpha-keying
-	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma);
+	MultiPass multiPass(params.lights,mainUberProgramSetup,uberProgram,&params.brightness,params.gamma,params.clipPlaneY);
 	UberProgramSetup uberProgramSetup;
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	RealtimeLight* light;
@@ -686,6 +694,11 @@ void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)
 {
 	renderer->setBrightnessGamma(brightness,gamma);
+}
+
+void RendererOfScene::setClipPlane(float clipPlaneY)
+{
+	renderer->setClipPlane(clipPlaneY);
 }
 
 void RendererOfScene::setLDM(unsigned layerNumberLDM)

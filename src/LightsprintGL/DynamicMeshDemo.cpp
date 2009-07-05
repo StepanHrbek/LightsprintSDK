@@ -99,7 +99,7 @@ void Scene::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1);
+		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1,0);
 		glColor3ub(0,255,255);
 		glVertexPointer(3, GL_FLOAT, 0, dynamicMeshes[i].vertices);
 		glDrawElements(GL_TRIANGLES, dynamicMeshes[i].numIndices, GL_UNSIGNED_SHORT, dynamicMeshes[i].indices);
@@ -125,7 +125,7 @@ void Scene::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* re
 			dynamicUberProgramSetup.MATERIAL_SPECULAR = specular;
 			dynamicUberProgramSetup.MATERIAL_SPECULAR_CONST = specular;
 			dynamicUberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-			MultiPass multiPass(&realtimeLights,dynamicUberProgramSetup,s_uberProgram,&brightness,1);
+			MultiPass multiPass(&realtimeLights,dynamicUberProgramSetup,s_uberProgram,&brightness,1,0);
 			UberProgramSetup outUberProgramSetup;
 			RendererOfRRObject::RenderedChannels outRenderedChannels;
 			RealtimeLight* outLight;
@@ -162,7 +162,7 @@ void Scene::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* re
 		// - set shader
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1);
+		uberProgramSetup.useProgram(s_uberProgram,NULL,0,NULL,1,0);
 		// - disable color writes
 		glColorMask(0,0,0,0);
 		// - render

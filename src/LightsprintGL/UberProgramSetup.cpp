@@ -419,7 +419,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY)
 {
 	LIMITED_TIMES(1,checkCapabilities());
 
@@ -651,6 +651,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		{
 			RR_ASSERT(0);
 		}
+	}
+
+	if (CLIP_PLANE)
+	{
+		program->sendUniform("clipPlaneY",clipPlaneY);
 	}
 
 	return program;

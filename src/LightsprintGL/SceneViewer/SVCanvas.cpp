@@ -761,7 +761,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.brightness!=rr::RRVec4(1);
 				uberProgramSetup.POSTPROCESS_GAMMA = svs.gamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
 				// render
 				glPushMatrix();
@@ -776,7 +776,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				uberProgramSetup.MATERIAL_DIFFUSE = false;
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
-				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma);
+				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -794,7 +794,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1);
+				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
 			}
 			glBegin(GL_LINES);
 			enum {LINES=100, SIZE=100};
@@ -910,7 +910,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1);
+			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
 			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
 		}
 		glRasterPos2i(winWidth/2-4,winHeight/2+1);

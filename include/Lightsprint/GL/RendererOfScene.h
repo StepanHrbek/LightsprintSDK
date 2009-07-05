@@ -97,6 +97,9 @@ public:
 	//! Specifies global brightness and gamma factors used by following render() commands.
 	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
+	//! Specifies global clip plane used by following render() commands.
+	void setClipPlane(float clipPlaneY);
+
 	//! Specifies source of light detail maps.
 	void setLDM(unsigned layerNumberLDM);
 

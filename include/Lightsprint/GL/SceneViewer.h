@@ -54,7 +54,7 @@ struct SceneViewerState
 	bool             renderMaterialEmission;    //! Render emissivity.
 	bool             renderMaterialTransparency;//! Render transparency.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
-	bool             renderWater;               //! Render water surface at world y=0.
+	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
 	bool             renderFPS;                 //! Render FPS counter.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.

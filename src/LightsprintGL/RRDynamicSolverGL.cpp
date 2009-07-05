@@ -405,7 +405,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.FORCE_2D_POSITION = true;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1);
+	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1,0);
 	if (!program)
 	{
 		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
@@ -603,7 +603,7 @@ void RRDynamicSolverGL::renderLights()
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,0,NULL,1);
+	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,0,NULL,1,0);
 	for (unsigned i=0;i<getLights().size();i++)
 	{
 		drawRealtimeLight(realtimeLights[i]);
