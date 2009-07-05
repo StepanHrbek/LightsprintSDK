@@ -9,7 +9,8 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define SECONDS_BETWEEN_DDI        0.05f // btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
+#define FRAMERATE_SMOOTHING        3 // 1=slow&smooth 2=fast&flickering 3=fast&smooth
+#define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
 #define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
 //#define BACKGROUND_WORKER // nejde v linuxu
 #if defined(NDEBUG) && defined(WIN32)
@@ -1903,6 +1904,79 @@ no_level:
 			// pokud existuje, nastavi ho
 			static AnimationFrame prevFrame(0);
 			if (frame->layerNumber!=prevFrame.layerNumber && !frame->wantsConstantAmbient()) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
+#if FRAMERATE_SMOOTHING==3
+			// zjisti zda ted bude DDI
+			if (!frame->wantsConstantAmbient())
+			{
+				for (unsigned i=0;i<level->solver->realtimeLights.size();i++)
+					if (level->solver->realtimeLights[i]->dirtyGI)
+					{
+						static double lastDDITime = 0;
+						double now = GETSEC;
+						if (!lastDDITime || fabs(now-lastDDITime)>=SECONDS_BETWEEN_DDI)
+						{
+							lastDDITime = now;
+							needImmediateDDI = true;
+						}
+						break;
+					}
+			}
+			// poznamena si o kolik byl snimek s DDI delsi
+			struct FrameStats { bool hadDDI; float tookSeconds; };
+			static FrameStats frameStats[3] = {{0,0},{0,0},{0,0}};
+			class DDIDurationSamples
+			{
+			public:
+				DDIDurationSamples()
+				{
+					for (unsigned i=0;i<NUM_SAMPLES;i++) samples[i] = 0;
+					insertionIndex = 0;
+				}
+				void insert(float sample)
+				{
+					// stores last 10 samples
+					samples[++insertionIndex%=NUM_SAMPLES] = sample;
+				}
+				float getAverage()
+				{
+					// discards two highest samples, returns average of remaining samples
+					float sum = 0;
+					float sampleMax1 = 0;
+					float sampleMax2 = 0;
+					for (unsigned i=0;i<NUM_SAMPLES;i++)
+					{
+						sum += samples[i];
+						if (samples[i]>=sampleMax1) {sampleMax2 = sampleMax1; sampleMax1 = samples[i];} else
+						if (samples[i]>sampleMax2) sampleMax2 = samples[i];
+					}
+					float average = (sum-sampleMax1-sampleMax2)/(NUM_SAMPLES-2);
+					return average;
+				}
+			private:
+				enum {NUM_SAMPLES=10};
+				float samples[NUM_SAMPLES];
+				unsigned insertionIndex;
+			};
+			static DDIDurationSamples ddiDurationSamples;
+			if (frameStats[0].hadDDI!=frameStats[1].hadDDI)
+			{
+				ddiDurationSamples.insert(fabs(frameStats[0].tookSeconds-frameStats[1].tookSeconds));
+			}
+			// kdyz bude DDI
+			float ddiTime = 0;
+			if (needImmediateDDI)
+			{
+				// odvodi z poslednich zaznamu jak dlouho trva DDI
+				ddiTime = ddiDurationSamples.getAverage();
+				// posune kameru/svetla/objekty
+				frame = level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()+ddiTime);
+				if (!frame) goto no_frame;
+			}
+			frameStats[0] = frameStats[1];
+			frameStats[1].hadDDI = frameStats[2].hadDDI;
+			frameStats[1].tookSeconds = previousFrameDuration;
+			frameStats[2].hadDDI = needImmediateDDI;
+#endif // FRAMERATE_SMOOTHING
 			demoPlayer->setVolume(frame->volume);
 			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
 			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
@@ -1912,13 +1986,18 @@ no_level:
 			{
 				// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
 				DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
-				if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
+				if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition()
+#if FRAMERATE_SMOOTHING==3
+					+ ddiTime
+#endif
+					;
 			}
 			prevFrame = *frame;
 		}
 		else
 		{
 			// pokud neexistuje, jde na dalsi level nebo skonci 
+no_frame:
 			if (level->animationEditor)
 			{
 				// play scene finished, jump to editor
@@ -1974,8 +2053,24 @@ no_level:
 		updateMatrices();
 
 	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
+
+#if FRAMERATE_SMOOTHING==1
+	// DDI in every frame, low fps, smooth
+	calculateParams.secondsBetweenDDI = 0;
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY;
+#endif
+
+#if FRAMERATE_SMOOTHING==2
+	// DDI in fixed intervals, high fps, flickers
 	calculateParams.secondsBetweenDDI = needImmediateDDI ? 0 : SECONDS_BETWEEN_DDI;
 	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY;
+#endif
+
+#if FRAMERATE_SMOOTHING==3
+	// DDI in fixed intervals, high fps, anti-flickering measures
+	calculateParams.secondsBetweenDDI = 0;
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = needImmediateDDI ? INDIRECT_QUALITY : 0;
+#endif
 	
 	needImmediateDDI = false;
 	level->solver->calculate(&calculateParams);
