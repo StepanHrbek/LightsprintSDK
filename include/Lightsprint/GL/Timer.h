@@ -12,21 +12,21 @@
 
 #if defined(LINUX) || defined(linux)
 
-	// GETTIME: 1 ns precision, artificially reduced to 1 ms
+	// GETTIME: 1 ns precision, artificially reduced to 0.1 ms
 	// in linux: correct
 	#include <time.h>
 	#define TIME unsigned long long
 	#define GETTIME getTime()
-	#define PER_SEC 1000
+	#define PER_SEC 10000
 
 	inline unsigned long long getTime()
 	{
 		timespec t;
 		clock_gettime(CLOCK_MONOTONIC, &t);
-		return t.tv_sec * 1000 + (t.tv_nsec + 500000) / 1000000;
+		return t.tv_sec * 10000 + (t.tv_nsec + 500000) / 100000;
 	}
 
-#elif defined(_OPENMPxxx) // delete xxx to enable
+#elif defined(_OPENMP)
 
 	// GETTIME: 1us precision,  Timer: low precision
 	// in linux: sometimes runs slower than real time
@@ -36,7 +36,7 @@
 	#define GETTIME omp_get_wtime()
 	#define PER_SEC 1
 
-#elif defined(_WIN32xxx) // delete xxx to enable
+#elif defined(_WIN32)
 
 	// GETTIME: 1-10ms precision,  Timer: high precision
 	#define WINDOWS_TIME
