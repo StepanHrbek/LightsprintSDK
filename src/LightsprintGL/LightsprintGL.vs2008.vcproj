@@ -849,6 +849,10 @@
 				RelativePath=".\SceneViewer\SVSolver.h"
 				>
 			</File>
+			<File
+				RelativePath=".\SceneViewer\SVStub.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="Camera.cpp"

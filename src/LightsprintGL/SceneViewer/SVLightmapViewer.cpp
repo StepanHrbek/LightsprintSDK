@@ -4,6 +4,9 @@
 // --------------------------------------------------------------------------
 
 #include "SVLightmapViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "../tmpstr.h"
 
 namespace rr_gl
@@ -182,3 +185,5 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 }
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

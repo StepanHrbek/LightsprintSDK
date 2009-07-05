@@ -6,6 +6,10 @@
 #ifndef SVFRAME_H
 #define SVFRAME_H
 
+#include "Lightsprint/GL/SceneViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "SVLightProperties.h"
 #include "SVCanvas.h"
 #include "SVApp.h"
@@ -115,5 +119,7 @@ namespace rr_gl
 	};
  
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER
 
 #endif

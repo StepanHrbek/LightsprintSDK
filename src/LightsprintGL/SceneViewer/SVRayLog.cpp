@@ -5,6 +5,8 @@
 
 #include "SVRayLog.h"
 
+#ifdef SUPPORT_SCENEVIEWER
+
 namespace rr_gl
 {
 
@@ -24,3 +26,5 @@ namespace rr_gl
 	}
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

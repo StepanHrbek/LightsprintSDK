@@ -6,10 +6,13 @@
 #ifndef SVLIGHTPROPERTIES_H
 #define SVLIGHTPROPERTIES_H
 
+#include "Lightsprint/GL/SceneViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
 #include "Lightsprint/GL/RealtimeLight.h"
-#include "Lightsprint/GL/SceneViewer.h"
 
 namespace rr_gl
 {
@@ -67,5 +70,7 @@ namespace rr_gl
 	};
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER
 
 #endif

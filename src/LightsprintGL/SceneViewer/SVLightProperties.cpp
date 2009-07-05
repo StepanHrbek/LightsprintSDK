@@ -8,6 +8,9 @@
 // include
 
 #include "SVLightProperties.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "SVFrame.h" // SVFrame::ME_LIGHT_PROPERTIES
 
 #if wxCHECK_VERSION(2,9,0)
@@ -329,3 +332,5 @@ END_EVENT_TABLE()
 
  
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

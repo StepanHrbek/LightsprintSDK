@@ -6,9 +6,12 @@
 #ifndef SVSOLVER_H
 #define SVSOLVER_H
 
+#include "Lightsprint/GL/SceneViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "SVApp.h"
 
@@ -33,5 +36,7 @@ namespace rr_gl
 	};
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER
 
 #endif

@@ -3,8 +3,11 @@
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVFrame.h"
 #include "SVApp.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
+#include "SVFrame.h"
 
 namespace rr_gl
 {
@@ -57,3 +60,5 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 }
  
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

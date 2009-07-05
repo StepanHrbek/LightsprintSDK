@@ -11,6 +11,9 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
+#ifdef _MSC_VER // we need wxWidgets 2.9, not available in linux distros yet
+#define SUPPORT_SCENEVIEWER
+#endif
 //#define CUSTOMIZED_FOR_3DRENDER
 
 namespace rr_gl

@@ -6,13 +6,16 @@
 #ifndef SVCANVAS_H
 #define SVCANVAS_H
 
+#include "Lightsprint/GL/SceneViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
 #include "SVLightProperties.h"
 #include "SVLightmapViewer.h"
-#include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/FPS.h"
@@ -105,5 +108,7 @@ namespace rr_gl
 	};
  
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER
 
 #endif

@@ -7,6 +7,9 @@
 #define SVAPP_H
 
 #include "Lightsprint/GL/SceneViewer.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/RRScene.h"
 
@@ -43,4 +46,5 @@ namespace rr_gl
 
 }; // namespace
 
-#endif
+#endif // SUPPORT_SCENEVIEWER
+

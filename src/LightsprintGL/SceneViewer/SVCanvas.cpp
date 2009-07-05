@@ -4,6 +4,9 @@
 // --------------------------------------------------------------------------
 
 #include "SVCanvas.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
 #include "SVLightIcons.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"
@@ -1315,3 +1318,5 @@ END_EVENT_TABLE()
 
  
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

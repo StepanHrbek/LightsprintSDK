@@ -7,8 +7,11 @@
 //
 // include
 
-#include "Lightsprint/RRScene.h"
 #include "SVFrame.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
+#include "Lightsprint/RRScene.h"
 #include "SVRayLog.h"
 #include "SVSolver.h"
 #include "SVSaveLoad.h"
@@ -971,3 +974,5 @@ BEGIN_EVENT_TABLE(SVFrame, wxFrame)
 END_EVENT_TABLE()
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

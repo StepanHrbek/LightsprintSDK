@@ -5,6 +5,8 @@
 
 #include "SVSolver.h"
 
+#ifdef SUPPORT_SCENEVIEWER
+
 namespace rr_gl
 {
 
@@ -58,3 +60,5 @@ void SVSolver::dirtyLights()
 }
 
 }; // namespace
+
+#endif // SUPPORT_SCENEVIEWER

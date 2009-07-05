@@ -5,3 +5,5 @@
 
 #include "SVLightIcons.h"
 
+#ifdef SUPPORT_SCENEVIEWER
+#endif // SUPPORT_SCENEVIEWER
