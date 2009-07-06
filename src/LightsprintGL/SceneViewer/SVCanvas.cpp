@@ -182,7 +182,20 @@ SVCanvas::~SVCanvas()
 {
 	if (!svs.releaseResources)
 	{
-		return;
+		// user requested fast exit without releasing resources
+		// however, if scene is .gsa, we must ignore him and release resources (it shutdowns gamebryo)
+		bool sceneMustBeReleased = false;
+		if (svs.sceneFilename && strlen(svs.sceneFilename)>4)
+		{
+			const char* sceneExtension = svs.sceneFilename + strlen(svs.sceneFilename)-4;
+			if (!stricmp(sceneExtension,".gsa"))
+				sceneMustBeReleased = true;
+		}
+		if (!sceneMustBeReleased)
+		{
+			// save time and don't release scene
+			return;
+		}
 	}
 
 	// fps
