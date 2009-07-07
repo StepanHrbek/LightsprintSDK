@@ -203,7 +203,7 @@ void Scene::render(Camera& _camera, unsigned _numDynamicMeshes, DynamicMesh* _dy
 	// Adjust tone mapping operator.
 	static TIME oldTime = 0;
 	TIME newTime = GETTIME;
-	float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
+	float secondsSinceLastFrame = float(newTime-oldTime)/float(PER_SEC);
 	if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
 		s_toneMapping->adjustOperator(secondsSinceLastFrame,brightness,1,0.5f);
 	oldTime = newTime;
