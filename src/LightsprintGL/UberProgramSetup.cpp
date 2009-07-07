@@ -411,6 +411,7 @@ void UberProgramSetup::validate()
 		uberProgramSetupBlack.MATERIAL_EMISSIVE_MAP = MATERIAL_EMISSIVE_MAP;
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_CONST = MATERIAL_TRANSPARENCY_CONST;
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_MAP = MATERIAL_TRANSPARENCY_MAP;
+		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_IN_ALPHA = MATERIAL_TRANSPARENCY_IN_ALPHA; // if not preserved, breaks unlit alpha map
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_BLEND = MATERIAL_TRANSPARENCY_BLEND; // if not preserved, breaks Z-only pre rendering of >50% transparent objects
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
 		uberProgramSetupBlack.CLIP_PLANE = CLIP_PLANE;
