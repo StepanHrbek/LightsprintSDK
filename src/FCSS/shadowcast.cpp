@@ -1903,7 +1903,8 @@ no_level:
 		{
 			// pokud existuje, nastavi ho
 			static AnimationFrame prevFrame(0);
-			if (frame->layerNumber!=prevFrame.layerNumber && !frame->wantsConstantAmbient()) needImmediateDDI = true; // chceme okamzitou odezvu pri strihu
+			bool animationCut = frame->layerNumber!=prevFrame.layerNumber; // za strih povazuje i mezisnimky, to je zbytecne
+			if (animationCut && !frame->wantsConstantAmbient()) needImmediateDDI = true; // po strihu chceme okamzite aktualizovat GI
 #if FRAMERATE_SMOOTHING==3
 			// zjisti zda ted bude DDI
 			if (!frame->wantsConstantAmbient())
@@ -1922,8 +1923,8 @@ no_level:
 					}
 			}
 			// poznamena si o kolik byl snimek s DDI delsi
-			struct FrameStats { bool hadDDI; float tookSeconds; };
-			static FrameStats frameStats[3] = {{0,0},{0,0},{0,0}};
+			struct FrameStats { bool hadDDI; float tookSeconds; bool animationCut; };
+			static FrameStats frameStats[3] = {{0,0,0},{0,0,0},{0,0,0}};
 			class DDIDurationSamples
 			{
 			public:
@@ -1958,12 +1959,17 @@ no_level:
 				unsigned insertionIndex;
 			};
 			static DDIDurationSamples ddiDurationSamples;
-			if (frameStats[0].hadDDI!=frameStats[1].hadDDI)
+			if (// beware frames after animation cut, they are slower
+				// beware frames after DDI, they are faster
+				!frameStats[0].animationCut && !frameStats[0].hadDDI &&
+				!frameStats[1].animationCut && !frameStats[1].hadDDI &&
+				!frameStats[2].animationCut &&  frameStats[2].hadDDI)
 			{
-				ddiDurationSamples.insert(fabs(frameStats[0].tookSeconds-frameStats[1].tookSeconds));
+				// compare frame1 without DDI and frame2 with DDI
+				ddiDurationSamples.insert(frameStats[2].tookSeconds-frameStats[1].tookSeconds);
 			}
 			// kdyz bude DDI
-			float ddiTime = 0;
+			float ddiTime = 0; // kolik casu cekame ze v tomhle snimku zabere ddi
 			if (needImmediateDDI)
 			{
 				// odvodi z poslednich zaznamu jak dlouho trva DDI
@@ -1973,9 +1979,15 @@ no_level:
 				if (!frame) goto no_frame;
 			}
 			frameStats[0] = frameStats[1];
-			frameStats[1].hadDDI = frameStats[2].hadDDI;
-			frameStats[1].tookSeconds = previousFrameDuration;
-			frameStats[2].hadDDI = needImmediateDDI;
+			frameStats[1] = frameStats[2];
+			frameStats[2] = frameStats[3];
+			frameStats[2].tookSeconds = previousFrameDuration;
+			frameStats[3].hadDDI = needImmediateDDI;
+			frameStats[3].animationCut = animationCut;
+//static float previousDDIGuess=0;
+//if (frameStats[2].hadDDI) rr::RRReporter::report(rr::INF1,"%dms + %dms(DDI guess)\n",int((previousFrameDuration-previousDDIGuess)*1000),int(previousDDIGuess*1000));
+//                     else rr::RRReporter::report(rr::INF1,"%dms\n",int(previousFrameDuration*1000));
+//previousDDIGuess = ddiTime;
 #endif // FRAMERATE_SMOOTHING
 			demoPlayer->setVolume(frame->volume);
 			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
