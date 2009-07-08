@@ -188,7 +188,7 @@ SVCanvas::~SVCanvas()
 		if (svs.sceneFilename && strlen(svs.sceneFilename)>4)
 		{
 			const char* sceneExtension = svs.sceneFilename + strlen(svs.sceneFilename)-4;
-			if (!stricmp(sceneExtension,".gsa"))
+			if (!_stricmp(sceneExtension,".gsa"))
 				sceneMustBeReleased = true;
 		}
 		if (!sceneMustBeReleased)
