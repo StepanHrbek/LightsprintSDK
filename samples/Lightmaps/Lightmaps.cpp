@@ -45,6 +45,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
