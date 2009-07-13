@@ -49,6 +49,15 @@ ToneMapping.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
 Water.cpp \
+SceneViewer/SVApp.spp \
+SceneViewer/SVCanvas.spp \
+SceneViewer/SVFrame.spp \
+SceneViewer/SVLightIcons.spp \
+SceneViewer/SVLightProperties.spp \
+SceneViewer/SVLightmapViewer.spp \
+SceneViewer/SVRayLog.spp \
+SceneViewer/SVSaveLoad.spp \
+SceneViewer/SVSolver.spp \
 SceneViewer/SVStub.spp
 
 # libraries
