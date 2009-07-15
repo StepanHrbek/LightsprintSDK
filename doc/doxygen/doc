@@ -285,7 +285,7 @@ Ray-Mesh collisions
 
 \page tpl_wx wxWidgets
   - www: <a href="http://wxwidgets.org//">wxWidgets</a>
-  - optional, remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code> (source code licenses only)
+  - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
   - Windows: wxWidgets 2.9.0 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
@@ -587,29 +587,35 @@ Ray-Mesh collisions
 
   LightsprintGL source code licensee only:
   \n Before building LightsprintGL from source code,
-  wxWidgets must be built. Follow \subpage building_wxwidgets instructions.
+  wxWidgets libraries must be available. See \subpage obtaining_wxwidgets.
 
 
-\page building_wxwidgets Building wxWidgets
+\page obtaining_wxwidgets Obtaining wxWidgets
 
  wxWidgets is 3rd party GUI library.
- You don't have to redistribute any wxWidgets files with your application.
- It's needed only when rebuilding LightsprintGL from source code.
+ It's optional, and even if you use it, you don't have to redistribute any wxWidgets files with your application,
+ you need it only when rebuilding LightsprintGL from source code.
 
  \section wx_windows Windows
-   - Get wxWidgets-2.9 source code from wxWidgets.org (any official release or svn).
-   - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
-     e.g. C:\\wxWidgets-2.9. No spaces please.
-   - Open $(WXWIDGETS_DIR)\\include\\msvc\\wx\\setup.h and replace
-     \code
+   - Get wxWidgets 2.9 source code from wxWidgets.org (any official release or svn).
+   - If you use one version of Visual Studio and target only win32,
+     you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
+     If you target x64, the only additional step is to add x64 target to that solution.
+   - If you use multiple Visual Studio versions and/or target both win32 and x64,
+     all wxWidgets solutions would build to the same directory and overwite files.
+     We provide script that builds all targets at once and keeps them separated, follow instructions:
+     - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
+       e.g. C:\\wxWidgets. No spaces please.
+     - Open \$(WXWIDGETS_DIR)\\include\\msvc\\wx\\setup.h and replace
+       \code
 	#ifdef WXUSINGDLL
 		#define wxLIB_SUBDIR vc_dll
 	#else // !DLL
 		#define wxLIB_SUBDIR vc_lib
 	#endif // DLL/!DLL
-     \endcode
-     by
-     \code
+       \endcode
+       by
+       \code
 	#if _MSC_VER<1400
 		#define wxCOMPILER 2003
 	#elif _MSC_VER<1500
@@ -629,19 +635,20 @@ Ray-Mesh collisions
 	#else // !DLL
 		#define wxLIB_SUBDIR wxCONCAT5(vc,wxCOMPILER,_,wxBITS,_lib)
 	#endif // DLL/!DLL
-     \endcode
-   - Run bin/build_wxWidgets.bat.
-   - LightsprintGL DLL works now. For static LightsprintGL, add wx library path
-     to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
-	- $(WXWIDGETS_DIR)\\lib\\vc2008_32_lib for vc2008 win32 target
-	- $(WXWIDGETS_DIR)\\lib\\vc2005_64_lib for vc2005 x64 target
+       \endcode
+     - Run bin/build_wxWidgets.bat.
+     - LightsprintGL DLL works now. For static LightsprintGL, add wx library path
+       to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
+	- \$(WXWIDGETS_DIR)\\lib\\vc2008_32_lib for vc2008 win32 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc2005_64_lib for vc2005 x64 target
 	- etc
 
- \section wx_linux Ubuntu
-   \code
-	apt-get install libwxgtk2.9-dev
-   \endcode
-  
+ \section wx_linux Linux
+   - For now, wxWidgets is not used by Linux port.
+   - When we start using it, obtaining it will be as simple as [example for Ubuntu]:
+     \code
+	sudo apt-get install libwxgtk2.9-dev
+     \endcode
 
 
 

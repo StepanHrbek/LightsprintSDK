@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news88 ------------------------------------ 2009.07.xx -------------------------------------
+\section news88 ------------------------------------ 2009.07.08 -------------------------------------
 
 CHANGES
 
@@ -29,7 +29,7 @@ CHANGES
 - RRBuffer::setLoader() split into RRBuffer::setLoader() and RRBuffer::setSaver(),
   \n both return previous loader/saver
 - source code licensee only:
-  - precompiled wxWidgets removed from SDK, \ref building_wxwidgets "build your own wxWidgets"
+  - precompiled wxWidgets removed from SDK, \ref obtaining_wxwidgets "build your own wxWidgets"
   - Runtime Library in all static configurations changed to DLL
 
 \section news85 ------------------------------------ 2009.06.05 -------------------------------------

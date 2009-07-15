@@ -48,3 +48,4 @@ namespace rr_gl
 
 #endif // SUPPORT_SCENEVIEWER
 
+#endif
