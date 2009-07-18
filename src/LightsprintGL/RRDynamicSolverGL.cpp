@@ -477,20 +477,28 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 
+	// calculate mapping for FORCED_2D
+	//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
+	//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
+	//  This calculation is repeated in ObjectBuffers::init where we render to texture, here we read texture back.
+	unsigned triCountX = DDI_TRIANGLES_X;
+	unsigned triCountYTotal = (numTriangles+DDI_TRIANGLES_X-1)/DDI_TRIANGLES_X;
+	unsigned numPasses = (triCountYTotal+DDI_TRIANGLES_MAX_Y-1)/DDI_TRIANGLES_MAX_Y;
+	unsigned triCountYInOnePass = (triCountYTotal+numPasses-1)/numPasses;
+	unsigned pixelWidth = triCountX*faceSizeX;
+	unsigned pixelHeightInOnePass = triCountYInOnePass*faceSizeY;
+
 	// for each set of triangles (if all triangles don't fit into one texture)
-	for (unsigned firstCapturedTriangle=0;firstCapturedTriangle<numTriangles;firstCapturedTriangle+=DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y)
+	for (unsigned firstCapturedTriangle=0;firstCapturedTriangle<numTriangles;firstCapturedTriangle+=triCountX*triCountYInOnePass)
 	{
-		unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one DDI row
-		unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one DDI column
-		unsigned width = triCountX*faceSizeX; // used DDI width in pixels
-		unsigned height = triCountY*faceSizeY; // used DDI height in pixels
-		unsigned lastCapturedTrianglePlus1 = RR_MIN(numTriangles,firstCapturedTriangle+triCountX*triCountY);
+		unsigned lastCapturedTrianglePlus1 = RR_MIN(numTriangles,firstCapturedTriangle+triCountX*triCountYInOnePass);
+		unsigned triCountYInThisPass = (lastCapturedTrianglePlus1-firstCapturedTriangle+triCountX-1)/triCountX; // may be bit lower in last pass of multipass, this prevents writing too far beyond end of _results
 
 		// prepare for scaling down -> render to texture
 		detectBigMap->renderingToBegin();
 
 		// clear
-		glViewport(0, 0, width,height);
+		glViewport(0, 0, pixelWidth,pixelHeightInOnePass);
 		glClear(GL_COLOR_BUFFER_BIT); // old pixels are overwritten, so clear is usually not needed, but individual light-triangle lighting may be disabled by getTriangleMaterial()=triangles are not rendered, and we need to detect 0 rather than uninitialized value
 
 		// setup renderer
@@ -526,7 +534,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		glBegin(GL_POLYGON);
 			glMultiTexCoord2f(GL_TEXTURE0,0,0);
 			glVertex2f(-1,-1);
-			float fractionOfBigMapUsed = 1.0f*triCountY/DDI_TRIANGLES_MAX_Y; // we downscale only part of big map that is used
+			float fractionOfBigMapUsed = 1.0f*triCountYInOnePass/DDI_TRIANGLES_MAX_Y; // we downscale only part of big map that is used
 			glMultiTexCoord2f(GL_TEXTURE0,0,fractionOfBigMapUsed);
 			glVertex2f(-1,fractionOfBigMapUsed*2-1);
 			glMultiTexCoord2f(GL_TEXTURE0,1,fractionOfBigMapUsed);
@@ -537,8 +545,8 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 
 		// read downscaled image to memory
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountY));
-		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountY);
-		glReadPixels(0, 0, triCountX, triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
+		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
+		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
 	}
 
 	return 1;

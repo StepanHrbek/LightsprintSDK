@@ -236,6 +236,16 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 				rr::RRReporter::report(rr::WARN,"Object has strange vertex numbers, aborting render.\n");
 				throw 1;
 			}
+
+			// calculate mapping for FORCED_2D
+			//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
+			//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
+			//  Here we render to texture, this calculation is repeated in RRDynamicSolverGL::detectDirectIlluminationTo where we read texture back.
+			unsigned triCountX = DDI_TRIANGLES_X;
+			unsigned triCountYTotal = (numTriangles+DDI_TRIANGLES_X-1)/DDI_TRIANGLES_X;
+			unsigned numPasses = (triCountYTotal+DDI_TRIANGLES_MAX_Y-1)/DDI_TRIANGLES_MAX_Y;
+			unsigned triCountYInOnePass = (triCountYTotal+numPasses-1)/numPasses;
+
 #ifdef SMALL_ARRAYS
 			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
 			if (indexed && atexcoordAmbient[currentVertex]!=rr::RRVec2(0) && atexcoordAmbient[currentVertex]!=triangleMappingLightmap.uv[v])
@@ -247,10 +257,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			atexcoordDiffuse[currentVertex] = triangleMappingDiffuse.uv[v];
 			atexcoordEmissive[currentVertex] = triangleMappingEmissive.uv[v];
 			atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
-			unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one row
-			unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one column
-			atexcoordForced2D[currentVertex][0] = (( t%triCountX           )+((v==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
-			atexcoordForced2D[currentVertex][1] = (((t/triCountX)%triCountY)+((v==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
+			atexcoordForced2D[currentVertex][0] = (( t%triCountX                    )+((v==2)?1:0)-triCountX         *0.5f+0.05f)/(triCountX         *0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
+			atexcoordForced2D[currentVertex][1] = (((t/triCountX)%triCountYInOnePass)+((v==0)?1:0)-triCountYInOnePass*0.5f+0.05f)/(triCountYInOnePass*0.5f);
 #else
 			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
 			if (indexed && avertex[currentVertex].texcoordAmbient!=rr::RRVec2(0) && avertex[currentVertex].texcoordAmbient!=triangleMappingLightmap.uv[v])
@@ -262,10 +270,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			avertex[currentVertex].texcoordDiffuse = triangleMappingDiffuse.uv[v];
 			avertex[currentVertex].texcoordEmissive = triangleMappingEmissive.uv[v];
 			avertex[currentVertex].texcoordTransparency = triangleMappingTransparent.uv[v];
-			unsigned triCountX = DDI_TRIANGLES_X; // number of triangles in one row
-			unsigned triCountY = RR_MIN(DDI_TRIANGLES_MAX_Y,(numTriangles%(triCountX*DDI_TRIANGLES_MAX_Y)+triCountX-1)/triCountX); // number of triangles in one column
-			avertex[currentVertex].texcoordForced2D[0] = (( t%triCountX           )+((v==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
-			avertex[currentVertex].texcoordForced2D[1] = (((t/triCountX)%triCountY)+((v==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
+			avertex[currentVertex].texcoordForced2D[0] = (( t%triCountX                    )+((v==2)?1:0)-triCountX         *0.5f+0.05f)/(triCountX         *0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
+			avertex[currentVertex].texcoordForced2D[1] = (((t/triCountX)%triCountYInOnePass)+((v==0)?1:0)-triCountYInOnePass*0.5f+0.05f)/(triCountYInOnePass*0.5f);
 #endif
 		}
 		// generate facegroups

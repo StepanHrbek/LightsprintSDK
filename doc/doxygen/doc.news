@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news89 ------------------------------------ 2009.07.xx -------------------------------------
+
+FIXED
+
+- realtime indirect lighting was incorrect in big scenes
+
 \section news88 ------------------------------------ 2009.07.08 -------------------------------------
 
 CHANGES
