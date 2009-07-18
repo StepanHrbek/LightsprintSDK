@@ -106,6 +106,7 @@ namespace rr_gl
 		class RendererOfRRObject* rendererNonCaching;
 		Renderer* rendererCaching;
 		Texture* detectBigMap;
+		Texture* detectSmallMap;
 		Program* scaleDownProgram;
 		DDIQuality detectionQuality;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination

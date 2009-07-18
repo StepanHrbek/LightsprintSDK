@@ -76,6 +76,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 
 	// pointer 1 sent to RRBuffer::create = buffer will NOT allocate memory (we promise we won't touch it)
 	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X*faceSizeX,DDI_TRIANGLES_MAX_Y*faceSizeY,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+	detectSmallMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 
 	scaleDownProgram = Program::create(
 		tmpstr("#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY),
@@ -105,6 +106,8 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
+	if (detectSmallMap) delete detectSmallMap->getBuffer();
+	delete detectSmallMap;
 	delete uberProgram1;
 }
 
@@ -523,11 +526,11 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererNonCaching->setCapture(0,numTriangles);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
-		detectBigMap->renderingToEnd();
+		detectSmallMap->renderingToBegin();
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getBuffer()->getWidth(),1.0f/detectBigMap->getBuffer()->getHeight());
-		glViewport(0,0,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y);//!!! needs at least 256x256 backbuffer
+		glViewport(0,0,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y);
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		glDisable(GL_CULL_FACE);
@@ -547,6 +550,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountY));
 		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
 		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
+		detectSmallMap->renderingToEnd();
 	}
 
 	return 1;
