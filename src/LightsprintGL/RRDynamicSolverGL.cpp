@@ -163,6 +163,12 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 {
 	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,copyFrom);
 	materialsInStaticScene.recommendMaterialSetup(getMultiObjectCustom());
+
+	// delete renderer for old scene, new one will be created when need arises
+	//  we can't rebuild renderer only when multiObject pointer changes, because sometimes new (changed) multiObject is allocated at the same address
+	RR_SAFE_DELETE(rendererCaching);
+	RR_SAFE_DELETE(rendererNonCaching);
+	rendererObject = NULL;
 }
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
