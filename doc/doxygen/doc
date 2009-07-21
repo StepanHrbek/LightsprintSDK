@@ -2313,7 +2313,7 @@ Ray-Mesh collisions
 
  \image html unreal.png   
 
- In case you run out of memory, see \ref howto_bigscenes
+ \ref howto_bigscenes
 
 
 
@@ -2361,6 +2361,9 @@ Ray-Mesh collisions
   </td><td>
   \image html Gamebryo-RT1.jpg
   </td></tr></table>
+
+ \section mg_memory Notes
+ - \ref howto_bigscenes
 
 
 
@@ -2915,14 +2918,14 @@ Ray-Mesh collisions
 
  \section howto_bigscenes How to process even bigger scenes
 
-  Use 64bit code (fully supported by Lightsprint) whenever possible.
-  With 64bit code, you can process scenes of all sizes.
+  Use our 64bit code (fully supported by Lightsprint) whenever possible.
+  With 64bit code, system memory is better utilized, you can process scenes of all sizes.
 
-  RAM is cheap these days, however if you must use 32bit code, you won't be able to use all physical memory,
-  your address space is limited by operating system.
+  If you must use 32bit code (because your engine is 32bit only, e.g. UE3, Gamebryo),
+  address space is severely limited by operating system, application can't use whole memory, purchasing more RAM usually does not help.
 
   If you must use 32bit code, run it in 64bit operating system, this gives you 4GB of address space per-process.
-  It is good enough for nearly all game developers today.
+  It is good enough for majority of tasks today.
 
   If you must use 32bit Windows, use /3GB parameter in boot.ini, this gives you 3GB of address space per-process.
 
