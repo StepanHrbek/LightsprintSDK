@@ -2396,7 +2396,7 @@ Ray-Mesh collisions
   - full integration source code included
 
  \section g30_limits Limitations of current development version
-  - no lightmap size/format/quality/environment settings
+  - nearly no settings (no per-mesh settings, no environment settings)
   - Visual Studio 2008 must be installed, plugin projects were not ported to 2005 yet
   - debug plugins assert when Toolbench terminates
   - relighting not documented yet
@@ -2410,8 +2410,8 @@ Ray-Mesh collisions
       LightSpeed_GlobalIllumination_2.0.0/
       Source/GISample/Data/GISample/GISample.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution.
-    - Click Lightsprint / Bake lighting in menu,
-      small window will show baking progress and let you abort operation.
+    - Click Lightsprint / Bake lighting in menu. Click OK twice.
+      Small window will show baking progress and let you abort operation.
     - Relighting window will appear. Here you can switch from static GI to realtime GI,
       set environment, manipulate lights, completely relight scene, and rebake lightmaps.
       This stage is not documented yet.
