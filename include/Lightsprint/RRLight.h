@@ -238,7 +238,10 @@ namespace rr
 		// Misc
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! For your private use, not accessed by Lightsprint. Initialized to NULL.
+		//! Custom data, initialized to NULL, never accessed by LightsprintCore again. 
+		//
+		//! Adapters may use it to store pointer to original structure that was
+		//! adapted for Lightsprint.
 		void* customData;
 
 		//! Initialize light to defaults.

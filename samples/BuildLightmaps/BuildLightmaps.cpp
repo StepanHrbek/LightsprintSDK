@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // BuildLightmaps command-line tool
 //
-// This is complex tool rather than simple sample.
+// This is real tool rather than simple sample.
 // For much simpler lightmap build, see CPULightmaps sample.
 //
 // Usage

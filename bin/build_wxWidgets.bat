@@ -53,7 +53,7 @@ if exist "%VS71COMNTOOLS%\vsvars32.bat" (
 
 	set path=%path_backup%
 ) else (
-	echo VS2003 skipped.
+	echo VS2003 not found.
 )
 
 
@@ -98,7 +98,7 @@ if exist "%VS80COMNTOOLS%\vsvars32.bat" (
 
 	set path=%path_backup%
 ) else (
-	echo VS2005 skipped.
+	echo VS2005 not found.
 )
 
 
@@ -143,7 +143,7 @@ if exist "%VS90COMNTOOLS%\vsvars32.bat" (
 
 	set path=%path_backup%
 ) else (
-	echo VS2008 skipped.
+	echo VS2008 not found.
 )
 
 

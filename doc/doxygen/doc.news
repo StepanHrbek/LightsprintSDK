@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news89 ------------------------------------ 2009.08.xx -------------------------------------
+
+NEWS
+
+- RRObject::getCustomData() added
+  \n makes it possible to access format specific data via generic RRObject interface
+
 \section news88 ------------------------------------ 2009.07.18 -------------------------------------
 
 CHANGES
