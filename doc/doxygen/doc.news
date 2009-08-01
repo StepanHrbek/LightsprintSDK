@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- \ref main_gamebryo "Gamebryo 3.0 integration" - testing version
+- \ref main_gamebryo30 "Lightspeed integration (Gamebryo 3.0)" - testing version
 - RRObject::getCustomData() added
   \n makes it possible to access format specific data via generic RRObject interface
 
@@ -361,7 +361,7 @@ CHANGES
 
 NEWS
 
-- \ref main_gamebryo "Gamebryo integration"
+- \ref main_gamebryo26 "Gamebryo integration"
 - new \ref samples_offline "BuildLightmaps tool"
 - new GUI in rr_gl::sceneViewer()
   - all light properties editable in new Light Properties window

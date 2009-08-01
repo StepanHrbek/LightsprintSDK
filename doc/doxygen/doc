@@ -21,7 +21,8 @@ namespace rr
  - \subpage main_credits
 
  \section root_integrations Integrations
- - \subpage main_gamebryo
+ - \subpage main_gamebryo30
+ - \subpage main_gamebryo26
  - \subpage main_ue3
 
  \section root_artists_guide Artist's guide
@@ -655,8 +656,9 @@ Ray-Mesh collisions
 \page main_integration Integration
 
  \section integr_tool Precalculations / for toolchain
-  - \ref main_gamebryo "Precalculations in Gamebryo"
-  - \ref main_ue3 "Precalculations in Unreal Editor"
+  - \ref main_gamebryo30 "Precalculations in Lightspeed"
+  - \ref main_gamebryo26 "Precalculations in Gamebryo 2.6"
+  - \ref main_ue3 "Precalculations in Unreal Engine 3"
   - \subpage integration_tool_1
   - \subpage integration_tool_2
 
@@ -2317,33 +2319,16 @@ Ray-Mesh collisions
 
 
 
-\page main_gamebryo Gamebryo
+\page main_gamebryo26 Gamebryo 2.6
 
- Lightsprint adds global illumination to Gamebryo
-
- \section mg_versions Versions
- - <b> \subpage gamebryo_26 </b>
- - <b> \subpage gamebryo_30 </b>
-
- \section mg_misc Misc
- - \subpage gamebryo_version
- - \ref howto_bigscenes
-
-
-\page gamebryo_version Does this SDK support 2.6 or 3.0?
-
- To save you from any installation/configuration troubles, we send you Lightsprint SDK preconfigured against
- your Gamebryo version.
- If we make mistake and configure it against wrong Gamebryo version, please let us know, so we can fix it.
-
- SDK is configured for Gamebryo 3.0 if it contains src/Gamebryo.Toolbench.Plugin directory.
- 
-
-\page gamebryo_26 Gamebryo 2.6 integration
+ Lightsprint SDK adds global illumination to Gamebryo 2.6.
 
  \section g26_prerequisites Prerequisites
-  - Emergent's <code>Gamebryo 2.6</code> must be installed (we read its environment variables)
-  - Emergent's <code>Gamebryo Global Illumination Package 1.0.0</code> must be installed (we read its environment variables)
+  - Emergent's <code>Gamebryo 2.6</code> must be installed
+  - Emergent's <code>Gamebryo Global Illumination Package 1.0.0</code> must be installed
+  - Lightsprint SDK with Gamebryo 2.6 integration.
+    To save your time, we send you Lightsprint SDK preconfigured for your engine.
+    If we make mistake and your integration is missing, please let us know.
 
  \section g26_f Features
   - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes
@@ -2383,11 +2368,20 @@ Ray-Mesh collisions
   \image html Gamebryo-RT1.jpg
   </td></tr></table>
 
-\page gamebryo_30 Gamebryo 3.0 integration (in development, for testing only)
+ \section g30_misc Misc
+  - \ref howto_bigscenes
+
+
+\page main_gamebryo30 Lightspeed (in development, for testing only)
+
+ Lightsprint SDK adds global illumination to Lightspeed (Gamebryo 3.0).
 
  \section g30_prerequisites Prerequisites
-  - Emergent's <code>Gamebryo 3.0</code> must be installed (we read its environment variables)
-  - Emergent's <code>Lightspeed Global Illumination Package 2.0.0</code> must be installed (we read its environment variables)
+  - Emergent's <code>Lightspeed (Gamebryo 3.0)</code> must be installed
+  - Emergent's <code>Lightspeed Global Illumination Package 2.0.0</code> must be installed
+  - Lightsprint SDK with Lightspeed integration.
+    To save your time, we send you Lightsprint SDK preconfigured for your engine.
+    If we make mistake and your integration is missing, please let us know.
 
  \section g30_f Features
   - lightmap baking integrated into Toolbench
@@ -2397,8 +2391,8 @@ Ray-Mesh collisions
 
  \section g30_limits Limitations of current development version
   - nearly no settings (no per-mesh settings, no environment settings)
-  - Visual Studio 2008 must be installed, plugin projects were not ported to 2005 yet
-  - relighting not documented yet
+  - plugin source code is only for Visual Studio 2008, projects for 2005 not added yet
+  - relighting completely undocumented
 
  \section g30_gs Getting started
   <table border=0><tr><td>
@@ -2420,7 +2414,7 @@ Ray-Mesh collisions
   \image html BuildLightmaps_2.jpg
   </td></tr><tr><td>
   - legacy .gsa support (both offline and realtime GI)
-    - our tools from \ref gamebryo_26 still work under Gamebryo 3.0
+    - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under Lightspeed
     - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
       those must be installed for samples to work
   </td><td>
@@ -2442,6 +2436,10 @@ Ray-Mesh collisions
   - Everything plugins need is in their Toolbench directories, so deployment to other computers is simple directory copy.
     Plugin directories are (in case of standard VC90 Shipping configuration)
     <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin</code> and <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin.UI</code>.
+
+ \section g30_misc Misc
+  - \ref howto_bigscenes
+
 
 
 \page main_conventions Conventions
@@ -2770,7 +2768,7 @@ Ray-Mesh collisions
 
   LightsprintIO is an optional utility library that imports 3D scenes from a variety
   of file formats, namely:
-  - <b>Gamebryo (.GSA)</b> - scene format of \ref main_gamebryo "Gamebryo" game engine
+  - <b>Gamebryo (.GSA)</b> - scene format of \ref main_gamebryo26 game engine
   - <b>Collada (.DAE)</b> - open, flexible and well supported format for digital asset exchange.
     Adapter loads geometry, materials and lights using FCollada library. See comments at the
     beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
