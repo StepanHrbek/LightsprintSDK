@@ -128,13 +128,13 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		mesh->getTriangle(t,triangleVertices);
 		rr::RRMesh::TriangleNormals triangleNormals;
 		mesh->getTriangleNormals(t,triangleNormals);
-		rr::RRMesh::TriangleMapping triangleMappingLightmap;
+		rr::RRMesh::TriangleMapping triangleMappingLightmap = {rr::RRVec2(0),rr::RRVec2(0),rr::RRVec2(0)};
 		mesh->getTriangleMapping(t,triangleMappingLightmap,material?material->lightmapTexcoord:0);
-		rr::RRMesh::TriangleMapping triangleMappingDiffuse;
+		rr::RRMesh::TriangleMapping triangleMappingDiffuse = {rr::RRVec2(0),rr::RRVec2(0),rr::RRVec2(0)};
 		mesh->getTriangleMapping(t,triangleMappingDiffuse,material?material->diffuseReflectance.texcoord:0);
-		rr::RRMesh::TriangleMapping triangleMappingEmissive;
+		rr::RRMesh::TriangleMapping triangleMappingEmissive = {rr::RRVec2(0),rr::RRVec2(0),rr::RRVec2(0)};
 		mesh->getTriangleMapping(t,triangleMappingEmissive,material?material->diffuseEmittance.texcoord:0);
-		rr::RRMesh::TriangleMapping triangleMappingTransparent;
+		rr::RRMesh::TriangleMapping triangleMappingTransparent = {rr::RRVec2(0),rr::RRVec2(0),rr::RRVec2(0)};
 		mesh->getTriangleMapping(t,triangleMappingTransparent,material?material->specularTransmittance.texcoord:0);
 /*		// material change? -> start new facegroup
 		// a) rendering into shadowmap, check shadowing flags
