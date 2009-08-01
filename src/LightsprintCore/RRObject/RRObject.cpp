@@ -132,6 +132,11 @@ const RRMatrix3x4* RRObject::getWorldMatrix()
 	return NULL;
 }
 
+void* RRObject::getCustomData(const char* name) const
+{
+	return NULL;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

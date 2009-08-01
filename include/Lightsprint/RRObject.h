@@ -145,6 +145,15 @@ namespace rr
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
 
+		//! Returns arbitrary additional data provided by adapter.
+		//
+		//! \param name
+		//!  Identifier of custom data requested. It is completely format-specific,
+		//!  there are no predefined names. However, it is good practise to use names 
+		//!  that describe both type and semantic of returned data.
+		//!  Usage example: <code>NiMesh* originalGamebryoMesh = (NiMesh*)object->getCustomData("NiMesh* originalGamebryoMesh");</code>
+		virtual void* getCustomData(const char* name) const;
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Tools
