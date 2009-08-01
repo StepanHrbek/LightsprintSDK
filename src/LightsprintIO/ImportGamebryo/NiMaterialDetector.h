@@ -17,18 +17,50 @@
 #include "../supported_formats.h"
 #ifdef SUPPORT_GAMEBRYO
 
+#include <NiVersion.h>
+
+#if GAMEBRYO_MAJOR_VERSION==3
+	#ifdef RR_IO_BUILD
+		// in case of LightsprintIO library, Gamebryo is configured here (static linking)
+		#define EE_ECR_NO_IMPORT
+		#define EE_EFD_NO_IMPORT
+		#define EE_EGF_NO_IMPORT
+		#define EE_EGMGI_NO_IMPORT
+		#define NIAPPLICATION_NO_IMPORT
+		#define NIDX9RENDERER_NO_IMPORT
+		#define NIFLOODGATE_NO_IMPORT
+		#define NIINPUT_NO_IMPORT
+		#define NILIGHTMAPMATERIAL_NO_IMPORT
+		#define NIMAIN_NO_IMPORT
+		#define NIMESH_NO_IMPORT
+		#define NITERRAIN_NO_IMPORT
+		#ifdef _DEBUG
+			#define EE_CONFIG_DEBUG
+			#define EE_EFD_CONFIG_DEBUG
+			#define EE_USE_MEMORY_MANAGEMENT
+		#else
+			#define EE_CONFIG_SHIPPING
+			#define EE_EFD_CONFIG_SHIPPING
+			#define EE_DISABLE_LOGGING
+		#endif
+		// Fix gamebryo linking
+		// _WINDLL (defined by Microsoft) switches some Gamebryo libraries to dll (see e.g. ecrLibType.h) even if we explicitly say we want static lib
+		#undef _WINDLL
+	#else
+		// in case of Toolbench plugin, Gamebryo is configured in project (dynamic linking)
+	#endif
+#endif
+
 #include <NiAnimation.h>
+#include <NiD3D10Renderer.h>
+#include <NiD3D10RenderedTextureData.h>
+#include <NiD3DRendererHeaders.h>
 #include <NiDebug.h>
+#include <NiDX9RenderedTextureData.h>
 #include <NiMain.h>
 #include <NiMeshLib.h>
 #include <NiMeshCullingProcess.h>
 #include <windows.h>
-
-#include <NiD3DRendererHeaders.h>
-#include <NiDX9RenderedTextureData.h>
-
-#include <NiD3D10Renderer.h>
-#include <NiD3D10RenderedTextureData.h>
 
 #ifndef NIMD_RENDER_TEXTURE_SIZE
 #define NIMD_RENDER_TEXTURE_SIZE 128
@@ -50,16 +82,15 @@ class NiMaterialDetector : public NiRefObject
 {
 public:
     static NiMaterialDetector* GetInstance();
-    static void Init(HWND hWnd);
+    static void Init();
     static void Shutdown();
 
     NiMaterialPointValuesPtr CreatePointMaterialTextures(NiMesh* pkMesh);
 
 protected:
-    NiMaterialDetector(HWND hWnd);
+    NiMaterialDetector();
     static NiPointer<NiMaterialDetector> ms_spInstance;
     
-    NiRendererPtr m_spRenderer;
     NiNodePtr m_spNode;
     NiMeshPtr m_spSquarePolygon;
     NiCameraPtr m_spOrthoCamera;

@@ -11,22 +11,18 @@
 // Emergent Game Technologies, Chapel Hill, North Carolina 27517
 // http://www.emergent.net
 
+#pragma unmanaged
+
 #include "../supported_formats.h"
 #ifdef SUPPORT_GAMEBRYO
 
 #include "NiMaterialDetector.h"
-//#include "NiTGAWriter.h"
 #include <NiPoint2.h>
-
-#pragma comment(lib, "NiDX9Renderer.lib")
-#pragma comment(lib, "dxguid.lib")
 
 NiPointer<NiMaterialDetector> NiMaterialDetector::ms_spInstance = NULL;
 //---------------------------------------------------------------------------
-NiMaterialDetector::NiMaterialDetector(HWND hWnd)
+NiMaterialDetector::NiMaterialDetector()
 {
-    m_spRenderer = NiDX9Renderer::Create(0, 0, 0, hWnd, NULL);
-
     // Create the square polygon
     m_spNode = NiNew NiNode;
     m_spSquarePolygon = CreateSquarePolygon(1.0);
@@ -96,10 +92,10 @@ NiMaterialDetector* NiMaterialDetector::GetInstance()
     return ms_spInstance;
 }
 //---------------------------------------------------------------------------
-void NiMaterialDetector::Init(HWND hWnd)
+void NiMaterialDetector::Init()
 {
     NIASSERT(!ms_spInstance);
-    ms_spInstance = NiNew NiMaterialDetector(hWnd);
+    ms_spInstance = NiNew NiMaterialDetector();
 }
 //---------------------------------------------------------------------------
 NiMeshPtr NiMaterialDetector::CreateSquarePolygon(
@@ -255,12 +251,6 @@ NiPixelDataPtr NiMaterialDetector::GetPixelsFromTexture()
     return spData;
 }
 //---------------------------------------------------------------------------
-//void NiMaterialDetector::SaveTexture(NiPixelData* pkPixelData, char* pcFilename)
-//{
-//    NiFile kFile(pcFilename, NiFile::WRITE_ONLY);
-//    NiTGAWriter::Dump(pkPixelData, kFile);
-//}
-//---------------------------------------------------------------------------
 NiPixelDataPtr NiMaterialDetector::GetScenePixels(NiColor kClearColor)
 {
     NiRenderer* pkRenderer = NiRenderer::GetRenderer();
@@ -271,7 +261,9 @@ NiPixelDataPtr NiMaterialDetector::GetScenePixels(NiColor kClearColor)
     pkRenderer->BeginUsingRenderTargetGroup(m_spRenderTargetGroup,
         NiRenderer::CLEAR_ALL);
     pkRenderer->SetCameraData(m_spOrthoCamera);
+//MessageBox(NULL,"detectMaterial","c",MB_OK);
     m_spSquarePolygon->RenderImmediate(pkRenderer);
+//MessageBox(NULL,"detectMaterial","d",MB_OK);
     pkRenderer->EndUsingRenderTargetGroup();
 
     NiPixelDataPtr spData = GetPixelsFromTexture();

@@ -2,6 +2,7 @@
 // Lightsprint adapters for Gamebryo scene.
 // Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
+#pragma unmanaged
 
 #include "../supported_formats.h"
 #ifdef SUPPORT_GAMEBRYO
@@ -19,34 +20,65 @@
 // Comment out to make everything lit and shadows-casting.
 #define SUPPORT_DISABLED_LIGHTING_SHADOWING
 
+#include "NiMaterialDetector.h" // includes NiVersion, defines GAMEBRYO_MAJOR_VERSION
+#include "RRObjectGamebryo.h"
+
 #include <NiMain.h>
 #include <NiMesh.h>
 #include <NiDataStreamPrimitiveLock.h>
-#include "NiMaterialDetector.h"
-#include "RRObjectGamebryo.h"
 
-#pragma comment(lib,"NiSystem")
-#pragma comment(lib,"NiFloodgate")
-#pragma comment(lib,"NiMain")
-#pragma comment(lib,"NiMesh")
-#pragma comment(lib,"NiAnimation")
+#ifdef RR_IO_BUILD
+	// building LightsprintIO, link dynamic, libraries don't have suffix
+	#define LIB_SUFFIX
+#else
+	// building plugin, link dynamic, libraries have suffix
+	#define LIB_SUFFIX NI_DLL_SUFFIX
+#endif
 
-// lightmap utility library, part of Gamebryo GI package 
-#include <NiLightMapUtility.h>
-#pragma comment(lib,"NiLightMapUtility")
-#pragma comment(lib,"NiLightMapMaterial")
+#pragma comment(lib,"dxguid.lib")
+#pragma comment(lib,"NiAnimation" LIB_SUFFIX)
+#pragma comment(lib,"NiDX9Renderer" LIB_SUFFIX)
+#pragma comment(lib,"NiFloodgate" LIB_SUFFIX)
+#pragma comment(lib,"NiMain" LIB_SUFFIX)
+#pragma comment(lib,"NiMesh" LIB_SUFFIX)
+#pragma comment(lib,"NiSystem" LIB_SUFFIX)
+
+#if GAMEBRYO_MAJOR_VERSION==2
+	// Gamebryo GI Package (for Gamebryo 2.6)
+	#include <NiLightMapUtility.h>
+	#pragma comment(lib,"NiLightMapUtility")
+	#pragma comment(lib,"NiLightMapMaterial")
+#else
+	// Lightspeed GI Package (for Gamebryo 3.0)
+	#include "egmGI/GIService.h"
+	#include "egmGI/MeshUtility.h"
+	#pragma comment(lib,"egmGI" LIB_SUFFIX)
+	#pragma comment(lib,"NiGIMaterial" LIB_SUFFIX)
+	// additional libs required by Gamebryo 3.0
+	#include "efd/ServiceManager.h"
+	#pragma comment(lib,"ecr" LIB_SUFFIX)
+	#pragma comment(lib,"egf" LIB_SUFFIX)
+	#pragma comment(lib,"efd" LIB_SUFFIX)
+	#pragma comment(lib,"NiInput" LIB_SUFFIX)
+	#pragma comment(lib,"NiApplication")
+	#include "NiApplication.h"
+	NiApplication* NiApplication::Create() {return NULL;}
+#endif
 
 // .gsa load
 #include <NiEntity.h>
-#pragma comment(lib,"NiEntity")
-#pragma comment(lib,"TinyXML")
+#pragma comment(lib,"NiEntity" LIB_SUFFIX)
+#if GAMEBRYO_MAJOR_VERSION==2
+	#pragma comment(lib,"TinyXML")
+#endif
+
 // necessary for processing certain .gsa nodes that would be otherwise ignored
 #include <NiCollision.h>
-#pragma comment(lib,"NiCollision")
+#pragma comment(lib,"NiCollision" LIB_SUFFIX)
 #include <NiPortal.h>
-#pragma comment(lib,"NiPortal")
+#pragma comment(lib,"NiPortal" LIB_SUFFIX)
 #include <NiParticle.h>
-#pragma comment(lib,"NiParticle")
+#pragma comment(lib,"NiParticle" LIB_SUFFIX)
 
 // cache
 #include <map>
@@ -106,6 +138,14 @@ inline RRVec3 convertWorldDir(const NiPoint3& v)
 	return RRVec3(v.x, v.z, -v.y);
 }
 
+inline RRVec3 convertWorldRotToDir(const NiPoint3& v)
+{
+	NiMatrix3 matrix;
+	matrix.FromEulerAnglesXYZ(v.x,v.y,v.z);
+	NiPoint3 dir = matrix*NiPoint3(1,0,0);
+	return convertWorldDir(dir);
+}
+
 inline RRVec3 convertColor_(const NiPoint3& v)
 {
 	return RRVec3(v.x, v.y, v.z);
@@ -157,7 +197,7 @@ RRBuffer* convertTexture(NiPixelData* pixelData)
 	return RRBuffer::create(BT_2D_TEXTURE,pixelData->GetWidth(),pixelData->GetHeight(),1,BF_RGBA,true,pixelData->GetPixels());
 }
 
-//! Converts _add and then subtracts sub from result.
+//! Converts _add and then subtracts _sub from result.
 RRBuffer* convertTextureAndSubtract(NiPixelData* _add, RRBuffer* _sub)
 {
 	RRBuffer* add = convertTexture(_add);
@@ -221,7 +261,11 @@ public:
 		NiDataStreamElementLock kLockNormal(mesh, NiCommonSemantics::NORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockTangent(mesh, NiCommonSemantics::TANGENT(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockBitangent(mesh, NiCommonSemantics::BINORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
+#if GAMEBRYO_MAJOR_VERSION==2
 		unsigned lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
+#else
+		unsigned lightmapTexcoord = (unsigned)egmGI::MeshUtility::GetLightMapUVSetIndex(_mesh);
+#endif
 		unsigned diffuseTexcoord = UINT_MAX;
 		unsigned specularTexcoord = UINT_MAX;
 		unsigned emissiveTexcoord = UINT_MAX;
@@ -446,7 +490,16 @@ public:
 				// mesh doesn't contain unwrap, autogenerate it
 				return RRMesh::getTriangleMapping(t,out,0);
 			}
-			return false;
+			if (hasTexcoord[CH_DIFFUSE])
+			{
+				// it is possible that material detector found emissive or specular map, but there is no such
+				// uv+map in mesh, try to fallback to diffuse uv
+				channel = CH_DIFFUSE;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		Triangle triangleIndices;
 		RRMeshGamebryo::getTriangle(t,triangleIndices);
@@ -467,6 +520,15 @@ public:
 			return false;
 			one_third_done:;
 		}
+#if GAMEBRYO_MAJOR_VERSION==3
+		if (channel==CH_LIGHTMAP)
+		{
+			// Gamebryo 3.0 inverted y
+			out.uv[0][1] = 1-out.uv[0][1];
+			out.uv[1][1] = 1-out.uv[1][1];
+			out.uv[2][1] = 1-out.uv[2][1];
+		}
+#endif
 		return true;
 	}
 
@@ -542,6 +604,7 @@ public:
 			NiShadowGenerator* shadowGenerator = gamebryoLight->GetShadowGenerator();
 			if (shadowGenerator && shadowGenerator->GetActive())
 			{
+#if GAMEBRYO_MAJOR_VERSION==2
 				// Cache casters.
 				NiRenderObjectList casterList;
 				shadowGenerator->GetCasterGeometryList(casterList);
@@ -574,6 +637,40 @@ public:
 						}
 					}
 				}
+#else
+				// Cache casters.
+				NiAVObjectRawList casterList;
+				shadowGenerator->GetCasterList(casterList);
+				while (!casterList.IsEmpty())
+				{
+					NiAVObject* renderObject = casterList.RemoveHead();
+					for (unsigned i=0;i<objects.size();i++)
+					{
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						if (object->mesh==renderObject)
+						{
+							RR_ASSERT(object->meshIndex<isCaster.size());
+							isCaster[object->meshIndex] = true;
+						}
+					};
+				}
+				// Cache receivers.
+				NiAVObjectRawList receiverList;
+				shadowGenerator->GetReceiverList(receiverList);
+				while (!receiverList.IsEmpty())
+				{
+					NiAVObject* renderObject = receiverList.RemoveHead();
+					for (unsigned i=0;i<objects.size();i++)
+					{
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						if (object->mesh==renderObject)
+						{
+							RR_ASSERT(object->meshIndex<isReceiver.size());
+							isReceiver[object->meshIndex] = true;
+						}
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -793,11 +890,14 @@ public:
 		{
 			return NULL;
 		}
+#if GAMEBRYO_MAJOR_VERSION==2
 		if (!NiLightMapUtility::IsLightMapMesh(_mesh))
+#else
+		if (!egmGI::MeshUtility::IsLightMapMesh(_mesh))
+#endif
 		{
 			return NULL;
 		}
-
 		_mesh->UpdateEffects();
 		RRMesh* mesh = new RRMeshGamebryo(_mesh);
 		if (mesh->getNumTriangles()==0)
@@ -848,7 +948,7 @@ public:
 			const GamebryoLightCache* gamebryoLightCache = (GamebryoLightCache*)light->customData;
 			if (!gamebryoLightCache)
 			{
-				// This light was added manually, it's not adapted from Gamebryo.
+				// This light was probably added manually, not adapted from Gamebryo.
 				// It illuminates all objects / casts all shadows.
 				return material;
 			}
@@ -892,6 +992,17 @@ public:
 	{
 		out = lodInfo;
 	}
+
+#if GAMEBRYO_MAJOR_VERSION==3
+	void* getCustomData(const char* name) const
+	{
+		if (!strcmp(name,"egmGI::MeshProperties*")) return (void*)&meshProperties;
+		return NULL;
+	}
+
+	// public, so we can easily set it from MeshVisitor. we can't set in in constructor, because we don't have access to properties yet
+	egmGI::MeshProperties meshProperties;
+#endif
 
 private:
 	RRObjectGamebryo(NiMesh* _mesh, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
@@ -954,7 +1065,55 @@ public:
 			}
 		}
 	}
+#if GAMEBRYO_MAJOR_VERSION==3
+	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting, float _emissiveMultiplier)
+		: materialCache(_emissiveMultiplier)
+	{
+		pkEntityScene = NULL; // not used from plugin, but clear it anyway
+		RRObject::LodInfo lodInfo;
+		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
+		lodInfo.level = 0;
+		if (serviceManager)
+		{
+			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
+			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
+			if (entityManager && sceneGraphService)
+			{
+				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
+				egf::Entity *entity = NULL;
+				while (entityManager->GetNextEntity(iterator, entity))
+				{
+					if (entity && entity->GetModel()->ContainsModel("Mesh"))
+					{
+						NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
+						addNode(obj,lodInfo,_aborting);
 
+						// after manually traversing subtree (necessary for LOD support),
+						// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
+						class Visitor : public egmGI::MeshVisitor
+						{
+						public:
+							virtual bool VisitMesh(NiMesh* pkMesh,egmGI::MeshProperties kProps = egmGI::MeshProperties())
+							{
+								for (unsigned i=0;i<objects->size();i++)
+								{
+									if (((RRObjectGamebryo*)(*objects)[i].object)->mesh==pkMesh)
+										((RRObjectGamebryo*)(*objects)[i].object)->meshProperties = kProps;
+								}
+								return true;
+							}
+							RRObjectsGamebryo* objects;
+						};
+						Visitor visitor;
+						visitor.objects = this;
+						if (NiIsKindOf(NiNode,obj))
+							egmGI::MeshUtility::VisitMeshes((NiNode*)obj,&visitor,entity);
+					}
+				}
+			}
+		}
+	}
+#endif
 	virtual ~RRObjectsGamebryo()
 	{
 		for (unsigned int i=0; i<size(); i++)
@@ -965,6 +1124,7 @@ public:
 
 	virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
 	{
+#if GAMEBRYO_MAJOR_VERSION==2
 		class LightmapFunctor : public NiVisitLightMapMeshFunctor
 		{
 		public:
@@ -1012,10 +1172,20 @@ public:
 		// fill size, type, format
 		int w,h;
 		NiLightMapUtility::GetLightMapResolution(w,h,lightmapFunctor.object->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+#else
+		// fill filename
+		//RR_SAFE_FREE(layerParameters.actualFilename);
+		//layerParameters->actualFilename = ...
+
+		// fill size, type, format
+		int w,h;
+		egmGI::MeshUtility::GetLightMapResolution(w,h,((RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object)->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+#endif
 		layerParameters.actualWidth = w;
 		layerParameters.actualHeight = h;
+rr::RRReporter::report(rr::INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
 		layerParameters.actualType = BT_2D_TEXTURE;
-		layerParameters.actualFormat = BF_RGB;
+		layerParameters.actualFormat = BF_RGB; // 
 		layerParameters.actualScaled = true;
 	}
 
@@ -1084,6 +1254,8 @@ private:
 class RRLightsGamebryo : public RRLights
 {
 public:
+#if GAMEBRYO_MAJOR_VERSION==2
+	// path used by Gamebryo 2.6 .gsa
 	RRLightsGamebryo(NiScene* scene)
 	{
 		class AddLightFunctor : public NiVisitLightMapLightFunctor
@@ -1091,7 +1263,7 @@ public:
 		public:
 			virtual bool operator() (NiLight* pkLight, NiLightMapLightProperties kProps = NiLightMapLightProperties())
 			{
-				lights->addLight(pkLight, kProps);
+				lights->addLight(pkLight);
 				return true;
 			}
 			RRLightsGamebryo* lights;
@@ -1101,8 +1273,180 @@ public:
 		addLightFunctor.lights = this;
 		NiLightMapUtility::VisitLightMapLights(scene,addLightFunctor);
 	}
+#else
 
-	void addLight(NiLight* light, NiLightMapLightProperties props = NiLightMapLightProperties())
+	// path used by for Gamebryo 3.0 .gsa
+	// note: We still support Gamebryo 3.0 .gsa files, from loading .gsa to saving individual lightmaps to disk,
+	//       if you need it. However, Emergent replaced .gsa by new format, therefore it is
+	//       recommended to leave .gsa and start using Toolbench.
+	RRLightsGamebryo(NiScene* pkEntityScene)
+	{
+		unsigned uiCount = pkEntityScene->GetEntityCount();
+		for (unsigned int uiEntity=0; uiEntity < uiCount; uiEntity++)
+		{
+			NiEntityInterface* pkEntity = pkEntityScene->GetEntityAt(uiEntity);
+			const char* pcName = pkEntity->GetName();
+			unsigned int uiSceneRootCount;
+			NiFixedString kSceneRootPointer = "Scene Root Pointer";
+			NIASSERT(pkEntity);
+			if (pkEntity->GetElementCount(kSceneRootPointer, uiSceneRootCount))
+			{
+ 				for (unsigned int ui = 0; ui < uiSceneRootCount; ui++)
+				{
+					NiObject* pkObject;
+					if (pkEntity->GetPropertyData( kSceneRootPointer, pkObject, ui))
+					{
+						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
+						addNode(pkRoot);
+					}
+				}
+			}
+		}
+	}
+
+	// path used by Gamebryo 3.0 .gsa
+	void addNode(const NiAVObject* object)
+	{
+		if (!object)
+		{
+			return;
+		}
+		// recurse into children
+		if (NiIsKindOf(NiNode,object))
+		{
+			NiNode* node = (NiNode*)object;
+			for (unsigned int i=0; i<node->GetArrayCount(); i++)
+			{
+				addNode(node->GetAt(i));
+			}
+		}
+		// adapt single node
+		if (NiIsKindOf(NiLight,object))
+		{
+			addLight((NiLight*)object);
+		}
+	}
+
+	// path used by Gamebryo 3.0 Toolbench plugin
+	RRLightsGamebryo(efd::ServiceManager* serviceManager)
+	{
+		/* this does not work with 3.0 + GI preview because NiLight is not accessible, none is found
+		if (serviceManager)
+		{
+			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
+			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
+			if (entityManager && sceneGraphService)
+			{
+				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
+				egf::Entity *entity = NULL;
+				while (entityManager->GetNextEntity(iterator, entity))
+				{
+					if (entity && entity->GetModel()->ContainsModel("Light"))
+					{
+						bool isStatic = true;
+						entity->GetPropertyValue("IsStatic", isStatic);
+						if (isStatic)
+						{
+							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
+							addNode(obj);
+						}
+					}
+				}
+			}
+		}*/
+		if (serviceManager)
+		{
+			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
+			if (entityManager)
+			{
+				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
+				egf::Entity *entity = NULL;
+				while (entityManager->GetNextEntity(iterator, entity))
+				{
+					if (entity && entity->GetModel()->ContainsModel("Light"))
+					{
+						addLight(entity);
+					}
+				}
+			}
+		}
+	}
+
+	// path used by Gamebryo 3.0 Toolbench plugin
+	void addLight(egf::Entity* entity)
+	{
+		RR_ASSERT(entity);
+		bool isStatic = true;
+		entity->GetPropertyValue("IsStatic", isStatic);
+		bool isVisible = true;
+		entity->GetPropertyValue("IsVisible", isVisible);
+		if (isStatic && isVisible)
+		{
+			efd::Color diffuseColor(1,1,1);
+			entity->GetPropertyValue("DiffuseColor", diffuseColor);
+			float dimmer = 1;
+			entity->GetPropertyValue("Dimmer", dimmer);
+			efd::Point3 position(0,0,0);
+			entity->GetPropertyValue("Position", position);
+			efd::Point3 rotation(0,0,0);
+			entity->GetPropertyValue("Rotation", rotation);
+			float constantAttenuation = 1;
+			entity->GetPropertyValue("ConstantAttenuation", constantAttenuation);
+			float linearAttenuation = 0;
+			entity->GetPropertyValue("LinearAttenuation", linearAttenuation);
+			float quadraticAttenuation = 0;
+			entity->GetPropertyValue("QuadraticAttenuation", quadraticAttenuation);
+
+			RRVec3 pos = convertWorldPos(position) * SCALE_GEOMETRY;
+			RRVec3 dir = convertWorldRotToDir(rotation);
+			RRVec3 color = convertColor(diffuseColor); // * dimmer
+			RRVec4 poly(constantAttenuation,linearAttenuation*SCALE_GEOMETRY,quadraticAttenuation*SCALE_GEOMETRY*SCALE_GEOMETRY,1);
+
+			RRLight* rrLight = NULL;
+
+			// directional light
+			if (entity->GetModel()->ContainsModel("DirectionalLight"))
+			{
+				rrLight = RRLight::createDirectionalLight(dir, color, false);
+			}
+			
+			// point light
+			else if (entity->GetModel()->ContainsModel("PointLight"))
+			{
+				rrLight = RRLight::createPointLightPoly(pos, color, poly);
+			}
+			
+			// spot light
+			else if (entity->GetModel()->ContainsModel("SpotLight"))
+			{
+				float innerSpotAngle = 0.5f;
+				entity->GetPropertyValue("InnerSpotAngle", innerSpotAngle);
+				float outerSpotAngle = 1;
+				entity->GetPropertyValue("OuterSpotAngle", outerSpotAngle);
+				float spotExponent = 1;
+				entity->GetPropertyValue("SpotExponent", spotExponent);
+
+				rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, RR_DEG2RAD(outerSpotAngle), RR_DEG2RAD(outerSpotAngle-innerSpotAngle), spotExponent);
+			}
+
+			// common light properties
+			if (rrLight)
+			{
+#ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+				rrLight->customData = NULL; // new GamebryoLightCache(NiLight);
+				rrLight->castShadows = true;
+				entity->GetPropertyValue("CastShadows", rrLight->castShadows);
+#else
+				rrLight->castShadows = true;
+#endif
+				push_back(rrLight);
+			}
+		}
+	}
+#endif // GAMEBRYO_MAJOR_VERSION==3
+
+	// path used by Gamebryo 2/3 .gsa
+	void addLight(NiLight* light)
 	{
 		if (light->GetSwitch())
 		{
@@ -1190,17 +1534,19 @@ public:
 	//! \param filename
 	//!  Scene file name.
 	//! \param initGamebryo
-	//!  True to treat Gamebryo as completely unitialized and initialize/shutdown it.
-	//!  To be used when importing .gsa into generic Lightsprint samples.
-	//!  \n False to skip initialization/shutdown sequence,
-	//!  to be used when running Lightsprint code from Gamebryo app, with Gamebryo already initialized.
+	//!  True to treat Gamebryo as completely uninitialized (and call NiInit/NiShutdown).
+	//!  Set true when importing .gsa into generic Lightsprint samples, false in Toolbench plugin.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
 	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
+#if GAMEBRYO_MAJOR_VERSION==3
+	//! Imports scene from toolbench.
+	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
+#endif
 	virtual ~RRSceneGamebryo();
-	
+
 	//! Loader suitable for RRScene::registerLoader().
 	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
@@ -1212,12 +1558,16 @@ public:
 	virtual const RRLights* getLights() {return lights;}
 
 protected:
+	void gamebryoInit();
+	void gamebryoShutdown();
 	void updateCastersReceiversCache();
 
 	RRObjects*                objects;
 	RRLights*                 lights;
 	bool                      initGamebryo;
-	class NiScene*            pkEntityScene;
+	NiScene*                  pkEntityScene; // used only in .gsa
+	HWND                      localHWND; // locally created window
+	NiDX9Renderer*            localRenderer; // locally created renderer
 };
 
 RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
@@ -1226,39 +1576,9 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 	objects = NULL;
 	lights = NULL;
 	initGamebryo = _initGamebryo;
+	pkEntityScene = NULL;
 
-	// Gamebryo init
-	if (initGamebryo)
-	{
-		RRReportInterval report(INF2,"Gamebryo init...\n");
-
-		WNDCLASS wc;
-		wc.style         = CS_HREDRAW | CS_VREDRAW;
-		wc.lpfnWndProc   = DefWindowProc;
-		wc.cbClsExtra    = 0;
-		wc.cbWndExtra    = 0;
-		wc.hInstance     = NULL;
-		wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-		wc.lpszMenuName  = 0;
-		wc.lpszClassName = "a";
-		RegisterClass(&wc);
-
-		RECT rect = {0, 0, 100, 100};
-		DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX;
-		AdjustWindowRect(&rect, dwStyle, false);
-		HWND hWnd = CreateWindow("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, NULL, NULL);
-
-		NiInit();
-		NiMaterialDetector::Init(hWnd);
-		NiShadowManager::Initialize();
-		NIASSERT(NiDataStream::GetFactory());
-		NiDataStream::GetFactory()->SetCallback(NiDataStreamFactory::ForceCPUReadAccessCallback);
-		NiImageConverter::SetImageConverter(NiNew NiDevImageConverter);
-		NiTexture::SetMipmapByDefault(true);
-		NiSourceTexture::SetUseMipmapping(true);
-	}
+	gamebryoInit();
 
 	// load .gsa
 	NiEntityStreamingAscii kStream;
@@ -1302,6 +1622,90 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 	}
 }
 
+#if GAMEBRYO_MAJOR_VERSION==3
+RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
+{
+	objects = NULL;
+	lights = NULL;
+	initGamebryo = _initGamebryo;
+	pkEntityScene = NULL;
+
+	gamebryoInit();
+
+	// adapt lights
+	lights = adaptLightsFromGamebryo(serviceManager);
+
+	// adapt meshes
+	objects = adaptObjectsFromGamebryo(serviceManager,_aborting,_emissiveMultiplier);
+
+	updateCastersReceiversCache();
+}
+#endif
+
+void RRSceneGamebryo::gamebryoInit()
+{
+	// Init Gamebryo if necessary
+	if (initGamebryo)
+	{
+		RRReporter::report(INF2,"Gamebryo init\n");
+		NiInit();
+		NiTexture::SetMipmapByDefault(true);
+		NiSourceTexture::SetUseMipmapping(true);
+	}
+	
+	// Create renderer if necessary, NiMaterialDetector will need it
+	if (NiDX9Renderer::GetRenderer())
+	{
+		localHWND = 0;
+		localRenderer = NULL;
+	}
+	else
+	{
+		WNDCLASS wc;
+		wc.style         = CS_HREDRAW | CS_VREDRAW;
+		wc.lpfnWndProc   = DefWindowProc;
+		wc.cbClsExtra    = 0;
+		wc.cbWndExtra    = 0;
+		wc.hInstance     = NULL;
+		wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		wc.lpszMenuName  = 0;
+		wc.lpszClassName = "a";
+		RegisterClass(&wc);
+
+		RECT rect = {0, 0, 100, 100};
+		DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX;
+		AdjustWindowRect(&rect, dwStyle, false);
+		localHWND = CreateWindow("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, NULL, NULL);
+
+		localRenderer = NiDX9Renderer::Create(0, 0, 0, localHWND, NULL);
+		NiShadowManager::Initialize();
+	}
+
+	// Init the rest
+	NiMaterialDetector::Init();
+	NIASSERT(NiDataStream::GetFactory());
+	NiDataStream::GetFactory()->SetCallback(NiDataStreamFactory::ForceCPUReadAccessCallback);
+	NiImageConverter::SetImageConverter(NiNew NiDevImageConverter);
+}
+
+void RRSceneGamebryo::gamebryoShutdown()
+{
+	NiMaterialDetector::Shutdown();
+	if (localRenderer)
+	{
+		NiShadowManager::Shutdown();
+		delete localRenderer;
+		DestroyWindow(localHWND);
+	}
+	if (initGamebryo)
+	{
+		RRReporter::report(INF2,"Gamebryo shutdown\n");
+		NiShutdown();
+	}
+}
+
 RRSceneGamebryo::~RRSceneGamebryo()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
@@ -1312,16 +1716,9 @@ RRSceneGamebryo::~RRSceneGamebryo()
 #endif
 	delete lights;
 	delete objects;
-	pkEntityScene->DecRefCount();
+	if (pkEntityScene) pkEntityScene->DecRefCount();
 
-	// Gamebryo shutdown
-	if (initGamebryo)
-	{
-		RRReportInterval report(INF2,"Gamebryo shutdown...\n");
-		NiShadowManager::Shutdown();
-		NiMaterialDetector::Shutdown();
-		NiShutdown();
-	}
+	gamebryoShutdown();
 }
 
 void RRSceneGamebryo::updateCastersReceiversCache()
@@ -1338,7 +1735,8 @@ void RRSceneGamebryo::updateCastersReceiversCache()
 		for (unsigned i=0;i<lights->size();i++)
 		{
 			GamebryoLightCache* cache = (GamebryoLightCache*)((*lights)[i]->customData);
-			cache->update(*objects);
+			if (cache)
+				cache->update(*objects);
 		}
 	}
 #endif
@@ -1358,6 +1756,23 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 {
 	return new RRLightsGamebryo(scene);
 }
+
+#if GAMEBRYO_MAJOR_VERSION==3
+RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting, float emissiveMultiplier)
+{
+	return new RRObjectsGamebryo(serviceManager,aborting,emissiveMultiplier);
+}
+
+RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
+{
+	return new RRLightsGamebryo(serviceManager);
+}
+
+RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool initGamebryo, bool& aborting, float emissiveMultiplier)
+{
+	return new RRSceneGamebryo(serviceManager,initGamebryo,aborting,emissiveMultiplier);
+}
+#endif
 
 void registerLoaderGamebryo()
 {

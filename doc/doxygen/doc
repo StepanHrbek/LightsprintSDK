@@ -443,8 +443,8 @@ Ray-Mesh collisions
 
   Artists usually don't interact with Lightsprint files directly,
   they use Lightsprint integrated into game engine and tools.
-  Integration needs access only to small subset of SDK's bin and data
-  directories. For example in case of Unreal Engine 3 integration,
+  Integration needs access only to small subset of SDK's files.
+  For example in case of Unreal Engine 3 integration,
   the only new files for artists are LightsprintCore.vs2005.dll
   and licence_number.
   Artists may also need documentation (doc/Lightsprint.chm) to
@@ -2319,30 +2319,49 @@ Ray-Mesh collisions
 
 \page main_gamebryo Gamebryo
 
- \section mg_title Lightsprint SDK adds global illumination to Gamebryo
+ Lightsprint adds global illumination to Gamebryo
 
- \section mg_prerequisites Prerequisites
-  - Gamebryo 2.6 - game engine by Emergent Game Technologies
-  - Gamebryo Global Illumination 1.0.0 - Emergent's support package
-  - both packages must be installed (we read their environment variables EGB_PATH and GAMEBRYO_GI_PATH)
+ \section mg_versions Versions
+ - <b> \subpage gamebryo_26 </b>
+ - <b> \subpage gamebryo_30 </b>
 
- \section mg_f Features
-  - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo scenes
-  - lightmap building honours all Gamebryo conventions, outputs are ready for immediate use in Gamebryo games
+ \section mg_misc Misc
+ - \subpage gamebryo_version
+ - \ref howto_bigscenes
+
+
+\page gamebryo_version Does this SDK support 2.6 or 3.0?
+
+ To save you from any installation/configuration troubles, we send you Lightsprint SDK preconfigured against
+ your Gamebryo version.
+ If we make mistake and configure it against wrong Gamebryo version, please let us know, so we can fix it.
+
+ SDK is configured for Gamebryo 3.0 if it contains src/Gamebryo.Toolbench.Plugin directory.
+ 
+
+\page gamebryo_26 Gamebryo 2.6 integration
+
+ \section g26_prerequisites Prerequisites
+  - Emergent's <code>Gamebryo 2.6</code> must be installed (we read its environment variables)
+  - Emergent's <code>Gamebryo Global Illumination Package 1.0.0</code> must be installed (we read its environment variables)
+
+ \section g26_f Features
+  - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes
+  - lightmap building honours all Gamebryo 2.6 conventions, outputs are ready for immediate use in Gamebryo 2.6 games
   - full integration source code included
 
- \section mg_gs Getting started
+ \section g26_gs Getting started
   <table border=0><tr><td>
   - see off-line lightmap building
-    - enter samples/BuildLightmaps
-    - run Gamebryo_Build_Tutorial.bat to build GI lightmaps for Gamebryo tutorial scene
-    - run Gamebryo_SceneApp_Tutorial.bat to view GI in Gamebryo SceneApp sample application
+    - enter <code>samples/BuildLightmaps</code>
+    - run <code>Gamebryo2.6_Build_Tutorial.bat</code> to build GI lightmaps for Gamebryo tutorial scene
+    - run <code>Gamebryo2.6_SceneApp_Tutorial.bat</code> to view GI in Gamebryo SceneApp sample application
   </td><td>
   \image html BuildLightmaps_2.jpg
   </td></tr><tr><td>
   - see realtime global illumination
-    - enter samples/BuildLightmaps
-    - run Gamebryo_Realtime_Tutorial.bat
+    - enter <code>samples/BuildLightmaps</code>
+    - run <code>Gamebryo2.6_Realtime_Tutorial.bat</code>
     - move mouse with right button pressed to look
     - left click to switch to light
     - arrows or wsadqzxc to move camera or light
@@ -2356,18 +2375,76 @@ Ray-Mesh collisions
     - open src/Lightsprint.vs2005.sln or src/Lightsprint.vs2008.sln
     - see for example lightmap building source code in BuildLightmaps project,
       feel free to customize it to match your needs
+
   - see \ref main_samples "other samples"
-  - see Gamebryo Global Illumination package documentation for data flow examples and tutorial
+
+  - see Gamebryo Global Illumination Package 1.0.0 documentation for data flow examples and tutorial
   </td><td>
   \image html Gamebryo-RT1.jpg
   </td></tr></table>
 
- \section mg_memory Notes
- - \ref howto_bigscenes
+\page gamebryo_30 Gamebryo 3.0 integration (in development, for testing only)
+
+ \section g30_prerequisites Prerequisites
+  - Emergent's <code>Gamebryo 3.0</code> must be installed (we read its environment variables)
+  - Emergent's <code>Lightspeed Global Illumination Package 2.0.0</code> must be installed (we read its environment variables)
+
+ \section g30_f Features
+  - lightmap baking integrated into Toolbench
+  - realtime GI relighting before final bake, all lights and environment can be manipulated
+  - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes (old format, used in Gamebryo 2.6)
+  - full integration source code included
+
+ \section g30_limits Limitations of current development version
+  - no lightmap size/format/quality/environment settings
+  - Visual Studio 2008 must be installed, plugin projects were not ported to 2005 yet
+  - debug plugins assert when Toolbench terminates
+  - relighting not documented yet
+
+ \section g30_gs Getting started
+  <table border=0><tr><td>
+  - bake lightmaps in Toolbench
+    - Run <code>bin/install_toolbench_plugins.bat</code>.
+    - Run Toolbench (VC90/Shipping).
+    - Open content, e.g. <code>C:/Emergent/Integrations/
+      LightSpeed_GlobalIllumination_2.0.0/
+      Source/GISample/Data/GISample/GISample.gsl</code>
+    - Open WorldBuilder by doubleclicking .block file in game solution.
+    - Click Lightsprint / Bake lighting in menu,
+      small window will show baking progress and let you abort operation.
+    - Relighting window will appear. Here you can switch from static GI to realtime GI,
+      set environment, manipulate lights, completely relight scene, and rebake lightmaps.
+      This stage is not documented yet.
+    - Press esc to close the relighting window.
+    - You should see GI in WorldBuilder.
+  </td><td>
+  \image html BuildLightmaps_2.jpg
+  </td></tr><tr><td>
+  - legacy .gsa support (both offline and realtime GI)
+    - our tools from \ref gamebryo_26 still work under Gamebryo 3.0
+    - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
+      those must be installed for samples to work
+  </td><td>
+  \image html Gamebryo-RT2.jpg
+  </td></tr><tr><td>
+  - see source code
+    - open <code>src/Lightsprint.vs2008.sln</code>
+    - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
+      feel free to customize them to match your needs
+
+  - see <code>Lightspeed Global Illumination Package 2.0.0</code> documentation for data flow examples and tutorial
+  </td><td>
+  \image html Gamebryo-RT1.jpg
+  </td></tr></table>
+
+ \section g30_depl Deployment
+  - <code>bin/install_toolbench_plugins.bat</code> installs plugins to Toolbench. It simply copies files from Lightsprint SDK.
+  - If you modify and rebuild plugins, they are installed automatically.
+  - Everything plugins need is in their Toolbench directories, so deployment to other computers is simple directory copy.
+    Plugin directories are (in case of standard VC90 Shipping configuration)
+    <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin</code> and <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin.UI</code>.
 
 
-
- 
 \page main_conventions Conventions
 
  \section gobjects Terminology

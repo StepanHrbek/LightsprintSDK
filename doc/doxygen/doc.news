@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- \ref main_gamebryo "Gamebryo 3.0 integration" - testing version
 - RRObject::getCustomData() added
   \n makes it possible to access format specific data via generic RRObject interface
 
