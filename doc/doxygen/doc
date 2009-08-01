@@ -2398,7 +2398,6 @@ Ray-Mesh collisions
  \section g30_limits Limitations of current development version
   - nearly no settings (no per-mesh settings, no environment settings)
   - Visual Studio 2008 must be installed, plugin projects were not ported to 2005 yet
-  - debug plugins assert when Toolbench terminates
   - relighting not documented yet
 
  \section g30_gs Getting started
