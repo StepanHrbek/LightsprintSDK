@@ -1183,7 +1183,7 @@ public:
 #endif
 		layerParameters.actualWidth = w;
 		layerParameters.actualHeight = h;
-rr::RRReporter::report(rr::INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
+//rr::RRReporter::report(rr::INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
 		layerParameters.actualType = BT_2D_TEXTURE;
 		layerParameters.actualFormat = BF_RGB; // 
 		layerParameters.actualScaled = true;

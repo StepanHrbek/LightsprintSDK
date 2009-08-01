@@ -145,7 +145,7 @@ namespace rr
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
 
-		//! Returns arbitrary additional data provided by adapter.
+		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
 		//
 		//! \param name
 		//!  Identifier of custom data requested. It is completely format-specific,
