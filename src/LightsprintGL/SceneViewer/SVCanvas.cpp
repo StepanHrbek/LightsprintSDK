@@ -578,7 +578,7 @@ static void textOutput(int x, int y, int h, const char *format, ...)
 #endif
 }
 
-static void textOutputMaterialProperty(int x, int y, int h, const char* name, const rr::RRMaterial::Property& triangle, const rr::RRMaterial::Property& point)
+static void textOutputMaterialProperty(int x, int y, int h, const char* name, const rr::RRMaterial::Property& triangle, const rr::RRMaterial::Property& point, const rr::RRRay* ray, const rr::RRMesh* multiMesh)
 {
 	if (&triangle==&point || !triangle.texture)
 	{
@@ -588,7 +588,14 @@ static void textOutputMaterialProperty(int x, int y, int h, const char* name, co
 	else
 	{
 		// point differs from triangle, print it
-		textOutput(x,y,h,"%s tri=%f %f %f uv=%d point=%f %f %f",name,triangle.color[0],triangle.color[1],triangle.color[2],triangle.texcoord,point.color[0],point.color[1],point.color[2]);
+		rr::RRMesh::TriangleMapping triangleMapping;
+		multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,triangle.texcoord);
+		rr::RRVec2 uvInMap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
+		textOutput(x,y,h,"%s tri=%f %f %f point=%f %f %f uv[%d]=%f %f",name,
+			triangle.color[0],triangle.color[1],triangle.color[2],
+			point.color[0],point.color[1],point.color[2],
+			triangle.texcoord,uvInMap[0],uvInMap[1]
+		);
 	}
 }
 
@@ -1146,10 +1153,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				{
 					textOutput(x,y+=18,h,"material: %s [%s]",material->name?material->name:"",displayPhysicalMaterials?"physical":"sRGB");
 					textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
-					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance);
-					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance);
-					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance);
-					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance);
+					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance   ,ray,multiMesh);
+					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance  ,ray,multiMesh);
+					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance     ,ray,multiMesh);
+					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance,ray,multiMesh);
 					textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"1bit-keyed":"smooth-blended");
 					textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
 					textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
