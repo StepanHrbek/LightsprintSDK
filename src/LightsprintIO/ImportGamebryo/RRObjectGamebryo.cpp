@@ -759,7 +759,7 @@ static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 	// optimize material flags
 	material.updateSideBitsFromColors();
 
-	material.name = mesh->GetActiveMaterial()->GetName();
+	material.name = mesh->GetActiveMaterial() ? mesh->GetActiveMaterial()->GetName() : NULL;
 	return material;
 }
 
