@@ -686,7 +686,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber
 			for (unsigned j=0;j<3;j++)
 			{
 				for (unsigned k=0;k<2;k++)
-					if (triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
+					if (triangleMapping.uv[j][k]<-0.0f || triangleMapping.uv[j][k]>1)
 						outOfRange = true;
 			}
 			if (outOfRange)
