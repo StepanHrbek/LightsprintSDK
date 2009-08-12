@@ -1392,44 +1392,47 @@ public:
 			RRVec3 color = convertColor(diffuseColor); // * dimmer
 			RRVec4 poly(constantAttenuation,linearAttenuation/SCALE_GEOMETRY,quadraticAttenuation/SCALE_GEOMETRY/SCALE_GEOMETRY,1);
 
-			RRLight* rrLight = NULL;
-
-			// directional light
-			if (entity->GetModel()->ContainsModel("DirectionalLight"))
+			if (color!=RRVec3(0)) // don't adapt lights that have no effect (makes calculation bit faster)
 			{
-				rrLight = RRLight::createDirectionalLight(dir, color, false);
-			}
+				RRLight* rrLight = NULL;
+
+				// directional light
+				if (entity->GetModel()->ContainsModel("DirectionalLight"))
+				{
+					rrLight = RRLight::createDirectionalLight(dir, color, false);
+				}
 			
-			// point light
-			else if (entity->GetModel()->ContainsModel("PointLight"))
-			{
-				rrLight = RRLight::createPointLightPoly(pos, color, poly);
-			}
-			
-			// spot light
-			else if (entity->GetModel()->ContainsModel("SpotLight"))
-			{
-				float innerSpotAngle = 0.5f;
-				entity->GetPropertyValue("InnerSpotAngle", innerSpotAngle);
-				float outerSpotAngle = 1;
-				entity->GetPropertyValue("OuterSpotAngle", outerSpotAngle);
-				float spotExponent = 1;
-				entity->GetPropertyValue("SpotExponent", spotExponent);
+				// point light
+				else if (entity->GetModel()->ContainsModel("PointLight"))
+				{
+					rrLight = RRLight::createPointLightPoly(pos, color, poly);
+				}
+				
+				// spot light
+				else if (entity->GetModel()->ContainsModel("SpotLight"))
+				{
+					float innerSpotAngle = 0.5f;
+					entity->GetPropertyValue("InnerSpotAngle", innerSpotAngle);
+					float outerSpotAngle = 1;
+					entity->GetPropertyValue("OuterSpotAngle", outerSpotAngle);
+					float spotExponent = 1;
+					entity->GetPropertyValue("SpotExponent", spotExponent);
 
-				rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, RR_DEG2RAD(outerSpotAngle), RR_DEG2RAD(outerSpotAngle-innerSpotAngle), spotExponent);
-			}
+					rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, RR_DEG2RAD(outerSpotAngle), RR_DEG2RAD(outerSpotAngle-innerSpotAngle), spotExponent);
+				}
 
-			// common light properties
-			if (rrLight)
-			{
+				// common light properties
+				if (rrLight)
+				{
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-				rrLight->customData = NULL; // new GamebryoLightCache(NiLight);
-				rrLight->castShadows = true;
-				entity->GetPropertyValue("CastShadows", rrLight->castShadows);
+					rrLight->customData = NULL; // new GamebryoLightCache(NiLight);
+					rrLight->castShadows = true;
+					entity->GetPropertyValue("CastShadows", rrLight->castShadows);
 #else
-				rrLight->castShadows = true;
+					rrLight->castShadows = true;
 #endif
-				push_back(rrLight);
+					push_back(rrLight);
+				}
 			}
 		}
 	}
