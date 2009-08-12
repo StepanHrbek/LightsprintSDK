@@ -245,7 +245,7 @@ enum Channel
 class RRMeshGamebryo : public RRMesh
 {
 public:
-	RRMeshGamebryo(NiMesh* _mesh)
+	RRMeshGamebryo(NiMesh* _mesh, unsigned _lightmapTexcoord)
 	{
 		mesh = _mesh;
 		numVertices = mesh->GetVertexCount();
@@ -262,9 +262,8 @@ public:
 		NiDataStreamElementLock kLockTangent(mesh, NiCommonSemantics::TANGENT(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockBitangent(mesh, NiCommonSemantics::BINORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 #if GAMEBRYO_MAJOR_VERSION==2
-		unsigned lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
-#else
-		unsigned lightmapTexcoord = (unsigned)egmGI::MeshUtility::GetLightMapUVSetIndex(_mesh);
+		// Ignore value sent in parameter, it is valid only in Gamebryo 3
+		unsigned _lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
 #endif
 		unsigned diffuseTexcoord = UINT_MAX;
 		unsigned specularTexcoord = UINT_MAX;
@@ -290,7 +289,7 @@ public:
 				}
 			}
 		}
-		NiDataStreamElementLock kLockLightmapUv(mesh, NiCommonSemantics::TEXCOORD(), lightmapTexcoord, NiDataStreamElement::F_FLOAT32_2, NiDataStream::LOCK_READ);
+		NiDataStreamElementLock kLockLightmapUv(mesh, NiCommonSemantics::TEXCOORD(), _lightmapTexcoord, NiDataStreamElement::F_FLOAT32_2, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockDiffuseUv(mesh, NiCommonSemantics::TEXCOORD(), diffuseTexcoord, NiDataStreamElement::F_FLOAT32_2, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockSpecularUv(mesh, NiCommonSemantics::TEXCOORD(), specularTexcoord, NiDataStreamElement::F_FLOAT32_2, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockEmissiveUv(mesh, NiCommonSemantics::TEXCOORD(), emissiveTexcoord, NiDataStreamElement::F_FLOAT32_2, NiDataStream::LOCK_READ);
@@ -880,7 +879,7 @@ class RRObjectGamebryo : public RRObjectGamebryoBase
 public:
 	// creates new RRObject from NiMesh
 	// return NULL for meshes of unsupported formats
-	static RRObjectGamebryo* create(NiMesh* _mesh, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
+	static RRObjectGamebryo* create(NiMesh* _mesh, unsigned _lightmapTexcoord, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
 	{
 		if (!_mesh)
 		{
@@ -892,12 +891,10 @@ public:
 		}
 #if GAMEBRYO_MAJOR_VERSION==2
 		if (!NiLightMapUtility::IsLightMapMesh(_mesh))
-#else
-		if (!egmGI::MeshUtility::IsLightMapMesh(_mesh))
-#endif
 		{
 			return NULL;
 		}
+#endif
 		switch (_mesh->GetPrimitiveType())
 		{
 			case NiPrimitiveType::PRIMITIVE_TRIANGLES:
@@ -913,7 +910,7 @@ public:
 				return NULL;
 		}
 		_mesh->UpdateEffects();
-		RRMesh* mesh = new RRMeshGamebryo(_mesh);
+		RRMesh* mesh = new RRMeshGamebryo(_mesh, _lightmapTexcoord);
 		if (mesh->getNumTriangles()==0)
 		{
 			delete mesh;
@@ -1047,6 +1044,7 @@ private:
 class RRObjectsGamebryo : public RRObjects
 {
 public:
+	// path used by .gsa
 	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting, float _emissiveMultiplier)
 		: materialCache(_emissiveMultiplier)
 	{
@@ -1080,6 +1078,7 @@ public:
 		}
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
+	// path used by Gamebryo 3.0 Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting, float _emissiveMultiplier)
 		: materialCache(_emissiveMultiplier)
 	{
@@ -1099,29 +1098,37 @@ public:
 				{
 					if (entity && entity->GetModel()->ContainsModel("Mesh"))
 					{
-						NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-						addNode(obj,lodInfo,_aborting);
-
-						// after manually traversing subtree (necessary for LOD support),
-						// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
-						class Visitor : public egmGI::MeshVisitor
+						bool isStatic = true;
+						// whole cathedral has IsStatic=false, it does not mark static meshes, let's ignore it.
+						//entity->GetPropertyValue("IsStatic", isStatic);
+						bool useForPrecomputedLighting = true;
+						entity->GetPropertyValue("UseForPrecomputedLighting", useForPrecomputedLighting);
+						if (isStatic && useForPrecomputedLighting)
 						{
-						public:
-							virtual bool VisitMesh(NiMesh* pkMesh,egmGI::MeshProperties kProps = egmGI::MeshProperties())
+							// manually traverse subtree (necessary for LOD support) and create adapters
+							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
+							addNode(obj,lodInfo,_aborting);
+
+							// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
+							class Visitor : public egmGI::MeshVisitor
 							{
-								for (unsigned i=0;i<objects->size();i++)
+							public:
+								virtual bool VisitMesh(NiMesh* pkMesh,egmGI::MeshProperties kProps = egmGI::MeshProperties())
 								{
-									if (((RRObjectGamebryo*)(*objects)[i].object)->mesh==pkMesh)
-										((RRObjectGamebryo*)(*objects)[i].object)->meshProperties = kProps;
+									for (unsigned i=0;i<objects->size();i++)
+									{
+										if (((RRObjectGamebryo*)(*objects)[i].object)->mesh==pkMesh)
+											((RRObjectGamebryo*)(*objects)[i].object)->meshProperties = kProps;
+									}
+									return true;
 								}
-								return true;
-							}
-							RRObjectsGamebryo* objects;
-						};
-						Visitor visitor;
-						visitor.objects = this;
-						if (NiIsKindOf(NiNode,obj))
-							egmGI::MeshUtility::VisitMeshes((NiNode*)obj,&visitor,entity);
+								RRObjectsGamebryo* objects;
+							};
+							Visitor visitor;
+							visitor.objects = this;
+							if (NiIsKindOf(NiNode,obj))
+								egmGI::MeshUtility::VisitMeshes((NiNode*)obj,&visitor,entity);
+						}
 					}
 				}
 			}
@@ -1192,8 +1199,8 @@ public:
 		//layerParameters->actualFilename = ...
 
 		// fill size, type, format
-		int w,h;
-		egmGI::MeshUtility::GetLightMapResolution(w,h,((RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object)->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+		int w = 128; //!!! read it from LightsprintMesh model
+		int h = 128;
 #endif
 		layerParameters.actualWidth = w;
 		layerParameters.actualHeight = h;
@@ -1236,8 +1243,10 @@ private:
 			}
 		}
 		// adapt single node
-		if (NiIsExactKindOf(NiMesh,object))
+		if (NiIsExactKindOf(NiMesh,object) && !object->GetAppCulled())
 		{
+			NiMesh* niMesh = (NiMesh*)object;
+
 			if (!lodInfo.base)
 			{
 				// this is not LOD, give it unique base and level 0
@@ -1245,7 +1254,40 @@ private:
 				lodInfo.base = object;
 				lodInfo.level = 0;
 			}
-			RRObjectGamebryo* rrObject = RRObjectGamebryo::create((NiMesh*)object,lodInfo,materialCache,aborting);
+#if GAMEBRYO_MAJOR_VERSION==2
+			// it's not safe to query lightmapTexcoord yet, GI Package 1.0.0 would crash
+			// value is queried later in RRMeshGamebryo()
+			unsigned lightmapTexcoord = 0;
+#else
+			// querying lightmapTexcoord is more complicated in Gamebryo 3, it's done here, on higher level
+			// start with any uv that does not exist = unwrap would be autogenerated
+			unsigned lightmapTexcoord = UINT_MAX;
+
+			NiGIDescriptorTable nigidt;
+			const NiGIDescriptor* nigid = nigidt.GetGIDescriptor(niMesh);
+			if (nigid)
+			{
+				// switch to uv for non-directional lightmapping
+				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_LightMapShaderSlot);
+				// if directional lightmap is requested, switch to first drectional uv
+				if (nigid->m_SupportsTextureRNMs)
+				{
+					unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[0]);
+					unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[1]);
+					unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[2]);
+					if (directionalTexcoord0!=directionalTexcoord1 || directionalTexcoord0!=directionalTexcoord2 || directionalTexcoord1!=directionalTexcoord2)
+					{
+						RRReporter::report(WARN,"All three textures making single directional lightmap must use the same uv.\n");
+					}
+					if (nigid->m_SupportsTextureLightMaps && lightmapTexcoord!=directionalTexcoord0)
+					{
+						RRReporter::report(WARN,"When building both directional and non-directional lightmaps, they must use the same uv.\n");
+					}
+					lightmapTexcoord = directionalTexcoord0;
+				}
+			}
+#endif
+			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(niMesh,lightmapTexcoord,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
 #ifdef VERIFY
@@ -1367,10 +1409,12 @@ public:
 	{
 		RR_ASSERT(entity);
 		bool isStatic = true;
-		entity->GetPropertyValue("IsStatic", isStatic);
+		//entity->GetPropertyValue("IsStatic", isStatic); it is not set in meshes, better ignore it in lights too
+		bool useForPrecomputedLighting = true;
+		entity->GetPropertyValue("UseForPrecomputedLighting", useForPrecomputedLighting);
 		bool isVisible = true;
 		entity->GetPropertyValue("IsVisible", isVisible);
-		if (isStatic && isVisible)
+		if (isStatic && useForPrecomputedLighting && isVisible)
 		{
 			efd::Color diffuseColor(1,1,1);
 			entity->GetPropertyValue("DiffuseColor", diffuseColor);
@@ -1389,7 +1433,7 @@ public:
 
 			RRVec3 pos = convertWorldPos(position) * SCALE_GEOMETRY;
 			RRVec3 dir = convertWorldRotToDir(rotation);
-			RRVec3 color = convertColor(diffuseColor); // * dimmer
+			RRVec3 color = convertColor(diffuseColor) * dimmer;
 			RRVec4 poly(constantAttenuation,linearAttenuation/SCALE_GEOMETRY,quadraticAttenuation/SCALE_GEOMETRY/SCALE_GEOMETRY,1);
 
 			if (color!=RRVec3(0)) // don't adapt lights that have no effect (makes calculation bit faster)

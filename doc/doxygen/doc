@@ -2378,7 +2378,8 @@ Ray-Mesh collisions
 
  \section g30_prerequisites Prerequisites
   - Emergent's <code>Lightspeed (Gamebryo 3.0)</code> must be installed
-  - Emergent's <code>Lightspeed Global Illumination Package 2.0.0</code> must be installed
+  - Emergent's <code>Lightspeed Global Illumination Package <b>2.0.1 (!)</b></code> must be installed
+    with "Patch Gamebryo LightSpeed 3.0" checked (it's checked by default)
   - Lightsprint SDK with Lightspeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.
@@ -2391,8 +2392,11 @@ Ray-Mesh collisions
 
  \section g30_limits Limitations of current development version
   - nearly no settings (no per-mesh settings, no environment settings)
+  - no texture atlasing
+  - no radiosity normal maps
+  - no terrain (this is also GI Package 2.0.1 limitation)
   - plugin source code is only for Visual Studio 2008, projects for 2005 not added yet
-  - relighting completely undocumented
+  - optional relighting step not documented
 
  \section g30_gs Getting started
   <table border=0><tr><td>
@@ -2400,8 +2404,8 @@ Ray-Mesh collisions
     - Run <code>bin/install_toolbench_plugins.bat</code>.
     - Run Toolbench (VC90/Shipping).
     - Open content, e.g. <code>C:/Emergent/Integrations/
-      LightSpeed_GlobalIllumination_2.0.0/
-      Source/GISample/Data/GISample/GISample.gsl</code>
+      LightSpeed_GlobalIllumination_2.0.1/
+      Source/GISample/Data/GISample/Cathedral.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution.
     - Click Lightsprint / Bake lighting in menu. Click OK twice.
       Small window will show baking progress and let you abort operation.
@@ -2425,7 +2429,7 @@ Ray-Mesh collisions
     - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
       feel free to customize them to match your needs
 
-  - see <code>Lightspeed Global Illumination Package 2.0.0</code> documentation for data flow examples and tutorial
+  - see <code>Lightspeed Global Illumination Package 2.0.1</code> documentation for data flow examples and tutorial
   </td><td>
   \image html Gamebryo-RT1.jpg
   </td></tr></table>
