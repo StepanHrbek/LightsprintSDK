@@ -898,6 +898,20 @@ public:
 		{
 			return NULL;
 		}
+		switch (_mesh->GetPrimitiveType())
+		{
+			case NiPrimitiveType::PRIMITIVE_TRIANGLES:
+			case NiPrimitiveType::PRIMITIVE_TRISTRIPS:
+				// this is supported
+				break;
+			case NiPrimitiveType::PRIMITIVE_QUADS:
+				// this would need little bit of additional work
+				LIMITED_TIMES(1,RRReporter::report(WARN,"QUADS primitives are ignored, let us know if you need them.\n"));
+				return NULL;
+			default:
+				// lines, points etc
+				return NULL;
+		}
 		_mesh->UpdateEffects();
 		RRMesh* mesh = new RRMeshGamebryo(_mesh);
 		if (mesh->getNumTriangles()==0)
