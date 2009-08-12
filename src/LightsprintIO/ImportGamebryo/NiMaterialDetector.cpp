@@ -261,9 +261,7 @@ NiPixelDataPtr NiMaterialDetector::GetScenePixels(NiColor kClearColor)
     pkRenderer->BeginUsingRenderTargetGroup(m_spRenderTargetGroup,
         NiRenderer::CLEAR_ALL);
     pkRenderer->SetCameraData(m_spOrthoCamera);
-//MessageBox(NULL,"detectMaterial","c",MB_OK);
     m_spSquarePolygon->RenderImmediate(pkRenderer);
-//MessageBox(NULL,"detectMaterial","d",MB_OK);
     pkRenderer->EndUsingRenderTargetGroup();
 
     NiPixelDataPtr spData = GetPixelsFromTexture();

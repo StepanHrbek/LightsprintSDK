@@ -1330,30 +1330,6 @@ public:
 	// path used by Gamebryo 3.0 Toolbench plugin
 	RRLightsGamebryo(efd::ServiceManager* serviceManager)
 	{
-		/* this does not work with 3.0 + GI preview because NiLight is not accessible, none is found
-		if (serviceManager)
-		{
-			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
-			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
-			if (entityManager && sceneGraphService)
-			{
-				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
-				egf::Entity *entity = NULL;
-				while (entityManager->GetNextEntity(iterator, entity))
-				{
-					if (entity && entity->GetModel()->ContainsModel("Light"))
-					{
-						bool isStatic = true;
-						entity->GetPropertyValue("IsStatic", isStatic);
-						if (isStatic)
-						{
-							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-							addNode(obj);
-						}
-					}
-				}
-			}
-		}*/
 		if (serviceManager)
 		{
 			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
