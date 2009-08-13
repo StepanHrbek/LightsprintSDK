@@ -156,6 +156,11 @@ inline RRVec3 convertColor(const NiColor& c)
 	return RRVec3(c.r, c.g, c.b);
 }
 
+inline RRVec3 convertColor(const efd::Color& c)
+{
+	return RRVec3(c.r, c.g, c.b);
+}
+
 RRMatrix3x4 convertMatrix(const NiTransform& transform)
 {
 	RRMatrix3x4 wm;
@@ -818,6 +823,10 @@ public:
 		slowCache->push_front(CacheElement(mesh));
 		return &( slowCache->begin()->material = detectMaterial(mesh,emissiveMultiplier) );
 	}
+	void setEmissiveMultiplier(float _emissiveMultiplier)
+	{
+		emissiveMultiplier = _emissiveMultiplier;
+	}
 private:
 	RRMaterial defaultMaterial;
 	float emissiveMultiplier;
@@ -1070,7 +1079,7 @@ public:
 						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
 						if (pkRoot)
 						{
-							addNode(pkRoot,lodInfo,_aborting);
+							addNode(pkRoot,lodInfo,_aborting,NULL);
 						}
 					}
 				}
@@ -1079,8 +1088,8 @@ public:
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	// path used by Gamebryo 3.0 Toolbench plugin
-	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting, float _emissiveMultiplier)
-		: materialCache(_emissiveMultiplier)
+	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
+		: materialCache(1)
 	{
 		pkEntityScene = NULL; // not used from plugin, but clear it anyway
 		RRObject::LodInfo lodInfo;
@@ -1092,9 +1101,50 @@ public:
 			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
 			if (entityManager && sceneGraphService)
 			{
-				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
+				// read scene default settings, start with safe defaults
+				efd::utf8string lsDefaultBakeTarget = "Vertex colors";
+				efd::utf8string lsDefaultBakeDirectionality = "Non-directional";
+				unsigned numScenes = 0;
+				unsigned numLightsprintScenes = 0;
+				unsigned numMeshes = 0;
+				unsigned numLightsprintMeshes = 0;
 				egf::Entity *entity = NULL;
-				while (entityManager->GetNextEntity(iterator, entity))
+				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
+				{
+					if (entity)
+					{
+						if (entity->GetModel()->ContainsModel("Scene"))
+						{
+							numScenes++;
+						}
+						if (entity->GetModel()->ContainsModel("LightsprintScene"))
+						{
+							float lsEmissiveMultiplier = 1;
+							entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+							materialCache.setEmissiveMultiplier(lsEmissiveMultiplier);
+							entity->GetPropertyValue("LsDefaultBakeTarget", lsDefaultBakeTarget);
+							entity->GetPropertyValue("LsDefaultBakeDirectionality", lsDefaultBakeDirectionality);
+							numLightsprintScenes++;
+						}
+						if (entity && entity->GetModel()->ContainsModel("Mesh"))
+						{
+							numMeshes++;
+						}
+						if (entity && entity->GetModel()->ContainsModel("LightsprintMesh"))
+						{
+							numLightsprintMeshes++;
+						}
+					}
+				}
+				if (!numLightsprintScenes)
+					RRReporter::report(WARN,"No entity contains LightsprintScene model, baking will default to per-vertex. Add LightsprintScene to change it.\n");
+				if (numScenes>1)
+					RRReporter::report(WARN,"%d entities contain Scene model, isn't one enough?\n",numScenes);
+				if (!numLightsprintMeshes && numMeshes)
+					RRReporter::report(WARN,"No entity contains LightsprintMesh model, consider using it. It's like Mesh, but with additional bake settings.\n");
+
+				// read meshes
+				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
 				{
 					if (entity && entity->GetModel()->ContainsModel("Mesh"))
 					{
@@ -1105,9 +1155,27 @@ public:
 						entity->GetPropertyValue("UseForPrecomputedLighting", useForPrecomputedLighting);
 						if (isStatic && useForPrecomputedLighting)
 						{
+							PerEntitySettings perEntitySettings;
+
+							perEntitySettings.lsBakeTarget = "Default";
+							entity->GetPropertyValue("LsBakeTarget", perEntitySettings.lsBakeTarget);
+							if (perEntitySettings.lsBakeTarget=="Default")
+								perEntitySettings.lsBakeTarget = lsDefaultBakeTarget;
+
+							perEntitySettings.lsBakeDirectionality = "Default";
+							entity->GetPropertyValue("LsBakeDirectionality", perEntitySettings.lsBakeDirectionality);
+							if (perEntitySettings.lsBakeDirectionality=="Default")
+								perEntitySettings.lsBakeDirectionality = lsDefaultBakeDirectionality;
+
+							perEntitySettings.lsLightmapWidth = 128;
+							entity->GetPropertyValue("LsLightmapWidth", perEntitySettings.lsLightmapWidth);
+
+							perEntitySettings.lsLightmapHeight = 128;
+							entity->GetPropertyValue("LsLightmapHeight", perEntitySettings.lsLightmapHeight);
+
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-							addNode(obj,lodInfo,_aborting);
+							addNode(obj,lodInfo,_aborting,&perEntitySettings);
 
 							// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
 							class Visitor : public egmGI::MeshVisitor
@@ -1199,21 +1267,31 @@ public:
 		//layerParameters->actualFilename = ...
 
 		// fill size, type, format
-		int w = 128; //!!! read it from LightsprintMesh model
+		// GI Package 2.0.1 stopped providing this information, use defaults (only matters if you use Gamebryo 3 and open .gsa, not typical use case)
+		int w = 128;
 		int h = 128;
 #endif
 		layerParameters.actualWidth = w;
 		layerParameters.actualHeight = h;
-//rr::RRReporter::report(rr::INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
+//RRReporter::report(INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
 		layerParameters.actualType = BT_2D_TEXTURE;
 		layerParameters.actualFormat = BF_RGB; // 
 		layerParameters.actualScaled = true;
 	}
 
 private:
+	// propagated without change from entity to all its meshes
+	struct PerEntitySettings
+	{
+		efd::utf8string lsBakeTarget;
+		efd::utf8string lsBakeDirectionality;
+		unsigned lsLightmapWidth;
+		unsigned lsLightmapHeight;
+	};
+
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting)
+	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const PerEntitySettings* perEntitySettings)
 	{
 		if (!object)
 		{
@@ -1239,7 +1317,7 @@ private:
 					lodInfo.level = i; // TODO: is GetAt(0) level 0?
 				}
 				// add node
-				addNode(node->GetAt(i),lodInfo,aborting);
+				addNode(node->GetAt(i),lodInfo,aborting,perEntitySettings);
 			}
 		}
 		// adapt single node
@@ -1260,30 +1338,63 @@ private:
 			unsigned lightmapTexcoord = 0;
 #else
 			// querying lightmapTexcoord is more complicated in Gamebryo 3, it's done here, on higher level
-			// start with any uv that does not exist = unwrap would be autogenerated
-			unsigned lightmapTexcoord = UINT_MAX;
+			// (it can't be done in RRMeshGamebryo() because it does not yet know entity etc,
+			//  it can't be done later because RRMeshGamebryo() already needs it to lock uv buffer)
 
+			// as a subquest, we must decide between nondirectional and directional buffers (it affects lightmapTexcoord)
+			bool buildPerVertex;
+			bool buildNonDirectional;
+			if (perEntitySettings)
+			{
+				// Toolbench path
+				// this is what user requests, affects lightmapTexcoord and buffers allocated
+				buildPerVertex = perEntitySettings->lsBakeTarget=="Vertex colors";
+				buildNonDirectional = perEntitySettings->lsBakeDirectionality=="Non-directional";
+			}
+			else
+			{
+				// .gsa path
+				// this is much less important, affects only lightmapTexcoord
+				buildPerVertex = true;
+				buildNonDirectional = true;
+			}
+
+			// finally set lightmapTexcoord
+			unsigned lightmapTexcoord = UINT_MAX; // any uv that does not exist = unwrap would be autogenerated
 			NiGIDescriptorTable nigidt;
 			const NiGIDescriptor* nigid = nigidt.GetGIDescriptor(niMesh);
 			if (nigid)
 			{
-				// switch to uv for non-directional lightmapping
-				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_LightMapShaderSlot);
-				// if directional lightmap is requested, switch to first drectional uv
-				if (nigid->m_SupportsTextureRNMs)
+				if (buildNonDirectional)
+				{
+					lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_LightMapShaderSlot);
+					if (buildPerVertex && !nigid->m_SupportsVertexLightMaps)
+					{
+						RRReporter::report(WARN,"VertexLightMaps requested, but m_SupportsVertexLightMaps=false.\n");
+					}
+					if (!buildPerVertex && !nigid->m_SupportsTextureLightMaps)
+					{
+						RRReporter::report(WARN,"TextureLightMaps requested, but m_SupportsTextureLightMaps=false.\n");
+					}
+				}
+				else
 				{
 					unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[0]);
 					unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[1]);
 					unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[2]);
+					lightmapTexcoord = directionalTexcoord0;
 					if (directionalTexcoord0!=directionalTexcoord1 || directionalTexcoord0!=directionalTexcoord2 || directionalTexcoord1!=directionalTexcoord2)
 					{
 						RRReporter::report(WARN,"All three textures making single directional lightmap must use the same uv.\n");
 					}
-					if (nigid->m_SupportsTextureLightMaps && lightmapTexcoord!=directionalTexcoord0)
+					if (buildPerVertex && !nigid->m_SupportsVertexRNMs)
 					{
-						RRReporter::report(WARN,"When building both directional and non-directional lightmaps, they must use the same uv.\n");
+						RRReporter::report(WARN,"VertexRNMs requested, but m_SupportsVertexRNMs=false.\n");
 					}
-					lightmapTexcoord = directionalTexcoord0;
+					if (!buildPerVertex && !nigid->m_SupportsTextureRNMs)
+					{
+						RRReporter::report(WARN,"TextureRNMs requested, but m_SupportsTextureRNMs=false.\n");
+					}
 				}
 			}
 #endif
@@ -1293,6 +1404,41 @@ private:
 #ifdef VERIFY
 				rrObject->getCollider()->getMesh()->checkConsistency(CH_LIGHTMAP,size());
 #endif
+
+#if GAMEBRYO_MAJOR_VERSION==3
+				// only in Toolbench path && only if NiGIDescriptor exists: allocate illumination buffers
+				// (if theoretical mesh without NiGIDescriptor exists, we let it cast shadows/bounce light, but we don't give it lightmap)
+				if (perEntitySettings && nigid)
+				{
+					if (buildPerVertex)
+					{
+						if (buildNonDirectional)
+						{
+							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
+						}
+						else
+						{
+							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
+							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
+							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
+						}
+					}
+					else
+					{
+						if (buildNonDirectional)
+						{
+							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+						}
+						else
+						{
+							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+						}
+					}
+				}
+#endif
+
 				push_back(RRIlluminatedObject(rrObject, rrObject->getIllumination()));
 			}
 		}
@@ -1391,9 +1537,8 @@ public:
 			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
 			if (entityManager)
 			{
-				egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos();
 				egf::Entity *entity = NULL;
-				while (entityManager->GetNextEntity(iterator, entity))
+				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
 				{
 					if (entity && entity->GetModel()->ContainsModel("Light"))
 					{
@@ -1580,7 +1725,7 @@ public:
 	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
 #if GAMEBRYO_MAJOR_VERSION==3
 	//! Imports scene from toolbench.
-	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
+	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& aborting);
 #endif
 	virtual ~RRSceneGamebryo();
 
@@ -1601,6 +1746,7 @@ protected:
 
 	RRObjects*                objects;
 	RRLights*                 lights;
+	RRBuffer*                 environment;
 	bool                      initGamebryo;
 	NiScene*                  pkEntityScene; // used only in .gsa
 	HWND                      localHWND; // locally created window
@@ -1612,6 +1758,7 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
 	objects = NULL;
 	lights = NULL;
+	environment = NULL;
 	initGamebryo = _initGamebryo;
 	pkEntityScene = NULL;
 
@@ -1660,11 +1807,12 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
+RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 {
 	objects = NULL;
 	lights = NULL;
-	initGamebryo = _initGamebryo;
+	environment = NULL;
+	initGamebryo = false;
 	pkEntityScene = NULL;
 
 	gamebryoInit();
@@ -1673,7 +1821,10 @@ RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _init
 	lights = adaptLightsFromGamebryo(serviceManager);
 
 	// adapt meshes
-	objects = adaptObjectsFromGamebryo(serviceManager,_aborting,_emissiveMultiplier);
+	objects = adaptObjectsFromGamebryo(serviceManager,_aborting);
+
+	// adapt environment
+	environment = adaptEnvironmentFromGamebryo(serviceManager);
 
 	updateCastersReceiversCache();
 }
@@ -1795,9 +1946,9 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting, float emissiveMultiplier)
+RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting)
 {
-	return new RRObjectsGamebryo(serviceManager,aborting,emissiveMultiplier);
+	return new RRObjectsGamebryo(serviceManager,aborting);
 }
 
 RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
@@ -1805,9 +1956,56 @@ RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
 	return new RRLightsGamebryo(serviceManager);
 }
 
-RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool initGamebryo, bool& aborting, float emissiveMultiplier)
+RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceManager)
 {
-	return new RRSceneGamebryo(serviceManager,initGamebryo,aborting,emissiveMultiplier);
+	RRBuffer* environment = NULL;
+	if (serviceManager)
+	{
+		egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
+		if (entityManager)
+		{
+			egf::Entity *entity = NULL;
+			for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
+			{
+				if (entity && entity->GetModel()->ContainsModel("LightsprintScene"))
+				{
+					efd::utf8string lsEnvironmentTexture;
+					entity->GetPropertyValue("LsEnvironmentTexture", lsEnvironmentTexture);
+
+					efd::Color lsEnvironmentColorTmp(0,0,0);
+					entity->GetPropertyValue("LsEnvironmentColor", lsEnvironmentColorTmp);
+					RRVec3 lsEnvironmentColor = convertColor(lsEnvironmentColorTmp);
+
+					float lsEnvironmentMultiplier = 1;
+					entity->GetPropertyValue("LsEnvironmentMultiplier", lsEnvironmentMultiplier);
+
+					if (lsEnvironmentColor*lsEnvironmentMultiplier==RRVec3(0))
+					{
+						if (lsEnvironmentTexture!="" && lsEnvironmentColor==RRVec3(0))
+						{
+							RRReporter::report(WARN,"LsEnvironmentTexture ignored due to black LsEnvironmentColor, we multiply them.\n"); 
+						}
+					}
+					else
+					{
+						if (lsEnvironmentTexture!="")
+							environment = RRBuffer::loadCube(lsEnvironmentTexture.c_str());
+						if (!environment)
+							environment = RRBuffer::createSky();
+						if (lsEnvironmentColor*lsEnvironmentMultiplier!=RRVec3(1))
+							environment->setFormatFloats();
+						environment->multiplyAdd(RRVec4(lsEnvironmentColor*lsEnvironmentMultiplier,0),RRVec4(0));
+					}
+				}
+			}
+		}
+	}
+	return environment;
+}
+
+RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting)
+{
+	return new RRSceneGamebryo(serviceManager,aborting);
 }
 #endif
 
