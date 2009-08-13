@@ -146,12 +146,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DDI", "..\tests\DDI\DDI.vcp
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsprint.Toolbench.Plugin", "Gamebryo.Toolbench.Plugin\Lightsprint.Toolbench.Plugin.vcproj", "{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsprint.Toolbench.Plugin", "Lightsprint.Toolbench.Plugin\Lightsprint.Toolbench.Plugin.vcproj", "{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lightsprint.Toolbench.Plugin.UI", "Gamebryo.Toolbench.Plugin.UI\Lightsprint.Toolbench.Plugin.UI.csproj", "{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lightsprint.Toolbench.Plugin.UI", "Lightsprint.Toolbench.Plugin.UI\Lightsprint.Toolbench.Plugin.UI.csproj", "{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
