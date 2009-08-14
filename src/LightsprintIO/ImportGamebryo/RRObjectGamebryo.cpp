@@ -1738,6 +1738,7 @@ public:
 
 	virtual const RRObjects* getObjects() {return objects;}
 	virtual const RRLights* getLights() {return lights;}
+	virtual const RRBuffer* getEnvironment() {return environment;}
 
 protected:
 	void gamebryoInit();

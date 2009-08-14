@@ -13,6 +13,7 @@
 // You can use any other image library if you implement two simple callbacks,
 // load and save, and call RRBuffer::setLoader().
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"

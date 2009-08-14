@@ -2372,7 +2372,7 @@ Ray-Mesh collisions
   - \ref howto_bigscenes
 
 
-\page main_gamebryo30 Lightspeed (in development, for testing only)
+\page main_gamebryo30 Lightspeed (in development)
 
  Lightsprint SDK adds global illumination to Lightspeed (Gamebryo 3.0).
 
@@ -2385,30 +2385,28 @@ Ray-Mesh collisions
     If we make mistake and your integration is missing, please let us know.
 
  \section g30_f Features
-  - lightmap baking integrated into Toolbench
+  - lightmap baking integrated into Toolbench (lightmaps, directional lightmaps/RNM, per-vertex bake, HDR or LDR environment texture...)
   - realtime GI relighting before final bake, all lights and environment can be manipulated
   - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes (old format, used in Gamebryo 2.6)
   - full integration source code included
 
  \section g30_limits Limitations of current development version
-  - nearly no settings (no per-mesh settings, no environment settings)
-  - no texture atlasing
-  - no radiosity normal maps
-  - no terrain (this is also GI Package 2.0.1 limitation)
-  - plugin source code is only for Visual Studio 2008, projects for 2005 not added yet
   - optional relighting step not documented
+  - terrain not supported (this is also GI Package 2.0.1 limitation)
+  - plugin source code is only for Visual Studio 2008, projects for 2005 not added yet
 
  \section g30_gs Getting started
   <table border=0><tr><td>
   - bake lightmaps in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
     - Run Toolbench (VC90/Shipping).
-    - Open content, e.g. <code>C:/Emergent/Integrations/
-      LightSpeed_GlobalIllumination_2.0.1/
-      Source/GISample/Data/GISample/Cathedral.gsl</code>
+    - Open content, e.g. <code>C:\\Emergent\\Integrations\\
+      LightSpeed_GlobalIllumination_2.0.1\\
+      Source\\GISample\\Data\\GISample\\Cathedral.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution.
-    - Click Lightsprint / Bake lighting in menu. Click OK twice.
+    - Click Lightsprint / Bake lighting in menu. Click OK.
       Small window will show baking progress and let you abort operation.
+      Notice warning about missing LightsprintScene, next paragraph explains how to add it. GI is per-vertex only for now.
     - Relighting window will appear. Here you can switch from static GI to realtime GI,
       set environment, manipulate lights, completely relight scene, and rebake lightmaps.
       This stage is not documented yet.
@@ -2417,13 +2415,27 @@ Ray-Mesh collisions
   </td><td>
   \image html BuildLightmaps_2.jpg
   </td></tr><tr><td>
+  - use Lightsprint Model Library in Toolbench
+    - Using LightsprintScene and LightsprintMesh instead of GIScene and PCLMesh
+      will give you access to important bake settings.
+    - LightsprintModelLibrary and GIModelLibrary must be copied to and then referenced from your solution. 
+      Game Solution Wizard offers to do it automatically for new projects.
+      For old projects, manually copy <code>LightsprintModelLibrary</code> and <code>GIModelLibrary</code> directories
+      from <code>\$(EMERGENT_PATH)\\Media</code> next to <code>StandardModelLibrary</code> in your asset web,
+      then open your solution, doubleclick .block file in Toolbench, expand it,
+      right click References under .block file, select Add Reference,
+      enter <code>LightsprintModelLibrary</code> directory and select <code>LightsprintModelLibrary.emtproj</code>.
+      Add reference to GIModelLibrary in the same way.
+    - To test library, add LightsprintScene to Cathedral scene mentioned in previous paragraph.
+      Change LsDefaultBakeTarget to Texture and bake at quality 10, you will get lightmaps baked in a few seconds.
+  </td><td>
+  \image html Gamebryo-RT2.jpg
+  </td></tr><tr><td>
   - legacy .gsa support (both offline and realtime GI)
     - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under Lightspeed
     - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
       those must be installed for samples to work
-  </td><td>
-  \image html Gamebryo-RT2.jpg
-  </td></tr><tr><td>
+
   - see source code
     - open <code>src/Lightsprint.vs2008.sln</code>
     - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
@@ -2435,11 +2447,12 @@ Ray-Mesh collisions
   </td></tr></table>
 
  \section g30_depl Deployment
-  - <code>bin/install_toolbench_plugins.bat</code> installs plugins to Toolbench. It simply copies files from Lightsprint SDK.
+  - <code>bin/install_toolbench_plugins.bat</code> installs plugins and model library to Toolbench. It simply copies files from Lightsprint SDK.
   - If you modify and rebuild plugins, they are installed automatically.
-  - Everything plugins need is in their Toolbench directories, so deployment to other computers is simple directory copy.
+  - Everything plugins need is in their Toolbench directories and in model library, so deployment to other computers is simple directory copy.
     Plugin directories are (in case of standard VC90 Shipping configuration)
-    <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin</code> and <code>EMERGENT_PATH/sdk/Win32/Bin/VC90/Shipping/Plugins/Lightsprint.Toolbench.Plugin.UI</code>.
+    <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin</code> and <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin.UI</code>.
+    Model library is in <code>\$(EMERGENT_PATH)\\Media\\LightsprintModelLibrary</code>.
 
  \section g30_misc Misc
   - \ref howto_bigscenes
