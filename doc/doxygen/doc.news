@@ -8,13 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news90 ------------------------------------ 2009.08.xx -------------------------------------
+\section news90 ------------------------------------ 2009.08.15 -------------------------------------
 
 NEWS
 
 - improved \ref main_gamebryo30 "Lightspeed integration"
-  - LightsprintModelLibrary with settings for bake type, resolution, environment etc
-  - supports directional / radiosity normal maps
+  - LightsprintModelLibrary added, new per-mesh and per-scene settings
+  - supports directional lightmaps (radiosity normal maps)
+  - supports environment (HDR or LDR texture, color..)
   - works with GI Package 2.0.1
 
 \section news89 ------------------------------------ 2009.08.02 -------------------------------------

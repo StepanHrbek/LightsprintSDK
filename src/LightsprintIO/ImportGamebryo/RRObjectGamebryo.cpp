@@ -156,10 +156,12 @@ inline RRVec3 convertColor(const NiColor& c)
 	return RRVec3(c.r, c.g, c.b);
 }
 
+#if GAMEBRYO_MAJOR_VERSION==3
 inline RRVec3 convertColor(const efd::Color& c)
 {
 	return RRVec3(c.r, c.g, c.b);
 }
+#endif
 
 RRMatrix3x4 convertMatrix(const NiTransform& transform)
 {
@@ -268,7 +270,7 @@ public:
 		NiDataStreamElementLock kLockBitangent(mesh, NiCommonSemantics::BINORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 #if GAMEBRYO_MAJOR_VERSION==2
 		// Ignore value sent in parameter, it is valid only in Gamebryo 3
-		unsigned _lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
+		_lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
 #endif
 		unsigned diffuseTexcoord = UINT_MAX;
 		unsigned specularTexcoord = UINT_MAX;
@@ -1087,6 +1089,14 @@ public:
 		}
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
+	struct PerEntitySettings
+	{
+		efd::utf8string lsBakeTarget;
+		efd::utf8string lsBakeDirectionality;
+		unsigned lsLightmapWidth;
+		unsigned lsLightmapHeight;
+	};
+
 	// path used by Gamebryo 3.0 Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 		: materialCache(1)
@@ -1280,18 +1290,10 @@ public:
 	}
 
 private:
-	// propagated without change from entity to all its meshes
-	struct PerEntitySettings
-	{
-		efd::utf8string lsBakeTarget;
-		efd::utf8string lsBakeDirectionality;
-		unsigned lsLightmapWidth;
-		unsigned lsLightmapHeight;
-	};
 
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const PerEntitySettings* perEntitySettings)
+	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const class PerEntitySettings* perEntitySettings)
 	{
 		if (!object)
 		{
