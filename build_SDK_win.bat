@@ -39,6 +39,9 @@ if ERRORLEVEL 1 goto error
 echo Building VS2008 Release DLL/Win32...
 devenv src\RR.vs2008.sln /build "Release DLL|Win32" >%ERR%
 if ERRORLEVEL 1 goto error
+echo Building VS2008 Shipping DLL/Win32...
+devenv src\RR.vs2008.sln /build "Shipping DLL|Win32" >%ERR%
+if ERRORLEVEL 1 goto error
 
 echo Building VS2008 Debug DLL/x64...
 devenv src\RR.vs2008.sln /build "Debug DLL|x64" >%ERR%

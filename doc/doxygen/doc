@@ -2372,7 +2372,7 @@ Ray-Mesh collisions
   - \ref howto_bigscenes
 
 
-\page main_gamebryo30 Lightspeed (in development)
+\page main_gamebryo30 Lightspeed (in development - for testing only)
 
  Lightsprint SDK adds global illumination to Lightspeed (Gamebryo 3.0).
 
@@ -2391,9 +2391,9 @@ Ray-Mesh collisions
   - full integration source code included
 
  \section g30_limits Limitations of current development version
+  - very limited testing, possible bugs
   - optional relighting step not documented
   - terrain not supported (this is also GI Package 2.0.1 limitation)
-  - plugin source code is only for Visual Studio 2008, projects for 2005 not added yet
 
  \section g30_gs Getting started
   <table border=0><tr><td>
@@ -2437,6 +2437,7 @@ Ray-Mesh collisions
       those must be installed for samples to work
 
   - see source code
+    - we provide project files for Visual Studio 2008, let us know if you need different version
     - open <code>src/Lightsprint.vs2008.sln</code>
     - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
       feel free to customize them to match your needs
