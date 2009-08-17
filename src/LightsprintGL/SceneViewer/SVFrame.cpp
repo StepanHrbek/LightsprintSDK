@@ -149,7 +149,7 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 }
 
 	#define APP_NAME wxString("SceneViewer")
-	#define APP_VERSION ""
+	#define APP_VERSION __DATE__
 
 void SVFrame::UpdateTitle()
 {
@@ -495,7 +495,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
 #endif
 				time_t t = time(NULL);
-				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.png",t%10000);
+				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.jpg",t%10000);
 				if (sshot->save(screenshotFilename))
 					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
 				else
