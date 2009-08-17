@@ -356,6 +356,11 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'h':
 		case 'H': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_HELP)); break;
 
+		case WXK_DELETE:
+			if (selectedType==ST_LIGHT)
+				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_DELETE));
+			break;
+
 
 		case 27:
 			if (svs.renderLightmaps2d)
