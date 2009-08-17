@@ -1293,7 +1293,7 @@ private:
 
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const class PerEntitySettings* perEntitySettings)
+	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const struct PerEntitySettings* perEntitySettings)
 	{
 		if (!object)
 		{
