@@ -2431,18 +2431,21 @@ Ray-Mesh collisions
   </td><td>
   \image html Gamebryo-RT2.jpg
   </td></tr><tr><td>
+  - combine realtime direct + precomputed indirect illumination
+    - set light properties LightPCLObjectsAtRuntime and LightNonPCLObjectsAtRuntime to true and bake
+
   - legacy .gsa support (both offline and realtime GI)
     - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under Lightspeed
     - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
       those must be installed for samples to work
 
   - see source code
-    - we provide project files for Visual Studio 2008, let us know if you need different version
     - open <code>src/Lightsprint.vs2008.sln</code>
     - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
       feel free to customize them to match your needs
+    - let us know if you need projects for different compiler version
 
-  - see <code>Lightspeed Global Illumination Package 2.0.1</code> documentation for data flow examples and tutorial
+  - see <code>Lightspeed Global Illumination Package 2.0.1</code> documentation
   </td><td>
   \image html Gamebryo-RT1.jpg
   </td></tr></table>

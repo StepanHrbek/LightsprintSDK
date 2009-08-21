@@ -582,11 +582,13 @@ public:
 
 
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+#if GAMEBRYO_MAJOR_VERSION==2 // Although written for both 2.6 and 3.0, only 2.6 currently uses this class.
 ////////////////////////////////////////////////////////////////////////////
 //
 // GamebryoLightCache
 
 //! Per-light acceleration structure, resolves shadow casting/receiving queries in a few CPU ticks.
+//! Gamebryo 3.0 Light entity has all shadows enabled/disabled at once so this structure is not necessary.
 class GamebryoLightCache
 {
 public:
@@ -693,6 +695,7 @@ private:
 	std::vector<bool> isReceiver;
 };
 
+#endif // GAMEBRYO_MAJOR_VERSION==2
 #endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
 
 
@@ -967,6 +970,7 @@ public:
 				// This mesh is not lit and it does not cast shadows.
 				return NULL;
 			}
+#if GAMEBRYO_MAJOR_VERSION==2
 			const GamebryoLightCache* gamebryoLightCache = (GamebryoLightCache*)light->customData;
 			if (!gamebryoLightCache)
 			{
@@ -1001,6 +1005,11 @@ public:
 				// No, light does not affect this mesh.
 				return NULL;
 			}
+#else // GAMEBRYO_MAJOR_VERSION!=2
+			// Gamebryo 3.0 entity has all shadows enabled/disabled at once,
+			// so it's simpler, it illuminates all objects / casts all shadows.
+			return material;
+#endif // GAMEBRYO_MAJOR_VERSION!=2
 		}
 		else
 #endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
@@ -1616,7 +1625,7 @@ public:
 				if (rrLight)
 				{
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-					rrLight->customData = NULL; // new GamebryoLightCache(NiLight);
+					rrLight->customData = entity;
 					rrLight->castShadows = true;
 					entity->GetPropertyValue("CastShadows", rrLight->castShadows);
 #else
@@ -1685,7 +1694,11 @@ public:
 			if (rrLight)
 			{
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+#if GAMEBRYO_MAJOR_VERSION==2
 				rrLight->customData = new GamebryoLightCache(light);
+#else
+				rrLight->customData = NULL; // customData in Gamebryo 3.0 hold Entity*, it's not available in .gsa
+#endif
 				NiShadowGenerator* shadowGenerator = light->GetShadowGenerator();
 				rrLight->castShadows = shadowGenerator && shadowGenerator->GetActive();
 #else
@@ -1900,10 +1913,12 @@ void RRSceneGamebryo::gamebryoShutdown()
 RRSceneGamebryo::~RRSceneGamebryo()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+#if GAMEBRYO_MAJOR_VERSION==2
 	for (unsigned i=0;lights && i<lights->size();i++)
 	{
 		delete (GamebryoLightCache*)((*lights)[i]->customData);
 	}
+#endif
 #endif
 	delete lights;
 	delete objects;
@@ -1915,6 +1930,7 @@ RRSceneGamebryo::~RRSceneGamebryo()
 void RRSceneGamebryo::updateCastersReceiversCache()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
+#if GAMEBRYO_MAJOR_VERSION==2
 	if (objects && lights)
 	{
 		// Reindex meshes.
@@ -1930,6 +1946,7 @@ void RRSceneGamebryo::updateCastersReceiversCache()
 				cache->update(*objects);
 		}
 	}
+#endif
 #endif
 }
 
