@@ -2406,12 +2406,8 @@ Ray-Mesh collisions
     - Open WorldBuilder by doubleclicking .block file in game solution.
     - Click Lightsprint / Bake lighting in menu. Click OK.
       Small window will show baking progress and let you abort operation.
-      Notice warning about missing LightsprintScene, next paragraph explains how to add it. GI is per-vertex only for now.
-    - Relighting window will appear. Here you can switch from static GI to realtime GI,
-      set environment, manipulate lights, completely relight scene, and rebake lightmaps.
-      This stage is not documented yet.
-    - Press esc to close the relighting window.
-    - You should see GI in WorldBuilder.
+      Notice warning about missing LightsprintScene, next paragraph explains how to fix it. Until then, GI is computed per-vertex.
+    - Few seconds later, you should see GI in WorldBuilder.
   </td><td>
   \image html BuildLightmaps_2.jpg
   </td></tr><tr><td>
@@ -2427,7 +2423,7 @@ Ray-Mesh collisions
       enter <code>LightsprintModelLibrary</code> directory and select <code>LightsprintModelLibrary.emtproj</code>.
       Add reference to GIModelLibrary in the same way.
     - To test library, add LightsprintScene to Cathedral scene mentioned in previous paragraph.
-      Change LsDefaultBakeTarget to Texture and bake at quality 10, you will get lightmaps baked in a few seconds.
+      Change LsDefaultBakeTarget to Texture and bake at quality 10, you will see lightmaps baked in a few seconds.
   </td><td>
   \image html Gamebryo-RT2.jpg
   </td></tr><tr><td>
