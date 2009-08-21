@@ -1220,6 +1220,38 @@ public:
 				}
 			}
 		}
+		// Gamebryo 3.0 gives us meshes in random order. We sort them to improve caching performance.
+		sortObjects();
+	}
+	// Sorts elements (RRObject) in this vector (RRObjects).
+	// Sorts by mesh geometry (positions), it is sufficiently unique, no need to mix in normals, uvs...
+	void sortObjects()
+	{
+		struct SortElement
+		{
+			RRIlluminatedObject illuminatedObject;
+			unsigned char hash[20];
+
+			SortElement() : illuminatedObject(NULL,NULL) {}
+			static int sortByHashes(const void* ptr1, const void* ptr2)
+			{
+				const SortElement* elem1 = (const SortElement*)ptr1;
+				const SortElement* elem2 = (const SortElement*)ptr2;
+				return memcmp(elem1->hash,elem2->hash,sizeof(elem1->hash));
+			}
+		};
+		unsigned numElements = size();
+		SortElement* sortElement = new SortElement[numElements];
+		for (unsigned i=0;i<numElements;i++)
+		{
+			sortElement[i].illuminatedObject = (*this)[i];
+			sortElement[i].illuminatedObject.object->getCollider()->getMesh()->getHash(sortElement[i].hash);
+		}
+		qsort(sortElement,numElements,sizeof(sortElement[0]),SortElement::sortByHashes);
+		clear();
+		for (unsigned i=0;i<numElements;i++)
+			push_back(sortElement[i].illuminatedObject);
+		delete[] sortElement;
 	}
 #endif
 	virtual ~RRObjectsGamebryo()

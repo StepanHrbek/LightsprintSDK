@@ -43,39 +43,40 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsig
 	buf[RR_MIN((bits+4)/5,bufsize-1)]=0;
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer)
+void RRMesh::getHash(unsigned char out[20]) const
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
-	if (version)
-	{
-		unsigned char ver = version;
-		sha1::sha1_update(&ctx, &ver, 1);
-	}
-	unsigned i = importer->getNumVertices();
-	while (i--)
+	unsigned numVertices = getNumVertices();
+	for (unsigned i=0;i<numVertices;i++)
 	{
 		RRMesh::Vertex v;
-		importer->getVertex(i,v);
+		getVertex(i,v);
 #if defined(XBOX) || defined(__PPC__)
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
-	i = importer->getNumTriangles();
-	while (i--)
+	unsigned numTriangles = getNumTriangles();
+	for (unsigned i=0;i<numTriangles;i++)
 	{
 		RRMesh::Triangle t;
-		importer->getTriangle(i,t);
+		getTriangle(i,t);
 #if defined(XBOX) || defined(__PPC__)
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&t)[j] = SWAP_32(((unsigned long*)&t)[j]);
 #endif
 		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
 	}
+	sha1::sha1_finish(&ctx, out);
+}
+
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, const RRMesh* importer)
+{
 	unsigned char digest[20];
-	sha1::sha1_finish(&ctx, digest);
+	importer->getHash(digest);
+	*(unsigned*)digest += version;
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 

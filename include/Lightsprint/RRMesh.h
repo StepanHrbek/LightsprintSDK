@@ -312,7 +312,10 @@ namespace rr
 		//! In CG scenes, this is usually flat ground. Slow (not cached).
 		virtual RRReal       findGroundLevel() const;
 
-		//! Reports incinsistencies found in mesh.
+		//! Fills out by hash of mesh geometry (positions, not normals and uvs). Slow (not cached).
+		virtual void         getHash(unsigned char out[20]) const;
+
+		//! Reports inconsistencies found in mesh.
 		//
 		//! \param lightmapTexcoord
 		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
