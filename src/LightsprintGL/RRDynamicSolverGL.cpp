@@ -177,8 +177,11 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
 {
 	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI);
-	realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
-	realtimeLights[lightIndex]->dirtyGI |= dirtyGI;
+	if (lightIndex<realtimeLights.size())
+	{
+		realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
+		realtimeLights[lightIndex]->dirtyGI |= dirtyGI;
+	}
 }
 
 void RRDynamicSolverGL::calculate(CalculateParameters* _params)
