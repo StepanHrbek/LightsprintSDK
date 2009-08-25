@@ -397,7 +397,7 @@ namespace rr
 		//! \n\n If you need to locate original triangles and vertices in MultiMesh, you have two choices:
 		//! -# Use PreImpport<->PostImport conversions. PreImport number for MultiMesh is defined as PreImportNumber.
 		//!  If you want to access triangle 2 in meshes[1], calculate index of triangle in MultiMesh as
-		//!  indexOfTriangle = multiMesh->getPostImportTriangle(PreImportNumber(2,1)).
+		//!  indexOfTriangle = multiMesh->getPostImportTriangle(PreImportNumber(1,2)).
 		//! -# Convert indices yourself. It is granted, that both indices and vertices preserve order of meshes in array:
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.

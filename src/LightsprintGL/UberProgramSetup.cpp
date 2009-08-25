@@ -452,7 +452,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	{
 		if (!light)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (SHADOW_MAPS>0).\n");
 			return false;
 		}
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
@@ -488,7 +488,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	{
 		if (!light)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT set).\n");
 			return false;
 		}
 		if (!light->getParent())
@@ -516,7 +516,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	{
 		if (!light)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT_COLOR set).\n");
 			return false;
 		}
 		rr::RRVec3 color = light->getRRLight().color;

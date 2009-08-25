@@ -68,6 +68,10 @@ namespace rr_gl
 		//
 		//! Updates only dirty lights, call reportDirectIlluminationChange() to mark light dirty.
 		//! \n You can update only shadowmaps by setting params->qualityIndirectDynamic=0.
+		//!
+		//! Note that RRDynamicSolverGL::calculate() calls setDirectIllumination() automatically.
+		//! If you want to provide your own direct illumination data, switch from RRDynamicSolverGL to
+		//! rr::RRDynamicSolver and call setDirectIllumination() manually before calculate().
 		virtual void calculate(CalculateParameters* params = NULL);
 
 		//! Realtime lights, set by setLights(). You may modify them freely.

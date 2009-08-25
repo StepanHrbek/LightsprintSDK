@@ -149,6 +149,10 @@ namespace rr
 		//
 		//! This is one of ways how light enters solver, others are setLights(), setEnvironment(), emissive materials.
 		//!
+		//! If you use rr_gl::RRDynamicSolverGL, setDirectIllumination() is called automatically
+		//! from calculate(). If you want to provide your own direct illumination data, use RRDynamicSolver
+		//! and call setDirectIllumination() manually before calculate().
+		//!
 		//! \param perTriangleIrradiance
 		//!  Array of average per-triangle direct-lighting irradiances in custom scale.
 		//!  In other words, average triangle colors when direct lighting+shadows are applied,
