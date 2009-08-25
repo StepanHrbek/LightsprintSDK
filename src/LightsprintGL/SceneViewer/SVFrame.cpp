@@ -153,7 +153,7 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 
 void SVFrame::UpdateTitle()
 {
-	if (svs.sceneFilename)
+	if (!svs.sceneFilename.empty())
 		SetTitle(APP_NAME+" - "+svs.sceneFilename);
 	else
 		SetTitle(APP_NAME);
@@ -475,9 +475,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					wxString newSceneFilename = dialog.GetPath();
-					free(svs.sceneFilename);
-					svs.sceneFilename = _strdup(newSceneFilename.c_str());
+					svs.sceneFilename = dialog.GetPath();
 					UpdateEverything();
 				}
 			}
@@ -543,14 +541,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
-				wxString newSkyboxFilename = dialog.GetPath();
-				free(svs.skyboxFilename);
-				svs.skyboxFilename = _strdup(newSkyboxFilename.c_str());
+				svs.skyboxFilename = dialog.GetPath();
 			}
 			// intentionally no break
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
-				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename);
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str());
 				// skybox is used only if it exists
 				if (skybox)
 				{
@@ -668,13 +664,13 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (!fireballLoadAttempted)
 				{
 					fireballLoadAttempted = true;
-					solver->loadFireball(svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+					solver->loadFireball(svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
 				}
 			}
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
-				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
 				solver->dirtyLights();
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
@@ -768,7 +764,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
-					solver->buildFireball(quality,svs.sceneFilename?tmpstr("%s.fireball",svs.sceneFilename):NULL);
+					solver->buildFireball(quality,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
 					solver->dirtyLights();
 					fireballLoadAttempted = true;
 				}

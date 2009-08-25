@@ -40,7 +40,6 @@ enum LightingIndirect
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
-	// viewer state
 	Camera           eye;                       //! Current camera.
 	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
 	unsigned         realtimeLayerNumber;       //! Layer used for all realtime lighting operations.
@@ -70,9 +69,7 @@ struct SceneViewerState
 	rr::RRVec4       brightness;                //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;                     //! Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
-
-	// viewer initialization
-	bool             autodetectCamera;          //! Ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
+	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
 	// sets default state with realtime GI and random camera
 	SceneViewerState()

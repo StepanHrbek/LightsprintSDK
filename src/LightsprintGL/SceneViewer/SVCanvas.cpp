@@ -128,9 +128,9 @@ void SVCanvas::createContext()
 		solver->setLights(svs.initialInputSolver->getLights());
 	}
 	else
-	if (svs.sceneFilename)
+	if (!svs.sceneFilename.empty())
 	{
-		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename);
+		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename.c_str());
 		solver->setScaler(rr::RRScaler::createRgbScaler());
 		solver->setEnvironment(manuallyOpenedScene->getEnvironment());
 		envToBeDeletedOnExit = false;
@@ -141,7 +141,7 @@ void SVCanvas::createContext()
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
-	if (svs.skyboxFilename)
+	if (!svs.skyboxFilename.empty())
 	{
 		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
 	}
@@ -185,9 +185,9 @@ SVCanvas::~SVCanvas()
 		// user requested fast exit without releasing resources
 		// however, if scene is .gsa, we must ignore him and release resources (it shutdowns gamebryo)
 		bool sceneMustBeReleased = false;
-		if (svs.sceneFilename && strlen(svs.sceneFilename)>4)
+		if (svs.sceneFilename.size()>4)
 		{
-			const char* sceneExtension = svs.sceneFilename + strlen(svs.sceneFilename)-4;
+			const char* sceneExtension = svs.sceneFilename.c_str() + svs.sceneFilename.size()-4;
 			if (!_stricmp(sceneExtension,".gsa"))
 				sceneMustBeReleased = true;
 		}

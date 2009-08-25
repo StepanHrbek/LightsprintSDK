@@ -12,37 +12,32 @@
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/RRScene.h"
+#include <string>
 
 namespace rr_gl
 {
 
-	//! Extended SceneViewerState.
-	struct SceneViewerStateEx : public SceneViewerState
-	{
-		//! Initial scene to be displayed, never deleted, never NULLed even when no longer displayed (because solver->aborting is still used).
-		rr::RRDynamicSolver* initialInputSolver;
-		//! Initial and never changing path to shaders. Not freed.
-		const char* pathToShaders;
-		//! Current scene filename, e.g. scene.dae or scene.3ds. It is free()d in destructor.
-		char* sceneFilename;
-		//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga. It is free()d in destructor.
-		//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
-		char* skyboxFilename;
-		bool releaseResources;
+//! Extended SceneViewerState.
+struct SceneViewerStateEx : public SceneViewerState
+{
+	//! Initial scene to be displayed, never deleted, never NULLed even when no longer displayed (because solver->aborting is still used).
+	rr::RRDynamicSolver* initialInputSolver;
+	//! Initial and never changing path to shaders, never freed.
+	const char* pathToShaders;
+	//! Current scene filename, e.g. path/scene.dae.
+	std::string sceneFilename;
+	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
+	//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
+	std::string skyboxFilename;
+	bool releaseResources;
 
-		SceneViewerStateEx()
-		{
-			initialInputSolver = NULL;
-			pathToShaders = NULL;
-			sceneFilename = NULL;
-			skyboxFilename = NULL;
-			releaseResources = true;
-		}
-		~SceneViewerStateEx()
-		{
-			free(sceneFilename);
-		}
-	};
+	SceneViewerStateEx()
+	{
+		initialInputSolver = NULL;
+		pathToShaders = NULL;
+		releaseResources = true;
+	}
+};
 
 }; // namespace
 

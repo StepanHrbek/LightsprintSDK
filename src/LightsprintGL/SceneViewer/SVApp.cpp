@@ -41,11 +41,11 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	if (_svs) memcpy(&g_svs,_svs,sizeof(*_svs));
 	if (_inputFilename)
 	{
-		g_svs.sceneFilename = _strdup(_inputFilename);
+		g_svs.sceneFilename = _inputFilename;
 	}
 	if (_skyboxFilename)
 	{
-		g_svs.skyboxFilename = _strdup(_skyboxFilename);
+		g_svs.skyboxFilename = _skyboxFilename;
 	}
 	g_svs.initialInputSolver = _inputSolver;
 	g_svs.pathToShaders = _pathToShaders;
@@ -53,10 +53,6 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	wxEntry(0,NULL);
-
-	// don't wait for destructor, free strings now to avoid false positive in memleak detector
-	RR_SAFE_FREE(g_svs.sceneFilename);
-	RR_SAFE_FREE(g_svs.skyboxFilename);
 }
  
 }; // namespace
