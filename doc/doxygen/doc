@@ -153,7 +153,8 @@ Global illumination
 - emissive materials (LDR, HDR texture)
 
 Lighting computed (outputs)
-- lightmap, directional lightmap
+- lightmap
+- directional lightmap for radiosity normal mapping/RNM
 - ambient map
 - ambient occlusion, global ambient occlusion
 - diffuse environment map
