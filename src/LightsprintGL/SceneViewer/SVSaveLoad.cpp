@@ -11,9 +11,9 @@
 //
 // boost::serialization support
 
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include "SVApp.h"
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/split_free.hpp>
 
 namespace boost
 {
