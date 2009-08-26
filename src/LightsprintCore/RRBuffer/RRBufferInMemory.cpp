@@ -161,7 +161,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 {
 	if (!data)
 	{
-		RRReporter::report(WARN,"getElement() called on uninitialized buffer.\n");
+		LIMITED_TIMES(10,RRReporter::report(WARN,"getElement() called on an uninitialized buffer.\n"));
 		return RRVec4(0);
 	}
 	if (index>=width*height*depth)
