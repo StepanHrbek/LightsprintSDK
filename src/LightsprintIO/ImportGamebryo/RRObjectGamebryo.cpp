@@ -1090,7 +1090,7 @@ public:
 						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
 						if (pkRoot)
 						{
-							addNode(pkRoot,lodInfo,_aborting,NULL);
+							addNode(pkRoot,lodInfo,_aborting,NULL,NULL);
 						}
 					}
 				}
@@ -1098,12 +1098,41 @@ public:
 		}
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
+	struct PerSceneSettings
+	{
+		efd::utf8string lsDefaultBakeTarget;
+		efd::utf8string lsDefaultBakeDirectionality;
+		float lsPixelsPerWorldUnit;
+		float lsEmissiveMultiplier;
+		// and lsEnvironmentXxx, but we don't need it here
+
+		PerSceneSettings()
+		{
+			lsDefaultBakeTarget = "Vertex colors";
+			lsDefaultBakeDirectionality = "Non-directional";
+			lsPixelsPerWorldUnit = 0.1f;
+			lsEmissiveMultiplier = 1;
+		}
+	};
+
 	struct PerEntitySettings
 	{
 		efd::utf8string lsBakeTarget;
 		efd::utf8string lsBakeDirectionality;
-		unsigned lsLightmapWidth;
-		unsigned lsLightmapHeight;
+		efd::utf8string lsResolutionFormula;
+		float lsResolutionMultiplier;
+		unsigned lsResolutionWidth;
+		unsigned lsResolutionHeight;
+
+		PerEntitySettings()
+		{
+			lsBakeTarget = "Default";
+			lsBakeDirectionality = "Default";
+			lsResolutionFormula = "Multiplier";
+			lsResolutionMultiplier = 1;
+			lsResolutionWidth = 128;
+			lsResolutionHeight = 128;
+		}
 	};
 
 	// path used by Gamebryo 3.0 Toolbench plugin
@@ -1120,9 +1149,8 @@ public:
 			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
 			if (entityManager && sceneGraphService)
 			{
-				// read scene default settings, start with safe defaults
-				efd::utf8string lsDefaultBakeTarget = "Vertex colors";
-				efd::utf8string lsDefaultBakeDirectionality = "Non-directional";
+				// read scene settings
+				PerSceneSettings perSceneSettings;
 				unsigned numScenes = 0;
 				unsigned numLightsprintScenes = 0;
 				unsigned numMeshes = 0;
@@ -1138,11 +1166,11 @@ public:
 						}
 						if (entity->GetModel()->ContainsModel("LightsprintScene"))
 						{
-							float lsEmissiveMultiplier = 1;
-							entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
-							materialCache.setEmissiveMultiplier(lsEmissiveMultiplier);
-							entity->GetPropertyValue("LsDefaultBakeTarget", lsDefaultBakeTarget);
-							entity->GetPropertyValue("LsDefaultBakeDirectionality", lsDefaultBakeDirectionality);
+							entity->GetPropertyValue("LsDefaultBakeTarget", perSceneSettings.lsDefaultBakeTarget);
+							entity->GetPropertyValue("LsDefaultBakeDirectionality", perSceneSettings.lsDefaultBakeDirectionality);
+							entity->GetPropertyValue("LsPixelsPerWorldUnit", perSceneSettings.lsPixelsPerWorldUnit);
+							entity->GetPropertyValue("LsEmissiveMultiplier", perSceneSettings.lsEmissiveMultiplier);
+							materialCache.setEmissiveMultiplier(perSceneSettings.lsEmissiveMultiplier);
 							numLightsprintScenes++;
 						}
 						if (entity && entity->GetModel()->ContainsModel("Mesh"))
@@ -1176,25 +1204,25 @@ public:
 						{
 							PerEntitySettings perEntitySettings;
 
-							perEntitySettings.lsBakeTarget = "Default";
 							entity->GetPropertyValue("LsBakeTarget", perEntitySettings.lsBakeTarget);
 							if (perEntitySettings.lsBakeTarget=="Default")
-								perEntitySettings.lsBakeTarget = lsDefaultBakeTarget;
+								perEntitySettings.lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
 
-							perEntitySettings.lsBakeDirectionality = "Default";
 							entity->GetPropertyValue("LsBakeDirectionality", perEntitySettings.lsBakeDirectionality);
 							if (perEntitySettings.lsBakeDirectionality=="Default")
-								perEntitySettings.lsBakeDirectionality = lsDefaultBakeDirectionality;
+								perEntitySettings.lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
 
-							perEntitySettings.lsLightmapWidth = 128;
-							entity->GetPropertyValue("LsLightmapWidth", perEntitySettings.lsLightmapWidth);
+							entity->GetPropertyValue("LsResolutionFormula", perEntitySettings.lsResolutionFormula);
 
-							perEntitySettings.lsLightmapHeight = 128;
-							entity->GetPropertyValue("LsLightmapHeight", perEntitySettings.lsLightmapHeight);
+							entity->GetPropertyValue("LsResolutionMultiplier", perEntitySettings.lsResolutionMultiplier);
+
+							entity->GetPropertyValue("LsResolutionWidth", perEntitySettings.lsResolutionWidth);
+
+							entity->GetPropertyValue("LsResolutionHeight", perEntitySettings.lsResolutionHeight);
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-							addNode(obj,lodInfo,_aborting,&perEntitySettings);
+							addNode(obj,lodInfo,_aborting,&perSceneSettings,&perEntitySettings);
 
 							// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
 							class Visitor : public egmGI::MeshVisitor
@@ -1332,9 +1360,123 @@ public:
 
 private:
 
+	//-----------------------------------------------------------------------------------------------
+	// copied from Emergent's Gamebryo GI Package 1.0.0
+	struct CreateEdgeRatioArrayFunctor
+	{
+		NiDataStreamElementLock* m_pkPositions;
+		NiDataStreamElementLock* m_pkUVs;
+		float* m_pfEdgeRatios;
+		int m_iIndex;
+		float m_fWorldScale;
+
+		CreateEdgeRatioArrayFunctor(
+			NiDataStreamElementLock* pkPositions,
+			NiDataStreamElementLock* pkUVs,
+			float* pfEdgeRatios,
+			float fWorldScale)
+		{
+			m_pkPositions = pkPositions;
+			m_pkUVs = pkUVs;
+			m_pfEdgeRatios = pfEdgeRatios;
+			m_iIndex = 0;
+			m_fWorldScale = fWorldScale;
+		}
+
+		bool operator() (
+			const NiUInt32* pIndices, 
+			NiUInt32 /*uiCount*/, 
+			NiUInt32 /*uiPrimitiveIdx*/,
+			NiUInt16 /*uiSubMesh*/)
+		{
+			NiPoint3 p0 = m_pkPositions->begin<NiPoint3>()[pIndices[0]]*m_fWorldScale;
+			NiPoint3 p1 = m_pkPositions->begin<NiPoint3>()[pIndices[1]]*m_fWorldScale;
+			NiPoint3 p2 = m_pkPositions->begin<NiPoint3>()[pIndices[2]]*m_fWorldScale;
+
+			NiPoint2 u0 = m_pkUVs->begin<NiPoint2>()[pIndices[0]];
+			NiPoint2 u1 = m_pkUVs->begin<NiPoint2>()[pIndices[1]];
+			NiPoint2 u2 = m_pkUVs->begin<NiPoint2>()[pIndices[2]];
+
+			float fWorldD0 = (p0 - p1).SqrLength();
+			float fWorldD1 = (p1 - p2).SqrLength();
+			float fWorldD2 = (p2 - p0).SqrLength();
+
+			float fTextureD0 = (u0 - u1).SqrLength();
+			float fTextureD1 = (u1 - u2).SqrLength();
+			float fTextureD2 = (u2 - u0).SqrLength();
+
+			if (fWorldD0 > 0 && fTextureD0)
+				m_pfEdgeRatios[m_iIndex++] = fWorldD0 / fTextureD0;
+			if (fWorldD1 > 0 && fTextureD1)
+				m_pfEdgeRatios[m_iIndex++] = fWorldD1 / fTextureD1;
+			if (fWorldD2 > 0 && fTextureD2)
+				m_pfEdgeRatios[m_iIndex++] = fWorldD2 / fTextureD2;
+
+			return true;
+		}
+	};
+	//-----------------------------------------------------------------------------------------------
+	// copied from Emergent's Gamebryo GI Package 1.0.0
+	static int FloatCompare(const void* pv0, const void* pv1)
+	{
+		return (int) (*(float*)pv0 - *(float*)pv1);
+	}
+	//-----------------------------------------------------------------------------------------------
+	// copied from Emergent's Gamebryo GI Package 1.0.0
+	void GetLightMapResolution(
+		int& iU,
+		int& iV,
+		NiMesh* pkMesh, 
+		unsigned lightMapUVSetIndex,
+		float fTexelsPerWorldUnit, 
+		int iMinSize = 16,
+		int iMaxSize = 2048)
+	{
+		NiDataStreamElementLock* pkPositions = NiNew NiDataStreamElementLock(
+			pkMesh,
+			NiCommonSemantics::POSITION(),
+			0,
+			NiDataStreamElement::F_UNKNOWN,
+			NiDataStream::LOCK_TOOL_READ);
+
+		NiDataStreamElementLock* pkUVs = NiNew NiDataStreamElementLock(
+			pkMesh,
+			NiCommonSemantics::TEXCOORD(),
+			lightMapUVSetIndex,
+			NiDataStreamElement::F_UNKNOWN,
+			NiDataStream::LOCK_TOOL_READ);
+
+		int iNumEdges = pkMesh->GetTotalPrimitiveCount()*3;
+		float* pfEdgeRatios = NiExternalNew float[iNumEdges];
+
+		// Create an array to store the ratio of each world space edge length with its
+		// corresponding texture space edge length
+		CreateEdgeRatioArrayFunctor kFunctor(
+			pkPositions, pkUVs, pfEdgeRatios, pkMesh->GetWorldScale());
+		NiMeshAlgorithms::ForEachPrimitiveAllSubmeshes(
+			pkMesh, kFunctor, NiDataStream::LOCK_TOOL_READ, true);
+		iNumEdges = kFunctor.m_iIndex;
+	    
+		// Sort the edge ratios to find the median ratio
+		qsort(pfEdgeRatios, iNumEdges, sizeof(float), FloatCompare);
+		float fRatio = sqrt(pfEdgeRatios[iNumEdges/2]);
+		int iTargetResolution = (int)(fRatio*fTexelsPerWorldUnit);
+
+		// Find the power-of-two size which most closely matches the target
+		iU = iMinSize > 0 && iMinSize <= iMaxSize ? iMinSize : 1;
+		while (iU < iTargetResolution && iU < iMaxSize) 
+			iU *= 2;
+		iV = iU;
+
+		NiDelete pkPositions;
+		NiDelete pkUVs;
+		NiExternalDelete pfEdgeRatios;
+	}
+	//-----------------------------------------------------------------------------------------------
+
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const struct PerEntitySettings* perEntitySettings)
+	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const struct PerSceneSettings* perSceneSettings, const struct PerEntitySettings* perEntitySettings)
 	{
 		if (!object)
 		{
@@ -1360,7 +1502,7 @@ private:
 					lodInfo.level = i; // TODO: is GetAt(0) level 0?
 				}
 				// add node
-				addNode(node->GetAt(i),lodInfo,aborting,perEntitySettings);
+				addNode(node->GetAt(i),lodInfo,aborting,perSceneSettings,perEntitySettings);
 			}
 		}
 		// adapt single node
@@ -1468,15 +1610,29 @@ private:
 					}
 					else
 					{
-						if (buildNonDirectional)
+						unsigned lightmapWidth;
+						unsigned lightmapHeight;
+						if (perEntitySettings->lsResolutionFormula=="Multiplier")
 						{
-							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+							int w,h;
+							GetLightMapResolution(w,h,niMesh,lightmapTexcoord,perSceneSettings->lsPixelsPerWorldUnit*perEntitySettings->lsResolutionMultiplier);
+							lightmapWidth = (unsigned)RR_MAX(1,w+0.5f);
+							lightmapHeight = (unsigned)RR_MAX(1,h+0.5f);
 						}
 						else
 						{
-							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
-							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
-							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_2D_TEXTURE,perEntitySettings->lsLightmapWidth,perEntitySettings->lsLightmapHeight,1,BF_RGB,true,NULL);
+							lightmapWidth = perEntitySettings->lsResolutionWidth;
+							lightmapHeight = perEntitySettings->lsResolutionHeight;
+						}
+						if (buildNonDirectional)
+						{
+							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
+						}
+						else
+						{
+							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
+							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
+							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
 						}
 					}
 				}
