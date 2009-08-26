@@ -811,11 +811,17 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				program->sendUniform("worldMatrix",worldMatrix,false,4);
 				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
 			}
+		}
 
+		if (svs.renderIcons)
+		{
 
 			// render light frames
 			solver->renderLights();
+		}
 
+		if (svs.renderHelpers)
+		{
 			// render lines
 			{
 				// set shader

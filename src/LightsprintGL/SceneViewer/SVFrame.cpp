@@ -420,6 +420,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_RENDER_WIREFRAME,_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
 		winMenu->Check(ME_RENDER_WIREFRAME,svs.renderWireframe);
 		winMenu->AppendSeparator();
+		winMenu->AppendCheckItem(ME_RENDER_ICONS,_T("Lights"),_T("Toggles rendering light wire models."));
+		winMenu->Check(ME_RENDER_ICONS,svs.renderIcons);
 		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
 		winMenu->AppendCheckItem(ME_RENDER_WATER,_T("Water"),_T("Water is water-like plane with adjustable elevation."));
@@ -933,6 +935,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_TEXTURES: svs.renderMaterialTextures = !svs.renderMaterialTextures; break;
 		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
+		case ME_RENDER_ICONS: svs.renderIcons = !svs.renderIcons; break;
 		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 		case ME_RENDER_LOGO: svs.renderLogo = !svs.renderLogo; break;
 		case ME_RENDER_VIGNETTE: svs.renderVignette = !svs.renderVignette; break;

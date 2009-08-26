@@ -213,6 +213,7 @@ void save(Archive& ar, const rr_gl::SceneViewerStateEx& a, const unsigned int ve
 	ar & make_nvp("renderWater",a.renderWater);
 	ar & make_nvp("renderWireframe",a.renderWireframe);
 	ar & make_nvp("renderFPS",a.renderFPS);
+	ar & make_nvp("renderIcons",a.renderIcons);
 	ar & make_nvp("renderHelpers",a.renderHelpers);
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
@@ -253,6 +254,7 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderWater",a.renderWater);
 	ar & make_nvp("renderWireframe",a.renderWireframe);
 	ar & make_nvp("renderFPS",a.renderFPS);
+	ar & make_nvp("renderIcons",a.renderIcons);
 	ar & make_nvp("renderHelpers",a.renderHelpers);
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
