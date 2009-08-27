@@ -88,7 +88,7 @@ public:
 				// this is candidate for stitching, do final test
 				if (CLOSE(0) && CLOSE(1) && CLOSE(2))
 				{
-					if( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
+					if ( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
 						|| (!stitchOnlyIdenticalNormals && dfl.normal.dot(ufl.normal)>=minNormalDotNormalToStitch) ) // normals must be normalized here
 					{
 						Dupl2Unique[d] = u;
