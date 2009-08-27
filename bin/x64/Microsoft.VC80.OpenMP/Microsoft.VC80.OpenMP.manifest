@@ -2,6 +2,6 @@
 <!-- Copyright © 1981-2001 Microsoft Corporation -->
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
     <noInheritable/>
-    <assemblyIdentity type="win32" name="Microsoft.VC80.OpenMP" version="8.0.50727.42" processorArchitecture="amd64" publicKeyToken="1fc8b3b9a1e18e3b"/>
-    <file name="vcomp.dll" hash="d26800813aaeebd173930d0979c603dcf6ad1774" hashalg="SHA1"/>
+    <assemblyIdentity type="win32" name="Microsoft.VC80.OpenMP" version="8.0.50727.4053" processorArchitecture="amd64" publicKeyToken="1fc8b3b9a1e18e3b"/>
+    <file name="vcomp.dll" hash="a2e4e03c08450cb3bc429ed9db3e6ed4ed69525c" hashalg="SHA1"/>
 </assembly>
