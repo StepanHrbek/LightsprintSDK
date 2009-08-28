@@ -1273,7 +1273,11 @@ public:
 		for (unsigned i=0;i<numElements;i++)
 		{
 			sortElement[i].illuminatedObject = (*this)[i];
-			sortElement[i].illuminatedObject.object->getCollider()->getMesh()->getHash(sortElement[i].hash);
+			// calculates hash from mesh transformed to world space
+			// hashing in local space would produce identical hashes for mesh instances
+			RRMesh* tmpMesh = sortElement[i].illuminatedObject.object->getCollider()->getMesh()->createTransformed(sortElement[i].illuminatedObject.object->getWorldMatrix());
+			tmpMesh->getHash(sortElement[i].hash);
+			delete tmpMesh;
 		}
 		qsort(sortElement,numElements,sizeof(sortElement[0]),SortElement::sortByHashes);
 		clear();
