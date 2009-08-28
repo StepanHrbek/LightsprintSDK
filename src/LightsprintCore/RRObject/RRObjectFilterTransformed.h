@@ -71,6 +71,16 @@ public:
 			}
 		}
 	}
+	// Return transformed collider+mesh rather than original.
+	virtual const RRCollider* getCollider() const
+	{
+		return collider;
+	}
+	// Return no transform rather than original.
+	virtual const RRMatrix3x4* getWorldMatrix()
+	{
+		return NULL;
+	}
 
 private:
 	const RRCollider* collider;
