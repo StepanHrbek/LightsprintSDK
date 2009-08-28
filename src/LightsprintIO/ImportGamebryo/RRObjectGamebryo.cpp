@@ -1098,43 +1098,6 @@ public:
 		}
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
-	struct PerSceneSettings
-	{
-		efd::utf8string lsDefaultBakeTarget;
-		efd::utf8string lsDefaultBakeDirectionality;
-		float lsPixelsPerWorldUnit;
-		float lsEmissiveMultiplier;
-		// and lsEnvironmentXxx, but we don't need it here
-
-		PerSceneSettings()
-		{
-			lsDefaultBakeTarget = "Vertex colors";
-			lsDefaultBakeDirectionality = "Non-directional";
-			lsPixelsPerWorldUnit = 0.1f;
-			lsEmissiveMultiplier = 1;
-		}
-	};
-
-	struct PerEntitySettings
-	{
-		efd::utf8string lsBakeTarget;
-		efd::utf8string lsBakeDirectionality;
-		efd::utf8string lsResolutionFormula;
-		float lsResolutionMultiplier;
-		unsigned lsResolutionWidth;
-		unsigned lsResolutionHeight;
-
-		PerEntitySettings()
-		{
-			lsBakeTarget = "Default";
-			lsBakeDirectionality = "Default";
-			lsResolutionFormula = "Multiplier";
-			lsResolutionMultiplier = 1;
-			lsResolutionWidth = 128;
-			lsResolutionHeight = 128;
-		}
-	};
-
 	// path used by Gamebryo 3.0 Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 		: materialCache(1)
@@ -1150,7 +1113,6 @@ public:
 			if (entityManager && sceneGraphService)
 			{
 				// read scene settings
-				PerSceneSettings perSceneSettings;
 				unsigned numScenes = 0;
 				unsigned numLightsprintScenes = 0;
 				unsigned numMeshes = 0;
@@ -1166,10 +1128,7 @@ public:
 						}
 						if (entity->GetModel()->ContainsModel("LightsprintScene"))
 						{
-							entity->GetPropertyValue("LsDefaultBakeTarget", perSceneSettings.lsDefaultBakeTarget);
-							entity->GetPropertyValue("LsDefaultBakeDirectionality", perSceneSettings.lsDefaultBakeDirectionality);
-							entity->GetPropertyValue("LsPixelsPerWorldUnit", perSceneSettings.lsPixelsPerWorldUnit);
-							entity->GetPropertyValue("LsEmissiveMultiplier", perSceneSettings.lsEmissiveMultiplier);
+							perSceneSettings.readFrom(entity);
 							materialCache.setEmissiveMultiplier(perSceneSettings.lsEmissiveMultiplier);
 							numLightsprintScenes++;
 						}
@@ -1203,22 +1162,7 @@ public:
 						if (isStatic && useForPrecomputedLighting)
 						{
 							PerEntitySettings perEntitySettings;
-
-							entity->GetPropertyValue("LsBakeTarget", perEntitySettings.lsBakeTarget);
-							if (perEntitySettings.lsBakeTarget=="Default")
-								perEntitySettings.lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
-
-							entity->GetPropertyValue("LsBakeDirectionality", perEntitySettings.lsBakeDirectionality);
-							if (perEntitySettings.lsBakeDirectionality=="Default")
-								perEntitySettings.lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
-
-							entity->GetPropertyValue("LsResolutionFormula", perEntitySettings.lsResolutionFormula);
-
-							entity->GetPropertyValue("LsResolutionMultiplier", perEntitySettings.lsResolutionMultiplier);
-
-							entity->GetPropertyValue("LsResolutionWidth", perEntitySettings.lsResolutionWidth);
-
-							entity->GetPropertyValue("LsResolutionHeight", perEntitySettings.lsResolutionHeight);
+							perEntitySettings.readFrom(entity,perSceneSettings);
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
@@ -1364,6 +1308,67 @@ public:
 
 private:
 
+#if GAMEBRYO_MAJOR_VERSION==3
+	struct PerSceneSettings
+	{
+		efd::utf8string lsDefaultBakeTarget;
+		efd::utf8string lsDefaultBakeDirectionality;
+		float lsPixelsPerWorldUnit;
+		float lsEmissiveMultiplier;
+		// and lsEnvironmentXxx, but we don't need it here
+
+		PerSceneSettings()
+		{
+			lsDefaultBakeTarget = "Vertex colors";
+			lsDefaultBakeDirectionality = "Non-directional";
+			lsPixelsPerWorldUnit = 0.1f;
+			lsEmissiveMultiplier = 1;
+		}
+		void readFrom(egf::Entity* entity)
+		{
+			entity->GetPropertyValue("LsDefaultBakeTarget", lsDefaultBakeTarget);
+			entity->GetPropertyValue("LsDefaultBakeDirectionality", lsDefaultBakeDirectionality);
+			entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
+			entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+		}
+	};
+
+	struct PerEntitySettings
+	{
+		efd::utf8string lsBakeTarget;
+		efd::utf8string lsBakeDirectionality;
+		efd::utf8string lsResolutionFormula;
+		float lsResolutionMultiplier;
+		unsigned lsResolutionWidth;
+		unsigned lsResolutionHeight;
+
+		PerEntitySettings()
+		{
+			lsBakeTarget = "Default";
+			lsBakeDirectionality = "Default";
+			lsResolutionFormula = "Multiplier";
+			lsResolutionMultiplier = 1;
+			lsResolutionWidth = 128;
+			lsResolutionHeight = 128;
+		}
+		void readFrom(egf::Entity* entity, const PerSceneSettings& perSceneSettings)
+		{
+			entity->GetPropertyValue("LsBakeTarget", lsBakeTarget);
+			if (lsBakeTarget=="Default")
+				lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
+
+			entity->GetPropertyValue("LsBakeDirectionality", lsBakeDirectionality);
+			if (lsBakeDirectionality=="Default")
+				lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
+
+			entity->GetPropertyValue("LsResolutionFormula", lsResolutionFormula);
+			entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
+			entity->GetPropertyValue("LsResolutionWidth", lsResolutionWidth);
+			entity->GetPropertyValue("LsResolutionHeight", lsResolutionHeight);
+
+		}
+	};
+
 	//-----------------------------------------------------------------------------------------------
 	// copied from Emergent's Gamebryo GI Package 1.0.0
 	struct CreateEdgeRatioArrayFunctor
@@ -1477,6 +1482,7 @@ private:
 		NiExternalDelete pfEdgeRatios;
 	}
 	//-----------------------------------------------------------------------------------------------
+#endif // GAMEBRYO_MAJOR_VERSION==3
 
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
@@ -1648,7 +1654,10 @@ private:
 	}
 
 	MaterialCacheGamebryo materialCache;
-	NiScene* pkEntityScene; // used only to query lightmap names
+	NiScene* pkEntityScene; // used only to query lightmap names from .gsa
+#if GAMEBRYO_MAJOR_VERSION==3
+	PerSceneSettings perSceneSettings;
+#endif
 };
 
 
