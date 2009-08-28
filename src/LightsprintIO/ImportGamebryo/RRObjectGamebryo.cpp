@@ -2187,15 +2187,25 @@ RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceManager
 					float lsEnvironmentMultiplier = 1;
 					entity->GetPropertyValue("LsEnvironmentMultiplier", lsEnvironmentMultiplier);
 
-					if (lsEnvironmentColor*lsEnvironmentMultiplier==RRVec3(0))
+					if (lsEnvironmentMultiplier==0)
 					{
-						if (lsEnvironmentTexture!="" && lsEnvironmentColor==RRVec3(0))
+						// multiplier 0 -> keep environment NULL, black
+					}
+					else
+					if (lsEnvironmentColor==RRVec3(0))
+					{
+						// color 0 -> ignore color, return texture * multiplier
+						if (lsEnvironmentTexture!="")
+							environment = RRBuffer::loadCube(lsEnvironmentTexture.c_str());
+						if (environment && lsEnvironmentMultiplier!=1)
 						{
-							RRReporter::report(WARN,"LsEnvironmentTexture ignored due to black LsEnvironmentColor, we multiply them.\n"); 
+							environment->setFormatFloats();
+							environment->multiplyAdd(RRVec4(RRVec3(lsEnvironmentMultiplier),0),RRVec4(0));
 						}
 					}
 					else
 					{
+						// texture * color * multiplier
 						if (lsEnvironmentTexture!="")
 							environment = RRBuffer::loadCube(lsEnvironmentTexture.c_str());
 						if (!environment)
