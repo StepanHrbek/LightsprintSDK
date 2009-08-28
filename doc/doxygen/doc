@@ -37,9 +37,9 @@ namespace rr
  - \subpage main_conventions "Conventions (units, scale, floats...)"
  - \subpage main_api
 
- \section root_samples Samples
+ \section root_samples Samples etc
  - \subpage main_samples
- - \subpage main_howto
+ - \subpage main_trouble
 
 
 
@@ -498,7 +498,7 @@ Ray-Mesh collisions
  \section artist_offline_geometry Geometry
   Any triangle-based geometry is supported without restrictions.
   \n Scene size is virtually unlimited with 64bit code.
-  With 32bit code, read how to relax \ref main_howto "scene size limits".
+  With 32bit code, read how to relax \ref trouble_memory "scene size limits".
   \n In rare cases, artifacts may appear in proximity of huge triangles.
   Solution is to avoid or temporarily tessellate huge triangles.
 
@@ -2183,9 +2183,9 @@ Ray-Mesh collisions
  - for offline rendering, 3D API is not needed
 
  Compilers
- - Visual C++ 2008 (32bit, 64bit)
- - Visual C++ 2005 SP1 (32bit, 64bit)
- - Visual C++ 2003 SP1
+ - Visual C++ 2008 with all security updates (32bit, 64bit)
+ - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
+ - Visual C++ 2003 SP1 with all security updates
  - gcc (32bit, 64bit)
 
  Library configurations
@@ -2316,7 +2316,7 @@ Ray-Mesh collisions
 
  \image html unreal.png   
 
- \ref howto_bigscenes
+ \ref trouble_memory "How to process even bigger scenes"
 
 
 
@@ -2370,7 +2370,7 @@ Ray-Mesh collisions
   </td></tr></table>
 
  \section g30_misc Misc
-  - \ref howto_bigscenes
+  - \ref trouble_memory "How to process even bigger scenes"
 
 
 \page main_gamebryo30 Lightspeed (in development - for testing only)
@@ -2456,7 +2456,7 @@ Ray-Mesh collisions
     Model library is in <code>\$(EMERGENT_PATH)\\Media\\LightsprintModelLibrary</code>.
 
  \section g30_misc Misc
-  - \ref howto_bigscenes
+  - \ref trouble_memory "How to process even bigger scenes"
 
 
 
@@ -3004,11 +3004,16 @@ Ray-Mesh collisions
 
 
 
-\page main_howto How to...
+\page main_trouble Troubleshooting
 
-  Please report us problems you encounter. Your feedback is very important.
+ Please report us problems you encounter. Your feedback is very important.
 
- \section howto_bigscenes How to process even bigger scenes
+ - \subpage trouble_memory
+
+ - \subpage trouble_exes_dont_run
+
+
+\page trouble_memory Not enough memory?
 
   Use our 64bit code (fully supported by Lightsprint) whenever possible.
   With 64bit code, system memory is better utilized, you can process scenes of all sizes.
@@ -3023,7 +3028,16 @@ Ray-Mesh collisions
 
   Using 32bit Windows without /3GB parameter is worst case scenario, process has only 2GB address space,
   so tasks like lightmap building can't process huge scenes.
- 
+
+
+\page trouble_exes_dont_run Windows executables don't run
+
+  If Windows refuses tu run Lightsprint executables, reporting errors like
+  - <code>The application failed to initialize properly (0xc0150002).</code>
+  - <code>LDR: LdrpWalkImportDescriptor() failed to probe ... for its manifest, ntstatus 0xc0150002</code>
+
+  make sure your system is up to date, install all service packs and security updates for Windows (and for Visual Studio, if installed).
+
 */
 
 };
