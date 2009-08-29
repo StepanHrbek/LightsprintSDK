@@ -268,10 +268,6 @@ public:
 		NiDataStreamElementLock kLockNormal(mesh, NiCommonSemantics::NORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockTangent(mesh, NiCommonSemantics::TANGENT(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
 		NiDataStreamElementLock kLockBitangent(mesh, NiCommonSemantics::BINORMAL(), 0, NiDataStreamElement::F_FLOAT32_3, NiDataStream::LOCK_READ);
-#if GAMEBRYO_MAJOR_VERSION==2
-		// Ignore value sent in parameter, it is valid only in Gamebryo 3
-		_lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
-#endif
 		unsigned diffuseTexcoord = UINT_MAX;
 		unsigned specularTexcoord = UINT_MAX;
 		unsigned emissiveTexcoord = UINT_MAX;
@@ -886,6 +882,138 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
+// PropertyEnum
+
+enum PropertyEnum
+{
+	PE_INHERIT_FROM_LIGHTSPRINT_SCENE = 0,
+	PE_VERTICES,
+	PE_TEXTURE,
+	PE_NON_DIRECTIONAL,
+	PE_DIRECTIONAL,
+	PE_RESOLUTION_CALCULATED,
+	PE_RESOLUTION_FIXED,
+	PE_UNKNOWN // string was not 
+};
+
+#if GAMEBRYO_MAJOR_VERSION==3
+PropertyEnum getPropertyEnum(efd::utf8string propertyString)
+{
+	const char* propertyStrings[] =
+	{
+		"Default",
+		"Vertex colors",
+		"Texture(s)",
+		"Non-directional",
+		"Directional/RNM",
+		"Multiplier",
+		"Fixed"
+	};
+	for (unsigned i=0;i<7;i++)
+	{
+		if (propertyString==propertyStrings[i])
+			return (PropertyEnum)i;
+	}
+	RRReporter::report(WARN,"Enum has unexpected value %s.\n",propertyString);
+	return PE_UNKNOWN;
+};
+#endif
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// PerSceneSettings
+
+// In Toolbench, we read settings from LightsprintScene entity or keep defaults.
+// In .gsa, we make up some settings.
+struct PerSceneSettings
+{
+	PropertyEnum lsDefaultBakeTarget;
+	PropertyEnum lsDefaultBakeDirectionality;
+	float lsPixelsPerWorldUnit;
+	float lsEmissiveMultiplier;
+	// and lsEnvironmentXxx, but we don't need it here
+
+	PerSceneSettings()
+	{
+		lsDefaultBakeTarget = PE_VERTICES;
+		lsDefaultBakeDirectionality = PE_NON_DIRECTIONAL;
+		lsPixelsPerWorldUnit = 0.1f;
+		lsEmissiveMultiplier = 1;
+	}
+#if GAMEBRYO_MAJOR_VERSION==3
+	void readFrom(egf::Entity* entity)
+	{
+		efd::utf8string str;
+
+		entity->GetPropertyValue("LsDefaultBakeTarget", str);
+		lsDefaultBakeTarget = getPropertyEnum(str);
+
+		entity->GetPropertyValue("LsDefaultBakeDirectionality", str);
+		lsDefaultBakeDirectionality = getPropertyEnum(str);
+
+		entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
+
+		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+	}
+#endif
+};
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+// PerEntitySettings
+
+// In Toolbench, we read settings from LightsprintMesh entity or keep defaults.
+// In .gsa, we keep defaults.
+struct PerEntitySettings
+{
+	PropertyEnum lsBakeTarget;
+	PropertyEnum lsBakeDirectionality;
+	PropertyEnum lsResolutionFormula;
+	float lsResolutionMultiplier;
+	unsigned lsResolutionWidth;
+	unsigned lsResolutionHeight;
+
+	PerEntitySettings()
+	{
+		lsBakeTarget = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
+		lsBakeDirectionality = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
+		lsResolutionFormula = PE_RESOLUTION_CALCULATED;
+		lsResolutionMultiplier = 1;
+		lsResolutionWidth = 128;
+		lsResolutionHeight = 128;
+	}
+#if GAMEBRYO_MAJOR_VERSION==3
+	void readFrom(egf::Entity* entity, const PerSceneSettings& perSceneSettings)
+	{
+		efd::utf8string str;
+
+		entity->GetPropertyValue("LsBakeTarget", str);
+		lsBakeTarget = getPropertyEnum(str);
+		if (lsBakeTarget==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
+			lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
+
+		entity->GetPropertyValue("LsBakeDirectionality", str);
+		lsBakeDirectionality = getPropertyEnum(str);
+		if (lsBakeDirectionality==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
+			lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
+
+		entity->GetPropertyValue("LsResolutionFormula", str);
+		lsResolutionFormula = getPropertyEnum(str);
+
+		entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
+
+		entity->GetPropertyValue("LsResolutionWidth", lsResolutionWidth);
+
+		entity->GetPropertyValue("LsResolutionHeight", lsResolutionHeight);
+	}
+#endif
+};
+
+
+////////////////////////////////////////////////////////////////////////////
+//
 // RRObjectGamebryo
 
 class RRObjectGamebryo : public RRObjectGamebryoBase
@@ -893,7 +1021,7 @@ class RRObjectGamebryo : public RRObjectGamebryoBase
 public:
 	// creates new RRObject from NiMesh
 	// return NULL for meshes of unsupported formats
-	static RRObjectGamebryo* create(NiMesh* _mesh, unsigned _lightmapTexcoord, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
+	static RRObjectGamebryo* create(NiMesh* _mesh, const PerEntitySettings& _perEntitySettings, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
 	{
 		if (!_mesh)
 		{
@@ -924,7 +1052,58 @@ public:
 				return NULL;
 		}
 		_mesh->UpdateEffects();
-		RRMesh* mesh = new RRMeshGamebryo(_mesh, _lightmapTexcoord);
+
+#if GAMEBRYO_MAJOR_VERSION==2
+		unsigned lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
+#else
+		// querying lightmapTexcoord is more complicated in Gamebryo 3
+		//  it can't be done later because RRMeshGamebryo() already needs it to lock uv buffer
+
+		// as a subquest, we must decide between nondirectional and directional buffers (it affects lightmapTexcoord)
+		bool buildPerVertex = _perEntitySettings.lsBakeTarget==PE_VERTICES;
+		bool buildNonDirectional = _perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+
+		// finally set lightmapTexcoord
+		unsigned lightmapTexcoord = UINT_MAX; // any uv that does not exist = unwrap would be autogenerated
+		NiGIDescriptorTable nigidt;
+		const NiGIDescriptor* nigid = nigidt.GetGIDescriptor(_mesh);
+		if (nigid)
+		{
+			if (buildNonDirectional)
+			{
+				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_LightMapShaderSlot);
+				if (buildPerVertex && !nigid->m_SupportsVertexLightMaps)
+				{
+					RRReporter::report(WARN,"VertexLightMaps requested, but m_SupportsVertexLightMaps=false.\n");
+				}
+				if (!buildPerVertex && !nigid->m_SupportsTextureLightMaps)
+				{
+					RRReporter::report(WARN,"TextureLightMaps requested, but m_SupportsTextureLightMaps=false.\n");
+				}
+			}
+			else
+			{
+				unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[0]);
+				unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[1]);
+				unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[2]);
+				lightmapTexcoord = directionalTexcoord0;
+				if (directionalTexcoord0!=directionalTexcoord1 || directionalTexcoord0!=directionalTexcoord2 || directionalTexcoord1!=directionalTexcoord2)
+				{
+					RRReporter::report(WARN,"All three textures making single directional lightmap must use the same uv.\n");
+				}
+				if (buildPerVertex && !nigid->m_SupportsVertexRNMs)
+				{
+					RRReporter::report(WARN,"VertexRNMs requested, but m_SupportsVertexRNMs=false.\n");
+				}
+				if (!buildPerVertex && !nigid->m_SupportsTextureRNMs)
+				{
+					RRReporter::report(WARN,"TextureRNMs requested, but m_SupportsTextureRNMs=false.\n");
+				}
+			}
+		}
+#endif
+
+		RRMesh* mesh = new RRMeshGamebryo(_mesh, lightmapTexcoord);
 		if (mesh->getNumTriangles()==0)
 		{
 			delete mesh;
@@ -936,7 +1115,9 @@ public:
 			delete mesh;
 			return NULL;
 		}
-		return new RRObjectGamebryo(_mesh, collider, _lodInfo, _materialCache);
+		RRObjectGamebryo* object = new RRObjectGamebryo(_mesh, collider, _lodInfo, _materialCache);
+		object->perEntitySettings = _perEntitySettings;
+		return object;
 	}
 	virtual ~RRObjectGamebryo()
 	{
@@ -1035,6 +1216,9 @@ public:
 	egmGI::MeshProperties meshProperties;
 #endif
 
+	// we store this only for later use by recommendLayerParameters()
+	PerEntitySettings perEntitySettings;
+
 private:
 	RRObjectGamebryo(NiMesh* _mesh, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
 	{
@@ -1068,6 +1252,11 @@ public:
 	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting, float _emissiveMultiplier)
 		: materialCache(_emissiveMultiplier)
 	{
+		// .gsa doesn't have entity settings, set defaults for .gsa
+		PerEntitySettings perEntitySettings;
+		perEntitySettings.lsBakeTarget = PE_TEXTURE;
+		perEntitySettings.lsBakeDirectionality = PE_NON_DIRECTIONAL;
+
 		pkEntityScene = _pkEntityScene;
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
@@ -1090,7 +1279,7 @@ public:
 						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
 						if (pkRoot)
 						{
-							addNode(pkRoot,lodInfo,_aborting,NULL,NULL);
+							addNode(pkRoot,lodInfo,_aborting,perEntitySettings);
 						}
 					}
 				}
@@ -1166,7 +1355,7 @@ public:
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-							addNode(obj,lodInfo,_aborting,&perSceneSettings,&perEntitySettings);
+							addNode(obj,lodInfo,_aborting,perEntitySettings);
 
 							// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
 							class Visitor : public egmGI::MeshVisitor
@@ -1272,7 +1461,7 @@ public:
 			RRObjectGamebryo* object;
 		};
 
-		if ((unsigned)layerParameters.objectIndex>size())
+		if ((unsigned)layerParameters.objectIndex>=size())
 		{
 			RRReporter::report(ERRO,"recommendLayerParameters(): objectIndex out of range\n");
 			return;
@@ -1288,91 +1477,89 @@ public:
 		// fill size, type, format
 		int w,h;
 		NiLightMapUtility::GetLightMapResolution(w,h,lightmapFunctor.object->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-#else
-		// fill filename
-		//RR_SAFE_FREE(layerParameters.actualFilename);
-		//layerParameters->actualFilename = ...
 
-		// fill size, type, format
-		// GI Package 2.0.1 stopped providing this information, use defaults (only matters if you use Gamebryo 3 and open .gsa, not typical use case)
-		int w = 128;
-		int h = 128;
-#endif
 		layerParameters.actualWidth = w;
 		layerParameters.actualHeight = h;
-//RRReporter::report(INF1,"%d %d %f %d %d\n",w,h,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);//!!!
 		layerParameters.actualType = BT_2D_TEXTURE;
-		layerParameters.actualFormat = BF_RGB; // 
+		layerParameters.actualFormat = BF_RGB;
 		layerParameters.actualScaled = true;
+		layerParameters.actualBuildNonDirectional = true;
+		layerParameters.actualBuildDirectional = false;
+		layerParameters.actualBuildBentNormals = false;
+#else
+		if ((unsigned)layerParameters.objectIndex>=size())
+		{
+			RRReporter::report(ERRO,"recommendLayerParameters(): objectIndex out of range\n");
+			return;
+		}
+
+		RRObjectGamebryo* rrObject = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object;
+		PerEntitySettings& perEntitySettings = rrObject->perEntitySettings;
+		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
+		{
+			layerParameters.actualType = BT_VERTEX_BUFFER;
+			layerParameters.actualWidth = rrObject->getIllumination()->getNumPreImportVertices();
+			layerParameters.actualHeight = 1;
+			layerParameters.actualFormat = BF_RGBA;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
+		if (perEntitySettings.lsResolutionFormula==PE_RESOLUTION_CALCULATED)
+		{
+			// create matrix that scales from lightsprint local space to gamebryo world space
+			RRMatrix3x4 worldMatrix;
+			if (rrObject->getWorldMatrix())
+				worldMatrix = *rrObject->getWorldMatrix();
+			else
+				worldMatrix.setIdentity();
+			for (unsigned i=0;i<3;i++)
+				for (unsigned j=0;j<4;j++)
+					worldMatrix.m[i][j] /= SCALE_GEOMETRY;
+
+			// calculate density in gamebryo world space
+			RRMesh* worldSpaceMesh = rrObject->getCollider()->getMesh()->createTransformed(&worldMatrix);
+			float density = worldSpaceMesh->getMappingDensity(CH_LIGHTMAP);
+			delete worldSpaceMesh;
+
+			// density -> resolution
+			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
+			resolution = RR_MAX(RR_MIN(resolution,2048),32);
+			//unsigned resolution2n = RR_MAX(1,minSize);
+			//while (resolution2n<resolution && resolution2n<maxSize) resolution2n *= 2;
+
+			layerParameters.actualType = BT_2D_TEXTURE;
+			layerParameters.actualWidth = resolution;
+			layerParameters.actualHeight = resolution;
+			layerParameters.actualFormat = BF_RGB;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
+		{
+			layerParameters.actualType = BT_2D_TEXTURE;
+			layerParameters.actualWidth = perEntitySettings.lsResolutionWidth;
+			layerParameters.actualHeight = perEntitySettings.lsResolutionHeight;
+			layerParameters.actualFormat = BF_RGB;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+#endif
 	}
 
 private:
-
-#if GAMEBRYO_MAJOR_VERSION==3
-	struct PerSceneSettings
-	{
-		efd::utf8string lsDefaultBakeTarget;
-		efd::utf8string lsDefaultBakeDirectionality;
-		float lsPixelsPerWorldUnit;
-		float lsEmissiveMultiplier;
-		// and lsEnvironmentXxx, but we don't need it here
-
-		PerSceneSettings()
-		{
-			lsDefaultBakeTarget = "Vertex colors";
-			lsDefaultBakeDirectionality = "Non-directional";
-			lsPixelsPerWorldUnit = 0.1f;
-			lsEmissiveMultiplier = 1;
-		}
-		void readFrom(egf::Entity* entity)
-		{
-			entity->GetPropertyValue("LsDefaultBakeTarget", lsDefaultBakeTarget);
-			entity->GetPropertyValue("LsDefaultBakeDirectionality", lsDefaultBakeDirectionality);
-			entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
-			entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
-		}
-	};
-
-	struct PerEntitySettings
-	{
-		efd::utf8string lsBakeTarget;
-		efd::utf8string lsBakeDirectionality;
-		efd::utf8string lsResolutionFormula;
-		float lsResolutionMultiplier;
-		unsigned lsResolutionWidth;
-		unsigned lsResolutionHeight;
-
-		PerEntitySettings()
-		{
-			lsBakeTarget = "Default";
-			lsBakeDirectionality = "Default";
-			lsResolutionFormula = "Multiplier";
-			lsResolutionMultiplier = 1;
-			lsResolutionWidth = 128;
-			lsResolutionHeight = 128;
-		}
-		void readFrom(egf::Entity* entity, const PerSceneSettings& perSceneSettings)
-		{
-			entity->GetPropertyValue("LsBakeTarget", lsBakeTarget);
-			if (lsBakeTarget=="Default")
-				lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
-
-			entity->GetPropertyValue("LsBakeDirectionality", lsBakeDirectionality);
-			if (lsBakeDirectionality=="Default")
-				lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
-
-			entity->GetPropertyValue("LsResolutionFormula", lsResolutionFormula);
-			entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
-			entity->GetPropertyValue("LsResolutionWidth", lsResolutionWidth);
-			entity->GetPropertyValue("LsResolutionHeight", lsResolutionHeight);
-
-		}
-	};
-#endif // GAMEBRYO_MAJOR_VERSION==3
-
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const struct PerSceneSettings* perSceneSettings, const struct PerEntitySettings* perEntitySettings)
+	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const PerEntitySettings& perEntitySettings)
 	{
 		if (!object)
 		{
@@ -1398,7 +1585,7 @@ private:
 					lodInfo.level = i; // TODO: is GetAt(0) level 0?
 				}
 				// add node
-				addNode(node->GetAt(i),lodInfo,aborting,perSceneSettings,perEntitySettings);
+				addNode(node->GetAt(i),lodInfo,aborting,perEntitySettings);
 			}
 		}
 		// adapt single node
@@ -1413,143 +1600,12 @@ private:
 				lodInfo.base = object;
 				lodInfo.level = 0;
 			}
-#if GAMEBRYO_MAJOR_VERSION==2
-			// it's not safe to query lightmapTexcoord yet, GI Package 1.0.0 would crash
-			// value is queried later in RRMeshGamebryo()
-			unsigned lightmapTexcoord = 0;
-#else
-			// querying lightmapTexcoord is more complicated in Gamebryo 3, it's done here, on higher level
-			// (it can't be done in RRMeshGamebryo() because it does not yet know entity etc,
-			//  it can't be done later because RRMeshGamebryo() already needs it to lock uv buffer)
-
-			// as a subquest, we must decide between nondirectional and directional buffers (it affects lightmapTexcoord)
-			bool buildPerVertex;
-			bool buildNonDirectional;
-			if (perEntitySettings)
-			{
-				// Toolbench path
-				// this is what user requests, affects lightmapTexcoord and buffers allocated
-				buildPerVertex = perEntitySettings->lsBakeTarget=="Vertex colors";
-				buildNonDirectional = perEntitySettings->lsBakeDirectionality=="Non-directional";
-			}
-			else
-			{
-				// .gsa path
-				// this is much less important, affects only lightmapTexcoord
-				buildPerVertex = true;
-				buildNonDirectional = true;
-			}
-
-			// finally set lightmapTexcoord
-			unsigned lightmapTexcoord = UINT_MAX; // any uv that does not exist = unwrap would be autogenerated
-			NiGIDescriptorTable nigidt;
-			const NiGIDescriptor* nigid = nigidt.GetGIDescriptor(niMesh);
-			if (nigid)
-			{
-				if (buildNonDirectional)
-				{
-					lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_LightMapShaderSlot);
-					if (buildPerVertex && !nigid->m_SupportsVertexLightMaps)
-					{
-						RRReporter::report(WARN,"VertexLightMaps requested, but m_SupportsVertexLightMaps=false.\n");
-					}
-					if (!buildPerVertex && !nigid->m_SupportsTextureLightMaps)
-					{
-						RRReporter::report(WARN,"TextureLightMaps requested, but m_SupportsTextureLightMaps=false.\n");
-					}
-				}
-				else
-				{
-					unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[0]);
-					unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[1]);
-					unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(niMesh, nigid->m_RNMShaderSlots[2]);
-					lightmapTexcoord = directionalTexcoord0;
-					if (directionalTexcoord0!=directionalTexcoord1 || directionalTexcoord0!=directionalTexcoord2 || directionalTexcoord1!=directionalTexcoord2)
-					{
-						RRReporter::report(WARN,"All three textures making single directional lightmap must use the same uv.\n");
-					}
-					if (buildPerVertex && !nigid->m_SupportsVertexRNMs)
-					{
-						RRReporter::report(WARN,"VertexRNMs requested, but m_SupportsVertexRNMs=false.\n");
-					}
-					if (!buildPerVertex && !nigid->m_SupportsTextureRNMs)
-					{
-						RRReporter::report(WARN,"TextureRNMs requested, but m_SupportsTextureRNMs=false.\n");
-					}
-				}
-			}
-#endif
-			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(niMesh,lightmapTexcoord,lodInfo,materialCache,aborting);
+			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(niMesh,perEntitySettings,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
 #ifdef VERIFY
 				rrObject->getCollider()->getMesh()->checkConsistency(CH_LIGHTMAP,size());
 #endif
-
-#if GAMEBRYO_MAJOR_VERSION==3
-				// only in Toolbench path && only if NiGIDescriptor exists: allocate illumination buffers
-				// (if theoretical mesh without NiGIDescriptor exists, we let it cast shadows/bounce light, but we don't give it lightmap)
-				if (perEntitySettings && nigid)
-				{
-					if (buildPerVertex)
-					{
-						if (buildNonDirectional)
-						{
-							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
-						}
-						else
-						{
-							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
-							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
-							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_VERTEX_BUFFER,rrObject->getIllumination()->getNumPreImportVertices(),1,1,BF_RGBA,true,NULL);
-						}
-					}
-					else
-					{
-						unsigned lightmapWidth;
-						unsigned lightmapHeight;
-						if (perEntitySettings->lsResolutionFormula=="Multiplier")
-						{
-							// create matrix that scales from lightsprint local space to gamebryo world space
-							RRMatrix3x4 worldMatrix;
-							if (rrObject->getWorldMatrix())
-								worldMatrix = *rrObject->getWorldMatrix();
-							else
-								worldMatrix.setIdentity();
-							for (unsigned i=0;i<3;i++)
-								for (unsigned j=0;j<4;j++)
-									worldMatrix.m[i][j] /= SCALE_GEOMETRY;
-							// calculate density in gamebryo world space
-							RRMesh* worldSpaceMesh = rrObject->getCollider()->getMesh()->createTransformed(&worldMatrix);
-							float density = worldSpaceMesh->getMappingDensity(CH_LIGHTMAP);
-							delete worldSpaceMesh;
-							// density -> resolution
-							unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings->lsPixelsPerWorldUnit*perEntitySettings->lsResolutionMultiplier+0.5f);
-							resolution = RR_MAX(RR_MIN(resolution,2048),32);
-							//unsigned resolution2n = RR_MAX(1,minSize);
-							//while (resolution2n<resolution && resolution2n<maxSize) resolution2n *= 2;
-							lightmapWidth = resolution;
-							lightmapHeight = resolution;
-						}
-						else
-						{
-							lightmapWidth = perEntitySettings->lsResolutionWidth;
-							lightmapHeight = perEntitySettings->lsResolutionHeight;
-						}
-						if (buildNonDirectional)
-						{
-							rrObject->getIllumination()->getLayer(0) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
-						}
-						else
-						{
-							rrObject->getIllumination()->getLayer(1) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
-							rrObject->getIllumination()->getLayer(2) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
-							rrObject->getIllumination()->getLayer(3) = RRBuffer::create(BT_2D_TEXTURE,lightmapWidth,lightmapHeight,1,BF_RGB,true,NULL);
-						}
-					}
-				}
-#endif
-
 				push_back(RRIlluminatedObject(rrObject, rrObject->getIllumination()));
 			}
 		}

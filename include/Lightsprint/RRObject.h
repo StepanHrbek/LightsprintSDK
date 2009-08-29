@@ -358,6 +358,9 @@ namespace rr
 			RRBufferFormat actualFormat;
 			bool           actualScaled;
 			char*          actualFilename; ///< NULL in constructor, malloced in RRObjects::recommendLayerParameters(), freed in destructor.
+			bool           actualBuildNonDirectional; ///< not yet used outside Gamebryo
+			bool           actualBuildDirectional; ///< not yet used outside Gamebryo
+			bool           actualBuildBentNormals; ///< not yet used outside Gamebryo
 
 			// tools
 			LayerParameters()
