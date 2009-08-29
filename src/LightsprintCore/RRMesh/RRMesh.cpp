@@ -276,6 +276,51 @@ RRReal RRMesh::getAverageVertexDistance() const
 	return distanceSum/TESTS;
 }
 
+static int compareFloats(const void* elem1, const void* elem2)
+{
+	float delta = *(float*)elem1 - *(float*)elem2;
+	if (delta<0) return -1;
+	if (delta>0) return 1;
+	return 0;
+}
+
+RRReal RRMesh::getMappingDensity(unsigned channel) const
+{
+	unsigned numTriangles = getNumTriangles();
+	RRReal* edgeRatios = new RRReal[numTriangles*3];
+
+	unsigned numEdges = 0;
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		TriangleBody tb;
+		getTriangleBody(t,tb);
+		TriangleMapping tm;
+		getTriangleMapping(t,tm,channel);
+
+		float world0 = tb.side1.length2();
+		float world1 = (tb.side2-tb.side1).length2();
+		float world2 = tb.side2.length2();
+
+		float texture0 = (tm.uv[1]-tm.uv[0]).length2();
+		float texture1 = (tm.uv[2]-tm.uv[1]).length2();
+		float texture2 = (tm.uv[0]-tm.uv[2]).length2();
+
+		if (world0 && texture0) edgeRatios[numEdges++] = world0/texture0;
+		if (world1 && texture1) edgeRatios[numEdges++] = world1/texture1;
+		if (world2 && texture2) edgeRatios[numEdges++] = world2/texture2;
+	}
+
+	if (!numEdges)
+	{
+		// degenerated mesh, no valid data
+		return 1;
+	}
+	qsort(edgeRatios, numEdges, sizeof(float), compareFloats);
+	RRReal density = sqrt(edgeRatios[numEdges/2]);
+	delete[] edgeRatios;
+	return density;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRMesh instance factory

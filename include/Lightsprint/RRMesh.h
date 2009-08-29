@@ -307,6 +307,9 @@ namespace rr
 
 		//! Returns average distance between two vertices. Slow (not cached).
 		virtual RRReal       getAverageVertexDistance() const;
+
+		//! Returns median of edge length / edge length in texture space. Slow (not cached).
+		virtual RRReal       getMappingDensity(unsigned channel) const;
 		
 		//! Returns y coordinate of plane where triangles facing straight up have the biggest total area.
 		//! In CG scenes, this is usually flat ground. Slow (not cached).

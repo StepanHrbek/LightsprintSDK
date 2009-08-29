@@ -1219,9 +1219,9 @@ public:
 			sortElement[i].illuminatedObject = (*this)[i];
 			// calculates hash from mesh transformed to world space
 			// hashing in local space would produce identical hashes for mesh instances
-			RRMesh* tmpMesh = sortElement[i].illuminatedObject.object->getCollider()->getMesh()->createTransformed(sortElement[i].illuminatedObject.object->getWorldMatrix());
-			tmpMesh->getHash(sortElement[i].hash);
-			delete tmpMesh;
+			RRMesh* worldSpaceMesh = sortElement[i].illuminatedObject.object->getCollider()->getMesh()->createTransformed(sortElement[i].illuminatedObject.object->getWorldMatrix());
+			worldSpaceMesh->getHash(sortElement[i].hash);
+			delete worldSpaceMesh;
 		}
 		qsort(sortElement,numElements,sizeof(sortElement[0]),SortElement::sortByHashes);
 		clear();
@@ -1368,120 +1368,6 @@ private:
 
 		}
 	};
-
-	//-----------------------------------------------------------------------------------------------
-	// copied from Emergent's Gamebryo GI Package 1.0.0
-	struct CreateEdgeRatioArrayFunctor
-	{
-		NiDataStreamElementLock* m_pkPositions;
-		NiDataStreamElementLock* m_pkUVs;
-		float* m_pfEdgeRatios;
-		int m_iIndex;
-		float m_fWorldScale;
-
-		CreateEdgeRatioArrayFunctor(
-			NiDataStreamElementLock* pkPositions,
-			NiDataStreamElementLock* pkUVs,
-			float* pfEdgeRatios,
-			float fWorldScale)
-		{
-			m_pkPositions = pkPositions;
-			m_pkUVs = pkUVs;
-			m_pfEdgeRatios = pfEdgeRatios;
-			m_iIndex = 0;
-			m_fWorldScale = fWorldScale;
-		}
-
-		bool operator() (
-			const NiUInt32* pIndices, 
-			NiUInt32 /*uiCount*/, 
-			NiUInt32 /*uiPrimitiveIdx*/,
-			NiUInt16 /*uiSubMesh*/)
-		{
-			NiPoint3 p0 = m_pkPositions->begin<NiPoint3>()[pIndices[0]]*m_fWorldScale;
-			NiPoint3 p1 = m_pkPositions->begin<NiPoint3>()[pIndices[1]]*m_fWorldScale;
-			NiPoint3 p2 = m_pkPositions->begin<NiPoint3>()[pIndices[2]]*m_fWorldScale;
-
-			NiPoint2 u0 = m_pkUVs->begin<NiPoint2>()[pIndices[0]];
-			NiPoint2 u1 = m_pkUVs->begin<NiPoint2>()[pIndices[1]];
-			NiPoint2 u2 = m_pkUVs->begin<NiPoint2>()[pIndices[2]];
-
-			float fWorldD0 = (p0 - p1).SqrLength();
-			float fWorldD1 = (p1 - p2).SqrLength();
-			float fWorldD2 = (p2 - p0).SqrLength();
-
-			float fTextureD0 = (u0 - u1).SqrLength();
-			float fTextureD1 = (u1 - u2).SqrLength();
-			float fTextureD2 = (u2 - u0).SqrLength();
-
-			if (fWorldD0 > 0 && fTextureD0)
-				m_pfEdgeRatios[m_iIndex++] = fWorldD0 / fTextureD0;
-			if (fWorldD1 > 0 && fTextureD1)
-				m_pfEdgeRatios[m_iIndex++] = fWorldD1 / fTextureD1;
-			if (fWorldD2 > 0 && fTextureD2)
-				m_pfEdgeRatios[m_iIndex++] = fWorldD2 / fTextureD2;
-
-			return true;
-		}
-	};
-	//-----------------------------------------------------------------------------------------------
-	// copied from Emergent's Gamebryo GI Package 1.0.0
-	static int FloatCompare(const void* pv0, const void* pv1)
-	{
-		return (int) (*(float*)pv0 - *(float*)pv1);
-	}
-	//-----------------------------------------------------------------------------------------------
-	// copied from Emergent's Gamebryo GI Package 1.0.0
-	void GetLightMapResolution(
-		int& iU,
-		int& iV,
-		NiMesh* pkMesh, 
-		unsigned lightMapUVSetIndex,
-		float fTexelsPerWorldUnit, 
-		int iMinSize = 16,
-		int iMaxSize = 2048)
-	{
-		NiDataStreamElementLock* pkPositions = NiNew NiDataStreamElementLock(
-			pkMesh,
-			NiCommonSemantics::POSITION(),
-			0,
-			NiDataStreamElement::F_UNKNOWN,
-			NiDataStream::LOCK_TOOL_READ);
-
-		NiDataStreamElementLock* pkUVs = NiNew NiDataStreamElementLock(
-			pkMesh,
-			NiCommonSemantics::TEXCOORD(),
-			lightMapUVSetIndex,
-			NiDataStreamElement::F_UNKNOWN,
-			NiDataStream::LOCK_TOOL_READ);
-
-		int iNumEdges = pkMesh->GetTotalPrimitiveCount()*3;
-		float* pfEdgeRatios = NiExternalNew float[iNumEdges];
-
-		// Create an array to store the ratio of each world space edge length with its
-		// corresponding texture space edge length
-		CreateEdgeRatioArrayFunctor kFunctor(
-			pkPositions, pkUVs, pfEdgeRatios, pkMesh->GetWorldScale());
-		NiMeshAlgorithms::ForEachPrimitiveAllSubmeshes(
-			pkMesh, kFunctor, NiDataStream::LOCK_TOOL_READ, true);
-		iNumEdges = kFunctor.m_iIndex;
-	    
-		// Sort the edge ratios to find the median ratio
-		qsort(pfEdgeRatios, iNumEdges, sizeof(float), FloatCompare);
-		float fRatio = sqrt(pfEdgeRatios[iNumEdges/2]);
-		int iTargetResolution = (int)(fRatio*fTexelsPerWorldUnit);
-
-		// Find the power-of-two size which most closely matches the target
-		iU = iMinSize > 0 && iMinSize <= iMaxSize ? iMinSize : 1;
-		while (iU < iTargetResolution && iU < iMaxSize) 
-			iU *= 2;
-		iV = iU;
-
-		NiDelete pkPositions;
-		NiDelete pkUVs;
-		NiExternalDelete pfEdgeRatios;
-	}
-	//-----------------------------------------------------------------------------------------------
 #endif // GAMEBRYO_MAJOR_VERSION==3
 
 	// Adds all instances from node and his subnodes to 'objects'.
@@ -1624,10 +1510,26 @@ private:
 						unsigned lightmapHeight;
 						if (perEntitySettings->lsResolutionFormula=="Multiplier")
 						{
-							int w,h;
-							GetLightMapResolution(w,h,niMesh,lightmapTexcoord,perSceneSettings->lsPixelsPerWorldUnit*perEntitySettings->lsResolutionMultiplier);
-							lightmapWidth = (unsigned)RR_MAX(1,w+0.5f);
-							lightmapHeight = (unsigned)RR_MAX(1,h+0.5f);
+							// create matrix that scales from lightsprint local space to gamebryo world space
+							RRMatrix3x4 worldMatrix;
+							if (rrObject->getWorldMatrix())
+								worldMatrix = *rrObject->getWorldMatrix();
+							else
+								worldMatrix.setIdentity();
+							for (unsigned i=0;i<3;i++)
+								for (unsigned j=0;j<4;j++)
+									worldMatrix.m[i][j] /= SCALE_GEOMETRY;
+							// calculate density in gamebryo world space
+							RRMesh* worldSpaceMesh = rrObject->getCollider()->getMesh()->createTransformed(&worldMatrix);
+							float density = worldSpaceMesh->getMappingDensity(CH_LIGHTMAP);
+							delete worldSpaceMesh;
+							// density -> resolution
+							unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings->lsPixelsPerWorldUnit*perEntitySettings->lsResolutionMultiplier+0.5f);
+							resolution = RR_MAX(RR_MIN(resolution,2048),32);
+							//unsigned resolution2n = RR_MAX(1,minSize);
+							//while (resolution2n<resolution && resolution2n<maxSize) resolution2n *= 2;
+							lightmapWidth = resolution;
+							lightmapHeight = resolution;
 						}
 						else
 						{

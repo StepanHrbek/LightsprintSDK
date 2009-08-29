@@ -273,6 +273,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3& transformDirection(RRVec3& a) const;
 		//! Returns determinant of first 3x3 elements.
 		RRReal determinant3x3() const;
+		//! Sets matrix to identity.
+		void setIdentity();
 	};
 
 } // namespace

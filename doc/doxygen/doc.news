@@ -8,6 +8,29 @@ namespace rr
 
 \page main_news What's new
 
+\section news91 ------------------------------------ 2009.08.xx -------------------------------------
+
+NEWS
+
+- improved \ref main_gamebryo30 "Lightspeed integration"
+  - bake is faster and uses less memory
+  - supports lightmap resolution calculated from mapping, see new properties
+    - LightsprintScene.LsPixelsPerWorldUnit
+    - LightsprintMesh.LsResolutionFormula
+    - LightsprintMesh.LsResolutionMultiplier
+  - if environment color is not set (=is black), it does not multiply environment texture
+  - GIScene.LightingFile is set automatically, if needed
+  - if LightPCLObjectsAtRuntime && LightNonPCLObjectsAtRuntime, calculates indirect illumination only
+  - relighting in UI menu (testing only)
+- small helper functions
+  - RRMesh::getMappingDensity()
+  - RRMatrix3x4::setIdentity()
+  - LightsprintGL source code comes with boost::serialization support
+
+FIXED
+
+- Visual C++ 2005 binaries did not run if Microsoft security updates were not installed
+
 \section news90 ------------------------------------ 2009.08.15 -------------------------------------
 
 NEWS
