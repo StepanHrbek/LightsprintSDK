@@ -884,6 +884,7 @@ private:
 //
 // PropertyEnum
 
+//! Denser and safer representation of Toolbench string enums.
 enum PropertyEnum
 {
 	PE_INHERIT_FROM_LIGHTSPRINT_SCENE = 0,
@@ -896,7 +897,7 @@ enum PropertyEnum
 };
 
 #if GAMEBRYO_MAJOR_VERSION==3
-// Sets out only if propertyString is valid.
+//! Converts Toolbench enum to our enum. Sets out only if propertyString is valid.
 bool getPropertyEnum(efd::utf8string propertyString, PropertyEnum& out)
 {
 	const char* propertyStrings[] =
@@ -927,8 +928,8 @@ bool getPropertyEnum(efd::utf8string propertyString, PropertyEnum& out)
 //
 // PerSceneSettings
 
-// In Toolbench, we read settings from LightsprintScene entity or keep defaults.
-// In .gsa, we make up some settings.
+//! In Toolbench, we read settings from LightsprintScene entity or keep defaults.
+//! In .gsa, we make up some settings.
 struct PerSceneSettings
 {
 	PropertyEnum lsDefaultBakeTarget;
@@ -956,8 +957,10 @@ struct PerSceneSettings
 		getPropertyEnum(str,lsDefaultBakeDirectionality);
 
 		entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
+		RR_CLAMP(lsPixelsPerWorldUnit,1e-6f,1e6f);
 
 		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+		RR_CLAMP(lsPixelsPerWorldUnit,0,1e6f);
 	}
 #endif
 };
@@ -967,8 +970,8 @@ struct PerSceneSettings
 //
 // PerEntitySettings
 
-// In Toolbench, we read settings from LightsprintMesh entity or keep defaults.
-// In .gsa, we keep defaults.
+//! In Toolbench, we read settings from LightsprintMesh entity or keep defaults.
+//! In .gsa, we keep defaults.
 struct PerEntitySettings
 {
 	PropertyEnum lsBakeTarget;
@@ -1002,10 +1005,13 @@ struct PerEntitySettings
 		getPropertyEnum(str,lsResolutionFormula);
 
 		entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
+		RR_CLAMP(lsResolutionMultiplier,1e-6f,1e6f);
 
 		entity->GetPropertyValue("LsResolutionFixedWidth", lsResolutionFixedWidth);
+		RR_CLAMP(lsResolutionFixedWidth,1,4096);
 
 		entity->GetPropertyValue("LsResolutionFixedHeight", lsResolutionFixedHeight);
+		RR_CLAMP(lsResolutionFixedWidth,1,4096);
 	}
 	void inheritFrom(const PerSceneSettings& perSceneSettings)
 	{
@@ -1535,7 +1541,7 @@ public:
 
 			// density -> resolution
 			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
-			resolution = RR_MAX(RR_MIN(resolution,2048),32);
+			resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
 			//unsigned resolution2n = RR_MAX(1,minSize);
 			//while (resolution2n<resolution && resolution2n<maxSize) resolution2n *= 2;
 
@@ -1552,8 +1558,8 @@ public:
 		else
 		{
 			layerParameters.actualType = BT_2D_TEXTURE;
-			layerParameters.actualWidth = perEntitySettings.lsResolutionFixedWidth;
-			layerParameters.actualHeight = perEntitySettings.lsResolutionFixedHeight;
+			layerParameters.actualWidth = RR_CLAMPED(perEntitySettings.lsResolutionFixedWidth,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+			layerParameters.actualHeight = RR_CLAMPED(perEntitySettings.lsResolutionFixedHeight,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
 			layerParameters.actualFormat = BF_RGB;
 			layerParameters.actualScaled = true;
 			RR_SAFE_FREE(layerParameters.actualFilename);
