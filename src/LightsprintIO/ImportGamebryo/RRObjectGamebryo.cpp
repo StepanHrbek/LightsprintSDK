@@ -977,7 +977,7 @@ struct PerEntitySettings
 {
 	PropertyEnum lsBakeTarget;
 	PropertyEnum lsBakeDirectionality;
-	PropertyEnum lsResolutionFormula;
+	PropertyEnum lsResolutionMode;
 	float lsResolutionMultiplier;
 	unsigned lsResolutionFixedWidth;
 	unsigned lsResolutionFixedHeight;
@@ -986,7 +986,7 @@ struct PerEntitySettings
 	{
 		lsBakeTarget = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
 		lsBakeDirectionality = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
-		lsResolutionFormula = PE_RESOLUTION_CALCULATED;
+		lsResolutionMode = PE_RESOLUTION_CALCULATED;
 		lsResolutionMultiplier = 1;
 		lsResolutionFixedWidth = 128;
 		lsResolutionFixedHeight = 128;
@@ -1002,8 +1002,8 @@ struct PerEntitySettings
 		entity->GetPropertyValue("LsBakeDirectionality", str);
 		getPropertyEnum(str,lsBakeDirectionality);
 
-		entity->GetPropertyValue("LsResolutionFormula", str);
-		getPropertyEnum(str,lsResolutionFormula);
+		entity->GetPropertyValue("LsResolutionMode", str);
+		getPropertyEnum(str,lsResolutionMode);
 
 		entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
 		RR_CLAMP(lsResolutionMultiplier,1e-6f,1e6f);
@@ -1543,7 +1543,7 @@ public:
 			layerParameters.actualBuildBentNormals = false;
 		}
 		else
-		if (perEntitySettings.lsResolutionFormula==PE_RESOLUTION_CALCULATED)
+		if (perEntitySettings.lsResolutionMode==PE_RESOLUTION_CALCULATED)
 		{
 			// create matrix that scales from lightsprint local space to gamebryo world space
 			RRMatrix3x4 worldMatrix;
