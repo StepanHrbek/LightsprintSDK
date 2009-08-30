@@ -394,7 +394,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			unsigned sum = 0;
 			for (unsigned l=0;l<numLights;l++)
 				sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
-			((unsigned char*)detectedDirectSum)[b] = CLAMPED(sum,0,255);
+			((unsigned char*)detectedDirectSum)[b] = RR_CLAMPED(sum,0,255);
 		}
 	}
 

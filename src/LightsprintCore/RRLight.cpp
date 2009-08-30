@@ -11,7 +11,6 @@ namespace rr
 {
 
 #define PREVENT_INF 0.000000000137289f // used to avoid INFs and NaNs or make them extremely rare
-#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 const RRVec4& warnIfNegative(const RRVec4& a, const char* name)
 {
@@ -191,8 +190,8 @@ public:
 		color = warnIfNegative(_color,"color");
 		direction = _direction.normalized();
 		#define DELTA 0.0001f
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -202,11 +201,11 @@ public:
 		float distanceAttenuation = 1/(PREVENT_INF+(receiverPosition-position).length2());
 		RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
 		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
-		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
+		float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		RR_ASSERT(_finite(angleRad));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		RR_ASSERT(_finite(angleAttenuation));
-		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		float attenuation = distanceAttenuation * RR_CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
 		RR_ASSERT(IS_VEC3(result));
 		return result;
@@ -229,8 +228,8 @@ public:
 		position = _position;
 		color = warnIfNegative(_color,"color");
 		direction = _direction.normalized();
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -238,11 +237,11 @@ public:
 		RR_ASSERT(IS_VEC3(position));
 		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
 		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
-		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
+		float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		RR_ASSERT(_finite(angleRad));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		RR_ASSERT(_finite(angleAttenuation));
-		float attenuation = CLAMPED(angleAttenuation,0,1);
+		float attenuation = RR_CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
 		RR_ASSERT(IS_VEC3(result));
 		return result;
@@ -269,8 +268,8 @@ public:
 		radius = warnIfNegative(_radius,"radius");
 		fallOffExponent = warnIfNegative(_fallOffExponent,"fallOffExponent");
 		direction = _direction.normalized();
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -282,11 +281,11 @@ public:
 		float distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
 		RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
 		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
-		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
+		float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		RR_ASSERT(_finite(angleRad));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		RR_ASSERT(_finite(angleAttenuation));
-		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		float attenuation = distanceAttenuation * RR_CLAMPED(angleAttenuation,0,1);
 		RRVec3 result = color * attenuation;
 		RR_ASSERT(IS_VEC3(result));
 		return result;
@@ -312,9 +311,9 @@ public:
 		color = warnIfNegative(_color,"color");
 		polynom = warnIfNegative(_polynom,"polynom");
 		direction = _direction.normalized();
-		outerAngleRad = CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
-		spotExponent = CLAMPED(_spotExponent,0,1e10f);
+		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		spotExponent = RR_CLAMPED(_spotExponent,0,1e10f);
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -324,11 +323,11 @@ public:
 		float distanceAttenuation = 1/RR_MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
 		RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
 		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
-		float angleRad = acos(CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
+		float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 		RR_ASSERT(_finite(angleRad));
 		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		RR_ASSERT(_finite(angleAttenuation));
-		angleAttenuation = pow(CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
+		angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
 		RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;
 		if (scaler) scaler->getPhysicalScale(irradiance);
 		RR_ASSERT(IS_VEC3(irradiance));

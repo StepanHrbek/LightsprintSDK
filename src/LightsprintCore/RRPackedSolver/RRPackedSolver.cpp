@@ -7,7 +7,6 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 #define MAX_BESTS 1000
-#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
@@ -395,7 +394,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	// adjust pack size to scene size
 	// numTriangles->maxBests 16k->200 70k->400 800k->800
 	unsigned maxBests = (unsigned)(pow((float)numTriangles,0.35f)*6.5f);
-	CLAMP(maxBests,100,MAX_BESTS);
+	RR_CLAMP(maxBests,100,MAX_BESTS);
 
 	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;

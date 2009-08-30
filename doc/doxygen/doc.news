@@ -27,6 +27,7 @@ NEWS
   - RRMesh::getMappingDensity()
   - RRMatrix3x4::setIdentity()
   - LightsprintGL source code comes with boost::serialization support
+  - RR_CLAMP and RR_CLAMPED macros (previously CLAMP, CLAMPED)
 
 FIXED
 

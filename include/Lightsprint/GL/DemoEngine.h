@@ -90,8 +90,6 @@
 
 
 // helper macros
-#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
-#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if (times_done<times_max) {times_done++;action;}}
 
 #endif

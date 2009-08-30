@@ -237,13 +237,13 @@ void passive(int x, int y)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
-			CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			realtimeLight->getParent()->angle -= mouseSensitivity*x;
 			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
-			CLAMP(realtimeLight->getParent()->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(realtimeLight->getParent()->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			// changes also position a bit, together with rotation
 			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
 			realtimeLight->getParent()->update();
@@ -263,7 +263,7 @@ void idle()
 	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
-		CLAMP(seconds,0.001f,0.3f);
+		RR_CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
 		if (speedForward) cam->moveForward(speedForward*seconds);
 		if (speedBack) cam->moveBack(speedBack*seconds);

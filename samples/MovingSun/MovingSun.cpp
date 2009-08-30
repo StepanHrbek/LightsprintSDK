@@ -352,7 +352,7 @@ void passive(int x, int y)
 #endif
 		eye.angle -= mouseSensitivity*x;
 		eye.angleX -= mouseSensitivity*y;
-		CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}
@@ -419,7 +419,7 @@ void idle()
 	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
-		CLAMP(seconds,0.001f,0.1f);
+		RR_CLAMP(seconds,0.001f,0.1f);
 		float distance = seconds * cameraSpeed;
 		rr_gl::Camera* cam = &eye;
 		if (autopilot) lightTime += seconds*SUN_SPEED;

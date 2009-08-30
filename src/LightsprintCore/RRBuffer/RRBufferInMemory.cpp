@@ -10,7 +10,7 @@
 #include "RRBufferInMemory.h"
 #include "Lightsprint/RRDebug.h"
 
-#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
+#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
 namespace rr
@@ -219,8 +219,8 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 				static const int  x[6] = { 2, 2, 0, 0, 0, 0};
 				static const int  y[6] = { 1, 1, 2, 2, 1, 1};
 				static const int sy[6] = {-1,+1,+1,+1,-1,+1};
-				coord[0] = (unsigned) CLAMPED((int)((sx[coord[2]]*direction[x[coord[2]]]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
-				coord[1] = (unsigned) CLAMPED((int)((sy[coord[2]]*direction[y[coord[2]]]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
+				coord[0] = (unsigned) RR_CLAMPED((int)((sx[coord[2]]*direction[x[coord[2]]]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
+				coord[1] = (unsigned) RR_CLAMPED((int)((sy[coord[2]]*direction[y[coord[2]]]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
 				break;
 			}
 		default:

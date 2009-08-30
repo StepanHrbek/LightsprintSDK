@@ -1160,7 +1160,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		{
 			EndByQuality endByQuality;
 			endByQuality.staticSolver = priv->scene;
-			endByQuality.targetQuality = (int)RR_MAX(5,(paramsIndirect.quality*CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
+			endByQuality.targetQuality = (int)RR_MAX(5,(paramsIndirect.quality*RR_CLAMPED(paramsIndirect.qualityFactorRadiosity,0,100)));
 			endByQuality.aborting = &aborting;
 			RRReportInterval reportProp(INF2,"Radiosity(%d)...\n",endByQuality.targetQuality);
 			RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByQuality);

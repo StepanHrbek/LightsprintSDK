@@ -12,8 +12,6 @@
 #include <cstring> // NULL
 #include "RRBuffer.h"
 
-#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
-
 namespace rr
 {
 

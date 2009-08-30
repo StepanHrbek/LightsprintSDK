@@ -164,7 +164,7 @@ RRVec4* LightmapFilter::getFilteredPhysical(const RRDynamicSolver::FilteringPara
 	};
 	for (unsigned i=0;i<numTexels;i++)
 	{
-		renderedTexelsPhysical[i].color = diagColors[CLAMPED(renderedTexelsPhysical[i].color&255,0,7)];
+		renderedTexelsPhysical[i].color = diagColors[RR_CLAMPED(renderedTexelsPhysical[i].color&255,0,7)];
 	}
 #endif
 

@@ -23,7 +23,7 @@
 
 #pragma comment(lib,"FreeImage.lib")
 
-#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
+#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
 #define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
 
 using namespace rr;
@@ -86,7 +86,7 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 				// clamp float values to 0,1 (test only)
 				//for (unsigned i=0;i<width*height*3;i++)
 				//{
-				//	((float*)pixels)[i] = CLAMPED(fipixels[i],0,1);
+				//	((float*)pixels)[i] = RR_CLAMPED(fipixels[i],0,1);
 				//}
 			}
 			else

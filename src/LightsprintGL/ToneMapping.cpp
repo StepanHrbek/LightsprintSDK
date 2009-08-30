@@ -81,7 +81,7 @@ void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVe
 	{
 		avg = avg/(swidth*sheight)+1;
 		if (histo[255]>=swidth*sheight*7/10) avg = 1000; // at least 70% of screen overshot, adjust faster
-		brightness *= pow(targetIntensity*255/avg,CLAMPED(secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
+		brightness *= pow(targetIntensity*255/avg,RR_CLAMPED(secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
 	}
 	//rr::RRReporter::report(rr::INF1,"%d\n",avg);
 }

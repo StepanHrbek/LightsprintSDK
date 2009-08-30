@@ -89,7 +89,7 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 
 void Camera::setAspect(float _aspect)
 {
-	aspect = CLAMPED(_aspect,0.001f,1000);
+	aspect = RR_CLAMPED(_aspect,0.001f,1000);
 }
 
 void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
@@ -97,12 +97,12 @@ void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 	if (aspect>1)
 	{
 		// wide screen, horizontal fov is closer to 180deg limit
-		fieldOfViewVerticalDeg = CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f/aspect);
+		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f/aspect);
 	}
 	else
 	{
 		// tall screen, vertical fov is closer to 180deg limit
-		fieldOfViewVerticalDeg = CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
+		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
 	}
 }
 
@@ -166,8 +166,8 @@ void Camera::setRangeDynamically(const rr::RRObject* object)
 		// some rays intersected scene, use scene size and distance
 		float newFar = 2 * RR_MAX(objectSize,cod.getDistanceMax());
 		float min = cod.getDistanceMin()/2;
-		float relativeSceneProximity = CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
-		float newNear = CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
+		float relativeSceneProximity = RR_CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
+		float newNear = RR_CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
 		setRange( newNear, newFar );
 	}
 	else

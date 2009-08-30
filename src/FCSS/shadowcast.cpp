@@ -554,7 +554,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		static Timer t;
 		static bool runs = false;
 		float seconds = runs?t.Watch():0.1f;
-		CLAMP(seconds,0.001f,0.5f);
+		RR_CLAMP(seconds,0.001f,0.5f);
 		t.Start();
 		runs = true;
 		if (!demoPlayer->getPaused())
@@ -1772,14 +1772,14 @@ void passive(int x, int y)
 		{
 			currentFrame.eye.angle -= mouseSensitivity*x;
 			currentFrame.eye.angleX -= mouseSensitivity*y;
-			CLAMP(currentFrame.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(currentFrame.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			reportEyeMovement();
 		}
 		else
 		{
 			currentFrame.light.angle -= mouseSensitivity*x;
 			currentFrame.light.angleX -= mouseSensitivity*y;
-			CLAMP(currentFrame.light.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(currentFrame.light.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			// changes also position a bit, together with rotation
 			currentFrame.light.pos += currentFrame.light.dir*0.3f;
 			currentFrame.light.update();
@@ -1865,7 +1865,7 @@ no_level:
 	static TIME previousFrameStartTime = 0;
 	TIME thisFrameStartTime = GETTIME;
 	float previousFrameDuration = previousFrameStartTime ? (thisFrameStartTime-previousFrameStartTime)/(float)PER_SEC : 0;
-	CLAMP(previousFrameDuration,0.0001f,0.3f);
+	RR_CLAMP(previousFrameDuration,0.0001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
 	if (speedForward) cam->moveForward(speedForward*previousFrameDuration);
 	if (speedBack) cam->moveBack(speedBack*previousFrameDuration);

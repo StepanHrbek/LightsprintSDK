@@ -13,7 +13,7 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
 
-#define FLOAT2BYTE(f) CLAMPED(int(f*256),0,255)
+#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
 
 namespace rr
 {

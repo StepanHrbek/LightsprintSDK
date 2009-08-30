@@ -362,13 +362,13 @@ void passive(int x, int y)
 		{
 			eye.angle -= mouseSensitivity*x;
 			eye.angleX -= mouseSensitivity*y;
-			CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			light->angle -= mouseSensitivity*x;
 			light->angleX -= mouseSensitivity*y;
-			CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(0,true,true);
 			// changes also position a bit, together with rotation
 			light->pos += light->dir*0.3f;
@@ -425,7 +425,7 @@ void idle()
 	if (prev && now!=prev)
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
-		CLAMP(seconds,0.001f,0.3f);
+		RR_CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:light;
 		if (speedForward) cam->moveForward(speedForward*seconds);
 		if (speedBack) cam->moveBack(speedBack*seconds);

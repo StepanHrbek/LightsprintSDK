@@ -184,7 +184,7 @@ public:
 		RR_ASSERT(_visibility>0);
 		//RR_ASSERT(_visibility<=1); above 1 is ok in presence of specular reflectance/transmittance
 		RR_ASSERT(_destinationTriangle<(1<<BITS_FOR_TRIANGLE_INDEX));
-		visibility = (unsigned)(CLAMPED(_visibility,0,1)*((1<<BITS_FOR_VISIBILITY)-1));
+		visibility = (unsigned)(RR_CLAMPED(_visibility,0,1)*((1<<BITS_FOR_VISIBILITY)-1));
 		RR_ASSERT(visibility);
 		destinationTriangle = _destinationTriangle;
 	}

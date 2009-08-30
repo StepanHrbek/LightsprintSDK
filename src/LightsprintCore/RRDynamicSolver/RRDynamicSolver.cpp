@@ -27,8 +27,6 @@ namespace rr
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
 
-#define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
-
 RRDynamicSolver::RRDynamicSolver()
 {
 	aborting = false;
@@ -515,7 +513,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 		// always spend at least 40% of our time in improve, don't spend too much by reading results etc
 		priv->improveStep = RR_MAX(priv->improveStep,MIN_PORTION_SPENT_IMPROVING*priv->calcStep);
 		// stick in interactive bounds
-		priv->improveStep = CLAMP(priv->improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
+		priv->improveStep = RR_CLAMP(priv->improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
 	}
 
 	// calculate
