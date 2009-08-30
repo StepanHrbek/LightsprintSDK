@@ -1051,7 +1051,7 @@ public:
 				break;
 			case NiPrimitiveType::PRIMITIVE_QUADS:
 				// this would need little bit of additional work
-				LIMITED_TIMES(1,RRReporter::report(WARN,"QUADS primitives are ignored, let us know if you need them.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"QUADS primitives are ignored, let us know if you need them.\n"));
 				return NULL;
 			default:
 				// lines, points etc

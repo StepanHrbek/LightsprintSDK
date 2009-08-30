@@ -96,7 +96,7 @@ bool TextureRenderer::renderEnvironment(const Texture* texture,const rr::RRVec4&
 {
 	if (!texture)
 	{
-		LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
+		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
 		return false;
 	}
 	if (renderEnvironmentBegin(color,false,!texture->getBuffer()->getScaled(),gamma))

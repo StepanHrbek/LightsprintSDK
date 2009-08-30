@@ -32,7 +32,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, con
 		}
 		else
 		{
-			LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
+			RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
 			material.reset(false);
 			RR_ASSERT(0);
 		}

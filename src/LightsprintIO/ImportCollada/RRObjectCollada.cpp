@@ -135,7 +135,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
 			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
 			{
-				LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
+				RR_LIMITED_TIMES(10,RR_ASSERT(polygons->TestPolyType()==3)); // this is expensive check, do it only few times
 				size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
 				if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 				{
@@ -169,7 +169,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 											unsigned dataIndex = indices[relativeIndex*3+j]*floatsPerVertexPresent+k;
 											if (dataIndex>=dataCount)
 											{
-												LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
+												RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Out of range indices in Collada file.\n"));
 												return false;
 											}
 											*out++ = data[dataIndex];
@@ -313,7 +313,7 @@ bool RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigne
 	if (channel==LIGHTMAP_CHANNEL)
 	{
 		// unwrap was not found, but we can autogenerate it
-		LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
 		return RRMesh::getTriangleMapping(t,out,0);
 	}
 	return false;
@@ -575,7 +575,7 @@ private:
 				else
 				{
 					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-					LIMITED_TIMES(1,RRReporter::report(WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
 				}
 			}
 		}
@@ -623,7 +623,7 @@ private:
 
 			if (effectStandard->GetTranslucencyFactor()!=1)
 			{
-				LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
 			}
 		}
 

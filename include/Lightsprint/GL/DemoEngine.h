@@ -88,8 +88,4 @@
 	#endif
 #endif
 
-
-// helper macros
-#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if (times_done<times_max) {times_done++;action;}}
-
 #endif

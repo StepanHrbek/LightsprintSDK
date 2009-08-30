@@ -114,7 +114,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			// early correction (affects LIGHT_DIRECT_ATT_SPOT, unlike late correction)
 			uberProgramSetup.LIGHT_DIRECT_MAP = false;
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture supported only for shadow casting lights.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture supported only for shadow casting lights.\n"));
 		}
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->orthogonal;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT && !uberProgramSetup.LIGHT_DIRECT_MAP; // disables spot attenuation in presence of projected texture
@@ -157,7 +157,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
-			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
 		}
 		// disabling specular reflection saves SceneViewer sample (helps GF6150)
 		if (!program && uberProgramSetup.MATERIAL_SPECULAR)
@@ -166,7 +166,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
-			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
 		}
 		// disabling light detail map saves Lightsmark (helps GF6150)
 		if (!program && uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP)
@@ -174,7 +174,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
-			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
 		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)
 		if (!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
@@ -182,11 +182,11 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			separatedAmbientPass = 1;
 			lightIndex = -1;
 			program = getNextPass(_outUberProgramSetup,_outRenderedChannels,_outLight);
-			if (program) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
 		}
 		if (!program)
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
 			return NULL;
 		}
 	}

@@ -112,7 +112,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 				}
 				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=illumination->getNumPreImportVertices())
 				{
-					LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
+					RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
 					RR_SAFE_DELETE(buffer);
 				}
 				if (buffer)

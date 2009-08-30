@@ -38,7 +38,7 @@ public:
 			}
 			catch(...)
 			{
-				LIMITED_TIMES(1,RRReporter::report(ERRO,"Not enough memory, radiosity job interrupted.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Not enough memory, radiosity job interrupted.\n"));
 				return NULL;
 			}
 			block->next = oldBlock;

@@ -33,7 +33,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1,0);
 	if (!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
 	// set specular environment map
@@ -41,7 +41,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	{
 		if (!lightIndirectEnvSpecular)
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering dynamic object with NULL cubemap.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering dynamic object with NULL cubemap.\n"));
 			return;
 		}
 		GLint activeTexture;

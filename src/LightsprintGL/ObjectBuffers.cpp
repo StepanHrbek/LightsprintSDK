@@ -173,7 +173,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			{
 				fg.firstIndex = numVertices;
 			}
-			if (!material) LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
+			if (!material) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering at least one face with NULL material.\n"));
 			fg.numIndices = 0;
 			if (material)
 				fg.material = *material;
@@ -481,7 +481,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 					}
 					else
 					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Render of indirect illumination buffer blend requested, but second buffer is NULL.\n"));
+						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Render of indirect illumination buffer blend requested, but second buffer is NULL.\n"));
 						RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 					}
 				}
@@ -490,7 +490,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 			{
 				// INDEXED FROM VBUFFER THAT IS NULL
 				// scene will be rendered without indirect illumination
-				LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but buffer is NULL.\n"));
+				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but buffer is NULL.\n"));
 				glDisableClientState(GL_COLOR_ARRAY);
 				glColor3b(0,0,0);
 			}

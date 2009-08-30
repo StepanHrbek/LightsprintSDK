@@ -15,21 +15,21 @@ namespace rr
 const RRVec4& warnIfNegative(const RRVec4& a, const char* name)
 {
 	if (a[0]<0 || a[1]<0 || a[2]<0 || a[3]<0 || !IS_VEC4(a))
-		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f %f).\n",name,a[0],a[1],a[2],a[3]));
+		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f %f).\n",name,a[0],a[1],a[2],a[3]));
 	return a;
 }
 
 const RRVec3& warnIfNegative(const RRVec3& a, const char* name)
 {
 	if (a[0]<0 || a[1]<0 || a[2]<0 || !IS_VEC3(a))
-		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f).\n",name,a[0],a[1],a[2]));
+		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f %f %f).\n",name,a[0],a[1],a[2]));
 	return a;
 }
 
 RRReal warnIfNegative(RRReal a, const char* name)
 {
 	if (a<0 || !_finite(a))
-		LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f).\n",name,a));
+		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f).\n",name,a));
 	return a;
 }
 

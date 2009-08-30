@@ -62,11 +62,11 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	}
 	if ((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
 	{
-//		LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
+//		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
 	}
 	if ((_format==BF_RGBF || _format==BF_RGBAF) && _scaled && _width>2) // ignore it for tiny buffers like 2*2*6 cube from createSky()
 	{
-//		LIMITED_TIMES(1,RRReporter::report(WARN,"Float buffer used for data in custom scale (screen colors). Maybe you can save space by using integer buffer.\n"));
+//		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Float buffer used for data in custom scale (screen colors). Maybe you can save space by using integer buffer.\n"));
 	}
 
 	unsigned bytesTotal = _width*_height*_depth*getBytesPerPixel(_format);
@@ -158,7 +158,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 {
 	if (!data)
 	{
-		LIMITED_TIMES(10,RRReporter::report(WARN,"getElement() called on an uninitialized buffer.\n"));
+		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"getElement() called on an uninitialized buffer.\n"));
 		return RRVec4(0);
 	}
 	if (index>=width*height*depth)

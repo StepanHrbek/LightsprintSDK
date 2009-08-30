@@ -71,7 +71,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 		RRMesh::Triangle tv;
 		mesh->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
-		if (!s) LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has NULL material -> expect crash.\n"));
+		if (!s) RR_LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has NULL material -> expect crash.\n"));
 		Triangle *t = &obj->triangle[fi];
 		RRMesh::TriangleBody body;
 		mesh->getTriangleBody(fi,body);

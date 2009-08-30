@@ -23,14 +23,14 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 {
 	if (!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=NULL\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=NULL\n"));
 		return;
 	}
 	if (!material)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=NULL\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=NULL\n"));
 		rr::RRMaterial s_material;
-		LIMITED_TIMES(1,s_material.reset(false));
+		RR_LIMITED_TIMES(1,s_material.reset(false));
 		material = &s_material;
 	}
 	if (MATERIAL_DIFFUSE_CONST)
@@ -63,7 +63,7 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
 		}
 	}
 
@@ -77,7 +77,7 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but emissive texture not available, expect incorrect render.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but emissive texture not available, expect incorrect render.\n"));
 		}
 	}
 
@@ -91,7 +91,7 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but transparency texture not available, expect incorrect render.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but transparency texture not available, expect incorrect render.\n"));
 		}
 	}
 }
@@ -310,7 +310,7 @@ void RendererOfRRObject::render()
 	{
 		// INDEXED
 		// with unwrap errors
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Unwrap may be rendered incorrectly (circumstances: %s%s%s%s%s%s%s).\n", unwrapSplitsVertices?"unwrapSplitsVertices+":"", readIndirectFromBuffers?"renderingFromBuffers+":"", readIndirectFromSolver?"readIndirectFromSolver+":"", params.renderedChannels.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", params.renderedChannels.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", params.renderedChannels.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Unwrap may be rendered incorrectly (circumstances: %s%s%s%s%s%s%s).\n", unwrapSplitsVertices?"unwrapSplitsVertices+":"", readIndirectFromBuffers?"renderingFromBuffers+":"", readIndirectFromSolver?"readIndirectFromSolver+":"", params.renderedChannels.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", params.renderedChannels.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", params.renderedChannels.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
 		indexedYes->render(params,lightIndirectVersion);
 	}
 	else
@@ -319,11 +319,11 @@ void RendererOfRRObject::render()
 		// none of rendering techniques can do this job
 		if (indexedYes||indexedNo)
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (circumstances: %s%s%s%s%s%s%s%s%s).\n", indexedYes?"indexed+":"", indexedNo?"nonindexed":"", unwrapSplitsVertices?"unwrapSplitsVertices+":"", readIndirectFromBuffers?"renderingFromBuffers+":"", readIndirectFromSolver?"readIndirectFromSolver+":"", params.renderedChannels.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", params.renderedChannels.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", params.renderedChannels.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (circumstances: %s%s%s%s%s%s%s%s%s).\n", indexedYes?"indexed+":"", indexedNo?"nonindexed":"", unwrapSplitsVertices?"unwrapSplitsVertices+":"", readIndirectFromBuffers?"renderingFromBuffers+":"", readIndirectFromSolver?"readIndirectFromSolver+":"", params.renderedChannels.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", params.renderedChannels.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", params.renderedChannels.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (not enough memory).\n" ));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (not enough memory).\n" ));
 		}
 	}
 }

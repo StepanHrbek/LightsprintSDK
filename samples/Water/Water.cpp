@@ -93,7 +93,7 @@ void reshape(int w, int h)
 void passive(int x, int y)
 {
 	if (!winWidth || !winHeight) return;
-	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
+	RR_LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
 	if (x || y)

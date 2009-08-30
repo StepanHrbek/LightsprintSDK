@@ -312,7 +312,7 @@ const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 	}
 	else
 	{
-		LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
+		RR_LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
 		assert(0);
 		return NULL;
 	}

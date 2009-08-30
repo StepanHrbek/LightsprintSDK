@@ -303,7 +303,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)
 				{
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (texture=NULL).\n"));
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (texture=NULL).\n"));
 				}
 				else
 				{
@@ -311,7 +311,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 					glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
 					if (!shadowmap->getBuffer())
 					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (buffer=NULL).\n"));
+						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (buffer=NULL).\n"));
 					}
 					else
 					{
@@ -319,7 +319,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 						if (!shadowmap->renderingToBegin())
 						{
 							// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
-							LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
+							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
 						}
 						else
 						{
@@ -420,7 +420,7 @@ Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
 	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1,0);
 	if (!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
 	}
 	return program;
 }

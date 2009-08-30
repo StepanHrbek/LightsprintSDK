@@ -102,7 +102,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				ymaxu = (unsigned)RR_CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
 				if (yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
 				if (!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
-					LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			}
 			//  prepare mapspace -> trianglespace matrix
 			RRReal m[3][3] = {
@@ -708,16 +708,16 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		{
 			if (bufferSharing[i].lightmapIndex!=bufferSharing[i-1].lightmapIndex)
 			{
-				LIMITED_TIMES(1,RRReporter::report(WARN,"Single buffer can't be used for multiple content types (eg lightmap and bent normals).\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Single buffer can't be used for multiple content types (eg lightmap and bent normals).\n"));
 			}
 			else
 			/*if (bufferSharing[i].buffer->getType()!=BT_2D_TEXTURE)
 			{
-				LIMITED_TIMES(1,RRReporter::report(WARN,"Per-vertex lightmap can't be shared by multiple objects.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Per-vertex lightmap can't be shared by multiple objects.\n"));
 			}
 			else*/
 			{
-				LIMITED_TIMES(1,RRReporter::report(WARN,"Buffer can't be shared by multiple objects.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Buffer can't be shared by multiple objects.\n"));
 			}
 		}
 	}
@@ -775,7 +775,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 						}
 						else
 						{
-							LIMITED_TIMES(1,RRReporter::report(WARN,"Directional buffers not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
+							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Directional buffers not updated in 'realtime' mode (quality=0, applyCurrentSolution only).\n"));
 						}
 					}
 				}

@@ -130,8 +130,8 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 	if (rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
 	real psqr=size2(body.side1/rsize-(body.side2/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
-	if (psqr<=0) {psqr=0.0001f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
-	if (psqr>=4) {psqr=3.9999f;LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
+	if (psqr<=0) {psqr=0.0001f;RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));} else
+	if (psqr>=4) {psqr=3.9999f;RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Low numerical quality, fixing area=0 triangle.\n"));}
 	#endif
 	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(1-psqr/2)); //first is probably faster
 	area=sina/2*rsize*lsize;

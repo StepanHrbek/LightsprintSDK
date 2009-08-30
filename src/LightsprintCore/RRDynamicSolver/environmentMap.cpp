@@ -179,7 +179,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 	if ((!scene && !packedSolver) || !object)
 	{
 		// this is legal, renderer asks us to build small cubemap from solver with big environment and 0 objects
-		//LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
+		//RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
 	}
 	if (environment && !environment->getScaled())
 	{
@@ -539,12 +539,12 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	if (!priv->scene && !priv->packedSolver && !getEnvironment())
 	{
 		// BTW environment without solver is nothing unusual, called from RendererOfRRDynamicSolver::initSpecularReflection()
-		LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, no environment, reflection map will be updated to black, call calculate().\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, no environment, reflection map will be updated to black, call calculate().\n"));
 	}
 	if (!priv->scene && priv->packedSolver && !priv->customIrradianceRGBA8)
 	{
 		// this is legal, scene may be lit by skybox
-		//LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
 	}
 
 	// alloc temp space

@@ -18,16 +18,20 @@ NEWS
     - LightsprintScene.LsPixelsPerWorldUnit
     - LightsprintMesh.LsResolutionFormula
     - LightsprintMesh.LsResolutionMultiplier
-  - if environment color is not set (=is black), it does not multiply environment texture
   - GIScene.LightingFile is set automatically, if needed
   - if LightPCLObjectsAtRuntime && LightNonPCLObjectsAtRuntime, calculates indirect illumination only
   - relighting in UI menu (testing only)
-  - renamed several properties
 - small helper functions
   - RRMesh::getMappingDensity()
   - RRMatrix3x4::setIdentity()
-  - macros RR_CLAMP, RR_CLAMPED, RR_FLOAT2BYTE, RR_BYTE2FLOAT
   - LightsprintGL source code comes with boost::serialization support
+
+CHANGES
+
+- Gamebryo
+  - if environment color is not set (=is black), it does not multiply environment texture
+  - several properties renamed
+- RR_ prefix added to macros that did not have it yet (RR_CLAMP, RR_CLAMPED, RR_FLOAT2BYTE, RR_BYTE2FLOAT, RR_LIMITED_TIMES)
 
 FIXED
 

@@ -223,7 +223,7 @@ void RendererOfRRDynamicSolver::render()
 
 	if (!params.solver->getMultiObjectCustom())
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering empty static scene.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Rendering empty static scene.\n"));
 		return;
 	}
 
@@ -256,7 +256,7 @@ void RendererOfRRDynamicSolver::render()
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getIllumination(0)->getLayer(params.layerNumberLDM);
 		if (params.layerNumberLDM!=UINT_MAX && params.solver->getStaticObjects().size()>1) 
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"LDM not rendered, call useOriginalScene() rather than useOptimizedScene(). Original works only for scenes with 1 object.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"LDM not rendered, call useOriginalScene() rather than useOptimizedScene(). Original works only for scenes with 1 object.\n"));
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 	}

@@ -464,11 +464,11 @@ unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, boo
 		bool warned = false;
 		if (ivertexInfo[minIVert1].ourVertices.size()>100)
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"Cluster of more than 100 vertices smoothed.\n"));
+			RR_LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"Cluster of more than 100 vertices smoothed.\n"));
 		}
 		if (numReduced>unsigned(vertices*0.9f))
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"More than 90%% of vertices removed in smoothing.\n"));
+			RR_LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"More than 90%% of vertices removed in smoothing.\n"));
 		}
 		if (warned)
 		{

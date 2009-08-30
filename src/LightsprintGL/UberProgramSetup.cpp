@@ -122,7 +122,7 @@ void UberProgramSetup::recommendMaterialSetup(rr::RRObject* object)
 	// transp
 	if (numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
 	{
-		//LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
+		//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
 	}
 	if (numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
 	{
@@ -172,7 +172,7 @@ void UberProgramSetup::recommendMaterialSetup(rr::RRObject* object)
 const char* UberProgramSetup::getSetupString()
 {
 	static bool SHADOW_BILINEAR = true;
-	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
+	RR_LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
@@ -422,19 +422,19 @@ void UberProgramSetup::validate()
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY)
 {
-	LIMITED_TIMES(1,checkCapabilities());
+	RR_LIMITED_TIMES(1,checkCapabilities());
 
 	if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
 	{
 		// late correction. we rarely get here, see early correction
 		LIGHT_DIRECT_MAP = 0;
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture without shadows not supported yet.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture without shadows not supported yet.\n"));
 	}
 
 	Program* program = getProgram(uberProgram);
 	if (!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n"));
 		return NULL;
 	}
 	program->useIt();
@@ -505,7 +505,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		{
 			if (!program->uniformExists("worldLightPos"))
 			{
-				LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Miscompiled shader, this is known driver bug.\n"));
+				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Miscompiled shader, this is known driver bug.\n"));
 				return NULL;
 			}
 			program->sendUniform("worldLightPos",light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
@@ -666,12 +666,12 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 {
 	if (!program)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
 		return;
 	}
 	if (!illumination)
 	{
-		LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(illumination=NULL).\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(illumination=NULL).\n"));
 		return;
 	}
 	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
@@ -685,7 +685,7 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: diffuseEnvMap==NULL.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: diffuseEnvMap==NULL.\n"));
 		}
 	}
 	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
@@ -699,7 +699,7 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 		}
 		else
 		{
-			LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
 		}
 	}
 }
