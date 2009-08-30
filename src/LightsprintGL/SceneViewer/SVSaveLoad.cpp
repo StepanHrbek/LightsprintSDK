@@ -6,6 +6,7 @@
 #include "SVSaveLoad.h"
 
 #ifdef SUPPORT_SCENEVIEWER
+#if _MSC_VER==1500 // save/load depends on boost. we have it installed only in 2008. you can change this if arbitrarily
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -285,4 +286,5 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 //---------------------------------------------------------------------------
 
+#endif // _MSC_VER==1500
 #endif // SUPPORT_SCENEVIEWER
