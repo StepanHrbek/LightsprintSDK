@@ -893,29 +893,32 @@ enum PropertyEnum
 	PE_DIRECTIONAL,
 	PE_RESOLUTION_CALCULATED,
 	PE_RESOLUTION_FIXED,
-	PE_UNKNOWN // string was not 
 };
 
 #if GAMEBRYO_MAJOR_VERSION==3
-PropertyEnum getPropertyEnum(efd::utf8string propertyString)
+// Sets out only if propertyString is valid.
+bool getPropertyEnum(efd::utf8string propertyString, PropertyEnum& out)
 {
 	const char* propertyStrings[] =
 	{
-		"Default",
-		"Vertex colors",
-		"Texture(s)",
+		"Inherit from LightsprintScene",
+		"Vertices",
+		"Texture",
 		"Non-directional",
 		"Directional/RNM",
-		"Multiplier",
-		"Fixed"
+		"Calculate from LsPixelsPerWorldUnit*LsResolutionMultiplier",
+		"Use Fixed Resolution"
 	};
 	for (unsigned i=0;i<7;i++)
 	{
-		if (propertyString==propertyStrings[i])
-			return (PropertyEnum)i;
+		if (!strcmp(propertyString.c_str(),propertyStrings[i]))
+		{
+			out = (PropertyEnum)i;
+			return true;
+		}
 	}
-	RRReporter::report(WARN,"Enum has unexpected value %s.\n",propertyString);
-	return PE_UNKNOWN;
+	RRReporter::report(WARN,"Enum has unexpected value %s.\n",propertyString.c_str());
+	return false;
 };
 #endif
 
@@ -947,10 +950,10 @@ struct PerSceneSettings
 		efd::utf8string str;
 
 		entity->GetPropertyValue("LsDefaultBakeTarget", str);
-		lsDefaultBakeTarget = getPropertyEnum(str);
+		getPropertyEnum(str,lsDefaultBakeTarget);
 
 		entity->GetPropertyValue("LsDefaultBakeDirectionality", str);
-		lsDefaultBakeDirectionality = getPropertyEnum(str);
+		getPropertyEnum(str,lsDefaultBakeDirectionality);
 
 		entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
 
@@ -972,8 +975,8 @@ struct PerEntitySettings
 	PropertyEnum lsBakeDirectionality;
 	PropertyEnum lsResolutionFormula;
 	float lsResolutionMultiplier;
-	unsigned lsResolutionWidth;
-	unsigned lsResolutionHeight;
+	unsigned lsResolutionFixedWidth;
+	unsigned lsResolutionFixedHeight;
 
 	PerEntitySettings()
 	{
@@ -981,32 +984,35 @@ struct PerEntitySettings
 		lsBakeDirectionality = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
 		lsResolutionFormula = PE_RESOLUTION_CALCULATED;
 		lsResolutionMultiplier = 1;
-		lsResolutionWidth = 128;
-		lsResolutionHeight = 128;
+		lsResolutionFixedWidth = 128;
+		lsResolutionFixedHeight = 128;
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
-	void readFrom(egf::Entity* entity, const PerSceneSettings& perSceneSettings)
+	void readFrom(egf::Entity* entity)
 	{
 		efd::utf8string str;
 
 		entity->GetPropertyValue("LsBakeTarget", str);
-		lsBakeTarget = getPropertyEnum(str);
-		if (lsBakeTarget==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
-			lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
+		getPropertyEnum(str,lsBakeTarget);
 
 		entity->GetPropertyValue("LsBakeDirectionality", str);
-		lsBakeDirectionality = getPropertyEnum(str);
-		if (lsBakeDirectionality==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
-			lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
+		getPropertyEnum(str,lsBakeDirectionality);
 
 		entity->GetPropertyValue("LsResolutionFormula", str);
-		lsResolutionFormula = getPropertyEnum(str);
+		getPropertyEnum(str,lsResolutionFormula);
 
 		entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
 
-		entity->GetPropertyValue("LsResolutionWidth", lsResolutionWidth);
+		entity->GetPropertyValue("LsResolutionFixedWidth", lsResolutionFixedWidth);
 
-		entity->GetPropertyValue("LsResolutionHeight", lsResolutionHeight);
+		entity->GetPropertyValue("LsResolutionFixedHeight", lsResolutionFixedHeight);
+	}
+	void inheritFrom(const PerSceneSettings& perSceneSettings)
+	{
+		if (lsBakeTarget==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
+			lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
+		if (lsBakeDirectionality==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
+			lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
 	}
 #endif
 };
@@ -1351,7 +1357,9 @@ public:
 						if (isStatic && useForPrecomputedLighting)
 						{
 							PerEntitySettings perEntitySettings;
-							perEntitySettings.readFrom(entity,perSceneSettings);
+							if (entity->GetModel()->ContainsModel("LightsprintMesh"))
+								perEntitySettings.readFrom(entity); // call only if LightsprintMesh exists, otherwise it emits warnings
+							perEntitySettings.inheritFrom(perSceneSettings); // call always, converts default PE_INHERIT_... to nice values
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
@@ -1544,8 +1552,8 @@ public:
 		else
 		{
 			layerParameters.actualType = BT_2D_TEXTURE;
-			layerParameters.actualWidth = perEntitySettings.lsResolutionWidth;
-			layerParameters.actualHeight = perEntitySettings.lsResolutionHeight;
+			layerParameters.actualWidth = perEntitySettings.lsResolutionFixedWidth;
+			layerParameters.actualHeight = perEntitySettings.lsResolutionFixedHeight;
 			layerParameters.actualFormat = BF_RGB;
 			layerParameters.actualScaled = true;
 			RR_SAFE_FREE(layerParameters.actualFilename);

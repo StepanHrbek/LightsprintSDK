@@ -22,6 +22,7 @@ NEWS
   - GIScene.LightingFile is set automatically, if needed
   - if LightPCLObjectsAtRuntime && LightNonPCLObjectsAtRuntime, calculates indirect illumination only
   - relighting in UI menu (testing only)
+  - renamed several properties
 - small helper functions
   - RRMesh::getMappingDensity()
   - RRMatrix3x4::setIdentity()
