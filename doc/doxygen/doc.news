@@ -26,8 +26,8 @@ NEWS
 - small helper functions
   - RRMesh::getMappingDensity()
   - RRMatrix3x4::setIdentity()
+  - macros RR_CLAMP, RR_CLAMPED, RR_FLOAT2BYTE, RR_BYTE2FLOAT
   - LightsprintGL source code comes with boost::serialization support
-  - RR_CLAMP and RR_CLAMPED macros (previously CLAMP, CLAMPED)
 
 FIXED
 

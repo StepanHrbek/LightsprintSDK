@@ -103,6 +103,8 @@
 #define RR_MAX3(a,b,c)        RR_MAX(a,RR_MAX(b,c))
 #define RR_CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 #define RR_CLAMP(a,min,max)   (a)=RR_CLAMPED(a,min,max)
+#define RR_FLOAT2BYTE(f)      RR_CLAMPED(int((f)*256),0,255)
+#define RR_BYTE2FLOAT(b)      ((b)*0.003921568627450980392156862745098f)
 
 namespace rr /// LightsprintCore - platform independent realtime global illumination solver.
 {

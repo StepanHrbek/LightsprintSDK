@@ -10,9 +10,6 @@
 #include "RRBufferInMemory.h"
 #include "Lightsprint/RRDebug.h"
 
-#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
-#define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
-
 namespace rr
 {
 
@@ -135,15 +132,15 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 	switch(format)
 	{
 		case BF_RGB:
-			data[3*index+0] = FLOAT2BYTE(element[0]);
-			data[3*index+1] = FLOAT2BYTE(element[1]);
-			data[3*index+2] = FLOAT2BYTE(element[2]);
+			data[3*index+0] = RR_FLOAT2BYTE(element[0]);
+			data[3*index+1] = RR_FLOAT2BYTE(element[1]);
+			data[3*index+2] = RR_FLOAT2BYTE(element[2]);
 			break;
 		case BF_RGBA:
-			data[4*index+0] = FLOAT2BYTE(element[0]);
-			data[4*index+1] = FLOAT2BYTE(element[1]);
-			data[4*index+2] = FLOAT2BYTE(element[2]);
-			data[4*index+3] = FLOAT2BYTE(element[3]);
+			data[4*index+0] = RR_FLOAT2BYTE(element[0]);
+			data[4*index+1] = RR_FLOAT2BYTE(element[1]);
+			data[4*index+2] = RR_FLOAT2BYTE(element[2]);
+			data[4*index+3] = RR_FLOAT2BYTE(element[3]);
 			break;
 		case BF_RGBF:
 			((RRVec3*)data)[index] = element;
@@ -174,16 +171,16 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 	switch(format)
 	{
 		case BF_RGB:
-			result[0] = BYTE2FLOAT(data[ofs+0]);
-			result[1] = BYTE2FLOAT(data[ofs+1]);
-			result[2] = BYTE2FLOAT(data[ofs+2]);
+			result[0] = RR_BYTE2FLOAT(data[ofs+0]);
+			result[1] = RR_BYTE2FLOAT(data[ofs+1]);
+			result[2] = RR_BYTE2FLOAT(data[ofs+2]);
 			result[3] = 1;
 			break;
 		case BF_RGBA:
-			result[0] = BYTE2FLOAT(data[ofs+0]);
-			result[1] = BYTE2FLOAT(data[ofs+1]);
-			result[2] = BYTE2FLOAT(data[ofs+2]);
-			result[3] = BYTE2FLOAT(data[ofs+3]);
+			result[0] = RR_BYTE2FLOAT(data[ofs+0]);
+			result[1] = RR_BYTE2FLOAT(data[ofs+1]);
+			result[2] = RR_BYTE2FLOAT(data[ofs+2]);
+			result[3] = RR_BYTE2FLOAT(data[ofs+3]);
 			break;
 		case BF_RGBF:
 			result = *((RRVec3*)(data+ofs));

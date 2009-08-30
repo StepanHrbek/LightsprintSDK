@@ -13,8 +13,6 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
 
-#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
-
 namespace rr
 {
 
@@ -84,17 +82,17 @@ void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler*
 					((RRVec3*)locked)[headers[i].dstOffset1] = sum;
 					break;
 				case BF_RGB:
-					locked[headers[i].dstOffset1*3  ] = FLOAT2BYTE(sum[0]);
-					locked[headers[i].dstOffset1*3+1] = FLOAT2BYTE(sum[1]);
-					locked[headers[i].dstOffset1*3+2] = FLOAT2BYTE(sum[2]);
+					locked[headers[i].dstOffset1*3  ] = RR_FLOAT2BYTE(sum[0]);
+					locked[headers[i].dstOffset1*3+1] = RR_FLOAT2BYTE(sum[1]);
+					locked[headers[i].dstOffset1*3+2] = RR_FLOAT2BYTE(sum[2]);
 					break;
 				case BF_RGBAF:
 					((RRVec4*)locked)[headers[i].dstOffset1] = sum;
 					break;
 				case BF_RGBA:
-					locked[headers[i].dstOffset1*4  ] = FLOAT2BYTE(sum[0]);
-					locked[headers[i].dstOffset1*4+1] = FLOAT2BYTE(sum[1]);
-					locked[headers[i].dstOffset1*4+2] = FLOAT2BYTE(sum[2]);
+					locked[headers[i].dstOffset1*4  ] = RR_FLOAT2BYTE(sum[0]);
+					locked[headers[i].dstOffset1*4+1] = RR_FLOAT2BYTE(sum[1]);
+					locked[headers[i].dstOffset1*4+2] = RR_FLOAT2BYTE(sum[2]);
 					locked[headers[i].dstOffset1*4+3] = 0;
 					break;
 				default:

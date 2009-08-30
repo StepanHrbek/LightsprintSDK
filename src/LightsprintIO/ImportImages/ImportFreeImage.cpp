@@ -23,9 +23,6 @@
 
 #pragma comment(lib,"FreeImage.lib")
 
-#define FLOAT2BYTE(f) RR_CLAMPED(int(f*256),0,255)
-#define BYTE2FLOAT(b) ((b)*0.003921568627450980392156862745098f)
-
 using namespace rr;
 
 static unsigned getBytesPerPixel(RRBufferFormat format)
@@ -493,28 +490,28 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 										break;
 #ifdef RR_BIG_ENDIAN
 									case 32:
-										pixel[0] = BYTE2FLOAT(src[2]);
-										pixel[1] = BYTE2FLOAT(src[1]);
-										pixel[2] = BYTE2FLOAT(src[0]);
-										pixel[3] = BYTE2FLOAT(src[3]);
+										pixel[0] = RR_BYTE2FLOAT(src[2]);
+										pixel[1] = RR_BYTE2FLOAT(src[1]);
+										pixel[2] = RR_BYTE2FLOAT(src[0]);
+										pixel[3] = RR_BYTE2FLOAT(src[3]);
 										break;
 									case 24:
-										pixel[0] = BYTE2FLOAT(src[2]);
-										pixel[1] = BYTE2FLOAT(src[1]);
-										pixel[2] = BYTE2FLOAT(src[0]);
+										pixel[0] = RR_BYTE2FLOAT(src[2]);
+										pixel[1] = RR_BYTE2FLOAT(src[1]);
+										pixel[2] = RR_BYTE2FLOAT(src[0]);
 										pixel[3] = 1;
 										break;
 #else // RR_BIG_ENDIAN
 									case 32:
-										pixel[0] = BYTE2FLOAT(src[0]);
-										pixel[1] = BYTE2FLOAT(src[1]);
-										pixel[2] = BYTE2FLOAT(src[2]);
-										pixel[3] = BYTE2FLOAT(src[3]);
+										pixel[0] = RR_BYTE2FLOAT(src[0]);
+										pixel[1] = RR_BYTE2FLOAT(src[1]);
+										pixel[2] = RR_BYTE2FLOAT(src[2]);
+										pixel[3] = RR_BYTE2FLOAT(src[3]);
 										break;
 									case 24:
-										pixel[0] = BYTE2FLOAT(src[0]);
-										pixel[1] = BYTE2FLOAT(src[1]);
-										pixel[2] = BYTE2FLOAT(src[2]);
+										pixel[0] = RR_BYTE2FLOAT(src[0]);
+										pixel[1] = RR_BYTE2FLOAT(src[1]);
+										pixel[2] = RR_BYTE2FLOAT(src[2]);
 										pixel[3] = 1;
 										break;
 #endif // RR_BIG_ENDIAN
@@ -543,15 +540,15 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 										((float*)dst)[2] = pixel[2];
 										break;
 									case 32:
-										dst[0] = FLOAT2BYTE(pixel[0]);
-										dst[1] = FLOAT2BYTE(pixel[1]);
-										dst[2] = FLOAT2BYTE(pixel[2]);
-										dst[3] = FLOAT2BYTE(pixel[3]);
+										dst[0] = RR_FLOAT2BYTE(pixel[0]);
+										dst[1] = RR_FLOAT2BYTE(pixel[1]);
+										dst[2] = RR_FLOAT2BYTE(pixel[2]);
+										dst[3] = RR_FLOAT2BYTE(pixel[3]);
 										break;
 									case 24:
-										dst[0] = FLOAT2BYTE(pixel[0]);
-										dst[1] = FLOAT2BYTE(pixel[1]);
-										dst[2] = FLOAT2BYTE(pixel[2]);
+										dst[0] = RR_FLOAT2BYTE(pixel[0]);
+										dst[1] = RR_FLOAT2BYTE(pixel[1]);
+										dst[2] = RR_FLOAT2BYTE(pixel[2]);
 										break;
 								}
 								dst += dstbypp;
