@@ -894,6 +894,7 @@ enum PropertyEnum
 	PE_DIRECTIONAL,
 	PE_RESOLUTION_CALCULATED,
 	PE_RESOLUTION_FIXED,
+	PE_TARGET_NONE // doesn't have Toolbench analog, we set this in case of error to disable lightmap build
 };
 
 #if GAMEBRYO_MAJOR_VERSION==3
@@ -1065,6 +1066,10 @@ public:
 		}
 		_mesh->UpdateEffects();
 
+		// this is temporary local copy of settings
+		// it is initialized to user requested settings, but we may modify it to match mesh capabilities
+		PerEntitySettings perEntitySettings = _perEntitySettings;
+
 #if GAMEBRYO_MAJOR_VERSION==2
 		unsigned lightmapTexcoord = (unsigned)NiLightMapUtility::GetLightMapUVSetIndex(_mesh);
 #else
@@ -1086,11 +1091,13 @@ public:
 				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_LightMapShaderSlot);
 				if (buildPerVertex && !nigid->m_SupportsVertexLightMaps)
 				{
-					RRReporter::report(WARN,"VertexLightMaps requested, but m_SupportsVertexLightMaps=false.\n");
+					RRReporter::report(WARN,"Mesh %s doesn't support non-directional vertex bake.\n",(const efd::Char*)_mesh->GetName());
+					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
 				if (!buildPerVertex && !nigid->m_SupportsTextureLightMaps)
 				{
-					RRReporter::report(WARN,"TextureLightMaps requested, but m_SupportsTextureLightMaps=false.\n");
+					RRReporter::report(WARN,"Mesh %s doesn't support non-directional texture bake.\n",(const efd::Char*)_mesh->GetName());
+					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
 			}
 			else
@@ -1105,13 +1112,20 @@ public:
 				}
 				if (buildPerVertex && !nigid->m_SupportsVertexRNMs)
 				{
-					RRReporter::report(WARN,"VertexRNMs requested, but m_SupportsVertexRNMs=false.\n");
+					RRReporter::report(WARN,"Mesh %s doesn't support directional vertex bake.\n",(const efd::Char*)_mesh->GetName());
+					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
 				if (!buildPerVertex && !nigid->m_SupportsTextureRNMs)
 				{
-					RRReporter::report(WARN,"TextureRNMs requested, but m_SupportsTextureRNMs=false.\n");
+					RRReporter::report(WARN,"Mesh %s doesn't support directional texture bake.\n",(const efd::Char*)_mesh->GetName());
+					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
 			}
+		}
+		else
+		{
+			RRReporter::report(WARN,"Mesh %s doesn't have GIDescriptor.\n",(const efd::Char*)_mesh->GetName());
+			perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 		}
 #endif
 
@@ -1128,7 +1142,7 @@ public:
 			return NULL;
 		}
 		RRObjectGamebryo* object = new RRObjectGamebryo(_mesh, collider, _lodInfo, _materialCache);
-		object->perEntitySettings = _perEntitySettings;
+		object->perEntitySettings = perEntitySettings;
 		return object;
 	}
 	virtual ~RRObjectGamebryo()
@@ -1509,6 +1523,13 @@ public:
 
 		RRObjectGamebryo* rrObject = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object;
 		PerEntitySettings& perEntitySettings = rrObject->perEntitySettings;
+		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
+		{
+			layerParameters.actualBuildNonDirectional = false;
+			layerParameters.actualBuildDirectional = false;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
 		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
 		{
 			layerParameters.actualType = BT_VERTEX_BUFFER;
