@@ -16,11 +16,18 @@ NEWS
   - bake is faster and uses less memory
   - supports lightmap resolution calculated from mapping, see new properties
     - LightsprintScene.LsPixelsPerWorldUnit
-    - LightsprintMesh.LsResolutionFormula
+    - LightsprintMesh.LsResolutionMode
     - LightsprintMesh.LsResolutionMultiplier
   - GIScene.LightingFile is set automatically, if needed
   - if LightPCLObjectsAtRuntime && LightNonPCLObjectsAtRuntime, calculates indirect illumination only
   - relighting in UI menu (testing only)
+
+  <table border=0><tr align=top><td>
+  \image html Toolbench-LightsprintScene.png
+  </td><td>
+  \image html Toolbench-LightsprintMesh.png
+  </td></tr></table>
+
 - small helper functions
   - RRMesh::getMappingDensity()
   - RRMatrix3x4::setIdentity()
