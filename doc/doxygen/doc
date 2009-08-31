@@ -2400,9 +2400,10 @@ Ray-Mesh collisions
       LightSpeed_GlobalIllumination_2.0.1\\
       Source\\GISample\\Data\\GISample\\Cathedral.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution.
-    - Click Lightsprint / Bake lighting in menu. Click OK.
+    - Click Lightsprint / Bake lighting in menu.
       Small window will show baking progress and let you abort operation.
-      Notice warning about missing LightsprintScene, next paragraph explains how to fix it. Until then, GI is computed per-vertex.
+      Notice warnings about missing LightsprintScene etc, next paragraph explains how to fix it.
+      Until then, GI is computed at default low quality, per-vertex.
     - Few seconds later, you should see GI in WorldBuilder.
     \image html BuildLightmaps_2.jpg
 
