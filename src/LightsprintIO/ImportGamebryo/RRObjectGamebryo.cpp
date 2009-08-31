@@ -1562,13 +1562,13 @@ public:
 
 			// density -> resolution
 			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
-			resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-			//unsigned resolution2n = RR_MAX(1,minSize);
-			//while (resolution2n<resolution && resolution2n<maxSize) resolution2n *= 2;
+			//resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+			unsigned resolutionPOT = RR_MAX(1,layerParameters.suggestedMinMapSize);
+			while (resolutionPOT<resolution && resolutionPOT*2<=layerParameters.suggestedMaxMapSize) resolutionPOT *= 2;
 
 			layerParameters.actualType = BT_2D_TEXTURE;
-			layerParameters.actualWidth = resolution;
-			layerParameters.actualHeight = resolution;
+			layerParameters.actualWidth = resolutionPOT;
+			layerParameters.actualHeight = resolutionPOT;
 			layerParameters.actualFormat = BF_RGB;
 			layerParameters.actualScaled = true;
 			RR_SAFE_FREE(layerParameters.actualFilename);
