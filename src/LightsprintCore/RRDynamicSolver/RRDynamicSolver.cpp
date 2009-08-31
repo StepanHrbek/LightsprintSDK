@@ -309,7 +309,7 @@ public:
 	{
 		#if PER_SEC==1
 			// floating point time without overflows
-			return (GETTIME>endTime) || aborting;
+			return (GETTIME>endTime) || *aborting;
 		#else
 			// fixed point time with overlaps
 			TIME now = GETTIME;
