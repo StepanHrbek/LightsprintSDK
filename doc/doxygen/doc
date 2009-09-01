@@ -2402,7 +2402,7 @@ Ray-Mesh collisions
     - Open WorldBuilder by doubleclicking .block file in game solution.
     - Click Lightsprint / Bake lighting in menu.
       Small window will show baking progress and let you abort operation.
-      Notice warnings about missing LightsprintScene etc, next paragraph explains how to fix it.
+      Notice warnings about missing LightsprintScene, next paragraph explains how to fix it.
       Until then, GI is computed at default low quality, per-vertex.
     - Few seconds later, you should see GI in WorldBuilder.
     \image html BuildLightmaps_2.jpg
@@ -2423,8 +2423,8 @@ Ray-Mesh collisions
       right click References under .block file, select Add Reference,
       enter <code>LightsprintModelLibrary</code> directory and select <code>LightsprintModelLibrary.emtproj</code>.
       Add reference to GIModelLibrary in the same way.
-    - To test library, add LightsprintScene to Cathedral scene mentioned in previous paragraph.
-      Change LsDefaultBakeTarget to Texture and bake at quality 10, you will see lightmaps baked in a few seconds.
+    - To test library, open Cathedral scene mentioned in previous paragraph and transmogrify GIScene entity to LightsprintScene.
+      Change LightsprintScene property LsDefaultBakeTarget to Texture and bake, you will see low quality lightmaps in a few seconds.
 
  \section g30_mix Mixing realtime and precomputed illumination
     - Lightspeed supports rendering realtime direct and precomputed indirect illumination

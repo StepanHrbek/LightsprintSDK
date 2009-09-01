@@ -1358,7 +1358,7 @@ public:
 					}
 				}
 				if (!numLightsprintScenes)
-					RRReporter::report(WARN,"No entity contains LightsprintScene model, baking will default to per-vertex. Add LightsprintScene to change it.\n");
+					RRReporter::report(WARN,"No entity contains LightsprintScene model, baking will default to low quality per-vertex. Add LightsprintScene to change it.\n");
 				if (numScenes>1)
 					RRReporter::report(WARN,"%d entities contain Scene model, isn't one enough?\n",numScenes);
 				if (!numLightsprintMeshes && numMeshes)
