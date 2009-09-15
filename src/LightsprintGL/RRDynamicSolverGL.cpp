@@ -258,18 +258,23 @@ void RRDynamicSolverGL::updateShadowmaps()
 			continue;
 		}
 
-		// update dirlight position
-		if (light->getParent()->orthogonal && light->getNumShadowmaps())
-		{
-			Texture* shadowmap = light->getShadowmap(0);
-			light->getParent()->update(observer,light->getRRLight().rtMaxShadowSize);
-		}
-		else
-			light->getParent()->update();
+		// update non-dirlight position (this is probably redundant operation)
+		//if (!light->getParent()->orthogonal || !light->getNumShadowmaps())
+		//{
+		//	light->getParent()->update();
+		//}
 
 		// update shadowmap[s]
 		if (light->dirtyShadowmap)
 		{
+			// update dirlight position, it moves with observer camera
+			//  but only if shadowmap changes, to prevent this error scenario:
+			//   eye direction changes -> eye far automatically changes -> light far would change -> old CSM would render incorerectly
+			if (light->getParent()->orthogonal && light->getNumShadowmaps())
+			{
+				light->getParent()->update(observer,light->getRRLight().rtMaxShadowSize);
+			}
+
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
 			glColorMask(0,0,0,0);
