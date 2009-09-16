@@ -1789,21 +1789,9 @@ public:
 			if (color!=RRVec3(0)) // don't adapt lights that have no effect (makes calculation bit faster)
 			{
 				RRLight* rrLight = NULL;
-
-				// directional light
-				if (entity->GetModel()->ContainsModel("DirectionalLight"))
-				{
-					rrLight = RRLight::createDirectionalLight(dir, color, false);
-				}
-			
-				// point light
-				else if (entity->GetModel()->ContainsModel("PointLight"))
-				{
-					rrLight = RRLight::createPointLightPoly(pos, color, poly);
-				}
 				
 				// spot light
-				else if (entity->GetModel()->ContainsModel("SpotLight"))
+				if (entity->GetModel()->ContainsModel("SpotLight"))
 				{
 					float innerSpotAngle = 0.5f;
 					entity->GetPropertyValue("InnerSpotAngle", innerSpotAngle);
@@ -1813,6 +1801,19 @@ public:
 					entity->GetPropertyValue("SpotExponent", spotExponent);
 
 					rrLight = RRLight::createSpotLightPoly(pos, color, poly, dir, RR_DEG2RAD(outerSpotAngle), RR_DEG2RAD(outerSpotAngle-innerSpotAngle), spotExponent);
+				}
+			
+				// point light
+				// (note that PointLight is contained also in spotlight, so we must catch spotlights in previous if and not let them here)
+				else if (entity->GetModel()->ContainsModel("PointLight"))
+				{
+					rrLight = RRLight::createPointLightPoly(pos, color, poly);
+				}
+
+				// directional light
+				else if (entity->GetModel()->ContainsModel("DirectionalLight"))
+				{
+					rrLight = RRLight::createDirectionalLight(dir, color, false);
 				}
 
 				// common light properties
