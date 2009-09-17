@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news92 ------------------------------------ 2009.09.17 -------------------------------------
+
+NEWS
+
+- \ref main_gamebryo30 "Lightspeed integration" comes with preconfigured sample scenes
+  <table border=0><tr align=top><td>
+  \image html Toolbench-Cathedral.jpg
+  </td><td>
+  \image html Toolbench-Cornell.jpg
+  </td></tr></table>
+
 \section news91 ------------------------------------ 2009.08.30 -------------------------------------
 
 NEWS
