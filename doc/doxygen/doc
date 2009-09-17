@@ -2400,7 +2400,7 @@ Ray-Mesh collisions
    \subsection g30_sample - preconfigured examples
     - Open sample scene in Lightsprint SDK <code>data\\Lightspeed\\GameFrameworkSample.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution, pick Cathedral for bigger or CornellBox for smaller scene.
-    - GI is already present, but to rebuild it, click menu Lightsprint / Bake lighting.
+    - GI is already present. You can rebuild it by clicking menu Lightsprint / Bake lighting.
       \n Small window shows baking progress and lets you abort operation.
       \n Baking at default medium quality takes around 10s for CornellBox, 2min for Cathedral.
       \n Computed GI appears in WorldBuilder and it is also saved to disk immediately.
