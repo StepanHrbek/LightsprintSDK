@@ -14,7 +14,6 @@
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
-#include "SVLightProperties.h"
 #include "SVLightmapViewer.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
@@ -23,10 +22,25 @@
 namespace rr_gl
 {
 
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// EntityType - identifies entity type in SceneViewer
+
+	enum EntityType
+	{
+		ST_CAMERA,
+		ST_LIGHT,
+		ST_OBJECT,
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SVCanvas
+
 	class SVCanvas: public wxGLCanvas
 	{
 	public:
-		SVCanvas( SceneViewerStateEx& svse, class SVFrame* parent, SVLightProperties** parentsLightProps, wxSize size);
+		SVCanvas( SceneViewerStateEx& svse, class SVFrame* parent, wxSize size);
 		~SVCanvas();
 
 		// initializes gl context and other stuff, must be called once after canvas is created and Show()n
@@ -43,14 +57,14 @@ namespace rr_gl
 		void OnEnterWindow(wxMouseEvent& event);
 
 
+		// public only for SVFrame::selectEntity()
+		class SVSolver*            solver;
+		EntityType                 selectedType;
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerStateEx&        svs;
 		rr::RRScene*               manuallyOpenedScene; // Inited to NULL, created by user via menu File/Open, deleted when no longer needed.
-		class SVSolver*            solver;
-		enum SelectionType {ST_CAMERA, ST_LIGHT, ST_OBJECT};
-		SelectionType              selectedType;
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
@@ -99,8 +113,6 @@ namespace rr_gl
 		FpsCounter                 fpsCounter;
 		FpsDisplay*                fpsDisplay;
 
-
-		SVLightProperties**        lightProperties;
 
 		friend class SVFrame;
 

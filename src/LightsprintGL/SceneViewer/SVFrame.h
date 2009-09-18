@@ -10,7 +10,6 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "SVLightProperties.h"
 #include "SVCanvas.h"
 #include "SVApp.h"
 
@@ -20,6 +19,37 @@
 namespace rr_gl
 {
 
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// EntityId - identifies entity in SceneViewer
+
+	struct EntityId
+	{
+		EntityType type;
+		unsigned index;
+
+		EntityId(EntityType _type, unsigned _index)
+		{
+			type = _type;
+			index = _index;
+		}
+		bool operator ==(const EntityId& a)
+		{
+			return type==a.type && index==a.index;
+		}
+	};
+
+	enum SelectEntityAction
+	{
+		SEA_SELECT,
+		SEA_ACTION,
+		SEA_ACTION_IF_ALREADY_SELECTED,
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SVFrame
+
 	class SVFrame: public wxFrame
 	{
 	public:
@@ -27,6 +57,15 @@ namespace rr_gl
 
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
+
+		//! Returns currently selected entity.
+		EntityId getSelectedEntity() const;
+
+		//! Fully handles clicking light/object/etc (selects it in scene tree, opens its properties etc).
+		void selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAction action);
+
+		//! Handles changes in light list (updates tree content, selects different light etc).
+		void updateSelection();
 
 		enum
 		{
@@ -49,6 +88,8 @@ namespace rr_gl
 			ME_LIGHT_POINT,
 			ME_LIGHT_DELETE,
 			ME_LIGHT_AMBIENT,
+
+			ME_SCENE_TREE,
 
 
 			ME_LIGHTING_DIRECT_REALTIME,
@@ -112,9 +153,10 @@ namespace rr_gl
 		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
 		void UpdateMenuBar();
 
-		SceneViewerStateEx&    svs; // the only svs instance used throughout whole scene viewer
-		SVCanvas*              m_canvas;
-		SVLightProperties*     m_lightProperties;
+		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
+		SVCanvas*                m_canvas;
+		class SVLightProperties* m_lightProperties;
+		class SVSceneTree*       m_sceneTree;
 		
 		DECLARE_EVENT_TABLE()
 	};

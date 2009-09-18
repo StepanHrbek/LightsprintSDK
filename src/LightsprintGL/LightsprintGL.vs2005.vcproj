@@ -849,6 +849,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVSceneTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSceneTree.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVSolver.cpp"
 				>
 			</File>

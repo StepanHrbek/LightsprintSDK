@@ -29,7 +29,7 @@ namespace rr_gl
 //
 // SVCanvas
 
-SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightProperties** _parentsLightProperties, wxSize _size)
+SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	: wxGLCanvas(_parent, wxID_ANY, NULL, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(_svs)
 {
 	context = NULL;
@@ -81,7 +81,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, SVLightPropertie
 	fpsLoadAttempted = false;
 	fpsDisplay = NULL;
 
-	lightProperties = _parentsLightProperties;
 }
 
 void SVCanvas::createContext()

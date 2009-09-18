@@ -15,6 +15,8 @@
 #include "SVRayLog.h"
 #include "SVSolver.h"
 #include "SVSaveLoad.h"
+#include "SVLightProperties.h"
+#include "SVSceneTree.h"
 #include "../tmpstr.h"
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
@@ -170,6 +172,7 @@ void SVFrame::UpdateEverything()
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
 	RR_SAFE_DELETE(m_lightProperties);
+	RR_SAFE_DELETE(m_sceneTree);
 	RR_SAFE_DELETE(m_canvas);
 	svs.releaseResources = oldReleaseResources;
 
@@ -180,7 +183,7 @@ void SVFrame::UpdateEverything()
 
 	// creates canvas
 	// loads scene if it is specified by filename
-	m_canvas = new SVCanvas( svs, this, &m_lightProperties, newSize);
+	m_canvas = new SVCanvas( svs, this, newSize);
 
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
 	Show(true);
@@ -262,6 +265,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 {
 	m_canvas = NULL;
 	m_lightProperties = NULL;
+	m_sceneTree = NULL;
 
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
@@ -348,6 +352,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_LIGHT_PROPERTIES,m_lightProperties?_T("Close light properties"):_T("Show light properties"),_T("Opens light properties dialog window."));
+		winMenu->Append(ME_SCENE_TREE,m_sceneTree?_T("Close scene tree"):_T("Show scene tree"),_T("Opens scene tree dialog window."));
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
@@ -577,11 +582,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
-				svs.selectedLightIndex = newList.size()?newList.size()-1:0; // select new light
-				if (m_lightProperties)
-				{
-					m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
-				}
+
+				// select newly added light
+				m_canvas->selectedType = ST_LIGHT;
+				svs.selectedLightIndex = newList.size()-1;
+
+				updateSelection();
 			}
 			break;
 		case ME_LIGHT_DELETE:
@@ -589,14 +595,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			{
 				rr::RRLights newList = solver->getLights();
 				newList.erase(svs.selectedLightIndex);
-				if (svs.selectedLightIndex && svs.selectedLightIndex==newList.size())
-					svs.selectedLightIndex--;
-				if (!newList.size())
-				{
-					m_canvas->selectedType = SVCanvas::ST_CAMERA;
-				}
-				RR_SAFE_DELETE(m_lightProperties); // delete light props
-				solver->setLights(newList); // RealtimeLight in light props is deleted here
+
+				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+				updateSelection(); // deletes lightprops
 			}
 			break;
 		case ME_LIGHT_PROPERTIES:
@@ -611,6 +612,19 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				m_lightProperties = new SVLightProperties( this );
 				m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]);
 				m_lightProperties->Show(true);
+			}
+			break;
+		case ME_SCENE_TREE:
+			if (m_sceneTree)
+			{
+				m_sceneTree->Destroy();
+				m_sceneTree = NULL;
+			}
+			else
+			{
+				m_sceneTree = new SVSceneTree(this,svs);
+				updateSelection();
+				m_sceneTree->Show(true);
 			}
 			break;
 
@@ -965,6 +979,95 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	}
 
 	UpdateMenuBar();
+}
+
+EntityId SVFrame::getSelectedEntity() const
+{
+	switch (m_canvas->selectedType)
+	{
+		case ST_LIGHT:
+			return EntityId(m_canvas->selectedType,svs.selectedLightIndex);
+		case ST_OBJECT:
+			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
+		case ST_CAMERA:
+		default:
+			return EntityId(m_canvas->selectedType,0);
+	}
+}
+
+void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAction action)
+{
+	bool alreadySelected = entity==getSelectedEntity();
+	switch (entity.type)
+	{
+		case ST_LIGHT:
+			// show/hide light properties
+			if (!m_lightProperties && (action==SEA_ACTION || (action==SEA_ACTION_IF_ALREADY_SELECTED && alreadySelected)))
+			{
+				m_lightProperties = new SVLightProperties(this);
+			}
+			else
+			if (m_lightProperties && alreadySelected && action!=SEA_SELECT)
+			{
+				RR_SAFE_DELETE(m_lightProperties);//->Hide();
+			}
+
+			// update light properties
+			if (m_lightProperties)
+			{
+				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index]);
+				m_lightProperties->Show();
+			}
+
+			m_canvas->selectedType = entity.type;
+			svs.selectedLightIndex = entity.index;
+			break;
+
+		case ST_OBJECT:
+			m_canvas->selectedType = entity.type;
+			svs.selectedObjectIndex = entity.index;
+			break;
+
+		case ST_CAMERA:
+			m_canvas->selectedType = entity.type;
+			break;
+	}
+
+	if (updateSceneTree && m_sceneTree)
+	{
+		m_sceneTree->selectItem(entity);
+	}
+}
+
+void SVFrame::updateSelection()
+{
+	// update svs
+	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
+	{
+		svs.selectedLightIndex = m_canvas->solver->getLights().size();
+		if (svs.selectedLightIndex)
+			svs.selectedLightIndex--;
+		else
+		if (m_canvas->selectedType==ST_LIGHT)
+			m_canvas->selectedType = ST_CAMERA;
+	}
+
+	// update light props
+	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
+	{
+		RR_SAFE_DELETE(m_lightProperties)
+	}
+	if (m_lightProperties)
+	{
+		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
+	}
+
+	// update scene tree
+	if (m_sceneTree)
+	{
+		m_sceneTree->updateContent(m_canvas->solver);
+		m_sceneTree->selectItem(getSelectedEntity());
+	}
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
