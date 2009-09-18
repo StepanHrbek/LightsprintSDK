@@ -599,7 +599,8 @@ Ray-Mesh collisions
  you need it only when rebuilding LightsprintGL from source code.
 
  \section wx_windows Windows
-   - Get wxWidgets 2.9 source code from wxWidgets.org (any official release or svn).
+   - Get wxWidgets 2.9 source code from wxWidgets.org (any official release or svn) (SDK is built from rev 61767).
+   - Change wxUSE_GLCANVAS from 0 to 1 (in include/wx/msw/setup.h).
    - If you use one version of Visual Studio and target only win32,
      you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
      If you target x64, the only additional step is to add x64 target to that solution.

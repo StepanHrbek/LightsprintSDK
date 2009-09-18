@@ -3,10 +3,6 @@
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// include
-
 #include "SVLightProperties.h"
 
 #ifdef SUPPORT_SCENEVIEWER
@@ -34,10 +30,6 @@ SVLightProperties::SVLightProperties( wxWindow* parent )
 	topsizer->SetSizeHints( this );
 	SetSizer( topsizer );
 	SetSize( 330, 330 );
-
-	// must be called otherwise pg destructor complains we should call it
-	// (pg constructor sets it to this, not to parent)
-	pg->OnTLPChanging(parent);
 }
 
 void SVLightProperties::setLight(RealtimeLight* _rtlight)
