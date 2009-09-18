@@ -675,6 +675,7 @@ public:
 	virtual const RRCollider*  getCollider() const;
 	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	virtual const RRMatrix3x4* getWorldMatrix();
+	void*                      getCustomData(const char* name) const;
 
 private:
 	const FCDSceneNode*        node;
@@ -776,6 +777,13 @@ const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()
 {
 	return &worldMatrix;
+}
+
+void* RRObjectCollada::getCustomData(const char* name) const
+{
+	if (!strcmp(name,"const char* objectName"))
+		return (void*)node->GetName().c_str();
+	return RRObject::getCustomData(name);
 }
 
 RRObjectIllumination* RRObjectCollada::getIllumination()

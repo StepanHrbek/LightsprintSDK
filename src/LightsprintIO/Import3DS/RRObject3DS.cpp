@@ -65,6 +65,7 @@ public:
 	virtual const RRCollider*   getCollider() const;
 	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	virtual const RRMatrix3x4*  getWorldMatrix();
+	void*                       getCustomData(const char* name) const;
 
 private:
 	Model_3DS::Object* object;
@@ -240,6 +241,12 @@ const RRMatrix3x4* RRObject3DS::getWorldMatrix()
 	return NULL;
 }
 
+void* RRObject3DS::getCustomData(const char* name) const
+{
+	if (!strcmp(name,"const char* objectName"))
+		return object->name;
+	return RRObject::getCustomData(name);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -148,10 +148,11 @@ namespace rr
 		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
 		//
 		//! \param name
-		//!  Identifier of custom data requested. It is completely format-specific,
-		//!  there are no predefined names. However, it is good practise to use names 
+		//!  Identifier of custom data requested. It is good practise to use names 
 		//!  that describe both type and semantic of returned data.
-		//!  Usage example: <code>NiMesh* originalGamebryoMesh = (NiMesh*)object->getCustomData("NiMesh* originalGamebryoMesh");</code>
+		//!  Several adapters support "const char* objectName", returning object name.
+		//!  You are free to define and support any other names in your adapters.
+		//!  Usage example: <code>const char* objectName = (const char*)object->getCustomData("const char* objectName");</code>
 		virtual void* getCustomData(const char* name) const;
 
 

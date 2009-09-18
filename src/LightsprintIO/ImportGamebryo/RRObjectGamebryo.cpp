@@ -1234,8 +1234,11 @@ public:
 #if GAMEBRYO_MAJOR_VERSION==3
 	void* getCustomData(const char* name) const
 	{
-		if (!strcmp(name,"egmGI::MeshProperties*")) return (void*)&meshProperties;
-		return NULL;
+		if (!strcmp(name,"egmGI::MeshProperties*"))
+			return (void*)&meshProperties;
+		if (!strcmp(name,"const char* objectName"))
+			return (void*)(const efd::Char*)mesh->GetName();
+		return RRObject::getCustomData(name);
 	}
 
 	// public, so we can easily set it from MeshVisitor. we can't set in in constructor, because we don't have access to properties yet

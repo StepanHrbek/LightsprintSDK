@@ -51,7 +51,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	allowEvents = false;
 
 	tc->SetItemText(tc->GetRootItem(),
-		svs.sceneFilename);
+		svs.sceneFilename.size()?svs.sceneFilename:"scene");
 
 	tc->DeleteChildren(lights);
 	for (unsigned i=0;i<solver->getLights().size();i++)
@@ -61,7 +61,8 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	tc->DeleteChildren(objects);
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		tc->AppendItem(objects,wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
+		const char* objectName = (const char*)solver->getObject(i)->getCustomData("const char* objectName");
+		tc->AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 	}
 
 	allowEvents = true;
