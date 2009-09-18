@@ -306,7 +306,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	}
 	else switch(evkey)
 	{
-		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_FULLSCREEN)); break;
+		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
 
 		case WXK_NUMPAD_ADD:
 		case '+': svs.brightness *= 1.2f; needsRefresh = true; break;
@@ -318,9 +318,6 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case '*': svs.gamma *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_DIVIDE:
 		case '/': svs.gamma /= 1.2f; needsRefresh = true; break;
-
-		case '[': if (solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+solver->getNumObjects()-1)%solver->getNumObjects(); needsRefresh = true; break;
-		case ']': if (solver->getNumObjects()) svs.selectedObjectIndex = (svs.selectedObjectIndex+1)%solver->getNumObjects(); needsRefresh = true; break;
 
 		case WXK_LEFT:
 		case 'a':
@@ -428,6 +425,15 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
+	if (event.IsButton())
+	{
+		// regain focus, innocent actions like clicking menu take it away
+		SetFocus();
+	}
+	if (!solver)
+	{
+		return;
+	}
 	if (svs.renderLightmaps2d && lv)
 	{
 		lv->OnMouseEvent(event,GetSize());
@@ -862,7 +868,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
-		// gather information about selected object (by [ ] keys)
+		// gather information about selected object
 		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;

@@ -12,6 +12,7 @@
 
 #include "SVCanvas.h"
 #include "SVApp.h"
+#include "wx/aui/aui.h"
 
 #define DEBUG_TEXEL
 
@@ -82,14 +83,11 @@ namespace rr_gl
 			ME_ENV_OPEN,
 			ME_ENV_RELOAD, // not a menu item, just command we can call from outside. reloads env from svs.skyboxFilename
 
-			ME_LIGHT_PROPERTIES,
 			ME_LIGHT_DIR,
 			ME_LIGHT_SPOT,
 			ME_LIGHT_POINT,
 			ME_LIGHT_DELETE,
 			ME_LIGHT_AMBIENT,
-
-			ME_SCENE_TREE,
 
 
 			ME_LIGHTING_DIRECT_REALTIME,
@@ -115,7 +113,6 @@ namespace rr_gl
 			ME_STATIC_BUILD_LIGHTFIELD_2D,
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
 
-			ME_RENDER_FULLSCREEN,
 			ME_RENDER_DIFFUSE,
 			ME_RENDER_SPECULAR,
 			ME_RENDER_EMISSION,
@@ -133,6 +130,10 @@ namespace rr_gl
 			ME_RENDER_LOGO,
 			ME_RENDER_VIGNETTE,
 
+			ME_WINDOW_FULLSCREEN,
+			ME_WINDOW_TREE,
+			ME_WINDOW_PROPERTIES,
+
 			ME_HELP,
 			ME_CHECK_SOLVER,
 			ME_CHECK_SCENE,
@@ -142,6 +143,7 @@ namespace rr_gl
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
+		virtual ~SVFrame();
 
 		//! Updates window title bar.
 		void UpdateTitle();
@@ -154,6 +156,7 @@ namespace rr_gl
 		void UpdateMenuBar();
 
 		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
+		wxAuiManager             m_mgr;
 		SVCanvas*                m_canvas;
 		class SVLightProperties* m_lightProperties;
 		class SVSceneTree*       m_sceneTree;

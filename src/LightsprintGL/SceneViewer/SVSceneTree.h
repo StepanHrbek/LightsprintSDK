@@ -18,7 +18,7 @@
 namespace rr_gl
 {
 
-	class SVSceneTree : public wxDialog
+	class SVSceneTree : public wxTreeCtrl
 	{
 	public:
 		SVSceneTree(wxWindow* parent, SceneViewerStateEx& svse);
@@ -31,9 +31,6 @@ namespace rr_gl
 		void OnSelChanged(wxTreeEvent& event);
 		void OnItemActivated(wxTreeEvent& event);
 		void OnKeyDown(wxTreeEvent& event);
-
-		//! When user closes lightprops dialog, this deletes it (default behaviour=hide it=troubles).
-		void OnClose(wxCloseEvent& event);
 
 	private:
 		wxTreeItemId findItem(EntityId entity, bool& isOk) const;

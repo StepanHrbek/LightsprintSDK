@@ -7,29 +7,16 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "SVFrame.h" // SVFrame::ME_LIGHT_PROPERTIES
-
-#if wxCHECK_VERSION(2,9,0)
-	// makes wxPropGrid 1.4 code compile with wxWidgets 2.9
-	#define wxPGId wxPGProperty*
-#endif
+//#include "SVFrame.h"
 
 namespace rr_gl
 {
 
 SVLightProperties::SVLightProperties( wxWindow* parent )
-		: wxDialog( parent, wxID_ANY, "Light properties", wxDefaultPosition, wxSize(300,500), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
+	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
 {
 	rtlight = NULL;
-
-	pg = new wxPropertyGrid( this, -1, wxPoint(0,0), GetClientSize(), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER );
-	//pg->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS|wxPG_EX_LEGACY_VALIDATORS|wxWS_EX_VALIDATE_RECURSIVELY );
-
-	wxBoxSizer *topsizer = new wxBoxSizer( wxVERTICAL );
-	topsizer->Add( pg, 1, wxEXPAND|wxALL );
-	topsizer->SetSizeHints( this );
-	SetSizer( topsizer );
-	SetSize( 330, 330 );
+	pg = this;
 }
 
 void SVLightProperties::setLight(RealtimeLight* _rtlight)
@@ -38,7 +25,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 
 	if (!rtlight)
 	{
-		Hide();
+		pg->Clear();
 	}
 	else
 	{
@@ -50,18 +37,18 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			const wxChar* typeStrings[] = {wxT("Directional"),wxT("Point"),wxT("Spot"),NULL};
 			const long typeValues[] = {rr::RRLight::DIRECTIONAL,rr::RRLight::POINT,rr::RRLight::SPOT};
 			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
-			wxPGId idType = pg->Append( propType );
+			wxPGProperty* idType = pg->Append( propType );
 
 			propPosition = new wxStringProperty(wxT("Position"),wxPG_LABEL,wxT("<composed>"));
-			wxPGId posId = pg->AppendIn( idType, propPosition );
-			wxPGId id;
+			wxPGProperty* posId = pg->AppendIn( idType, propPosition );
+			wxPGProperty* id;
 			id = pg->AppendIn( posId, new wxFloatProperty(wxT("x"),wxPG_LABEL,light->position[0]) );
 			id = pg->AppendIn( posId, new wxFloatProperty(wxT("y"),wxPG_LABEL,light->position[1]) );
 			id = pg->AppendIn( posId, new wxFloatProperty(wxT("z"),wxPG_LABEL,light->position[2]) );
 			pg->Collapse( posId );
 
 			propDirection = new wxStringProperty(wxT("Direction"),wxPG_LABEL,wxT("<composed>"));
-			wxPGId dirId = pg->AppendIn( idType, propDirection );
+			wxPGProperty* dirId = pg->AppendIn( idType, propDirection );
 			pg->AppendIn( dirId, new wxFloatProperty(wxT("x"),wxPG_LABEL,light->direction[0]) );
 			pg->AppendIn( dirId, new wxFloatProperty(wxT("y"),wxPG_LABEL,light->direction[1]) );
 			pg->AppendIn( dirId, new wxFloatProperty(wxT("z"),wxPG_LABEL,light->direction[2]) );
@@ -80,7 +67,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 		// color
 		{
 			propColor = new wxStringProperty(wxT("Color"),wxPG_LABEL,wxT("<composed>"));
-			wxPGId colId = pg->Append( propColor );
+			wxPGProperty* colId = pg->Append( propColor );
 			pg->AppendIn( colId, new wxFloatProperty(wxT("r"),wxPG_LABEL,light->color[0]) );
 			pg->AppendIn( colId, new wxFloatProperty(wxT("g"),wxPG_LABEL,light->color[1]) );
 			pg->AppendIn( colId, new wxFloatProperty(wxT("b"),wxPG_LABEL,light->color[2]) );
@@ -97,7 +84,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			const wxChar* attenuationStrings[] = {wxT("none"),wxT("realistic"),wxT("polynomial"),wxT("exponential"),NULL};
 			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::PHYSICAL,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
 			propDistanceAttType = new wxEnumProperty(wxT("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
-			wxPGId idDistAtt = pg->Append( propDistanceAttType );
+			wxPGProperty* idDistAtt = pg->Append( propDistanceAttType );
 
 			propConstant = new wxFloatProperty(wxT("Constant"),wxPG_LABEL,light->polynom[0]);
 			pg->AppendIn( idDistAtt, propConstant );
@@ -121,7 +108,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 		// shadows
 		{
 			propCastShadows = new wxBoolProperty(wxT("Cast shadows"), wxPG_LABEL, light->castShadows);
-			wxPGId idShad = pg->Append( propCastShadows );
+			wxPGProperty* idShad = pg->Append( propCastShadows );
 
 			propShadowmapRes = new wxFloatProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getShadowmapSize());
 			pg->AppendIn( idShad, propShadowmapRes );
@@ -175,19 +162,22 @@ static unsigned updateFloat(wxPGProperty* prop,float value)
 
 void SVLightProperties::updatePosDir()
 {
-	unsigned numChanges =
-		updateFloat(propNear,rtlight->getParent()->getNear()) +
-		updateFloat(propFar,rtlight->getParent()->getFar()) +
-		updateFloat(propPosition->GetPropertyByName("x"),rtlight->getParent()->pos[0]) +
-		updateFloat(propPosition->GetPropertyByName("y"),rtlight->getParent()->pos[1]) +
-		updateFloat(propPosition->GetPropertyByName("z"),rtlight->getParent()->pos[2]) +
-		updateFloat(propDirection->GetPropertyByName("x"),rtlight->getParent()->dir[0]) +
-		updateFloat(propDirection->GetPropertyByName("y"),rtlight->getParent()->dir[1]) +
-		updateFloat(propDirection->GetPropertyByName("z"),rtlight->getParent()->dir[2])
-		;
-	if (numChanges)
+	if (rtlight)
 	{
-		Refresh();
+		unsigned numChanges =
+			updateFloat(propNear,rtlight->getParent()->getNear()) +
+			updateFloat(propFar,rtlight->getParent()->getFar()) +
+			updateFloat(propPosition->GetPropertyByName("x"),rtlight->getParent()->pos[0]) +
+			updateFloat(propPosition->GetPropertyByName("y"),rtlight->getParent()->pos[1]) +
+			updateFloat(propPosition->GetPropertyByName("z"),rtlight->getParent()->pos[2]) +
+			updateFloat(propDirection->GetPropertyByName("x"),rtlight->getParent()->dir[0]) +
+			updateFloat(propDirection->GetPropertyByName("y"),rtlight->getParent()->dir[1]) +
+			updateFloat(propDirection->GetPropertyByName("z"),rtlight->getParent()->dir[2])
+			;
+		if (numChanges)
+		{
+			Refresh();
+		}
 	}
 }
 
@@ -310,16 +300,9 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	rtlight->updateAfterRRLightChanges();
 }
 
-void SVLightProperties::OnClose(wxCloseEvent& event)
-{
-	// call parent to delete us
-	GetParent()->ProcessWindowEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_PROPERTIES));
-}
-
-BEGIN_EVENT_TABLE(SVLightProperties, wxDialog)
+BEGIN_EVENT_TABLE(SVLightProperties, wxPropertyGrid)
 	EVT_PG_CHANGED(-1,SVLightProperties::OnPropertyChange)
 	EVT_IDLE(SVLightProperties::OnIdle)
-	EVT_CLOSE(SVLightProperties::OnClose)
 END_EVENT_TABLE()
 
  

@@ -30,13 +30,12 @@ public:
 // SVSceneTree
 
 SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
-		: wxDialog( _parent, wxID_ANY, "Scene tree", wxDefaultPosition, wxSize(300,500), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ), svs(_svse)
+	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400) ), svs(_svse)
 {
 	allowEvents = true;
-	tc = new wxTreeCtrl( this, wxID_ANY, wxPoint(0,0), GetClientSize() );
+	tc = this;
 
-	wxTreeItemId root = tc->AddRoot(
-		svs.sceneFilename);
+	wxTreeItemId root = tc->AddRoot("root");
 	lights = tc->AppendItem(root,"lights");
 	objects = tc->AppendItem(root,"objects");
 
@@ -50,6 +49,9 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// (despite docs saying it does not generate events)
 	// let's ignore all events temporarily
 	allowEvents = false;
+
+	tc->SetItemText(tc->GetRootItem(),
+		svs.sceneFilename);
 
 	tc->DeleteChildren(lights);
 	for (unsigned i=0;i<solver->getLights().size();i++)
@@ -149,17 +151,10 @@ void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 	}
 }
 
-void SVSceneTree::OnClose(wxCloseEvent& event)
-{
-	// call parent to delete us
-	GetParent()->ProcessWindowEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_SCENE_TREE));
-}
-
-BEGIN_EVENT_TABLE(SVSceneTree, wxDialog)
+BEGIN_EVENT_TABLE(SVSceneTree, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED(-1,SVSceneTree::OnSelChanged)
 	EVT_TREE_ITEM_ACTIVATED(-1,SVSceneTree::OnItemActivated)
 	EVT_TREE_KEY_DOWN(-1,SVSceneTree::OnKeyDown)
-	EVT_CLOSE(SVSceneTree::OnClose)
 END_EVENT_TABLE()
 
  

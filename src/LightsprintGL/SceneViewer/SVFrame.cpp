@@ -171,8 +171,7 @@ void SVFrame::UpdateEverything()
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
-	RR_SAFE_DELETE(m_lightProperties);
-	RR_SAFE_DELETE(m_sceneTree);
+	if (m_canvas) m_mgr.DetachPane(m_canvas);
 	RR_SAFE_DELETE(m_canvas);
 	svs.releaseResources = oldReleaseResources;
 
@@ -197,9 +196,14 @@ void SVFrame::UpdateEverything()
 	m_canvas->SetFocus();
 
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_CAMERA_GENERATE_RANDOM));
-	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_RENDER_FULLSCREEN));
+	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
 
 	UpdateTitle();
+
+	updateSelection();
+
+	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane());
+	m_mgr.Update();
 }
 
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
@@ -264,8 +268,12 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
 	m_canvas = NULL;
-	m_lightProperties = NULL;
-	m_sceneTree = NULL;
+	m_lightProperties = new SVLightProperties(this);
+	m_sceneTree = new SVSceneTree(this,svs);
+
+	m_mgr.SetManagedWindow(this);
+	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("properties")).Caption(wxT("Light properties")).CloseButton(true).Bottom().Left());
 
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
@@ -315,6 +323,11 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	CreateStatusBar();
 }
 
+SVFrame::~SVFrame()
+{
+	m_mgr.UnInit();
+}
+
 void SVFrame::UpdateMenuBar()
 {
 	wxMenuBar *menuBar = new wxMenuBar;
@@ -351,8 +364,6 @@ void SVFrame::UpdateMenuBar()
 	// Lights...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_LIGHT_PROPERTIES,m_lightProperties?_T("Close light properties"):_T("Show light properties"),_T("Opens light properties dialog window."));
-		winMenu->Append(ME_SCENE_TREE,m_sceneTree?_T("Close scene tree"):_T("Show scene tree"),_T("Opens scene tree dialog window."));
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
@@ -409,9 +420,6 @@ void SVFrame::UpdateMenuBar()
 	// Render...
 	{
 		winMenu = new wxMenu;
-		winMenu->AppendCheckItem(ME_RENDER_FULLSCREEN,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
-		winMenu->Check(ME_RENDER_FULLSCREEN,svs.fullscreen);
-		winMenu->AppendSeparator();
 		winMenu->AppendCheckItem(ME_RENDER_DIFFUSE,_T("Diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
 		winMenu->Check(ME_RENDER_DIFFUSE,svs.renderMaterialDiffuse);
 		winMenu->AppendCheckItem(ME_RENDER_SPECULAR,_T("Specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
@@ -444,6 +452,16 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
 		winMenu->Append(ME_RENDER_WATER_LEVEL,_T("Adjust water level..."));
 		menuBar->Append(winMenu, _T("Render"));
+	}
+
+	// Window...
+	{
+		winMenu = new wxMenu;
+		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->Check(ME_WINDOW_FULLSCREEN,svs.fullscreen);
+		winMenu->Append(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
+		winMenu->Append(ME_WINDOW_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
+		menuBar->Append(winMenu, _T("Window"));
 	}
 
 	// About...
@@ -598,33 +616,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
 				updateSelection(); // deletes lightprops
-			}
-			break;
-		case ME_LIGHT_PROPERTIES:
-			if (m_lightProperties)
-			{
-				m_lightProperties->Destroy();
-				m_lightProperties = NULL;
-			}
-			else
-			if (svs.selectedLightIndex<solver->getLights().size())
-			{
-				m_lightProperties = new SVLightProperties( this );
-				m_lightProperties->setLight(solver->realtimeLights[svs.selectedLightIndex]);
-				m_lightProperties->Show(true);
-			}
-			break;
-		case ME_SCENE_TREE:
-			if (m_sceneTree)
-			{
-				m_sceneTree->Destroy();
-				m_sceneTree = NULL;
-			}
-			else
-			{
-				m_sceneTree = new SVSceneTree(this,svs);
-				updateSelection();
-				m_sceneTree->Show(true);
 			}
 			break;
 
@@ -935,12 +926,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		//////////////////////////////// RENDER ///////////////////////////////
 
-		case ME_RENDER_FULLSCREEN:
-			svs.fullscreen = !svs.fullscreen;
-			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
-			GetPosition(windowCoord+0,windowCoord+1);
-			GetSize(windowCoord+2,windowCoord+3);
-			break;
 		case ME_RENDER_DIFFUSE: svs.renderMaterialDiffuse = !svs.renderMaterialDiffuse; break;
 		case ME_RENDER_SPECULAR: svs.renderMaterialSpecular = !svs.renderMaterialSpecular; break;
 		case ME_RENDER_EMISSION: svs.renderMaterialEmission = !svs.renderMaterialEmission; break;
@@ -957,6 +942,24 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_BRIGHTNESS: getBrightness(this,svs.brightness); break;
 		case ME_RENDER_CONTRAST: getFactor(this,svs.gamma,"Please adjust contrast (default is 1).","Contrast"); break;
 		case ME_RENDER_WATER_LEVEL: getFactor(this,svs.waterLevel,"Please adjust water level in meters(scene units).","Water level"); break;
+
+
+		///////////////////////////////// WINDOW ////////////////////////////////
+
+		case ME_WINDOW_FULLSCREEN:
+			svs.fullscreen = !svs.fullscreen;
+			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
+			GetPosition(windowCoord+0,windowCoord+1);
+			GetSize(windowCoord+2,windowCoord+3);
+			break;
+		case ME_WINDOW_TREE:
+			m_mgr.GetPane(wxT("scenetree")).Show();
+			m_mgr.Update();
+			break;
+		case ME_WINDOW_PROPERTIES:
+			m_mgr.GetPane(wxT("properties")).Show();
+			m_mgr.Update();
+			break;
 
 
 		//////////////////////////////// HELP ///////////////////////////////
@@ -1002,21 +1005,22 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 	{
 		case ST_LIGHT:
 			// show/hide light properties
-			if (!m_lightProperties && (action==SEA_ACTION || (action==SEA_ACTION_IF_ALREADY_SELECTED && alreadySelected)))
+			if (!m_lightProperties->IsShown() && (action==SEA_ACTION || (action==SEA_ACTION_IF_ALREADY_SELECTED && alreadySelected)))
 			{
-				m_lightProperties = new SVLightProperties(this);
+				m_mgr.GetPane(wxT("properties")).Show();
+				m_mgr.Update();
 			}
 			else
-			if (m_lightProperties && alreadySelected && action!=SEA_SELECT)
+			if (m_lightProperties->IsShown() && alreadySelected && action!=SEA_SELECT)
 			{
-				RR_SAFE_DELETE(m_lightProperties);//->Hide();
+				m_mgr.GetPane(wxT("properties")).Hide();
+				m_mgr.Update();
 			}
 
 			// update light properties
-			if (m_lightProperties)
+			if (m_lightProperties->IsShown())
 			{
 				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index]);
-				m_lightProperties->Show();
 			}
 
 			m_canvas->selectedType = entity.type;
@@ -1055,19 +1059,16 @@ void SVFrame::updateSelection()
 	// update light props
 	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
 	{
-		RR_SAFE_DELETE(m_lightProperties)
+		m_lightProperties->setLight(NULL);
 	}
-	if (m_lightProperties)
+	else
 	{
-		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex]); // light props is updated to new light
+		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex]);
 	}
 
 	// update scene tree
-	if (m_sceneTree)
-	{
-		m_sceneTree->updateContent(m_canvas->solver);
-		m_sceneTree->selectItem(getSelectedEntity());
-	}
+	m_sceneTree->updateContent(m_canvas->solver);
+	m_sceneTree->selectItem(getSelectedEntity());
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
