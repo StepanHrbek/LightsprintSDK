@@ -50,11 +50,11 @@ if exist "%VS71COMNTOOLS%\vsvars32.bat" (
 	devenv %WX%\build\msw32\wx_vc7.sln /build "Release" >%ERR%
 	devenv %WX%\build\msw32\wx_vc7.sln /build "Release" >%ERR%
 	if ERRORLEVEL 1 goto error
-
-	set path=%path_backup%
 ) else (
 	echo VS2003 not found.
 )
+rem Must be outside if( ) because path_backup may contain )
+set path=%path_backup%
 
 
 if exist "%VS80COMNTOOLS%\vsvars32.bat" (
@@ -95,11 +95,10 @@ if exist "%VS80COMNTOOLS%\vsvars32.bat" (
 	devenv %WX%\build\msw64\wx_vc8.sln /build "Release|x64" >%ERR%
 	devenv %WX%\build\msw64\wx_vc8.sln /build "Release|x64" >%ERR%
 	if ERRORLEVEL 1 goto error
-
-	set path=%path_backup%
 ) else (
 	echo VS2005 not found.
 )
+set path=%path_backup%
 
 
 if exist "%VS90COMNTOOLS%\vsvars32.bat" (
@@ -140,11 +139,10 @@ if exist "%VS90COMNTOOLS%\vsvars32.bat" (
 	devenv %WX%\build\msw64\wx_vc9.sln /build "Release|x64" >%ERR%
 	devenv %WX%\build\msw64\wx_vc9.sln /build "Release|x64" >%ERR%
 	if ERRORLEVEL 1 goto error
-
-	set path=%path_backup%
 ) else (
 	echo VS2008 not found.
 )
+set path=%path_backup%
 
 
 echo DONE, all libraries built OK. You can save space by deleting %WX%\build\msw32 and msw64.
