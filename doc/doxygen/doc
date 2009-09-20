@@ -2424,8 +2424,9 @@ Ray-Mesh collisions
     - LightsprintModelLibrary and GIModelLibrary must be copied to and then referenced from your solution. 
       It is already done in our samples.
       Game Solution Wizard offers to do it automatically for new projects.
-      For old projects, manually copy <code>LightsprintModelLibrary</code> and <code>GIModelLibrary</code> directories
-      from <code>\$(EMERGENT_PATH)\\Media</code> next to <code>StandardModelLibrary</code> in your asset web,
+      For old projects, manually copy <code>\$(EMERGENT_PATH)\\Media\\GIModelLibrary</code> and
+      <code>%EMERGENT_PATH%\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin\\LightsprintModelLibrary</code>
+      directories next to <code>StandardModelLibrary</code> in your asset web,
       then open your solution in Toolbench, doubleclick .block file in Game Solution panel, expand it,
       right click References under .block file, select Add Reference,
       enter <code>LightsprintModelLibrary</code> directory and select <code>LightsprintModelLibrary.emtproj</code>.
@@ -2468,10 +2469,9 @@ Ray-Mesh collisions
  \section g30_depl Deployment
   - <code>bin/install_toolbench_plugins.bat</code> installs plugins and model library to Toolbench. It simply copies files from Lightsprint SDK.
   - If you modify and rebuild plugins, they are installed automatically.
-  - Everything plugins need is in their Toolbench directories and in model library, Lightsprint SDK is not needed, so deployment to other computers is simple directory copy.
+  - Everything plugins need is in their Toolbench directories, Lightsprint SDK is not needed, so deployment to other computers is simple directory copy.
     Plugin directories are (in case of standard VC90 Shipping configuration)
     <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin</code> and <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin.UI</code>.
-    Model library is in <code>\$(EMERGENT_PATH)\\Media\\LightsprintModelLibrary</code>.
 
  \section g30_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
