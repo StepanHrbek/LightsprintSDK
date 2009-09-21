@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news92 ------------------------------------ 2009.09.17 -------------------------------------
+\section news92 ------------------------------------ 2009.09.20 -------------------------------------
 
 NEWS
 
@@ -18,7 +18,7 @@ NEWS
   </td><td>
   \image html Toolbench-Cornell.jpg
   </td></tr></table>
-- improved SceneViewer
+- enhanced rr_gl::sceneViewer() and SceneViewer sample
   - added scene tree window
   - all windows dockable
   \image html SceneViewer_1.jpg
