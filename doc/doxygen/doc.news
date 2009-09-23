@@ -23,6 +23,13 @@ NEWS
   - all windows dockable
   \image html SceneViewer_1.jpg
 
+CHANGES
+
+- small RRBuffer changes
+  - RRBuffer::flip() added
+  - RRBuffer::load() flip parameters removed, use flip() instead
+  - RRBuffer::SaveParameters added with jpeg quality, used as parameter in RRBuffer::save()
+
 \section news91 ------------------------------------ 2009.08.30 -------------------------------------
 
 NEWS

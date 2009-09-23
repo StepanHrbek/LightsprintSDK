@@ -354,7 +354,7 @@ public:
 			{
 				strippedName.insert(0,pathToTextures);
 			}
-			buffer = load(strippedName.c_str(),NULL,false,false);
+			buffer = load(strippedName.c_str(),NULL);
 			if (buffer) break;
 		}
 		RRReporter::setReporter(oldReporter);
@@ -369,7 +369,7 @@ public:
 		}
 		return buffer;
 	}
-	RRBuffer* load(fstring filename, const char* cubeSideName[6], bool flipV, bool flipH)
+	RRBuffer* load(fstring filename, const char* cubeSideName[6])
 	{
 		Cache::iterator i = cache.find(filename);
 		if (i!=cache.end())
@@ -378,7 +378,7 @@ public:
 		}
 		else
 		{
-			return cache[filename] = RRBuffer::load(filename,cubeSideName,flipV,flipH);
+			return cache[filename] = RRBuffer::load(filename,cubeSideName);
 		}
 	}
 	size_t getMemoryOccupied()

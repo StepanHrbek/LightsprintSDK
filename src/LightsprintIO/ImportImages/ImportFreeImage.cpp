@@ -253,13 +253,13 @@ static bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
 }
 
 // 2D map loader
-static bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool flipH)
+static bool reload2d(RRBuffer* texture, const char *filename)
 {
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
 	bool scaled = true;
-	unsigned char* pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format,scaled);
+	unsigned char* pixels = loadFreeImage(filename,false,false,false,width,height,format,scaled);
 	if (!pixels)
 	{
 		return false;
@@ -273,14 +273,8 @@ static bool reload2d(RRBuffer* texture, const char *filename, bool flipV, bool f
 }
 
 // cube map loader
-static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH)
+static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSideName[6])
 {
-	// we flip all cube inputs
-	// we can alternatively modify all routines that depend on internal cubemap layout, rather than flipping data,
-	//  but advantages of such change are not clear
-	flipV = !flipV;
-	flipH = !flipH;
-
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
@@ -290,7 +284,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
-		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format,scaled);
+		pixels = loadFreeImage(filenameMask,false,true,true,width,height,format,scaled);
 		if (!pixels)
 			return false;
 		if (!shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format)))
@@ -313,7 +307,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 			unsigned tmpWidth, tmpHeight;
 			RRBufferFormat tmpFormat;
 
-			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat,scaled);
+			sides[side] = loadFreeImage(buf,true,true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
 			if (!sides[side])
 				return false;
 
@@ -350,13 +344,13 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	return true;
 }
 
-bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideName[6])
 {
 	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
 		? reloadVertexBuffer(buffer,filename)
 		: (cubeSideName
-		? reloadCube(buffer,filename,cubeSideName,flipV,flipH)
-		: reload2d(buffer,filename,flipV,flipH) );
+		? reloadCube(buffer,filename,cubeSideName)
+		: reload2d(buffer,filename) );
 	if (!reloaded)
 	{
 		RRReporter::report(ERRO,"Failed to reload %s.\n",filename);
@@ -379,7 +373,7 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6])
+bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 
@@ -561,7 +555,16 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 						filenameCube[999] = 0;
 
 						// save single side
-						result = FreeImage_Save(fif, dib, filenameCube)!=0;
+						int flags = 0;
+						if (saveParameters)
+						{
+							if (saveParameters->jpegQuality<=(10+25)/2) flags = JPEG_QUALITYBAD; else
+							if (saveParameters->jpegQuality<=(25+50)/2) flags = JPEG_QUALITYAVERAGE; else
+							if (saveParameters->jpegQuality<=(50+75)/2) flags = JPEG_QUALITYNORMAL; else
+							if (saveParameters->jpegQuality<=(75+100)/2) flags = JPEG_QUALITYGOOD; else
+							flags = JPEG_QUALITYSUPERB;
+						}
+						result = FreeImage_Save(fif, dib, filenameCube, flags)!=0;
 						// if any one of 6 images fails, don't try other and report fail
 						if (!result) break;
 					}

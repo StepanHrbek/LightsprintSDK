@@ -125,6 +125,28 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	}
 }
 
+void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
+{
+	// slow getElement path, faster path can be written using lock and direct access
+	unsigned xmax = getWidth();
+	unsigned ymax = getHeight();
+	unsigned zmax = getDepth();
+	for (unsigned x=0;x<xmax;x++)
+	for (unsigned y=0;y<ymax;y++)
+	for (unsigned z=0;z<zmax;z++)
+	{
+		unsigned e1 = x+xmax*(y+ymax*z);
+		unsigned e2 = (flipX?xmax-1-x:x)+xmax*((flipY?ymax-1-y:y)+ymax*(flipZ?zmax-1-z:z));
+		if (e1<e2)
+		{
+			RRVec4 color1 = getElement(e1);
+			RRVec4 color2 = getElement(e2);
+			setElement(e1,color2);
+			setElement(e2,color1);
+		}
+	}
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -147,20 +169,20 @@ RRBuffer::Saver* RRBuffer::setSaver(Saver* saver)
 	return result;
 }
 
-bool RRBuffer::save(const char *filename, const char* cubeSideName[6])
+bool RRBuffer::save(const char *filename, const char* cubeSideName[6], const SaveParameters* parameters)
 {
-	return (s_save && this && filename) ? s_save(this,filename,cubeSideName) : false;
+	return (s_save && this && filename) ? s_save(this,filename,cubeSideName,parameters) : false;
 }
 
-bool RRBuffer::reload(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+bool RRBuffer::reload(const char *filename, const char* cubeSideName[6])
 {
-	return (s_reload && this && filename) ? s_reload(this,filename,cubeSideName,flipV,flipH) : false;
+	return (s_reload && this && filename) ? s_reload(this,filename,cubeSideName) : false;
 }
 
-RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6])
 {
 	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if (!texture->reload(filename,cubeSideName,flipV,flipH))
+	if (!texture->reload(filename,cubeSideName))
 	{
 		RR_SAFE_DELETE(texture);
 	}

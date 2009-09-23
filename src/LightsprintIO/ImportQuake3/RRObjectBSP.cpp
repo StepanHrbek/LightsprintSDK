@@ -135,12 +135,16 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 			char buf[300];
 			_snprintf(buf,299,"%s%s%s%s",pathToTextures,stripPaths?"":"../",strippedName,exts[e]);
 			buf[299]=0;
-			t = RRBuffer::load(buf,NULL,true,false);
+			t = RRBuffer::load(buf);
 #ifdef MARK_OPENED
 			if (t) _chmod(buf,_S_IREAD); // mark opened files read only
 #endif
 			//if (t) {puts(buf);break;}
-			if (t) goto loaded;
+			if (t)
+			{
+				t->flip(false,true,false);
+				goto loaded;
+			}
 			//if (e==2) printf("Not found: %s\n",buf);
 		}
 	}

@@ -210,10 +210,6 @@ namespace rr
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  \n Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
 		//!  \n Must be NULL for vertex buffers and 2d textures, non-NULL for cubemaps (even cubemaps in 1 file).
-		//! \param flipV
-		//!  Flip all sides vertically at load time.
-		//! \param flipH
-		//!  Flip all sides horizontally at load time.
 		//! \return
 		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.
@@ -221,7 +217,7 @@ namespace rr
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, bool flipV = false, bool flipH = false);
+		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL);
 		//! Loads cube texture from 1 or 6 files to system memory.
 		//
 		//! This is convenience function working with incomplete information,
@@ -235,10 +231,15 @@ namespace rr
 		static RRBuffer* loadCube(const char *filename);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
-		bool reload(const char *filename, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
+		bool reload(const char *filename, const char* cubeSideName[6]);
 		//! Similar to loadCube(), but loads from disk into existing buffer. Supports user implemented buffers.
 		bool reloadCube(const char *filename);
 
+		//! Rarely used additional save parameters, not necessarily supported by all implementations.
+		struct SaveParameters
+		{
+			char jpegQuality; // our save implementation in LightsprintIO supports 10=low, 25, 50, 75=default, 100=high
+		};
 		//! Saves buffer to disk.
 		//
 		//! Save parameters are similar to load, see load() for examples.
@@ -249,18 +250,20 @@ namespace rr
 		//! \param cubeSideName When cubemap is saved, array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
+		//! \param saveParameters
+		//!  Rarely used additional parameters, keep NULL for defaults.
 		//! \return
 		//!  True on successful save of complete buffer.
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		bool save(const char* filenameMask, const char* cubeSideName[6]=NULL);
+		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* parameters = NULL);
 
 		//! Type of user defined function that loads buffer from file.
-		typedef bool (Loader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], bool flipV, bool flipH);
+		typedef bool (Loader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6]);
 		//! Type of user defined function that saves buffer to file.
-		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6]);
+		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
 		//! Hooks external code that handles loading images from disk.
 		//
 		//! Usually called from rr_io::registerLoaders().
@@ -275,19 +278,21 @@ namespace rr
 		static Saver* setSaver(Saver* saver);
 
 		//! Changes buffer format.
-		void setFormat(RRBufferFormat newFormat);
+		virtual void setFormat(RRBufferFormat newFormat);
 		//! Changes buffer format to floats, RGB to RGBF, RGBA to RGBAF.
-		void setFormatFloats();
+		virtual void setFormatFloats();
 		//! Changes all colors in buffer to 1-color.
 		//
 		//! Preserves buffer format.
 		//! This operation is lossless for all formats.
-		void invert();
+		virtual void invert();
 		//! Changes all colors in buffer to color*multiplier+addend.
 		//
 		//! Preserves buffer format.
 		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
-		void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
+		virtual void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
+		//! Flips buffer in x, y and/or z dimension. 
+		virtual void flip(bool flipX, bool flipY, bool flipZ);
 	};
 
 } // namespace

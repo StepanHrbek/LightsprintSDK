@@ -233,9 +233,10 @@ static wxImage* loadImage(const char* filename)
 	// A: wx file loaders are not compiled in, to reduce size
 	//    wxIcon(fname.ico) works only in Windows, only on some icons and it reduces icon resolution
 	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
-	rr::RRBuffer* buffer = rr::RRBuffer::load(filename,NULL,true);
+	rr::RRBuffer* buffer = rr::RRBuffer::load(filename);
 	if (!buffer)
 		return NULL;
+	buffer->flip(false,true,false);
 	unsigned width = buffer->getWidth();
 	unsigned height = buffer->getHeight();
 	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
@@ -519,7 +520,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 #endif
 				time_t t = time(NULL);
 				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.jpg",t%10000);
-				if (sshot->save(screenshotFilename))
+				rr::RRBuffer::SaveParameters saveParameters;
+				saveParameters.jpegQuality = 100;
+				if (sshot->save(screenshotFilename,NULL,&saveParameters))
 					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
 				else
 					rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",screenshotFilename);
