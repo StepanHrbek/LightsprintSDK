@@ -50,9 +50,10 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// let's ignore all events temporarily
 	allowEvents = false;
 
-	#define SHORTER_STRING(str,maxlength) (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str)
+	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str) :
 	tc->SetItemText(tc->GetRootItem(),
-		svs.sceneFilename.size()?SHORTER_STRING(svs.sceneFilename,40):"scene");
+		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
+		"scene");
 
 	tc->DeleteChildren(lights);
 	for (unsigned i=0;i<solver->getLights().size();i++)
