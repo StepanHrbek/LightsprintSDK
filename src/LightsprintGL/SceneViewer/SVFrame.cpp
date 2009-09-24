@@ -206,27 +206,6 @@ void SVFrame::UpdateEverything()
 	m_mgr.Update();
 }
 
-SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
-{
-	// open at ~50% of screen size
-	int x,y,width,height;
-	::wxClientDisplayRect(&x,&y,&width,&height);
-	const int border = (width+height)/25;
-	SVFrame *frame = new SVFrame(NULL, APP_NAME+" - loading", wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
-
-
-	frame->UpdateEverything(); // slow. if specified by filename, loads scene from disk
-	frame->Update();
-
-	return frame;
-}
-
-void SVFrame::OnExit(wxCommandEvent& event)
-{
-	// true is to force the frame to close
-	Close(true);
-}
-
 static wxImage* loadImage(const char* filename)
 {
 	// Q: why do we read images via RRBuffer::load()?
@@ -265,16 +244,24 @@ static wxIcon* loadIcon(const char* filename)
 	return icon;
 }
 
+SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
+{
+	// open at ~50% of screen size
+	int x,y,width,height;
+	::wxClientDisplayRect(&x,&y,&width,&height);
+	const int border = (width+height)/25;
+	return new SVFrame(NULL, APP_NAME+" - loading", wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
+}
+
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
+	updateMenuBarNeeded = false;
+	currentWindowLayout = 0;
 	m_canvas = NULL;
 	m_lightProperties = new SVLightProperties(this);
 	m_sceneTree = new SVSceneTree(this,svs);
 
-	m_mgr.SetManagedWindow(this);
-	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
@@ -321,11 +308,30 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	SetIcon(wxIcon(sample_xpm));
 
 	CreateStatusBar();
+
+
+	m_mgr.SetManagedWindow(this);
+
+	UpdateEverything(); // slow. if specified by filename, loads scene from disk
+
+	windowLayout[2] = wxString("f")+m_mgr.SavePerspective();
+	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
+	windowLayout[1] = wxString("f")+m_mgr.SavePerspective();
+	windowLayout[0] = wxString("w")+m_mgr.SavePerspective();
+	m_mgr.Update();
+
 }
 
 SVFrame::~SVFrame()
 {
 	m_mgr.UnInit();
+}
+
+void SVFrame::OnExit(wxCommandEvent& event)
+{
+	// true is to force the frame to close
+	Close(true);
 }
 
 void SVFrame::UpdateMenuBar()
@@ -464,6 +470,11 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
 		winMenu->Check(ME_WINDOW_PROPERTIES,m_lightProperties->IsShown());
+		winMenu->AppendSeparator();
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Layout 1"));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Layout 2"));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Layout 3"));
+		winMenu->Check(ME_WINDOW_LAYOUT1+currentWindowLayout,true);
 		menuBar->Append(winMenu, _T("Window"));
 	}
 
@@ -964,6 +975,15 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_WINDOW_PROPERTIES:
 			m_mgr.GetPane(wxT("lightproperties")).Show(!m_lightProperties->IsShown());
 			m_mgr.Update();
+			break;
+		case ME_WINDOW_LAYOUT1:
+		case ME_WINDOW_LAYOUT2:
+		case ME_WINDOW_LAYOUT3:
+			windowLayout[currentWindowLayout] = wxString(svs.fullscreen?"f":"w")+m_mgr.SavePerspective();
+			currentWindowLayout = event.GetId()-ME_WINDOW_LAYOUT1;
+			if ((windowLayout[currentWindowLayout][0]=='f') != svs.fullscreen)
+				OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
+			m_mgr.LoadPerspective(windowLayout[currentWindowLayout].c_str()+1,true);
 			break;
 
 

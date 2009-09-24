@@ -135,6 +135,9 @@ namespace rr_gl
 			ME_WINDOW_FULLSCREEN,
 			ME_WINDOW_TREE,
 			ME_WINDOW_PROPERTIES,
+			ME_WINDOW_LAYOUT1,
+			ME_WINDOW_LAYOUT2,
+			ME_WINDOW_LAYOUT3,
 
 			ME_HELP,
 			ME_CHECK_SOLVER,
@@ -159,6 +162,8 @@ namespace rr_gl
 
 		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
 		bool                     updateMenuBarNeeded;
+		unsigned                 currentWindowLayout;
+		wxString                 windowLayout[3];
 		wxAuiManager             m_mgr;
 		SVCanvas*                m_canvas;
 		class SVLightProperties* m_lightProperties;
