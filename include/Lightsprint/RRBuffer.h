@@ -238,7 +238,7 @@ namespace rr
 		//! Rarely used additional save parameters, not necessarily supported by all implementations.
 		struct SaveParameters
 		{
-			char jpegQuality; // our save implementation in LightsprintIO supports 10=low, 25, 50, 75=default, 100=high
+			char jpegQuality; ///< Our save implementation in LightsprintIO supports 10=low, 25, 50, 75=default, 100=high.
 		};
 		//! Saves buffer to disk.
 		//
@@ -258,7 +258,7 @@ namespace rr
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* parameters = NULL);
+		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
 
 		//! Type of user defined function that loads buffer from file.
 		typedef bool (Loader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6]);

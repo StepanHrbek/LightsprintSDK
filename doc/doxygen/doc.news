@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news92 ------------------------------------ 2009.09.20 -------------------------------------
+\section news92 ------------------------------------ 2009.09.24 -------------------------------------
 
 NEWS
 
@@ -22,9 +22,6 @@ NEWS
   - added scene tree window
   - all windows dockable
   \image html SceneViewer_1.jpg
-
-CHANGES
-
 - small RRBuffer changes
   - RRBuffer::flip() added
   - RRBuffer::load() flip parameters removed, use flip() instead
