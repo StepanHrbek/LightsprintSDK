@@ -447,15 +447,18 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 	static int prevX = 0;
 	static int prevY = 0;
-	if (event.LeftDown() && solver->realtimeLights.size())
+	if (event.LeftDown())
 	{
-		if (selectedType!=ST_CAMERA)
+		if (solver->realtimeLights.size())
 		{
-			selectedType = ST_CAMERA;
-		}
-		else
-		{
-			selectedType = ST_LIGHT;
+			if (selectedType!=ST_CAMERA)
+			{
+				selectedType = ST_CAMERA;
+			}
+			else
+			{
+				selectedType = ST_LIGHT;
+			}
 		}
 	}
 	else if (event.GetWheelRotation())
