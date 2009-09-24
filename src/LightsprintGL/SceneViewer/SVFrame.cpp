@@ -274,7 +274,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	m_mgr.SetManagedWindow(this);
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("properties")).Caption(wxT("Light properties")).CloseButton(true).Left());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
@@ -330,6 +330,7 @@ SVFrame::~SVFrame()
 
 void SVFrame::UpdateMenuBar()
 {
+	updateMenuBarNeeded = false;
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *winMenu = NULL;
 
@@ -459,8 +460,10 @@ void SVFrame::UpdateMenuBar()
 		winMenu = new wxMenu;
 		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
 		winMenu->Check(ME_WINDOW_FULLSCREEN,svs.fullscreen);
-		winMenu->Append(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
-		winMenu->Append(ME_WINDOW_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
+		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
+		winMenu->Check(ME_WINDOW_PROPERTIES,m_lightProperties->IsShown());
 		menuBar->Append(winMenu, _T("Window"));
 	}
 
@@ -955,11 +958,11 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
 		case ME_WINDOW_TREE:
-			m_mgr.GetPane(wxT("scenetree")).Show();
+			m_mgr.GetPane(wxT("scenetree")).Show(!m_sceneTree->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_PROPERTIES:
-			m_mgr.GetPane(wxT("properties")).Show();
+			m_mgr.GetPane(wxT("lightproperties")).Show(!m_lightProperties->IsShown());
 			m_mgr.Update();
 			break;
 
@@ -986,6 +989,20 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	UpdateMenuBar();
 }
 
+void SVFrame::OnPaneOpenClose(wxAuiManagerEvent& event)
+{
+	// it's too soon to UpdateMenuBar(), pane that is closing is still open
+	updateMenuBarNeeded = true;
+}
+
+void SVFrame::OnMouseMotion(wxMouseEvent& event)
+{
+	// doing this in OnMenuOpen would be too late, menu would open with old items
+	// doing it here still fails if user closes pane by mouse and opens menu by keyboard without moving mouse
+	if (updateMenuBarNeeded)
+		UpdateMenuBar();
+}
+
 EntityId SVFrame::getSelectedEntity() const
 {
 	switch (m_canvas->selectedType)
@@ -1009,14 +1026,16 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 			// show/hide light properties
 			if (!m_lightProperties->IsShown() && (action==SEA_ACTION || (action==SEA_ACTION_IF_ALREADY_SELECTED && alreadySelected)))
 			{
-				m_mgr.GetPane(wxT("properties")).Show();
+				m_mgr.GetPane(wxT("lightproperties")).Show();
 				m_mgr.Update();
+				UpdateMenuBar();
 			}
 			else
 			if (m_lightProperties->IsShown() && alreadySelected && action!=SEA_SELECT)
 			{
-				m_mgr.GetPane(wxT("properties")).Hide();
+				m_mgr.GetPane(wxT("lightproperties")).Hide();
 				m_mgr.Update();
+				UpdateMenuBar();
 			}
 
 			// update light properties
@@ -1076,6 +1095,9 @@ void SVFrame::updateSelection()
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
 	EVT_MENU(wxID_EXIT, SVFrame::OnExit)
 	EVT_MENU(wxID_ANY, SVFrame::OnMenuEvent)
+	EVT_AUI_PANE_RESTORE(SVFrame::OnPaneOpenClose)
+	EVT_AUI_PANE_CLOSE(SVFrame::OnPaneOpenClose)
+	EVT_MOTION(SVFrame::OnMouseMotion)
 END_EVENT_TABLE()
 
 }; // namespace

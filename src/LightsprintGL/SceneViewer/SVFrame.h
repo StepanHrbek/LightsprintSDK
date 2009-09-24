@@ -58,6 +58,8 @@ namespace rr_gl
 
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
+		void OnPaneOpenClose(wxAuiManagerEvent& event);
+		void OnMouseMotion(wxMouseEvent& event);
 
 		//! Returns currently selected entity.
 		EntityId getSelectedEntity() const;
@@ -156,6 +158,7 @@ namespace rr_gl
 		void UpdateMenuBar();
 
 		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
+		bool                     updateMenuBarNeeded;
 		wxAuiManager             m_mgr;
 		SVCanvas*                m_canvas;
 		class SVLightProperties* m_lightProperties;
