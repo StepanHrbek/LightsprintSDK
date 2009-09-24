@@ -57,6 +57,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	menuHandle = 0;
 	envToBeDeletedOnExit = false;
 	lv = NULL;
+	mousePositionInWindow = rr::RRVec2(0);
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
 	centerTriangle = UINT_MAX;
@@ -429,6 +430,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		// regain focus, innocent actions like clicking menu take it away
 		SetFocus();
+	}
+	{
+		wxPoint pixelPos = event.GetPosition();
+		wxSize pixelSize = GetSize();
+		mousePositionInWindow = rr::RRVec2(pixelPos.x*2.0f/pixelSize.x-1,pixelPos.y*2.0f/pixelSize.y-1);
 	}
 	if (!solver)
 	{
@@ -825,16 +831,18 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			solver->renderLights();
 		}
 
+		if (svs.renderHelpers
+			)
+		{
+			// set shader
+			UberProgramSetup uberProgramSetup;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
+		}
 		if (svs.renderHelpers)
 		{
 			// render lines
-			{
-				// set shader
-				UberProgramSetup uberProgramSetup;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
-				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
-			}
 			glBegin(GL_LINES);
 			enum {LINES=100, SIZE=100};
 			for (unsigned i=0;i<LINES+1;i++)
@@ -857,7 +865,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		}
 	}
 
-	if (svs.renderHelpers)
+	if (svs.renderHelpers
+		)
 	{
 		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
 
@@ -873,7 +882,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 
-		// gather information about selected point and triangle (by point in the middle of screen)
+		// gather information about selected point and triangle (pointed by mouse)
 		bool selectedPointValid = false; // true = all selectedXxx below are valid
 		rr::RRMesh::TangentBasis selectedPointBasis;
 		rr::RRMesh::TriangleBody selectedTriangleBody;
@@ -881,7 +890,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
 			// ray and collisionHandler are used in this block
-			rr::RRVec3 dir = svs.eye.dir.RRVec3::normalized();
+			rr::RRVec3 dir = svs.eye.getDirection(mousePositionInWindow).normalized();
 			ray->rayOrigin = svs.eye.pos;
 			ray->rayDirInv[0] = 1/dir[0];
 			ray->rayDirInv[1] = 1/dir[1];
@@ -901,6 +910,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			}
 		}
 
+
+		if (svs.renderHelpers)
+		{
 		// render debug rays, using previously set shader
 		if ((!svs.renderLightmaps2d || !lv) && SVRayLog::size)
 		{
@@ -952,8 +964,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
 			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
 		}
-		glRasterPos2i(winWidth/2-4,winHeight/2+1);
-		glCallLists(1, GL_UNSIGNED_BYTE, "."); // point in the middle of canvas
 		int x = 10;
 		int y = 10;
 		int h = GetSize().y;
@@ -1130,7 +1140,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				rr::RRMesh::TriangleMapping triangleMapping;
 				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
 				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
-				textOutput(x,y+=18*2,h,"[point in the middle of viewport]");
+				textOutput(x,y+=18*2,h,"[pointed by mouse]");
 				textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
 				rr::RRBuffer* objectsLightmap = solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber);
 				textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
@@ -1201,7 +1211,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		if (multiMesh && svs.renderLightmaps2d && lv)
 		{
 			rr::RRVec2 uv = lv->getCenterUv(GetSize());
-			textOutput(x,y+=18*2,h,"[point in the middle of viewport]");
+			textOutput(x,y+=18*2,h,"[pointed by mouse]");
 			textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
 			rr::RRBuffer* buffer = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
 			if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
@@ -1223,6 +1233,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glEnable(GL_DEPTH_TEST);
+		}
 	}
 
 

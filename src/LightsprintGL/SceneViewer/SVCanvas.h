@@ -83,9 +83,10 @@ namespace rr_gl
 		bool                       envToBeDeletedOnExit; // whether environment is owned and deleted by us
 		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 		SVLightmapViewer*          lv; // 2d lightmap viewer
-		unsigned                   centerObject; // object in the middle of screen
-		unsigned                   centerTexel; // texel in the middle of screen
-		unsigned                   centerTriangle; // triangle in the middle of screen, multiObjPostImport
+		rr::RRVec2                 mousePositionInWindow; // -1,-1 top left corner, 0,0 center, 1,1 bottom right corner (set by OnMouseEvent)
+		unsigned                   centerObject; // object pointed by mouse
+		unsigned                   centerTexel; // texel pointed by mouse
+		unsigned                   centerTriangle; // triangle pointed by mouse, multiObjPostImport
 		rr::RRRay*                 ray; // all users use this ray to prevent allocations in every frame
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;

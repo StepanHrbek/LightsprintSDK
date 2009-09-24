@@ -160,10 +160,10 @@ namespace rr_gl
 		SVCanvas*                m_canvas;
 		class SVLightProperties* m_lightProperties;
 		class SVSceneTree*       m_sceneTree;
-		
+
 		DECLARE_EVENT_TABLE()
 	};
- 
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER

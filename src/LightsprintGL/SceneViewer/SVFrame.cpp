@@ -274,8 +274,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	m_mgr.SetManagedWindow(this);
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("properties")).Caption(wxT("Light properties")).CloseButton(true).Bottom().Left());
-
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("properties")).Caption(wxT("Light properties")).CloseButton(true).Left());
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
