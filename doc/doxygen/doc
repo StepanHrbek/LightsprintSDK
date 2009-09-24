@@ -2335,6 +2335,9 @@ Ray-Mesh collisions
  \section g26_f Features
   - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes
   - lightmap building honours all Gamebryo 2.6 conventions, outputs are ready for immediate use in Gamebryo 2.6 games
+  - quality controlled by single number, optional additional settings (HDR or LDR environment map etc)
+  - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
+  - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
   - full integration source code included
 
  \section g26_gs Getting started
@@ -2387,8 +2390,12 @@ Ray-Mesh collisions
     If we make mistake and your integration is missing, please let us know.
 
  \section g30_f Features
-  - lightmap baking integrated into Toolbench (lightmaps, directional lightmaps/RNM, per-vertex bake, HDR or LDR environment texture...)
-  - all Lightsprint samples (lightmap building, realtime radiosity etc) support Gamebryo .gsa scenes (old Gamebryo format)
+  - Toolbench plugins let you bake global illumination, results are immediately displayed in WorldBuilder
+  - illumination can be baked to lightmaps, directional lightmaps (a.k.a. radiosity normal maps), vertex colors
+  - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
+  - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
+  - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
+  - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
   - full integration source code included
 
  \section g30_limits Limitations of current version

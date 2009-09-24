@@ -913,326 +913,326 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 		if (svs.renderHelpers)
 		{
-		// render debug rays, using previously set shader
-		if ((!svs.renderLightmaps2d || !lv) && SVRayLog::size)
-		{
-			glBegin(GL_LINES);
-			for (unsigned i=0;i<SVRayLog::size;i++)
+			// render debug rays, using previously set shader
+			if ((!svs.renderLightmaps2d || !lv) && SVRayLog::size)
 			{
-				if (SVRayLog::log[i].unreliable)
-					glColor3ub(255,0,0);
-				else
-				if (SVRayLog::log[i].infinite)
-					glColor3ub(0,0,255);
-				else
-					glColor3ub(0,255,0);
-				glVertex3fv(&SVRayLog::log[i].begin[0]);
-				glColor3ub(0,0,0);
-				//glVertex3fv(&SVRayLog::log[i].end[0]);
-				glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
-			}
-			glEnd();
-		}
-
-		// render arrows, using previously set shader
-		if (!svs.renderLightmaps2d)
-		{
-			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
-			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
-			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
-			drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
-			drawTriangle(selectedTriangleBody);
-		}
-
-		// render text, using custom shader (because text output ignores color passed to previous shader)
-		centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
-		centerTexel = UINT_MAX;
-		centerTriangle = UINT_MAX;
-		glDisable(GL_DEPTH_TEST);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		gluOrtho2D(0, winWidth, winHeight, 0);
-		{
-			// set shader
-			UberProgramSetup uberProgramSetup;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
-			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
-		}
-		int x = 10;
-		int y = 10;
-		int h = GetSize().y;
-		unsigned numObjects = solver->getNumObjects();
-		{
-			// what direct
-			const char* strDirect = "?";
-			switch (svs.renderLightDirect)
-			{
-				case LD_REALTIME: strDirect = "realtime"; break;
-				case LD_STATIC_LIGHTMAPS: strDirect = "lightmap"; break;
-				case LD_NONE: strDirect = "off"; break;
-			}
-			// what indirect
-			const char* strIndirect = "?";
-			switch (svs.renderLightIndirect)
-			{
-				case LI_REALTIME_FIREBALL_LDM: strIndirect = "fireball+LDM"; break;
-				case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
-				case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
-				case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
-				case LI_CONSTANT: strIndirect = "constant"; break;
-				case LI_NONE: strIndirect = "off"; break;
-			}
-			// how many lightmaps
-			unsigned numVbufs = 0;
-			unsigned numLmaps = 0;
-			for (unsigned i=0;i<numObjects;i++)
-			{
-				if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+				glBegin(GL_LINES);
+				for (unsigned i=0;i<SVRayLog::size;i++)
 				{
-					if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
-					if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+					if (SVRayLog::log[i].unreliable)
+						glColor3ub(255,0,0);
+					else
+					if (SVRayLog::log[i].infinite)
+						glColor3ub(0,0,255);
+					else
+						glColor3ub(0,255,0);
+					glVertex3fv(&SVRayLog::log[i].begin[0]);
+					glColor3ub(0,0,0);
+					//glVertex3fv(&SVRayLog::log[i].end[0]);
+					glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
+				}
+				glEnd();
+			}
+
+			// render arrows, using previously set shader
+			if (!svs.renderLightmaps2d)
+			{
+				drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
+				drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
+				drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
+				drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
+				drawTriangle(selectedTriangleBody);
+			}
+
+			// render text, using custom shader (because text output ignores color passed to previous shader)
+			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
+			centerTexel = UINT_MAX;
+			centerTriangle = UINT_MAX;
+			glDisable(GL_DEPTH_TEST);
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glLoadIdentity();
+			gluOrtho2D(0, winWidth, winHeight, 0);
+			{
+				// set shader
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
+				uberProgramSetup.MATERIAL_DIFFUSE = 1;
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
+				program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+			}
+			int x = 10;
+			int y = 10;
+			int h = GetSize().y;
+			unsigned numObjects = solver->getNumObjects();
+			{
+				// what direct
+				const char* strDirect = "?";
+				switch (svs.renderLightDirect)
+				{
+					case LD_REALTIME: strDirect = "realtime"; break;
+					case LD_STATIC_LIGHTMAPS: strDirect = "lightmap"; break;
+					case LD_NONE: strDirect = "off"; break;
+				}
+				// what indirect
+				const char* strIndirect = "?";
+				switch (svs.renderLightIndirect)
+				{
+					case LI_REALTIME_FIREBALL_LDM: strIndirect = "fireball+LDM"; break;
+					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
+					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
+					case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
+					case LI_CONSTANT: strIndirect = "constant"; break;
+					case LI_NONE: strIndirect = "off"; break;
+				}
+				// how many lightmaps
+				unsigned numVbufs = 0;
+				unsigned numLmaps = 0;
+				for (unsigned i=0;i<numObjects;i++)
+				{
+					if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
+					{
+						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
+						if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+					}
+				}
+				// what solver
+				const char* strSolver = "?";
+				switch(solver->getInternalSolverType())
+				{
+					case rr::RRDynamicSolver::NONE: strSolver = "none"; break;
+					case rr::RRDynamicSolver::ARCHITECT: strSolver = "Architect"; break;
+					case rr::RRDynamicSolver::FIREBALL: strSolver = "Fireball"; break;
+					case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
+				}
+				// what renderer
+				const char* strRenderer = solver->usingOptimizedScene() ? "optimized" : "per-object";
+				// print it
+				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
+					strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
+			}
+			if (!svs.renderLightmaps2d || !lv)
+			{
+				textOutput(x,y+=18*2,h,"[camera]");
+				textOutput(x,y+=18,h,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
+				textOutput(x,y+=18,h,"dir: %f %f %f",svs.eye.dir[0],svs.eye.dir[1],svs.eye.dir[2]);
+				//textOutput(x,y+=18,h,"rig: %f %f %f",svs.eye.right[0],svs.eye.right[1],svs.eye.right[2]);
+				//textOutput(x,y+=18,h,"up : %f %f %f",svs.eye.up[0],svs.eye.up[1],svs.eye.up[2]);
+				//textOutput(x,y+=18,h,"FOV deg: x=%f y=%f asp=%f",svs.eye.getFieldOfViewHorizontalDeg(),svs.eye.getFieldOfViewVerticalDeg(),svs.eye.getAspect());
+				GLint depthBits;
+				glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+				textOutput(x,y+=18,h,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
+			}
+			if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
+			{
+				RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
+				const rr::RRLight* rrlight = &rtlight->getRRLight();
+				Camera* light = rtlight->getParent();
+				textOutput(x,y+=18*2,h,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
+				textOutput(x,y+=18,h,"type: %s",(rrlight->type==rr::RRLight::POINT)?"point":((rrlight->type==rr::RRLight::SPOT)?"spot":"dir"));
+				textOutput(x,y+=18,h,"pos: %f %f %f",light->pos[0],light->pos[1],light->pos[2]);
+				textOutput(x,y+=18,h,"dir: %f %f %f",light->dir[0],light->dir[1],light->dir[2]);
+				textOutput(x,y+=18,h,"color: %f %f %f",rrlight->color[0],rrlight->color[1],rrlight->color[2]);
+				switch(rrlight->distanceAttenuationType)			
+				{
+					case rr::RRLight::NONE:        textOutput(x,y+=18,h,"dist att: none"); break;
+					case rr::RRLight::PHYSICAL:    textOutput(x,y+=18,h,"dist att: physically correct"); break;
+					case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,h,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
+					case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,h,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
+				}
+				if (numTrianglesMulti<100000) // skip this expensive step for big scenes
+				{
+					static RealtimeLight* lastLight = NULL;
+					static unsigned numLightReceivers = 0;
+					static unsigned numShadowCasters = 0;
+					if (rtlight!=lastLight)
+					{
+						lastLight = rtlight;
+						numLightReceivers = 0;
+						numShadowCasters = 0;
+						for (unsigned t=0;t<numTrianglesMulti;t++)
+						{
+							if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
+							for (unsigned j=0;j<numObjects;j++)
+							{
+								if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+							}
+						}
+					}
+					textOutput(x,y+=18,h,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
+					textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 				}
 			}
-			// what solver
-			const char* strSolver = "?";
-			switch(solver->getInternalSolverType())
+			if (singleMesh && svs.selectedObjectIndex<solver->getNumObjects())
 			{
-				case rr::RRDynamicSolver::NONE: strSolver = "none"; break;
-				case rr::RRDynamicSolver::ARCHITECT: strSolver = "Architect"; break;
-				case rr::RRDynamicSolver::FIREBALL: strSolver = "Fireball"; break;
-				case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
-			}
-			// what renderer
-			const char* strRenderer = solver->usingOptimizedScene() ? "optimized" : "per-object";
-			// print it
-			textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
-				strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
-		}
-		if (!svs.renderLightmaps2d || !lv)
-		{
-			textOutput(x,y+=18*2,h,"[camera]");
-			textOutput(x,y+=18,h,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
-			textOutput(x,y+=18,h,"dir: %f %f %f",svs.eye.dir[0],svs.eye.dir[1],svs.eye.dir[2]);
-			//textOutput(x,y+=18,h,"rig: %f %f %f",svs.eye.right[0],svs.eye.right[1],svs.eye.right[2]);
-			//textOutput(x,y+=18,h,"up : %f %f %f",svs.eye.up[0],svs.eye.up[1],svs.eye.up[2]);
-			//textOutput(x,y+=18,h,"FOV deg: x=%f y=%f asp=%f",svs.eye.getFieldOfViewHorizontalDeg(),svs.eye.getFieldOfViewVerticalDeg(),svs.eye.getAspect());
-			GLint depthBits;
-			glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-			textOutput(x,y+=18,h,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
-		}
-		if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
-		{
-			RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
-			const rr::RRLight* rrlight = &rtlight->getRRLight();
-			Camera* light = rtlight->getParent();
-			textOutput(x,y+=18*2,h,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
-			textOutput(x,y+=18,h,"type: %s",(rrlight->type==rr::RRLight::POINT)?"point":((rrlight->type==rr::RRLight::SPOT)?"spot":"dir"));
-			textOutput(x,y+=18,h,"pos: %f %f %f",light->pos[0],light->pos[1],light->pos[2]);
-			textOutput(x,y+=18,h,"dir: %f %f %f",light->dir[0],light->dir[1],light->dir[2]);
-			textOutput(x,y+=18,h,"color: %f %f %f",rrlight->color[0],rrlight->color[1],rrlight->color[2]);
-			switch(rrlight->distanceAttenuationType)			
-			{
-				case rr::RRLight::NONE:        textOutput(x,y+=18,h,"dist att: none"); break;
-				case rr::RRLight::PHYSICAL:    textOutput(x,y+=18,h,"dist att: physically correct"); break;
-				case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,h,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
-				case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,h,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
-			}
-			if (numTrianglesMulti<100000) // skip this expensive step for big scenes
-			{
-				static RealtimeLight* lastLight = NULL;
-				static unsigned numLightReceivers = 0;
-				static unsigned numShadowCasters = 0;
-				if (rtlight!=lastLight)
+				textOutput(x,y+=18*2,h,"[static object %d/%d]",svs.selectedObjectIndex,numObjects);
+				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
+				textOutput(x,y+=18,h,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
+				static const rr::RRObject* lastObject = NULL;
+				static rr::RRVec3 bboxMinL;
+				static rr::RRVec3 bboxMaxL;
+				static rr::RRVec3 centerL;
+				static rr::RRVec3 bboxMinW;
+				static rr::RRVec3 bboxMaxW;
+				static rr::RRVec3 centerW;
+				static unsigned numReceivedLights = 0;
+				static unsigned numShadowsCast = 0;
+				if (singleObject!=lastObject)
 				{
-					lastLight = rtlight;
-					numLightReceivers = 0;
-					numShadowCasters = 0;
-					for (unsigned t=0;t<numTrianglesMulti;t++)
+					lastObject = singleObject;
+					singleObject->getCollider()->getMesh()->getAABB(&bboxMinL,&bboxMaxL,&centerL);
+					rr::RRMesh* singleWorldMesh = singleObject->createWorldSpaceMesh();
+					singleWorldMesh->getAABB(&bboxMinW,&bboxMaxW,&centerW);
+					delete singleWorldMesh;
+					numReceivedLights = 0;
+					numShadowsCast = 0;
+					for (unsigned i=0;i<numLights;i++)
 					{
-						if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
-						for (unsigned j=0;j<numObjects;j++)
+						rr::RRLight* rrlight = solver->getLights()[i];
+						for (unsigned t=0;t<numTrianglesSingle;t++)
 						{
-							if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+							if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
+							for (unsigned j=0;j<numObjects;j++)
+							{
+								if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
+							}
 						}
 					}
 				}
-				textOutput(x,y+=18,h,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
-				textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
-			}
-		}
-		if (singleMesh && svs.selectedObjectIndex<solver->getNumObjects())
-		{
-			textOutput(x,y+=18*2,h,"[static object %d/%d]",svs.selectedObjectIndex,numObjects);
-			textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
-			textOutput(x,y+=18,h,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
-			static const rr::RRObject* lastObject = NULL;
-			static rr::RRVec3 bboxMinL;
-			static rr::RRVec3 bboxMaxL;
-			static rr::RRVec3 centerL;
-			static rr::RRVec3 bboxMinW;
-			static rr::RRVec3 bboxMaxW;
-			static rr::RRVec3 centerW;
-			static unsigned numReceivedLights = 0;
-			static unsigned numShadowsCast = 0;
-			if (singleObject!=lastObject)
-			{
-				lastObject = singleObject;
-				singleObject->getCollider()->getMesh()->getAABB(&bboxMinL,&bboxMaxL,&centerL);
-				rr::RRMesh* singleWorldMesh = singleObject->createWorldSpaceMesh();
-				singleWorldMesh->getAABB(&bboxMinW,&bboxMaxW,&centerW);
-				delete singleWorldMesh;
-				numReceivedLights = 0;
-				numShadowsCast = 0;
-				for (unsigned i=0;i<numLights;i++)
+
+				if (numTrianglesSingle)
 				{
-					rr::RRLight* rrlight = solver->getLights()[i];
-					for (unsigned t=0;t<numTrianglesSingle;t++)
+					textOutput(x,y+=18,h,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
+					textOutput(x,y+=18,h,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
+					textOutput(x,y+=18,h,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
+					textOutput(x,y+=18,h,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
+					textOutput(x,y+=18,h,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
+					textOutput(x,y+=18,h,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
+				}
+				rr::RRBuffer* bufferSelectedObj = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
+				if (bufferSelectedObj)
+				{
+					//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
+					textOutput(x,y+=18,h,"[lightmap]");
+					textOutput(x,y+=18,h,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
+					textOutput(x,y+=18,h,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
+					textOutput(x,y+=18,h,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
+					textOutput(x,y+=18,h,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
+					//glColor3f(1,1,1);
+				}
+			}
+			if (multiMesh && (!svs.renderLightmaps2d || !lv))
+			{
+				if (selectedPointValid)
+				{
+					rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
+					const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+					const rr::RRMaterial* material = triangleMaterial;
+					rr::RRMaterial pointMaterial;
+					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
-						for (unsigned j=0;j<numObjects;j++)
+						multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+						material = &pointMaterial;
+					}
+					rr::RRMesh::TriangleMapping triangleMapping;
+					multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
+					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
+					textOutput(x,y+=18*2,h,"[pointed by mouse]");
+					textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
+					rr::RRBuffer* objectsLightmap = solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber);
+					textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
+					textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
+					textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
+					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
+					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
+					rr::RRBuffer* bufferCenter = solver->getIllumination(preTriangle.object) ? solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber) : NULL;
+					if (bufferCenter && bufferCenter->getType()==rr::BT_2D_TEXTURE)
+					{
+						int i = int(uvInLightmap[0]*bufferCenter->getWidth());
+						int j = int(uvInLightmap[1]*bufferCenter->getHeight());
+						textOutput(x,y+=18,h,"ij in lightmap: %d %d",i,j);
+						if (i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
 						{
-							if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
+							// diagnose texel
+							centerObject = preTriangle.object;
+							centerTexel = i + j*bufferCenter->getWidth();
+							centerTriangle = ray->hitTriangle;
 						}
 					}
-				}
-			}
-
-			if (numTrianglesSingle)
-			{
-				textOutput(x,y+=18,h,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
-				textOutput(x,y+=18,h,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
-				textOutput(x,y+=18,h,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
-				textOutput(x,y+=18,h,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
-				textOutput(x,y+=18,h,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
-				textOutput(x,y+=18,h,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
-			}
-			rr::RRBuffer* bufferSelectedObj = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
-			if (bufferSelectedObj)
-			{
-				//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
-				textOutput(x,y+=18,h,"[lightmap]");
-				textOutput(x,y+=18,h,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
-				textOutput(x,y+=18,h,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
-				textOutput(x,y+=18,h,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
-				textOutput(x,y+=18,h,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
-				//glColor3f(1,1,1);
-			}
-		}
-		if (multiMesh && (!svs.renderLightmaps2d || !lv))
-		{
-			if (selectedPointValid)
-			{
-				rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
-				const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
-				const rr::RRMaterial* material = triangleMaterial;
-				rr::RRMaterial pointMaterial;
-				if (material && material->minimalQualityForPointMaterials<10000)
-				{
-					multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-					material = &pointMaterial;
-				}
-				rr::RRMesh::TriangleMapping triangleMapping;
-				multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
-				rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
-				textOutput(x,y+=18*2,h,"[pointed by mouse]");
-				textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
-				rr::RRBuffer* objectsLightmap = solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber);
-				textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
-				textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
-				textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
-				textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
-				textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
-				rr::RRBuffer* bufferCenter = solver->getIllumination(preTriangle.object) ? solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber) : NULL;
-				if (bufferCenter && bufferCenter->getType()==rr::BT_2D_TEXTURE)
-				{
-					int i = int(uvInLightmap[0]*bufferCenter->getWidth());
-					int j = int(uvInLightmap[1]*bufferCenter->getHeight());
-					textOutput(x,y+=18,h,"ij in lightmap: %d %d",i,j);
-					if (i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
+					if (centerObject==UINT_MAX)
 					{
-						// diagnose texel
+						// diagnose triangle
 						centerObject = preTriangle.object;
-						centerTexel = i + j*bufferCenter->getWidth();
 						centerTriangle = ray->hitTriangle;
 					}
-				}
-				if (centerObject==UINT_MAX)
-				{
-					// diagnose triangle
-					centerObject = preTriangle.object;
-					centerTriangle = ray->hitTriangle;
-				}
-				textOutput(x,y+=18,h,"distance: %f",ray->hitDistance);
-				textOutput(x,y+=18,h,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
-				textOutput(x,y+=18,h,"plane:  %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
-				textOutput(x,y+=18,h,"normal: %f %f %f",selectedPointBasis.normal[0],selectedPointBasis.normal[1],selectedPointBasis.normal[2]);
-				textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
-				textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
-				textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
-				if (material)
-				{
-					textOutput(x,y+=18,h,"material: %s [%s]",material->name?material->name:"",displayPhysicalMaterials?"physical":"sRGB");
-					textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
-					textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance   ,ray,multiMesh);
-					textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance  ,ray,multiMesh);
-					textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance     ,ray,multiMesh);
-					textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance,ray,multiMesh);
-					textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"1bit-keyed":"smooth-blended");
-					textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
-					textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
-					textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);
-				}
-				else
-				{
-					textOutput(x,y+=18,h,"material=NULL!!!");
-				}
-				unsigned numReceivedLights = 0;
-				unsigned numShadowsCast = 0;
-				for (unsigned i=0;i<numLights;i++)
-				{
-					rr::RRLight* rrlight = solver->getLights()[i];
-					if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
-					for (unsigned j=0;j<numObjects;j++)
+					textOutput(x,y+=18,h,"distance: %f",ray->hitDistance);
+					textOutput(x,y+=18,h,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
+					textOutput(x,y+=18,h,"plane:  %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
+					textOutput(x,y+=18,h,"normal: %f %f %f",selectedPointBasis.normal[0],selectedPointBasis.normal[1],selectedPointBasis.normal[2]);
+					textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
+					textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
+					textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
+					if (material)
 					{
-						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
+						textOutput(x,y+=18,h,"material: %s [%s]",material->name?material->name:"",displayPhysicalMaterials?"physical":"sRGB");
+						textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
+						textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance   ,ray,multiMesh);
+						textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance  ,ray,multiMesh);
+						textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance     ,ray,multiMesh);
+						textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance,ray,multiMesh);
+						textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"1bit-keyed":"smooth-blended");
+						textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
+						textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
+						textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);
+					}
+					else
+					{
+						textOutput(x,y+=18,h,"material=NULL!!!");
+					}
+					unsigned numReceivedLights = 0;
+					unsigned numShadowsCast = 0;
+					for (unsigned i=0;i<numLights;i++)
+					{
+						rr::RRLight* rrlight = solver->getLights()[i];
+						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
+						for (unsigned j=0;j<numObjects;j++)
+						{
+							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
+						}
+					}
+					textOutput(x,y+=18,h,"received lights: %d/%d",numReceivedLights,numLights);
+					textOutput(x,y+=18,h,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
+				}
+				textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
+			}
+			if (multiMesh && svs.renderLightmaps2d && lv)
+			{
+				rr::RRVec2 uv = lv->getCenterUv(GetSize());
+				textOutput(x,y+=18*2,h,"[pointed by mouse]");
+				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
+				rr::RRBuffer* buffer = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
+				if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
+				{
+					int i = int(uv[0]*buffer->getWidth());
+					int j = int(uv[1]*buffer->getHeight());
+					textOutput(x,y+=18,h,"ij: %d %d",i,j);
+					if (i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
+					{
+						centerObject = svs.selectedObjectIndex;
+						centerTexel = i + j*buffer->getWidth();
+						//!!!centerTriangle = ?;
+						rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
+						textOutput(x,y+=18,h,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
 					}
 				}
-				textOutput(x,y+=18,h,"received lights: %d/%d",numReceivedLights,numLights);
-				textOutput(x,y+=18,h,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 			}
-			textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
-		}
-		if (multiMesh && svs.renderLightmaps2d && lv)
-		{
-			rr::RRVec2 uv = lv->getCenterUv(GetSize());
-			textOutput(x,y+=18*2,h,"[pointed by mouse]");
-			textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
-			rr::RRBuffer* buffer = solver->getIllumination(svs.selectedObjectIndex) ? solver->getIllumination(svs.selectedObjectIndex)->getLayer(svs.staticLayerNumber) : NULL;
-			if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
-			{
-				int i = int(uv[0]*buffer->getWidth());
-				int j = int(uv[1]*buffer->getHeight());
-				textOutput(x,y+=18,h,"ij: %d %d",i,j);
-				if (i>=0 && i<(int)buffer->getWidth() && j>=0 && j<(int)buffer->getHeight())
-				{
-					centerObject = svs.selectedObjectIndex;
-					centerTexel = i + j*buffer->getWidth();
-					//!!!centerTriangle = ?;
-					rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
-					textOutput(x,y+=18,h,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
-				}
-			}
-		}
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glEnable(GL_DEPTH_TEST);
+			glPopMatrix();
+			glMatrixMode(GL_MODELVIEW);
+			glPopMatrix();
+			glEnable(GL_DEPTH_TEST);
 		}
 	}
 

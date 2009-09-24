@@ -146,9 +146,6 @@ void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 			// our parent must be frame
 			GetParent()->ProcessWindowEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_DELETE));
 			break;
-		case 27:
-			Close(true);
-			break;
 	}
 }
 
