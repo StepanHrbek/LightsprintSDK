@@ -58,7 +58,7 @@ public:
 protected:
 	rr::RRBuffer* buffer;
 	bool     ownBuffer;
-	unsigned id;
+	GLuint   id;
 	GLenum   cubeOr2d; // GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP
 };
 

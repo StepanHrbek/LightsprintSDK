@@ -15,10 +15,10 @@
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
-#include <assert.h>
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 #include "bsp.h"
 #include "cache.h"

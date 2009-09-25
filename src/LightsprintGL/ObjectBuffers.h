@@ -106,7 +106,7 @@ private:
 		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
 		VBO_COUNT
 	};
-	unsigned VBO[VBO_COUNT];
+	GLuint VBO[VBO_COUNT];
 #if defined(USE_VBO) && defined(SMALL_ARRAYS)
 	// optimization -  removes redundant VBOs
 	bool texcoordEmissiveIsInDiffuse; // emissive not allocated, use diffuse, is identical

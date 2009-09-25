@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <cstring>
 
+using namespace std; // necessary for isnan() on Mac
+
 namespace rr
 {
 

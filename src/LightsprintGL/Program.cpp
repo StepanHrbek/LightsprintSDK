@@ -242,19 +242,19 @@ void Program::enumVariables()
 	for (int i=0;i<count;i++)
 	{
 		char name[64] = "";
-		int size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 		glGetActiveAttrib(handle,i,50,NULL,&size,&type,name);
-		printf(" attrib  %s %d %s\n",name,size,getTypeName(type));
+		printf(" attrib  %s %d %s\n",name,(int)size,getTypeName(type));
 	}
 	glGetProgramiv(handle,GL_ACTIVE_UNIFORMS,&count);
 	for (int i=0;i<count;i++)
 	{
 		char name[64] = "";
-		int size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 		glGetActiveUniform(handle,i,50,NULL,&size,&type,name);
-		printf(" uniform %s %d %s\n",name,size,getTypeName(type));
+		printf(" uniform %s %d %s\n",name,(int)size,getTypeName(type));
 	}
 }
 

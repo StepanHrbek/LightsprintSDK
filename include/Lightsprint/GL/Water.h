@@ -63,7 +63,7 @@ protected:
 	Program* mirrorProgram;
 	Camera*  eye;
 	float    altitude;
-	int      viewport[4];
+	GLint    viewport[4];
 	bool     fresnel;
 };
 

@@ -4,11 +4,13 @@
 // --------------------------------------------------------------------------
 
 #include "IntersectLinear.h"
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 #include <cstring>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib> // exit, qsort
+
+using namespace std; // necessary for isnan() on Mac
 
 #define DBG(a) //a
 

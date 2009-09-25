@@ -7,10 +7,12 @@
 
 #define DBG(a) //a // enables log of tree traversal, for debugging individual rays
 
-#include <assert.h>
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+
+using namespace std; // necessary for isnan() on Mac
 
 namespace rr
 {

@@ -7,10 +7,9 @@
 
 #define DBG(a) //a
 
-#include <assert.h>
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 
 namespace rr
 {

@@ -10,7 +10,7 @@ LINK_FLAGS += $(addprefix -L, $(LIB_DIRS))
 ifeq ($(CFG_TYPE), exe)
 $(TARGET): $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	gcc -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
+	g++ -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
 
 # build static library
@@ -28,7 +28,7 @@ ifeq ($(CFG_TYPE), dll)
 CPP_FLAGS += -fpic
 $(TARGET): $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	gcc -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
+	g++ -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
 
 # include dependencies
@@ -39,7 +39,7 @@ endif
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	g++ -o $@ -c $< $(CPP_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
 $(OBJ_DIR)/%.o: %.c
@@ -77,7 +77,7 @@ pc-linux32-static pc-linux32-static-debug \
 pc-linux64 pc-linux64-debug \
 pc-linux64-static pc-linux64-static-debug \
 pc-mingw32 pc-mingw32-debug \
-:
+pc-osx pc-osx-debug:
 	@echo "CONFIG = $@" > $(CFG_DIR)/current
 	@echo Switched to configuration \"$@\". From now on you may use simple \"make\".
 	@make

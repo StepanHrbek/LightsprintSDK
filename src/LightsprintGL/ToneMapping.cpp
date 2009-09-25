@@ -40,7 +40,7 @@ ToneMapping::~ToneMapping()
 void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVec3& brightness, rr::RRReal contrast, rr::RRReal targetIntensity)
 {
 	if (!textureRenderer) return;
-	int viewport[4];
+	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT,viewport);
 
 	if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
