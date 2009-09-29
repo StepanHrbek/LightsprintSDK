@@ -30,7 +30,11 @@ namespace rr_gl
 class RR_GL_API Water
 {
 public:
-	Water(const char* pathToShaders, bool fesnel, bool boostSun);
+	//! \param withRefraction
+	//!  Enables refraction using fresnel term and waterColor specified in render().
+	//! \param withDirlight
+	//!  Enables refraction from one directional light specified in render().
+	Water(const char* pathToShaders, bool withRefraction, bool withDirlight);
 	~Water();
 
 	//! Prepares pipeline for rendering into reflection map.
@@ -55,9 +59,18 @@ public:
 	//!  Size of water quad in center of world (-size..size).
 	//! \param center
 	//!  Center of quad in world space (0=center of world). y is ignored, altitude from updateReflectionInit() is used instead.
-	void render(float size, rr::RRVec3 center);
+	//! \param waterColor
+	//!  Color of water. Only used if withRefraction was enabled in constructor.
+	//! \param lightDirection
+	//!  Direction of directional light. Does not have to be normalized.
+	//!  Only used if withDirlight was enabled in constructor.
+	//! \param lightColor
+	//!  Color of directional light.
+	//!  Only used if withDirlight was enabled in constructor.
+	void render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor);
 
 protected:
+	Texture* normalMap;
 	Texture* mirrorMap;
 	Texture* mirrorDepth;
 	Program* mirrorProgram;
@@ -65,6 +78,7 @@ protected:
 	float    altitude;
 	GLint    viewport[4];
 	bool     fresnel;
+	bool     dirlight;
 };
 
 }; // namespace

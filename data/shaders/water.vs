@@ -1,9 +1,9 @@
-// Water with planar reflection, fresnel and waves
+// Water with planar reflection, fresnel and scale independent waves
 // Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //
 // Options:
 // #define FRESNEL
-// #define BOOST_SUN
+// #define DIRLIGHT
 
 varying vec4 mirrorCoord;
 varying vec3 worldPos;

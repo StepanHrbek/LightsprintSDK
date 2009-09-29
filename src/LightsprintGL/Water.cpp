@@ -13,17 +13,19 @@
 namespace rr_gl
 {
 
-Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
+Water::Water(const char* pathToShaders, bool _fresnel, bool _dirlight)
 {
+	normalMap = new Texture(rr::RRBuffer::load(tmpstr("%s../maps/water_n.jpg",pathToShaders)),!true,false);
 	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NULL),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = Texture::createShadowmap(16,16);
 	mirrorProgram = Program::create(
-		tmpstr("%s%s",afresnel?"#define FRESNEL\n":"",boostSun?"#define BOOST_SUN\n":""),
+		tmpstr("%s%s",_fresnel?"#define FRESNEL\n":"",_dirlight?"#define DIRLIGHT\n":""),
 		tmpstr("%swater.vs",pathToShaders),
 		tmpstr("%swater.fs",pathToShaders));
 	eye = NULL;
 	altitude = 0;
-	fresnel = afresnel;
+	fresnel = _fresnel;
+	dirlight = _dirlight;
 }
 
 Water::~Water()
@@ -32,6 +34,8 @@ Water::~Water()
 	delete mirrorDepth;
 	delete mirrorMap->getBuffer();
 	delete mirrorMap;
+	delete normalMap->getBuffer();
+	delete normalMap;
 }
 
 void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude)
@@ -76,15 +80,28 @@ void Water::updateReflectionDone()
 	}
 }
 
-void Water::render(float size, rr::RRVec3 center)
+void Water::render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor)
 {
 	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	mirrorMap->bindTexture();
 	mirrorProgram->sendUniform("mirrorMap",0);
-	mirrorProgram->sendUniform("time",(float)(GETTIME/(float)PER_SEC));
-	if (fresnel) mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	glActiveTexture(GL_TEXTURE1);
+	normalMap->bindTexture();
+	mirrorProgram->sendUniform("normalMap",1);
+	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,1000)));
+	mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	if (dirlight)
+	{
+		if (lightDirection!=rr::RRVec3(0)) lightDirection.normalize();
+		mirrorProgram->sendUniform("worldLightDir",lightDirection[0],lightDirection[1],lightDirection[2]);
+		mirrorProgram->sendUniform("lightColor",lightColor[0],lightColor[1],lightColor[2]);
+	}
+	if (fresnel)
+	{
+		mirrorProgram->sendUniform("waterColor",waterColor[0],waterColor[1],waterColor[2],0.0f);
+	}
 	//GLboolean blend = glIsEnabled(GL_BLEND);
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -102,7 +119,7 @@ void Water::render(float size, rr::RRVec3 center)
 
 	//static TextureRenderer* textureRenderer = NULL;
 	//if (!textureRenderer) textureRenderer = new TextureRenderer("../../data/shaders/");
-	//textureRenderer->render2D(mirrorMap,NULL,0,0,0.3,0.3);
+	//textureRenderer->render2D(mirrorMap,NULL,0,0,0.3f,0.3f);
 }
 
 }; // namespace

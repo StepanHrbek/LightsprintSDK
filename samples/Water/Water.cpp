@@ -21,6 +21,9 @@
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
+#ifdef _WIN32
+	#include <GL/wglew.h>
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -42,12 +45,14 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera           eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
+rr_gl::Camera           eye(-1.416,0.441,-3.646, 12.330,0,-0.250,1.3,70.0,0.3,600.0);
 rr_gl::Texture*         environmentMap = NULL;
 rr_gl::TextureRenderer* textureRenderer = NULL;
 rr_gl::Water*           water = NULL;
 int                     winWidth = 0;
 int                     winHeight = 0;
+bool                    editLight = 0;
+rr::RRVec3              lightDirection(0.08f,-0.4f,-0.9f);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,7 +73,7 @@ void display(void)
 	textureRenderer->renderEnvironment(environmentMap,rr::RRVec4(1),1);
 
 	// render water
-	water->render(100,rr::RRVec3(0));
+	water->render(1000,rr::RRVec3(0),rr::RRVec3(0.1f,0.25f,0.35f),lightDirection,rr::RRVec3(10));
 
 	glutSwapBuffers();
 }
@@ -79,6 +84,11 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case 27:
 			exit(0);
+		case 'q': eye.pos.y += 0.1f; break;
+		case 'z': eye.pos.y -= 0.1f; break;
+		case 'x': eye.leanAngle -= 0.01f; break;
+		case 'c': eye.leanAngle += 0.01f; break;
+		case ' ': editLight = !editLight; break;
 	}
 }
 
@@ -98,9 +108,23 @@ void passive(int x, int y)
 	y -= winHeight/2;
 	if (x || y)
 	{
-		eye.angle -= 0.005*x;
-		eye.angleX -= 0.005*y;
-		RR_CLAMP(eye.angleX,-RR_PI*0.49f,RR_PI*0.49f);
+		if (editLight)
+		{
+			static float angle = 0;
+			static float angleX = 0;
+			angle -= 0.005*x;
+			angleX -= 0.005*y;
+			RR_CLAMP(angleX,-RR_PI*0.49f,-RR_PI*0.09f);
+			lightDirection.x = sin(angle);
+			lightDirection.z = cos(angle);
+			lightDirection.y = angleX;
+		}
+		else
+		{
+			eye.angle -= 0.005*x;
+			eye.angleX -= 0.005*y;
+			RR_CLAMP(eye.angleX,-RR_PI*0.49f,RR_PI*0.49f);
+		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
@@ -119,6 +143,8 @@ int main(int argc, char **argv)
 {
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
+	rr_io::registerLoaders();
 
 	// init GLUT
 	glutInit(&argc, argv);
@@ -142,9 +168,12 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDisable(GL_DEPTH_TEST);
+#if defined(_WIN32)
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+#endif
 
 	// init shaders
-	water = new rr_gl::Water("../../data/shaders/",true,!false);
+	water = new rr_gl::Water("../../data/shaders/",true,false);
 	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
 	
 	// init textures

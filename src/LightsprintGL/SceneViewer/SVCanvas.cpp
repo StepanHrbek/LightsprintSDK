@@ -166,7 +166,7 @@ void SVCanvas::createContext()
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 
-	water = new Water(svs.pathToShaders,true,false);
+	water = new Water(svs.pathToShaders,true,true);
 	toneMapping = new ToneMapping(svs.pathToShaders);
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
@@ -761,7 +761,19 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
 				svs.eye.update();
 				svs.eye.setupForRender();
-				water->render(svs.eye.getFar()*2,svs.eye.pos);
+				
+				// find sun
+				for (unsigned i=0;i<solver->getLights().size();i++)
+				{
+					const rr::RRLight* light = solver->getLights()[i];
+					if (light->type==rr::RRLight::DIRECTIONAL)
+					{
+						water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec3(0.1f,0.25f,0.35f),light->direction,light->color);
+						goto rendered;
+					}
+				}
+				water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec3(0.1f,0.25f,0.35f),rr::RRVec3(0),rr::RRVec3(0));
+rendered:
 				solver->renderScene(uberProgramSetup,NULL);
 				svs.eye.setFar(oldFar);
 			}
