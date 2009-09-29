@@ -617,9 +617,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
 
-				// select newly added light
-				m_canvas->selectedType = ST_LIGHT;
-				svs.selectedLightIndex = newList.size()-1;
+				// select newly added light (it's probably better to not select it)
+				//m_canvas->selectedType = ST_LIGHT;
+				//svs.selectedLightIndex = newList.size()-1;
 
 				updateSelection();
 			}
