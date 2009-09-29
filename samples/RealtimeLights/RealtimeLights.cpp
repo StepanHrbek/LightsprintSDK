@@ -414,11 +414,11 @@ int main(int argc, char **argv)
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f/0.0254f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f/0.0254f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
 
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));

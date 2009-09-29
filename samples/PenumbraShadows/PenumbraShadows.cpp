@@ -340,12 +340,12 @@ int main(int argc, char **argv)
 	realtimeLight->setShadowmapSize(512);
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f/0.0254f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
 		error("",false);
 
 	// init dynamic objects
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f/0.0254f);
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f/0.0254f);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f);
 
 	glutMainLoop();
 	return 0;

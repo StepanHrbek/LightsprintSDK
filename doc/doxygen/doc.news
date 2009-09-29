@@ -13,8 +13,9 @@ namespace rr
 NEWS
 
 - .3ds adapter automatically converts sizes to meters
-   - if unit is not specified in file, inch is assumed
-   - custom scale passed to adapter is applied on top of automatic unit conversion, keep it 1 if automatic works
+   - if unit is not specified in file, meter is assumed
+   - custom scale passed to adapter is applied on top of automatic unit conversion,
+     keep it 1 if automatic works, change it to 0.0254f for inch->meter conversion
 
 \section news92 ------------------------------------ 2009.09.24 -------------------------------------
 

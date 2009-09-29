@@ -98,9 +98,6 @@ Model_3DS::Model_3DS()
 	// Set up the path
 	path = new char[580];
 	path[0] = 0;//sprintf(path, "");
-
-	// Set default scale
-	scale = 0.0254f; // inch -> meter
 }
 
 Model_3DS::~Model_3DS()
@@ -117,7 +114,7 @@ bool Model_3DS::Load(const char *_filename, float _scale)
 	buf[499]=0;
 	char* name = buf;
 
-	scale = 0.0254f*_scale;
+	scale = _scale;
 
 	// holds the main chunk header
 	ChunkHeader main;
