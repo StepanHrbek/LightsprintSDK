@@ -99,8 +99,8 @@ Model_3DS::Model_3DS()
 	path = new char[580];
 	path[0] = 0;//sprintf(path, "");
 
-	// Set the scale to one
-	scale = 1.0f;
+	// Set default scale
+	scale = 0.0254f; // inch -> meter
 }
 
 Model_3DS::~Model_3DS()
@@ -110,14 +110,15 @@ Model_3DS::~Model_3DS()
 	delete[] Objects;
 }
 
-bool Model_3DS::Load(const char *filename, float ascale)
+bool Model_3DS::Load(const char *_filename, float _scale)
 {
 	char buf[500];
-	strncpy(buf,filename,499);
+	strncpy(buf,_filename,499);
 	buf[499]=0;
 	char* name = buf;
 
-	scale = ascale;
+	scale = 0.0254f*_scale;
+
 	// holds the main chunk header
 	ChunkHeader main;
 
@@ -423,7 +424,7 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 		fseek(bin3ds, (h.len - 6), SEEK_CUR);
 	}
 
-	// Now load the materials
+	// Now load the materials and units
 	if (numMaterials > 0)
 	{
 		Materials = new Material[numMaterials];
@@ -444,6 +445,9 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 				case 0xAFFF:
 					MaterialChunkProcessor(h.len, ftell(bin3ds), i);
 					i++;
+					break;
+				case 0x0100:
+					UnitChunkProcessor(h.len, ftell(bin3ds));
 					break;
 			}
 
@@ -478,6 +482,23 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 			fseek(bin3ds, (h.len - 6), SEEK_CUR);
 		}
 	}
+
+	// move the file pointer back to where we got it so
+	// that the ProcessChunk() which we interrupted will read
+	// from the right place
+	fseek(bin3ds, findex, SEEK_SET);
+}
+
+void Model_3DS::UnitChunkProcessor(long length, long findex)
+{
+	// move the file pointer to the beginning of the main
+	// chunk's data findex + the size of the header
+	fseek(bin3ds, findex, SEEK_SET);
+
+	float unit;
+	fread(&unit,sizeof(unit),1,bin3ds);
+	swap32(&unit);
+	scale /= unit;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read

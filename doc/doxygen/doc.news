@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news93 ------------------------------------ 2009.09.xx -------------------------------------
+
+NEWS
+
+- .3ds adapter automatically converts sizes to meters
+   - if unit is not specified in file, inch is assumed
+   - custom scale passed to adapter is applied on top of automatic unit conversion, keep it 1 if automatic works
+
 \section news92 ------------------------------------ 2009.09.24 -------------------------------------
 
 NEWS

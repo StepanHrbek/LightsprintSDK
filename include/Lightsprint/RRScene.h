@@ -35,8 +35,8 @@ public:
 	//!  Filename of scene. If it is NULL, scene will be empty.
 	//! \param scale
 	//!  If it is .gsa/.3ds/.obj, geometry is scaled(multiplied) by scale.
-	//!  These formats don't contain information about units,
-	//!  different files need different scale to convert to meters.
+	//!  These formats don't contain information about units or it is optional,
+	//!  so different files may need different scale to convert to meters.
 	//!  Scale is size of scene unit in meters.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.

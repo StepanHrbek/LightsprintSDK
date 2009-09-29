@@ -371,19 +371,19 @@ int main(int argc, char **argv)
 	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f/0.0254f))
 		error("",false);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	material.ANIMATION_WAVE = true;
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f/0.0254f,material,16,16);
 	material.ANIMATION_WAVE = false;
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f/0.0254f,material,16,16);
 
 	// init realtime radiosity solver
 	const char* licError = rr::loadLicense("../../data/licence_number");

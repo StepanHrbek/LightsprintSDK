@@ -140,7 +140,7 @@ public:
 	Object *Objects;		// The array of objects in the model
 	rr::RRVec3 pos;			// The position to move the model to
 	rr::RRVec3 rot;			// The angles to rotate the model
-	float scale;			// The size you want the model scaled to
+	float scale;			// Multiplier used in adapter, 10 makes model 10x bigger
 	bool smoothAll;         // True: average normals of all vertices on the same position
 	rr::RRVec3 localCenter;
 	float localMinY;
@@ -167,6 +167,8 @@ private:
 		// Processes the model's info
 		void EditChunkProcessor(long length, long findex);
 			
+			void UnitChunkProcessor(long length, long findex);
+
 			// Processes the model's materials
 			void MaterialChunkProcessor(long length, long findex, int matindex);
 				// Processes the names of the materials
