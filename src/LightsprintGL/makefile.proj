@@ -57,7 +57,8 @@ SceneViewer/SVLightProperties.spp \
 SceneViewer/SVLightmapViewer.spp \
 SceneViewer/SVRayLog.spp \
 SceneViewer/SVSaveLoad.spp \
-SceneViewer/SceneTree.cpp \
+SceneViewer/SVSceneProperties.spp \
+SceneViewer/SVSceneTree.cpp \
 SceneViewer/SVSolver.spp \
 SceneViewer/SVStub.spp
 

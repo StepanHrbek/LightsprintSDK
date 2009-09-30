@@ -12,12 +12,14 @@ namespace rr
 
 NEWS
 
+- enhanced rr_gl::sceneViewer() and SceneViewer sample
+   - added scene properties window
+- improved water rendering in rr_gl::Water
+   - new parameters in rr_gl::Water::Water(), rr_gl::Water::render()
 - .3ds adapter automatically converts sizes to meters
    - if unit is not specified in file, meter is assumed
    - custom scale passed to adapter is applied on top of automatic unit conversion,
      keep it 1 if automatic works, change it to 0.0254f for inch->meter conversion
-- improved water rendering in rr_gl::Water
-   - new parameters in rr_gl::Water::Water(), rr_gl::Water::render()
 
 \section news92 ------------------------------------ 2009.09.24 -------------------------------------
 

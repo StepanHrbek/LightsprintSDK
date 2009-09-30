@@ -15,6 +15,7 @@
 #include "SVApp.h"
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/version.hpp>
 
 namespace boost
 {
@@ -225,6 +226,7 @@ void save(Archive& ar, const rr_gl::SceneViewerStateEx& a, const unsigned int ve
 	ar & make_nvp("brightness",a.brightness);
 	ar & make_nvp("gamma",a.gamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
+	ar & make_nvp("waterColor",a.waterColor);
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
@@ -266,6 +268,10 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("brightness",a.brightness);
 	ar & make_nvp("gamma",a.gamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
+	if (version>0)
+	{
+		ar & make_nvp("waterColor",a.waterColor);
+	}
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
@@ -283,6 +289,8 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLight)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
+
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 1)
 
 //---------------------------------------------------------------------------
 

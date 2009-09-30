@@ -850,6 +850,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVSceneProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVSceneProperties.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVSceneTree.cpp"
 				>
 			</File>

@@ -70,6 +70,7 @@ struct SceneViewerState
 	rr::RRVec4       brightness;                //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
 	float            gamma;                     //! Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
+	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
 	// sets default state with realtime GI and random camera
@@ -104,6 +105,7 @@ struct SceneViewerState
 		cameraMetersPerSecond = 2;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
+		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
 		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
 		autodetectCamera = 1;
 	}

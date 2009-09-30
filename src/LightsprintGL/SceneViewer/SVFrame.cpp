@@ -15,6 +15,7 @@
 #include "SVRayLog.h"
 #include "SVSolver.h"
 #include "SVSaveLoad.h"
+#include "SVSceneProperties.h"
 #include "SVLightProperties.h"
 #include "SVSceneTree.h"
 #include "../tmpstr.h"
@@ -259,6 +260,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	updateMenuBarNeeded = false;
 	currentWindowLayout = 0;
 	m_canvas = NULL;
+	m_sceneProperties = new SVSceneProperties(this,svs);
 	m_lightProperties = new SVLightProperties(this);
 	m_sceneTree = new SVSceneTree(this,svs);
 
@@ -316,6 +318,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	windowLayout[2] = wxString("f")+m_mgr.SavePerspective();
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
+	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
 	windowLayout[1] = wxString("f")+m_mgr.SavePerspective();
 	windowLayout[0] = wxString("w")+m_mgr.SavePerspective();
@@ -444,8 +447,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_RENDER_ICONS,svs.renderIcons);
 		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
-		winMenu->AppendCheckItem(ME_RENDER_WATER,_T("Water"),_T("Water is water-like plane with adjustable elevation."));
-		winMenu->Check(ME_RENDER_WATER,svs.renderWater);
 		winMenu->AppendCheckItem(ME_RENDER_FPS,_T("FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
 		winMenu->Check(ME_RENDER_FPS,svs.renderFPS);
 		winMenu->AppendCheckItem(ME_RENDER_LOGO,_T("Logo"),_T("Logo is loaded from data/maps/logo.png."));
@@ -457,7 +458,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
 		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
-		winMenu->Append(ME_RENDER_WATER_LEVEL,_T("Adjust water level..."));
 		menuBar->Append(winMenu, _T("Render"));
 	}
 
@@ -468,8 +468,10 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_FULLSCREEN,svs.fullscreen);
 		winMenu->AppendCheckItem(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
-		winMenu->Check(ME_WINDOW_PROPERTIES,m_lightProperties->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_T("Scene properties"),_T("Opens scene properties window."));
+		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
+		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Layout 1"));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Layout 2"));
@@ -946,7 +948,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_SPECULAR: svs.renderMaterialSpecular = !svs.renderMaterialSpecular; break;
 		case ME_RENDER_EMISSION: svs.renderMaterialEmission = !svs.renderMaterialEmission; break;
 		case ME_RENDER_TRANSPARENT: svs.renderMaterialTransparency = !svs.renderMaterialTransparency; break;
-		case ME_RENDER_WATER: svs.renderWater = !svs.renderWater; break;
 		case ME_RENDER_TEXTURES: svs.renderMaterialTextures = !svs.renderMaterialTextures; break;
 		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
@@ -957,7 +958,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
 		case ME_RENDER_BRIGHTNESS: getBrightness(this,svs.brightness); break;
 		case ME_RENDER_CONTRAST: getFactor(this,svs.gamma,"Please adjust contrast (default is 1).","Contrast"); break;
-		case ME_RENDER_WATER_LEVEL: getFactor(this,svs.waterLevel,"Please adjust water level in meters(scene units).","Water level"); break;
 
 
 		///////////////////////////////// WINDOW ////////////////////////////////
@@ -972,7 +972,11 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			m_mgr.GetPane(wxT("scenetree")).Show(!m_sceneTree->IsShown());
 			m_mgr.Update();
 			break;
-		case ME_WINDOW_PROPERTIES:
+		case ME_WINDOW_SCENE_PROPERTIES:
+			m_mgr.GetPane(wxT("sceneproperties")).Show(!m_sceneProperties->IsShown());
+			m_mgr.Update();
+			break;
+		case ME_WINDOW_LIGHT_PROPERTIES:
 			m_mgr.GetPane(wxT("lightproperties")).Show(!m_lightProperties->IsShown());
 			m_mgr.Update();
 			break;

@@ -119,13 +119,11 @@ namespace rr_gl
 			ME_RENDER_SPECULAR,
 			ME_RENDER_EMISSION,
 			ME_RENDER_TRANSPARENT,
-			ME_RENDER_WATER,
 			ME_RENDER_TEXTURES,
 			ME_RENDER_WIREFRAME,
 			ME_RENDER_TONEMAPPING,
 			ME_RENDER_BRIGHTNESS,
 			ME_RENDER_CONTRAST,
-			ME_RENDER_WATER_LEVEL,
 			ME_RENDER_FPS,
 			ME_RENDER_ICONS,
 			ME_RENDER_HELPERS,
@@ -134,7 +132,8 @@ namespace rr_gl
 
 			ME_WINDOW_FULLSCREEN,
 			ME_WINDOW_TREE,
-			ME_WINDOW_PROPERTIES,
+			ME_WINDOW_SCENE_PROPERTIES,
+			ME_WINDOW_LIGHT_PROPERTIES,
 			ME_WINDOW_LAYOUT1,
 			ME_WINDOW_LAYOUT2,
 			ME_WINDOW_LAYOUT3,
@@ -166,6 +165,7 @@ namespace rr_gl
 		wxString                 windowLayout[3];
 		wxAuiManager             m_mgr;
 		SVCanvas*                m_canvas;
+		class SVSceneProperties* m_sceneProperties;
 		class SVLightProperties* m_lightProperties;
 		class SVSceneTree*       m_sceneTree;
 
