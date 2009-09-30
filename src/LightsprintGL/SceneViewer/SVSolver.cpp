@@ -46,7 +46,7 @@ void SVSolver::renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight*
 		rendererOfScene->useRealtimeGI(svs.realtimeLayerNumber);
 	}
 	rendererOfScene->setLDM((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM) ? svs.ldmLayerNumber : UINT_MAX);
-	rendererOfScene->setBrightnessGamma(&svs.brightness,svs.gamma);
+	rendererOfScene->setBrightnessGamma(svs.renderTonemapping?&svs.brightness:NULL,svs.renderTonemapping?svs.gamma:1);
 	rendererOfScene->setClipPlane(svs.waterLevel);
 	rendererOfScene->render();
 }

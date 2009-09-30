@@ -64,11 +64,12 @@ struct SceneViewerState
 	bool             renderVignette;            //! Render vignette overlay from vignette.png.
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
+	bool             renderTonemapping;         //! Render with tonemapping.
 	bool             adjustTonemapping;         //! Automatically adjust tonemapping operator.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
-	rr::RRVec4       brightness;                //! Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
-	float            gamma;                     //! Gamma correction applied at render time, 1=no correction.
+	rr::RRVec4       brightness;                //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
+	float            gamma;                     //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
@@ -100,6 +101,7 @@ struct SceneViewerState
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
+		renderTonemapping = 1;
 		adjustTonemapping = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;

@@ -453,11 +453,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_RENDER_LOGO,svs.renderLogo);
 		winMenu->AppendCheckItem(ME_RENDER_VIGNETTE,_T("Vignettation"),_T("Vignette overlay is loaded from data/maps/vignette.png."));
 		winMenu->Check(ME_RENDER_VIGNETTE,svs.renderVignette);
-		winMenu->AppendCheckItem(ME_RENDER_TONEMAPPING,_T("Tone mapping"),_T("Tone mapping automatically adjusts fullscreen brightness. It simulates eyes adapting to dark or bright environment."));
-		winMenu->Check(ME_RENDER_TONEMAPPING,svs.adjustTonemapping);
-		winMenu->AppendSeparator();
-		winMenu->Append(ME_RENDER_BRIGHTNESS,_T("Adjust brightness..."),_T("Makes it possible to manually set brightness if tone mapping is disabled."));
-		winMenu->Append(ME_RENDER_CONTRAST,_T("Adjust contrast..."));
 		menuBar->Append(winMenu, _T("Render"));
 	}
 
@@ -955,9 +950,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 		case ME_RENDER_LOGO: svs.renderLogo = !svs.renderLogo; break;
 		case ME_RENDER_VIGNETTE: svs.renderVignette = !svs.renderVignette; break;
-		case ME_RENDER_TONEMAPPING: svs.adjustTonemapping = !svs.adjustTonemapping; break;
-		case ME_RENDER_BRIGHTNESS: getBrightness(this,svs.brightness); break;
-		case ME_RENDER_CONTRAST: getFactor(this,svs.gamma,"Please adjust contrast (default is 1).","Contrast"); break;
 
 
 		///////////////////////////////// WINDOW ////////////////////////////////

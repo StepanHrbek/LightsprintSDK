@@ -220,6 +220,7 @@ void save(Archive& ar, const rr_gl::SceneViewerStateEx& a, const unsigned int ve
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
+	ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
@@ -262,16 +263,14 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
+	if (version>0) ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.brightness);
 	ar & make_nvp("gamma",a.gamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
-	if (version>0)
-	{
-		ar & make_nvp("waterColor",a.waterColor);
-	}
+	if (version>0) ar & make_nvp("waterColor",a.waterColor);
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;

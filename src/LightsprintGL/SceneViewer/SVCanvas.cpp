@@ -782,7 +782,7 @@ rendered:
 				solver->renderScene(uberProgramSetup,NULL);
 			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (svs.adjustTonemapping
+			if (svs.renderTonemapping && svs.adjustTonemapping
 				&& !svs.renderWireframe
 				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
