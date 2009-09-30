@@ -133,13 +133,6 @@ static bool getFactor(wxWindow* parent, float& factor, const wxString& message, 
 
 // true = valid answer
 // false = dialog was escaped
-static bool getSpeed(wxWindow* parent, float& speed)
-{
-	return getFactor(parent,speed,"Please adjust camera speed (m/s)","Camera speed");
-}
-
-// true = valid answer
-// false = dialog was escaped
 static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 {
 	float average = brightness.avg();
@@ -357,7 +350,6 @@ void SVFrame::UpdateMenuBar()
 	// Camera...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_CAMERA_SPEED,_T("Set camera speed..."));
 		winMenu->Append(ME_CAMERA_GENERATE_RANDOM,_T("Set random camera"));
 		menuBar->Append(winMenu, _T("Camera"));
 	}
@@ -549,9 +541,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_CAMERA_GENERATE_RANDOM:
 			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
 			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
-			break;
-		case ME_CAMERA_SPEED:
-			getSpeed(this,svs.cameraMetersPerSecond);
 			break;
 
 

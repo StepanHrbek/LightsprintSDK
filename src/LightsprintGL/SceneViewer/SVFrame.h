@@ -75,7 +75,6 @@ namespace rr_gl
 			ME_FILE_OPEN_SCENE = 10000, // avoid conflict with wxWidgets event numbers
 			ME_FILE_SAVE_SCREENSHOT,
 			ME_EXIT,
-			ME_CAMERA_SPEED,
 			ME_CAMERA_GENERATE_RANDOM,
 
 

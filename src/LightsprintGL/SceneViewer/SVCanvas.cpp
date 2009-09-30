@@ -1032,15 +1032,15 @@ rendered:
 			}
 			if (!svs.renderLightmaps2d || !lv)
 			{
-				textOutput(x,y+=18*2,h,"[camera]");
-				textOutput(x,y+=18,h,"pos: %f %f %f",svs.eye.pos[0],svs.eye.pos[1],svs.eye.pos[2]);
-				textOutput(x,y+=18,h,"dir: %f %f %f",svs.eye.dir[0],svs.eye.dir[1],svs.eye.dir[2]);
-				//textOutput(x,y+=18,h,"rig: %f %f %f",svs.eye.right[0],svs.eye.right[1],svs.eye.right[2]);
-				//textOutput(x,y+=18,h,"up : %f %f %f",svs.eye.up[0],svs.eye.up[1],svs.eye.up[2]);
-				//textOutput(x,y+=18,h,"FOV deg: x=%f y=%f asp=%f",svs.eye.getFieldOfViewHorizontalDeg(),svs.eye.getFieldOfViewVerticalDeg(),svs.eye.getAspect());
-				GLint depthBits;
+				textOutput(x,y+=18*2,h,"[viewport]");
+				textOutput(x,y+=18,h,"size: %d*%d",winWidth,winHeight);
+				GLint redBits,greenBits,blueBits,alphaBits,depthBits;
+				glGetIntegerv(GL_RED_BITS, &redBits);
+				glGetIntegerv(GL_GREEN_BITS, &greenBits);
+				glGetIntegerv(GL_BLUE_BITS, &blueBits);
+				glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
 				glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-				textOutput(x,y+=18,h,"range: %f to %f (%dbit Z)",svs.eye.getNear(),svs.eye.getFar(),depthBits);
+				textOutput(x,y+=18,h,"r+g+b+a+z: %d+%d+%d+%d+%d",(int)redBits,(int)greenBits,(int)blueBits,(int)alphaBits,(int)depthBits);
 			}
 			if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{

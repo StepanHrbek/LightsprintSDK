@@ -22,12 +22,9 @@ namespace rr_gl
 		SVSceneProperties(wxWindow* parent, SceneViewerStateEx& svs);
 
 		//! Copy svs -> property.
-		void updateAllProperties();
+		void updateProperties();
 
-		//! Copy volatile svs -> property.
-		void updateVolatileProperties();
-
-		//! Copy volatile svs -> property.
+		//! Copy svs -> property.
 		void OnIdle(wxIdleEvent& event);
 
 		//! Copy property -> svs.
@@ -38,13 +35,25 @@ namespace rr_gl
 		void updateHide();
 
 		SceneViewerStateEx& svs;
+		wxPGProperty*     propCamera;
+		wxPGProperty*     propCameraSpeed;
+		wxPGProperty*     propCameraPosition;
+		wxPGProperty*     propCameraDirection;
+		wxPGProperty*     propCameraAngles;
+		wxPGProperty*     propCameraFov;
+		wxPGProperty*     propCameraNear;
+		wxPGProperty*     propCameraFar;
+		wxPGProperty*     propToneMapping;
+		wxPGProperty*     propToneMappingAutomatic;
+		wxPGProperty*     propToneMappingBrightness;
+		wxPGProperty*     propToneMappingContrast;
 		wxPGProperty*     propWater;
 		wxPGProperty*     propWaterColor;
 		wxPGProperty*     propWaterLevel;
-		wxPGProperty*     propToneMapping;
-		wxPGProperty*     propToneMappingBrightness;
-		wxPGProperty*     propToneMappingContrast;
-		wxPGProperty*     propToneMappingAutomatic;
+		wxPGProperty*     propSizes;
+		wxPGProperty*     propSizesSize;
+		wxPGProperty*     propSizesMin;
+		wxPGProperty*     propSizesMax;
 
 		DECLARE_EVENT_TABLE()
 	};
