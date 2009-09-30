@@ -7,8 +7,6 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-//#include "SVFrame.h"
-
 namespace rr_gl
 {
 

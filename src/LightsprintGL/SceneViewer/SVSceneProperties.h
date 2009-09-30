@@ -1,15 +1,16 @@
 // --------------------------------------------------------------------------
-// Scene viewer - light properties window.
+// Scene viewer - scene properties window.
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SVSCENEPROPERTIES_H
 #define SVSCENEPROPERTIES_H
 
-#include "SVApp.h"
+#include "Lightsprint/GL/SceneViewer.h"
 
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVApp.h"
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
 

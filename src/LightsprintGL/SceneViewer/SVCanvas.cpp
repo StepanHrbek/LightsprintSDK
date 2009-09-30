@@ -1044,23 +1044,10 @@ rendered:
 			}
 			if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{
-				RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
-				const rr::RRLight* rrlight = &rtlight->getRRLight();
-				Camera* light = rtlight->getParent();
-				textOutput(x,y+=18*2,h,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
-				textOutput(x,y+=18,h,"type: %s",(rrlight->type==rr::RRLight::POINT)?"point":((rrlight->type==rr::RRLight::SPOT)?"spot":"dir"));
-				textOutput(x,y+=18,h,"pos: %f %f %f",light->pos[0],light->pos[1],light->pos[2]);
-				textOutput(x,y+=18,h,"dir: %f %f %f",light->dir[0],light->dir[1],light->dir[2]);
-				textOutput(x,y+=18,h,"color: %f %f %f",rrlight->color[0],rrlight->color[1],rrlight->color[2]);
-				switch(rrlight->distanceAttenuationType)			
-				{
-					case rr::RRLight::NONE:        textOutput(x,y+=18,h,"dist att: none"); break;
-					case rr::RRLight::PHYSICAL:    textOutput(x,y+=18,h,"dist att: physically correct"); break;
-					case rr::RRLight::POLYNOMIAL:  textOutput(x,y+=18,h,"dist att: 1/(%f+%f*d+%f*d^2)",rrlight->polynom[0],rrlight->polynom[1],rrlight->polynom[2]); break;
-					case rr::RRLight::EXPONENTIAL: textOutput(x,y+=18,h,"dist att: max(0,1-(distance/%f)^2)^%f",rrlight->radius,rrlight->fallOffExponent); break;
-				}
 				if (numTrianglesMulti<100000) // skip this expensive step for big scenes
 				{
+					RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
+					const rr::RRLight* rrlight = &rtlight->getRRLight();
 					static RealtimeLight* lastLight = NULL;
 					static unsigned numLightReceivers = 0;
 					static unsigned numShadowCasters = 0;
@@ -1078,6 +1065,7 @@ rendered:
 							}
 						}
 					}
+					textOutput(x,y+=18*2,h,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
 					textOutput(x,y+=18,h,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
 					textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 				}
