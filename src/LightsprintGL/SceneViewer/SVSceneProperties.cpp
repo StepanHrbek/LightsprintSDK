@@ -105,6 +105,7 @@ void SVSceneProperties::updateVolatileProperties()
 {
 	unsigned numChanges =
 		+ updateFloat(propToneMappingBrightness,svs.brightness[0])
+		+ updateFloat(propToneMappingContrast,svs.gamma)
 		;
 	if (numChanges)
 	{
