@@ -41,7 +41,7 @@ namespace rr_gl
 
 	private:
 		RealtimeLight*    rtlight;
-		wxPropertyGrid*   pg;
+
 		wxPGProperty*     propType;
 		wxPGProperty*     propPosition;
 		wxPGProperty*     propDirection;

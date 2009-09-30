@@ -16,7 +16,6 @@ SVLightProperties::SVLightProperties( wxWindow* parent )
 	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
 {
 	rtlight = NULL;
-	pg = this;
 }
 
 void SVLightProperties::setLight(RealtimeLight* _rtlight)
@@ -25,58 +24,57 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 
 	if (!rtlight)
 	{
-		pg->Clear();
+		Clear();
 	}
 	else
 	{
 		rr::RRLight* light = &_rtlight->getRRLight();
-		pg->Clear();
+		Clear();
 
 		// light type
 		{
 			const wxChar* typeStrings[] = {wxT("Directional"),wxT("Point"),wxT("Spot"),NULL};
 			const long typeValues[] = {rr::RRLight::DIRECTIONAL,rr::RRLight::POINT,rr::RRLight::SPOT};
 			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
-			wxPGProperty* idType = pg->Append( propType );
+			Append(propType);
 
 			propPosition = new wxStringProperty(wxT("Position"),wxPG_LABEL,wxT("<composed>"));
-			wxPGProperty* posId = pg->AppendIn( idType, propPosition );
-			wxPGProperty* id;
-			id = pg->AppendIn( posId, new wxFloatProperty(wxT("x"),wxPG_LABEL,light->position[0]) );
-			id = pg->AppendIn( posId, new wxFloatProperty(wxT("y"),wxPG_LABEL,light->position[1]) );
-			id = pg->AppendIn( posId, new wxFloatProperty(wxT("z"),wxPG_LABEL,light->position[2]) );
-			pg->Collapse( posId );
+			AppendIn(propType,propPosition);
+			AppendIn(propPosition,new wxFloatProperty(wxT("x"),wxPG_LABEL,light->position[0]));
+			AppendIn(propPosition,new wxFloatProperty(wxT("y"),wxPG_LABEL,light->position[1]));
+			AppendIn(propPosition,new wxFloatProperty(wxT("z"),wxPG_LABEL,light->position[2]));
+			Collapse(propPosition);
 
 			propDirection = new wxStringProperty(wxT("Direction"),wxPG_LABEL,wxT("<composed>"));
-			wxPGProperty* dirId = pg->AppendIn( idType, propDirection );
-			pg->AppendIn( dirId, new wxFloatProperty(wxT("x"),wxPG_LABEL,light->direction[0]) );
-			pg->AppendIn( dirId, new wxFloatProperty(wxT("y"),wxPG_LABEL,light->direction[1]) );
-			pg->AppendIn( dirId, new wxFloatProperty(wxT("z"),wxPG_LABEL,light->direction[2]) );
-			pg->Collapse( dirId );
+			AppendIn(propType,propDirection);
+			AppendIn(propDirection,new wxFloatProperty(wxT("x"),wxPG_LABEL,light->direction[0]));
+			AppendIn(propDirection,new wxFloatProperty(wxT("y"),wxPG_LABEL,light->direction[1]));
+			AppendIn(propDirection,new wxFloatProperty(wxT("z"),wxPG_LABEL,light->direction[2]));
+			Collapse(propDirection);
 
 			propOuterAngleRad = new wxFloatProperty(wxT("Outer angle (rad)"),wxPG_LABEL,light->outerAngleRad);
-			pg->AppendIn( idType, propOuterAngleRad );
+			AppendIn(propType,propOuterAngleRad);
 
 			propFallOffAngleRad = new wxFloatProperty(wxT("Fall off angle (rad)"),wxPG_LABEL,light->fallOffAngleRad);
-			pg->AppendIn( idType, propFallOffAngleRad );
+			AppendIn(propType,propFallOffAngleRad);
 
 			propSpotExponent = new wxFloatProperty(wxT("Spot exponent"),wxPG_LABEL,light->spotExponent);
-			pg->AppendIn( idType, propSpotExponent );
+			AppendIn(propType,propSpotExponent);
 		}
 
 		// color
 		{
 			propColor = new wxStringProperty(wxT("Color"),wxPG_LABEL,wxT("<composed>"));
-			wxPGProperty* colId = pg->Append( propColor );
-			pg->AppendIn( colId, new wxFloatProperty(wxT("r"),wxPG_LABEL,light->color[0]) );
-			pg->AppendIn( colId, new wxFloatProperty(wxT("g"),wxPG_LABEL,light->color[1]) );
-			pg->AppendIn( colId, new wxFloatProperty(wxT("b"),wxPG_LABEL,light->color[2]) );
-			pg->Collapse( colId );
+			Append(propColor);
+			AppendIn(propColor,new wxFloatProperty(wxT("r"),wxPG_LABEL,light->color[0]));
+			AppendIn(propColor,new wxFloatProperty(wxT("g"),wxPG_LABEL,light->color[1]));
+			AppendIn(propColor,new wxFloatProperty(wxT("b"),wxPG_LABEL,light->color[2]));
+			Collapse(propColor);
 		}
 		{
 			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename);
-			pg->Append( propTexture );
-			//pg->SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
+			Append(propTexture);
+			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
 		}
 
 		// distance attenuation
@@ -84,43 +82,44 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			const wxChar* attenuationStrings[] = {wxT("none"),wxT("realistic"),wxT("polynomial"),wxT("exponential"),NULL};
 			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::PHYSICAL,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
 			propDistanceAttType = new wxEnumProperty(wxT("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
-			wxPGProperty* idDistAtt = pg->Append( propDistanceAttType );
+			Append(propDistanceAttType);
 
 			propConstant = new wxFloatProperty(wxT("Constant"),wxPG_LABEL,light->polynom[0]);
-			pg->AppendIn( idDistAtt, propConstant );
+			AppendIn(propDistanceAttType,propConstant);
 
 			propLinear = new wxFloatProperty(wxT("Linear"),wxPG_LABEL,light->polynom[1]);
-			pg->AppendIn( idDistAtt, propLinear );
+			AppendIn(propDistanceAttType,propLinear);
 
 			propQuadratic = new wxFloatProperty(wxT("Quadratic"),wxPG_LABEL,light->polynom[2]);
-			pg->AppendIn( idDistAtt, propQuadratic );
+			AppendIn(propDistanceAttType,propQuadratic);
 
 			propClamp = new wxFloatProperty(wxT("Clamp"),wxPG_LABEL,light->polynom[3]);
-			pg->AppendIn( idDistAtt, propClamp );
+			AppendIn(propDistanceAttType,propClamp);
 
 			propRadius = new wxFloatProperty(wxT("Radius"),wxPG_LABEL,light->radius);
-			pg->AppendIn( idDistAtt, propRadius );
+			AppendIn(propDistanceAttType,propRadius);
 
 			propFallOffExponent = new wxFloatProperty(wxT("Exponent"),wxPG_LABEL,light->fallOffExponent);
-			pg->AppendIn( idDistAtt, propFallOffExponent );
+			AppendIn(propDistanceAttType,propFallOffExponent);
 		}
 
 		// shadows
 		{
 			propCastShadows = new wxBoolProperty(wxT("Cast shadows"), wxPG_LABEL, light->castShadows);
-			wxPGProperty* idShad = pg->Append( propCastShadows );
+			Append(propCastShadows);
+			SetPropertyEditor(propCastShadows,wxPGEditor_CheckBox);
 
 			propShadowmapRes = new wxFloatProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getShadowmapSize());
-			pg->AppendIn( idShad, propShadowmapRes );
+			AppendIn(propCastShadows,propShadowmapRes);
 
 			propNear = new wxFloatProperty(wxT("Near"),wxPG_LABEL,rtlight->getParent()->getNear());
-			pg->AppendIn( idShad, propNear );
+			AppendIn(propCastShadows,propNear);
 
 			propFar = new wxFloatProperty(wxT("Far"),wxPG_LABEL,rtlight->getParent()->getFar());
-			pg->AppendIn( idShad, propFar );
+			AppendIn(propCastShadows,propFar);
 
 			propOrthoSize = new wxFloatProperty(wxT("Max shadow size"),wxPG_LABEL,light->rtMaxShadowSize);
-			pg->AppendIn( idShad, propOrthoSize );
+			AppendIn(propCastShadows,propOrthoSize);
 		}
 
 		updateHide();
