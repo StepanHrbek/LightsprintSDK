@@ -234,7 +234,10 @@ RRBuffer* convertTextureAndSubtract(NiPixelData* _add, RRBuffer* _sub)
 	return add;
 }
 
-//! Texcoord channel numbers.
+//! Texcoord channel numbers offered by this adapter.
+//! When Lightsprint solver asks for data e.g. from CH_EMISSIVE channel,
+//! adapter translates it to NiTexturingProperty::GetGlowMap()->GetTextureIndex()
+//! and returns data from appropriate Gamebryo vertex buffer.
 enum Channel
 {
 	CH_LIGHTMAP,
