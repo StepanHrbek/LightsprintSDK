@@ -8,6 +8,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVFrame.h"
+#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -55,13 +56,16 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
 		"scene");
 
+	tc->SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
 	tc->DeleteChildren(lights);
-	for (unsigned i=0;i<solver->getLights().size();i++)
+	for (unsigned i=0;solver && i<solver->getLights().size();i++)
 	{
 		tc->AppendItem(lights,wxString("light ")<<i,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 	}
+
+	tc->SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
 	tc->DeleteChildren(objects);
-	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+	for (unsigned i=0;solver && i<solver->getStaticObjects().size();i++)
 	{
 		const char* objectName = (const char*)solver->getObject(i)->getCustomData("const char* objectName");
 		tc->AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
