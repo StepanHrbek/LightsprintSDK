@@ -90,7 +90,7 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRV
 	glActiveTexture(GL_TEXTURE1);
 	normalMap->bindTexture();
 	mirrorProgram->sendUniform("normalMap",1);
-	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,1000)));
+	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,10000)));
 	mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
 	if (dirlight)
 	{
