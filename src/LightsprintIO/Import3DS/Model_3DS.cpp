@@ -495,7 +495,9 @@ void Model_3DS::UnitChunkProcessor(long length, long findex)
 	float unit;
 	fread(&unit,sizeof(unit),1,bin3ds);
 	swap32(&unit);
-	scale /= unit;
+	// there's no documentation on what unit means
+	// 'unit' values in existing scenes are quite random, without visible relation to actual units
+	//scale /= unit;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
