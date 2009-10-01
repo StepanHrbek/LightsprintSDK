@@ -878,6 +878,66 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Shaders"
+			>
+			<File
+				RelativePath="..\..\data\shaders\lightmap_build.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\lightmap_build.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\lightmap_filter.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\lightmap_filter.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\scaledown_filter.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\scaledown_filter.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\sky.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\sky.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\texture.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\texture.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\ubershader.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\ubershader.vs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\water.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\water.vs"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="Camera.cpp"
 			>

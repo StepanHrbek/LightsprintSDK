@@ -45,7 +45,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera           eye(-1.416,0.441,-3.646, 12.330,0,-0.250,1.3,70.0,0.3,600.0);
+rr_gl::Camera           eye(-1,1.8,-3, 12.330,0,-0.250,1.3,70.0,0.3,600.0);
 rr_gl::Texture*         environmentMap = NULL;
 rr_gl::TextureRenderer* textureRenderer = NULL;
 rr_gl::Water*           water = NULL;
@@ -73,7 +73,7 @@ void display(void)
 	textureRenderer->renderEnvironment(environmentMap,rr::RRVec4(1),1);
 
 	// render water
-	water->render(1000,rr::RRVec3(0),rr::RRVec3(0.1f,0.25f,0.35f),lightDirection,rr::RRVec3(10));
+	water->render(1000,rr::RRVec3(0),rr::RRVec4(0.1f,0.25f,0.35f,0.5f),lightDirection,rr::RRVec3(4));
 
 	glutSwapBuffers();
 }
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 #endif
 
 	// init shaders
-	water = new rr_gl::Water("../../data/shaders/",true,false);
+	water = new rr_gl::Water("../../data/shaders/",true,true);
 	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
 	
 	// init textures

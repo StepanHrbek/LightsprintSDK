@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Water with reflection and waves.
+// Water with planar reflection, fresnel, animated waves.
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ namespace rr_gl
 
 Water::Water(const char* pathToShaders, bool _fresnel, bool _dirlight)
 {
-	normalMap = new Texture(rr::RRBuffer::load(tmpstr("%s../maps/water_n.jpg",pathToShaders)),!true,false);
+	normalMap = new Texture(rr::RRBuffer::load(tmpstr("%s../maps/water_n.png",pathToShaders)),true,false);
 	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NULL),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = Texture::createShadowmap(16,16);
 	mirrorProgram = Program::create(
@@ -80,7 +80,7 @@ void Water::updateReflectionDone()
 	}
 }
 
-void Water::render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor)
+void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor)
 {
 	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorProgram->useIt();
@@ -91,16 +91,16 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRV
 	normalMap->bindTexture();
 	mirrorProgram->sendUniform("normalMap",1);
 	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,10000)));
-	mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	mirrorProgram->sendUniform("waterColor",waterColor[0],waterColor[1],waterColor[2],waterColor[3]);
+	if (dirlight || fresnel)
+	{
+		mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	}
 	if (dirlight)
 	{
 		if (lightDirection!=rr::RRVec3(0)) lightDirection.normalize();
 		mirrorProgram->sendUniform("worldLightDir",lightDirection[0],lightDirection[1],lightDirection[2]);
 		mirrorProgram->sendUniform("lightColor",lightColor[0],lightColor[1],lightColor[2]);
-	}
-	if (fresnel)
-	{
-		mirrorProgram->sendUniform("waterColor",waterColor[0],waterColor[1],waterColor[2],0.0f);
 	}
 	//GLboolean blend = glIsEnabled(GL_BLEND);
 	//glEnable(GL_BLEND);

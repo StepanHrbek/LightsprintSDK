@@ -76,7 +76,7 @@ struct SceneViewerState
 
 	// sets default state with realtime GI and random camera
 	SceneViewerState()
-		: eye(-1.856f,1.440f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
+		: eye(-1.856f,1.8f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
 	{
 		staticLayerNumber = 192837464; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
 		realtimeLayerNumber = 192837465;

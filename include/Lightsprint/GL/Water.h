@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 //! \file Water.h
-//! \brief LightsprintGL | water with reflection and waves
+//! \brief LightsprintGL | water with planar reflection, fresnel, waves
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //! All rights reserved
 //----------------------------------------------------------------------------
@@ -30,11 +30,11 @@ namespace rr_gl
 class RR_GL_API Water
 {
 public:
-	//! \param withRefraction
-	//!  Enables refraction using fresnel term and waterColor specified in render().
+	//! \param withFresnel
+	//!  True = fresnel term is used to calculate refraction intensity.
 	//! \param withDirlight
 	//!  Enables refraction from one directional light specified in render().
-	Water(const char* pathToShaders, bool withRefraction, bool withDirlight);
+	Water(const char* pathToShaders, bool withFresnel, bool withDirlight);
 	~Water();
 
 	//! Prepares pipeline for rendering into reflection map.
@@ -60,14 +60,15 @@ public:
 	//! \param center
 	//!  Center of quad in world space (0=center of world). y is ignored, altitude from updateReflectionInit() is used instead.
 	//! \param waterColor
-	//!  Color of water. Only used if withRefraction was enabled in constructor.
+	//!  Color of water.
+	//!  If withFresnel=false, final color is computed in GLSL as mix(reflection,waterColor,waterColor.a).
 	//! \param lightDirection
 	//!  Direction of directional light. Does not have to be normalized.
 	//!  Only used if withDirlight was enabled in constructor.
 	//! \param lightColor
 	//!  Color of directional light.
 	//!  Only used if withDirlight was enabled in constructor.
-	void render(float size, rr::RRVec3 center, rr::RRVec3 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor);
+	void render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRVec3 lightDirection, rr::RRVec3 lightColor);
 
 protected:
 	Texture* normalMap;

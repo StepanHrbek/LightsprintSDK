@@ -768,11 +768,11 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 					const rr::RRLight* light = solver->getLights()[i];
 					if (light->type==rr::RRLight::DIRECTIONAL)
 					{
-						water->render(svs.eye.getFar()*2,svs.eye.pos,svs.waterColor,light->direction,light->color);
+						water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),light->direction,light->color);
 						goto rendered;
 					}
 				}
-				water->render(svs.eye.getFar()*2,svs.eye.pos,svs.waterColor,rr::RRVec3(0),rr::RRVec3(0));
+				water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0));
 rendered:
 				solver->renderScene(uberProgramSetup,NULL);
 				svs.eye.setFar(oldFar);

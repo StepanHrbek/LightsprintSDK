@@ -1,4 +1,4 @@
-// Water with planar reflection, fresnel and scale independent waves
+// Water with planar reflection, fresnel and animated waves
 // Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
 //
 // Options:
