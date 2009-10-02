@@ -141,9 +141,9 @@ inline RRVec3 convertWorldDir(const NiPoint3& v)
 inline RRVec3 convertWorldRotToDir(const NiPoint3& v)
 {
 	NiMatrix3 matrix;
-	matrix.FromEulerAnglesXYZ(v.x,v.y,v.z);
+	matrix.FromEulerAnglesXYZ(RR_DEG2RAD(-v.x),RR_DEG2RAD(v.y),RR_DEG2RAD(v.z));
 	NiPoint3 dir = matrix*NiPoint3(1,0,0);
-	return convertWorldDir(dir);
+	return RRVec3(dir.x,-dir.z,dir.y);
 }
 
 inline RRVec3 convertColor_(const NiPoint3& v)
