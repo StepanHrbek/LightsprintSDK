@@ -2358,12 +2358,11 @@ Ray-Mesh collisions
   - see realtime global illumination
     - enter <code>samples/BuildLightmaps</code>
     - run <code>Gamebryo2.6_Realtime_Tutorial.bat</code>
-    - move mouse with right button pressed to look
-    - left click to switch to light
-    - arrows or wsadqzxc to move camera or light
-    - select from menu: Lights / Show properties
-    - change light type from point to spot for stronger color bleeding effect
-    - select from menu: Global illumination / Build light detail map / 1000 / 128x128, takes a minute, increases realtime GI quality
+    - move mouse with right button pressed to look around until you see light icon
+    - select light by left clicking its icon (or click "light 0" in Scene tree, then right click viewport for focus)
+    - arrows or wsadqzxc to move light (or camera)
+    - in "Light properties", change light type from point to spot for stronger color bleeding effect
+    - select from menu: Global illumination / Build LDM / 1000 / 128x128, takes a minute, increases realtime GI quality
   </td><td>
   \image html Gamebryo-RT2.jpg
   </td></tr><tr><td>

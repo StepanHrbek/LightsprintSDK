@@ -34,7 +34,8 @@ public:
 	//!  Adding/removing objects in solver while this renderer exists is not allowed,
 	//!  results would be undefined.
 	//! \param pathToShaders
-	//!  Path to texture, sky and ubershader shaders, with trailing slash (if not empty or NULL).
+	//!  Path to directory with shaders.
+	//!  Must be terminated with slash (or be empty for current dir).
 	RendererOfScene(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.

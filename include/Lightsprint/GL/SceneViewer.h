@@ -127,7 +127,8 @@ struct SceneViewerState
 //!  If RRBuffer::loadCube() loads this skybox successfully, it is used, overriding eventual environment from inputSolver.
 //!  Your string is not free()d.
 //! \param pathToShaders
-//!  Shaders are loaded from pathToShaders with trailing slash (or backslash).
+//!  Path to directory with shaders.
+//!  Must be terminated with slash (or be empty for current dir).
 //!  Your string is not free()d.
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.

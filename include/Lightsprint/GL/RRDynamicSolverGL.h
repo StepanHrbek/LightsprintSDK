@@ -36,10 +36,10 @@ namespace rr_gl
 
 		//! Initializes generic GPU access implemented in RRDynamicSolverGL.
 		//! \param pathToShaders
-		//!   Path to directory with lightmap_build.*, lightmap_filter.* and scaledown_filter.* shaders.
-		//!   Must be terminated with slash (or be empty for current dir).
+		//!  Path to directory with shaders.
+		//!  Must be terminated with slash (or be empty for current dir).
 		//! \param detectionQuality
-		//!   Sets quality of our detectDirectIllumination() routine.
+		//!  Sets quality of our detectDirectIllumination() routine.
 		RRDynamicSolverGL(const char* pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
 		virtual ~RRDynamicSolverGL();
 

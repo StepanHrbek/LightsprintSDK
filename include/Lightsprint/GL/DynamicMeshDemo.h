@@ -65,6 +65,9 @@ private:
 class RR_GL_API Demo
 {
 public:
+	//! \param pathToShaders
+	//!  Path to directory with shaders.
+	//!  Must be terminated with slash (or be empty for current dir).
 	Demo(const char* pathToShaders);
 	~Demo();
 };
