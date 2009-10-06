@@ -82,6 +82,10 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	fpsLoadAttempted = false;
 	fpsDisplay = NULL;
 
+	lightIcons = NULL;
+	sunIconPosition = rr::RRVec3(0);
+	iconSize = 1;
+
 }
 
 void SVCanvas::createContext()
@@ -165,6 +169,21 @@ void SVCanvas::createContext()
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
+	{
+		lightIcons = new SVLightIcons(tmpstr("%s../maps/",svs.pathToShaders),solver->getUberProgram());
+		rr::RRVec3 sceneMin,sceneMax;
+		rr::RRObject* object = solver->getMultiObjectCustom();
+		if (object)
+		{
+			object->getCollider()->getMesh()->getAABB(&sceneMin,&sceneMax,&sunIconPosition);
+
+			//iconSize = (sceneMax-sceneMin).avg()*0.04f;
+			// better, insensitive to single triangle in 10km distance
+			iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.02f;
+
+			sunIconPosition.y = sceneMax.y + 5*iconSize;
+		}
+	}
 
 	water = new Water(svs.pathToShaders,true,true);
 	toneMapping = new ToneMapping(svs.pathToShaders);
@@ -211,6 +230,7 @@ SVCanvas::~SVCanvas()
 	// help
 	RR_SAFE_DELETE(helpImage);
 
+	RR_SAFE_DELETE(lightIcons);
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
 	RR_SAFE_DELETE(toneMapping);
@@ -452,13 +472,32 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		if (solver->realtimeLights.size())
 		{
-			if (selectedType!=ST_CAMERA)
+			// find scene distance, adjust search range to look only for closer lights
 			{
-				selectedType = ST_CAMERA;
+				ray->rayOrigin = svs.eye.pos;
+				// direction to mouse pointer
+				rr::RRVec3 directionToMouse = svs.eye.getDirection(mousePositionInWindow);
+				float directionToMouseLength = directionToMouse.length();
+				ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
+
+				ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
+				ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
+				ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+				ray->collisionHandler = collisionHandler;
+				if (solver->getMultiObjectCustom() && solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				{
+					// in next step, look only for closer lights
+					ray->rayLengthMax = ray->hitDistance;
+				}
+			}
+			// find light closer than scene
+			if (lightIcons->intersect(solver->getLights(),ray,sunIconPosition,iconSize))
+			{
+				parent->selectEntity(EntityId(ST_LIGHT,ray->hitTriangle),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
 			}
 			else
 			{
-				selectedType = ST_LIGHT;
+				selectedType = ST_CAMERA;
 			}
 		}
 	}
@@ -842,9 +881,11 @@ rendered:
 
 		if (svs.renderIcons)
 		{
+			// render light icons (changes program)
+			lightIcons->render(solver->getLights(),svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,sunIconPosition,iconSize);
 
 			// render light frames
-			solver->renderLights();
+			//solver->renderLights();
 		}
 
 		if (svs.renderHelpers

@@ -114,6 +114,11 @@ namespace rr_gl
 		FpsCounter                 fpsCounter;
 		FpsDisplay*                fpsDisplay;
 
+		// icons
+		rr::RRVec3                 sunIconPosition; // for dirlight icons
+		float                      iconSize; // for icons
+		class SVLightIcons*        lightIcons;
+
 
 		friend class SVFrame;
 

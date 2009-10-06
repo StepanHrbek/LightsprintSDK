@@ -435,7 +435,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_RENDER_WIREFRAME,_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
 		winMenu->Check(ME_RENDER_WIREFRAME,svs.renderWireframe);
 		winMenu->AppendSeparator();
-		winMenu->AppendCheckItem(ME_RENDER_ICONS,_T("Lights"),_T("Toggles rendering light wire models."));
+		winMenu->AppendCheckItem(ME_RENDER_ICONS,_T("Light icons"),_T("Toggles rendering light icons."));
 		winMenu->Check(ME_RENDER_ICONS,svs.renderIcons);
 		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);

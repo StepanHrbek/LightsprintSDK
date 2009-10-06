@@ -8,14 +8,15 @@ namespace rr
 
 \page main_news What's new
 
-\section news93 ------------------------------------ 2009.09.xx -------------------------------------
+\section news93 ------------------------------------ 2009.10.xx -------------------------------------
 
 NEWS
 
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
+   - added light icons
    - added scene properties window
 - improved water rendering in rr_gl::Water
-   - new parameters in rr_gl::Water::Water(), rr_gl::Water::render()
+   - see new parameters in rr_gl::Water::Water(), rr_gl::Water::render()
 
 \section news92 ------------------------------------ 2009.09.24 -------------------------------------
 

@@ -241,6 +241,7 @@ Ray-Mesh collisions
  - \subpage tpl_glew
  - \subpage tpl_wx
  - \subpage tpl_mesa
+ - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
  - \subpage tpl_freeimage
@@ -305,6 +306,10 @@ Ray-Mesh collisions
       OpenGL library located at <code>usr/lib</code>.
     - type <code>sudo make install</code>
     - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
+
+\page tpl_art 2d art
+  - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
+  - optional, remove by replacing <code>data/maps/sv_[point|spot|sun].png</code> images
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
@@ -684,6 +689,7 @@ Ray-Mesh collisions
 
   - Convert your scene to Collada format,
     and load it into CPULightmaps, BuildLightmaps, SceneViewer or Lightmaps sample.
+    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -2818,7 +2824,7 @@ Ray-Mesh collisions
     beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
     for more details about features supported.
     General Collada development is documented at <a href="http://collada.org">[collada.org]</a>.
-    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://sourceforge.net/project/showfiles.php?group_id=136478">[sourceforge.net]</a>.
+    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
   - <b>3DS</b> - very old but popular format, despite the fact that its specification was never
     officially released. It supports only one set of texture coordinates, therefore it is
     not suitable for static lightmaps (which typically require another mapping channel).
