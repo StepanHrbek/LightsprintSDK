@@ -69,6 +69,8 @@ public:
 
 private:
 	Model_3DS::Object* object;
+	
+	RRMaterial defaultGray;
 
 	// copy of object's indices
 	struct TriangleInfo
@@ -94,6 +96,7 @@ private:
 // Implementation is simpler with internal copies, although less memory efficient.
 RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 {
+	defaultGray.reset(false);
 	object = _model->Objects+_objectIdx;
 
 	for (unsigned i=0;i<(unsigned)object->numMatFaces;i++)
@@ -107,8 +110,8 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 			unsigned materialIndex = object->MatFaces[i].MatIndex;
 			if (materialIndex>=(unsigned)_model->numMaterials)
 			{
-				assert(0); // wrong data in .3ds
-				ti.material = NULL;
+				// no material found in .3ds
+				ti.material = &defaultGray;
 			}
 			else
 			{

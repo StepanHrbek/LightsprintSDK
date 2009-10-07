@@ -1139,6 +1139,19 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 			fseek(bin3ds, (h.len - 6), SEEK_CUR);
 		}
 	}
+	else
+	{
+		// Prehistorical file without materials encountered, panic (proceed without material)
+		Objects[objindex].MatFaces = new MaterialFaces[1];
+		Objects[objindex].numMatFaces = 1;
+		Objects[objindex].MatFaces[0].MatIndex = -1; // invalid index = no material
+		Objects[objindex].MatFaces[0].subFaces = new unsigned short[numFaces * 3];
+		Objects[objindex].MatFaces[0].numSubFaces = numFaces * 3;
+		for (int i = 0; i < numFaces * 3; i++)
+		{
+			Objects[objindex].MatFaces[0].subFaces[i] = Objects[objindex].Faces[i];
+		}
+	}
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
