@@ -81,6 +81,7 @@ public:
 				else
 				if ((polySize=sscanf(line,"f %d %d %d %d\n",positionIndex+0,positionIndex+1,positionIndex+2,positionIndex+3))>=3
 					|| (polySize=sscanf(line,"f %d/%d %d/%d %d/%d %d/%d\n",positionIndex+0,uvIndex+0,positionIndex+1,uvIndex+1,positionIndex+2,uvIndex+2,positionIndex+3,uvIndex+3)/2)>=3
+					|| (polySize=sscanf(line,"f %d//%d %d//%d %d//%d %d//%d\n",positionIndex+0,normalIndex+0,positionIndex+1,normalIndex+1,positionIndex+2,normalIndex+2,positionIndex+3,normalIndex+3)/2)>=3
 					|| (polySize=sscanf(line,"f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n",positionIndex+0,uvIndex+0,normalIndex+0,positionIndex+1,uvIndex+1,normalIndex+1,positionIndex+2,uvIndex+2,normalIndex+2,positionIndex+3,uvIndex+3,normalIndex+3)/3)>=3)
 				{
 					TriangleInfo ti;
