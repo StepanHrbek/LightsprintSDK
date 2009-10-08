@@ -959,14 +959,6 @@
 			>
 		</File>
 		<File
-			RelativePath="DynamicMeshDemo.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DynamicMeshDemo.h"
-			>
-		</File>
-		<File
 			RelativePath="FBO.cpp"
 			>
 		</File>
