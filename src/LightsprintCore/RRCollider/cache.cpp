@@ -52,7 +52,7 @@ void RRMesh::getHash(unsigned char out[20]) const
 	{
 		RRMesh::Vertex v;
 		getVertex(i,v);
-#if defined(XBOX) || defined(__PPC__)
+#ifdef RR_BIG_ENDIAN
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
@@ -63,7 +63,7 @@ void RRMesh::getHash(unsigned char out[20]) const
 	{
 		RRMesh::Triangle t;
 		getTriangle(i,t);
-#if defined(XBOX) || defined(__PPC__)
+#ifdef RR_BIG_ENDIAN
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&t)[j] = SWAP_32(((unsigned long*)&t)[j]);
 #endif
