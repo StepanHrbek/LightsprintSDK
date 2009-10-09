@@ -881,11 +881,16 @@ rendered:
 
 		if (svs.renderIcons)
 		{
-			// render light icons (changes program)
-			lightIcons->render(solver->getLights(),svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,sunIconPosition,iconSize);
-
-			// render light frames
-			//solver->renderLights();
+			if (lightIcons->isOk())
+			{
+				// render light icons (changes program)
+				lightIcons->render(solver->getLights(),svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,sunIconPosition,iconSize);
+			}
+			else
+			{
+				// render light frames
+				solver->renderLights();
+			}
 		}
 
 		if (svs.renderHelpers

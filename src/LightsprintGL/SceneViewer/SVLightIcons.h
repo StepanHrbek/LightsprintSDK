@@ -31,6 +31,7 @@ namespace rr_gl
 
 		void render(const rr::RRLights& lights, const Camera& eye, unsigned selectedIndex, rr::RRVec3 dirlightPosition, float iconSize);
 
+		bool isOk() const;
 	private:
 		// icon vertices are computed in worldspace to simplify ray-icon intersections
 		void getIconWorldVertices(const rr::RRLight& light, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], rr::RRVec3& dirlightPosition, float iconSize);

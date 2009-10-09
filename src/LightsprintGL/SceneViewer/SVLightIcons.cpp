@@ -203,6 +203,11 @@ void SVLightIcons::renderIcon(const rr::RRLight& light, const Camera& eye, rr::R
 	}
 }
 
+bool SVLightIcons::isOk() const
+{
+	return icon[0] && icon[1] && icon[2];
+}
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER
