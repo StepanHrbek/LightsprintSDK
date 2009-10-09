@@ -42,7 +42,6 @@ RRReporter/RRReporterPrintf.cpp \
 RRReporter/RRReporterWindow.cpp \
 RRReporter/RRReportInterval.cpp \
 RRCollider/bsp.cpp \
-RRCollider/cache.cpp \
 RRCollider/fpcube.cpp \
 RRCollider/geometry.cpp \
 RRCollider/IntersectBspCompact.cpp \
@@ -52,7 +51,6 @@ RRCollider/IntersectVerification.cpp \
 RRCollider/pcube.cpp \
 RRCollider/RRCollider.cpp \
 RRCollider/RRRay.cpp \
-RRCollider/sha1.cpp \
 RRDynamicSolver/environmentMap.cpp \
 RRDynamicSolver/gather.cpp \
 RRDynamicSolver/Interpolator.cpp \
@@ -60,6 +58,8 @@ RRDynamicSolver/lightmap.cpp \
 RRDynamicSolver/LightmapFilter.cpp \
 RRDynamicSolver/RRDynamicSolver.cpp \
 RRDynamicSolver/vertexBuffer.cpp \
+RRHash/sha1.cpp \
+RRHash/RRHash.cpp \
 RRMesh/RRMatrix3x4.cpp \
 RRMesh/RRMesh.cpp \
 RRMesh/RRMeshAccelerated.cpp \

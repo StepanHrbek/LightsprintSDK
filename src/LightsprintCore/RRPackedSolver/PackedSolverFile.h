@@ -11,7 +11,7 @@
 
 #define FACTOR_FORMAT 2 // 0: 32bit int/float overlap (lightsmark); 1: 32bit short+short; 2: 64bit int+float (SDK)
 
-#define FIREBALL_STRUCTURE_VERSION (8+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
+#define FIREBALL_STRUCTURE_VERSION (9+FACTOR_FORMAT) // change when file structere changes, old files will be overwritten
 #define FIREBALL_FILENAME_VERSION  2 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
@@ -503,7 +503,7 @@ public:
 	{
 		return packedFactors->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
 	}
-	bool save(const char* filename) const
+	bool save(const char* filename, const RRHash& hash) const
 	{
 		// create file
 		FILE* f = fopen(filename,"wb");
@@ -514,6 +514,7 @@ public:
 		header.packedFactorsBytes = packedFactors->getMemoryOccupied();
 		header.packedIverticesBytes = packedIvertices->getMemoryOccupied();
 		header.packedSmoothTrianglesBytes = packedSmoothTrianglesBytes;
+		header.hash = hash;
 		size_t ok = fwrite(&header,sizeof(header),1,f);
 		// save intensityTable
 		ok += fwrite(intensityTable,sizeof(intensityTable),1,f);
@@ -533,14 +534,14 @@ public:
 		fclose(f);
 		return true;
 	}
-	static PackedSolverFile* load(const char* filename)
+	static PackedSolverFile* load(const char* filename, const RRHash* hashThatMustMatch)
 	{
 		// open file
 		FILE* f = fopen(filename,"rb");
 		if (!f) return NULL;
 		// load header
 		Header header;
-		if (fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION)
+		if (fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION || (hashThatMustMatch && header.hash!=*hashThatMustMatch))
 		{
 			fclose(f);
 			return NULL;
@@ -592,6 +593,7 @@ protected:
 		unsigned packedFactorsBytes;
 		unsigned packedIverticesBytes;
 		unsigned packedSmoothTrianglesBytes;
+		RRHash hash; // we want to save only hash value, luckily RRHash contains only value
 	};
 };
 

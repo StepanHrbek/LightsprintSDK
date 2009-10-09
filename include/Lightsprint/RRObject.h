@@ -265,7 +265,7 @@ namespace rr
 		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
 
 
-		// collision helper
+		// other tools
 
 		//! Creates and returns collision handler, that finds closest visible surface.
 		//
@@ -276,15 +276,19 @@ namespace rr
 		//! (typical use case: for n threads, use 1 collider, n rays and n handlers.)
 		RRCollisionHandler* createCollisionHandlerFirstVisible() const;
 
-
-		// camera helper
-
 		//! Generates position and direction suitable for automatically placed camera.
 		//
 		//! All parameters are filled by function.
 		//! outMaxdist is upper bound for distance between two points in scene,
 		//! it could be used for setting camera far.
 		void generateRandomCamera(RRVec3& outPos, RRVec3& outDir, RRReal& outMaxdist) const;
+
+		//! Returns hash of object data. Slow (not cached).
+		//
+		//! Hashing covers object properties that affect realtime global illumination:
+		//! positions, normals, tangents, texcoords, material properties (even extracted from textures), transformation.
+		//! Hashing doesn't cover: full texture data, names, uv indices.
+		virtual RRHash getHash() const;
 	};
 
 

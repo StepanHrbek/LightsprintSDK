@@ -8,6 +8,19 @@ namespace rr
 
 \page main_news What's new
 
+\section news94 ------------------------------------ 2009.10.xx -------------------------------------
+
+NEWS
+
+- internal hashing functions exposed
+  - class RRHash and include/Lightsprint/RRHash.h added
+  - RRObject::getHash() added
+  - RRMesh::getHash() modified to return RRHash
+
+CHANGES
+
+- additional parameter in RRDynamicSolver::loadFireball()
+
 \section news93 ------------------------------------ 2009.10.06 -------------------------------------
 
 NEWS

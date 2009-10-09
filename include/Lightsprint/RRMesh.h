@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRDebug.h"
+#include "RRHash.h"
 #include <climits> // UNDEFINED/UINT_MAX
 
 namespace rr
@@ -315,8 +316,8 @@ namespace rr
 		//! In CG scenes, this is usually flat ground. Slow (not cached).
 		virtual RRReal       findGroundLevel() const;
 
-		//! Fills out by hash of mesh geometry (positions, not normals and uvs). Slow (not cached).
-		virtual void         getHash(unsigned char out[20]) const;
+		//! Returns hash of mesh geometry (positions, not normals and uvs). Slow (not cached).
+		virtual RRHash       getHash() const;
 
 		//! Reports inconsistencies found in mesh.
 		//

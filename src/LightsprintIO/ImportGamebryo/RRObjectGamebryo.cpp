@@ -1425,14 +1425,14 @@ public:
 		struct SortElement
 		{
 			RRIlluminatedObject illuminatedObject;
-			unsigned char hash[20];
+			RRHash hash;
 
 			SortElement() : illuminatedObject(NULL,NULL) {}
 			static int sortByHashes(const void* ptr1, const void* ptr2)
 			{
 				const SortElement* elem1 = (const SortElement*)ptr1;
 				const SortElement* elem2 = (const SortElement*)ptr2;
-				return memcmp(elem1->hash,elem2->hash,sizeof(elem1->hash));
+				return memcmp(elem1->hash.value,elem2->hash.value,sizeof(elem1->hash.value));
 			}
 		};
 		unsigned numElements = size();
@@ -1443,7 +1443,7 @@ public:
 			// calculates hash from mesh transformed to world space
 			// hashing in local space would produce identical hashes for mesh instances
 			RRMesh* worldSpaceMesh = sortElement[i].illuminatedObject.object->getCollider()->getMesh()->createTransformed(sortElement[i].illuminatedObject.object->getWorldMatrix());
-			worldSpaceMesh->getHash(sortElement[i].hash);
+			sortElement[i].hash = worldSpaceMesh->getHash();
 			delete worldSpaceMesh;
 		}
 		qsort(sortElement,numElements,sizeof(sortElement[0]),SortElement::sortByHashes);

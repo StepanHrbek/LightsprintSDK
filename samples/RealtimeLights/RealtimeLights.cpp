@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 	solver->setLights(*scene->getLights());
 
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
-	solver->loadFireball(NULL) || solver->buildFireball(350,NULL);
+	solver->loadFireball(NULL,true) || solver->buildFireball(350,NULL);
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);

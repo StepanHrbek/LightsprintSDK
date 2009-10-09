@@ -778,6 +778,26 @@
 	</References>
 	<Files>
 		<Filter
+			Name="RRHash"
+			>
+			<File
+				RelativePath=".\RRHash\RRHash.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRHash.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRHash\sha1.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRHash\sha1.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="RRCollider"
 			>
 			<File
@@ -818,14 +838,6 @@
 			</File>
 			<File
 				RelativePath="RRCollider\bsp.h"
-				>
-			</File>
-			<File
-				RelativePath="RRCollider\cache.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRCollider\cache.h"
 				>
 			</File>
 			<File
@@ -920,18 +932,6 @@
 				RelativePath="RRCollider\RRRay.cpp"
 				>
 			</File>
-			<Filter
-				Name="SHA1"
-				>
-				<File
-					RelativePath="RRCollider\sha1.cpp"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\sha1.h"
-					>
-				</File>
-			</Filter>
 			<Filter
 				Name="fpcube"
 				>

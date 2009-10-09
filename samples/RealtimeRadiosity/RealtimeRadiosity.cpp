@@ -416,7 +416,7 @@ int main(int argc, char **argv)
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
-	solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+	solver->loadFireball(NULL,true) || solver->buildFireball(5000,NULL);
 
 	glutMainLoop();
 	return 0;

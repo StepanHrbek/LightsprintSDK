@@ -21,10 +21,8 @@
 #include <cstdlib>
 
 #include "bsp.h"
-#include "cache.h"
 #include "IntersectLinear.h"
 #include "../LicGen.h"
-#include "sha1.h"
 
 namespace rr
 {
@@ -217,7 +215,7 @@ namespace rr
 		if (!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
 		BspTree* tree = NULL;
 		char name[300];
-		getFileName(name,300,TREE_VERSION,importer,cacheLocation,ext);
+		importer->getHash().getFileName(name,300,TREE_VERSION,cacheLocation,ext);
 
 		// try to load tree from disk
 		FILE* f;

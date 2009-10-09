@@ -11,7 +11,6 @@
 #include "Lightsprint/RRDynamicSolver.h"
 
 #pragma warning(disable:4530) // unrelated std::vector in private.h complains about exceptions
-#include "../RRCollider/cache.h"
 
 #include "../RRDynamicSolver/private.h"
 
@@ -271,11 +270,6 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 //
 // RRDynamicSolver
 
-void getFireballFilename(const RRObject* object,char filename[1000])
-{
-	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object ? object->getCollider()->getMesh() : NULL,NULL,".fireball");
-}
-
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
@@ -296,16 +290,17 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
 		);
 
+	RRHash hash = getMultiObjectPhysical()->getHash();
 	char filenameauto[1000];
 	if (!filename)
 	{
-		getFireballFilename(getMultiObjectCustom(),filenameauto);
+		hash.getFileName(filenameauto,999,FIREBALL_FILENAME_VERSION,NULL,".fireball");
 		filename = filenameauto;
 	}
 
 	if (filename[0])
 	{
-		if (packedSolverFile->save(filename))
+		if (packedSolverFile->save(filename,hash))
 			RRReporter::report(INF2,"Saved to %s\n",filename);
 		else
 		{
@@ -326,22 +321,23 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	return priv->packedSolver!=NULL;
 }
 
-bool RRDynamicSolver::loadFireball(const char* filename)
+bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 {
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
+	RRHash hash = getMultiObjectPhysical()->getHash();
 	char filenameauto[1000];
 	if (!filename)
 	{
-		getFireballFilename(getMultiObjectCustom(),filenameauto);
+		hash.getFileName(filenameauto,999,FIREBALL_FILENAME_VERSION,NULL,".fireball");
 		filename = filenameauto;
 	}
 
-	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename));
+	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));
 	if (priv->packedSolver)
 	{
-		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+		//RRReporter::report(INF2,"Loaded Fireball (%s, triangles=%d)\n",filename,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 		priv->packedSolver->setEmittance(1,16,false,getScaler());
 		priv->packedSolver->setEnvironment(getEnvironment(),getScaler());
 		updateVertexLookupTablePackedSolver();

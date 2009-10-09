@@ -673,7 +673,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (!fireballLoadAttempted)
 				{
 					fireballLoadAttempted = true;
-					solver->loadFireball(svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
+					solver->loadFireball(svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()),true);
 				}
 			}
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)

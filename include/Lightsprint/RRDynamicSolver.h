@@ -773,9 +773,16 @@ namespace rr
 		//! \param filename
 		//!  File with data to load, previously created by buildFireball().
 		//!  Set NULL to use automatically generated name (in your temp directory).
+		//! \param onlyPerfectMatch
+		//!  Loads file only if it was built for exactly the same scene on the same CPU architecture.
+		//!  Applications that build fireball on end-user machines should use true.
+		//!  Applications that ship with fireball pre-built by developer should use true
+		//!  during development (so that any change in scene results in rebuild)
+		//!  and false on end-user machines (so that supplied fireball is always loaded even if scene seems different;
+		//!  difference may be caused by different floation point precision on end-user's system).
 		//! \return
 		//!  True if successful.
-		bool loadFireball(const char* filename);
+		bool loadFireball(const char* filename, bool onlyPerfectMatch);
 
 		//! Switch to non-Fireball solver that supports offline calculations.
 		void leaveFireball();
