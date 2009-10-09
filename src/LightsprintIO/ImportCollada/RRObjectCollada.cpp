@@ -469,31 +469,36 @@ public:
 		imageCache = _imageCache;
 		emissiveMultiplier = _emissiveMultiplier;
 		invertedA_ONETransparency = false;
+		defaultMaterial.reset(false);
 	}
 	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
 		if (!materialInstance)
 		{
-			return NULL;
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (material instance missing).\n"));
+			return &defaultMaterial;
 		}
 
 #ifdef AGGRESSIVE_CACHE
 		const FCDMaterial* material = materialInstance->GetMaterial();
 		if (!material)
 		{
-			return NULL;
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (material instance missing 2).\n"));
+			return &defaultMaterial;
 		}
 
 		const FCDEffect* effect = material->GetEffect();
 		if (!effect)
 		{
-			return NULL;
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (effect missing).\n"));
+			return &defaultMaterial;
 		}
 
 		const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
 		if (!effectProfile)
 		{
-			return NULL;
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (effect profile missing).\n"));
+			return &defaultMaterial;
 		}
 
 		const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
@@ -517,19 +522,22 @@ public:
 			const FCDMaterial* material = materialInstance->GetMaterial();
 			if (!material)
 			{
-				return NULL;
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (material instance missing 2).\n"));
+				return &defaultMaterial;
 			}
 
 			const FCDEffect* effect = material->GetEffect();
 			if (!effect)
 			{
-				return NULL;
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (effect missing).\n"));
+				return &defaultMaterial;
 			}
 
 			const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
 			if (!effectProfile)
 			{
-				return NULL;
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (effect profile missing).\n"));
+				return &defaultMaterial;
 			}
 
 			const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
@@ -575,7 +583,7 @@ private:
 				else
 				{
 					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Software that produced Collada file is broken (texcoord binding missing).\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (texcoord binding missing).\n"));
 				}
 			}
 		}
@@ -654,6 +662,7 @@ private:
 	ImageCache* imageCache;
 	float emissiveMultiplier;
 	bool invertedA_ONETransparency; // workaround for Google Sketch Up bug
+	RRMaterial defaultMaterial;
 };
 
 
