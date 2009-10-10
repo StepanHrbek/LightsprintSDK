@@ -49,13 +49,18 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	RRVec4 sumOfSquares = RRVec4(0);
 	unsigned step = 1+numElements/2000; // test approximately 2000 samples
 	unsigned numElementsTested = 0;
-	for (unsigned i=0;i<numElements;i+=1+(rand()%step))
+	unsigned r = 1649317406;
+	for (unsigned i=0;i<numElements;)
 	{
 		RRVec4 elem = buffer->getElement(i);
 		if (scaler) scaler->getPhysicalFactor(elem);
 		sum += elem;
 		sumOfSquares += elem*elem;
 		numElementsTested++;
+		// texel selection must stay deterministic so that colors distilled from textures are always the same,
+		// hash is always the same and fireball does not ask for rebuild
+		r = (r * 1103515245) + 12345;
+		i+=1+((r>>8)%step);
 	}
 	average = sum/numElementsTested;
 	RRVec4 variance = sumOfSquares/numElementsTested-average*average;

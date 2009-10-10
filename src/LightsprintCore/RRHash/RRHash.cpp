@@ -105,6 +105,9 @@ RRHash RRObject::getHash() const
 
 			TriangleData(const RRObject* object, const RRMesh* mesh, unsigned t)
 			{
+				// without this, triangle mappings that don't exist would be uninitialized
+				memset(this,0,sizeof(*this));
+
 				mesh->getTriangle(t,triangle);
 #ifdef RR_BIG_ENDIAN
 				for (unsigned j=0;j<3;j++)
