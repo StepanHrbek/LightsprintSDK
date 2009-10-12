@@ -51,6 +51,10 @@ namespace rr_gl
 		//! Changes are processed when RealtimeLight::dirtyXxx flag is set.
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
+		//!
+		//! Initial near/far range for shadowmapping is set here (calculated from distance to static scene).
+		//! If you don't change range later in your code, make sure that static scene is already set (setStaticObjects)
+		//! and lights are in their typical positions when you call setLights().
 		virtual void setLights(const rr::RRLights& lights);
 		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRDynamicSolver* copyFrom = NULL);
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
