@@ -33,6 +33,26 @@ RRReal warnIfNegative(RRReal a, const char* name)
 	return a;
 }
 
+const RRVec3 warnIfZero(const RRVec3& a, const char* name)
+{
+	if (a==RRVec3(0) || !IS_VEC3(a))
+	{
+		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with invalid %s (%f %f %f).\n",name,a[0],a[1],a[2]));
+		return RRVec3(1,0,0);
+	}
+	return a;
+}
+
+const RRVec3 warnIfNaN(const RRVec3& a, const char* name)
+{
+	if (!IS_VEC3(a))
+	{
+		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with invalid %s (%f %f %f).\n",name,a[0],a[1],a[2]));
+		return RRVec3(0,0,0);
+	}
+	return a;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -46,7 +66,7 @@ public:
 	{
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
-		direction = _direction.normalized();
+		direction = warnIfZero(_direction,"direction").normalized();
 		color = warnIfNegative(_color,"color");
 		if (!_physicalScale)
 		{
@@ -75,7 +95,7 @@ public:
 	{
 		type = POINT;
 		distanceAttenuationType = PHYSICAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -101,7 +121,7 @@ public:
 	{
 		type = POINT;
 		distanceAttenuationType = NONE;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -124,7 +144,7 @@ public:
 	{
 		type = POINT;
 		distanceAttenuationType = EXPONENTIAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 		radius = warnIfNegative(_radius,"radius");
 		fallOffExponent = warnIfNegative(_fallOffExponent,"fallOffExponent");
@@ -156,7 +176,7 @@ public:
 	{
 		type = POINT;
 		distanceAttenuationType = POLYNOMIAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 		polynom = warnIfNegative(_polynom,"polynom");
 	}
@@ -186,9 +206,9 @@ public:
 	{
 		type = SPOT;
 		distanceAttenuationType = PHYSICAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
-		direction = _direction.normalized();
+		direction = warnIfZero(_direction,"direction").normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
@@ -225,9 +245,9 @@ public:
 	{
 		type = SPOT;
 		distanceAttenuationType = NONE;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
-		direction = _direction.normalized();
+		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
@@ -259,15 +279,13 @@ class SpotLightRadiusExp : public RRLight
 public:
 	SpotLightRadiusExp(const RRVec3& _position, const RRVec3& _color, RRReal _radius, RRReal _fallOffExponent, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
 	{
-		RR_ASSERT(IS_VEC3(_position));
-		RR_ASSERT(IS_VEC3(_direction));
 		type = SPOT;
 		distanceAttenuationType = EXPONENTIAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 		radius = warnIfNegative(_radius,"radius");
 		fallOffExponent = warnIfNegative(_fallOffExponent,"fallOffExponent");
-		direction = _direction.normalized();
+		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 	}
@@ -303,14 +321,12 @@ class SpotLightPoly : public RRLight
 public:
 	SpotLightPoly(const RRVec3& _position, const RRVec3& _color, RRVec4 _polynom, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad, RRReal _spotExponent)
 	{
-		RR_ASSERT(IS_VEC3(_position));
-		RR_ASSERT(IS_VEC3(_direction));
 		type = SPOT;
 		distanceAttenuationType = POLYNOMIAL;
-		position = _position;
+		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 		polynom = warnIfNegative(_polynom,"polynom");
-		direction = _direction.normalized();
+		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 		spotExponent = RR_CLAMPED(_spotExponent,0,1e10f);
