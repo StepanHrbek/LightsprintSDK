@@ -326,6 +326,13 @@ bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
+	// do nothing for empty scene
+	if (!getMultiObjectPhysical())
+	{
+		RRReporter::report(WARN,"Fireball not loaded, empty scene.\n");
+		return false;
+	}
+
 	RRHash hash;
 	if (!filename || onlyPerfectMatch) // save time, don't hash if we don't need it
 		hash = getMultiObjectPhysical()->getHash();
