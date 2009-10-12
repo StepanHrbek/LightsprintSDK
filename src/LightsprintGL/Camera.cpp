@@ -121,7 +121,7 @@ void Camera::setFar(float _far)
 void Camera::setRange(float _near, float _far)
 {
 	anear = RR_MAX(0.00000001f,_near);
-	afar = RR_MAX(_near*2,_far);
+	afar = RR_MAX(anear*2,_far);
 }
 
 void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
