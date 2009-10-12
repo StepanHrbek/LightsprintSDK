@@ -150,7 +150,9 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 					delete camera;
 				}
 			}
-			if (cod.getDistanceMax()>=cod.getDistanceMin())
+			if (cod.getDistanceMax()>=cod.getDistanceMin()
+				// better keep old range if detected distance is 0 (camera in wall?)
+				&& cod.getDistanceMax()>0)
 			{
 				realtimeLight->getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
 			}
