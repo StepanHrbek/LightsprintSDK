@@ -143,7 +143,23 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 					for (size_t m=reverse?polygons->GetInputCount():0; reverse?m--:(m<polygons->GetInputCount()); reverse?0:m++)
 					{
 						const FCDGeometryPolygonsInput* polygonsInput = polygons->GetInput(m);
-						if (polygonsInput && polygonsInput->GetSemantic()==semantic && (semantic!=FUDaeGeometryInput::TEXCOORD || polygonsInput->GetSet()==inputSet || inputSet==LIGHTMAP_CHANNEL || inputSet==UNSPECIFIED_CHANNEL))
+						if (polygonsInput && polygonsInput->GetSemantic()==semantic &&
+							(
+								semantic!=FUDaeGeometryInput::TEXCOORD ||
+
+								// typical data, optional "set" specified
+								// <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2" set="1"/> -> GetSet=1
+								// <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/> -> inputSet=1
+								polygonsInput->GetSet()==inputSet ||
+
+								// data from MeshLab, optional "set" not specified
+								// <input offset="2" semantic="TEXCOORD" source="#shape0-lib-map"/> -> GetSet=-1 (default in fcollda)
+								// <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD"/> -> inputSet=0 (default in fcollda)
+								polygonsInput->GetSet()==-1 ||
+
+								inputSet==LIGHTMAP_CHANNEL ||
+								inputSet==UNSPECIFIED_CHANNEL
+							))
 						{
 							const FCDGeometrySource* source = polygonsInput->GetSource();
 							if (source)
@@ -578,6 +594,8 @@ private:
 				const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
 				if (materialInstanceBindVertexInput) // is NULL in kalasatama.dae
 				{
+					// 1 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2" set="1"/>
+					// 0 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2"/> (data from meshlab, 0 is default in fcollada)
 					materialProperty.texcoord = materialInstanceBindVertexInput->inputSet;
 				}
 				else
