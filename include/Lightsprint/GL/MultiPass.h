@@ -26,6 +26,12 @@ namespace rr_gl
 class RR_GL_API MultiPass
 {
 public:
+
+	//! MultiPass takes your UberProgramSetup and returns its modified version for individual passes/lights,
+	//! taking light properties into account.
+	//! For render with all features according to light properties,
+	//! set at least SHADOW_MAPS,LIGHT_DIRECT,LIGHT_DIRECT_COLOR,LIGHT_DIRECT_MAP,LIGHT_DIRECT_ATT_SPOT.
+	//! If you clear any one of them, it will stay cleared for all lights.
 	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma, float clipPlaneY);
 
 	//! Returns true and all outXxx are set, do render.

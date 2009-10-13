@@ -41,9 +41,10 @@ public:
 	//! Sets parameters of render related to shader and direct illumination.
 	//
 	//! \param uberProgramSetup
-	//!  Specifies shader properties, including type of indirect illumination,
-	//!  vertex colors, ambient maps or none.
-	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
+	//!  Specifies shader properties, including light and material types supported.
+	//!  For render with all direct lighting/shadowing features according to light properties,
+	//!  enable at least SHADOW_MAPS,LIGHT_DIRECT,LIGHT_DIRECT_COLOR,LIGHT_DIRECT_MAP,LIGHT_DIRECT_ATT_SPOT;
+	//!  if you disabled one of them, it will stay disabled for all lights.
 	//! \param lights
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param renderingFromThisLight
