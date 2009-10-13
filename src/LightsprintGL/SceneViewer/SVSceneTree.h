@@ -37,7 +37,6 @@ namespace rr_gl
 
 		SceneViewerStateEx& svs;
 		bool allowEvents;
-		wxTreeCtrl* tc;
 		wxTreeItemId lights;
 		wxTreeItemId objects;
 		DECLARE_EVENT_TABLE()

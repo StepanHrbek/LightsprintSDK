@@ -34,14 +34,13 @@ SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
 	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400) ), svs(_svse)
 {
 	allowEvents = true;
-	tc = this;
 
-	wxTreeItemId root = tc->AddRoot("root");
-	lights = tc->AppendItem(root,"lights");
-	objects = tc->AppendItem(root,"objects");
+	wxTreeItemId root = AddRoot("root");
+	lights = AppendItem(root,"lights");
+	objects = AppendItem(root,"objects");
 
-	tc->Expand(root);
-	tc->Expand(lights); // wxmsw ignores this because lights is empty
+	Expand(root);
+	Expand(lights); // wxmsw ignores this because lights is empty
 }
 
 void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
@@ -52,23 +51,23 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	allowEvents = false;
 
 	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str) :
-	tc->SetItemText(tc->GetRootItem(),
+	SetItemText(GetRootItem(),
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
 		"scene");
 
-	tc->SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
-	tc->DeleteChildren(lights);
+	SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
+	DeleteChildren(lights);
 	for (unsigned i=0;solver && i<solver->getLights().size();i++)
 	{
-		tc->AppendItem(lights,wxString("light ")<<i,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
+		AppendItem(lights,wxString("light ")<<i,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 	}
 
-	tc->SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
-	tc->DeleteChildren(objects);
+	SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
+	DeleteChildren(objects);
 	for (unsigned i=0;solver && i<solver->getStaticObjects().size();i++)
 	{
 		const char* objectName = (const char*)solver->getObject(i)->getCustomData("const char* objectName");
-		tc->AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
+		AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 	}
 
 	allowEvents = true;
@@ -80,10 +79,10 @@ wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 	if (entity.type==ST_LIGHT)
 	{
 		wxTreeItemIdValue cookie;
-		wxTreeItemId item = tc->GetFirstChild(lights,cookie);
+		wxTreeItemId item = GetFirstChild(lights,cookie);
 		for (unsigned i=0;i<entity.index;i++)
 		{
-			item = tc->GetNextChild(lights,cookie);
+			item = GetNextChild(lights,cookie);
 		}
 		isOk = item.IsOk();
 		return item;
@@ -91,10 +90,10 @@ wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 	if (entity.type==ST_OBJECT)
 	{
 		wxTreeItemIdValue cookie;
-		wxTreeItemId item = tc->GetFirstChild(objects,cookie);
+		wxTreeItemId item = GetFirstChild(objects,cookie);
 		for (unsigned i=0;i<entity.index;i++)
 		{
-			item = tc->GetNextChild(objects,cookie);
+			item = GetNextChild(objects,cookie);
 		}
 		isOk = item.IsOk();
 		return item;
@@ -109,8 +108,8 @@ void SVSceneTree::selectItem(EntityId entity)
 	wxTreeItemId item = findItem(entity,isOk);
 	if (isOk)
 	{
-		tc->SelectItem(item,true);
-		tc->EnsureVisible(item);
+		SelectItem(item,true);
+		EnsureVisible(item);
 	}
 }
 
@@ -120,7 +119,7 @@ void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 	{
 		// our parent must be frame
 		SVFrame* frame = (SVFrame*)GetParent();
-		ItemData* data = (ItemData*)tc->GetItemData(event.GetItem());
+		ItemData* data = (ItemData*)GetItemData(event.GetItem());
 
 		if (data) // is non-NULL only in leaf nodes of tree
 		{
@@ -135,7 +134,7 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 	{
 		// our parent must be frame
 		SVFrame* frame = (SVFrame*)GetParent();
-		ItemData* data = (ItemData*)tc->GetItemData(event.GetItem());
+		ItemData* data = (ItemData*)GetItemData(event.GetItem());
 
 		if (data) // is non-NULL only in leaf nodes of tree
 		{
