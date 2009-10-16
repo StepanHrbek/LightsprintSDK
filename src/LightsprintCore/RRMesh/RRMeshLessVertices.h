@@ -51,7 +51,7 @@ public:
 		for (unsigned i=0;i<numVertices;i++)
 		{
 			inherited->getVertex(i,vertices[i].position);
-			vertices[i].normal = RRVec3(0,1,0); // fallback for vertices that don't belong to any triangle
+			vertices[i].normal = RRVec3(0); // clear normals
 			sortedVertices[i] = &vertices[i];
 		}
 		for (unsigned i=0;i<numTriangles;i++)
@@ -60,9 +60,17 @@ public:
 			RRMesh::TriangleNormals tn;
 			inherited->getTriangle(i,t);
 			inherited->getTriangleNormals(i,tn);
-			vertices[t[0]].normal = tn.vertex[0].normal;
-			vertices[t[1]].normal = tn.vertex[1].normal;
-			vertices[t[2]].normal = tn.vertex[2].normal;
+			// Two triangles may share vertex, yet have different normals.
+			// Simply using one of them fails in wop_padattic where tiny triangle has opposite normal, stitching fails if we pick the wrong normal.
+			// Therefore we weight normals by triangle area.
+			RRReal area = inherited->getTriangleArea(i);
+			vertices[t[0]].normal += tn.vertex[0].normal*area; // accumulate normals
+			vertices[t[1]].normal += tn.vertex[1].normal*area;
+			vertices[t[2]].normal += tn.vertex[2].normal*area;
+		}
+		for (unsigned i=0;i<numVertices;i++)
+		{
+			vertices[i].normal.normalizeSafe(); // normalize normals
 		}
 		qsort(sortedVertices,numVertices,sizeof(Vertex*),compareXyz);
 
