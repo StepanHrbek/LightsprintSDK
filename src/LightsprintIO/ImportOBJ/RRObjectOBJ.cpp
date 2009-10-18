@@ -11,6 +11,8 @@
 //
 // Unlike adapters for other formats, this one doesn't adapt 3rd party structure
 // in memory, it loads scene directly form file.
+//
+// http://local.wasp.uwa.edu.au/~pbourke/dataformats/obj/
 
 #include <cstdio>
 #include <vector>
