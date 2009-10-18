@@ -50,6 +50,7 @@
 #include "FCDocument/FCDMaterialInstance.h"
 #include "FCDocument/FCDSceneNode.h"
 #include "FCDocument/FCDTexture.h"
+#include "FCDocument/FCDVersion.h"
 #include "FUtils/FUFileManager.h"
 
 #include "RRObjectCollada.h"
@@ -1117,7 +1118,12 @@ public:
 		FCollada::LoadDocumentFromFile(scene->scene_dae,filename);
 		if (!errorHandler.IsSuccessful())
 		{
-			RRReporter::report(ERRO,"%s\n",errorHandler.GetErrorString());
+			FCDVersion version = scene->scene_dae->GetVersion();
+			FCDVersion versionWanted("1.4.1");
+			bool wrongVersion = version<versionWanted || version>versionWanted;
+			if (wrongVersion)
+				RRReporter::report(ERRO,"Collada %d.%d.%d is not fully supported, please use Collada 1.4.1. We recommend OpenCollada plugins for Max and Maya, http://opencollada.org. (%s)\n",version.major,version.minor,version.revision,filename);
+			RRReporter::report(wrongVersion?WARN:ERRO,"%s\n",errorHandler.GetErrorString());
 			scene->objects = NULL;
 			scene->lights = NULL;
 			delete scene;
