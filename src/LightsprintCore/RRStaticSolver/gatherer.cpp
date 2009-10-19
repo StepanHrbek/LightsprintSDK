@@ -61,6 +61,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		}
 		return Channels(0);
 	}
+
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray->hitDistance));
 	Triangle* hitTriangle = &triangle[ray->hitTriangle];
@@ -69,80 +70,82 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 	Channels exitance = Channels(0);
 	if (side.legal && (side.catchFrom || side.emitTo))
 	{
-		// diffuse reflection + emission
-		if (side.emitTo)
-		{
-			// we admit we emit everything to both sides of 2sided face, thus doubling energy
-			// this behaviour will be probably changed later
-			//float splitToTwoSides = material->sideBits[ray->hitFrontSide?1:0].emitTo ? 0.5f : 1;
-
-			// diffuse reflection
-			if (gatherIndirectLight)
-			{
-				// used in GI final gather
-				// point detail version
-				exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color;// * splitToTwoSides;
-				// per triangle version (ignores point detail even if it's already available)
-				//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
-			}
-			// diffuse emission
-			if (gatherDirectEmitors)
-			{
-				// used in direct lighting final gather [per pixel emittance]
-				exitance += visibility * material->diffuseEmittance.color;// * splitToTwoSides;
-			}
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-		}
-
+		// work with ray+material before we recurse and overwrite them
+		bool   specularReflect = false;
 		RRVec3 specularReflectPower;
-		RRVec3 specularTransmitPower;
 		RRReal specularReflectMax;
+		RRVec3 specularReflectDir;
+		bool   specularTransmit = false;
+		RRVec3 specularTransmitPower;
 		RRReal specularTransmitMax;
-		bool specularReflect = false;
-		bool specularTransmit = false;
+		RRVec3 specularTransmitDir;
 		if (side.reflect)
 		{
 			specularReflectPower = visibility*material->specularReflectance.color;
 			specularReflectMax = specularReflectPower.maxi();
 			specularReflect = russianRoulette.survived(specularReflectMax);
+			if (specularReflect)
+			{
+				// calculate new direction after ideal mirror reflection
+				specularReflectDir = RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
+			}
 		}
 		if (side.transmitFrom)
 		{
 			specularTransmitPower = visibility*material->specularTransmittance.color;
 			specularTransmitMax = specularTransmitPower.maxi();
 			specularTransmit = russianRoulette.survived(specularTransmitMax);
-		}
-
-		if (specularReflect || specularTransmit)
-		{
-			// calculate hitpoint
-			RRVec3 hitPoint3d=eye+direction*ray->hitDistance;
-
-			// parameters of transmission must be computed in advance, recursive reflection destroys ray and material content
-			RRVec3 newDirectionTransmit;
-			unsigned hitTriangleTransmit = ray->hitTriangle;
 			if (specularTransmit)
 			{
 				// calculate new direction after refraction
-				newDirectionTransmit = -refract(ray->hitPlane,direction,material->refractionIndex);
+				specularTransmitDir = -refract(ray->hitPlane,direction,material->refractionIndex);
 			}
+		}
+		RRVec3 hitPoint3d=eye+direction*ray->hitDistance;
 
-			if (specularReflect)
+		// copy remaining ray+material data to local stack
+		unsigned rayHitTriangle = ray->hitTriangle;
+
+		// diffuse reflection + emission
+		if (side.emitTo)
+		{
+			// we emit everything to both sides of 2sided face, thus doubling energy
+			// this may be changed later
+			//float splitToTwoSides = material->sideBits[ray->hitFrontSide?1:0].emitTo ? 0.5f : 1;
+
+			// diffuse emission
+			if (gatherDirectEmitors)
 			{
-				// calculate new direction after ideal mirror reflection
-				RRVec3 newDirectionReflect = RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
-				// recursively call this function
-				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionReflect,ray->hitTriangle,specularReflectPower/specularReflectMax);
-				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+				// used in direct lighting final gather [per pixel emittance]
+				exitance += visibility * material->diffuseEmittance.color;// * splitToTwoSides;
 			}
 
-			if (specularTransmit)
+			// diffuse reflection
+			if (gatherIndirectLight)
 			{
-				// recursively call this function
-				exitance += gatherPhysicalExitance(hitPoint3d,newDirectionTransmit,hitTriangleTransmit,specularTransmitPower/specularTransmitMax);
-				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+				// used in GI final gather
+				{
+					// point detail version
+					exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color;// * splitToTwoSides;
+					// per triangle version (ignores point detail even if it's already available)
+					//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
+				}
 			}
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+		}
 
+		if (specularReflect)
+		{
+			// recursively call this function
+			exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax);
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+		}
+
+		if (specularTransmit)
+		{
+			// recursively call this function
+			exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax);
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 	}
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
