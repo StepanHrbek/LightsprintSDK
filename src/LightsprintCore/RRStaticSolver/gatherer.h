@@ -161,7 +161,9 @@ public:
 	//! Individual calls to gather() are independent.
 	//! \param visibility
 	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
-	RRVec3 gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility);
+	//! \param numBounces
+	//!  Unused.
+	RRVec3 gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleNumber, RRVec3 visibility, unsigned numBounces);
 
 protected:
 	// helper structures

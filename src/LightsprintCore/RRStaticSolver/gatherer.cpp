@@ -34,7 +34,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	russianRoulette.reset();
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility)
+RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility, unsigned numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -137,14 +137,14 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		if (specularReflect)
 		{
 			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax);
+			exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
 		if (specularTransmit)
 		{
 			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax);
+			exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 	}

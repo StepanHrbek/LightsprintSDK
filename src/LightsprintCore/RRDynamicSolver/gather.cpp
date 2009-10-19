@@ -228,7 +228,7 @@ public:
 		RRVec3 dir = getRandomExitDirNormalized(fillerDir,basisOrthonormal);
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1));
+		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{
