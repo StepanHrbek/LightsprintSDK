@@ -252,9 +252,11 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 								unsigned clipped = 0;
 								for (unsigned v=0;v<3;v++)
 								{
+									//float x = model->mVertices[ti.t[v]].mPosition[0]*0.015f;
 									float y = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
 									float z = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
 									if (y<-18.2f || z>11.5f) clipped++;
+									//if (x<23||x>24||y<-6||y>-4||z<-5||z>-3) clipped++; // zoom on geometry errors
 								}
 								if (clipped==3) continue;
 							}
