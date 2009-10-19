@@ -50,13 +50,16 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		error("",false);
 	}
 
+	// smoothuje scenu.
+	// pozor, odstrani pritom triangly v zavislosti na vysledcich floatovych operaci, ruzna cpu ruzne triangly.
+	// jine cpu pak nemuze pouzit mnou predpocitany .fireball
+	// a) nesmoothovat
+	// b) smoothovat a pocitat fireball u uzivatele 
+	// c) smoothovat, dodat svuj fireball, pripustit ze nekteri uzivatele si spocitaj jinej (musel by mit stejnou kvalitu)
 	rr::RRDynamicSolver::SmoothingParameters sp;
-	//zapnuti techto 2 radek zrychli sponzu o 15% 
-	//sp.minFeatureSize = 0.15f;
-	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
-	//sp.vertexWeldDistance = -1; // vypnuty weld by teoreticky nemel skodit, ale prakticky zpomaluje updatevbuf i render(useOriginal), nevim proc
-	//sp.vertexWeldDistance = -1; // vypnuty weld mozna zlepsi nahravani map z WoP
-	sp.minFeatureSize = pilot.setup->minFeatureSize;
+	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
+	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
+	sp.minFeatureSize = pilot.setup->minFeatureSize; // asi se zapeka do fireballu, nestaci zmenit zde, nutny jeste rebuild fireballu
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
