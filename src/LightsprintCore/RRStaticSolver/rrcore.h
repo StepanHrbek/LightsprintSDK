@@ -336,7 +336,12 @@ public:
 
 	real    avgAccuracy();
 
-	PackedSolverFile* packSolver(unsigned raysFromTriangle);
+	//! \param raysFromTriangle
+	//!  Average number of rays per triangle, increases calculation time and quality.
+	//! \param importanceOfDetails
+	//!  0=optimize for big picture, features are calculated at quality proportional to their size, micropolygons are noisy
+	//!  1=optimize for details, all features are calculated at the same quality, even micropolygons
+	PackedSolverFile* packSolver(unsigned raysFromTriangle, float importanceOfDetails);
 
 	private:
 		int     phase;

@@ -767,7 +767,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
-				unsigned quality = DEFAULT_FIREBALL_QUALITY;
+				static unsigned quality = DEFAULT_FIREBALL_QUALITY;
 				if (getQuality("Fireball build",this,quality))
 				{
 					svs.renderLightDirect = LD_REALTIME;

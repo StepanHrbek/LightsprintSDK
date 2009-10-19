@@ -29,13 +29,14 @@ public:
 	virtual bool requestsRealtimeResponse() {return false;}
 };
 
-PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
+PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importanceOfDetails)
 {
 	if (object->triangles>PackedFactor::MAX_TRIANGLES)
 	{
 		RRReporter::report(WARN,"Fireball not created, max %d triangles per solver supported.\n",PackedFactor::MAX_TRIANGLES);
 		return NULL;
 	}
+	RR_CLAMP(importanceOfDetails,0,1);
 
 
 	/////////////////////////////////////////////////////////////////////////
@@ -46,14 +47,15 @@ PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 	skyPatchHitsForAllTriangles = new PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
 
 	RRReal sceneArea = 0;
+	unsigned* actualRaysFromTriangle = new unsigned[object->triangles];
 
-	if (raysFromTriangle)
 	{
 		abortStaticImprovement();
 		for (unsigned t=0;t<object->triangles;t++)
 		{
 			if (object->triangle[t].surface)
 				sceneArea += object->triangle[t].area;
+			actualRaysFromTriangle[t] = 1; // if we don't overwrite it later, 1 is safe default (for division)
 		}
 		if (sceneArea)
 		{
@@ -67,8 +69,10 @@ PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 
 					// update factors - one triangle
 					NeverEnd neverEnd;
-					unsigned shotsForFactors = RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea));
-					refreshFormFactorsFromUntil(&object->triangle[t],shotsForFactors,neverEnd);
+					float shotsForFactors_bigPicture = avgRaysFromTriangle*object->triangles*object->triangle[t].area/sceneArea;
+					unsigned shotsForFactors_details = avgRaysFromTriangle;
+					unsigned shotsForFactors = RR_MAX(1,(unsigned)(shotsForFactors_bigPicture*(1-importanceOfDetails) + shotsForFactors_details*importanceOfDetails));
+					refreshFormFactorsFromUntil(&object->triangle[t],actualRaysFromTriangle[t]=shotsForFactors,neverEnd);
 				}
 			}
 
@@ -219,8 +223,7 @@ PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 		// reset solver to direct from sky patch
 		for (unsigned t=0;t<object->triangles;t++)
 		{
-			unsigned shotsForFactors = RR_MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea));
-			directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/shotsForFactors);
+			directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/actualRaysFromTriangle[t]);
 		}
 		resetStaticIllumination(false,true,NULL,NULL,directIrradiancePhysicalRGB);
 
@@ -248,6 +251,7 @@ PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 		pfh->packedSkyTriangleFactor.setSkyTriangleFactor(skyPatchHitsForAllTriangles[t],packedSolverFile->intensityTable);
 	}
 	RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
+	RR_SAFE_DELETE_ARRAY(actualRaysFromTriangle);
 
 
 	// return
@@ -259,9 +263,9 @@ PackedSolverFile* Scene::packSolver(unsigned raysFromTriangle)
 //
 // RRStaticSolver
 
-const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
+const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, float importanceOfDetails)
 {
-	const PackedSolverFile* packedSolverFile = scene->packSolver(raysPerTriangle);
+	const PackedSolverFile* packedSolverFile = scene->packSolver(raysPerTriangle,importanceOfDetails);
 	return packedSolverFile;
 }
 
@@ -272,6 +276,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
+	float importanceOfDetails = 0.1f;
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
@@ -281,7 +286,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		RRReporter::report(WARN,"Fireball not built, empty scene.\n");
 		return false;
 	}
-	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle);
+	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle,importanceOfDetails);
 	if (!packedSolverFile)
 		return false;
 	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",

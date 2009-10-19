@@ -174,7 +174,7 @@ namespace rr
 		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
 
 		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
-		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle);
+		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle, float importanceOfDetails);
 
 	private:
 		class Scene*  scene;
