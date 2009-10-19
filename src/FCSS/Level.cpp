@@ -2,8 +2,9 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
-const unsigned REBUILD_FIB = 0; // 1 = rebuild precomputed .fib (fireball)
-const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail map)
+const unsigned REBUILD_FIB = 0; // 1 = rebuild precomputed .fib (fireball)          0 = build at low quality only if it's missing
+const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail map)  0 = build at low quality only if it's missing
+// jeste pomaha v RRMaterial.cpp zmenit "minimalQualityForPointMaterials =" na 1, udela vsude point matrose
 
 extern rr_gl::RRDynamicSolverGL* createSolver();
 extern void error(const char* message, bool gfxRelated);

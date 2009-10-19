@@ -828,7 +828,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	hemisphere.done();
 	gilights.done();
 
-	// convert result to indirect detail map
+	// convert result to light detail map
 	if (pti.context.params->lowDetailForLightDetailMap)
 	{
 		RRVec3 irradianceIndirectLowDetail(0);
