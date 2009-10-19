@@ -522,9 +522,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		rr::RRVec3 color = light->getRRLight().color;
 		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
-			color[0] = pow(color[0],0.45f);
-			color[1] = pow(color[1],0.45f);
-			color[2] = pow(color[2],0.45f);
+			color[0] = color[0]<0?-pow(-color[0],0.45f):pow(color[0],0.45f);
+			color[1] = color[1]<0?-pow(-color[1],0.45f):pow(color[1],0.45f);
+			color[2] = color[2]<0?-pow(-color[2],0.45f):pow(color[2],0.45f);
 		}
 		program->sendUniform("lightDirectColor",color[0],color[1],color[2],1.0f);
 	}
