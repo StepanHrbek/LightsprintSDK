@@ -17,6 +17,8 @@
 #include "../RRDynamicSolver/report.h"
 #include "../RRMathPrivate.h"
 
+//#define SMALL_SHOOTERS_MORE_IMPORTANT
+
 namespace rr
 {
 
@@ -89,7 +91,7 @@ public:
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 	RRReal area;
 	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
-	RRReal areaInv;
+	RRReal areaInv;               // area^-1
 	const RRMaterial* material;   // may be replaced by RRVec3 diffuseReflectance,diffuseEmittance;
 
 	// used by solver during calculation
@@ -104,6 +106,7 @@ public:
 	{
 		// to save time, incident flux is not multiplied by diffuseReflectance
 		// this makes importance slightly incorrect, but it probably still pays off
+		// makes 2*brighter and 2*bigger shooters equally important
 		return incidentFluxToDiffuse.sum() + emissiveFluxToDiffuse.sum();
 	}
 
