@@ -111,7 +111,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	if (REBUILD_FIB)
 		solver->buildFireball(5000,fbname);
 	else
-		solver->loadFireball(fbname) || solver->buildFireball(1000,fbname);
+		solver->loadFireball(fbname,false) || solver->buildFireball(1000,fbname);
 	free(fbname);
 
 	/*/ autodetect positions in center of scene
