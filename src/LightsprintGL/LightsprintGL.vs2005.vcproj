@@ -801,6 +801,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVComment.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVComment.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVFrame.cpp"
 				>
 			</File>

@@ -140,6 +140,8 @@ namespace rr_gl
 			ME_ABOUT,
 		};
 
+		SVCanvas*                m_canvas; // public only for SVSceneTree, SVComment
+		class SVSceneTree*       m_sceneTree; // public only for SVComment
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
@@ -160,10 +162,8 @@ namespace rr_gl
 		unsigned                 currentWindowLayout;
 		wxString                 windowLayout[3];
 		wxAuiManager             m_mgr;
-		SVCanvas*                m_canvas;
 		class SVSceneProperties* m_sceneProperties;
 		class SVLightProperties* m_lightProperties;
-		class SVSceneTree*       m_sceneTree;
 
 		DECLARE_EVENT_TABLE()
 	};

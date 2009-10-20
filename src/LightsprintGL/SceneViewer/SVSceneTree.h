@@ -30,6 +30,8 @@ namespace rr_gl
 
 		void OnSelChanged(wxTreeEvent& event);
 		void OnItemActivated(wxTreeEvent& event);
+
+		//! Forwards all unused keys to canvas.
 		void OnKeyDown(wxTreeEvent& event);
 
 	private:

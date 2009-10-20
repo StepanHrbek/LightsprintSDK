@@ -533,13 +533,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 #else
 			const float mouseSensitivity = 0.005f;
 #endif
-			if (selectedType==ST_CAMERA || selectedType==ST_OBJECT)
-			{
-				svs.eye.angle -= mouseSensitivity*x*(svs.eye.getFieldOfViewVerticalDeg()/90);
-				svs.eye.angleX -= mouseSensitivity*y*(svs.eye.getFieldOfViewVerticalDeg()/90);
-				RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			}
-			else
 			if (selectedType==ST_LIGHT)
 			{
 				if (svs.selectedLightIndex<solver->getLights().size())
@@ -555,6 +548,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					light->update();
 					light->pos -= light->dir*0.3f;
 				}
+			}
+			else
+			{
+				svs.eye.angle -= mouseSensitivity*x*(svs.eye.getFieldOfViewVerticalDeg()/90);
+				svs.eye.angleX -= mouseSensitivity*y*(svs.eye.getFieldOfViewVerticalDeg()/90);
+				RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			}
 			solver->reportInteraction();
 		}

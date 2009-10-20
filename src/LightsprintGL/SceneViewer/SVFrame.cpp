@@ -59,6 +59,8 @@ static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 	choices.Add("1000 - high");
 	choices.Add("3000");
 	choices.Add("10000 - very high");
+	choices.Add("30000");
+	choices.Add("100000");
 	wxSingleChoiceDialog dialog(parent,title,"Please select quality",choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
@@ -989,6 +991,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				delete icon;
 			}
 			break;
+
+			
 	}
 
 	UpdateMenuBar();
@@ -1017,6 +1021,7 @@ EntityId SVFrame::getSelectedEntity() const
 		case ST_OBJECT:
 			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
 		case ST_CAMERA:
+			return EntityId(m_canvas->selectedType,0);
 		default:
 			return EntityId(m_canvas->selectedType,0);
 	}
@@ -1061,6 +1066,7 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 		case ST_CAMERA:
 			m_canvas->selectedType = entity.type;
 			break;
+
 	}
 
 	if (updateSceneTree && m_sceneTree)

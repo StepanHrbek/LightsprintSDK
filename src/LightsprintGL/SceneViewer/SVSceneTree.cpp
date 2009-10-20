@@ -31,16 +31,19 @@ public:
 // SVSceneTree
 
 SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
-	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400) ), svs(_svse)
+	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400), wxTR_HAS_BUTTONS|wxBORDER_SIMPLE ), svs(_svse)
 {
 	allowEvents = true;
 
 	wxTreeItemId root = AddRoot("root");
+
 	lights = AppendItem(root,"lights");
+
 	objects = AppendItem(root,"objects");
 
-	Expand(root);
+
 	Expand(lights); // wxmsw ignores this because lights is empty
+	Expand(root); // must go after appends, otherwise it does not expand
 }
 
 void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
@@ -70,36 +73,27 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 	}
 
+
 	allowEvents = true;
 }
 
 wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 {
-	wxTreeItemId item; // invalid
-	if (entity.type==ST_LIGHT)
+	wxTreeItemId searchRoot;
+	switch (entity.type)
 	{
-		wxTreeItemIdValue cookie;
-		wxTreeItemId item = GetFirstChild(lights,cookie);
-		for (unsigned i=0;i<entity.index;i++)
-		{
-			item = GetNextChild(lights,cookie);
-		}
-		isOk = item.IsOk();
-		return item;
+		case ST_LIGHT: searchRoot = lights; break;
+		case ST_OBJECT: searchRoot = objects; break;
+		case ST_CAMERA: isOk = false; return wxTreeItemId();
 	}
-	if (entity.type==ST_OBJECT)
+	wxTreeItemIdValue cookie;
+	wxTreeItemId item = GetFirstChild(searchRoot,cookie);
+	for (unsigned i=0;i<entity.index;i++)
 	{
-		wxTreeItemIdValue cookie;
-		wxTreeItemId item = GetFirstChild(objects,cookie);
-		for (unsigned i=0;i<entity.index;i++)
-		{
-			item = GetNextChild(objects,cookie);
-		}
-		isOk = item.IsOk();
-		return item;
+		item = GetNextChild(searchRoot,cookie);
 	}
-	isOk = false;
-	return wxTreeItemId();
+	isOk = item.IsOk();
+	return item;
 }
 
 void SVSceneTree::selectItem(EntityId entity)
@@ -145,13 +139,10 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 
 void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 {
-	switch (event.GetKeyCode())
-	{
-		case WXK_DELETE:
-			// our parent must be frame
-			GetParent()->ProcessWindowEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_DELETE));
-			break;
-	}
+	// our parent must be frame
+	SVFrame* frame = (SVFrame*)GetParent();
+	wxKeyEvent keyEvent = event.GetKeyEvent();
+	frame->m_canvas->OnKeyDown(keyEvent);
 }
 
 BEGIN_EVENT_TABLE(SVSceneTree, wxTreeCtrl)

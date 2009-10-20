@@ -13,6 +13,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
+#include <vector>
 
 namespace rr_gl
 {
