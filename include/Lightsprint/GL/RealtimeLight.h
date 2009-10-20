@@ -87,6 +87,11 @@ public:
 	//! Returns recommended number of shadow samples for given light type and instance.
 	unsigned getNumShadowSamples(unsigned instance) const;
 
+	//! Renders only shadows, no illumination. This is useful for simulating indirect shadows.
+	//! Works only in presence of indirect illumination, shadows are subtracted from indirect illumination.
+	//! When rendering with multiple lights, works only in first light.
+	bool shadowOnly;
+
 	//! Shape of light source area.
 	//
 	//! Area light is simulated by multiple spot lights.

@@ -7,6 +7,7 @@
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
+//  #define SHADOW_ONLY
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP

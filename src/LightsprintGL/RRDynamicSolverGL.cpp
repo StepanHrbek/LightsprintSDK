@@ -203,7 +203,7 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 	if (realtimeLights.size())
 	{
 		bool dirtyGI = false;
-		for (unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI;
+		for (unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI && !realtimeLights[i]->shadowOnly;
 		if (dirtyGI)
 		{
 			double now = GETSEC;
@@ -378,6 +378,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			delete[] light->smallMapCPU;
 			light->numTriangles = numTriangles;
 			light->smallMapCPU = new unsigned[numTriangles+2047]; // allocate more so we can read complete last line from GPU, including unused values
+			memset(light->smallMapCPU,0,sizeof(unsigned)*(numTriangles+2047)); // shadowOnly is not updated, but it is accumulated
 			light->dirtyGI = true;
 		}
 
@@ -385,9 +386,12 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		if (light->dirtyGI)
 		{
 			light->dirtyGI = false;
-			if (observer) light->positionOfLastDDI = observer->pos;
-			setupShaderLight = light;
-			updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+			if (!light->shadowOnly)
+			{
+				if (observer) light->positionOfLastDDI = observer->pos;
+				setupShaderLight = light;
+				updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+			}
 		}
 	}
 

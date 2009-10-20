@@ -60,6 +60,7 @@ struct RR_GL_API UberProgramSetup
 	unsigned SHADOW_SAMPLES                :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
 	bool     SHADOW_PENUMBRA               :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
 	bool     SHADOW_CASCADE                :1; ///< Enables cascading of all shadowmaps, used by cascaded shadowmapping.
+	bool     SHADOW_ONLY                   :1; ///< Renders only direct shadows without direct illumination. Must be combined with indirect illumination, shadows are subtracted from indirect light. Has no visible effect if there's no indirect light.
 
 	bool     LIGHT_DIRECT                  :1; ///< Enables direct light. All enabled LIGHT_DIRECT_XXX are multiplied.
 	bool     LIGHT_DIRECT_COLOR            :1; ///< Enables modulation of direct light by constant color.

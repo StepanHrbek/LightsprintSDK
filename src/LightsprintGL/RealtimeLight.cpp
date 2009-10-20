@@ -30,6 +30,7 @@ namespace rr_gl
 		parent = new Camera(_rrlight);
 		deleteParent = true;
 		shadowmapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
+		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
 		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;

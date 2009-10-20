@@ -7,6 +7,7 @@
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
+//  #define SHADOW_ONLY
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
@@ -307,6 +308,16 @@ void main()
 			SHADOWMAP_LOOKUP(shadowMap9,9);
 		#endif
 
+		#ifdef SHADOW_PENUMBRA
+			visibility /= float(SHADOW_SAMPLES*SHADOW_MAPS);
+		#else
+			visibility /= float(SHADOW_SAMPLES);
+		#endif
+
+		#ifdef SHADOW_ONLY
+			visibility -= 1.0;
+		#endif
+
 	#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
 
@@ -386,11 +397,7 @@ void main()
 				* clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 )
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
-				#ifdef SHADOW_PENUMBRA
-					* visibility/float(SHADOW_SAMPLES*SHADOW_MAPS)
-				#else
-					* visibility/float(SHADOW_SAMPLES)
-				#endif
+				* visibility
 			#endif
 			;
 	#endif

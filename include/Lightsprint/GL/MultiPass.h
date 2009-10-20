@@ -10,6 +10,7 @@
 
 #include "UberProgramSetup.h"
 #include "RendererOfRRObject.h"
+#include "PreserveState.h"
 
 namespace rr_gl
 {
@@ -54,6 +55,8 @@ protected:
 	int separatedZPass; ///< Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
 	int separatedAmbientPass; ///< Ambient pass is separated if there are no lights to piggyback on.
 	int lightIndex;
+	PreserveBlend p1;
+	PreserveBlendFunc p2;
 };
 
 }; // namespace
