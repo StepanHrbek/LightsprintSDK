@@ -180,6 +180,9 @@ void SVFrame::UpdateEverything()
 	// loads scene if it is specified by filename
 	m_canvas = new SVCanvas( svs, this, newSize);
 
+	// loads comments (if found)
+	SVSaveLoad::loadComments(svs);
+
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
 	Show(true);
 
@@ -462,9 +465,9 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Layout 1"));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Layout 2"));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Layout 3"));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3"));
 		winMenu->Check(ME_WINDOW_LAYOUT1+currentWindowLayout,true);
 		menuBar->Append(winMenu, _T("Window"));
 	}

@@ -15,7 +15,10 @@
 #include "SVApp.h"
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+
 
 namespace boost
 {
@@ -191,10 +194,11 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 	ar & make_nvp("dir",a.dir);
 }
 
+
 //------------------------- SceneViewerStateEx ------------------------------
 
 template<class Archive>
-void save(Archive& ar, const rr_gl::SceneViewerStateEx& a, const unsigned int version)
+void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int version)
 {
 	ar & make_nvp("eye",a.eye);
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
