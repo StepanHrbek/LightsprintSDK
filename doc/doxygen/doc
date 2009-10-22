@@ -2455,6 +2455,16 @@ Ray-Mesh collisions
     - To bake indirect illumination only,
       set light properties UseForPrecomputedLighting, LightPCLObjectsAtRuntime and LightNonPCLObjectsAtRuntime to true.
 
+   \subsection g30_resolution - lightmap resolution
+    - LightsprintScene and LightsprintMesh properties let you control lightmap resolution globally and then tweak it for individual meshes.
+    - For fixed resolution, change mesh property LsResolutionMode to "Use Fixed Resolution".
+    - If LsResolutionMode stays at default "Calculate from LsPixelsPerWorldUnit*LsResolutionMultiplier", resolution is calculated in 4 steps:
+      - When building lightmap for mesh, we look at mesh surface and calculate lightmap resolution so that there is LsPixelsPerWorldUnit lightmap pixels in 1 length unit of surface.
+        Lightmap may be stretched differently in different parts of mesh, so we average this measurement over all edges of the mesh.
+      - Then, resolution is multiplied by LsResolutionMultiplier.
+      - Then, resolution is rounded up to power of two. If you have use for non power of two resolutions, we will add checkbox to disable rounding.
+      - Finally, resolution is limited to be >=32 and <=2048. Let us know if you want to change these limits, we will expose them in LightsprintScene.
+
  \section g30_gsa Legacy .gsa support
     - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under Lightspeed
     - this includes both offline and realtime GI

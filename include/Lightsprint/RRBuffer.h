@@ -198,7 +198,7 @@ namespace rr
 		//! Examples:
 		//! - load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
 		//! - load("path/lightmap.vbu") - loads vertex buffer
-		//! - load("path/cube_%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
+		//! - load("path/cube_%%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
 		//! - load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
 		//! - load("path/cube.hdr", NULL) - loads the same file as 2d texture
 		//! \param filename
@@ -227,7 +227,7 @@ namespace rr
 		//! \param filename
 		//!  Filename of 1 cross shaped 4:3 or 3:4 image;
 		//!  or filename of one of 6 images that make cube map.
-		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%s.jpg.
+		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%%s.jpg.
 		static RRBuffer* loadCube(const char *filename);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
