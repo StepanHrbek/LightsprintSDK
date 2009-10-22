@@ -180,8 +180,6 @@ void SVFrame::UpdateEverything()
 	// loads scene if it is specified by filename
 	m_canvas = new SVCanvas( svs, this, newSize);
 
-	// loads comments (if found)
-	SVSaveLoad::loadComments(svs);
 
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
 	Show(true);
