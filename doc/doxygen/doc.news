@@ -31,6 +31,10 @@ NEWS
 - improved water rendering in rr_gl::Water
    - see new parameters in rr_gl::Water::Water(), rr_gl::Water::render()
 
+FIXED
+
+- wrong light directions in Lightspeed integration
+
 \section news92 ------------------------------------ 2009.09.24 -------------------------------------
 
 NEWS
@@ -431,87 +435,6 @@ CHANGES
 
 - rr_gl::sceneViewer() second parameter removed (bool createWindow)
   \n window is always created, false was ignored since sceneViewer rewrite in 2008.12.8
-
-\section news69 ------------------------------------ 2008.12.19 -------------------------------------
-
-NEWS
-
-- BuildLightmaps tool lets you change lightmap resolution, format etc for individual objects
-- new RRObjects::recommendLayerParameters() recommends lightmap resolution, filename etc
-
-CHANGES
-
-- RRObjects::LayerParameters replaces RRIlluminatedObject::LayerParameters (added in previous release)
-- RRObjects::createLayer() was removed (added in previous release),
-  \n new RRObjects::recommendLayerParameters() is more flexible
-
-\section news68 ------------------------------------ 2008.12.8 -------------------------------------
-
-NEWS
-
-- \ref main_gamebryo26 "Gamebryo integration"
-- new \ref samples_offline "BuildLightmaps tool"
-- new GUI in rr_gl::sceneViewer()
-  - all light properties editable in new Light Properties window
-  - context menu changed to menu bar
-  - LightsprintGL does not depend on glut (remains in SDK, because samples use it)
-  - LightsprintGL depends on wxWidgets (precompiled Windows version added to SDK)
-  - minor other changes in controls
-- simplified mesh adapters (RRMesh implementations in LightsprintIO reduced by 30%)
-  - RRChanneledData removed
-  - RRMesh::getTriangleMapping() extended to support multiple texcoord channels
-  - RRMaterial::lightmapTexcoord added
-- point materials API simplified, point materials faster, used more often
-  - for point materials, you need only to set material textures and call RRMaterial::updateColorsFromTextures(),
-    everything else is handled by default implementation of RRObject::getPointMaterial()
-  - custom RRObject::getPointMaterial() implementations removed from adapters
-  - RRMaterial::minimalQualityForPointMaterials replaces RRSideBits::pointDetails (no need to touch it)
-  - Point materials in Collada and Quake3 scenes are used more often. For identical quality settings,
-    new solver produces illumination of slightly higher quality in slightly longer time.
-- RRMaterial::specularReflectance extended to support colors and textures
-- realtime lights more flexible
-  - rr_gl::RealtimeLight always contains RRLight
-  - it's always legal to edit RRLight properties as long as you call rr_gl::RealtimeLight::updateAfterRRLightChanges() later
-  - minor other changes in rr_gl::RealtimeLight
-- RRObjects made more flexible
-  - RRObjects::createLayer() creates empty buffers for whole layer
-  - RRObjects::loadLayer() replaces RRObjects::loadIllumination()
-  - RRObjects::saveLayer() replaces RRObjects::saveIllumination()
-
-CHANGES
-
-- sample AmbientOcclusion removed, replaced by BuildLightmaps
-- samples/samples.vs200x.sln removed, replaced by src/Lightsprint.vs200x.sln
-
-\section news67 ------------------------------------ 2008.11.16 -------------------------------------
-
-NEWS
-
-- distance attenuation model POLYNOMIAL was extended to support Gamebryo,
-  \n RRLight::polynom extended from RRVec3 to RRVec4
-
-\section news66 ------------------------------------ 2008.11.2 -------------------------------------
-
-NEWS
-
-- log window has lots of new features
-  \n (no API changes, it's still created by RRReporter::createWindowedReporter())
-- doesn't rely on doubles having double precision
-  \n so if you use D3DCREATE_FPU_PRESERVE because of Lightsprint, feel free to remove it
-- RRLight::createMutableLight()
-
-CHANGES
-
-- rr_gl::Camera::dir changed from RRVec4 to RRVec3, fourth element was not used
-- RRMesh::Plane removed, RRMesh::getTrianglePlane() second parameter changed to RRVec4
-- RRRay::hitPlane changed from RRVec3p to RRVec4
-
-\section news65 ------------------------------------ 2008.10.4 -------------------------------------
-
-NEWS
-
-- parallel radiosity, offline lightmap build 5-50% faster
-- Visual Studio 2005 x64 support (partial)
 
 */
 

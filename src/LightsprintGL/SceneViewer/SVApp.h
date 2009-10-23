@@ -10,7 +10,6 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
 #include <vector>
