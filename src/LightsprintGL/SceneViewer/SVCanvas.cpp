@@ -470,9 +470,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	static int prevY = 0;
 	if (event.LeftDown())
 	{
-		if (solver->realtimeLights.size())
 		{
-			// find scene distance, adjust search range to look only for closer lights
+			// find scene distance, adjust search range to look only for closer icons
 			{
 				ray->rayOrigin = svs.eye.pos;
 				// direction to mouse pointer
@@ -490,10 +489,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					ray->rayLengthMax = ray->hitDistance;
 				}
 			}
-			// find light closer than scene
-			if (lightIcons->intersect(solver->getLights(),ray,sunIconPosition,iconSize))
+			// find icon closer than scene
+			SVEntities entities(solver->getLights(),sunIconPosition,svs);
+			if (lightIcons->intersectIcons(entities,ray,iconSize))
 			{
-				parent->selectEntity(EntityId(ST_LIGHT,ray->hitTriangle),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+				parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
 			}
 			else
 			{
@@ -883,7 +883,8 @@ rendered:
 			if (lightIcons->isOk())
 			{
 				// render light icons (changes program)
-				lightIcons->render(solver->getLights(),svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,sunIconPosition,iconSize);
+				SVEntities entities(solver->getLights(),sunIconPosition,svs);
+				lightIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 			}
 			else
 			{

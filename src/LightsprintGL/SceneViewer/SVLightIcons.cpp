@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "../PreserveState.h"
 #include "../tmpstr.h"
+#include "SVEntity.h"
 
 namespace rr_gl
 {
@@ -38,28 +39,28 @@ SVLightIcons::~SVLightIcons()
 }
 
 // inputs: ray->rayXxx
-// outputs: ray->hitXxx
+// outputs: ray->hitXxx, hitTriangle=entity index in entities
 // sideeffects: ray->rayLengthMax is lost
-bool SVLightIcons::intersect(const rr::RRLights& lights, rr::RRRay* ray, rr::RRVec3 dirlightPosition, float iconSize)
+bool SVLightIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
 	unsigned counter = 0;
-	for (unsigned i=0;i<lights.size();i++)
+	for (unsigned i=0;i<entities.size();i++)
 	{
-		if (intersectIcon(*lights[i],ray,dirlightPosition,iconSize))
+		if (intersectIcon(entities[i],ray,iconSize))
 		{
 			// we have a hit, stop searching in greater distance
 			hit = true;
 			ray->rayLengthMax = ray->hitDistance;
-			// return light index in hitTriangle
+			// return entity index in hitTriangle
 			ray->hitTriangle = i;
 		}
 	}
 	return hit;
 }
 
-void SVLightIcons::render(const rr::RRLights& lights, const Camera& eye, unsigned selectedIndex, rr::RRVec3 dirlightPosition, float iconSize)
+void SVLightIcons::renderIcons(const SVEntities& entities, const Camera& eye, unsigned selectedIndex, float iconSize)
 {
 	// setup for rendering icon
 	PreserveBlend p1;
@@ -81,7 +82,7 @@ void SVLightIcons::render(const rr::RRLights& lights, const Camera& eye, unsigne
 
 	// render icons
 	unsigned counter = 0;
-	for (unsigned i=0;i<lights.size();i++)
+	for (unsigned i=0;i<entities.size();i++)
 	{
 		if (i==0 || i==selectedIndex+1)
 		{
@@ -92,33 +93,23 @@ void SVLightIcons::render(const rr::RRLights& lights, const Camera& eye, unsigne
 			float time = fabs(fmod((float)(GETSEC),1.0f));
 			program->sendUniform("lightIndirectConst",1.0f+time,1.0f+time,1.0f+time,1.0f);
 		}
-		renderIcon(*lights[i],eye,dirlightPosition,iconSize);
+		renderIcon(entities[i],eye,iconSize);
 	}
 }
 
 // icon vertices are computed in worldspace to simplify ray-icon intersections
 //kdybych kreslil 3d objekt, prusecik je snadny, udelam z nej RRObject, jen mu zmenim matici
-void SVLightIcons::getIconWorldVertices(const rr::RRLight& light, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], rr::RRVec3& dirlightPosition, float iconSize)
+void SVLightIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize)
 {
-	rr::RRVec3 lightPos;
-	if (light.type==rr::RRLight::DIRECTIONAL)
-	{
-		lightPos = dirlightPosition;
-		dirlightPosition.y += 1;
-	}
-	else
-	{
-		lightPos = light.position;
-	}
 //!!! kdyz je zarovka nad kamerou, kresli ji strasne malinkou
-	rr::RRVec3 toLight = (lightPos-eyePos).normalized();
+	rr::RRVec3 toLight = (entity.position-eyePos).normalizedSafe();
 	rr::RRVec3 toLeftFromLight(toLight[2],0,-toLight[0]);
 	rr::RRVec3 toUpFromLight = toLight.cross(toLeftFromLight);
-	float lightDistance = (lightPos-eyePos).length();
-	vertex[0] = lightPos-(toLeftFromLight-toUpFromLight)*iconSize; // top left
-	vertex[1] = lightPos+(toLeftFromLight+toUpFromLight)*iconSize; // top right
-	vertex[2] = lightPos+(toLeftFromLight-toUpFromLight)*iconSize; // bottom right
-	vertex[3] = lightPos-(toLeftFromLight+toUpFromLight)*iconSize; // bottom left
+	float lightDistance = (entity.position-eyePos).length();
+	vertex[0] = entity.position-(toLeftFromLight-toUpFromLight)*iconSize; // top left
+	vertex[1] = entity.position+(toLeftFromLight+toUpFromLight)*iconSize; // top right
+	vertex[2] = entity.position+(toLeftFromLight-toUpFromLight)*iconSize; // bottom right
+	vertex[3] = entity.position-(toLeftFromLight+toUpFromLight)*iconSize; // bottom left
 }
 
 // inputs: ray->rayXxx
@@ -165,11 +156,11 @@ bool SVLightIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRRa
 
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx
-bool SVLightIcons::intersectIcon(const rr::RRLight& light, rr::RRRay* ray, rr::RRVec3& dirlightPosition, float iconSize)
+bool SVLightIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float iconSize)
 {
 	RR_ASSERT(ray);
 	rr::RRVec3 worldVertex[4];
-	getIconWorldVertices(light,ray->rayOrigin,worldVertex,dirlightPosition,iconSize);
+	getIconWorldVertices(entity,ray->rayOrigin,worldVertex,iconSize);
 	rr::RRMesh::TriangleBody tb1,tb2;
 	tb1.vertex0 = worldVertex[0];
 	tb1.side1 = worldVertex[1]-worldVertex[0];
@@ -181,14 +172,14 @@ bool SVLightIcons::intersectIcon(const rr::RRLight& light, rr::RRRay* ray, rr::R
 	return hit;
 }
 
-void SVLightIcons::renderIcon(const rr::RRLight& light, const Camera& eye, rr::RRVec3& dirlightPosition, float iconSize)
+void SVLightIcons::renderIcon(const SVEntity& entity, const Camera& eye, float iconSize)
 {
-	if (icon[light.type])
+	if (icon[entity.icon])
 	{
 		rr::RRVec3 worldVertex[4];
-		getIconWorldVertices(light,eye.pos,worldVertex,dirlightPosition,iconSize);
+		getIconWorldVertices(entity,eye.pos,worldVertex,iconSize);
 
-		getTexture(icon[light.type])->bindTexture();
+		getTexture(icon[entity.icon])->bindTexture();
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(1,1);

@@ -12,6 +12,7 @@
 
 #include "SVCanvas.h"
 #include "SVApp.h"
+#include "SVEntity.h"
 #include "wx/aui/aui.h"
 
 #define DEBUG_TEXEL
@@ -19,33 +20,6 @@
 
 namespace rr_gl
 {
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// EntityId - identifies entity in SceneViewer
-
-	struct EntityId
-	{
-		EntityType type;
-		unsigned index;
-
-		EntityId(EntityType _type, unsigned _index)
-		{
-			type = _type;
-			index = _index;
-		}
-		bool operator ==(const EntityId& a)
-		{
-			return type==a.type && index==a.index;
-		}
-	};
-
-	enum SelectEntityAction
-	{
-		SEA_SELECT,
-		SEA_ACTION,
-		SEA_ACTION_IF_ALREADY_SELECTED,
-	};
 
 	/////////////////////////////////////////////////////////////////////////////
 	//

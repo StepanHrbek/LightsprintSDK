@@ -802,6 +802,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVEntity.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVFrame.cpp"
 				>
 			</File>

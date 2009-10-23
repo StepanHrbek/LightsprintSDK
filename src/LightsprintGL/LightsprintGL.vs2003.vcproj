@@ -298,6 +298,9 @@
 				RelativePath=".\SceneViewer\SVComment.h">
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVEntity.h">
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVFrame.cpp">
 			</File>
 			<File

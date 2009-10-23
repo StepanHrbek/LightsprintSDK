@@ -14,6 +14,7 @@
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
+#include "SVEntity.h"
 #include "SVLightmapViewer.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
@@ -21,17 +22,6 @@
 
 namespace rr_gl
 {
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// EntityType - identifies entity type in SceneViewer
-
-	enum EntityType
-	{
-		ST_CAMERA,
-		ST_LIGHT,
-		ST_OBJECT,
-	};
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
