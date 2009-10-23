@@ -131,40 +131,40 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 	{
 		RRReal    x;
 		RRReal    y;
-		RRReal& operator [](int i)          const {return ((RRReal*)this)[i];}
+		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 
-		RRVec2()                                  {}
-		explicit RRVec2(RRReal a)                 {x=y=a;}
-		RRVec2(RRReal ax,RRReal ay)               {x=ax;y=ay;}
-		RRVec2 operator + (const RRVec2& a) const {return RRVec2(x+a.x,y+a.y);}
-		RRVec2 operator - (const RRVec2& a) const {return RRVec2(x-a.x,y-a.y);}
-		RRVec2 operator * (RRReal f)        const {return RRVec2(x*f,y*f);}
-		RRVec2 operator * (const RRVec2& a) const {return RRVec2(x*a.x,y*a.y);}
-		RRVec2 operator / (RRReal f)        const {return RRVec2(x/f,y/f);}
-		RRVec2 operator / (const RRVec2& a) const {return RRVec2(x/a.x,y/a.y);}
-		RRVec2 operator +=(const RRVec2& a)       {x+=a.x;y+=a.y;return *this;}
-		RRVec2 operator -=(const RRVec2& a)       {x-=a.x;y-=a.y;return *this;}
-		RRVec2 operator *=(RRReal f)              {x*=f;y*=f;return *this;}
-		RRVec2 operator *=(const RRVec2& a)       {x*=a.x;y*=a.y;return *this;}
-		RRVec2 operator /=(RRReal f)              {x/=f;y/=f;return *this;}
-		RRVec2 operator /=(const RRVec2& a)       {x/=a.x;y/=a.y;return *this;}
-		bool   operator ==(const RRVec2& a) const {return a.x==x && a.y==y;}
-		bool   operator !=(const RRVec2& a) const {return a.x!=x || a.y!=y;}
-		unsigned components()               const {return 2;}
-		RRReal   sum()                      const {return x+y;}
-		RRReal   avg()                      const {return (x+y)*0.5f;}
-		RRVec2   abs()                      const {return RRVec2(fabs(x),fabs(y));}
-		RRVec2   neg()                      const {return RRVec2(-x,-y);}
-		RRReal   mini()                     const {return RR_MIN(x,y);}
-		RRReal   maxi()                     const {return RR_MAX(x,y);}
-		RRReal   length()                   const {return sqrtf(x*x+y*y);}
-		RRReal   length2()                  const {return x*x+y*y;}
-		void     normalize()                      {*this /= length();}
-		void     normalizeSafe()                  {RRReal len=length(); if (len) *this/=len; else {x=1;y=0;}}
-		RRVec2   normalized()               const {return *this/length();}
-		RRVec2   normalizedSafe()           const {RRReal len=length(); return len?*this/len:RRVec2(1,0);}
-		bool     finite()                   const {return _finite(x) && _finite(y);}
-		RRReal   dot(const RRVec2& a)       const {return x*a.x+y*a.y;}
+		RRVec2()                                    {}
+		explicit RRVec2(RRReal a)                   {x=y=a;}
+		RRVec2(RRReal ax,RRReal ay)                 {x=ax;y=ay;}
+		RRVec2 operator + (const RRVec2& a)   const {return RRVec2(x+a.x,y+a.y);}
+		RRVec2 operator - (const RRVec2& a)   const {return RRVec2(x-a.x,y-a.y);}
+		RRVec2 operator * (RRReal f)          const {return RRVec2(x*f,y*f);}
+		RRVec2 operator * (const RRVec2& a)   const {return RRVec2(x*a.x,y*a.y);}
+		RRVec2 operator / (RRReal f)          const {return RRVec2(x/f,y/f);}
+		RRVec2 operator / (const RRVec2& a)   const {return RRVec2(x/a.x,y/a.y);}
+		RRVec2 operator +=(const RRVec2& a)         {x+=a.x;y+=a.y;return *this;}
+		RRVec2 operator -=(const RRVec2& a)         {x-=a.x;y-=a.y;return *this;}
+		RRVec2 operator *=(RRReal f)                {x*=f;y*=f;return *this;}
+		RRVec2 operator *=(const RRVec2& a)         {x*=a.x;y*=a.y;return *this;}
+		RRVec2 operator /=(RRReal f)                {x/=f;y/=f;return *this;}
+		RRVec2 operator /=(const RRVec2& a)         {x/=a.x;y/=a.y;return *this;}
+		bool   operator ==(const RRVec2& a)   const {return a.x==x && a.y==y;}
+		bool   operator !=(const RRVec2& a)   const {return a.x!=x || a.y!=y;}
+		unsigned components()                 const {return 2;}
+		RRReal   sum()                        const {return x+y;}
+		RRReal   avg()                        const {return (x+y)*0.5f;}
+		RRVec2   abs()                        const {return RRVec2(fabs(x),fabs(y));}
+		RRVec2   neg()                        const {return RRVec2(-x,-y);}
+		RRReal   mini()                       const {return RR_MIN(x,y);}
+		RRReal   maxi()                       const {return RR_MAX(x,y);}
+		RRReal   length()                     const {return sqrtf(x*x+y*y);}
+		RRReal   length2()                    const {return x*x+y*y;}
+		void     normalize()                        {*this /= length();}
+		void     normalizeSafe()                    {RRReal len=length(); if (len) *this/=len; else {x=1;y=0;}}
+		RRVec2   normalized()                 const {return *this/length();}
+		RRVec2   normalizedSafe()             const {RRReal len=length(); return len?*this/len:RRVec2(1,0);}
+		bool     finite()                     const {return _finite(x) && _finite(y);}
+		RRReal   dot(const RRVec2& a)         const {return x*a.x+y*a.y;}
 	};
 
 	//! Vector of 3 real numbers plus basic support.
