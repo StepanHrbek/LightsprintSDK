@@ -1167,7 +1167,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			{
 				case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
 				case RRStaticSolver::NOT_IMPROVED: RRReporter::report(INF2,"Not improved.\n");break;
-				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"No light in scene.\n");break;
+				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"Scene is completely dark.\n");break;
 				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
 			}
 		}
