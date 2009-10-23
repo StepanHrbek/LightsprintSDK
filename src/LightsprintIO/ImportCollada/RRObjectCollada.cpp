@@ -654,6 +654,15 @@ private:
 			}
 		}
 
+		// workaround for Google Sketchup bug, diffuse map used as transparency map
+		if (material.diffuseReflectance.texture && !material.specularTransmittance.texture && material.diffuseReflectance.texture->getFormat()==BF_RGBA)
+		{
+			RRReporter::report(WARN,"Transparency in diffuse map. Enabling workaround for Google Sketch Up bug.\n");
+			material.specularTransmittance.texture = material.diffuseReflectance.texture;
+			material.specularTransmittance.texcoord = material.diffuseReflectance.texcoord;
+			material.specularTransmittanceInAlpha = true;
+		}
+
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
 		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
 
