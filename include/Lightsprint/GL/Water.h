@@ -59,7 +59,7 @@ public:
 	//! If you don't want simple quad, call render(0) and issue your own
 	//! water primitives, reflection shader is still active and will be used.
 	//! \param size
-	//!  Size of water quad in center of world (-size..size).
+	//!  Water surface will be rendered at least in 'size' radius around center.
 	//! \param center
 	//!  Center of quad in world space (0=center of world). y is ignored, altitude from updateReflectionInit() is used instead.
 	//! \param waterColor

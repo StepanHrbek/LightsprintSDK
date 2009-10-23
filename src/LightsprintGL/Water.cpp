@@ -107,11 +107,10 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (size>0)
 	{
-		glBegin(GL_QUADS);
-		glVertex3f(center[0]-size,altitude,center[2]-size);
-		glVertex3f(center[0]-size,altitude,center[2]+size);
-		glVertex3f(center[0]+size,altitude,center[2]+size);
-		glVertex3f(center[0]+size,altitude,center[2]-size);
+		glBegin(GL_TRIANGLES);
+		glVertex3f(center[0]-0.5f*size,altitude,center[2]-0.86602540378444f*size);
+		glVertex3f(center[0]-0.5f*size,altitude,center[2]+0.86602540378444f*size);
+		glVertex3f(center[0]+size,altitude,center[2]);
 		glEnd();
 	}
 	//if (!blend)
