@@ -87,6 +87,7 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 				//}
 			}
 			else
+			if (FreeImage_IsTransparent(dib1))
 			{
 				// try conversion to 32bit BGRA
 				FIBITMAP* dib2 = FreeImage_ConvertTo32Bits(dib1);
@@ -118,6 +119,43 @@ static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bo
 							pixels[j*4*width+4*i+1] = fipixels[j*pitch+4*i+1];
 							pixels[j*4*width+4*i+2] = fipixels[j*pitch+4*i+0];
 							pixels[j*4*width+4*i+3] = fipixels[j*pitch+4*i+3];
+#endif
+						}
+					}
+					// cleanup
+					FreeImage_Unload(dib2);
+				}
+			}
+			else
+			{
+				// try conversion to 24bit BGR
+				FIBITMAP* dib2 = FreeImage_ConvertTo24Bits(dib1);
+				if (dib2)
+				{
+					if (flipV)
+						FreeImage_FlipVertical(dib2);
+					if (flipH)
+						FreeImage_FlipHorizontal(dib2);
+					// read size
+					width = FreeImage_GetWidth(dib2);
+					height = FreeImage_GetHeight(dib2);
+					outFormat = BF_RGB;
+					// convert BGR to RGB
+					pixels = new unsigned char[3*width*height];
+					BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);
+					unsigned pitch = FreeImage_GetPitch(dib2);
+					for (unsigned j=0;j<height;j++)
+					{
+						for (unsigned i=0;i<width;i++)
+						{
+#ifdef RR_BIG_ENDIAN
+							pixels[j*3*width+3*i+0] = fipixels[j*pitch+3*i+0];
+							pixels[j*3*width+3*i+1] = fipixels[j*pitch+3*i+1];
+							pixels[j*3*width+3*i+2] = fipixels[j*pitch+3*i+2];
+#else
+							pixels[j*3*width+3*i+0] = fipixels[j*pitch+3*i+2];
+							pixels[j*3*width+3*i+1] = fipixels[j*pitch+3*i+1];
+							pixels[j*3*width+3*i+2] = fipixels[j*pitch+3*i+0];
 #endif
 						}
 					}
