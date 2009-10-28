@@ -3,8 +3,8 @@
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifndef SVLIGHTICONS_H
-#define SVLIGHTICONS_H
+#ifndef SVENTITYICONS_H
+#define SVENTITYICONS_H
 
 #include "Lightsprint/GL/SceneViewer.h"
 
@@ -19,11 +19,11 @@
 namespace rr_gl
 {
 
-	class SVLightIcons
+	class SVEntityIcons
 	{
 	public:
-		SVLightIcons(const char* pathToMaps, UberProgram* uberProgram);
-		~SVLightIcons();
+		SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram);
+		~SVEntityIcons();
 
 		// inputs: entities, ray->rayXxx, iconSize
 		// outputs: ray->hitXxx

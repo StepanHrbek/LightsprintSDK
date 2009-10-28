@@ -3,7 +3,7 @@
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVLightIcons.h"
+#include "SVEntityIcons.h"
 
 #ifdef SUPPORT_SCENEVIEWER
 
@@ -16,7 +16,7 @@
 namespace rr_gl
 {
 
-SVLightIcons::SVLightIcons(const char* pathToMaps, UberProgram* uberProgram)
+SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
 	icon[rr::RRLight::DIRECTIONAL] = rr::RRBuffer::load(tmpstr("%ssv_sun.png",pathToMaps));
 	icon[rr::RRLight::POINT] = rr::RRBuffer::load(tmpstr("%ssv_point.png",pathToMaps));
@@ -31,7 +31,7 @@ SVLightIcons::SVLightIcons(const char* pathToMaps, UberProgram* uberProgram)
 	program = uberProgramSetup.getProgram(uberProgram);
 }
 
-SVLightIcons::~SVLightIcons()
+SVEntityIcons::~SVEntityIcons()
 {
 	delete icon[rr::RRLight::DIRECTIONAL];
 	delete icon[rr::RRLight::POINT];
@@ -41,7 +41,7 @@ SVLightIcons::~SVLightIcons()
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx, hitTriangle=entity index in entities
 // sideeffects: ray->rayLengthMax is lost
-bool SVLightIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize)
+bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
@@ -60,7 +60,7 @@ bool SVLightIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, fl
 	return hit;
 }
 
-void SVLightIcons::renderIcons(const SVEntities& entities, const Camera& eye, unsigned selectedIndex, float iconSize)
+void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, unsigned selectedIndex, float iconSize)
 {
 	// setup for rendering icon
 	PreserveBlend p1;
@@ -99,7 +99,7 @@ void SVLightIcons::renderIcons(const SVEntities& entities, const Camera& eye, un
 
 // icon vertices are computed in worldspace to simplify ray-icon intersections
 //kdybych kreslil 3d objekt, prusecik je snadny, udelam z nej RRObject, jen mu zmenim matici
-void SVLightIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize)
+void SVEntityIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize)
 {
 //!!! kdyz je zarovka nad kamerou, kresli ji strasne malinkou
 	rr::RRVec3 toLight = (entity.position-eyePos).normalizedSafe();
@@ -114,7 +114,7 @@ void SVLightIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePo
 
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx
-bool SVLightIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRRay* ray)
+bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRRay* ray)
 {
 	RR_ASSERT(ray);
 	RR_ASSERT(t);
@@ -156,7 +156,7 @@ bool SVLightIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRRa
 
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx
-bool SVLightIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float iconSize)
+bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float iconSize)
 {
 	RR_ASSERT(ray);
 	rr::RRVec3 worldVertex[4];
@@ -172,7 +172,7 @@ bool SVLightIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float i
 	return hit;
 }
 
-void SVLightIcons::renderIcon(const SVEntity& entity, const Camera& eye, float iconSize)
+void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye, float iconSize)
 {
 	if (icon[entity.icon])
 	{
@@ -194,7 +194,7 @@ void SVLightIcons::renderIcon(const SVEntity& entity, const Camera& eye, float i
 	}
 }
 
-bool SVLightIcons::isOk() const
+bool SVEntityIcons::isOk() const
 {
 	return icon[0] && icon[1] && icon[2];
 }

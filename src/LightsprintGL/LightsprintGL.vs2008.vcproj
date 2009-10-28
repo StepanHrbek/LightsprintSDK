@@ -806,19 +806,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVEntityIcons.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVEntityIcons.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVFrame.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\SceneViewer\SVFrame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SceneViewer\SVLightIcons.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SceneViewer\SVLightIcons.h"
 				>
 			</File>
 			<File

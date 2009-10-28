@@ -107,7 +107,7 @@ namespace rr_gl
 		// icons
 		rr::RRVec3                 sunIconPosition; // for dirlight icons
 		float                      iconSize; // for icons
-		class SVLightIcons*        lightIcons;
+		class SVEntityIcons*       entityIcons;
 
 
 		friend class SVFrame;

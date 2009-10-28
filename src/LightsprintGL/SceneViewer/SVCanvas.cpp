@@ -7,7 +7,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "SVLightIcons.h"
+#include "SVEntityIcons.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"
 #include "SVSolver.h"
@@ -82,7 +82,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	fpsLoadAttempted = false;
 	fpsDisplay = NULL;
 
-	lightIcons = NULL;
+	entityIcons = NULL;
 	sunIconPosition = rr::RRVec3(0);
 	iconSize = 1;
 
@@ -170,7 +170,7 @@ void SVCanvas::createContext()
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 	{
-		lightIcons = new SVLightIcons(tmpstr("%s../maps/",svs.pathToShaders),solver->getUberProgram());
+		entityIcons = new SVEntityIcons(tmpstr("%s../maps/",svs.pathToShaders),solver->getUberProgram());
 		rr::RRVec3 sceneMin,sceneMax;
 		rr::RRObject* object = solver->getMultiObjectCustom();
 		if (object)
@@ -230,7 +230,7 @@ SVCanvas::~SVCanvas()
 	// help
 	RR_SAFE_DELETE(helpImage);
 
-	RR_SAFE_DELETE(lightIcons);
+	RR_SAFE_DELETE(entityIcons);
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
 	RR_SAFE_DELETE(toneMapping);
@@ -491,7 +491,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			// find icon closer than scene
 			SVEntities entities(solver->getLights(),sunIconPosition,svs);
-			if (lightIcons->intersectIcons(entities,ray,iconSize))
+			if (entityIcons->intersectIcons(entities,ray,iconSize))
 			{
 				parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
 			}
@@ -880,11 +880,11 @@ rendered:
 
 		if (svs.renderIcons)
 		{
-			if (lightIcons->isOk())
+			if (entityIcons->isOk())
 			{
 				// render light icons (changes program)
 				SVEntities entities(solver->getLights(),sunIconPosition,svs);
-				lightIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
+				entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 			}
 			else
 			{
