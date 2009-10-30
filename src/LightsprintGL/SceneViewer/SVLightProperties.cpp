@@ -7,7 +7,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-//#include "SVFrame.h"
+#include "SVCustomProperties.h"
 
 namespace rr_gl
 {
@@ -38,19 +38,11 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
 
-			propPosition = new wxStringProperty(wxT("Position"),wxPG_LABEL,wxT("<composed>"));
+			propPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,light->position);
 			AppendIn(propType,propPosition);
-			AppendIn(propPosition,new wxFloatProperty(wxT("x"),wxPG_LABEL,light->position[0]));
-			AppendIn(propPosition,new wxFloatProperty(wxT("y"),wxPG_LABEL,light->position[1]));
-			AppendIn(propPosition,new wxFloatProperty(wxT("z"),wxPG_LABEL,light->position[2]));
-			Collapse(propPosition);
 
-			propDirection = new wxStringProperty(wxT("Direction"),wxPG_LABEL,wxT("<composed>"));
+			propDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,light->direction);
 			AppendIn(propType,propDirection);
-			AppendIn(propDirection,new wxFloatProperty(wxT("x"),wxPG_LABEL,light->direction[0]));
-			AppendIn(propDirection,new wxFloatProperty(wxT("y"),wxPG_LABEL,light->direction[1]));
-			AppendIn(propDirection,new wxFloatProperty(wxT("z"),wxPG_LABEL,light->direction[2]));
-			Collapse(propDirection);
 
 			propOuterAngleRad = new wxFloatProperty(wxT("Outer angle (rad)"),wxPG_LABEL,light->outerAngleRad);
 			AppendIn(propType,propOuterAngleRad);
@@ -64,12 +56,8 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 
 		// color
 		{
-			propColor = new wxStringProperty(wxT("Color"),wxPG_LABEL,wxT("<composed>"));
+			propColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,light->color);
 			Append(propColor);
-			AppendIn(propColor,new wxFloatProperty(wxT("r"),wxPG_LABEL,light->color[0]));
-			AppendIn(propColor,new wxFloatProperty(wxT("g"),wxPG_LABEL,light->color[1]));
-			AppendIn(propColor,new wxFloatProperty(wxT("b"),wxPG_LABEL,light->color[2]));
-			Collapse(propColor);
 		}
 		{
 			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename);
@@ -148,17 +136,6 @@ void SVLightProperties::updateHide()
 	propOrthoSize->Hide(light->type!=rr::RRLight::DIRECTIONAL,false);
 }
 
-//! Copy light -> property (1 float).
-static unsigned updateFloat(wxPGProperty* prop,float value)
-{
-	if (value!=(float)prop->GetValue().GetDouble())
-	{
-		prop->SetValue(wxVariant(value));
-		return 1;
-	}
-	return 0;
-}
-
 void SVLightProperties::updatePosDir()
 {
 	if (rtlight)
@@ -166,12 +143,8 @@ void SVLightProperties::updatePosDir()
 		unsigned numChanges =
 			updateFloat(propNear,rtlight->getParent()->getNear()) +
 			updateFloat(propFar,rtlight->getParent()->getFar()) +
-			updateFloat(propPosition->GetPropertyByName("x"),rtlight->getParent()->pos[0]) +
-			updateFloat(propPosition->GetPropertyByName("y"),rtlight->getParent()->pos[1]) +
-			updateFloat(propPosition->GetPropertyByName("z"),rtlight->getParent()->pos[2]) +
-			updateFloat(propDirection->GetPropertyByName("x"),rtlight->getParent()->dir[0]) +
-			updateFloat(propDirection->GetPropertyByName("y"),rtlight->getParent()->dir[1]) +
-			updateFloat(propDirection->GetPropertyByName("z"),rtlight->getParent()->dir[2])
+			updateProperty(propPosition,rtlight->getParent()->pos) +
+			updateProperty(propDirection,rtlight->getParent()->dir)
 			;
 		if (numChanges)
 		{
@@ -211,15 +184,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	if (property==propPosition)
 	{
-		light->position[0] = property->GetPropertyByName("x")->GetValue().GetDouble();
-		light->position[1] = property->GetPropertyByName("y")->GetValue().GetDouble();
-		light->position[2] = property->GetPropertyByName("z")->GetValue().GetDouble();
+		light->position << property->GetValue();
 	}
 	if (property==propDirection)
 	{
-		light->direction[0] = property->GetPropertyByName("x")->GetValue().GetDouble();
-		light->direction[1] = property->GetPropertyByName("y")->GetValue().GetDouble();
-		light->direction[2] = property->GetPropertyByName("z")->GetValue().GetDouble();
+		light->direction << property->GetValue();
 	}
 	if (property==propOuterAngleRad)
 	{
@@ -231,9 +200,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	if (property==propColor)
 	{
-		light->color[0] = property->GetPropertyByName("r")->GetValue().GetDouble();
-		light->color[1] = property->GetPropertyByName("g")->GetValue().GetDouble();
-		light->color[2] = property->GetPropertyByName("b")->GetValue().GetDouble();
+		light->color << property->GetValue();
 	}
 	if (property==propTexture)
 	{

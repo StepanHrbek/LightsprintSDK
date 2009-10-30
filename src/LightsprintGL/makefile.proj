@@ -52,6 +52,7 @@ Water.cpp \
 SceneViewer/SVApp.spp \
 SceneViewer/SVComment.spp \
 SceneViewer/SVCanvas.spp \
+SceneViewer/SVCustomProperties.spp \
 SceneViewer/SVEntityIcons.spp \
 SceneViewer/SVFrame.spp \
 SceneViewer/SVLightProperties.spp \

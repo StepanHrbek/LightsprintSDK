@@ -1,0 +1,107 @@
+// --------------------------------------------------------------------------
+// Scene viewer - custom properties for property grid.
+// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
+
+#include "SVCustomProperties.h"
+
+#ifdef SUPPORT_SCENEVIEWER
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRVec3Property
+
+WX_PG_IMPLEMENT_VARIANT_DATA_DUMMY_EQ(RRVec3)
+
+WX_PG_IMPLEMENT_PROPERTY_CLASS(RRVec3Property,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
+
+
+RRVec3Property::RRVec3Property( const wxString& label, const wxString& name, const RRVec3& value )
+    : wxPGProperty(label,name)
+{
+    SetValue( WXVARIANT(value) );
+    AddPrivateChild( new wxFloatProperty(wxT("x"),wxPG_LABEL,value.x) );
+    AddPrivateChild( new wxFloatProperty(wxT("y"),wxPG_LABEL,value.y) );
+    AddPrivateChild( new wxFloatProperty(wxT("z"),wxPG_LABEL,value.z) );
+}
+
+void RRVec3Property::RefreshChildren()
+{
+    if ( !GetChildCount() ) return;
+    const RRVec3& vector = RRVec3RefFromVariant(m_value);
+    Item(0)->SetValue( vector.x );
+    Item(1)->SetValue( vector.y );
+    Item(2)->SetValue( vector.z );
+}
+
+void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
+{
+    RRVec3 vector;
+    vector << thisValue;
+    switch ( childIndex )
+    {
+        case 0: vector.x = childValue.GetDouble(); break;
+        case 1: vector.y = childValue.GetDouble(); break;
+        case 2: vector.z = childValue.GetDouble(); break;
+    }
+    thisValue << vector;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// HDRColorProperty
+
+WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
+
+HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, const RRVec3& rgb )
+    : wxPGProperty(label,name)
+{
+    SetValue(WXVARIANT(rgb));
+
+	RRVec3 hsv = rgb.getHsvFromRgb();
+    AddPrivateChild(new wxFloatProperty(_("red"),wxPG_LABEL,rgb[0]));
+    AddPrivateChild(new wxFloatProperty(_("green"),wxPG_LABEL,rgb[1]));
+    AddPrivateChild(new wxFloatProperty(_("blue"),wxPG_LABEL,rgb[2]));
+    AddPrivateChild(new wxFloatProperty(_("hue"),wxPG_LABEL,hsv[0]));
+    AddPrivateChild(new wxFloatProperty(_("saturation"),wxPG_LABEL,hsv[1]));
+    AddPrivateChild(new wxFloatProperty(_("value"),wxPG_LABEL,hsv[2]));
+}
+
+void HDRColorProperty::RefreshChildren()
+{
+    if ( !GetChildCount() ) return;
+	const RRVec3& rgb = RRVec3RefFromVariant(m_value);
+	RRVec3 hsv = rgb.getHsvFromRgb();
+    Item(0)->SetValue(rgb[0]);
+    Item(1)->SetValue(rgb[1]);
+    Item(2)->SetValue(rgb[2]);
+    Item(3)->SetValue(hsv[0]);
+    Item(4)->SetValue(hsv[1]);
+    Item(5)->SetValue(hsv[2]);
+}
+
+void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
+{
+    RRVec3 rgb;
+    rgb << thisValue;
+	RRVec3 hsv = rgb.getHsvFromRgb();
+    switch ( childIndex )
+    {
+        case 0: 
+        case 1: 
+        case 2:
+			rgb[childIndex] = childValue.GetDouble();
+			break;
+        case 3: 
+        case 4: 
+        case 5:
+			hsv[childIndex-3] = childValue.GetDouble();
+			rgb = hsv.getRgbFromHsv();
+			break;
+    }
+    thisValue << rgb;
+}
+
+#endif // SUPPORT_SCENEVIEWER

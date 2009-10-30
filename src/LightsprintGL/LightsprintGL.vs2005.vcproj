@@ -809,6 +809,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVCustomProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVCustomProperties.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVEntity.h"
 				>
 			</File>

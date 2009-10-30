@@ -7,6 +7,8 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVCustomProperties.h"
+
 namespace rr_gl
 {
 
@@ -24,19 +26,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propCameraSpeed = new wxFloatProperty(wxT("Speed (m/s)"), wxPG_LABEL, svs.cameraMetersPerSecond);
 		AppendIn(propCamera,propCameraSpeed);
 
-		propCameraPosition = new wxStringProperty(wxT("Position"),wxPG_LABEL,wxT("<composed>"));
+		propCameraPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,svs.eye.pos);
 		AppendIn(propCamera,propCameraPosition);
-		AppendIn(propCameraPosition,new wxFloatProperty(wxT("x"),wxPG_LABEL,svs.eye.pos[0]));
-		AppendIn(propCameraPosition,new wxFloatProperty(wxT("y"),wxPG_LABEL,svs.eye.pos[1]));
-		AppendIn(propCameraPosition,new wxFloatProperty(wxT("z"),wxPG_LABEL,svs.eye.pos[2]));
-		Collapse(propCameraPosition);
 
-		propCameraDirection = new wxStringProperty(wxT("Direction"),wxPG_LABEL,wxT("<composed>"));
+		propCameraDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,svs.eye.dir);
 		AppendIn(propCamera,propCameraDirection);
-		AppendIn(propCameraDirection,new wxFloatProperty(wxT("x"),wxPG_LABEL,svs.eye.dir[0]));
-		AppendIn(propCameraDirection,new wxFloatProperty(wxT("y"),wxPG_LABEL,svs.eye.dir[1]));
-		AppendIn(propCameraDirection,new wxFloatProperty(wxT("z"),wxPG_LABEL,svs.eye.dir[2]));
-		Collapse(propCameraDirection);
 		SetPropertyReadOnly(propCameraDirection,true);
 
 		propCameraAngles = new wxStringProperty(wxT("Angle"),wxPG_LABEL,wxT("<composed>"));
@@ -84,12 +78,8 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		Append(propWater);
 		SetPropertyEditor(propWater,wxPGEditor_CheckBox);
 
-		propWaterColor = new wxStringProperty(wxT("Color"),wxPG_LABEL,wxT("<composed>"));
+		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.waterColor);
 		AppendIn(propWater,propWaterColor);
-		AppendIn(propWaterColor,new wxFloatProperty(wxT("r"),wxPG_LABEL,svs.waterColor[0]));
-		AppendIn(propWaterColor,new wxFloatProperty(wxT("g"),wxPG_LABEL,svs.waterColor[1]));
-		AppendIn(propWaterColor,new wxFloatProperty(wxT("b"),wxPG_LABEL,svs.waterColor[2]));
-		Collapse(propWaterColor);
 
 		propWaterLevel = new wxFloatProperty(wxT("Level"),wxPG_LABEL,svs.waterLevel);
 		AppendIn( propWater, propWaterLevel );
@@ -126,35 +116,11 @@ void SVSceneProperties::updateHide()
 	propWaterLevel->Hide(!svs.renderWater,false);
 }
 
-//! Copy light -> property (1 bool).
-static unsigned updateBool(wxPGProperty* prop,bool value)
-{
-	if (value!=prop->GetValue().GetBool())
-	{
-		prop->SetValue(wxVariant(value));
-		return 1;
-	}
-	return 0;
-}
-
-//! Copy light -> property (1 float).
-static unsigned updateFloat(wxPGProperty* prop,float value)
-{
-	if (value!=(float)prop->GetValue().GetDouble())
-	{
-		prop->SetValue(wxVariant(value));
-		return 1;
-	}
-	return 0;
-}
-
 void SVSceneProperties::updateProperties()
 {
 	unsigned numChanges =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
-		+ updateFloat(propCameraPosition->GetPropertyByName("x"),svs.eye.pos[0])
-		+ updateFloat(propCameraPosition->GetPropertyByName("y"),svs.eye.pos[1])
-		+ updateFloat(propCameraPosition->GetPropertyByName("z"),svs.eye.pos[2])
+		+ updateProperty(propCameraPosition,svs.eye.pos)
 		+ updateFloat(propCameraAngles->GetPropertyByName("a"),svs.eye.angle)
 		+ updateFloat(propCameraAngles->GetPropertyByName("b"),svs.eye.angleX)
 		+ updateFloat(propCameraAngles->GetPropertyByName("c"),svs.eye.leanAngle)
@@ -166,9 +132,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propToneMappingBrightness,svs.brightness[0])
 		+ updateFloat(propToneMappingContrast,svs.gamma)
 		+ updateBool(propWater,svs.renderWater)
-		+ updateFloat(propWaterColor->GetPropertyByName("r"),svs.waterColor[0])
-		+ updateFloat(propWaterColor->GetPropertyByName("g"),svs.waterColor[1])
-		+ updateFloat(propWaterColor->GetPropertyByName("b"),svs.waterColor[2])
+		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		;
 	if (numChanges)
@@ -196,10 +160,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraPosition)
 	{
-		svs.eye.pos = rr::RRVec3(
-			property->GetPropertyByName("x")->GetValue().GetDouble(),
-			property->GetPropertyByName("y")->GetValue().GetDouble(),
-			property->GetPropertyByName("z")->GetValue().GetDouble());
+		svs.eye.pos << property->GetValue();
 	}
 	else
 	if (property==propCameraAngles)
@@ -252,9 +213,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propWaterColor)
 	{
-		svs.waterColor[0] = property->GetPropertyByName("r")->GetValue().GetDouble();
-		svs.waterColor[1] = property->GetPropertyByName("g")->GetValue().GetDouble();
-		svs.waterColor[2] = property->GetPropertyByName("b")->GetValue().GetDouble();
+		svs.waterColor << property->GetValue();
 	}
 	else
 	if (property==propWaterLevel)
