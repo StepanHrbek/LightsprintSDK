@@ -1031,27 +1031,11 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 	switch (entity.type)
 	{
 		case ST_LIGHT:
-			// show/hide light properties
-			if (!m_lightProperties->IsShown() && (action==SEA_ACTION || (action==SEA_ACTION_IF_ALREADY_SELECTED && alreadySelected)))
-			{
-				m_mgr.GetPane(wxT("lightproperties")).Show();
-				m_mgr.Update();
-				UpdateMenuBar();
-			}
-			else
-			if (m_lightProperties->IsShown() && alreadySelected && action!=SEA_SELECT)
-			{
-				m_mgr.GetPane(wxT("lightproperties")).Hide();
-				m_mgr.Update();
-				UpdateMenuBar();
-			}
-
-			// update light properties
 			if (m_lightProperties->IsShown())
 			{
+				// update light properties
 				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index]);
 			}
-
 			m_canvas->selectedType = entity.type;
 			svs.selectedLightIndex = entity.index;
 			break;
