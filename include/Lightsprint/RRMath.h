@@ -286,6 +286,10 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal determinant3x3() const;
 		//! Sets matrix to identity.
 		void setIdentity();
+		//! Tests whether matrix is identity.
+		bool isIdentity() const;
+		RRVec3 getTranslation() const;
+		void setTranslation(const RRVec3& a);
 	};
 
 } // namespace
