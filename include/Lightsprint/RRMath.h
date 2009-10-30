@@ -207,6 +207,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		bool     finite()                     const {return _finite(x) && _finite(y) && _finite(z);}
 		RRReal   dot(const RRVec3& a)         const {return x*a.x+y*a.y+z*a.z;}
 		RRVec3   cross(const RRVec3& a)       const {return RRVec3(y*a.z-z*a.y,-x*a.z+z*a.x,x*a.y-y*a.x);}
+		RR_API RRVec3 getHsvFromRgb()         const;
+		RR_API RRVec3 getRgbFromHsv()         const;
 	};
 
 	//! Vector of 3 real numbers plus 4th number as a padding. Operators use only 3 components.
