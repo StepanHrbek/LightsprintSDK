@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Matrix for object transformations.
+// Basic math functions.
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -8,6 +8,75 @@
 
 namespace rr
 {
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RGB <-> HSV
+
+RRVec3 RRVec3::getHsvFromRgb() const
+{
+	RRVec3 rgb = *this;
+	float v = rgb.maxi();
+	if (v==0)
+		return RRVec3(0);
+	rgb /= v;
+	float rgbmin = rgb.mini();
+	float rgbmax = rgb.maxi();
+	float s = rgbmax-rgbmin;
+	if (!s)
+		return RRVec3(0,0,v);
+	rgb = (rgb-RRVec3(rgbmin))/(rgbmax-rgbmin);
+	rgbmin = rgb.mini();
+	rgbmax = rgb.maxi();
+	float h;
+	if (rgbmax==rgb[0])
+	{
+		h = 60*(rgb[1]-rgb[2]);
+		if (h<0) h+= 360;
+	}
+	else
+	if (rgbmax==rgb[1])
+	{
+		h = 120+60*(rgb[2]-rgb[0]);
+	}
+	else
+	{
+		h = 240+60*(rgb[0]-rgb[1]);
+	}
+	return RRVec3(h,s,v);
+}
+
+RRVec3 RRVec3::getRgbFromHsv() const
+{
+	RRVec3 hsv = *this;
+	float h = hsv[0];
+	float s = RR_CLAMPED(hsv[1],0,1);
+	float v = hsv[2];
+	h = fmod(h,360);
+	if (h<0) h+= 360;
+	h /= 60;
+	float i = floor(h);
+	float f = h - i;
+	float p1 = v * (1 - s);
+	float p2 = v * (1 - (s * f));
+	float p3 = v * (1 - (s * (1 - f)));
+	switch ((int) i)
+	{
+		case 0: return RRVec3(v,p3,p1);
+		case 1: return RRVec3(p2,v,p1);
+		case 2: return RRVec3(p1,v,p3);
+		case 3: return RRVec3(p1,p2,v);
+		case 4: return RRVec3(p3,p1,v);
+		case 5: return RRVec3(v,p1,p2);
+	}
+	RR_ASSERT(0);
+	return RRVec3(0);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMatrix3x4
 
 RRVec3 RRMatrix3x4::transformedPosition(const RRVec3& a) const
 {

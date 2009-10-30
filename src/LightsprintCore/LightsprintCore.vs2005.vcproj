@@ -957,10 +957,6 @@
 			Name="RRMesh"
 			>
 			<File
-				RelativePath="RRMesh\RRMatrix3x4.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRMesh\RRMesh.cpp"
 				>
 			</File>
@@ -1717,6 +1713,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="RRMath"
+			>
+			<File
+				RelativePath="RRMath.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRMath.h"
+				>
+			</File>
+			<File
+				RelativePath="RRMathPrivate.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="LicGen.h"
 			>
@@ -1735,14 +1747,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRMath.h"
-			>
-		</File>
-		<File
-			RelativePath="RRMathPrivate.h"
 			>
 		</File>
 		<File

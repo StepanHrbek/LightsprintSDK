@@ -382,9 +382,6 @@
 		<Filter
 			Name="RRMesh">
 			<File
-				RelativePath="RRMesh\RRMatrix3x4.cpp">
-			</File>
-			<File
 				RelativePath="RRMesh\RRMesh.cpp">
 			</File>
 			<File
@@ -785,13 +782,25 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="RRMaterial"
-			Filter="">
+			Name="RRMaterial">
 			<File
 				RelativePath="RRObject\RRMaterial.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRMaterial.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="RRMath"
+			>
+			<File
+				RelativePath="RRMath.cpp">
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRMath.h">
+			</File>
+			<File
+				RelativePath="RRMathPrivate.h">
 			</File>
 		</Filter>
 		<File
@@ -808,12 +817,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h">
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRMath.h">
-		</File>
-		<File
-			RelativePath="RRMathPrivate.h">
 		</File>
 		<File
 			RelativePath="RRMemory.cpp">

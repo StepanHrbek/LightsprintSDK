@@ -60,7 +60,6 @@ RRDynamicSolver/RRDynamicSolver.cpp \
 RRDynamicSolver/vertexBuffer.cpp \
 RRHash/sha1.cpp \
 RRHash/RRHash.cpp \
-RRMesh/RRMatrix3x4.cpp \
 RRMesh/RRMesh.cpp \
 RRMesh/RRMeshAccelerated.cpp \
 RRMesh/RRMeshCopy.cpp \
@@ -83,6 +82,7 @@ RRStaticSolver/RRVision.cpp \
 Preferences.cpp \
 RRLight.cpp \
 RRLightField.cpp \
+RRMath.cpp \
 RRMemory.cpp \
 RRObjectIllumination.cpp \
 RRScene.cpp
