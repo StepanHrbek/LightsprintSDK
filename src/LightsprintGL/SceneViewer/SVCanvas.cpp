@@ -12,6 +12,7 @@
 #include "SVSaveLoad.h"
 #include "SVSolver.h"
 #include "SVFrame.h"
+#include "SVLightProperties.h"
 #include "Lightsprint/GL/Timer.h"
 #include "../tmpstr.h"
 #ifdef _WIN32
@@ -490,7 +491,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				}
 			}
 			// find icon closer than scene
-			SVEntities entities(solver->getLights(),sunIconPosition,svs);
+			SVEntities entities;
+			if (parent->m_lightProperties->IsShown())
+				entities.addLights(solver->getLights(),sunIconPosition);
 			if (entityIcons->intersectIcons(entities,ray,iconSize))
 			{
 				parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
@@ -878,19 +881,13 @@ rendered:
 			}
 		}
 
-		if (svs.renderIcons)
+		if (entityIcons->isOk())
 		{
-			if (entityIcons->isOk())
-			{
-				// render light icons (changes program)
-				SVEntities entities(solver->getLights(),sunIconPosition,svs);
-				entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
-			}
-			else
-			{
-				// render light frames
-				solver->renderLights();
-			}
+			// render light icons (changes program)
+			SVEntities entities;
+			if (parent->m_lightProperties->IsShown())
+				entities.addLights(solver->getLights(),sunIconPosition);
+			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 		}
 
 		if (svs.renderHelpers

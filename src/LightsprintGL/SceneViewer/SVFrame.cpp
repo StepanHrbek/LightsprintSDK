@@ -438,8 +438,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_RENDER_WIREFRAME,_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
 		winMenu->Check(ME_RENDER_WIREFRAME,svs.renderWireframe);
 		winMenu->AppendSeparator();
-		winMenu->AppendCheckItem(ME_RENDER_ICONS,_T("Light icons"),_T("Toggles rendering light icons."));
-		winMenu->Check(ME_RENDER_ICONS,svs.renderIcons);
 		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
 		winMenu->AppendCheckItem(ME_RENDER_FPS,_T("FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
@@ -460,7 +458,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_T("Scene properties"),_T("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties(+icons)"),_T("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"));
@@ -938,7 +936,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_RENDER_TEXTURES: svs.renderMaterialTextures = !svs.renderMaterialTextures; break;
 		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
 		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
-		case ME_RENDER_ICONS: svs.renderIcons = !svs.renderIcons; break;
 		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
 		case ME_RENDER_LOGO: svs.renderLogo = !svs.renderLogo; break;
 		case ME_RENDER_VIGNETTE: svs.renderVignette = !svs.renderVignette; break;

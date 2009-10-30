@@ -88,7 +88,7 @@ namespace rr_gl
 	class SVEntities : public std::vector<SVEntity>
 	{
 	public:
-		SVEntities(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, const SceneViewerStateEx& svs)
+		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition)
 		{
 			for (unsigned i=0;i<lights.size();i++)
 			{

@@ -59,7 +59,7 @@ struct SceneViewerState
 	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
 	bool             renderFPS;                 //! Render FPS counter.
-	bool             renderIcons;               //! Render light icons.
+	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderVignette;            //! Render vignette overlay from vignette.png.
 	bool             renderHelp;                //! Render help overlay from sv_help.png.

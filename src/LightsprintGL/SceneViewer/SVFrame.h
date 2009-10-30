@@ -95,7 +95,6 @@ namespace rr_gl
 			ME_RENDER_TEXTURES,
 			ME_RENDER_WIREFRAME,
 			ME_RENDER_FPS,
-			ME_RENDER_ICONS,
 			ME_RENDER_HELPERS,
 			ME_RENDER_LOGO,
 			ME_RENDER_VIGNETTE,
@@ -116,6 +115,7 @@ namespace rr_gl
 
 		SVCanvas*                m_canvas; // public only for SVSceneTree, SVComment
 		class SVSceneTree*       m_sceneTree; // public only for SVComment
+		class SVLightProperties* m_lightProperties; // public only for SVCanvas
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
@@ -137,7 +137,6 @@ namespace rr_gl
 		wxString                 windowLayout[3];
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
-		class SVLightProperties* m_lightProperties;
 
 		DECLARE_EVENT_TABLE()
 	};
