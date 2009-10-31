@@ -400,9 +400,9 @@ int main(int argc, char **argv)
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-		if (solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+		if (solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices())
 			solver->getIllumination(i)->getLayer(0) =
-				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);

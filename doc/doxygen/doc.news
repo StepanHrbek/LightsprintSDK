@@ -14,6 +14,7 @@ CHANGES
 
 - cleanup in RRDynamicSolver
   - removed getNumObjects(), use getStaticObjects().size()
+  - removed getObject(i), use getStaticObjects()[i].object and make sure i is not out of range, new version does not check it.
 
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------
 

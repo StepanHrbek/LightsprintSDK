@@ -80,7 +80,7 @@ void precalculateOneLayer(rr::RRDynamicSolver* _solver, rr::RRLightField* _light
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<_solver->getStaticObjects().size();i++)
 	{
-		unsigned numVertices = _solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
+		unsigned numVertices = _solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
 		if (numVertices)
 		{
 			_solver->getIllumination(i)->getLayer(_layerNumber) =

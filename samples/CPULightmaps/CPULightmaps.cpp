@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		const rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
+		const rr::RRMesh* mesh = solver->getStaticObjects()[i].object->getCollider()->getMesh();
 		if (i==SELECTED_OBJECT_NUMBER)
 		{
 			// allocate lightmaps for selected object

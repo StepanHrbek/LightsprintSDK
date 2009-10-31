@@ -66,7 +66,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	try
 	{
 	// iterate only triangles in singlemesh
-	RRObject* singleObject = tc.solver->getObject(objectNumber);
+	RRObject* singleObject = tc.solver->getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
 	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for (unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
@@ -552,7 +552,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			return updatedBuffers;
 		}
 		tc.params = &params;
-		tc.singleObjectReceiver = getObject(objectNumber);
+		tc.singleObjectReceiver = getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
 		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
@@ -592,7 +592,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			unsigned uvIndex = 0;
 			bool uvIndexSet = false;
 			bool multipleUvIndicesUsed = false;
-			const RRObject* object = getObject(objectNumber);
+			const RRObject* object = getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
 			const RRMesh* mesh = object->getCollider()->getMesh();
 			unsigned numTriangles = mesh->getNumTriangles();
 			unsigned numVertices = mesh->getNumVertices();

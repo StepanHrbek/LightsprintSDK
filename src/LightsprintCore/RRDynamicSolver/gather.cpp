@@ -973,7 +973,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	{
 		RRMesh::PreImportNumber preImportTriangleNumber;
 		preImportTriangleNumber.object = objectNumber;
-		preImportTriangleNumber.index = getObject(objectNumber)->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume object's triangle 0 made it into multiobject
+		preImportTriangleNumber.index = getStaticObjects()[objectNumber].object->getCollider()->getMesh()->getPreImportTriangle(0).index; // we assume object's triangle 0 made it into multiobject
 		unsigned postImportTriangleNumber = multiMesh->getPostImportTriangle(preImportTriangleNumber);
 		for (unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
@@ -1000,7 +1000,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 			int threadNum = 0;
 #endif
 			unsigned objectNumber = multiMesh->getPreImportTriangle(t).object;
-			tc.singleObjectReceiver = getObject(objectNumber);
+			tc.singleObjectReceiver = getStaticObjects()[objectNumber].object;
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;
 			ptp.subTexels->begin()->multiObjPostImportTriIndex = t;

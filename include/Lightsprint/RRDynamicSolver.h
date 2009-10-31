@@ -278,9 +278,6 @@ namespace rr
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects() const;
 
-		//! Returns i-th static object in scene. Shortcut for getStaticObjects()[i].object.
-		RRObject* getObject(unsigned i);
-
 		//! Returns illumination of i-th static object in scene. Shortcut for getStaticObjects()[i].illumination.
 		RRObjectIllumination* getIllumination(unsigned i);
 		//! Returns illumination of i-th static object in scene. Shortcut for getStaticObjects()[i].illumination.

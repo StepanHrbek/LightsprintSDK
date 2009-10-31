@@ -889,12 +889,12 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if (solver->getIllumination(i) && solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
+						if (solver->getIllumination(i) && solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices())
 						{
 							delete solver->getIllumination(i)->getLayer(svs.staticLayerNumber);
 							solver->getIllumination(i)->getLayer(svs.staticLayerNumber) = res
 								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL)
-								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 						}
 					}
 

@@ -217,12 +217,6 @@ const RRObjects& RRDynamicSolver::getStaticObjects() const
 }
 
 
-RRObject* RRDynamicSolver::getObject(unsigned i)
-{
-	if (i>=priv->objects.size()) return NULL;
-	return priv->objects[i].object;
-}
-
 RRObject* RRDynamicSolver::getMultiObjectCustom() const
 {
 	return priv->multiObjectCustom;
@@ -641,10 +635,10 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 	// both is used only by realtime per-object illumination
 	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
-		if (getObject(i) && getIllumination(i))
+		if (getStaticObjects()[i].object && getIllumination(i))
 		{
-			unsigned numVertices = getObject(i)->getCollider()->getMesh()->getNumVertices();
-			unsigned numTriangles = getObject(i)->getCollider()->getMesh()->getNumTriangles();
+			unsigned numVertices = getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
+			unsigned numTriangles = getStaticObjects()[i].object->getCollider()->getMesh()->getNumTriangles();
 			if (numVertices && numTriangles)
 			{
 				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
@@ -663,7 +657,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 					const rr::RRMaterial* previousMaterial = NULL;
 					for (unsigned t=0;t<numTriangles;t++)
 					{
-						const rr::RRMaterial* material = getObject(i)->getTriangleMaterial(t,NULL,NULL);
+						const rr::RRMaterial* material = getStaticObjects()[i].object->getTriangleMaterial(t,NULL,NULL);
 						if (material && material!=previousMaterial)
 						{
 							previousMaterial = material;
@@ -676,7 +670,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 					{
 						// measure object's size
 						rr::RRVec3 mini,maxi;
-						getObject(i)->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+						getStaticObjects()[i].object->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
 						rr::RRVec3 size = maxi-mini;
 						float sizeMidi = size.sum()-size.maxi()-size.mini();
 						// continue only for non-planar objects, cubical reflection looks bad on plane
@@ -685,8 +679,8 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 						{
 							// allocate specular cube map
 							rr::RRVec3 center;
-							getObject(i)->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
-							const rr::RRMatrix3x4* matrix = getObject(i)->getWorldMatrix();
+							getStaticObjects()[i].object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
+							const rr::RRMatrix3x4* matrix = getStaticObjects()[i].object->getWorldMatrix();
 							if (matrix) matrix->transformPosition(center);
 							getIllumination(i)->envMapWorldCenter = center;
 							getIllumination(i)->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);

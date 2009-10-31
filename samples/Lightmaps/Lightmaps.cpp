@@ -519,7 +519,7 @@ int main(int argc, char **argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		unsigned numVertices = solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
+		unsigned numVertices = solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
 		// realtime per-vertex
 		solver->getIllumination(i)->getLayer(LAYER_REALTIME) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 		// offline per-vertex
@@ -527,7 +527,7 @@ int main(int argc, char **argv)
 		// offline per-pixel
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getObject(i)->getCollider()->getMesh()->getNumTriangles()))) res*=2;
+		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
 		solver->getIllumination(i)->getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 

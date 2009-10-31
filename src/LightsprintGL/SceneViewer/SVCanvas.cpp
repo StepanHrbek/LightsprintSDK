@@ -721,7 +721,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (svs.renderLightmaps2d && lv)
 	{
-		lv->setObject(solver->getIllumination(svs.selectedObjectIndex)->getLayer((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:svs.staticLayerNumber),solver->getObject(svs.selectedObjectIndex),svs.renderLightmapsBilinear);
+		lv->setObject(
+			solver->getIllumination(svs.selectedObjectIndex)->getLayer((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:svs.staticLayerNumber),
+			(svs.selectedObjectIndex<solver->getStaticObjects().size())?solver->getStaticObjects()[svs.selectedObjectIndex].object:NULL,
+			svs.renderLightmapsBilinear);
 		lv->OnPaint(event,GetSize());
 	}
 	else
@@ -937,7 +940,7 @@ rendered:
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
 		// gather information about selected object
-		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
+		rr::RRObject* singleObject = (svs.selectedObjectIndex<solver->getStaticObjects().size())?solver->getStaticObjects()[svs.selectedObjectIndex].object:NULL;
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 
@@ -1104,7 +1107,7 @@ rendered:
 							if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
 							for (unsigned j=0;j<numObjects;j++)
 							{
-								if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
+								if (multiObject->getTriangleMaterial(t,rrlight,solver->getStaticObjects()[j].object)) numShadowCasters++;
 							}
 						}
 					}
@@ -1144,7 +1147,7 @@ rendered:
 							if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
 							for (unsigned j=0;j<numObjects;j++)
 							{
-								if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
+								if (singleObject->getTriangleMaterial(t,rrlight,solver->getStaticObjects()[j].object)) numShadowsCast++;
 							}
 						}
 					}
@@ -1191,7 +1194,7 @@ rendered:
 					textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
 					rr::RRBuffer* objectsLightmap = solver->getIllumination(preTriangle.object)->getLayer(svs.staticLayerNumber);
 					textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
-					textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
+					textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getStaticObjects()[preTriangle.object].object->getCollider()->getMesh()->getNumTriangles()); // preTriangle.object should be in range
 					textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
@@ -1247,7 +1250,7 @@ rendered:
 						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
 						for (unsigned j=0;j<numObjects;j++)
 						{
-							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
+							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getStaticObjects()[j].object)) numShadowsCast++;
 						}
 					}
 					textOutput(x,y+=18,h,"received lights: %d/%d",numReceivedLights,numLights);
