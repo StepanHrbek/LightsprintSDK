@@ -75,14 +75,14 @@ int main(int argc, char **argv)
 			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 			while (res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-				solver->getIllumination(i)->getLayer(layerNumber) =
+				solver->getStaticObjects()[i].illumination->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 		}
 		else
 		{
 			// allocate vertex buffers for other objects
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-				solver->getIllumination(i)->getLayer(layerNumber) =
+				solver->getStaticObjects()[i].illumination->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}

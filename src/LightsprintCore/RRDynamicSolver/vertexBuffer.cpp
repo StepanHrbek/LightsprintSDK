@@ -36,7 +36,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 	priv->preVertex2PostTriangleVertex.resize(priv->objects.size());
 	for (unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
-		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		RRObjectIllumination* illumination = getStaticObjects()[objectHandle].illumination;
 		if (illumination)
 		{
 			unsigned numPreImportSingleVertices = illumination->getNumPreImportVertices();
@@ -101,7 +101,7 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
 	for (int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 	{
-		priv->preVertex2Ivertex[1+objectHandle].resize(getIllumination(objectHandle) ? getIllumination(objectHandle)->getNumPreImportVertices() : 0,&pink);
+		priv->preVertex2Ivertex[1+objectHandle].resize(getStaticObjects()[objectHandle].illumination ? getStaticObjects()[objectHandle].illumination->getNumPreImportVertices() : 0,&pink);
 	}
 	
 	// fill tables
@@ -172,7 +172,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		return 0;
 	}
 	unsigned numPreImportVertices = (objectNumber>=0)
-		? getIllumination(objectNumber)->getNumPreImportVertices() // elements in original object vertex buffer
+		? getStaticObjects()[objectNumber].illumination->getNumPreImportVertices() // elements in original object vertex buffer
 		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
 	if (vertexBuffer->getType()!=BT_VERTEX_BUFFER || vertexBuffer->getWidth()<numPreImportVertices)
 	{
@@ -265,13 +265,13 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned
 {
 	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getStaticObjects().size());
 
-	if (!priv->scene || !vertexBuffer || !getIllumination(objectHandle))
+	if (!priv->scene || !vertexBuffer || objectHandle>=getStaticObjects().size() || !getStaticObjects()[objectHandle].illumination)
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
 	const RRScaler* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
-	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
+	unsigned numPreImportVertices = getStaticObjects()[objectHandle].illumination->getNumPreImportVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
 	for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)

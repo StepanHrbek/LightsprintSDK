@@ -83,7 +83,7 @@ void precalculateOneLayer(rr::RRDynamicSolver* _solver, rr::RRLightField* _light
 		unsigned numVertices = _solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
 		if (numVertices)
 		{
-			_solver->getIllumination(i)->getLayer(_layerNumber) =
+			_solver->getStaticObjects()[i].illumination->getLayer(_layerNumber) =
 				(i==SELECTED_STATIC_OBJECT)
 				?
 				// allocate lightmap for selected object

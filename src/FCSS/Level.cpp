@@ -70,7 +70,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-		solver->getIllumination(i)->getLayer(0) =
+		solver->getStaticObjects()[i].illumination->getLayer(0) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 	// init light
@@ -86,7 +86,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		if (!ldm)
 		{
 			// build light detail map
-			solver->getIllumination(0)->getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
+			solver->getStaticObjects()[0].illumination->getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
 			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 200);
 			paramsDirect.applyLights = 0;
 			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 200);
@@ -112,7 +112,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 			}
 		}
 		free(ldmName);
-		solver->getIllumination(0)->getLayer(getLDMLayer()) = ldm;
+		solver->getStaticObjects()[0].illumination->getLayer(getLDMLayer()) = ldm;
 	}
 
 	// load Fireball

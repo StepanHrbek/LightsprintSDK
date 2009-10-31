@@ -254,7 +254,7 @@ void RendererOfRRDynamicSolver::render()
 		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
-		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getIllumination(0)->getLayer(params.layerNumberLDM);
+		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getStaticObjects()[0].illumination->getLayer(params.layerNumberLDM);
 		if (params.layerNumberLDM!=UINT_MAX && params.solver->getStaticObjects().size()>1) 
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"LDM not rendered, call useOriginalScene() rather than useOptimizedScene(). Original works only for scenes with 1 object.\n"));
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
@@ -277,7 +277,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
-		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getIllumination(0)->getLayer(params.layerNumberLDM) : NULL);
+		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getStaticObjects()[0].illumination->getLayer(params.layerNumberLDM) : NULL);
 		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?&light->getRRLight():NULL);
 
 		if (uberProgramSetup.MATERIAL_SPECULAR)
@@ -592,7 +592,7 @@ void RendererOfOriginalScene::render()
 		perObjectSorted = new PerObjectSorted[params.solver->getStaticObjects().size()];
 		for (unsigned i=0;i<params.solver->getStaticObjects().size();i++)
 		{
-			perObjectPermanent[i].init(params.solver->getStaticObjects()[i].object,params.solver->getIllumination(i));
+			perObjectPermanent[i].init(params.solver->getStaticObjects()[i].object,params.solver->getStaticObjects()[i].illumination);
 			perObjectSorted[i].permanent = perObjectPermanent+i;
 			perObjectSorted[i].distance = 0;
 		}

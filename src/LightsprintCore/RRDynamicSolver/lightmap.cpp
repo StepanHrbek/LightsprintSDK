@@ -434,12 +434,12 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getStaticObjects().size()-1);
 				return 0;
 			}
-			if (!getIllumination(objectNumber))
+			if (!getStaticObjects()[objectNumber].illumination)
 			{
-				RRReporter::report(WARN,"getIllumination(%d) is NULL.\n",objectNumber);
+				RRReporter::report(WARN,"getStaticObjects()[%d].illumination is NULL.\n",objectNumber);
 				return 0;
 			}
-			vertexBufferWidth = getIllumination(objectNumber)->getNumPreImportVertices();
+			vertexBufferWidth = getStaticObjects()[objectNumber].illumination->getNumPreImportVertices();
 		}
 
 		RRBuffer* allBuffers[NUM_BUFFERS];
@@ -678,11 +678,11 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	unsigned sizeOfAllBuffers = 0;
 	for (unsigned object=0;object<getStaticObjects().size();object++)
 	{
-		if (getIllumination(object))
+		if (getStaticObjects()[object].illumination)
 		{
 			for (unsigned i=0;i<NUM_BUFFERS;i++)
 			{
-				RRBuffer* buffer = getIllumination(object)->getLayer(allLayers[i]);
+				RRBuffer* buffer = getStaticObjects()[object].illumination->getLayer(allLayers[i]);
 				if (buffer)
 				{
 					sizeOfAllBuffers += buffer->getMemoryOccupied();
@@ -766,7 +766,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			{
 				if (allLayers[i]>=0)
 				{
-					RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
+					RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle].illumination ? getStaticObjects()[objectHandle].illumination->getLayer(allLayers[i]) : NULL );
 					if (vertexBuffer)
 					{
 						if (i==LS_LIGHTMAP)
@@ -803,13 +803,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 				// for each object with vertex buffer
 				if (paramsDirect.debugObject==UINT_MAX) // skip update when debugging
 				{
-					for (unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+					for (unsigned objectHandle=0;objectHandle<getStaticObjects().size();objectHandle++)
 					{
 						for (unsigned i=0;i<NUM_BUFFERS;i++)
 						{
 							if (allLayers[i]>=0 && !aborting)
 							{
-								RRBuffer* vertexBuffer = onlyVbuf( getIllumination(objectHandle) ? getIllumination(objectHandle)->getLayer(allLayers[i]) : NULL );
+								RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle].illumination ? getStaticObjects()[objectHandle].illumination->getLayer(allLayers[i]) : NULL );
 								if (vertexBuffer)
 									updatedBuffers += updateVertexBufferFromPerTriangleDataPhysical(objectHandle,vertexBuffer,finalGatherPhysical->data[i],sizeof(*finalGatherPhysical->data[i]),i!=LS_BENT_NORMALS);
 							}
@@ -832,7 +832,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 				unsigned numPixelBuffers = 0;
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					allPixelBuffers[i] = (allLayers[i]>=0 && getIllumination(object)) ? onlyLmap(getIllumination(object)->getLayer(allLayers[i])) : NULL;
+					allPixelBuffers[i] = (allLayers[i]>=0 && getStaticObjects()[object].illumination) ? onlyLmap(getStaticObjects()[object].illumination->getLayer(allLayers[i])) : NULL;
 					if (allPixelBuffers[i]) numPixelBuffers++;
 				}
 
@@ -842,7 +842,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 					{
 						// light detail map
 						RRReportInterval report(INF2,"Creating light detail map...\n");
-						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getIllumination(object)->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
+						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object].illumination->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
 						updateLightmap(object,lowDetail,NULL,NULL,&paramsDirect,_filtering);
 						paramsDirect.lowDetailForLightDetailMap = lowDetail;
 						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
