@@ -1583,7 +1583,7 @@ void mainMenu(int item)
 				static unsigned captureIndex = 0;
 				char filename[100];
 				// save all ambient maps (static objects)
-				for (unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<level->solver->getStaticObjects().size();objectIndex++)
 				{
 					rr::RRBuffer* map = level->solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
 					if (map)
@@ -1619,7 +1619,7 @@ void mainMenu(int item)
 				unsigned captureIndex = 0;
 				char filename[200];
 				// load all ambient maps (static objects)
-				for (unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				for (unsigned objectIndex=0;objectIndex<level->solver->getStaticObjects().size();objectIndex++)
 				{
 					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
 					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);

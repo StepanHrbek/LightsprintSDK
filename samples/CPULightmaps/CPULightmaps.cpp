@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<solver->getNumObjects();i++)
+	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
 		const rr::RRMesh* mesh = solver->getObject(i)->getCollider()->getMesh();
 		if (i==SELECTED_OBJECT_NUMBER)

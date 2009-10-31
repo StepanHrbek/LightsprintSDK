@@ -78,7 +78,7 @@ void precalculateOneLayer(rr::RRDynamicSolver* _solver, rr::RRLightField* _light
 {
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<_solver->getNumObjects();i++)
+	for (unsigned i=0;i<_solver->getStaticObjects().size();i++)
 	{
 		unsigned numVertices = _solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
 		if (numVertices)

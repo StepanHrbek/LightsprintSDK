@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news95 ------------------------------------ 2009.11.xx -------------------------------------
+
+CHANGES
+
+- cleanup in RRDynamicSolver
+  - removed getNumObjects(), use getStaticObjects().size()
+
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------
 
 NEWS

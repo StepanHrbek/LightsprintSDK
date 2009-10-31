@@ -154,7 +154,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		{
 			// rendering into shadowmap, so skipping render=disabling shadow
 			// kdyz pro aspon 1 receiver true, kreslit, tj.vrhat stiny (muze byt nepresne, ale nebudu delat extra shadowmapu pro kazdy receiver)
-			for (unsigned i=0;i<params.scene->getNumObjects();i++)
+			for (unsigned i=0;i<params.scene->getStaticObjects().size();i++)
 			{
 				if (material = object->getTriangleMaterial(t,params.light,params.scene->getObject(i)))
 					break;

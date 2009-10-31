@@ -967,7 +967,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	//const RRLight** emptyRelevantLights = new const RRLight*[numAllLights*numThreads];
 	// preallocate filled per-object relevantLights
 	unsigned numAllLights = getLights().size();
-	unsigned numObjects = getNumObjects();
+	unsigned numObjects = getStaticObjects().size();
 	std::vector<const RRLight*>* relevantLightsPerObject = new std::vector<const RRLight*>[numObjects];
 	for (unsigned objectNumber=0;objectNumber<numObjects;objectNumber++)
 	{

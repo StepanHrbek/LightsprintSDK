@@ -649,7 +649,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			// starts fireball, sets LI_REALTIME_FIREBALL
 			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
 			// enables ldm if in ram
-			for (unsigned i=0;i<solver->getNumObjects();i++)
+			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 				if (solver->getIllumination(i)->getLayer(svs.ldmLayerNumber))
 				{
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
@@ -703,7 +703,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 			svs.renderLightmaps2d = 0;
 			// checks whether lightmap exists in ram
-			for (unsigned i=0;i<solver->getNumObjects();i++)
+			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 				if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
 					goto atLeastOneLightmapBufferExists;
 			// try to load lightmaps from disk
@@ -739,7 +739,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					solver->leaveFireball();
 
 					// build ldm
-					for (unsigned i=0;i<solver->getNumObjects();i++)
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 						solver->getIllumination(i)->getLayer(svs.ldmLayerNumber) =
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
@@ -788,7 +788,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightmapsBilinear = !svs.renderLightmapsBilinear;
 			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-			for (unsigned i=0;i<solver->getNumObjects();i++)
+			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			{	
 				if (solver->getIllumination(i) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber) && solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 				{

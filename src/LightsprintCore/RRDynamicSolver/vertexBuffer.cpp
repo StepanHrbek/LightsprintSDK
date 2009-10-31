@@ -164,9 +164,9 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 //!  For higher quality final gathered results, use updateLightmaps().
 unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getNumObjects());
+	RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getStaticObjects().size());
 
-	if (!vertexBuffer || objectNumber>=(int)getNumObjects() || objectNumber<-1)
+	if (!vertexBuffer || objectNumber>=(int)getStaticObjects().size() || objectNumber<-1)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -183,7 +183,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	// packed solver
 	if (priv->packedSolver)
 	{
-		RR_ASSERT(priv->preVertex2Ivertex.size()==1+getNumObjects());
+		RR_ASSERT(priv->preVertex2Ivertex.size()==1+getStaticObjects().size());
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectNumber];
 		RR_ASSERT(preVertex2Ivertex.size()==numPreImportVertices);
@@ -263,7 +263,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 // Fast, but used only in offline solutions.
 unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const
 {
-	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getNumObjects());
+	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getStaticObjects().size());
 
 	if (!priv->scene || !vertexBuffer || !getIllumination(objectHandle))
 	{

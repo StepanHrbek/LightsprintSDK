@@ -152,7 +152,7 @@ void SVCanvas::createContext()
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
-	if (solver->getNumObjects())
+	if (solver->getStaticObjects().size())
 	{
 		switch (svs.renderLightIndirect)
 		{
@@ -165,7 +165,7 @@ void SVCanvas::createContext()
 	// init rest
 	lv = new SVLightmapViewer(svs.pathToShaders);
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
-	if (svs.selectedObjectIndex>=solver->getNumObjects()) svs.selectedObjectIndex = 0;
+	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
@@ -244,12 +244,12 @@ SVCanvas::~SVCanvas()
 		// delete all textures created by us
 		if (solver->getEnvironment())
 			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
-		for (unsigned i=0;i<solver->getNumObjects();i++)
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			if (solver->getIllumination(i)->getLayer(svs.staticLayerNumber))
 				solver->getIllumination(i)->getLayer(svs.staticLayerNumber)->customData = NULL;
 
 		// delete all lightmaps for realtime rendering
-		for (unsigned i=0;i<solver->getNumObjects();i++)
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		{
 			if (solver->getIllumination(i))
 				RR_SAFE_DELETE(solver->getIllumination(i)->getLayer(svs.realtimeLayerNumber));
@@ -1026,7 +1026,7 @@ rendered:
 			int x = 10;
 			int y = 10;
 			int h = GetSize().y;
-			unsigned numObjects = solver->getNumObjects();
+			unsigned numObjects = solver->getStaticObjects().size();
 			{
 				// what direct
 				const char* strDirect = "?";
@@ -1113,7 +1113,7 @@ rendered:
 					textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 				}
 			}
-			if (singleMesh && svs.selectedObjectIndex<solver->getNumObjects())
+			if (singleMesh && svs.selectedObjectIndex<solver->getStaticObjects().size())
 			{
 				textOutput(x,y+=18*2,h,"[static object %d/%d]",svs.selectedObjectIndex,numObjects);
 				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);

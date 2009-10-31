@@ -217,11 +217,6 @@ const RRObjects& RRDynamicSolver::getStaticObjects() const
 }
 
 
-unsigned RRDynamicSolver::getNumObjects() const
-{
-	return (unsigned)priv->objects.size();
-}
-
 RRObject* RRDynamicSolver::getObject(unsigned i)
 {
 	if (i>=priv->objects.size()) return NULL;
@@ -644,7 +639,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 {
 	// allocate vertex buffers and specular cubemaps
 	// both is used only by realtime per-object illumination
-	for (unsigned i=0;i<getNumObjects();i++)
+	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
 		if (getObject(i) && getIllumination(i))
 		{
@@ -739,7 +734,7 @@ void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, 
 	{
 		//rr::RRReportInterval report(rr::INF1,"Update spec cubes.\n");
 		priv->solutionVersionInSpecularEnvMaps = solutionVersion;
-		for (unsigned i=0;i<getNumObjects();i++)
+		for (unsigned i=0;i<getStaticObjects().size();i++)
 		{
 			if (getIllumination(i) && getIllumination(i)->specularEnvMap)
 			{

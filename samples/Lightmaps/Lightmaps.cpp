@@ -274,7 +274,7 @@ void keyboard(unsigned char c, int x, int y)
 				//  b) calculate only one object
 				//static unsigned obj=0;
 				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&paramsDirect);
-				//++obj%=solver->getNumObjects();
+				//++obj%=solver->getStaticObjects().size();
 
 				// update vertex buffers too, for comparison with pixel buffers
 				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&paramsDirect,&paramsIndirect,NULL);
@@ -517,7 +517,7 @@ int main(int argc, char **argv)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<solver->getNumObjects();i++)
+	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
 		unsigned numVertices = solver->getObject(i)->getCollider()->getMesh()->getNumVertices();
 		// realtime per-vertex

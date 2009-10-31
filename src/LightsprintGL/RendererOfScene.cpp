@@ -588,9 +588,9 @@ void RendererOfOriginalScene::render()
 	// Create object renderers
 	if (!perObjectPermanent)
 	{
-		perObjectPermanent = new PerObjectPermanent[params.solver->getNumObjects()];
-		perObjectSorted = new PerObjectSorted[params.solver->getNumObjects()];
-		for (unsigned i=0;i<params.solver->getNumObjects();i++)
+		perObjectPermanent = new PerObjectPermanent[params.solver->getStaticObjects().size()];
+		perObjectSorted = new PerObjectSorted[params.solver->getStaticObjects().size()];
+		for (unsigned i=0;i<params.solver->getStaticObjects().size();i++)
 		{
 			perObjectPermanent[i].init(params.solver->getObject(i),params.solver->getIllumination(i));
 			perObjectSorted[i].permanent = perObjectPermanent+i;
@@ -606,7 +606,7 @@ void RendererOfOriginalScene::render()
 		return;
 	}
 	unsigned numObjectsToRender = 0;
-	for (unsigned i=0;i<params.solver->getNumObjects();i++) if (params.solver->getObject(i))
+	for (unsigned i=0;i<params.solver->getStaticObjects().size();i++) if (params.solver->getObject(i))
 	{
 		perObjectSorted[numObjectsToRender].permanent = perObjectPermanent+i;
 		perObjectSorted[numObjectsToRender].distance = (perObjectPermanent[i].objectCenter-eye->pos).length2();

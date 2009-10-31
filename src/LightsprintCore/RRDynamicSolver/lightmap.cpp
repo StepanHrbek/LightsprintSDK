@@ -376,7 +376,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 {
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
 	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d, %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
-		objectNumber,getNumObjects(),
+		objectNumber,getStaticObjects().size(),
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
 		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getWidth():0,
@@ -429,9 +429,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		}
 		else
 		{
-			if (objectNumber>=(int)getNumObjects() || objectNumber<0)
+			if (objectNumber>=(int)getStaticObjects().size() || objectNumber<0)
 			{
-				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getStaticObjects().size()-1);
 				return 0;
 			}
 			if (!getIllumination(objectNumber))
@@ -621,7 +621,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			RRReporter::report(WARN,
 				"No texels rendered into map, %s (object=%d/%d numTriangles=%d numVertices=%d emptyBuffers=%d/%d resolution=%dx%d uvIndex=%d)\n",
 				hint,
-				objectNumber,getNumObjects(),
+				objectNumber,getStaticObjects().size(),
 				numTriangles,numVertices,
 				numBuffersEmpty,numBuffersFull+numBuffersEmpty,
 				pixelBufferWidth,pixelBufferHeight,
@@ -676,7 +676,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	bool containsPixelBuffers = false;
 	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
 	unsigned sizeOfAllBuffers = 0;
-	for (unsigned object=0;object<getNumObjects();object++)
+	for (unsigned object=0;object<getStaticObjects().size();object++)
 	{
 		if (getIllumination(object))
 		{
@@ -824,7 +824,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	if (containsPixelBuffers)
 	if (!(paramsDirect.debugTexel==UINT_MAX && paramsDirect.debugTriangle!=UINT_MAX)) // skip pixel-gathering when debugging triangle
 	{
-		for (unsigned object=0;object<getNumObjects();object++)
+		for (unsigned object=0;object<getStaticObjects().size();object++)
 		{
 			if ((paramsDirect.debugObject==UINT_MAX || paramsDirect.debugObject==object) && !aborting) // skip objects when debugging texel
 			{

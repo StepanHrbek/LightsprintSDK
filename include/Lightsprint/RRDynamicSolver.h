@@ -278,9 +278,6 @@ namespace rr
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects() const;
 
-		//! Returns number of static objects in scene. Shortcut for getStaticObjects().size().
-		unsigned getNumObjects() const;
-
 		//! Returns i-th static object in scene. Shortcut for getStaticObjects()[i].object.
 		RRObject* getObject(unsigned i);
 

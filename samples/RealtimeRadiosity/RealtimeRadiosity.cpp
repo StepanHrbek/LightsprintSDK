@@ -399,7 +399,7 @@ int main(int argc, char **argv)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<solver->getNumObjects();i++)
+	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		if (solver->getObject(i)->getCollider()->getMesh()->getNumVertices())
 			solver->getIllumination(i)->getLayer(0) =
 				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getObject(i)->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
