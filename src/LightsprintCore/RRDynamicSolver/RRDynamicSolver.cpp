@@ -122,7 +122,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			_objects[i]->illumination = new RRObjectIllumination(_objects[i]->getCollider()->getMesh()->getNumVertices());
 	}
 
-	priv->objects = _objects;
+	priv->staticObjects = _objects;
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
 
 	// delete old
@@ -131,19 +131,19 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 	// create new
 
-	RRReportInterval report(_copyFrom?INF9:INF2,"Attaching %d static objects...\n",priv->objects.size());
+	RRReportInterval report(_copyFrom?INF9:INF2,"Attaching %d static objects...\n",getStaticObjects().size());
 
 	// create multi in custom scale
-	RRObject** importers = new RRObject*[priv->objects.size()];
+	RRObject** importers = new RRObject*[getStaticObjects().size()];
 	unsigned origNumVertices = 0;
 	unsigned origNumTriangles = 0;
-	for (unsigned i=0;i<(unsigned)priv->objects.size();i++)
+	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
-		importers[i] = priv->objects[i];
+		importers[i] = getStaticObjects()[i];
 		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
 		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 	}
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,getStaticObjects().size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 	delete[] importers;
 
@@ -202,7 +202,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		}
 
 		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, emiss %s, lods %s\n",
-			priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
+			getStaticObjects().size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
 			unsigned(memoryOccupiedByTextures>>20),
 			priv->staticSceneContainsEmissiveMaterials?"yes":"no",
 			priv->staticSceneContainsLods?"yes":"no");
@@ -216,9 +216,18 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 
 const RRObjects& RRDynamicSolver::getStaticObjects() const
 {
-	return priv->objects;
+	return priv->staticObjects;
 }
 
+void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
+{
+	priv->dynamicObjects = _objects;
+}
+
+const RRObjects& RRDynamicSolver::getDynamicObjects() const
+{
+	return priv->dynamicObjects;
+}
 
 RRObject* RRDynamicSolver::getMultiObjectCustom() const
 {

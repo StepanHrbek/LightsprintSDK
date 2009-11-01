@@ -33,8 +33,8 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 	}
 	// allocate and clear table
 	// (_full_ clear to UNDEFINED. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles))
-	priv->preVertex2PostTriangleVertex.resize(priv->objects.size());
-	for (unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+	priv->preVertex2PostTriangleVertex.resize(getStaticObjects().size());
+	for (unsigned objectHandle=0;objectHandle<getStaticObjects().size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getStaticObjects()[objectHandle]->illumination;
 		if (illumination)
@@ -97,9 +97,9 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	static RRVec3 pink(0);
 #endif
 	RR_ASSERT(priv->preVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
-	priv->preVertex2Ivertex.resize(1+priv->objects.size());
+	priv->preVertex2Ivertex.resize(1+getStaticObjects().size());
 	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
-	for (int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
+	for (int objectHandle=0;objectHandle<(int)getStaticObjects().size();objectHandle++)
 	{
 		priv->preVertex2Ivertex[1+objectHandle].resize(getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getNumPreImportVertices() : 0,&pink);
 	}

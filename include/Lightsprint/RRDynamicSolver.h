@@ -282,6 +282,18 @@ namespace rr
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects() const;
 
+		//! Sets dynamic contents of scene, all dynamic objects at once.
+		//
+		//! Unlike static objects, you may freely edit dynamic objects between frames.
+		//! If you add or remove objects, call setDynamicObjects() again. If you only edit objects,
+		//! there's no need to call it again.
+		//!
+		//! Dynamic objects affect realtime lighting, they are ignored when building static lightmaps.
+		void setDynamicObjects(const RRObjects& objects);
+		//! Returns dynamic contents of scene, all dynamic objects at once.
+		const RRObjects& getDynamicObjects() const;
+
+
 		//! Optional parameters of calculate(). Currently used only by Fireball.
 		struct CalculateParameters
 		{

@@ -10,6 +10,12 @@ namespace rr
 
 \section news95 ------------------------------------ 2009.11.xx -------------------------------------
 
+NEWS
+
+- preparations for deeper dynamic object support
+  - RRDynamicSolver::setDynamicObjects() added (has no effect yet)
+  - RRDynamicSolver::getDynamicObjects() added
+
 CHANGES
 
 - cleanup in RRDynamicSolver

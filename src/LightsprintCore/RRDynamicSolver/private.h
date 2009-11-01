@@ -24,8 +24,9 @@ namespace rr
 		};
 
 		// scene: inputs
-		RRObjects  objects;
-		SmoothingParameters smoothing;
+		RRObjects  staticObjects;
+		RRObjects  dynamicObjects;
+		SmoothingParameters smoothing; // for staticObjects only
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
 		bool       forcedMultiObjectCustom;

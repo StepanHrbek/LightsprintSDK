@@ -760,7 +760,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	// 3. vertex: realtime copy into buffers (solver not modified)
 	if (containsVertexBuffers && containsRealtime)
 	{
-		for (int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++) if (!aborting)
+		for (int objectHandle=0;objectHandle<(int)getStaticObjects().size();objectHandle++) if (!aborting)
 		{
 			for (unsigned i=0;i<NUM_BUFFERS;i++)
 			{
