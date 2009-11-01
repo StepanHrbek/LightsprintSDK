@@ -107,7 +107,6 @@ class RRObjectMGF : public RRObject, RRMesh
 {
 public:
 	RRObjectMGF(const char* filename);
-	RRObjectIllumination* getIllumination();
 	virtual ~RRObjectMGF();
 
 	// RRMesh
@@ -140,9 +139,6 @@ public:
 	
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
-
-	// indirect illumination (ambient maps etc)
-	RRObjectIllumination* illumination;
 };
 
 
@@ -275,19 +271,10 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 	// create collider
 	bool aborting = false;
 	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
-
-	// create illumination
-	illumination = new RRObjectIllumination(getNumVertices());
-}
-
-RRObjectIllumination* RRObjectMGF::getIllumination()
-{
-	return illumination;
 }
 
 RRObjectMGF::~RRObjectMGF()
 {
-	delete illumination;
 	delete collider;
 }
 
@@ -360,14 +347,14 @@ public:
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if (object->getNumTriangles())
-			push_back(RRIlluminatedObject(object,object->getIllumination()));
+			push_back(object);
 		else
 			delete object;
 	}
 	virtual ~RRObjectsMGF()
 	{
 		if (size())
-			delete (*this)[0].object;
+			delete (*this)[0];
 	}
 };
 

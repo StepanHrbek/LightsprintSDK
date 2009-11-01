@@ -106,15 +106,21 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=NULL.\n");
 		return;
 	}
-	unsigned nullObjects = 0;
-	unsigned nullIllums = 0;
 	for (unsigned i=0;i<_objects.size();i++)
 	{
-		if (!_objects[i].object) nullObjects++;
-		if (!_objects[i].illumination) nullIllums++;
+		if (!_objects[i])
+		{
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]=NULL.\n",i);
+			return;
+		}
 	}
-	if (nullObjects) RRReporter::report(WARN,"setStaticObjects: Bad input, object==NULL in %d/%d objects, may crash.\n",nullObjects,_objects.size());
-	if (nullIllums) RRReporter::report(WARN,"setStaticObjects: Bad input, illumination==NULL in %d/%d objects, may crash.\n",nullIllums,_objects.size());
+
+	// alloc missing illuminations
+	for (unsigned i=0;i<_objects.size();i++)
+	{
+		if (!_objects[i]->illumination)
+			_objects[i]->illumination = new RRObjectIllumination(_objects[i]->getCollider()->getMesh()->getNumVertices());
+	}
 
 	priv->objects = _objects;
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
@@ -133,12 +139,9 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	unsigned origNumTriangles = 0;
 	for (unsigned i=0;i<(unsigned)priv->objects.size();i++)
 	{
-		importers[i] = priv->objects[i].object;
-		if (importers[i])
-		{
-			origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
-			origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
-		}
+		importers[i] = priv->objects[i];
+		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
+		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 	}
 	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
@@ -623,21 +626,21 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 	// both is used only by realtime per-object illumination
 	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
-		if (getStaticObjects()[i].object && getStaticObjects()[i].illumination)
+		if (getStaticObjects()[i] && getStaticObjects()[i]->illumination)
 		{
-			unsigned numVertices = getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
-			unsigned numTriangles = getStaticObjects()[i].object->getCollider()->getMesh()->getNumTriangles();
+			unsigned numVertices = getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
+			unsigned numTriangles = getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles();
 			if (numVertices && numTriangles)
 			{
 				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
 				// (this should be called also if lightmapLayerNumber changes... for now it never changes during solver existence)
-				if (allocateLightmapLayerNumber>=0 && !getStaticObjects()[i].illumination->getLayer(allocateLightmapLayerNumber))
+				if (allocateLightmapLayerNumber>=0 && !getStaticObjects()[i]->illumination->getLayer(allocateLightmapLayerNumber))
 				{
-					getStaticObjects()[i].illumination->getLayer(allocateLightmapLayerNumber) =
+					getStaticObjects()[i]->illumination->getLayer(allocateLightmapLayerNumber) =
 						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 				}
 				// allocate specular cubes for LIGHT_INDIRECT_CUBE_SPECULAR
-				if (allocateSpecularEnvMaps && !getStaticObjects()[i].illumination->specularEnvMap)
+				if (allocateSpecularEnvMaps && !getStaticObjects()[i]->illumination->specularEnvMap)
 				{
 					// measure object's specularity
 					float maxDiffuse = 0;
@@ -645,7 +648,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 					const rr::RRMaterial* previousMaterial = NULL;
 					for (unsigned t=0;t<numTriangles;t++)
 					{
-						const rr::RRMaterial* material = getStaticObjects()[i].object->getTriangleMaterial(t,NULL,NULL);
+						const rr::RRMaterial* material = getStaticObjects()[i]->getTriangleMaterial(t,NULL,NULL);
 						if (material && material!=previousMaterial)
 						{
 							previousMaterial = material;
@@ -658,7 +661,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 					{
 						// measure object's size
 						rr::RRVec3 mini,maxi;
-						getStaticObjects()[i].object->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+						getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
 						rr::RRVec3 size = maxi-mini;
 						float sizeMidi = size.sum()-size.maxi()-size.mini();
 						// continue only for non-planar objects, cubical reflection looks bad on plane
@@ -667,12 +670,12 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 						{
 							// allocate specular cube map
 							rr::RRVec3 center;
-							getStaticObjects()[i].object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
-							const rr::RRMatrix3x4* matrix = getStaticObjects()[i].object->getWorldMatrix();
+							getStaticObjects()[i]->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
+							const rr::RRMatrix3x4* matrix = getStaticObjects()[i]->getWorldMatrix();
 							if (matrix) matrix->transformPosition(center);
-							getStaticObjects()[i].illumination->envMapWorldCenter = center;
-							getStaticObjects()[i].illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
-							updateEnvironmentMapCache(getStaticObjects()[i].illumination);
+							getStaticObjects()[i]->illumination->envMapWorldCenter = center;
+							getStaticObjects()[i]->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
+							updateEnvironmentMapCache(getStaticObjects()[i]->illumination);
 						}
 					}
 				}
@@ -718,9 +721,9 @@ void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, 
 		priv->solutionVersionInSpecularEnvMaps = solutionVersion;
 		for (unsigned i=0;i<getStaticObjects().size();i++)
 		{
-			if (getStaticObjects()[i].illumination && getStaticObjects()[i].illumination->specularEnvMap)
+			if (getStaticObjects()[i]->illumination && getStaticObjects()[i]->illumination->specularEnvMap)
 			{
-				updateEnvironmentMap(getStaticObjects()[i].illumination);
+				updateEnvironmentMap(getStaticObjects()[i]->illumination);
 			}
 		}
 	}

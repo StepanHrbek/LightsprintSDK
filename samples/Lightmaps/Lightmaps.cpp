@@ -273,7 +273,7 @@ void keyboard(unsigned char c, int x, int y)
 				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&paramsDirect,&paramsIndirect,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
-				//solver->updateLightmap(obj,solver->getStaticObjects()[obj].illumination->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&paramsDirect);
+				//solver->updateLightmap(obj,solver->getStaticObjects()[obj]->illumination->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&paramsDirect);
 				//++obj%=solver->getStaticObjects().size();
 
 				// update vertex buffers too, for comparison with pixel buffers
@@ -519,16 +519,16 @@ int main(int argc, char **argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		unsigned numVertices = solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumVertices();
+		unsigned numVertices = solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
 		// realtime per-vertex
-		solver->getStaticObjects()[i].illumination->getLayer(LAYER_REALTIME) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+		solver->getStaticObjects()[i]->illumination->getLayer(LAYER_REALTIME) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 		// offline per-vertex
-		solver->getStaticObjects()[i].illumination->getLayer(LAYER_OFFLINE_VERTEX) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+		solver->getStaticObjects()[i]->illumination->getLayer(LAYER_OFFLINE_VERTEX) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 		// offline per-pixel
 		unsigned res = 16;
 		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i].object->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getStaticObjects()[i].illumination->getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles()))) res*=2;
+		solver->getStaticObjects()[i]->illumination->getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 
 	// init light

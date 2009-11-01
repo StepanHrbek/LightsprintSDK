@@ -13,9 +13,15 @@ namespace rr
 CHANGES
 
 - cleanup in RRDynamicSolver
+  - removed RRIlluminatedObject
+    - RRObjects is now collection of RRObject
+    - illumination was moved to RRObject::illumination
+    - scene adapters no longer allocate/delete illumination -> simpler adapters
+    - change objects[i].object to objects[i]
+    - change objects[i].illumination to objects[i]->illumination
   - removed getNumObjects(), use getStaticObjects().size()
-  - removed getObject(i), use getStaticObjects()[i].object and make sure i is not out of range, new version does not check it.
-  - gemoved getIllumination(i), use getStaticObjects()[i].illumination and make sure i is not out of range
+  - removed getObject(i), use getStaticObjects()[i] and make sure i is not out of range, new version does not check it
+  - removed getIllumination(i), use getStaticObjects()[i]->illumination and make sure i is not out of range
 
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------
 

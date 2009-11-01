@@ -54,7 +54,8 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual ~RRObject() {}
+		RRObject();
+		virtual ~RRObject();
 
 
 		//
@@ -154,6 +155,12 @@ namespace rr
 		//!  You are free to define and support any other names in your adapters.
 		//!  Usage example: <code>const char* objectName = (const char*)object->getCustomData("const char* objectName");</code>
 		virtual void* getCustomData(const char* name) const;
+
+		//! Illumination of this object.
+		//
+		//! Initialized to NULL, solver allocates it, ~RRObject deletes it.
+		//! \n You can allocate illumination manually, solver allocates it only if it is NULL.
+		RRObjectIllumination* illumination;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -314,21 +321,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRIlluminatedObject
-	//! 3d object with storage space for calculated illumination.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	struct RRIlluminatedObject
-	{
-		RRObject* object;
-		RRObjectIllumination* illumination;
-		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	//  RRObjects
 	//! Set of illuminated objects with interface similar to std::vector.
 	//
@@ -341,7 +333,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRObjects : public RRVector<RRIlluminatedObject>
+	class RR_API RRObjects : public RRVector<RRObject*>
 	{
 	public:
 		//! Structure used by recommendLayerParameters().
@@ -439,6 +431,7 @@ namespace rr
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
 
+		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
 	};
 

@@ -66,7 +66,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	try
 	{
 	// iterate only triangles in singlemesh
-	RRObject* singleObject = tc.solver->getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
+	RRObject* singleObject = tc.solver->getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
 	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for (unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
@@ -434,12 +434,12 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getStaticObjects().size()-1);
 				return 0;
 			}
-			if (!getStaticObjects()[objectNumber].illumination)
+			if (!getStaticObjects()[objectNumber]->illumination)
 			{
-				RRReporter::report(WARN,"getStaticObjects()[%d].illumination is NULL.\n",objectNumber);
+				RRReporter::report(WARN,"getStaticObjects()[%d]->illumination is NULL.\n",objectNumber);
 				return 0;
 			}
-			vertexBufferWidth = getStaticObjects()[objectNumber].illumination->getNumPreImportVertices();
+			vertexBufferWidth = getStaticObjects()[objectNumber]->illumination->getNumPreImportVertices();
 		}
 
 		RRBuffer* allBuffers[NUM_BUFFERS];
@@ -552,7 +552,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			return updatedBuffers;
 		}
 		tc.params = &params;
-		tc.singleObjectReceiver = getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
+		tc.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
 		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
@@ -592,7 +592,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			unsigned uvIndex = 0;
 			bool uvIndexSet = false;
 			bool multipleUvIndicesUsed = false;
-			const RRObject* object = getStaticObjects()[objectNumber].object; // safe objectNumber, checked in updateLightmap()
+			const RRObject* object = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
 			const RRMesh* mesh = object->getCollider()->getMesh();
 			unsigned numTriangles = mesh->getNumTriangles();
 			unsigned numVertices = mesh->getNumVertices();
@@ -678,11 +678,11 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	unsigned sizeOfAllBuffers = 0;
 	for (unsigned object=0;object<getStaticObjects().size();object++)
 	{
-		if (getStaticObjects()[object].illumination)
+		if (getStaticObjects()[object]->illumination)
 		{
 			for (unsigned i=0;i<NUM_BUFFERS;i++)
 			{
-				RRBuffer* buffer = getStaticObjects()[object].illumination->getLayer(allLayers[i]);
+				RRBuffer* buffer = getStaticObjects()[object]->illumination->getLayer(allLayers[i]);
 				if (buffer)
 				{
 					sizeOfAllBuffers += buffer->getMemoryOccupied();
@@ -766,7 +766,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			{
 				if (allLayers[i]>=0)
 				{
-					RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle].illumination ? getStaticObjects()[objectHandle].illumination->getLayer(allLayers[i]) : NULL );
+					RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getLayer(allLayers[i]) : NULL );
 					if (vertexBuffer)
 					{
 						if (i==LS_LIGHTMAP)
@@ -809,7 +809,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 						{
 							if (allLayers[i]>=0 && !aborting)
 							{
-								RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle].illumination ? getStaticObjects()[objectHandle].illumination->getLayer(allLayers[i]) : NULL );
+								RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getLayer(allLayers[i]) : NULL );
 								if (vertexBuffer)
 									updatedBuffers += updateVertexBufferFromPerTriangleDataPhysical(objectHandle,vertexBuffer,finalGatherPhysical->data[i],sizeof(*finalGatherPhysical->data[i]),i!=LS_BENT_NORMALS);
 							}
@@ -832,7 +832,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 				unsigned numPixelBuffers = 0;
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					allPixelBuffers[i] = (allLayers[i]>=0 && getStaticObjects()[object].illumination) ? onlyLmap(getStaticObjects()[object].illumination->getLayer(allLayers[i])) : NULL;
+					allPixelBuffers[i] = (allLayers[i]>=0 && getStaticObjects()[object]->illumination) ? onlyLmap(getStaticObjects()[object]->illumination->getLayer(allLayers[i])) : NULL;
 					if (allPixelBuffers[i]) numPixelBuffers++;
 				}
 
@@ -842,7 +842,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 					{
 						// light detail map
 						RRReportInterval report(INF2,"Creating light detail map...\n");
-						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object].illumination->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
+						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object]->illumination->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
 						updateLightmap(object,lowDetail,NULL,NULL,&paramsDirect,_filtering);
 						paramsDirect.lowDetailForLightDetailMap = lowDetail;
 						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);

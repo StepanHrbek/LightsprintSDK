@@ -69,7 +69,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	DeleteChildren(objects);
 	for (unsigned i=0;solver && i<solver->getStaticObjects().size();i++)
 	{
-		const char* objectName = (const char*)solver->getStaticObjects()[i].object->getCustomData("const char* objectName");
+		const char* objectName = (const char*)solver->getStaticObjects()[i]->getCustomData("const char* objectName");
 		AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 	}
 

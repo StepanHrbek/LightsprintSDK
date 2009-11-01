@@ -620,7 +620,7 @@ public:
 					NiRenderObject* renderObject = casterList.RemoveHead();
 					for (unsigned i=0;i<objects.size();i++)
 					{
-						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i]);
 						if (object->mesh==renderObject)
 						{
 							RR_ASSERT(object->meshIndex<isCaster.size());
@@ -636,7 +636,7 @@ public:
 					NiRenderObject* renderObject = receiverList.RemoveHead();
 					for (unsigned i=0;i<objects.size();i++)
 					{
-						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i]);
 						if (object->mesh==renderObject)
 						{
 							RR_ASSERT(object->meshIndex<isReceiver.size());
@@ -653,7 +653,7 @@ public:
 					NiAVObject* renderObject = casterList.RemoveHead();
 					for (unsigned i=0;i<objects.size();i++)
 					{
-						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i]);
 						if (object->mesh==renderObject)
 						{
 							RR_ASSERT(object->meshIndex<isCaster.size());
@@ -669,7 +669,7 @@ public:
 					NiAVObject* renderObject = receiverList.RemoveHead();
 					for (unsigned i=0;i<objects.size();i++)
 					{
-						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i].object);
+						RRObjectGamebryoBase* object = (RRObjectGamebryoBase*)(objects[i]);
 						if (object->mesh==renderObject)
 						{
 							RR_ASSERT(object->meshIndex<isReceiver.size());
@@ -1150,15 +1150,10 @@ public:
 	}
 	virtual ~RRObjectGamebryo()
 	{
-		delete illumination;
 		delete collider->getMesh();
 		delete collider;
 	}
 
-	RRObjectIllumination* getIllumination()
-	{
-		return illumination;
-	}
 	virtual const RRCollider* getCollider() const
 	{
 		return collider;
@@ -1261,12 +1256,10 @@ private:
 		collider = _collider;
 		lodInfo = _lodInfo;
 		worldMatrix = convertMatrix(mesh->GetWorldTransform());
-		illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
 		material = _materialCache.getMaterial(mesh);
 	}
 
 	const RRCollider* collider;
-	RRObjectIllumination* illumination;
 	RRMatrix3x4 worldMatrix;
 	RRMaterial* material;
 	LodInfo lodInfo;
@@ -1399,8 +1392,8 @@ public:
 								{
 									for (unsigned i=0;i<objects->size();i++)
 									{
-										if (((RRObjectGamebryo*)(*objects)[i].object)->mesh==pkMesh)
-											((RRObjectGamebryo*)(*objects)[i].object)->meshProperties = kProps;
+										if (((RRObjectGamebryo*)(*objects)[i])->mesh==pkMesh)
+											((RRObjectGamebryo*)(*objects)[i])->meshProperties = kProps;
 									}
 									return true;
 								}
@@ -1424,10 +1417,13 @@ public:
 	{
 		struct SortElement
 		{
-			RRIlluminatedObject illuminatedObject;
+			RRObject* object;
 			RRHash hash;
 
-			SortElement() : illuminatedObject(NULL,NULL) {}
+			SortElement()
+			{
+				object=NULL;
+			}
 			static int sortByHashes(const void* ptr1, const void* ptr2)
 			{
 				const SortElement* elem1 = (const SortElement*)ptr1;
@@ -1439,17 +1435,17 @@ public:
 		SortElement* sortElement = new SortElement[numElements];
 		for (unsigned i=0;i<numElements;i++)
 		{
-			sortElement[i].illuminatedObject = (*this)[i];
+			sortElement[i].object = (*this)[i];
 			// calculates hash from mesh transformed to world space
 			// hashing in local space would produce identical hashes for mesh instances
-			RRMesh* worldSpaceMesh = sortElement[i].illuminatedObject.object->getCollider()->getMesh()->createTransformed(sortElement[i].illuminatedObject.object->getWorldMatrix());
+			RRMesh* worldSpaceMesh = sortElement[i].object->getCollider()->getMesh()->createTransformed(sortElement[i].object->getWorldMatrix());
 			sortElement[i].hash = worldSpaceMesh->getHash();
 			delete worldSpaceMesh;
 		}
 		qsort(sortElement,numElements,sizeof(sortElement[0]),SortElement::sortByHashes);
 		clear();
 		for (unsigned i=0;i<numElements;i++)
-			push_back(sortElement[i].illuminatedObject);
+			push_back(sortElement[i].object);
 		delete[] sortElement;
 	}
 #endif
@@ -1457,7 +1453,7 @@ public:
 	{
 		for (unsigned int i=0; i<size(); i++)
 		{
-			delete (*this)[i].object;
+			delete (*this)[i];
 		}
 	}
 
@@ -1505,7 +1501,7 @@ public:
 		RR_SAFE_FREE(layerParameters.actualFilename);
 		LightmapFunctor lightmapFunctor;
 		lightmapFunctor.layerParameters = &layerParameters;
-		lightmapFunctor.object = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object;
+		lightmapFunctor.object = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex];
 		NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,lightmapFunctor);
 
 		// fill size, type, format
@@ -1527,7 +1523,7 @@ public:
 			return;
 		}
 
-		RRObjectGamebryo* rrObject = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex].object;
+		RRObjectGamebryo* rrObject = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex];
 		PerEntitySettings& perEntitySettings = rrObject->perEntitySettings;
 		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
 		{
@@ -1647,7 +1643,7 @@ private:
 #ifdef VERIFY
 				rrObject->getCollider()->getMesh()->checkConsistency(CH_LIGHTMAP,size());
 #endif
-				push_back(RRIlluminatedObject(rrObject, rrObject->getIllumination()));
+				push_back(rrObject);
 			}
 		}
 	}
@@ -2137,7 +2133,7 @@ void RRSceneGamebryo::updateCastersReceiversCache()
 		// Reindex meshes.
 		for (unsigned i=0;i<objects->size();i++)
 		{
-			((RRObjectGamebryo*)((*objects)[i].object))->meshIndex = i;
+			((RRObjectGamebryo*)((*objects)[i]))->meshIndex = i;
 		}
 		// Update cache in lights.
 		for (unsigned i=0;i<lights->size();i++)

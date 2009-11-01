@@ -50,7 +50,6 @@ class RRObject3DS : public RRObject, public RRMesh
 {
 public:
 	RRObject3DS(Model_3DS* model, unsigned objectIdx);
-	RRObjectIllumination* getIllumination();
 	virtual ~RRObject3DS();
 
 	// RRMesh
@@ -82,9 +81,6 @@ private:
 
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
-
-	// indirect illumination (ambient maps etc)
-	RRObjectIllumination* illumination;
 };
 
 
@@ -128,19 +124,10 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 	// create collider
 	bool aborting = false;
 	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
-
-	// create illumination
-	illumination = new RRObjectIllumination((unsigned)object->numVerts);
-}
-
-RRObjectIllumination* RRObject3DS::getIllumination()
-{
-	return illumination;
 }
 
 RRObject3DS::~RRObject3DS()
 {
-	delete illumination;
 	delete collider;
 }
 
@@ -262,17 +249,14 @@ public:
 	{
 		for (unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
-			RRObject3DS* object = new RRObject3DS(model,i);
-			push_back(RRIlluminatedObject(object,object->getIllumination()));
+			push_back(new RRObject3DS(model,i));
 		}
 	}
 	virtual ~RRObjects3DS()
 	{
 		for (unsigned i=size();i--;)
 		{
-			// no need to delete illumination separately, we created it as part of object
-			//delete (*this)[i].illumination;
-			delete (*this)[i].object;
+			delete (*this)[i];
 		}
 	}
 };

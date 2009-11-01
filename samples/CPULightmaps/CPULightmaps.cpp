@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		const rr::RRMesh* mesh = solver->getStaticObjects()[i].object->getCollider()->getMesh();
+		const rr::RRMesh* mesh = solver->getStaticObjects()[i]->getCollider()->getMesh();
 		if (i==SELECTED_OBJECT_NUMBER)
 		{
 			// allocate lightmaps for selected object
@@ -75,14 +75,14 @@ int main(int argc, char **argv)
 			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 			while (res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-				solver->getStaticObjects()[i].illumination->getLayer(layerNumber) =
+				solver->getStaticObjects()[i]->illumination->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 		}
 		else
 		{
 			// allocate vertex buffers for other objects
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-				solver->getStaticObjects()[i].illumination->getLayer(layerNumber) =
+				solver->getStaticObjects()[i]->illumination->getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 		}
 	}

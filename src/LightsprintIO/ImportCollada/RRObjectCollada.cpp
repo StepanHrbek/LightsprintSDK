@@ -705,7 +705,6 @@ class RRObjectCollada : public RRObject
 {
 public:
 	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, MaterialCacheCollada* materialCache);
-	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
 	// RRObject
@@ -726,9 +725,6 @@ private:
 
 	// copy of object's transformation matrix
 	RRMatrix3x4                worldMatrix;
-
-	// indirect illumination (ambient maps etc)
-	RRObjectIllumination*      illumination;
 };
 
 void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
@@ -758,9 +754,6 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	geometryInstance = _geometryInstance;
 	collider = _collider;
 	materialCache = _materialCache;
-
-	// create illumination
-	illumination = new RRObjectIllumination(collider->getMesh()->getNumVertices());
 
 	// create transformation matrices
 	getNodeMatrices(node,&worldMatrix,NULL);
@@ -823,14 +816,8 @@ void* RRObjectCollada::getCustomData(const char* name) const
 	return RRObject::getCustomData(name);
 }
 
-RRObjectIllumination* RRObjectCollada::getIllumination()
-{
-	return illumination;
-}
-
 RRObjectCollada::~RRObjectCollada()
 {
-	delete illumination;
 	// don't delete collider and mesh, we haven't created them
 }
 
@@ -941,7 +928,7 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 #ifdef VERIFY
 				object->getCollider()->getMesh()->checkConsistency(LIGHTMAP_CHANNEL,size());
 #endif
-				push_back(RRIlluminatedObject(object,object->getIllumination()));
+				push_back(object);
 			}
 		}
 	}
@@ -1016,10 +1003,7 @@ RRObjectsCollada::~RRObjectsCollada()
 	// delete objects
 	for (unsigned i=0;i<size();i++)
 	{
-		// no need to delete illumination separately,
-		//  object created it, object deletes it
-		//delete (*this)[i].illumination;
-		delete (*this)[i].object;
+		delete (*this)[i];
 	}
 	// delete meshes and colliders (stored in cache)
 	for (ColliderCache::iterator i = colliderCache.begin(); i!=colliderCache.end(); i++)

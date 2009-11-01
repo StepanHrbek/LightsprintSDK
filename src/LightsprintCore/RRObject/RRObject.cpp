@@ -19,6 +19,16 @@ namespace rr
 //
 // RRObject
 
+RRObject::RRObject()
+{
+	illumination = NULL;
+}
+
+RRObject::~RRObject()
+{
+	delete illumination;
+}
+
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, const RRScaler* scaler) const
 {
 	if (!scaler)

@@ -14,7 +14,6 @@
 #include <cmath>
 #include <cstdio>
 #include <vector>
-#include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"
 
 //#define MARK_OPENED // mark used textures by read-only attribute
@@ -54,7 +53,6 @@ class RRObjectQuake3 : public RRObject, public RRMesh
 {
 public:
 	RRObjectQuake3(TMapQ3* model, const char* pathToTextures, RRBuffer* missingTexture);
-	RRObjectIllumination* getIllumination();
 	virtual ~RRObjectQuake3();
 
 	// RRMesh
@@ -94,9 +92,6 @@ private:
 	
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
-
-	// indirect illumination (ambient maps etc)
-	RRObjectIllumination* illumination;
 };
 
 // texcoord channels
@@ -324,20 +319,11 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 	// create collider
 	bool aborting = false;
 	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
-
-	// create illumination
-	illumination = new RRObjectIllumination(RRObjectQuake3::getNumVertices());
-}
-
-RRObjectIllumination* RRObjectQuake3::getIllumination()
-{
-	return illumination;
 }
 
 RRObjectQuake3::~RRObjectQuake3()
 {
 	for (unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
-	delete illumination;
 	delete collider;
 }
 
@@ -469,13 +455,11 @@ public:
 	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,RRBuffer* missingTexture)
 	{
 		RRObjectQuake3* object = new RRObjectQuake3(model,pathToTextures,missingTexture);
-		push_back(RRIlluminatedObject(object,object->getIllumination()));
+		push_back(object);
 	}
 	virtual ~RRObjectsQuake3()
 	{
-		// no need to delete illumination separately, we created it as part of object
-		//delete (*this)[0].illumination;
-		delete (*this)[0].object;
+		delete (*this)[0];
 	}
 };
 

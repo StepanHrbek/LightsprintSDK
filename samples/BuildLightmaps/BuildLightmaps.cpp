@@ -268,23 +268,23 @@ struct Parameters
 	}
 
 	// allocate layers for 1 object (lightmaps etc)
-	void layersCreate(const rr::RRIlluminatedObject* illuminatedObject) const
+	void layersCreate(rr::RRObjectIllumination* illumination) const
 	{
-		illuminatedObject->illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illuminatedObject->illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer() : NULL;
 	}
 
 	// save layers of 1 object, returns number of successfully saved layers
-	unsigned layersSave(const rr::RRIlluminatedObject* illuminatedObject) const
+	unsigned layersSave(const rr::RRObjectIllumination* illumination) const
 	{
 		unsigned saved = 0;
 		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
 		{
-			if (illuminatedObject->illumination->getLayer(layerIndex))
+			if (illumination->getLayer(layerIndex))
 			{
 				// insert layer name before extension
 				std::string filename = layerParameters.actualFilename;
@@ -292,7 +292,7 @@ struct Parameters
 				int ofs = (int)filename.rfind('.',-1);
 				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);
 				// save
-				saved += illuminatedObject->illumination->getLayer(layerIndex)->save(filename.c_str());
+				saved += illumination->getLayer(layerIndex)->save(filename.c_str());
 			}
 		}
 		return saved;
@@ -451,7 +451,7 @@ int main(int argc, char **argv)
 			// query size, format etc
 			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
 			// allocate
-			objectParameters.layersCreate(&(*scene.getObjects())[objectIndex]);
+			objectParameters.layersCreate((*scene.getObjects())[objectIndex]->illumination);
 		}
 	}
 
@@ -501,7 +501,7 @@ int main(int argc, char **argv)
 			// query filename
 			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
 			// save
-			saved += objectParameters.layersSave(&(*scene.getObjects())[objectIndex]);
+			saved += objectParameters.layersSave((*scene.getObjects())[objectIndex]->illumination);
 		}
 
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);

@@ -16,7 +16,6 @@
 
 #include <cstdio>
 #include <vector>
-#include "Lightsprint/RRIllumination.h"
 #include "RRObjectOBJ.h"
 
 using namespace rr;
@@ -111,15 +110,9 @@ public:
 #endif
 		bool aborting = false;
 		collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
-		illumination = new RRObjectIllumination(RRObjectOBJ::getNumVertices());
-	}
-	RRObjectIllumination* getIllumination()
-	{
-		return illumination;
 	}
 	virtual ~RRObjectOBJ()
 	{
-		delete illumination;
 		delete collider;
 	}
 
@@ -214,9 +207,6 @@ private:
 	
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
-
-	// indirect illumination (ambient maps etc)
-	RRObjectIllumination* illumination;
 };
 
 
@@ -231,14 +221,14 @@ public:
 	{
 		RRObjectOBJ* object = new RRObjectOBJ(filename,scale);
 		if (object->getNumTriangles())
-			push_back(RRIlluminatedObject(object,object->getIllumination()));
+			push_back(object);
 		else
 			delete object;
 	}
 	virtual ~RRObjectsOBJ()
 	{
 		if (size())
-			delete (*this)[0].object;
+			delete (*this)[0];
 	}
 };
 

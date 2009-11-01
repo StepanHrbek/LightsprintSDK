@@ -256,13 +256,17 @@ namespace rr
 		//! Handling major occluders as dynamic objects is safe,
 		//! but it introduces errors in lighting, so it is not recommended.
 		//!
+		//! For all static objects with RRObject::illumination NULL, illumination is allocated.
+		//!
 		//! setStaticObjects() removes effects of previous loadFireball() or calculate().
 		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
-		//!  Objects should not move (in 3d space) during our lifetime.
 		//!  Object's getTriangleMaterial() and getPointMaterial() should return values
 		//!  in custom scale (usually screen colors).
+		//!  \n You guarantee that these objects will stay completely static(constant)
+		//!  until next setStaticObjects() call or solver destruction.
+		//!  Changing their meshes, positions, colors etc could lead to crash.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
@@ -548,7 +552,7 @@ namespace rr
 		//! Usage:
 		//! -# create buffers of arbitrary types and formats
 		//!   (per-pixel, per-vertex, bytes, floats, rgb, rgba, physical scale, custom scale)
-		//!   and store them to getStaticObjects()[objectNumber].illumination->getLayer(layerIndex)
+		//!   and store them to getStaticObjects()[objectNumber]->illumination->getLayer(layerIndex)
 		//! -# call updatelightmaps()
 		//! -# enjoy buffers with computed lighting, you can do buffer->save(), buffer->lock(), rendererOfScene->render()...
 		//!
@@ -565,15 +569,15 @@ namespace rr
 		//!
 		//! \param layerNumberLighting
 		//!  1 lightmap per object will be computed into existing buffers in this layer,
-		//!  getStaticObjects()[objectNumber].illumination->getLayer(layerNumber).
+		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumber).
 		//!  \n Negative number disables update of lightmaps.
 		//! \param layerNumberDirectionalLighting
 		//!  3 directional lightmaps per object will be computed into existing buffers in this layer and two successive layers,
-		//!  getStaticObjects()[objectNumber].illumination->getLayer(layerNumber).
+		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumber).
 		//!  \n Negative number disables update of directional lightmaps.
 		//! \param layerNumberBentNormals
 		//!  Bent normals will be computed into existing buffers in this layer,
-		//!  getStaticObjects()[objectNumber].illumination->getLayer(layerNumberBentNormals).
+		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumberBentNormals).
 		//!  \n Negative number disables update of bent normals.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
@@ -813,17 +817,17 @@ namespace rr
 		//! Buffers that already exist are not touched.
 		//! \n Called automatically from updateBuffersForRealtimeGI().
 		//! \param allocateLightmapLayerNumber
-		//!  If >=0, vertex buffers in getStaticObjects()[].illumination->getLayer(allocateLightmapLayerNumber) are allocated.
+		//!  If >=0, vertex buffers in getStaticObjects()[]->illumination->getLayer(allocateLightmapLayerNumber) are allocated.
 		//! \param allocateSpecularEnvMaps
-		//!  If true, specular envmaps in getStaticObjects()[].illumination->specularEnvMap are allocated for objects that benefit from them.
+		//!  If true, specular envmaps in getStaticObjects()[]->illumination->specularEnvMap are allocated for objects that benefit from them.
 		void allocateBuffersForRealtimeGI(int allocateLightmapLayerNumber, bool allocateSpecularEnvMaps);
 		//! Updates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
 		//
 		//! Calls allocateBuffersForRealtimeGI() automatically when buffers are to be updated for first time.
 		//! \param updateLightmapLayerNumber
-		//!  If >=0, vertex buffers in getStaticObjects()[].illumination->getLayer(updateLightmapLayerNumber) are updated.
+		//!  If >=0, vertex buffers in getStaticObjects()[]->illumination->getLayer(updateLightmapLayerNumber) are updated.
 		//! \param updateSpecularEnvMaps
-		//!  If true, specular envmaps in getStaticObjects()[].illumination->specularEnvMap are updated.
+		//!  If true, specular envmaps in getStaticObjects()[]->illumination->specularEnvMap are updated.
 		void updateBuffersForRealtimeGI(int updateLightmapLayerNumber, bool updateSpecularEnvMaps);
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().

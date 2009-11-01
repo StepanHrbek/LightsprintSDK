@@ -74,7 +74,7 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 void RRObjects::recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
 {
 	RR_ASSERT((unsigned)layerParameters.objectIndex<size());
-	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex].object->getCollider()->getMesh()->getNumPreImportVertices();
+	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex]->getCollider()->getMesh()->getNumPreImportVertices();
 	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
 	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
@@ -91,7 +91,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRObjectIllumination* illumination = (*this)[objectIndex].illumination;
+			RRObjectIllumination* illumination = (*this)[objectIndex]->illumination;
 			if (illumination)
 			{
 				// first try to load per-pixel format
@@ -140,7 +140,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRBuffer* buffer = (*this)[objectIndex].illumination ? (*this)[objectIndex].illumination->getLayer(layerNumber) : NULL;
+			RRBuffer* buffer = (*this)[objectIndex]->illumination ? (*this)[objectIndex]->illumination->getLayer(layerNumber) : NULL;
 			if (buffer)
 			{
 				RRObjects::LayerParameters layerParameters;

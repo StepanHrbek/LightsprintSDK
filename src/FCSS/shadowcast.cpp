@@ -1534,11 +1534,11 @@ void mainMenu(int item)
 
 				// update 1 object
 				static unsigned obj=0;
-				if (level->solver->getStaticObjects()[obj].illumination)
+				if (level->solver->getStaticObjects()[obj]->illumination)
 				{
-					if (!level->solver->getStaticObjects()[obj].illumination->getLayer(0)->pixelBuffer)
-						level->solver->getStaticObjects()[obj].illumination->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512*2,512*2);
-					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj].illumination->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
+					if (!level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer)
+						level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512*2,512*2);
+					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
 				}
 				//
 
@@ -1566,9 +1566,9 @@ void mainMenu(int item)
 					level->solver->updateLightmaps(layerNumber,-1,NULL,NULL);
 					// update 1 lmap
 					static unsigned obj=12;
-					if (!level->solver->getStaticObjects()[obj].illumination->getLayer(layerNumber)->pixelBuffer)
-						level->solver->getStaticObjects()[obj].illumination->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
-					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj].illumination->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirect);
+					if (!level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer)
+						level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
+					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirect);
 				}
 
 				// stop updating maps in realtime, stay with what we computed here
@@ -1585,7 +1585,7 @@ void mainMenu(int item)
 				// save all ambient maps (static objects)
 				for (unsigned objectIndex=0;objectIndex<level->solver->getStaticObjects().size();objectIndex++)
 				{
-					rr::RRBuffer* map = level->solver->getStaticObjects()[objectIndex].illumination->getLayer(0)->pixelBuffer;
+					rr::RRBuffer* map = level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0)->pixelBuffer;
 					if (map)
 					{
 						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -1626,8 +1626,8 @@ void mainMenu(int item)
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if (loaded)
 					{
-						delete level->solver->getStaticObjects()[objectIndex].illumination->getLayer(0);
-						level->solver->getStaticObjects()[objectIndex].illumination->getLayer(0) = loaded;
+						delete level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0);
+						level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0) = loaded;
 					}
 				}
 				/*/ load all environment maps (dynamic objects)
