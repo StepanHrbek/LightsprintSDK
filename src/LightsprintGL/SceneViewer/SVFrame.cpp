@@ -17,6 +17,8 @@
 #include "SVSaveLoad.h"
 #include "SVSceneProperties.h"
 #include "SVLightProperties.h"
+#include "SVObjectProperties.h"
+#include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
 #include "../tmpstr.h"
 #include "wx/aboutdlg.h"
@@ -258,6 +260,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_canvas = NULL;
 	m_sceneProperties = new SVSceneProperties(this,svs);
 	m_lightProperties = new SVLightProperties(this);
+	m_objectProperties = new SVObjectProperties(this);
+	m_materialProperties = new SVMaterialProperties(this);
 	m_sceneTree = new SVSceneTree(this,svs);
 
 	static const char * sample_xpm[] = {
@@ -316,6 +320,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
+	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name(wxT("objectproperties")).Caption(wxT("Object properties")).CloseButton(true).Right());
+	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name(wxT("materialproperties")).Caption(wxT("Material properties")).CloseButton(true).Right());
 	windowLayout[1] = wxString("f")+m_mgr.SavePerspective();
 	windowLayout[0] = wxString("w")+m_mgr.SavePerspective();
 	m_mgr.Update();
@@ -460,6 +466,10 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties(+icons)"),_T("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_T("Object properties"),_T("Opens object properties window."));
+		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_objectProperties->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_T("Material properties"),_T("Opens material properties window."));
+		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"));
@@ -961,6 +971,14 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			m_mgr.GetPane(wxT("lightproperties")).Show(!m_lightProperties->IsShown());
 			m_mgr.Update();
 			break;
+		case ME_WINDOW_OBJECT_PROPERTIES:
+			m_mgr.GetPane(wxT("objectproperties")).Show(!m_objectProperties->IsShown());
+			m_mgr.Update();
+			break;
+		case ME_WINDOW_MATERIAL_PROPERTIES:
+			m_mgr.GetPane(wxT("materialproperties")).Show(!m_materialProperties->IsShown());
+			m_mgr.Update();
+			break;
 		case ME_WINDOW_LAYOUT1:
 		case ME_WINDOW_LAYOUT2:
 		case ME_WINDOW_LAYOUT3:
@@ -1031,16 +1049,23 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 	switch (entity.type)
 	{
 		case ST_LIGHT:
+			// update light properties
 			if (m_lightProperties->IsShown())
 			{
-				// update light properties
 				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index]);
 			}
+
 			m_canvas->selectedType = entity.type;
 			svs.selectedLightIndex = entity.index;
 			break;
 
 		case ST_OBJECT:
+			// update object properties
+			if (m_objectProperties->IsShown())
+			{
+				m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[entity.index]);
+			}
+
 			m_canvas->selectedType = entity.type;
 			svs.selectedObjectIndex = entity.index;
 			break;
@@ -1078,6 +1103,16 @@ void SVFrame::updateSelection()
 	else
 	{
 		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex]);
+	}
+
+	// update object props
+	if (svs.selectedObjectIndex>=m_canvas->solver->getStaticObjects().size())
+	{
+		m_objectProperties->setObject(NULL);
+	}
+	else
+	{
+		m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex]);
 	}
 
 	// update scene tree

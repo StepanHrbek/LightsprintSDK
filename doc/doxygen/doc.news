@@ -20,6 +20,9 @@ NEWS
 - preparations for deeper dynamic object support
   - RRDynamicSolver::setDynamicObjects() added (has no effect yet)
   - RRDynamicSolver::getDynamicObjects() added
+- enhanced rr_gl::sceneViewer() and SceneViewer sample
+  - added object properties window
+  - added material properties window
 
 CHANGES
 

@@ -57,6 +57,9 @@ SceneViewer/SVEntityIcons.spp \
 SceneViewer/SVFrame.spp \
 SceneViewer/SVLightProperties.spp \
 SceneViewer/SVLightmapViewer.spp \
+SceneViewer/SVMaterialProperties.spp \
+SceneViewer/SVMeasuring.spp \
+SceneViewer/SVObjectProperties.spp \
 SceneViewer/SVRayLog.spp \
 SceneViewer/SVSaveLoad.spp \
 SceneViewer/SVSceneProperties.spp \

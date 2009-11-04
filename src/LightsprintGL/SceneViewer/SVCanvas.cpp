@@ -13,6 +13,8 @@
 #include "SVSolver.h"
 #include "SVFrame.h"
 #include "SVLightProperties.h"
+#include "SVObjectProperties.h"
+#include "SVMaterialProperties.h"
 #include "Lightsprint/GL/Timer.h"
 #include "../tmpstr.h"
 #ifdef _WIN32
@@ -471,37 +473,47 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	static int prevY = 0;
 	if (event.LeftDown())
 	{
+		// find scene distance, adjust search range to look only for closer icons
+		ray->rayOrigin = svs.eye.pos;
+		rr::RRVec3 directionToMouse = svs.eye.getDirection(mousePositionInWindow);
+		float directionToMouseLength = directionToMouse.length();
+		ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
+		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
+		ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
+		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
+		ray->collisionHandler = collisionHandler;
+		unsigned hitTriangle = UINT_MAX;
+		rr::RRVec2 hitPoint2d;
+		if (solver->getMultiObjectCustom() && solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 		{
-			// find scene distance, adjust search range to look only for closer icons
-			{
-				ray->rayOrigin = svs.eye.pos;
-				// direction to mouse pointer
-				rr::RRVec3 directionToMouse = svs.eye.getDirection(mousePositionInWindow);
-				float directionToMouseLength = directionToMouse.length();
-				ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
+			// in next step, look only for closer lights
+			ray->rayLengthMax = ray->hitDistance;
+			hitTriangle = ray->hitTriangle;
+			hitPoint2d = ray->hitPoint2d;
+		}
 
-				ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
-				ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
-				ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-				ray->collisionHandler = collisionHandler;
-				if (solver->getMultiObjectCustom() && solver->getMultiObjectCustom()->getCollider()->intersect(ray))
-				{
-					// in next step, look only for closer lights
-					ray->rayLengthMax = ray->hitDistance;
-				}
-			}
-			// find icon closer than scene
-			SVEntities entities;
-			if (parent->m_lightProperties->IsShown())
-				entities.addLights(solver->getLights(),sunIconPosition);
-			if (entityIcons->intersectIcons(entities,ray,iconSize))
+		// find icon distance
+		SVEntities entities;
+		if (parent->m_lightProperties->IsShown())
+			entities.addLights(solver->getLights(),sunIconPosition);
+		if (entityIcons->intersectIcons(entities,ray,iconSize))
+		{
+			// clicked icon
+			parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+		}
+		else
+		{
+			// clicked scene
+			selectedType = ST_CAMERA;
+			rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
+			rr::RRObject* selectedObject = NULL;
+			if (hitTriangle!=UINT_MAX)
 			{
-				parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
-			}
-			else
-			{
-				selectedType = ST_CAMERA;
-			}
+				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(hitTriangle);
+				selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
+			}		
+			parent->m_objectProperties->setObject(selectedObject);
+			parent->m_materialProperties->setMaterial(solver,hitTriangle,hitPoint2d);
 		}
 	}
 	else if (event.GetWheelRotation())
@@ -1234,23 +1246,6 @@ rendered:
 					textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
 					textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
 					textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
-					if (material)
-					{
-						textOutput(x,y+=18,h,"material: %s [%s]",material->name?material->name:"",displayPhysicalMaterials?"physical":"sRGB");
-						textOutput(x,y+=18,h," sides: %s %s",material->sideBits[0].renderFrom?"front":"",material->sideBits[1].renderFrom?"back":"");
-						textOutputMaterialProperty(x,y+=18,h," diff",triangleMaterial->diffuseReflectance   ,material->diffuseReflectance   ,ray,multiMesh);
-						textOutputMaterialProperty(x,y+=18,h," spec",triangleMaterial->specularReflectance  ,material->specularReflectance  ,ray,multiMesh);
-						textOutputMaterialProperty(x,y+=18,h," emit",triangleMaterial->diffuseEmittance     ,material->diffuseEmittance     ,ray,multiMesh);
-						textOutputMaterialProperty(x,y+=18,h," tran",triangleMaterial->specularTransmittance,material->specularTransmittance,ray,multiMesh);
-						textOutput(x,y+=18,h," transparency: %s %s",triangleMaterial->specularTransmittanceInAlpha?"ALPHA":"RGB",triangleMaterial->specularTransmittanceKeyed?"1bit-keyed":"smooth-blended");
-						textOutput(x,y+=18,h," refraction index: %f",material->refractionIndex);
-						textOutput(x,y+=18,h," lightmap uv: %d",material->lightmapTexcoord);
-						textOutput(x,y+=18,h," minimalQualityForPointMaterials: %d",material->minimalQualityForPointMaterials);
-					}
-					else
-					{
-						textOutput(x,y+=18,h,"material=NULL!!!");
-					}
 					unsigned numReceivedLights = 0;
 					unsigned numShadowsCast = 0;
 					for (unsigned i=0;i<numLights;i++)

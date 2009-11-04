@@ -331,10 +331,22 @@
 				RelativePath=".\SceneViewer\SVLightProperties.h">
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVMaterialProperties.cpp">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVMaterialProperties.h">
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVMeasuring.cpp">
 			</File>
 			<File
 				RelativePath=".\SceneViewer\SVMeasuring.h">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVObjectProperties.cpp">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVObjectProperties.h">
 			</File>
 			<File
 				RelativePath=".\SceneViewer\SVRayLog.cpp">
