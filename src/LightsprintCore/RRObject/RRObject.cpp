@@ -21,12 +21,14 @@ namespace rr
 
 RRObject::RRObject()
 {
+	worldMatrix = NULL;
 	illumination = NULL;
 }
 
 RRObject::~RRObject()
 {
 	delete illumination;
+	delete worldMatrix;
 }
 
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, const RRScaler* scaler) const
@@ -139,7 +141,21 @@ void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
 
 const RRMatrix3x4* RRObject::getWorldMatrix()
 {
-	return NULL;
+	return worldMatrix;
+}
+
+void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+{
+	if (_worldMatrix && !_worldMatrix->isIdentity())
+	{
+		if (!worldMatrix)
+			worldMatrix = new RRMatrix3x4;
+		*worldMatrix = *_worldMatrix;
+	}
+	else
+	{
+		RR_SAFE_DELETE(worldMatrix);
+	}
 }
 
 void* RRObject::getCustomData(const char* name) const

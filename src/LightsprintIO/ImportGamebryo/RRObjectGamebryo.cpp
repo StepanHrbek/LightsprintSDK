@@ -1158,12 +1158,8 @@ public:
 	{
 		return collider;
 	}
-	virtual const RRMatrix3x4* getWorldMatrix()
-	{
-		return &worldMatrix;
-	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 		// Support for disabled lighting or shadowing.
@@ -1255,7 +1251,8 @@ private:
 		meshIndex = 0;
 		collider = _collider;
 		lodInfo = _lodInfo;
-		worldMatrix = convertMatrix(mesh->GetWorldTransform());
+		RRMatrix3x4 worldMatrix = convertMatrix(mesh->GetWorldTransform());
+		setWorldMatrix(&worldMatrix);
 		material = _materialCache.getMaterial(mesh);
 	}
 

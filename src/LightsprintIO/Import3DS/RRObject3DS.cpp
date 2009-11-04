@@ -62,8 +62,7 @@ public:
 
 	// RRObject
 	virtual const RRCollider*   getCollider() const;
-	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
-	virtual const RRMatrix3x4*  getWorldMatrix();
+	virtual RRMaterial*         getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	void*                       getCustomData(const char* name) const;
 
 private:
@@ -215,7 +214,7 @@ const RRCollider* RRObject3DS::getCollider() const
 	return collider;
 }
 
-const RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObject3DS::getNumTriangles())
 	{
@@ -223,12 +222,6 @@ const RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* li
 		return NULL;
 	}
 	return triangles[t].material;
-}
-
-const RRMatrix3x4* RRObject3DS::getWorldMatrix()
-{
-	// transformation matrices from 3ds are ignored
-	return NULL;
 }
 
 void* RRObject3DS::getCustomData(const char* name) const

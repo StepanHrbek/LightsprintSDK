@@ -58,19 +58,23 @@ namespace rr
 		virtual ~RRObject();
 
 
-		//
-		// must not change during object lifetime
-		//
-
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
 		//! Must always return valid collider, implementation is not allowed to return NULL.
 		virtual const RRCollider* getCollider() const = 0;
 
-		//! Returns average material description for given triangle.
+		//! Returns material description for given triangle.
 		//
-		//! Although optional per-pixel material queries may be implemented in getPointMaterial(),
-		//! it's mandatory to implement basic getTriangleMaterial() with average values.
+		//! Although more precise per-pixel material query is available in getPointMaterial(),
+		//! this per-triangle version is often preferred for its speed and simplicity.
 		//! Returned pointer must stay valid and constant for whole life of object.
+		//!
+		//! <b>Editing materials</b>
+		//! \nCaller is allowed to modify returned materials including textures, but if he allocates new textures,
+		//! he is responsible for freeing them. RRObject must free only what RRObject allocated.
+		//! Filtered objects (e.g. objects created by createMultiObject(), createWorldSpaceObject()) usually
+		//! share materials, so by modifying base object, filtered one is modified too.
+		//! There is one notable exception - createObjectWithPhysicalMaterials() creates object with new independent
+		//! set of RRMaterials, only textures inside materials are shared with original object.
 		//! \param t
 		//!  Triangle number.
 		//! \param light
@@ -82,7 +86,7 @@ namespace rr
 		//!  Used only when light!=NULL, controls properties of given light.
 		//!  When receiver==NULL, you may return NULL to make triangle invisible for given light (disables both direct lighting and shadow-casting).
 		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
-		virtual const RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const = 0;
+		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const = 0;
 
 		//! Returns material description for point on object's surface.
 		//
@@ -132,19 +136,22 @@ namespace rr
 		//!  For valid t, requested LOD info is written to out. For invalid t, out stays unmodified.
 		virtual void getTriangleLod(unsigned t, LodInfo& out) const;
 
-
-		//
-		// may change during object lifetime
-		//
-
 		//! Returns object transformation from local to world space.
 		//
-		//! Default implementation always returns NULL, which means no transformation.
+		//! Default transformation is NULL, which means no transformation, identity.
+		//! Transformation can be changed by setWorldMatrix().
 		//! \return Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
+
+		//! Sets object transformation from local to world space.
+		//
+		//! It copies data from your matrix rather than remembering your pointer.
+		//! NULL is accepted as no transformation.
+		//! If you set identity matrix, getWorldMatrix() will return NULL.
+		virtual void setWorldMatrix(const RRMatrix3x4* worldMatrix);
 
 		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
 		//
@@ -182,7 +189,8 @@ namespace rr
 		//! \n Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than the original object.
 		//! \param negScaleMakesOuterInner
-		//!  After negative scale, singlesided box visible only from outside will be visible only from inside.
+		//!  True = If you negatively scale singlesided box visible only from outside, it will become visible only from inside. This results in simpler code, recommended.
+		//!  \n False = Makes negatively scaled objects visible from the same side.
 		//!  \n\n Implementation details:
 		//!  \n Both original and transformed object share the same mesh and materials, so both 
 		//!  objects contain triangles with the same vertex order (e.g. ABC, 
@@ -206,6 +214,9 @@ namespace rr
 		//!  hits to back side on negatively scaled object.
 		//!  Note that forced singlesided test (simple test without collision handler, see RRRay::TEST_SINGLESIDED) 
 		//!  detects always front sides, so it won't work with negative scale and negScaleMakesOuterInner=false.
+		//!  \n\nNote that if negScaleMakesOuterInner=false, worldSpaceObject->getTriangleMaterial() on negatively
+		//!  scaled objects returns temporaries, editing them has no effect. If you wish to edit materials,
+		//!  edit them in original object, it will immediately change them also in created world space object.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
 		//! \param aborting
@@ -296,6 +307,9 @@ namespace rr
 		//! positions, normals, tangents, texcoords, material properties (even extracted from textures), transformation.
 		//! Hashing doesn't cover: full texture data, names, uv indices.
 		virtual RRHash getHash() const;
+
+	private:
+		RRMatrix3x4* worldMatrix;
 	};
 
 

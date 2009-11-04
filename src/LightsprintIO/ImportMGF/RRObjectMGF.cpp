@@ -116,8 +116,8 @@ public:
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 
 	// RRObject
-	virtual const RRCollider*   getCollider() const;
-	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
+	virtual const RRCollider* getCollider() const;
+	virtual RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 	// copy of object's vertices
 	struct VertexInfo
@@ -319,7 +319,7 @@ const RRCollider* RRObjectMGF::getCollider() const
 	return collider;
 }
 
-const RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObjectMGF::getNumTriangles())
 	{
@@ -332,7 +332,7 @@ const RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* li
 		RR_ASSERT(0);
 		return NULL;
 	}
-	return &materials[material];
+	return const_cast<RRMaterial*>(&materials[material]);
 }
 
 

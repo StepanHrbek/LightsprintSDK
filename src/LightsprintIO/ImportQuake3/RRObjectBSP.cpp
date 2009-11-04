@@ -64,8 +64,8 @@ public:
 	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
 	// RRObject
-	virtual const RRCollider*   getCollider() const;
-	virtual const RRMaterial*   getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
+	virtual const RRCollider* getCollider() const;
+	virtual RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 private:
 	TMapQ3* model;
@@ -428,7 +428,7 @@ const RRCollider* RRObjectQuake3::getCollider() const
 	return collider;
 }
 
-const RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (t>=RRObjectQuake3::getNumTriangles())
 	{
@@ -441,7 +441,7 @@ const RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight*
 		assert(0);
 		return NULL;
 	}
-	return &materials[s];
+	return const_cast<RRMaterial*>(&materials[s]);
 }
 
 

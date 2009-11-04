@@ -30,9 +30,9 @@ public:
 	{
 	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
-		const RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);
+		RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);
 		if (!scaler || !custom)
 		{
 			return custom;
@@ -47,7 +47,7 @@ public:
 			RR_ASSERT(0);
 			return custom;
 		}
-		return &i->second;
+		return const_cast<RRMaterial*>(&i->second);
 	}
 	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* _scaler = NULL) const
 	{
@@ -109,6 +109,10 @@ public:
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return original->getWorldMatrix();
+	}
+	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+	{
+		original->setWorldMatrix(_worldMatrix);
 	}
 
 private:

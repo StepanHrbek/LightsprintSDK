@@ -89,7 +89,7 @@ public:
 		return multiCollider;
 	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
@@ -303,7 +303,7 @@ public:
 		t = unoptimizedMesh->getPostImportTriangle(preImportTriangle);
 	}
 
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light,receiver);

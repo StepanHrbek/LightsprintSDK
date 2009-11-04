@@ -182,9 +182,9 @@ public:
 	{
 		return collider;
 	}
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
-		return &material;
+		return const_cast<RRMaterial*>(&material);
 	}
 
 private:

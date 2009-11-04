@@ -488,7 +488,7 @@ public:
 		invertedA_ONETransparency = false;
 		defaultMaterial.reset(false);
 	}
-	const RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
+	RRMaterial* getMaterial(const FCDMaterialInstance* materialInstance)
 	{
 		if (!materialInstance)
 		{
@@ -709,8 +709,7 @@ public:
 
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
-	virtual const RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
-	virtual const RRMatrix3x4* getWorldMatrix();
+	virtual RRMaterial*        getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 	void*                      getCustomData(const char* name) const;
 
 private:
@@ -722,9 +721,6 @@ private:
 
 	// collider for ray-mesh collisions
 	const RRCollider*          collider;
-
-	// copy of object's transformation matrix
-	RRMatrix3x4                worldMatrix;
 };
 
 void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
@@ -756,7 +752,9 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	materialCache = _materialCache;
 
 	// create transformation matrices
+	RRMatrix3x4 worldMatrix;
 	getNodeMatrices(node,&worldMatrix,NULL);
+	setWorldMatrix(&worldMatrix);
 }
 
 const RRCollider* RRObjectCollada::getCollider() const
@@ -764,7 +762,7 @@ const RRCollider* RRObjectCollada::getCollider() const
 	return collider;
 }
 
-const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 {
 	if (!geometryInstance)
 	{
@@ -802,11 +800,6 @@ const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight
 		}
 	}
 	return materialCache->getMaterial(materialInstance);
-}
-
-const RRMatrix3x4* RRObjectCollada::getWorldMatrix()
-{
-	return &worldMatrix;
 }
 
 void* RRObjectCollada::getCustomData(const char* name) const

@@ -12,12 +12,22 @@ namespace rr
 
 NEWS
 
+- RRObject API extended from read-only to read-write, scenes may be edited
+  - RRObject::setWorldMatrix() added
+  - RRObject::getTriangleMaterial() modified, now you can edit returned materials
+  - works for all supported formats, Collada, 3ds, Gamebryo etc
+- RRMatrix3x4::isIdentity() added
 - preparations for deeper dynamic object support
   - RRDynamicSolver::setDynamicObjects() added (has no effect yet)
   - RRDynamicSolver::getDynamicObjects() added
 
 CHANGES
 
+- const removed from RRObject::getTriangleMaterial(), you have to remove it from your implementations too.
+  \n This change makes returned materials writeable, they can be modified.
+- simplified scene adapters
+  - worldMatrix is stored in base RRObject, remove worldMatrix and getWorldMatrix() from your derived classes
+  - illumination is stored in base RRObject, remove illumination and getIllumination() from your derived classes
 - cleanup in RRDynamicSolver
   - removed RRIlluminatedObject
     - RRObjects is now collection of RRObject

@@ -27,7 +27,7 @@ public:
 	{
 		return inherited->getCollider();
 	}
-	virtual const RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		return inherited->getTriangleMaterial(t,light,receiver);
 	}
@@ -42,6 +42,10 @@ public:
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return inherited->getWorldMatrix();
+	}
+	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+	{
+		return inherited->setWorldMatrix(_worldMatrix);
 	}
 
 protected:
