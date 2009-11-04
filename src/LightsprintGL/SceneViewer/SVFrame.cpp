@@ -464,7 +464,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_T("Scene properties"),_T("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties(+icons)"),_T("Opens light properties window and starts rendering light icons."));
+		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_T("Object properties"),_T("Opens object properties window."));
 		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_objectProperties->IsShown());
