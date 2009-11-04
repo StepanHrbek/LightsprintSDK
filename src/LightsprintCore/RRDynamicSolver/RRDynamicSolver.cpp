@@ -134,18 +134,15 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	RRReportInterval report(_copyFrom?INF9:INF2,"Attaching %d static objects...\n",getStaticObjects().size());
 
 	// create multi in custom scale
-	RRObject** importers = new RRObject*[getStaticObjects().size()];
 	unsigned origNumVertices = 0;
 	unsigned origNumTriangles = 0;
 	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
-		importers[i] = getStaticObjects()[i];
-		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
-		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
+		origNumVertices += getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
+		origNumTriangles += getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles();
 	}
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(importers,getStaticObjects().size(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
-	delete[] importers;
 
 	// convert it to physical scale
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler(),aborting) : NULL; // no scaler -> physical==custom

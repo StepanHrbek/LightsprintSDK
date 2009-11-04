@@ -238,11 +238,9 @@ namespace rr
 		//!  see RRMesh::createMultiMesh(). Note that for non-negative vertexWeldDistance,
 		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
 		//! \param objects
-		//!  Array of objects you want to create multiobject from.
-		//!  Objects from array should stay alive for whole life of multiobjects (this is your responsibility).
-		//!  Array alone may be destructed immediately by you.
-		//! \param numObjects
-		//!  Number of objects in array.
+		//!  Collection of objects you want to create multiobject from.
+		//!  Objects from collection should stay alive for whole life of multiobjects (this is your responsibility).
+		//!  Collection alone may be destructed immediately by you.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
 		//! \param aborting
@@ -268,7 +266,7 @@ namespace rr
 		//!  Directory for caching intermediate files used by RRCollider.
 		//!  It is passed to RRCollider::create(), so
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
+		static RRObject* createMultiObject(const class RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
 
 		//! Creates and returns object with materials converted to physical space.
 		//
