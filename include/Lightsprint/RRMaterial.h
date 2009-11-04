@@ -184,8 +184,12 @@ namespace rr
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		unsigned      lightmapTexcoord;
 		//! Hint for solver, material tells solver to use RRObject::getPointMaterial()
-		//! if desired lighting quality is equal or higher to this number.
+		//! if desired lighting quality is equal or higher than this number.
 		//! Inited to UINT_MAX (=never use point materials), automatically adjusted by updateColorsFromTextures().
+		//!
+		//! Warning: If you don't call updateColorsFromTextures(), make sure you adjust minimalQualityForPointMaterials on per-material basis.
+		//! Keeping UINT_MAX would make keyed objects cast solid shadows to lightmaps.
+		//! Setting always 0 would make lightmap build very slow.
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material, may be NULL. Not freed/deleted in destructor. Shallow copied in assignment operator and copy constructor.
 		const char*   name;
