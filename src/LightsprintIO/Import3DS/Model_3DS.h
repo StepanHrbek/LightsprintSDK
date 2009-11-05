@@ -66,7 +66,6 @@ public:
 		{
 			reset(false); // Model_3DS::MaterialChunkProcessor expects 1-sided is already set
 			lightmapTexcoord = CH_LIGHTMAP;
-			name = NULL;
 		}
 		~Material()
 		{
@@ -74,7 +73,6 @@ public:
 			delete diffuseEmittance.texture;
 			delete specularReflectance.texture;
 			delete specularTransmittance.texture;
-			free((void*)name);
 		}
 	};
 

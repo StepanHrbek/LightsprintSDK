@@ -60,6 +60,7 @@ void serialize(Archive & ar, rr::RRVec4& a, const unsigned int version)
 template<class Archive>
 void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 {
+	ar & make_nvp("name",std::string(a.name.c_str()));
 	ar & make_nvp("type",a.type);
 	ar & make_nvp("position",a.position);
 	ar & make_nvp("direction",a.direction);
@@ -72,7 +73,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("spotExponent",a.spotExponent);
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTextureFilename?a.rtProjectedTextureFilename:""));
+	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTextureFilename.c_str()));
 	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
 	// skip customData;
 }
@@ -80,6 +81,12 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 template<class Archive>
 void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 {
+	if (version>0)
+	{
+		std::string name;
+		ar & make_nvp("name", name);
+		a.name = name.c_str();
+	}
 	ar & make_nvp("type",a.type);
 	ar & make_nvp("position",a.position);
 	ar & make_nvp("direction",a.direction);
@@ -95,8 +102,7 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 	{
 		std::string rtProjectedTextureFilenameString;
 		ar & make_nvp("rtProjectedTextureFilename", rtProjectedTextureFilenameString);
-		free(a.rtProjectedTextureFilename);
-		a.rtProjectedTextureFilename = rtProjectedTextureFilenameString.empty() ? NULL : _strdup(rtProjectedTextureFilenameString.c_str());
+		a.rtProjectedTextureFilename = rtProjectedTextureFilenameString.c_str();
 	}
 	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
 	// skip customData;
@@ -293,6 +299,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
+BOOST_CLASS_VERSION(rr::RRLight, 1)
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 1)
 
 //---------------------------------------------------------------------------

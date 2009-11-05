@@ -649,7 +649,7 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
 		if (buf[i] == 0)
 			break;
 	}
-	Materials[matindex].name = _strdup(buf);
+	Materials[matindex].name = buf;
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -1181,7 +1181,7 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	// Find the material's index in the Materials array
 	for (material = 0; material < numMaterials; material++)
 	{
-		if (Materials[material].name && !strcmp(name,Materials[material].name))
+		if (Materials[material].name==name)
 			break;
 	}
 

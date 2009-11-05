@@ -563,18 +563,6 @@ public:
 		}
 #endif
 	}
-	~MaterialCacheCollada()
-	{
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
-		{
-			// we created it in updateMaterials() and stored in const char* so no one can edit it
-			// now it's time to free it
-			free((char*)(i->second.name));
-
-			// don't delete textures loaded via imageCache
-			//RR_SAFE_DELETE(i->second.diffuseTexture);
-		}
-	}
 private:
 	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
@@ -664,7 +652,7 @@ private:
 		}
 
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
-		material.name = _strdup(effectStandard->GetParent()->GetName().c_str());
+		material.name = effectStandard->GetParent()->GetName().c_str();
 
 		// get average colors from textures
 		RRScaler* scaler = RRScaler::createRgbScaler();
@@ -710,7 +698,6 @@ public:
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
 	virtual RRMaterial*        getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
-	void*                      getCustomData(const char* name) const;
 
 private:
 	const FCDSceneNode*        node;
@@ -750,6 +737,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	geometryInstance = _geometryInstance;
 	collider = _collider;
 	materialCache = _materialCache;
+	name = node->GetName().c_str();
 
 	// create transformation matrices
 	RRMatrix3x4 worldMatrix;
@@ -800,13 +788,6 @@ RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* ligh
 		}
 	}
 	return materialCache->getMaterial(materialInstance);
-}
-
-void* RRObjectCollada::getCustomData(const char* name) const
-{
-	if (!strcmp(name,"const char* objectName"))
-		return (void*)node->GetName().c_str();
-	return RRObject::getCustomData(name);
 }
 
 RRObjectCollada::~RRObjectCollada()
@@ -1054,17 +1035,23 @@ void RRLightsCollada::addNode(const FCDSceneNode* node)
 				// create RRLight
 				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
 				RRVec4 polynom = RRVec4(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor(),0.0001f);
+				RRLight* rrlight = NULL;
 				switch(light->GetLightType())
 				{
 					case FCDLight::POINT:
-						push_back(RRLight::createPointLightPoly(position,color,polynom));
+						rrlight = RRLight::createPointLightPoly(position,color,polynom);
 						break;
 					case FCDLight::SPOT:
-						push_back(RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1));
+						rrlight = RRLight::createSpotLightPoly(position,color,polynom,direction,light->GetOuterAngle(),light->GetFallOffAngle(),1);
 						break;
 					case FCDLight::DIRECTIONAL:
-						push_back(RRLight::createDirectionalLight(direction,color,false));
+						rrlight = RRLight::createDirectionalLight(direction,color,false);
 						break;
+				}
+				if (rrlight)
+				{
+					rrlight->name = light->GetName().c_str();
+					push_back(rrlight);
 				}
 			}
 		}

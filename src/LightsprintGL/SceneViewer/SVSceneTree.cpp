@@ -62,15 +62,18 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	DeleteChildren(lights);
 	for (unsigned i=0;solver && i<solver->getLights().size();i++)
 	{
-		AppendItem(lights,wxString("light ")<<i,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
+		wxString name = solver->getLights()[i]->name.c_str();
+		if (name.empty()) name = wxString("light ")<<i;
+		AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 	}
 
 	SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
 	DeleteChildren(objects);
 	for (unsigned i=0;solver && i<solver->getStaticObjects().size();i++)
 	{
-		const char* objectName = (const char*)solver->getStaticObjects()[i]->getCustomData("const char* objectName");
-		AppendItem(objects,objectName ? objectName : wxString("object ")<<i,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
+		wxString name = solver->getStaticObjects()[i]->name.c_str();
+		if (name.empty()) name = wxString("object ")<<i;
+		AppendItem(objects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 	}
 
 

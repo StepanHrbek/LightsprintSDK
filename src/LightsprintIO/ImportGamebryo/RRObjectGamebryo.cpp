@@ -1130,6 +1130,7 @@ public:
 			RRReporter::report(WARN,"Mesh %s doesn't have GIDescriptor.\n",(const efd::Char*)_mesh->GetName());
 			perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 		}
+
 #endif
 
 		RRMesh* mesh = new RRMeshGamebryo(_mesh, lightmapTexcoord);
@@ -1230,8 +1231,6 @@ public:
 	{
 		if (!strcmp(name,"egmGI::MeshProperties*"))
 			return (void*)&meshProperties;
-		if (!strcmp(name,"const char* objectName"))
-			return (void*)(const efd::Char*)mesh->GetName();
 		return RRObject::getCustomData(name);
 	}
 
@@ -1254,6 +1253,7 @@ private:
 		RRMatrix3x4 worldMatrix = convertMatrix(mesh->GetWorldTransform());
 		setWorldMatrix(&worldMatrix);
 		material = _materialCache.getMaterial(mesh);
+		name = mesh->GetName();
 	}
 
 	const RRCollider* collider;
@@ -1818,6 +1818,9 @@ public:
 				// common light properties
 				if (rrLight)
 				{
+					efd::string name;
+					entity->GetPropertyValue("Name",name); // not tested
+					rrLight->name = name.c_str();
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 					rrLight->customData = entity;
 					rrLight->castShadows = true;

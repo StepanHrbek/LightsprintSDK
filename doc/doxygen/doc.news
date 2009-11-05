@@ -23,6 +23,14 @@ NEWS
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - added object properties window
   - added material properties window
+- all important classes have editable names
+  - added RRString
+  - added RRBuffer::filename
+  - added RRLight::name
+  - changed RRLight::rtProjectedTextureFilename to RRString from char* (delete eventual _strdup() and free() from your custom adapter)
+  - changed RRMaterial::name to RRString from const char* (delete eventual _strdup() and free() from your custom adapter)
+  - added RRObject::name
+  - removed RRObject::getCustomData("const char* objectName"), use RRObject::name
 
 CHANGES
 

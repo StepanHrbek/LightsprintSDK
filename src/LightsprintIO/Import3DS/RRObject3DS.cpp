@@ -63,7 +63,6 @@ public:
 	// RRObject
 	virtual const RRCollider*   getCollider() const;
 	virtual RRMaterial*         getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
-	void*                       getCustomData(const char* name) const;
 
 private:
 	Model_3DS::Object* object;
@@ -93,6 +92,7 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 {
 	defaultGray.reset(false);
 	object = _model->Objects+_objectIdx;
+	name = object->name;
 
 	for (unsigned i=0;i<(unsigned)object->numMatFaces;i++)
 	{
@@ -222,13 +222,6 @@ RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* light, c
 		return NULL;
 	}
 	return triangles[t].material;
-}
-
-void* RRObject3DS::getCustomData(const char* name) const
-{
-	if (!strcmp(name,"const char* objectName"))
-		return object->name;
-	return RRObject::getCustomData(name);
 }
 
 //////////////////////////////////////////////////////////////////////////////

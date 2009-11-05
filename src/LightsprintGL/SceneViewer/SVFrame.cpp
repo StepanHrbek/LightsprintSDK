@@ -1120,6 +1120,11 @@ void SVFrame::updateSelection()
 	m_sceneTree->selectItem(getSelectedEntity());
 }
 
+void SVFrame::updateSceneTree()
+{
+	m_sceneTree->updateContent(m_canvas->solver);
+}
+
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
 	EVT_MENU(wxID_EXIT, SVFrame::OnExit)
 	EVT_MENU(wxID_ANY, SVFrame::OnMenuEvent)

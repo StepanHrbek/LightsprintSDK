@@ -8,6 +8,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
+#include "Lightsprint/GL/Texture.h"
 
 namespace rr_gl
 {
@@ -33,7 +34,6 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent)
 	SetPropertyEditor(propPhysical,wxPGEditor_CheckBox);
 
 	Append(propName = new wxStringProperty(wxT("Name")));
-	SetPropertyReadOnly(propName,true); // has no memory management for editing
 
 	Append(propFront = new wxBoolProperty(wxT("Front")));
 	SetPropertyEditor(propFront,wxPGEditor_CheckBox);
@@ -119,26 +119,26 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 
 	if (material)
 	{
-		updateString(propName,material->name?material->name:"");
+		updateString(propName,material->name.c_str());
 
 		updateBool(propFront,material->sideBits[0].renderFrom);
 		updateBool(propBack,material->sideBits[1].renderFrom);
 
 		updateProperty(propDiffuse->GetPropertyByName("color"),material->diffuseReflectance.color);
 		updateInt(propDiffuse->GetPropertyByName("uv"),material->diffuseReflectance.texcoord);
-		updateString(propDiffuse->GetPropertyByName("texture"),material->diffuseReflectance.texture?"filename":"");
+		updateString(propDiffuse->GetPropertyByName("texture"),material->diffuseReflectance.texture?material->diffuseReflectance.texture->filename.c_str():"");
 
 		updateProperty(propSpecular->GetPropertyByName("color"),material->specularReflectance.color);
 		updateInt(propSpecular->GetPropertyByName("uv"),material->specularReflectance.texcoord);
-		updateString(propSpecular->GetPropertyByName("texture"),material->specularReflectance.texture?"filename":"");
+		updateString(propSpecular->GetPropertyByName("texture"),material->specularReflectance.texture?material->specularReflectance.texture->filename.c_str():"");
 
 		updateProperty(propEmissive->GetPropertyByName("color"),material->diffuseEmittance.color);
 		updateInt(propEmissive->GetPropertyByName("uv"),material->diffuseEmittance.texcoord);
-		updateString(propEmissive->GetPropertyByName("texture"),material->diffuseEmittance.texture?"filename":"");
+		updateString(propEmissive->GetPropertyByName("texture"),material->diffuseEmittance.texture?material->diffuseEmittance.texture->filename.c_str():"");
 
 		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
 		updateInt(propTransparent->GetPropertyByName("uv"),material->specularTransmittance.texcoord);
-		updateString(propTransparent->GetPropertyByName("texture"),material->specularTransmittance.texture?"filename":"");
+		updateString(propTransparent->GetPropertyByName("texture"),material->specularTransmittance.texture?material->specularTransmittance.texture->filename.c_str():"");
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateFloat(propRefraction,material->refractionIndex);
@@ -187,13 +187,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (!material)
 		return;
 
-	/* free/strdup nesmim pokud do RRMaterialu neudelam deep copy name a uvolnovani
 	if (property==propName)
 	{
-		free(material->name);
-		material->name = strdup(property->GetValue().GetString().c_str());
+		material->name = property->GetValue().GetString().c_str();
 	}
-	else*/
+	else
 	if (property==propFront)
 	{
 		rr::RRSideBits visible[2] = {{0,0,1,1,0,0,1},{1,1,1,1,1,1,1}};
@@ -220,6 +218,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL);
+		getTexture(material->diffuseReflectance.texture)->reset(true,true);
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("color"))
@@ -242,6 +241,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL);
+		getTexture(material->specularReflectance.texture)->reset(true,true);
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("color"))
@@ -264,6 +264,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL);
+		getTexture(material->diffuseEmittance.texture)->reset(true,true);
 	}
 	else
 	if (property==propEmissive->GetPropertyByName("color"))
@@ -286,6 +287,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL);
+		getTexture(material->specularTransmittance.texture)->reset(true,true);
 	}
 	else
 	if (property==propTransparent->GetPropertyByName("color"))

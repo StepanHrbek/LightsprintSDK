@@ -169,14 +169,24 @@ RRBuffer::Saver* RRBuffer::setSaver(Saver* saver)
 	return result;
 }
 
-bool RRBuffer::save(const char *filename, const char* cubeSideName[6], const SaveParameters* parameters)
+bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
 {
-	return (s_save && this && filename) ? s_save(this,filename,cubeSideName,parameters) : false;
+	if (s_save && this && _filename && s_save(this,_filename,_cubeSideName,_parameters))
+	{
+		filename = _filename;
+		return true;
+	}
+	return false;
 }
 
-bool RRBuffer::reload(const char *filename, const char* cubeSideName[6])
+bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6])
 {
-	return (s_reload && this && filename) ? s_reload(this,filename,cubeSideName) : false;
+	if (s_reload && this && _filename && s_reload(this,_filename,_cubeSideName))
+	{
+		filename = _filename;
+		return true;
+	}
+	return false;
 }
 
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6])

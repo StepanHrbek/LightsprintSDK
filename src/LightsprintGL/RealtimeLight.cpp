@@ -38,14 +38,12 @@ namespace rr_gl
 		positionOfLastDDI = rr::RRVec3(1e6);
 		softShadowsAllowed = true;
 
-		projectedTextureFilenameCopy = NULL;
 		projectedTextureSpecifiedByFilename = NULL;
 		projectedTextureSpecifiedByTexture = NULL;
 	}
 
 	RealtimeLight::~RealtimeLight()
 	{
-		free(projectedTextureFilenameCopy);
 		if (projectedTextureSpecifiedByFilename)
 		{
 			delete projectedTextureSpecifiedByFilename->getBuffer();
@@ -77,20 +75,19 @@ namespace rr_gl
 			return projectedTextureSpecifiedByTexture;
 		}
 		// Next, update and return projected texture specified by filename.
-		if (strcmp(rrlight.rtProjectedTextureFilename?rrlight.rtProjectedTextureFilename:"",projectedTextureFilenameCopy?projectedTextureFilenameCopy:""))
+		if (rrlight.rtProjectedTextureFilename!=projectedTextureFilenameCopy)
 		{
-			RR_SAFE_FREE(projectedTextureFilenameCopy);
 			if (projectedTextureSpecifiedByFilename)
 			{
 				delete projectedTextureSpecifiedByFilename->getBuffer();
 				RR_SAFE_DELETE(projectedTextureSpecifiedByFilename);
 			}
-			if (rrlight.rtProjectedTextureFilename && rrlight.rtProjectedTextureFilename[0])
+			if (!rrlight.rtProjectedTextureFilename.empty())
 			{
-				projectedTextureFilenameCopy = _strdup(rrlight.rtProjectedTextureFilename);
-				rr::RRBuffer* projectedBuffer = rr::RRBuffer::load(projectedTextureFilenameCopy);
+				rr::RRBuffer* projectedBuffer = rr::RRBuffer::load(rrlight.rtProjectedTextureFilename.c_str());
 				projectedTextureSpecifiedByFilename = projectedBuffer ? new Texture(projectedBuffer,true,true) : NULL;
 			}
+			projectedTextureFilenameCopy = rrlight.rtProjectedTextureFilename;
 		}
 		return projectedTextureSpecifiedByFilename;
 	}

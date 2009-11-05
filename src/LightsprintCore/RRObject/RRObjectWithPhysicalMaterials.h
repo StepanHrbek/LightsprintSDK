@@ -20,11 +20,12 @@ namespace rr
 class RRObjectWithPhysicalMaterialsImpl : public RRObjectWithPhysicalMaterials
 {
 public:
-	RRObjectWithPhysicalMaterialsImpl(RRObject* aoriginal, const RRScaler* ascaler, bool& aborting)
+	RRObjectWithPhysicalMaterialsImpl(RRObject* _original, const RRScaler* _scaler, bool& _aborting)
 	{
-		original = aoriginal;
-		scaler = ascaler;
-		update(aborting);
+		original = _original;
+		name = original->name;
+		scaler = _scaler;
+		update(_aborting);
 	}
 	virtual ~RRObjectWithPhysicalMaterialsImpl() 
 	{

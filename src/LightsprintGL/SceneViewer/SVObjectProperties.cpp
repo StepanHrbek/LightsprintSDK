@@ -8,6 +8,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
+#include "SVFrame.h" // updateSceneTree()
 
 namespace rr_gl
 {
@@ -29,9 +30,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object)
 			const rr::RRMesh* mesh = object->getCollider()->getMesh();
 			wxPGProperty* tmp;
 
-			const char* objectName = (const char*)object->getCustomData("const char* objectName");
-			Append(tmp = new wxStringProperty(wxT("Name"),wxPG_LABEL,objectName));
-			SetPropertyReadOnly(tmp,true);
+			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,object->name.c_str()));
 
 			Append(tmp = new wxIntProperty(wxT("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
 			SetPropertyReadOnly(tmp,true);
@@ -68,6 +67,14 @@ void SVObjectProperties::setObject(rr::RRObject* _object)
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
+	if (property==propName)
+	{
+		object->name = property->GetValue().GetString().c_str();
+		// our parent must be frame
+		SVFrame* frame = (SVFrame*)GetParent();
+		frame->updateSceneTree();
+	}
+	else
 	if (property==propWTranslation)
 	{
 		rr::RRMatrix3x4 worldMatrix;

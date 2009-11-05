@@ -5,7 +5,8 @@
 
 #include "Lightsprint/RRDebug.h"
 
-#include <stdlib.h> // malloc, free
+#include <cstdlib> // malloc, free
+#include <cstring> // _strdup
 
 
 namespace rr
@@ -77,5 +78,64 @@ void RRAligned::operator delete[](void* p, std::size_t n)
 {
 	if (p) AlignedFree(p);
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRString
+
+RRString::RRString()
+{
+	str = NULL;
+}
+
+RRString::RRString(const RRString& a)
+{
+	str = a.str?_strdup(a.str):NULL;
+}
+
+RRString::RRString(const char* a)
+{
+	str = (a&&a[0])?_strdup(a):NULL;
+}
+
+RRString& RRString::operator =(const RRString& a)
+{
+	free(str);
+	str = a.str?_strdup(a.str):NULL;
+	return *this;
+}
+
+RRString& RRString::operator =(const char* a)
+{
+	free(str);
+	str = (a&&a[0])?_strdup(a):NULL;
+	return *this;
+}
+
+bool RRString::operator ==(const RRString& a) const
+{
+	return (!str && !a.str) || (str && a.str && !strcmp(str,a.str));
+}
+
+bool RRString::operator ==(const char* a) const
+{
+	return (!str && (!a || !a[0])) || (str && a && a[0] && !strcmp(str,a));
+}
+
+bool RRString::operator !=(const RRString& a) const
+{
+	return !(*this==a);
+}
+
+bool RRString::operator !=(const char* a) const
+{
+	return !(*this==a);
+}
+
+RRString::~RRString()
+{
+	free(str);
+}
 
 } //namespace

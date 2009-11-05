@@ -17,7 +17,7 @@ namespace rr
 //! Portable but limited, minimalistic std::vector replacement.
 //
 //! Purpose of RRVector is to replace STL in public Lightsprint headers,
-//! which makes Lightsprint work with any STL implementation.
+//! to make Lightsprint work with any STL implementation.
 //! It works like std::vector in simple cases in Lightsprint SDK interface
 //! where C is pointer, RRObject* or RRLight*.
 //! It is not suitable for more complex operations.

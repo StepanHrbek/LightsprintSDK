@@ -21,6 +21,7 @@ public:
 	RRObjectFilter(RRObject* object)
 	{
 		inherited = object;
+		name = object->name;
 	}
 
 	virtual const RRCollider* getCollider() const

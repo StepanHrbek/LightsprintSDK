@@ -44,6 +44,9 @@ namespace rr_gl
 		//! Handles changes in light list (updates tree content, selects different light etc).
 		void updateSelection();
 
+		//! Shortcut for subwindows so that they don't have to include SVSceneTree+SVCanvas.
+		void updateSceneTree();
+
 		enum
 		{
 			ME_FILE_OPEN_SCENE = 10000, // avoid conflict with wxWidgets event numbers

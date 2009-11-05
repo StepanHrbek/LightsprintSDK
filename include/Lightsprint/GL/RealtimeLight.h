@@ -161,7 +161,7 @@ protected:
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
 	unsigned shadowmapSize;
 
-	char* projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
+	rr::RRString projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
 	const Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
 	const Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
 };

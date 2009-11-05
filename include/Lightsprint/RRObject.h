@@ -158,8 +158,7 @@ namespace rr
 		//! \param name
 		//!  Identifier of custom data requested. It is good practise to use names 
 		//!  that describe both type and semantic of returned data.
-		//!  Several adapters support "const char* objectName", returning object name.
-		//!  You are free to define and support any other names in your adapters.
+		//!  You are free to define and support any names in your adapters.
 		//!  Usage example: <code>const char* objectName = (const char*)object->getCustomData("const char* objectName");</code>
 		virtual void* getCustomData(const char* name) const;
 
@@ -168,6 +167,9 @@ namespace rr
 		//! Initialized to NULL, solver allocates it, ~RRObject deletes it.
 		//! \n You can allocate illumination manually, solver allocates it only if it is NULL.
 		RRObjectIllumination* illumination;
+
+		//! Optional name of object.
+		RRString name;
 
 
 		//////////////////////////////////////////////////////////////////////////////

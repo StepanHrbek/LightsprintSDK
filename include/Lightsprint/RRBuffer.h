@@ -170,6 +170,9 @@ namespace rr
 		RRBuffer();
 		virtual ~RRBuffer() {};
 
+		//! Optional filename, automatically set when load/save succeeds.
+		RRString filename;
+
 		//! For your private use, not accessed by LightsprintCore. Initialized to NULL.
 		//
 		//! If you use LightsprintGL, you should not modify it,

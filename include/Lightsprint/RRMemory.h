@@ -96,6 +96,36 @@ namespace rr
 	};
 
 
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Portable but limited, minimalistic string.
+	//
+	//! Purpose of RRString is to replace std::string in public Lightsprint headers,
+	//! to make Lightsprint work with any STL implementation.
+	//! It works like std::string in simple cases in Lightsprint SDK interface.
+	//! It is not suitable for more complex operations.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRString : public RRUniformlyAllocated
+	{
+	public:
+		RRString();
+		RRString(const RRString& a);
+		RRString(const char* a);
+		RRString& operator =(const RRString& a);
+		RRString& operator =(const char* a);
+		bool operator ==(const RRString& a) const;
+		bool operator ==(const char* a) const;
+		bool operator !=(const RRString& a) const;
+		bool operator !=(const char* a) const;
+		const char* c_str() const {return str?str:"";} ///< Never returns NULL, empty string is "".
+		bool empty() const {return str==NULL;}
+		~RRString();
+	private:
+		char* str; ///< Never "", empty string is NULL.
+	};
+
 } // namespace
 
 #endif

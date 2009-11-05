@@ -371,13 +371,7 @@ RRLight::RRLight()
 	spotExponent = 1;
 	castShadows = true;
 	customData = NULL;
-	rtProjectedTextureFilename = NULL;
 	rtMaxShadowSize = 1000;
-}
-
-RRLight::~RRLight()
-{
-	free(rtProjectedTextureFilename);
 }
 
 RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const

@@ -191,8 +191,8 @@ namespace rr
 		//! Keeping UINT_MAX would make keyed objects cast solid shadows to lightmaps.
 		//! Setting always 0 would make lightmap build very slow.
 		unsigned      minimalQualityForPointMaterials;
-		//! Optional name of material, may be NULL. Not freed/deleted in destructor. Shallow copied in assignment operator and copy constructor.
-		const char*   name;
+		//! Optional name of material.
+		RRString      name;
 	};
 
 } // namespace

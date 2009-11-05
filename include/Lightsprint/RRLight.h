@@ -207,6 +207,9 @@ namespace rr
 		//! you should remove such lights.
 		bool castShadows;
 
+		//! Optional name of light.
+		RRString name;
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Realtime render
@@ -215,15 +218,11 @@ namespace rr
 		//! Filename of projected texture, with colors in custom scale.
 		//
 		//! Relevant only for realtime render, only for type=SPOT.
-		//!
-		//! Initialized to NULL, free()d in destructor.
-		//! You may set/change it at any time.
-		//! In VC++, make sure you use the same Runtime Library as all Lightsprint libraries and samples,
-		//! otherwise free() in destructor would use wrong heap.
+		//! You may set/change it at any time, renderer updates automatically.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
 		//! When set, realtime spotlight is modulated only by texture.
-		char* rtProjectedTextureFilename;
+		RRString rtProjectedTextureFilename;
 
 		//! Limits area where shadows are computed.
 		//
@@ -247,7 +246,7 @@ namespace rr
 		//! Initialize light to defaults.
 		RRLight();
 		//! Destruct light.
-		virtual ~RRLight();
+		virtual ~RRLight() {}
 
 
 		//////////////////////////////////////////////////////////////////////////////

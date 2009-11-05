@@ -8,6 +8,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
+#include "SVFrame.h" // updateSceneTree()
 
 namespace rr_gl
 {
@@ -30,6 +31,11 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 	{
 		rr::RRLight* light = &_rtlight->getRRLight();
 		Clear();
+
+		// light name
+		{
+			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,light->name.c_str()));
+		}
 
 		// light type
 		{
@@ -60,7 +66,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight)
 			Append(propColor);
 		}
 		{
-			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename);
+			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename.c_str());
 			Append(propTexture);
 			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
 		}
@@ -167,6 +173,14 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	rr::RRLight* light = &rtlight->getRRLight();
 
 	wxPGProperty *property = event.GetProperty();
+	if (property==propName)
+	{
+		light->name = property->GetValue().GetString().c_str();
+		// our parent must be frame
+		SVFrame* frame = (SVFrame*)GetParent();
+		frame->updateSceneTree();
+	}
+	else
 	if (property==propType)
 	{
 		//!!! nemutable svetla to ignorujou
@@ -182,81 +196,99 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		// show/hide properties
 		updateHide();
 	}
+	else
 	if (property==propPosition)
 	{
 		light->position << property->GetValue();
 	}
+	else
 	if (property==propDirection)
 	{
 		light->direction << property->GetValue();
 	}
+	else
 	if (property==propOuterAngleRad)
 	{
 		light->outerAngleRad = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propRadius)
 	{
 		light->radius = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propColor)
 	{
 		light->color << property->GetValue();
 	}
+	else
 	if (property==propTexture)
 	{
-		free(light->rtProjectedTextureFilename);
-		light->rtProjectedTextureFilename = _strdup(property->GetValue().GetString());
+		light->rtProjectedTextureFilename = property->GetValue().GetString();
 	}
+	else
 	if (property==propDistanceAttType)
 	{
 		light->distanceAttenuationType = (rr::RRLight::DistanceAttenuationType)property->GetValue().GetInteger();
 		updateHide();
 	}
+	else
 	if (property==propConstant)
 	{
 		light->polynom[0] = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propLinear)
 	{
 		light->polynom[1] = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propQuadratic)
 	{
 		light->polynom[2] = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propClamp)
 	{
 		light->polynom[3] = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propFallOffExponent)
 	{
 		light->fallOffExponent = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propFallOffAngleRad)
 	{
 		light->fallOffAngleRad = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propCastShadows)
 	{
 		light->castShadows = property->GetValue().GetBool();
 		updateHide();
 	}
+	else
 	if (property==propSpotExponent)
 	{
 		light->spotExponent = property->GetValue().GetDouble();
 	}
+	else
 	if (property==propShadowmapRes)
 	{
 		rtlight->setShadowmapSize(property->GetValue().GetInteger());
 	}
+	else
 	if (property==propNear)
 	{
 		rtlight->getParent()->setNear(property->GetValue().GetDouble());
 	}
+	else
 	if (property==propFar)
 	{
 		rtlight->getParent()->setFar(property->GetValue().GetDouble());
 	}
+	else
 	if (property==propOrthoSize)
 	{
 		light->rtMaxShadowSize = property->GetValue().GetDouble();
