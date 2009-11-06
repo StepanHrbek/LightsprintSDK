@@ -35,7 +35,6 @@
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="0"
 				ForceConformanceInForLoopScope="TRUE"
-				RuntimeTypeInfo="FALSE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
