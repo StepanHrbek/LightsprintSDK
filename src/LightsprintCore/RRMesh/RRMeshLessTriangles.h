@@ -165,7 +165,7 @@ public:
 	virtual unsigned getPostImportTriangle(RRMesh::PreImportNumber preImportTriangle) const 
 	{
 		// check that this slow code is not called often
-		//RR_ASSERT(0); // called from RRMeshCopy
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Using slow path in RRLessTrianglesImporter::getPostImportTriangle().\n"));
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = INHERITED::getPostImportTriangle(preImportTriangle);
 		for (unsigned post=0;post<ValidIndices;post++)
