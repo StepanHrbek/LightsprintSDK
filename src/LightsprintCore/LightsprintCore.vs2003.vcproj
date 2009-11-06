@@ -403,7 +403,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="RRMesh\RRMeshCopy.cpp">
+				RelativePath="RRMesh\RRMeshArrays.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
 					<Tool
@@ -416,9 +416,6 @@
 						Name="VCCLCompilerTool"
 						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="RRMesh\RRMeshCopy.h">
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshFilter.h">

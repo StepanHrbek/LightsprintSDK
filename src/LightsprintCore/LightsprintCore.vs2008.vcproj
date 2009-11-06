@@ -978,7 +978,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="RRMesh\RRMeshCopy.cpp"
+				RelativePath="RRMesh\RRMeshArrays.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -1012,10 +1012,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="RRMesh\RRMeshCopy.h"
-				>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshFilter.h"

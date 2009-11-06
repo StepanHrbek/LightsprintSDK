@@ -12,7 +12,9 @@ namespace rr
 
 NEWS
 
-- RRObject API extended from read-only to read-write, scenes may be edited
+- scene access extended from read-only to read-write, you can edit scenes
+  - RRMeshArrays added, lets you edit index+vertex arrays
+  - RRMesh::createArrays() added
   - RRObject::setWorldMatrix() added
   - RRObject::getTriangleMaterial() modified, now you can edit returned materials
   - works for all supported formats, Collada, 3ds, Gamebryo etc

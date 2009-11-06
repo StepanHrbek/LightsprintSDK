@@ -62,7 +62,7 @@ RRHash/sha1.cpp \
 RRHash/RRHash.cpp \
 RRMesh/RRMesh.cpp \
 RRMesh/RRMeshAccelerated.cpp \
-RRMesh/RRMeshCopy.cpp \
+RRMesh/RRMeshArrays.cpp \
 RRMesh/RRMeshLessVertices.cpp \
 RRObject/RRCollisionHandler.cpp \
 RRObject/RRMaterial.cpp \

@@ -469,8 +469,81 @@ namespace rr
 		//! adjusts layout of generated vertex buffers to use current vertex numbers.
 		RRMesh* createVertexBufferRuler() const;
 
+		//! Creates mesh with direct read-write access to internal data arrays.
+		//
+		//! Note that such mesh contains reduced set of data
+		//! - only uv channels listed in channelNumbers[0..numChannels-1]
+		//! - shared vertex can't have different normal/tangents/mappings in different triangles
+		//! - Pre/PostImportNumbers are lost
+		class RRMeshArrays* createArrays(unsigned numChannels, unsigned* channelNumbers) const;
+
+		// Saves mesh to disk. RRMeshArrays::load() loads it back. Work in progress, file format is not yet stable.
+		//bool save(char* filename);
 	private:
 		RRVec3* aabbCache; //! Cached results of getAABB().
+	};
+
+
+	//! Mesh that exposes internal structures for direct read-write access.
+	//
+	//! You may freely edit data in arrays, however, resizing mesh (changing numVertices, numTriangles) is limited,
+	//! it is not allowed if other meshes were derived from this one.
+	//! Derived meshes are e.g. multiobject or worldspace object,
+	//! they may depend on original mesh size and crash if it changes.
+	//!
+	//! When do we need it? Lightsprint has two major use cases:
+	//! - Calculating GI for third party engine. In this case, we need only read-only access to individual
+	//!   triangles and vertices and RRMesh already provides it via getTriangle()/getVertex().
+	//!   RRMesh implementations usually read vertices and triangles directly from third party engine structures in memory;
+	//!   duplicating data into RRMeshArrays would only waste memory.
+	//! - Complete application development - render GI, build unwrap, manipulate meshes, vertices etc (without third party engine).
+	//!   In this case, we need also write access and RRMeshArrays provides it.
+	//!   There are no third party structures in memory, all data are stored in RRMeshArrays.
+	//!
+	//! If you need direct read-write access to data in RRMesh, try RTTI first, you may already have RRMeshArrays.
+	//! If you don't have RRMeshArrays, create it via RRMesh::createArrays().
+	class RRMeshArrays : public RRMesh
+	{
+	public:
+
+		// Per-triangle data.
+		unsigned numTriangles;
+		Triangle* triangle; ///< 32bit triangle list
+
+		// Per-vertex data.
+		unsigned numVertices;
+		RRVec3* position;
+		RRVec3* normal;
+		RRVec3* tangent;
+		RRVec3* bitangent;
+		enum {MAX_CHANNELS=5};
+		RRVec2* uv[MAX_CHANNELS];
+		unsigned uvChannel[MAX_CHANNELS];
+
+		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
+		unsigned version;
+
+		// Resizers, return false if resize failed due to bad_alloc exception. Old data are lost.
+		// If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
+		bool                 setNumTriangles(unsigned numTriangles);
+		bool                 setNumVertices(unsigned numVertices, unsigned numUvChannels);
+
+		// Save/load. Disk operations not implemented yet.
+		bool                 save(const char* filename) const;
+		bool                 reload(const char* filename);
+		bool                 reload(const RRMesh* mesh, unsigned numChannels, unsigned* channelNumbers);
+		static RRMeshArrays* load(const char* filename);
+
+		// Implementation of RRMesh interface.
+		RRMeshArrays();
+		virtual ~RRMeshArrays();
+		virtual unsigned     getNumVertices() const;
+		virtual void         getVertex(unsigned v, Vertex& out) const;
+		virtual unsigned     getNumTriangles() const;
+		virtual void         getTriangle(unsigned t, Triangle& out) const;
+		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
+		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
+		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 	};
 
 } // namespace
