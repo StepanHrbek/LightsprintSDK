@@ -319,4 +319,9 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 	}
 }
 
+bool RRMaterial::needsBlending() const
+{
+	return specularTransmittance.color!=RRVec3(0) && !specularTransmittanceKeyed;
+}
+
 } // namespace

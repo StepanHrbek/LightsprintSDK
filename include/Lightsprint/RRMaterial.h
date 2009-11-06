@@ -157,6 +157,9 @@ namespace rr
 		//! Converts material properties from custom to physical scale.
 		void          convertToPhysicalScale(const RRScaler* scaler);
 
+		//! True if renderer needs blending to render the material.
+		bool          needsBlending() const;
+
 		//! Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
 		RRSideBits    sideBits[2];
 		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).

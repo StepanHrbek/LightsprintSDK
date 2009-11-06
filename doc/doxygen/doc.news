@@ -18,7 +18,6 @@ NEWS
   - RRObject::setWorldMatrix() added
   - RRObject::getTriangleMaterial() modified, now you can edit returned materials
   - works for all supported formats, Collada, 3ds, Gamebryo etc
-- RRMatrix3x4::isIdentity() added
 - preparations for deeper dynamic object support
   - RRDynamicSolver::setDynamicObjects() added (has no effect yet)
   - RRDynamicSolver::getDynamicObjects() added
@@ -33,6 +32,9 @@ NEWS
   - changed RRMaterial::name to RRString from const char* (delete eventual _strdup() and free() from your custom adapter)
   - added RRObject::name
   - removed RRObject::getCustomData("const char* objectName"), use RRObject::name
+- added several small helpers
+  - RRMatrix3x4::isIdentity()
+  - RRMaterial::needsBlending()
 
 CHANGES
 
