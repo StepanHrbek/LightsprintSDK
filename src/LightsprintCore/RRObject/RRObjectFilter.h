@@ -22,6 +22,7 @@ public:
 	{
 		inherited = object;
 		name = object->name;
+		faceGroups = object->faceGroups;
 	}
 
 	virtual const RRCollider* getCollider() const

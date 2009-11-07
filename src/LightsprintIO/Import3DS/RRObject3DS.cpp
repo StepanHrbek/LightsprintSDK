@@ -62,7 +62,6 @@ public:
 
 	// RRObject
 	virtual const RRCollider*   getCollider() const;
-	virtual RRMaterial*         getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 private:
 	Model_3DS::Object* object;
@@ -102,18 +101,21 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 			ti.t[0] = object->MatFaces[i].subFaces[3*j];
 			ti.t[1] = object->MatFaces[i].subFaces[3*j+1];
 			ti.t[2] = object->MatFaces[i].subFaces[3*j+2];
-			unsigned materialIndex = object->MatFaces[i].MatIndex;
-			if (materialIndex>=(unsigned)_model->numMaterials)
-			{
-				// no material found in .3ds
-				ti.material = &defaultGray;
-			}
-			else
-			{
-				ti.material = &_model->Materials[materialIndex];
-			}
 			triangles.push_back(ti);
 		}
+		// create facegroup
+		unsigned materialIndex = object->MatFaces[i].MatIndex;
+		rr::RRMaterial* material;
+		if (materialIndex>=(unsigned)_model->numMaterials)
+		{
+			// no material found in .3ds
+			material = &defaultGray;
+		}
+		else
+		{
+			material = &_model->Materials[materialIndex];
+		}
+		faceGroups.push_back(FaceGroup(material,(unsigned)object->MatFaces[i].numSubFaces/3));
 	}
 
 #ifdef VERIFY
@@ -212,16 +214,6 @@ bool RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 const RRCollider* RRObject3DS::getCollider() const
 {
 	return collider;
-}
-
-RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-{
-	if (t>=RRObject3DS::getNumTriangles())
-	{
-		assert(0);
-		return NULL;
-	}
-	return triangles[t].material;
 }
 
 //////////////////////////////////////////////////////////////////////////////

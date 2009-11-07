@@ -105,6 +105,7 @@ public:
 			fclose(f);
 		}
 		material.reset(false);
+		faceGroups.push_back(FaceGroup(&material,(unsigned)triangles.size()));
 #ifdef VERIFY
 		checkConsistency(UINT_MAX,UINT_MAX);
 #endif
@@ -181,10 +182,6 @@ public:
 	virtual const RRCollider* getCollider() const
 	{
 		return collider;
-	}
-	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-	{
-		return const_cast<RRMaterial*>(&material);
 	}
 
 private:

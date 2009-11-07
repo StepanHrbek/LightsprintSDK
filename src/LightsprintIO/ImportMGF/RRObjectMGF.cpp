@@ -117,7 +117,6 @@ public:
 
 	// RRObject
 	virtual const RRCollider* getCollider() const;
-	virtual RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 	// copy of object's vertices
 	struct VertexInfo
@@ -130,12 +129,11 @@ public:
 	struct TriangleInfo
 	{
 		RRMesh::Triangle indices;
-		unsigned material; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 
 	// copy of object's materials
-	std::vector<RRMaterial> materials;
+	std::vector<RRMaterial*> materials;
 	
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
@@ -159,21 +157,21 @@ void* add_vertex(FLOAT* p,FLOAT* n)
 
 void* add_material(C_MATERIAL* m)
 {
-	RRMaterial mat;
-	mat.reset(m->sided==0);
-	mgf2rgb(&m->ed_c,m->ed/4000,mat.diffuseEmittance.color); //!!!
-	mgf2rgb(&m->rd_c,m->rd,mat.diffuseReflectance.color);
-	mgf2rgb(&m->rs_c,m->rs,mat.specularReflectance.color);
-	mgf2rgb(&m->ts_c,m->ts,mat.specularTransmittance.color);
-	mat.refractionIndex = m->nr;
+	RRMaterial* mat = new RRMaterial;
+	mat->reset(m->sided==0);
+	mgf2rgb(&m->ed_c,m->ed/4000,mat->diffuseEmittance.color); //!!!
+	mgf2rgb(&m->rd_c,m->rd,mat->diffuseReflectance.color);
+	mgf2rgb(&m->rs_c,m->rs,mat->specularReflectance.color);
+	mgf2rgb(&m->ts_c,m->ts,mat->specularTransmittance.color);
+	mat->refractionIndex = m->nr;
 
 	// convert from physical scale, all samples expect inputs in screen colors
 	RRScaler* scaler = RRScaler::createRgbScaler();
-	mat.convertToCustomScale(scaler);
+	mat->convertToCustomScale(scaler);
 	delete scaler;
 
 	g_scene->materials.push_back(mat);
-	return (void *)(g_scene->materials.size()-1);
+	return (void *)mat;
 }
 
 void add_polygon(unsigned vertices,void** vertex,void* material)
@@ -186,9 +184,13 @@ void add_polygon(unsigned vertices,void** vertex,void* material)
 		t.indices[0] = (unsigned)((long long)vertex[0]);
 		t.indices[1] = (unsigned)((long long)vertex[i-1]);
 		t.indices[2] = (unsigned)((long long)vertex[i]);
-		t.material = (unsigned)((long long)material);
 		g_scene->triangles.push_back(t);
 	}
+	// append to facegroups
+	if (g_scene->faceGroups.size() && g_scene->faceGroups[g_scene->faceGroups.size()-1].material==material)
+		g_scene->faceGroups[g_scene->faceGroups.size()-1].numTriangles += vertices-2;
+	else
+		g_scene->faceGroups.push_back(RRObject::FaceGroup((RRMaterial*)material,vertices-2));
 }
 
 int my_hface(int ac,char** av)
@@ -276,6 +278,8 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 RRObjectMGF::~RRObjectMGF()
 {
 	delete collider;
+	for (unsigned i=0;i<materials.size();i++)
+		delete materials[i];
 }
 
 
@@ -317,22 +321,6 @@ void RRObjectMGF::getTriangle(unsigned t, Triangle& out) const
 const RRCollider* RRObjectMGF::getCollider() const
 {
 	return collider;
-}
-
-RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-{
-	if (t>=RRObjectMGF::getNumTriangles())
-	{
-		RR_ASSERT(0);
-		return NULL;
-	}
-	unsigned material = triangles[t].material;
-	if (material>=materials.size())
-	{
-		RR_ASSERT(0);
-		return NULL;
-	}
-	return const_cast<RRMaterial*>(&materials[material]);
 }
 
 

@@ -57,6 +57,29 @@ namespace rr
 		RRObject();
 		virtual ~RRObject();
 
+		//! Specifies material assigned to a group of triangles.
+		struct FaceGroup
+		{
+			RRMaterial* material; ///< Material assigned to all triangles in group. Must not be NULL.
+			unsigned numTriangles; ///< Number of triangles in group.
+
+			FaceGroup(RRMaterial* _material, unsigned _numTriangles)
+			{
+				material = _material;
+				numTriangles = _numTriangles;
+			}
+		};
+		//! Specifies materials assigned to all triangles.
+		class FaceGroups : public RRVector<FaceGroup>
+		{
+		public:
+			void getBlending(bool& containsBlended, bool& containsNonBlended) const;
+		};
+		//! Assignment of materials to triangles.
+		//
+		//! First facegroup describes first numTriangles in object, next facegroup next triangles etc.
+		//! Results are undefined if faceGroups contains NULL materials or fewer triangles than mesh.
+		FaceGroups faceGroups;
 
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
 		//! Must always return valid collider, implementation is not allowed to return NULL.
@@ -64,6 +87,12 @@ namespace rr
 
 		//! Returns material description for given triangle.
 		//
+		//! Default implementation is just different way to access data stored in faceGroups.
+		//! However, this function may provide additional information.
+		//! If you wish to disable lighting or shadowing for specific light-caster-receiver combinations,
+		//! reimplement this function to return NULL for that combination of parameters,
+		//! fall back to default implementation for others combinations.
+		//!
 		//! Although more precise per-pixel material query is available in getPointMaterial(),
 		//! this per-triangle version is often preferred for its speed and simplicity.
 		//! Returned pointer must stay valid and constant for whole life of object.
@@ -86,7 +115,7 @@ namespace rr
 		//!  Used only when light!=NULL, controls properties of given light.
 		//!  When receiver==NULL, you may return NULL to make triangle invisible for given light (disables both direct lighting and shadow-casting).
 		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
-		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const = 0;
+		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const;
 
 		//! Returns material description for point on object's surface.
 		//
@@ -308,6 +337,11 @@ namespace rr
 		//! Hashing doesn't cover: full texture data, names, uv indices.
 		virtual RRHash getHash() const;
 
+		//! Fills faceGroups according to results provided by getTriangleMaterial().
+		//
+		//! Fills faceGroups automatically, however, you may call it only if you implemented
+		//! your own RRObject with your own self-contained getTriangleMaterial() not reading data from faceGroups.
+		void updateFaceGroupsFromTriangleMaterials();
 	private:
 		RRMatrix3x4* worldMatrix;
 	};

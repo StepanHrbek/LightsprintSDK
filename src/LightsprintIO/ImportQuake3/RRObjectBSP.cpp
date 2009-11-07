@@ -65,7 +65,6 @@ public:
 
 	// RRObject
 	virtual const RRCollider* getCollider() const;
-	virtual RRMaterial*  getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 private:
 	TMapQ3* model;
@@ -74,7 +73,6 @@ private:
 	struct TriangleInfo
 	{
 		RRMesh::Triangle t;
-		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 #ifdef PACK_VERTICES
@@ -88,7 +86,7 @@ private:
 #endif
 
 	// copy of object's materials
-	std::vector<RRMaterial> materials;
+	std::vector<RRMaterial*> materials;
 	
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
@@ -214,7 +212,8 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 
 	for (unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
-		RRMaterial material;
+		unsigned numTrianglesInFacegroup = 0;
+		RRMaterial* material = new RRMaterial;
 		bool triedLoadTexture = false;
 		for (unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
 		for (unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
@@ -229,17 +228,16 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 						// try load texture when it is mapped on at least 1 triangle
 						if (!triedLoadTexture)
 						{
-							fillMaterial(material,&model->mTextures[s],pathToTextures,missingTexture);
+							fillMaterial(*material,&model->mTextures[s],pathToTextures,missingTexture);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
-						if (material.diffuseReflectance.texture)
+						if (material->diffuseReflectance.texture)
 						{
 							TriangleInfo ti;
 							ti.t[0] = model->mFaces[f].mVertex + model->mMeshVertices[j  ].mMeshVert;
 							ti.t[1] = model->mFaces[f].mVertex + model->mMeshVertices[j+2].mMeshVert;
 							ti.t[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
-							ti.s = model->mFaces[f].mTextureIndex;
 
 							// clip parts of scene never visible in Lightsmark 2008
 							if (lightsmark)
@@ -286,6 +284,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 #endif
 
 							triangles.push_back(ti);
+							numTrianglesInFacegroup++;
 						}
 					}
 				}
@@ -306,6 +305,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 		}
 		// push all materials to preserve material numbering
 		materials.push_back(material);
+		faceGroups.push_back(FaceGroup(material,numTrianglesInFacegroup));
 	}
 
 #ifdef PACK_VERTICES
@@ -323,7 +323,11 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 
 RRObjectQuake3::~RRObjectQuake3()
 {
-	for (unsigned i=0;i<(unsigned)materials.size();i++) delete materials[i].diffuseReflectance.texture;
+	for (unsigned i=0;i<(unsigned)materials.size();i++)
+	{
+		delete materials[i]->diffuseReflectance.texture;
+		delete materials[i];
+	}
 	delete collider;
 }
 
@@ -426,22 +430,6 @@ bool RRObjectQuake3::getTriangleMapping(unsigned t, TriangleMapping& out, unsign
 const RRCollider* RRObjectQuake3::getCollider() const
 {
 	return collider;
-}
-
-RRMaterial* RRObjectQuake3::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-{
-	if (t>=RRObjectQuake3::getNumTriangles())
-	{
-		assert(0);
-		return NULL;
-	}
-	unsigned s = triangles[t].s;
-	if (s>=materials.size())
-	{
-		assert(0);
-		return NULL;
-	}
-	return const_cast<RRMaterial*>(&materials[s]);
 }
 
 

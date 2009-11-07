@@ -1253,6 +1253,7 @@ private:
 		RRMatrix3x4 worldMatrix = convertMatrix(mesh->GetWorldTransform());
 		setWorldMatrix(&worldMatrix);
 		material = _materialCache.getMaterial(mesh);
+		faceGroups.push_back(FaceGroup(material,mesh->GetTotalPrimitiveCount()));
 		name = mesh->GetName();
 	}
 

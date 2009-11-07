@@ -436,28 +436,6 @@ protected:
 // When you see wrong uv, disable AGGRESSIVE_CACHE.
 #define AGGRESSIVE_CACHE
 
-fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
-{
-	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
-	{
-		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if (polygons)
-		{
-			FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
-			if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
-			{
-				size_t relativeIndex = triangle - polygons->GetFaceOffset();
-				if (relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
-				{
-					return polygons->GetMaterialSemantic();
-				}
-			}
-		}
-	}
-	RR_ASSERT(0);
-	return NULL;
-}
-
 RRVec3 colorToColor(FMVector4 color)
 {
 	return RRVec3(color.x,color.y,color.z);
@@ -697,7 +675,6 @@ public:
 
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
-	virtual RRMaterial*        getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const;
 
 private:
 	const FCDSceneNode*        node;
@@ -743,51 +720,55 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	RRMatrix3x4 worldMatrix;
 	getNodeMatrices(node,&worldMatrix,NULL);
 	setWorldMatrix(&worldMatrix);
+
+	// init facegroups
+	if (geometryInstance)
+	{
+		const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
+		if (geometry)
+		{
+			const FCDGeometryMesh* mesh = geometry->GetMesh();
+			if (mesh)
+			{
+				for (size_t i=0;i<mesh->GetPolygonsCount();i++)
+				{
+					const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
+					if (polygons)
+					{
+						FCDGeometryPolygons::PrimitiveType primitiveType = polygons->GetPrimitiveType();
+						if (primitiveType==FCDGeometryPolygons::POLYGONS || primitiveType==FCDGeometryPolygons::TRIANGLE_FANS || primitiveType==FCDGeometryPolygons::TRIANGLE_STRIPS)
+						{
+							const fstring symbol = polygons->GetMaterialSemantic();
+							const FCDMaterialInstance* materialInstance = geometryInstance->FindMaterialInstance(symbol);
+							if (!materialInstance)
+							{
+								// workaround for buggy documents created by Right Hemisphere Collada Interface v146.46 with FCollada v1.13.
+								// they state e.g. <instance_material symbol="BROWN_BRONZE3452816845" target="#BROWN_BRONZE"/>
+								// while <instance_material symbol="BROWN_BRONZE" target="#BROWN_BRONZE"/> is expected
+								for (size_t materialInstanceNum=0;materialInstanceNum<geometryInstance->GetMaterialInstanceCount();materialInstanceNum++)
+								{
+									materialInstance = geometryInstance->GetMaterialInstance(materialInstanceNum);
+									if (materialInstance && materialInstance->GetSemantic().substr(0,symbol.size())==symbol)
+									{
+										// symbol we are looking for found as substring, use it
+										break;
+									}
+									// symbol we are looking for not found, use any material instance that offers binding
+								}
+							}
+							rr::RRMaterial* material = materialCache->getMaterial(materialInstance);
+							faceGroups.push_back(FaceGroup(material,(unsigned)polygons->GetFaceCount()));
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 const RRCollider* RRObjectCollada::getCollider() const
 {
 	return collider;
-}
-
-RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
-{
-	if (!geometryInstance)
-	{
-		return NULL;
-	}
-
-	const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
-	if (!geometry)
-	{
-		return NULL;
-	}
-
-	const FCDGeometryMesh* mesh = geometry->GetMesh();
-	if (!mesh)
-	{
-		return NULL;
-	}
-
-	const fstring symbol = getTriangleMaterialSymbol(mesh,t);
-	const FCDMaterialInstance* materialInstance = geometryInstance->FindMaterialInstance(symbol);
-	if (!materialInstance)
-	{
-		// workaround for buggy documents created by Right Hemisphere Collada Interface v146.46 with FCollada v1.13.
-		// they state e.g. <instance_material symbol="BROWN_BRONZE3452816845" target="#BROWN_BRONZE"/>
-		// where <instance_material symbol="BROWN_BRONZE" target="#BROWN_BRONZE"/> is expected
-		for (size_t materialInstanceNum=0;materialInstanceNum<geometryInstance->GetMaterialInstanceCount();materialInstanceNum++)
-		{
-			materialInstance = geometryInstance->GetMaterialInstance(materialInstanceNum);
-			if (materialInstance && materialInstance->GetSemantic().substr(0,symbol.size())==symbol)
-			{
-				// symbol we are looking for found as substring, use it
-				break;
-			}
-			// symbol we are looking for not found, use any material instance that offers binding
-		}
-	}
-	return materialCache->getMaterial(materialInstance);
 }
 
 RRObjectCollada::~RRObjectCollada()

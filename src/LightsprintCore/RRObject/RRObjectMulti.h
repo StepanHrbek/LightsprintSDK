@@ -81,7 +81,9 @@ public:
 		}
 
 		// creates tree of objects
-		return new RRObjectMultiFast(objects,numObjects,multiCollider,transformedMeshes);
+		RRObject* result = new RRObjectMultiFast(objects,numObjects,multiCollider,transformedMeshes);
+		result->updateFaceGroupsFromTriangleMaterials();
+		return result;
 	}
 
 	virtual const RRCollider* getCollider() const
@@ -236,18 +238,6 @@ public:
 			}
 			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
 
-			// create copy (faster access)
-			// disabled because we know that current copy implementation always gives up
-			// due to low efficiency
-			/*if (0)
-			{
-				RRMesh* tmp = multiMesh->createCopy();
-				if (tmp)
-				{
-					transformedMeshes[numObjects+x] = multiMesh; // remember for freeing time
-					multiMesh = tmp;
-				}
-			}*/
 
 			// create multicollider
 			multiCollider = RRCollider::create(multiMesh,intersectTechnique,aborting,cacheLocation);
@@ -372,10 +362,18 @@ private:
 			}
 
 			// create multiobject
-			return new RRObjectMultiSmall(
+			RRObject* result = new RRObjectMultiSmall(
 				create(objects,num1),num1,tris[0],
 				create(objects+num1,num2),num2,tris[1],
 				multiCollider,transformedMeshes);
+
+			// fill faceGroups for renderer (getTriangleMaterial doesn't use it)
+			if (multiCollider)
+			{
+				result->updateFaceGroupsFromTriangleMaterials();
+			}
+
+			return result;
 		}
 	}
 

@@ -33,22 +33,17 @@ public:
 
 	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
+		// Original may return NULL to disable lighting/shadowing for selected light/caster/receiver.
 		RRMaterial* custom = original->getTriangleMaterial(t,light,receiver);
-		if (!scaler || !custom)
-		{
+		// We honour original NULL decision.
+		if (!custom)
 			return custom;
-		}
-		const Cache::const_iterator i = cache.find(custom);
-		if (i==cache.end())
-		{
-			// all materials should be stuffed into cache in update
-			// this could happen only if underlying RRObject returns
-			//  pointer different to what it returned in update
-			//  (= breaks rules)
-			RR_ASSERT(0);
+		// Fast path if no scaler was provided.
+		if (!scaler)
 			return custom;
-		}
-		return const_cast<RRMaterial*>(&i->second);
+		// Otherwise we ignore original and read result from our faceGroups.
+		// We sync with original only when update() is called.
+		return RRObject::getTriangleMaterial(t,light,receiver);
 	}
 	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* _scaler = NULL) const
 	{
@@ -78,21 +73,21 @@ public:
 	}
 	virtual void update(bool& aborting)
 	{
+		faceGroups = original->faceGroups;
 		if (!scaler) return;
 		cache.erase(cache.begin(),cache.end());
-		RR_ASSERT(original->getCollider());
-		RR_ASSERT(original->getCollider()->getMesh());
-		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
-		for (unsigned i=0;i<numTriangles;i++)
+		for (unsigned g=0;g<original->faceGroups.size();g++)
 		{
-			if (!aborting)
+			if (faceGroups[g].material)
 			{
-				const RRMaterial* custom = original->getTriangleMaterial(i,NULL,NULL);
-				if (custom && cache.find(custom)==cache.end())
+				Cache::iterator i = cache.find(faceGroups[g].material);
+				if (i!=cache.end())
+					faceGroups[g].material = &i->second;
+				else
 				{
 					RRMaterial physical;
-					convertToPhysical(*custom,physical);
-					cache.insert(Pair(custom,physical));
+					convertToPhysical(*faceGroups[g].material,physical);
+					faceGroups[g].material = &(cache[faceGroups[g].material] = physical);
 				}
 			}
 		}

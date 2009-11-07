@@ -17,6 +17,31 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// FaceGroups
+
+void RRObject::FaceGroups::getBlending(bool& containsBlended, bool& containsNonBlended) const
+{
+	containsBlended = false;
+	containsNonBlended = false;
+	for (unsigned g=0;g<size();g++)
+	{
+		rr::RRMaterial* material = (*this)[g].material;
+		if (material)
+		{
+			if (material->needsBlending())
+			{
+				containsBlended = true;
+			}
+			else
+			{
+				containsNonBlended = true;
+			}
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRObject
 
 RRObject::RRObject()
@@ -29,6 +54,57 @@ RRObject::~RRObject()
 {
 	delete illumination;
 	delete worldMatrix;
+}
+
+RRMaterial* RRObject::getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const
+{
+	unsigned tt = t;
+	for (unsigned g=0;g<faceGroups.size();g++)
+	{
+		if (tt<faceGroups[g].numTriangles)
+			return faceGroups[g].material;
+		tt -= faceGroups[g].numTriangles;
+	}
+	unsigned numTriangles = getCollider()->getMesh()->getNumTriangles();
+	if (t>numTriangles)
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial(%d) out of range, mesh has %d triangles.\n",t,numTriangles));
+	}
+	else
+	if (faceGroups.size())
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::faceGroups incomplete, only %d triangles, mesh has %d.\n",t-tt,numTriangles));
+	}
+	else
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::faceGroups empty.\n"));
+	}
+	return NULL;
+}
+
+void RRObject::updateFaceGroupsFromTriangleMaterials()
+{
+	// How do I test whether getTriangleMaterial() is the same as RRObject::getTriangleMaterial() ?
+	//if (&getTriangleMaterial==&RRObject::getTriangleMaterial)
+	//{
+	//	RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Illegal updateFaceGroupsFromTriangleMaterials() call, fill faceGroups manually or reimplement getTriangleMaterial().\n"));
+	//	return;
+	//}
+	faceGroups.clear();
+	RRMaterial* material = 0;
+	unsigned numTriangles = getCollider()->getMesh()->getNumTriangles();
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		RRMaterial* material2 = getTriangleMaterial(t,NULL,NULL);
+		if (!t || material2!=material)
+		{
+			faceGroups.push_back(FaceGroup(material=material2,1));
+		}
+		else
+		{
+			faceGroups[faceGroups.size()-1].numTriangles++;
+		}
+	}
 }
 
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, const RRScaler* scaler) const
@@ -44,7 +120,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, con
 		}
 		else
 		{
-			RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
+			RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
 			material.reset(false);
 			RR_ASSERT(0);
 		}
