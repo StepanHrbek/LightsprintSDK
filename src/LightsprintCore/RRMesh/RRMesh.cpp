@@ -86,7 +86,7 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 	RRMesh::TriangleBody tb;
 	getTriangleBody(t,tb);
-	out.vertex[0].normal = orthogonalTo(tb.side1,tb.side2).normalized();
+	out.vertex[0].normal = orthogonalTo(tb.side1,tb.side2).normalizedSafe();
 	out.vertex[0].buildBasisFromNormal();
 	out.vertex[1] = out.vertex[0];
 	out.vertex[2] = out.vertex[0];
