@@ -49,9 +49,7 @@ public:
 	//!  Object to be rendered.
 	//! \param solver
 	//!  Solver used to compute object's indirect illumination.
-	//! \param scaler
-	//!  Scaler used to scale irradiances before rendering from physical scale to custom scale.
-	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler);
+	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RR_GL_API RenderedChannels
@@ -155,7 +153,7 @@ public:
 
 private:
 	friend class ObjectBuffers;
-	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler);
+	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver);
 	enum IndirectIlluminationSource
 	{
 		NONE,
@@ -167,7 +165,6 @@ private:
 		Program* program;                      ///< current program, used only by MATERIAL_DIFFUSE_CONST, MATERIAL_EMISSIVE_CONST
 		const rr::RRObject* object;            ///< object being rendered
 		rr::RRDynamicSolver* scene;            ///< scene it comes from
-		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		// set by setCapture()
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render

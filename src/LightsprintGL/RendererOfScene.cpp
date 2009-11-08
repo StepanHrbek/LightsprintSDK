@@ -230,7 +230,7 @@ void RendererOfRRDynamicSolver::render()
 	// create helper renderers
 	if (!rendererNonCaching)
 	{
-		rendererNonCaching = RendererOfRRObject::create(params.solver->getMultiObjectCustom(),params.solver,params.solver->getScaler());
+		rendererNonCaching = RendererOfRRObject::create(params.solver->getMultiObjectCustom(),params.solver);
 	}
 	if (!rendererNonCaching)
 	{
@@ -356,7 +356,7 @@ private:
 				rr::RRMesh* mesh = object->createWorldSpaceMesh();
 				mesh->getAABB(NULL,NULL,&objectCenter);
 				delete mesh;
-				rendererNonCaching = RendererOfRRObject::create(object,NULL,NULL);
+				rendererNonCaching = RendererOfRRObject::create(object,NULL);
 #ifdef USE_VBO
 				// if we already USE_VBO, wrapping it in display list would
 				// + speed up Nvidia cards by ~2%

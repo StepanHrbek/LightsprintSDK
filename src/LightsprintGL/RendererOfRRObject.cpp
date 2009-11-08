@@ -100,21 +100,20 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 //
 // RendererOfRRObject
 
-RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver, const rr::RRScaler* scaler)
+RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::RRDynamicSolver* solver)
 {
 	if (object && object->getCollider()->getMesh()->getNumTriangles())
-		return new RendererOfRRObject(object,solver,scaler);
+		return new RendererOfRRObject(object,solver);
 	else
 		return NULL;
 }
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver, const rr::RRScaler* _scaler)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver)
 {
 	RR_ASSERT(_object);
 	params.program = NULL;
 	params.object = _object;
 	params.scene = _solver;
-	params.scaler = _scaler;
 	//params.renderedChannels = ... set to default by constructor
 	params.firstCapturedTriangle = 0;
 	params.lastCapturedTrianglePlus1 = _object->getCollider()->getMesh()->getNumTriangles();

@@ -457,7 +457,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererObject = getMultiObjectCustom();
 		if (rendererObject)
 		{
-			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this,getScaler());
+			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this);
 #ifdef USE_VBO
 			// if we already USE_VBO, wrapping it in display list would
 			// + speed up Nvidia cards by ~2%
