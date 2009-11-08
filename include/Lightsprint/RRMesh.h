@@ -473,9 +473,9 @@ namespace rr
 		//
 		//! Note that such mesh contains reduced set of data
 		//! - only uv channels listed in channelNumbers[0..numChannels-1]
-		//! - shared vertex can't have different normal/tangents/mappings in different triangles
+		//! - if indexed=true, shared vertex can't have different normal/tangents/mappings in different triangles
 		//! - Pre/PostImportNumbers are lost
-		class RRMeshArrays* createArrays(unsigned numChannels, unsigned* channelNumbers) const;
+		class RRMeshArrays* createArrays(bool indexed, unsigned numChannels, unsigned* channelNumbers) const;
 
 		// Saves mesh to disk. RRMeshArrays::load() loads it back. Work in progress, file format is not yet stable.
 		//bool save(char* filename);
@@ -523,15 +523,16 @@ namespace rr
 		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
 		unsigned version;
 
-		// Resizers, return false if resize failed due to bad_alloc exception. Old data are lost.
+		// Resizers. Don't preserve old data.
 		// If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
+		// If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
 		bool                 setNumTriangles(unsigned numTriangles);
 		bool                 setNumVertices(unsigned numVertices, unsigned numUvChannels);
 
 		// Save/load. Disk operations not implemented yet.
 		bool                 save(const char* filename) const;
 		bool                 reload(const char* filename);
-		bool                 reload(const RRMesh* mesh, unsigned numChannels, unsigned* channelNumbers);
+		bool                 reload(const RRMesh* mesh, bool indexed, unsigned numChannels, unsigned* channelNumbers);
 		static RRMeshArrays* load(const char* filename);
 
 		// Implementation of RRMesh interface.

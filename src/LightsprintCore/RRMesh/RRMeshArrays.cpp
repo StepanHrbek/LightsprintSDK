@@ -50,6 +50,7 @@ bool RRMeshArrays::setNumTriangles(unsigned _numTriangles)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles.\n",_numTriangles);
 			setNumTriangles(0);
+			setNumVertices(0,0); // free also vertices, keeping them with 0 triangles would be safe, but memory wasting
 			return false;
 		}
 	}
@@ -90,6 +91,7 @@ bool RRMeshArrays::setNumVertices(unsigned _numVertices, unsigned _numChannels)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d vertices.\n",_numVertices);
 			setNumVertices(0,0);
+			setNumTriangles(0); // free also triangles, keeping them with 0 vertices would make mesh invalid
 			return false;
 		}
 	}
@@ -117,7 +119,7 @@ RRMeshArrays* RRMeshArrays::load(const char* filename)
 	return mesh;
 }
 
-bool RRMeshArrays::reload(const RRMesh* mesh, unsigned numChannels, unsigned* channelNumbers)
+bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels, unsigned* channelNumbers)
 {
 	if (!mesh) return false;
 
@@ -130,59 +132,99 @@ bool RRMeshArrays::reload(const RRMesh* mesh, unsigned numChannels, unsigned* ch
 		numChannels = MAX_CHANNELS;
 	}
 
-	// copy triangles
-	setNumTriangles(mesh->getNumTriangles());
-	for (unsigned t=0;t<numTriangles;t++)
+	if (indexed)
 	{
-		mesh->getTriangle(t,triangle[t]);
+		// alloc
+		if (!setNumTriangles(mesh->getNumTriangles()) || !setNumVertices(mesh->getNumVertices(),numChannels))
+		{
+			return false;
+		}
+
+		// copy
+		bool* filled = new bool[numVertices];
+		#pragma omp parallel for
+		for (int v=0;v<(int)numVertices;v++)
+		{
+			mesh->getVertex(v,position[v]);
+			filled[v] = false;
+		}
+		#pragma omp parallel for
+		for (int t=0;t<(int)numTriangles;t++)
+		{
+			mesh->getTriangle(t,triangle[t]);
+			TriangleNormals normals;
+			mesh->getTriangleNormals(t,normals);
+			TriangleMapping mapping[MAX_CHANNELS];
+			for (unsigned i=0;i<numChannels;i++)
+			{
+				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+			}
+			for (unsigned v=0;v<3;v++)
+			{
+				if (triangle[t][v]<numVertices)
+				{
+					normal[triangle[t][v]] = normals.vertex[v].normal;
+					tangent[triangle[t][v]] = normals.vertex[v].tangent;
+					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
+					for (unsigned i=0;i<numChannels;i++)
+					{
+						uv[i][triangle[t][v]] = mapping[i].uv[v];
+					}
+					filled[triangle[t][v]] = true;
+				}
+			}
+		}
+		unsigned unfilled = 0;
+		for (unsigned v=0;v<numVertices;v++)
+		{
+			if (!filled[v]) unfilled++;
+		}
+		delete[] filled;
+		if (unfilled)
+			RRReporter::report(WARN,"RRMeshArrays::reload(): %d/%d unused vertices.\n",unfilled,numVertices);
+	}
+	else
+	{
+		// alloc
+		if (!setNumTriangles(mesh->getNumTriangles()) || !setNumVertices(mesh->getNumTriangles()*3,numChannels))
+		{
+			return false;
+		}
+
+		// copy
+		#pragma omp parallel for
+		for (int t=0;t<(int)numTriangles;t++)
+		{
+			triangle[t][0] = 3*t+0;
+			triangle[t][1] = 3*t+1;
+			triangle[t][2] = 3*t+2;
+			Triangle triangleT;
+			mesh->getTriangle(t,triangleT);
+			TriangleNormals normals;
+			mesh->getTriangleNormals(t,normals);
+			TriangleMapping mapping[MAX_CHANNELS];
+			for (unsigned i=0;i<numChannels;i++)
+			{
+				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+			}
+			for (unsigned v=0;v<3;v++)
+			{
+				mesh->getVertex(triangleT[v],position[t*3+v]);
+				normal[t*3+v] = normals.vertex[v].normal;
+				tangent[t*3+v] = normals.vertex[v].tangent;
+				bitangent[t*3+v] = normals.vertex[v].bitangent;
+				for (unsigned i=0;i<numChannels;i++)
+				{
+					uv[i][t*3+v] = mapping[i].uv[v];
+				}
+			}
+		}
 	}
 
-	// copy vertices
-	setNumVertices(mesh->getNumVertices(),numChannels);
 	for (unsigned i=0;i<numChannels;i++)
 	{
 		uvChannel[i] = channelNumbers[i];
 	}
-	bool* filled = new bool[numVertices];
-	for (unsigned v=0;v<numVertices;v++)
-	{
-		mesh->getVertex(v,position[v]);
-		filled[v] = false;
-	}
-	for (unsigned t=0;t<numTriangles;t++)
-	{
-		Triangle triangle;
-		mesh->getTriangle(t,triangle);
-		TriangleNormals normals;
-		mesh->getTriangleNormals(t,normals);
-		TriangleMapping mapping[MAX_CHANNELS];
-		for (unsigned i=0;i<numChannels;i++)
-		{
-			mesh->getTriangleMapping(t,mapping[i],uvChannel[i]);
-		}
-		for (unsigned v=0;v<3;v++)
-		{
-			if (triangle[v]<numTriangles)
-			{
-				normal[triangle[v]] = normals.vertex[v].normal;
-				tangent[triangle[v]] = normals.vertex[v].tangent;
-				bitangent[triangle[v]] = normals.vertex[v].bitangent;
-				for (unsigned i=0;i<numChannels;i++)
-				{
-					uv[i][triangle[v]] = mapping[i].uv[v];
-				}
-				filled[triangle[v]] = true;
-			}
-		}
-	}
-	unsigned unfilled = 0;
-	for (unsigned v=0;v<numVertices;v++)
-	{
-		if (!filled[v]) unfilled++;
-	}
-	delete[] filled;
-	if (unfilled)
-		RRReporter::report(WARN,"RRMeshArrays::reload(): %d/%d unused vertices.\n",unfilled,numVertices);
 
 	version++;
 
@@ -270,10 +312,10 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 //
 // RRMesh
 
-RRMeshArrays* RRMesh::createArrays(unsigned numChannels, unsigned* channelNumbers) const
+RRMeshArrays* RRMesh::createArrays(bool indexed, unsigned numChannels, unsigned* channelNumbers) const
 {
 	RRMeshArrays* importer = new RRMeshArrays();
-	if (importer->reload(this,numChannels,channelNumbers)) return importer;
+	if (importer->reload(this,indexed,numChannels,channelNumbers)) return importer;
 	delete importer;
 	return NULL;
 }
