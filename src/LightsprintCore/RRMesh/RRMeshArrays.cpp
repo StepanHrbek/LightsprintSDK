@@ -94,6 +94,7 @@ bool RRMeshArrays::addTexcoord(unsigned _texcoord)
 		RRReporter::report(ERRO,"Allocation failed when adding texcoord (%d vertices).\n",numVertices);
 		return false;
 	}
+	return true;
 }
 
 void RRMeshArrays::deleteTexcoord(unsigned _texcoord)
