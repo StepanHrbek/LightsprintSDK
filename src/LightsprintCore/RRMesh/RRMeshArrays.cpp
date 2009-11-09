@@ -22,81 +22,84 @@ RRMeshArrays::RRMeshArrays()
 	normal = NULL;
 	tangent = NULL;
 	bitangent = NULL;
-	for (unsigned i=0;i<MAX_CHANNELS;i++)
-	{
-		uv[i] = NULL;
-		uvChannel[i] = 0;
-	}
 	version = 0;
 }
 
 RRMeshArrays::~RRMeshArrays()
 {
-	setNumTriangles(0);
-	setNumVertices(0,0);
+	resizeMesh(0,0);
 }
 
-bool RRMeshArrays::setNumTriangles(unsigned _numTriangles)
+bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices)
 {
+	// delete old arrays
 	RR_SAFE_DELETE_ARRAY(triangle);
-	numTriangles = _numTriangles;
-	if (numTriangles)
-	{
-		try
-		{
-			triangle = new Triangle[numTriangles];
-		}
-		catch(...)
-		{
-			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles.\n",_numTriangles);
-			setNumTriangles(0);
-			setNumVertices(0,0); // free also vertices, keeping them with 0 triangles would be safe, but memory wasting
-			return false;
-		}
-	}
-	version++;
-	return true;
-}
-
-bool RRMeshArrays::setNumVertices(unsigned _numVertices, unsigned _numChannels)
-{
 	RR_SAFE_DELETE_ARRAY(position);
 	RR_SAFE_DELETE_ARRAY(normal);
 	RR_SAFE_DELETE_ARRAY(tangent);
 	RR_SAFE_DELETE_ARRAY(bitangent);
-	for (unsigned i=0;i<MAX_CHANNELS;i++)
+	for (unsigned i=0;i<texcoord.size();i++)
 	{
-		RR_SAFE_DELETE_ARRAY(uv[i]);
+		RR_SAFE_DELETE_ARRAY(texcoord[i]);
 	}
+
+	// remember new sizes
+	numTriangles = _numTriangles;
 	numVertices = _numVertices;
-	if (numVertices)
-	{	
-		if (_numChannels>MAX_CHANNELS)
+
+	// allocate new arrays
+	try
+	{
+		if (numTriangles)
 		{
-			RRReporter::report(WARN,"RRMeshArrays::setNumVertices(,%d): max supported is %d.\n",_numChannels,MAX_CHANNELS);
-			_numChannels = MAX_CHANNELS;
+			triangle = new Triangle[numTriangles];
 		}
-		try
-		{
+		if (numVertices)
+		{	
 			position = new RRVec3[numVertices];
 			normal = new RRVec3[numVertices];
 			tangent = new RRVec3[numVertices];
 			bitangent = new RRVec3[numVertices];
-			for (unsigned i=0;i<_numChannels;i++)
-			{
-				uv[i] = new RRVec2[numVertices];
-			}
-		}
-		catch(...)
-		{
-			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d vertices.\n",_numVertices);
-			setNumVertices(0,0);
-			setNumTriangles(0); // free also triangles, keeping them with 0 vertices would make mesh invalid
-			return false;
 		}
 	}
+	catch(...)
+	{
+		RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
+		resizeMesh(0,0);
+		return false;
+	}
+
+	// done
 	version++;
 	return true;
+}
+
+bool RRMeshArrays::addTexcoord(unsigned _texcoord)
+{
+	if (_texcoord>1000000)
+	{
+		RRReporter::report(ERRO,"Texcoord numbers above million not supported (%d requested).\n",_texcoord);
+		return false;
+	}
+	try
+	{
+		if (_texcoord>=texcoord.size())
+		{
+			texcoord.resize(_texcoord+1,NULL);
+		}
+		texcoord[_texcoord] = new RRVec2[numVertices];
+	}
+	catch(...)
+	{
+		RRReporter::report(ERRO,"Allocation failed when adding texcoord (%d vertices).\n",numVertices);
+		return false;
+	}
+}
+
+void RRMeshArrays::deleteTexcoord(unsigned _texcoord)
+{
+	if (_texcoord<texcoord.size())
+		RR_SAFE_DELETE_ARRAY(texcoord[_texcoord]);
 }
 
 bool RRMeshArrays::save(const char* filename) const
@@ -126,16 +129,11 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 	// sanitize inputs
 	if (!channelNumbers)
 		numChannels = 0;
-	if (numChannels>MAX_CHANNELS)
-	{
-		RRReporter::report(WARN,"RRMeshArrays::reload(): only %d out of %d uv channels will be accessible.\n",MAX_CHANNELS,numChannels);
-		numChannels = MAX_CHANNELS;
-	}
 
 	if (indexed)
 	{
 		// alloc
-		if (!setNumTriangles(mesh->getNumTriangles()) || !setNumVertices(mesh->getNumVertices(),numChannels))
+		if (!resizeMesh(mesh->getNumTriangles(),mesh->getNumVertices()))
 		{
 			return false;
 		}
@@ -148,16 +146,18 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 			mesh->getVertex(v,position[v]);
 			filled[v] = false;
 		}
+		TriangleMapping* mapping = new TriangleMapping[numChannels];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
 			mesh->getTriangle(t,triangle[t]);
 			TriangleNormals normals;
 			mesh->getTriangleNormals(t,normals);
-			TriangleMapping mapping[MAX_CHANNELS];
 			for (unsigned i=0;i<numChannels;i++)
 			{
 				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+				if (!t)
+					addTexcoord(channelNumbers[i]);
 			}
 			for (unsigned v=0;v<3;v++)
 			{
@@ -168,12 +168,13 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
 					for (unsigned i=0;i<numChannels;i++)
 					{
-						uv[i][triangle[t][v]] = mapping[i].uv[v];
+						texcoord[i][triangle[t][v]] = mapping[i].uv[v];
 					}
 					filled[triangle[t][v]] = true;
 				}
 			}
 		}
+		delete[] mapping;
 		unsigned unfilled = 0;
 		for (unsigned v=0;v<numVertices;v++)
 		{
@@ -186,12 +187,13 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 	else
 	{
 		// alloc
-		if (!setNumTriangles(mesh->getNumTriangles()) || !setNumVertices(mesh->getNumTriangles()*3,numChannels))
+		if (!resizeMesh(mesh->getNumTriangles(),mesh->getNumTriangles()*3))
 		{
 			return false;
 		}
 
 		// copy
+		TriangleMapping* mapping = new TriangleMapping[numChannels];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
@@ -202,10 +204,11 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 			mesh->getTriangle(t,triangleT);
 			TriangleNormals normals;
 			mesh->getTriangleNormals(t,normals);
-			TriangleMapping mapping[MAX_CHANNELS];
 			for (unsigned i=0;i<numChannels;i++)
 			{
 				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+				if (!t)
+					addTexcoord(channelNumbers[i]);
 			}
 			for (unsigned v=0;v<3;v++)
 			{
@@ -215,15 +218,11 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 				bitangent[t*3+v] = normals.vertex[v].bitangent;
 				for (unsigned i=0;i<numChannels;i++)
 				{
-					uv[i][t*3+v] = mapping[i].uv[v];
+					texcoord[i][t*3+v] = mapping[i].uv[v];
 				}
 			}
 		}
-	}
-
-	for (unsigned i=0;i<numChannels;i++)
-	{
-		uvChannel[i] = channelNumbers[i];
+		delete[] mapping;
 	}
 
 	version++;
@@ -292,17 +291,20 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 		RR_ASSERT(0);
 		return false;
 	}
-	for (unsigned ch=0;ch<MAX_CHANNELS;ch++)
+	if (channel>=texcoord.size())
 	{
-		if (uvChannel[ch]==channel && uv[ch])
-		{
-			for (unsigned v=0;v<3;v++)
-			{
-				RR_ASSERT(triangle[t][v]<numTriangles);
-				out.uv[v] = uv[ch][triangle[t][v]];
-			}
-			return true;
-		}
+		RR_ASSERT(0);
+		return false;
+	}
+	if (!texcoord[channel])
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	for (unsigned v=0;v<3;v++)
+	{
+		RR_ASSERT(triangle[t][v]<numTriangles);
+		out.uv[v] = texcoord[channel][triangle[t][v]];
 	}
 	return false;
 }

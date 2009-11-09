@@ -10,6 +10,7 @@
 
 #include "RRDebug.h"
 #include "RRHash.h"
+#include "RRVector.h"
 #include <climits> // UNDEFINED/UINT_MAX
 
 namespace rr
@@ -516,18 +517,17 @@ namespace rr
 		RRVec3* normal;
 		RRVec3* tangent;
 		RRVec3* bitangent;
-		enum {MAX_CHANNELS=5};
-		RRVec2* uv[MAX_CHANNELS];
-		unsigned uvChannel[MAX_CHANNELS];
+		RRVector<RRVec2*> texcoord;
 
 		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
 		unsigned version;
 
-		// Resizers. Don't preserve old data.
+		// Memory management. Resizing doesn't preserve old data.
 		// If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
 		// If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
-		bool                 setNumTriangles(unsigned numTriangles);
-		bool                 setNumVertices(unsigned numVertices, unsigned numUvChannels);
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices); ///< Resizes mesh, deletes texcoords.
+		bool                 addTexcoord(unsigned texcoord);
+		void                 deleteTexcoord(unsigned texcoord);
 
 		// Save/load. Disk operations not implemented yet.
 		bool                 save(const char* filename) const;
