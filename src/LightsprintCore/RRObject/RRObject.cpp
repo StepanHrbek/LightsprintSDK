@@ -40,6 +40,29 @@ void RRObject::FaceGroups::getBlending(bool& containsBlended, bool& containsNonB
 	}
 }
 
+void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& texcoords, bool forUnwrap, bool forDiffuse, bool forSpecular, bool forEmissive, bool forTransparent) const
+{
+	texcoords.clear();
+	for (unsigned fg=0; fg<size(); fg++)
+	{
+		rr::RRMaterial* material = (*this)[fg].material;
+		if (material)
+		{
+			if (forUnwrap)
+				texcoords.push_back(material->lightmapTexcoord);
+			if (forDiffuse && material->diffuseReflectance.texture)
+				texcoords.push_back(material->diffuseReflectance.texcoord);
+			if (forSpecular && material->specularReflectance.texture)
+				texcoords.push_back(material->specularReflectance.texcoord);
+			if (forEmissive && material->diffuseEmittance.texture)
+				texcoords.push_back(material->diffuseEmittance.texcoord);
+			if (forTransparent && material->specularTransmittance.texture)
+				texcoords.push_back(material->specularTransmittance.texcoord);
+		}
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRObject
