@@ -70,7 +70,7 @@ namespace rr
 			}
 		};
 		//! Specifies materials assigned to all triangles.
-		class FaceGroups : public RRVector<FaceGroup>
+		class RR_API FaceGroups : public RRVector<FaceGroup>
 		{
 		public:
 			void getBlending(bool& containsBlended, bool& containsNonBlended) const;
