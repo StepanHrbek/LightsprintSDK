@@ -41,9 +41,10 @@ NEWS
   - changed RRMaterial::name to RRString from const char* (delete eventual _strdup() and free() from your custom adapter)
   - added RRObject::name
   - removed RRObject::getCustomData("const char* objectName"), use RRObject::name
-- added several small helpers
+- added small helpers
   - RRMatrix3x4::isIdentity()
   - RRMaterial::needsBlending()
+  - RRVector::resize()
 
 CHANGES
 

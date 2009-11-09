@@ -33,7 +33,7 @@ public:
 		c = (C*)malloc(sizeof(C)*numAllocated);
 	}
 	//! Creates copy of vector.
-	//! Does shallow copy of elements (unlike std::vector).
+	//! Uses memcpy to copy elements (unlike std::vector).
 	RRVector(const RRVector& a)
 	{
 		numUsed = a.numUsed;
@@ -42,7 +42,7 @@ public:
 		memcpy(c,a.c,sizeof(C)*numUsed);
 	}
 	//! Assigns vector.
-	//! Does shallow copy of elements (unlike std::vector).
+	//! Uses memcpy to copy elements (unlike std::vector).
 	RRVector& operator=(const RRVector& a)
 	{
 		free(c);
@@ -51,6 +51,13 @@ public:
 		c = (C*)malloc(sizeof(C)*numAllocated);
 		memcpy(c,a.c,sizeof(C)*numUsed);
 		return *this;
+	}
+	//! Resizes vector, adding or removing elements at the end.
+	void resize(unsigned newSize, C initial=C())
+	{
+		while (size()<newSize)
+			push_back(initial);
+		numUsed = newSize;
 	}
 	//! Appends element at the end of vector.
 	//! Elements may be relocated to different address in memory.
