@@ -67,8 +67,12 @@ using namespace rr;
 
 enum
 {
-	LIGHTMAP_CHANNEL = UINT_MAX-1, // don't use UINT_MAX, checkConsistency() understands UINT_MAX as 'no check'
-	UNSPECIFIED_CHANNEL = UINT_MAX-2,
+	// system channel numbers
+	// must be reasonably small for RRMeshArrays
+	// don't use UINT_MAX, checkConsistency() understands UINT_MAX as 'no check'
+	// if these numbers collide with numbers in your data, you may change these numbers
+	LIGHTMAP_CHANNEL = 136,
+	UNSPECIFIED_CHANNEL = 137,
 };
 
 //////////////////////////////////////////////////////////////////////////////
