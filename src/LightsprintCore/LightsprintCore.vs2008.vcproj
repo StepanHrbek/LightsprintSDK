@@ -1504,10 +1504,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\RRVector.h"
-				>
-			</File>
-			<File
 				RelativePath="RRDynamicSolver\vertexBuffer.cpp"
 				>
 				<FileConfiguration
@@ -1750,6 +1746,10 @@
 		</File>
 		<File
 			RelativePath="RRObject\RRScaler.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRVector.h"
 			>
 		</File>
 	</Files>
