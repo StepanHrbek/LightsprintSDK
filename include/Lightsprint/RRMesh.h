@@ -473,10 +473,10 @@ namespace rr
 		//! Creates mesh with direct read-write access to internal data arrays.
 		//
 		//! Note that such mesh contains reduced set of data
-		//! - only uv channels listed in channelNumbers[0..numChannels-1]
+		//! - only selected texcoords
 		//! - if indexed=true, shared vertex can't have different normal/tangents/mappings in different triangles
 		//! - Pre/PostImportNumbers are lost
-		class RRMeshArrays* createArrays(bool indexed, unsigned numChannels, unsigned* channelNumbers) const;
+		class RRMeshArrays* createArrays(bool indexed, const RRVector<unsigned>& texcoords) const;
 
 		// Saves mesh to disk. RRMeshArrays::load() loads it back. Work in progress, file format is not yet stable.
 		//bool save(char* filename);

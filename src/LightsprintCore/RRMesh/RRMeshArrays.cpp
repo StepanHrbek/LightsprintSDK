@@ -123,18 +123,14 @@ RRMeshArrays* RRMeshArrays::load(const char* filename)
 	return mesh;
 }
 
-bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels, unsigned* channelNumbers)
+bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<unsigned>& _texcoords)
 {
-	if (!mesh) return false;
+	if (!_mesh) return false;
 
-	// sanitize inputs
-	if (!channelNumbers)
-		numChannels = 0;
-
-	if (indexed)
+	if (_indexed)
 	{
 		// alloc
-		if (!resizeMesh(mesh->getNumTriangles(),mesh->getNumVertices()))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices()))
 		{
 			return false;
 		}
@@ -144,21 +140,21 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 		#pragma omp parallel for
 		for (int v=0;v<(int)numVertices;v++)
 		{
-			mesh->getVertex(v,position[v]);
+			_mesh->getVertex(v,position[v]);
 			filled[v] = false;
 		}
-		TriangleMapping* mapping = new TriangleMapping[numChannels];
+		TriangleMapping* mapping = new TriangleMapping[_texcoords.size()];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
-			mesh->getTriangle(t,triangle[t]);
+			_mesh->getTriangle(t,triangle[t]);
 			TriangleNormals normals;
-			mesh->getTriangleNormals(t,normals);
-			for (unsigned i=0;i<numChannels;i++)
+			_mesh->getTriangleNormals(t,normals);
+			for (unsigned i=0;i<_texcoords.size();i++)
 			{
-				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+				_mesh->getTriangleMapping(t,mapping[i],_texcoords[i]);
 				if (!t)
-					addTexcoord(channelNumbers[i]);
+					addTexcoord(_texcoords[i]);
 			}
 			for (unsigned v=0;v<3;v++)
 			{
@@ -167,7 +163,7 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 					normal[triangle[t][v]] = normals.vertex[v].normal;
 					tangent[triangle[t][v]] = normals.vertex[v].tangent;
 					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
-					for (unsigned i=0;i<numChannels;i++)
+					for (unsigned i=0;i<_texcoords.size();i++)
 					{
 						texcoord[i][triangle[t][v]] = mapping[i].uv[v];
 					}
@@ -188,13 +184,13 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 	else
 	{
 		// alloc
-		if (!resizeMesh(mesh->getNumTriangles(),mesh->getNumTriangles()*3))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3))
 		{
 			return false;
 		}
 
 		// copy
-		TriangleMapping* mapping = new TriangleMapping[numChannels];
+		TriangleMapping* mapping = new TriangleMapping[_texcoords.size()];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
@@ -202,22 +198,22 @@ bool RRMeshArrays::reload(const RRMesh* mesh, bool indexed, unsigned numChannels
 			triangle[t][1] = 3*t+1;
 			triangle[t][2] = 3*t+2;
 			Triangle triangleT;
-			mesh->getTriangle(t,triangleT);
+			_mesh->getTriangle(t,triangleT);
 			TriangleNormals normals;
-			mesh->getTriangleNormals(t,normals);
-			for (unsigned i=0;i<numChannels;i++)
+			_mesh->getTriangleNormals(t,normals);
+			for (unsigned i=0;i<_texcoords.size();i++)
 			{
-				mesh->getTriangleMapping(t,mapping[i],channelNumbers[i]);
+				_mesh->getTriangleMapping(t,mapping[i],_texcoords[i]);
 				if (!t)
-					addTexcoord(channelNumbers[i]);
+					addTexcoord(_texcoords[i]);
 			}
 			for (unsigned v=0;v<3;v++)
 			{
-				mesh->getVertex(triangleT[v],position[t*3+v]);
+				_mesh->getVertex(triangleT[v],position[t*3+v]);
 				normal[t*3+v] = normals.vertex[v].normal;
 				tangent[t*3+v] = normals.vertex[v].tangent;
 				bitangent[t*3+v] = normals.vertex[v].bitangent;
-				for (unsigned i=0;i<numChannels;i++)
+				for (unsigned i=0;i<_texcoords.size();i++)
 				{
 					texcoord[i][t*3+v] = mapping[i].uv[v];
 				}
@@ -315,10 +311,10 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 //
 // RRMesh
 
-RRMeshArrays* RRMesh::createArrays(bool indexed, unsigned numChannels, unsigned* channelNumbers) const
+RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texcoords) const
 {
 	RRMeshArrays* importer = new RRMeshArrays();
-	if (importer->reload(this,indexed,numChannels,channelNumbers)) return importer;
+	if (importer->reload(this,indexed,texcoords)) return importer;
 	delete importer;
 	return NULL;
 }
