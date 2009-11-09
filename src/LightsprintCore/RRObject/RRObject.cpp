@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cassert>
+#include <set>
 
 #include "../RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
@@ -40,26 +41,29 @@ void RRObject::FaceGroups::getBlending(bool& containsBlended, bool& containsNonB
 	}
 }
 
-void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& texcoords, bool forUnwrap, bool forDiffuse, bool forSpecular, bool forEmissive, bool forTransparent) const
+void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _forUnwrap, bool _forDiffuse, bool _forSpecular, bool _forEmissive, bool _forTransparent) const
 {
-	texcoords.clear();
+	std::set<unsigned> texcoords;
 	for (unsigned fg=0; fg<size(); fg++)
 	{
 		rr::RRMaterial* material = (*this)[fg].material;
 		if (material)
 		{
-			if (forUnwrap)
-				texcoords.push_back(material->lightmapTexcoord);
-			if (forDiffuse && material->diffuseReflectance.texture)
-				texcoords.push_back(material->diffuseReflectance.texcoord);
-			if (forSpecular && material->specularReflectance.texture)
-				texcoords.push_back(material->specularReflectance.texcoord);
-			if (forEmissive && material->diffuseEmittance.texture)
-				texcoords.push_back(material->diffuseEmittance.texcoord);
-			if (forTransparent && material->specularTransmittance.texture)
-				texcoords.push_back(material->specularTransmittance.texcoord);
+			if (_forUnwrap)
+				texcoords.insert(material->lightmapTexcoord);
+			if (_forDiffuse && material->diffuseReflectance.texture)
+				texcoords.insert(material->diffuseReflectance.texcoord);
+			if (_forSpecular && material->specularReflectance.texture)
+				texcoords.insert(material->specularReflectance.texcoord);
+			if (_forEmissive && material->diffuseEmittance.texture)
+				texcoords.insert(material->diffuseEmittance.texcoord);
+			if (_forTransparent && material->specularTransmittance.texture)
+				texcoords.insert(material->specularTransmittance.texcoord);
 		}
 	}
+	_texcoords.clear();
+	for (std::set<unsigned>::const_iterator i=texcoords.begin();i!=texcoords.end();++i)
+		_texcoords.push_back(*i);
 }
 
 
