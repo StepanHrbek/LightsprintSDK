@@ -288,14 +288,9 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 		RR_ASSERT(0);
 		return false;
 	}
-	if (channel>=texcoord.size())
+	if (channel>=texcoord.size() || !texcoord[channel])
 	{
-		RR_ASSERT(0);
-		return false;
-	}
-	if (!texcoord[channel])
-	{
-		RR_ASSERT(0);
+		// querying channel without data, this is legal
 		return false;
 	}
 	for (unsigned v=0;v<3;v++)
@@ -303,7 +298,7 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 		RR_ASSERT(triangle[t][v]<numVertices);
 		out.uv[v] = texcoord[channel][triangle[t][v]];
 	}
-	return false;
+	return true;
 }
 
 
