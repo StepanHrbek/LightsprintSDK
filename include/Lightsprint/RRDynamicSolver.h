@@ -8,7 +8,6 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include "RRVector.h"
 #include "RRIllumination.h"
 #include "RRObject.h"

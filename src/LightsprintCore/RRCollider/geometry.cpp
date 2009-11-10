@@ -3,9 +3,7 @@
 // Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <assert.h>
-#include <math.h>
-#include <memory.h>
+#include <cmath>
 #include "geometry.h"
 
 namespace rr

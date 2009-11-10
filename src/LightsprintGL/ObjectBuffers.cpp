@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"

@@ -8,7 +8,6 @@
 #ifndef REALTIMELIGHT_H
 #define REALTIMELIGHT_H
 
-#include <cassert>
 #include <cmath>
 #include "Camera.h"
 #include "Texture.h"

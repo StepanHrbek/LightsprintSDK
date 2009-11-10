@@ -15,7 +15,6 @@
 // nearly zero memory requirements.
 
 
-#include <cassert>
 #include <cmath>
 #include <vector>
 #include "RRObject3DS.h"
@@ -144,7 +143,7 @@ unsigned RRObject3DS::getNumVertices() const
 
 void RRObject3DS::getVertex(unsigned v, Vertex& out) const
 {
-	assert(v<(unsigned)object->numVerts);
+	RR_ASSERT(v<(unsigned)object->numVerts);
 	out = object->Vertexes[v];
 }
 
@@ -157,7 +156,7 @@ void RRObject3DS::getTriangle(unsigned t, Triangle& out) const
 {
 	if (t>=RRObject3DS::getNumTriangles()) 
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	out = triangles[t].t;
@@ -167,7 +166,7 @@ void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	if (t>=RRObject3DS::getNumTriangles())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	Triangle triangle;
@@ -190,7 +189,7 @@ bool RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 			{
 				if (t>=RRObject3DS::getNumTriangles())
 				{
-					assert(0); // legal, but shouldn't happen in well coded program
+					RR_ASSERT(0); // legal, but shouldn't happen in well coded program
 					return false;
 				}
 				Triangle triangle;

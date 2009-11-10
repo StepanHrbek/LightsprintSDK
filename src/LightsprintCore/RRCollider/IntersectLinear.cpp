@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include "IntersectLinear.h"
-#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <cstdio>

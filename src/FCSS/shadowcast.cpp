@@ -72,7 +72,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #endif
 #include "Level.h"
 #include "Lightsprint/GL/Timer.h"
-#include <cassert>
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
@@ -513,14 +512,14 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight)
 {
 	// render static scene
-	assert(!uberProgramSetup.OBJECT_SPACE); 
+	RR_ASSERT(!uberProgramSetup.OBJECT_SPACE); 
 	glEnable(GL_CULL_FACE); // make scene 1sided, light is sometimes above roof
 	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
 	// render scene dynamic
 	if (uberProgramSetup.FORCE_2D_POSITION) return;
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
-	assert(demoPlayer);
+	RR_ASSERT(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);

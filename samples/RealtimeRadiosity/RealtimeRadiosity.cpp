@@ -22,7 +22,6 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <ctime>
 #include <cmath>
 #include <cstdio>

@@ -1,4 +1,3 @@
-#include <cassert>
 #include "AnimationFrame.h"
 #include "Lightsprint/RRDebug.h"
 #include <GL/glew.h>

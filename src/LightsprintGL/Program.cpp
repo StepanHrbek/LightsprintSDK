@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

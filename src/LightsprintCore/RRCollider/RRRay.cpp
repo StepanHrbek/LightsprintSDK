@@ -5,9 +5,7 @@
 
 #include "Lightsprint/RRCollider.h"
 
-#include <assert.h>
-#include <memory.h>
-
+#include <cstring>
 
 namespace rr
 {

@@ -10,7 +10,6 @@
 // You can replace TMapQ3 with your internal format and adapt this code
 // so it works with your data.
 
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <vector>
@@ -347,7 +346,7 @@ unsigned RRObjectQuake3::getNumVertices() const
 
 void RRObjectQuake3::getVertex(unsigned v, Vertex& out) const
 {
-	assert(v<RRObjectQuake3::getNumVertices());
+	RR_ASSERT(v<RRObjectQuake3::getNumVertices());
 #ifdef PACK_VERTICES
 	out = vertices[v].position;
 #else
@@ -370,7 +369,7 @@ void RRObjectQuake3::getTriangle(unsigned t, Triangle& out) const
 {
 	if (t>=RRObjectQuake3::getNumTriangles()) 
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	out = triangles[t].t;
@@ -381,7 +380,7 @@ void RRObjectQuake3::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	if (t>=RRObjectQuake3::getNumTriangles())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	Triangle triangle;

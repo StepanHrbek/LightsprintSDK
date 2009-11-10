@@ -3,8 +3,6 @@
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
-
 #include "Lightsprint/RRObject.h"
 
 namespace rr

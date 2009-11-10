@@ -31,7 +31,6 @@
 #ifdef _WIN32
 #include <windows.h>    // SetCurrentDirectory
 #endif
-#include <cassert>
 #include <ctime>
 #include <cmath>
 #include <cstdio>

@@ -3,16 +3,14 @@
 // Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <assert.h>
-#include <math.h>
-#include <memory.h>
+#include <cmath>
+#include <cstdarg>
+#include <cstdio>    // printf
+#include <cstdlib>
+#include <cstring>
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include <stdarg.h>
-#include <stdio.h>    // printf
-#include <stdlib.h>
-#include <string.h>
 #include "../LicGen.h"
 #include "rrcore.h"
 

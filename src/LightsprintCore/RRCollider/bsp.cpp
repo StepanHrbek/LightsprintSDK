@@ -3,12 +3,10 @@
 // Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <memory.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <climits>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include "bsp.h"
 #include "IntersectBsp.h"
 #include "IntersectBspFast.h"

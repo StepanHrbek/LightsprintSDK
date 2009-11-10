@@ -8,8 +8,6 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <cassert>
-
 #if defined(LINUX) || defined(linux)
 
 	// GETTIME: 1 ns precision, artificially reduced to 0.1 ms
@@ -89,7 +87,7 @@ public:
 		MyFILETIME creationtime,exittime;
 		if (!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kernelstart.ft,&userstart.ft))
 		{
-			assert(0);
+			RR_ASSERT(0);
 		}
 		if (perffreq)
 		{
@@ -113,7 +111,7 @@ public:
 			MyFILETIME creationtime,exittime,kerneltime2,usertime2;
 			if (!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kerneltime2.ft,&usertime2.ft))
 			{
-				assert(0);
+				RR_ASSERT(0);
 			}
 			if (kerneltime) *kerneltime = (kerneltime2.u-kernelstart.u)*1e-7;
 			if (usertime) *usertime = (usertime2.u-userstart.u)*1e-7;

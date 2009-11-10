@@ -7,9 +7,6 @@
 
 #include "RRMeshTriStrip.h"
 
-#include <cassert>
-
-
 namespace rr
 {
 

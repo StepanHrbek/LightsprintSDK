@@ -3,9 +3,7 @@
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <set>
-
 #include "../RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRObject.h"

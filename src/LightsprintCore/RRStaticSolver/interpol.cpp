@@ -11,13 +11,11 @@
 #include "rrcore.h"
 #include "interpol.h"
 
-#include <assert.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <list>
-#include <math.h>
-#include <memory.h>
 #include <set>
-#include <stdio.h>
-#include <stdlib.h>
 
 #define TRACE(a) //{if (RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
 

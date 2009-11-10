@@ -7,7 +7,6 @@
 
 #define DBG(a) //a
 
-#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 

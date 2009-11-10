@@ -29,7 +29,6 @@
 #define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
 #define SELECTED_STATIC_OBJECT  9920  // index of static object awarded by higher quality indirect lighting (per-pixel)
 
-#include <cassert>
 #include <ctime>
 #include <cmath>
 #include <cstdlib>

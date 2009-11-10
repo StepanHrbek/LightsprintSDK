@@ -3,7 +3,6 @@
 // Copyright (c) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -204,8 +203,8 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 	{
 		case BT_CUBE_TEXTURE:
 			{
-				assert(width==height);
-				assert(depth==6);
+				RR_ASSERT(width==height);
+				RR_ASSERT(depth==6);
 				// find major axis
 				RRVec3 d = direction.abs();
 				unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2

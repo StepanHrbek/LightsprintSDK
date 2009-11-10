@@ -3,12 +3,10 @@
 // Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <assert.h>
-#include <math.h>
-#include <memory.h>
+#include <cmath>
+#include <cstdio> // dbg printf
 #include "rrcore.h"
 #include "../RRStaticSolver/RRStaticSolver.h"
-#include <stdio.h> // dbg printf
 
 namespace rr
 {
@@ -17,8 +15,8 @@ namespace rr
 
 RRStaticSolver::~RRStaticSolver()
 {
-	//assert(_CrtIsValidHeapPointer(scene));
-	//assert(_CrtIsMemoryBlock(scene,sizeof(Scene),NULL,NULL,NULL));
+	//RR_ASSERT(_CrtIsValidHeapPointer(scene));
+	//RR_ASSERT(_CrtIsMemoryBlock(scene,sizeof(Scene),NULL,NULL,NULL));
 	delete scene;
 }
 

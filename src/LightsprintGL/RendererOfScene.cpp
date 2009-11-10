@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include <algorithm> // sort
-#include <cassert>
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"

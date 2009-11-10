@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include "RendererOf3DS.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -13,7 +12,7 @@
 RendererOf3DS::RendererOf3DS(const Model_3DS* amodel,bool alit,bool atexturedDiffuse,bool atexturedEmissive)
 {
 	model = amodel;
-	assert(model);
+	RR_ASSERT(model);
 	lit = alit;
 	texturedDiffuse = atexturedDiffuse;
 	texturedEmissive = atexturedEmissive;

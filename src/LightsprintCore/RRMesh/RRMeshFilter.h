@@ -7,8 +7,6 @@
 
 #include "Lightsprint/RRMesh.h"
 
-#include <cassert>
-
 namespace rr
 {
 

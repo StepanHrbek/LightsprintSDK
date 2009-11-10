@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
@@ -182,7 +181,7 @@ namespace rr_gl
 		unsigned numShadowmaps = getNumShadowmaps();
 		if (instance>=numShadowmaps)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			return NULL;
 		}
 		// free or allocate shadowmaps to match with current number

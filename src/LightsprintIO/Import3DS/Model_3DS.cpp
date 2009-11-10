@@ -46,7 +46,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include <cmath>
 #include <cstring>
 #ifndef RR_IO_BUILD
@@ -223,14 +222,14 @@ bool Model_3DS::Load(const char *_filename, float _scale)
 	/*if (pos.x||pos.y||pos.z||rot.x||rot.y||rot.z||scale!=1)
 	{
 		identity=false;
-		assert(0);
+		RR_ASSERT(0);
 	}*/
 	for (int i = 0; i < numObjects; i++)
 	{
 		if (Objects[i].pos.x||Objects[i].pos.y||Objects[i].pos.z||Objects[i].rot.x||Objects[i].rot.y||Objects[i].rot.z)
 		{
 			identity=false;
-			assert(0);
+			RR_ASSERT(0);
 		}
 	}
 	if (!identity)
@@ -631,7 +630,7 @@ unsigned Model_3DS::ReadPercentage()
 	unsigned char arr[8];
 	fread(arr,8,1,bin3ds);
 	fseek(bin3ds, -8, SEEK_CUR);
-	assert(arr[0]==0x30 && arr[1]==0 && arr[2]==8 && arr[3]==0 && arr[4]==0 && arr[5]==0 && arr[7]==0);
+	RR_ASSERT(arr[0]==0x30 && arr[1]==0 && arr[2]==8 && arr[3]==0 && arr[4]==0 && arr[5]==0 && arr[7]==0);
 	return arr[6];
 }
 

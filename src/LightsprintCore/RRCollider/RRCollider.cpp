@@ -7,9 +7,6 @@
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
-
-#include <assert.h>
-#include <memory.h>
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif

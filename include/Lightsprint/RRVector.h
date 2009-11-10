@@ -8,8 +8,8 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include <cstdlib>
+#include "RRDebug.h"
 
 namespace rr
 {
@@ -89,13 +89,13 @@ public:
 	//! Returns reference to i-th element (like std::vector).
 	C& operator[](unsigned i)
 	{
-		assert(i<numUsed);
+		RR_ASSERT(i<numUsed);
 		return c[i];
 	}
 	//! Returns const reference to i-th element (like std::vector).
 	const C& operator[](unsigned i) const
 	{
-		assert(i<numUsed);
+		RR_ASSERT(i<numUsed);
 		return c[i];
 	}
 	//! Clear all elements from vector, setting size to 0.
@@ -129,7 +129,7 @@ public:
 		else
 		{
 			// insert, not supported yet
-			assert(0);
+			RR_ASSERT(0);
 		}
 	}
 	//! Frees elements.

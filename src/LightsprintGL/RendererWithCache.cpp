@@ -3,8 +3,8 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <GL/glew.h>
+#include "Lightsprint/RRDebug.h"
 #include "RendererWithCache.h"
 
 namespace rr_gl
@@ -40,7 +40,7 @@ RendererWithCache::Info& RendererWithCache::findInfo()
 	{
 		if (length>sizeof(key))
 		{
-			assert(0);
+			RR_ASSERT(0);
 			length = sizeof(key); //!!! params delsi nez 16 jsou oriznuty
 		}
 		memcpy(&key,params,length);
@@ -52,13 +52,13 @@ void RendererWithCache::setStatus(ChannelStatus cs,RendererWithCache::Info& info
 {
 	if (info.status==CS_COMPILED && cs!=CS_COMPILED)
 	{
-		assert(info.displayList!=UINT_MAX);
+		RR_ASSERT(info.displayList!=UINT_MAX);
 		glDeleteLists(info.displayList,1);
 		info.displayList = UINT_MAX;
 	}
 	if (info.status!=CS_COMPILED && cs==CS_COMPILED)
 	{
-		assert(info.displayList==UINT_MAX);
+		RR_ASSERT(info.displayList==UINT_MAX);
 		cs = CS_READY_TO_COMPILE;
 	}
 	info.status = cs;
@@ -76,7 +76,7 @@ void RendererWithCache::render()
 	{
 	case CS_READY_TO_COMPILE:
 		if (!COMPILE) goto never;
-		assert(info.displayList==UINT_MAX);
+		RR_ASSERT(info.displayList==UINT_MAX);
 		info.displayList = glGenLists(1);
 		glNewList(info.displayList,GL_COMPILE);
 		renderer->render();
@@ -84,16 +84,16 @@ void RendererWithCache::render()
 		info.status = CS_COMPILED;
 		// intentionally no break
 	case CS_COMPILED:
-		assert(info.displayList!=UINT_MAX);
+		RR_ASSERT(info.displayList!=UINT_MAX);
 		glCallList(info.displayList);
 		break;
 	case CS_NEVER_COMPILE:
 never:
-		assert(info.displayList==UINT_MAX);
+		RR_ASSERT(info.displayList==UINT_MAX);
 		renderer->render();
 		break;
 	default:
-		assert(0);
+		RR_ASSERT(0);
 	}
 }
 

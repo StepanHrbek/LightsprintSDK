@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <GL/glew.h>
@@ -69,11 +68,11 @@ bool FBO::isStatusOk() const
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
 			// programming error; will fail on all hardware
 			// possible reason: color_id texture has LINEAR_MIPMAP_LINEAR, but only one mip level (=incomplete)
-			assert(0);
+			RR_ASSERT(0);
 			break;
 		default:
 			// programming error; will fail on all hardware
-			assert(0);
+			RR_ASSERT(0);
 	}
 	return false;
 }

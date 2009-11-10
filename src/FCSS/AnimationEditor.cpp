@@ -25,7 +25,7 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 	unsigned index = 0;
 	unsigned count = RR_MAX(6,(unsigned)setup->frames.size()+1);
 	//for (LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
-	//	if ((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
+	//	if ((*i).thumbnail) RR_ASSERT((*i).thumbnail->__vfptr!=0xfeeefeee);
 	for (LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
 	{
 		float x = index/(float)count;

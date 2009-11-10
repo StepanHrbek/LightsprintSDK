@@ -213,7 +213,7 @@ int my_hface(int ac,char** av)
 		}
 		vertex[i-1]=vp->client_data;
 	}
-	assert(c_cmaterial);
+	RR_ASSERT(c_cmaterial);
 	if (c_cmaterial->clock!=-1)
 	{
 		c_cmaterial->clock=-1;

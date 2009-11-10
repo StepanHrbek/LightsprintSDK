@@ -3,7 +3,6 @@
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cassert>
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
@@ -49,7 +48,7 @@ bool TextureRenderer::renderEnvironmentBegin(const rr::RRVec4& _color, bool _all
 	Program* program = (_gamma!=1) ? skyPhysicalProgram : skyScaledProgram;
 	if (!program)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return false;
 	}
 	// backup render states
@@ -122,7 +121,7 @@ bool TextureRenderer::render2dBegin(float color[4])
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	if (!twodProgram)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return false;
 	}
 	// setup render states
@@ -140,7 +139,7 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 {
 	if (!texture)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	texture->bindTexture();
@@ -173,7 +172,7 @@ void TextureRenderer::render2D(const Texture* texture,float color[4], float x,fl
 	/*
 	if (!texture || !twodProgram)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	// backup render states

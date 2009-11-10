@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 
-#include <cassert>
 #include <cfloat>
 #ifdef _OPENMP
 #include <omp.h>

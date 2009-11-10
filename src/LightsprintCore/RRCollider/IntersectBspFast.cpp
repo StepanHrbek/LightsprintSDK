@@ -7,7 +7,6 @@
 
 #define DBG(a) //a // enables log of tree traversal, for debugging individual rays
 
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

@@ -13,7 +13,6 @@
 #include "RRMeshFilterTransformed.h"
 #include "RRMeshMulti.h"
 #include "../RRMathPrivate.h"
-#include <cassert>
 #include <cstdio>
 
 #ifndef _MSC_VER

@@ -15,7 +15,6 @@
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

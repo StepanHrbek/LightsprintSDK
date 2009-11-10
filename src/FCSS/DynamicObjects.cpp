@@ -197,13 +197,13 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 			dynaobjectAI[objIndex]->pos = worldFoot;
 			dynaobject[objIndex]->worldFoot = worldFoot;
 			dynaobject[objIndex]->updatePosition();
-			assert(dynaobject[objIndex]->visible);
+			RR_ASSERT(dynaobject[objIndex]->visible);
 		}
 	}
 	else
 	{
 		// v .ani je vic objektu nez v .cfg a tys sahnul na '1'..'9'
-		assert(0);
+		RR_ASSERT(0);
 	}
 }
 
@@ -224,7 +224,7 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 	}
 	else
 	{
-		assert(0);
+		RR_ASSERT(0);
 	}
 }
 

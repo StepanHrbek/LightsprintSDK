@@ -6,11 +6,8 @@
 #pragma once
 
 #include "RRMeshFilter.h"
-
-#include <cassert>
 #include <cmath>
 #include <cstdlib> // qsort
-
 
 namespace rr
 {

@@ -6,7 +6,6 @@
 
 //#define POINT_MATERIALS // enables point materials (texture lookups) when building reflection maps. however, point details are lost in cache (when object doesn't move)
 
-#include <cassert>
 #include <map>
 #ifdef _OPENMP
 #include <omp.h>

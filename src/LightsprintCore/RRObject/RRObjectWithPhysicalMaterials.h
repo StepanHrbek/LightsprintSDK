@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <cassert>
 #include <map>
 #include "RRObjectFilter.h"
 #include "Lightsprint/RRLight.h"
