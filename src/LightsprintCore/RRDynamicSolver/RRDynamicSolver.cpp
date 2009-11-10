@@ -231,7 +231,7 @@ RRObject* RRDynamicSolver::getMultiObjectCustom() const
 	return priv->multiObjectCustom;
 }
 
-const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() const
+const RRObject* RRDynamicSolver::getMultiObjectPhysical() const
 {
 	return priv->multiObjectPhysical;
 }
@@ -254,7 +254,7 @@ void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	priv->dirtyMaterials = true;
-	if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
+	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)

@@ -485,9 +485,6 @@
 						ExceptionHandling="TRUE"/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="RRObject\RRObjectWithPhysicalMaterials.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="RRIllumination">

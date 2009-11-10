@@ -845,7 +845,7 @@ namespace rr
 		RRObject* getMultiObjectCustom() const;
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
-		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
+		const RRObject* getMultiObjectPhysical() const;
 
 	protected:
 

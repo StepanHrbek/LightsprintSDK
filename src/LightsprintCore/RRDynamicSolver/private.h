@@ -30,7 +30,7 @@ namespace rr
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
 		bool       forcedMultiObjectCustom;
-		RRObjectWithPhysicalMaterials* multiObjectPhysical;
+		RRObject*  multiObjectPhysical;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsEmissiveMaterials;
 		bool       staticSceneContainsLods;

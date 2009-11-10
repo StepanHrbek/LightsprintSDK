@@ -310,7 +310,7 @@ namespace rr
 		//!  Provide the same scaler you use for the rest of calculation.
 		//! \param aborting
 		//!  May be set asynchronously, aborts creation.
-		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
+		class RRObject* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
 
 
 		// other tools
@@ -345,26 +345,6 @@ namespace rr
 		void updateFaceGroupsFromTriangleMaterials();
 	private:
 		RRMatrix3x4* worldMatrix;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRObjectWithPhysicalMaterials
-	//! Interface for object wrapper that converts materials from custom to physical scale.
-	//
-	//! Helper interface.
-	//! Instance may be created by RRMesh::createObjectWithPhysicalMaterials().
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRObjectWithPhysicalMaterials : public RRObject
-	{
-	public:
-		//! Updates materials in physical scale according to actual scaler and materials in custom scale.
-		//! \param aborting
-		//!  May be set asynchronously, aborts update.
-		virtual void update(bool& aborting) = 0;
 	};
 
 
