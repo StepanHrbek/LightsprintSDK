@@ -472,7 +472,8 @@ namespace rr
 
 		//! Creates mesh with direct read-write access to internal data arrays.
 		//
-		//! Note that such mesh contains reduced set of data
+		//! Created mesh does not depend on the old one, it's safe to delete the old one.
+		//! \n Note that created mesh contains reduced set of data
 		//! - only selected texcoords
 		//! - if indexed=true, shared vertex can't have different normal/tangents/mappings in different triangles
 		//! - Pre/PostImportNumbers are lost
