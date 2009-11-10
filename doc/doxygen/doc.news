@@ -27,6 +27,7 @@ NEWS
   - object transformation
     - RRObject::setWorldMatrix() added
     - RRObject::getWorldMatrix() default implementation improved, you can delete yours, just call setWorldMatrix() once
+    - RRObject::getWorldMatrix() changed to const, delete or fix your implementation
   - object's collider and mesh
     - RRObject::setCollider() added
     - RRObject::getCollider() default implementation added, you can delete yours, just call setCollider() once

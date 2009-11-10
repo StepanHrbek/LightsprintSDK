@@ -81,7 +81,7 @@ public:
 		RRReporter::report(ERRO,"setCollider() ignored for objects transformed to world space.\n");
 	}
 	// Return no transform rather than original.
-	virtual const RRMatrix3x4* getWorldMatrix()
+	virtual const RRMatrix3x4* getWorldMatrix() const
 	{
 		return NULL;
 	}

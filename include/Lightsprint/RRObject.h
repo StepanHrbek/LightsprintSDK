@@ -181,7 +181,7 @@ namespace rr
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
-		virtual const RRMatrix3x4*  getWorldMatrix();
+		virtual const RRMatrix3x4*  getWorldMatrix() const;
 
 		//! Sets object transformation from local to world space.
 		//

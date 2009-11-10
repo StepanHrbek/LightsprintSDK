@@ -248,7 +248,7 @@ void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
 	out.distanceMax = 1e35f;
 }
 
-const RRMatrix3x4* RRObject::getWorldMatrix()
+const RRMatrix3x4* RRObject::getWorldMatrix() const
 {
 	return worldMatrix;
 }
