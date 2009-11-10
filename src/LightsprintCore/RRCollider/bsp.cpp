@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include "bsp.h"
 #include "IntersectBsp.h"
 #include "IntersectBspFast.h"

@@ -8,6 +8,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "Lightsprint/RRDebug.h"
+
 #if defined(LINUX) || defined(linux)
 
 	// GETTIME: 1 ns precision, artificially reduced to 0.1 ms
