@@ -165,7 +165,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
 					for (unsigned i=0;i<_texcoords.size();i++)
 					{
-						texcoord[i][triangle[t][v]] = mapping[i].uv[v];
+						texcoord[_texcoords[i]][triangle[t][v]] = mapping[i].uv[v];
 					}
 					filled[triangle[t][v]] = true;
 				}
@@ -215,7 +215,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 				bitangent[t*3+v] = normals.vertex[v].bitangent;
 				for (unsigned i=0;i<_texcoords.size();i++)
 				{
-					texcoord[i][t*3+v] = mapping[i].uv[v];
+					texcoord[_texcoords[i]][t*3+v] = mapping[i].uv[v];
 				}
 			}
 		}
@@ -274,7 +274,7 @@ void RRMeshArrays::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	RR_ASSERT(bitangent);
 	for (unsigned v=0;v<3;v++)
 	{
-		RR_ASSERT(triangle[t][v]<numTriangles);
+		RR_ASSERT(triangle[t][v]<numVertices);
 		out.vertex[v].normal = normal[triangle[t][v]];
 		out.vertex[v].tangent = tangent[triangle[t][v]];
 		out.vertex[v].bitangent = bitangent[triangle[t][v]];
@@ -300,7 +300,7 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 	}
 	for (unsigned v=0;v<3;v++)
 	{
-		RR_ASSERT(triangle[t][v]<numTriangles);
+		RR_ASSERT(triangle[t][v]<numVertices);
 		out.uv[v] = texcoord[channel][triangle[t][v]];
 	}
 	return false;
