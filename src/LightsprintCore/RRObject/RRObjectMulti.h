@@ -85,11 +85,6 @@ public:
 		return result;
 	}
 
-	virtual const RRCollider* getCollider() const
-	{
-		return multiCollider;
-	}
-
 	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
@@ -112,7 +107,7 @@ public:
 	{
 		//delete[] postImportToMidImportVertex;
 		delete[] postImportToMidImportTriangle;
-		delete multiCollider;
+		delete getCollider();
 		for (unsigned i=0;i<numSingles+MI_MAX;i++) delete transformedMeshes[i];
 		delete[] transformedMeshes;
 	}
@@ -136,9 +131,9 @@ private:
 			//numTrianglesMulti += _meshes[i] ? _meshes[i]->getNumTriangles() : 0;
 			//numVerticesMulti += _meshes[i] ? _meshes[i]->getNumVertices() : 0;
 		}
-		multiCollider = _multiCollider;
+		setCollider(_multiCollider);
 		transformedMeshes = _transformedMeshes;
-		const RRMesh* multiMeshOptimized = multiCollider->getMesh();
+		const RRMesh* multiMeshOptimized = _multiCollider->getMesh();
 		numTrianglesOptimized = multiMeshOptimized->getNumTriangles();
 		numVerticesOptimized = multiMeshOptimized->getNumVertices();
 		postImportToMidImportTriangle = new RRMesh::PreImportNumber[numTrianglesOptimized];
@@ -178,7 +173,6 @@ private:
 	RRMesh::PreImportNumber* postImportToMidImportTriangle;
 	//RRMesh::PreImportNumber* postImportToMidImportVertex;
 
-	const RRCollider* multiCollider;
 	const RRMesh** transformedMeshes;
 };
 
@@ -254,11 +248,6 @@ public:
 		return create(objects,numObjects,multiCollider,transformedMeshes);
 	}
 
-	virtual const RRCollider* getCollider() const
-	{
-		return multiCollider;
-	}
-
 	/*void unoptimizeVertex(unsigned& v) const
 	{
 		if (!transformedMeshes) return;
@@ -323,10 +312,10 @@ public:
 		if (pack[0].getNumObjects()>1) delete pack[0].getImporter();
 		if (pack[1].getNumObjects()>1) delete pack[1].getImporter();
 		// Only for top level of tree:
-		if (multiCollider) 
+		if (getCollider()) 
 		{
 			// Delete multiCollider created by us.
-			delete multiCollider;
+			delete getCollider();
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
 			RR_ASSERT(transformedMeshes[0]!=transformedMeshes[1]);
@@ -376,14 +365,15 @@ private:
 		}
 	}
 
-	RRObjectMultiSmall(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
-		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
-		const RRCollider* amultiCollider, const RRMesh** atransformedMeshes)
+	RRObjectMultiSmall(RRObject* _mesh1, unsigned _mesh1Objects, unsigned _mesh1Triangles, 
+		RRObject* _mesh2, unsigned _mesh2Objects, unsigned _mesh2Triangles,
+		const RRCollider* _multiCollider, const RRMesh** _transformedMeshes)
 	{
-		multiCollider = amultiCollider;
-		transformedMeshes = atransformedMeshes;
-		pack[0].init(mesh1,mesh1Objects,mesh1Triangles);
-		pack[1].init(mesh2,mesh2Objects,mesh2Triangles);
+		if (_multiCollider)
+			setCollider(_multiCollider);
+		transformedMeshes = _transformedMeshes;
+		pack[0].init(_mesh1,_mesh1Objects,_mesh1Triangles);
+		pack[1].init(_mesh2,_mesh2Objects,_mesh2Triangles);
 	}
 
 	struct ObjectPack
@@ -414,7 +404,6 @@ private:
 	};
 
 	ObjectPack    pack[2];
-	const RRCollider* multiCollider;
 	const RRMesh** transformedMeshes;
 };
 

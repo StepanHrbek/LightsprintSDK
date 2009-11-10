@@ -71,6 +71,7 @@ void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _fo
 
 RRObject::RRObject()
 {
+	collider = NULL;
 	worldMatrix = NULL;
 	illumination = NULL;
 }
@@ -79,6 +80,13 @@ RRObject::~RRObject()
 {
 	delete illumination;
 	delete worldMatrix;
+}
+
+void RRObject::setCollider(const RRCollider* _collider)
+{
+	collider = _collider;
+	if (!_collider)
+		RRReporter::report(WARN,"setCollider(NULL) called, collider must never be NULL.\n");
 }
 
 RRMaterial* RRObject::getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const

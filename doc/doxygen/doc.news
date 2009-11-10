@@ -15,17 +15,21 @@ NEWS
 - scene access extended from read-only to read-write, you can edit scenes
   - mesh indices and vertices
     - RRMeshArrays added, lets you edit index+vertex arrays
-    - RRMesh::createArrays() added
+    - RRMesh::createArrays() added, creates editable copy of mesh
   - object materials
     - RRObject::faceGroups added,
-      \n you have to fill this structure
+      \n your RRObject implementation must fill it
     - RRObject::getTriangleMaterial() modified
+      - default implementation added, you can possibly delete yours
       - returned material is not const so it can be edited
-      - you can possibly delete your implemetation, default implementation was added, returns materials from RRObject::faceGroups
     - RRObject::updateFacegroupsFromTriangleMaterials() added
-      \n helps fills faceGroups
+      \n helps fill faceGroups
   - object transformation
     - RRObject::setWorldMatrix() added
+    - RRObject::getWorldMatrix() default implementation improved, you can delete yours, just call setWorldMatrix() once
+  - object's collider and mesh
+    - RRObject::setCollider() added
+    - RRObject::getCollider() default implementation added, you can delete yours, just call setCollider() once
   - works for all supported formats, Collada, 3ds, Gamebryo etc
 - preparations for deeper dynamic object support
   - RRDynamicSolver::setDynamicObjects() added (has no effect yet)

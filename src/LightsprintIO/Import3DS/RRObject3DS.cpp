@@ -59,9 +59,6 @@ public:
 	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
-	// RRObject
-	virtual const RRCollider*   getCollider() const;
-
 private:
 	Model_3DS::Object* object;
 	
@@ -74,9 +71,6 @@ private:
 		RRMaterial* material;
 	};
 	std::vector<TriangleInfo> triangles;
-
-	// collider for ray-mesh collisions
-	const RRCollider* collider;
 };
 
 
@@ -123,12 +117,12 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 
 	// create collider
 	bool aborting = false;
-	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
+	setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObject3DS::~RRObject3DS()
 {
-	delete collider;
+	delete getCollider();
 }
 
 
@@ -205,15 +199,6 @@ bool RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned 
 	}
 }
 
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObject3DS implements RRObject
-
-const RRCollider* RRObject3DS::getCollider() const
-{
-	return collider;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //

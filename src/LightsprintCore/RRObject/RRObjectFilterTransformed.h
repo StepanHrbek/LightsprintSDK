@@ -75,10 +75,20 @@ public:
 	{
 		return collider;
 	}
+	virtual void setCollider(const RRCollider* _collider)
+	{
+		// ignore, we would have to delete old collider and remember to not delete new one
+		RRReporter::report(ERRO,"setCollider() ignored for objects transformed to world space.\n");
+	}
 	// Return no transform rather than original.
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return NULL;
+	}
+	void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+	{
+		// ignore, it would break our collider
+		RRReporter::report(ERRO,"setWordMatrix() ignored for objects transformed to world space.\n");
 	}
 
 private:

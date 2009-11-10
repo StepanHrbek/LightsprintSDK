@@ -28,6 +28,10 @@ public:
 	{
 		return inherited->getCollider();
 	}
+	virtual void setCollider(const RRCollider* _collider)
+	{
+		inherited->setCollider(_collider);
+	}
 	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
 	{
 		return inherited->getTriangleMaterial(t,light,receiver);

@@ -110,11 +110,11 @@ public:
 		checkConsistency(UINT_MAX,UINT_MAX);
 #endif
 		bool aborting = false;
-		collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
+		setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
 	}
 	virtual ~RRObjectOBJ()
 	{
-		delete collider;
+		delete getCollider();
 	}
 
 	// RRMesh implementation
@@ -178,12 +178,6 @@ public:
 		return true;
 	}
 
-	// RRObject implementation
-	virtual const RRCollider* getCollider() const
-	{
-		return collider;
-	}
-
 private:
 	// copy of object's vertices
 	std::vector<RRVec3> positions; // valid indices are 1,2,3... (as in file)
@@ -201,9 +195,6 @@ private:
 
 	// default material
 	RRMaterial material;
-	
-	// collider for ray-mesh collisions
-	const RRCollider* collider;
 };
 
 

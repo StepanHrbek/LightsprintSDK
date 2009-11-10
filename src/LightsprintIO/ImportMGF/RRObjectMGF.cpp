@@ -115,9 +115,6 @@ public:
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 
-	// RRObject
-	virtual const RRCollider* getCollider() const;
-
 	// copy of object's vertices
 	struct VertexInfo
 	{
@@ -134,9 +131,6 @@ public:
 
 	// copy of object's materials
 	std::vector<RRMaterial*> materials;
-	
-	// collider for ray-mesh collisions
-	const RRCollider* collider;
 };
 
 
@@ -272,12 +266,12 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 
 	// create collider
 	bool aborting = false;
-	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
+	setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObjectMGF::~RRObjectMGF()
 {
-	delete collider;
+	delete getCollider();
 	for (unsigned i=0;i<materials.size();i++)
 		delete materials[i];
 }
@@ -311,16 +305,6 @@ void RRObjectMGF::getTriangle(unsigned t, Triangle& out) const
 		return;
 	}
 	out = triangles[t].indices;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObjectMGF implements RRObject
-
-const RRCollider* RRObjectMGF::getCollider() const
-{
-	return collider;
 }
 
 

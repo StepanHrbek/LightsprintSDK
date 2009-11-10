@@ -674,11 +674,8 @@ private:
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, MaterialCacheCollada* materialCache);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* collider, MaterialCacheCollada* materialCache);
 	virtual ~RRObjectCollada();
-
-	// RRObject
-	virtual const RRCollider*  getCollider() const;
 
 private:
 	const FCDSceneNode*        node;
@@ -686,9 +683,6 @@ private:
 
 	// materials
 	MaterialCacheCollada*      materialCache;
-
-	// collider for ray-mesh collisions
-	const RRCollider*          collider;
 };
 
 void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
@@ -716,7 +710,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	RR_ASSERT(_materialCache);
 	node = _node;
 	geometryInstance = _geometryInstance;
-	collider = _collider;
+	setCollider(_collider);
 	materialCache = _materialCache;
 	name = node->GetName().c_str();
 
@@ -768,11 +762,6 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 			}
 		}
 	}
-}
-
-const RRCollider* RRObjectCollada::getCollider() const
-{
-	return collider;
 }
 
 RRObjectCollada::~RRObjectCollada()

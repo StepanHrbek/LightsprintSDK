@@ -62,9 +62,6 @@ public:
 	//virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 
-	// RRObject
-	virtual const RRCollider* getCollider() const;
-
 private:
 	TMapQ3* model;
 
@@ -86,9 +83,6 @@ private:
 
 	// copy of object's materials
 	std::vector<RRMaterial*> materials;
-	
-	// collider for ray-mesh collisions
-	const RRCollider* collider;
 };
 
 // texcoord channels
@@ -317,7 +311,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 
 	// create collider
 	bool aborting = false;
-	collider = RRCollider::create(this,RRCollider::IT_LINEAR,aborting);
+	setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObjectQuake3::~RRObjectQuake3()
@@ -327,7 +321,7 @@ RRObjectQuake3::~RRObjectQuake3()
 		delete materials[i]->diffuseReflectance.texture;
 		delete materials[i];
 	}
-	delete collider;
+	delete getCollider();
 }
 
 
@@ -419,16 +413,6 @@ bool RRObjectQuake3::getTriangleMapping(unsigned t, TriangleMapping& out, unsign
 #endif
 	}
 	return true;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRObjectQuake3 implements RRObject
-
-const RRCollider* RRObjectQuake3::getCollider() const
-{
-	return collider;
 }
 
 
