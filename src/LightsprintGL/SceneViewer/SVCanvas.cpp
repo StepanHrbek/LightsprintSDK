@@ -809,8 +809,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				// here we intentionally enable blend if alpha-keyed textures are disabled.
 				// why? imagine alpha keyed tree, now disable transparency map. tree is 70% transparent, not blended, so whole tree disappears. better enable blend
 				|| !svs.renderMaterialTextures);
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-			uberProgramSetup.POSTPROCESS_GAMMA = true;
+			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.brightness!=rr::RRVec4(1);
+			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.gamma!=1;
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
