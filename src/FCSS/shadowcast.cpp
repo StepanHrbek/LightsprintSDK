@@ -535,8 +535,8 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightnessBoosted[0]!=1 || globalBrightnessBoosted[1]!=1 || globalBrightnessBoosted[2]!=1 || globalBrightnessBoosted[3]!=1)?1:0;
-	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = globalBrightnessBoosted!=rr::RRVec4(1);
+	uberProgramSetup.POSTPROCESS_GAMMA = globalGammaBoosted!=1;
 	uberProgramSetup.POSTPROCESS_BIGSCREEN = bigscreenSimulator;
 
 	if (wireFrame) {
