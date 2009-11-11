@@ -40,8 +40,8 @@ class ObjectBuffers
 {
 public:
 	//! \param indexed
-	//!  False = generates triangle list, numVertices == 3*numTriangles.
-	//!  True = generates indexed triangle list, numVertices <= 3*numTriangles, order specified by preimport vertex numbers
+	//!  False = generates triangle list, numVertices == 3*mesh->getNumTriangles().
+	//!  True = generates indexed triangle list, numVertices == mesh->getNumVertices(), order specified by postimport vertex numbers
 	//! \param containsNonBlended
 	//!  Set to 0 or 1, 1=object contains materials that don't need blending.
 	//!  Touched only when returning non-NULL result, otherwise unchanged.

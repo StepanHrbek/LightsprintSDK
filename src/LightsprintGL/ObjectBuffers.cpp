@@ -19,12 +19,9 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 {
 	if (!object) return NULL;
 
-	// ObjectBuffers with indexed=true fail if object has preimport vertex indices so high
-	// that vertex buffer with such indices can't be reasonably created.
-	// It is case of multiobject.
-	// Here we quickly detect whether we got multiobject and return NULL.
-	// It is optional, other more reliable detection would catch this problem deeper inside init()
-	// (however it would misleadingly report not enough memory)
+	// when rendering multiobject (they may have vertices with different uv welded),
+	// fail indexed, allow only !indexed
+	// updateLightmap(-1,...) also builds !indexed vertex buffer for us
 	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
 	if (!numTriangles || (indexed && object->getCollider()->getMesh()->getPreImportTriangle(numTriangles-1).object))
 		return NULL;
@@ -89,7 +86,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	const rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	unsigned numVerticesExpected = indexed
-		? mesh->getNumPreImportVertices() // indexed (when rendering 1object without force_2d)
+		? mesh->getNumVertices() // indexed (when rendering 1object without force_2d)
 		: 3*numTriangles; // nonindexed (when rendering multiobject or force_2d)
 	numIndicesObj = 0;
 	indices = NULL;
@@ -207,14 +204,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			unsigned currentVertex;
 			if (indexed)
 			{
-				//numVertices = triangleVertices[v];
-
-				// force original RRObject vertex order
-				// why?
-				//  RRDynamicSolver generates vertex buffers for original vertex order.
-				//  to render them, whole mesh must be in original vertex order
-				// use preimport index, because of e.g. optimizations in RRObjectMulti
-				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t).index;
+				currentVertex = triangleVertices[v];
 				RR_ASSERT(currentVertex<numVerticesExpected);
 				RR_ASSERT(numIndicesObj<3*numTriangles);
 				indices[numIndicesObj++] = currentVertex;
@@ -227,11 +217,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			}
 			if (currentVertex>=numVerticesExpected)
 			{
-				// preimport vertex number is out of range, fail
-				// warning: could happen with correct inputs, RRMesh is allowed 
-				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
-				//  happens with all multiobjects
-				// Multiobjects should not get here - catched by test in create().
+				// broken mesh, preimport vertex number is out of range, fail
 				rr::RRReporter::report(rr::WARN,"Object has strange vertex numbers, aborting render.\n");
 				throw 1;
 			}
