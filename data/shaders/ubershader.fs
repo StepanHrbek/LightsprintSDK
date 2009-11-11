@@ -205,6 +205,60 @@ void main()
 		if(worldPos.y<clipPlaneY) discard;
 	#endif
 
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// material
+
+	float opacity = 1.0;
+	#ifdef MATERIAL_DIFFUSE_CONST
+		#if defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			opacity = materialDiffuseConst.a;
+		#endif
+	#endif
+	#ifdef MATERIAL_TRANSPARENCY_CONST
+		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+			opacity = materialTransparencyConst.a;
+		#else
+			opacity = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
+		#endif
+	#endif
+	#ifdef MATERIAL_TRANSPARENCY_MAP
+		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
+		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
+			opacity = materialTransparencyMapColor.a;
+		#else
+			opacity = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
+		#endif
+	#endif
+	#ifdef MATERIAL_DIFFUSE_MAP
+		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
+		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			opacity = materialDiffuseMapColor.a;
+		#endif
+	#endif
+	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND)
+		// Workaround for Radeon bug? no alpha test (all Radeons, last version tested: Catalyst 9-10).
+		// Alpha is ignored when rendering into shadowmap, shadows are solid.
+		// This line hardcodes alpha test into ubershader, fixing Radeon shadows.
+		if (opacity<0.5) discard;
+	#endif
+	#ifdef MATERIAL_SPECULAR_MAP
+		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
+		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
+	#endif
+	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR)
+		#ifdef MATERIAL_NORMAL_MAP
+			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
+		#else
+			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
+		#endif
+	#endif
+	#ifdef MATERIAL_EMISSIVE_MAP
+		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
+	#endif
+
+
 	/////////////////////////////////////////////////////////////////////
 	//
 	// shadowing
@@ -319,60 +373,6 @@ void main()
 		#endif
 
 	#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// material
-
-
-	float opacity = 1.0;
-	#ifdef MATERIAL_DIFFUSE_CONST
-		#if defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-			opacity = materialDiffuseConst.a;
-		#endif
-	#endif
-	#ifdef MATERIAL_TRANSPARENCY_CONST
-		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-			opacity = materialTransparencyConst.a;
-		#else
-			opacity = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
-		#endif
-	#endif
-	#ifdef MATERIAL_TRANSPARENCY_MAP
-		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
-		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-			opacity = materialTransparencyMapColor.a;
-		#else
-			opacity = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
-		#endif
-	#endif
-	#ifdef MATERIAL_DIFFUSE_MAP
-		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
-		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-			opacity = materialDiffuseMapColor.a;
-		#endif
-	#endif
-	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND)
-		// Workaround for Radeon bug? no alpha test (all Radeons, last version tested: Catalyst 9-10).
-		// Alpha is ignored when rendering into shadowmap, shadows are solid.
-		// This line hardcodes alpha test into ubershader, fixing Radeon shadows.
-		if (opacity<0.5) discard;
-	#endif
-	#ifdef MATERIAL_SPECULAR_MAP
-		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
-		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
-	#endif
-	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR)
-		#ifdef MATERIAL_NORMAL_MAP
-			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
-		#else
-			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
-		#endif
-	#endif
-	#ifdef MATERIAL_EMISSIVE_MAP
-		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
-	#endif
 
 
 	//////////////////////////////////////////////////////////////////////////////
