@@ -625,21 +625,12 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 								// current blendfunc is used, caller is responsible for setting it
 								glEnable(GL_BLEND);
 							}
-							else
-							{
-								// current alpha func+ref is used, caller is responsible for setting it
-								glEnable(GL_ALPHA_TEST); // alpha test is used so we don't have to sort objects
-							}
 						}
 						else
 						{
 							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 							{
 								glDisable(GL_BLEND);
-							}
-							else
-							{
-								glDisable(GL_ALPHA_TEST);
 							}
 						}
 						blendKnown = true;

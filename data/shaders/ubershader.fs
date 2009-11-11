@@ -238,9 +238,8 @@ void main()
 		#endif
 	#endif
 	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND)
-		// Workaround for Radeon bug? no alpha test (all Radeons, last version tested: Catalyst 9-10).
-		// Alpha is ignored when rendering into shadowmap, shadows are solid.
-		// This line hardcodes alpha test into ubershader, fixing Radeon shadows.
+		// Shader based alpha test with fixed treshold
+		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
 		if (opacity<0.5) discard;
 	#endif
 	#ifdef MATERIAL_SPECULAR_MAP
