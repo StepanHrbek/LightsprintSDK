@@ -613,7 +613,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				}
 
 				// set blending
-				if (params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING || params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 				{
 					bool transparency = faceGroups[fg].material.specularTransmittance.color!=rr::RRVec3(0);
 					if (transparency!=blendEnabled || !blendKnown)
