@@ -1,6 +1,6 @@
 @echo off
 
-rem Builds lightmaps for Gamebryo scene Cathedral.
+rem Builds lightmaps for Gamebryo scene Cathedral, medium quality.
 rem Run Gamebryo-SceneApp-Cathedral.bat to see the same lightmaps in Gamebryo sample app.
 
 if not exist "%GAMEBRYO_GI_PATH%Samples/Cathedral/Cathedral.gsa" (
@@ -14,5 +14,6 @@ BuildLightmaps.bat ^
  "outputpath=%GAMEBRYO_GI_PATH%Samples/Cathedral/LightMaps/" ^
  "outputext=tga" ^
  "quality=200" ^
- "emissivemultiplier=3" ^
+ "emissivemultiplier=1.0" ^
+ "pixelsperworldunit=0.5" ^
  "maxmapsize=1024"

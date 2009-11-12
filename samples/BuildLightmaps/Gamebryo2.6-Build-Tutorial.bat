@@ -1,6 +1,6 @@
 @echo off
 
-rem Builds standard lightmaps for Gamebryo scene Tutorial.
+rem Builds standard lightmaps for Gamebryo scene Tutorial, medium quality.
 rem Run Gamebryo-SceneApp-Tutorial.bat to see the same lightmaps in Gamebryo sample app.
 
 if not exist "%GAMEBRYO_GI_PATH%Samples/Tutorial/Tutorial.gsa" (
