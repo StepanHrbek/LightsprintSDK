@@ -964,7 +964,7 @@ struct PerSceneSettings
 		RR_CLAMP(lsPixelsPerWorldUnit,1e-6f,1e6f);
 
 		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
-		RR_CLAMP(lsPixelsPerWorldUnit,0,1e6f);
+		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
 	}
 #endif
 };
