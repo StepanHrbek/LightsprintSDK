@@ -16,6 +16,34 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// 1x1 textures
+
+static rr::RRBuffer* buffer1x1[5] = {NULL,NULL,NULL,NULL,NULL};
+
+static void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
+{
+	rr::RRBuffer* buffer = property.texture;
+	if (!buffer)
+	{
+		if (!buffer1x1[index])
+			buffer1x1[index] = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
+		buffer1x1[index]->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+		buffer = buffer1x1[index];
+	}
+	getTexture(buffer)->bindTexture();
+}
+
+static void free1x1()
+{
+	for (unsigned i=0;i<5;i++)
+		RR_SAFE_DELETE(buffer1x1[i]);
+}
+
+unsigned g_numRenderers = 0;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RenderedChannels
 
 void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const rr::RRMaterial* material)
@@ -55,43 +83,19 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 	if (MATERIAL_DIFFUSE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		rr::RRBuffer* buffer = material->diffuseReflectance.texture;
-		if (buffer)
-		{
-			getTexture(buffer)->bindTexture();
-		}
-		else
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
-		}
+		bindPropertyTexture(material->diffuseReflectance,0);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
-		rr::RRBuffer* buffer = material->diffuseEmittance.texture;
-		if (buffer)
-		{
-			getTexture(buffer)->bindTexture();
-		}
-		else
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but emissive texture not available, expect incorrect render.\n"));
-		}
+		bindPropertyTexture(material->diffuseEmittance,1);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
-		rr::RRBuffer* buffer = material->specularTransmittance.texture;
-		if (buffer)
-		{
-			getTexture(buffer)->bindTexture();
-		}
-		else
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): Texturing requested, but transparency texture not available, expect incorrect render.\n"));
-		}
+		bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 }
 
@@ -109,6 +113,7 @@ RendererOfRRObject* RendererOfRRObject::create(const rr::RRObject* object, rr::R
 
 RendererOfRRObject::RendererOfRRObject(const rr::RRObject* _object, rr::RRDynamicSolver* _solver)
 {
+	g_numRenderers++;
 	RR_ASSERT(_object);
 	params.program = NULL;
 	params.object = _object;
@@ -140,6 +145,7 @@ RendererOfRRObject::~RendererOfRRObject()
 {
 	delete indexedNo;
 	delete indexedYes;
+	if (!--g_numRenderers) free1x1();
 }
 
 void RendererOfRRObject::setProgram(Program* program)
