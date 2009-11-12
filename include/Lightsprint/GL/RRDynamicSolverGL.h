@@ -112,7 +112,6 @@ namespace rr_gl
 		char pathToShaders[300];
 		const void* rendererObject;
 		class RendererOfRRObject* rendererNonCaching;
-		Renderer* rendererCaching;
 		Texture* detectBigMap;
 		Texture* detectSmallMap;
 		Program* scaleDownProgram;

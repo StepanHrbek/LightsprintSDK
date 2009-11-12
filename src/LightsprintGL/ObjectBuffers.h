@@ -13,18 +13,6 @@
 namespace rr_gl
 {
 
-// USE_VBO copies vertex data to VRAM, makes rendering faster.
-// Nvidia driver with threaded optimization enabled or auto is known to render rubbish when mixing VBOs and vertex arrays,
-// http://www.gamedev.net/community/forums/topic.asp?topic_id=506753
-// so it's good idea to use VBO everywhere or nowhere. We do it.
-#define USE_VBO
-
-// SMALL_ARRAYS stores vertex data in 8 small arrays rather than 2 big ones.
-// Without VBO, small arrays are faster.
-// With VBO, small arrays have init/shutdown bit slower (more VBOs),
-// but memory requirements are lower (some UVs are usually unused), it makes 2.2M triangle scene fit in 512MB VRAM = 3x higher fps.
-#define SMALL_ARRAYS
-
 // Specifies size of texture used by DDI.
 // 256 ->  64k triangles per DDI pass, 2k or 1k texture
 // 512 -> 256k triangles per DDI pass, 4k or 2k texture
@@ -60,7 +48,6 @@ private:
 	unsigned numVertices;
 
 	// arrays
-#ifdef SMALL_ARRAYS
 	rr::RRVec3* aposition;
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
@@ -68,19 +55,6 @@ private:
 	rr::RRVec2* atexcoordTransparency;
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
-#else
-	struct VertexData
-	{
-		rr::RRVec3 position;
-		rr::RRVec3 normal;
-		rr::RRVec2 texcoordDiffuse;
-		rr::RRVec2 texcoordEmissive;
-		rr::RRVec2 texcoordTransparency;
-		rr::RRVec2 texcoordAmbient; // could be unique for each vertex (with default unwrap)
-		rr::RRVec2 texcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
-	};
-	VertexData* avertex;
-#endif
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned previousLightIndirectVersion; // version of lightIndirect data we have in VRAM
 	rr::RRBuffer* previousLightIndirectBuffer; // layer we copied to VBO_lightIndir last time
@@ -91,7 +65,6 @@ private:
 	enum VBOIndex
 	{
 		VBO_index, // used only if indexed
-#ifdef SMALL_ARRAYS
 		VBO_position,
 		VBO_normal,
 		VBO_texcoordDiffuse,
@@ -99,20 +72,15 @@ private:
 		VBO_texcoordTransparency,
 		VBO_texcoordAmbient,
 		VBO_texcoordForced2D, // used only if !indexed
-#else
-		VBO_vertex,
-#endif
 		VBO_lightIndirectVcolor,
 		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
 		VBO_COUNT
 	};
 	GLuint VBO[VBO_COUNT];
-#if defined(USE_VBO) && defined(SMALL_ARRAYS)
 	// optimization -  removes redundant VBOs
 	bool texcoordEmissiveIsInDiffuse; // emissive not allocated, use diffuse, is identical
 	bool texcoordTransparencyIsInDiffuse; // transparent not allocated, use diffuse, is identical
 	VBOIndex fixVBO(VBOIndex index) const; // changes removed VBO index to identical valid index
-#endif
 
 	// temp 1x1 textures
 	std::vector<rr::RRBuffer*> tempTextures;

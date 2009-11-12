@@ -188,7 +188,7 @@ private:
 	// buffers for faster rendering
 	class ObjectBuffers* indexedYes;
 	class ObjectBuffers* indexedNo;
-	unsigned lightIndirectVersion;              ///< Version of indirect illumination in buffers or solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
+	unsigned lightIndirectVersion;
 	bool containsNonBlended;
 	bool containsBlended;
 	bool unwrapSplitsVertices;

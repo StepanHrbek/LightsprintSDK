@@ -55,7 +55,6 @@ ObjectBuffers* ObjectBuffers::create(const rr::RRObject* object, bool indexed, b
 ObjectBuffers::ObjectBuffers()
 {
 	// clear all pointers
-#ifdef SMALL_ARRAYS
 	aposition = NULL;
 	anormal = NULL;
 	atexcoordDiffuse = NULL;
@@ -63,18 +62,13 @@ ObjectBuffers::ObjectBuffers()
 	atexcoordTransparency = NULL;
 	atexcoordAmbient = NULL;
 	atexcoordForced2D = NULL;
-#else
-	avertex = NULL;
-#endif
 	alightIndirectVcolor = NULL;
 	previousLightIndirectVersion = UINT_MAX;
 	previousLightIndirectBuffer = NULL;
 	indices = NULL;
 
-#if defined(USE_VBO) && defined(SMALL_ARRAYS)
 	texcoordEmissiveIsInDiffuse = false;
 	texcoordTransparencyIsInDiffuse = false;
-#endif
 }
 
 // one time initialization
@@ -95,7 +89,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		indices = new unsigned[3*numTriangles]; // exact, we always have 3*numTriangles indices
 	}
 	numVertices = 0;
-#ifdef SMALL_ARRAYS
 	// work as if all data are present, generate stubs for missing data
 	// this way renderer works even with partial data (missing texture, missing texcoord...)
 	// (other way would be to rebuild shaders for missing data)
@@ -108,10 +101,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
 	#undef NEW_ARRAY
-#else
-	avertex = new VertexData[numVerticesExpected];
-	memset(avertex,0,sizeof(VertexData)*numVerticesExpected);
-#endif
 
 	alightIndirectVcolor = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVerticesExpected,1,1,rr::BF_RGBF,false,NULL);
 
@@ -231,7 +220,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			unsigned numPasses = (triCountYTotal+DDI_TRIANGLES_MAX_Y-1)/DDI_TRIANGLES_MAX_Y;
 			unsigned triCountYInOnePass = (triCountYTotal+numPasses-1)/numPasses;
 
-#ifdef SMALL_ARRAYS
 			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
 			if (indexed && atexcoordAmbient[currentVertex]!=rr::RRVec2(0) && atexcoordAmbient[currentVertex]!=triangleMappingLightmap.uv[v])
 				unwrapSplitsVertices = true;
@@ -244,20 +232,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 			atexcoordTransparency[currentVertex] = triangleMappingTransparent.uv[v];
 			atexcoordForced2D[currentVertex][0] = (( t%triCountX                    )+((v==2)?1:0)-triCountX         *0.5f+0.05f)/(triCountX         *0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
 			atexcoordForced2D[currentVertex][1] = (((t/triCountX)%triCountYInOnePass)+((v==0)?1:0)-triCountYInOnePass*0.5f+0.05f)/(triCountYInOnePass*0.5f);
-#else
-			// detect vertex split by unwrap (tecoordAmbient must be inited to RRVec2(0), handled by memset above)
-			if (indexed && avertex[currentVertex].texcoordAmbient!=rr::RRVec2(0) && avertex[currentVertex].texcoordAmbient!=triangleMappingLightmap.uv[v])
-				unwrapSplitsVertices = true;
-			// store vertex data
-			mesh->getVertex(triangleVertices[v],avertex[currentVertex].position);
-			avertex[currentVertex].normal = triangleNormals.vertex[v].normal;
-			avertex[currentVertex].texcoordAmbient = triangleMappingLightmap.uv[v];
-			avertex[currentVertex].texcoordDiffuse = triangleMappingDiffuse.uv[v];
-			avertex[currentVertex].texcoordEmissive = triangleMappingEmissive.uv[v];
-			avertex[currentVertex].texcoordTransparency = triangleMappingTransparent.uv[v];
-			avertex[currentVertex].texcoordForced2D[0] = (( t%triCountX                    )+((v==2)?1:0)-triCountX         *0.5f+0.05f)/(triCountX         *0.5f); // +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
-			avertex[currentVertex].texcoordForced2D[1] = (((t/triCountX)%triCountYInOnePass)+((v==0)?1:0)-triCountYInOnePass*0.5f+0.05f)/(triCountYInOnePass*0.5f);
-#endif
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
@@ -267,9 +241,7 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		for (unsigned i=0;i<numTriangles*3;i++)
 			RR_ASSERT(indices[i]<numVerticesExpected);
 
-#ifdef USE_VBO
 	glGenBuffers(VBO_COUNT,VBO);
-#ifdef SMALL_ARRAYS
 #define COPY_ARRAY_TO_VBO(name,sameAsDiffuse) \
 	{ \
 		if (a##name) \
@@ -293,11 +265,6 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	COPY_ARRAY_TO_VBO(texcoordTransparency,texcoordTransparencyIsInDiffuse);
 	COPY_ARRAY_TO_VBO(texcoordAmbient,false);
 	COPY_ARRAY_TO_VBO(texcoordForced2D,false);
-#else // SMALL_ARRAYS
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);
-	glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(VertexData), avertex, GL_STATIC_DRAW);
-	RR_SAFE_DELETE_ARRAY(avertex);
-#endif // SMALL_ARRAYS
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 	if (indices)
 	{
@@ -306,19 +273,15 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 		RR_SAFE_DELETE_ARRAY(indices);
 	}
-#endif // USE_VBO
 }
 
 ObjectBuffers::~ObjectBuffers()
 {
-#ifdef USE_VBO
 	// VBOs
 	glDeleteBuffers(VBO_COUNT,VBO);
-#endif
 
 	// arrays
 	delete alightIndirectVcolor;
-#ifdef SMALL_ARRAYS
 	delete[] atexcoordForced2D;
 	delete[] atexcoordAmbient;
 	delete[] atexcoordTransparency;
@@ -326,9 +289,6 @@ ObjectBuffers::~ObjectBuffers()
 	delete[] atexcoordDiffuse;
 	delete[] anormal;
 	delete[] aposition;
-#else
-	delete[] avertex;
-#endif
 	delete[] indices;
 
 	// temp 1x1 textures
@@ -371,48 +331,25 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned numVerticesToCopy, un
 	RR_ASSERT(buffer->getType()==rr::BT_VERTEX_BUFFER);
 	unsigned bufferWidth = buffer->getWidth();
 	RR_ASSERT(numVerticesToCopy<=bufferWidth);
-#ifdef USE_VBO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, numVerticesToCopy*buffer->getElementBits()/8, buffer->lock(rr::BL_READ), GL_STREAM_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	buffer->unlock();
-#endif
 }
 
-#if defined(USE_VBO) && defined(SMALL_ARRAYS)
 ObjectBuffers::VBOIndex ObjectBuffers::fixVBO(VBOIndex index) const
 {
 	if (index==VBO_texcoordEmissive && texcoordEmissiveIsInDiffuse) return VBO_texcoordDiffuse;
 	if (index==VBO_texcoordTransparency && texcoordTransparencyIsInDiffuse) return VBO_texcoordDiffuse;
 	return index;
 }
-#endif
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
-#ifdef USE_VBO
 	#define DRAW_ELEMENTS(a,b,c,d)             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(*indices)*d)); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#ifdef SMALL_ARRAYS
 	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[fixVBO(VBO_##myName)]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
-#else
-	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);   gl##glName##Pointer(           GL_FLOAT, sizeof(VertexData), &((VertexData*)0)->myName);   glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_vertex]);   gl##glName##Pointer(numFloats, GL_FLOAT, sizeof(VertexData), &((VertexData*)0)->myName);   glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_##myName]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
-#endif
-#else // !USE_VBO
-	#define DRAW_ELEMENTS(a,b,c,d)             glDrawElements(a,b,c,indices+d);
-#ifdef SMALL_ARRAYS
-	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, 0, &a##myName[0].x);
-	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, 0, &a##myName[0].x);
-	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
-#else
-	#define BIND_VBO2(glName,myName)           gl##glName##Pointer(           GL_FLOAT, sizeof(VertexData), &avertex->myName.x);
-	#define BIND_VBO3(glName,numFloats,myName) gl##glName##Pointer(numFloats, GL_FLOAT, sizeof(VertexData), &avertex->myName.x);
-	#define BIND_BUFFER(glName,buffer,myName)  gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, buffer->lock(rr::BL_READ)); buffer->unlock();
-#endif
-#endif // !USE_VBO
 
 	// set vertices
 	BIND_VBO3(Vertex,3,position);
@@ -510,16 +447,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				RR_ASSERT(0);
 			}
 
-#ifdef USE_VBO
 			glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_lightIndirectVcolor]);
 			glColorPointer(getBufferNumComponents(alightIndirectVcolor), getBufferComponentType(alightIndirectVcolor), 0, 0); 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-#else
-			glColorPointer(
-				getBufferNumComponents(alightIndirectVcolor),
-				getBufferComponentType(alightIndirectVcolor),
-				0, (GLvoid*)alightIndirectVcolor->lock(rr::BL_READ));
-#endif
 			glEnableClientState(GL_COLOR_ARRAY);
 		}
 	}

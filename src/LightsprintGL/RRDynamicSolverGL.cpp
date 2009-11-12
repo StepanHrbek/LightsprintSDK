@@ -12,7 +12,7 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
-#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y, USE_VBO
+#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y
 #include "tmpstr.h"
 
 #define REPORT(a) //a
@@ -84,7 +84,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
-	rendererCaching = NULL;
 	rendererObject = NULL;
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
@@ -100,7 +99,6 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	delete[] detectedDirectSum;
-	delete rendererCaching;
 	delete rendererNonCaching;
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
@@ -170,7 +168,6 @@ void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const Smo
 
 	// delete renderer for old scene, new one will be created when need arises
 	//  we can't rebuild renderer only when multiObject pointer changes, because sometimes new (changed) multiObject is allocated at the same address
-	RR_SAFE_DELETE(rendererCaching);
 	RR_SAFE_DELETE(rendererNonCaching);
 	rendererObject = NULL;
 }
@@ -449,7 +446,6 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	if (getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
 	{
 		// delete old renderer
-		RR_SAFE_DELETE(rendererCaching);
 		RR_SAFE_DELETE(rendererNonCaching);
 		// create new renderer
 		// for empty scene, stay without renderer
@@ -457,14 +453,6 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		if (rendererObject)
 		{
 			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this);
-#ifdef USE_VBO
-			// if we already USE_VBO, wrapping it in display list would
-			// + speed up Nvidia cards by ~2%
-			// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
-			// better don't create display list
-#else
-			rendererCaching = rendererNonCaching->createDisplayList();
-#endif
 		}
 	}
 	if (!rendererObject) return 0;
@@ -529,13 +517,10 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		// render scene
 		rendererNonCaching->setProgram(program);
 		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
+		rendererNonCaching->setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1);
 		rendererNonCaching->setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
-		if (renderedChannels.LIGHT_INDIRECT_MAP || !rendererCaching)
-			rendererNonCaching->render();
-		else
-			rendererCaching->render();
+		rendererNonCaching->render();
 		rendererNonCaching->setCapture(0,numTriangles);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values

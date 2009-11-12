@@ -11,7 +11,6 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
-#include "ObjectBuffers.h" // USE_VBO
 #include "Lightsprint/GL/MultiPass.h"
 #include "tmpstr.h"
 
@@ -86,7 +85,6 @@ protected:
 	void initSpecularReflection(Program* program); // bind TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR texture, set uniform worldEyePos
 private:
 	// 1 renderer for 1 scene
-	Renderer* rendererCaching;
 	RendererOfRRObject* rendererNonCaching;
 	// 1 specular refl map for all static faces
 	const rr::RRBuffer* lastRenderSolverEnv; // solver environment
@@ -113,7 +111,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
 	rendererNonCaching = NULL;
-	rendererCaching = NULL;
 	lastRenderSolverEnv = NULL;
 	lastRenderSpecularEnv = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
 }
@@ -121,7 +118,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 {
 	delete lastRenderSpecularEnv;
-	delete rendererCaching;
 	delete rendererNonCaching;
 	delete uberProgram;
 	delete textureRenderer;
@@ -236,15 +232,6 @@ void RendererOfRRDynamicSolver::render()
 		// probably empty scene
 		return;
 	}
-#ifdef USE_VBO
-	// if we already USE_VBO, wrapping it in display list would
-	// + speed up Nvidia cards by ~2%
-	// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
-	// better don't create display list
-#else
-	if (!rendererCaching && rendererNonCaching)
-		rendererCaching = rendererNonCaching->createDisplayList();
-#endif
 
 	if (params.uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
@@ -279,12 +266,7 @@ void RendererOfRRDynamicSolver::render()
 		if (uberProgramSetup.MATERIAL_SPECULAR)
 			initSpecularReflection(program);
 
-		// don't cache indirect illumination in vertices, it changes often
-		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR || !rendererCaching)
-			rendererNonCaching->render();
-		else
-			// cache everything else, it's constant
-			rendererCaching->render();
+		rendererNonCaching->render();
 	}
 }
 
@@ -332,7 +314,6 @@ private:
 		rr::RRObject* object;
 		rr::RRObjectIllumination* illumination;
 		rr::RRVec3 objectCenter;
-		Renderer* rendererCaching;
 		RendererOfRRObject* rendererNonCaching;
 		UberProgramSetup recommendedMaterialSetup;
 		PerObjectPermanent()
@@ -340,7 +321,6 @@ private:
 			object = NULL;
 			illumination = NULL;
 			objectCenter = rr::RRVec3(0);
-			rendererCaching = NULL;
 			rendererNonCaching = NULL;
 		}
 		void init(rr::RRObject* _object, rr::RRObjectIllumination* _illumination)
@@ -353,20 +333,11 @@ private:
 				mesh->getAABB(NULL,NULL,&objectCenter);
 				delete mesh;
 				rendererNonCaching = RendererOfRRObject::create(object,NULL);
-#ifdef USE_VBO
-				// if we already USE_VBO, wrapping it in display list would
-				// + speed up Nvidia cards by ~2%
-				// - AMD cards crash in driver (with 9.3, final driver for Radeons up to X2100)
-				// better don't create display list
-#else
-				rendererCaching = rendererNonCaching ? rendererNonCaching->createDisplayList() : NULL;
-#endif
 				recommendedMaterialSetup.recommendMaterialSetup(object);
 			}
 		}
 		~PerObjectPermanent()
 		{
-			delete rendererCaching;
 			delete rendererNonCaching;
 		}
 	};
@@ -529,10 +500,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		}
 		perObject->rendererNonCaching->setLDM(pbufferldm);
 
-		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR || !perObject->rendererCaching)
-			perObject->rendererNonCaching->render(); // don't cache indirect illumination, it changes often
-		else
-			perObject->rendererCaching->render(); // cache everything else, it's constant
+		perObject->rendererNonCaching->render();
 	}
 }
 
