@@ -461,7 +461,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		if (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
-			getTexture(params.availableIndirectIlluminationMap)->bindTexture(); // bind lightmap
+			getTexture(params.availableIndirectIlluminationMap,true,false)->bindTexture(); // bind lightmap
 		else
 			getTexture(params.availableIndirectIlluminationLDMap)->bindTexture(); // bind light detail map
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -471,7 +471,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	if (params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
-		getTexture(params.availableIndirectIlluminationMap2)->bindTexture();
+		getTexture(params.availableIndirectIlluminationMap2,true,false)->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}

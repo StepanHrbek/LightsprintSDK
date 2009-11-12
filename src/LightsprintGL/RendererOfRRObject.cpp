@@ -180,7 +180,6 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRBuffer* vertexBuff
 	params.availableIndirectIlluminationVColors2 = NULL;
 	params.availableIndirectIlluminationMap2 = NULL;
 	lightIndirectVersion = _lightIndirectVersion;
-	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
 void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* vertexBuffer, const rr::RRBuffer* ambientMap, rr::RRBuffer* vertexBuffer2, const rr::RRBuffer* ambientMap2, unsigned _lightIndirectVersion)
@@ -192,8 +191,6 @@ void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRBuffer* verte
 	params.availableIndirectIlluminationVColors2 = vertexBuffer2;
 	params.availableIndirectIlluminationMap2 = ambientMap2;
 	lightIndirectVersion = _lightIndirectVersion;
-	getTexture(ambientMap,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
-	getTexture(ambientMap2,true,false); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug). And don't compres lmaps(ugly 4x4 blocks on HD2400)
 }
 
 void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned _lightIndirectVersion)
@@ -210,7 +207,6 @@ void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned _lightIndire
 void RendererOfRRObject::setLDM(const rr::RRBuffer* ldmBuffer)
 {
 	params.availableIndirectIlluminationLDMap = ldmBuffer;
-	getTexture(ldmBuffer); // prebuild texture so we don't do it in display list (probably legal, but triggers AMD driver bug)
 }
 
 void RendererOfRRObject::setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight)
