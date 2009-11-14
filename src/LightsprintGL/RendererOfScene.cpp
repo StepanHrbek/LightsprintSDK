@@ -312,20 +312,17 @@ private:
 	struct PerObjectPermanent
 	{
 		rr::RRObject* object;
-		rr::RRObjectIllumination* illumination;
 		rr::RRVec3 objectCenter;
 		RendererOfRRObject* rendererNonCaching;
 		PerObjectPermanent()
 		{
 			object = NULL;
-			illumination = NULL;
 			objectCenter = rr::RRVec3(0);
 			rendererNonCaching = NULL;
 		}
-		void init(rr::RRObject* _object, rr::RRObjectIllumination* _illumination)
+		void init(rr::RRObject* _object)
 		{
 			object = _object;
-			illumination = _illumination;
 			if (object)
 			{
 				rr::RRMesh* mesh = object->createWorldSpaceMesh();
@@ -414,17 +411,18 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	// working copy of params.uberProgramSetup
 	UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
 	mainUberProgramSetup.OBJECT_SPACE = perObject->object->getWorldMatrix()!=NULL;
+	rr::RRObjectIllumination* illumination = perObject->object->illumination;
 	// set shader according to vbuf/pbuf presence
-	rr::RRBuffer* vbuffer = onlyVbuf(perObject->illumination->getLayer(layerNumber));
-	rr::RRBuffer* pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumber));
-	rr::RRBuffer* vbuffer2 = onlyVbuf(perObject->illumination->getLayer(layerNumber2));
-	rr::RRBuffer* pbuffer2 = onlyLmap(perObject->illumination->getLayer(layerNumber2));
-	rr::RRBuffer* pbufferldm = onlyLmap(perObject->illumination->getLayer(params.layerNumberLDM));
+	rr::RRBuffer* vbuffer = onlyVbuf(illumination->getLayer(layerNumber));
+	rr::RRBuffer* pbuffer = onlyLmap(illumination->getLayer(layerNumber));
+	rr::RRBuffer* vbuffer2 = onlyVbuf(illumination->getLayer(layerNumber2));
+	rr::RRBuffer* pbuffer2 = onlyLmap(illumination->getLayer(layerNumber2));
+	rr::RRBuffer* pbufferldm = onlyLmap(illumination->getLayer(params.layerNumberLDM));
 	// fallback when buffers are not available
-	if (!vbuffer) vbuffer = onlyVbuf(perObject->illumination->getLayer(layerNumberFallback));
-	if (!pbuffer) pbuffer = onlyLmap(perObject->illumination->getLayer(layerNumberFallback));
-	if (!vbuffer2) vbuffer2 = onlyVbuf(perObject->illumination->getLayer(layerNumberFallback));
-	if (!pbuffer2) pbuffer2 = onlyLmap(perObject->illumination->getLayer(layerNumberFallback));
+	if (!vbuffer) vbuffer = onlyVbuf(illumination->getLayer(layerNumberFallback));
+	if (!pbuffer) pbuffer = onlyLmap(illumination->getLayer(layerNumberFallback));
+	if (!vbuffer2) vbuffer2 = onlyVbuf(illumination->getLayer(layerNumberFallback));
+	if (!pbuffer2) pbuffer2 = onlyLmap(illumination->getLayer(layerNumberFallback));
 	if (mainUberProgramSetup.LIGHT_INDIRECT_auto)
 	{
 		mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
@@ -433,7 +431,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 		mainUberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && mainUberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
 		mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = pbufferldm?true:false;
-		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = perObject->illumination->specularEnvMap!=NULL; // enable if cube exists, reduceMaterialSetup will disable it if not needed
+		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = illumination->specularEnvMap!=NULL; // enable if cube exists, reduceMaterialSetup will disable it if not needed
 	}
 	// removes all material settings not necessary for given object
 	UberProgramSetup recommendedMaterialSetup;
@@ -484,7 +482,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		}
 
 		// set envmaps
-		uberProgramSetup.useIlluminationEnvMaps(program,perObject->illumination,false);
+		uberProgramSetup.useIlluminationEnvMaps(program,illumination,false);
 
 		// render
 		perObject->rendererNonCaching->setProgram(program);
@@ -553,7 +551,7 @@ void RendererOfOriginalScene::render()
 		perObjectSorted = new PerObjectSorted[params.solver->getStaticObjects().size()];
 		for (unsigned i=0;i<params.solver->getStaticObjects().size();i++)
 		{
-			perObjectPermanent[i].init(params.solver->getStaticObjects()[i],params.solver->getStaticObjects()[i]->illumination);
+			perObjectPermanent[i].init(params.solver->getStaticObjects()[i]);
 			perObjectSorted[i].permanent = perObjectPermanent+i;
 			perObjectSorted[i].distance = 0;
 		}
