@@ -127,8 +127,7 @@ struct RR_GL_API UberProgramSetup
 	//! but only one (any one) of them is used, they are not modulated together.
 	//! Thus we never set both MATERIAL_XXX_CONST and MATERIAL_XXX_MAP,
 	//! e.g. MATERIAL_DIFFUSE_MAP is set only if object contains diffuse map(s),
-	//! MATERIAL_DIFFUSE_CONST is set only if object contains flat diffuse colors and no maps.
-	//! It is slow, not for use in every frame.
+	//! MATERIAL_DIFFUSE_CONST is set only if object contains flat diffuse color and no map.
 	void recommendMaterialSetup(rr::RRObject* object);
 	//! Reduces material setup, removes properties not present in fullMaterial.
 	//

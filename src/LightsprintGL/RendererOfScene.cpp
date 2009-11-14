@@ -315,7 +315,6 @@ private:
 		rr::RRObjectIllumination* illumination;
 		rr::RRVec3 objectCenter;
 		RendererOfRRObject* rendererNonCaching;
-		UberProgramSetup recommendedMaterialSetup;
 		PerObjectPermanent()
 		{
 			object = NULL;
@@ -333,7 +332,6 @@ private:
 				mesh->getAABB(NULL,NULL,&objectCenter);
 				delete mesh;
 				rendererNonCaching = RendererOfRRObject::create(object,NULL);
-				recommendedMaterialSetup.recommendMaterialSetup(object);
 			}
 		}
 		~PerObjectPermanent()
@@ -438,7 +436,9 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = perObject->illumination->specularEnvMap!=NULL; // enable if cube exists, reduceMaterialSetup will disable it if not needed
 	}
 	// removes all material settings not necessary for given object
-	mainUberProgramSetup.reduceMaterialSetup(perObject->recommendedMaterialSetup);
+	UberProgramSetup recommendedMaterialSetup;
+	recommendedMaterialSetup.recommendMaterialSetup(perObject->object);
+	mainUberProgramSetup.reduceMaterialSetup(recommendedMaterialSetup);
 	// final touch
 	mainUberProgramSetup.validate();
 
