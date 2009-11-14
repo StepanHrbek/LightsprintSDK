@@ -34,72 +34,73 @@ void UberProgramSetup::recommendMaterialSetup(rr::RRObject* object)
 	unsigned numTriangles2Sided = 0;
 	if (object)
 	{
-		unsigned numTrianglesMulti = object->getCollider()->getMesh()->getNumTriangles();
-		for (unsigned t=0;t<numTrianglesMulti;t++)
+		for (unsigned g=0;g<object->faceGroups.size();g++)
 		{
-			const rr::RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+			const rr::RRMaterial* material = object->faceGroups[g].material;
 			if (material)
 			{
+				unsigned numTriangles = object->faceGroups[g].numTriangles;
+
 				// dif
 				if (material->diffuseReflectance.texture)
 				{
-					numTrianglesWithDifMap++;
+					numTrianglesWithDifMap += numTriangles;
 				}
 				else
 				if (material->diffuseReflectance.color!=rr::RRVec3(0))
 				{
-					numTrianglesWithDifConst++;
+					numTrianglesWithDifConst += numTriangles;
 				}
 
 				// spec
 				if (material->specularReflectance.texture)
 				{
-					numTrianglesWithSpecMap++;
+					numTrianglesWithSpecMap += numTriangles;
 				}
 				else
 				if (material->specularReflectance.color!=rr::RRVec3(0))
 				{
-					numTrianglesWithSpecConst++;
+					numTrianglesWithSpecConst += numTriangles;
 				}
 
 				// emi
 				if (material->diffuseEmittance.texture)
 				{
-					numTrianglesWithEmiMap++;
+					numTrianglesWithEmiMap += numTriangles;
 				}
 				else
 				if (material->diffuseEmittance.color!=rr::RRVec3(0))
 				{
-					numTrianglesWithEmiConst++;
+					numTrianglesWithEmiConst += numTriangles;
 				}
 
 				// transp
 				if (material->specularTransmittance.texture)
 				{
 					if (material->specularTransmittance.texture==material->diffuseReflectance.texture)
-						numTrianglesWithDifMapATransp++;
+						numTrianglesWithDifMapATransp += numTriangles;
 					else 
 					if (material->specularTransmittanceInAlpha)
-						numTrianglesWithNonDifMapATransp++;
+						numTrianglesWithNonDifMapATransp += numTriangles;
 					else 
-						numTrianglesWithMapRGBTransp++;
+						numTrianglesWithMapRGBTransp += numTriangles;
 					if (material->specularTransmittanceKeyed)
-						numTrianglesWithTranspKeyed++;
+						numTrianglesWithTranspKeyed += numTriangles;
 					else
-						numTrianglesWithTranspBlend++;
+						numTrianglesWithTranspBlend += numTriangles;
 				}
 				else
 				if (material->specularTransmittance.color!=rr::RRVec3(0))
 				{
-					numTrianglesWithConstTransp++;
-					numTrianglesWithTranspBlend++;
+					numTrianglesWithConstTransp += numTriangles;
+					numTrianglesWithTranspBlend += numTriangles;
 				}
 
 				// culling
 				if (material->sideBits[0].renderFrom && material->sideBits[1].renderFrom)
-					numTriangles2Sided++;
+					numTriangles2Sided += numTriangles;
 				else
-					numTriangles01Sided++;
+					numTriangles01Sided += numTriangles;
 			}
 		}
 	}
