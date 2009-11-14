@@ -69,6 +69,9 @@ CHANGES
   - removed getObject(i), use getStaticObjects()[i] and make sure i is not out of range, new version does not check it
   - removed getIllumination(i), use getStaticObjects()[i]->illumination and make sure i is not out of range
 - modified parameters of RRObjects::createMultiObject(), array+length replaced by vector
+- removed rr_gl::RRDynamicSolverGL::getMaterialsInStaticScene(),
+  \n it only cached result of rr_gl::UberProgramSetup::recommendMaterialSetup(solver->getMultiObjectCustom())
+  \n and it is no longer needed as the latter was greatly accelerated
 - removed RRObjectWithPhysicalMaterials
 
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------

@@ -82,8 +82,6 @@ namespace rr_gl
 		rr::RRVector<RealtimeLight*> realtimeLights;
 		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
 		Camera* observer;
-		//! Returns minimal superset of all material features in static scene in MATERIAL_*.
-		UberProgramSetup getMaterialsInStaticScene() {return materialsInStaticScene;}
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 	protected:
@@ -124,9 +122,6 @@ namespace rr_gl
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 		rr::RRVec3 oldObserverPos;
-
-		// Minimal superset of all material features in static scene, recommended MATERIAL_* setting for UberProgramSetup, detected from scene materials in setStaticObjects().
-		UberProgramSetup materialsInStaticScene;
 	};
 
 };

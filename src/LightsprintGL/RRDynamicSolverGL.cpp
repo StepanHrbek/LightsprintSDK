@@ -164,7 +164,6 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRDynamicSolver* copyFrom)
 {
 	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,copyFrom);
-	materialsInStaticScene.recommendMaterialSetup(getMultiObjectCustom());
 
 	// delete renderer for old scene, new one will be created when need arises
 	//  we can't rebuild renderer only when multiObject pointer changes, because sometimes new (changed) multiObject is allocated at the same address
@@ -247,6 +246,10 @@ void RRDynamicSolverGL::updateShadowmaps()
 			}
 	}
 
+	// Minimal superset of all material features in static scene, recommended MATERIAL_* setting for UberProgramSetup.
+	bool materialsInStaticSceneFilled = false;
+	UberProgramSetup materialsInStaticScene;
+
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		RealtimeLight* light = realtimeLights[i];
@@ -284,6 +287,11 @@ void RRDynamicSolverGL::updateShadowmaps()
 					// not yet implemented
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
+					if (!materialsInStaticSceneFilled)
+					{
+						materialsInStaticSceneFilled = true;
+						materialsInStaticScene.recommendMaterialSetup(getMultiObjectCustom());
+					}
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA;

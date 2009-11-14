@@ -303,7 +303,8 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	eye.setupForRender();
 	// configure renderer
-	rr_gl::UberProgramSetup uberProgramSetup = solver->getMaterialsInStaticScene(); // enable materials
+	rr_gl::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.recommendMaterialSetup(solver->getMultiObjectCustom()); // enable materials
 	uberProgramSetup.SHADOW_MAPS = 1; // enable shadows
 	uberProgramSetup.LIGHT_DIRECT = true; // enable direct illumination
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;

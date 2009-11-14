@@ -782,7 +782,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			svs.eye.setupForRender();
 
-			UberProgramSetup miss = solver->getMaterialsInStaticScene();
+			UberProgramSetup miss;
+			miss.recommendMaterialSetup(solver->getMultiObjectCustom());
 			bool hasDif = miss.MATERIAL_DIFFUSE_CONST||miss.MATERIAL_DIFFUSE_MAP;
 			bool hasEmi = miss.MATERIAL_EMISSIVE_CONST||miss.MATERIAL_EMISSIVE_MAP;
 			bool hasTra = miss.MATERIAL_TRANSPARENCY_CONST||miss.MATERIAL_TRANSPARENCY_MAP||miss.MATERIAL_TRANSPARENCY_IN_ALPHA;
