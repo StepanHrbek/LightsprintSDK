@@ -160,7 +160,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 								// data from MeshLab, optional "set" not specified
 								// <input offset="2" semantic="TEXCOORD" source="#shape0-lib-map"/> -> GetSet=-1 (default in fcollda)
 								// <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD"/> -> inputSet=0 (default in fcollda)
-								polygonsInput->GetSet()==-1 ||
+								(inputSet==0 && polygonsInput->GetSet()==-1) ||
 
 								inputSet==LIGHTMAP_CHANNEL ||
 								inputSet==UNSPECIFIED_CHANNEL
