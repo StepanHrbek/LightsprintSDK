@@ -465,81 +465,80 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 	{
 		for (unsigned fg=0,fgFirstIndex=0; fg<faceGroups.size(); fgFirstIndex+=faceGroups[fg].numTriangles*3,fg++)
 		{
+			// shortcut
+			const rr::RRMaterial* material = faceGroups[fg].material;
 
-		// shortcut
-		const rr::RRMaterial* material = faceGroups[fg].material;
-
-		if (material)
-		if ((material->needsBlending() && params.renderBlended) || (!material->needsBlending() && params.renderNonBlended))
-		{
-			// skip whole facegroup when alpha keying with constant alpha below 0.5
-			// GPU would do the same for all pixels, this is faster
-			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && material->specularTransmittance.color.avg()>0.5f)
+			if (material)
+			if ((material->needsBlending() && params.renderBlended) || (!material->needsBlending() && params.renderNonBlended))
 			{
-				continue;
-			}
-
-			unsigned fgSubsetNumIndices = 3*faceGroups[fg].numTriangles;
-			unsigned fgSubsetFirstIndex = fgFirstIndex;
-			// limit rendered indices to capture range
-			fgSubsetNumIndices = RR_MIN(fgSubsetFirstIndex+fgSubsetNumIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
-			fgSubsetFirstIndex = RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
-			if (fgSubsetNumIndices>0)
-			{
-				// set face culling
-				if (params.renderedChannels.MATERIAL_CULLING)
+				// skip whole facegroup when alpha keying with constant alpha below 0.5
+				// GPU would do the same for all pixels, this is faster
+				if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && material->specularTransmittance.color.avg()>0.5f)
 				{
-					bool renderFront = material->sideBits[0].renderFrom;
-					bool renderBack = material->sideBits[1].renderFrom;
-					if (renderFront && renderBack)
-					{
-						glDisable(GL_CULL_FACE);
-					}
-					else
-					{
-						glEnable(GL_CULL_FACE);
-						glCullFace(renderFront?GL_BACK:( renderBack?GL_FRONT:GL_FRONT_AND_BACK ));
-					}
+					continue;
 				}
 
-				// set blending
-				if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
+				unsigned fgSubsetNumIndices = 3*faceGroups[fg].numTriangles;
+				unsigned fgSubsetFirstIndex = fgFirstIndex;
+				// limit rendered indices to capture range
+				fgSubsetNumIndices = RR_MIN(fgSubsetFirstIndex+fgSubsetNumIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
+				fgSubsetFirstIndex = RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
+				if (fgSubsetNumIndices>0)
 				{
-					bool transparency = material->specularTransmittance.color!=rr::RRVec3(0);
-					if (transparency!=blendEnabled || !blendKnown)
+					// set face culling
+					if (params.renderedChannels.MATERIAL_CULLING)
 					{
-						if (transparency)
+						bool renderFront = material->sideBits[0].renderFrom;
+						bool renderBack = material->sideBits[1].renderFrom;
+						if (renderFront && renderBack)
 						{
-							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
-							{
-								// current blendfunc is used, caller is responsible for setting it
-								glEnable(GL_BLEND);
-							}
+							glDisable(GL_CULL_FACE);
 						}
 						else
 						{
-							if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
-							{
-								glDisable(GL_BLEND);
-							}
+							glEnable(GL_CULL_FACE);
+							glCullFace(renderFront?GL_BACK:( renderBack?GL_FRONT:GL_FRONT_AND_BACK ));
 						}
-						blendKnown = true;
-						blendEnabled = transparency;
+					}
+
+					// set blending
+					if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
+					{
+						bool transparency = material->specularTransmittance.color!=rr::RRVec3(0);
+						if (transparency!=blendEnabled || !blendKnown)
+						{
+							if (transparency)
+							{
+								if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
+								{
+									// current blendfunc is used, caller is responsible for setting it
+									glEnable(GL_BLEND);
+								}
+							}
+							else
+							{
+								if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
+								{
+									glDisable(GL_BLEND);
+								}
+							}
+							blendKnown = true;
+							blendEnabled = transparency;
+						}
+					}
+					// set material
+					params.renderedChannels.useMaterial(params.program,material);
+					// render one facegroup
+					if (createdIndexed)
+					{
+						DRAW_ELEMENTS(GL_TRIANGLES, fgSubsetNumIndices, GL_UNSIGNED_INT, fgSubsetFirstIndex);
+					}
+					else
+					{
+						glDrawArrays(GL_TRIANGLES, fgSubsetFirstIndex, fgSubsetNumIndices);
 					}
 				}
-				// set material
-				params.renderedChannels.useMaterial(params.program,material);
-				// render one facegroup
-				if (createdIndexed)
-				{
-					DRAW_ELEMENTS(GL_TRIANGLES, fgSubsetNumIndices, GL_UNSIGNED_INT, fgSubsetFirstIndex);
-				}
-				else
-				{
-					glDrawArrays(GL_TRIANGLES, fgSubsetFirstIndex, fgSubsetNumIndices);
-				}
 			}
-		}
 		}
 	}
 	else
