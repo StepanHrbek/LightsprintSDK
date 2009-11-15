@@ -50,6 +50,10 @@ NEWS
   - RRMatrix3x4::isIdentity()
   - RRMaterial::needsBlending()
   - RRVector::resize()
+- improved realtime renderer
+  - you can change materials on the fly, changes propagate to GPU automatically
+  - you can change geometry in RRMeshArrays on the fly, changes propagate to GPU automatically
+  - geometry is instanced automatically, saves memory
 
 CHANGES
 
@@ -73,6 +77,7 @@ CHANGES
   \n it only cached result of rr_gl::UberProgramSetup::recommendMaterialSetup(solver->getMultiObjectCustom())
   \n and it is no longer needed as the latter was greatly accelerated
 - removed RRObjectWithPhysicalMaterials
+- realtime renderer doesn't like uv channel numbers greater than 100
 
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------
 
