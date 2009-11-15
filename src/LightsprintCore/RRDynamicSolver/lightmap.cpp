@@ -462,9 +462,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		{
 			if (allVertexBuffers[i])
 			{
-				if (allBuffers[i]->getWidth()<vertexBufferWidth) // only smaller buffer is problem, bigger buffer is sometimes created by ObjectBuffers
+				if (allBuffers[i]->getWidth()!=vertexBufferWidth)
 				{
-					RRReporter::report(WARN,"Insufficient vertex buffer size %d, should be %d.\n",allBuffers[i]->getWidth(),vertexBufferWidth);
+					RRReporter::report(WARN,"Wrong vertex buffer size %d, should be %d.\n",allBuffers[i]->getWidth(),vertexBufferWidth);
 					return 0;
 				}
 			}
