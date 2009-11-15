@@ -82,7 +82,8 @@ void ObjectBuffers::init(const rr::RRObject* object, bool indexed)
 	unsigned numVerticesExpected = indexed
 		? mesh->getNumVertices() // indexed (when rendering 1object without force_2d)
 		: 3*numTriangles; // nonindexed (when rendering multiobject or force_2d)
-	numIndicesObj = 0;
+	createdIndexed = indexed;
+	unsigned numIndicesObj = 0;
 	indices = NULL;
 	if (indexed)
 	{
@@ -367,7 +368,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	// set indirect illumination vertices
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		if (numIndicesObj)
+		if (createdIndexed)
 		{
 			if (params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
@@ -572,7 +573,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				// set material
 				params.renderedChannels.useMaterial(params.program,&faceGroups[fg].material);
 				// render one facegroup
-				if (numIndicesObj)
+				if (createdIndexed)
 				{
 					DRAW_ELEMENTS(GL_TRIANGLES, fgSubsetNumIndices, GL_UNSIGNED_INT, fgSubsetFirstIndex);
 				}
@@ -589,7 +590,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 		// (but only captured range)
 		unsigned objSubsetFirstIndex = 3*params.firstCapturedTriangle;
 		unsigned objSubsetNumIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
-		if (numIndicesObj)
+		if (createdIndexed)
 		{
 			DRAW_ELEMENTS(GL_TRIANGLES, objSubsetNumIndices, GL_UNSIGNED_INT, objSubsetFirstIndex);
 		}
@@ -642,13 +643,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 	{
 		glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
-		if (numIndicesObj && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
+		if (createdIndexed && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
 	}
 	// unset indirect illumination colors
 	if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
-		if (numIndicesObj && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
+		if (createdIndexed && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
 	}
 	// unset normals
 	if (setNormals)

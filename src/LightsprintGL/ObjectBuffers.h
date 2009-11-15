@@ -58,7 +58,7 @@ private:
 	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned previousLightIndirectVersion; // version of lightIndirect data we have in VRAM
 	rr::RRBuffer* previousLightIndirectBuffer; // layer we copied to VBO_lightIndir last time
-	unsigned numIndicesObj; // 0=!indexed, !0=indexed
+	bool createdIndexed;
 	unsigned* indices;
 
 	// VBOs
