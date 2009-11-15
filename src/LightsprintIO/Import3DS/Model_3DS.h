@@ -107,7 +107,7 @@ public:
 		rr::RRVec3* Normals;		// The array of the normals for the vertices
 		rr::RRVec2* TexCoords;		// The array of texture coordinates for the vertices
 		unsigned short *Faces;		// The array of face indices
-		int numFaces;				// The number of faces
+		int numFaces;				// The number of face indices (not faces)
 		int numMatFaces;			// The number of differnet material faces
 		int numVerts;				// The number of vertices
 		int numTexCoords;			// The number of vertices

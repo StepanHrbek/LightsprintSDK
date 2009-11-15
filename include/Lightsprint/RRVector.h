@@ -53,6 +53,7 @@ public:
 		return *this;
 	}
 	//! Resizes vector, adding or removing elements at the end.
+	//! Does not destruct removed elements (unlike std::vector).
 	void resize(unsigned newSize, C initial=C())
 	{
 		while (size()<newSize)
