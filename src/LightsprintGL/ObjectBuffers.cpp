@@ -464,12 +464,17 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
 		for (unsigned fg=0,fgFirstIndex=0; fg<faceGroups.size(); fgFirstIndex+=faceGroups[fg].numTriangles*3,fg++)
-		if (faceGroups[fg].material)
-		if ((faceGroups[fg].material->needsBlending() && params.renderBlended) || (!faceGroups[fg].material->needsBlending() && params.renderNonBlended))
+		{
+
+		// shortcut
+		const rr::RRMaterial* material = faceGroups[fg].material;
+
+		if (material)
+		if ((material->needsBlending() && params.renderBlended) || (!material->needsBlending() && params.renderNonBlended))
 		{
 			// skip whole facegroup when alpha keying with constant alpha below 0.5
 			// GPU would do the same for all pixels, this is faster
-			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && faceGroups[fg].material->specularTransmittance.color.avg()>0.5f)
+			if (params.renderedChannels.MATERIAL_TRANSPARENCY_CONST && params.renderedChannels.MATERIAL_TRANSPARENCY_KEYING && material->specularTransmittance.color.avg()>0.5f)
 			{
 				continue;
 			}
@@ -484,8 +489,8 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 				// set face culling
 				if (params.renderedChannels.MATERIAL_CULLING)
 				{
-					bool renderFront = faceGroups[fg].material->sideBits[0].renderFrom;
-					bool renderBack = faceGroups[fg].material->sideBits[1].renderFrom;
+					bool renderFront = material->sideBits[0].renderFrom;
+					bool renderBack = material->sideBits[1].renderFrom;
 					if (renderFront && renderBack)
 					{
 						glDisable(GL_CULL_FACE);
@@ -500,7 +505,7 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 				// set blending
 				if (params.renderedChannels.MATERIAL_TRANSPARENCY_BLENDING)
 				{
-					bool transparency = faceGroups[fg].material->specularTransmittance.color!=rr::RRVec3(0);
+					bool transparency = material->specularTransmittance.color!=rr::RRVec3(0);
 					if (transparency!=blendEnabled || !blendKnown)
 					{
 						if (transparency)
@@ -523,7 +528,7 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 					}
 				}
 				// set material
-				params.renderedChannels.useMaterial(params.program,faceGroups[fg].material);
+				params.renderedChannels.useMaterial(params.program,material);
 				// render one facegroup
 				if (createdIndexed)
 				{
@@ -534,6 +539,7 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 					glDrawArrays(GL_TRIANGLES, fgSubsetFirstIndex, fgSubsetNumIndices);
 				}
 			}
+		}
 		}
 	}
 	else
