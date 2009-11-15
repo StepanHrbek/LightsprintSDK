@@ -348,65 +348,9 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 		}
 	}
 
-	// shortcut
-	const rr::RRObject::FaceGroups& faceGroups = params.object->faceGroups;
-
-	// parse all materials, make up single texcoords for whole object
-	struct Channel
-	{
-		bool inited;
-		unsigned index;
-		Channel()
-		{
-			inited = false;
-			index = 0;
-		}
-		bool detectCollision(unsigned i)
-		{
-			bool collision = inited && i!=index;
-			inited = true;
-			index = i;
-			return collision;
-		}
-		bool detectCollision(const rr::RRMaterial::Property& property)
-		{
-			return property.texture && detectCollision(property.texcoord);
-		}
-	};
-	Channel unwrap;
-	Channel diffuse;
-	Channel specular;
-	Channel emissive;
-	Channel transparent;
-	for (unsigned fg=0; fg<faceGroups.size(); fg++)
-	{
-		rr::RRMaterial* material = faceGroups[fg].material;
-		if (material)
-		{
-			if (params.renderedChannels.LIGHT_INDIRECT_MAP||params.renderedChannels.LIGHT_INDIRECT_MAP2||params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP)
-				if (unwrap.detectCollision(material->lightmapTexcoord))
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"May be rendered incorrectly, materials in mesh differ in lightmap uv channel.\n"));
-			if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
-				if (diffuse.detectCollision(material->diffuseReflectance))
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"May be rendered incorrectly, materials in mesh differ in diffuse uv channel.\n"));
-			if (0)
-				if (specular.detectCollision(material->specularReflectance))
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"May be rendered incorrectly, materials in mesh differ in specular uv channel.\n"));
-			if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
-				if (emissive.detectCollision(material->diffuseEmittance))
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"May be rendered incorrectly, materials in mesh differ in emissive uv channel.\n"));
-			if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
-				if (transparent.detectCollision(material->specularTransmittance))
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"May be rendered incorrectly, materials in mesh differ in transparent uv channel.\n"));
-		}
-	}
-
 	// set indirect illumination texcoords + map (lightmap or light detail map)
 	if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
-		BIND_VBO3(TexCoord,2,texcoordVBO[unwrap.index]);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		if (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 			getTexture(params.availableIndirectIlluminationMap,true,false)->bindTexture(); // bind lightmap
@@ -430,39 +374,62 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 		BIND_VBO3(TexCoord,2,VBO[VBO_texcoordForced2D]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
-	// set material diffuse texcoords
-	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
-	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
-		BIND_VBO3(TexCoord,2,texcoordVBO[diffuse.index]);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-	// set material emissive texcoords
-	if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
-	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
-		BIND_VBO3(TexCoord,2,texcoordVBO[emissive.index]);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-	// set material transparency texcoords
-	if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
-	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
-		BIND_VBO3(TexCoord,2,texcoordVBO[transparent.index]);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
+
+	// shortcut
+	const rr::RRObject::FaceGroups& faceGroups = params.object->faceGroups;
+
 	// detect blending
 	bool containsBlended;
 	bool containsNonBlended;
 	faceGroups.getBlending(containsBlended,containsNonBlended);
-	// render facegroups (facegroups differ by material)
+
+	// render facegroups (facegroups differ by material or lightmap)
 	if (params.renderedChannels.MATERIAL_DIFFUSE_CONST || params.renderedChannels.MATERIAL_DIFFUSE_MAP
 		|| params.renderedChannels.MATERIAL_SPECULAR_CONST
 		|| params.renderedChannels.MATERIAL_EMISSIVE_CONST || params.renderedChannels.MATERIAL_EMISSIVE_MAP
 		|| params.renderedChannels.MATERIAL_TRANSPARENCY_CONST || params.renderedChannels.MATERIAL_TRANSPARENCY_MAP
 		|| params.renderedChannels.MATERIAL_CULLING
+		|| (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
+		|| (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap)
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
+
+		// cache uv channel binding
+		struct UvChannelBinding
+		{
+			unsigned boundUvChannel[5]; // indexed by MULTITEXCOORD_XXX
+			void bindUvChannel(const rr::RRVector<unsigned>& texcoordVBO, unsigned shaderChannel, unsigned uvChannel, const rr::RRBuffer* buffer)
+			{
+				RR_ASSERT(shaderChannel<5);
+				if (boundUvChannel[shaderChannel]==uvChannel)
+				{
+					// already set
+					return;
+				}
+				if (!buffer)
+				{
+					// 1x1 texture is probably used and uv is irrelevant
+					return;
+				}
+				boundUvChannel[shaderChannel] = uvChannel;
+				if (uvChannel>=texcoordVBO.size())
+				{
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Please use uv channels below 100 (channel %d out of range 0..%d).\n",uvChannel,texcoordVBO.size()-1));
+					RR_ASSERT(0);
+					return;
+				}
+				if (texcoordVBO[uvChannel]==0)
+				{
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Attempt to bind non existing VBO, uv channel %d.\n",uvChannel));
+					return;
+				}
+				glClientActiveTexture(GL_TEXTURE0+shaderChannel);
+				BIND_VBO3(TexCoord,2,texcoordVBO[uvChannel]);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+		};
+		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX};
+
 		for (unsigned fg=0,fgFirstIndex=0; fg<faceGroups.size(); fgFirstIndex+=faceGroups[fg].numTriangles*3,fg++)
 		{
 			// shortcut
@@ -526,8 +493,18 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 							blendEnabled = transparency;
 						}
 					}
+
 					// set material
 					params.renderedChannels.useMaterial(params.program,material);
+					if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+						uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture);
+					if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+						uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture);
+					if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
+						uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture);
+					if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
+						uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1);
+
 					// render one facegroup
 					if (createdIndexed)
 					{
