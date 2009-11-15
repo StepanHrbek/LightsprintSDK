@@ -295,7 +295,7 @@ ObjectBuffers::~ObjectBuffers()
 	for (unsigned i=0;i<tempTextures.size();i++) delete tempTextures[i];
 }
 
-GLint getBufferNumComponents(const rr::RRBuffer* buffer)
+static GLint getBufferNumComponents(const rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
 	{
@@ -310,7 +310,7 @@ GLint getBufferNumComponents(const rr::RRBuffer* buffer)
 	}
 }
 
-GLenum getBufferComponentType(const rr::RRBuffer* buffer)
+static GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
 	{
@@ -346,19 +346,19 @@ ObjectBuffers::VBOIndex ObjectBuffers::fixVBO(VBOIndex index) const
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
-	#define DRAW_ELEMENTS(a,b,c,d)             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(*indices)*d)); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	#define BIND_VBO2(glName,myName)           glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_VBO3(glName,numFloats,myName) glBindBuffer(GL_ARRAY_BUFFER, VBO[fixVBO(VBO_##myName)]); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#define BIND_BUFFER(glName,buffer,myName)  glBindBuffer(GL_ARRAY_BUFFER, VBO[       VBO_##myName ]); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define DRAW_ELEMENTS(a,b,c,d)                                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(*indices)*d));                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	#define BIND_VBO2(glName,myName)           RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_VBO3(glName,numFloats,myName) RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#define BIND_BUFFER(glName,buffer,myName)  RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// set vertices
-	BIND_VBO3(Vertex,3,position);
+	BIND_VBO3(Vertex,3,VBO[VBO_position]);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
 	bool setNormals = params.renderedChannels.NORMALS || params.renderedChannels.LIGHT_DIRECT;
 	if (setNormals)
 	{
-		BIND_VBO2(Normal,normal);
+		BIND_VBO2(Normal,VBO[VBO_normal]);
 		glEnableClientState(GL_NORMAL_ARRAY);
 	}
 	// manage blending
@@ -389,7 +389,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 					copyBufferToVBO(params.availableIndirectIlluminationVColors,numVertices,VBO[VBO_lightIndirectVcolor]);
 				}
 				glEnableClientState(GL_COLOR_ARRAY);
-				BIND_BUFFER(Color,params.availableIndirectIlluminationVColors,lightIndirectVcolor);
+				BIND_BUFFER(Color,params.availableIndirectIlluminationVColors,VBO[VBO_lightIndirectVcolor]);
 				if (params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
 					if (params.availableIndirectIlluminationVColors2)
@@ -399,7 +399,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 							copyBufferToVBO(params.availableIndirectIlluminationVColors2,numVertices,VBO[VBO_lightIndirectVcolor2]);
 						}
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						BIND_BUFFER(SecondaryColor,params.availableIndirectIlluminationVColors2,lightIndirectVcolor2);
+						BIND_BUFFER(SecondaryColor,params.availableIndirectIlluminationVColors2,VBO[VBO_lightIndirectVcolor2]);
 					}
 					else
 					{
@@ -457,7 +457,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	if ((params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap) || (params.renderedChannels.LIGHT_INDIRECT_DETAIL_MAP && params.availableIndirectIlluminationLDMap))
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
-		BIND_VBO3(TexCoord,2,texcoordAmbient);
+		BIND_VBO3(TexCoord,2,VBO[VBO_texcoordAmbient]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		if (params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
@@ -479,28 +479,28 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	if (params.renderedChannels.FORCE_2D_POSITION)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
-		BIND_VBO3(TexCoord,2,texcoordForced2D);
+		BIND_VBO3(TexCoord,2,VBO[VBO_texcoordForced2D]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material diffuse texcoords
 	if (params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
-		BIND_VBO3(TexCoord,2,texcoordDiffuse);
+		BIND_VBO3(TexCoord,2,VBO[VBO_texcoordDiffuse]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material emissive texcoords
 	if (params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
-		BIND_VBO3(TexCoord,2,texcoordEmissive);
+		BIND_VBO3(TexCoord,2,VBO[fixVBO(VBO_texcoordEmissive)]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material transparency texcoords
 	if (params.renderedChannels.MATERIAL_TRANSPARENCY_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
-		BIND_VBO3(TexCoord,2,texcoordTransparency);
+		BIND_VBO3(TexCoord,2,VBO[fixVBO(VBO_texcoordTransparency)]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// render facegroups (facegroups differ by material)
