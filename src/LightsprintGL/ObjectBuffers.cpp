@@ -346,7 +346,7 @@ ObjectBuffers::VBOIndex ObjectBuffers::fixVBO(VBOIndex index) const
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion)
 {
-	#define DRAW_ELEMENTS(a,b,c,d)                                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(*indices)*d));                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	#define DRAW_ELEMENTS(a,b,c,d)                                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(unsigned)*d));                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	#define BIND_VBO2(glName,myName)           RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(           GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_VBO3(glName,numFloats,myName) RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);                                            glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#define BIND_BUFFER(glName,buffer,myName)  RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -511,7 +511,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 		|| params.renderedChannels.MATERIAL_CULLING
 		|| (containsNonBlended && containsBlended && params.renderNonBlended!=params.renderBlended))
 	{
-		for (unsigned fg=0;fg<faceGroups.size();fg++) if ((faceGroups[fg].needsBlend() && params.renderBlended) || (!faceGroups[fg].needsBlend() && params.renderNonBlended))
+		for (unsigned fg=0;fg<faceGroups.size();fg++)
+		if ((faceGroups[fg].needsBlend() && params.renderBlended) || (!faceGroups[fg].needsBlend() && params.renderNonBlended))
 		{
 			// skip whole facegroup when alpha keying with constant alpha below 0.5
 			// GPU would do the same for all pixels, this is faster
@@ -520,11 +521,12 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				continue;
 			}
 
-			IndexGroup fgSubset = faceGroups[fg];
+			unsigned fgSubsetNumIndices = faceGroups[fg].numIndices;
+			unsigned fgSubsetFirstIndex = faceGroups[fg].firstIndex;
 			// limit rendered indices to capture range
-			fgSubset.numIndices = RR_MIN(fgSubset.firstIndex+fgSubset.numIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(fgSubset.firstIndex,3*params.firstCapturedTriangle);
-			fgSubset.firstIndex = RR_MAX(fgSubset.firstIndex,3*params.firstCapturedTriangle);
-			if (fgSubset.numIndices>0)
+			fgSubsetNumIndices = RR_MIN(fgSubsetFirstIndex+fgSubsetNumIndices,3*params.lastCapturedTrianglePlus1) - RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
+			fgSubsetFirstIndex = RR_MAX(fgSubsetFirstIndex,3*params.firstCapturedTriangle);
+			if (fgSubsetNumIndices>0)
 			{
 				// set face culling
 				if (params.renderedChannels.MATERIAL_CULLING)
@@ -572,11 +574,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 				// render one facegroup
 				if (numIndicesObj)
 				{
-					DRAW_ELEMENTS(GL_TRIANGLES, fgSubset.numIndices, GL_UNSIGNED_INT, fgSubset.firstIndex);
+					DRAW_ELEMENTS(GL_TRIANGLES, fgSubsetNumIndices, GL_UNSIGNED_INT, fgSubsetFirstIndex);
 				}
 				else
 				{
-					glDrawArrays(GL_TRIANGLES, fgSubset.firstIndex, fgSubset.numIndices);
+					glDrawArrays(GL_TRIANGLES, fgSubsetFirstIndex, fgSubsetNumIndices);
 				}
 			}
 		}
@@ -585,16 +587,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned lightInd
 	{
 		// render all at once
 		// (but only captured range)
-		IndexGroup objSubset;
-		objSubset.firstIndex = 3*params.firstCapturedTriangle;
-		objSubset.numIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
+		unsigned objSubsetFirstIndex = 3*params.firstCapturedTriangle;
+		unsigned objSubsetNumIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
 		if (numIndicesObj)
 		{
-			DRAW_ELEMENTS(GL_TRIANGLES, objSubset.numIndices, GL_UNSIGNED_INT, objSubset.firstIndex);
+			DRAW_ELEMENTS(GL_TRIANGLES, objSubsetNumIndices, GL_UNSIGNED_INT, objSubsetFirstIndex);
 		}
 		else
 		{
-			glDrawArrays(GL_TRIANGLES, objSubset.firstIndex, objSubset.numIndices);
+			glDrawArrays(GL_TRIANGLES, objSubsetFirstIndex, objSubsetNumIndices);
 		}
 	}
 	// unset material diffuse texcoords
