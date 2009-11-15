@@ -5,6 +5,7 @@
 
 #include <algorithm> // sort
 #include <cstdio>
+#include <hash_map>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
@@ -12,6 +13,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
 #include "Lightsprint/GL/MultiPass.h"
+#include "ObjectBuffers.h"
 #include "tmpstr.h"
 
 
@@ -85,7 +87,7 @@ protected:
 	void initSpecularReflection(Program* program); // bind TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR texture, set uniform worldEyePos
 private:
 	// 1 renderer for 1 scene
-	RendererOfRRObject* rendererNonCaching;
+	RendererOfMesh rendererOfMultiMesh;
 	// 1 specular refl map for all static faces
 	const rr::RRBuffer* lastRenderSolverEnv; // solver environment
 	rr::RRBuffer* lastRenderSpecularEnv; // downscaled for specular reflections
@@ -110,7 +112,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	uberProgram = UberProgram::create(
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
-	rendererNonCaching = NULL;
 	lastRenderSolverEnv = NULL;
 	lastRenderSpecularEnv = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
 }
@@ -118,7 +119,6 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 {
 	delete lastRenderSpecularEnv;
-	delete rendererNonCaching;
 	delete uberProgram;
 	delete textureRenderer;
 }
@@ -222,17 +222,6 @@ void RendererOfRRDynamicSolver::render()
 		return;
 	}
 
-	// create helper renderers
-	if (!rendererNonCaching)
-	{
-		rendererNonCaching = RendererOfRRObject::create(params.solver->getMultiObjectCustom(),params.solver);
-	}
-	if (!rendererNonCaching)
-	{
-		// probably empty scene
-		return;
-	}
-
 	if (params.uberProgramSetup.LIGHT_INDIRECT_auto)
 	{
 		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
@@ -255,20 +244,51 @@ void RendererOfRRDynamicSolver::render()
 	RendererOfRRObject::RenderedChannels renderedChannels;
 	RealtimeLight* light;
 	Program* program;
+	RendererOfRRObject rendererNonCaching(params.solver->getMultiObjectCustom(),params.solver);
 	while (program=multiPass.getNextPass(uberProgramSetup,renderedChannels,light))
 	{
-		rendererNonCaching->setProgram(program);
-		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
-		rendererNonCaching->setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getStaticObjects()[0]->illumination->getLayer(params.layerNumberLDM) : NULL);
-		rendererNonCaching->setLightingShadowingFlags(params.renderingFromThisLight,light?&light->getRRLight():NULL);
+		rendererNonCaching.setProgram(program);
+		rendererNonCaching.setRenderedChannels(renderedChannels);
+		rendererNonCaching.setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
+		rendererNonCaching.setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getStaticObjects()[0]->illumination->getLayer(params.layerNumberLDM) : NULL);
+		rendererNonCaching.setLightingShadowingFlags(params.renderingFromThisLight,light?&light->getRRLight():NULL);
 
 		if (uberProgramSetup.MATERIAL_SPECULAR)
 			initSpecularReflection(program);
 
-		rendererNonCaching->render();
+		rendererOfMultiMesh.render(rendererNonCaching);
 	}
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RendererOfMeshCache
+
+class RendererOfMeshCache
+{
+public:
+	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
+	{
+		Cache::iterator i=cache.find(mesh);
+		if (i!=cache.end())
+		{
+			return i->second;
+		}
+		else
+		{
+			return cache[mesh] = new RendererOfMesh();
+		}
+	}
+	~RendererOfMeshCache()
+	{
+		for (Cache::const_iterator i=cache.begin();i!=cache.end();++i)
+			delete i->second;
+	}
+private:
+	typedef stdext::hash_map<const rr::RRMesh*,RendererOfMesh*> Cache;
+	Cache cache;
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -313,14 +333,14 @@ private:
 	{
 		rr::RRObject* object;
 		rr::RRVec3 objectCenter;
-		RendererOfRRObject* rendererNonCaching;
+		RendererOfMesh* rendererOfMesh;
 		PerObjectPermanent()
 		{
 			object = NULL;
 			objectCenter = rr::RRVec3(0);
-			rendererNonCaching = NULL;
+			rendererOfMesh = NULL;
 		}
-		void init(rr::RRObject* _object)
+		void init(rr::RRObject* _object, RendererOfMeshCache& _rendererOfMeshCache)
 		{
 			object = _object;
 			if (object)
@@ -328,12 +348,8 @@ private:
 				rr::RRMesh* mesh = object->createWorldSpaceMesh();
 				mesh->getAABB(NULL,NULL,&objectCenter);
 				delete mesh;
-				rendererNonCaching = RendererOfRRObject::create(object,NULL);
+				rendererOfMesh = _rendererOfMeshCache.getRendererOfMesh(object->getCollider()->getMesh());
 			}
-		}
-		~PerObjectPermanent()
-		{
-			delete rendererNonCaching;
 		}
 	};
 	PerObjectPermanent* perObjectPermanent;
@@ -346,6 +362,7 @@ private:
 	};
 	PerObjectSorted* perObjectSorted; // filled and used by render(). might be made thread safe if render() allocates it locally, however GL is unsafe anyway
 	void renderOriginalObject(const PerObjectPermanent* perObject, bool renderNonBlended, bool renderBlended);
+	RendererOfMeshCache rendererOfMeshCache;
 };
 
 
@@ -397,7 +414,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 {
 	// tell renderer whether we render blended / nonblended materials
 	// early exit when no materials pass filter
-	if (!perObject->rendererNonCaching || !perObject->rendererNonCaching->setMaterialFilter(renderNonBlended,renderBlended)) return;
+	//!!!if (!perObject->rendererNonCaching->setMaterialFilter(renderNonBlended,renderBlended)) return;
 
 	// How do we render multiple objects + multiple lights?
 	// for each object
@@ -485,20 +502,22 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		uberProgramSetup.useIlluminationEnvMaps(program,illumination,false);
 
 		// render
-		perObject->rendererNonCaching->setProgram(program);
-		perObject->rendererNonCaching->setRenderedChannels(renderedChannels);
+		RendererOfRRObject rendererNonCaching(perObject->object,params.solver);
+		rendererNonCaching.setMaterialFilter(renderNonBlended,renderBlended);
+		rendererNonCaching.setProgram(program);
+		rendererNonCaching.setRenderedChannels(renderedChannels);
 		if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
 		{
-			perObject->rendererNonCaching->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2,lightIndirectVersion);
+			rendererNonCaching.setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2,lightIndirectVersion);
 			program->sendUniform("lightIndirectBlend",layerBlend);
 		}
 		else
 		{
-			perObject->rendererNonCaching->setIndirectIlluminationBuffers(vbuffer,pbuffer,lightIndirectVersion);
+			rendererNonCaching.setIndirectIlluminationBuffers(vbuffer,pbuffer,lightIndirectVersion);
 		}
-		perObject->rendererNonCaching->setLDM(pbufferldm);
+		rendererNonCaching.setLDM(pbufferldm);
 
-		perObject->rendererNonCaching->render();
+		perObject->rendererOfMesh->render(rendererNonCaching);
 	}
 }
 
@@ -551,7 +570,7 @@ void RendererOfOriginalScene::render()
 		perObjectSorted = new PerObjectSorted[params.solver->getStaticObjects().size()];
 		for (unsigned i=0;i<params.solver->getStaticObjects().size();i++)
 		{
-			perObjectPermanent[i].init(params.solver->getStaticObjects()[i]);
+			perObjectPermanent[i].init(params.solver->getStaticObjects()[i],rendererOfMeshCache);
 			perObjectSorted[i].permanent = perObjectPermanent+i;
 			perObjectSorted[i].distance = 0;
 		}

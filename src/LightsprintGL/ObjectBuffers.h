@@ -22,87 +22,34 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ObjectBuffers - RRObject data stored in buffers for faster rendering
+// MeshVBOs - RRMesh data stored in indexed and !indexed VBOs
 
-class ObjectBuffers
+class MeshVBOs : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
-	//! \param indexed
-	//!  False = generates triangle list, numVertices == 3*mesh->getNumTriangles().
-	//!  True = generates indexed triangle list, numVertices == mesh->getNumVertices(), order specified by postimport vertex numbers
-	//! \param containsNonBlended
-	//!  Set to 0 or 1, 1=object contains materials that don't need blending.
-	//!  Touched only when returning non-NULL result, otherwise unchanged.
-	//! \param containsBlended
-	//!  Set to 0 or 1, 1=object contains materials that need blending.
-	//!  Touched only when returning non-NULL result, otherwise unchanged.
-	//! \param unwrapSplitsVertices
-	//!  Must be inited to 0, set to 1 if unwrap assigns different uvs to single vertex.
-	//!  Touched only when returning non-NULL result, otherwise unchanged.
-	static ObjectBuffers* create(const rr::RRObject* object, bool indexed, bool& containsNonBlended, bool& containsBlended, bool& unwrapSplitsVertices);
-	~ObjectBuffers();
-	void render(RendererOfRRObject::Params& params, unsigned lightIndirectVersion);
+	MeshVBOs();
+	~MeshVBOs();
+protected:
+	//! Fills buffer when requested for first time.
+	//! Updates it if (mesh pointer or numTriangles or numVertices changes) or (indexed and mesh is RRMeshArrays).
+	class MeshArraysVBOs* getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed);
 private:
-	ObjectBuffers();
-	void init(const rr::RRObject* object, bool indexed); // throws std::bad_alloc
-	unsigned numVertices;
+	const void*           createdFromMesh[2];
+	unsigned              createdFromNumTriangles[2];
+	unsigned              createdFromNumVertices[2];
+	class MeshArraysVBOs* meshArraysVBOs[2];
+};
 
-	// arrays
-	rr::RRVec3* aposition;
-	rr::RRVec3* anormal;
-	rr::RRVec2* atexcoordDiffuse;
-	rr::RRVec2* atexcoordEmissive;
-	rr::RRVec2* atexcoordTransparency;
-	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
-	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
-	rr::RRBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
-	unsigned previousLightIndirectVersion; // version of lightIndirect data we have in VRAM
-	rr::RRBuffer* previousLightIndirectBuffer; // layer we copied to VBO_lightIndir last time
-	bool createdIndexed;
-	unsigned* indices;
+//////////////////////////////////////////////////////////////////////////////
+//
+// RendererOfMesh - hides indexed/!indexed complexity of MeshArraysVBOs
 
-	// VBOs
-	enum VBOIndex
-	{
-		VBO_index, // used only if indexed
-		VBO_position,
-		VBO_normal,
-		VBO_texcoordDiffuse,
-		VBO_texcoordEmissive,
-		VBO_texcoordTransparency,
-		VBO_texcoordAmbient,
-		VBO_texcoordForced2D, // used only if !indexed
-		VBO_lightIndirectVcolor,
-		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
-		VBO_COUNT
-	};
-	GLuint VBO[VBO_COUNT];
-	// optimization -  removes redundant VBOs
-	bool texcoordEmissiveIsInDiffuse; // emissive not allocated, use diffuse, is identical
-	bool texcoordTransparencyIsInDiffuse; // transparent not allocated, use diffuse, is identical
-	VBOIndex fixVBO(VBOIndex index) const; // changes removed VBO index to identical valid index
-
-	// temp 1x1 textures
-	std::vector<rr::RRBuffer*> tempTextures;
-
-	struct IndexGroup
-	{
-		unsigned firstIndex;
-		unsigned numIndices;
-	};
-	struct FaceGroup : public IndexGroup
-	{
-		rr::RRMaterial material;
-		bool needsBlend()
-		{
-			return material.specularTransmittance.color!=rr::RRVec3(0) && !material.specularTransmittanceKeyed;
-		}
-	};
-	std::vector<FaceGroup> faceGroups;
-
-	bool containsNonBlended;
-	bool containsBlended;
-	bool unwrapSplitsVertices; // true if indexed and unwrap needs !indexed render because it assigns different uvs to single vertex
+class RendererOfMesh : public MeshVBOs
+{
+public:
+	//! Renders mesh VBOs.
+	//! Must not be called inside display list (may create VBOs, textures).
+	void render(RendererOfRRObject& params);
 };
 
 }; // namespace

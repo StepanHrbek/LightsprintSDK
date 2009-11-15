@@ -73,6 +73,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 	rr::RRReporter::report(rr::INF1,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
+	rendererOfMultiMesh = new RendererOfMesh;
+
 	// pointer 1 sent to RRBuffer::create = buffer will NOT allocate memory (we promise we won't touch it)
 	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X*faceSizeX,DDI_TRIANGLES_MAX_Y*faceSizeY,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	detectSmallMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
@@ -83,8 +85,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 		tmpstr("%sscaledown_filter.fs",pathToShaders));
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
-	rendererNonCaching = NULL;
-	rendererObject = NULL;
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
 	observer = NULL;
@@ -99,7 +99,7 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	delete[] detectedDirectSum;
-	delete rendererNonCaching;
+	delete rendererOfMultiMesh;
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
@@ -164,11 +164,6 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRDynamicSolver* copyFrom)
 {
 	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,copyFrom);
-
-	// delete renderer for old scene, new one will be created when need arises
-	//  we can't rebuild renderer only when multiObject pointer changes, because sometimes new (changed) multiObject is allocated at the same address
-	RR_SAFE_DELETE(rendererNonCaching);
-	rendererObject = NULL;
 }
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
@@ -450,20 +445,8 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 
 	REPORT(rr::RRReportInterval report(rr::INF1,"detectDirectIllumination()\n"));
 
-	// update renderer after geometry change
-	if (getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
-	{
-		// delete old renderer
-		RR_SAFE_DELETE(rendererNonCaching);
-		// create new renderer
-		// for empty scene, stay without renderer
-		rendererObject = getMultiObjectCustom();
-		if (rendererObject)
-		{
-			rendererNonCaching = RendererOfRRObject::create(getMultiObjectCustom(),this);
-		}
-	}
-	if (!rendererObject) return 0;
+	if (!getMultiObjectCustom())
+		return 0;
 
 	const rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
@@ -492,7 +475,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 	// calculate mapping for FORCED_2D
 	//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
 	//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
-	//  This calculation is repeated in ObjectBuffers::init where we render to texture, here we read texture back.
+	//  This calculation is repeated in MeshArraysVBOs where we render to texture, here we read texture back.
 	unsigned triCountX = DDI_TRIANGLES_X;
 	unsigned triCountYTotal = (numTriangles+DDI_TRIANGLES_X-1)/DDI_TRIANGLES_X;
 	unsigned numPasses = (triCountYTotal+DDI_TRIANGLES_MAX_Y-1)/DDI_TRIANGLES_MAX_Y;
@@ -523,13 +506,13 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		Program* program = setupShader(0);
 
 		// render scene
-		rendererNonCaching->setProgram(program);
-		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1);
-		rendererNonCaching->setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
+		RendererOfRRObject rendererOfMultiObject(getMultiObjectCustom(),this);
+		rendererOfMultiObject.setProgram(program);
+		rendererOfMultiObject.setRenderedChannels(renderedChannels);
+		rendererOfMultiObject.setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1);
+		rendererOfMultiObject.setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
-		rendererNonCaching->render();
-		rendererNonCaching->setCapture(0,numTriangles);
+		rendererOfMultiMesh->render(rendererOfMultiObject);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
 		detectSmallMap->renderingToBegin();

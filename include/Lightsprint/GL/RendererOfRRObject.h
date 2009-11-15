@@ -20,6 +20,7 @@ namespace rr_gl
 //
 // RendererOfRRObject
 
+
 //! OpenGL renderer of 3d object with RRObject interface.
 //
 //! Renders RRObject instance.
@@ -41,7 +42,7 @@ namespace rr_gl
 //!   the bigger one only during detectDirectIllumination().
 //! - Stay with any other renderer that supports geometry shaders.
 //!   Implement detectDirectIllumination() using simple geometry shader that generates uv.
-class RR_GL_API RendererOfRRObject : public Renderer
+class RR_GL_API RendererOfRRObject
 {
 public:
 	//! Creates renderer of object.
@@ -49,7 +50,7 @@ public:
 	//!  Object to be rendered.
 	//! \param solver
 	//!  Solver used to compute object's indirect illumination.
-	static RendererOfRRObject* create(const rr::RRObject* object, rr::RRDynamicSolver* solver);
+	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* solver);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RR_GL_API RenderedChannels
@@ -142,18 +143,11 @@ public:
 	//! \n In other cases, pass light=NULL, all triangles will be rendered.
 	void setLightingShadowingFlags(const rr::RRLight* renderingFromThisLight, const rr::RRLight* renderingLitByThisLight);
 
-	//! Returns parameters with influence on render().
-	virtual const void* getParams(unsigned& length) const;
-
-	//! Renders object, feeds OpenGL with object's data selected by setRenderedChannels().
-	//! Doesn't set any shader, expects that it was already set by caller.
-	virtual void render();
-
 	virtual ~RendererOfRRObject();
 
 private:
-	friend class ObjectBuffers;
-	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver);
+	friend class MeshArraysVBOs;
+	friend class RendererOfMesh;
 	enum IndirectIlluminationSource
 	{
 		NONE,
@@ -183,15 +177,9 @@ private:
 		// set by setMaterialFilter
 		bool renderNonBlended;
 		bool renderBlended;
+		unsigned lightIndirectVersion;
 	};
 	Params params;
-	// buffers for faster rendering
-	class ObjectBuffers* indexedYes;
-	class ObjectBuffers* indexedNo;
-	unsigned lightIndirectVersion;
-	bool containsNonBlended;
-	bool containsBlended;
-	bool unwrapSplitsVertices;
 };
 
 }; // namespace

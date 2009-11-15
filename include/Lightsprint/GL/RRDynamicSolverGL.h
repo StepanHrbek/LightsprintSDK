@@ -108,8 +108,7 @@ namespace rr_gl
 
 		// for internal rendering (shadowmaps, DDI)
 		char pathToShaders[300];
-		const void* rendererObject;
-		class RendererOfRRObject* rendererNonCaching;
+		class RendererOfMesh* rendererOfMultiMesh;
 		Texture* detectBigMap;
 		Texture* detectSmallMap;
 		Program* scaleDownProgram;
