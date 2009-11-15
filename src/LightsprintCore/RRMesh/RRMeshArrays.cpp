@@ -22,7 +22,10 @@ RRMeshArrays::RRMeshArrays()
 	normal = NULL;
 	tangent = NULL;
 	bitangent = NULL;
-	version = 0;
+	// MeshArraysVBOs synces to mesh arrays pointer and version.
+	// if someone deletes mesh arrays and creates new (different) one, pointer may be identical,
+	// so make at least version different.
+	version = rand();
 }
 
 RRMeshArrays::~RRMeshArrays()
@@ -30,6 +33,7 @@ RRMeshArrays::~RRMeshArrays()
 	resizeMesh(0,0);
 }
 
+// false = complete deallocate, mesh resized to 0,0
 bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices)
 {
 	// delete old arrays
@@ -74,6 +78,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices)
 	return true;
 }
 
+// false = texcoord not added, mesh not changed
 bool RRMeshArrays::addTexcoord(unsigned _texcoord)
 {
 	if (_texcoord>1000000)
@@ -134,6 +139,14 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		{
 			return false;
 		}
+		for (unsigned i=0;i<_texcoords.size();i++)
+		{
+			if (!addTexcoord(_texcoords[i]))
+			{
+				resizeMesh(0,0);
+				return false;
+			}
+		}
 
 		// copy
 		bool* filled = new bool[numVertices];
@@ -143,19 +156,12 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 			_mesh->getVertex(v,position[v]);
 			filled[v] = false;
 		}
-		TriangleMapping* mapping = new TriangleMapping[_texcoords.size()];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
 			_mesh->getTriangle(t,triangle[t]);
 			TriangleNormals normals;
 			_mesh->getTriangleNormals(t,normals);
-			for (unsigned i=0;i<_texcoords.size();i++)
-			{
-				_mesh->getTriangleMapping(t,mapping[i],_texcoords[i]);
-				if (!t)
-					addTexcoord(_texcoords[i]);
-			}
 			for (unsigned v=0;v<3;v++)
 			{
 				if (triangle[t][v]<numVertices)
@@ -163,15 +169,22 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 					normal[triangle[t][v]] = normals.vertex[v].normal;
 					tangent[triangle[t][v]] = normals.vertex[v].tangent;
 					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
-					for (unsigned i=0;i<_texcoords.size();i++)
-					{
-						texcoord[_texcoords[i]][triangle[t][v]] = mapping[i].uv[v];
-					}
 					filled[triangle[t][v]] = true;
 				}
 			}
+			for (unsigned i=0;i<_texcoords.size();i++)
+			{
+				TriangleMapping mapping;
+				_mesh->getTriangleMapping(t,mapping,_texcoords[i]);
+				for (unsigned v=0;v<3;v++)
+				{
+					if (triangle[t][v]<numVertices)
+					{
+						texcoord[_texcoords[i]][triangle[t][v]] = mapping.uv[v];
+					}
+				}
+			}
 		}
-		delete[] mapping;
 		unsigned unfilled = 0;
 		for (unsigned v=0;v<numVertices;v++)
 		{
@@ -188,9 +201,16 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		{
 			return false;
 		}
+		for (unsigned i=0;i<_texcoords.size();i++)
+		{
+			if (!addTexcoord(_texcoords[i]))
+			{
+				resizeMesh(0,0);
+				return false;
+			}
+		}
 
 		// copy
-		TriangleMapping* mapping = new TriangleMapping[_texcoords.size()];
 		#pragma omp parallel for
 		for (int t=0;t<(int)numTriangles;t++)
 		{
@@ -201,25 +221,23 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 			_mesh->getTriangle(t,triangleT);
 			TriangleNormals normals;
 			_mesh->getTriangleNormals(t,normals);
-			for (unsigned i=0;i<_texcoords.size();i++)
-			{
-				_mesh->getTriangleMapping(t,mapping[i],_texcoords[i]);
-				if (!t)
-					addTexcoord(_texcoords[i]);
-			}
 			for (unsigned v=0;v<3;v++)
 			{
 				_mesh->getVertex(triangleT[v],position[t*3+v]);
 				normal[t*3+v] = normals.vertex[v].normal;
 				tangent[t*3+v] = normals.vertex[v].tangent;
 				bitangent[t*3+v] = normals.vertex[v].bitangent;
-				for (unsigned i=0;i<_texcoords.size();i++)
+			}
+			for (unsigned i=0;i<_texcoords.size();i++)
+			{
+				TriangleMapping mapping;
+				_mesh->getTriangleMapping(t,mapping,_texcoords[i]);
+				for (unsigned v=0;v<3;v++)
 				{
-					texcoord[_texcoords[i]][t*3+v] = mapping[i].uv[v];
+					texcoord[_texcoords[i]][t*3+v] = mapping.uv[v];
 				}
 			}
 		}
-		delete[] mapping;
 	}
 
 	version++;
