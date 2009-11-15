@@ -67,12 +67,11 @@ using namespace rr;
 
 enum
 {
-	// system channel numbers
-	// must be reasonably small for RRMeshArrays
-	// don't use UINT_MAX, checkConsistency() understands UINT_MAX as 'no check'
+	// fixed channel numbers reserved for Collada adapter
+	// must be <100 for realtime renderer (it uses only first 100 channels)
 	// if these numbers collide with numbers in your data, you may change these numbers
-	LIGHTMAP_CHANNEL = 136,
-	UNSPECIFIED_CHANNEL = 137,
+	LIGHTMAP_CHANNEL = 86,
+	UNSPECIFIED_CHANNEL = 87,
 };
 
 //////////////////////////////////////////////////////////////////////////////
