@@ -604,14 +604,23 @@ static rr::RRBuffer* buffer1x1[5] = {NULL,NULL,NULL,NULL,NULL};
 static void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
 {
 	rr::RRBuffer* buffer = property.texture;
-	if (!buffer)
+	if (buffer)
+	{
+		getTexture(buffer)->bindTexture();
+	}
+	else
 	{
 		if (!buffer1x1[index])
 			buffer1x1[index] = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
-		buffer1x1[index]->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
 		buffer = buffer1x1[index];
+		rr::RRVec4 state1 = buffer->getElement(0);
+		buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+		rr::RRVec4 state2 = buffer->getElement(0);
+		if (state1!=state2)
+			getTexture(buffer,false,false)->reset(false,false); // reset binds
+		else
+			getTexture(buffer,false,false)->bindTexture();
 	}
-	getTexture(buffer)->bindTexture();
 }
 
 static void free1x1()
