@@ -3,6 +3,7 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+#include <hash_map>
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
@@ -599,7 +600,8 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 //
 // 1x1 textures
 
-static rr::RRBuffer* buffer1x1[5] = {NULL,NULL,NULL,NULL,NULL};
+typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
+Buffer1x1Cache buffers1x1;
 
 static void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
 {
@@ -610,23 +612,28 @@ static void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigne
 	}
 	else
 	{
-		if (!buffer1x1[index])
-			buffer1x1[index] = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
-		buffer = buffer1x1[index];
-		rr::RRVec4 state1 = buffer->getElement(0);
-		buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
-		rr::RRVec4 state2 = buffer->getElement(0);
-		if (state1!=state2)
-			getTexture(buffer,false,false)->reset(false,false); // reset binds
+		unsigned color = RR_FLOAT2BYTE(property.color[0])+(RR_FLOAT2BYTE(property.color[1])<<8)+(RR_FLOAT2BYTE(property.color[2])<<16);
+		Buffer1x1Cache::iterator i = buffers1x1.find(color);
+		if (i!=buffers1x1.end())
+		{
+			buffer = i->second;
+			getTexture(buffer)->bindTexture();
+		}
 		else
-			getTexture(buffer,false,false)->bindTexture();
+		{
+			buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
+			buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+			getTexture(buffer,false,false)->reset(false,false);
+			buffers1x1[color] = buffer;
+		}
 	}
 }
 
 static void free1x1()
 {
-	for (unsigned i=0;i<5;i++)
-		RR_SAFE_DELETE(buffer1x1[i]);
+	for (Buffer1x1Cache::const_iterator i=buffers1x1.begin();i!=buffers1x1.end();++i)
+		delete i->second;
+	buffers1x1.clear();
 }
 
 unsigned g_numRenderers = 0;
