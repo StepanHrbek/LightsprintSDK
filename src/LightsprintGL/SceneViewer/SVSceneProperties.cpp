@@ -24,29 +24,29 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		SetPropertyReadOnly(propCamera,true,wxPG_DONT_RECURSE);
 
 		propCameraSpeed = new wxFloatProperty(wxT("Speed (m/s)"), wxPG_LABEL, svs.cameraMetersPerSecond);
+		propCameraSpeed->SetAttribute("Precision",svs.precision);
 		AppendIn(propCamera,propCameraSpeed);
 
-		propCameraPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,svs.eye.pos);
+		propCameraPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,svs.precision,svs.eye.pos);
 		AppendIn(propCamera,propCameraPosition);
 
-		propCameraDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,svs.eye.dir);
+		propCameraDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,svs.precision,svs.eye.dir);
 		AppendIn(propCamera,propCameraDirection);
 		SetPropertyReadOnly(propCameraDirection,true);
 
-		propCameraAngles = new wxStringProperty(wxT("Angle"),wxPG_LABEL,wxT("<composed>"));
+		propCameraAngles = new RRVec3Property(wxT("Angles"),wxPG_LABEL,svs.precision,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle));
 		AppendIn(propCamera,propCameraAngles);
-		AppendIn(propCameraAngles,new wxFloatProperty(wxT("a"),wxPG_LABEL,svs.eye.angle));
-		AppendIn(propCameraAngles,new wxFloatProperty(wxT("b"),wxPG_LABEL,svs.eye.angleX));
-		AppendIn(propCameraAngles,new wxFloatProperty(wxT("c"),wxPG_LABEL,svs.eye.leanAngle));
-		Collapse(propCameraAngles);
 
 		propCameraFov = new wxFloatProperty(wxT("FOV vertical degrees"), wxPG_LABEL, svs.eye.getFieldOfViewVerticalDeg());
 		AppendIn(propCamera,propCameraFov);
 
 		propCameraNear = new wxFloatProperty(wxT("Near"), wxPG_LABEL, svs.eye.getNear());
+		propCameraNear->SetAttribute("Precision",svs.precision);
 		AppendIn(propCamera,propCameraNear);
 		SetPropertyReadOnly(propCameraNear,true);
+
 		propCameraFar = new wxFloatProperty(wxT("Far"), wxPG_LABEL, svs.eye.getFar());
+		propCameraFar->SetAttribute("Precision",svs.precision);
 		AppendIn(propCamera,propCameraFar);
 		SetPropertyReadOnly(propCameraFar,true);
 
@@ -64,9 +64,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		SetPropertyEditor(propToneMappingAutomatic,wxPGEditor_CheckBox);
 
 		propToneMappingBrightness = new wxFloatProperty(wxT("Brightness"),wxPG_LABEL,svs.brightness[0]);
+		propToneMappingBrightness->SetAttribute("Precision",svs.precision);
 		AppendIn(propToneMapping,propToneMappingBrightness);
 
 		propToneMappingContrast = new wxFloatProperty(wxT("Contrast"),wxPG_LABEL,svs.gamma);
+		propToneMappingContrast->SetAttribute("Precision",svs.precision);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
 		SetPropertyBackgroundColour(propToneMapping,headerColor,false);
@@ -78,10 +80,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		Append(propWater);
 		SetPropertyEditor(propWater,wxPGEditor_CheckBox);
 
-		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.waterColor);
+		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.precision,svs.waterColor);
 		AppendIn(propWater,propWaterColor);
 
 		propWaterLevel = new wxFloatProperty(wxT("Level"),wxPG_LABEL,svs.waterLevel);
+		propWaterLevel->SetAttribute("Precision",svs.precision);
 		AppendIn( propWater, propWaterLevel );
 
 		SetPropertyBackgroundColour(propWater,headerColor,false);
@@ -121,9 +124,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChanges =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
-		+ updateFloat(propCameraAngles->GetPropertyByName("a"),svs.eye.angle)
-		+ updateFloat(propCameraAngles->GetPropertyByName("b"),svs.eye.angleX)
-		+ updateFloat(propCameraAngles->GetPropertyByName("c"),svs.eye.leanAngle)
+		+ updateProperty(propCameraAngles,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle))
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())

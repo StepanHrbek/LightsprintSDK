@@ -17,13 +17,20 @@ WX_PG_IMPLEMENT_VARIANT_DATA_DUMMY_EQ(RRVec3)
 WX_PG_IMPLEMENT_PROPERTY_CLASS(RRVec3Property,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
 
-RRVec3Property::RRVec3Property( const wxString& label, const wxString& name, const RRVec3& value )
+RRVec3Property::RRVec3Property( const wxString& label, const wxString& name, int precision, const RRVec3& value )
     : wxPGProperty(label,name)
 {
     SetValue( WXVARIANT(value) );
-    AddPrivateChild( new wxFloatProperty(wxT("x"),wxPG_LABEL,value.x) );
-    AddPrivateChild( new wxFloatProperty(wxT("y"),wxPG_LABEL,value.y) );
-    AddPrivateChild( new wxFloatProperty(wxT("z"),wxPG_LABEL,value.z) );
+	wxPGProperty* prop;
+	prop = new wxFloatProperty(wxT("x"),wxPG_LABEL,value.x);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(wxT("y"),wxPG_LABEL,value.y);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(wxT("z"),wxPG_LABEL,value.z);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
 }
 
 void RRVec3Property::RefreshChildren()
@@ -55,18 +62,31 @@ void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVaria
 
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
-HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, const RRVec3& rgb )
+HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, int precision, const RRVec3& rgb )
     : wxPGProperty(label,name)
 {
     SetValue(WXVARIANT(rgb));
 
 	RRVec3 hsv = rgb.getHsvFromRgb();
-    AddPrivateChild(new wxFloatProperty(_("red"),wxPG_LABEL,rgb[0]));
-    AddPrivateChild(new wxFloatProperty(_("green"),wxPG_LABEL,rgb[1]));
-    AddPrivateChild(new wxFloatProperty(_("blue"),wxPG_LABEL,rgb[2]));
-    AddPrivateChild(new wxFloatProperty(_("hue"),wxPG_LABEL,hsv[0]));
-    AddPrivateChild(new wxFloatProperty(_("saturation"),wxPG_LABEL,hsv[1]));
-    AddPrivateChild(new wxFloatProperty(_("value"),wxPG_LABEL,hsv[2]));
+	wxPGProperty* prop;
+	prop = new wxFloatProperty(_("red"),wxPG_LABEL,rgb[0]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(_("green"),wxPG_LABEL,rgb[1]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(_("blue"),wxPG_LABEL,rgb[2]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(_("hue"),wxPG_LABEL,hsv[0]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(_("saturation"),wxPG_LABEL,hsv[1]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
+	prop = new wxFloatProperty(_("value"),wxPG_LABEL,hsv[2]);
+	prop->SetAttribute("Precision",precision);
+    AddPrivateChild(prop);
 }
 
 void HDRColorProperty::RefreshChildren()

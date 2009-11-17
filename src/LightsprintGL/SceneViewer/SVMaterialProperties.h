@@ -19,7 +19,7 @@ namespace rr_gl
 	class SVMaterialProperties : public wxPropertyGrid
 	{
 	public:
-		SVMaterialProperties(wxWindow* parent);
+		SVMaterialProperties(wxWindow* parent, int precision);
 
 		//! Copy material -> property.
 		void setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d);

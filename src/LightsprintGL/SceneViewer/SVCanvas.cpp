@@ -512,7 +512,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(hitTriangle);
 				selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
 			}		
-			parent->m_objectProperties->setObject(selectedObject);
+			parent->m_objectProperties->setObject(selectedObject,svs.precision);
 			parent->m_materialProperties->setMaterial(solver,hitTriangle,hitPoint2d);
 		}
 	}

@@ -19,7 +19,7 @@ SVObjectProperties::SVObjectProperties(wxWindow* parent)
 	object = NULL;
 }
 
-void SVObjectProperties::setObject(rr::RRObject* _object)
+void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 {
 	if (_object!=object)
 	{
@@ -48,18 +48,18 @@ void SVObjectProperties::setObject(rr::RRObject* _object)
 			rr::RRVec3 mini,maxi,center;
 			mesh->getAABB(&mini,&maxi,&center);
 
-			Append(tmp = new RRVec3Property(wxT("Local size"),wxPG_LABEL,maxi-mini));
+			Append(tmp = new RRVec3Property(wxT("Local size"),wxPG_LABEL,_precision,maxi-mini));
 			SetPropertyReadOnly(tmp,true);
-			Append(tmp = new RRVec3Property(wxT("Local min"),wxPG_LABEL,mini));
+			Append(tmp = new RRVec3Property(wxT("Local min"),wxPG_LABEL,_precision,mini));
 			SetPropertyReadOnly(tmp,true);
-			Append(tmp = new RRVec3Property(wxT("Local max"),wxPG_LABEL,maxi));
+			Append(tmp = new RRVec3Property(wxT("Local max"),wxPG_LABEL,_precision,maxi));
 			SetPropertyReadOnly(tmp,true);
-			Append(tmp = new RRVec3Property(wxT("Local center"),wxPG_LABEL,center));
+			Append(tmp = new RRVec3Property(wxT("Local center"),wxPG_LABEL,_precision,center));
 			SetPropertyReadOnly(tmp,true);
-			Append(tmp = new RRVec3Property(wxT("World center"),wxPG_LABEL,worldMatrix.transformedPosition(center)));
+			Append(tmp = new RRVec3Property(wxT("World center"),wxPG_LABEL,_precision,worldMatrix.transformedPosition(center)));
 			SetPropertyReadOnly(tmp,true);
 
-			Append(propWTranslation = new RRVec3Property(wxT("World translation"),wxPG_LABEL,worldMatrix.getTranslation()));
+			Append(propWTranslation = new RRVec3Property(wxT("World translation"),wxPG_LABEL,_precision,worldMatrix.getTranslation()));
 		}
 	}
 }

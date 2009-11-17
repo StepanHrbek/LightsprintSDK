@@ -17,7 +17,7 @@ namespace rr_gl
 //
 // SVMaterialProperties
 
-SVMaterialProperties::SVMaterialProperties(wxWindow* parent)
+SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
 	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
 {
 	lastSolver = NULL;
@@ -41,25 +41,25 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent)
 	SetPropertyEditor(propBack,wxPGEditor_CheckBox);
 
 	Append(propDiffuse = new wxStringProperty(wxT("Diffuse"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propDiffuse,new HDRColorProperty(wxT("color")));
+	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
 	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
 	AppendIn(propDiffuse,new wxFileProperty(wxT("texture")));
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(wxT("Specular"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propSpecular,new HDRColorProperty(wxT("color")));
+	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
 	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
 	AppendIn(propSpecular,new wxFileProperty(wxT("texture")));
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(wxT("Emissive"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propEmissive,new HDRColorProperty(wxT("color")));
+	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
 	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
 	AppendIn(propEmissive,new wxFileProperty(wxT("texture")));
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(wxT("Transparent"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propTransparent,new HDRColorProperty(wxT("color")));
+	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
 	AppendIn(propTransparent,new wxFileProperty(wxT("texture")));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));

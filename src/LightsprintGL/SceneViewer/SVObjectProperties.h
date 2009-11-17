@@ -22,7 +22,7 @@ namespace rr_gl
 		SVObjectProperties( wxWindow* parent );
 
 		//! Copy light -> property (all values, show/hide).
-		void setObject(rr::RRObject* _object);
+		void setObject(rr::RRObject* _object, int _precision);
 
 		//! Copy light -> property (show/hide).
 		void updateHide();

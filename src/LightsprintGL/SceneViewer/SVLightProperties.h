@@ -23,7 +23,7 @@ namespace rr_gl
 		SVLightProperties( wxWindow* parent );
 
 		//! Copy light -> property (all values, show/hide).
-		void setLight(RealtimeLight* _rtlight);
+		void setLight(RealtimeLight* _rtlight, int _precision);
 
 		//! Copy light -> property (show/hide).
 		void updateHide();

@@ -261,7 +261,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_sceneProperties = new SVSceneProperties(this,svs);
 	m_lightProperties = new SVLightProperties(this);
 	m_objectProperties = new SVObjectProperties(this);
-	m_materialProperties = new SVMaterialProperties(this);
+	m_materialProperties = new SVMaterialProperties(this,svs.precision);
 	m_sceneTree = new SVSceneTree(this,svs);
 
 	static const char * sample_xpm[] = {
@@ -1052,7 +1052,7 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 			// update light properties
 			if (m_lightProperties->IsShown())
 			{
-				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index]);
+				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index],svs.precision);
 			}
 
 			m_canvas->selectedType = entity.type;
@@ -1063,7 +1063,7 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 			// update object properties
 			if (m_objectProperties->IsShown())
 			{
-				m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[entity.index]);
+				m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[entity.index],svs.precision);
 			}
 
 			m_canvas->selectedType = entity.type;
@@ -1098,21 +1098,21 @@ void SVFrame::updateSelection()
 	// update light props
 	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
 	{
-		m_lightProperties->setLight(NULL);
+		m_lightProperties->setLight(NULL,svs.precision);
 	}
 	else
 	{
-		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex]);
+		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex],svs.precision);
 	}
 
 	// update object props
 	if (svs.selectedObjectIndex>=m_canvas->solver->getStaticObjects().size())
 	{
-		m_objectProperties->setObject(NULL);
+		m_objectProperties->setObject(NULL,svs.precision);
 	}
 	else
 	{
-		m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex]);
+		m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex],svs.precision);
 	}
 
 	// update scene tree

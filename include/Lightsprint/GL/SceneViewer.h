@@ -72,6 +72,7 @@ struct SceneViewerState
 	float            gamma;                     //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
+	int              precision;                 //! Max number of digits after decimal point in float properties. -1 for full precision.
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
 	// sets default state with realtime GI and random camera
@@ -109,6 +110,7 @@ struct SceneViewerState
 		gamma = 1;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
 		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
+		precision = 2;
 		autodetectCamera = 1;
 	}
 };
