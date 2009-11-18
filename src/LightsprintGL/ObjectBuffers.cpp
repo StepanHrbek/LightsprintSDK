@@ -726,7 +726,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 
 	if (!numTriangles || !numVertices)
 		return NULL;
-
+	
 	// RRMesh update
 	if (createdFromMesh[index]!=mesh || createdFromNumTriangles[index]!=numTriangles || createdFromNumVertices[index]!=numVertices)
 	{
@@ -741,8 +741,8 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 		{
 			if (!meshArraysVBOs[index])
 				meshArraysVBOs[index] = new MeshArraysVBOs;
-			const rr::RRMeshArrays* meshArraysNative = indexed ? dynamic_cast<const rr::RRMeshArrays*>(mesh) : NULL;
-			const rr::RRMeshArrays* meshArrays = meshArraysNative;
+			const rr::RRMeshArrays* meshArrays = indexed ? dynamic_cast<const rr::RRMeshArrays*>(mesh) : NULL;
+			rr::RRMeshArrays meshArraysLocal;
 			if (!meshArrays)
 			{
 				rr::RRVector<unsigned> texcoords;
@@ -766,15 +766,13 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 				{
 					rr::RRReporter::report(rr::WARN,"getTriangleMapping() returns true for (nearly) all uv channels, please reduce number of uv channels to save memory.\n");
 				}
-				meshArrays = mesh->createArrays(indexed,texcoords);
+				meshArraysLocal.reload(mesh,indexed,texcoords);
 			}
-			if (!meshArraysVBOs[index]->update(meshArrays,indexed))
+			if (!meshArraysVBOs[index]->update(meshArrays?meshArrays:&meshArraysLocal,indexed))
 				RR_SAFE_DELETE(meshArraysVBOs[index]);
-			if (meshArrays!=meshArraysNative)
-				delete meshArrays;
 		}
 	}
-	
+
 	// RRMeshArrays update
 	if (indexed && meshArraysVBOs[index])
 	{
