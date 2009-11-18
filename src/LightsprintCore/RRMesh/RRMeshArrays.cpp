@@ -132,13 +132,21 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 
 		// copy
 		bool* filled = new bool[numVertices];
-		#pragma omp parallel for
+		#if defined(_MSC_VER) && (_MSC_VER<1500)
+			#pragma omp parallel for // 2005 SP1 has broken if
+		#else
+			#pragma omp parallel for if(numVertices>1000)
+		#endif
 		for (int v=0;v<(int)numVertices;v++)
 		{
 			_mesh->getVertex(v,position[v]);
 			filled[v] = false;
 		}
-		#pragma omp parallel for
+		#if defined(_MSC_VER) && (_MSC_VER<1500)
+			#pragma omp parallel for // 2005 SP1 has broken if
+		#else
+			#pragma omp parallel for if(numTriangles>200)
+		#endif
 		for (int t=0;t<(int)numTriangles;t++)
 		{
 			_mesh->getTriangle(t,triangle[t]);
@@ -185,7 +193,11 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		}
 
 		// copy
-		#pragma omp parallel for
+		#if defined(_MSC_VER) && (_MSC_VER<1500)
+			#pragma omp parallel for // 2005 SP1 has broken if
+		#else
+			#pragma omp parallel for if(numTriangles>200)
+		#endif
 		for (int t=0;t<(int)numTriangles;t++)
 		{
 			triangle[t][0] = 3*t+0;
