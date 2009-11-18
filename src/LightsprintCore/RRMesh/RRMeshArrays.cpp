@@ -15,6 +15,7 @@ namespace rr
 
 RRMeshArrays::RRMeshArrays()
 {
+	poolSize = 0;
 	numTriangles = 0;
 	triangle = NULL;
 	numVertices = 0;
@@ -36,30 +37,46 @@ RRMeshArrays::~RRMeshArrays()
 // false = complete deallocate, mesh resized to 0,0
 bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords)
 {
-	// delete old arrays
-	free(triangle);
-	triangle = NULL;
-	position = NULL;
-	normal = NULL;
-	tangent = NULL;
-	bitangent = NULL;
-	for (unsigned i=0;i<texcoord.size();i++)
-	{
-		texcoord[i] = NULL;
-	}
-
 	// calculate new size in bytes
 	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*(4*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
 
+	// free/alloc
+	char* pool = (char*)triangle;
+	if (newSize>poolSize)
+	{
+		try
+		{
+			free(triangle);
+			pool = newSize ? (char*)malloc(newSize) : NULL;
+		}
+		catch(...)
+		{
+			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
+			resizeMesh(0,0,NULL);
+			return false;
+		}
+	}
+
 	// remember new sizes
+	poolSize = newSize;
 	numTriangles = _numTriangles;
 	numVertices = _numVertices;
 
-	// allocate new arrays
-	if (newSize)
-	try
+	// fill pointers
+	if (!newSize)
 	{
-		char* pool = (char*)malloc(newSize);
+		triangle = NULL;
+		position = NULL;
+		normal = NULL;
+		tangent = NULL;
+		bitangent = NULL;
+		for (unsigned i=0;i<texcoord.size();i++)
+		{
+			texcoord[i] = NULL;
+		}
+	}
+	else
+	{
 		#define ALIGN16(x) (((x)+15)&(~15))
 		triangle = (Triangle*)pool; pool += ALIGN16(numTriangles*sizeof(Triangle));
 		if (numVertices)
@@ -86,14 +103,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 			}
 		}
 	}
-	catch(...)
-	{
-		RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
-		resizeMesh(0,0,NULL);
-		return false;
-	}
 
-	// done
 	version++;
 	return true;
 }
