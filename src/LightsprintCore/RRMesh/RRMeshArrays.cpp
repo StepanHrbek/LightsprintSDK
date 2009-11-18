@@ -30,11 +30,11 @@ RRMeshArrays::RRMeshArrays()
 
 RRMeshArrays::~RRMeshArrays()
 {
-	resizeMesh(0,0);
+	resizeMesh(0,0,NULL);
 }
 
 // false = complete deallocate, mesh resized to 0,0
-bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices)
+bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords)
 {
 	// delete old arrays
 	RR_SAFE_DELETE_ARRAY(triangle);
@@ -65,47 +65,33 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices)
 			tangent = new RRVec3[numVertices];
 			bitangent = new RRVec3[numVertices];
 		}
+		if (_texcoords)
+		{
+			for (unsigned i=0;i<_texcoords->size();i++)
+			{
+				if ((*_texcoords)[i]>1000000)
+				{
+					RRReporter::report(ERRO,"Texcoord numbers above million not supported (%d requested).\n",(*_texcoords)[i]);
+					throw std::bad_alloc();
+				}
+				if ((*_texcoords)[i]>=texcoord.size())
+				{
+					texcoord.resize((*_texcoords)[i]+1,NULL);
+				}
+				texcoord[(*_texcoords)[i]] = new RRVec2[numVertices];
+			}
+		}
 	}
 	catch(...)
 	{
 		RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
-		resizeMesh(0,0);
+		resizeMesh(0,0,NULL);
 		return false;
 	}
 
 	// done
 	version++;
 	return true;
-}
-
-// false = texcoord not added, mesh not changed
-bool RRMeshArrays::addTexcoord(unsigned _texcoord)
-{
-	if (_texcoord>1000000)
-	{
-		RRReporter::report(ERRO,"Texcoord numbers above million not supported (%d requested).\n",_texcoord);
-		return false;
-	}
-	try
-	{
-		if (_texcoord>=texcoord.size())
-		{
-			texcoord.resize(_texcoord+1,NULL);
-		}
-		texcoord[_texcoord] = new RRVec2[numVertices];
-	}
-	catch(...)
-	{
-		RRReporter::report(ERRO,"Allocation failed when adding texcoord (%d vertices).\n",numVertices);
-		return false;
-	}
-	return true;
-}
-
-void RRMeshArrays::deleteTexcoord(unsigned _texcoord)
-{
-	if (_texcoord<texcoord.size())
-		RR_SAFE_DELETE_ARRAY(texcoord[_texcoord]);
 }
 
 bool RRMeshArrays::save(const char* filename) const
@@ -135,17 +121,9 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	if (_indexed)
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices()))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords))
 		{
 			return false;
-		}
-		for (unsigned i=0;i<_texcoords.size();i++)
-		{
-			if (!addTexcoord(_texcoords[i]))
-			{
-				resizeMesh(0,0);
-				return false;
-			}
 		}
 
 		// copy
@@ -197,17 +175,9 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	else
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords))
 		{
 			return false;
-		}
-		for (unsigned i=0;i<_texcoords.size();i++)
-		{
-			if (!addTexcoord(_texcoords[i]))
-			{
-				resizeMesh(0,0);
-				return false;
-			}
 		}
 
 		// copy
