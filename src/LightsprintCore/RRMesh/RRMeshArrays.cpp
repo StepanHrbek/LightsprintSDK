@@ -37,33 +37,36 @@ RRMeshArrays::~RRMeshArrays()
 bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords)
 {
 	// delete old arrays
-	RR_SAFE_DELETE_ARRAY(triangle);
-	RR_SAFE_DELETE_ARRAY(position);
-	RR_SAFE_DELETE_ARRAY(normal);
-	RR_SAFE_DELETE_ARRAY(tangent);
-	RR_SAFE_DELETE_ARRAY(bitangent);
+	free(triangle);
+	triangle = NULL;
+	position = NULL;
+	normal = NULL;
+	tangent = NULL;
+	bitangent = NULL;
 	for (unsigned i=0;i<texcoord.size();i++)
 	{
-		RR_SAFE_DELETE_ARRAY(texcoord[i]);
+		texcoord[i] = NULL;
 	}
+
+	// calculate new size in bytes
+	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*(4*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2):0));
 
 	// remember new sizes
 	numTriangles = _numTriangles;
 	numVertices = _numVertices;
 
 	// allocate new arrays
+	if (newSize)
 	try
 	{
-		if (numTriangles)
-		{
-			triangle = new Triangle[numTriangles];
-		}
+		char* pool = (char*)malloc(newSize);
+		triangle = (Triangle*)pool; pool += numTriangles*sizeof(Triangle);
 		if (numVertices)
-		{	
-			position = new RRVec3[numVertices];
-			normal = new RRVec3[numVertices];
-			tangent = new RRVec3[numVertices];
-			bitangent = new RRVec3[numVertices];
+		{
+			position = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
+			normal = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
+			tangent = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
+			bitangent = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
 		}
 		if (_texcoords)
 		{
@@ -78,7 +81,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 				{
 					texcoord.resize((*_texcoords)[i]+1,NULL);
 				}
-				texcoord[(*_texcoords)[i]] = new RRVec2[numVertices];
+				texcoord[(*_texcoords)[i]] = (RRVec2*)pool; pool += numVertices*sizeof(RRVec2);
 			}
 		}
 	}
