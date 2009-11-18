@@ -49,7 +49,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	}
 
 	// calculate new size in bytes
-	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*(4*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2):0));
+	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*(4*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
 
 	// remember new sizes
 	numTriangles = _numTriangles;
@@ -60,13 +60,14 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	try
 	{
 		char* pool = (char*)malloc(newSize);
-		triangle = (Triangle*)pool; pool += numTriangles*sizeof(Triangle);
+		#define ALIGN16(x) (((x)+15)&(~15))
+		triangle = (Triangle*)pool; pool += ALIGN16(numTriangles*sizeof(Triangle));
 		if (numVertices)
 		{
-			position = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
-			normal = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
-			tangent = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
-			bitangent = (RRVec3*)pool; pool += numVertices*sizeof(RRVec3);
+			position = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+			normal = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+			tangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+			bitangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
 		}
 		if (_texcoords)
 		{
@@ -81,7 +82,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 				{
 					texcoord.resize((*_texcoords)[i]+1,NULL);
 				}
-				texcoord[(*_texcoords)[i]] = (RRVec2*)pool; pool += numVertices*sizeof(RRVec2);
+				texcoord[(*_texcoords)[i]] = (RRVec2*)pool; pool += ALIGN16(numVertices*sizeof(RRVec2));
 			}
 		}
 	}
