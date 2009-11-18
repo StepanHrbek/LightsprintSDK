@@ -553,45 +553,59 @@ void MeshArraysVBOs::render(RendererOfRRObject::Params& params)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// 1x1 textures
+// Helpers: 1x1 textures, temporaries for VBO update
 
-typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
-Buffer1x1Cache buffers1x1;
-
-static void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
+class Helpers
 {
-	rr::RRBuffer* buffer = property.texture;
-	if (buffer)
+public:
+	Helpers()
 	{
-		getTexture(buffer)->bindTexture();
+		numAcquired = 0;
 	}
-	else
+	void acquire()
 	{
-		unsigned color = RR_FLOAT2BYTE(property.color[0])+(RR_FLOAT2BYTE(property.color[1])<<8)+(RR_FLOAT2BYTE(property.color[2])<<16);
-		Buffer1x1Cache::iterator i = buffers1x1.find(color);
-		if (i!=buffers1x1.end())
+		numAcquired++;
+	}
+	void release()
+	{
+		if (!--numAcquired)
 		{
-			buffer = i->second;
+			for (Buffer1x1Cache::const_iterator i=buffers1x1.begin();i!=buffers1x1.end();++i)
+				delete i->second;
+		}
+	}
+	void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
+	{
+		rr::RRBuffer* buffer = property.texture;
+		if (buffer)
+		{
 			getTexture(buffer)->bindTexture();
 		}
 		else
 		{
-			buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
-			buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
-			getTexture(buffer,false,false)->reset(false,false);
-			buffers1x1[color] = buffer;
+			unsigned color = RR_FLOAT2BYTE(property.color[0])+(RR_FLOAT2BYTE(property.color[1])<<8)+(RR_FLOAT2BYTE(property.color[2])<<16);
+			Buffer1x1Cache::iterator i = buffers1x1.find(color);
+			if (i!=buffers1x1.end())
+			{
+				buffer = i->second;
+				getTexture(buffer)->bindTexture();
+			}
+			else
+			{
+				buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
+				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+				getTexture(buffer,false,false)->reset(false,false);
+				buffers1x1[color] = buffer;
+			}
 		}
 	}
-}
-
-static void free1x1()
-{
-	for (Buffer1x1Cache::const_iterator i=buffers1x1.begin();i!=buffers1x1.end();++i)
-		delete i->second;
-	buffers1x1.clear();
-}
-
-unsigned g_numRenderers = 0;
+	rr::RRVector<unsigned> texcoords;
+	rr::RRMeshArrays meshArrays;
+private:
+	typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
+	Buffer1x1Cache buffers1x1;
+	unsigned numAcquired;
+} g_helpers;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -635,19 +649,19 @@ void RendererOfRRObject::RenderedChannels::useMaterial(Program* program, const r
 	if (MATERIAL_DIFFUSE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		bindPropertyTexture(material->diffuseReflectance,0);
+		g_helpers.bindPropertyTexture(material->diffuseReflectance,0);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
-		bindPropertyTexture(material->diffuseEmittance,1);
+		g_helpers.bindPropertyTexture(material->diffuseEmittance,1);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
-		bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
+		g_helpers.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 }
 
@@ -667,7 +681,7 @@ MeshVBOs::MeshVBOs()
 	updatedOk[0] = false;
 	updatedOk[1] = false;
 
-	g_numRenderers++;
+	g_helpers.acquire();
 }
 
 MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed)
@@ -695,10 +709,9 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 		if (!indexed || !mesh->getPreImportTriangle(numTriangles-1).object)
 		{
 			const rr::RRMeshArrays* meshArrays = indexed ? dynamic_cast<const rr::RRMeshArrays*>(mesh) : NULL;
-			rr::RRMeshArrays meshArraysLocal;
 			if (!meshArrays)
 			{
-				rr::RRVector<unsigned> texcoords;
+				g_helpers.texcoords.clear();
 				// a) find all channels used by object
 				//_object->faceGroups.getTexcoords(texcoords,1,1,0,1,1);
 				// b) find all channels used in this draw call
@@ -713,15 +726,15 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 				{
 					rr::RRMesh::TriangleMapping mapping;
 					if (mesh->getTriangleMapping(0,mapping,i))
-						texcoords.push_back(i);
+						g_helpers.texcoords.push_back(i);
 				}
-				if (texcoords.size()>40)
+				if (g_helpers.texcoords.size()>40)
 				{
 					rr::RRReporter::report(rr::WARN,"getTriangleMapping() returns true for (nearly) all uv channels, please reduce number of uv channels to save memory.\n");
 				}
-				meshArraysLocal.reload(mesh,indexed,texcoords);
+				g_helpers.meshArrays.reload(mesh,indexed,g_helpers.texcoords);
 			}
-			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&meshArraysLocal,indexed);
+			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&g_helpers.meshArrays,indexed);
 		}
 	}
 
@@ -738,7 +751,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 
 MeshVBOs::~MeshVBOs()
 {
-	if (!--g_numRenderers) free1x1();
+	g_helpers.release();
 }
 
 
