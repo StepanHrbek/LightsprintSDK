@@ -22,6 +22,57 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// MeshArraysVBOs - RRMeshArrays data stored in VBOs for faster rendering
+
+class MeshArraysVBOs : public rr::RRUniformlyAllocatedNonCopyable
+{
+public:
+	MeshArraysVBOs();
+	~MeshArraysVBOs();
+
+	//! Updates mesh VBOs.
+	//! Must not be called inside display list (may create VBOs).
+	//! \param mesh
+	//!  VBOs are created/updated for this mesh.
+	//! \param indexed
+	//!  False = generates triangle list, numVertices == 3*mesh->getNumTriangles().
+	//!  True = generates indexed triangle list, numVertices == mesh->getNumVertices(), order specified by postimport vertex numbers
+	//! \return
+	//!  True if update succeeded or was not necessary. False if update failed.
+	bool update(const rr::RRMeshArrays* mesh, bool indexed);
+
+	//! Renders mesh VBOs.
+	//! Must not be called inside display list (may create textures).
+	void render(RendererOfRRObject::Params& params);
+
+private:
+	const void*   createdFromMesh;
+	unsigned      createdFromMeshVersion;
+	const void*   createdFromLightIndirectBuffer;
+	unsigned      createdFromLightIndirectVersion;
+	bool          createdIndexed;
+	bool          createdOk;
+
+	bool          privateMultiobjLightIndirectInited;
+	rr::RRBuffer* privateMultiobjLightIndirectBuffer; // allocated during render if render needs it
+
+	enum VBOIndex
+	{
+		VBO_index, // used only if indexed
+		VBO_position,
+		VBO_normal,
+		VBO_lightIndirectVcolor,
+		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
+		VBO_texcoordForced2D,
+		VBO_COUNT
+	};
+	GLuint VBO[VBO_COUNT];
+	rr::RRVector<GLuint> texcoordVBO;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // MeshVBOs - RRMesh data stored in indexed and !indexed VBOs
 
 class MeshVBOs : public rr::RRUniformlyAllocatedNonCopyable
@@ -37,8 +88,10 @@ private:
 	const void*           createdFromMesh[2];
 	unsigned              createdFromNumTriangles[2];
 	unsigned              createdFromNumVertices[2];
-	class MeshArraysVBOs* meshArraysVBOs[2];
+	bool                  updatedOk[2];
+	MeshArraysVBOs        meshArraysVBOs[2];
 };
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

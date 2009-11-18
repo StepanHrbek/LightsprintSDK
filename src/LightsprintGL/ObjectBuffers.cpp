@@ -23,51 +23,6 @@ static unsigned g_numVBOs = 0;
 //
 // MeshArraysVBOs - RRMeshArrays data stored in VBOs for faster rendering
 
-class MeshArraysVBOs : public rr::RRUniformlyAllocatedNonCopyable
-{
-public:
-	MeshArraysVBOs();
-	~MeshArraysVBOs();
-
-	//! Updates mesh VBOs.
-	//! Must not be called inside display list (may create VBOs).
-	//! \param mesh
-	//!  VBOs are created/updated for this mesh.
-	//! \param indexed
-	//!  False = generates triangle list, numVertices == 3*mesh->getNumTriangles().
-	//!  True = generates indexed triangle list, numVertices == mesh->getNumVertices(), order specified by postimport vertex numbers
-	//! \return
-	//!  True if update succeeded or was not necessary. False if update failed.
-	bool update(const rr::RRMeshArrays* mesh, bool indexed);
-
-	//! Renders mesh VBOs.
-	//! Must not be called inside display list (may create textures).
-	void render(RendererOfRRObject::Params& params);
-
-private:
-	const void*   createdFromMesh;
-	unsigned      createdFromMeshVersion;
-	const void*   createdFromLightIndirectBuffer;
-	unsigned      createdFromLightIndirectVersion;
-	bool          createdIndexed;
-
-	bool          privateMultiobjLightIndirectInited;
-	rr::RRBuffer* privateMultiobjLightIndirectBuffer; // allocated during render if render needs it
-
-	enum VBOIndex
-	{
-		VBO_index, // used only if indexed
-		VBO_position,
-		VBO_normal,
-		VBO_lightIndirectVcolor,
-		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
-		VBO_texcoordForced2D,
-		VBO_COUNT
-	};
-	GLuint VBO[VBO_COUNT];
-	rr::RRVector<GLuint> texcoordVBO;
-};
-
 MeshArraysVBOs::MeshArraysVBOs()
 {
 	createdFromMesh = NULL;
@@ -709,8 +664,8 @@ MeshVBOs::MeshVBOs()
 	createdFromNumTriangles[1] = 0;
 	createdFromNumVertices[0] = 0;
 	createdFromNumVertices[1] = 0;
-	meshArraysVBOs[0] = NULL;
-	meshArraysVBOs[1] = NULL;
+	updatedOk[0] = false;
+	updatedOk[1] = false;
 
 	g_numRenderers++;
 }
@@ -739,8 +694,6 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 		//  but 25% more memory for VBOs is too expensive)
 		if (!indexed || !mesh->getPreImportTriangle(numTriangles-1).object)
 		{
-			if (!meshArraysVBOs[index])
-				meshArraysVBOs[index] = new MeshArraysVBOs;
 			const rr::RRMeshArrays* meshArrays = indexed ? dynamic_cast<const rr::RRMeshArrays*>(mesh) : NULL;
 			rr::RRMeshArrays meshArraysLocal;
 			if (!meshArrays)
@@ -768,27 +721,23 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed
 				}
 				meshArraysLocal.reload(mesh,indexed,texcoords);
 			}
-			if (!meshArraysVBOs[index]->update(meshArrays?meshArrays:&meshArraysLocal,indexed))
-				RR_SAFE_DELETE(meshArraysVBOs[index]);
+			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&meshArraysLocal,indexed);
 		}
 	}
 
 	// RRMeshArrays update
-	if (indexed && meshArraysVBOs[index])
+	if (indexed && updatedOk[index])
 	{
 		const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
 		if (meshArrays)
-			meshArraysVBOs[index]->update(meshArrays,indexed);
+			meshArraysVBOs[index].update(meshArrays,indexed);
 	}
 
-	return meshArraysVBOs[index];
+	return updatedOk[index] ? &meshArraysVBOs[index] : NULL;
 }
 
 MeshVBOs::~MeshVBOs()
 {
-	delete meshArraysVBOs[1];
-	delete meshArraysVBOs[0];
-
 	if (!--g_numRenderers) free1x1();
 }
 
