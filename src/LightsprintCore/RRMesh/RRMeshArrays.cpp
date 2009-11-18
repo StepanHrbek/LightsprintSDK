@@ -131,7 +131,8 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		}
 
 		// copy
-		bool* filled = new bool[numVertices];
+		bool filledStatic[256];
+		bool* filled = (numVertices<=256)?filledStatic:new bool[numVertices];
 		#if defined(_MSC_VER) && (_MSC_VER<1500)
 			#pragma omp parallel for // 2005 SP1 has broken if
 		#else
@@ -180,7 +181,8 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		{
 			if (!filled[v]) unfilled++;
 		}
-		delete[] filled;
+		if (filled!=filledStatic)
+			delete[] filled;
 		if (unfilled)
 			RRReporter::report(WARN,"RRMeshArrays::reload(): %d/%d unused vertices.\n",unfilled,numVertices);
 	}
