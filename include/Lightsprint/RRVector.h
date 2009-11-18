@@ -29,8 +29,8 @@ public:
 	RRVector()
 	{
 		numUsed = 0;
-		numAllocated = 16;
-		c = (C*)malloc(sizeof(C)*numAllocated);
+		numAllocated = 0;
+		c = NULL;
 	}
 	//! Creates copy of vector.
 	//! Uses memcpy to copy elements (unlike std::vector).
@@ -38,8 +38,13 @@ public:
 	{
 		numUsed = a.numUsed;
 		numAllocated = a.numAllocated;
-		c = (C*)malloc(sizeof(C)*numAllocated);
-		memcpy(c,a.c,sizeof(C)*numUsed);
+		if (numAllocated)
+		{
+			c = (C*)malloc(sizeof(C)*numAllocated);
+			memcpy(c,a.c,sizeof(C)*numUsed);
+		}
+		else
+			c = NULL;
 	}
 	//! Assigns vector.
 	//! Uses memcpy to copy elements (unlike std::vector).
@@ -48,8 +53,13 @@ public:
 		free(c);
 		numUsed = a.numUsed;
 		numAllocated = a.numAllocated;
-		c = (C*)malloc(sizeof(C)*numAllocated);
-		memcpy(c,a.c,sizeof(C)*numUsed);
+		if (numAllocated)
+		{
+			c = (C*)malloc(sizeof(C)*numAllocated);
+			memcpy(c,a.c,sizeof(C)*numUsed);
+		}
+		else
+			c = NULL;
 		return *this;
 	}
 	//! Resizes vector, adding or removing elements at the end.
@@ -67,7 +77,14 @@ public:
 	{
 		if (numUsed==numAllocated)
 		{
-			numAllocated *= 2;
+			if (!numAllocated)
+			{
+				numAllocated = 16;
+			}
+			else
+			{
+				numAllocated *= 2;
+			}
 			c = (C*)std::realloc(c,sizeof(C)*numAllocated);
 		}
 		c[numUsed++] = a;
