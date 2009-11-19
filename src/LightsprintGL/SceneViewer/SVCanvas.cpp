@@ -150,12 +150,14 @@ void SVCanvas::createContext()
 
 	if (!svs.skyboxFilename.empty())
 	{
+		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
 		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
 	}
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	if (solver->getStaticObjects().size())
 	{
+		rr::RRReportInterval report(rr::INF3,"Setting illumination type...\n");
 		switch (svs.renderLightIndirect)
 		{
 			case LI_REALTIME_FIREBALL_LDM: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM)); break;
@@ -165,6 +167,7 @@ void SVCanvas::createContext()
 	}
 
 	// init rest
+	rr::RRReportInterval report(rr::INF3,"Initializing the rest...\n");
 	lv = new SVLightmapViewer(svs.pathToShaders);
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;

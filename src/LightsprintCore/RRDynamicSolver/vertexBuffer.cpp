@@ -163,7 +163,8 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 //!  For higher quality final gathered results, use updateLightmaps().
 unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getStaticObjects().size());
+	if (objectNumber<10 || (objectNumber<100 && !(objectNumber%10)) || (objectNumber<1000 && !(objectNumber%100)) || !(objectNumber%1000))
+		RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getStaticObjects().size());
 
 	if (!vertexBuffer || objectNumber>=(int)getStaticObjects().size() || objectNumber<-1)
 	{
