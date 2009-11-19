@@ -579,10 +579,13 @@ public:
 		rr::RRBuffer* buffer = property.texture;
 		if (buffer)
 		{
+			// shader expects texture and material provides it
 			getTexture(buffer)->bindTexture();
 		}
 		else
 		{
+			// shader expects texture but material provides only color
+			// lets create 1x1 texture for given color
 			unsigned color = RR_FLOAT2BYTE(property.color[0])+(RR_FLOAT2BYTE(property.color[1])<<8)+(RR_FLOAT2BYTE(property.color[2])<<16);
 			Buffer1x1Cache::iterator i = buffers1x1.find(color);
 			if (i!=buffers1x1.end())
@@ -599,8 +602,8 @@ public:
 			}
 		}
 	}
-	rr::RRVector<unsigned> texcoords;
-	rr::RRMeshArrays meshArrays;
+	rr::RRVector<unsigned> texcoords; // using this [in MeshVBOs::getMeshArraysVBOs] instead of local variable saves 1 temp allocation
+	rr::RRMeshArrays meshArrays; // using this [in MeshVBOs::getMeshArraysVBOs] instead of local variable saves 2 temp allocations
 private:
 	typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
 	Buffer1x1Cache buffers1x1;
