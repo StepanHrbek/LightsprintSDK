@@ -63,6 +63,10 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	numVertices = _numVertices;
 
 	// fill pointers
+	for (unsigned i=0;i<texcoord.size();i++)
+	{
+		texcoord[i] = NULL;
+	}
 	if (!newSize)
 	{
 		triangle = NULL;
@@ -70,10 +74,6 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		normal = NULL;
 		tangent = NULL;
 		bitangent = NULL;
-		for (unsigned i=0;i<texcoord.size();i++)
-		{
-			texcoord[i] = NULL;
-		}
 	}
 	else
 	{
