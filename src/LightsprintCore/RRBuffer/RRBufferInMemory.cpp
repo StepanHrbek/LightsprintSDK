@@ -59,6 +59,12 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 		RRReporter::report(WARN,"Invalid parameters in RRBuffer::create(,%d,%d,%d,,,)%s\n",_width,_height,_depth,(_type==BT_VERTEX_BUFFER && !_width)?", object with 0 vertices?":".");
 		return false;
 	}
+	if (!_data && data && _type==type && _width==width && _height==height && _depth==depth && _format==format)
+	{
+		// optimalization: quit if buffer already has requested properties
+		scaled = _scaled;
+		return true;
+	}
 	if ((_format==BF_RGB || _format==BF_RGBA) && !_scaled)
 	{
 //		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
