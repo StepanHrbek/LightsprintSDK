@@ -49,15 +49,10 @@ public:
 	virtual ~RRScene();
 
 	//! Returns collection of objects in scene.
-	//! It should be empty collection for intentionally empty scene,
-	//! but NULL after failed scene load.
-	virtual const RRObjects* getObjects();
+	virtual const RRObjects& getObjects();
 	//! Returns collection of lights in scene.
-	//! It should be empty collection for scenes without lights,
-	//! but NULL for scene formats that don't support lights at all.
-	virtual const RRLights* getLights();
+	virtual const RRLights& getLights();
 	//! Returns scene environment, skybox.
-	//! This is often NULL as scene formats usually don't specify environment.
 	virtual const RRBuffer* getEnvironment();
 
 	//! Template of custom scene loader.
@@ -78,6 +73,11 @@ public:
 	//! NULL is returned if no loaders were registered.
 	static const char* getSupportedExtensions();
 
+protected:
+	//! Created in RRScene subclass, deleted automatically in base RRScene destructor.
+	RRObjects* objects;
+	//! Created in RRScene subclass, deleted automatically in base RRScene destructor.
+	RRLights* lights;
 private:
 	RRScene* implementation;
 };

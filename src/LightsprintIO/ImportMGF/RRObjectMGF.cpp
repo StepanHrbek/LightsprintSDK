@@ -344,16 +344,6 @@ public:
 		scene->objects = adaptObjectsFromMGF(filename);
 		return scene;
 	}
-	virtual const RRObjects* getObjects()
-	{
-		return objects;
-	}
-	virtual ~RRSceneMGF()
-	{
-		delete objects;
-	}
-private:
-	RRObjects*             objects;
 };
 
 

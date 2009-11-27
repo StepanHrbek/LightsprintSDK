@@ -409,10 +409,7 @@ int main(int argc, char **argv)
 	//
 	// set solver geometry
 	//
-	if (scene.getObjects())
-	{
-		solver->setStaticObjects(*scene.getObjects(), NULL);
-	}
+	solver->setStaticObjects(scene.getObjects(), NULL);
 
 	//
 	// set solver lights
@@ -423,10 +420,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		if (scene.getLights())
-		{
-			solver->setLights(*scene.getLights());
-		}
+		solver->setLights(scene.getLights());
 		rr::RRBuffer* environment = NULL;
 		if (globalParameters.skyBox)
 		{
@@ -442,17 +436,14 @@ int main(int argc, char **argv)
 	//
 	// allocate layers (decide resolution, format)
 	//
-	if (scene.getObjects())
+	for (unsigned objectIndex=0;objectIndex<scene.getObjects().size();objectIndex++)
 	{
-		for (unsigned objectIndex=0;objectIndex<scene.getObjects()->size();objectIndex++)
-		{
-			// take per-object parameters
-			Parameters objectParameters(argc,argv,objectIndex);
-			// query size, format etc
-			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
-			// allocate
-			objectParameters.layersCreate((*scene.getObjects())[objectIndex]->illumination);
-		}
+		// take per-object parameters
+		Parameters objectParameters(argc,argv,objectIndex);
+		// query size, format etc
+		scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
+		// allocate
+		objectParameters.layersCreate(scene.getObjects()[objectIndex]->illumination);
 	}
 
 	//
@@ -489,19 +480,19 @@ int main(int argc, char **argv)
 	//
 	// save layers
 	//
-	if (globalParameters.buildQuality && scene.getObjects() && !solver->aborting)
+	if (globalParameters.buildQuality && !solver->aborting)
 	{
 		rr::RRReportInterval report(rr::INF1,"Saving results...\n");
 		unsigned saved = 0;
 
-		for (unsigned objectIndex=0;objectIndex<scene.getObjects()->size();objectIndex++)
+		for (unsigned objectIndex=0;objectIndex<scene.getObjects().size();objectIndex++)
 		{
 			// take per-object parameters
 			Parameters objectParameters(argc,argv,objectIndex);
 			// query filename
-			scene.getObjects()->recommendLayerParameters(objectParameters.layerParameters);
+			scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
 			// save
-			saved += objectParameters.layersSave((*scene.getObjects())[objectIndex]->illumination);
+			saved += objectParameters.layersSave(scene.getObjects()[objectIndex]->illumination);
 		}
 
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);

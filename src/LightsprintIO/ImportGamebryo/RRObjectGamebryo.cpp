@@ -1949,8 +1949,6 @@ public:
 		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,emissiveMultiplier);
 	}
 
-	virtual const RRObjects* getObjects() {return objects;}
-	virtual const RRLights* getLights() {return lights;}
 	virtual const RRBuffer* getEnvironment() {return environment;}
 
 protected:
@@ -1958,8 +1956,6 @@ protected:
 	void gamebryoShutdown();
 	void updateCastersReceiversCache();
 
-	RRObjects*                objects;
-	RRLights*                 lights;
 	RRBuffer*                 environment;
 	bool                      initGamebryo;
 	NiScene*                  pkEntityScene; // used only in .gsa
@@ -1970,8 +1966,6 @@ protected:
 RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
 {
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
-	objects = NULL;
-	lights = NULL;
 	environment = NULL;
 	initGamebryo = _initGamebryo;
 	pkEntityScene = NULL;
@@ -2023,8 +2017,6 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 #if GAMEBRYO_MAJOR_VERSION==3
 RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 {
-	objects = NULL;
-	lights = NULL;
 	environment = NULL;
 	initGamebryo = false;
 	pkEntityScene = NULL;
@@ -2118,8 +2110,6 @@ RRSceneGamebryo::~RRSceneGamebryo()
 	}
 #endif
 #endif
-	delete lights;
-	delete objects;
 	if (pkEntityScene) pkEntityScene->DecRefCount();
 
 	gamebryoShutdown();

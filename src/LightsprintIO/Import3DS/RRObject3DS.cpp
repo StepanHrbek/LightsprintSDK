@@ -236,7 +236,6 @@ public:
 		RRScene3DS* scene = new RRScene3DS;
 		if (!scene->scene_3ds.Load(filename,scale))
 		{
-			scene->objects = NULL;
 			delete scene;
 			RRReporter::report(WARN,"Failed loading scene %s.\n");
 			return NULL;
@@ -247,17 +246,8 @@ public:
 			return scene;
 		}
 	}
-	virtual const RRObjects* getObjects()
-	{
-		return objects;
-	}
-	virtual ~RRScene3DS()
-	{
-		delete objects;
-	}
 private:
-	RRObjects*                 objects;
-	Model_3DS                  scene_3ds;
+	Model_3DS scene_3ds;
 };
 
 

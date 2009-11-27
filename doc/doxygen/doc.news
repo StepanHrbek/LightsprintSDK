@@ -62,6 +62,8 @@ CHANGES
 - simplified scene adapters
   - worldMatrix is stored in base RRObject, remove worldMatrix and getWorldMatrix() from your derived classes
   - illumination is stored in base RRObject, remove illumination and getIllumination() from your derived classes
+  - objects and lights are stored in RRScene, remove your objects/lights variables and getLights()/getObjects() functions and objects/lights deleting from your derived classes
+  - RRScene::getObjects() and RRScene::getLights() return reference, user doesn't have to check for NULL
 - cleanup in RRDynamicSolver
   - removed RRIlluminatedObject
     - RRObjects is now collection of RRObject

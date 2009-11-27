@@ -234,16 +234,6 @@ public:
 		scene->objects = adaptObjectsFromOBJ(filename);
 		return scene;
 	}
-	virtual const RRObjects* getObjects()
-	{
-		return objects;
-	}
-	virtual ~RRSceneOBJ()
-	{
-		delete objects;
-	}
-private:
-	RRObjects*             objects;
 };
 
 

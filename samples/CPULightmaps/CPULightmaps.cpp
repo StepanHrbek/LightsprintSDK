@@ -59,8 +59,8 @@ int main(int argc, char **argv)
 
 	// load scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
-	solver->setStaticObjects(*scene.getObjects(), NULL);
-	solver->setLights(*scene.getLights());
+	solver->setStaticObjects(scene.getObjects(), NULL);
+	solver->setLights(scene.getLights());
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)

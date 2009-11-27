@@ -447,7 +447,6 @@ public:
 		RRSceneQuake3* scene = new RRSceneQuake3;
 		if (!readMap(filename,scene->scene_bsp))
 		{
-			scene->objects = NULL;
 			delete scene;
 			RRReporter::report(WARN,"Failed loading scene %s.\n");
 			return NULL;
@@ -462,18 +461,12 @@ public:
 			return scene;
 		}
 	}
-	virtual const RRObjects* getObjects()
-	{
-		return objects;
-	}
 	virtual ~RRSceneQuake3()
 	{
-		delete objects;
 		freeMap(scene_bsp);
 	}
 private:
-	RRObjects*                 objects;
-	TMapQ3                     scene_bsp;
+	TMapQ3 scene_bsp;
 };
 
 

@@ -409,7 +409,7 @@ int main(int argc, char **argv)
 
 	// load scene
 	scene = new rr::RRScene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
-	solver->setStaticObjects(*scene->getObjects(), NULL);
+	solver->setStaticObjects(scene->getObjects(), NULL);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
@@ -426,9 +426,9 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init lights
-	for (unsigned i=0;i<scene->getLights()->size();i++)
-		(*scene->getLights())[i]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
-	solver->setLights(*scene->getLights());
+	for (unsigned i=0;i<scene->getLights().size();i++)
+		scene->getLights()[i]->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	solver->setLights(scene->getLights());
 
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
 	solver->loadFireball(NULL,true) || solver->buildFireball(350,NULL);

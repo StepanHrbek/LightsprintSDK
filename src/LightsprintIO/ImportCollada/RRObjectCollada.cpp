@@ -1070,8 +1070,6 @@ public:
 			if (wrongVersion)
 				RRReporter::report(ERRO,"Collada %d.%d.%d is not fully supported, please use Collada 1.4.1. We recommend OpenCollada plugins for Max and Maya, http://opencollada.org. (%s)\n",version.major,version.minor,version.revision,filename);
 			RRReporter::report(wrongVersion?WARN:ERRO,"%s\n",errorHandler.GetErrorString());
-			scene->objects = NULL;
-			scene->lights = NULL;
 			delete scene;
 			return NULL;
 		}
@@ -1087,25 +1085,13 @@ public:
 			return scene;
 		}
 	}
-	virtual const RRObjects* getObjects()
-	{
-		return objects;
-	}
-	virtual const RRLights* getLights()
-	{
-		return lights;
-	}
 	virtual ~RRSceneCollada()
 	{
-		delete objects;
-		delete lights;
 		delete scene_dae;
 		FCollada::Release();
 	}
 
 private:
-	RRObjects*                 objects;
-	RRLights*                  lights;
 	FCDocument*                scene_dae;
 };
 

@@ -45,6 +45,8 @@ static bool extensionMatches(const char* filename, const char* extension)
 RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 {
 	implementation = NULL;
+	objects = NULL;
+	lights = NULL;
 	if (!filename)
 	{
 		// don't warn, it's documented as a valid way to create empty scene
@@ -106,17 +108,25 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 
 RRScene::~RRScene()
 {
+	delete lights;
+	delete objects;
 	delete implementation;
 }
 
-const RRObjects* RRScene::getObjects()
+const RRObjects& RRScene::getObjects()
 {
-	return implementation ? implementation->getObjects() : NULL;
+	if (implementation) return implementation->getObjects();
+	if (objects) return *objects;
+	static RRObjects noObjects;
+	return noObjects;
 }
 
-const RRLights* RRScene::getLights()
+const RRLights& RRScene::getLights()
 {
-	return implementation ? implementation->getLights() : NULL;
+	if (implementation) return implementation->getLights();
+	if (lights) return *lights;
+	static RRLights noLights;
+	return noLights;
 }
 
 const RRBuffer* RRScene::getEnvironment()

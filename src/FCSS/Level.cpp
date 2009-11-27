@@ -23,7 +23,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	bugs = NULL;
 #endif
 	rendererOfScene = NULL;
-	objects = NULL;
 
 	// init radiosity solver
 	solver = createSolver();
@@ -41,9 +40,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	}*/
 
 	scene = new rr::RRScene(pilot.setup->filename, pilot.setup->scale);
-	objects = scene->getObjects();
 
-	if (!objects || !objects->size())
+	if (!scene->getObjects().size())
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",pilot.setup->filename);
 		error("",false);
@@ -62,7 +60,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
-	solver->setStaticObjects(*objects,&sp);
+	solver->setStaticObjects(scene->getObjects(),&sp);
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

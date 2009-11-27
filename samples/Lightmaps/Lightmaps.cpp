@@ -507,7 +507,7 @@ int main(int argc, char **argv)
 
 	// load scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
-	solver->setStaticObjects(*scene.getObjects(), NULL);
+	solver->setStaticObjects(scene.getObjects(), NULL);
 
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");

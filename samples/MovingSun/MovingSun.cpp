@@ -509,10 +509,10 @@ int main(int argc, char **argv)
 
 	// load scene
 	scene = new rr::RRScene(sceneFilename,1);
-	if (!scene->getObjects())
+	if (!scene->getObjects().size())
 		error("No objects in scene.",false);
 
-	solver->setStaticObjects(*scene->getObjects(), NULL);
+	solver->setStaticObjects(scene->getObjects(), NULL);
 
 	groundLevel = solver->getMultiObjectCustom()->getCollider()->getMesh()->findGroundLevel();
 	solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
