@@ -44,7 +44,7 @@ public:
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
 	RRScene(const char* filename, float scale = 1, bool* aborting = NULL, float emissiveMultiplier = 1);
 	//! Creates empty scene.
-	RRScene() {implementation = NULL;}
+	RRScene();
 	//! Deletes scene including all objects and lights.
 	virtual ~RRScene();
 

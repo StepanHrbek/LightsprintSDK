@@ -42,6 +42,13 @@ static bool extensionMatches(const char* filename, const char* extension)
 //
 // RRScene
 
+RRScene::RRScene()
+{
+	implementation = NULL;
+	objects = NULL;
+	lights = NULL;
+}
+
 RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 {
 	implementation = NULL;
