@@ -31,7 +31,7 @@ RRMeshArrays::RRMeshArrays()
 
 RRMeshArrays::~RRMeshArrays()
 {
-	resizeMesh(0,0,NULL);
+	free(triangle);
 }
 
 // false = complete deallocate, mesh resized to 0,0
@@ -193,8 +193,9 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 		}
 		if (filled!=filledStatic)
 			delete[] filled;
-		if (unfilled)
-			RRReporter::report(WARN,"RRMeshArrays::reload(): %d/%d unused vertices.\n",unfilled,numVertices);
+		// happens too often, takes ages in scene with 23k meshes with unused vertices
+		//if (unfilled)
+		//	RRReporter::report(WARN,"RRMeshArrays::reload(): %d/%d unused vertices.\n",unfilled,numVertices);
 	}
 	else
 	{
