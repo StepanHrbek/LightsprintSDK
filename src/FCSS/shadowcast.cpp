@@ -17,9 +17,7 @@ unsigned INSTANCES_PER_PASS;
 #define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
-//#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed s ohromnymi vertex buffery. pri pouziti VBO temer nema vliv
-//#define THREE_ONE
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
@@ -618,11 +616,7 @@ static void drawHelpMessage(int screen)
 		NULL
 		},
 		{
-#ifdef THREE_ONE
-		PRODUCT_NAME,
-#else
 		PRODUCT_NAME ", (C) Stepan Hrbek",
-#endif
 		"",
 		"Controls:",
 		" space         - pause/play",
@@ -640,11 +634,6 @@ static void drawHelpMessage(int screen)
 		" +,-,*,/       - brightness/contrast",
 		" 1,2,3,4...    - move n-th object",
 		" enter         - maximize window",
-#ifdef THREE_ONE
-		"",
-		"For more information on Realtime Global Illumination",
-		"or Penumbra Shadows, visit http://lightsprint.com",
-#endif
 /*
 		" 'f'   - toggle showing spotlight frustum",
 		" 'a'   - cycle through linear, rectangular and circular area light",

@@ -13,8 +13,6 @@
 class DynamicObjects
 {
 public:
-	// creates empty pool, with 0 objects
-	DynamicObjects();
 	~DynamicObjects();
 	
 	// fills pool with objects
