@@ -2,7 +2,6 @@
 #define LEVEL_H
 
 #include "AnimationEditor.h"
-#include "Autopilot.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/IO/ImportScene.h"
@@ -17,7 +16,7 @@ public:
 	Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor);
 	~Level();
 
-	Autopilot pilot;
+	LevelSetup* setup;
 	AnimationEditor* animationEditor;
 	rr::RRScene* scene;
 	rr_gl::RRDynamicSolverGL* solver;

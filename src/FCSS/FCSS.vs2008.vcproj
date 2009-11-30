@@ -678,14 +678,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Autopilot.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Autopilot.h"
-			>
-		</File>
-		<File
 			RelativePath=".\DemoPlayer.cpp"
 			>
 		</File>

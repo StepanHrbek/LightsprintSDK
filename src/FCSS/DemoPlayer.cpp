@@ -135,7 +135,7 @@ DemoPlayer::~DemoPlayer()
 	delete skyMap;
 	for (unsigned i=0;i<scenes.size();i++)
 	{
-		LevelSetup* setup = scenes[i]->pilot.setup;
+		LevelSetup* setup = scenes[i]->setup;
 		delete scenes[i];
 		delete setup;
 	}
@@ -276,7 +276,7 @@ float DemoPlayer::getPartLength(unsigned part) const
 		part = nextSceneIndex-1;
 	if (part>=scenes.size())
 		return 0;
-	return scenes[part]->pilot.setup->getTotalTime();
+	return scenes[part]->setup->getTotalTime();
 }
 
 float DemoPlayer::getMusicPosition() const

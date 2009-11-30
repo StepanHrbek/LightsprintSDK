@@ -99,7 +99,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #endif
 #include "DynamicObject.h"
 #include "AnimationEditor.h"
-#include "Autopilot.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
 #include "../LightsprintCore/RRDynamicSolver/report.h"
@@ -344,13 +343,13 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	else
 	{
 		// playing -> show precomputed layers (with fallback to realtime layer 0)
-		//const AnimationFrame* frameBlended = level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition());
-		//demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frameBlended,true);
+		//const AnimationFrame* frameBlended = level->setup->getFrameByTime(demoPlayer->getPartPosition());
+		//demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frameBlended,true);
 		float transitionDone = 0;
 		float transitionTotal = 0;
-		unsigned frameIndex0 = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
-		const AnimationFrame* frame0 = level->pilot.setup->getFrameByIndex(frameIndex0);
-		const AnimationFrame* frame1 = level->pilot.setup->getFrameByIndex(frameIndex0+1);
+		unsigned frameIndex0 = level->setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+		const AnimationFrame* frame0 = level->setup->getFrameByIndex(frameIndex0);
+		const AnimationFrame* frame1 = level->setup->getFrameByIndex(frameIndex0+1);
 		level->rendererOfScene->useOriginalSceneBlend(frame0?frame0->layerNumber:0,frame1?frame1->layerNumber:0,transitionTotal?transitionDone/transitionTotal:0,0,solutionVersion);
 	}
 #endif
@@ -359,7 +358,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
-	level->rendererOfScene->setClipPlane(level->pilot.setup->waterLevel);
+	level->rendererOfScene->setClipPlane(level->setup->waterLevel);
 
 	level->rendererOfScene->setLDM(uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX );
 
@@ -387,7 +386,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	lights.push_back(realtimeLight);
 	realtimeLight->setProjectedTexture(demoPlayer->getProjector(currentFrame.projectorIndex));
 	glDisable(GL_CULL_FACE); // make robot 2sided, costs approx 1% of fps
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted,level->pilot.setup->waterLevel);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted,level->setup->waterLevel);
 }
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -427,9 +426,9 @@ void drawEyeViewSoftShadowed(void)
 
 #ifdef SUPPORT_WATER
 		// update water reflection
-		if (water && level->pilot.setup->renderWater)
+		if (water && level->setup->renderWater)
 		{
-			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->pilot.setup->waterLevel);
+			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->setup->waterLevel);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
@@ -501,7 +500,7 @@ void drawEyeViewSoftShadowed(void)
 
 #ifdef SUPPORT_WATER
 		// render water
-		if (water && level->pilot.setup->renderWater)
+		if (water && level->setup->renderWater)
 		{
 			water->render(100,rr::RRVec3(0),rr::RRVec4(0.1f,0.25f,0.35f,0.5f),rr::RRVec3(0),rr::RRVec3(0));
 		}
@@ -513,7 +512,7 @@ void updateThumbnail(AnimationFrame& frame)
 {
 	//rr::RRReporter::report(rr::INF1,"Updating thumbnail.\n");
 	// set frame
-	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
+	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,frame,true);
 	// calculate
 	level->solver->calculate();
 	// render into thumbnail
@@ -736,18 +735,18 @@ static void drawHelpMessage(int screen)
 			// paused: frame index = editor cursor
 			frameIndex = level->animationEditor->frameCursor;
 			transitionDone = 0;
-			AnimationFrame* frame = level->pilot.setup->getFrameByIndex(frameIndex); // muze byt NULL (kurzor za koncem)
+			AnimationFrame* frame = level->setup->getFrameByIndex(frameIndex); // muze byt NULL (kurzor za koncem)
 			transitionTotal = frame ? frame->transitionToNextTime : 0;
 		}
 		else
 		{
 			// playing: frame index computed from current time
-			frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+			frameIndex = level->setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
 		}
-		const AnimationFrame* frame = level->pilot.setup->getFrameByIndex(frameIndex+1);
+		const AnimationFrame* frame = level->setup->getFrameByIndex(frameIndex+1);
 		sprintf(buf,"scene %d/%d, frame %d(%d)/%d, %.1f/%.1fs",
 			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
-			frameIndex+1,frame?frame->layerNumber:0,level->pilot.setup->frames.size(),
+			frameIndex+1,frame?frame->layerNumber:0,level->setup->frames.size(),
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
 		sprintf(buf,"bright %.1f, gamma %.1f",
@@ -869,18 +868,18 @@ void setupSceneDynamicAccordingToCursor(Level* level)
 {
 	// novy kod: jsme paused, takze zobrazime co je pod kurzorem, neridime se casem
 	// makame jen pokud vubec existuji framy (pokud neex, nechame kameru jak je)
-	if (level->pilot.setup->frames.size())
+	if (level->setup->frames.size())
 	{
 		// pokud je kurzor za koncem, vezmeme posledni frame
-		unsigned existingFrameNumber = RR_MIN(level->animationEditor->frameCursor,(unsigned)level->pilot.setup->frames.size()-1);
-		AnimationFrame* frame = level->pilot.setup->getFrameByIndex(existingFrameNumber);
+		unsigned existingFrameNumber = RR_MIN(level->animationEditor->frameCursor,(unsigned)level->setup->frames.size()-1);
+		AnimationFrame* frame = level->setup->getFrameByIndex(existingFrameNumber);
 		if (frame)
-			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup, *frame, true);
+			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup, *frame, true);
 		else
 			RR_ASSERT(0); // tohle se nemelo stat
 	}
 	// stary kod: podle casu vybiral spatny frame v pripade ze framy mely 0sec
-	//demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
+	//demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->setup, demoPlayer->getPartPosition());
 }
 
 void special(int c, int x, int y)
@@ -899,7 +898,6 @@ void special(int c, int x, int y)
 		{
 			setupSceneDynamicAccordingToCursor(level);
 		}
-		level->pilot.reportInteraction();
 		needRedisplay = 1;
 		return;
 	}
@@ -1012,7 +1010,6 @@ void keyboard(unsigned char c, int x, int y)
 		{
 			setupSceneDynamicAccordingToCursor(level);
 		}
-		level->pilot.reportInteraction();
 		needRedisplay = 1;
 		return;
 	}
@@ -1142,7 +1139,7 @@ void keyboard(unsigned char c, int x, int y)
 				if (!level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 				{
 					float cameraLevel = currentFrame.eye.pos[1];
-					float waterLevel = level->pilot.setup->waterLevel;
+					float waterLevel = level->setup->waterLevel;
 					float levelChangeIn1mDistance = dir[1];
 					float distance = levelChangeIn1mDistance ? (waterLevel-cameraLevel)/levelChangeIn1mDistance : 10;
 					if (distance<0) distance=10;
@@ -1150,10 +1147,10 @@ void keyboard(unsigned char c, int x, int y)
 				}
 				// keys 1/2/3... index one of few sceneobjects
 				unsigned selectedObject_indexInScene = c-'1';
-				if (selectedObject_indexInScene<level->pilot.setup->objects.size())
+				if (selectedObject_indexInScene<level->setup->objects.size())
 				{
 					// we have more dynaobjects
-					selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
+					selectedObject_indexInDemo = level->setup->objects[selectedObject_indexInScene];
 					if (!modif)
 					{
 						if (demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray->hitPoint3d)
@@ -1318,8 +1315,8 @@ void mainMenu(int item)
 			break;
 #ifdef SUPPORT_WATER
 		case ME_TOGGLE_WATER:
-			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
-			level->pilot.setup->waterLevel = 0;//currentFrame.eye.pos.y-1;
+			level->setup->renderWater = !level->setup->renderWater;
+			level->setup->waterLevel = 0;//currentFrame.eye.pos.y-1;
 			break;
 #endif
 		case ME_TOGGLE_INFO:
@@ -1336,7 +1333,7 @@ void mainMenu(int item)
 
 		case ME_NEXT_SCENE:
 			if (supportEditor)
-				level->pilot.setup->save();
+				level->setup->save();
 			//delete level;
 			level = NULL;
 			seekInMusicAtSceneSwap = true;
@@ -1382,7 +1379,6 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if (level && state==GLUT_DOWN) level->pilot.reportInteraction();
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		modeMovingEye = !modeMovingEye;
@@ -1411,7 +1407,6 @@ void passive(int x, int y)
 	RR_LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
 	y -= winHeight/2;
-	if (level && (x || y)) level->pilot.reportInteraction();
 	if (x || y)
 	{
 #if defined(LINUX) || defined(linux)
@@ -1452,14 +1447,6 @@ void display()
 	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if (!winWidth) return; // can't work without window
 
-	if (level && level->pilot.isTimeToChangeLevel())
-	{
-		//showImage(loadingMap);
-		//delete level;
-		level = NULL;
-		seekInMusicAtSceneSwap = false;
-	}
-
 #ifdef PLAY_WITH_FIXED_ADVANCE
 	static double timeStart = 0;
 	if (timeStart==2) timeStart = GETSEC;
@@ -1497,7 +1484,7 @@ no_level:
 		if (supportEditor)
 		{
 			rr::RRReportInterval report(rr::INF1,"Updating thumbnails...\n");
-			for (LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+			for (LevelSetup::Frames::iterator i=level->setup->frames.begin();i!=level->setup->frames.end();i++)
 			{
 				updateThumbnail(**i);
 			}
@@ -1549,7 +1536,7 @@ no_level:
 		}
 
 		// najde aktualni frame
-		const AnimationFrame* frame = level->pilot.setup ? level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
+		const AnimationFrame* frame = level->setup ? level->setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
 		if (frame)
 		{
 			// pokud existuje, nastavi ho
@@ -1626,7 +1613,7 @@ no_level:
 				// odvodi z poslednich zaznamu jak dlouho trva DDI
 				ddiTime = ddiDurationSamples.getAverage();
 				// posune kameru/svetla/objekty
-				frame = level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()+ddiTime);
+				frame = level->setup->getFrameByTime(demoPlayer->getPartPosition()+ddiTime);
 				if (!frame) goto no_frame;
 			}
 			frameStats[0] = frameStats[1];
@@ -1642,7 +1629,7 @@ no_level:
 #endif // FRAMERATE_SMOOTHING
 			demoPlayer->setVolume(frame->volume);
 			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
-			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,lightChanged);
+			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frame,lightChanged);
 			if (objMoved)
 				reportObjectMovement();
 			for (unsigned i=0;i<10;i++)
@@ -1666,7 +1653,7 @@ no_frame:
 				// play scene finished, jump to editor
 				demoPlayer->setPaused(true);
 				enableInteraction(true);
-				level->animationEditor->frameCursor = RR_MAX(1,(unsigned)level->pilot.setup->frames.size())-1;
+				level->animationEditor->frameCursor = RR_MAX(1,(unsigned)level->setup->frames.size())-1;
 			}
 			else
 			{
@@ -1715,7 +1702,7 @@ no_frame:
 	if (needMatrixUpdate)
 		updateMatrices();
 
-	rr::RRDynamicSolver::CalculateParameters calculateParams = level->pilot.setup->calculateParams;
+	rr::RRDynamicSolver::CalculateParameters calculateParams = level->setup->calculateParams;
 
 #if FRAMERATE_SMOOTHING==1
 	// DDI in every frame, low fps, smooth
@@ -1758,7 +1745,7 @@ no_frame:
 		float frameStart = 0;
 		if (!demoPlayer->getPaused())
 		{
-			for (LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
+			for (LevelSetup::Frames::const_iterator i = level->setup->frames.begin(); i!=level->setup->frames.end(); i++)
 			{
 				rr::RRBuffer* texture = (*i)->overlayMap;
 				if (texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)

@@ -24,7 +24,6 @@ SOURCES = \
 AnimationEditor.cpp \
 AnimationFrame.cpp \
 AnimationScene.cpp \
-Autopilot.cpp \
 DemoPlayer.cpp \
 DynamicObjects.cpp \
 Level.cpp \

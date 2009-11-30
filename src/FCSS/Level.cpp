@@ -12,11 +12,12 @@ extern void error(const char* message, bool gfxRelated);
 //
 // Level body
 
-Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) : pilot(levelSetup)
+Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 {
 	// loading scenename will be reported by RRScene, don't make it confusing by 2 reports
-	//rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
+	//rr::RRReportInterval report(rr::INF1,"Loading %s...\n",setup->filename);
 
+	setup = levelSetup;
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;
 	rendererOfScene = NULL;
@@ -36,11 +37,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 		light = tmplight;
 	}*/
 
-	scene = new rr::RRScene(pilot.setup->filename, pilot.setup->scale);
+	scene = new rr::RRScene(setup->filename, setup->scale);
 
 	if (!scene->getObjects().size())
 	{
-		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",pilot.setup->filename);
+		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",setup->filename);
 		error("",false);
 	}
 
@@ -53,7 +54,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	rr::RRDynamicSolver::SmoothingParameters sp;
 	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
 	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
-	sp.minFeatureSize = pilot.setup->minFeatureSize; // asi se zapeka do fireballu, nestaci zmenit zde, nutny jeste rebuild fireballu
+	sp.minFeatureSize = setup->minFeatureSize; // asi se zapeka do fireballu, nestaci zmenit zde, nutny jeste rebuild fireballu
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
@@ -74,7 +75,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 
 	// load light detail map
 	{
-		char* ldmName = _strdup(pilot.setup->filename);
+		char* ldmName = _strdup(setup->filename);
 		strcpy(ldmName+strlen(ldmName)-3,"jpg");
 		rr::RRBuffer* ldm = REBUILD_JPG ? 0 : rr::RRBuffer::load(ldmName);
 		if (!ldm)
@@ -110,7 +111,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	}
 
 	// load Fireball
-	char* fbname = _strdup(pilot.setup->filename);
+	char* fbname = _strdup(setup->filename);
 	strcpy(fbname+strlen(fbname)-3,"fib");
 	if (REBUILD_FIB)
 		solver->buildFireball(5000,fbname);
@@ -149,7 +150,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 Level::~Level()
 {
 	if (animationEditor)
-		pilot.setup->save();
+		setup->save();
 	delete animationEditor;
 	delete rendererOfScene;
 	delete solver->getScaler();
@@ -160,9 +161,9 @@ Level::~Level()
 unsigned Level::saveIllumination(const char* path)
 {
 	unsigned result = 0;
-	if (pilot.setup && solver)
+	if (setup && solver)
 	{
-		for (LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
+		for (LevelSetup::Frames::iterator i=setup->frames.begin();i!=setup->frames.end();i++)
 		{
 			result += solver->getStaticObjects().saveLayer((*i)->layerNumber,path,"png");
 		}
@@ -173,9 +174,9 @@ unsigned Level::saveIllumination(const char* path)
 unsigned Level::loadIllumination(const char* path)
 {
 	unsigned result = 0;
-	if (pilot.setup && solver)
+	if (setup && solver)
 	{
-		for (LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
+		for (LevelSetup::Frames::iterator i=setup->frames.begin();i!=setup->frames.end();i++)
 		{
 			result += solver->getStaticObjects().loadLayer((*i)->layerNumber,path,"png");
 		}
