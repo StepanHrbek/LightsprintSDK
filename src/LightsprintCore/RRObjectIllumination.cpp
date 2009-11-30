@@ -7,17 +7,18 @@
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/RRCollider.h" // ray6
 
-typedef std::map<unsigned,rr::RRBuffer*> LayersType;
-#define layers ((LayersType*)hiddenLayers)
-
 namespace rr
 {
+
+class LayersMap : public std::map<unsigned,rr::RRBuffer*>
+{
+};
 
 RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 {
 	// static
 	numPreImportVertices = anumPreImportVertices;
-	hiddenLayers = new LayersType;
+	layersMap = new LayersMap;
 
 	// dynamic
 	envMapWorldCenter = RRVec3(0);
@@ -32,15 +33,15 @@ RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 
 RRBuffer*& RRObjectIllumination::getLayer(unsigned layerNumber)
 {
-	LayersType::iterator i = layers->find(layerNumber);
-	if (i!=layers->end()) return i->second;
-	return (*layers)[layerNumber] = NULL;
+	LayersMap::iterator i = layersMap->find(layerNumber);
+	if (i!=layersMap->end()) return i->second;
+	return (*layersMap)[layerNumber] = NULL;
 }
 
 RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 {
-	LayersType::iterator i = layers->find(layerNumber);
-	if (i!=layers->end()) return i->second;
+	LayersMap::iterator i = layersMap->find(layerNumber);
+	if (i!=layersMap->end()) return i->second;
 	return NULL;
 }
 
@@ -58,11 +59,11 @@ RRObjectIllumination::~RRObjectIllumination()
 	delete diffuseEnvMap;
 
 	// static
-	for (LayersType::iterator i=layers->begin();i!=layers->end();i++)
+	for (LayersMap::iterator i=layersMap->begin();i!=layersMap->end();i++)
 	{
 		delete i->second;
 	}
-	delete layers;
+	delete layersMap;
 }
 
 } // namespace

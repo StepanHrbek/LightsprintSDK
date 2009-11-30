@@ -95,7 +95,7 @@ namespace rr
 		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
 		unsigned numPreImportVertices;
 		//! Container with all layers.
-		void* hiddenLayers;
+		class LayersMap* layersMap;
 
 		//
 		// for reflection maps
