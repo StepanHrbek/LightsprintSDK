@@ -3,18 +3,10 @@
 
 #include <list>
 #include "AnimationFrame.h"
-#include "DynamicObject.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // LevelSetup, all data from .ani file in editable form
-
-class DynamicObjectLoadable : public DynamicObject
-{
-public:
-	DynamicObjectLoadable(FILE* f);
-	void save(FILE* f);
-};
 
 class LevelSetup
 {
