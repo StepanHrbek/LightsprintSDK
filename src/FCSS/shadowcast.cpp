@@ -9,7 +9,6 @@ unsigned INSTANCES_PER_PASS;
 #define FRAMERATE_SMOOTHING        3 // 1=slow&smooth 2=fast&flickering 3=fast&smooth
 #define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
 #define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
-//#define BACKGROUND_WORKER // nejde v linuxu
 #if defined(NDEBUG) && defined(WIN32)
 	//#define SET_ICON
 #else
@@ -87,9 +86,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #else
 	#include <unistd.h> // chdir
 	#define _chdir chdir
-#endif
-#ifdef BACKGROUND_WORKER
-	#include <process.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RealtimeLight.h"
@@ -264,117 +260,6 @@ void done_gl_resources()
 	gluDeleteQuadric(quadric);
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// background worker
-
-#ifdef BACKGROUND_WORKER
-#if 1
-// 4 kriticke sekce, bezi dobre i na 1 jadru
-class BackgroundWorker
-{
-public:
-	BackgroundWorker()
-	{
-		work = NULL;
-		workNumber = 0;
-		for (unsigned i=0;i<4;i++)
-		{
-			InitializeCriticalSection(&cs[i]);
-		}
-		EnterCriticalSection(&cs[0]);
-		EnterCriticalSection(&cs[3]);
-		_beginthread(worker,0,this);
-	}
-	~BackgroundWorker()
-	{
-	}
-	void addWork(DemoPlayer* _work)
-	{
-		RR_ASSERT(!work);
-		RR_ASSERT(_work);
-		work = _work;
-		LeaveCriticalSection(&cs[(workNumber+3)&3]); // unblock 2 firstgate
-	//printf("\n<%d ",workNumber+2);
-		EnterCriticalSection(&cs[(workNumber+2)&3]); // block 2 secondgate
-	//printf(" %d>",workNumber+2);
-		LeaveCriticalSection(&cs[(workNumber+0)&3]); // let worker start 0    worker musi mit lockle 1, ja musim mit unlockle 3 a lockle 2 (splneno)
-	}
-	void waitForCompletion()
-	{
-	//printf("waitforcompletion(%d...",workNumber+1);
-		EnterCriticalSection(&cs[(workNumber+1)&3]); // wait for worker finish 0
-	//printf(" %d)",workNumber+1);
-		workNumber += 2;
-		RR_ASSERT(!work);
-	}
-protected:
-	unsigned workNumber;
-	DemoPlayer* work;
-	CRITICAL_SECTION cs[4];
-	static void worker(void* w)
-	{
-		BackgroundWorker* worker = (BackgroundWorker*)w;
-		EnterCriticalSection(&worker->cs[1]);
-		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
-		unsigned localWorkNumber = 0;
-		while (1)
-		{
-		//printf(" %d] waitforjob[%d...",localWorkNumber+1,localWorkNumber);
-			EnterCriticalSection(&worker->cs[(localWorkNumber+0)&3]); // wait for incoming job 0
-		//printf(" %d]",localWorkNumber);
-			RR_ASSERT(worker->work);
-			worker->work->getDynamicObjects()->updateSceneDynamic(level->solver);
-			worker->work = NULL;
-		//printf("work");
-		//printf("[%d ",localWorkNumber+3);
-			EnterCriticalSection(&worker->cs[(localWorkNumber+3)&3]);
-			LeaveCriticalSection(&worker->cs[(localWorkNumber+0)&3]);
-			LeaveCriticalSection(&worker->cs[(localWorkNumber+1)&3]); // finish 0
-			localWorkNumber += 2;
-		}
-	}
-};
-#else
-// sleep(0), uplne se zastavi na 1 jadru
-class BackgroundWorker
-{
-public:
-	BackgroundWorker()
-	{
-		work = NULL;
-		_beginthread(worker,0,this);
-	}
-	void addWork(DemoPlayer* _work)
-	{
-		RR_ASSERT(!work);
-		RR_ASSERT(_work);
-		work = _work;
-	}
-	void waitForCompletion()
-	{
-		while (work) Sleep(0);
-	}
-protected:
-	DemoPlayer* work;
-	static void worker(void* w)
-	{
-		BackgroundWorker* worker = (BackgroundWorker*)w;
-		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
-		while (1)
-		{
-			while (!worker->work) Sleep(0);
-			worker->work->getDynamicObjects()->updateSceneDynamic(level->solver);
-			worker->work = NULL;
-		}
-	}
-};
-#endif
-
-BackgroundWorker* g_backgroundWorker = NULL;
-
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -395,17 +280,6 @@ protected:
 	{
 		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
 	}
-#ifdef BACKGROUND_WORKER
-	virtual void calculate(CalculateParameters* params = NULL)
-	{
-		// assign background work: possibly updating triangleNumbers around dynobjects
-		if (g_backgroundWorker) g_backgroundWorker->addWork(demoPlayer);
-		// possibly calculate (update shadowmaps, DDI)
-		RRDynamicSolverGL::calculate(params);
-		// possibly wait for background work completion
-		if (g_backgroundWorker) g_backgroundWorker->waitForCompletion();
-	}
-#endif
 };
 
 // called from Level.cpp
@@ -2313,13 +2187,6 @@ retry:
 	const char* licError = rr::loadLicense("licence_number");
 	if (licError)
 		error(licError,false);
-
-#ifdef BACKGROUND_WORKER
-#ifdef _OPENMP
-	if (omp_get_max_threads()>1)
-#endif
-		g_backgroundWorker = new BackgroundWorker;
-#endif
 
 #ifdef SET_ICON
 	HWND hWnd = FindWindowA(NULL,PRODUCT_NAME);
