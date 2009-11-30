@@ -44,7 +44,8 @@ MeshArraysVBOs::~MeshArraysVBOs()
 		if (texcoordVBO[i])
 			g_numVBOs--;
 	glDeleteBuffers(VBO_COUNT,VBO);
-	glDeleteBuffers(texcoordVBO.size(),&texcoordVBO[0]);
+	if (texcoordVBO.size())
+		glDeleteBuffers(texcoordVBO.size(),&texcoordVBO[0]);
 }
 
 bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
