@@ -10,7 +10,6 @@
 #include "../src/LightsprintIO/Import3DS/RendererOf3DS.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Dynamic object

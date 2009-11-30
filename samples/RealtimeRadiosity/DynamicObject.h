@@ -10,12 +10,6 @@
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
-//#define OPTIMIZED_RDO // create multiobject and render it..(disabled, no improvement detected)
-#ifdef OPTIMIZED_RDO
-	#include "Lightsprint/GL/RendererOfRRObject.h"
-#endif
-
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Dynamic object
@@ -54,11 +48,7 @@ protected:
 	rr::RRObjects* singleObjects;
 	rr::RRObject* multiObject;
 	rr_gl::UberProgramSetup material;
-#ifdef OPTIMIZED_RDO
-	rr_gl::RendererOfRRObject* rendererWithoutCache;
-#else
 	rr_gl::Renderer* rendererWithoutCache;
-#endif
 	rr_gl::Renderer* rendererCached;
 
 	// updated by updatePosition
