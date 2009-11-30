@@ -21,7 +21,6 @@ public:
 	AnimationEditor* animationEditor;
 	rr::RRScene* scene;
 	rr_gl::RRDynamicSolverGL* solver;
-	class Bugs* bugs;
 	rr_gl::RendererOfScene* rendererOfScene;
 
 	unsigned saveIllumination(const char* path);

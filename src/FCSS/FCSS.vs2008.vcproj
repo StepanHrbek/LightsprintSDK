@@ -686,14 +686,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Bugs.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Bugs.h"
-			>
-		</File>
-		<File
 			RelativePath=".\DemoPlayer.cpp"
 			>
 		</File>

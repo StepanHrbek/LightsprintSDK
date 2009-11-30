@@ -2,7 +2,6 @@
 // - vypnout SUPPORT_SCENEVIEWER
 // - vypnout SUPPORT_GAMEBRYO/COLLADA/MGF/OBJ
 // - prepnout FACTOR_FORMAT na 0
-//#define BUGS
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
@@ -108,7 +107,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include "Lightsprint/GL/Water.h"
 #endif
 #include "DynamicObject.h"
-#include "Bugs.h"
 #include "AnimationEditor.h"
 #include "Autopilot.h"
 #include "DemoPlayer.h"
@@ -147,11 +145,7 @@ bool needRedisplay = 0;
 bool needReportEyeChange = 0;
 bool needReportLightChange = 0;
 bool needImmediateDDI = 1; // nastaveno pri strihu, pri rucnim pohybu svetlem mysi nebo klavesnici
-#ifdef BUGS
-bool gameOn = 1;
-#else
 bool gameOn = 0;
-#endif
 Level* level = NULL;
 bool seekInMusicAtSceneSwap = false;
 //class DynamicObjects* dynaobjects;
@@ -545,21 +539,6 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 	currentFrame.eye.setupForRender();
 
 	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye,NULL);
-
-#ifdef BUGS
-	if (gameOn)
-	{
-		static Timer t;
-		static bool runs = false;
-		float seconds = runs?t.Watch():0.1f;
-		RR_CLAMP(seconds,0.001f,0.5f);
-		t.Start();
-		runs = true;
-		if (!demoPlayer->getPaused())
-			level->bugs->tick(seconds);
-		level->bugs->render();
-	}
-#endif
 
 	if (supportEditor)
 		drawLight();

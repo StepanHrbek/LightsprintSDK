@@ -19,9 +19,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;
-#ifdef BUGS
-	bugs = NULL;
-#endif
 	rendererOfScene = NULL;
 
 	// init radiosity solver
@@ -147,11 +144,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor) :
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"shaders/");
 
 	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
-
-#ifdef BUGS
-	// init bugs
-	bugs = Bugs::create(solver->getStaticSolver(),solver->getMultiObjectCustom(),100);
-#endif
 }
 
 Level::~Level()
@@ -159,11 +151,6 @@ Level::~Level()
 	if (animationEditor)
 		pilot.setup->save();
 	delete animationEditor;
-
-#ifdef BUGS
-	delete bugs;
-#endif
-
 	delete rendererOfScene;
 	delete solver->getScaler();
 	delete solver;
