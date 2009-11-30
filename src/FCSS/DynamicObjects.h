@@ -50,7 +50,6 @@ public:
 
 private:
 	std::vector<DynamicObject*> dynaobject;
-	std::vector<class DynamicObjectAI*> dynaobjectAI;
 };
 
 #endif

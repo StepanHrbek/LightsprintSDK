@@ -12,68 +12,6 @@ const rr::RRCollider* getSceneCollider();
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// DynamicObjectAI
-
-class DynamicObjectAI
-{
-public:
-	DynamicObjectAI()
-	{
-		speed = 0.1f;
-		shuffle();
-		pos = shift;
-	}
-	void shuffle()
-	{
-		shift = RRVec3((rand()/(float)RAND_MAX-0.5f),0,(rand()/(float)RAND_MAX-0.5f))*1.8f;
-	}
-	RRVec3 updatePosition(RRReal seconds)
-	{
-		if (!getSceneCollider()) return pos;
-		RRVec3 eyepos = rr::RRVec3(currentFrame.eye.pos[0],currentFrame.eye.pos[1],currentFrame.eye.pos[2]);
-		RRVec3 eyedir = rr::RRVec3(currentFrame.eye.dir[0],currentFrame.eye.dir[1],currentFrame.eye.dir[2]).normalized();
-		// block movement of very close objects
-		if ((eyepos+eyedir*1.2f-(pos+RRVec3(0,1,0))).length()<1) return pos;
-		// calculate new position
-		RRReal dist = 30*speed;
-		RRVec3 destination = eyepos + eyedir*dist + shift*dist;
-		RRVec3 dir = destination-pos;
-		pos += dir*speed*seconds;
-		// stick to ground, down
-		RRRay* ray = RRRay::create();
-		ray->rayOrigin = pos+RRVec3(0,0.5f,0);
-		ray->rayDirInv[0] = 1e10;
-		ray->rayDirInv[1] = -1;
-		ray->rayDirInv[2] = 1e10;
-		ray->rayLengthMin = 0;
-		ray->rayLengthMax = 5;
-		ray->rayFlags = RRRay::FILL_POINT3D;
-		if (getSceneCollider()->intersect(ray))
-		{
-			pos = ray->hitPoint3d;
-		}
-		else
-		{
-			// stick up
-			ray->rayDirInv[1] = +1;
-			ray->rayFlags = RRRay::FILL_POINT3D;
-			if (getSceneCollider()->intersect(ray))
-			{
-				pos = ray->hitPoint3d;
-			}
-		}
-		delete ray;
-		return pos;
-	}
-	RRReal speed;
-	RRVec3 pos;
-private:
-	RRVec3 shift;
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // DynamicObjects
 
 DynamicObjects::DynamicObjects()
@@ -166,7 +104,6 @@ DynamicObjects::DynamicObjects()
 	//dynaobject = DynamicObject::create("3ds/objects/gothchocker.3ds",0.2f); // spatne normaly zezadu
 	//dynaobject = DynamicObject::create("3ds/objects/rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
 	//dynaobject = DynamicObject::create("3ds/objects/polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
-	//dynaobjectAI[1]->shuffle();
 	*/
 }
 
@@ -175,7 +112,6 @@ void DynamicObjects::addObject(DynamicObject* dynobj)
 	if (dynobj)
 	{
 		dynaobject.push_back(dynobj);
-		dynaobjectAI.push_back(new DynamicObjectAI());
 	}
 	else
 	{
@@ -194,7 +130,6 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
 		if (dynaobject[objIndex])
 		{
-			dynaobjectAI[objIndex]->pos = worldFoot;
 			dynaobject[objIndex]->worldFoot = worldFoot;
 			dynaobject[objIndex]->updatePosition();
 			RR_ASSERT(dynaobject[objIndex]->visible);
@@ -263,8 +198,6 @@ bool DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 			dynaobject[j]->rotYZ = frame.dynaPosRot[i].rot;
 //static float globalRot = 0; globalRot += 0.2f; dynaobject[j]->rotYZ[0] = globalRot; //!!! automaticka rotace vsech objektu
 			dynaobject[j]->updatePosition();
-			// copy changes to AI
-			dynaobjectAI[j]->pos = dynaobject[j]->worldFoot;
 		}
 	}
 	return objMoved;
@@ -360,6 +293,5 @@ DynamicObjects::~DynamicObjects()
 	for (unsigned i=0;i<dynaobject.size();i++)
 	{
 		delete dynaobject[i];
-		delete dynaobjectAI[i];
 	}
 }
