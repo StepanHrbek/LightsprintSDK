@@ -6,8 +6,6 @@
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
-#define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           100
 #define FRAMERATE_SMOOTHING        3 // 1=slow&smooth 2=fast&flickering 3=fast&smooth
 #define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
 #define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
@@ -17,7 +15,6 @@ unsigned INSTANCES_PER_PASS;
 #else
 	#define CONSOLE
 #endif
-//#define SUPPORT_LIGHTMAPS
 #define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
@@ -762,11 +759,7 @@ static void drawHelpMessage(int screen)
 		"Extra controls:",
 		" F1            - help",
 		" F2,F3,F4      - shadows: hard/soft/penumbra",
-#ifdef SUPPORT_LIGHTMAPS
-		" F5,F6,F7,F8   - ambient: none/const/realtime/precalc",
-#else
 		" F5,F6,F7      - ambient: none/const/realtimeradiosity",
-#endif
 		" F11           - save screenshot",
 		" wheel         - zoom",
 		" x,c           - lean",
@@ -1066,9 +1059,6 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F5: currentFrame.indirectType = 0; break;
 		case GLUT_KEY_F6: currentFrame.indirectType = 1; break;
 		case GLUT_KEY_F7: currentFrame.indirectType = 2; break;
-#ifdef SUPPORT_LIGHTMAPS
-		case GLUT_KEY_F8: currentFrame.indirectType = 3; break;
-#endif
 
 		case GLUT_KEY_F11:
 			shotRequested = 1;
@@ -1148,10 +1138,6 @@ void specialPlayerOnly(int c, int x, int y)
 void keyboard(unsigned char c, int x, int y)
 {
 	needImmediateDDI = true; // chceme okamzitou odezvu kdyz klavesa hne svetlem
-
-#ifdef SUPPORT_LIGHTMAPS
-	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
-#endif
 
 	if (level
 		&& demoPlayer->getPaused()
@@ -1481,172 +1467,6 @@ void mainMenu(int item)
 			showHelp = 1-showHelp;
 			break;
 
-#ifdef SUPPORT_LIGHTMAPS
-		todo: create buffers for computed lightmaps
-		case ME_UPDATE_LIGHTMAPS_0_ENV:
-			{
-				// set lights
-				//rr::RRLights lights;
-				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRVec3(0.5f))); //!!! not freed
-				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRVec3(0.7f))); //!!! not freed
-				//level->solver->setLights(lights);
-				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect(LIGHTMAP_QUALITY);
-				rr::RRDynamicSolver::UpdateParameters paramsIndirect(LIGHTMAP_QUALITY/4);
-
-				// update all objects
-				level->solver->updateLightmaps(0,-1,true,&paramsDirect,&paramsIndirect);
-
-				// stop updating maps in realtime, stay with what we computed here
-				modeMovingEye = true;
-				currentFrame.indirectType = 3;
-			}
-			break;
-
-		case ME_UPDATE_LIGHTMAPS_0:
-			{
-				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect();
-				paramsDirect.quality = LIGHTMAP_QUALITY;
-
-				// update 1 object
-				static unsigned obj=0;
-				if (level->solver->getStaticObjects()[obj]->illumination)
-				{
-					if (!level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer)
-						level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512*2,512*2);
-					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj]->illumination->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
-				}
-				//
-
-				// stop updating maps in realtime, stay with what we computed here
-				modeMovingEye = true;
-				currentFrame.indirectType = 3;
-			}
-			break;
-
-		case ME_UPDATE_LIGHTMAPS_ALL:
-			{
-				// updates all maps in high quality
-				rr::RRDynamicSolver::UpdateParameters paramsDirect();
-				paramsDirect.quality = LIGHTMAP_QUALITY;
-
-				for (LevelSetup::Frames::const_iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
-				{
-					demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,**i,true);
-					printf("(");
-					for (unsigned j=0;j<10+LIGHTMAP_QUALITY/10;j++)
-						level->solver->calculate();
-					printf(")");
-					unsigned layerNumber = (*i)->layerNumber;
-					// update all vbufs
-					level->solver->updateLightmaps(layerNumber,-1,NULL,NULL);
-					// update 1 lmap
-					static unsigned obj=12;
-					if (!level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer)
-						level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
-					level->solver->updateLightmap(obj,level->solver->getStaticObjects()[obj]->illumination->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirect);
-				}
-
-				// stop updating maps in realtime, stay with what we computed here
-				modeMovingEye = true;
-				currentFrame.indirectType = 3;
-			}
-			break;
-
-		case ME_SAVE_LIGHTMAPS_0:
-			// save current illumination maps
-			{
-				static unsigned captureIndex = 0;
-				char filename[100];
-				// save all ambient maps (static objects)
-				for (unsigned objectIndex=0;objectIndex<level->solver->getStaticObjects().size();objectIndex++)
-				{
-					rr::RRBuffer* map = level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0)->pixelBuffer;
-					if (map)
-					{
-						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-						bool saved = map->save(filename);
-						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-					}
-				}
-				/*/ save all environment maps (dynamic objects)
-				for (unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
-				{
-					if (dynaobjects->getObject(objectIndex)->diffuseMap)
-					{
-						sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
-						bool saved = dynaobjects->getObject(objectIndex)->diffuseMap->save(filename,cubeSideNames);
-						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-					}
-					if (dynaobjects->getObject(objectIndex)->specularMap)
-					{
-						sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
-						bool saved = dynaobjects->getObject(objectIndex)->specularMap->save(filename,cubeSideNames);
-						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
-					}
-				}*/
-				captureIndex++;
-				break;
-			}
-
-		case ME_LOAD_LIGHTMAPS_0:
-			// load illumination from disk
-			{
-				unsigned captureIndex = 0;
-				char filename[200];
-				// load all ambient maps (static objects)
-				for (unsigned objectIndex=0;objectIndex<level->solver->getStaticObjects().size();objectIndex++)
-				{
-					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRBuffer* loaded = rr::RRBuffer::load(filename);
-					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if (loaded)
-					{
-						delete level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0);
-						level->solver->getStaticObjects()[objectIndex]->illumination->getLayer(0) = loaded;
-					}
-				}
-				/*/ load all environment maps (dynamic objects)
-				for (unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
-				{
-					// diffuse
-					sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
-					rr::RRBuffer* loaded = rr::RRBuffer::load(filename,cubeSideNames);
-					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if (loaded)
-					{
-						delete dynaobjects->getObject(objectIndex)->diffuseMap;
-						dynaobjects->getObject(objectIndex)->diffuseMap = loaded;
-					}
-					// specular
-					sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
-					loaded = rr::RRBuffer::load(filename,cubeSideNames);
-					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
-					if (loaded)
-					{
-						delete dynaobjects->getObject(objectIndex)->specularMap;
-						dynaobjects->getObject(objectIndex)->specularMap = loaded;
-					}
-				}*/
-				modeMovingEye = true;
-				needLightmapCacheUpdate = true;
-				// start rendering ambient maps instead of vertex colors, so loaded maps get visible
-				currentFrame.indirectType = 3;
-				break;
-			}
-
-		case ME_SAVE_LIGHTMAPS_ALL:
-			// save all illumination maps
-			if (level) rr::RRReporter::report(rr::INF1,"Saved %d buffers.\n",level->saveIllumination("export/",true,true));
-			break;
-
-		case ME_LOAD_LIGHTMAPS_ALL:
-			// load all illumination from disk
-			if (level) rr::RRReporter::report(rr::INF1,"Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
-			break;
-#endif // SUPPORT_LIGHTMAPS
-
 		//case ME_PREVIOUS_SCENE:
 		//	demoPlayer->setPart();
 		//	break;
@@ -1671,15 +1491,6 @@ void initMenu()
 #endif
 	glutAddMenuEntry("Toggle info panel",ME_TOGGLE_INFO);
 	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
-#ifdef SUPPORT_LIGHTMAPS
-	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
-	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
-	glutAddMenuEntry("Lightmaps save current", ME_SAVE_LIGHTMAPS_0);
-	glutAddMenuEntry("Lightmaps load current", ME_LOAD_LIGHTMAPS_0);
-	glutAddMenuEntry("Lightmaps update(rt light) all frames", ME_UPDATE_LIGHTMAPS_ALL);
-	glutAddMenuEntry("Lightmaps save all frames", ME_SAVE_LIGHTMAPS_ALL);
-	glutAddMenuEntry("Lightmaps load all frames", ME_LOAD_LIGHTMAPS_ALL);
-#endif
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
@@ -2495,15 +2306,7 @@ retry:
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-#ifdef SUPPORT_LIGHTMAPS
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 0;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = 1;
-#endif
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-#ifdef SUPPORT_LIGHTMAPS
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-#endif
 	if (!INSTANCES_PER_PASS) error("",true);
 	realtimeLight->numInstancesInArea = startWithSoftShadows?INSTANCES_PER_PASS:1;
 
