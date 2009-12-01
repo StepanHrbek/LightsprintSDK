@@ -119,7 +119,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	for (unsigned i=0;i<_objects.size();i++)
 	{
 		if (!_objects[i]->illumination)
-			_objects[i]->illumination = new RRObjectIllumination(_objects[i]->getCollider()->getMesh()->getNumVertices());
+			_objects[i]->illumination = new RRObjectIllumination();
 	}
 
 	priv->staticObjects = _objects;

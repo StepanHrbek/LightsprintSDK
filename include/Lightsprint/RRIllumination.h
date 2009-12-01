@@ -36,10 +36,7 @@ namespace rr
 	class RR_API RRObjectIllumination: public RRUniformlyAllocatedNonCopyable
 	{
 	public:
-		//! \param numPreImportVertices
-		//!  PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
-		//!  You may set it 0 for dynamic objects, they don't use vertex buffers so they don't need this information.
-		RRObjectIllumination(unsigned numPreImportVertices);
+		RRObjectIllumination();
 		~RRObjectIllumination();
 
 		//
@@ -58,8 +55,6 @@ namespace rr
 		//! \return Illumination layer for given layerNumber. If it doesn't exist yet, it is created.
 		RRBuffer*& getLayer(unsigned layerNumber);
 		RRBuffer* getLayer(unsigned layerNumber) const;
-		//! \return PreImport number of vertices, length of vertex buffer for rendering.
-		unsigned getNumPreImportVertices() const;
 
 		//
 		// Reflection maps, update and render supported for all objects (but used mostly by dynamic ones).
@@ -92,8 +87,6 @@ namespace rr
 		//
 		// for buffers
 		//
-		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
-		unsigned numPreImportVertices;
 		//! Container with all layers.
 		class LayersMap* layersMap;
 

@@ -279,7 +279,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	float importanceOfDetails = 0.1f;
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
-	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
+	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
 	calculateCore(0); // create static solver if not created yet
 	if (!priv->scene)
 	{
@@ -329,7 +329,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 {
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
-	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
+	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
 	// do nothing for empty scene
 	if (!getMultiObjectPhysical())
@@ -365,7 +365,7 @@ bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 void RRDynamicSolver::leaveFireball()
 {
 	RR_SAFE_DELETE(priv->packedSolver);
-	priv->preVertex2Ivertex.clear(); // clear also table that depends on packed solver
+	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
 }
 
 } // namespace

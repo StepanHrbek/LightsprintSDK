@@ -46,7 +46,7 @@ DynamicObject::DynamicObject()
 	model = NULL;
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
-	illumination = new rr::RRObjectIllumination(0);
+	illumination = new rr::RRObjectIllumination;
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
 	animationTime = 0;

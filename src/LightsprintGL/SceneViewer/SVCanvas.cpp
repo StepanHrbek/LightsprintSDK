@@ -170,7 +170,7 @@ void SVCanvas::createContext()
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
-	lightFieldObjectIllumination = new rr::RRObjectIllumination(0);
+	lightFieldObjectIllumination = new rr::RRObjectIllumination;
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 	{

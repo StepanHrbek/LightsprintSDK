@@ -1533,7 +1533,7 @@ public:
 		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
 		{
 			layerParameters.actualType = BT_VERTEX_BUFFER;
-			layerParameters.actualWidth = rrObject->getIllumination()->getNumPreImportVertices();
+			layerParameters.actualWidth = rrObject->getCollider()->getMesh()->getNumVertices();
 			layerParameters.actualHeight = 1;
 			layerParameters.actualFormat = BF_RGBA;
 			layerParameters.actualScaled = true;

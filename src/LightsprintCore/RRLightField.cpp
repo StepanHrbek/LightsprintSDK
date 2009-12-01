@@ -81,7 +81,7 @@ public:
 			RRReporter::report(WARN,"timeSlot %d is out of valid range 0..%d\n",timeSlot,header.gridSize[3]);
 			return;
 		}
-		RRObjectIllumination objectIllum(0);
+		RRObjectIllumination objectIllum;
 		//objectIllum.gatherEnvMapSize = 32; // default 16 is usually good enough
 		if (header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,BF_RGB,true,NULL);
 		if (header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,BF_RGB,true,NULL);

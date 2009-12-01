@@ -17,12 +17,12 @@ namespace rr
 {
 
 void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
-// prepare lookup tables preImportVertex -> [postImportTriangle,vertex012] for all objects
+// prepare lookup tables postImportVertex -> [postImportTriangle,vertex012] for all objects
 // depends on static objects (needs update when they change)
 {
 	// table depends only on static scene
 	// setStaticObjects() clears it, so if it's not empty, it's already up to date
-	if (!priv->preVertex2PostTriangleVertex.empty()) return;
+	if (!priv->postVertex2PostTriangleVertex.empty()) return;
 
 	RRReportInterval reportProp(INF3,"Updating vertex lookup table...\n");
 	if (!getMultiObjectPhysical())
@@ -32,15 +32,12 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 	}
 	// allocate and clear table
 	// (_full_ clear to UNDEFINED. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles))
-	priv->preVertex2PostTriangleVertex.resize(getStaticObjects().size());
+	priv->postVertex2PostTriangleVertex.resize(getStaticObjects().size());
 	for (unsigned objectHandle=0;objectHandle<getStaticObjects().size();objectHandle++)
 	{
-		RRObjectIllumination* illumination = getStaticObjects()[objectHandle]->illumination;
-		if (illumination)
-		{
-			unsigned numPreImportSingleVertices = illumination->getNumPreImportVertices();
-			priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportSingleVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
-		}
+		RRObject* object = getStaticObjects()[objectHandle];
+		unsigned numPostImportSingleVertices = object->getCollider()->getMesh()->getNumVertices();
+		priv->postVertex2PostTriangleVertex[objectHandle].resize(numPostImportSingleVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
 	}
 	// fill table
 	const RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
@@ -55,7 +52,10 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
 			if (postImportMultiVertex<numPostImportMultiVertices)
 			{
-				RRMesh::PreImportNumber preVertexMulti = multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
+				RRMesh::PreImportNumber postVertexMulti =
+					//!!! here we calculate preimport data
+					//    for postimport 1obj data, multiobj would have to remove preimport numbering
+					multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
 				if (priv->scene && !priv->scene->scene->object->triangle[postImportMultiTriangle].topivertex[v])
 				{
 					// static solver doesn't like this triangle and set surface NULL, probably because it is a needle
@@ -63,7 +63,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 				}
 				else
 				{
-					priv->preVertex2PostTriangleVertex[preVertexMulti.object][preVertexMulti.index] = Private::TriangleVertexPair(postImportMultiTriangle,v);
+					priv->postVertex2PostTriangleVertex[postVertexMulti.object][postVertexMulti.index] = Private::TriangleVertexPair(postImportMultiTriangle,v);
 				}
 			}
 			else
@@ -95,12 +95,12 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 #else
 	static RRVec3 pink(0);
 #endif
-	RR_ASSERT(priv->preVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
-	priv->preVertex2Ivertex.resize(1+getStaticObjects().size());
-	priv->preVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
+	RR_ASSERT(priv->postVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
+	priv->postVertex2Ivertex.resize(1+getStaticObjects().size());
+	priv->postVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
 	for (int objectHandle=0;objectHandle<(int)getStaticObjects().size();objectHandle++)
 	{
-		priv->preVertex2Ivertex[1+objectHandle].resize(getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getNumPreImportVertices() : 0,&pink);
+		priv->postVertex2Ivertex[1+objectHandle].resize(getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices(),&pink);
 	}
 	
 	// fill tables
@@ -113,7 +113,7 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 			// for multiobject
 			const RRVec3* irrad = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
 			if (irrad)
-				priv->preVertex2Ivertex[0][postImportMultiTriangle*3+v] = irrad;
+				priv->postVertex2Ivertex[0][postImportMultiTriangle*3+v] = irrad;
 			// for singleobjects
 			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
 			if (postImportMultiVertex<numPostImportMultiVertices)
@@ -121,8 +121,11 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 				const RRVec3* irrad = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
 				if (irrad)
 				{
-					RRMesh::PreImportNumber preVertexMulti = multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
-					priv->preVertex2Ivertex[1+preVertexMulti.object][preVertexMulti.index] = irrad;
+					RRMesh::PreImportNumber postVertexMulti =
+						//!!! here we calculate preimport data
+						//    for postimport 1obj data, multiobj would have to remove preimport numbering
+						multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
+					priv->postVertex2Ivertex[1+postVertexMulti.object][postVertexMulti.index] = irrad;
 				}
 			}
 			else
@@ -171,10 +174,10 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		RR_ASSERT(0);
 		return 0;
 	}
-	unsigned numPreImportVertices = (objectNumber>=0)
-		? getStaticObjects()[objectNumber]->illumination->getNumPreImportVertices() // elements in original object vertex buffer
+	unsigned numPostImportVertices = (objectNumber>=0)
+		? getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices() // elements in 1object vertex buffer
 		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
-	if (vertexBuffer->getType()!=BT_VERTEX_BUFFER || vertexBuffer->getWidth()<numPreImportVertices)
+	if (vertexBuffer->getType()!=BT_VERTEX_BUFFER || vertexBuffer->getWidth()<numPostImportVertices)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -183,38 +186,38 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	// packed solver
 	if (priv->packedSolver)
 	{
-		RR_ASSERT(priv->preVertex2Ivertex.size()==1+getStaticObjects().size());
+		RR_ASSERT(priv->postVertex2Ivertex.size()==1+getStaticObjects().size());
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
-		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectNumber];
-		RR_ASSERT(preVertex2Ivertex.size()==numPreImportVertices);
+		const std::vector<const RRVec3*>& postVertex2Ivertex = priv->postVertex2Ivertex[1+objectNumber];
+		RR_ASSERT(postVertex2Ivertex.size()==numPostImportVertices);
 		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
 		if (lock)
 		{
 			// #pragma with if () is broken in VC++2005
-			if (numPreImportVertices>35000)
+			if (numPostImportVertices>35000)
 			{
 				#pragma omp parallel for schedule(static)
-				for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+				for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 				{
-					lock[preImportVertex] = *preVertex2Ivertex[preImportVertex];
+					lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
 				}
 			}
 			else
 			{
-				for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+				for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 				{
-					lock[preImportVertex] = *preVertex2Ivertex[preImportVertex];
+					lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
 				}
 			}
 			vertexBuffer->unlock();
 		}
 		else
 		{
-			for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+			for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 			{
 				RRVec4 tmp;
-				tmp = *preVertex2Ivertex[preImportVertex];
-				vertexBuffer->setElement(preImportVertex,tmp);
+				tmp = *postVertex2Ivertex[postImportVertex];
+				vertexBuffer->setElement(postImportVertex,tmp);
 			}
 		}
 		return 1;
@@ -236,10 +239,10 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
-	for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+	for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 	{
-		unsigned t = (objectNumber<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].triangleIndex;
-		unsigned v = (objectNumber<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectNumber][preImportVertex].vertex012;
+		unsigned t = (objectNumber<0)?postImportVertex/3:priv->postVertex2PostTriangleVertex[objectNumber][postImportVertex].triangleIndex;
+		unsigned v = (objectNumber<0)?postImportVertex%3:priv->postVertex2PostTriangleVertex[objectNumber][postImportVertex].vertex012;
 		RRVec4 indirect = RRVec4(0);
 		if (t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
@@ -253,7 +256,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 				RR_ASSERT(indirect[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(preImportVertex,indirect);
+		vertexBuffer->setElement(postImportVertex,indirect);
 	}
 	return 1;
 }
@@ -265,19 +268,19 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned
 {
 	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getStaticObjects().size());
 
-	if (!priv->scene || !vertexBuffer || objectHandle>=getStaticObjects().size() || !getStaticObjects()[objectHandle]->illumination)
+	if (!priv->scene || !vertexBuffer || objectHandle>=getStaticObjects().size())
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
 	const RRScaler* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
-	unsigned numPreImportVertices = getStaticObjects()[objectHandle]->illumination->getNumPreImportVertices();
+	unsigned numPostImportVertices = getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
-	for (int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+	for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 	{
-		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
-		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
+		unsigned t = priv->postVertex2PostTriangleVertex[objectHandle][postImportVertex].triangleIndex;
+		unsigned v = priv->postVertex2PostTriangleVertex[objectHandle][postImportVertex].vertex012;
 		RRVec4 data = RRVec4(0);
 		if (t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
@@ -289,7 +292,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned
 				RR_ASSERT(data[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(preImportVertex,data);
+		vertexBuffer->setElement(postImportVertex,data);
 	}
 	return 1;
 }

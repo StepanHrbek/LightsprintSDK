@@ -160,7 +160,7 @@ void RendererOfRRDynamicSolver::initSpecularReflection(Program* program)
 			// create small specular reflection map using temporary solver with environment only
 			rr::RRDynamicSolver tmpSolver;
 			tmpSolver.setEnvironment(env);
-			rr::RRObjectIllumination tmpObjIllum(0);
+			rr::RRObjectIllumination tmpObjIllum;
 			tmpObjIllum.specularEnvMap = lastRenderSpecularEnv;
 			tmpSolver.updateEnvironmentMap(&tmpObjIllum);
 			tmpObjIllum.specularEnvMap = NULL;

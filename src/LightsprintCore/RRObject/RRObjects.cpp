@@ -74,7 +74,7 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 void RRObjects::recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
 {
 	RR_ASSERT((unsigned)layerParameters.objectIndex<size());
-	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex]->getCollider()->getMesh()->getNumPreImportVertices();
+	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex]->getCollider()->getMesh()->getNumVertices();
 	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
 	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
@@ -91,7 +91,8 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRObjectIllumination* illumination = (*this)[objectIndex]->illumination;
+			const RRObject* object = (*this)[objectIndex];
+			RRObjectIllumination* illumination = object->illumination;
 			if (illumination)
 			{
 				// first try to load per-pixel format
@@ -110,7 +111,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 					if (exists(layerParameters.actualFilename))
 						buffer = RRBuffer::load(layerParameters.actualFilename);
 				}
-				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=illumination->getNumPreImportVertices())
+				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
 				{
 					RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
 					RR_SAFE_DELETE(buffer);

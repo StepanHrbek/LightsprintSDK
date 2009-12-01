@@ -65,8 +65,8 @@ namespace rr
 
 		// read results
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
-		std::vector<std::vector<TriangleVertexPair> > preVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver. depends on static objects, must be updated when they change
-		std::vector<std::vector<const RRVec3*> > preVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject. depends on static objects and packed solver, must be updated when they change
+		std::vector<std::vector<TriangleVertexPair> > postVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver. depends on static objects, must be updated when they change
+		std::vector<std::vector<const RRVec3*> > postVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject. depends on static objects and packed solver, must be updated when they change
 
 		// realtime GI (calculate & read results)
 		unsigned solutionVersionInLightmapLayer; // last solution version copied in updateBuffersForRealtimeGI()
@@ -136,8 +136,8 @@ namespace rr
 			RR_SAFE_DELETE(multiObjectCustom);
 			RR_SAFE_DELETE(multiObjectPhysical);
 			// clear tables that depend on scene (code that fills tables needs them empty)
-			preVertex2PostTriangleVertex.clear();
-			preVertex2Ivertex.clear();
+			postVertex2PostTriangleVertex.clear();
+			postVertex2Ivertex.clear();
 		}
 	};
 

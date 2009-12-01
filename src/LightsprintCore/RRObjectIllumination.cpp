@@ -14,10 +14,9 @@ class LayersMap : public std::map<unsigned,rr::RRBuffer*>
 {
 };
 
-RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
+RRObjectIllumination::RRObjectIllumination()
 {
 	// static
-	numPreImportVertices = anumPreImportVertices;
 	layersMap = new LayersMap;
 
 	// dynamic
@@ -43,11 +42,6 @@ RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 	LayersMap::iterator i = layersMap->find(layerNumber);
 	if (i!=layersMap->end()) return i->second;
 	return NULL;
-}
-
-unsigned RRObjectIllumination::getNumPreImportVertices() const
-{
-	return this ? numPreImportVertices : 0;
 }
 
 RRObjectIllumination::~RRObjectIllumination()

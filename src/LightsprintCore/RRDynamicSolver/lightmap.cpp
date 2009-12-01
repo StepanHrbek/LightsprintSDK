@@ -438,7 +438,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				RRReporter::report(WARN,"getStaticObjects()[%d]->illumination is NULL.\n",objectNumber);
 				return 0;
 			}
-			vertexBufferWidth = getStaticObjects()[objectNumber]->illumination->getNumPreImportVertices();
+			vertexBufferWidth = getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices();
 		}
 
 		RRBuffer* allBuffers[NUM_BUFFERS];
@@ -841,7 +841,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 					{
 						// light detail map
 						RRReportInterval report(INF2,"Creating light detail map...\n");
-						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object]->illumination->getNumPreImportVertices(),1,1,BF_RGBF,true,NULL);
+						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object]->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,true,NULL);
 						updateLightmap(object,lowDetail,NULL,NULL,&paramsDirect,_filtering);
 						paramsDirect.lowDetailForLightDetailMap = lowDetail;
 						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
