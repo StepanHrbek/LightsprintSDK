@@ -660,7 +660,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
 			// enables ldm if in ram
 			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				if (solver->getStaticObjects()[i]->illumination->getLayer(svs.ldmLayerNumber))
+				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
 				{
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
 					break;
@@ -714,7 +714,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightmaps2d = 0;
 			// checks whether lightmap exists in ram
 			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				if (solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber))
+				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
 					goto atLeastOneLightmapBufferExists;
 			// try to load lightmaps from disk
 			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
@@ -750,7 +750,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 					// build ldm
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-						solver->getStaticObjects()[i]->illumination->getLayer(svs.ldmLayerNumber) =
+						solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber) =
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
 					paramsDirect.applyLights = 0;
@@ -800,10 +800,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			{	
-				if (solver->getStaticObjects()[i]->illumination && solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 				{
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-					getTexture(solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber))->bindTexture();
+					getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))->bindTexture();
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 				}
@@ -899,10 +899,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if (solver->getStaticObjects()[i]->illumination && solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
+						if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
 						{
-							delete solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber);
-							solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber) = res
+							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
+							solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
 								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL)
 								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 						}
@@ -920,8 +920,8 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					// propagate computed data from buffers to textures
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if (solver->getStaticObjects()[i]->illumination && solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getStaticObjects()[i]->illumination->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
+							getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
 					}
 
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild

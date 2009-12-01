@@ -73,12 +73,10 @@ RRObject::RRObject()
 {
 	collider = NULL;
 	worldMatrix = NULL;
-	illumination = NULL;
 }
 
 RRObject::~RRObject()
 {
-	delete illumination;
 	delete worldMatrix;
 }
 

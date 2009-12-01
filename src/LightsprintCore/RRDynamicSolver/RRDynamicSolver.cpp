@@ -115,13 +115,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		}
 	}
 
-	// alloc missing illuminations
-	for (unsigned i=0;i<_objects.size();i++)
-	{
-		if (!_objects[i]->illumination)
-			_objects[i]->illumination = new RRObjectIllumination();
-	}
-
 	priv->staticObjects = _objects;
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
 
@@ -632,7 +625,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 	// both is used only by realtime per-object illumination
 	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
-		if (getStaticObjects()[i] && getStaticObjects()[i]->illumination)
+		if (getStaticObjects()[i])
 		{
 			unsigned numVertices = getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
 			unsigned numTriangles = getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles();
@@ -640,13 +633,13 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 			{
 				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
 				// (this should be called also if lightmapLayerNumber changes... for now it never changes during solver existence)
-				if (allocateLightmapLayerNumber>=0 && !getStaticObjects()[i]->illumination->getLayer(allocateLightmapLayerNumber))
+				if (allocateLightmapLayerNumber>=0 && !getStaticObjects()[i]->illumination.getLayer(allocateLightmapLayerNumber))
 				{
-					getStaticObjects()[i]->illumination->getLayer(allocateLightmapLayerNumber) =
+					getStaticObjects()[i]->illumination.getLayer(allocateLightmapLayerNumber) =
 						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 				}
 				// allocate specular cubes for LIGHT_INDIRECT_CUBE_SPECULAR
-				if (allocateSpecularEnvMaps && !getStaticObjects()[i]->illumination->specularEnvMap)
+				if (allocateSpecularEnvMaps && !getStaticObjects()[i]->illumination.specularEnvMap)
 				{
 					// measure object's specularity
 					float maxDiffuse = 0;
@@ -679,9 +672,9 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumb
 							getStaticObjects()[i]->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
 							const rr::RRMatrix3x4* matrix = getStaticObjects()[i]->getWorldMatrix();
 							if (matrix) matrix->transformPosition(center);
-							getStaticObjects()[i]->illumination->envMapWorldCenter = center;
-							getStaticObjects()[i]->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
-							updateEnvironmentMapCache(getStaticObjects()[i]->illumination);
+							getStaticObjects()[i]->illumination.envMapWorldCenter = center;
+							getStaticObjects()[i]->illumination.specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
+							updateEnvironmentMapCache(&getStaticObjects()[i]->illumination);
 						}
 					}
 				}
@@ -727,9 +720,9 @@ void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, 
 		priv->solutionVersionInSpecularEnvMaps = solutionVersion;
 		for (unsigned i=0;i<getStaticObjects().size();i++)
 		{
-			if (getStaticObjects()[i]->illumination && getStaticObjects()[i]->illumination->specularEnvMap)
+			if (getStaticObjects()[i]->illumination.specularEnvMap)
 			{
-				updateEnvironmentMap(getStaticObjects()[i]->illumination);
+				updateEnvironmentMap(&getStaticObjects()[i]->illumination);
 			}
 		}
 	}

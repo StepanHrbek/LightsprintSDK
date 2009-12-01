@@ -91,42 +91,38 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			const RRObject* object = (*this)[objectIndex];
-			RRObjectIllumination* illumination = object->illumination;
-			if (illumination)
+			RRObject* object = (*this)[objectIndex];
+			// first try to load per-pixel format
+			RRBuffer* buffer = NULL;
+			RRObjects::LayerParameters layerParameters;
+			layerParameters.objectIndex = objectIndex;
+			layerParameters.suggestedPath = path;
+			layerParameters.suggestedExt = ext;
+			layerParameters.suggestedMapSize = 256;
+			recommendLayerParameters(layerParameters);
+			if ( !exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
 			{
-				// first try to load per-pixel format
-				RRBuffer* buffer = NULL;
-				RRObjects::LayerParameters layerParameters;
-				layerParameters.objectIndex = objectIndex;
-				layerParameters.suggestedPath = path;
-				layerParameters.suggestedExt = ext;
-				layerParameters.suggestedMapSize = 256;
+				// if it fails, try to load per-vertex format
+				layerParameters.suggestedMapSize = 0;
 				recommendLayerParameters(layerParameters);
-				if ( !exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
-				{
-					// if it fails, try to load per-vertex format
-					layerParameters.suggestedMapSize = 0;
-					recommendLayerParameters(layerParameters);
-					if (exists(layerParameters.actualFilename))
-						buffer = RRBuffer::load(layerParameters.actualFilename);
-				}
-				if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
-				{
-					RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
-					RR_SAFE_DELETE(buffer);
-				}
-				if (buffer)
-				{
-					delete illumination->getLayer(layerNumber);
-					illumination->getLayer(layerNumber) = buffer;
-					result++;
-					RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename);
-				}
-				else
-				{
-					RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename);
-				}
+				if (exists(layerParameters.actualFilename))
+					buffer = RRBuffer::load(layerParameters.actualFilename);
+			}
+			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
+			{
+				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
+				RR_SAFE_DELETE(buffer);
+			}
+			if (buffer)
+			{
+				delete object->illumination.getLayer(layerNumber);
+				object->illumination.getLayer(layerNumber) = buffer;
+				result++;
+				RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename);
+			}
+			else
+			{
+				RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename);
 			}
 		}
 		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
@@ -141,7 +137,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRBuffer* buffer = (*this)[objectIndex]->illumination ? (*this)[objectIndex]->illumination->getLayer(layerNumber) : NULL;
+			RRBuffer* buffer = (*this)[objectIndex]->illumination.getLayer(layerNumber);
 			if (buffer)
 			{
 				RRObjects::LayerParameters layerParameters;

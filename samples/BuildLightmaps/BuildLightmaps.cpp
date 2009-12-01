@@ -443,7 +443,7 @@ int main(int argc, char **argv)
 		// query size, format etc
 		scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
 		// allocate
-		objectParameters.layersCreate(scene.getObjects()[objectIndex]->illumination);
+		objectParameters.layersCreate(&scene.getObjects()[objectIndex]->illumination);
 	}
 
 	//
@@ -492,7 +492,7 @@ int main(int argc, char **argv)
 			// query filename
 			scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
 			// save
-			saved += objectParameters.layersSave(scene.getObjects()[objectIndex]->illumination);
+			saved += objectParameters.layersSave(&scene.getObjects()[objectIndex]->illumination);
 		}
 
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);

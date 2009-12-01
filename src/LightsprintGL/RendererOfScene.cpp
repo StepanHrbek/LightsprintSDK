@@ -229,7 +229,7 @@ void RendererOfRRDynamicSolver::render()
 		params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		params.uberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
-		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getStaticObjects()[0]->illumination->getLayer(params.layerNumberLDM);
+		params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = params.solver->getStaticObjects().size()==1 && params.solver->getStaticObjects()[0]->illumination.getLayer(params.layerNumberLDM);
 		if (params.layerNumberLDM!=UINT_MAX && params.solver->getStaticObjects().size()>1) 
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"LDM not rendered, call useOriginalScene() rather than useOptimizedScene(). Original works only for scenes with 1 object.\n"));
 		params.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
@@ -250,7 +250,7 @@ void RendererOfRRDynamicSolver::render()
 		rendererNonCaching.setProgram(program);
 		rendererNonCaching.setRenderedChannels(renderedChannels);
 		rendererNonCaching.setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
-		rendererNonCaching.setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getStaticObjects()[0]->illumination->getLayer(params.layerNumberLDM) : NULL);
+		rendererNonCaching.setLDM(params.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? params.solver->getStaticObjects()[0]->illumination.getLayer(params.layerNumberLDM) : NULL);
 		rendererNonCaching.setLightingShadowingFlags(params.renderingFromThisLight,light?&light->getRRLight():NULL);
 
 		if (uberProgramSetup.MATERIAL_SPECULAR)
@@ -428,7 +428,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 	// working copy of params.uberProgramSetup
 	UberProgramSetup mainUberProgramSetup = params.uberProgramSetup;
 	mainUberProgramSetup.OBJECT_SPACE = perObject->object->getWorldMatrix()!=NULL;
-	rr::RRObjectIllumination* illumination = perObject->object->illumination;
+	rr::RRObjectIllumination* illumination = &perObject->object->illumination;
 	// set shader according to vbuf/pbuf presence
 	rr::RRBuffer* vbuffer = onlyVbuf(illumination->getLayer(layerNumber));
 	rr::RRBuffer* pbuffer = onlyLmap(illumination->getLayer(layerNumber));

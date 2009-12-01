@@ -199,13 +199,10 @@ namespace rr
 		//!  Usage example: <code>const char* objectName = (const char*)object->getCustomData("const char* objectName");</code>
 		virtual void* getCustomData(const char* name) const;
 
-		//! Illumination of this object.
-		//
-		//! Initialized to NULL, solver allocates it, ~RRObject deletes it.
-		//! \n You can allocate illumination manually, solver allocates it only if it is NULL.
-		RRObjectIllumination* illumination;
+		//! Illumination of the object.
+		RRObjectIllumination illumination;
 
-		//! Optional name of object.
+		//! Optional name of the object.
 		RRString name;
 
 

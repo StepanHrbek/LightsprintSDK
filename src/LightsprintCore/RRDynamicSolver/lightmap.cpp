@@ -433,11 +433,6 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getStaticObjects().size()-1);
 				return 0;
 			}
-			if (!getStaticObjects()[objectNumber]->illumination)
-			{
-				RRReporter::report(WARN,"getStaticObjects()[%d]->illumination is NULL.\n",objectNumber);
-				return 0;
-			}
 			vertexBufferWidth = getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices();
 		}
 
@@ -677,24 +672,21 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	unsigned sizeOfAllBuffers = 0;
 	for (unsigned object=0;object<getStaticObjects().size();object++)
 	{
-		if (getStaticObjects()[object]->illumination)
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
 		{
-			for (unsigned i=0;i<NUM_BUFFERS;i++)
+			RRBuffer* buffer = getStaticObjects()[object]->illumination.getLayer(allLayers[i]);
+			if (buffer)
 			{
-				RRBuffer* buffer = getStaticObjects()[object]->illumination->getLayer(allLayers[i]);
-				if (buffer)
-				{
-					sizeOfAllBuffers += buffer->getMemoryOccupied();
-					containsVertexBuffers |= buffer->getType()==BT_VERTEX_BUFFER;
-					containsPixelBuffers  |= buffer->getType()==BT_2D_TEXTURE;
-					containsVertexBuffer[i] |= buffer->getType()==BT_VERTEX_BUFFER;
+				sizeOfAllBuffers += buffer->getMemoryOccupied();
+				containsVertexBuffers |= buffer->getType()==BT_VERTEX_BUFFER;
+				containsPixelBuffers  |= buffer->getType()==BT_2D_TEXTURE;
+				containsVertexBuffer[i] |= buffer->getType()==BT_VERTEX_BUFFER;
 
-					SortedBuffer sb;
-					sb.buffer = buffer;
-					sb.lightmapIndex = i;
-					sb.objectIndex = object;
-					bufferSharing.push_back(sb);
-				}
+				SortedBuffer sb;
+				sb.buffer = buffer;
+				sb.lightmapIndex = i;
+				sb.objectIndex = object;
+				bufferSharing.push_back(sb);
 			}
 		}
 	}
@@ -765,7 +757,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			{
 				if (allLayers[i]>=0)
 				{
-					RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getLayer(allLayers[i]) : NULL );
+					RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination.getLayer(allLayers[i]) );
 					if (vertexBuffer)
 					{
 						if (i==LS_LIGHTMAP)
@@ -808,7 +800,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 						{
 							if (allLayers[i]>=0 && !aborting)
 							{
-								RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination ? getStaticObjects()[objectHandle]->illumination->getLayer(allLayers[i]) : NULL );
+								RRBuffer* vertexBuffer = onlyVbuf( getStaticObjects()[objectHandle]->illumination.getLayer(allLayers[i]) );
 								if (vertexBuffer)
 									updatedBuffers += updateVertexBufferFromPerTriangleDataPhysical(objectHandle,vertexBuffer,finalGatherPhysical->data[i],sizeof(*finalGatherPhysical->data[i]),i!=LS_BENT_NORMALS);
 							}
@@ -831,7 +823,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 				unsigned numPixelBuffers = 0;
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					allPixelBuffers[i] = (allLayers[i]>=0 && getStaticObjects()[object]->illumination) ? onlyLmap(getStaticObjects()[object]->illumination->getLayer(allLayers[i])) : NULL;
+					allPixelBuffers[i] = (allLayers[i]>=0) ? onlyLmap(getStaticObjects()[object]->illumination.getLayer(allLayers[i])) : NULL;
 					if (allPixelBuffers[i]) numPixelBuffers++;
 				}
 
