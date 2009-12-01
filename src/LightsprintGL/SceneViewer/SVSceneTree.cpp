@@ -58,6 +58,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
 		"scene");
 
+	// insert all lights
 	SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
 	DeleteChildren(lights);
 	for (unsigned i=0;solver && i<solver->getLights().size();i++)
@@ -67,9 +68,11 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 	}
 
+	// insert first 1000 items, more would be slow and difficult to control
 	SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
 	DeleteChildren(objects);
-	for (unsigned i=0;solver && i<solver->getStaticObjects().size();i++)
+	unsigned numObjects = RR_MIN(solver->getStaticObjects().size(),1000);
+	for (unsigned i=0;solver && i<numObjects;i++)
 	{
 		wxString name = solver->getStaticObjects()[i]->name.c_str();
 		if (name.empty()) name = wxString("object ")<<i;
