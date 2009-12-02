@@ -161,7 +161,7 @@ struct RR_GL_API UberProgramSetup
 	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY);
 	//! Sets shader illumination environment maps, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
-	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination, bool updateTexturesFromBuffers);
+	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination);
 };
 
 }; // namespace

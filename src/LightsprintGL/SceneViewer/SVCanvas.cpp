@@ -880,7 +880,7 @@ rendered:
 				uberProgramSetup.POSTPROCESS_GAMMA = svs.gamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
 				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
-				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
+				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				glPushMatrix();
 				glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
@@ -895,7 +895,7 @@ rendered:
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
 				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
-				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination,true);
+				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
 				program->sendUniform("worldMatrix",worldMatrix,false,4);

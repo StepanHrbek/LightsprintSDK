@@ -664,7 +664,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	return program;
 }
 
-void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination, bool updateTexturesFromBuffers)
+void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination)
 {
 	if (!program)
 	{

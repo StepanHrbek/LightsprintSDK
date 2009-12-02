@@ -188,7 +188,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		GLint activeTexture;
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
 
-		uberProgramSetup.useIlluminationEnvMaps(program,illumination,false);
+		uberProgramSetup.useIlluminationEnvMaps(program,illumination);
 
 		// activate previously active texture
 		//  sometimes it's diffuse, sometimes emissive

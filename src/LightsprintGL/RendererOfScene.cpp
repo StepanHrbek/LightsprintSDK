@@ -499,7 +499,7 @@ void RendererOfOriginalScene::renderOriginalObject(const PerObjectPermanent* per
 		}
 
 		// set envmaps
-		uberProgramSetup.useIlluminationEnvMaps(program,illumination,false);
+		uberProgramSetup.useIlluminationEnvMaps(program,illumination);
 
 		// render
 		RendererOfRRObject rendererNonCaching(perObject->object,params.solver);
