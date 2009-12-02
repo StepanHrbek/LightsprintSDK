@@ -121,28 +121,33 @@ struct RR_GL_API UberProgramSetup
 		MATERIAL_CULLING = true;
 	}
 
-	//! Rewrites all MATERIAL_XXX by values it recommends for given object.
+	//! Enables all MATERIAL_XXX except for MATERIAL_NORMAL_MAP.
 	//
-	//! RRMaterial specifies single property as a flat color and as a texture,
-	//! but only one (any one) of them is used, they are not modulated together.
-	//! Thus we never set both MATERIAL_XXX_CONST and MATERIAL_XXX_MAP,
-	//! e.g. MATERIAL_DIFFUSE_MAP is set only if object contains diffuse map(s),
-	//! MATERIAL_DIFFUSE_CONST is set only if object contains flat diffuse color and no map.
-	void recommendMaterialSetup(rr::RRObject* object);
+	//! You can freely enable and disable MATERIAL_XXX features to get desired render,
+	//! this is helper for those who want everything, all material features enabled.
+	//! It is usually used before final render of scene.
+	void enableAllMaterials();
+
+	//! Enables only MATERIAL_XXX required by given material, disables unused MATERIAL_XXX.
+	void enableUsedMaterials(const rr::RRMaterial* material);
+
 	//! Reduces material setup, removes properties not present in fullMaterial.
 	//
-	//! MATERIAL_XXX_MAP is considered superset of MATERIAL_XXX_CONST, so
+	//! Note: MATERIAL_XXX_MAP is considered superset of MATERIAL_XXX_CONST, so
 	//! mixing MATERIAL_XXX_CONST in this or fullMaterial, and MATERIAL_XXX_MAP in the other input,
 	//! leads to MATERIAL_XXX_CONST set.
-	void reduceMaterialSetup(const UberProgramSetup& fullMaterial);
+	void reduceMaterials(const UberProgramSetup& fullMaterial);
 
 	//! Returns our attribute values in format suitable for our uberprogram.
 	//! Example: "#define SHADOW_MAPS 2\n#define SHADOW_SAMPLES 4\n#define MATERIAL_DIFFUSE\n".
 	const char* getSetupString();
-	//! Compares two instances.
+
+	// Operators for hash_map in renderer.
 	bool operator ==(const UberProgramSetup& a) const;
-	//! Compares two instances.
 	bool operator !=(const UberProgramSetup& a) const;
+	bool operator <(const UberProgramSetup& a) const;
+	operator size_t() const {return *(unsigned*)(((char*)this)+3);}
+
 	//! Returns uberProgram with parameter values defined by our attributes.
 	//! UberProgram with parameter values defined is Program.
 	Program* getProgram(UberProgram* uberProgram);
@@ -157,11 +162,16 @@ struct RR_GL_API UberProgramSetup
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered by our program.
 	//! Camera::setupForRender() should precede this call.
-	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps() and RenderedChannels::useMaterial() should follow to set them.
+	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps() and useMaterial() should follow to set them.
 	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY);
+	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
+	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
+	void useMaterial(Program* program, const rr::RRMaterial* material) const;
 	//! Sets shader illumination environment maps, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
 	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination);
+	//! Sets world matrix for given object.
+	void useWorldMatrix(Program* program, rr::RRObject* object);
 };
 
 }; // namespace

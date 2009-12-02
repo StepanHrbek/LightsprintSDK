@@ -617,42 +617,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="HelloRR"
-			>
-			<File
-				RelativePath="..\..\samples\RealtimeRadiosity\DynamicObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\RealtimeRadiosity\DynamicObject.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Import"
-			>
-			<Filter
-				Name="Import3DS"
-				>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\Model_3DS.h"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\LightsprintIO\Import3DS\RendererOf3DS.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
 		<File
 			RelativePath=".\AnimationEditor.cpp"
 			>

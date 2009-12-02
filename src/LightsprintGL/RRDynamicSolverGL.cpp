@@ -8,7 +8,6 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
@@ -73,7 +72,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 	rr::RRReporter::report(rr::INF1,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
-	rendererOfMultiMesh = new RendererOfMesh;
+	rendererOfScene = new rr_gl::RendererOfScene(_pathToShaders);
 
 	// pointer 1 sent to RRBuffer::create = buffer will NOT allocate memory (we promise we won't touch it)
 	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X*faceSizeX,DDI_TRIANGLES_MAX_Y*faceSizeY,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
@@ -99,7 +98,7 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	delete[] detectedDirectSum;
-	delete rendererOfMultiMesh;
+	delete rendererOfScene;
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
@@ -159,11 +158,6 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 
 	// reset detected direct lighting
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
-}
-
-void RRDynamicSolverGL::setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation, rr::RRCollider::IntersectTechnique intersectTechnique, rr::RRDynamicSolver* copyFrom)
-{
-	RRDynamicSolver::setStaticObjects(objects,smoothing,cacheLocation,intersectTechnique,copyFrom);
 }
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
@@ -241,10 +235,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 			}
 	}
 
-	// Minimal superset of all material features in static scene, recommended MATERIAL_* setting for UberProgramSetup.
-	bool materialsInStaticSceneFilled = false;
-	UberProgramSetup materialsInStaticScene;
-
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		RealtimeLight* light = realtimeLights[i];
@@ -282,17 +272,10 @@ void RRDynamicSolverGL::updateShadowmaps()
 					// not yet implemented
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
-					if (!materialsInStaticSceneFilled)
-					{
-						materialsInStaticSceneFilled = true;
-						materialsInStaticScene.recommendMaterialSetup(getMultiObjectCustom());
-					}
-					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = materialsInStaticScene.MATERIAL_TRANSPARENCY_CONST;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = materialsInStaticScene.MATERIAL_TRANSPARENCY_MAP;
-					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = materialsInStaticScene.MATERIAL_TRANSPARENCY_IN_ALPHA;
-					uberProgramSetup.MATERIAL_CULLING = 0;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_DIFFUSE = 1;
-					uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
 					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
@@ -330,7 +313,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 						else
 						{
 							glClear(GL_DEPTH_BUFFER_BIT);
-							renderScene(uberProgramSetup,&light->getRRLight());
+							renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,NULL,1);
 						}
 					}
 				}
@@ -388,8 +371,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			if (!light->shadowOnly)
 			{
 				if (observer) light->positionOfLastDDI = observer->pos;
-				setupShaderLight = light;
-				updatedSmallMaps += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+				updatedSmallMaps += detectDirectIlluminationTo(light,light->smallMapCPU,light->numTriangles);
 			}
 		}
 	}
@@ -412,30 +394,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	return detectedDirectSum;
 }
 
-Program* RRDynamicSolverGL::setupShader(unsigned objectNumber)
-{
-	UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->getRRLight().type==rr::RRLight::POINT)?setupShaderLight->getNumShadowmaps():(setupShaderLight->getNumShadowmaps()?1:0);
-	uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->getRRLight().color!=rr::RRVec3(1);
-	uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && setupShaderLight->getProjectedTexture();
-	uberProgramSetup.LIGHT_DIRECTIONAL = setupShaderLight->getParent()->orthogonal;
-	uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = setupShaderLight->getRRLight().type==rr::RRLight::SPOT && !setupShaderLight->getProjectedTexture();
-	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
-	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = setupShaderLight->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.FORCE_2D_POSITION = true;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1,0);
-	if (!program)
-	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
-	}
-	return program;
-}
-
-unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsigned _space)
+unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)
 {
 	if (!scaleDownProgram || !_results)
 	{
@@ -496,23 +455,37 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		glViewport(0, 0, pixelWidth,pixelHeightInOnePass);
 		glClear(GL_COLOR_BUFFER_BIT); // old pixels are overwritten, so clear is usually not needed, but individual light-triangle lighting may be disabled by getTriangleMaterial()=triangles are not rendered, and we need to detect 0 rather than uninitialized value
 
-		// setup renderer
-		RendererOfRRObject::RenderedChannels renderedChannels;
-		renderedChannels.NORMALS = true;
-		renderedChannels.LIGHT_DIRECT = true;
-		renderedChannels.FORCE_2D_POSITION = true;
-
 		// setup shader
-		Program* program = setupShader(0);
+		UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_MAPS = (ddiLight->getRRLight().type==rr::RRLight::POINT)?ddiLight->getNumShadowmaps():(ddiLight->getNumShadowmaps()?1:0);
+		uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
+		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_COLOR = ddiLight->getRRLight().color!=rr::RRVec3(1);
+		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();
+		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getParent()->orthogonal;
+		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = ddiLight->getRRLight().type==rr::RRLight::SPOT && !ddiLight->getProjectedTexture();
+		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_CULLING = false;
+		uberProgramSetup.FORCE_2D_POSITION = true;
+		Program* program = uberProgramSetup.useProgram(uberProgram1,ddiLight,0,NULL,1,0);
+		if (!program)
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
+		}
 
 		// render scene
-		RendererOfRRObject rendererOfMultiObject(getMultiObjectCustom(),this);
-		rendererOfMultiObject.setProgram(program);
-		rendererOfMultiObject.setRenderedChannels(renderedChannels);
-		rendererOfMultiObject.setCapture(firstCapturedTriangle,lastCapturedTrianglePlus1);
-		rendererOfMultiObject.setLightingShadowingFlags(NULL,&setupShaderLight->getRRLight());
 		glDisable(GL_CULL_FACE);
-		rendererOfMultiMesh->render(rendererOfMultiObject);
+		rendererOfScene->getRendererOfMesh(getMultiObjectCustom()->getCollider()->getMesh())->render(
+			program,
+			getMultiObjectCustom(),
+			&FaceGroupRange(0,0,0,firstCapturedTriangle,lastCapturedTrianglePlus1),
+			1,
+			uberProgramSetup,
+			NULL,
+			NULL);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
 		detectSmallMap->renderingToBegin();
@@ -603,6 +576,29 @@ void drawRealtimeLight(RealtimeLight* light)
 			drawCamera(light->getParent());
 		}
 	}
+}
+
+void RRDynamicSolverGL::renderScene(
+		const UberProgramSetup& _uberProgramSetup,
+		const rr::RRLight* _renderingFromThisLight,
+		bool _updateLightIndirect,
+		unsigned _lightIndirectLayer,
+		int _lightDetailMapLayer,
+		float _clipPlaneY,
+		const rr::RRVec4* _brightness,
+		float _gamma)
+{
+	rendererOfScene->render(
+		this,
+		_uberProgramSetup,
+		_uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL,
+		_renderingFromThisLight,
+		_updateLightIndirect,
+		_lightIndirectLayer,
+		_lightDetailMapLayer,
+		_clipPlaneY,
+		_brightness,
+		_gamma);
 }
 
 void RRDynamicSolverGL::renderLights()

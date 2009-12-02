@@ -314,6 +314,9 @@ void deleteAllTextures()
 		delete g_textures[i];
 	}
 	g_textures.clear();
+
+	extern void releaseAllBuffers1x1();
+	releaseAllBuffers1x1();
 }
 
 }; // namespace

@@ -10,12 +10,12 @@
 #include "SVEntityIcons.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"
-#include "SVSolver.h"
 #include "SVFrame.h"
 #include "SVLightProperties.h"
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/Timer.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "../tmpstr.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -125,7 +125,7 @@ void SVCanvas::createContext()
 	}
 
 	// init solver
-	solver = new SVSolver(svs);
+	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
 	if (svs.initialInputSolver)
 	{
 		solver->setScaler(svs.initialInputSolver->getScaler());
@@ -145,6 +145,7 @@ void SVCanvas::createContext()
 		solver->setLights(manuallyOpenedScene->getLights());
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
+	solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
 
 	if (!svs.skyboxFilename.empty())
 	{
@@ -782,12 +783,6 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			svs.eye.setupForRender();
 
-			UberProgramSetup miss;
-			miss.recommendMaterialSetup(solver->getMultiObjectCustom());
-			bool hasDif = miss.MATERIAL_DIFFUSE_CONST||miss.MATERIAL_DIFFUSE_MAP;
-			bool hasEmi = miss.MATERIAL_EMISSIVE_CONST||miss.MATERIAL_EMISSIVE_MAP;
-			bool hasTra = miss.MATERIAL_TRANSPARENCY_CONST||miss.MATERIAL_TRANSPARENCY_MAP||miss.MATERIAL_TRANSPARENCY_IN_ALPHA;
-
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
@@ -796,20 +791,17 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
 			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
-			uberProgramSetup.MATERIAL_DIFFUSE = miss.MATERIAL_DIFFUSE; // "&& renderMaterialDiffuse" would disable diffuse refl completely. Current code only makes diffuse color white - I think this is what user usually expects.
-			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse && !svs.renderMaterialTextures && hasDif;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures && hasDif;
-			uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular && miss.MATERIAL_SPECULAR;
-			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular && miss.MATERIAL_SPECULAR; // even when mixing only 0% and 100% specular, this must be enabled, otherwise all will have 100%
-			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission && !svs.renderMaterialTextures && hasEmi;
-			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures && hasEmi;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_CONST || !svs.renderMaterialTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_MAP && svs.renderMaterialTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_IN_ALPHA && svs.renderMaterialTextures);
-			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency && hasTra && (miss.MATERIAL_TRANSPARENCY_BLEND
-				// here we intentionally enable blend if alpha-keyed textures are disabled.
-				// why? imagine alpha keyed tree, now disable transparency map. tree is 70% transparent, not blended, so whole tree disappears. better enable blend
-				|| !svs.renderMaterialTextures);
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
+			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
+			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.gamma!=1;
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
@@ -818,7 +810,15 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,svs.waterLevel);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				uberProgramSetup.CLIP_PLANE = true;
-				solver->renderScene(uberProgramSetup,NULL);
+				solver->renderScene(
+					uberProgramSetup,
+					NULL,
+					true,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.waterLevel,
+					svs.renderTonemapping?&svs.brightness:NULL,
+					svs.renderTonemapping?svs.gamma:1);
 				water->updateReflectionDone();
 				float oldFar = svs.eye.getFar();
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
@@ -837,12 +837,28 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 				}
 				water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0));
 rendered:
-				solver->renderScene(uberProgramSetup,NULL);
+				solver->renderScene(
+					uberProgramSetup,
+					NULL,
+					true,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.waterLevel,
+					svs.renderTonemapping?&svs.brightness:NULL,
+					svs.renderTonemapping?svs.gamma:1);
 				svs.eye.setFar(oldFar);
 			}
 			else
 			{
-				solver->renderScene(uberProgramSetup,NULL);
+				solver->renderScene(
+					uberProgramSetup,
+					NULL,
+					true,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.waterLevel,
+					svs.renderTonemapping?&svs.brightness:NULL,
+					svs.renderTonemapping?svs.gamma:1);
 			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if (svs.renderTonemapping && svs.adjustTonemapping
@@ -1089,11 +1105,9 @@ rendered:
 					case rr::RRDynamicSolver::FIREBALL: strSolver = "Fireball"; break;
 					case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
 				}
-				// what renderer
-				const char* strRenderer = solver->usingOptimizedScene() ? "optimized" : "per-object";
 				// print it
-				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s render=%s",
-					strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver,strRenderer);
+				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s",
+					strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver);
 			}
 			if (!svs.renderLightmaps2d || !lv)
 			{

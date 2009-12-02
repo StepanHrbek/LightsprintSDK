@@ -38,14 +38,14 @@ public:
 	//! Current OpenGL transformation matrices are used.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
-	bool renderEnvironment(const Texture* texture, const rr::RRVec4& color, float gamma);
+	bool renderEnvironment(const Texture* texture, const rr::RRVec4* color, float gamma);
 
 	//! Initializes shader and render states for rendering cubemap.
 	//! It is one component of renderEnvironment().
 	//! For non-NULL color, texture is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
 	//! With physical set, shader will convert texture samples from physical scale to sRGB.
-	bool renderEnvironmentBegin(const rr::RRVec4& color, bool allowDepthTest, bool physical, float gamma);
+	bool renderEnvironmentBegin(const rr::RRVec4* color, bool allowDepthTest, bool physical, float gamma);
 
 	//! Restores original render states after renderEnvironmentBegin().
 	//! It is one component of renderEnvironment().

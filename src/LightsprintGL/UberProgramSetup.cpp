@@ -3,6 +3,7 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+#include <hash_map>
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
@@ -11,163 +12,108 @@
 namespace rr_gl
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Helpers: 1x1 textures, temporaries for VBO update
+
+class Buffers1x1
+{
+public:
+	void bindPropertyTexture(const rr::RRMaterial::Property& property,unsigned index)
+	{
+		rr::RRBuffer* buffer = property.texture;
+		if (buffer)
+		{
+			// shader expects texture and material provides it
+			getTexture(buffer)->bindTexture();
+		}
+		else
+		{
+			// this is only safety net, we should ideally never get here (we still do)
+			// getting here means shader expects texture but material provides only color
+			// lets create 1x1 texture for given color
+			unsigned color = RR_FLOAT2BYTE(property.color[0])+(RR_FLOAT2BYTE(property.color[1])<<8)+(RR_FLOAT2BYTE(property.color[2])<<16);
+			Buffer1x1Cache::iterator i = buffers1x1.find(color);
+			if (i!=buffers1x1.end())
+			{
+				buffer = i->second;
+				getTexture(buffer)->bindTexture();
+			}
+			else
+			{
+				buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
+				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+				getTexture(buffer,false,false);
+				buffers1x1[color] = buffer;
+			}
+		}
+	}
+	void releaseAllBuffers1x1()
+	{
+		for (Buffer1x1Cache::const_iterator i=buffers1x1.begin();i!=buffers1x1.end();++i)
+			delete i->second;
+	}
+private:
+	typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
+	Buffer1x1Cache buffers1x1;
+} g_buffers1x1;
+
+void releaseAllBuffers1x1()
+{
+	g_buffers1x1.releaseAllBuffers1x1();
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // UberProgramSetup - options for UberShader.vs/fs
 
-void UberProgramSetup::recommendMaterialSetup(rr::RRObject* object)
+void UberProgramSetup::enableAllMaterials()
 {
-	// update MATERIAL_* recommendations
-	unsigned numTrianglesWithDifConst = 0;
-	unsigned numTrianglesWithDifMap = 0;
-	unsigned numTrianglesWithSpecConst = 0;
-	unsigned numTrianglesWithSpecMap = 0;
-	unsigned numTrianglesWithEmiConst = 0;
-	unsigned numTrianglesWithEmiMap = 0;
-	unsigned numTrianglesWithConstTransp = 0;
-	unsigned numTrianglesWithMapRGBTransp = 0;
-	unsigned numTrianglesWithDifMapATransp = 0;
-	unsigned numTrianglesWithNonDifMapATransp = 0;
-	unsigned numTrianglesWithTranspBlend = 0;
-	unsigned numTrianglesWithTranspKeyed = 0;
-	unsigned numTriangles01Sided = 0;
-	unsigned numTriangles2Sided = 0;
-	if (object)
-	{
-		for (unsigned g=0;g<object->faceGroups.size();g++)
-		{
-			const rr::RRMaterial* material = object->faceGroups[g].material;
-			if (material)
-			{
-				unsigned numTriangles = object->faceGroups[g].numTriangles;
+	MATERIAL_DIFFUSE = true;
+	MATERIAL_DIFFUSE_CONST = true;
+	MATERIAL_DIFFUSE_MAP = true;
+	MATERIAL_SPECULAR = true;
+	MATERIAL_SPECULAR_CONST = true;
+	MATERIAL_EMISSIVE_CONST = true;
+	MATERIAL_EMISSIVE_MAP = true;
+	MATERIAL_TRANSPARENCY_CONST = true;
+	MATERIAL_TRANSPARENCY_MAP = true;
+	MATERIAL_TRANSPARENCY_IN_ALPHA = true;
+	MATERIAL_TRANSPARENCY_BLEND = true;
+	MATERIAL_NORMAL_MAP = false;
+	MATERIAL_CULLING = true;
+}
 
-				// dif
-				if (material->diffuseReflectance.texture)
-				{
-					numTrianglesWithDifMap += numTriangles;
-				}
-				else
-				if (material->diffuseReflectance.color!=rr::RRVec3(0))
-				{
-					numTrianglesWithDifConst += numTriangles;
-				}
-
-				// spec
-				if (material->specularReflectance.texture)
-				{
-					numTrianglesWithSpecMap += numTriangles;
-				}
-				else
-				if (material->specularReflectance.color!=rr::RRVec3(0))
-				{
-					numTrianglesWithSpecConst += numTriangles;
-				}
-
-				// emi
-				if (material->diffuseEmittance.texture)
-				{
-					numTrianglesWithEmiMap += numTriangles;
-				}
-				else
-				if (material->diffuseEmittance.color!=rr::RRVec3(0))
-				{
-					numTrianglesWithEmiConst += numTriangles;
-				}
-
-				// transp
-				if (material->specularTransmittance.texture)
-				{
-					if (material->specularTransmittance.texture==material->diffuseReflectance.texture)
-						numTrianglesWithDifMapATransp += numTriangles;
-					else 
-					if (material->specularTransmittanceInAlpha)
-						numTrianglesWithNonDifMapATransp += numTriangles;
-					else 
-						numTrianglesWithMapRGBTransp += numTriangles;
-					if (material->specularTransmittanceKeyed)
-						numTrianglesWithTranspKeyed += numTriangles;
-					else
-						numTrianglesWithTranspBlend += numTriangles;
-				}
-				else
-				if (material->specularTransmittance.color!=rr::RRVec3(0))
-				{
-					numTrianglesWithConstTransp += numTriangles;
-					numTrianglesWithTranspBlend += numTriangles;
-				}
-
-				// culling
-				if (material->sideBits[0].renderFrom && material->sideBits[1].renderFrom)
-					numTriangles2Sided += numTriangles;
-				else
-					numTriangles01Sided += numTriangles;
-			}
-		}
-	}
+void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
+{
+	if (!material)
+		return;
 
 	// dif
 	MATERIAL_DIFFUSE_X2 = false;
-	MATERIAL_DIFFUSE_CONST = numTrianglesWithDifConst>0 && numTrianglesWithDifMap==0;
-	MATERIAL_DIFFUSE_MAP = numTrianglesWithDifMap>0;
-	MATERIAL_DIFFUSE = MATERIAL_DIFFUSE_CONST || MATERIAL_DIFFUSE_MAP;
+	MATERIAL_DIFFUSE = material->diffuseReflectance.color!=rr::RRVec3(0);
+	MATERIAL_DIFFUSE_CONST = !material->diffuseReflectance.texture && material->diffuseReflectance.color!=rr::RRVec3(1);
+	MATERIAL_DIFFUSE_MAP = material->diffuseReflectance.texture!=NULL;
 
 	// spec
-	MATERIAL_SPECULAR_CONST = numTrianglesWithSpecConst>0;
-	MATERIAL_SPECULAR_MAP = numTrianglesWithSpecMap>0;
-	MATERIAL_SPECULAR = MATERIAL_SPECULAR_CONST || MATERIAL_SPECULAR_MAP;
+	MATERIAL_SPECULAR = material->specularReflectance.color!=rr::RRVec3(0);
+	MATERIAL_SPECULAR_CONST = !material->specularReflectance.texture && material->specularReflectance.color!=rr::RRVec3(1);
+	MATERIAL_SPECULAR_MAP = material->specularReflectance.texture!=NULL;
 
 	// emi
-	MATERIAL_EMISSIVE_CONST = numTrianglesWithEmiConst>0 && numTrianglesWithEmiMap==0;
-	MATERIAL_EMISSIVE_MAP = numTrianglesWithEmiMap>0;
+	MATERIAL_EMISSIVE_CONST = material->diffuseEmittance.color!=rr::RRVec3(0) && !material->diffuseEmittance.texture;
+	MATERIAL_EMISSIVE_MAP = material->diffuseEmittance.texture!=NULL;
 
 	// transp
-	if (numTrianglesWithMapRGBTransp>0 && numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp>0)
-	{
-		//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene contains both alpha transparency maps and rgb transparency maps, realtime renderer might render incorrectly.\n");
-	}
-	if (numTrianglesWithMapRGBTransp>numTrianglesWithDifMapATransp+numTrianglesWithNonDifMapATransp)
-	{
-		// transparency mostly in rgb map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 1;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
-	}
-	else
-	if (numTrianglesWithNonDifMapATransp>0)
-	{
-		// transparency mostly in a map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 1;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
-	}
-	else
-	if (numTrianglesWithDifMapATransp>0)
-	{
-		// transparency mostly in a of diffuse map
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
-	}
-	else
-	if (numTrianglesWithConstTransp>0)
-	{
-		// transparency mostly constant
-		MATERIAL_TRANSPARENCY_CONST = 1;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
-	}
-	else
-	{
-		// no transparency
-		MATERIAL_TRANSPARENCY_CONST = 0;
-		MATERIAL_TRANSPARENCY_MAP = 0;
-		MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
-	}
-	MATERIAL_TRANSPARENCY_BLEND = numTrianglesWithTranspBlend>numTrianglesWithTranspKeyed;
+	MATERIAL_TRANSPARENCY_CONST = !material->specularTransmittance.texture && material->specularTransmittance.color!=rr::RRVec3(0);
+	MATERIAL_TRANSPARENCY_MAP = material->specularTransmittance.texture!=NULL;
+	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceKeyed;
+	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 
 	// misc
 	MATERIAL_NORMAL_MAP = false;
-	MATERIAL_CULLING = numTriangles01Sided>0;
+	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;
 }
 
 const char* UberProgramSetup::getSetupString()
@@ -235,6 +181,10 @@ bool UberProgramSetup::operator ==(const UberProgramSetup& a) const
 bool UberProgramSetup::operator !=(const UberProgramSetup& a) const
 {
 	return memcmp(this,&a,sizeof(*this))!=0;
+}
+bool UberProgramSetup::operator <(const UberProgramSetup& a) const
+{
+	return memcmp(this,&a,sizeof(*this))<0;
 }
 
 Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
@@ -319,7 +269,7 @@ void UberProgramSetup::checkCapabilities()
 	}
 }
 
-void UberProgramSetup::reduceMaterialSetup(const UberProgramSetup& fullMaterial)
+void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 {
 	MATERIAL_DIFFUSE               &= fullMaterial.MATERIAL_DIFFUSE;
 	MATERIAL_DIFFUSE_X2            &= fullMaterial.MATERIAL_DIFFUSE_X2;
@@ -385,7 +335,10 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_DETAIL_MAP = 0;
 		MATERIAL_DIFFUSE = 0; // diffuse reflection requested, but there's no suitable light
 	}
-	if (!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_ENV_SPECULAR)
+	if (!LIGHT_DIRECT
+		//&& !LIGHT_INDIRECT_CONST ...why was it here, bug? constant indirect does not affect specular
+		//&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse needs normals, but it doesn't affect specular
+		&& !LIGHT_INDIRECT_ENV_SPECULAR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
 	}
@@ -626,12 +579,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		// uniform is unused (and usually removed by shader compiler) when there is no light
 		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
-		if (!brightness)
-		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: brightness==NULL.\n");
-			return false;
-		}
-		rr::RRVec4 correctedBrightness(*brightness*pow(gamma,0.45f));
+		rr::RRVec4 correctedBrightness(brightness?*brightness*pow(gamma,0.45f):rr::RRVec4(1.0f));
 		program->sendUniform4fv("postprocessBrightness", &correctedBrightness.x);
 	}
 
@@ -662,6 +610,59 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	}
 
 	return program;
+}
+
+void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material) const
+{
+	if (!program)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=NULL\n"));
+		return;
+	}
+	if (!material)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=NULL\n"));
+		rr::RRMaterial s_material;
+		RR_LIMITED_TIMES(1,s_material.reset(false));
+		material = &s_material;
+	}
+	if (MATERIAL_DIFFUSE_CONST)
+	{
+		program->sendUniform("materialDiffuseConst",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1.0f);
+	}
+
+	if (MATERIAL_SPECULAR_CONST)
+	{
+		program->sendUniform("materialSpecularConst",material->specularReflectance.color[0],material->specularReflectance.color[1],material->specularReflectance.color[2],1.0f);
+	}
+
+	if (MATERIAL_EMISSIVE_CONST)
+	{
+		program->sendUniform("materialEmissiveConst",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2],0.0f);
+	}
+
+	if (MATERIAL_TRANSPARENCY_CONST)
+	{
+		program->sendUniform("materialTransparencyConst",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2],1-material->specularTransmittance.color.avg());
+	}
+
+	if (MATERIAL_DIFFUSE_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		g_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
+	}
+
+	if (MATERIAL_EMISSIVE_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
+		g_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
+	}
+
+	if (MATERIAL_TRANSPARENCY_MAP)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
+		g_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
+	}
 }
 
 void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination)
@@ -698,6 +699,36 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 		else
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
+		}
+	}
+}
+
+void UberProgramSetup::useWorldMatrix(Program* program, rr::RRObject* object)
+{
+	if (OBJECT_SPACE && object)
+	{
+		const rr::RRMatrix3x4* world = object->getWorldMatrix();
+		if (world)
+		{
+			float worldMatrix[16] =
+			{
+				world->m[0][0],world->m[1][0],world->m[2][0],0,
+				world->m[0][1],world->m[1][1],world->m[2][1],0,
+				world->m[0][2],world->m[1][2],world->m[2][2],0,
+				world->m[0][3],world->m[1][3],world->m[2][3],1
+			};
+			program->sendUniform("worldMatrix",worldMatrix,false,4);
+		}
+		else
+		{
+			float worldMatrix[16] =
+			{
+				1,0,0,0,
+				0,1,0,0,
+				0,0,1,0,
+				0,0,0,1
+			};
+			program->sendUniform("worldMatrix",worldMatrix,false,4);
 		}
 	}
 }

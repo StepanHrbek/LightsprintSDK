@@ -25,14 +25,14 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 	lightIndex = -separatedZPass-separatedAmbientPass;
 }
 
-Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RendererOfRRObject::RenderedChannels& outRenderedChannels, RealtimeLight*& outLight)
+Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RealtimeLight*& outLight)
 {
-	return getPass(lightIndex++,outUberProgramSetup,outRenderedChannels,outLight);
+	return getPass(lightIndex++,outUberProgramSetup,outLight);
 }
 
 // returns true and all outXxx are set, do render
 // or returns false and outXxx stay unchanged, rendering is done
-Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RendererOfRRObject::RenderedChannels& _outRenderedChannels, RealtimeLight*& _outLight)
+Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RealtimeLight*& _outLight)
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	RealtimeLight* light;
@@ -184,7 +184,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			separatedAmbientPass = 1;
 			lightIndex = -1;
-			program = getNextPass(_outUberProgramSetup,_outRenderedChannels,_outLight);
+			program = getNextPass(_outUberProgramSetup,_outLight);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
 		}
 		if (!program)
@@ -194,40 +194,20 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		}
 	}
 
-	bool hasTransparency = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST || uberProgramSetup.MATERIAL_TRANSPARENCY_MAP || uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA;
-
 	if (_lightIndex==-separatedAmbientPass+1)
 	{
 		// additional passes add to framebuffer
+		// 0. if already blending, there's no simple mode for multipass blending, better skip additional passes
+		if (uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
+			return NULL;
 		// 1. set blend mode
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
-		// 2. disable any further changes of blendmode
-		hasTransparency = false;
+		// 2. disable changes of blendmode
+		//uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = false;
 	}
 
-	RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || uberProgramSetup.POSTPROCESS_NORMALS;
-	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
-	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
-	renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
-	renderedChannels.LIGHT_INDIRECT_DETAIL_MAP = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP;
-	renderedChannels.MATERIAL_DIFFUSE_CONST = uberProgramSetup.MATERIAL_DIFFUSE_CONST;
-	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.MATERIAL_SPECULAR_CONST = uberProgramSetup.MATERIAL_SPECULAR_CONST;
-	renderedChannels.MATERIAL_EMISSIVE_CONST = uberProgramSetup.MATERIAL_EMISSIVE_CONST;
-	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.MATERIAL_TRANSPARENCY_CONST = uberProgramSetup.MATERIAL_TRANSPARENCY_CONST;
-	renderedChannels.MATERIAL_TRANSPARENCY_MAP = uberProgramSetup.MATERIAL_TRANSPARENCY_MAP;
-	renderedChannels.MATERIAL_TRANSPARENCY_BLENDING = hasTransparency && uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
-	renderedChannels.MATERIAL_TRANSPARENCY_KEYING = hasTransparency && !uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND;
-	renderedChannels.MATERIAL_CULLING = uberProgramSetup.MATERIAL_CULLING;
-	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
-
 	_outUberProgramSetup = uberProgramSetup;
-	_outRenderedChannels = renderedChannels;
 	_outLight = light;
 	return program;
 }

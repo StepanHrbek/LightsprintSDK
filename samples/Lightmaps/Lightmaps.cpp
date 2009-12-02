@@ -27,9 +27,9 @@
 //  spacebar = toggle realtime vertex ambient and static ambient maps
 //  p = Precompute higher quality static maps + lightfield
 //      alt-tab to console to see progress (takes seconds to minutes)
+//  1/2/3 = toggle realtime / precomputed per-vertex / precomputed per-pixel illumination
 //  s = Save maps to disk (alt-tab to console to see filenames)
 //  l = Load maps from disk, stop realtime global illumination
-//  v = toggle precomputed per-vertex and per-pixel
 //  +-= change brightness
 //  */= change contrast
 //
@@ -47,11 +47,9 @@
 #include <ctime>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Timer.h"
-#include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/IO/ImportScene.h"
-#include "../RealtimeRadiosity/DynamicObject.h"
 #include <stdio.h>   // printf
 
 
@@ -74,14 +72,20 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
+enum Layer// arbitrary layer numbers
+{
+	LAYER_REALTIME = 0,
+	LAYER_OFFLINE_VERTEX,
+	LAYER_OFFLINE_PIXEL
+};
+Layer                      renderLayer = LAYER_REALTIME;
 rr_gl::Camera              eye(-1.416f,1.741f,-3.646f, 12.230f,0,0.05f,1.3f,70,0.1f,100);
 rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRLightField*          lightField = NULL;
-rr_gl::RendererOfScene*    rendererOfScene = NULL;
-DynamicObject*             robot = NULL;
-DynamicObject*             potato = NULL;
+rr::RRObject*              robot = NULL;
+rr::RRObject*              potato = NULL;
 int                        winWidth = 0;
 int                        winHeight = 0;
 bool                       modeMovingEye = false;
@@ -89,99 +93,43 @@ float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
-bool                       realtimeIllumination = true; // true = fully realtime computed GI, no precalcs; false = precomputed lightmaps+lightfield
-bool                       ambientMapsRender = false;
 rr::RRVec4                 brightness(2);
 float                      contrast = 1;
 unsigned                   solutionVersion = 0;
 
-enum // arbitrary layer numbers
+// estimates where character foot is, moves it to given world coordinate, then rotates character around Y and Z axes
+static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVec2 rotYZ)
 {
-	LAYER_REALTIME = 0,
-	LAYER_OFFLINE_VERTEX,
-	LAYER_OFFLINE_PIXEL
-};
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// rendering scene
-
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
-{
-	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights,renderingFromThisLight);
-	rendererOfScene->useOriginalScene(realtimeIllumination?LAYER_REALTIME:(ambientMapsRender?LAYER_OFFLINE_PIXEL:LAYER_OFFLINE_VERTEX),solutionVersion);
-	rendererOfScene->setBrightnessGamma(&brightness,contrast);
-	rendererOfScene->render();
-
-	// render dynamic objects
-	// enable object space
-	uberProgramSetup.OBJECT_SPACE = true;
-	// when not rendering shadows, enable environment maps
-	if (uberProgramSetup.LIGHT_DIRECT)
-	{
-		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-	}
-	// move and rotate object freely, nothing is precomputed
-	static float rotation = 0;
-	if (!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*50.f;
-	// render object1
-	if (robot)
-	{
-		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->rotYZ = rr::RRVec2(rotation,0);
-		robot->updatePosition();
-		if (uberProgramSetup.LIGHT_INDIRECT_auto)
-		{
-			if (realtimeIllumination)
-				solver->updateEnvironmentMap(robot->illumination);
-			else
-			if (lightField)
-			{
-				lightField->updateEnvironmentMap(robot->illumination,0);
-			}
-		}
-		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast,0);
-	}
-	if (potato)
-	{
-		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
-		potato->rotYZ = rr::RRVec2(rotation/2,0);
-		potato->updatePosition();
-		if (uberProgramSetup.LIGHT_INDIRECT_auto)
-		{
-			if (realtimeIllumination)
-				solver->updateEnvironmentMap(potato->illumination);
-			else
-			if (lightField)
-			{
-				lightField->updateEnvironmentMap(potato->illumination,0);
-			}
-		}
-		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,contrast,0);
-	}
+	if (!object)
+		return;
+	rr::RRVec3 mini,center;
+	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	float sz = sin(RR_DEG2RAD(rotYZ[1]));
+	float cz = cos(RR_DEG2RAD(rotYZ[1]));
+	float sy = sin(RR_DEG2RAD(rotYZ[0]));
+	float cy = cos(RR_DEG2RAD(rotYZ[0]));
+	float mx = -center.x;
+	float my = -mini.y;
+	float mz = -center.z;
+	rr::RRMatrix3x4 worldMatrix;
+	worldMatrix.m[0][0] = cz*cy;
+	worldMatrix.m[1][0] = sz*cy;
+	worldMatrix.m[2][0] = -sy;
+	worldMatrix.m[0][1] = -sz;
+	worldMatrix.m[1][1] = cz;
+	worldMatrix.m[2][1] = 0;
+	worldMatrix.m[0][2] = cz*sy;
+	worldMatrix.m[1][2] = sz*sy;
+	worldMatrix.m[2][2] = cy;
+	worldMatrix.m[0][3] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
+	worldMatrix.m[1][3] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
+	worldMatrix.m[2][3] = -sy*mx+cy*mz+worldFoot[2];
+	object->setWorldMatrix(&worldMatrix);
+	object->illumination.envMapWorldCenter = rr::RRVec3(
+		center.x*worldMatrix.m[0][0]+center.y*worldMatrix.m[0][1]+center.z*worldMatrix.m[0][2]+worldMatrix.m[0][3],
+		center.x*worldMatrix.m[1][0]+center.y*worldMatrix.m[1][1]+center.z*worldMatrix.m[1][2]+worldMatrix.m[1][3],
+		center.x*worldMatrix.m[2][0]+center.y*worldMatrix.m[2][1]+center.z*worldMatrix.m[2][2]+worldMatrix.m[2][3]);
 }
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// integration with Realtime Radiosity
-
-class Solver : public rr_gl::RRDynamicSolverGL
-{
-public:
-	Solver() : RRDynamicSolverGL("../../data/shaders/")
-	{
-		setDirectIlluminationBoost(2);
-	}
-protected:
-	// called from RRDynamicSolverGL to update shadowmaps
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
-	{
-		::renderScene(uberProgramSetup,renderingFromThisLight);
-	}
-};
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -226,16 +174,9 @@ void keyboard(unsigned char c, int x, int y)
 			contrast /= 1.2f;
 			break;
 
-		case ' ':
-			// toggle realtime vertex vs precomputed map ambient
-			realtimeIllumination = !realtimeIllumination;
-			ambientMapsRender = !realtimeIllumination;
-			break;
-		case 'v':
-			// toggle precomputed vertex vs precomputed map ambient
-			ambientMapsRender = !ambientMapsRender;
-			realtimeIllumination = false;
-			break;
+		case '1': renderLayer = LAYER_REALTIME; break;
+		case '2': renderLayer = LAYER_OFFLINE_VERTEX; break;
+		case '3': renderLayer = LAYER_OFFLINE_PIXEL; break;
 		
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
@@ -279,8 +220,7 @@ void keyboard(unsigned char c, int x, int y)
 				lightField->captureLighting(solver,0);
 
 				// start rendering computed maps
-				ambientMapsRender = true;
-				realtimeIllumination = false;
+				renderLayer = LAYER_OFFLINE_PIXEL;
 				modeMovingEye = true;
 				solutionVersion++; // change version so that illumination propagates into VRAM
 				break;
@@ -300,13 +240,13 @@ void keyboard(unsigned char c, int x, int y)
 				delete lightField;
 				lightField = rr::RRLightField::load("../../data/export/lightfield.lf");
 				// start rendering loaded maps
-				ambientMapsRender = true;
-				realtimeIllumination = false;
+				renderLayer = LAYER_OFFLINE_PIXEL;
 				modeMovingEye = true;
 				break;
 			}
 
 		case 27:
+			// see e.g. RealtimeLights for deallocation of everything before exist
 			exit(0);
 	}
 }
@@ -375,34 +315,48 @@ void display(void)
 {
 	if (!winWidth || !winHeight) return; // can't display without window
 
-	// update GI
+	// move dynamic objects
+	float rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*50.f;
+	transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
+	transformObject(potato,rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f),rr::RRVec2(rotation/2,0));
+
+	// update dynamic objects from precomputed lightfield
+	if (renderLayer!=LAYER_REALTIME && lightField)
+	{
+		lightField->updateEnvironmentMap(&robot->illumination,0);
+		lightField->updateEnvironmentMap(&potato->illumination,0);
+	}
+
 	eye.update();
-	solver->reportDirectIlluminationChange(0,true,false);
+
+	solver->reportDirectIlluminationChange(0,true,false); // scene is animated -> direct illum changes
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
 
-	// update vertex color buffers if they need it
-	if (realtimeIllumination)
-	{
-		if (solver->getSolutionVersion()!=solutionVersion)
-		{
-			solutionVersion = solver->getSolutionVersion();
-			solver->updateLightmaps(LAYER_REALTIME,-1,-1,NULL,NULL,NULL);
-		}
-	}
-
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	eye.setupForRender();
+	// configure renderer
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.enableAllMaterials();
+	uberProgramSetup.SHADOW_MAPS = 1; // enable shadows
+	uberProgramSetup.LIGHT_DIRECT = true; // enable direct illumination
+	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_auto = true;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	uberProgramSetup.LIGHT_INDIRECT_auto = true; // enable indirect illumination
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	renderScene(uberProgramSetup,NULL);
+	// render scene
+	solver->renderScene(
+		uberProgramSetup,
+		NULL,
+		renderLayer==LAYER_REALTIME,
+		renderLayer,
+		-1,
+		0,
+		&brightness,
+		contrast);
+
+	solver->renderLights();
 
 	glutSwapBuffers();
 }
@@ -481,31 +435,31 @@ int main(int argc, char **argv)
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
 
-	// init dynamic objects
-	rr_gl::UberProgramSetup material;
-	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
-	material.MATERIAL_DIFFUSE = true;
-	material.MATERIAL_DIFFUSE_MAP = true;
-	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
-
-	// init static scene and solver
+	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new Solver();
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/");
+	solver->setDirectIlluminationBoost(2);
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 
-	// load scene
+	// init static scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
 	solver->setStaticObjects(scene.getObjects(), NULL);
 
+	// init dynamic objects
+	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds",0.3f);
+	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds",0.004f);
+	bool aborting = false;
+	robot = rr::RRObject::createMultiObject(&robotScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
+	potato = rr::RRObject::createMultiObject(&potatoScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
+	rr::RRObjects dynamicObjects;
+	dynamicObjects.push_back(robot);
+	dynamicObjects.push_back(potato);
+	solver->setDynamicObjects(dynamicObjects);
+
+	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
-	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
-	if (!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
@@ -522,6 +476,9 @@ int main(int argc, char **argv)
 		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles()))) res*=2;
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
+	// create remaining cubemaps and multiObject vertex buffers
+	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,4,16,true,false);
+	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX,0,0,true,false);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);

@@ -38,7 +38,6 @@ MultiPass.cpp \
 ObjectBuffers.cpp \
 Program.cpp \
 RealtimeLight.cpp \
-RendererOfRRObject.cpp \
 RendererOfScene.cpp \
 RendererWithCache.cpp \
 RRDynamicSolverGL.cpp \
@@ -64,7 +63,6 @@ SceneViewer/SVRayLog.spp \
 SceneViewer/SVSaveLoad.spp \
 SceneViewer/SVSceneProperties.spp \
 SceneViewer/SVSceneTree.cpp \
-SceneViewer/SVSolver.spp \
 SceneViewer/SVStub.spp
 
 # libraries

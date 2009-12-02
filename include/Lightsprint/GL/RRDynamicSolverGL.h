@@ -11,7 +11,7 @@
 #include "../RRDynamicSolver.h"
 #include "Texture.h"
 #include "Program.h"
-#include "Renderer.h"
+#include "RendererOfScene.h"
 #include "UberProgramSetup.h"
 
 //! LightsprintGL - OpenGL 2.0 renderer that displays realtime global illumination.
@@ -20,10 +20,8 @@ namespace rr_gl
 
 	//! Implementation of rr::RRDynamicSolver generic GPU operations using OpenGL 2.0.
 	//
-	//! This is not complete implementation of rr::RRDynamicSolver,
-	//! it contains generic GPU access operations, but not operations specific to your renderer.
-	//! You need to subclass RRDynamicSolverGL and implement remaining operations specific to your renderer.
-	//! See RealtimeRadiosity sample for an example of such implementation.
+	//! Before creating solver, make sure OpenGL context already exists,
+	//! and OpenGL version is at least 2.0.
 	class RR_GL_API RRDynamicSolverGL : public rr::RRDynamicSolver
 	{
 	public:
@@ -56,10 +54,21 @@ namespace rr_gl
 		//! If you don't change range later in your code, make sure that static scene is already set (setStaticObjects)
 		//! and lights are in their typical positions when you call setLights().
 		virtual void setLights(const rr::RRLights& lights);
-		virtual void setStaticObjects(const rr::RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, rr::RRCollider::IntersectTechnique intersectTechnique=rr::RRCollider::IT_BSP_FASTER, rr::RRDynamicSolver* copyFrom = NULL);
-		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
-		//! renderingFromThisLight is set only when rendering light view into shadowmap, otherwise NULL.
-		virtual void renderScene(UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight) = 0;
+
+		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
+		//! 
+		//! Renderer uses camera actually set in OpenGL fixed pipeline, so you can set it by standard OpenGL commands
+		//! or by our Camera::setupForRender().
+		virtual void renderScene(
+			const UberProgramSetup& _uberProgramSetup,
+			const rr::RRLight* _renderingFromThisLight,
+			bool _updateLightIndirect,
+			unsigned _lightIndirectLayer,
+			int _lightDetailMapLayer,
+			float _clipPlaneY,
+			const rr::RRVec4* _brightness,
+			float _gamma);
+
 		//! Renders wireframe frustums or boxes of lights.
 		virtual void renderLights();
 
@@ -91,9 +100,6 @@ namespace rr_gl
 		//!  Return NULL when direct illumination was not detected for any reason, this
 		//!  function will be called again in next calculate().
 		virtual const unsigned* detectDirectIllumination();
-		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
-		//! without material. Helper function called from detectDirectIllumination().
-		virtual Program* setupShader(unsigned objectNumber);
 	private:
 		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap flag set.
 		//
@@ -102,11 +108,11 @@ namespace rr_gl
 		//! \n Called by calculate().
 		virtual void updateShadowmaps();
 		//! Helper function called from detectDirectIllumination().
-		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
+		virtual unsigned detectDirectIlluminationTo(RealtimeLight* light, unsigned* results, unsigned space);
 
 		// for internal rendering (shadowmaps, DDI)
 		char pathToShaders[300];
-		class RendererOfMesh* rendererOfMultiMesh;
+		RendererOfScene* rendererOfScene;
 		Texture* detectBigMap;
 		Texture* detectSmallMap;
 		Program* scaleDownProgram;
@@ -115,7 +121,6 @@ namespace rr_gl
 		double lastDDITime;
 
 		// for GI of multiple lights
-		RealtimeLight* setupShaderLight;
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 		rr::RRVec3 oldObserverPos;

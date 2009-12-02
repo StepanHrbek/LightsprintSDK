@@ -26,15 +26,29 @@ NEWS
       \n helps fill faceGroups
   - object transformation
     - RRObject::setWorldMatrix() added
-    - RRObject::getWorldMatrix() default implementation improved, you can delete yours, just call setWorldMatrix() once
+    - RRObject::getWorldMatrix() default implementation improved, delete yours, just call setWorldMatrix() once
     - RRObject::getWorldMatrix() changed to const, delete or fix your implementation
+    - RRObject::getWorldMatrixRef() added
   - object's collider and mesh
     - RRObject::setCollider() added
     - RRObject::getCollider() default implementation added, you can delete yours, just call setCollider() once
   - works for all supported formats, Collada, 3ds, Gamebryo etc
-- preparations for deeper dynamic object support
-  - RRDynamicSolver::setDynamicObjects() added (has no effect yet)
+- completed dynamic object support
+  - RRDynamicSolver::setDynamicObjects() added
   - RRDynamicSolver::getDynamicObjects() added
+  - everything works as expected, simply set and manipulate dynamic objects, they render, affect illumination etc
+- completed realtime renderer
+  - automatically renders also dynamic objects
+  - you can change transformations, materials and textures on the fly, changes propagate to GPU automatically
+  - you can change geometry in RRMeshArrays on the fly, changes propagate to GPU automatically
+  - geometry is instanced automatically, saves memory
+  - materials with smooth blending and materials with 1bit alpha can be combined
+  - static and dynamic objects sort and blend correctly if blending is used
+  - removed RendererOfRRObject, no longer necessary
+  - no longer necessary to call rr_gl::Texture::reset()
+- completed rr_gl::RRDynamicSolverGL
+  - can be used for realtime rendering out of the box, does not contain pure functions
+  - rr_gl::RRDynamicSolverGL::renderScene() implemented, added parameters
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - added object properties window
   - added material properties window
@@ -50,10 +64,9 @@ NEWS
   - RRMatrix3x4::isIdentity()
   - RRMaterial::needsBlending()
   - RRVector::resize()
-- improved realtime renderer
-  - you can change materials on the fly, changes propagate to GPU automatically
-  - you can change geometry in RRMeshArrays on the fly, changes propagate to GPU automatically
-  - geometry is instanced automatically, saves memory
+  - RRBuffer::version, updated to solver->getSolutionVersion() each time buffer is updated from solver
+- simplified samples
+  - new features listed above made source code of realtime rendering samples considerably shorter (e.g. RealtimeLights is roughly 5x shorter)
 
 CHANGES
 
@@ -72,12 +85,19 @@ CHANGES
     - change objects[i].object to objects[i]
     - change objects[i].illumination-> to objects[i]->illumination.
   - removed getNumObjects(), use getStaticObjects().size()
-  - removed getObject(i), use getStaticObjects()[i] and make sure i is not out of range, new version does not check it
+  - removed getObject(i), use getStaticObjects()[i] and make sure i is not out of range, new version checks it only in debug
   - removed getIllumination(i), use getStaticObjects()[i]->illumination and make sure i is not out of range
+  - removed allocateRealtimeGIBuffers(), replaced by more flexible RRObjects::allocateRealtimeGIBuffers()
 - modified parameters of RRObjects::createMultiObject(), array+length replaced by vector
 - removed rr_gl::RRDynamicSolverGL::getMaterialsInStaticScene(),
   \n it only cached result of rr_gl::UberProgramSetup::recommendMaterialSetup(solver->getMultiObjectCustom())
   \n and it is no longer needed as the latter was greatly accelerated
+- simplified rr_gl::RendererOfScene
+  - reduced to single simple function
+  - renders (and optionally updates) only illumination in existing buffers (vertex buffers, textures),
+    you have to allocate these buffers first. Use for example solver->allocateBuffersForRealtimeGI().
+- removed rr_gl::UberProgramSetup::recommendMaterialSetup(), use rr_gl::UberProgramSetup::enableAllMaterialFeatures()
+- renamed rr_gl::UberProgramSetup::reduceMaterialSetup() to rr_gl::UberProgramSetup::reduceMaterials()
 - removed RRObjectWithPhysicalMaterials
 - realtime renderer doesn't like uv channel numbers greater than 100
 

@@ -197,11 +197,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			priv->staticSceneContainsEmissiveMaterials?"yes":"no",
 			priv->staticSceneContainsLods?"yes":"no");
 	}
-
-	// realtime GI (calculate & read results)
-	priv->solutionVersionInLightmapLayer = 0;
-	priv->solutionVersionForLightmapLayer = 0;
-	priv->solutionVersionInSpecularEnvMaps = 0;
 }
 
 const RRObjects& RRDynamicSolver::getStaticObjects() const
@@ -635,51 +630,6 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int 
 	{
 		getStaticObjects().allocateBuffersForRealtimeGI(-1,0,specularCubeSize,true,true);
 		getDynamicObjects().allocateBuffersForRealtimeGI(-1,diffuseCubeSize,specularCubeSize,true,true);
-	}
-}
-
-void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, bool updateSpecularEnvMaps)
-{
-	unsigned solutionVersion = getSolutionVersion();
-
-	// disable unnecessary updates
-	if (priv->solutionVersionInLightmapLayer==solutionVersion && priv->solutionVersionForLightmapLayer==updateLightmapLayerNumber) updateLightmapLayerNumber = -1;
-	if (priv->solutionVersionInSpecularEnvMaps==solutionVersion) updateSpecularEnvMaps = false;
-
-	// allocate buffers
-	bool needsVbufAlloc = 
-		// first vbuf update
-		(updateLightmapLayerNumber>=0 && priv->solutionVersionInLightmapLayer==0)
-		// first vbuf update after layer change
-		|| (updateLightmapLayerNumber>=0 && updateLightmapLayerNumber!=priv->solutionVersionForLightmapLayer);
-	bool needsCubeAlloc = 
-		// first cube update
-		(updateSpecularEnvMaps && priv->solutionVersionInSpecularEnvMaps==0);
-	if (needsVbufAlloc || needsCubeAlloc)
-	{
-		allocateBuffersForRealtimeGI(needsVbufAlloc?updateLightmapLayerNumber:-1,0,needsCubeAlloc?16:0,true,false);
-	}
-
-	// update vertex buffers
-	if (updateLightmapLayerNumber>=0)
-	{
-		priv->solutionVersionInLightmapLayer = solutionVersion;
-		priv->solutionVersionForLightmapLayer = updateLightmapLayerNumber;
-		updateLightmaps(updateLightmapLayerNumber,-1,-1,NULL,NULL,NULL);
-	}
-
-	// update specular env maps
-	if (updateSpecularEnvMaps)
-	{
-		//rr::RRReportInterval report(rr::INF1,"Update spec cubes.\n");
-		priv->solutionVersionInSpecularEnvMaps = solutionVersion;
-		for (unsigned i=0;i<getStaticObjects().size();i++)
-		{
-			if (getStaticObjects()[i]->illumination.specularEnvMap)
-			{
-				updateEnvironmentMap(&getStaticObjects()[i]->illumination);
-			}
-		}
 	}
 }
 

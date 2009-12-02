@@ -5,7 +5,6 @@ const unsigned REBUILD_FIB = 0; // 1 = rebuild precomputed .fib (fireball)      
 const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail map)  0 = build at low quality only if it's missing
 // jeste pomaha v RRMaterial.cpp zmenit "minimalQualityForPointMaterials =" na 1, udela vsude point matrose
 
-extern rr_gl::RRDynamicSolverGL* createSolver();
 extern void error(const char* message, bool gfxRelated);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,10 +19,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	setup = levelSetup;
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;
-	rendererOfScene = NULL;
 
 	// init radiosity solver
-	solver = createSolver();
+	extern rr_gl::RRDynamicSolverGL::DDIQuality lightStability;
+	solver = new rr_gl::RRDynamicSolverGL("shaders/",lightStability);
+	solver->setDirectIlluminationBoost(2);
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createFastRgbScaler());
 	solver->setEnvironment(skyMap);
@@ -64,9 +64,12 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+/*	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		solver->getStaticObjects()[i]->illumination.getLayer(0) =
 			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+*/
+	solver->getMultiObjectCustom()->illumination.getLayer(0) = 
+		rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3,1,1,rr::BF_RGBF,false,NULL);
 
 	// init light
 	//rr::RRLights lights;
@@ -141,9 +144,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	eye.pos = bestPos;
 	*/
 
-	// init renderer
-	rendererOfScene = new rr_gl::RendererOfScene(solver,"shaders/");
-
 	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 }
 
@@ -152,7 +152,6 @@ Level::~Level()
 	if (animationEditor)
 		setup->save();
 	delete animationEditor;
-	delete rendererOfScene;
 	delete solver->getScaler();
 	delete solver;
 	delete scene;

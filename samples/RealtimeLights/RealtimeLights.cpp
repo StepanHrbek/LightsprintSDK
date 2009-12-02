@@ -21,8 +21,8 @@
 // Hint: hold space to see dynamic object occluding light
 // Hint: press 1 or 2 and left/right arrows to move lights
 //
-// In comparison to SceneViewer sample, this one is simpler,
-// but open for your experiments, customization.
+// In comparison to SceneViewer sample, this one lacks features,
+// but is more open for your experiments, customization.
 // Everything important is in source code below.
 //
 // Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
@@ -38,13 +38,13 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Timer.h"
-#include "Lightsprint/GL/RendererOfScene.h"
-#include "Lightsprint/GL/SceneViewer.h"
-#include "../RealtimeRadiosity/DynamicObject.h"
 #include "Lightsprint/IO/ImportScene.h"
 
+// only longjmp can break us from glut mainloop
+#include <setjmp.h>
+jmp_buf jmp;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -65,9 +65,9 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-class Solver*              solver = NULL;
-DynamicObject*             robot;
-DynamicObject*             potato;
+rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr::RRObject*              robot = NULL;
+rr::RRObject*              potato = NULL;
 rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
@@ -80,68 +80,41 @@ float                      speedLeft = 0;
 rr::RRVec4                 brightness(1);
 float                      contrast = 1;
 float                      rotation = 0;
-rr::RRScene*               scene = NULL;
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// GI solver and renderer
-
-class Solver : public rr_gl::RRDynamicSolverGL
+// estimates where character foot is, moves it to given world coordinate, then rotates character around Y and Z axes
+static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVec2 rotYZ)
 {
-public:
-	rr_gl::RendererOfScene* rendererOfScene;
-	rr_gl::UberProgram*     uberProgram;
-
-	Solver() : RRDynamicSolverGL("../../data/shaders/")
-	{
-		rendererOfScene = new rr_gl::RendererOfScene(this,"../../data/shaders/");
-		uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
-	}
-	~Solver()
-	{
-		delete uberProgram;
-		delete rendererOfScene;
-	}
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
-	{
-		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
-
-		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
-		rendererOfScene->useRealtimeGI(0);
-		rendererOfScene->setBrightnessGamma(&brightness,contrast);
-		rendererOfScene->render();
-
-		// render dynamic objects
-		// enable object space
-		uberProgramSetup.OBJECT_SPACE = true;
-		// when not rendering into shadowmaps, enable environment maps
-		if (uberProgramSetup.LIGHT_DIRECT)
-		{
-			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		}
-		// render objects
-		if (robot)
-		{
-			robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-			robot->rotYZ = rr::RRVec2(rotation,0);
-			robot->updatePosition();
-			if (uberProgramSetup.LIGHT_INDIRECT_auto)
-				updateEnvironmentMap(robot->illumination);
-			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
-		}
-		if (potato)
-		{
-			potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
-			potato->rotYZ = rr::RRVec2(rotation/2,0);
-			potato->updatePosition();
-			if (uberProgramSetup.LIGHT_INDIRECT_auto)
-				updateEnvironmentMap(potato->illumination);
-			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
-		}
-	}
-};
+	if (!object)
+		return;
+	rr::RRVec3 mini,center;
+	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	float sz = sin(RR_DEG2RAD(rotYZ[1]));
+	float cz = cos(RR_DEG2RAD(rotYZ[1]));
+	float sy = sin(RR_DEG2RAD(rotYZ[0]));
+	float cy = cos(RR_DEG2RAD(rotYZ[0]));
+	float mx = -center.x;
+	float my = -mini.y;
+	float mz = -center.z;
+	rr::RRMatrix3x4 worldMatrix;
+	worldMatrix.m[0][0] = cz*cy;
+	worldMatrix.m[1][0] = sz*cy;
+	worldMatrix.m[2][0] = -sy;
+	worldMatrix.m[0][1] = -sz;
+	worldMatrix.m[1][1] = cz;
+	worldMatrix.m[2][1] = 0;
+	worldMatrix.m[0][2] = cz*sy;
+	worldMatrix.m[1][2] = sz*sy;
+	worldMatrix.m[2][2] = cy;
+	worldMatrix.m[0][3] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
+	worldMatrix.m[1][3] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
+	worldMatrix.m[2][3] = -sy*mx+cy*mz+worldFoot[2];
+	object->setWorldMatrix(&worldMatrix);
+	object->illumination.envMapWorldCenter = rr::RRVec3(
+		center.x*worldMatrix.m[0][0]+center.y*worldMatrix.m[0][1]+center.z*worldMatrix.m[0][2]+worldMatrix.m[0][3],
+		center.x*worldMatrix.m[1][0]+center.y*worldMatrix.m[1][1]+center.z*worldMatrix.m[1][2]+worldMatrix.m[1][3],
+		center.x*worldMatrix.m[2][0]+center.y*worldMatrix.m[2][1]+center.z*worldMatrix.m[2][2]+worldMatrix.m[2][3]);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -193,6 +166,9 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				solver->reportDirectIlluminationChange(i,true,true);
 			}
+			// move dynamic objects
+			transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
+			transformObject(potato,rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f),rr::RRVec2(rotation/2,0));
 			break;
 		case '1':
 		case '2':
@@ -208,16 +184,8 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case 27:
-			rr_gl::deleteAllTextures();
-			delete solver->getEnvironment();
-			delete solver->getScaler();
-			delete solver;
-			delete scene;
-			delete robot;
-			delete potato;
-			delete rr::RRReporter::getReporter();
-			rr::RRReporter::setReporter(NULL);
-			exit(0);
+			// only longjmp can break us from glut mainloop
+			longjmp(jmp,0);
 	}
 	solver->reportInteraction();
 }
@@ -304,7 +272,7 @@ void display(void)
 	eye.setupForRender();
 	// configure renderer
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.recommendMaterialSetup(solver->getMultiObjectCustom()); // enable materials
+	uberProgramSetup.enableAllMaterials();
 	uberProgramSetup.SHADOW_MAPS = 1; // enable shadows
 	uberProgramSetup.LIGHT_DIRECT = true; // enable direct illumination
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
@@ -313,7 +281,7 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,NULL);
+	solver->renderScene(uberProgramSetup,NULL,true,0,-1,0,&brightness,contrast);
 
 	solver->renderLights();
 
@@ -359,7 +327,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 39436;
+	//_crtBreakAlloc = 1063;
 #endif // _WIN32
 
 	// check for version mismatch
@@ -404,31 +372,33 @@ int main(int argc, char **argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new Solver();
+	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/");
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
-	// load scene
-	scene = new rr::RRScene("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
-	solver->setStaticObjects(scene->getObjects(), NULL);
+	// load static scene
+	rr::RRScene staticScene("../../data/scenes/koupelna/koupelna4.dae");
+	solver->setStaticObjects(staticScene.getObjects(), NULL);
 
-	// init dynamic objects
-	rr_gl::UberProgramSetup material;
-	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
-	material.MATERIAL_DIFFUSE = true;
-	material.MATERIAL_DIFFUSE_MAP = true;
-	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
+	// load dynamic objects
+	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds",0.3f);
+	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds",0.004f);
+	bool aborting = false;
+	robot = rr::RRObject::createMultiObject(&robotScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
+	potato = rr::RRObject::createMultiObject(&potatoScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
+	rr::RRObjects dynamicObjects;
+	dynamicObjects.push_back(robot);
+	dynamicObjects.push_back(potato);
+	solver->setDynamicObjects(dynamicObjects);
+	keyboard(' ',0,0); // set initial positions
 
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
-	if (!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
 
 	// init lights
-	for (unsigned i=0;i<scene->getLights().size();i++)
-		scene->getLights()[i]->rtProjectedTextureFilename = "../../data/maps/spot0.png";
-	solver->setLights(scene->getLights());
+	solver->setLights(staticScene.getLights());
+
+	// init buffers for calculated illumination
+	solver->allocateBuffersForRealtimeGI(0);
 
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
 	solver->loadFireball(NULL,true) || solver->buildFireball(350,NULL);
@@ -445,6 +415,18 @@ int main(int argc, char **argv)
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 
-	glutMainLoop();
+	// only longjmp can break us from glut mainloop
+	if (!setjmp(jmp))
+		glutMainLoop();
+
+	// free memory (just to check for leaks)
+	rr_gl::deleteAllTextures();
+	delete solver->getEnvironment();
+	delete solver->getScaler();
+	delete solver;
+	delete robot;
+	delete potato;
+	delete rr::RRReporter::getReporter();
+	rr::RRReporter::setReporter(NULL);
 	return 0;
 }

@@ -20,7 +20,6 @@ public:
 	AnimationEditor* animationEditor;
 	rr::RRScene* scene;
 	rr_gl::RRDynamicSolverGL* solver;
-	rr_gl::RendererOfScene* rendererOfScene;
 
 	unsigned saveIllumination(const char* path);
 	unsigned loadIllumination(const char* path);

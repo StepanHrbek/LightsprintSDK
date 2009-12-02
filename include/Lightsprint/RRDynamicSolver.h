@@ -841,23 +841,12 @@ namespace rr
 		//! \param changeExistingBuffers
 		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
 		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true) const;
-		//! Updates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
-		//
-		//! Calls allocateBuffersForRealtimeGI() automatically when buffers are to be updated for first time.
-		//! \param updateLightmapLayerNumber
-		//!  If >=0, vertex buffers in getStaticObjects()[]->illumination->getLayer(updateLightmapLayerNumber) are updated.
-		//! \param updateSpecularEnvMaps
-		//!  If true, specular envmaps in getStaticObjects()[]->illumination->specularEnvMap are updated.
-		void updateBuffersForRealtimeGI(int updateLightmapLayerNumber, bool updateSpecularEnvMaps);
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
 		const RRObject* getMultiObjectPhysical() const;
-
-	protected:
-
 
 	private:
 

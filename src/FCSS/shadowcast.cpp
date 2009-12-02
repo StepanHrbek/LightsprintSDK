@@ -17,7 +17,6 @@ unsigned INSTANCES_PER_PASS;
 #define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
-//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed s ohromnymi vertex buffery. pri pouziti VBO temer nema vliv
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
@@ -97,7 +96,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef SUPPORT_WATER
 	#include "Lightsprint/GL/Water.h"
 #endif
-#include "DynamicObject.h"
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
@@ -258,32 +256,9 @@ void done_gl_resources()
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Solver
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight);
 void updateMatrices();
 
-class Solver : public rr_gl::RRDynamicSolverGL
-{
-public:
-	Solver() : RRDynamicSolverGL("shaders/",lightStability)
-	{
-		setDirectIlluminationBoost(2);
-	}
-protected:
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
-	{
-		::renderScene(uberProgramSetup,0,&currentFrame.eye,renderingFromThisLight);
-	}
-};
-
-// called from Level.cpp
-rr_gl::RRDynamicSolverGL* createSolver()
-{
-	return new Solver();
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -320,73 +295,31 @@ void updateMatrices(void)
 	needMatrixUpdate = false;
 }
 
-void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, const rr::RRLight* renderingFromThisLight)
-{
-	if (!level) return;
-
-#ifdef RENDER_OPTIMIZED
-	level->rendererOfScene->useOptimizedScene();
-#else
-	// update realtime layer 0
-	static unsigned solutionVersion = 0;
-	if ((uberProgramSetup.LIGHT_INDIRECT_auto || uberProgramSetup.LIGHT_INDIRECT_VCOLOR) && // update vbuf only when needed (update may call calculate()!)
-		level->solver->getSolutionVersion()!=solutionVersion)
-	{
-		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
-	}
-	if (demoPlayer->getPaused())
-	{
-		// paused -> show realtime layer 0
-		level->rendererOfScene->useOriginalScene(0,solutionVersion);
-	}
-	else
-	{
-		// playing -> show precomputed layers (with fallback to realtime layer 0)
-		//const AnimationFrame* frameBlended = level->setup->getFrameByTime(demoPlayer->getPartPosition());
-		//demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frameBlended,true);
-		float transitionDone = 0;
-		float transitionTotal = 0;
-		unsigned frameIndex0 = level->setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
-		const AnimationFrame* frame0 = level->setup->getFrameByIndex(frameIndex0);
-		const AnimationFrame* frame1 = level->setup->getFrameByIndex(frameIndex0+1);
-		level->rendererOfScene->useOriginalSceneBlend(frame0?frame0->layerNumber:0,frame1?frame1->layerNumber:0,transitionTotal?transitionDone/transitionTotal:0,0,solutionVersion);
-	}
-#endif
-
-	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
-	rr::RRReal globalGammaBoosted = currentFrame.gamma;
-	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
-	level->rendererOfScene->setClipPlane(level->setup->waterLevel);
-
-	level->rendererOfScene->setLDM(uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX );
-
-	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(realtimeLight);
-	realtimeLight->setProjectedTexture(demoPlayer->getProjector(currentFrame.projectorIndex));
-	level->rendererOfScene->setParams(uberProgramSetup,&lights,renderingFromThisLight);
-	level->rendererOfScene->render();
-}
-
 // camera must be already set in OpenGL, this one is passed only for frustum culling
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight)
 {
-	// render static scene
+	if (!level) return;
+
 	RR_ASSERT(!uberProgramSetup.OBJECT_SPACE); 
-	glEnable(GL_CULL_FACE); // make scene 1sided, light is sometimes above roof
-	renderSceneStatic(uberProgramSetup,firstInstance,renderingFromThisLight);
-	// render scene dynamic
-	if (uberProgramSetup.FORCE_2D_POSITION) return;
+	RR_ASSERT(demoPlayer);
+
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
-	RR_ASSERT(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(realtimeLight);
+
+//	rr::RRVector<rr_gl::RealtimeLight*> lights;
+//	lights.push_back(realtimeLight);
 	realtimeLight->setProjectedTexture(demoPlayer->getProjector(currentFrame.projectorIndex));
-	glDisable(GL_CULL_FACE); // make robot 2sided, costs approx 1% of fps
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted,level->setup->waterLevel);
+
+	level->solver->renderScene(
+		uberProgramSetup,
+		renderingFromThisLight,
+		true,
+		0,
+		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
+		level->setup->waterLevel,
+		&globalBrightnessBoosted,
+		globalGammaBoosted);
 }
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -490,7 +423,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = !currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // for robot
 
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
@@ -1167,10 +1100,10 @@ void keyboard(unsigned char c, int x, int y)
 
 #define CHANGE_ROT(dY,dZ) demoPlayer->getDynamicObjects()->setRot(selectedObject_indexInDemo,demoPlayer->getDynamicObjects()->getRot(selectedObject_indexInDemo)+rr::RRVec2(dY,dZ))
 #define CHANGE_POS(dX,dY,dZ) demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)+rr::RRVec3(dX,dY,dZ))
-		case 'j': CHANGE_ROT(-5,0); break;
-		case 'k': CHANGE_ROT(+5,0); break;
-		case 'u': CHANGE_ROT(0,-5); break;
-		case 'i': CHANGE_ROT(0,+5); break;
+//		case 'j': CHANGE_ROT(-5,0); break;
+//		case 'k': CHANGE_ROT(+5,0); break;
+//		case 'u': CHANGE_ROT(0,-5); break;
+//		case 'i': CHANGE_ROT(0,+5); break;
 		case 'f': CHANGE_POS(-0.05f,0,0); break;
 		case 'h': CHANGE_POS(+0.05f,0,0); break;
 		case 'v': CHANGE_POS(0,-0.05f,0); break;
@@ -1632,16 +1565,18 @@ no_level:
 			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frame,lightChanged);
 			if (objMoved)
 				reportObjectMovement();
+			/*
+			co tohle melo delat? animationTime ve fcss nedela vubec nic (pouze v RealtimeRadiosity samplu neco)
 			for (unsigned i=0;i<10;i++)
 			{
 				// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
-				DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
+				DynamicObject* dynobj = (*demoPlayer->getDynamicObjects())[i];
 				if (dynobj) dynobj->animationTime = demoPlayer->getPartPosition()
 #if FRAMERATE_SMOOTHING==3
 					+ ddiTime
 #endif
 					;
-			}
+			}*/
 			prevFrame = *frame;
 		}
 		else
@@ -1670,11 +1605,11 @@ no_frame:
 		// paused
 		if (!supportEditor)
 		{
-			float secondsSincePrevFrame = demoPlayer->advance();
-			demoPlayer->getDynamicObjects()->advanceRot(secondsSincePrevFrame);
+//			float secondsSincePrevFrame = demoPlayer->advance();
+//			demoPlayer->getDynamicObjects()->advanceRot(secondsSincePrevFrame);
 			//if (object on screen)
-				reportObjectMovement();
-			needRedisplay = 1;
+//				reportObjectMovement();
+//			needRedisplay = 1;
 		}
 	}
 	previousFrameStartTime = thisFrameStartTime;
@@ -2148,6 +2083,8 @@ retry:
 	uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP = 1;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = 1;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = 1;
+	uberProgramGlobalSetup.MATERIAL_SPECULAR = 1; // for robot
+	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = 1; // for robot
 	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 	uberProgramGlobalSetup.POSTPROCESS_BRIGHTNESS = 1;
 

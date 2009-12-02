@@ -372,12 +372,6 @@
 				RelativePath=".\SceneViewer\SVSceneTree.h">
 			</File>
 			<File
-				RelativePath=".\SceneViewer\SVSolver.cpp">
-			</File>
-			<File
-				RelativePath=".\SceneViewer\SVSolver.h">
-			</File>
-			<File
 				RelativePath=".\SceneViewer\SVStub.cpp">
 			</File>
 		</Filter>
@@ -443,12 +437,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\Renderer.h">
-		</File>
-		<File
-			RelativePath="RendererOfRRObject.cpp">
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h">
 		</File>
 		<File
 			RelativePath="RendererOfScene.cpp">

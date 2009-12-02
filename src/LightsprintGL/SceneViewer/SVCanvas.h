@@ -48,7 +48,7 @@ namespace rr_gl
 
 
 		// public only for SVFrame::selectEntity()
-		class SVSolver*            solver;
+		rr_gl::RRDynamicSolverGL*  solver;
 		EntityType                 selectedType;
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)

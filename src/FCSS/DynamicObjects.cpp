@@ -10,37 +10,78 @@ void reportEyeMovement();
 void reportLightMovement();
 const rr::RRCollider* getSceneCollider();
 
+// estimates where character foot is, moves it to given world coordinate, then rotates character around Y and Z axes
+static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVec2 rotYZ)
+{
+	if (!object)
+		return;
+	rr::RRVec3 mini,center;
+	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	float sz = sin(RR_DEG2RAD(rotYZ[1]));
+	float cz = cos(RR_DEG2RAD(rotYZ[1]));
+	float sy = sin(RR_DEG2RAD(rotYZ[0]));
+	float cy = cos(RR_DEG2RAD(rotYZ[0]));
+	float mx = -center.x;
+	float my = -mini.y;
+	float mz = -center.z;
+	rr::RRMatrix3x4 worldMatrix;
+	worldMatrix.m[0][0] = cz*cy;
+	worldMatrix.m[1][0] = sz*cy;
+	worldMatrix.m[2][0] = -sy;
+	worldMatrix.m[0][1] = -sz;
+	worldMatrix.m[1][1] = cz;
+	worldMatrix.m[2][1] = 0;
+	worldMatrix.m[0][2] = cz*sy;
+	worldMatrix.m[1][2] = sz*sy;
+	worldMatrix.m[2][2] = cy;
+	worldMatrix.m[0][3] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
+	worldMatrix.m[1][3] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
+	worldMatrix.m[2][3] = -sy*mx+cy*mz+worldFoot[2];
+	object->setWorldMatrix(&worldMatrix);
+	object->illumination.envMapWorldCenter = rr::RRVec3(
+		center.x*worldMatrix.m[0][0]+center.y*worldMatrix.m[0][1]+center.z*worldMatrix.m[0][2]+worldMatrix.m[0][3],
+		center.x*worldMatrix.m[1][0]+center.y*worldMatrix.m[1][1]+center.z*worldMatrix.m[1][2]+worldMatrix.m[1][3],
+		center.x*worldMatrix.m[2][0]+center.y*worldMatrix.m[2][1]+center.z*worldMatrix.m[2][2]+worldMatrix.m[2][3]);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // DynamicObjects
 
-void DynamicObjects::addObject(DynamicObject* dynobj)
+bool DynamicObjects::addObject(const char* filename, float scale)
 {
-	if (dynobj)
+	rr::RRScene* scene = new rr::RRScene(filename,scale);
+	if (!scene->getObjects().size())
 	{
-		dynaobject.push_back(dynobj);
+		delete scene;
+		return false;
 	}
-	else
-	{
-		RR_ASSERT(0);
-	}
+	bool aborting = false;
+	push_back(rr::RRObject::createMultiObject(&scene->getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL));
+	scenesToBeDeleted.push_back(scene);
+	return true;
 }
 
 rr::RRVec3 DynamicObjects::getPos(unsigned objIndex) const
 {
-	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->worldFoot : rr::RRVec3(0);
+	if (objIndex>=size())
+		return rr::RRVec3(0);
+	RRObject* object = (*this)[objIndex];
+	rr::RRVec3 mini,center;
+	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	return object->getWorldMatrixRef().getTranslation() - rr::RRVec3(center.x,mini.y,center.z);
 }
 
 void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 {
-	if (objIndex<dynaobject.size())
+	if (objIndex<size())
 	{
-		if (dynaobject[objIndex])
-		{
-			dynaobject[objIndex]->worldFoot = worldFoot;
-			dynaobject[objIndex]->updatePosition();
-			RR_ASSERT(dynaobject[objIndex]->visible);
-		}
+		RRObject* object = (*this)[objIndex];
+		rr::RRVec3 mini,center;
+		object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+		rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
+		worldMatrix.setTranslation(worldFoot - rr::RRVec3(center.x,mini.y,center.z));
+		object->setWorldMatrix(&worldMatrix);
 	}
 	else
 	{
@@ -48,15 +89,15 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 		RR_ASSERT(0);
 	}
 }
-
+/*
 rr::RRVec2 DynamicObjects::getRot(unsigned objIndex) const
 {
-	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->rotYZ : RRVec2(0);
+	return (objIndex<size()) ? dynaobject[objIndex]->rotYZ : RRVec2(0);
 }
 
 void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 {
-	if (objIndex<dynaobject.size())
+	if (objIndex<size())
 	{
 		if (dynaobject[objIndex])
 		{
@@ -69,6 +110,7 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 		RR_ASSERT(0);
 	}
 }
+*/
 
 // copy animation data from frame to actual scene
 // returns whether objects moved
@@ -87,24 +129,20 @@ bool DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 	currentFrame.projectorIndex = frame.projectorIndex;
 	currentFrame.shadowType = frame.shadowType;
 	currentFrame.indirectType = frame.indirectType;
-	//for (AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
-	for (unsigned i=0;i<dynaobject.size();i++)
-	{
-		if (dynaobject[i])
-			dynaobject[i]->visible = false;
-	}
 	for (unsigned i=0;i<setup->objects.size();i++) // i = source object index in frame
 	{
 		unsigned j = setup->objects[i]; // j = destination object index in this
-		if (i<frame.dynaPosRot.size() && j<dynaobject.size() && dynaobject[j])
+		if (i<frame.dynaPosRot.size() && j<size() && (*this)[j])
 		{
-			dynaobject[j]->visible = true;
-			if ((dynaobject[j]->worldFoot-frame.dynaPosRot[i].pos).length()>0.001f) objMoved = true; // treshold is necessary, rounding errors make position slightly off
-			dynaobject[j]->worldFoot = frame.dynaPosRot[i].pos;
-			if ((dynaobject[j]->rotYZ-frame.dynaPosRot[i].rot).length()>0.001f) objMoved = true;
-			dynaobject[j]->rotYZ = frame.dynaPosRot[i].rot;
-//static float globalRot = 0; globalRot += 0.2f; dynaobject[j]->rotYZ[0] = globalRot; //!!! automaticka rotace vsech objektu
-			dynaobject[j]->updatePosition();
+			rr::RRObject* dynaobjectj = (*this)[j];
+			rr::RRMatrix3x4 wm1 = dynaobjectj->getWorldMatrixRef();
+			transformObject(dynaobjectj, frame.dynaPosRot[i].pos, frame.dynaPosRot[i].rot);
+			rr::RRMatrix3x4 wm2 = dynaobjectj->getWorldMatrixRef();
+			float delta = 0;
+			for(unsigned i=0;i<12;i++) delta += fabs(wm1.m[0][i]-wm2.m[0][i]);
+			if (delta>0.001f) objMoved = true; // treshold is necessary, rounding errors make position slightly off
+			//!!!however, this tresholding is dangerous
+			//   make sure 10ms of slow motion is still >treshold, otherwise we just caused stuttering
 		}
 	}
 	return objMoved;
@@ -125,80 +163,42 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects
 		AnimationFrame::DynaObjectPosRot tmp;
-		if (demoIndex<dynaobject.size() // but hand edit of .cfg may remove objects referenced from .ani, lets check it
-			&& dynaobject[demoIndex])
+		if (demoIndex<size() // but hand edit of .cfg may remove objects referenced from .ani, lets check it
+			&& (*this)[demoIndex])
 		{
-			tmp.pos = dynaobject[demoIndex]->worldFoot;
-			tmp.rot = dynaobject[demoIndex]->rotYZ;
+			rr::RRObject* object = (*this)[demoIndex];
+			rr::RRVec3 mini,center;
+			object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+			rr::RRMatrix3x4 wm = object->getWorldMatrixRef();
+
+			tmp.pos = wm.getTranslation()-rr::RRVec3(center.x,mini.y,center.z);
+			tmp.rot = rr::RRVec2(RR_RAD2DEG(acos(wm.m[2][2])),RR_RAD2DEG(acos(wm.m[1][1])));
+
 		}
 		frame.dynaPosRot.push_back(tmp);
 	}
 	frame.validate((unsigned)setup->objects.size());
 }
-
-void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)
-{
-	for (unsigned i=0;i<dynaobject.size();i++)
-	{
-		if (dynaobject[i] && dynaobject[i]->visible)
-		{
-			solver->updateEnvironmentMapCache(dynaobject[i]->illumination);
-		}
-	}
-}
-
-void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, const rr::RRVector<rr_gl::RealtimeLight*>* lights, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float waterLevel) const
-{
-	// use object space
-	uberProgramSetup.OBJECT_SPACE = true;
-	// use environment maps
-	if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
-	{
-		// indirect from envmap
-		uberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynobjects
-		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
-		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 1;
-		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 1;
-	}
-	//dynaobject[4]->worldFoot = rr::RRVec3(2.2f*sin(d*0.005f),1.0f,2.2f);
-
-	RRReportInterval report(uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE?INF3:INF9,"Updating dynamic objects...\n");
-
-	for (unsigned i=0;i<dynaobject.size();i++)
-	{
-		if (dynaobject[i] && dynaobject[i]->visible && dynaobject[i]->worldFoot!=rr::RRVec3(0))
-		{
-			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			{
-				solver->updateEnvironmentMap(dynaobject[i]->illumination);
-			}
-			dynaobject[i]->render(uberProgram,uberProgramSetup,lights,firstInstance,currentFrame.eye,brightness,gamma,waterLevel);
-		}
-	}
-}
-
-DynamicObject* DynamicObjects::getObject(unsigned objectIndex)
-{
-	return (objectIndex<dynaobject.size())?dynaobject[objectIndex]:NULL;
-}
-
+/*
 void DynamicObjects::advanceRot(float seconds)
 {
-	for (unsigned i=0;i<dynaobject.size();i++)
+	for (unsigned i=0;i<size();i++)
 	{
 		RR_ASSERT(dynaobject[i]);
 		dynaobject[i]->rotYZ[0] += 90*seconds;
 		dynaobject[i]->updatePosition();
 	}
 }
-
+*/
 DynamicObjects::~DynamicObjects()
 {
-	for (unsigned i=0;i<dynaobject.size();i++)
+	for (unsigned i=0;i<size();i++)
 	{
-		delete dynaobject[i];
+		delete (*this)[i];
 	}
+	for (unsigned i=0;i<scenesToBeDeleted.size();i++)
+	{
+		delete scenesToBeDeleted[i];
+	}
+	
 }

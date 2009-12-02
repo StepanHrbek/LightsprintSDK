@@ -1,17 +1,15 @@
 // --------------------------------------------------------------------------
 // RealtimeRadiosity sample
 //
-// Most suitable for: games, presentations.
+// Shows realtime GI and area light+penumbra shadows _in custom renderer_.
 //
-// This is 3ds scene viewer with 
-// - realtime GI
-// - 1 custom area light with penumbra shadows
-// - precalculations
-//
-// Shows proper illumination of animated object.
-//
-// Shows rendering of GI via external renderer, indirect lighting is
-// passed as arrays of vertex colors. Other samples use internal RendererOfScene.
+// Advantages
+// - source code of all draw commands
+// - shaders can be customized (animated robot, potato material)
+// - simple, extensible
+// Disadvantages
+// - you can do nearly the same in 5x fewer lines, see RealtimeLights or Lightmaps
+// - custom 3ds renderer is slower, doesn't support transparency etc
 //
 // Controls:
 //  mouse = look around
@@ -75,7 +73,7 @@ float                      speedLeft = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// rendering scene
+// rendering scene via small custom 3ds renderer
 
 // callback that feeds 3ds renderer with our vertex illumination in RGBF format
 const float* lockVertexIllum(void* solver,unsigned object)
@@ -91,11 +89,12 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if (vertexBuffer) vertexBuffer->unlock();
 }
 
+// render scene using very simple custom 3ds renderer, see source code in m3ds.Draw()
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),rr::RRVec4(1),1);
+		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,1);
 
 	// render static scene
 	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,0))
@@ -116,8 +115,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 	}
 	// move and rotate object freely, nothing is precomputed
-	static float rotation = 0;
-	if (!uberProgramSetup.LIGHT_DIRECT) rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
+	float rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
 	if (robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -143,6 +141,10 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 /////////////////////////////////////////////////////////////////////////////
 //
 // GI solver
+//
+// Shadowmaps are updated by solver, therefore to obtain robot shadows, we must
+// either send robot to solver                         <-- this is shown in RealtimeLights, Lightmaps etc
+// or overload solver->renderScene() to render robot   <-- this is shown here
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
@@ -153,8 +155,35 @@ public:
 	}
 protected:
 	// called from RRDynamicSolverGL to update shadowmaps
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
+	virtual void renderScene(
+		const rr_gl::UberProgramSetup& _uberProgramSetup,
+		const rr::RRLight* _renderingFromThisLight,
+		bool _updateLightIndirect,
+		unsigned _lightIndirectLayer,
+		int _lightDetailMapLayer,
+		float _clipPlaneY,
+		const rr::RRVec4* _brightness,
+		float _gamma)
 	{
+		// disable all material properties not supported by custom 3ds renderer
+		rr_gl::UberProgramSetup uberProgramSetup = _uberProgramSetup;
+		//uberProgramSetup.MATERIAL_DIFFUSE
+		uberProgramSetup.MATERIAL_DIFFUSE_X2 = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
+		//uberProgramSetup.MATERIAL_DIFFUSE_MAP
+		//uberProgramSetup.MATERIAL_SPECULAR = false;
+		//uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
+		uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+		uberProgramSetup.MATERIAL_EMISSIVE_CONST = false;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
+		uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = false;
+		uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = false;
+		uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = false;
+		uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = false;
+		uberProgramSetup.MATERIAL_NORMAL_MAP = false;
+		uberProgramSetup.MATERIAL_CULLING = false;
+
+		// call custom 3ds renderer
 		::renderScene(uberProgramSetup);
 	}
 };

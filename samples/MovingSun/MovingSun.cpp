@@ -4,8 +4,6 @@
 // Shows Sun moving over sky, with global illumination
 // rendered on all static and dynamic objects.
 //
-// When run for first time, precalculations take 2-4 minutes.
-//
 // Feel free to load your custom Collada scene to see the same effect
 // (use drag&drop or commandline parameter).
 //
@@ -20,14 +18,10 @@
 // --------------------------------------------------------------------------
 
 #define DEFAULT_SCENE           "../../data/scenes/sponza/sponza.dae"
-//#define FORCE_PRECALCULATE            // precalculate even when data are already available
-#define NUM_FRAMES              10    // more = more detailed changes in time
-#define STATIC_QUALITY          200   // more = less noise. some scenes need at least 1000 (but precalc takes longer)
-#define DYNAMIC_OBJECTS         30    // number of characters randomly moving around
+#define DYNAMIC_OBJECTS         15    // number of characters randomly moving around
 #define SUN_SPEED               0.05f // speed of Sun movement
 #define OBJ_SPEED               0.05f // speed of dynamic object movement
 #define CAM_SPEED               0.04f // relative speed of camera movement (increases when scene size increases)
-#define SELECTED_STATIC_OBJECT  9920  // index of static object awarded by higher quality indirect lighting (per-pixel)
 
 #include <ctime>
 #include <cmath>
@@ -40,17 +34,19 @@
 #endif // _MSC_VER
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Timer.h"
-#include "Lightsprint/GL/RendererOfScene.h"
-#include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/IO/ImportScene.h"
-#include "../RealtimeRadiosity/DynamicObject.h"
 
 #if defined(LINUX) || defined(linux)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
+
+// only longjmp can break us from glut mainloop
+#include <setjmp.h>
+jmp_buf jmp;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -58,7 +54,7 @@
 
 // Sets lights in scene (positions, directions, intensities, whole skybox etc) for given animation phase in 0..1 range.
 // Sample uses only 1 directional light that moves (code below) and single static skybox (not touched here).
-void setupLights(const rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observer, float _lightTime01)
+void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observer, float _lightTime01)
 {
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
@@ -66,86 +62,7 @@ void setupLights(const rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _
 	_solver->realtimeLights[0]->getParent()->updateDirFromAngles = false;
 	_solver->realtimeLights[0]->getParent()->update(_observer,_solver->realtimeLights[0]->getRRLight().rtMaxShadowSize);
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// precalculation
-
-void precalculateOneLayer(rr::RRDynamicSolver* _solver, rr::RRLightField* _lightfield, unsigned _layerNumber)
-{
-	// create buffers for computed GI
-	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	for (unsigned i=0;i<_solver->getStaticObjects().size();i++)
-	{
-		unsigned numVertices = _solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
-		if (numVertices)
-		{
-			_solver->getStaticObjects()[i]->illumination.getLayer(_layerNumber) =
-				(i==SELECTED_STATIC_OBJECT)
-				?
-				// allocate lightmap for selected object
-				rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGB,true,NULL)
-				:
-				// allocate vertex buffers for other objects
-				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-		}
-	}
-
-	// precalculate lightmaps
-	rr::RRDynamicSolver::UpdateParameters paramsDirect(STATIC_QUALITY);
-	rr::RRDynamicSolver::UpdateParameters paramsIndirect = paramsDirect;
-	paramsDirect.applyLights = 0; // don't include direct sunlight, it will be computed in realtime
-	_solver->updateLightmaps(_layerNumber,-1,-1,&paramsDirect,&paramsIndirect,NULL);
-
-	// precalculate into lightfield
-	_lightfield->captureLighting(_solver,_layerNumber);
-}
-
-void precalculateAllLayers(rr_gl::RRDynamicSolverGL* _solver, const rr::RRLightField*& _lightfield, float _groundLevel, rr::RRVec3 _aabbMin, rr::RRVec3 _aabbMax)
-{
-	// allocate lightfield
-	rr::RRVec4 lfMin(_aabbMin.x,_groundLevel+1,_aabbMin.z,0);
-	rr::RRVec4 lfMax(_aabbMax.x,_groundLevel+1,_aabbMax.z,1); // w: time in 0..1 range
-	rr::RRLightField* lightfield = rr::RRLightField::create(lfMin,lfMax-lfMin,2,4,0,NUM_FRAMES); // disabled specular reflection
-	_lightfield = lightfield;
-
-	for (unsigned layerNumber=0;layerNumber<NUM_FRAMES;layerNumber++)
-	{
-		setupLights(_solver,NULL,layerNumber/float(NUM_FRAMES-1));
-		precalculateOneLayer(_solver,lightfield,layerNumber);
-	}
-}
-
-bool loadPrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLightField*& _lightfield, std::string _path)
-{
-	_lightfield = rr::RRLightField::load((_path+"lightfield.lf").c_str());
-	if (!_lightfield) return false;
-	for (unsigned i=0;i<NUM_FRAMES;i++)
-	{
-		char buf[10];
-		sprintf(buf,"%02d_",i);
-		_staticObjects.loadLayer(i,(_path+buf).c_str(),"png");
-	}
-	return true;
-}
-
-void savePrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLightField* _lightfield, std::string _path)
-{
-#ifdef _MSC_VER
-	_mkdir(_path.c_str());
-#endif // _MSC_VER
-#if defined(LINUX) || defined(linux)
-	mkdir(_path.c_str(), 0744);
-#endif
-	for (unsigned i=0;i<NUM_FRAMES;i++)
-	{
-		char buf[10];
-		sprintf(buf,"%02d_",i);
-		_staticObjects.saveLayer(i,(_path+buf).c_str(),"png");
-	}
-	_lightfield->save((_path+"lightfield.lf").c_str());
+	_solver->reportDirectIlluminationChange(0,true,true);
 }
 
 
@@ -153,8 +70,7 @@ void savePrecalculatedData(const rr::RRObjects& _staticObjects, const rr::RRLigh
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-class Solver*              solver = NULL;
-DynamicObject*             dynamicObject[DYNAMIC_OBJECTS];
+rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,90,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
@@ -164,14 +80,10 @@ bool                       autopilot = true;
 float                      objectTime = 0; // arbitrary
 float                      lightTime = 0; // arbitrary
 float                      lightTime01 = 0; // lightTime doing pingpong in 0..1 range
-rr::RRVec4                 brightness(1);
+rr::RRVec4                 brightness(2);
 float                      contrast = 1;
-const rr::RRLightField*    lightField;
-rr_gl::ToneMapping*        toneMapping = NULL;
 bool                       keyPressed[512];
-rr::RRVec3                 aabbMin,aabbMax; // AABB of static scene
 rr::RRReal                 groundLevel = 0;
-rr::RRScene*               scene = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -188,76 +100,39 @@ void error(const char* message, bool gfxRelated)
 	exit(0);
 }
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// GI solver and renderer
-
-class Solver : public rr_gl::RRDynamicSolverGL
+// estimates where character foot is, moves it to given world coordinate, then rotates character around Y and Z axes
+static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVec2 rotYZ)
 {
-public:
-	rr_gl::RendererOfScene* rendererOfScene;
-	rr_gl::UberProgram*     uberProgram;
-
-	Solver() : RRDynamicSolverGL("../../data/shaders/")
-	{
-		rendererOfScene = new rr_gl::RendererOfScene(this,"../../data/shaders/");
-		uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
-	}
-	~Solver()
-	{
-		delete uberProgram;
-		delete rendererOfScene;
-	}
-	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRLight* renderingFromThisLight)
-	{
-		//rr::RRReportInterval report(rr::INF1,"render...\n");
-		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
-
-		// render static scene
-		rendererOfScene->setParams(uberProgramSetup,lights,renderingFromThisLight);
-
-		unsigned frame1 = (unsigned)(lightTime01*(NUM_FRAMES-1));
-		unsigned frame2 = (frame1+1)%NUM_FRAMES;
-		float blend = lightTime01*(NUM_FRAMES-1)-frame1;
-		rendererOfScene->useOriginalSceneBlend(frame1,frame2,blend,frame1,0);
-		rendererOfScene->setBrightnessGamma(&brightness,contrast);
-		rendererOfScene->render();
-
-		//rr::RRReportInterval report2(rr::INF1,"dynamic...\n");
-		// render dynamic objects
-		// enable object space
-		uberProgramSetup.OBJECT_SPACE = true;
-		// when not rendering into shadowmaps, enable environment maps
-		if (uberProgramSetup.LIGHT_DIRECT)
-		{
-			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
-		}
-		// render objects
-		for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
-		{
-			float a = 1;
-			float b = 0.2f;
-			float t = objectTime+20.2f*i/DYNAMIC_OBJECTS;
-			float s = 6.28f*i/DYNAMIC_OBJECTS;
-			dynamicObject[i]->worldFoot = rr::RRVec3(
-				(aabbMin.x+aabbMax.x)/2+(aabbMax.x-aabbMin.x)*0.45*( a*cos(t)*cos(s)-b*sin(t)*sin(s) ),
-				groundLevel,
-				(aabbMin.z+aabbMax.z)/2+(aabbMax.z-aabbMin.z)*0.45*( b*sin(t)*cos(s)+a*cos(t)*sin(s) ));
-			dynamicObject[i]->rotYZ = rr::RRVec2(3.14f+3*objectTime+i,0);
-			dynamicObject[i]->updatePosition();
-			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			{
-				lightField->updateEnvironmentMap(dynamicObject[i]->illumination,lightTime01);
-			}
-			dynamicObject[i]->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
-		}
-	}
-};
+	if (!object)
+		return;
+	rr::RRVec3 mini,center;
+	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	float sz = sin(RR_DEG2RAD(rotYZ[1]));
+	float cz = cos(RR_DEG2RAD(rotYZ[1]));
+	float sy = sin(RR_DEG2RAD(rotYZ[0]));
+	float cy = cos(RR_DEG2RAD(rotYZ[0]));
+	float mx = -center.x;
+	float my = -mini.y;
+	float mz = -center.z;
+	rr::RRMatrix3x4 worldMatrix;
+	worldMatrix.m[0][0] = cz*cy;
+	worldMatrix.m[1][0] = sz*cy;
+	worldMatrix.m[2][0] = -sy;
+	worldMatrix.m[0][1] = -sz;
+	worldMatrix.m[1][1] = cz;
+	worldMatrix.m[2][1] = 0;
+	worldMatrix.m[0][2] = cz*sy;
+	worldMatrix.m[1][2] = sz*sy;
+	worldMatrix.m[2][2] = cy;
+	worldMatrix.m[0][3] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
+	worldMatrix.m[1][3] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
+	worldMatrix.m[2][3] = -sy*mx+cy*mz+worldFoot[2];
+	object->setWorldMatrix(&worldMatrix);
+	object->illumination.envMapWorldCenter = rr::RRVec3(
+		center.x*worldMatrix.m[0][0]+center.y*worldMatrix.m[0][1]+center.z*worldMatrix.m[0][2]+worldMatrix.m[0][3],
+		center.x*worldMatrix.m[1][0]+center.y*worldMatrix.m[1][1]+center.z*worldMatrix.m[1][2]+worldMatrix.m[1][3],
+		center.x*worldMatrix.m[2][0]+center.y*worldMatrix.m[2][1]+center.z*worldMatrix.m[2][2]+worldMatrix.m[2][3]);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -286,18 +161,8 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ': autopilot = !autopilot; break;
 
 		case 27:
-			rr_gl::deleteAllTextures();
-			delete toneMapping;
-			delete lightField;
-			delete solver->getEnvironment();
-			delete solver->getScaler();
-			delete solver->getLights()[0];
-			delete solver;
-			delete scene;
-			for (unsigned i=0;i<DYNAMIC_OBJECTS;i++) delete dynamicObject[i];
-			delete rr::RRReporter::getReporter();
-			rr::RRReporter::setReporter(NULL);
-			exit(0);
+			// only longjmp can break us from glut mainloop
+			longjmp(jmp,0);
 	}
 
 	solver->reportInteraction();
@@ -366,43 +231,48 @@ void display(void)
 		reshape(winWidth,winHeight);
 	}
 
-	setupLights(solver,&eye,lightTime01);
-
-	eye.update();
-
+	// move characters
+	rr::RRVec3 aabbMin,aabbMax; // AABB of static scene
+	solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
+	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
-		//rr::RRReportInterval report(rr::INF1,"shadowmaps...\n");
-		rr::RRDynamicSolver::CalculateParameters params;
-		params.qualityIndirectDynamic = 0; // 0=ignore GI, update only shadowmaps
-		solver->calculate(&params);
+		float a = 1;
+		float b = 0.2f;
+		float t = objectTime+20.2f*i/DYNAMIC_OBJECTS;
+		float s = 6.28f*i/DYNAMIC_OBJECTS;
+		transformObject(
+			solver->getDynamicObjects()[i],
+			rr::RRVec3(
+				(aabbMin.x+aabbMax.x)/2+(aabbMax.x-aabbMin.x)*0.45*( a*cos(t)*cos(s)-b*sin(t)*sin(s) ),
+				groundLevel,
+				(aabbMin.z+aabbMax.z)/2+(aabbMax.z-aabbMin.z)*0.45*( b*sin(t)*cos(s)+a*cos(t)*sin(s) )),
+			rr::RRVec2(3.14f+3*objectTime+i,0));
 	}
+
+	setupLights(solver,&eye,lightTime01);
+	eye.update();
+	solver->calculate();
 
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	eye.setupForRender();
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.recommendMaterialSetup(solver->getMultiObjectCustom());
+	uberProgramSetup.enableAllMaterials();
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	//uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(uberProgramSetup,NULL);
-
-	// adjust tonemapping operator
-	if (toneMapping)
-	{
-		float secondsSinceLastFrame;
-		{
-			static TIME oldTime = 0;
-			TIME newTime = GETTIME;
-			secondsSinceLastFrame = oldTime ? (newTime-oldTime)/float(PER_SEC) : 0;
-			oldTime = newTime;
-		}
-		if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
-			toneMapping->adjustOperator(secondsSinceLastFrame,brightness,contrast,0.5f);
-	}
+	solver->renderScene(
+		uberProgramSetup,
+		NULL,
+		true,
+		0,
+		-1,
+		0,
+		&brightness,
+		1);
 
 	glutSwapBuffers();
 }
@@ -451,10 +321,15 @@ int main(int argc, char **argv)
 //	_crtBreakAlloc = 1;
 #endif // _MSC_VER
 
+	// check for version mismatch
+	if (!RR_INTERFACE_OK)
+	{
+		printf(RR_INTERFACE_MISMATCH_MSG);
+		error("",false);
+	}
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,1,true);
-	//rr_gl::Program::logMessages(1);
 
 	rr_io::registerLoaders();
 
@@ -486,7 +361,6 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-	
 
 #ifdef _MSC_VER
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
@@ -500,20 +374,15 @@ int main(int argc, char **argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new Solver();
+	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/");
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
-	const char* sceneFilename = (argc>1)?argv[1]:DEFAULT_SCENE;
-
 	// load scene
-	scene = new rr::RRScene(sceneFilename,1);
-	if (!scene->getObjects().size())
+	rr::RRScene scene((argc>1)?argv[1]:DEFAULT_SCENE);
+	if (!scene.getObjects().size())
 		error("No objects in scene.",false);
-
-	solver->setStaticObjects(scene->getObjects(), NULL);
-
+	solver->setStaticObjects(scene.getObjects(), NULL);
 	groundLevel = solver->getMultiObjectCustom()->getCollider()->getMesh()->findGroundLevel();
-	solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
 
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
@@ -528,36 +397,35 @@ int main(int argc, char **argv)
 		solver->setLights(lights);
 	}
 
-	// precalculate lightmaps and lightfield
-	{
-		std::string path = std::string(sceneFilename)+".precalc/";
-#ifndef FORCE_PRECALCULATE
-		if (!loadPrecalculatedData(solver->getStaticObjects(),lightField,path))
-#endif
-		{
-			precalculateAllLayers(solver,lightField,groundLevel,aabbMin,aabbMax);
-			savePrecalculatedData(solver->getStaticObjects(),lightField,path);
-		}
-	}
-
 	// auto-set camera, speed
 	//srand((unsigned)time(NULL));
 	eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
-	// init tonemapping
-	toneMapping = new rr_gl::ToneMapping("../../data/shaders/");
-
 	// init dynamic objects
-	rr_gl::UberProgramSetup material;
-	material.MATERIAL_DIFFUSE = true;
-	material.MATERIAL_DIFFUSE_MAP = true;
+	rr::RRScene character1("../../data/objects/lowpoly/lwpg0001.3ds");
+	rr::RRScene character2("../../data/objects/lowpoly/lwpg0002.3ds");
+	rr::RRScene character3("../../data/objects/lowpoly/lwpg0003.3ds");
+	rr::RRScene character4("../../data/objects/lowpoly/lwpg0004.3ds");
+	rr::RRScene character5("../../data/objects/lowpoly/lwpg0005.3ds");
+	rr::RRScene character6("../../data/objects/lowpoly/lwpg0006.3ds");
+	rr::RRScene character7("../../data/objects/lowpoly/lwpg0007.3ds");
+	rr::RRScene character8("../../data/objects/lowpoly/lwpg0008.3ds");
+	rr::RRScene character9("../../data/objects/lowpoly/lwpg0009.3ds");
+	rr::RRScene* characters[9] = {&character1,&character2,&character3,&character4,&character5,&character6,&character7,&character8,&character9};
+	rr::RRObjects dynamicObjects;
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
-		char filename[100];
-		sprintf(filename,"../../data/objects/lowpoly/lwpg%04d.3ds",1+(i%9));
-		dynamicObject[i] = DynamicObject::create(filename,1,material,16,0);
+		bool aborting = false;
+		dynamicObjects.push_back(rr::RRObject::createMultiObject(&characters[i%9]->getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL));
 	}
+	solver->setDynamicObjects(dynamicObjects);
+
+	// init buffers for calculated illumination
+	solver->allocateBuffersForRealtimeGI(0);
+
+	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
+	solver->loadFireball(NULL,true) || solver->buildFireball(1000,NULL);
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
@@ -572,6 +440,19 @@ int main(int argc, char **argv)
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 
-	glutMainLoop();
+	// only longjmp can break us from glut mainloop
+	if (!setjmp(jmp))
+		glutMainLoop();
+
+	// free memory (just to check for leaks)
+	rr_gl::deleteAllTextures();
+	delete solver->getEnvironment();
+	delete solver->getScaler();
+	delete solver->getLights()[0];
+	delete solver;
+	for (unsigned i=0;i<dynamicObjects.size();i++)
+		delete dynamicObjects[i];
+	delete rr::RRReporter::getReporter();
+	rr::RRReporter::setReporter(NULL);
 	return 0;
 }

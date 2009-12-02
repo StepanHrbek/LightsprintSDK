@@ -12,8 +12,8 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/RRScene.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "SVRayLog.h"
-#include "SVSolver.h"
 #include "SVSaveLoad.h"
 #include "SVSceneProperties.h"
 #include "SVLightProperties.h"
@@ -339,6 +339,14 @@ void SVFrame::OnExit(wxCommandEvent& event)
 	Close(true);
 }
 
+static void dirtyLights(rr_gl::RRDynamicSolverGL* solver)
+{
+	for (unsigned i=0;i<solver->realtimeLights.size();i++)
+	{
+		solver->reportDirectIlluminationChange(i,true,true);
+	}
+}
+
 void SVFrame::UpdateMenuBar()
 {
 	updateMenuBarNeeded = false;
@@ -496,7 +504,7 @@ void SVFrame::UpdateMenuBar()
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	RR_ASSERT(m_canvas);
-	SVSolver*& solver = m_canvas->solver;
+	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
 	RR_ASSERT(solver);
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
@@ -678,7 +686,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
-			solver->dirtyLights();
+			dirtyLights(solver);
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
 				if (!fireballLoadAttempted)
@@ -691,7 +699,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			{
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
 				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
-				solver->dirtyLights();
+				dirtyLights(solver);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
 			}
@@ -702,7 +710,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
-			solver->dirtyLights();
+			dirtyLights(solver);
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
 			break;
@@ -785,7 +793,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->buildFireball(quality,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
-					solver->dirtyLights();
+					dirtyLights(solver);
 					fireballLoadAttempted = true;
 				}
 			}
@@ -922,12 +930,6 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					{
 						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 							getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber),true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
-					}
-
-					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
-					if (res)
-					{
-						solver->resetRenderCache();
 					}
 
 					// save calculated lightmaps

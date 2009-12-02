@@ -65,12 +65,12 @@ void display(void)
 
 	// init water reflection
 	water->updateReflectionInit(winWidth/4,winHeight/4,&eye);
-	textureRenderer->renderEnvironment(environmentMap,rr::RRVec4(1),1);
+	textureRenderer->renderEnvironment(environmentMap,NULL,1);
 	water->updateReflectionDone();
 
 	// render everything except water
 	eye.setupForRender();
-	textureRenderer->renderEnvironment(environmentMap,rr::RRVec4(1),1);
+	textureRenderer->renderEnvironment(environmentMap,NULL,1);
 
 	// render water
 	water->render(1000,rr::RRVec3(0),rr::RRVec4(0.1f,0.25f,0.35f,0.5f),lightDirection,rr::RRVec3(4));

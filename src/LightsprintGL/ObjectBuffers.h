@@ -22,6 +22,42 @@ namespace rr_gl
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// FaceGroupRange
+
+struct FaceGroupRange
+{
+	unsigned short object;
+	unsigned short faceGroupFirst;
+	unsigned short faceGroupLast;
+	unsigned triangleFirst;
+	unsigned triangleLastPlus1;
+	FaceGroupRange(unsigned _object, unsigned _faceGroup, unsigned _triangleFirst, unsigned _triangleLastPlus1)
+	{
+		object = _object;
+		faceGroupFirst = _faceGroup;
+		faceGroupLast = _faceGroup;
+		triangleFirst = _triangleFirst;
+		triangleLastPlus1 = _triangleLastPlus1;
+		RR_ASSERT(object==_object);
+		RR_ASSERT(faceGroupFirst==_faceGroup);
+	}
+	FaceGroupRange(unsigned _object, unsigned _faceGroupFirst, unsigned _faceGroupLast, unsigned _triangleFirst, unsigned _triangleLastPlus1)
+	{
+		object = _object;
+		faceGroupFirst = _faceGroupFirst;
+		faceGroupLast = _faceGroupLast;
+		triangleFirst = _triangleFirst;
+		triangleLastPlus1 = _triangleLastPlus1;
+		RR_ASSERT(object==_object);
+		RR_ASSERT(faceGroupFirst==_faceGroupFirst);
+		RR_ASSERT(faceGroupLast==_faceGroupLast);
+	}
+	bool operator <(const FaceGroupRange& a); // for sort()
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // MeshArraysVBOs - RRMeshArrays data stored in VBOs for faster rendering
 
 class MeshArraysVBOs : public rr::RRUniformlyAllocatedNonCopyable
@@ -41,9 +77,16 @@ public:
 	//!  True if update succeeded or was not necessary. False if update failed.
 	bool update(const rr::RRMeshArrays* mesh, bool indexed);
 
-	//! Renders mesh VBOs.
+	//! Renders mesh.
 	//! Must not be called inside display list (may create textures).
-	void render(RendererOfRRObject::Params& params);
+	void render(
+		Program* program,
+		const rr::RRObject* object,
+		const FaceGroupRange* faceGroupRange,
+		unsigned numFaceGroupRanges,
+		const UberProgramSetup& uberProgramSetup,
+		rr::RRBuffer* lightIndirectBuffer,
+		const rr::RRBuffer* lightDetailMap);
 
 private:
 	const void*   createdFromMesh;
@@ -53,16 +96,12 @@ private:
 	bool          createdIndexed;
 	bool          createdOk;
 
-	bool          privateMultiobjLightIndirectInited;
-	rr::RRBuffer* privateMultiobjLightIndirectBuffer; // allocated during render if render needs it
-
 	enum VBOIndex
 	{
 		VBO_index, // used only if indexed
 		VBO_position,
 		VBO_normal,
 		VBO_lightIndirectVcolor,
-		VBO_lightIndirectVcolor2, // used when blending 2 vbufs together
 		VBO_texcoordForced2D,
 		VBO_COUNT
 	};
@@ -79,7 +118,6 @@ class MeshVBOs : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	MeshVBOs();
-	~MeshVBOs();
 protected:
 	//! Fills buffer when requested for first time.
 	//! Updates it if (mesh pointer or numTriangles or numVertices changes) or (indexed and mesh is RRMeshArrays).
@@ -100,9 +138,16 @@ private:
 class RendererOfMesh : public MeshVBOs
 {
 public:
-	//! Renders mesh VBOs.
+	//! Renders mesh.
 	//! Must not be called inside display list (may create VBOs, textures).
-	void render(RendererOfRRObject& params);
+	void render(
+		Program* program,
+		const rr::RRObject* object,
+		const FaceGroupRange* faceGroupRange,
+		unsigned numFaceGroupRanges,
+		const UberProgramSetup& uberProgramSetup,
+		rr::RRBuffer* lightIndirectBuffer,
+		const rr::RRBuffer* lightDetailMap);
 };
 
 }; // namespace

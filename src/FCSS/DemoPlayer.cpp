@@ -2,7 +2,6 @@
 #include "Level.h"
 #include "DemoPlayer.h"
 #include "Music.h"
-#include "DynamicObject.h"
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
@@ -78,6 +77,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	while (9==fscanf(f,"object = %f,%f,%d,%d,%d,%d,%d,%f,%s\n",
 		&diffuse,&specular,&specularMap,&normalMap,&emissiveMap,&gatherDiffuseCubeSize,&specularCubeSize,&scale,buf))
 	{
+		/*
 		rr_gl::UberProgramSetup material;
 		material.MATERIAL_DIFFUSE = diffuse?1:0;
 		material.MATERIAL_DIFFUSE_X2 = 0;
@@ -88,18 +88,37 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		material.MATERIAL_SPECULAR_MAP = specularMap?1:0;
 		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
 		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
+		*/
 		rr::RRReporter::report(rr::INF1,"Loading %s...\n",buf);
-		DynamicObject* object = DynamicObject::create(buf,scale,material,gatherDiffuseCubeSize,specularCubeSize);
-		if (object)
-			dynamicObjects->addObject(object);
+		if (dynamicObjects->addObject(buf,scale))
+		{
+			// adjust material
+			rr::RRObject* object = (*dynamicObjects)[dynamicObjects->size()-1];
+			if (object->faceGroups.size()==1)
+			{
+				rr::RRMaterial* material = object->faceGroups[0].material;
+				material->diffuseReflectance.color = rr::RRVec3(diffuse);
+				material->specularReflectance.color = rr::RRVec3(specular);
+				material->updateSideBitsFromColors();
+			}
+			// alloc cubes
+			object->illumination.gatherEnvMapSize = gatherDiffuseCubeSize;
+			if (diffuse && gatherDiffuseCubeSize)
+				object->illumination.diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,gatherDiffuseCubeSize,gatherDiffuseCubeSize,6,rr::BF_RGBA,true,NULL);
+			if (specular && specularCubeSize)
+				object->illumination.specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,specularCubeSize,specularCubeSize,6,rr::BF_RGBA,true,NULL);
+		}
 		else
+		{
 			rr::RRReporter::report(rr::WARN,"Object indices temporarily broken due to missing object.\n");
+		}
 	}
 
 	// load scenes
 	while (1==fscanf(f,"scene = %s\n",buf))
 	{
 		Level* level = new Level(new LevelSetup(buf),skyMap,supportEditor);
+		level->solver->setDynamicObjects(*dynamicObjects);
 		scenes.push_back(level);
 	}
 	nextSceneIndex = 0;
