@@ -106,7 +106,7 @@ namespace rr
 		//! Returned pointer must stay valid and constant for whole life of object.
 		//!
 		//! <b>Editing materials</b>
-		//! \nCaller is allowed to modify returned materials including textures, but if he allocates new textures,
+		//! \n Caller is allowed to modify returned materials including textures, but if he allocates new textures,
 		//! he is responsible for freeing them. RRObject must free only what RRObject allocated.
 		//! Filtered objects (e.g. objects created by createMultiObject(), createWorldSpaceObject()) usually
 		//! share materials, so by modifying base object, filtered one is modified too.
@@ -252,7 +252,7 @@ namespace rr
 		//!  hits to back side on negatively scaled object.
 		//!  Note that forced singlesided test (simple test without collision handler, see RRRay::TEST_SINGLESIDED) 
 		//!  detects always front sides, so it won't work with negative scale and negScaleMakesOuterInner=false.
-		//!  \n\nNote that if negScaleMakesOuterInner=false, worldSpaceObject->getTriangleMaterial() on negatively
+		//!  \n\n Note that if negScaleMakesOuterInner=false, worldSpaceObject->getTriangleMaterial() on negatively
 		//!  scaled objects returns temporaries, editing them has no effect. If you wish to edit materials,
 		//!  edit them in original object, it will immediately change them also in created world space object.
 		//! \param intersectTechnique
