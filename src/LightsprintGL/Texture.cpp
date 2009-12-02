@@ -38,7 +38,15 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 
 void Texture::reset(bool _buildMipmaps, bool _compress)
 {
-	if (!buffer) return;
+	if (!buffer)
+		return;
+
+	if (buffer->version==version)
+	{
+		// buffer did not change since last reset
+		// (we ignore possibility that _buildMipmaps or _compress changed)
+		return;
+	}
 
 	const unsigned char* data = buffer->lock(rr::BL_READ);
 	switch(buffer->getType())
@@ -149,6 +157,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 	}
 
 	if (data) buffer->unlock();
+
+	version = buffer->version;
 }
 
 void Texture::bindTexture() const
@@ -220,6 +230,7 @@ void Texture::renderingToEnd()
 		for (unsigned i=0;i<6;i++)
 			globalFBO->setRenderTargetColor(0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+i);
 	globalFBO->restoreDefaultRenderTarget();
+	version = rand();
 }
 
 Texture::~Texture()
@@ -282,15 +293,18 @@ static std::vector<Texture*> g_textures;
 
 Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compress, int _magn, int _mini, int _wrapS, int _wrapT)
 {
-	if (!_buffer) return NULL;
-	rr::RRBuffer* buffer = (rr::RRBuffer*)_buffer; //!!! customData is modified in const object
-	if (!buffer->customData)
+	if (!_buffer)
+		return NULL;
+	rr::RRBuffer* buffer = const_cast<rr::RRBuffer*>(_buffer); //!!! customData is modified in const object
+	Texture*& texture = *(Texture**)(&buffer->customData);
+	if (!texture)
 	{
-		Texture* texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
-		buffer->customData = texture;
+		texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
 		g_textures.push_back(texture);
 	}
-	return (Texture*)(_buffer->customData);
+	if (texture->version!=_buffer->version)
+		texture->reset(_buildMipMaps,_compress);
+	return texture;
 }
 
 void deleteAllTextures()

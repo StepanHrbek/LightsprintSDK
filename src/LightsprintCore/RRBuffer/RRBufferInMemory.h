@@ -35,7 +35,7 @@ public:
 	virtual unsigned getElementBits() const;
 	virtual RRVec4 getElement(unsigned index) const;
 	virtual RRVec4 getElement(const RRVec3& coord) const;
-	virtual unsigned char* lock(RRBufferLock lock) {return data;}
+	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
 	virtual void unlock() {}
 
 	virtual ~RRBufferInMemory();

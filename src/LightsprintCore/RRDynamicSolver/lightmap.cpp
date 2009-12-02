@@ -571,6 +571,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 						numBuffersFull++;
 					}
 					scaleAndFlushToBuffer(allPixelBuffers[i],tc.pixelBuffers[i]->getFilteredPhysical(filtering),(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
+					allPixelBuffers[i]->version = getSolutionVersion();
 					updatedBuffers++;
 				}
 				delete tc.pixelBuffers[i];

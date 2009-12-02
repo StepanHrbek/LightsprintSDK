@@ -468,7 +468,7 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 // main
 
 // returns number of buffers updated
-static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, RRBuffer* buffer)
+static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
 	RR_ASSERT(gatherSize);
@@ -476,6 +476,10 @@ static unsigned filterToBuffer(RRVec3* gatheredExitance, unsigned gatherSize, co
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
 	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius);
 	interpolator->interpolate(gatheredExitance,buffer,scaler);
+	// setting version from solver is not enough, cube would not update if it only moves around scene
+	//buffer->version = version;
+	buffer->version++;
+	buffer->version = (version<<16)+(buffer->version&65535);
 	return 1;
 }
 
@@ -582,11 +586,12 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	if (illumination->cachedGatherSize)
 	{
 		// fill envmaps
+		unsigned version = getSolutionVersion();
 		unsigned minSize = RR_MIN(gatherSize,specularSize);
 		RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
 		//RRReal filterRadius = 0.25f/minSize;
-		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
-		updatedMaps += filterToBuffer(gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+		updatedMaps += filterToBuffer(version,gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
+		updatedMaps += filterToBuffer(version,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
 	}
 
 	// cleanup

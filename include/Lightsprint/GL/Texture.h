@@ -55,6 +55,7 @@ public:
 	
 	~Texture();
 
+	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
 protected:
 	rr::RRBuffer* buffer;
 	bool     ownBuffer;

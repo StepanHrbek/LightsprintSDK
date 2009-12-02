@@ -220,6 +220,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 				vertexBuffer->setElement(postImportVertex,tmp);
 			}
 		}
+		vertexBuffer->version = getSolutionVersion();
 		return 1;
 	}
 
@@ -258,6 +259,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		}
 		vertexBuffer->setElement(postImportVertex,indirect);
 	}
+	vertexBuffer->version = getSolutionVersion();
 	return 1;
 }
 
@@ -294,6 +296,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned
 		}
 		vertexBuffer->setElement(postImportVertex,data);
 	}
+	vertexBuffer->version = getSolutionVersion();
 	return 1;
 }
 

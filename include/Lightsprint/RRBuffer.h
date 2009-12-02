@@ -173,6 +173,9 @@ namespace rr
 		//! Optional filename, automatically set when load/save succeeds.
 		RRString filename;
 
+		//! Version of data in buffer, incremented each time buffer content changes.
+		unsigned version;
+
 		//! For your private use, not accessed by LightsprintCore. Initialized to NULL.
 		//
 		//! If you use LightsprintGL, you should not modify it,

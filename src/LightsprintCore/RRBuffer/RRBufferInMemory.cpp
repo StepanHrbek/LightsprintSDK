@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include "RRBufferInMemory.h"
 #include "Lightsprint/RRDebug.h"
@@ -39,6 +40,7 @@ RRBufferInMemory::RRBufferInMemory()
 	format = BF_RGB;
 	scaled = false;
 	data = NULL;
+	version = rand();
 }
 
 bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
@@ -105,6 +107,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	depth = _depth;
 	format = _format;
 	scaled = _scaled;
+	version++;
 	
 	return true;
 }
@@ -157,6 +160,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 			RRReporter::report(WARN,"Unexpected buffer format.\n");
 			break;
 	}
+	version++;
 }
 
 RRVec4 RRBufferInMemory::getElement(unsigned index) const
