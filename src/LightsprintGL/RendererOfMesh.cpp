@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/UberProgramSetup.h" // texture/multitexcoord id assignments
-#include "ObjectBuffers.h"
+#include "RendererOfMesh.h"
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif

@@ -12,7 +12,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
 #include "MultiPass.h"
-#include "ObjectBuffers.h"
+#include "RendererOfMesh.h"
 #include "tmpstr.h"
 
 

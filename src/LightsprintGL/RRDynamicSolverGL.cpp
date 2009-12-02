@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
-#include "ObjectBuffers.h" // DDI_TRIANGLES_X/Y
+#include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
 #include "tmpstr.h"
 
 #define REPORT(a) //a

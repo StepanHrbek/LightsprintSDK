@@ -415,12 +415,6 @@
 			RelativePath="MultiPass.h">
 		</File>
 		<File
-			RelativePath="ObjectBuffers.cpp">
-		</File>
-		<File
-			RelativePath="ObjectBuffers.h">
-		</File>
-		<File
 			RelativePath="PreserveState.h">
 		</File>
 		<File
@@ -437,6 +431,12 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\Renderer.h">
+		</File>
+		<File
+			RelativePath="RendererOfMesh.cpp">
+		</File>
+		<File
+			RelativePath="RendererOfMesh.h">
 		</File>
 		<File
 			RelativePath="RendererOfScene.cpp">
