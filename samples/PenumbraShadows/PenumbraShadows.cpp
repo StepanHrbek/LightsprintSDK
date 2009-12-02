@@ -333,7 +333,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
-	rrlight->rtProjectedTextureFilename = _strdup("../../data/maps/spot0.png");
+	rrlight->rtProjectedTextureFilename = "../../data/maps/spot0.png";
 	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 	realtimeLight->setShadowmapSize(512);
