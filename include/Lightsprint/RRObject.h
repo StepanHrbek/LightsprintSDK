@@ -175,13 +175,15 @@ namespace rr
 
 		//! Returns object transformation from local to world space.
 		//
-		//! Default transformation is NULL, which means no transformation, identity.
+		//! Returns NULL for identity, for use in "if (matrix) slow_transform_path; else fast_identity_path;" scenarios.
 		//! Transformation can be changed by setWorldMatrix().
 		//! \return Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
-		virtual const RRMatrix3x4*  getWorldMatrix() const;
+		virtual const RRMatrix3x4* getWorldMatrix() const;
+		//! Returns object transformation from local to world space.
+		const RRMatrix3x4& getWorldMatrixRef() const;
 
 		//! Sets object transformation from local to world space.
 		//
@@ -360,6 +362,7 @@ namespace rr
 	//
 	//! GI solver uses this class to set all static or dynamic objects at once.
 	//! You can adapt content from memory or load content from files to RRObjects, see scene adapters in LightsprintIO library;
+	//! or you can fill RRObjects instance manually, using push_back(object).
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

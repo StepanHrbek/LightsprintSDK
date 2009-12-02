@@ -251,6 +251,13 @@ const RRMatrix3x4* RRObject::getWorldMatrix() const
 	return worldMatrix;
 }
 
+const RRMatrix3x4& RRObject::getWorldMatrixRef() const
+{
+	const rr::RRMatrix3x4* wm = getWorldMatrix();
+	static RRMatrix3x4 identity = {1,0,0,0, 0,1,0,0, 0,0,1,0};
+	return wm?*wm:identity;
+}
+
 void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
 {
 	if (_worldMatrix && !_worldMatrix->isIdentity())
@@ -287,7 +294,7 @@ RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRColli
 
 RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
 {
-	if (!objects)
+	if (!objects || !objects->size())
 		return NULL;
 	switch(speed)
 	{
