@@ -218,7 +218,6 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL);
-		getTexture(material->diffuseReflectance.texture)->reset(true,true);
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("color"))
@@ -241,7 +240,6 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL);
-		getTexture(material->specularReflectance.texture)->reset(true,true);
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("color"))
@@ -264,7 +262,6 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL);
-		getTexture(material->diffuseEmittance.texture)->reset(true,true);
 	}
 	else
 	if (property==propEmissive->GetPropertyByName("color"))
@@ -287,7 +284,6 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL);
-		getTexture(material->specularTransmittance.texture)->reset(true,true);
 	}
 	else
 	if (property==propTransparent->GetPropertyByName("color"))

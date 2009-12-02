@@ -253,8 +253,6 @@ public:
 			if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			{
 				lightField->updateEnvironmentMap(dynamicObject[i]->illumination,lightTime01);
-				rr_gl::getTexture(dynamicObject[i]->illumination->diffuseEnvMap,false,false)->reset(false,false);
-				//rr_gl::getTexture(dynamicObject[i]->illumination->specularEnvMap,false,false)->reset(false,false);
 			}
 			dynamicObject[i]->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,contrast,0);
 		}

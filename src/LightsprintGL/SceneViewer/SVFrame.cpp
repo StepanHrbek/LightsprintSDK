@@ -858,7 +858,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 					// propagate computed data from buffers to textures
 					if (solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-						getTexture(solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+						getTexture(solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber),true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
 					solver->resetRenderCache();
 				}
@@ -921,7 +921,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
 						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))->reset(true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+							getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber),true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
 					}
 
 					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild

@@ -63,8 +63,6 @@ namespace rr_gl
 		//! Renders wireframe frustums or boxes of lights.
 		virtual void renderLights();
 
-		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination);
-
 
 		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI);
 

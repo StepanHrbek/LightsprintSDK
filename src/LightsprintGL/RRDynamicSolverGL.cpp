@@ -617,19 +617,4 @@ void RRDynamicSolverGL::renderLights()
 	}
 }
 
-unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination)
-{
-	if (!illumination)
-	{
-		RR_ASSERT(0);
-		return 0;
-	}
-	unsigned updated = rr::RRDynamicSolver::updateEnvironmentMap(illumination);
-	if (illumination->diffuseEnvMap)
-		getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
-	if (illumination->specularEnvMap)
-		getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
-	return updated;
-}
-
 }; // namespace

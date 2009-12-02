@@ -681,8 +681,6 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 		if (illumination->diffuseEnvMap)
 		{
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			if (updateTexturesFromBuffers)
-				getTexture(illumination->diffuseEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
 		}
 		else
@@ -695,8 +693,6 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 		if (illumination->specularEnvMap)
 		{
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			if (updateTexturesFromBuffers)
-				getTexture(illumination->specularEnvMap,false,false)->reset(false,false);
 			getTexture(illumination->specularEnvMap,false,false)->bindTexture();
 		}
 		else
