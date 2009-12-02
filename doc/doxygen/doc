@@ -2974,17 +2974,6 @@ Ray-Mesh collisions
    source code on request
 
  <hr>
- <b>MovingSun</b>
-  <table border=0 width=95%><tr align=top><td>
-  \image html samples/MovingSun_1.jpg dynamic Sun
-  </td><td>
-  \image html samples/MovingSun_2.jpg dynamic objects
-  </td></tr></table>
- - GI, tone mapping, dynamic objects lit by dynamic Sun and skybox
- - loads collada scene, drag&drop to open custom scene
- - when opened for first time, runs precalculations
-
- <hr>
  <b>SceneViewer</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/SceneViewer_1.jpg move lights, compare realtime/offline GI
@@ -2998,16 +2987,26 @@ Ray-Mesh collisions
  - loads collada, 3ds, quake3, obj, mgf scenes
 
  <hr>
+ <b>MovingSun</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/MovingSun_1.jpg dynamic Sun
+  </td><td>
+  \image html samples/MovingSun_2.jpg dynamic objects
+  </td></tr></table>
+ - realtime GI, dynamic objects lit by dynamic Sun and skybox
+ - loads collada scene, commandline or drag&drop to open custom scene
+ - uses internal renderer
+
+ <hr>
  <b>RealtimeLights</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/RealtimeLights_1.jpg freely move lights and objects
   </td><td>
   \image html samples/RealtimeLights_2.jpg occluded light, GI changes in realtime
   </td></tr></table>
- - realtime GI, color bleeding
+ - realtime GI, color bleeding, dynamic objects occlude lights loaded from scene
  - all lights and objects movable
- - no precalculations -> for scene viewers, designers
- - loads collada scene including all lights, loads 3ds dynamic objects
+ - loads collada scene, commandline or drag&drop to open custom scene
  - uses internal renderer
 
  <hr>
@@ -3017,9 +3016,8 @@ Ray-Mesh collisions
   </td><td>
   \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
- - realtime GI, color bleeding, penumbra shadows
+ - realtime GI, color bleeding, penumbra shadows _in custom renderer_
  - all lights and objects movable
- - optional precalculations -> for games
  - loads 3ds scene and 3ds dynamic objects, uses 1 custom area light rather than lights from file
  - shows that lighting works equally well for animated object
  - shows feeding external 3ds renderer with Lightsprint computed illumination
@@ -3034,6 +3032,7 @@ Ray-Mesh collisions
  - demonstrates differences between realtime and precomputed lighting
  - starts with fully realtime GI (both lights and objects dynamic)
  - after pressing 'p', switches to lightmaps+lightfield (faster, but light is static)
+ - '1'/'2'/'3' sets realtime/precomputed vertex/precomputed pixel mode
 
  <hr>
  <b>PenumbraShadows</b>
@@ -3042,9 +3041,8 @@ Ray-Mesh collisions
   </td><td>
   \image html samples/PenumbraShadows_2.jpg penumbra shadows
   </td></tr></table>
- - renders realtime direct illumination in scene with dynamic objects and area light
- - penumbra shadows
- - simple, no global illumination, only constant ambient
+ - penumbra shadows _in custom renderer_
+ - simple lighting, no global illumination, only constant ambient
 
 
 

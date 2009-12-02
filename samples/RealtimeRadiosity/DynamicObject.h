@@ -14,7 +14,16 @@
 //
 // Dynamic object
 
-//! 3ds object packed with material settings, environment maps and position in world.
+//! This sample class shows completely customized handling of dynamic objects
+//! - loading from disk (3ds, source code included)
+//! - rendering (source code included)
+//! - moving and rotating (source code included)
+//! 
+//! Compare: Samples like RealtimeLights, Lightmaps are _much shorter_,
+//! they get the same things done using built-in loaders/renderer.
+//! (They don't have any dynamic object class, dynamic object is just any RRObject
+//!  sent to solver->setDynamicObjects(), and rendering is automatic and faster).
+
 class DynamicObject
 {
 public:
