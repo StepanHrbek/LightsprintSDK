@@ -356,14 +356,10 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRObjects
-	//! Set of illuminated objects with interface similar to std::vector.
+	//! Set of objects with interface similar to std::vector.
 	//
-	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
-	//! You may use it for example to
-	//! - send it to RRDynamicSolver and calculate global illumination
-	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving objects
-	//! - render it immediately, without calculating global illumination
-	//! - render it when global illumination is calculated
+	//! GI solver uses this class to set all static or dynamic objects at once.
+	//! You can adapt content from memory or load content from files to RRObjects, see scene adapters in LightsprintIO library;
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -464,6 +460,28 @@ namespace rr
 		//! \remark
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
+
+		//! Allocates buffers for realtime GI illumination.
+		//
+		//! This is helper function, called automatically from updateBuffersForRealtimeGI().
+		//! \param lightmapLayerNumber
+		//!  If >=0, vertex buffers in illumination->getLayer(lightmapLayerNumber) are allocated.
+		//!  Vertex buffers are suitable (=we can realtime update them) only for static objects.
+		//! \param diffuseEnvMapSize
+		//!  If >0, diffuse reflection maps in illumination->diffuseEnvMap are allocated.
+		//!  Size 4 is good compromise between speed and quality.
+		//!  Good for dynamic objects, usually unsuitable for static objects.
+		//! \param specularEnvMapSize
+		//!  If >0, specular reflection maps in illumination->specularEnvMap are allocated for objects that benefit from them.
+		//!  Size 16 is good compromise between speed and quality.
+		//!  Good for both static and dynamic objects.
+		//! \param allocateNewBuffers
+		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
+		//! \param changeExistingBuffers
+		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
+		//! \return
+		//!  Number of buffers allocated or reallocated.
+		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
 
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};

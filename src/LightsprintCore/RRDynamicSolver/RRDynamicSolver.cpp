@@ -619,67 +619,22 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int allocateLightmapLayerNumber, bool allocateSpecularEnvMaps)
+void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize, int specularCubeSize, bool allocateNewBuffers, bool changeExistingBuffers) const
 {
-	// allocate vertex buffers and specular cubemaps
-	// both is used only by realtime per-object illumination
-	for (unsigned i=0;i<getStaticObjects().size();i++)
+	// allocate vertex buffers
+	if (lightmapLayerNumber>=0 && getMultiObjectCustom())
 	{
-		if (getStaticObjects()[i])
-		{
-			unsigned numVertices = getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
-			unsigned numTriangles = getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles();
-			if (numVertices && numTriangles)
-			{
-				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
-				// (this should be called also if lightmapLayerNumber changes... for now it never changes during solver existence)
-				if (allocateLightmapLayerNumber>=0 && !getStaticObjects()[i]->illumination.getLayer(allocateLightmapLayerNumber))
-				{
-					getStaticObjects()[i]->illumination.getLayer(allocateLightmapLayerNumber) =
-						rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-				}
-				// allocate specular cubes for LIGHT_INDIRECT_CUBE_SPECULAR
-				if (allocateSpecularEnvMaps && !getStaticObjects()[i]->illumination.specularEnvMap)
-				{
-					// measure object's specularity
-					float maxDiffuse = 0;
-					float maxSpecular = 0;
-					const rr::RRMaterial* previousMaterial = NULL;
-					for (unsigned t=0;t<numTriangles;t++)
-					{
-						const rr::RRMaterial* material = getStaticObjects()[i]->getTriangleMaterial(t,NULL,NULL);
-						if (material && material!=previousMaterial)
-						{
-							previousMaterial = material;
-							maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
-							maxSpecular = RR_MAX(maxSpecular,material->specularReflectance.color.avg());
-						}
-					}
-					// continue only for highly specular objects
-					if (maxSpecular>RR_MAX(0.01f,maxDiffuse*0.5f))
-					{
-						// measure object's size
-						rr::RRVec3 mini,maxi;
-						getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-						rr::RRVec3 size = maxi-mini;
-						float sizeMidi = size.sum()-size.maxi()-size.mini();
-						// continue only for non-planar objects, cubical reflection looks bad on plane
-						// (size is in object's space, so this is not precise for non-uniform scale)
-						if (size.mini()>0.3*sizeMidi)
-						{
-							// allocate specular cube map
-							rr::RRVec3 center;
-							getStaticObjects()[i]->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
-							const rr::RRMatrix3x4* matrix = getStaticObjects()[i]->getWorldMatrix();
-							if (matrix) matrix->transformPosition(center);
-							getStaticObjects()[i]->illumination.envMapWorldCenter = center;
-							getStaticObjects()[i]->illumination.specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGBA,true,NULL);
-							updateEnvironmentMapCache(&getStaticObjects()[i]->illumination);
-						}
-					}
-				}
-			}
-		}
+		getStaticObjects().allocateBuffersForRealtimeGI(lightmapLayerNumber,0,0,true,true);
+		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
+		if (!multiIllumination.getLayer(lightmapLayerNumber))
+			multiIllumination.getLayer(lightmapLayerNumber) =
+				RRBuffer::create(rr::BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3,1,1,BF_RGBF,false,NULL);
+	}
+	// allocate cube maps
+	if (diffuseCubeSize>=0 || specularCubeSize>=0)
+	{
+		getStaticObjects().allocateBuffersForRealtimeGI(-1,0,specularCubeSize,true,true);
+		getDynamicObjects().allocateBuffersForRealtimeGI(-1,diffuseCubeSize,specularCubeSize,true,true);
 	}
 }
 
@@ -702,7 +657,7 @@ void RRDynamicSolver::updateBuffersForRealtimeGI(int updateLightmapLayerNumber, 
 		(updateSpecularEnvMaps && priv->solutionVersionInSpecularEnvMaps==0);
 	if (needsVbufAlloc || needsCubeAlloc)
 	{
-		allocateBuffersForRealtimeGI(needsVbufAlloc?updateLightmapLayerNumber:-1,needsCubeAlloc);
+		allocateBuffersForRealtimeGI(needsVbufAlloc?updateLightmapLayerNumber:-1,0,needsCubeAlloc?16:0,true,false);
 	}
 
 	// update vertex buffers

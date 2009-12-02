@@ -823,15 +823,24 @@ namespace rr
 		//! the only light source ignored by Architect solver is environment/skybox.
 		virtual bool containsRealtimeGILightSource() const;
 
-		//! Allocates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
+		//! Allocates illumination buffers for realtime GI.
 		//
-		//! Buffers that already exist are not touched.
-		//! \n Called automatically from updateBuffersForRealtimeGI().
-		//! \param allocateLightmapLayerNumber
-		//!  If >=0, vertex buffers in getStaticObjects()[]->illumination->getLayer(allocateLightmapLayerNumber) are allocated.
-		//! \param allocateSpecularEnvMaps
-		//!  If true, specular envmaps in getStaticObjects()[]->illumination->specularEnvMap are allocated for objects that benefit from them.
-		void allocateBuffersForRealtimeGI(int allocateLightmapLayerNumber, bool allocateSpecularEnvMaps);
+		//! This function allocates empty buffers in RRObject::illumination of all objects.
+		//! \param lightmapLayerNumber
+		//!  Arbitrary layer number for storing per-vertex indirect illumination.
+		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
+		//!  Use any negative number for no allocation.
+		//! \param diffuseCubeSize
+		//!  Size of diffuse cube maps used for indirect illumination of dynamic objects.
+		//!  Warning: GI calculation time is O(cubeSize^2)
+		//! \param specularCubeSize
+		//!  Size of specular cube maps used for indirect illumination of shiny objects.
+		//!  Warning: GI calculation time is O(cubeSize^2)
+		//! \param allocateNewBuffers
+		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
+		//! \param changeExistingBuffers
+		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
+		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true) const;
 		//! Updates vertex buffers and specular cubes, structures used to give computed GI to external renderers.
 		//
 		//! Calls allocateBuffersForRealtimeGI() automatically when buffers are to be updated for first time.
