@@ -412,7 +412,7 @@
 			RelativePath="MultiPass.cpp">
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\MultiPass.h">
+			RelativePath="MultiPass.h">
 		</File>
 		<File
 			RelativePath="ObjectBuffers.cpp">

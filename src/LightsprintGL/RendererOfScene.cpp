@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
-#include "Lightsprint/GL/MultiPass.h"
+#include "MultiPass.h"
 #include "ObjectBuffers.h"
 #include "tmpstr.h"
 

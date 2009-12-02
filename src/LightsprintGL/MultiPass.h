@@ -8,7 +8,7 @@
 #ifndef MULTIPASS_H
 #define MULTIPASS_H
 
-#include "UberProgramSetup.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 #include "PreserveState.h"
 
 namespace rr_gl
