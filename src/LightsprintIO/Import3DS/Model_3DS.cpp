@@ -323,7 +323,8 @@ void Model_3DS::Draw(
 		{
 			// Use the material's texture
 			if (texturedDiffuse || texturedEmissive)
-				rr_gl::getTexture(Materials[Objects[i].MatFaces[j].MatIndex].diffuseReflectance.texture)->bindTexture();
+				if (Materials[Objects[i].MatFaces[j].MatIndex].diffuseReflectance.texture)
+					rr_gl::getTexture(Materials[Objects[i].MatFaces[j].MatIndex].diffuseReflectance.texture)->bindTexture();
 
 			/*glpushmatrix();
 
@@ -608,14 +609,15 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE);
 	delete scaler;
 
-	// build simple colored texture for the material w/o texture, Draw() expects it exists
+	/*/ build 1x1 colored texture for the material w/o texture, Draw() expects it exists
+	no longer necessary for RendererOfScene
 	if (!Materials[matindex].diffuseReflectance.texture)
 	{
 		Materials[matindex].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[matindex].diffuseReflectance.color[0]);
 		// old GeForce cards render float textures very slowly, switch to bytes
 		// (float precision is lost here)
 		Materials[matindex].diffuseReflectance.texture->setFormat(rr::BF_RGB);
-	}
+	}*/
 
 	// autodetect keying
 	Materials[matindex].updateKeyingFromTransmittance();
