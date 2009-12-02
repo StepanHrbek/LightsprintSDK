@@ -6,19 +6,18 @@
 #ifndef RENDEREROF3DS_H
 #define RENDEREROF3DS_H
 
-#include "Lightsprint/GL/Renderer.h"
-#include "Model_3DS.h"
+#include "Renderer.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererOf3DS - basic OpenGL renderer implementation
 
 //! OpenGL renderer of Model_3DS model.
-class RendererOf3DS : public rr_gl::Renderer
+class RendererOf3DS : public Renderer
 {
 public:
 	//! Creates renderer of model.
-	RendererOf3DS(const Model_3DS* model,bool lit,bool texturedDiffuse,bool texturedEmissive);
+	RendererOf3DS(const class Model_3DS* model,bool lit,bool texturedDiffuse,bool texturedEmissive);
 	//! Returns parameters that specify what render() does (pointer to pointer to model). 
 	virtual const void* getParams(unsigned& length) const;
 	//! Renders model using Model_3DS::Draw().

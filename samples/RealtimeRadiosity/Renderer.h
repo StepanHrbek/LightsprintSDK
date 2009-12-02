@@ -1,23 +1,22 @@
-//----------------------------------------------------------------------------
-//! \file Renderer.h
-//! \brief LightsprintGL | abstract renderer with access to its parameters
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2009
-//! All rights reserved
-//----------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// Renderer base class.
+// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// --------------------------------------------------------------------------
 
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "DemoEngine.h"
+#include "Lightsprint/GL/DemoEngine.h"
 
-namespace rr_gl
-{
 //////////////////////////////////////////////////////////////////////////////
 //
 // Renderer - interface
+//
+//! This used to be base class for all renderers; and all renderers used to support display lists.
+//! Since we switched built-in renderer from display lists to VBOs, this class
+//! and display lists remain only in RealtimeRadiosity sample.
 
-//! Interface of renderer.
-class RR_GL_API Renderer : public rr::RRUniformlyAllocatedNonCopyable
+class Renderer : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	/////////////////////////////////////////////////////////////////////////
@@ -49,7 +48,5 @@ public:
 	//! and manages multiple display lists.
 	Renderer* createDisplayList();
 };
-
-}; // namespace
 
 #endif

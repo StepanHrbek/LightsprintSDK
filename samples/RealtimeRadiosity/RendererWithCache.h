@@ -10,10 +10,7 @@
 #include <map>
 #include <cstring> // memcmp
 #include <climits> // UINT_MAX
-#include "Lightsprint/GL/Renderer.h"
-
-namespace rr_gl
-{
+#include "Renderer.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -28,7 +25,7 @@ namespace rr_gl
 //! see OpenGL for more details.
 //! Not suitable for non-OpenGL renderers or OpenGL renderers that
 //! execute operations not stored into display list.
-class RR_GL_API RendererWithCache : public Renderer
+class RendererWithCache : public Renderer
 {
 public:
 	//! Creates cache able to store and replay OpenGL commands of renderer.
@@ -70,7 +67,5 @@ private:
 	Info& findInfo();
 	void setStatus(ChannelStatus cs,Info& info);
 };
-
-}; // namespace
 
 #endif

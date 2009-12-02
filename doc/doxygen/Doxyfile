@@ -99,8 +99,6 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/DemoEngine.h" \
                          "../../include/Lightsprint/GL/Program.h" \
                          "../../include/Lightsprint/GL/RealtimeLight.h" \
-                         "../../include/Lightsprint/GL/Renderer.h" \
-                         "../../include/Lightsprint/GL/RendererOfRRObject.h" \
                          "../../include/Lightsprint/GL/RendererOfScene.h" \
                          "../../include/Lightsprint/GL/RRDynamicSolverGL.h" \
                          "../../include/Lightsprint/GL/SceneViewer.h" \

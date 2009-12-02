@@ -282,28 +282,35 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Import">
-			<Filter
-				Name="3DS">
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp">
-				</File>
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\Model_3DS.h">
-				</File>
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\RendererOf3DS.cpp">
-				</File>
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\RendererOf3DS.h">
-				</File>
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp">
-				</File>
-				<File
-					RelativePath="..\..\src\LightsprintIO\Import3DS\RRObject3DS.h">
-				</File>
-			</Filter>
+			Name="3DS">
+			<File
+				RelativePath="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\LightsprintIO\Import3DS\Model_3DS.h">
+			</File>
+			<File
+				RelativePath="Renderer.h">
+			</File>
+			<File
+				RelativePath="RendererOf3DS.cpp">
+			</File>
+			<File
+				RelativePath="RendererOf3DS.h">
+			</File>
+			<File
+				RelativePath="RendererWithCache.cpp">
+			</File>
+			<File
+				RelativePath="RendererWithCache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\LightsprintIO\Import3DS\RRObject3DS.h">
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\DynamicObject.cpp">

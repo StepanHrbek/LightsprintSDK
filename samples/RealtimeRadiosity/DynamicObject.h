@@ -7,7 +7,6 @@
 #define DYNAMICOBJECT_H
 
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -57,8 +56,8 @@ protected:
 	rr::RRObjects* singleObjects;
 	rr::RRObject* multiObject;
 	rr_gl::UberProgramSetup material;
-	rr_gl::Renderer* rendererWithoutCache;
-	rr_gl::Renderer* rendererCached;
+	class Renderer* rendererWithoutCache;
+	class Renderer* rendererCached;
 
 	// updated by updatePosition
 	float worldMatrix[16];

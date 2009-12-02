@@ -4,10 +4,9 @@
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>
-#include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "DynamicObject.h"
-#include "../src/LightsprintIO/Import3DS/RendererOf3DS.h"
+#include "RendererOf3DS.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 
 //////////////////////////////////////////////////////////////////////////////

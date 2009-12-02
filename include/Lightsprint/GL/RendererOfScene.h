@@ -8,7 +8,6 @@
 #ifndef RENDEREROFSCENE_H
 #define RENDEREROFSCENE_H
 
-#include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 

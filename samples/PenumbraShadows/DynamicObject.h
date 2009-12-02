@@ -8,7 +8,6 @@
 
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/Renderer.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

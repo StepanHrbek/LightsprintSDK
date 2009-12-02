@@ -7,14 +7,12 @@
 #include "Lightsprint/RRDebug.h"
 #include "RendererWithCache.h"
 
-namespace rr_gl
-{
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererWithCache
 
-bool  COMPILE = 1;
+bool  COMPILE = 1; // 0 would disable display lists
 
 
 RendererWithCache::RendererWithCache(Renderer* arenderer)
@@ -106,5 +104,3 @@ Renderer* Renderer::createDisplayList()
 	if (!this) return NULL;
 	return new RendererWithCache(this);
 }
-
-}; // namespace

@@ -21,7 +21,8 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 SOURCES = \
 RealtimeRadiosity.cpp \
 DynamicObject.cpp \
-../../src/LightsprintIO/Import3DS/RendererOf3DS.cpp
+RendererOf3DS.cpp \
+RendererWithCache.cpp
 
 # libraries
 

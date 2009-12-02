@@ -1037,10 +1037,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\Renderer.h"
-			>
-		</File>
-		<File
 			RelativePath="RendererOfMesh.cpp"
 			>
 		</File>
@@ -1054,14 +1050,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
-			>
-		</File>
-		<File
-			RelativePath="RendererWithCache.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RendererWithCache.h"
 			>
 		</File>
 		<File
