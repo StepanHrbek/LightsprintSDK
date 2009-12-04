@@ -246,7 +246,8 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 27:
-			// see e.g. RealtimeLights for deallocation of everything before exist
+			// immediate exit without freeing memory, leaks may be reported
+			// see e.g. RealtimeLights sample for freeing memory before exit
 			exit(0);
 	}
 }

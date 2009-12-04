@@ -82,13 +82,15 @@ void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
-		case 27:
-			exit(0);
 		case 'q': eye.pos.y += 0.1f; break;
 		case 'z': eye.pos.y -= 0.1f; break;
 		case 'x': eye.leanAngle -= 0.01f; break;
 		case 'c': eye.leanAngle += 0.01f; break;
 		case ' ': editLight = !editLight; break;
+		case 27:
+			// immediate exit without freeing memory, leaks may be reported
+			// see e.g. RealtimeLights sample for freeing memory before exit
+			exit(0);
 	}
 }
 
