@@ -1819,7 +1819,7 @@ public:
 				// common light properties
 				if (rrLight)
 				{
-					efd::string name;
+					efd::utf8string name;
 					entity->GetPropertyValue("Name",name); // not tested
 					rrLight->name = name.c_str();
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
