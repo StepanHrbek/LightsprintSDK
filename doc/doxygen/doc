@@ -21,7 +21,7 @@ namespace rr
  - \subpage main_credits
 
  \section root_integrations Integrations
- - \subpage main_gamebryo30
+ - \subpage main_gamebryo3
  - \subpage main_gamebryo26
  - \subpage main_ue3
 
@@ -663,7 +663,7 @@ Ray-Mesh collisions
 \page main_integration Integration
 
  \section integr_tool Precalculations / for toolchain
-  - \ref main_gamebryo30 "Precalculations in Lightspeed"
+  - \ref main_gamebryo3 "Precalculations in LightSpeed"
   - \ref main_gamebryo26 "Precalculations in Gamebryo 2.6"
   - \ref main_ue3 "Precalculations in Unreal Engine 3"
   - \subpage integration_tool_1
@@ -2378,23 +2378,24 @@ Ray-Mesh collisions
   \image html Gamebryo-RT1.jpg
   </td></tr></table>
 
- \section g30_misc Misc
+ \section g3_misc Misc
   - \ref trouble_memory "How to process even bigger scenes"
 
 
-\page main_gamebryo30 Lightspeed
+\page main_gamebryo3 LightSpeed
 
- Lightsprint SDK adds global illumination to Lightspeed (Gamebryo 3.0).
+ Lightsprint SDK adds global illumination to Gamebryo LightSpeed (3.0, 3.1).
 
- \section g30_prerequisites Prerequisites
-  - Emergent's <code>Lightspeed (Gamebryo 3.0)</code> must be installed
-  - Emergent's <code>Lightspeed Global Illumination Package <b>2.0.2 (!)</b></code> must be installed
-    with "Patch Gamebryo LightSpeed 3.0" checked (it's checked by default)
-  - Lightsprint SDK with Lightspeed integration.
+ \section g3_prerequisites Prerequisites
+  - Emergent's <code>LightSpeed (Gamebryo 3.0 or 3.1)</code> must be installed
+  - Emergent's <code>LightSpeed Global Illumination Package <b>2.0.2</b></code> must be installed.
+    For LightSpeed 3.0, "Patch Gamebryo LightSpeed 3.0" must be checked (it is by default).
+    For LightSpeed 3.1, \subpage g3_g31 "GI Package fix" must be applied.
+  - Lightsprint SDK with LightSpeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.
 
- \section g30_f Features
+ \section g3_f Features
   - Toolbench plugins let you bake global illumination, results are immediately displayed in WorldBuilder
   - illumination can be baked to lightmaps, directional lightmaps (a.k.a. radiosity normal maps), vertex colors
   - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
@@ -2403,14 +2404,14 @@ Ray-Mesh collisions
   - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
   - full integration source code included
 
- \section g30_limits Limitations of current version
+ \section g3_limits Limitations of current version
   - terrain not supported (this is also GI Package 2.0.2 limitation)
 
- \section g30_bake Baking in Toolbench
+ \section g3_bake Baking in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
     - Run Toolbench (default configuration VC90/Shipping).
 
-   \subsection g30_sample - preconfigured examples
+   \subsection g3_sample - preconfigured examples
     - Open sample scene in Lightsprint SDK <code>data\\Lightspeed\\GameFrameworkSample.gsl</code>
     - Open WorldBuilder by doubleclicking .block file in game solution, pick Cathedral for bigger or CornellBox for smaller scene.
     - GI is already present. You can rebuild it by clicking menu Lightsprint / Bake lighting.
@@ -2425,7 +2426,7 @@ Ray-Mesh collisions
     - Click any LightsprintScene or LightsprintMesh entity to access bake settings, see below.
       If you change settings, bake again to see lightmaps change.
 
-   \subsection g30_library - using Lightsprint Model Library
+   \subsection g3_library - using Lightsprint Model Library
     - Using LightsprintScene and LightsprintMesh models instead of GIScene and PCLMesh
       will give you access to important bake settings.
       <table border=0><tr><td>
@@ -2444,18 +2445,18 @@ Ray-Mesh collisions
       enter <code>LightsprintModelLibrary</code> directory and select <code>LightsprintModelLibrary.emtproj</code>.
       Add reference to GIModelLibrary in the same way.
 
-   \subsection g30_other_solutions - configuring your scenes
+   \subsection g3_other_solutions - configuring your scenes
     - If your scene alredy contains GIScene entity, transmogrify it to LightsprintScene, otherwise create new LightsprintScene.
     - If some of your meshes need non-default settings, transmogrify them to LightsprintMesh-es.
     - Adjust settings in LightsprintScene and LightsprintMesh entities. Note that default quality is low, per-vertex.
     - Run Lightsprint / Bake lighting as usual.
 
-   \subsection g30_mix - mixing realtime and precomputed illumination
-    - Lightspeed supports rendering realtime direct and precomputed indirect illumination.
+   \subsection g3_mix - mixing realtime and precomputed illumination
+    - LightSpeed supports rendering realtime direct and precomputed indirect illumination.
     - To bake indirect illumination only,
       set light properties UseForPrecomputedLighting, LightPCLObjectsAtRuntime and LightNonPCLObjectsAtRuntime to true.
 
-   \subsection g30_resolution - lightmap resolution
+   \subsection g3_resolution - lightmap resolution
     - LightsprintScene and LightsprintMesh properties let you control lightmap resolution globally and then tweak it for individual meshes.
     - For fixed resolution, change mesh property LsResolutionMode to "Use Fixed Resolution".
     - If LsResolutionMode stays at default "Calculate from LsPixelsPerWorldUnit*LsResolutionMultiplier", resolution is calculated in 4 steps:
@@ -2465,8 +2466,8 @@ Ray-Mesh collisions
       - Then, resolution is rounded up to power of two. If you have use for non power of two resolutions, we will add checkbox to disable rounding.
       - Finally, resolution is limited to be >=32 and <=2048. Let us know if you want to change these limits, we will expose them in LightsprintScene.
 
- \section g30_gsa Legacy .gsa support
-    - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under Lightspeed
+ \section g3_gsa Legacy .gsa support
+    - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under LightSpeed
     - this includes both offline and realtime GI
     - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
       those must be installed for samples to work
@@ -2476,7 +2477,7 @@ Ray-Mesh collisions
       \image html Gamebryo-RT2.jpg
       </td></tr></table border=0>
 
- \section g30_source Source code
+ \section g3_source Source code
     - open <code>src/Lightsprint.vs2008.sln</code>
     - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
       feel free to customize them or tell us what needs to be changed to match your needs
@@ -2485,18 +2486,33 @@ Ray-Mesh collisions
     - Gamebryo does not support 64bit code, so x64 configurations have plugin build disabled
     - let us know if you need projects for different compiler version
 
- \section g30_doc Documentation
-    - see also <code>Lightspeed Global Illumination Package</code> documentation
+ \section g3_doc Documentation
+    - see also <code>LightSpeed Global Illumination Package</code> documentation
 
- \section g30_depl Deployment
+ \section g3_depl Deployment
   - <code>bin/install_toolbench_plugins.bat</code> installs plugins and model library to Toolbench. It simply copies files from Lightsprint SDK.
   - If you modify and rebuild plugins, they are installed automatically.
   - Everything plugins need is in their Toolbench directories, Lightsprint SDK is not needed, so deployment to other computers is simple directory copy.
     Plugin directories are (in case of standard VC90 Shipping configuration)
     <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin</code> and <code>\$(EMERGENT_PATH)\\sdk\\Win32\\Bin\\VC90\\Shipping\\Plugins\\Lightsprint.Toolbench.Plugin.UI</code>.
 
- \section g30_trouble Troubleshooting
+ \section g3_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
+
+
+\page g3_g31 Using GI Package 2.0.2 in LightSpeed 3.1
+  Lightsprint integration requires Emergent's GI Package, but the latest GI Package, 2.0.2 requires LightSpeed 3.0. In order to let you use global illumination in LightSpeed 3.1, we offer this GI Package fix.
+  -# Make sure Emergent still did not release GI Package > 2.0.2. If it did, you don't need this fix, use updated version.
+  -# Make sure you have GI Package 2.0.2 installed. You can install it by <code>msiexec /a LightSpeed_GlobalIllumination_2.0.2_Win32.msi TARGETDIR=C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2 /qb</code> command.
+  -# Make sure LIGHTSPEED_GI_PATH environment variable is set. If it is not, set it to <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2</code>
+  -# Open GI Package project "NiGiMaterial", set "ShippingDLL" configuration and build it.
+  -# Open GI Package project "egmGI", set "ShippingDLL" configuration, change "Linker/Input/Additional Dependencies" to contain also "NiGiMaterial$(EE_EFD_DLL_Suffix).lib" and build it.
+  -# Open GI Package project "Emergent.Toolbench.WorldBuilder.GI", set "Shipping" configuration, change "Linker/Input/Additional Dependencies" to "efd31VC90S.lib egf31VC90S.lib NiSystem31VC90S.lib NiMain31VC90S.lib NiCollision31VC90S.lib NiMesh31VC90S.lib NiFloodgate31VC90S.lib NiAnimation31VC90S.lib NiTerrain31VC90S.lib NiDX9Renderer31VC90S.lib NiViewMath31VC90S.lib NiInput31VC90S.lib ecrInput31VC90S.lib ecr31VC90S.lib egmAnimation31VC90S.lib egmToolServices31VC90S.lib egmGI31VC90S.lib NiGIMaterial31VC90S.lib $(NOINHERIT)" and build it.
+  -# <code>copy C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2\\sdk\\Win32\\DLL\\egmGI31VC90S.dll        C:\\Emergent\\Gamebryo-LightSpeed-3.1-Binary\\sdk\\Win32\\DLL</code>
+  -# <code>copy C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2\\sdk\\Win32\\DLL\\NiGIMaterial31VC90S.dll C:\\Emergent\\Gamebryo-LightSpeed-3.1-Binary\\sdk\\Win32\\DLL</code>
+  -# Open the only solution in Lightsprint SDK, set "Shipping DLL" configuration and build ToolBench plugins. At this moment, Lightsprint shipping plugins should be installed in ToolBench 3.1.
+  -# In case of need, similar procedure can be used for debug and release configurations.
+  -# Contact us in case of any troubles.
 
 
 
@@ -2898,8 +2914,8 @@ Ray-Mesh collisions
  \n Results are usually saved to data/export directory.
 
  <hr>
- <b>Lightspeed</b>
- - for Lightspeed samples, see \ref main_gamebryo30
+ <b>LightSpeed</b>
+ - for LightSpeed samples, see \ref main_gamebryo3
 
  <hr>
  <b>BuildLightmaps</b>

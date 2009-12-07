@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- \ref main_gamebryo3 "Lightspeed 3.1 integration"
 - scene access extended from read-only to read-write, you can edit scenes
   - mesh indices and vertices
     - RRMeshArrays added, lets you edit index+vertex arrays
@@ -132,7 +133,7 @@ FIXED
 
 NEWS
 
-- \ref main_gamebryo30 "Lightspeed integration" comes with preconfigured sample scenes
+- \ref main_gamebryo3 "Lightspeed integration" comes with preconfigured sample scenes
   <table border=0><tr align=top><td>
   \image html Toolbench-Cathedral.jpg
   </td><td>
@@ -151,7 +152,7 @@ NEWS
 
 NEWS
 
-- improved \ref main_gamebryo30 "Lightspeed integration"
+- improved \ref main_gamebryo3 "Lightspeed integration"
   - bake is faster and uses less memory
   - supports lightmap resolution calculated from mapping, see new properties
     - LightsprintScene.LsPixelsPerWorldUnit
@@ -187,7 +188,7 @@ FIXED
 
 NEWS
 
-- improved \ref main_gamebryo30 "Lightspeed integration"
+- improved \ref main_gamebryo3 "Lightspeed integration"
   - LightsprintModelLibrary added, new per-mesh and per-scene settings
   - supports directional lightmaps (radiosity normal maps)
   - supports environment (HDR or LDR texture, color..)
@@ -197,7 +198,7 @@ NEWS
 
 NEWS
 
-- \ref main_gamebryo30 "Lightspeed integration (Gamebryo 3.0)" - testing version
+- \ref main_gamebryo3 "Lightspeed integration (Gamebryo 3.0)" - testing version
 - RRObject::getCustomData() added
   \n makes it possible to access format specific data via generic RRObject interface
 
