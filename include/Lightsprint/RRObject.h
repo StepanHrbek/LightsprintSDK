@@ -408,7 +408,16 @@ namespace rr
 			//! Creates buffer from actualXxx fields (filled by RRObjects::recommendLayerParameters())
 			RRBuffer* createBuffer() const
 			{
-				return RRBuffer::create(actualType,actualWidth,actualHeight,1,actualFormat,actualScaled,NULL);
+				// if DXT is recommended, RGB is created anyway because baker can't store directly to DXT
+				// user may change format later by buffer->setFormat(actualFormat)
+				RRBufferFormat f = actualFormat;
+				switch (actualFormat)
+				{
+					case BF_DXT1: f = BF_RGB; break;
+					case BF_DXT3: f = BF_RGBA; break;
+					case BF_DXT5: f = BF_RGBA; break;
+				}
+				return RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
 			}
 
 			~LayerParameters()

@@ -407,7 +407,7 @@ public:
 		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
 			if (i->second)
-				memoryOccupied += i->second->getMemoryOccupied();
+				memoryOccupied += i->second->getBufferBytes();
 		}
 		return memoryOccupied;
 	}

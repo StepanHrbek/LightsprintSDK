@@ -2384,13 +2384,12 @@ Ray-Mesh collisions
 
 \page main_gamebryo3 LightSpeed
 
- Lightsprint SDK adds global illumination to Gamebryo LightSpeed (3.0, 3.1).
+ Lightsprint SDK adds global illumination to Gamebryo LightSpeed 3.1.
 
  \section g3_prerequisites Prerequisites
-  - Emergent's <code>LightSpeed (Gamebryo 3.0 or 3.1)</code> must be installed
-  - Emergent's <code>LightSpeed Global Illumination Package <b>2.0.2</b></code> must be installed.
-    For LightSpeed 3.0, "Patch Gamebryo LightSpeed 3.0" must be checked (it is by default).
-    For LightSpeed 3.1, \subpage g3_g31 "GI Package fix" must be applied.
+  - Emergent's <code>Gamebryo LightSpeed 3.1</code> must be installed
+  - Emergent's <code>LightSpeed Global Illumination Package <b>2.0.2</b></code> must be installed,
+    \subpage g3_g31 "GI Package fix" applied.
   - Lightsprint SDK with LightSpeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.

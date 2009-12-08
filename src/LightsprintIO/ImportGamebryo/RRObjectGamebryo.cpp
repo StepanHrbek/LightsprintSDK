@@ -893,6 +893,7 @@ enum PropertyEnum
 	PE_INHERIT_FROM_LIGHTSPRINT_SCENE = 0,
 	PE_VERTICES,
 	PE_TEXTURE,
+	PE_COMPRESSED_TEXTURE,
 	PE_NON_DIRECTIONAL,
 	PE_DIRECTIONAL,
 	PE_RESOLUTION_CALCULATED,
@@ -909,6 +910,7 @@ bool getPropertyEnum(efd::utf8string propertyString, PropertyEnum& out)
 		"Inherit from LightsprintScene",
 		"Vertices",
 		"Texture",
+		"Compressed Texture",
 		"Non-directional",
 		"Directional/RNM",
 		"Calculate from LsPixelsPerWorldUnit*LsResolutionMultiplier",
@@ -1569,7 +1571,7 @@ public:
 			layerParameters.actualType = BT_2D_TEXTURE;
 			layerParameters.actualWidth = resolutionPOT;
 			layerParameters.actualHeight = resolutionPOT;
-			layerParameters.actualFormat = BF_RGB;
+			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
 			layerParameters.actualScaled = true;
 			RR_SAFE_FREE(layerParameters.actualFilename);
 			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
@@ -1581,7 +1583,7 @@ public:
 			layerParameters.actualType = BT_2D_TEXTURE;
 			layerParameters.actualWidth = RR_CLAMPED(perEntitySettings.lsResolutionFixedWidth,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
 			layerParameters.actualHeight = RR_CLAMPED(perEntitySettings.lsResolutionFixedHeight,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-			layerParameters.actualFormat = BF_RGB;
+			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
 			layerParameters.actualScaled = true;
 			RR_SAFE_FREE(layerParameters.actualFilename);
 			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;

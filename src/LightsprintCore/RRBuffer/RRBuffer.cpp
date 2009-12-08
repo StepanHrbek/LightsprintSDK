@@ -8,6 +8,7 @@
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include "../squish/squish.h"
 
 namespace rr
 {
@@ -19,12 +20,6 @@ namespace rr
 RRBuffer::RRBuffer()
 {
 	customData = NULL;
-}
-
-unsigned RRBuffer::getElementBits() const
-{
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementBits() called.\n"));
-	return 0;
 }
 
 void RRBuffer::setElement(unsigned index, const RRVec4& element)
@@ -55,11 +50,6 @@ void RRBuffer::unlock()
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::unlock() called.\n"));
 }
 
-unsigned RRBuffer::getMemoryOccupied() const
-{
-	return getWidth()*getHeight()*getDepth()*((getElementBits()+7)/8);
-}
-
 RRBuffer* RRBuffer::createCopy()
 {
 	unsigned char* data = lock(BL_READ);
@@ -74,15 +64,55 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	{
 		return;
 	}
-	RRBuffer* copy = createCopy();
-	reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
-	unsigned numElements = getWidth()*getHeight()*getDepth();
-	for (unsigned i=0;i<numElements;i++)
+	if (getFormat()==BF_DXT1 || getFormat()==BF_DXT3 || getFormat()==BF_DXT5)
 	{
-		RRVec4 color = copy->getElement(i);
-		setElement(i,color);
+		RRBuffer* copy = createCopy();
+		reset(getType(),getWidth(),getHeight(),getDepth(),BF_RGBA,getScaled(),NULL);
+		int flags = 0;
+		switch (getFormat())
+		{
+			case BF_DXT1: flags = squish::kDxt1; break;
+			case BF_DXT3: flags = squish::kDxt3; break;
+			case BF_DXT5: flags = squish::kDxt5; break;
+		};
+		// compressed copy -> decompressed this
+		squish::DecompressImage(lock(BL_DISCARD_AND_WRITE),getWidth(),getHeight(),copy->lock(BL_READ),flags);
+		unlock();
+		copy->unlock();
+		delete copy;
+		setFormat(newFormat);
 	}
-	delete copy;
+	else
+	if (newFormat==BF_DXT1 || newFormat==BF_DXT3 || newFormat==BF_DXT5)
+	{
+		setFormat(BF_RGBA);
+		RRBuffer* copy = createCopy();
+		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
+		int flags = 0;
+		switch (getFormat())
+		{
+			case BF_DXT1: flags = squish::kDxt1; break;
+			case BF_DXT3: flags = squish::kDxt3; break;
+			case BF_DXT5: flags = squish::kDxt5; break;
+		};
+		// uncompressed copy -> compressed this
+		squish::CompressImage(copy->lock(BL_READ),getWidth(),getHeight(),lock(BL_DISCARD_AND_WRITE),flags);
+		unlock();
+		copy->unlock();
+		delete copy;
+	}
+	else
+	{
+		RRBuffer* copy = createCopy();
+		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
+		unsigned numElements = getWidth()*getHeight()*getDepth();
+		for (unsigned i=0;i<numElements;i++)
+		{
+			RRVec4 color = copy->getElement(i);
+			setElement(i,color);
+		}
+		delete copy;
+	}
 }
 
 void RRBuffer::setFormatFloats()
@@ -92,6 +122,9 @@ void RRBuffer::setFormatFloats()
 		case BF_RGB:
 			setFormat(BF_RGBF);
 			break;
+		case BF_DXT1:
+		case BF_DXT3:
+		case BF_DXT5:
 		case BF_RGBA:
 			setFormat(BF_RGBAF);
 			break;
@@ -100,12 +133,28 @@ void RRBuffer::setFormatFloats()
 
 void RRBuffer::invert()
 {
-	unsigned numElements = getWidth()*getHeight()*getDepth();
-	for (unsigned i=0;i<numElements;i++)
+	switch (getFormat())
 	{
-		RRVec4 color = getElement(i);
-		color = RRVec4(1)-color;
-		setElement(i,color);
+		case BF_RGB:
+		case BF_RGBA:
+		case BF_RGBF:
+		case BF_RGBAF:
+		case BF_DEPTH:
+			{
+				unsigned numElements = getWidth()*getHeight()*getDepth();
+				for (unsigned i=0;i<numElements;i++)
+				{
+					RRVec4 color = getElement(i);
+					color = RRVec4(1)-color;
+					setElement(i,color);
+				}
+			}
+			break;
+		case BF_DXT1:
+		case BF_DXT3:
+		case BF_DXT5:
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"invert() not supported for compressed formats.\n"));
+			break;
 	}
 }
 
@@ -115,34 +164,66 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	{
 		return;
 	}
-	unsigned numElements = getWidth()*getHeight()*getDepth();
-	for (unsigned i=0;i<numElements;i++)
+	switch (getFormat())
 	{
-		RRVec4 color = getElement(i);
-		color = color*multiplier+addend;
-		setElement(i,color);
+		case BF_RGB:
+		case BF_RGBA:
+		case BF_RGBF:
+		case BF_RGBAF:
+		case BF_DEPTH:
+			{
+				unsigned numElements = getWidth()*getHeight()*getDepth();
+				for (unsigned i=0;i<numElements;i++)
+				{
+					RRVec4 color = getElement(i);
+					color = color*multiplier+addend;
+					setElement(i,color);
+				}
+			}
+			break;
+		case BF_DXT1:
+		case BF_DXT3:
+		case BF_DXT5:
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"multiplyAdd() not supported for compressed formats.\n"));
+			break;
 	}
 }
 
 void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 {
-	// slow getElement path, faster path can be written using lock and direct access
-	unsigned xmax = getWidth();
-	unsigned ymax = getHeight();
-	unsigned zmax = getDepth();
-	for (unsigned x=0;x<xmax;x++)
-	for (unsigned y=0;y<ymax;y++)
-	for (unsigned z=0;z<zmax;z++)
+	switch (getFormat())
 	{
-		unsigned e1 = x+xmax*(y+ymax*z);
-		unsigned e2 = (flipX?xmax-1-x:x)+xmax*((flipY?ymax-1-y:y)+ymax*(flipZ?zmax-1-z:z));
-		if (e1<e2)
-		{
-			RRVec4 color1 = getElement(e1);
-			RRVec4 color2 = getElement(e2);
-			setElement(e1,color2);
-			setElement(e2,color1);
-		}
+		case BF_RGB:
+		case BF_RGBA:
+		case BF_RGBF:
+		case BF_RGBAF:
+		case BF_DEPTH:
+			{
+				// slow getElement path, faster path can be written using lock and direct access
+				unsigned xmax = getWidth();
+				unsigned ymax = getHeight();
+				unsigned zmax = getDepth();
+				for (unsigned x=0;x<xmax;x++)
+				for (unsigned y=0;y<ymax;y++)
+				for (unsigned z=0;z<zmax;z++)
+				{
+					unsigned e1 = x+xmax*(y+ymax*z);
+					unsigned e2 = (flipX?xmax-1-x:x)+xmax*((flipY?ymax-1-y:y)+ymax*(flipZ?zmax-1-z:z));
+					if (e1<e2)
+					{
+						RRVec4 color1 = getElement(e1);
+						RRVec4 color2 = getElement(e2);
+						setElement(e1,color2);
+						setElement(e2,color1);
+					}
+				}
+			}
+			break;
+		case BF_DXT1:
+		case BF_DXT3:
+		case BF_DXT5:
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"flip() not supported for compressed formats.\n"));
+			break;
 	}
 }
 

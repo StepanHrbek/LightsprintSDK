@@ -161,7 +161,7 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned VBO)
 	RR_ASSERT(buffer->getType()==rr::BT_VERTEX_BUFFER);
 	RR_ASSERT(VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, buffer->getWidth()*buffer->getElementBits()/8, buffer->lock(rr::BL_READ), GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, buffer->getBufferBytes(), buffer->lock(rr::BL_READ), GL_STREAM_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	buffer->unlock();
 }

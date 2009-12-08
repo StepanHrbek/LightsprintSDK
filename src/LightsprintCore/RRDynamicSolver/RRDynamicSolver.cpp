@@ -188,7 +188,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		for (std::set<const RRBuffer*>::iterator i=allTextures.begin();i!=allTextures.end();i++)
 		{
 			if (*i)
-				memoryOccupiedByTextures += (*i)->getMemoryOccupied();
+				memoryOccupiedByTextures += (*i)->getBufferBytes();
 		}
 
 		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, emiss %s, lods %s\n",

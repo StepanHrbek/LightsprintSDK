@@ -79,6 +79,15 @@ RRStaticSolver/interpol.cpp \
 RRStaticSolver/rrcore.cpp \
 RRStaticSolver/RRStaticSolver.cpp \
 RRStaticSolver/RRVision.cpp \
+squish/alpha.cpp \
+squish/clusterfit.cpp \
+squish/colourblock.cpp \
+squish/colourfit.cpp \
+squish/colourset.cpp \
+squish/maths.cpp \
+squish/rangefit.cpp \
+squish/singlecolourfit.cpp \
+squish/squish.cpp \
 Preferences.cpp \
 RRLight.cpp \
 RRLightField.cpp \

@@ -30,6 +30,9 @@ namespace rr
 		BF_RGBF,  ///< Floating point RGB, 96bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format. Ideal for vertex buffers in physical (linear) scale.
 		BF_RGBAF, ///< Floating point RGBA, 128bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format.
 		BF_DEPTH, ///< Depth, implementation defined precision.
+		BF_DXT1,  ///< DXT1 compressed, can't be accessed per-pixel.
+		BF_DXT3,  ///< DXT3 compressed, can't be accessed per-pixel.
+		BF_DXT5,  ///< DXT5 compressed, can't be accessed per-pixel.
 	};
 
 	//! Buffer lock. Implementation is not required to support all of them.
@@ -136,8 +139,8 @@ namespace rr
 		virtual RRBufferFormat getFormat() const = 0;
 		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).
 		virtual bool getScaled() const = 0;
-		//! \return Total amount of system memory occupied by buffer.
-		virtual unsigned getMemoryOccupied() const;
+		//! \return Size of buffer in bytes, pure buffer size without several fixed bytes of class size.
+		virtual unsigned getBufferBytes() const;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
 		//! Returns value addressed by given integer coordinates as regular 3d array.

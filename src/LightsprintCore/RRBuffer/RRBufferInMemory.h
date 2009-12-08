@@ -31,8 +31,7 @@ public:
 	virtual unsigned getDepth() const {return depth;}
 	virtual RRBufferFormat getFormat() const {return format;}
 	virtual bool getScaled() const {return scaled;}
-	virtual unsigned getMemoryOccupied() const;
-	virtual unsigned getElementBits() const;
+	virtual unsigned getBufferBytes() const;
 	virtual RRVec4 getElement(unsigned index) const;
 	virtual RRVec4 getElement(const RRVec3& coord) const;
 	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}

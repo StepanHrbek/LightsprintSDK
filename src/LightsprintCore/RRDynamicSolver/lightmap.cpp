@@ -678,7 +678,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			RRBuffer* buffer = getStaticObjects()[object]->illumination.getLayer(allLayers[i]);
 			if (buffer)
 			{
-				sizeOfAllBuffers += buffer->getMemoryOccupied();
+				sizeOfAllBuffers += buffer->getBufferBytes();
 				containsVertexBuffers |= buffer->getType()==BT_VERTEX_BUFFER;
 				containsPixelBuffers  |= buffer->getType()==BT_2D_TEXTURE;
 				containsVertexBuffer[i] |= buffer->getType()==BT_VERTEX_BUFFER;

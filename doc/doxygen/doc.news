@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - \ref main_gamebryo3 "Lightspeed 3.1 integration"
+  - new bake target Compressed Texture (6x smaller, DXT1 compression)
 - scene access extended from read-only to read-write, you can edit scenes
   - mesh indices and vertices
     - RRMeshArrays added, lets you edit index+vertex arrays
@@ -53,6 +54,7 @@ NEWS
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - added object properties window
   - added material properties window
+- compressed buffer formats BF_DXT1, BF_DXT3, BF_DXT5
 - all important classes have editable names
   - added RRString
   - added RRBuffer::filename
@@ -97,6 +99,7 @@ CHANGES
   - reduced to single simple function
   - renders (and optionally updates) only illumination in existing buffers (vertex buffers, textures),
     you have to allocate these buffers first. Use for example solver->allocateBuffersForRealtimeGI().
+- renamed RRBuffer::getMemoryOccupied() to RRBuffer::getBufferBytes(), returns pure buffer data size without several bytes of fixed overhead
 - removed rr_gl::UberProgramSetup::recommendMaterialSetup(), use rr_gl::UberProgramSetup::enableAllMaterialFeatures()
 - renamed rr_gl::UberProgramSetup::reduceMaterialSetup() to rr_gl::UberProgramSetup::reduceMaterials()
 - removed RRObjectWithPhysicalMaterials
