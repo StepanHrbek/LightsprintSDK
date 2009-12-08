@@ -485,7 +485,13 @@ public:
 	{
 		if (t>=numTriangles)
 		{
+			// triangle out of range
 			NIASSERT(t<numTriangles);
+			return false;
+		}
+		if (channel>=CH_COUNT)
+		{
+			// we have no data for this channel
 			return false;
 		}
 		if (!hasTexcoord[channel])
