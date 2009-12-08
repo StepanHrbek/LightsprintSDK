@@ -454,56 +454,55 @@ MeshVBOs::MeshVBOs()
 	updatedOk[1] = false;
 }
 
-MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* mesh, bool indexed)
+MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _indexed)
 {
-	if (!mesh)
+	if (!_mesh)
 		return NULL;
 
-	unsigned index = indexed?0:1;
-	unsigned numTriangles = mesh->getNumTriangles();
-	unsigned numVertices = mesh->getNumVertices();
+	unsigned index = _indexed?0:1;
+	unsigned numTriangles = _mesh->getNumTriangles();
+	unsigned numVertices = _mesh->getNumVertices();
 
 	if (!numTriangles || !numVertices)
 		return NULL;
 	
 	// RRMesh update
-	if (createdFromMesh[index]!=mesh || createdFromNumTriangles[index]!=numTriangles || createdFromNumVertices[index]!=numVertices)
+	if (createdFromMesh[index]!=_mesh || createdFromNumTriangles[index]!=numTriangles || createdFromNumVertices[index]!=numVertices)
 	{
-		createdFromMesh[index] = mesh;
+		createdFromMesh[index] = _mesh;
 		createdFromNumTriangles[index] = numTriangles;
 		createdFromNumVertices[index] = numVertices;
-
 		// when rendering multiobject (they may have vertices with different uv welded), fail indexed, allow only !indexed
 		// (indexed would be used only for shadowmaps, potentially speeding them up slightly,
 		//  but 25% more memory for VBOs is too expensive)
-		if (!indexed || !mesh->getPreImportTriangle(numTriangles-1).object)
+		if (!_indexed || !_mesh->getPreImportTriangle(numTriangles-1).object)
 		{
-			const rr::RRMeshArrays* meshArrays = indexed ? dynamic_cast<const rr::RRMeshArrays*>(mesh) : NULL;
+			const rr::RRMeshArrays* meshArrays = _indexed ? dynamic_cast<const rr::RRMeshArrays*>(_mesh) : NULL;
 			if (!meshArrays)
 			{
 				g_helpers.texcoords.clear();
 				for (unsigned i=0;i<=100;i++)
 				{
 					rr::RRMesh::TriangleMapping mapping;
-					if (mesh->getTriangleMapping(0,mapping,i))
+					if (_mesh->getTriangleMapping(0,mapping,i))
 						g_helpers.texcoords.push_back(i);
 				}
 				if (g_helpers.texcoords.size()>40)
 				{
 					rr::RRReporter::report(rr::WARN,"getTriangleMapping() returns true for (nearly) all uv channels, please reduce number of uv channels to save memory.\n");
 				}
-				g_helpers.meshArrays.reload(mesh,indexed,g_helpers.texcoords);
+				g_helpers.meshArrays.reload(_mesh,_indexed,g_helpers.texcoords);
 			}
-			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&g_helpers.meshArrays,indexed);
+			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&g_helpers.meshArrays,_indexed);
 		}
 	}
 
 	// RRMeshArrays update
-	if (indexed && updatedOk[index])
+	if (_indexed && updatedOk[index])
 	{
-		const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
+		const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(_mesh);
 		if (meshArrays)
-			meshArraysVBOs[index].update(meshArrays,indexed);
+			meshArraysVBOs[index].update(meshArrays,_indexed);
 	}
 
 	return updatedOk[index] ? &meshArraysVBOs[index] : NULL;
@@ -577,18 +576,14 @@ void RendererOfMesh::render(
 			_lightDetailMap);
 	}
 	else
+	if (mesh)
 	{
 		// none of rendering techniques can do this job
 		MeshArraysVBOs* indexedYes = getMeshArraysVBOs(mesh,true);
 		MeshArraysVBOs* indexedNo = getMeshArraysVBOs(mesh,false);
-		if (indexedYes||indexedNo)
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (circumstances: %s%s%s%s%s%s).\n", indexedYes?"indexed+":"", indexedNo?"nonindexed":"", _uberProgramSetup.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", _uberProgramSetup.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", _uberProgramSetup.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
-		}
-		else
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Scene is not rendered (not enough memory).\n" ));
-		}
+		unsigned numTriangles = mesh->getNumTriangles();
+		unsigned numVertices = mesh->getNumVertices();
+		RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::WARN,"Mesh is not rendered (circumstances: %dtri+%dvert+%s%s%s%s%s%s).\n", numTriangles, numVertices, indexedYes?"indexed+":"", indexedNo?"nonindexed+":"", _uberProgramSetup.LIGHT_INDIRECT_VCOLOR?"LIGHT_INDIRECT_VCOLOR+":"", _uberProgramSetup.LIGHT_INDIRECT_MAP?"LIGHT_INDIRECT_MAP+":"", _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP?"LIGHT_INDIRECT_DETAIL_MAP":"", _uberProgramSetup.FORCE_2D_POSITION?"FORCE_2D_POSITION":"" ));
 	}
 }
 
