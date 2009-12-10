@@ -530,12 +530,13 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		RR_ASSERT(0);
 		return 0;
 	}
-	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
-	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
+	unsigned solutionVersion = getSolutionVersion();
+	bool centerMoved = (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY;
+	unsigned diffuseSize = (illumination->diffuseEnvMap && (centerMoved || (illumination->diffuseEnvMap->version>>16)!=(solutionVersion&65535))) ? illumination->diffuseEnvMap->getWidth() : 0;
+	unsigned specularSize = (illumination->specularEnvMap && (centerMoved || (illumination->specularEnvMap->version>>16)!=(solutionVersion&65535))) ? illumination->specularEnvMap->getWidth() : 0;
 	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
 	if (!gatherSize)
 	{
-		RR_ASSERT(0);
 		return 0;
 	}
 
@@ -586,12 +587,15 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	if (illumination->cachedGatherSize)
 	{
 		// fill envmaps
-		unsigned version = getSolutionVersion();
-		unsigned minSize = RR_MIN(gatherSize,specularSize);
-		RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
-		//RRReal filterRadius = 0.25f/minSize;
-		updatedMaps += filterToBuffer(version,gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
-		updatedMaps += filterToBuffer(version,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+		if (diffuseSize)
+			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
+		if (specularSize)
+		{
+			unsigned minSize = RR_MIN(gatherSize,specularSize);
+			RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
+			//RRReal filterRadius = 0.25f/minSize;
+			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+		}
 	}
 
 	// cleanup

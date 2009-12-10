@@ -219,27 +219,25 @@ void RendererOfOriginalScene::render(
 
 				if (_updateLightIndirect)
 				{
-					unsigned solverVersion = _solver->getSolutionVersion();
 					// update vertex buffers
-					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR && !dynamic)
+					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR && !dynamic
+						// quit if buffer is already up to date
+						&& lightIndirectVcolor->version!=_solver->getSolutionVersion())
 					{
-						rr::RRBuffer* vcolors = illumination.getLayer(_lightIndirectLayer);
 						if (needsIndividualStaticObjects)
 						{
 							// updates indexed 1object buffer
-							if (vcolors->version!=solverVersion)
-								_solver->updateLightmap(i,vcolors,NULL,NULL,NULL);
+							_solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
 						}
 						else
 						{
 							// -1 = updates non-indexed multiobject buffer
-							if (vcolors->version!=solverVersion)
-								_solver->updateLightmap(-1,vcolors,NULL,NULL,NULL);
+							_solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 						}
 					}
 					// update cube maps
-					if ((objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.diffuseEnvironment->version!=solverVersion)
-						|| (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.specularEnvironment->version!=solverVersion))
+					// built-in version check
+					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
 						_solver->updateEnvironmentMap(&illumination);
 					}
