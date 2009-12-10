@@ -169,4 +169,5 @@ void RRMatrix3x4::setTranslation(const RRVec3& a)
 	m[2][3] = a[2];
 }
 
+
 } // namespace
