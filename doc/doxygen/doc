@@ -234,7 +234,7 @@ Ray-Mesh collisions
  All of these libraries serve as optional extensions, global illumination solver doesn't need them.
  
  Libraries used by LightsprintCore (global illumination solvers):
- - none
+ - \subpage tpl_squish
 
  Used by LightsprintGL (optional OpenGL support):
  - \subpage tpl_glu
@@ -260,9 +260,15 @@ Ray-Mesh collisions
    - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev libglew1.5-dev libglut3-dev libfreeimage-dev libxml2-dev</code>
    - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code>
 
+\page tpl_squish libsquish
+  - www: <a href="http://code.google.com/p/libsquish/">libsquish</a>
+  - optional, used only by Lightspeed integration, we can remove it on request
+  - all platforms: version 1.10 is used internally, it is not visible from outside (no headers or dll files)
+  - by Simon Brown, used under MIT license
+
 \page tpl_glu GLU
   - Windows: should be already installed, part of PlatformSDK by Microsoft
-  - Linux (including PS3): should be already installed, install using
+  - Linux (including PS3): should be already installed; if it is not, install using
     - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev</code>
     - Fedora: <code>pkcon install mesa-libGLU-devel</code>
   - XBox360, PS3 with system software: not used
