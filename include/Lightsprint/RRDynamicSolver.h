@@ -651,18 +651,21 @@ namespace rr
 		//! Calculates and updates diffuse and/or specular environment map in object's illumination.
 		//
 		//! Generates specular and diffuse environment/reflection maps with object's indirect illumination
-		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
+		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//!
-		//! This function is all you need for indirect illumination of dynamic objects,
-		//! you don't have to import them into solver.
-		//! (but you still need to import static objects and call calculate() regularly)
+		//! This function generates indirect illumination for dynamic object.
+		//! It is called automatically for all objects passed to setDynamicObjects().
+		//! If you render dynamic objects manually, without passing them to solver,
+		//! call at least this solver function to update their illumination.
+		//! It is safe to call it often, it returns quickly if it detects that illumination is already up to date.
 		//!
-		//! Reads static scene illumination, so don't call it before calculate(), otherwise
+		//! It reads static scene illumination, so don't call it before calculate(), otherwise
 		//! dynamic objects will reflect light from previous frame.
 		//!
-		//! Reads RRObjectIllumination variables with 'envMap' in name,
+		//! It reads RRObjectIllumination variables with 'envMap' in name,
 		//! update them (e.g. buffer sizes) before calling this function.
+		//! allocateBuffersForRealtimeGI() can do part of this work for you.
 		//!
 		//! Thread safe: yes, may be called from multiple threads at the same time
 		//!  (but there's no need as it uses all cores internally)

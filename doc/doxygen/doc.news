@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news95 ------------------------------------ 2009.12.xx -------------------------------------
+\section news95 ------------------------------------ 2010 beta (2009.12.09) -------------------------------------
 
 NEWS
 
@@ -54,7 +54,7 @@ NEWS
 - enhanced rr_gl::sceneViewer() and SceneViewer sample
   - added object properties window
   - added material properties window
-- compressed buffer formats BF_DXT1, BF_DXT3, BF_DXT5
+- compressed buffer formats RRBufferFormat::BF_DXT1, BF_DXT3, BF_DXT5
 - all important classes have editable names
   - added RRString
   - added RRBuffer::filename
@@ -73,7 +73,7 @@ NEWS
 
 CHANGES
 
-- const removed from RRObject::getTriangleMaterial(), you have to remove it from your implementations too.
+- const removed from RRObject::getTriangleMaterial(), remove const from your implementations or delete your implementation.
   \n This change makes returned materials writeable, they can be modified.
 - simplified scene adapters
   - worldMatrix is stored in base RRObject, remove worldMatrix and getWorldMatrix() from your derived classes
@@ -90,20 +90,22 @@ CHANGES
   - removed getNumObjects(), use getStaticObjects().size()
   - removed getObject(i), use getStaticObjects()[i] and make sure i is not out of range, new version checks it only in debug
   - removed getIllumination(i), use getStaticObjects()[i]->illumination and make sure i is not out of range
-  - removed allocateRealtimeGIBuffers(), replaced by more flexible RRObjects::allocateRealtimeGIBuffers()
-- modified parameters of RRObjects::createMultiObject(), array+length replaced by vector
-- removed rr_gl::RRDynamicSolverGL::getMaterialsInStaticScene(),
-  \n it only cached result of rr_gl::UberProgramSetup::recommendMaterialSetup(solver->getMultiObjectCustom())
-  \n and it is no longer needed as the latter was greatly accelerated
+  - extended RRDynamicSolver::allocateBuffersForRealtimeGI(), new parameters, you can use also new RRObjects::allocateBuffersForRealtimeGI()
+- modified parameters of RRObject::createMultiObject(), array+length replaced by vector
 - simplified rr_gl::RendererOfScene
   - reduced to single simple function
   - renders (and optionally updates) only illumination in existing buffers (vertex buffers, textures),
-    you have to allocate these buffers first. Use for example solver->allocateBuffersForRealtimeGI().
+    you have to allocate these buffers first (using e.g. RRDynamicSolver::allocateBuffersForRealtimeGI()).
 - renamed RRBuffer::getMemoryOccupied() to RRBuffer::getBufferBytes(), returns pure buffer data size without several bytes of fixed overhead
-- removed rr_gl::UberProgramSetup::recommendMaterialSetup(), use rr_gl::UberProgramSetup::enableAllMaterialFeatures()
+- removed rr_gl::RRDynamicSolverGL::getMaterialsInStaticScene(), no longer needed
+- removed rr_gl::UberProgramSetup::recommendMaterialSetup(), use rr_gl::UberProgramSetup::enableAllMaterials()
 - renamed rr_gl::UberProgramSetup::reduceMaterialSetup() to rr_gl::UberProgramSetup::reduceMaterials()
 - removed RRObjectWithPhysicalMaterials
-- realtime renderer doesn't like uv channel numbers greater than 100
+
+KNOWN REGRESSIONS
+
+- old automatic unwrap is no longer working, it will be replaced by new higher quality unwrap
+- realtime renderer ignores uv channel numbers above 100, let us know if you need them
 
 \section news94 ------------------------------------ 2009.10.10 -------------------------------------
 
