@@ -11,8 +11,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCanvas.h"
-#include "SVApp.h"
-#include "SVEntity.h"
 #include "wx/aui/aui.h"
 
 #define DEBUG_TEXEL
@@ -32,8 +30,10 @@ namespace rr_gl
 
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
+
 		void OnPaneOpenClose(wxAuiManagerEvent& event);
-		void OnMouseMotion(wxMouseEvent& event);
+		//! Cleanup after OnPaneOpenClose. Called from SVCanvas::OnPaint because it's so difficult to get event AFTER pane close.
+		void AfterPaneOpenClose();
 
 		//! Returns currently selected entity.
 		EntityId getSelectedEntity() const;
@@ -46,6 +46,9 @@ namespace rr_gl
 
 		//! Shortcut for subwindows so that they don't have to include SVSceneTree+SVCanvas.
 		void updateSceneTree();
+
+		void userPreferencesGatherFromWx();
+		void userPreferencesApplyToWx();
 
 		enum
 		{
@@ -140,8 +143,7 @@ namespace rr_gl
 
 		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
 		bool                     updateMenuBarNeeded;
-		unsigned                 currentWindowLayout;
-		wxString                 windowLayout[3];
+		UserPreferences          userPreferences;
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
 

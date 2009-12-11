@@ -19,6 +19,7 @@
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/FPS.h"
+#include "SVSaveLoad.h"
 
 namespace rr_gl
 {

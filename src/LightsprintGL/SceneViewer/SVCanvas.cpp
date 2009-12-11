@@ -705,6 +705,8 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	if (!context) return;
 	SetCurrent(*context);
 
+	parent->AfterPaneOpenClose();
+
 #ifdef _WIN32
 	// init font for text outputs
 	if (!fontInited)

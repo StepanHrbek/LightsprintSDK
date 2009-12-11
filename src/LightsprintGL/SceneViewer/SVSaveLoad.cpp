@@ -289,6 +289,23 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	// skip releaseResources;
 }
 
+//------------------------- UserPreferences ------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsigned int version)
+{
+	ar & make_nvp("fullscreen",a.fullscreen);
+	ar & make_nvp("maximized",a.maximized);
+	ar & make_nvp("perspective",a.perspective);
+}
+
+template<class Archive>
+void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
+{
+	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
+	ar & make_nvp("windowLayout",a.windowLayout);
+}
+
 //---------------------------------------------------------------------------
 
 } // namespace
@@ -303,6 +320,89 @@ BOOST_CLASS_VERSION(rr::RRLight, 1)
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 1)
 
 //---------------------------------------------------------------------------
+
+#include "wx/wx.h"
+#include "../tmpstr.h"
+#include <cstdio>
+#include <boost/filesystem.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+namespace bf = boost::filesystem;
+
+namespace rr_gl
+{
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// UserPreferences save/load
+
+static std::string suggestPreferencesDirectory()
+{
+	return std::string(getenv("LOCALAPPDATA")) + "\\Lightsprint";
+}
+
+static std::string suggestPreferencesFilename()
+{
+	return suggestPreferencesDirectory() + "\\SceneViewer.prefs";
+}
+
+bool UserPreferences::save() const
+{
+	// temporarily disabled, save/load worsens problem reported as wxWidgets Ticket #11537
+	// waiting for fix
+	return false;
+
+	try
+	{
+		_mkdir(suggestPreferencesDirectory().c_str());
+		std::ofstream ofs(suggestPreferencesFilename().c_str());
+		if (!ofs || ofs.bad())
+		{
+			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",suggestPreferencesFilename().c_str());
+			return false;
+		}
+		boost::archive::xml_oarchive ar(ofs);
+
+		ar & boost::serialization::make_nvp("userPreferences", *this);
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to save %s.\n",suggestPreferencesFilename().c_str());
+		return false;
+	}
+
+	return true;
+}
+
+bool UserPreferences::load()
+{
+	// temporarily disabled, save/load worsens problem reported as wxWidgets Ticket #11537
+	// waiting for fix
+	return false;
+
+	try
+	{
+		std::ifstream ifs(suggestPreferencesFilename().c_str());
+		if (!ifs || ifs.bad())
+		{
+			// don't warn, we attempt to load prefs each time, without knowing the file exists
+			return false;
+		}
+		boost::archive::xml_iarchive ar(ifs);
+
+		ar & boost::serialization::make_nvp("userPreferences", *this);
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to load %s.\n",suggestPreferencesFilename().c_str());
+		return false;
+	}
+
+	return true;
+}
+
+
+}; // namespace
 
 #endif // _MSC_VER==1500
 #endif // SUPPORT_SCENEVIEWER

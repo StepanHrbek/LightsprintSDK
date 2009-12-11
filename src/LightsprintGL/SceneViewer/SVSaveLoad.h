@@ -9,6 +9,32 @@
 #include "Lightsprint/GL/SceneViewer.h"
 
 #ifdef SUPPORT_SCENEVIEWER
+
+#include "SVApp.h"
+
+namespace rr_gl
+{
+
+	struct UserPreferences
+	{
+		unsigned currentWindowLayout;
+		struct WindowLayout
+		{
+			bool fullscreen;
+			bool maximized;
+			std::string perspective;
+		};
+		WindowLayout windowLayout[3];
+
+		//! Saves preferences, filename is automatic.
+		bool save() const;
+		//! Loads preferences, filename is automatic.
+		bool load();
+	};
+
+
+}; // namespace
+
 #endif // SUPPORT_SCENEVIEWER
 
 #endif

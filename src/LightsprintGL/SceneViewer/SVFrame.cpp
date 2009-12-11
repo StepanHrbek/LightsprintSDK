@@ -242,6 +242,23 @@ static wxIcon* loadIcon(const char* filename)
 	return icon;
 }
 
+void SVFrame::userPreferencesGatherFromWx()
+{
+	userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen = svs.fullscreen;
+	userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized = IsMaximized();
+	userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective = m_mgr.SavePerspective();
+}
+
+void SVFrame::userPreferencesApplyToWx()
+{
+	if (userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen != svs.fullscreen)
+		OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
+	if (userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
+		Maximize(!IsMaximized());
+	m_mgr.LoadPerspective(userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective,true);
+	UpdateMenuBar();
+}
+
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
 	// open at ~50% of screen size
@@ -255,7 +272,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
 	updateMenuBarNeeded = false;
-	currentWindowLayout = 0;
+	userPreferences.currentWindowLayout = 0;
 	m_canvas = NULL;
 	m_sceneProperties = new SVSceneProperties(this,svs);
 	m_lightProperties = new SVLightProperties(this);
@@ -316,20 +333,42 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	UpdateEverything(); // slow. if specified by filename, loads scene from disk
 	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
 
-	windowLayout[2] = wxString("f")+m_mgr.SavePerspective();
+	// load layouts, create layouts if load failed
+	bool layoutLoaded = userPreferences.load();
+	if (!layoutLoaded)
+	{
+		userPreferences.windowLayout[0].fullscreen = false;
+		userPreferences.windowLayout[0].maximized = true;
+		userPreferences.windowLayout[0].perspective = m_mgr.SavePerspective();
+	}
+
+	// create panes
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
+	if (!layoutLoaded)
+	{
+		userPreferences.windowLayout[1].fullscreen = false;
+		userPreferences.windowLayout[1].maximized = false;
+		userPreferences.windowLayout[1].perspective = m_mgr.SavePerspective();
+	}
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name(wxT("objectproperties")).Caption(wxT("Object properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name(wxT("materialproperties")).Caption(wxT("Material properties")).CloseButton(true).Right());
-	windowLayout[1] = wxString("f")+m_mgr.SavePerspective();
-	windowLayout[0] = wxString("w")+m_mgr.SavePerspective();
+	if (!layoutLoaded)
+	{
+		userPreferences.windowLayout[2].fullscreen = true;
+		userPreferences.windowLayout[2].maximized = true;
+		userPreferences.windowLayout[2].perspective = m_mgr.SavePerspective();
+	}
+	userPreferencesApplyToWx();
 	m_mgr.Update();
 
 }
 
 SVFrame::~SVFrame()
 {
+	userPreferencesGatherFromWx();
+	userPreferences.save();
 	m_mgr.UnInit();
 }
 
@@ -479,10 +518,10 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_T("Material properties"),_T("Opens material properties window."));
 		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3"));
-		winMenu->Check(ME_WINDOW_LAYOUT1+currentWindowLayout,true);
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"),_T("Custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"),_T("Custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3"),_T("Custom window layout, changes automatically saved per user."));
+		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		menuBar->Append(winMenu, _T("Window"));
 	}
 
@@ -984,11 +1023,9 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_WINDOW_LAYOUT1:
 		case ME_WINDOW_LAYOUT2:
 		case ME_WINDOW_LAYOUT3:
-			windowLayout[currentWindowLayout] = wxString(svs.fullscreen?"f":"w")+m_mgr.SavePerspective();
-			currentWindowLayout = event.GetId()-ME_WINDOW_LAYOUT1;
-			if ((windowLayout[currentWindowLayout][0]=='f') != svs.fullscreen)
-				OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
-			m_mgr.LoadPerspective(windowLayout[currentWindowLayout].c_str()+1,true);
+			userPreferencesGatherFromWx();
+			userPreferences.currentWindowLayout = event.GetId()-ME_WINDOW_LAYOUT1;
+			userPreferencesApplyToWx();
 			break;
 
 
@@ -1019,13 +1056,16 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 void SVFrame::OnPaneOpenClose(wxAuiManagerEvent& event)
 {
 	// it's too soon to UpdateMenuBar(), pane that is closing is still open
+	// but next SVCanvas::OnPaint will call AfterPaneOpenClose()
 	updateMenuBarNeeded = true;
+	event.Skip();
 }
 
-void SVFrame::OnMouseMotion(wxMouseEvent& event)
+void SVFrame::AfterPaneOpenClose()
 {
-	// doing this in OnMenuOpen would be too late, menu would open with old items
-	// doing it here still fails if user closes pane by mouse and opens menu by keyboard without moving mouse
+	// doing this in SVFrame::OnPaneOpenClose would be too soon, pane that is closing is still open
+	// doing this in SVFrame::OnMenuOpen would be too late, menu would open with old items
+	// doing this in SVFrame::OnMouseMotion is unreliable, sometimes mouse moves 10s before it is called, and user sees outdated menu
 	if (updateMenuBarNeeded)
 		UpdateMenuBar();
 }
@@ -1132,7 +1172,6 @@ BEGIN_EVENT_TABLE(SVFrame, wxFrame)
 	EVT_MENU(wxID_ANY, SVFrame::OnMenuEvent)
 	EVT_AUI_PANE_RESTORE(SVFrame::OnPaneOpenClose)
 	EVT_AUI_PANE_CLOSE(SVFrame::OnPaneOpenClose)
-	EVT_MOTION(SVFrame::OnMouseMotion)
 END_EVENT_TABLE()
 
 }; // namespace
