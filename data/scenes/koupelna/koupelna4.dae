@@ -1065,7 +1065,7 @@
       </node>
       <node id="gula02-node" name="gula02" type="NODE">
         <matrix>1.745047 0 0 -1.972421 0 1.745047 0 1.249542 0 0 1.745047 1.695013 0 0 0 1.000000</matrix>
-        <instance_geometry url="#gula02-mesh">
+        <instance_geometry url="#gula1-mesh">
           <bind_material>
             <technique_common>
               <instance_material symbol="zluta" target="#zluta">
