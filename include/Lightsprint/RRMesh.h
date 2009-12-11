@@ -486,3 +486,68 @@ namespace rr
 	};
 
 
+	//! Mesh that exposes internal structures for direct read-write access.
+	//
+	//! You may freely edit data in arrays, however, resizing mesh (changing numVertices, numTriangles) is limited,
+	//! it is not allowed if other meshes were derived from this one.
+	//! Derived meshes are e.g. multiobject or worldspace object,
+	//! they may depend on original mesh size and crash if it changes.
+	//!
+	//! When do we need it? Lightsprint has two major use cases:
+	//! - Calculating GI for third party engine. In this case, we need only read-only access to individual
+	//!   triangles and vertices and RRMesh already provides it via getTriangle()/getVertex().
+	//!   RRMesh implementations usually read vertices and triangles directly from third party engine structures in memory;
+	//!   duplicating data into RRMeshArrays would only waste memory.
+	//! - Complete application development - render GI, build unwrap, manipulate meshes, vertices etc (without third party engine).
+	//!   In this case, we need also write access and RRMeshArrays provides it.
+	//!   There are no third party structures in memory, all data are stored in RRMeshArrays.
+	//!
+	//! If you need direct read-write access to data in RRMesh, try RTTI first, you may already have RRMeshArrays.
+	//! If you don't have RRMeshArrays, create it via RRMesh::createArrays().
+	class RR_API RRMeshArrays : public RRMesh
+	{
+	public:
+
+		// Per-triangle data.
+		unsigned numTriangles;
+		Triangle* triangle; ///< 32bit triangle list
+
+		// Per-vertex data.
+		unsigned numVertices;
+		RRVec3* position;
+		RRVec3* normal;
+		RRVec3* tangent;
+		RRVec3* bitangent;
+		RRVector<RRVec2*> texcoord;
+
+		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
+		unsigned version;
+
+		// Memory management. Resizing doesn't preserve old data.
+		// If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
+		// If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords);
+
+		// Save/load. Disk operations not implemented yet.
+		bool                 save(const char* filename) const;
+		bool                 reload(const char* filename);
+		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords);
+		static RRMeshArrays* load(const char* filename);
+
+		// Implementation of RRMesh interface.
+		RRMeshArrays();
+		virtual ~RRMeshArrays();
+		virtual unsigned     getNumVertices() const;
+		virtual void         getVertex(unsigned v, Vertex& out) const;
+		virtual unsigned     getNumTriangles() const;
+		virtual void         getTriangle(unsigned t, Triangle& out) const;
+		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
+		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
+		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
+	private:
+		unsigned poolSize;
+	};
+
+} // namespace
+
+#endif
