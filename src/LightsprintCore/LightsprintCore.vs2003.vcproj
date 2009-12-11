@@ -35,6 +35,7 @@
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="1"
 				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
@@ -96,6 +97,7 @@
 				EnableEnhancedInstructionSet="0"
 				DisableLanguageExtensions="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
@@ -161,6 +163,7 @@
 				EnableEnhancedInstructionSet="1"
 				DisableLanguageExtensions="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
@@ -224,6 +227,7 @@
 				EnableEnhancedInstructionSet="0"
 				DisableLanguageExtensions="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
@@ -784,8 +788,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="RRMath"
-			>
+			Name="RRMath">
 			<File
 				RelativePath="RRMath.cpp">
 			</File>
@@ -797,103 +800,78 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="squish"
-			>
+			Name="squish">
 			<File
-				RelativePath=".\squish\alpha.cpp"
-				>
+				RelativePath=".\squish\alpha.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\alpha.h"
-				>
+				RelativePath=".\squish\alpha.h">
 			</File>
 			<File
-				RelativePath=".\squish\clusterfit.cpp"
-				>
+				RelativePath=".\squish\clusterfit.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\clusterfit.h"
-				>
+				RelativePath=".\squish\clusterfit.h">
 			</File>
 			<File
-				RelativePath=".\squish\colourblock.cpp"
-				>
+				RelativePath=".\squish\colourblock.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\colourblock.h"
-				>
+				RelativePath=".\squish\colourblock.h">
 			</File>
 			<File
-				RelativePath=".\squish\colourfit.cpp"
-				>
+				RelativePath=".\squish\colourfit.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\colourfit.h"
-				>
+				RelativePath=".\squish\colourfit.h">
 			</File>
 			<File
-				RelativePath=".\squish\colourset.cpp"
-				>
+				RelativePath=".\squish\colourset.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\colourset.h"
-				>
+				RelativePath=".\squish\colourset.h">
 			</File>
 			<File
-				RelativePath=".\squish\config.h"
-				>
+				RelativePath=".\squish\config.h">
 			</File>
 			<File
-				RelativePath=".\squish\maths.cpp"
-				>
+				RelativePath=".\squish\maths.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\maths.h"
-				>
+				RelativePath=".\squish\maths.h">
 			</File>
 			<File
-				RelativePath=".\squish\rangefit.cpp"
-				>
+				RelativePath=".\squish\rangefit.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\rangefit.h"
-				>
+				RelativePath=".\squish\rangefit.h">
 			</File>
 			<File
-				RelativePath=".\squish\simd.h"
-				>
+				RelativePath=".\squish\simd.h">
 			</File>
 			<File
-				RelativePath=".\squish\simd_float.h"
-				>
+				RelativePath=".\squish\simd_float.h">
 			</File>
 			<File
-				RelativePath=".\squish\simd_sse.h"
-				>
+				RelativePath=".\squish\simd_sse.h">
 			</File>
 			<File
-				RelativePath=".\squish\simd_ve.h"
-				>
+				RelativePath=".\squish\simd_ve.h">
 			</File>
 			<File
-				RelativePath=".\squish\singlecolourfit.cpp"
-				>
+				RelativePath=".\squish\singlecolourfit.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\singlecolourfit.h"
-				>
+				RelativePath=".\squish\singlecolourfit.h">
 			</File>
 			<File
-				RelativePath=".\squish\singlecolourlookup.inl"
-				>
+				RelativePath=".\squish\singlecolourlookup.inl">
 			</File>
 			<File
-				RelativePath=".\squish\squish.cpp"
-				>
+				RelativePath=".\squish\squish.cpp">
 			</File>
 			<File
-				RelativePath=".\squish\squish.h"
-				>
+				RelativePath=".\squish\squish.h">
 			</File>
 		</Filter>
 		<File
