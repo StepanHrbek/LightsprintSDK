@@ -3,14 +3,14 @@
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <map>
+#include <boost/unordered_map.hpp>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/RRCollider.h" // ray6
 
 namespace rr
 {
 
-class LayersMap : public std::map<unsigned,rr::RRBuffer*>
+class LayersMap : public boost::unordered_map<unsigned,rr::RRBuffer*>
 {
 };
 

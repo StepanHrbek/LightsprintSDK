@@ -6,7 +6,7 @@
 
 //#define POINT_MATERIALS // enables point materials (texture lookups) when building reflection maps. however, point details are lost in cache (when object doesn't move)
 
-#include <map>
+#include <boost/unordered_map.hpp>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -408,12 +408,12 @@ private:
 		unsigned iSize;
 		unsigned oSize;
 		RRReal radius;
-		bool operator <(const Key& a) const
+		operator float() const
 		{
-			return memcmp(this,&a,sizeof(Key))<0;
+			return radius + iSize + oSize*3.3f;
 		}
 	};
-	typedef std::map<Key,Interpolator*> Map;
+	typedef boost::unordered_map<Key,Interpolator*> Map;
 	Map interpolators;
 };
 

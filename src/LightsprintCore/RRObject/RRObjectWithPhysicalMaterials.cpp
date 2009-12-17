@@ -3,7 +3,7 @@
 // Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <map>
+#include <boost/unordered_map.hpp>
 #include <set> // generateRandomCamera
 #include <cfloat> // _finite in generateRandomCamera
 #include "RRObjectFilter.h"
@@ -95,7 +95,7 @@ public:
 private:
 	const RRScaler* scaler;
 	typedef std::pair<const RRMaterial*,RRMaterial> Pair;
-	typedef std::map<const RRMaterial*,RRMaterial> Cache;
+	typedef boost::unordered_map<const RRMaterial*,RRMaterial> Cache;
 	Cache cache;
 };
 

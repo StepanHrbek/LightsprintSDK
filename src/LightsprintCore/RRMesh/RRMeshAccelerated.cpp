@@ -6,7 +6,7 @@
 #include "RRMeshFilter.h"
 
 #include "../RRMathPrivate.h"
-#include <map> // findGroundLevel
+#include <boost/unordered_map.hpp> // findGroundLevel
 
 namespace rr
 {
@@ -91,7 +91,7 @@ RRReal RRMesh::findGroundLevel() const
 	unsigned numTriangles = getNumTriangles();
 	if (numTriangles)
 	{
-		typedef std::map<RRReal,RRReal> YToArea;
+		typedef boost::unordered_map<RRReal,RRReal> YToArea;
 		YToArea yToArea;
 		for (unsigned t=0;t<numTriangles;t++)
 		{
