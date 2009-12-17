@@ -258,15 +258,15 @@ public:
 			cache.erase(i);
 		}
 		// load new file into cache
-		Value value;
+		Value& value = cache[filename];
 		value.buffer = load_noncached(filename,cubeSideName);
 		if (value.buffer)
 		{
+			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
 			//value.fileTimeWhenLoaded = boost::filesystem::last_write_time(filename);
 		}
-		cache[filename] = value;
-		return value.buffer->createReference(); // keep initial ref for us, add one ref for user
+		return value.buffer;
 	}
 	size_t getMemoryOccupied()
 	{
