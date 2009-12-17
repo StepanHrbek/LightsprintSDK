@@ -21,7 +21,7 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 SOURCES = \
 PenumbraShadows.cpp \
 DynamicObject.cpp \
-../../src/LightsprintIO/Import3DS/RendererOf3DS.cpp
+../RealtimeRadiosity/RendererOf3DS.cpp
 
 # libraries
 
