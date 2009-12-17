@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <climits> // UINT_MAX
+#include <cstdlib> // rand
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRDebug.h"
 #include "FBO.h"

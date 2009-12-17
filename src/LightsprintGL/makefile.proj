@@ -39,7 +39,6 @@ Program.cpp \
 RealtimeLight.cpp \
 RendererOfMesh.cpp \
 RendererOfScene.cpp \
-RendererWithCache.cpp \
 RRDynamicSolverGL.cpp \
 Shader.cpp \
 Texture.cpp \

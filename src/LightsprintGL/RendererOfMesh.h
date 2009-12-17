@@ -52,7 +52,7 @@ struct FaceGroupRange
 		RR_ASSERT(faceGroupFirst==_faceGroupFirst);
 		RR_ASSERT(faceGroupLast==_faceGroupLast);
 	}
-	bool operator <(const FaceGroupRange& a); // for sort()
+	bool operator <(const FaceGroupRange& a) const; // for sort()
 };
 
 

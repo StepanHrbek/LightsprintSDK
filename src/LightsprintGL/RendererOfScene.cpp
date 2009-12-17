@@ -102,7 +102,7 @@ private:
 
 static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sort()
 
-bool FaceGroupRange::operator <(const FaceGroupRange& a) // for sort()
+bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 {
 	return (*s_perObjectBuffers)[object].eyeDistance<(*s_perObjectBuffers)[a.object].eyeDistance;
 }

@@ -410,12 +410,13 @@ namespace rr
 			{
 				// if DXT is recommended, RGB is created anyway because baker can't store directly to DXT
 				// user may change format later by buffer->setFormat(actualFormat)
-				RRBufferFormat f = actualFormat;
+				RRBufferFormat f;
 				switch (actualFormat)
 				{
 					case BF_DXT1: f = BF_RGB; break;
 					case BF_DXT3: f = BF_RGBA; break;
 					case BF_DXT5: f = BF_RGBA; break;
+					default: f = actualFormat; break;
 				}
 				return RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
 			}
