@@ -170,7 +170,7 @@ namespace rr
 		#ifdef _OPENMP
 			double creationTime;
 		#else
-			unsigned creationTime;
+			unsigned long creationTime;
 		#endif
 		bool enabled;
 	};
