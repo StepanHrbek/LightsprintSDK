@@ -58,15 +58,15 @@ public:
 	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
 protected:
 	rr::RRBuffer* buffer;
-	bool     ownBuffer;
 	GLuint   id;
 	GLenum   cubeOr2d; // GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP
 };
 
 //! Converts rr::RRBuffer to Texture so it can be immediately used as a texture in OpenGL.
 //
-//! Before deleting buffer, you should delete texture or at least stop using it, deleteAllTextures() will mass-delete it later.
-//! If you delete only texture, set buffer->customData=NULL.
+//! Texture uses buffer's customData.
+//!
+//! It is safe to delete buffer and texture in any order.
 //!
 //! Parameters beyond buffer are respected only when called for first time.
 //! Once texture is created, successive calls return the same texture.

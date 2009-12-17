@@ -122,6 +122,7 @@ namespace rr
 		const char* c_str() const {return str?str:"";} ///< Never returns NULL, empty string is "".
 		bool empty() const {return str==NULL;}
 		~RRString();
+		void _skipDestructor(); ///< For internal use only.
 	private:
 		char* str; ///< Never "", empty string is NULL.
 	};

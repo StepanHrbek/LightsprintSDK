@@ -21,8 +21,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 {
 	if (!_buffer)
 		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
-	buffer = _buffer;
-	ownBuffer = false;
+	buffer = _buffer->createReference();
 
 	numPotentialFBOUsers++;
 
@@ -235,12 +234,13 @@ void Texture::renderingToEnd()
 
 Texture::~Texture()
 {
-// situace: kdyz smazu buffer, tady zustane dangling pointer.
-// spatne: if (buffer && buffer->customData==this) buffer->customData = NULL;
-// dobre: budu ho tise ignorovat. 
-// jedine co nesmim je smazat buffer a dal pouzivat texturu.
-	if (ownBuffer)
-		RR_SAFE_DELETE(buffer);
+	if (buffer)
+	{
+		// delete buffer's pointer to us, we are destructing
+		buffer->customData = NULL;
+		// delete our pointer to buffer, buffer may or may not destruct
+		delete buffer;
+	}
 	glDeleteTextures(1, &id);
 	id = UINT_MAX;
 	numPotentialFBOUsers--;
@@ -280,7 +280,7 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height)
 	if (!buffer)
 		return NULL;
 	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	texture->ownBuffer = true;
+	delete buffer; // Texture already created its own reference, so here we just remove our reference
 	return texture;
 }
 

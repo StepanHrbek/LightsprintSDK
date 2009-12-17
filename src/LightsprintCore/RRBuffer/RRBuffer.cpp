@@ -10,6 +10,10 @@
 #include "Lightsprint/RRDebug.h"
 #include "../squish/squish.h"
 
+// image cache
+#include <hash_map>
+#include <string>
+
 namespace rr
 {
 
@@ -228,6 +232,85 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// ImageCache
+
+class ImageCache
+{
+public:
+	RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
+	{
+		Cache::iterator i = cache.find(filename);
+		if (i!=cache.end())
+		{
+			// image was found in cache
+			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
+				&& i->second.buffer->version==i->second.bufferVersionWhenLoaded
+				// && i->second.fileTimeWhenLoaded==boost::filesystem::last_write_time(filename)
+				)
+			{
+				// image is already in memory and it was not modified since load, use it
+				return i->second.buffer->createReference(); // add one ref for user
+			}
+			// modified after load, delete it from cache, we can't use it anymore
+			delete i->second.buffer;
+			cache.erase(i);
+		}
+		// load new file into cache
+		Value value;
+		value.buffer = load_noncached(filename,cubeSideName);
+		if (value.buffer)
+		{
+			value.bufferVersionWhenLoaded = value.buffer->version;
+			//value.fileTimeWhenLoaded = boost::filesystem::last_write_time(filename);
+		}
+		cache[filename] = value;
+		return value.buffer->createReference(); // keep initial ref for us, add one ref for user
+	}
+	size_t getMemoryOccupied()
+	{
+		size_t memoryOccupied = 0;
+		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
+		{
+			if (i->second.buffer)
+				memoryOccupied += i->second.buffer->getBufferBytes();
+		}
+		return memoryOccupied;
+	}
+	~ImageCache()
+	{
+		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
+		{
+			// if users deleted their buffers, refcount should be down at 1 and this delete is final
+			delete i->second.buffer;
+		}
+	}
+protected:
+	RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6])
+	{
+		RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+		if (!texture->reload(filename,cubeSideName))
+		{
+			RR_SAFE_DELETE(texture);
+		}
+		return texture;
+	}
+	struct Value
+	{
+		RRBuffer* buffer;
+		unsigned bufferVersionWhenLoaded;
+		//std::time_t fileTimeWhenLoaded;
+	};
+	typedef stdext::hash_map<std::string,Value> Cache;
+	Cache cache;
+};
+
+// Single cache works better than individual cache instances in scenes,
+// especially if user loads many models that share textures.
+ImageCache s_imageCache;
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // save & load
@@ -271,12 +354,16 @@ bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6])
 
 RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6])
 {
-	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if (!texture->reload(filename,cubeSideName))
-	{
-		RR_SAFE_DELETE(texture);
-	}
-	return texture;
+	// cached version
+	return s_imageCache.load_cached(filename,cubeSideName);
+
+	// non-cached version
+	//RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+	//if (!texture->reload(filename,cubeSideName))
+	//{
+	//	RR_SAFE_DELETE(texture);
+	//}
+	//return texture;
 }
 
 RRBuffer* RRBuffer::loadCube(const char *filename)

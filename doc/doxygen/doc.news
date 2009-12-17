@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news96 ------------------------------------ 2010 beta2 (2009.12.xx) -------------------------------------
+
+NEWS
+
+- RRBuffer::load() is faster and saves memory when loading the same image multiple times
+  - all images are transparently cached
+  - removed old caching from Collada adapter
+  - added RRBuffer::createReference()
+
 \section news95 ------------------------------------ 2010 beta (2009.12.11) -------------------------------------
 
 NEWS

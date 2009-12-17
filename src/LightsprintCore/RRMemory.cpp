@@ -133,9 +133,26 @@ bool RRString::operator !=(const char* a) const
 	return !(*this==a);
 }
 
+void RRString::_skipDestructor()
+{
+	// Refcounting in ~RRBuffer may decide it's not yet time to destruct.
+	// It can't stop ~RRString from beeing called, so it at least instructs us in advance
+	// to ignore following ~RRString call. We set this flag for ~RRString.
+	str++;
+}
+
 RRString::~RRString()
 {
-	free(str);
+	if (((int)str)&1)
+	{
+		// don't destruct this time, just clear flag from _skipDestructor()
+		str--;
+	}
+	else
+	{
+		// destruct as usual
+		free(str);
+	}
 }
 
 } //namespace

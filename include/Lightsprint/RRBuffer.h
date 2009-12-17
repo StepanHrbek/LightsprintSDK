@@ -193,7 +193,10 @@ namespace rr
 		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid.
 		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 
-		//! Creates copy of buffer. Copy is located in system memory and is not connected to its origin, both may be deleted independently.
+		//! Creates reference to the same buffer. Both buffer and reference must be deleted (in any order).
+		virtual RRBuffer* createReference() = 0;
+
+		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data.
 		RRBuffer* createCopy();
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.

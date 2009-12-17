@@ -18,8 +18,6 @@ namespace rr
 class RR_API RRBufferInMemory : public RRBuffer
 {
 public:
-	RRBufferInMemory();
-
 	// setting
 	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 	virtual void setElement(unsigned index, const RRVec4& element);
@@ -37,9 +35,15 @@ public:
 	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
 	virtual void unlock() {}
 
+	// reference counting
+	void* operator new(std::size_t n);
+	void operator delete(void* p, std::size_t n);
+	RRBufferInMemory();
+	virtual RRBuffer* createReference();
 	virtual ~RRBufferInMemory();
-
 protected:
+	unsigned refCount;
+
 	RRBufferType type;
 	unsigned width;
 	unsigned height;

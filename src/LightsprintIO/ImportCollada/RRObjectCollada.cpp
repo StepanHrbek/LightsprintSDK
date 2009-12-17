@@ -374,7 +374,7 @@ public:
 			{
 				strippedName.insert(0,pathToTextures);
 			}
-			buffer = load(strippedName.c_str(),NULL);
+			buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
 			if (buffer) break;
 		}
 		RRReporter::setReporter(oldReporter);
@@ -389,39 +389,11 @@ public:
 		}
 		return buffer;
 	}
-	RRBuffer* load(fstring filename, const char* cubeSideName[6])
-	{
-		Cache::iterator i = cache.find(filename);
-		if (i!=cache.end())
-		{
-			return i->second;
-		}
-		else
-		{
-			return cache[filename] = RRBuffer::load(filename,cubeSideName);
-		}
-	}
-	size_t getMemoryOccupied()
-	{
-		size_t memoryOccupied = 0;
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
-		{
-			if (i->second)
-				memoryOccupied += i->second->getBufferBytes();
-		}
-		return memoryOccupied;
-	}
 	~ImageCache()
 	{
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
-		{
-			delete i->second;
-		}
 		free(pathToTextures);
 	}
 protected:
-	typedef std::map<fstring,RRBuffer*> Cache;
-	Cache cache;
 	char* pathToTextures;
 };
 
@@ -543,6 +515,17 @@ public:
 			return &( cache[materialInstance] = loadMaterial(materialInstance,effectStandard) );
 		}
 #endif
+	}
+	~MaterialCacheCollada()
+	{
+		// delete textures we loaded via RRBuffer::load()
+		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
+		{
+			delete i->second.diffuseReflectance.texture;
+			delete i->second.specularReflectance.texture;
+			delete i->second.diffuseEmittance.texture;
+			delete i->second.specularTransmittance.texture;
+		}
 	}
 private:
 	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)

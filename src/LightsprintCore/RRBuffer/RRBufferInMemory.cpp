@@ -64,8 +64,14 @@ unsigned RRBuffer::getBufferBytes() const
 //
 // RRBufferInMemory
 
+void* RRBufferInMemory::operator new(std::size_t n)
+{
+	return malloc(n);
+};
+
 RRBufferInMemory::RRBufferInMemory()
 {
+	refCount = 1;
 	type = BT_VERTEX_BUFFER;
 	width = 0;
 	height = 0;
@@ -75,6 +81,49 @@ RRBufferInMemory::RRBufferInMemory()
 	data = NULL;
 	version = rand();
 }
+
+RRBuffer* RRBufferInMemory::createReference()
+{
+	refCount++;
+	return this;
+}
+
+RRBufferInMemory::~RRBufferInMemory()
+{
+	// when you delete buffer, this is called first
+	if (--refCount)
+	{
+		// skip destructor
+		filename._skipDestructor();
+	}
+	else
+	{
+		// destruct
+		delete[] data;
+	}
+}
+
+void RRBufferInMemory::operator delete(void* p, std::size_t n)
+{
+	// when you delete buffer, this is called last
+	if (p)
+	{
+		RRBufferInMemory* b = (RRBufferInMemory*)p;
+		if (b->refCount)
+		{
+			// fix instance after destructor (copy first 4 or 8 bytes from living buffer)
+			static RRBufferInMemory reference;
+			size_t headerSize = (char*)&b->filename-(char*)b; // filename must be first member variable in RRBuffer
+			memcpy(b,&reference,headerSize);
+		}
+		else
+		{
+			// delete instance after destructor
+			free(p);
+		}
+	}
+};
+
 
 unsigned RRBufferInMemory::getBufferBytes() const
 {
@@ -274,11 +323,6 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 			}
 	}
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
-}
-
-RRBufferInMemory::~RRBufferInMemory()
-{
-	delete[] data;
 }
 
 
