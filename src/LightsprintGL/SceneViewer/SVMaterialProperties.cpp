@@ -171,6 +171,8 @@ void SVMaterialProperties::updateReadOnly()
 
 void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
+	bool emittanceChanged = false;
+
 	wxPGProperty *property = event.GetProperty();
 
 	if (property==propPoint)
@@ -251,6 +253,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propEmissive->GetPropertyByName("uv"))
 	{
 		material->diffuseEmittance.texcoord = property->GetValue().GetInteger();
+		emittanceChanged = true;
 	}
 	else
 	if (property==propEmissive->GetPropertyByName("texture"))
@@ -262,11 +265,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		else
 			material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL);
+		emittanceChanged = true;
 	}
 	else
 	if (property==propEmissive->GetPropertyByName("color"))
 	{
 		material->diffuseEmittance.color << property->GetValue();
+		emittanceChanged = true;
 	}
 	else
 
@@ -315,6 +320,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propQualityForPoints)
 	{
 		material->minimalQualityForPointMaterials = property->GetValue().GetInteger();
+	}
+
+	if (emittanceChanged)
+	{
+		lastSolver->setEmittance(1,16,true);
 	}
 }
 
