@@ -511,7 +511,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			}
 			else
 			{
-				gatherPerTrianglePhysical(&params,finalGatherPhysical,numTriangles,priv->staticSceneContainsEmissiveMaterials); // this is final gather -> gather emissive materials
+				gatherPerTrianglePhysical(&params,finalGatherPhysical,numTriangles,getMultiObjectCustom()->faceGroups.containsEmittance()); // this is final gather -> gather emissive materials
 
 				// interpolate: tmparray -> buffer
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -547,7 +547,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		}
 		tc.params = &params;
 		tc.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
-		tc.gatherDirectEmitors = priv->staticSceneContainsEmissiveMaterials; // this is final gather -> gather from emitors
+		tc.gatherDirectEmitors = getMultiObjectCustom()->faceGroups.containsEmittance(); // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
@@ -789,7 +789,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 			}
 			else
 			{
-				gatherPerTrianglePhysical(&paramsDirect,finalGatherPhysical,numTriangles,priv->staticSceneContainsEmissiveMaterials); // this is final gather -> gather emissive materials
+				gatherPerTrianglePhysical(&paramsDirect,finalGatherPhysical,numTriangles,getMultiObjectCustom()->faceGroups.containsEmittance()); // this is final gather -> gather emissive materials
 
 				// 5. interpolate: tmparray -> buffer
 				// for each object with vertex buffer

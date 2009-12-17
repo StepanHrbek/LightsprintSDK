@@ -156,8 +156,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		}
 	}
 
-	// update staticSceneContainsEmissiveMaterials, staticSceneContainsLods
-	priv->staticSceneContainsEmissiveMaterials = false;
+	// update staticSceneContainsLods
 	priv->staticSceneContainsLods = false;
 	std::set<const RRBuffer*> allTextures;
 	if (priv->multiObjectCustom)
@@ -168,8 +167,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			if (!aborting)
 			{
 				const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
-				if (material && material->diffuseEmittance.color!=RRVec3(0))
-					priv->staticSceneContainsEmissiveMaterials = true;
 
 				RRObject::LodInfo lodInfo;
 				priv->multiObjectCustom->getTriangleLod(t,lodInfo);
@@ -191,10 +188,9 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 				memoryOccupiedByTextures += (*i)->getBufferBytes();
 		}
 
-		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, emiss %s, lods %s\n",
+		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, lods %s\n",
 			getStaticObjects().size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
 			unsigned(memoryOccupiedByTextures>>20),
-			priv->staticSceneContainsEmissiveMaterials?"yes":"no",
 			priv->staticSceneContainsLods?"yes":"no");
 	}
 }
@@ -603,14 +599,14 @@ RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType() con
 bool RRDynamicSolver::containsLightSource() const
 {
 	return getLights().size()
-		|| priv->staticSceneContainsEmissiveMaterials
+		|| getMultiObjectCustom()->faceGroups.containsEmittance()
 		|| getEnvironment();
 }
 
 bool RRDynamicSolver::containsRealtimeGILightSource() const
 {
 	return getLights().size()
-		|| priv->staticSceneContainsEmissiveMaterials
+		|| getMultiObjectCustom()->faceGroups.containsEmittance()
 		|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
 }
 

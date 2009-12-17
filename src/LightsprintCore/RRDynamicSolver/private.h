@@ -32,7 +32,6 @@ namespace rr
 		bool       forcedMultiObjectCustom;
 		RRObject*  multiObjectPhysical;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
-		bool       staticSceneContainsEmissiveMaterials;
 		bool       staticSceneContainsLods;
 
 		// lights: inputs
@@ -76,9 +75,7 @@ namespace rr
 			multiObjectCustom = NULL;
 			forcedMultiObjectCustom = false;
 			multiObjectPhysical = NULL;
-			staticSceneContainsEmissiveMaterials = false;
 			staticSceneContainsLods = false;
-
 			// lights
 			customIrradianceRGBA8 = NULL;
 

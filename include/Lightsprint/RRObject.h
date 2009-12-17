@@ -73,7 +73,7 @@ namespace rr
 		class RR_API FaceGroups : public RRVector<FaceGroup>
 		{
 		public:
-			void getBlending(bool& containsBlended, bool& containsNonBlended) const;
+			bool containsEmittance() const;
 			void getTexcoords(RRVector<unsigned>& texcoords, bool forUnwrap, bool forDiffuse, bool forSpecular, bool forEmissive, bool forTransparent) const;
 		};
 		//! Assignment of materials to triangles.

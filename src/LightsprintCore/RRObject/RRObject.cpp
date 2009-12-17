@@ -18,25 +18,18 @@ namespace rr
 //
 // FaceGroups
 
-void RRObject::FaceGroups::getBlending(bool& containsBlended, bool& containsNonBlended) const
+bool RRObject::FaceGroups::containsEmittance() const
 {
-	containsBlended = false;
-	containsNonBlended = false;
 	for (unsigned g=0;g<size();g++)
 	{
 		rr::RRMaterial* material = (*this)[g].material;
 		if (material)
 		{
-			if (material->needsBlending())
-			{
-				containsBlended = true;
-			}
-			else
-			{
-				containsNonBlended = true;
-			}
+			if (material->diffuseEmittance.color!=RRVec3(0) || material->diffuseEmittance.texture)
+				return true;
 		}
 	}
+	return false;
 }
 
 void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _forUnwrap, bool _forDiffuse, bool _forSpecular, bool _forEmissive, bool _forTransparent) const
