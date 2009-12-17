@@ -115,7 +115,10 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		{
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
 		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation);
 	}
