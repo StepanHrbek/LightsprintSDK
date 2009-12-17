@@ -38,6 +38,7 @@ namespace rr_gl
 		// (wx asserts if we do it before our parent calls Show())
 		void createContext();
 
+		void OnPaintCore(wxPaintEvent& event);
 		void OnPaint(wxPaintEvent& event);
 		void OnSize(wxSizeEvent& event);
 		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.

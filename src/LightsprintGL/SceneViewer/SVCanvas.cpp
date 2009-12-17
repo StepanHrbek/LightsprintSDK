@@ -698,7 +698,7 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 	glEnd();
 }
 
-void SVCanvas::OnPaint(wxPaintEvent& event)
+void SVCanvas::OnPaintCore(wxPaintEvent& event)
 {
 	wxPaintDC dc(this);
 
@@ -1423,6 +1423,26 @@ rendered:
 
 	// done
 	SwapBuffers();
+}
+
+void SVCanvas::OnPaint(wxPaintEvent& event)
+{
+#ifdef _MSC_VER
+	__try
+	{
+		OnPaintCore(event);
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"3D renderer crashed, you'll see no image. The rest of application (menus, windows, hotkeys) may still work.\n"));
+		glClearColor(1,0,0,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0,0,0,0);
+		SwapBuffers();
+	}
+#else
+	OnPaintCore(event);
+#endif
 }
 
 
