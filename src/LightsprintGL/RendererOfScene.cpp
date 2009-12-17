@@ -5,7 +5,7 @@
 
 #include <algorithm> // sort
 #include <cstdio>
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfScene.h"
@@ -44,7 +44,7 @@ public:
 			delete i->second;
 	}
 private:
-	typedef stdext::hash_map<const rr::RRMesh*,RendererOfMesh*> Cache;
+	typedef boost::unordered_map<const rr::RRMesh*,RendererOfMesh*> Cache;
 	Cache cache;
 };
 
@@ -93,7 +93,7 @@ private:
 	rr::RRObjects multiObjects;
 	//! Gathered per-object information.
 	rr::RRVector<PerObjectBuffers> perObjectBuffers;
-	typedef stdext::hash_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
+	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
 	//! Gathered non-blended object information.
 	ShaderFaceGroups nonBlendedFaceGroupsMap;
 	//! Gathered blended object information.
