@@ -142,7 +142,7 @@ struct RR_GL_API UberProgramSetup
 	//! Example: "#define SHADOW_MAPS 2\n#define SHADOW_SAMPLES 4\n#define MATERIAL_DIFFUSE\n".
 	const char* getSetupString();
 
-	// Operators for hash_map in renderer.
+	// Operators for unordered_map in renderer.
 	bool operator ==(const UberProgramSetup& a) const;
 	bool operator !=(const UberProgramSetup& a) const;
 	bool operator <(const UberProgramSetup& a) const;

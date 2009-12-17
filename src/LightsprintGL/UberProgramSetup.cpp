@@ -3,7 +3,7 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
@@ -54,7 +54,7 @@ public:
 			delete i->second;
 	}
 private:
-	typedef stdext::hash_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
+	typedef boost::unordered_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
 	Buffer1x1Cache buffers1x1;
 } g_buffers1x1;
 
