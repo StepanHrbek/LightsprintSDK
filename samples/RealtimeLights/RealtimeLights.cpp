@@ -185,6 +185,7 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 27:
 			// only longjmp can break us from glut mainloop
+			// (exceptions don't propagate through foreign stack)
 			longjmp(jmp,0);
 	}
 	solver->reportInteraction();
@@ -327,7 +328,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 1063;
+	//_crtBreakAlloc = 2305;
 #endif // _WIN32
 
 	// check for version mismatch
