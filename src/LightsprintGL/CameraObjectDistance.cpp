@@ -17,7 +17,7 @@ CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object)
 	object = _object;
 	distMin = 1e10f;
 	distMax = 0;
-	ray = rr::RRRay::create(1);
+	ray = rr::RRRay::create();
 	ray->rayLengthMin = 0;
 	ray->rayLengthMax = 1e12f;
 	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
