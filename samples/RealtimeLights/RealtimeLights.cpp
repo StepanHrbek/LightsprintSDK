@@ -339,6 +339,7 @@ int main(int argc, char **argv)
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	//rr::RRReporter::setFilter(true,3,true);
+	//rr_gl::Program::logMessages(true);
 
 	rr_io::registerLoaders();
 
