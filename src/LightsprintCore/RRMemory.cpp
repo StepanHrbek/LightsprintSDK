@@ -143,7 +143,7 @@ void RRString::_skipDestructor()
 
 RRString::~RRString()
 {
-	if (((int)str)&1)
+	if (((size_t)str)&1)
 	{
 		// don't destruct this time, just clear flag from _skipDestructor()
 		str--;
