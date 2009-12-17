@@ -11,7 +11,7 @@
 #include "../squish/squish.h"
 
 // image cache
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <string>
 
 namespace rr
@@ -302,7 +302,7 @@ protected:
 		unsigned bufferVersionWhenLoaded;
 		//std::time_t fileTimeWhenLoaded;
 	};
-	typedef stdext::hash_map<std::string,Value> Cache;
+	typedef boost::unordered_map<std::string,Value> Cache;
 	Cache cache;
 };
 
