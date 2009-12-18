@@ -194,6 +194,9 @@ namespace rr
 		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 
 		//! Creates reference to the same buffer. Both buffer and reference must be deleted (in any order).
+		//
+		//! It is not thread safe, must not be called concurrently for one buffer.
+		//! It may be called concurrently for different buffers.
 		virtual RRBuffer* createReference() = 0;
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data.
