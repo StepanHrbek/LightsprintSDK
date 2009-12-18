@@ -17,6 +17,10 @@ NEWS
   - removed old caching from Collada adapter
   - added RRBuffer::createReference()
 
+CHANGES
+
+- RRObject::createWorldSpaceObject() removed, let us know if you need it
+
 \section news95 ------------------------------------ 2010 beta (2009.12.11) -------------------------------------
 
 NEWS

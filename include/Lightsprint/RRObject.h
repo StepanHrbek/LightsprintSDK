@@ -108,7 +108,7 @@ namespace rr
 		//! <b>Editing materials</b>
 		//! \n Caller is allowed to modify returned materials including textures, but if he allocates new textures,
 		//! he is responsible for freeing them. RRObject must free only what RRObject allocated.
-		//! Filtered objects (e.g. objects created by createMultiObject(), createWorldSpaceObject()) usually
+		//! Filtered objects (e.g. objects created by createMultiObject()) usually
 		//! share materials, so by modifying base object, filtered one is modified too.
 		//! There is one notable exception - createObjectWithPhysicalMaterials() creates object with new independent
 		//! set of RRMaterials, only textures inside materials are shared with original object.
@@ -219,51 +219,6 @@ namespace rr
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		RRMesh* createWorldSpaceMesh();
-
-		//! Creates and returns RRObject that describes object after transformation to world space.
-		//
-		//! Newly created instance has no transformation matrix, but it is still on the same 
-		//! place in world space, because all vertices are transformed.
-		//! \n Newly created instance allocates no additional memory, but depends on
-		//! original object, so it is not allowed to let new instance live longer than the original object.
-		//! \param negScaleMakesOuterInner
-		//!  True = If you negatively scale singlesided box visible only from outside, it will become visible only from inside. This results in simpler code, recommended.
-		//!  \n False = Makes negatively scaled objects visible from the same side.
-		//!  \n\n Implementation details:
-		//!  \n Both original and transformed object share the same mesh and materials, so both 
-		//!  objects contain triangles with the same vertex order (e.g. ABC, 
-		//!  not ACB) and materials visible for example from outside.
-		//!  Negative scale naturally makes the object visible from inside
-		//!  and rays collide with the inner side. This is the case of negScaleMakesOuterInner=true.
-		//!  \n However one may want to change this behaviour. 
-		//!  \n To get the transformed object visible from the opposite side and rays collide with the opposite side,
-		//!  one can change the mesh (vertex order in all triangles) and share materials
-		//!  or share the mesh and change materials.
-		//!  It is more efficient to share the mesh and change materials.
-		//!  So transformed object shares the mesh but when it detects negative scale,
-		//!  it swaps sideBits[0] and sideBits[1] in all materials.
-		//!  \n\n Note that shared RRMesh knows nothing about your local negScaleMakesOuterInner setting,
-		//!  it is encoded in RRObject materials,
-		//!  so if you calculate singlesided collision on mesh from newly created object,
-		//!  give it a collision handler object->createCollisionHandlerFirstVisible()
-		//!  which scans object's materials and responds to your local negScaleMakesOuterInner.
-		//!  \n\n With negScaleMakesOuterInner=false, all materials sideBits[0] and [1] are swapped,
-		//!  so where your system processes hits to front side on original object, it processes 
-		//!  hits to back side on negatively scaled object.
-		//!  Note that forced singlesided test (simple test without collision handler, see RRRay::TEST_SINGLESIDED) 
-		//!  detects always front sides, so it won't work with negative scale and negScaleMakesOuterInner=false.
-		//!  \n\n Note that if negScaleMakesOuterInner=false, worldSpaceObject->getTriangleMaterial() on negatively
-		//!  scaled objects returns temporaries, editing them has no effect. If you wish to edit materials,
-		//!  edit them in original object, it will immediately change them also in created world space object.
-		//! \param intersectTechnique
-		//!  Technique used for collider construction.
-		//! \param aborting
-		//!  May be set asynchronously, aborts creation.
-		//! \param cacheLocation
-		//!  Directory for caching intermediate files used by RRCollider.
-		//!  It is passed to RRCollider::create(), so
-		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation);
 
 		//! Creates and returns union of multiple objects (contains geometry and materials from all objects).
 		//

@@ -280,10 +280,6 @@ RRMesh* RRObject::createWorldSpaceMesh()
 	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
 
-RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation)
-{
-	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,aborting,cacheLocation);
-}
 
 RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
 {
