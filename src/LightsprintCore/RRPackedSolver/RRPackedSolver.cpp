@@ -350,7 +350,7 @@ void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bo
 			RRVec3 sum(0);
 			for (unsigned i=0;i<quality;i++)
 			{
-				RRMaterial material = *triangles[t].material;
+				RRMaterial material;
 				object->getPointMaterial((unsigned)t,samplePoints[i],material);
 				sum += material.diffuseEmittance.color;
 			}
