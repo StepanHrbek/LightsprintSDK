@@ -114,25 +114,23 @@ RRHash RRObject::getHash() const
 					((unsigned long*)&triangle)[j] = SWAP_32(((unsigned long*)&triangle)[j]);
 #endif
 
-				RRMaterial material;
+				const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+				if (material)
 				{
-					memset(&material,0,sizeof(material));
-					const RRMaterial* m = object->getTriangleMaterial(t,NULL,NULL);
-					if (m) material = *m;
+					sideBits[0] = material->sideBits[0];
+					sideBits[1] = material->sideBits[1];
+					materialData[0] = material->diffuseReflectance.color;
+					materialData[1] = material->diffuseEmittance.color;
+					materialData[2] = material->specularReflectance.color;
+					materialData[3] = material->specularTransmittance.color;
+					refractionIndex = material->refractionIndex;
 				}
-				sideBits[0] = material.sideBits[0];
-				sideBits[1] = material.sideBits[1];
-				materialData[0] = material.diffuseReflectance.color;
-				materialData[1] = material.diffuseEmittance.color;
-				materialData[2] = material.specularReflectance.color;
-				materialData[3] = material.specularTransmittance.color;
-				refractionIndex = material.refractionIndex;
 
 				mesh->getTriangleNormals(t,triangleNormals);
-				mesh->getTriangleMapping(t,triangleMapping[0],material.diffuseReflectance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[1],material.specularReflectance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[2],material.diffuseEmittance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[3],material.specularTransmittance.texcoord);
+				mesh->getTriangleMapping(t,triangleMapping[0],material->diffuseReflectance.texcoord);
+				mesh->getTriangleMapping(t,triangleMapping[1],material->specularReflectance.texcoord);
+				mesh->getTriangleMapping(t,triangleMapping[2],material->diffuseEmittance.texcoord);
+				mesh->getTriangleMapping(t,triangleMapping[3],material->specularTransmittance.texcoord);
 			}
 		};
 		TriangleData td(this,mesh,i);
