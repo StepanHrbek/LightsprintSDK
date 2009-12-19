@@ -72,7 +72,7 @@ namespace rr
 	//!   We don't enforce validation, so you can safely create and render unrealistic materials.
 	//! - GI solver internally creates material copies converted to physical scale and validated,
 	//!   you can access them via RRDynamicSolver::getMultiObjectPhysical().
-	struct RR_API RRMaterial
+	struct RR_API RRMaterial : public RRUniformlyAllocatedNonCopyable
 	{
 		//! What to do with completely uniform textures.
 		enum UniformTextureAction

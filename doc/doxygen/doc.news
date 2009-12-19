@@ -19,6 +19,7 @@ NEWS
 
 CHANGES
 
+- RRMaterial made noncopyable
 - RRObject::createWorldSpaceObject() removed, let us know if you need it
 
 \section news95 ------------------------------------ 2010 beta (2009.12.11) -------------------------------------

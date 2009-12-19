@@ -710,9 +710,11 @@ private:
 //
 // Non cached, to be called at most once per mesh.
 
-static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
+static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 {
-	RRMaterial material;
+	RRMaterial* materialPtr = new RRMaterial;
+	RRMaterial& material = *materialPtr;
+
 	// detect material properties
 	NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
 	NiStencilProperty::DrawMode drawMode = pkStencilProperty ? pkStencilProperty->GetDrawMode() : NiStencilProperty::DRAW_CCW;
@@ -774,7 +776,7 @@ static RRMaterial detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 	material.updateSideBitsFromColors();
 
 	material.name = mesh->GetActiveMaterial() ? mesh->GetActiveMaterial()->GetName() : NULL;
-	return material;
+	return materialPtr;
 }
 
 
@@ -824,14 +826,14 @@ public:
 			if (isEqualMaterial(mesh,(*i).mesh))
 			{
 				//RRReporter::report(INF1,"2 in cache\n");
-				return &(*i).material;
+				return (*i).material;
 			}
 		}
 		//RRReporter::report(INF1,"2 new\n");
 		// push CacheElement, then assign material
 		// (RRMaterial must not be assigned to temporary CacheElement, becuase ~CacheElement at the end of this scope would delete material textures)
 		slowCache->push_front(CacheElement(mesh));
-		return &( slowCache->begin()->material = detectMaterial(mesh,emissiveMultiplier) );
+		return slowCache->begin()->material = detectMaterial(mesh,emissiveMultiplier);
 	}
 	void setEmissiveMultiplier(float _emissiveMultiplier)
 	{
@@ -844,19 +846,33 @@ private:
 	struct CacheElement
 	{
 		const NiMesh* mesh;
-		RRMaterial material;
+		RRMaterial* material;
 
 		CacheElement(const NiMesh* _mesh)
 		{
 			mesh = _mesh;
+			material = NULL;
+		}
+		CacheElement& operator =(const CacheElement& a)
+		{
+			// added only because of assert, default operator would work fine
+			// assignment is allowed only if material is NULL
+			// copying non-NULL material would lead to double delete
+			RR_ASSERT(!a.material);
+			material = NULL;
+			mesh = a.mesh;
 		}
 		~CacheElement()
 		{
 			// clean what we allocated in detectMaterial()
-			RR_SAFE_DELETE(material.diffuseReflectance.texture);
-			RR_SAFE_DELETE(material.specularReflectance.texture);
-			RR_SAFE_DELETE(material.specularTransmittance.texture);
-			RR_SAFE_DELETE(material.diffuseEmittance.texture);
+			if (material)
+			{
+				RR_SAFE_DELETE(material->diffuseReflectance.texture);
+				RR_SAFE_DELETE(material->specularReflectance.texture);
+				RR_SAFE_DELETE(material->specularTransmittance.texture);
+				RR_SAFE_DELETE(material->diffuseEmittance.texture);
+				delete material;
+			}
 		}
 	};
 	typedef std::list<CacheElement> SlowCache;

@@ -28,6 +28,11 @@ public:
 	}
 	virtual ~RRObjectWithPhysicalMaterials() 
 	{
+		// delete physical materials
+		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
+		{
+			delete i->second;
+		}
 	}
 
 	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
@@ -55,8 +60,22 @@ public:
 		{
 			// This is the only place in whole SDK where out is prefilled (in physical scale)
 			// and scaler set.
-			out = *physicalMaterial;
+			
+			// slow path - full copy with name allocation and texture addrefing
+			//             this code is executed in threads, so addrefing would have to use locks,
+			//             then delete would be called, needing more locks for lowering refcount
+			//out = *physicalMaterial;
+			//inherited->getPointMaterial(t,uv,out,scaler);
+
+			// fast path - shallow copy including pointers (inherited->getPointMaterial needs textures), then clear pointers
+			//             some material subclasses delete textures, others do not, therefore we must not copy textures
+			memcpy(&out,physicalMaterial,sizeof(out));
 			inherited->getPointMaterial(t,uv,out,scaler);
+			out.diffuseReflectance.texture = NULL;
+			out.specularReflectance.texture = NULL;
+			out.diffuseEmittance.texture = NULL;
+			out.specularTransmittance.texture = NULL;
+			memset(&out.name,0,sizeof(out.name));
 		}
 		else
 		{
@@ -67,26 +86,39 @@ public:
 	}
 	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical) const
 	{
-		physical = custom;
+		// assignment is disabled
+		//physical = custom;
+		// use memcpy
+		//  fix name but keep copied texture pointers, they are not (yet) deleted in destructor
+		memcpy(&physical,&custom,sizeof(physical));
+		memset(&physical.name,0,sizeof(physical.name)); // fix name (prevent double delete)
+		physical.name = custom.name;
+		
 		physical.convertToPhysicalScale(scaler);
 	}
 	virtual void update(bool& aborting)
 	{
 		faceGroups = inherited->faceGroups;
 		if (!scaler) return;
-		cache.erase(cache.begin(),cache.end());
+		// delete physical materials
+		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
+		{
+			delete i->second;
+		}
+		cache.clear();
+		// allocate physical materials
 		for (unsigned g=0;g<inherited->faceGroups.size();g++)
 		{
 			if (faceGroups[g].material)
 			{
 				Cache::iterator i = cache.find(faceGroups[g].material);
 				if (i!=cache.end())
-					faceGroups[g].material = &i->second;
+					faceGroups[g].material = i->second;
 				else
 				{
-					RRMaterial physical;
-					convertToPhysical(*faceGroups[g].material,physical);
-					faceGroups[g].material = &(cache[faceGroups[g].material] = physical);
+					RRMaterial* physical = new RRMaterial;
+					convertToPhysical(*faceGroups[g].material,*physical);
+					faceGroups[g].material = cache[faceGroups[g].material] = physical;
 				}
 			}
 		}
@@ -94,8 +126,7 @@ public:
 
 private:
 	const RRScaler* scaler;
-	typedef std::pair<const RRMaterial*,RRMaterial> Pair;
-	typedef boost::unordered_map<const RRMaterial*,RRMaterial> Cache;
+	typedef boost::unordered_map<const RRMaterial*,RRMaterial*> Cache;
 	Cache cache;
 };
 

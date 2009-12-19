@@ -475,17 +475,17 @@ public:
 		Cache::iterator i = cache.find(effectStandard);
 		if (i!=cache.end())
 		{
-			return &( i->second );
+			return i->second;
 		}
 		else
 		{
-			return &( cache[effectStandard] = loadMaterial(materialInstance,effectStandard) );
+			return cache[effectStandard] = loadMaterial(materialInstance,effectStandard);
 		}
 #else
 		Cache::iterator i = cache.find(materialInstance);
 		if (i!=cache.end())
 		{
-			return &( i->second );
+			return i->second;
 		}
 		else
 		{
@@ -512,7 +512,7 @@ public:
 
 			const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
 
-			return &( cache[materialInstance] = loadMaterial(materialInstance,effectStandard) );
+			return cache[materialInstance] = loadMaterial(materialInstance,effectStandard);
 		}
 #endif
 	}
@@ -521,10 +521,11 @@ public:
 		// delete textures we loaded via RRBuffer::load()
 		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
 		{
-			delete i->second.diffuseReflectance.texture;
-			delete i->second.specularReflectance.texture;
-			delete i->second.diffuseEmittance.texture;
-			delete i->second.specularTransmittance.texture;
+			delete i->second->diffuseReflectance.texture;
+			delete i->second->specularReflectance.texture;
+			delete i->second->diffuseEmittance.texture;
+			delete i->second->specularTransmittance.texture;
+			delete i->second;
 		}
 	}
 private:
@@ -560,11 +561,12 @@ private:
 		}
 	}
 
-	const RRMaterial loadMaterial(const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
+	RRMaterial* loadMaterial(const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
+		RRMaterial* materialPtr = new RRMaterial;
+		RRMaterial& material = *materialPtr;
 		const fchar* extra = effectStandard->GetExtraAttribute("MAX3D","double_sided");
 		bool twoSided = !extra || extra[0]!='0'; // collada default is 2sided, but MAX3D extra '0' can change it to 1-sided (=not rendered, and photons hitting back side are deleted)
-		RRMaterial material;
 		material.reset(twoSided);
 		material.diffuseReflectance.color = colorToColor(effectStandard->GetDiffuseColor());
 		material.diffuseEmittance.color = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
@@ -629,13 +631,13 @@ private:
 		// optimize material flags
 		material.updateSideBitsFromColors();
 
-		return material;
+		return materialPtr;
 	}
 
 #ifdef AGGRESSIVE_CACHE
-	typedef std::map<const FCDEffectStandard*,RRMaterial> Cache;
+	typedef std::map<const FCDEffectStandard*,RRMaterial*> Cache;
 #else
-	typedef std::map<const FCDMaterialInstance*,RRMaterial> Cache;
+	typedef std::map<const FCDMaterialInstance*,RRMaterial*> Cache;
 #endif
 	Cache cache;
 
