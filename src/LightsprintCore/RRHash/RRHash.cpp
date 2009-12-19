@@ -98,7 +98,7 @@ RRHash RRObject::getHash() const
 		{
 			RRMesh::Triangle triangle;
 			RRMesh::TriangleNormals triangleNormals;
-			RRMesh::TriangleMapping triangleMapping[3];
+			RRMesh::TriangleMapping triangleMapping[4];
 			RRSideBits sideBits[2];
 			RRVec3 materialData[4];
 			RRReal refractionIndex;
