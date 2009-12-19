@@ -64,11 +64,10 @@ namespace rr
 		//! Creates new static scene.
 		//
 		//! \param object
-		//!  World-space physical-scale object that contains whole static scene.
-		//!  \n One object can be created out of multiple objects using RRObject::createMultiObject().
-		//!  \n If object has transformation different from identity, pass object->createWorldSpaceObject()
-		//!  rather than object itself, otherwise object transformation will be ignored.
-		//!  \n object->getTriangleMaterial() and getPointMaterial() should return values in physical scale.
+		//!  Physical-scale object that contains whole static scene.
+		//!  Must be in world space (world matrix is identity).
+		//!  \n Such object can be created out of multiple objects using RRObject::createMultiObject().
+		//!  \n RRObject::getTriangleMaterial() and getPointMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		//! \param aborting
