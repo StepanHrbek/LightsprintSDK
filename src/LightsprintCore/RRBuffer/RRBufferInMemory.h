@@ -40,6 +40,7 @@ public:
 	void operator delete(void* p, std::size_t n);
 	RRBufferInMemory();
 	virtual RRBuffer* createReference();
+	virtual unsigned getReferenceCount() {return refCount;}
 	virtual ~RRBufferInMemory();
 protected:
 	unsigned refCount;

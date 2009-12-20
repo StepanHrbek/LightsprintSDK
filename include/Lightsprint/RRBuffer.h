@@ -198,6 +198,8 @@ namespace rr
 		//! It is not thread safe, must not be called concurrently for one buffer.
 		//! It may be called concurrently for different buffers.
 		virtual RRBuffer* createReference() = 0;
+		//! Returns number of references to this instance, for debugging only.
+		virtual unsigned getReferenceCount() = 0;
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data.
 		RRBuffer* createCopy();

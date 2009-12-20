@@ -16,6 +16,7 @@ NEWS
   - all images are transparently cached
   - removed old caching from Collada adapter
   - added RRBuffer::createReference()
+  - added RRBuffer::getReferenceCount()
 
 CHANGES
 

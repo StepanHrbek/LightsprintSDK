@@ -283,6 +283,9 @@ public:
 		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
 		{
 			// if users deleted their buffers, refcount should be down at 1 and this delete is final
+			if (i->second.buffer && i->second.buffer->getReferenceCount()!=1)
+				RRReporter::report(WARN,"Memory leak, image %s not deleted (%dx).\n",i->second.buffer->filename.c_str(),i->second.buffer->getReferenceCount()-1);
+
 			delete i->second.buffer;
 		}
 	}
