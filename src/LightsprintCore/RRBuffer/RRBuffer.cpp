@@ -236,6 +236,7 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 //
 // ImageCache
 
+
 class ImageCache
 {
 public:
