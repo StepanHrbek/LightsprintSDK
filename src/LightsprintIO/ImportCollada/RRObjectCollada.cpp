@@ -342,64 +342,6 @@ bool RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigne
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ImageCache
-
-class ImageCache
-{
-public:
-	ImageCache(const char* _pathToTextures)
-	{
-		if (_pathToTextures)
-			pathToTextures = _strdup(_pathToTextures);
-		else
-			// _strdup on NULL string causes crash on Unix platforms
-			pathToTextures = _strdup("");
-	}
-	RRBuffer* load(const FCDTexture* texture)
-	{
-		if (!texture) return NULL;
-		const FCDImage* image = texture->GetImage();
-		if (!image) return NULL;
-		RRBuffer* buffer = NULL;
-		RRReporter* oldReporter = RRReporter::getReporter();
-		RRReporter::setReporter(NULL); // disable reporting temporarily while we try texture load at 2 locations
-		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
-		{
-			fstring strippedName = image->GetFilename();
-			if (stripPaths)
-			{
-				while (strippedName.contains('/') || strippedName.contains('\\')) strippedName.pop_front();
-			}
-			if (stripPaths || (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':'))
-			{
-				strippedName.insert(0,pathToTextures);
-			}
-			buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
-			if (buffer) break;
-		}
-		RRReporter::setReporter(oldReporter);
-		if (!buffer)
-		{
-			fstring strippedName = image->GetFilename();
-			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
-			{
-				strippedName.insert(0,pathToTextures);
-			}
-			RRReporter::report(WARN,"Can't load texture %s\n",strippedName.c_str());
-		}
-		return buffer;
-	}
-	~ImageCache()
-	{
-		free(pathToTextures);
-	}
-protected:
-	char* pathToTextures;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // MaterialCache
 //
 // data stored per material, shared by multiple objects
@@ -434,9 +376,9 @@ RRVec4 getAvgColor(RRBuffer* buffer)
 class MaterialCacheCollada
 {
 public:
-	MaterialCacheCollada(ImageCache* _imageCache, float _emissiveMultiplier)
+	MaterialCacheCollada(const char* _pathToTextures, float _emissiveMultiplier)
 	{
-		imageCache = _imageCache;
+		pathToTextures = _pathToTextures;
 		emissiveMultiplier = _emissiveMultiplier;
 		invertedA_ONETransparency = false;
 		defaultMaterial.reset(false);
@@ -529,33 +471,78 @@ public:
 		}
 	}
 private:
+	// _filename may contain path, it is used in first attempt
+	// _pathToTextures should end by \ or /, it is used in second attempt
+	static RRBuffer* loadTextureTwoPaths(const char* _filename, const char* _pathToTextures)
+	{
+		if (!_filename) return NULL;
+		if (!_pathToTextures) return NULL; // we expect sanitized string
+		RRBuffer* buffer = NULL;
+		RRReporter* oldReporter = RRReporter::getReporter();
+		RRReporter::setReporter(NULL); // disable reporting temporarily while we try texture load at 2 locations
+		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
+		{
+			std::string strippedName = _filename;
+			if (stripPaths)
+			{
+				size_t pos = strippedName.find_last_of("/\\");
+				if (pos!=-1) strippedName.erase(0,pos+1);
+			}
+			if (stripPaths || (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':'))
+			{
+				strippedName.insert(0,_pathToTextures);
+			}
+			buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
+			if (buffer) break;
+		}
+		RRReporter::setReporter(oldReporter);
+		if (!buffer)
+		{
+			std::string strippedName = _filename;
+			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
+			{
+				strippedName.insert(0,_pathToTextures);
+			}
+			RRReporter::report(WARN,"Can't load texture %s\n",strippedName.c_str());
+		}
+		return buffer;
+	}
 	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
-		// load texture
-		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : NULL;
-		materialProperty.texture = imageCache->load(texture);
-		if (materialProperty.texture)
-		{
-			materialProperty.color = getAvgColor(materialProperty.texture);
-		}
-		// load texcoord
+		materialProperty.texture = NULL;
 		materialProperty.texcoord = 0;
-		if (texture && materialInstance)
+		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : NULL;
+		if (texture)
 		{
-			const FCDEffectParameterInt* set = texture->GetSet();
-			if (set)
+			// load texture
+			const FCDImage* image = texture->GetImage();
+			if (image)
 			{
-				const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
-				if (materialInstanceBindVertexInput) // is NULL in kalasatama.dae
+				const fstring& filename = image->GetFilename();
+				materialProperty.texture = loadTextureTwoPaths(filename.c_str(),pathToTextures.c_str());
+				if (materialProperty.texture)
 				{
-					// 1 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2" set="1"/>
-					// 0 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2"/> (data from meshlab, 0 is default in fcollada)
-					materialProperty.texcoord = materialInstanceBindVertexInput->inputSet;
+					materialProperty.color = getAvgColor(materialProperty.texture);
 				}
-				else
+			}
+			// load texcoord
+			if (materialInstance)
+			{
+				const FCDEffectParameterInt* set = texture->GetSet();
+				if (set)
 				{
-					materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (texcoord binding missing).\n"));
+					const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
+					if (materialInstanceBindVertexInput) // is NULL in kalasatama.dae
+					{
+						// 1 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2" set="1"/>
+						// 0 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2"/> (data from meshlab, 0 is default in fcollada)
+						materialProperty.texcoord = materialInstanceBindVertexInput->inputSet;
+					}
+					else
+					{
+						materialProperty.texcoord = UNSPECIFIED_CHANNEL;
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (texcoord binding missing).\n"));
+					}
 				}
 			}
 		}
@@ -641,7 +628,7 @@ private:
 #endif
 	Cache cache;
 
-	ImageCache* imageCache;
+	RRString pathToTextures;
 	float emissiveMultiplier;
 	bool invertedA_ONETransparency; // workaround for Google Sketch Up bug
 	RRMaterial defaultMaterial;
@@ -772,7 +759,6 @@ private:
 	// collider and mesh cache, for instancing
 	typedef std::map<const FCDGeometryMesh*,const RRCollider*> ColliderCache;
 	ColliderCache              colliderCache;
-	ImageCache                 imageCache;
 	MaterialCacheCollada       materialCache;
 };
 
@@ -876,7 +862,7 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 }
 
 RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
-	: imageCache(pathToTextures), materialCache(&imageCache,emissiveMultiplier)
+	: materialCache(pathToTextures,emissiveMultiplier)
 {
 	if (!document)
 		return;
