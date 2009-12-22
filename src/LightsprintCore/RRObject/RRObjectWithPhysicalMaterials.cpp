@@ -49,7 +49,7 @@ public:
 		// We sync with inherited only when update() is called.
 		return RRObject::getTriangleMaterial(t,light,receiver);
 	}
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* _scaler = NULL) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* _scaler = NULL) const
 	{
 		// No one else is allowed to set scaler, it's our job.
 		// We also don't expect user would create chain with two instances of this filter.
@@ -60,22 +60,8 @@ public:
 		{
 			// This is the only place in whole SDK where out is prefilled (in physical scale)
 			// and scaler set.
-			
-			// slow path - full copy with name allocation and texture addrefing
-			//             this code is executed in threads, so addrefing would have to use locks,
-			//             then delete would be called, needing more locks for lowering refcount
-			//out = *physicalMaterial;
-			//inherited->getPointMaterial(t,uv,out,scaler);
-
-			// fast path - shallow copy including pointers (inherited->getPointMaterial needs textures), then clear pointers
-			//             some material subclasses delete textures, others do not, therefore we must not copy textures
-			memcpy(&out,physicalMaterial,sizeof(out));
+			out = *physicalMaterial;
 			inherited->getPointMaterial(t,uv,out,scaler);
-			out.diffuseReflectance.texture = NULL;
-			out.specularReflectance.texture = NULL;
-			out.diffuseEmittance.texture = NULL;
-			out.specularTransmittance.texture = NULL;
-			memset(&out.name,0,sizeof(out.name));
 		}
 		else
 		{
@@ -86,14 +72,7 @@ public:
 	}
 	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical) const
 	{
-		// assignment is disabled
-		//physical = custom;
-		// use memcpy
-		//  fix name but keep copied texture pointers, they are not (yet) deleted in destructor
-		memcpy(&physical,&custom,sizeof(physical));
-		memset(&physical.name,0,sizeof(physical.name)); // fix name (prevent double delete)
-		physical.name = custom.name;
-		
+		physical.copyFrom(custom);
 		physical.convertToPhysicalScale(scaler);
 	}
 	virtual void update(bool& aborting)

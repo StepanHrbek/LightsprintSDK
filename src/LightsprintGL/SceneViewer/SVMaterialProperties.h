@@ -34,8 +34,10 @@ namespace rr_gl
 		unsigned          lastTriangle;
 		rr::RRVec2        lastPoint2d;
 
-		rr::RRMaterial*   material;
-		rr::RRMaterial    materialPoint;
+		rr::RRMaterial*   material; // materialCustom or materialPhysical or &materialPoint
+		rr::RRMaterial*   materialCustom;
+		rr::RRMaterial*   materialPhysical;
+		rr::RRPointMaterial materialPoint;
 
 		bool              showPoint;
 		bool              showPhysical;

@@ -67,13 +67,6 @@ public:
 			reset(false); // Model_3DS::MaterialChunkProcessor expects 1-sided is already set
 			lightmapTexcoord = CH_LIGHTMAP;
 		}
-		~Material()
-		{
-			delete diffuseReflectance.texture;
-			delete diffuseEmittance.texture;
-			delete specularReflectance.texture;
-			delete specularTransmittance.texture;
-		}
 	};
 
 	// Every chunk in the 3ds file starts with this struct

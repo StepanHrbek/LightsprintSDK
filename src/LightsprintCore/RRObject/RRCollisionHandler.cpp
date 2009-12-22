@@ -30,7 +30,7 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 
-		RRMaterial pointMaterial;
+		RRPointMaterial pointMaterial;
 		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 		return result = pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}

@@ -19,6 +19,36 @@ namespace rr
 // RRMaterial
 
 
+static void copyProperty(RRMaterial::Property& to, const RRMaterial::Property& from)
+{
+	to.color = from.color;
+	to.texcoord = from.texcoord;
+	// copy texture only if it differs, copying is bit expensive and thread unsafe
+	if (to.texture!=from.texture)
+	{
+		// texture is owned by material, so old one must be deleted, new one created (reference only)
+		delete to.texture;
+		to.texture = from.texture ? from.texture->createReference() : NULL;
+	}
+}
+
+void RRMaterial::copyFrom(const RRMaterial& a)
+{
+	sideBits[0] = a.sideBits[0];
+	sideBits[1] = a.sideBits[1];
+	copyProperty(diffuseReflectance,a.diffuseReflectance);
+	copyProperty(diffuseEmittance,a.diffuseEmittance);
+	copyProperty(specularReflectance,a.specularReflectance);
+	copyProperty(specularTransmittance,a.specularTransmittance);
+	specularTransmittanceInAlpha = a.specularTransmittanceInAlpha;
+	specularTransmittanceKeyed = a.specularTransmittanceKeyed;
+	refractionIndex = a.refractionIndex;
+	lightmapTexcoord = a.lightmapTexcoord;
+	minimalQualityForPointMaterials = a.minimalQualityForPointMaterials;
+	if (name!=a.name) name = a.name;
+}
+
+
 void RRMaterial::reset(bool twoSided)
 {
 	RRSideBits sideBitsTmp[2][2]={
@@ -322,6 +352,35 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 bool RRMaterial::needsBlending() const
 {
 	return specularTransmittance.color!=RRVec3(0) && !specularTransmittanceKeyed;
+}
+
+RRMaterial::~RRMaterial()
+{
+	delete diffuseReflectance.texture;
+	delete diffuseEmittance.texture;
+	delete specularReflectance.texture;
+	delete specularTransmittance.texture;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRPointMaterial
+
+void RRPointMaterial::operator =(const RRMaterial& a)
+{
+	// memcpy creates shallow copy, destructor guarantees we won't delete things we don't own
+	memcpy(this,&a,sizeof(a));
+}
+
+RRPointMaterial::~RRPointMaterial()
+{
+	// NULL all pointers, so that ~RRMaterial has no work
+	memset(&name,0,sizeof(name));
+	diffuseReflectance.texture = NULL;
+	specularReflectance.texture = NULL;
+	diffuseEmittance.texture = NULL;
+	specularTransmittance.texture = NULL;
 }
 
 } // namespace

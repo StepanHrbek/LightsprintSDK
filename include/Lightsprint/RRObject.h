@@ -106,8 +106,8 @@ namespace rr
 		//! Returned pointer must stay valid and constant for whole life of object.
 		//!
 		//! <b>Editing materials</b>
-		//! \n Caller is allowed to modify returned materials including textures, but if he allocates new textures,
-		//! he is responsible for freeing them. RRObject must free only what RRObject allocated.
+		//! \n Caller is allowed to modify returned materials including textures
+		//! (textures are owned and deleted by material, so when changing texture, old one must be deleted).
 		//! Filtered objects (e.g. objects created by createMultiObject()) usually
 		//! share materials, so by modifying base object, filtered one is modified too.
 		//! There is one notable exception - createObjectWithPhysicalMaterials() creates object with new independent
@@ -132,6 +132,7 @@ namespace rr
 		//! \n\n Default implementation takes point details from optional textures in material returned by getTriangleMaterial().
 		//! \n\n Offline GI solver uses getPointMaterial() only if requested lightmap quality>=getTriangleMaterial()->minimalQualityForPointMaterials.
 		//! Realtime GI solvers never call getPointMaterial().
+		//! \n\n Thread safe: yes, offline solver calls it from many thread concurrently.
 		//! \param t
 		//!  Triangle number.
 		//! \param uv
@@ -146,7 +147,7 @@ namespace rr
 		//!  (colors in physical scale, textures are in adapter's default scale to save memory),
 		//!  function's goal is to modify colors in physical scale. Default implementation
 		//!  reads custom scale colors from textures and converts them to physical scale using scaler.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out, const RRScaler* scaler = NULL) const;
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler = NULL) const;
 
 		//! Information about single object, what LOD it is.
 		struct LodInfo

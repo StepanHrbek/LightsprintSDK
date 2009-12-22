@@ -168,7 +168,7 @@ loaded:
 	s.diffuseReflectance.texcoord = CH_DIFFUSE;
 	// alpha is transparency (1=opaque)
 	s.specularTransmittance.color = RRVec3(1-avg[3]);
-	s.specularTransmittance.texture = (avg[3]==1) ? NULL : t;
+	s.specularTransmittance.texture = (!t || avg[3]==1) ? NULL : t->createReference();
 	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
 	s.lightmapTexcoord = CH_LIGHTMAP;
@@ -318,7 +318,6 @@ RRObjectQuake3::~RRObjectQuake3()
 {
 	for (unsigned i=0;i<(unsigned)materials.size();i++)
 	{
-		delete materials[i]->diffuseReflectance.texture;
 		delete materials[i];
 	}
 	delete getCollider();

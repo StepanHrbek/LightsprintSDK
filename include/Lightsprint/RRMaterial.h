@@ -65,6 +65,9 @@ namespace rr
 	//! so it not necessarily complete material description,
 	//! custom renderer may use additional custom information stored elsewhere.
 	//!
+	//! Textures are owned and deleted by material.
+	//! To change texture on the fly, delete old one before setting new one.
+	//!
 	//! Values may be in physical or any other scale, depends on context, who uses it.
 	//! - Adapters create materials in custom scale (usually sRGB, so material properties are screen colors).
 	//! - Realtime renderer uses custom scale materials.
@@ -74,7 +77,7 @@ namespace rr
 	//!   you can access them via RRDynamicSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial : public RRUniformlyAllocatedNonCopyable
 	{
-		//! What to do with completely uniform textures.
+		//! What to do with completely uniform textures (single color).
 		enum UniformTextureAction
 		{
 			UTA_KEEP,   ///< Keep uniform texture.
@@ -85,9 +88,17 @@ namespace rr
 		//! Part of material description.
 		struct RR_API Property
 		{
-			RRVec3                 color;    ///< Material property expressed as 3 floats. If texture is present, this is average color of texture.
-			RRBuffer*              texture;  ///< Material property expressed as a texture. Not deleted in destructor. Shallow copied in assignment operator and copy constructor.
-			unsigned               texcoord; ///< Texcoord channel used by texture. Call RRMesh::getTriangleMapping(texcoord) to get mapping for texture.
+			//! Material property expressed as 3 floats. If texture is present, this is average color of texture.
+			RRVec3                 color;
+			//! Material property expressed as a texture.
+			//
+			//! Texture is owned and deleted by RRMaterial, so in order to change texture,
+			//! delete old one before assigning new one.
+			//! Assignment and copy constructor in Property make only shallow copy, ~Property() doesn't delete texture.
+			//! Assignment and copy constructor in RRMaterial are disabled, ~RRMaterial() deletes textures.
+			RRBuffer*              texture;
+			//! Texcoord channel used by texture. Call RRMesh::getTriangleMapping(texcoord) to get mapping for texture.
+			unsigned               texcoord;
 
 			//! Clears property to default zeroes.
 			Property()
@@ -104,6 +115,13 @@ namespace rr
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
 		};
+
+		//! Copies given material to this material.
+		//
+		//! Should be avoided, algorithms without copying are generally faster.
+		//! It is thread unsafe under very rare circumstances
+		//! (that's why we didn't make it "operator =", people expect thread safety in assignment).
+		void copyFrom(const RRMaterial& from);
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
 		//
@@ -196,6 +214,27 @@ namespace rr
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material.
 		RRString      name;
+
+		//! Deletes textures (yes, textures are owned by RRMaterial).
+		~RRMaterial();
+	};
+
+	//! RRMaterial optimized for use in RRObject::getPointMaterial().
+	//
+	//! RRPointMaterial creates and destructs faster than RRMaterial, because it does not own textures and name,
+	//! it's just shallow copy for immediate consumption.
+	struct RR_API RRPointMaterial : public RRMaterial
+	{
+		//! Fast and thread safe copy. getPointMaterial() implementations use it to copy triangle material to point material.
+		void operator =(const RRMaterial& a);
+		//! Unlike RRMaterial, RRPointMaterial does not delete textures and name.
+		~RRPointMaterial();
+
+	private:
+		// Ensures that respective RRMaterial functions are not called.
+		void copyFrom(const RRMaterial& from) {}
+		void updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction) {}
+		unsigned createTexturesFromColors() {return 0;}
 	};
 
 } // namespace

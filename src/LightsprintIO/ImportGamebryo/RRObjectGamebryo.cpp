@@ -864,15 +864,7 @@ private:
 		}
 		~CacheElement()
 		{
-			// clean what we allocated in detectMaterial()
-			if (material)
-			{
-				RR_SAFE_DELETE(material->diffuseReflectance.texture);
-				RR_SAFE_DELETE(material->specularReflectance.texture);
-				RR_SAFE_DELETE(material->specularTransmittance.texture);
-				RR_SAFE_DELETE(material->diffuseEmittance.texture);
-				delete material;
-			}
+			delete material;
 		}
 	};
 	typedef std::list<CacheElement> SlowCache;

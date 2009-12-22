@@ -2595,11 +2595,14 @@ Ray-Mesh collisions
    \n This means that parameters that need to be destructed are never destructed inside called function,
    responsibility for object is never passed to someone else.
    When you create object, always delete it yourself when no longer needed.
+   \n\n The only exception to this rule is RRBuffer. Classes RRObjectIllumination and RRMaterial
+   adopt it and delete in destructor.
 
  \section gref Reference counting
-   There is no internal reference counting, so if you create collider out of mesh,
+   There is no internal reference counting, so if you create RRCollider out of RRMesh,
    you are not allowed to destroy mesh before destroying collider. This danger should be
    mentioned on all appropriate places.
+   \n\n The only exception to this rule is RRBuffer, it has built-in reference counter.
 
  \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.

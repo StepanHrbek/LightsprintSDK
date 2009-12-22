@@ -96,10 +96,9 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 	}
 	else
 	{
-		if (showPhysical)
-			material = solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		else
-			material = solver->getMultiObjectCustom()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		material = showPhysical ? materialPhysical : materialCustom;
 	}
 
 	if ((material!=NULL)!=shown)
@@ -175,6 +174,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 	wxPGProperty *property = event.GetProperty();
 
+	// propagate change from wx to material
 	if (property==propPoint)
 	{
 		showPoint = property->GetValue().GetBool();
@@ -206,6 +206,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->sideBits[1] = visible[property->GetValue().GetBool()?1:0];
 	}
 	else
+
+	// - diffuseReflectance
 	if (property==propDiffuse->GetPropertyByName("uv"))
 	{
 		material->diffuseReflectance.texcoord = property->GetValue().GetInteger();
@@ -216,10 +218,12 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (!material->diffuseReflectance.texture)
 		{
 			material->diffuseReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-			//!!! poznamenat si a na konci uvolnit
 		}
 		else
-			material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL);
+		{
+			if (!material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL))
+				RR_SAFE_DELETE(material->diffuseReflectance.texture);
+		}
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("color"))
@@ -228,6 +232,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	else
 
+	// - specularReflectance
 	if (property==propSpecular->GetPropertyByName("uv"))
 	{
 		material->specularReflectance.texcoord = property->GetValue().GetInteger();
@@ -238,10 +243,12 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (!material->specularReflectance.texture)
 		{
 			material->specularReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-			//!!! poznamenat si a na konci uvolnit
 		}
 		else
-			material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL);
+		{
+			if (!material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL))
+				RR_SAFE_DELETE(material->specularReflectance.texture);
+		}
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("color"))
@@ -250,6 +257,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	else
 
+	// - diffuseEmittance
 	if (property==propEmissive->GetPropertyByName("uv"))
 	{
 		material->diffuseEmittance.texcoord = property->GetValue().GetInteger();
@@ -261,10 +269,12 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (!material->diffuseEmittance.texture)
 		{
 			material->diffuseEmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-			//!!! poznamenat si a na konci uvolnit
 		}
 		else
-			material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL);
+		{
+			if (!material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL))
+				RR_SAFE_DELETE(material->diffuseEmittance.texture);
+		}
 		emittanceChanged = true;
 	}
 	else
@@ -275,6 +285,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	else
 
+	// - specularTransmittance
 	if (property==propTransparent->GetPropertyByName("uv"))
 	{
 		material->specularTransmittance.texcoord = property->GetValue().GetInteger();
@@ -285,10 +296,12 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (!material->specularTransmittance.texture)
 		{
 			material->specularTransmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-			//!!! poznamenat si a na konci uvolnit
 		}
 		else
-			material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL);
+		{
+			if (!material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL))
+				RR_SAFE_DELETE(material->specularTransmittance.texture);
+		}
 	}
 	else
 	if (property==propTransparent->GetPropertyByName("color"))
@@ -297,6 +310,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 	else
 
+	// - the rest
 	if (property==propTransparency1bit)
 	{
 		material->specularTransmittanceKeyed = property->GetValue().GetBool();
@@ -322,6 +336,22 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->minimalQualityForPointMaterials = property->GetValue().GetInteger();
 	}
 
+	// propagate change from physical material to custom and vice versa
+	if (!showPoint && materialPhysical && materialCustom)
+	{
+		if (showPhysical)
+		{
+			materialCustom->copyFrom(*materialPhysical);
+			materialCustom->convertToCustomScale(lastSolver->getScaler());
+		}
+		else
+		{
+			materialPhysical->copyFrom(*materialCustom);
+			materialPhysical->convertToCustomScale(lastSolver->getScaler());
+		}
+	}
+
+	// update solver after change in emittance
 	if (emittanceChanged)
 	{
 		lastSolver->setEmittance(1,16,true);

@@ -131,7 +131,7 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 	}
 }
 
-void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, const RRScaler* scaler) const
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler) const
 {
 	if (!scaler)
 	{
@@ -140,11 +140,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, con
 		const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
 		if (perTriangleMaterial)
 		{
-			// assignment is disabled
-			//material = *perTriangleMaterial;
-			// use memcpy, clear name, textures will be cleared at the end of this function
-			memcpy(&material,perTriangleMaterial,sizeof(material));
-			memset(&material.name,0,sizeof(material.name)); // clear name (prevent double delete)
+			material = *perTriangleMaterial;
 		}
 		else
 		{
@@ -232,16 +228,6 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& material, con
 				scaler->getPhysicalFactor(material.diffuseReflectance.color);
 			}
 		}
-	}
-
-	if (!scaler)
-	{
-		// we shallow copied material in this function, however
-		// some material subclasses delete textures, others do not, therefore we must not copy textures
-		material.diffuseReflectance.texture = NULL;
-		material.specularReflectance.texture = NULL;
-		material.diffuseEmittance.texture = NULL;
-		material.specularTransmittance.texture = NULL;
 	}
 }
 

@@ -460,13 +460,9 @@ public:
 	}
 	~MaterialCacheCollada()
 	{
-		// delete textures we loaded via RRBuffer::load()
+		// delete materials we created
 		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
 		{
-			delete i->second->diffuseReflectance.texture;
-			delete i->second->specularReflectance.texture;
-			delete i->second->diffuseEmittance.texture;
-			delete i->second->specularTransmittance.texture;
 			delete i->second;
 		}
 	}
@@ -609,7 +605,7 @@ private:
 
 		// get average colors from textures
 		RRScaler* scaler = RRScaler::createRgbScaler();
-		material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
+		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
 		delete scaler;
 
 		// autodetect keying

@@ -383,7 +383,7 @@ public:
 			// per-pixel materials
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
-				RRMaterial pointMaterial;
+				RRPointMaterial pointMaterial;
 				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
 				{

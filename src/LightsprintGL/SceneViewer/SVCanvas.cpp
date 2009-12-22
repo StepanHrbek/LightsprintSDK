@@ -1219,7 +1219,7 @@ rendered:
 					rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
 					const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 					const rr::RRMaterial* material = triangleMaterial;
-					rr::RRMaterial pointMaterial;
+					rr::RRPointMaterial pointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
 						multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);

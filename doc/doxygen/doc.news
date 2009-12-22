@@ -20,7 +20,11 @@ NEWS
 
 CHANGES
 
-- RRMaterial made noncopyable
+- RRMaterial changes
+  - RRMaterial owns textures, it deletes them in destructor, custom adapters must stop deleting them to avoid double delete
+  - RRPointMaterial added, it is material that does not own/does not delete textures
+  - custom getPointMaterial() implementations must change output type from RRMaterial to RRPointMaterial
+  - RRMaterial is noncopyable, copying should be avoided, use RRMaterial::copyFrom() if necessary
 - RRObject::createWorldSpaceObject() removed, let us know if you need it
 
 \section news95 ------------------------------------ 2010 beta (2009.12.11) -------------------------------------

@@ -124,7 +124,7 @@ private:
 
 	// when collision is found, contact material is stored here:
 	const RRMaterial* triangleMaterial;
-	RRMaterial pointMaterial;
+	RRPointMaterial pointMaterial;
 	bool pointMaterialValid;
 };
 
