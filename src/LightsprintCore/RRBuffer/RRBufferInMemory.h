@@ -43,7 +43,10 @@ public:
 	virtual unsigned getReferenceCount() {return refCount;}
 	virtual ~RRBufferInMemory();
 protected:
-	unsigned refCount;
+	// refCount is aligned and modified only by ++ and -- in createReference() and delete.
+	// this and volatile makes it mosly thread safe, at least on x86
+	// (still we clearly say it's not thread safe)
+	volatile unsigned refCount;
 
 	RRBufferType type;
 	unsigned width;
