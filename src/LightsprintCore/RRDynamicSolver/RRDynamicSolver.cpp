@@ -599,14 +599,14 @@ RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType() con
 bool RRDynamicSolver::containsLightSource() const
 {
 	return getLights().size()
-		|| getMultiObjectCustom()->faceGroups.containsEmittance()
+		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance())
 		|| getEnvironment();
 }
 
 bool RRDynamicSolver::containsRealtimeGILightSource() const
 {
 	return getLights().size()
-		|| getMultiObjectCustom()->faceGroups.containsEmittance()
+		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance())
 		|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
 }
 
