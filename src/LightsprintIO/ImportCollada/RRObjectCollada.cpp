@@ -17,8 +17,10 @@
 // Instancing is supported, multiple instances with different
 // positions and materials share one collider and mesh.
 //
-// Collada doesn't specify what TEXCOORD channel should we use for lightmaps,
-// so we automatically select the last one. This is not necessarily the one you intended for lightmaps.
+// What TEXCOORD channel is used for lightmaps?
+// 1. channel assigned to ambient maps, if present
+// 2. otherwise the highest channel number present
+// This is not necessarily the one you intended for lightmaps.
 // You may want to tweak this code, search for LIGHTMAP_TEXCOORD below.
 //
 // Internal units are automatically converted to meters.
@@ -69,7 +71,7 @@ enum
 {
 	// fixed channel numbers reserved for Collada adapter
 	// must be <100 for realtime renderer (it uses only first 100 channels)
-	// if these numbers collide with numbers in your data, you may change these numbers
+	// if these numbers collide with numbers in your data, change these numbers
 	LIGHTMAP_CHANNEL = 86,
 	UNSPECIFIED_CHANNEL = 87,
 };
@@ -126,7 +128,7 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
 
 // for non TEXCOORD semantics, inputSet is ignored
 // for TEXCOORD semantic, inputSet is mandatory
-//   for lightmaps, inputSet is LIGHTMAP_CHANNEL and we read data from highest valid inputSet.
+//   for lightmaps, inputSet is LIGHTMAP_CHANNEL and we read data from the highest valid inputSet.
 //   for broken documents without binding, inputSet is UNSPECIFIED_CHANNEL and we read data from first valid inputSet.
 bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned inputSet, unsigned floatsPerVertexExpected, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
@@ -600,7 +602,25 @@ private:
 			material.specularTransmittanceInAlpha = true;
 		}
 
+		// get lightmapTexcoord
+		//  default is to use channel with the highest number
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
+		//  but if scene contains ambient map, use its channel
+		const FCDTexture* texture = effectStandard->GetTextureCount(FUDaeTextureChannel::AMBIENT) ? effectStandard->GetTexture(FUDaeTextureChannel::AMBIENT,0) : NULL;
+		if (texture && materialInstance)
+		{
+			const FCDEffectParameterInt* set = texture->GetSet();
+			if (set)
+			{
+				const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
+				if (materialInstanceBindVertexInput)
+				{
+					// wow, scene has uv channel marked as "this is for lightmaps" (ok, ambient maps)
+					material.lightmapTexcoord = materialInstanceBindVertexInput->inputSet;
+				}
+			}
+		}
+
 		material.name = effectStandard->GetParent()->GetName().c_str();
 
 		// get average colors from textures
