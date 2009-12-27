@@ -410,7 +410,6 @@ public:
 	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		const aiScene* aiscene = aiImportFile(filename,0
-			|aiProcess_CalcTangentSpace // TODO: work without tangents if they are not present
 			|aiProcess_Triangulate
 			|aiProcess_SortByPType
 			|aiProcess_GenSmoothNormals
