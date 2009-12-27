@@ -510,23 +510,24 @@ namespace rr
 
 		// Per-triangle data.
 		unsigned numTriangles;
-		Triangle* triangle; ///< 32bit triangle list
+		Triangle* triangle; ///< 32bit triangle list, may be NULL only in completely empty mesh.
 
-		// Per-vertex data.
+		// Per-vertex data, use resizeMesh() for allocations.
 		unsigned numVertices;
-		RRVec3* position;
-		RRVec3* normal;
-		RRVec3* tangent;
-		RRVec3* bitangent;
-		RRVector<RRVec2*> texcoord;
+		RRVec3* position; ///< May be NULL only in completely empty mesh.
+		RRVec3* normal; ///< May be NULL only in completely empty mesh.
+		RRVec3* tangent; ///< May be NULL.
+		RRVec3* bitangent; ///< May be NULL.
+		RRVector<RRVec2*> texcoord; ///< May contain mix of NULL and non-NULL channels, e.g. texcoord[5] array is missing but texcoord[6] array is present.
 
 		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
 		unsigned version;
 
-		// Memory management. Resizing doesn't preserve old data.
-		// If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
-		// If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
-		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords);
+		//! Memory management. Resizing doesn't preserve old data.
+		//
+		//! If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
+		//! If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords, bool _tangents);
 
 		// Save/load. Disk operations not implemented yet.
 		bool                 save(const char* filename) const;
@@ -545,7 +546,7 @@ namespace rr
 		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 	private:
-		unsigned poolSize;
+		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};
 
 } // namespace

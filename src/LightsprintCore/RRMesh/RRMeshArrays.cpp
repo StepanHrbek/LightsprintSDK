@@ -35,10 +35,10 @@ RRMeshArrays::~RRMeshArrays()
 }
 
 // false = complete deallocate, mesh resized to 0,0
-bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords)
+bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords, bool _tangents)
 {
 	// calculate new size in bytes
-	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*(4*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
+	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*((_tangents?4:2)*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
 
 	// free/alloc
 	char* pool = (char*)triangle;
@@ -52,7 +52,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		catch(...)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
-			resizeMesh(0,0,NULL);
+			resizeMesh(0,0,NULL,false);
 			return false;
 		}
 	}
@@ -83,8 +83,16 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		{
 			position = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
 			normal = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
-			tangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
-			bitangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+			if (_tangents)
+			{
+				tangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+				bitangent = (RRVec3*)pool; pool += ALIGN16(numVertices*sizeof(RRVec3));
+			}
+			else
+			{
+				tangent = NULL;
+				bitangent = NULL;
+			}
 		}
 		if (_texcoords)
 		{
@@ -135,7 +143,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	if (_indexed)
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords, true)) // tangents are always included
 		{
 			return false;
 		}
@@ -200,7 +208,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	else
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords, true)) // tangents are always included
 		{
 			return false;
 		}
@@ -287,14 +295,24 @@ void RRMeshArrays::getTriangleNormals(unsigned t, TriangleNormals& out) const
 		return;
 	}
 	RR_ASSERT(normal);
-	RR_ASSERT(tangent);
-	RR_ASSERT(bitangent);
-	for (unsigned v=0;v<3;v++)
+	if (tangent && bitangent)
 	{
-		RR_ASSERT(triangle[t][v]<numVertices);
-		out.vertex[v].normal = normal[triangle[t][v]];
-		out.vertex[v].tangent = tangent[triangle[t][v]];
-		out.vertex[v].bitangent = bitangent[triangle[t][v]];
+		for (unsigned v=0;v<3;v++)
+		{
+			RR_ASSERT(triangle[t][v]<numVertices);
+			out.vertex[v].normal = normal[triangle[t][v]];
+			out.vertex[v].tangent = tangent[triangle[t][v]];
+			out.vertex[v].bitangent = bitangent[triangle[t][v]];
+		}
+	}
+	else
+	{
+		for (unsigned v=0;v<3;v++)
+		{
+			RR_ASSERT(triangle[t][v]<numVertices);
+			out.vertex[v].normal = normal[triangle[t][v]];
+			out.vertex[v].buildBasisFromNormal();
+		}
 	}
 }
 
