@@ -59,15 +59,15 @@ public:
 	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
 	//! Registers scene loader so it can be used by RRScene constructor.
 	//
-	//! Extension is case insensitive, without dot, e.g. "3ds".
+	//! Extensions are case insensitive, in "*.dae;*.3ds;*.md5mesh" format.
 	//!
 	//! Several loaders are implemented in LightsprintIO library,
 	//! rr_io::registerLoaders() will register all of them for you (by calling this function several times).
 	//!
 	//! Multiple loaders may be registered, even for the same extension.
 	//! If first loader fails to load scene, second one is tried etc.
-	static void registerLoader(const char* extension, Loader* loader);
-	//! Returns list of supported extensions, e.g. "*.dae;*.3ds".
+	static void registerLoader(const char* extensions, Loader* loader);
+	//! Returns list of supported extensions in "*.dae;*.3ds;*.md5mesh" format.
 	//
 	//! All extensions of registered loaders are returned in one static string, don't free() it.
 	//! NULL is returned if no loaders were registered.

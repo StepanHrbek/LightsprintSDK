@@ -10,20 +10,21 @@
 namespace rr
 {
 
-struct LoaderExtension
+struct LoaderExtensions
 {
 	RRScene::Loader* loader;
-	const char* extension;
+	RRString extensions; // "*.dae;*.3ds;*.md5mesh"
+	// char* extensions would not work, some adapters register extensions using temporary string. RRString creates copy automatically
 };
 
 // static collection of registered loaders
-std::vector<LoaderExtension> s_loaders;
+std::vector<LoaderExtensions> s_loaders;
 
-#define S_EXTENSIONS_LEN 200
-char s_extensions[S_EXTENSIONS_LEN];
+#define S_EXTENSIONS_LEN 1000
+char s_extensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
 
 // case insensitive match
-static bool extensionMatches(const char* filename, const char* extension)
+static bool extensionMatches(const char* filename, const char* extension) // ext="3ds"
 {
 	if (!filename || !extension)
 	{
@@ -36,6 +37,32 @@ static bool extensionMatches(const char* filename, const char* extension)
 	if (_stricmp(filename+filelen-extlen,extension)) return false; // different extension 
 	if (filename[filelen-extlen-1]!='.') return false; // extension not be preceded by '.'
 	return true;
+}
+
+static bool extensionListMatches(const char* filename, const char* extensionList) // ext="*.3ds;*.mesh.xml"
+{
+	if (!filename || !extensionList)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	char extension[50];
+	for (const char* src = extensionList; *src ; src++)
+	{
+		char* dst = extension;
+		if (src[0]=='*' && src[1]=='.')
+		{
+			src += 2;
+			if (*src=='*')
+				return true; // *.* match
+		}
+		while (*src!=0 && *src!=';')
+			*dst++ = *src++;
+		*dst = 0;
+		if (*extension && extensionMatches(filename,extension))
+			return true;
+	}
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -86,7 +113,7 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 	bool loaderFound = false;
 	for (unsigned i=0;i<s_loaders.size();i++)
 	{
-		if (extensionMatches(filename,s_loaders[i].extension))
+		if (extensionListMatches(filename,s_loaders[i].extensions.c_str()))
 		{
 			loaderFound = true;
 			implementation = s_loaders[i].loader(filename,scale,aborting,emissiveMultiplier);
@@ -141,20 +168,20 @@ const RRBuffer* RRScene::getEnvironment()
 	return implementation ? implementation->getEnvironment() : NULL;
 }
 
-void RRScene::registerLoader(const char* extension, Loader* loader)
+void RRScene::registerLoader(const char* extensions, Loader* loader)
 {
-	if (loader && extension)
+	if (loader && extensions)
 	{
-		LoaderExtension le;
+		LoaderExtensions le;
 		le.loader = loader;
-		le.extension = extension;
+		le.extensions = extensions;
 		s_loaders.push_back(le);
 
 		// update s_extensions
 		if (s_loaders.size()==1)
-			_snprintf(s_extensions,S_EXTENSIONS_LEN,"*.%s",extension);
+			_snprintf(s_extensions,S_EXTENSIONS_LEN,extensions);
 		else
-			_snprintf(s_extensions+strlen(s_extensions),S_EXTENSIONS_LEN-strlen(s_extensions),";*.%s",extension);
+			_snprintf(s_extensions+strlen(s_extensions),S_EXTENSIONS_LEN-strlen(s_extensions),";%s",extensions);
 		s_extensions[S_EXTENSIONS_LEN-1] = 0;
 	}
 	else
