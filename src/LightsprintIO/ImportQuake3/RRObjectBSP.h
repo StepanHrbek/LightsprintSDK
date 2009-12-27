@@ -15,6 +15,11 @@
 //! set pathToTextures to "foo/bar/maps/".
 //! Textures will be loaded from proper paths specified by .bsp, but if it fails, second attempt will be made
 //! directly in pathToTextures directory, with original image paths stripped.
+//!
+//! Known limitations: 
+//! - does not import lights
+//! - does not import curved surfaces
+//! - does not import script-based materials
 rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model, const char* pathToTextures, rr::RRBuffer* missingTexture);
 
 //! Makes it possible to load .bsp scenes from disk via rr::RRScene::RRScene().

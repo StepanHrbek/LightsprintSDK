@@ -432,7 +432,9 @@ namespace rr
 
 		//! Allocates buffers for realtime GI illumination.
 		//
-		//! This is helper function, called automatically from updateBuffersForRealtimeGI().
+		//! This is helper function, RRDynamicSolver::allocateBuffersForRealtimeGI() calls it for
+		//! objects in solver. You can call it directly for finer control over buffers allocated,
+		//! but most likely you don't need to.
 		//! \param lightmapLayerNumber
 		//!  If >=0, vertex buffers in illumination->getLayer(lightmapLayerNumber) are allocated.
 		//!  Vertex buffers are suitable (=we can realtime update them) only for static objects.

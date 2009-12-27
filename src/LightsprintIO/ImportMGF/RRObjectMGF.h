@@ -14,8 +14,8 @@
 //! - mgf scenes don't have unwrap -> bad for per-pixel lightmaps
 //! - many mgf scenes contain T vertices -> bad for per-vertex lighting
 //!
-//! Loader doesn't contain proper triangulation,
-//! polygons more complicated than quad are often incorrectly triangulated.
+//! Known limitations:
+//! - only convex polygons are triangulated properly
 rr::RRObjects* adaptObjectsFromMGF(const char* filename);
 
 //! Makes it possible to load .mgf scenes from disk via RRScene::RRScene().

@@ -3,6 +3,9 @@
 // Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+// OBSOLETED: Assimp contains more complete .3ds loader.
+//  Still this loader may help learn basics as it is very simple.
+
 #ifndef RROBJECT3DS_H
 #define RROBJECT3DS_H
 

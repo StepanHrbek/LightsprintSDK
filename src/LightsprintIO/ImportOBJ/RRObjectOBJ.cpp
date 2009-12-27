@@ -3,6 +3,9 @@
 // Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+// OBSOLETED: Assimp contains more complete .obj loader.
+//  Still this loader may help learn basics as it is very simple.
+
 #include "../supported_formats.h"
 #ifdef SUPPORT_OBJ
 

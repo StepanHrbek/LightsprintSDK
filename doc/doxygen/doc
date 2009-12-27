@@ -16,7 +16,6 @@ namespace rr
  - \subpage main_news
  - \subpage main_scenarios
  - \subpage main_features
- - \subpage main_platforms
  - \subpage main_deployment
  - \subpage main_credits
 
@@ -24,6 +23,7 @@ namespace rr
  - \subpage main_gamebryo3
  - \subpage main_gamebryo26
  - \subpage main_ue3
+ - \subpage main_vs
 
  \section root_artists_guide Artist's guide
  - \subpage main_artist_offline
@@ -133,6 +133,9 @@ namespace rr
 This is a brief list of Lightsprint features, see \ref main_data_access,
 \ref main_api and \ref main_samples for more details.
 
+Supported platforms, compilers etc.
+- \subpage supported_platforms
+
 Global illumination
 - realtime global illumination / realtime radiosity / realtime raytracing
 - realtime penumbra shadows, soft shadows
@@ -169,21 +172,9 @@ Renderers
 - integrates with external renderers
 - includes OpenGL 2.0 shader based renderer
 
-Scene formats
-- Collada 1.4 (.DAE)
-- Gamebryo (.GSA)
-- 3DS Max (.3DS)
-- Quake 3 (.BSP)
-- OBJ (.OBJ)
-- MGF (.MGF)
-- Unreal Engine 3 (internal structures)
-- framework for custom formats
-- complete source code
-
-Texture formats
-- JPG, PNG, EXR, HDR, DDS, TGA, BMP, TIF, GIF...
-- cube textures
-- 96bit float textures
+Scene and image formats
+- reads 66 formats, writes 16 formats
+- \subpage supported_formats
 
 Materials
 - supports all types of materials
@@ -220,6 +211,118 @@ Ray-Mesh collisions
 - high reliability, 7 years under heavy load
 
 
+\page supported_formats Supported formats
+
+Scene formats
+- Gamebryo 3.1
+- Gamebryo 2.6 ( *.gsa )
+- Unreal Engine 3
+- Collada ( *.dae )
+- Biovision BVH ( *.bvh )
+- 3D Studio Max 3DS ( *.3ds )
+- 3D Studio Max ASE ( *.ase )
+- Wavefront Object ( *.obj )
+- Stanford Polygon Library ( *.ply )
+- AutoCAD DXF ( *.dxf )
+- Neutral File Format ( *.nff )
+- Sense8 WorldToolkit ( *.nff )
+- LightWave Model ( *.lwo )
+- MODO model ( *.lxo )
+- Valve Model ( *.smd,*.vta )
+- Quake I ( *.mdl )
+- Quake II ( *.md2 )
+- Quake III ( *.md3, *.bsp )
+- RtCW ( *.mdc )
+- Doom 3 ( *.md5mesh )
+- DirectX X ( *.x )
+- Quick3D ( *.q3o;*q3s )
+- Raw Triangles ( *.raw )
+- AC3D ( *.ac )
+- Stereolithography ( *.stl )
+- Autodesk DXF ( *.dxf )
+- Irrlicht Mesh ( *.irrmesh;*.xml )
+- Irrlicht Scene ( *.irr;*.xml )
+- Object File Format ( *.off )
+- Terragen Terrain ( *.ter )
+- 3D GameStudio Model ( *.mdl )
+- 3D GameStudio Terrain ( *.hmp )
+- Ogre ( *.mesh.xml;*.material )
+- Material and Geometry Format ( *.mgf )
+- framework for custom formats
+- complete source code
+
+Texture formats
+- BMP files [reading, writing]
+- Dr. Halo CUT files [reading]
+- DDS files [reading]
+- EXR files [reading, writing]
+- Raw Fax G3 files [reading]
+- GIF files [reading, writing]
+- HDR files [reading, writing]
+- ICO files [reading, writing]
+- IFF files [reading]
+- JNG files [reading]
+- JPEG/JIF files [reading, writing]
+- JPEG-2000 File Format [reading, writing]
+- JPEG-2000 codestream [reading, writing]
+- KOALA files [reading]
+- Kodak PhotoCD files [reading]
+- MNG files [reading]
+- PCX files [reading]
+- PBM/PGM/PPM files [reading, writing]
+- PFM files [reading, writing]
+- PNG files [reading, writing]
+- Macintosh PICT files [reading]
+- Photoshop PSD files [reading]
+- RAW camera files [reading]
+- Sun RAS files [reading]
+- SGI files [reading]
+- TARGA files [reading, writing]
+- TIFF files [reading, writing]
+- WBMP files [reading, writing]
+- XBM files [reading]
+- XPM files [reading, writing] 
+- cube textures
+- 96bit float textures
+
+
+\page supported_platforms Supported platforms
+
+ Platforms
+ - Windows (XP, Vista, 32bit, 64bit)
+ - Linux (32bit, 64bit)
+ - Playstation 3
+ - Xbox 360
+ - virtually any platform (static GI)
+
+ GPUs on PC
+ - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx
+ - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx
+ - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
+ - subset of workstation versions (Quadro, FireGL)
+ - for offline rendering, GPU is not needed
+
+ 3D APIs
+ - OpenGL 2/3 (examples included)
+ - Direct3D 9/10 (no examples yet)
+ - for offline rendering, 3D API is not needed
+
+ Compilers
+ - Visual C++ 2008 with all security updates (32bit, 64bit)
+ - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
+ - Visual C++ 2003 SP1 with all security updates
+ - gcc (32bit, 64bit)
+
+ Library configurations
+ - Release DLL/so
+ - Debug DLL/so
+ - Release static (source code license only)
+ - Debug static (source code license only)
+
+
+
+
+
 
 
 
@@ -244,6 +347,7 @@ Ray-Mesh collisions
  - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
+ - \subpage tpl_assimp
  - \subpage tpl_freeimage
  - \subpage tpl_fcollada
  - \subpage tpl_libxml2
@@ -262,9 +366,9 @@ Ray-Mesh collisions
 
 \page tpl_squish libsquish
   - www: <a href="http://code.google.com/p/libsquish/">libsquish</a>
+  - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, used only by Lightspeed integration, we can remove it on request
-  - all platforms: version 1.10 is used internally, it is not visible from outside (no headers or dll files)
-  - by Simon Brown, used under MIT license
+  - version 1.10 used internally, it is not visible from outside (no headers or dll files)
 
 \page tpl_glu GLU
   - Windows: should be already installed, part of PlatformSDK by Microsoft
@@ -275,6 +379,7 @@ Ray-Mesh collisions
 
 \page tpl_glew GLEW
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>
+  - license: <a href="http://glew.sourceforge.net/glew.txt">modified BSD license</a>
   - Windows: precompiled version 1.5.0 is a part of SDK
   - Linux: install using
     - Ubuntu: <code>sudo apt-get install libglew1.5-dev</code>
@@ -293,13 +398,15 @@ Ray-Mesh collisions
   - XBox360, PS3 System Software: not used
 
 \page tpl_wx wxWidgets
-  - www: <a href="http://wxwidgets.org//">wxWidgets</a>
+  - www: <a href="http://wxwidgets.org/">wxWidgets</a>
+  - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
   - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
   - Windows: wxWidgets 2.9.0 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
 \page tpl_mesa Mesa 3D
   - www: <a href="http://mesa3d.org/">Mesa 3D</a>
+  - license: <a href="http://mesa3d.org/license.html">modified MIT license</a>
   - Windows: not used
   - Linux: not used
   - PS3 Linux: required as a rendering front end for samples, since there are no
@@ -317,8 +424,15 @@ Ray-Mesh collisions
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
   - optional, remove by replacing <code>data/maps/sv_[point|spot|sun].png</code> images
 
+\page tpl_assimp Assimp
+  - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
+  - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
+  - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
+  - svn revision 511 used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
+  - license: <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>
   - optional, remove by deleting <code>\#define SUPPORT_IMAGES</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - Windows: precompiled version 3.10.0 is a part of SDK
   - Linux (including PS3 Linux): install using
@@ -328,10 +442,10 @@ Ray-Mesh collisions
       This ensures that version we bundle for Windows won't be used on Linux.
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not used
-  - This software uses the FreeImage open source image library. FreeImage is used under the <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>.
 
 \page tpl_fcollada FCollada
-  - www: <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a>
+  - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
+  - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, remove by deleting <code>\#define SUPPORT_COLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B (\subpage fcollada_patch "patched") is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
@@ -346,14 +460,13 @@ Ray-Mesh collisions
     - On 64-bit platforms, open the file <code>FCollada/FUtils/FUStringBuilder.h</code> and replace "long" by "long long" at lines 139 and 140.
     - When building FCollada, use O2 optimization level for 64bit release version and O1 for 32bit to prevent linking issues with templates.
     - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
-  - by Feeling Software, used under MIT license
 
 \page fcollada_patch FCollada patch
   Precompiled FCollada 3.05B in Lightsprint SDK includes our bugfix:
 
   File: FCollada/FUtils/FUUniqueStringMap.cpp
   \code
-	// this is orifinal fcollada 3.05b code,
+	// this is original fcollada 3.05b code,
 	// it splits "a1" and "a01" to {"a",1}, failing in documents with a1 and a01 materials
 	//while (len > 0 && prefix[len-1] >= '0' && prefix[len-1] <= '9')
 	//{
@@ -390,15 +503,18 @@ Ray-Mesh collisions
 	</COLLADA>
   \endcode
 
+  Other patches developed by third parties exist, e.g.
+  http://o3d.googlecode.com/svn/trunk/googleclient/third_party/fcollada/README.google
+
 	
 \page tpl_libxml2 libxml2
   - www: <a href="http://xmlsoft.org/">libxml2</a>
+  - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, remove by disabling \ref tpl_fcollada
   - Windows: not used
   - Linux (including PS3 Linux): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
     - Fedora: <code>pkcon install libxml2-devel</code>
-  - used under MIT license
 
 \page tpl_fragments code fragments
   - .3ds .bsp and .mgf loaders contain 3rd party open source code
@@ -407,7 +523,7 @@ Ray-Mesh collisions
 
 \page tpl_gamebryo Gamebryo
   - www: <a href="http://emergent.net">Gamebryo</a>
-  - Gamebryo is a commercial game engine offered by Emergent Game Technologies
+  - license: commercial
   - for Gamebryo licensee, we include Gamebryo integration code developed in cooperation of Lightsprint and Emergent Game Technologies
   - optional, remove by deleting <code>\#define SUPPORT_GAMEBRYO</code> in <code>src/LightsprintIO/supported_formats.h</code>
 
@@ -677,8 +793,8 @@ Ray-Mesh collisions
 
  \section integr_rt Realtime / in game
   - \subpage integration_realtime_1
+  - \subpage integration_realtime_2
   - \subpage integration_realtime_3
-  - \subpage integration_realtime_4
 
 
 
@@ -686,38 +802,18 @@ Ray-Mesh collisions
 \page integration_tool_1 Precalculations in your scene loaded from disk
 
  You can immediately calculate lightmaps, ambient maps and bent normals
- if you convert your scenes to supported formats and use existing
- sample applications.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
- </td></tr></table>
-
-  - Convert your scene to Collada format,
-    and load it into CPULightmaps, BuildLightmaps, SceneViewer or Lightmaps sample.
-    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
-
-  - CPULightmaps sample 
-    is built on top of purely numerical LightsprintCore and scene importers.
-    BuildLightmaps, SceneViewer and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
-    Left: CPULightmaps. Right: BuildLightmaps, SceneViewer, Lightmaps.
-  <table border=0 width=95%><tr align=top><td>
-  \image html Integration1c.png
-  </td><td>
-  \image html Integration1b.png
-  </td></tr></table>
+ by opening your scene in existing Lightsprint samples.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Steps:
  </td></tr></table>
 
-  - Convert scenes to Collada 1.4 (.DAE).
-  - If you plan to compute maps rather than per-vertex values, include unwrap in second uv channel.
-  - Change name of scene in sample .cpp, so it loads your scene. Or drop your scene on SceneViewer*.exe.
+  - Convert your scene to one of \ref supported_formats
+  - If you plan to compute maps rather than per-vertex values, include uv channel for lightmaps or ambient maps.
+    Only small subset of formats supports this, one of them is Collada.
+    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
+  - Load scene into BuildLightmaps, CPULightmaps, SceneViewer or Lightmaps sample.
+    For usage details, read comments at the beginning of sample source code.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -726,42 +822,32 @@ Ray-Mesh collisions
   - 1 day
 
 
+
+
 \page integration_tool_2 Precalculations in your scene accessed in memory
 
-  If you prefer other data source to Collada,
-  use your scene loader and write adapter for accessing your scene in memory.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
- </td></tr></table>
-
-  - Modify SceneViewer sample to access scenes loaded to memory by your loader.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
-
-  - Modified SceneViewer newly depends on your scene loading code.
-  \image html Integration2.png
+  If you prefer working with scene stored in your C/C++ structures in system memory,
+  write adapter for accessing your structures. (\subpage what_is_an_adapter)
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Steps:
  </td></tr></table>
 
-  - Open SceneViewer project
-  - Copy RRObjectCollada.* to RRObjectCustom.* and add it to the project
-  - Delete all FCollada \#includes from RRObjectCustom.h
-  - Build reports errors on all references to FCollada,
-    change code so it works with your engine's 3d model rather than with FCollada.
-    Replace all references to FCollada with your custom format.
+  - For quick start, pick one of existing projects, our SceneViewer sample or your application. If not sure, pick SceneViewer.
+  - For quick second step, pick one of <b> \subpage existing_adapters, </b> one with features you need. We recommend Assimp or Collada.
+  - Copy selected adapter to RRObjectCustom.h/cpp and insert it into your project.
+  - Delete all unwanted third party \#includes in your adapter, e.g. FCollada or Assimp.
+  - Build reports errors on all references to 3rd party model,
+    change code so it works with your engine's 3d model rather than with FCollada or Assimp.
+    Replace all references to FCollada/Assimp with your custom format.
     For more details, see
     - comments in RRObjectCustom source code
-    - <b> \subpage integration_step_2 </b>
-    - <b> \subpage integration_step_3 </b>
+    - <b> \subpage detect_material_properties </b>
     - interfaces of RRMesh and RRObject you implement
-  - Done. SceneViewer renders scene in your native format.
-    You can test both realtime and precalculated per-vertex and per-pixel lighting.
-    You can use your new scene adapter in any sample.
+  - Open your scene in scene viewer, using code from SceneViewerSample.cpp. Read comments there, small modification is necessary
+    to open scene from memory rather than from disk.
+  - Review adapted geometry, materials, lights in scene viewer.
+    If scene doesn't look as expected, go back to adapter and fix it. Note that you can set breakpoints in your adapter in Debug DLL configuration.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -769,138 +855,42 @@ Ray-Mesh collisions
 
   - 1-4 days
 
+\page what_is_an_adapter What is an adapter
 
+  Adapter is a class that provides Lightsprint interface to non-Lightsprint data structures.
 
+  Lightsprint transports light between object surfaces,
+  so it needs to know everything
+  about scene geometry and material properties.
 
-\page integration_realtime_1 Realtime GI in Lightsprint renderer
+  Lightsprint is designed to access your structures in arbitrary format,
+  so you don't have to duplicate any data.
+  This may save you huge amounts of memory, however,
+  you must provide adapters that access your structures.
 
- You can immediately render realtime global illumination in your 3d scenes
- if you convert them to supported format and load into existing sample application.
- You can also use \ref integration_tool_2 "your scene loader and adapter".
+  (\ref existing_adapters)
 
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
- </td></tr></table>
+\page existing_adapters Existing adapters
 
-  - Convert your scene to Collada format
-    and load it into Lightmaps or RealtimeLights (or load .3ds to RealtimeRadiosity) sample.
+  When writing new adapter, you can pick existing one as a template. (\ref what_is_an_adapter)
 
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
+  - RRObjectAssimp.h/cpp (500 lines) is the only adapter that copies data from 3rd party structures to Lightsprint structures.
+    It's also the only adapter that creates only basic meshes and objects, without subclassing.
+    (Subclassing is necessary e.g. for LODs or for objects that receive light/shadows only from selected lights/objects.)
+    It supports geometry instancing.
+  - RRObjectCollada.h/cpp (1000 lines) accesses data in original 3rd party structures. It supports geometry instancing.
+  - RRObjectGamebryo.h/cpp (2500 lines) accesses data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
+  - RRObjectUE3.h/cpp (1200 lines) accesses data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
+  - RRObjectBSP.h/cpp (500 lines) accesses data in original 3rd party structures. It loads whole scene as a single object.
+  - RRObject3DS.h/cpp (300 lines) accesses vertex data in original 3rd party structures. Model_3DS.cpp was modified to load materials directly into our structures (another ~200 lines).
+  - RRObjectOBJ.h/cpp (250 lines) loads data from disk into custom structure (std::vector). It loads whole scene as a single object.
+  - RRObjectMGF.h/cpp (350 lines) loads data from disk into custom structure (std::vector). It loads whole scene as a single object. It calls third party loader code.
 
-  - Lightmaps and RealtimeRadiosity samples are
-    built on top of purely numerical LightsprintCore, OpenGL 2.0 based LightsprintGL and scene importers.
-    Left: Lightmaps. Right: RealtimeRadiosity.
-  <table border=0 width=95%><tr align=top><td>
-  \image html Integration1b.png
-  </td><td>
-  \image html Integration1a.png
-  </td></tr></table>
+  Source code of adapters is in src/LightsprintIO/ImportXXX/RRObjectXXX.h|cpp.
 
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Steps:
- </td></tr></table>
+\page detect_material_properties Detect material properties
 
-  - Make sure static scene is suitable for per-vertex lighting (more in \ref artist_realtime_static "artist's guide")
-  - Convert scenes to Collada 1.4 (.DAE).
-  - Change name of scene in Lightmaps.cpp, so it loads your scene.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Expected time spent:
- </td></tr></table>
-
-  - 1 day
-
-
-
-\page integration_realtime_3 Realtime GI in your OpenGL renderer
-
-  If you prefer other OpenGL renderer to LightsprintGL, switch to renderer of your choice.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
- </td></tr></table>
-
-  - Modify RealtimeRadiosity sample to use your renderer.
-    Or modify your application/engine to use code from RealtimeRadiosity sample
-    that builds realtime GI buffers.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
-
-  - Application uses LightsprintCore and LightsprintGL to calculate GI,
-    while your engine does scene loading and rendering.
-  \image html Integration3.png
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Steps:
- </td></tr></table>
-
-  - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
-    or projected shadows. If it doesn't, add them or contact us for further support.
-  - <b> \subpage integration_step_4 </b>
-  - <b> \subpage integration_step_5 </b>
-  - Render our indirect illumination, see <b> \ref main_data_access </b>
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Expected time spent:
- </td></tr></table>
-
-  - 1 week
-
-
-
-
-\page integration_realtime_4 Realtime GI in any renderer
-
-  If you want to use your renderer, but it is not OpenGL based,
-  write custom GPU access routines as a replacement for LightsprintGL.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended starting point:
- </td></tr></table>
-
-  - Modify your application/engine to use LightsprintCore.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
-
-  - Different approaches: You can expose Lightsprint engine to your
-    applications or hide it inside your engine.
-  <table border=0 width=95%><tr align=top><td>
-  \image html Integration4a.png
-  </td><td>
-  \image html Integration4b.png
-  </td></tr></table>
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Steps:
- </td></tr></table>
-
-  - <b> \subpage integration_step_6 </b>
-  - render with computed data stored in RRBuffer lightmaps, environment maps and vertex buffers.
-    See rr_gl::getTexture() as an example how texture buffers are adapted for use in OpenGL,
-    it's basicly glTexImage2D(...,buffer->lock(BL_READ)) call. Alternatively, you can subclass
-    RRBuffer so that it stores data directly in your renderable surface.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Expected time spent:
- </td></tr></table>
-
-  - 1-3 weeks
-
-
-
-
-
-
- 
-\page integration_step_2 Detect material properties
-
- Realtime global illumination is based on physically correct calculation of light transport.
+ Global illumination is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
  See RRMaterial for list of supported material properties of a surface.
 
@@ -908,15 +898,14 @@ Ray-Mesh collisions
  you don't even need any additional information provided by artists who
  create materials or compose shaders. Everything can be detected automatically.
 
- In <b>special case</b> of RealtimeRadiosity example, materials contain diffuse texture
- without specular and transparency, so whole detection was reduced to calculating
+ In very <b>simple cases</b>, materials contain only diffuse texture
+ without specular and transparency, so whole detection is reduced to calculating
  average color of diffuse texture and storing it into RRMaterial::diffuseReflectance.
- This took 1 hour.
 
- In <b>more general case</b> with known set of shaders,
+ In <b>more general cases</b> where renderer uses fixed set of shaders,
  you can extend this approach and get all values by analyzing textures and other inputs
  used by shaders.
- This can take you few hours.
+ This can take you a few hours.
  Viability of this approach highly depends on your shaders and can't be decided here.
  If you are not sure, describe us your shaders and we will help you.
 
@@ -955,191 +944,198 @@ Ray-Mesh collisions
 
 
 
-\page integration_step_3 Create object adapters
 
- Lightsprint transports light between object surfaces,
- so it needs to know everything
- about scene geometry and material properties.
+\page integration_realtime_1 Realtime GI in Lightsprint renderer
 
- Lightsprint is designed to access your structures in arbitrary format,
- so you don't have to duplicate any data.
- This may save you huge amounts of memory, however,
- you must provide adapters that access your structures.
+ You can immediately render realtime global illumination in your 3d scenes
+ if you load them into existing sample application.
+ You can also use \ref integration_tool_2 "your scene loader and adapter".
 
- Further saving is possible thanks to geometry instancing.
- Multiple objects with different materials and different illumination
- may share one mesh and collider.
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended approach:
+ </td></tr></table>
 
- \section import_without_instancing Import without instancing
+  - Load your scene into RealtimeLights or Lightmaps sample.
 
- For import without geometry instancing,
- see one of samples/Import3DS, samples/ImportQuake3, samples/ImportOBJ,
- samples/ImportMGF.
- It is everything necessary to load 3ds, Quake3, obj or mgf scene into 
- RRDynamicSolver.
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
 
- For sake of simplicity, adapters duplicate some data in memory
- and don't support geometry instancing.
- On the other hand, support for custom data is demonstrated
- on diffuse textures and uv coordinates.
+  - RealtimeLights and Lightmaps samples are
+    built on top of purely numerical LightsprintCore, OpenGL 2.0 based LightsprintGL and scene importers in LightsprintIO.
+  \image html Integration1b.png
 
- Both RRMesh and RRObject interfaces are implemented in one class,
- so one RRMesh can't be shared by multiple RRObject-s
- and instances are not supported.
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
 
- \section import_with_instancing Import with instancing
+  - Make sure your static scene is suitable for per-vertex lighting, read more in \ref artist_realtime_static "artist's guide".
+  - Convert scene to one of \ref supported_formats, e.g. Collada (.DAE).
+  - Change name of scene in Lightmaps.cpp, so it loads your scene.
 
- For import with instancing, see samples/ImportCollada.
- (adapter for scenes loaded by freely available FCollada library)
- or src/LightsprintUE3 (adapter for import from Unreal Engine 3).
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
 
- Adapters don't duplicate any memory, all data are accessed directly
- in FCollada document.
-
- RRMesh and RRObject interfaces are implemented in two separated classes,
- and one RRMesh is shared by multiple RRObject-s, if scene contains instances.
-
- \section import_new New importer
-
- To import data in your format, pick one of existing importers
- and modify it to access your data.
-
- Alternatively, to write new importer from scratch, follow these steps:
-
- -  Create RRMesh for every static triangle mesh in your engine.
-    \n\n
-    You can immediately create them 
-    from trilists, tristrips, indexed trilists, indexed tristrips
-    using single call to RRMesh::create() or RRMesh::createIndexed().
-    For other formats ask for our support or implement your own RRMesh,
-    which is very simple.
-    \n\n
-    Note that these adapters don't duplicate your data
-    and they support mesh optimizations and mesh aggregation,
-    see RRMesh for details.
-    \n\n
-    Once you have RRMesh instance, create RRCollider using
-    RRCollider::create().
-    RRCollider::IT_LINEAR technique with minimal overhead is sufficient 
-    for current version of RRDynamicSolver.
-    \n\n
-    Most convenient way to remember collider for later use is to
-    attach it to your triangle mesh.
-    You don't need to store pointer to RRMesh,
-    it is available from collider using RRCollider::getMesh().
-    \n\n
-    RRDynamicSolver may use collider to calculate ray-mesh collisions,
-    but it is available also to you via RRCollider::intersect().
-    If you plan to use it and its performance is critical, use 
-    other technique than RRCollider::IT_LINEAR.
-
- -  Implement your own RRObject and
-    create its instance for every static object in your scene.
-    \n\n
-    By objects we understand identical meshes placed on different
-    positions in scene, possibly using different materials (e.g. several
-    cars with the same geometry, different position and possibly different color;
-    they are different objects sharing one mesh).
-    \n\n
-    Default RRMesh::getTriangleMapping() returns realtime generated
-    unwrap of low quality, for serious use of ambient maps, you should override
-    RRMesh::getTriangleMapping() and provide your own unwrap.
-    This is not necessary if you use vertex arrays and don't need lightmaps.
-    \n\n
-    Once you have RRObject instance, most convenient way to remember it
-    for later use is to attach it to your object.
+  - 1 day
 
 
 
+\page integration_realtime_2 Realtime GI in your OpenGL renderer
+
+  If you prefer other OpenGL renderer to LightsprintGL, switch to renderer of your choice.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended approach:
+ </td></tr></table>
+
+  - Modify RealtimeRadiosity sample to use your renderer.
+    Or modify your application/engine to use code from RealtimeRadiosity sample
+    that builds realtime GI buffers.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Application uses LightsprintCore and LightsprintGL to calculate GI,
+    while your engine does scene loading and rendering.
+    Left: RealtimeRadiosity sample, Right: you can modify it this way
+  <table border=0 width=95%><tr align=top><td>
+  \image html Integration1a.png
+  </td><td>
+  \image html Integration3.png
+  </td></tr></table>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Make sure your static scene is suitable for per-vertex lighting, read more in \ref artist_realtime_static "artist's guide".
+  - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
+    or projected shadows. If it doesn't, add them or contact us for further support.
+  - Open RealtimeRadiosity sample. See that both scene loader, scene data structures and rendering are part of project, in source code.
+    You can remove sample's scene loader, structures and rendering and use your own.
+  - But keep rr_gl::RRDynamicSolverGL instance, it calculates realtime GI for you. See how sample does it, read how to <b> \subpage use_rrdynamicsolver </b>.
+  - Render our indirect illumination, see how sample does it, read more in \ref main_data_access
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1 week
 
 
-\page integration_step_4 Subclass RRDynamicSolver
+\page use_rrdynamicsolver Use RRDynamicSolver or its subclass
 
- RRDynamicSolver is global illumination solver.
+ RRDynamicSolver class is your primary interface to Lightsprint engine.
+ To add global illumination to your application,
+
+ - Create instance of RRDynamicSolver or its subclass (e.g. RRDynamicSolverGL).
+
+ - Set static objects once,
+   call RRDynamicSolver::setStaticObjects() with set of static objects participating in calculation.
+   This call is expensive, design your application to minimize
+   changes to static scene.
+
+ - Set dynamic objects, call RRDynamicSolver::setDynamicObjects().
+   It is cheap call, you can add/remove dynamic objects frequently.
+   Once your dynamic objects are added, you can manipulate them freely.
+
+ - Call RRDynamicSolver::allocateBuffersForRealtimeGI().
+
+ - Set lights, call RRDynamicSolver::setLights() with set of lights participating in calculation.
+   Optionally call also RRDynamicSolver::setEnvironment() to add outdoor/sky lighting.
+   These calls are cheap, you can change lights frequently.
+
+ - Call RRDynamicSolver::calculate() often. If main loop of your
+   application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
+   If you render scene only when it has changed,
+   still call RRDynamicSolver::calculate() in every iteration of the main loop
+   and if it returns IMPROVED, rerender scene.
+
+ - If you use custom/external renderer:
+   \n When RRDynamicSolver::getSolutionVersion() changes,
+   call RRDynamicSolver::updateLightmaps() and RRDynamicSolver::updateEnvironmentMap()
+   to update illumination values stored in your buffers.
+
+ - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
+   It is mainly when light moves or changes properties, but for higher precision,
+   you may call it also when object moves and its shadow changes.
+
+ - Call RRDynamicSolver::reportMaterialChange() whenever materials in static scene change.
+   Right now, this is as expensive as full setStaticObjects() call, but it may be cheap in future.
+
+ - Call RRDynamicSolver::reportInteraction() whenever user interacts or other reason for
+   high responsiveness exists. Without reportInteraction calls, solver takes more CPU time
+   and FPS decreases.
+
+ - Call RRDynamicSolver::updateEnvironmentMap()
+   to acquire static or dynamic object's illumination, see \ref data_environment_map.
+
+ Samples like Lightmaps or RealtimeLights show these calls in action.
+
+
+
+
+
+\page integration_realtime_3 Realtime GI in any renderer
+
+  If you want to use your renderer, but it is not OpenGL based,
+  write custom GPU access routines as a replacement for LightsprintGL.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended starting point:
+ </td></tr></table>
+
+  - Modify your application/engine to use LightsprintCore.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Different approaches: You can expose Lightsprint engine to your
+    applications or hide it inside your engine.
+  <table border=0 width=95%><tr align=top><td>
+  \image html Integration4a.png
+  </td><td>
+  \image html Integration4b.png
+  </td></tr></table>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Make sure your static scene is suitable for per-vertex lighting, read more in \ref artist_realtime_static "artist's guide".
+  - <b> \subpage subclass_rrdynamicsolver </b>
+  - <b> \subpage detect_direct_illumination </b>
+  - \ref use_rrdynamicsolver to update illumination in RRBuffer buffers, use them in your renderer
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1-3 weeks
+
+
+\page subclass_rrdynamicsolver Subclass RRDynamicSolver
+
+ RRDynamicSolver is a global illumination solver.
  For offline rendering, it is complete and it can be used immediately.
  For realtime rendering, subclass RRDynamicSolver and implement
  tasks specific for your renderer.
 
  \section step4_gl OpenGL
 
- rr_gl::RRDynamicSolverGL, subclass of RRDynamicSolver
- already implements GPU tasks using OpenGL.
- If you plan to use OpenGL realtime renderer (Lightsprint or any other),
- subclass RRDynamicSolverGL and implement one or more of these simple functions:
+ rr_gl::RRDynamicSolverGL, subclass of RRDynamicSolver already implements GPU tasks using OpenGL.
+ If you plan to use OpenGL realtime renderer (Lightsprint or any other), use it, no subclassing is necessary.
 
- - rr_gl::RRDynamicSolverGL::renderScene()
-   \n Render your scene into shadowmap.
+ \section step4_dx Direct3D/other
 
- - rr_gl::RRDynamicSolverGL::setupShader() [optional]
-   \n Only for custom shader based lights.
-   \n Set shader so that direct light+shadows+emissivity are rendered, but other
-      material properties (diffuse texture etc) are ignored.
-
- See example implementation in RealtimeRadiosity sample.
-
- \section step4_dx Direct3D
-
- If you need global illumination in Direct3D renderer,
- it is possible to subclass directly RRDynamicSolver,
- and avoid any dependency on OpenGL.
- The only task in this scenario is described in \ref integration_step_6
+ If you need global illumination in Direct3D/other renderer, subclass RRDynamicSolver.
+ The only additional function you need to implement is \ref detect_direct_illumination.
 
 
-
-
-
-\page integration_step_5 Use RRDynamicSolver subclass
-
- RRDynamicSolver class is your primary interface to Lightsprint engine.
- To add global illumination to your application,
-
- - Create instance of RRDynamicSolver or your subclass.
-   (why subclass? described in \ref integration_step_4)
-
- - To start calculation,
-   call RRDynamicSolver::setStaticObjects() with set of static objects participating in calculation.
-   This call is expensive, design your application to avoid
-   frequent changes of static scene.
-
- - Set lights, call RRDynamicSolver::setLights() with set of lights participating in calculation.
-   Optionally call also RRDynamicSolver::setEnvironment() to add outdoor/sky lighting.
-   These calls are cheap, you can change lights frequently.
-
- - 
- - Call RRDynamicSolver::calculate() often. If main loop of your
-   application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
-   If you render scene only when it has changed,
-   still call RRDynamicSolver::calculate() in every iteration of main loop,
-   but if it returns IMPROVED, rerender scene.
-
- - If you use vertex/pixel buffers for rendering:
-   \n When RRDynamicSolver::getSolutionVersion() changes,
-   call RRDynamicSolver::updateLightmaps()
-   to update illumination values stored in vertex/pixel buffers.
-
- - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
-   It is mainly when light moves or changes properties, but for higher precision,
-   you may call it also when lit object moves and its shadow changes.
-
- - Call RRDynamicSolver::reportMaterialChange() whenever materials used in scene change.
-
- - Call RRDynamicSolver::reportInteraction() whenever user interacts or other reason for
-   high responsiveness exists. Without reportInteraction calls, solver takes more CPU time
-   and FPS decreases.
-
- - Call RRDynamicSolver::getIllumination() 
-   to acquire static object's illumination, see \ref data_vertex_buffer and \ref data_pixel_buffer.
-
- - Call RRDynamicSolver::updateEnvironmentMap()
-   to acquire static or dynamic object's illumination, see \ref data_environment_map.
-
- Nearly all of these calls are demonstrated in RealtimeRadiosity sample.
-
-
-
-
-
-\page integration_step_6 Detect direct illumination
+\page detect_direct_illumination Detect direct illumination
 
  For OpenGL based renderers, 
  LightsprintGL implements detection of direct illumination
@@ -2174,49 +2170,13 @@ Ray-Mesh collisions
 
 
 
-\page main_platforms Supported platforms
-
- Platforms
- - Windows (XP, Vista, 32bit, 64bit)
- - Linux (32bit, 64bit)
- - Playstation 3
- - Xbox 360
- - virtually any platform (static GI)
-
- GPUs on PC
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx
- - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx
- - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
- - subset of workstation versions (Quadro, FireGL)
- - for offline rendering, GPU is not needed
-
- 3D APIs
- - OpenGL 2/3 (examples included)
- - Direct3D 9/10 (no examples yet)
- - for offline rendering, 3D API is not needed
-
- Compilers
- - Visual C++ 2008 with all security updates (32bit, 64bit)
- - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
- - Visual C++ 2003 SP1 with all security updates
- - gcc (32bit, 64bit)
-
- Library configurations
- - Release DLL/so
- - Debug DLL/so
- - Release static (source code license only)
- - Debug static (source code license only)
-
-
-
-
 
 \page main_inputs Inputs
 
  Lightsprint supports three major types of inputs:
 
  \section inputs_files Files in standard formats (Collada, Gamebryo etc)
-  - see list of file formats supported by \ref api_io
+  - see list of \ref supported_formats
 
  \section inputs_3p_structures Third party data structures in memory (Unreal Engine 3, Gamebryo, FCollada etc)
   - \ref api_io source code consists of 3rd party loaders and our adapters, that adapt 3rd party data structures into Lightsprint data structures, without duplicating data
@@ -2522,6 +2482,47 @@ Ray-Mesh collisions
 
 
 
+\page main_vs Visual Studio
+
+ Lightsprint SDK works with Visual Studio out of the box, but in Visual Studio 2005 and newer, it's possible to improve visualizations of Lightsprint types in debugger.
+
+ To improve visualizations, open Visual Studio file <code>Common7/Packages/Debugger/autoexp.dat</code> and insert following blocks of text
+ - into [AutoExpand] section
+   \code
+rr::RRVec2=<x>,<y>
+rr::RRVec3=<x>,<y>,<z>
+rr::RRVec4=<x>,<y>,<z>,<w>
+rr::RRString=<str>
+   \endcode
+ - into [Visualizer] section
+   \code
+rr::RRVector<*>{
+	children
+	(
+		#array
+		(
+			expr :		($c.c)[$i],
+			size :		$c.numUsed
+		)
+	)
+	preview
+	(
+		#(
+			"[", $e.numUsed , "](",
+			#array
+			(
+				expr :	($c.c)[$i],
+				size :	$c.numUsed
+			),
+			")"
+		)
+	)
+}
+   \endcode
+
+
+
+
 \page main_conventions Conventions
 
  \section gobjects Terminology
@@ -2782,7 +2783,7 @@ Ray-Mesh collisions
 
  \section gl_overview Overview
 
- LightsprintGL implements realtime rendering on top of LightsprintCore.
+ LightsprintGL implements realtime rendering and scene viewer/editor on top of LightsprintCore.
 
  Features of LightsprintGL renderer
    - realtime global illumination
@@ -2798,7 +2799,7 @@ Ray-Mesh collisions
      - diffuse reflection: none, constant, per vertex, per pixel
      - specular reflection: none, constant, per vertex, per pixel
      - emission: none, constant, per pixel
-     - transparency: none, constant, per pixel / blend or alpha keying
+     - transparency: none, constant, per pixel / blend or 1bit alpha keying
      - normal map
    - supports OpenGL 2.0 GPUs (GeForce 5xxx and higher, Radeon 9500 and higher etc)
 
@@ -2809,9 +2810,10 @@ Ray-Mesh collisions
  <hr>
  Header: Lightsprint/GL/SceneViewer.h
 
- - rr_gl::sceneViewer() is a single function scene viewer, with movable lights, realtime GI,
-   calculating static GI, 2d viewer of lightmaps and mappings, debugging outputs.
-   RRDynamicSolver is usually black box. This viewer shows what's inside solver.
+ - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
+   with realtime and static GI, with 2d viewer of lightmaps and mappings.
+   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
+   examine and experiment with all scene properties.
 
  <hr>
  Header: Lightsprint/GL/RRDynamicSolverGL.h
@@ -2827,13 +2829,7 @@ Ray-Mesh collisions
  - detects what data are available (lightmaps, vertex colors)
 
  <hr>
- Header: Lightsprint/GL/RendererOfRRObject.h
-
- - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
- - renders object with precomputed or realtime computed illumination
-
- <hr>
- Other headers (independent to LightsprintCore):
+ Other headers:
 
  - rr_gl::Texture is OpenGL texture, extension of RRBuffer needed for realtime rendering
  - rr_gl::Program is GLSL program
@@ -2841,7 +2837,6 @@ Ray-Mesh collisions
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - rr_gl::Camera is frustum suitable for camera or spotlight
  - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
- - rr_gl::Renderer is generic renderer interface
 
 
 
@@ -2849,49 +2844,14 @@ Ray-Mesh collisions
 
  \section io_overview Overview
 
-  LightsprintIO is an optional utility library that imports 3D scenes from a variety
-  of file formats, namely:
-  - <b>Gamebryo (.GSA)</b> - scene format of \ref main_gamebryo26 game engine
-  - <b>Collada (.DAE)</b> - open, flexible and well supported format for digital asset exchange.
-    Adapter loads geometry, materials and lights using FCollada library. See comments at the
-    beginning of source file "src/LightsprintIO/ImportCollada/RRObjectCollada.cpp"
-    for more details about features supported.
-    General Collada development is documented at <a href="http://collada.org">[collada.org]</a>.
-    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
-  - <b>3DS</b> - very old but popular format, despite the fact that its specification was never
-    officially released. It supports only one set of texture coordinates, therefore it is
-    not suitable for static lightmaps (which typically require another mapping channel).
-    Adapter loads geometry and materials and uses open source 3DS loader. Known limitations:
-    does not support lights, less common material properties and non-baked matrices.
-  - <b>Quake 3 (.BSP)</b> - popular scene format used by Quake 3 engine. It supports only one set of
-    texture coordinates so it is not suitable for scenarios where static lighting calculation
-    into lightmaps is required (see 3DS). Adapter loads geometry and materials. Known limitations:
-    does not support lights, script-based materials and curved surfaces.
-  - <b>OBJ</b> - old, plain text based format popular mainly because of its simplicity. It is suitable
-    for loading of single objects but not whole scenes, since it lacks support for lights.
-    For details, see <a href="http://en.wikipedia.org/wiki/Obj">Wikipedia</a>. Known limitations:
-    does not support materials and lights.
-  - <b>MGF</b> - Materials and Geometry Format is an open but old and rarely used 3D format.
-    For details, see <a href="http://radsite.lbl.gov/mgf/HOME.html">MGF homepage</a>.
-    Adapter loads .MGF file using parts of the source code taken from mgflib (see the link above).
-    Known limitations: only convex polygons are triangulated properly.
-  - <b>source code</b> of individual adapters is located in their respective directories within
-    <code>src/LightsprintIO</code>
+  LightsprintIO is an optional utility library that imports 3D scenes and textures
+  from over 50 file formats (\ref supported_formats).
 
-  LightsprintIO loads and saves 2d images and loads cubemaps in a variety of formats:
-  - <b>png</b> - widely used format with good lossles compression
-  - <b>jpg</b> - the most widely used lossy format
-  - <b>jp2</b> - jpeg 2000, lossy, even smaller files
-  - <b>dds</b> - GPU friendly lossy format, games load it directly into GPU without decompression
-  - <b>tga</b> - widely used, extremely simple format without compression
-  - <b>hdr</b> - floating point precision
-  - <b>exr</b> - floating point precision
-  - <b>bmp, gif, pcx, tiff, ico, iff, jbig, pbm, pgm, ppm, xpm etc...</b> - other 
-  - <b>source code</b> is in <code>src/LightsprintIO/ImportImages/ImportFreeImage.cpp</code>
+  It has simple and friendly user interface, one function without parameters.
 
-  LightsprintIO loads and saves vertex buffers with per-vertex lighting:
-  - <b>vbu</b> - the only Lightsprint proprietary format, extremely simple
-  - <b>source code</b> is in <code>src/LightsprintIO/ImportImages/ImportFreeImage.cpp</code>
+  LightsprintIO comes with full source code, located in <code>src/LightsprintIO</code>.
+  LightsprintIO may call external dynamic libraries \ref tpl_fcollada and \ref tpl_freeimage
+  with source code also available for download.
 
  \section io_api API
 

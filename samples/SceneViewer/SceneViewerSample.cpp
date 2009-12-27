@@ -23,15 +23,13 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/SceneViewer.h"
-#include "Lightsprint/GL/Texture.h"
-#include "Lightsprint/GL/Program.h"
 #include "Lightsprint/IO/ImportScene.h"
 #include <cstdlib>
 #include <cstdio>
 #ifdef _WIN32
-#include <crtdbg.h>
-#include <direct.h>
-#include <windows.h>
+	#include <crtdbg.h>
+	#include <direct.h>
+	#include <windows.h>
 #endif // _WIN32
 
 void error(const char* message, bool gfxRelated)
@@ -49,7 +47,7 @@ int main(int argc, char **argv)
 #ifdef _MSC_VER
 	// check that we don't have memory leaks
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 74;
+	//_crtBreakAlloc = 14350;
 #endif
 
 	// Check for version mismatch
@@ -81,8 +79,11 @@ int main(int argc, char **argv)
 	if (licError)
 		error(licError,false);
 
-#if 1
-	// View scene in scene viewer
+#if 0
+	// View scene _on disk_ in scene viewer.
+	// Works only for scenes in registered file formats.
+	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
+	// you can do the same for your own file format.
 	rr_gl::SceneViewerState svs;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
@@ -92,10 +93,14 @@ int main(int argc, char **argv)
 	// debug frees everything and reports memory leaks
 	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,true);
 #else
-	// Load scene
-	rr::RRScene scene(sceneFilename);
+	// View scene _in memory_ in scene viewer.
 
-	// Load it into solver
+	// First, we have to load scene to memory.
+	rr::RRScene scene(sceneFilename);
+	// If you already have scene in memory in your own data structures, write adapter
+	// (see "doc/Lightsprint.chm/Integration" page) and adapt it to RRObjects and RRLights here.
+
+	// Send scene to GI solver
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setStaticObjects(scene.getObjects(),NULL);
@@ -106,7 +111,6 @@ int main(int argc, char **argv)
 	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/shaders/",NULL,true);
 
 	// Cleanup
-	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();
 	delete solver->getScaler();
 	delete solver;
