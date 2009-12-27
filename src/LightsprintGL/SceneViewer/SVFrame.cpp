@@ -557,7 +557,17 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene","","",rr::RRScene::getSupportedExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+				std::string extensions = rr::RRScene::getSupportedExtensions();
+				std::string wxextensions = "All scene formats|"+extensions;
+				while (!extensions.empty())
+				{
+					size_t i = extensions.find(';');
+					std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
+					wxextensions += std::string("|")+ext+'|'+ext;
+					extensions.erase(0,ext.size()+1);
+				}
+				wxFileDialog dialog(this,"Choose a 3d scene","","",wxextensions.c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
