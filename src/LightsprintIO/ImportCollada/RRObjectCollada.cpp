@@ -1079,7 +1079,7 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 
 void registerLoaderCollada()
 {
-	RRScene::registerLoader("dae",RRSceneCollada::load);
+	RRScene::registerLoader("*.dae",RRSceneCollada::load);
 }
 
 #endif // SUPPORT_COLLADA

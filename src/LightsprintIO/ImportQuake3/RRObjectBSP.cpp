@@ -480,7 +480,7 @@ RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,RRBuf
 
 void registerLoaderQuake3()
 {
-	RRScene::registerLoader("bsp",RRSceneQuake3::load);
+	RRScene::registerLoader("*.bsp",RRSceneQuake3::load);
 }
 
 #endif // SUPPORT_QUAKE3

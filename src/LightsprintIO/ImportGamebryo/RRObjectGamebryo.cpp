@@ -2245,7 +2245,7 @@ RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool& abort
 
 void registerLoaderGamebryo()
 {
-	RRScene::registerLoader("gsa",RRSceneGamebryo::load);
+	RRScene::registerLoader("*.gsa",RRSceneGamebryo::load);
 }
 
 #endif // SUPPORT_GAMEBRYO

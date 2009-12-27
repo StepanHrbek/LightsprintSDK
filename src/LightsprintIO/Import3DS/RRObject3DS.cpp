@@ -262,7 +262,7 @@ RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 
 void registerLoader3DS()
 {
-	RRScene::registerLoader("3ds",RRScene3DS::load);
+	RRScene::registerLoader("*.3ds",RRScene3DS::load);
 }
 
 #endif // SUPPORT_3DS

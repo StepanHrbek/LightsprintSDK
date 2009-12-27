@@ -248,7 +248,7 @@ RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
 
 void registerLoaderOBJ()
 {
-	RRScene::registerLoader("obj",RRSceneOBJ::load);
+	RRScene::registerLoader("*.obj",RRSceneOBJ::load);
 }
 
 #endif // SUPPORT_OBJ

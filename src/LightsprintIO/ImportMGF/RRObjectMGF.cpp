@@ -358,7 +358,7 @@ RRObjects* adaptObjectsFromMGF(const char* filename)
 
 void registerLoaderMGF()
 {
-	RRScene::registerLoader("mgf",RRSceneMGF::load);
+	RRScene::registerLoader("*.mgf",RRSceneMGF::load);
 }
 
 #endif // SUPPORT_MGF
