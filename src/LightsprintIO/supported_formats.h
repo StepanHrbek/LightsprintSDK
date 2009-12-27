@@ -8,12 +8,15 @@
 // Comment out formats you don't need.
 
 #define SUPPORT_GAMEBRYO  // Gamebryo .gsa
-#define SUPPORT_COLLADA   // Collada .dae
+#define SUPPORT_COLLADA   // Collada .dae (better than Assimp)
+#define SUPPORT_ASSIMP    // Assimp dae 3ds x prj md2 md3 md5 ply mdl ase ask hmp smd vta mdc stl lwo lxo dxf nff enff raw off ac acc ac3d bvh xml irrmesh xml irr q3o q3s b3d ter csm 3d uc lws mot
 #define SUPPORT_QUAKE3    // Quake 3 .bsp
-#define SUPPORT_3DS       // 3D Studio .3ds
 #define SUPPORT_MGF       // Materials and Geometry Format .mgf
-#define SUPPORT_OBJ       // Wavefront .obj
 #define SUPPORT_IMAGES    // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
+
+// Old loaders obsoleted by Assimp.
+#define SUPPORT_3DS       // 3D Studio .3ds
+#define SUPPORT_OBJ       // Wavefront .obj
 
 
 

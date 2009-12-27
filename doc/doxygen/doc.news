@@ -12,11 +12,51 @@ namespace rr
 
 NEWS
 
+- <b>import from new formats</b>
+  - *.x
+  - *.prj
+  - *.md3
+  - *.md2
+  - *.ply
+  - *.mdl
+  - *.ase
+  - *.ask
+  - *.hmp
+  - *.smd
+  - *.vta
+  - *.mdc
+  - *.md5mesh
+  - *.stl
+  - *.lwo
+  - *.lxo
+  - *.dxf
+  - *.nff
+  - *.enff
+  - *.raw
+  - *.off
+  - *.ac
+  - *.acc
+  - *.ac3d
+  - *.bvh
+  - *.xml
+  - *.irrmesh
+  - *.xml
+  - *.irr
+  - *.q3o
+  - *.q3s
+  - *.b3d
+  - *.ter
+  - *.csm
+  - *.3d
+  - *.uc
+  - *.lws
+  - *.mot
 - RRBuffer::load() is faster and saves memory when loading the same image multiple times
   - all images are transparently cached
   - removed old caching from Collada adapter
   - added RRBuffer::createReference()
   - added RRBuffer::getReferenceCount()
+- \ref main_vs "Visual Studio integration"
 
 CHANGES
 
@@ -26,14 +66,15 @@ CHANGES
   - custom getPointMaterial() implementations must change output type from RRMaterial to RRPointMaterial
   - RRMaterial is noncopyable, copying should be avoided, use RRMaterial::copyFrom() if necessary
 - RRObject::createWorldSpaceObject() removed, let us know if you need it
+- RRScene::registerLoader() expects extensions in "*.abc;*.cde" format rather than old "abc"
 
 \section news95 ------------------------------------ 2010 beta (2009.12.11) -------------------------------------
 
 NEWS
 
-- \ref main_gamebryo3 "Lightspeed 3.1 integration"
+- <b>\ref main_gamebryo3 "Lightspeed 3.1 integration"</b>
   - new bake target Compressed Texture (6x smaller, DXT1 compression)
-- scene access extended from read-only to read-write, you can edit scenes
+- <b>manipulate everything in realtime</b>, scene API extended from read-only to read-write
   - mesh indices and vertices
     - RRMeshArrays added, lets you edit index+vertex arrays
     - RRMesh::createArrays() added, creates editable copy of mesh
@@ -41,7 +82,7 @@ NEWS
     - RRObject::faceGroups added,
       \n your RRObject implementation must fill it
     - RRObject::getTriangleMaterial() modified
-      - default implementation added, you can possibly delete yours
+      - default implementation added, in most cases you can delete yours
       - returned material is not const so it can be edited
     - RRObject::updateFacegroupsFromTriangleMaterials() added
       \n helps fill faceGroups
@@ -53,26 +94,26 @@ NEWS
   - object's collider and mesh
     - RRObject::setCollider() added
     - RRObject::getCollider() default implementation added, you can delete yours, just call setCollider() once
-  - works for all supported formats, Collada, 3ds, Gamebryo etc
-- completed dynamic object support
+  - works for all 40 supported formats
+- <b>dynamic object support</b> (completed)
   - RRDynamicSolver::setDynamicObjects() added
   - RRDynamicSolver::getDynamicObjects() added
   - everything works as expected, simply set and manipulate dynamic objects, they render, affect illumination etc
-- completed realtime renderer
-  - automatically renders also dynamic objects
+- <b>new realtime renderer</b>
+  - faster, using less memory (in most cases)
+  - automatically renders also dynamic objects (but it's still possible to use custom renderer as in RealtimeRadiosity sample)
   - you can change transformations, materials and textures on the fly, changes propagate to GPU automatically
   - you can change geometry in RRMeshArrays on the fly, changes propagate to GPU automatically
-  - geometry is instanced automatically, saves memory
   - materials with smooth blending and materials with 1bit alpha can be combined
   - static and dynamic objects sort and blend correctly if blending is used
   - removed RendererOfRRObject, no longer necessary
   - no longer necessary to call rr_gl::Texture::reset()
-- completed rr_gl::RRDynamicSolverGL
-  - can be used for realtime rendering out of the box, does not contain pure functions
-  - rr_gl::RRDynamicSolverGL::renderScene() implemented, added parameters
-- enhanced rr_gl::sceneViewer() and SceneViewer sample
+- <b>enhanced SceneViewer</b>
   - added object properties window
   - added material properties window
+- <b>rr_gl::RRDynamicSolverGL completed</b>
+  - can be used for realtime rendering out of the box, does not contain pure functions
+  - rr_gl::RRDynamicSolverGL::renderScene() implemented, added parameters
 - compressed buffer formats RRBufferFormat::BF_DXT1, BF_DXT3, BF_DXT5
 - all important classes have editable names
   - added RRString
@@ -87,8 +128,8 @@ NEWS
   - RRMaterial::needsBlending()
   - RRVector::resize()
   - RRBuffer::version, updated to solver->getSolutionVersion() each time buffer is updated from solver
-- simplified samples
-  - new features listed above made source code of realtime rendering samples considerably shorter (e.g. RealtimeLights is roughly 5x shorter)
+- <b>greatly simplified samples</b>
+  - new features listed above made source code of realtime rendering samples considerably shorter (e.g. RealtimeLights roughly 5x shorter)
 
 CHANGES
 
