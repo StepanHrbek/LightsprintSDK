@@ -8,49 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news96 ------------------------------------ 2010 beta2 (2009.12.xx) -------------------------------------
+\section news96 ------------------------------------ 2010.01.01 -------------------------------------
 
 NEWS
 
-- <b>import from new formats</b>
-  - *.x
-  - *.prj
-  - *.md3
-  - *.md2
-  - *.ply
-  - *.mdl
-  - *.ase
-  - *.ask
-  - *.hmp
-  - *.smd
-  - *.vta
-  - *.mdc
-  - *.md5mesh
-  - *.stl
-  - *.lwo
-  - *.lxo
-  - *.dxf
-  - *.nff
-  - *.enff
-  - *.raw
-  - *.off
-  - *.ac
-  - *.acc
-  - *.ac3d
-  - *.bvh
-  - *.xml
-  - *.irrmesh
-  - *.xml
-  - *.irr
-  - *.q3o
-  - *.q3s
-  - *.b3d
-  - *.ter
-  - *.csm
-  - *.3d
-  - *.uc
-  - *.lws
-  - *.mot
+- <b>support added for 30 scene formats</b>
+  - see full list of \ref supported_formats
 - RRBuffer::load() is faster and saves memory when loading the same image multiple times
   - all images are transparently cached
   - removed old caching from Collada adapter

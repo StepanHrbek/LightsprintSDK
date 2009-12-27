@@ -214,10 +214,10 @@ Ray-Mesh collisions
 \page supported_formats Supported formats
 
 Scene formats
-- Gamebryo 3.1
+- Gamebryo LightSpeed 3.1
 - Gamebryo 2.6 ( *.gsa )
 - Unreal Engine 3
-- Collada ( *.dae )
+- Collada ( *.dae )     <------ if not sure, use Collada
 - Biovision BVH ( *.bvh )
 - 3D Studio Max 3DS ( *.3ds )
 - 3D Studio Max ASE ( *.ase )
