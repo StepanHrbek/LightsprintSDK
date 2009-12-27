@@ -42,6 +42,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider.vs2003", "..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2003", "LightsprintIO\LightsprintIO.vs2003.vcproj", "{6D5507C3-3E69-234A-706C-263C989A3412}"
 	ProjectSection(ProjectDependencies) = postProject
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
 Global
@@ -50,6 +51,8 @@ Global
 		Debug static = Debug static
 		Release DLL = Release DLL
 		Release static = Release static
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug DLL.ActiveCfg = Debug static|Win32
