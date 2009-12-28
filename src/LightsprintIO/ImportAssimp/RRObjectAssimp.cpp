@@ -70,12 +70,12 @@ inline const char* convertStr(const aiString& s)
 	return s.data;
 }
 
-RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
+RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform, float scale)
 {
 	RRMatrix3x4 wm;
 	for (unsigned i=0;i<3;i++)
 		for (unsigned j=0;j<4;j++)
-			wm.m[i][j] = transform[i][j];
+			wm.m[i][j] = transform[i][j] * scale;
 	return wm;
 }
 
@@ -87,7 +87,7 @@ RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
 class RRObjectsAssimp : public RRObjects
 {
 public:
-	RRObjectsAssimp(const aiScene* _scene, const char* _pathToTextures, float _emissiveMultiplier)
+	RRObjectsAssimp(const aiScene* _scene, float _scale, const char* _pathToTextures, float _emissiveMultiplier)
 	{
 		pathToTextures = _pathToTextures;
 		materials = NULL;
@@ -221,10 +221,10 @@ public:
 
 		// adapt objects
 		aiMatrix4x4 identity;
-		addNode(_scene,_scene->mRootNode,identity);
+		addNode(_scene,_scene->mRootNode,identity,_scale);
 	}
 
-	void addNode(const aiScene* _scene, aiNode* _node, aiMatrix4x4 _transformation)
+	void addNode(const aiScene* _scene, aiNode* _node, aiMatrix4x4 _transformation, float _scale)
 	{
 		if (_node)
 		{
@@ -238,7 +238,7 @@ public:
 				{
 					RRObject* object = new RRObject;
 					object->setCollider(collider);
-					object->setWorldMatrix(&convertMatrix(_transformation));
+					object->setWorldMatrix(&convertMatrix(_transformation,_scale));
 					object->name = convertStr(_node->mName);
 					object->faceGroups.push_back(RRObject::FaceGroup(&materials[_scene->mMeshes[meshIndex]->mMaterialIndex],meshes[meshIndex].numTriangles));
 					push_back(object);
@@ -247,7 +247,7 @@ public:
 
 			for (unsigned i=0;i<_node->mNumChildren;i++)
 			{
-				addNode(_scene,_node->mChildren[i],_transformation);
+				addNode(_scene,_node->mChildren[i],_transformation,_scale);
 			}
 		}
 	}
@@ -359,7 +359,7 @@ private:
 class RRLightsAssimp : public RRLights
 {
 public:
-	RRLightsAssimp(const aiScene* scene)
+	RRLightsAssimp(const aiScene* scene, float scale)
 	{
 		if (!scene)
 			return;
@@ -374,13 +374,26 @@ public:
 				switch (ailight->mType)
 				{
 					case aiLightSource_DIRECTIONAL:
-						light = RRLight::createDirectionalLight(convertDir(ailight->mDirection),convertColor(ailight->mColorDiffuse),false);
+						light = RRLight::createDirectionalLight(
+							convertDir(ailight->mDirection),
+							convertColor(ailight->mColorDiffuse),
+							false);
 						break;
 					case aiLightSource_POINT:
-						light = RRLight::createPointLightPoly(convertPos(ailight->mPosition),convertColor(ailight->mColorDiffuse),RRVec4(ailight->mAttenuationConstant,ailight->mAttenuationLinear,ailight->mAttenuationQuadratic,0));
+						light = RRLight::createPointLightPoly(
+							convertPos(ailight->mPosition)*scale,
+							convertColor(ailight->mColorDiffuse),
+							RRVec4(ailight->mAttenuationConstant,ailight->mAttenuationLinear/scale,ailight->mAttenuationQuadratic/scale/scale,0));
 						break;
 					case aiLightSource_SPOT:
-						light = RRLight::createSpotLightPoly(convertPos(ailight->mPosition),convertColor(ailight->mColorDiffuse),RRVec4(ailight->mAttenuationConstant,ailight->mAttenuationLinear,ailight->mAttenuationQuadratic,0),convertDir(ailight->mDirection),ailight->mAngleOuterCone,ailight->mAngleOuterCone-ailight->mAngleInnerCone,1);
+						light = RRLight::createSpotLightPoly(
+							convertPos(ailight->mPosition)*scale,
+							convertColor(ailight->mColorDiffuse),
+							RRVec4(ailight->mAttenuationConstant,ailight->mAttenuationLinear/scale,ailight->mAttenuationQuadratic/scale/scale,0),
+							convertDir(ailight->mDirection),
+							ailight->mAngleOuterCone,
+							ailight->mAngleOuterCone-ailight->mAngleInnerCone,
+							1);
 						break;
 					default: RR_ASSERT(0);
 				}
@@ -431,8 +444,8 @@ public:
 		char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 		if (tmp) tmp[1] = 0;
 		RRReportInterval report(INF3,"Adapting scene...\n");
-		scene->objects = new RRObjectsAssimp(aiscene,pathToTextures,emissiveMultiplier);
-		scene->lights = new RRLightsAssimp(aiscene);
+		scene->objects = new RRObjectsAssimp(aiscene,scale,pathToTextures,emissiveMultiplier);
+		scene->lights = new RRLightsAssimp(aiscene,scale);
 		free(pathToTextures);
 		aiReleaseImport(aiscene);
 		return scene;
