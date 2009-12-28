@@ -1086,7 +1086,9 @@ EntityId SVFrame::getSelectedEntity() const
 	{
 		case ST_LIGHT:
 			return EntityId(m_canvas->selectedType,svs.selectedLightIndex);
-		case ST_OBJECT:
+		case ST_STATIC_OBJECT:
+			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
+		case ST_DYNAMIC_OBJECT:
 			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
 		case ST_CAMERA:
 			return EntityId(m_canvas->selectedType,0);
@@ -1111,11 +1113,13 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 			svs.selectedLightIndex = entity.index;
 			break;
 
-		case ST_OBJECT:
+		case ST_STATIC_OBJECT:
+		case ST_DYNAMIC_OBJECT:
 			// update object properties
 			if (m_objectProperties->IsShown())
 			{
-				m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[entity.index],svs.precision);
+				const rr::RRObjects& objects = (entity.type==ST_STATIC_OBJECT)?m_canvas->solver->getStaticObjects():m_canvas->solver->getDynamicObjects();
+				m_objectProperties->setObject(objects[entity.index],svs.precision);
 			}
 
 			m_canvas->selectedType = entity.type;

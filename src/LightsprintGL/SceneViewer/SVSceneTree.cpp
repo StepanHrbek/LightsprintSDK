@@ -39,7 +39,8 @@ SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
 
 	lights = AppendItem(root,"lights");
 
-	objects = AppendItem(root,"objects");
+	staticObjects = AppendItem(root,"static objects");
+	dynamicObjects = AppendItem(root,"dynamic objects");
 
 
 	Expand(lights); // wxmsw ignores this because lights is empty
@@ -68,15 +69,26 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 	}
 
-	// insert first 1000 items, more would be slow and difficult to control
-	SetItemText(objects,tmpstr("%d objects",solver?solver->getStaticObjects().size():0));
-	DeleteChildren(objects);
-	unsigned numObjects = RR_MIN(solver->getStaticObjects().size(),1000);
-	for (unsigned i=0;solver && i<numObjects;i++)
+	// insert first 1000 static objects, more would be slow and difficult to control
+	SetItemText(staticObjects,tmpstr("%d static objects",solver?solver->getStaticObjects().size():0));
+	DeleteChildren(staticObjects);
+	unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
+	for (unsigned i=0;solver && i<numStaticObjects;i++)
 	{
 		wxString name = solver->getStaticObjects()[i]->name.c_str();
 		if (name.empty()) name = wxString("object ")<<i;
-		AppendItem(objects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
+		AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
+	}
+
+	// insert first 1000 dynamic objects
+	SetItemText(dynamicObjects,tmpstr("%d dynamic objects",solver?solver->getDynamicObjects().size():0));
+	DeleteChildren(dynamicObjects);
+	unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
+	for (unsigned i=0;solver && i<numDynamicObjects;i++)
+	{
+		wxString name = solver->getDynamicObjects()[i]->name.c_str();
+		if (name.empty()) name = wxString("object ")<<i;
+		AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
 	}
 
 
@@ -89,7 +101,8 @@ wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 	switch (entity.type)
 	{
 		case ST_LIGHT: searchRoot = lights; break;
-		case ST_OBJECT: searchRoot = objects; break;
+		case ST_STATIC_OBJECT: searchRoot = staticObjects; break;
+		case ST_DYNAMIC_OBJECT: searchRoot = dynamicObjects; break;
 		case ST_CAMERA: isOk = false; return wxTreeItemId();
 	}
 	wxTreeItemIdValue cookie;

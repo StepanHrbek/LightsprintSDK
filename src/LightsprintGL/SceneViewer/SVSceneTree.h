@@ -40,7 +40,8 @@ namespace rr_gl
 		SceneViewerStateEx& svs;
 		bool allowEvents;
 		wxTreeItemId lights;
-		wxTreeItemId objects;
+		wxTreeItemId staticObjects;
+		wxTreeItemId dynamicObjects;
 		DECLARE_EVENT_TABLE()
 	};
 
