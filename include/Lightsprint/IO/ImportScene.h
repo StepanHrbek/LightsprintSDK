@@ -28,7 +28,7 @@
 
 // autolink library when external project includes this header
 #ifdef _MSC_VER
-	#if !defined(RR_MANUAL_LINK) && !defined(RR_IO_BUILD)
+	#if !defined(RR_IO_MANUAL_LINK) && !defined(RR_IO_BUILD)
 		#ifdef RR_IO_STATIC
 			// use static library
 			#if _MSC_VER<1400
