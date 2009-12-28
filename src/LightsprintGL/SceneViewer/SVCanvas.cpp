@@ -132,6 +132,7 @@ void SVCanvas::createContext()
 		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
+		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
 		solver->setLights(svs.initialInputSolver->getLights());
 	}
 	else
