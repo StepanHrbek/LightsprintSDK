@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	if (licError)
 		error(licError,false);
 
-#if 0
+#if 1
 	// View scene _on disk_ in scene viewer.
 	// Works only for scenes in registered file formats.
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
