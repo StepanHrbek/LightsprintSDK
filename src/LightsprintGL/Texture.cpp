@@ -22,7 +22,8 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 {
 	if (!_buffer)
 		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
-	buffer = _buffer->createReference();
+
+	buffer = _buffer ? _buffer->createReference() : NULL;
 
 	numPotentialFBOUsers++;
 
