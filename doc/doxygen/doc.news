@@ -14,6 +14,7 @@ NEWS
 
 - <b>support added for 30 scene formats</b>
   - see full list of \ref supported_formats
+  \image html SceneViewer_3.jpg
 - RRBuffer::load() is faster and saves memory when loading the same image multiple times
   - all images are transparently cached
   - removed old caching from Collada adapter
@@ -74,6 +75,7 @@ NEWS
 - <b>enhanced SceneViewer</b>
   - added object properties window
   - added material properties window
+  \image html SceneViewer_2.jpg
 - <b>rr_gl::RRDynamicSolverGL completed</b>
   - can be used for realtime rendering out of the box, does not contain pure functions
   - rr_gl::RRDynamicSolverGL::renderScene() implemented, added parameters
