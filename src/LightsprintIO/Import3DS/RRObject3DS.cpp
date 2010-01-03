@@ -28,21 +28,6 @@ using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Verificiation
-//
-// Helps during development of new adapters.
-// Define VERIFY to enable verification of adapters and data.
-// RRReporter will be used to warn about detected data inconsistencies.
-// Once your code/data are verified and don't emit messages via reporter(),
-// turn verifications off.
-// If you encounter strange behaviour with new data later,
-// reenable verifications to check that your data are ok.
-
-//#define VERIFY
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RRObject3DS
 
 // See RRObject and RRMesh documentation for details
@@ -113,10 +98,6 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 		}
 		faceGroups.push_back(FaceGroup(material,(unsigned)object->MatFaces[i].numSubFaces/3));
 	}
-
-#ifdef VERIFY
-	checkConsistency(UINT_MAX,_objectIdx);
-#endif
 
 	// create collider
 	bool aborting = false;

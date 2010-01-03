@@ -26,21 +26,6 @@ using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Verificiation
-//
-// Helps during development of new adapters.
-// Define VERIFY to enable verification of adapters and data.
-// RRReporter will be used to warn about detected data inconsistencies.
-// Once your code/data are verified and don't emit messages via reporter(),
-// turn verifications off.
-// If you encounter strange behaviour with new data later,
-// reenable verifications to check that your data are ok.
-
-//#define VERIFY
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RRObjectOBJ
 
 // See RRObject and RRMesh documentation for details
@@ -109,9 +94,6 @@ public:
 		}
 		material.reset(false);
 		faceGroups.push_back(FaceGroup(&material,(unsigned)triangles.size()));
-#ifdef VERIFY
-		checkConsistency(UINT_MAX,UINT_MAX);
-#endif
 		bool aborting = false;
 		setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
 	}

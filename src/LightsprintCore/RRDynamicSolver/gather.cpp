@@ -514,11 +514,13 @@ public:
 		dir /= dirsize;
 		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
 		float normalIncidence = dot(dir,_basisSkewed.normal.normalized());
-		if (normalIncidence<=0)
+		if (normalIncidence<=0 || !_finite(normalIncidence))
 		{
-			// face is not oriented towards light -> reliable black (selfshadowed)
+			// face is not oriented towards light (or wrong normal, extremely rare) -> reliable black (selfshadowed)
 			hitsScene++;
 			hitsReliable++;
+			//if (!_finite(normalIncidence)) // #IND normals in shortfuse/undead scene
+			//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"lightdir=%f %f %f normal=%f %f %f\n",dir[0],dir[1],dir[2],_basisSkewed.normal[0],_basisSkewed.normal[1],_basisSkewed.normal[2]));
 		}
 		else
 		{
@@ -545,6 +547,9 @@ public:
 				if (!pti.context.gatherAllDirections)
 				{
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
+					RR_ASSERT(IS_VEC3(irrad));
+					RR_ASSERT(_finite(normalIncidence));
+					RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 //RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}
 				else
@@ -554,7 +559,10 @@ public:
 						RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
 						if (normalIncidence>0)
+						{
 							irradiancePhysicalLights[i] += irrad * normalIncidence;
+							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
+						}
 					}
 				}
 				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence);
@@ -621,6 +629,7 @@ public:
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
 			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalLights[i] /= (RRReal)shotRounds;
+			RR_ASSERT(shotRounds!=0);
 			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
 			//  however, scheme works well for most typical 100% and 0% reliable pixels)
 			reliabilityLights = hitsReliable/(RRReal)rays;
@@ -773,6 +782,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				// tangent basis for point in triangle was computed as linear interpolation of vertex bases
 				// -> result is not orthogonal, lengths are not unit
 				//    compatibility with Unreal Engine 3 is secured
+				//if (!cache_basis_skewed.normal.finite()) // shows #IND normal in undead scene
+				//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"cached_normal=%f %f %f uvInTriSpace=%f %f\n",cache_basis_skewed.normal[0],cache_basis_skewed.normal[1],cache_basis_skewed.normal[2],uvInTriangleSpace[0],uvInTriangleSpace[1]));
 			}
 
 			// random 2d pos in subtexel
@@ -1167,7 +1178,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
 				case RRStaticSolver::NOT_IMPROVED: RRReporter::report(INF2,"Not improved.\n");break;
 				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"Scene is completely dark.\n");break;
-				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
+				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Infinite brightness, possibly caused by wrong inputs. Try checkConsistency().\n");break;
 			}
 		}
 	}

@@ -323,13 +323,12 @@ namespace rr
 		//! Reports inconsistencies found in mesh.
 		//
 		//! \param lightmapTexcoord
-		//!  Optional lightmap texcoord channel. By default, unwrap check is skipped.
-		//! \param meshNumber
-		//!  Optional mesh number included in report if inconsistency is found.
-		//!  By default, no mesh number is reported.
+		//!  Optional lightmap texcoord channel. UINT_MAX disables unwrap check.
+		//! \param meshName
+		//!  Optional mesh name included in report if inconsistency is found. May be NULL.
 		//! \return
 		//!  Number of problem reported, 0 for valid mesh.
-		unsigned checkConsistency(unsigned lightmapTexcoord = UINT_MAX, unsigned meshNumber = UINT_MAX) const;
+		unsigned checkConsistency(unsigned lightmapTexcoord, const char* meshName) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////

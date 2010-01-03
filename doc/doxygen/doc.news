@@ -21,6 +21,11 @@ NEWS
   - added RRBuffer::createReference()
   - added RRBuffer::getReferenceCount()
 - \ref main_vs "Visual Studio integration"
+- improved diagnostics
+  - added RRObjects::checkConsistency()
+  - added RRObject::checkConsistency()
+  - modified RRMesh::checkConsistency() parameters
+  - \ref main_gamebryo3 integration always checks consistency before bake
 
 CHANGES
 

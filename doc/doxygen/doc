@@ -847,7 +847,9 @@ Texture formats
   - Open your scene in scene viewer, using code from SceneViewerSample.cpp. Read comments there, small modification is necessary
     to open scene from memory rather than from disk.
   - Review adapted geometry, materials, lights in scene viewer.
-    If scene doesn't look as expected, go back to adapter and fix it. Note that you can set breakpoints in your adapter in Debug DLL configuration.
+    If scene doesn't look as expected, go back to adapter and fix it.
+    To diagnose problems automatically, click "Help/Log scene errors" in scene viewer or call checkConsistency() from your adapter.
+    You can also set breakpoints in adapter in Debug DLL configuration.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:

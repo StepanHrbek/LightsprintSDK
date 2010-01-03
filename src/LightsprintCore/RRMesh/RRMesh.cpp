@@ -503,10 +503,10 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 class NumReports
 {
 public:
-	NumReports(unsigned _meshNumber)
+	NumReports(const char* _meshName)
 	{
 		numReports = 0;
-		meshNumber = _meshNumber;
+		meshName = _meshName;
 		indented = false;
 	}
 	~NumReports()
@@ -516,9 +516,9 @@ public:
 	}
 	void operator ++(int i)
 	{
-		if (!numReports && meshNumber!=UINT_MAX)
+		if (!numReports && meshName)
 		{
-			RRReporter::report(WARN,"Inconsistency found in mesh %d:\n",meshNumber);
+			RRReporter::report(WARN,"Inconsistency found in %s:\n",meshName);
 			RRReporter::indent(2);
 			indented = true;
 		}
@@ -530,13 +530,13 @@ public:
 	}
 private:
 	unsigned numReports;
-	unsigned meshNumber;
+	const char* meshName;
 	bool indented;
 };
 
-unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber) const
+unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName) const
 {
-	NumReports numReports(meshNumber); // unsigned numReports = 0; would work too, although without reporting meshNumber
+	NumReports numReports(meshName); // unsigned numReports = 0; would work too, although without reporting meshNumber
 	// numVertices
 	unsigned numVertices = getNumVertices();
 	if (numVertices==0 || numVertices>=10000000)
@@ -550,6 +550,14 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber
 	{
 		numReports++;
 		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
+	}
+	// texcoords
+	RRVector<unsigned> texcoords;
+	for (unsigned i=0;i<100;i++)
+	{
+		TriangleMapping tm;
+		if (getTriangleMapping(0,tm,i))
+			texcoords.push_back(i);
 	}
 	// vertices
 	for (unsigned i=0;i<numVertices;i++)
@@ -661,7 +669,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber
 
 		//!!! pre/post import
 
-		// triangleNormals
+		// normals
 		TriangleNormals triangleNormals;
 		TriangleNormals triangleNormalsFlat;
 		getTriangleNormals(i,triangleNormals);
@@ -678,7 +686,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber
 			if (fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
-			if (size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2) badDirection = true;
+			if (size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2.1f) badDirection = true; // >2 generated lots of false positives. >2.1f may miss some cases of very small error, those are no problem
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
@@ -713,27 +721,56 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, unsigned meshNumber
 			// RRReporter::report(WARN,"getTriangleNormals(%d) are not orthogonal (normal,tangent,bitangent).\n",i);
 		}
 
-		// triangleMapping
-		if (lightmapTexcoord!=UINT_MAX)
+		// texcoords
+		for (unsigned u=0;u<texcoords.size();u++)
 		{
 			TriangleMapping triangleMapping;
-			getTriangleMapping(i,triangleMapping,lightmapTexcoord);
-			bool outOfRange = false;
-			for (unsigned j=0;j<3;j++)
-			{
-				for (unsigned k=0;k<2;k++)
-					if (triangleMapping.uv[j][k]<-0.0f || triangleMapping.uv[j][k]>1)
-						outOfRange = true;
-			}
-			if (outOfRange)
+			if (!getTriangleMapping(i,triangleMapping,texcoords[u]))
 			{
 				numReports++;
-				RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
-					i,lightmapTexcoord,
+				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) missing.\n",i,texcoords[u]);
+			}
+			else
+			if (!triangleMapping.uv[0].finite() || !triangleMapping.uv[1].finite() || !triangleMapping.uv[2].finite())
+			{
+				numReports++;
+				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) not finite, %f %f  %f %f  %f %f.\n",
+					i,texcoords[u],
 					triangleMapping.uv[0][0],triangleMapping.uv[0][1],
 					triangleMapping.uv[1][0],triangleMapping.uv[1][1],
 					triangleMapping.uv[2][0],triangleMapping.uv[2][1]
 					);
+			}
+		}
+
+		// unwrap (more strict check for selected channel)
+		if (lightmapTexcoord!=UINT_MAX)
+		{
+			TriangleMapping triangleMapping;
+			if (!getTriangleMapping(i,triangleMapping,lightmapTexcoord))
+			{
+				numReports++;
+				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) missing.\n",i,lightmapTexcoord);
+			}
+			else
+			{
+				bool outOfRange = false;
+				for (unsigned j=0;j<3;j++)
+				{
+					for (unsigned k=0;k<2;k++)
+						if (triangleMapping.uv[j][k]<-0.0f || triangleMapping.uv[j][k]>1)
+							outOfRange = true;
+				}
+				if (outOfRange)
+				{
+					numReports++;
+					RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
+						i,lightmapTexcoord,
+						triangleMapping.uv[0][0],triangleMapping.uv[0][1],
+						triangleMapping.uv[1][0],triangleMapping.uv[1][1],
+						triangleMapping.uv[2][0],triangleMapping.uv[2][1]
+						);
+				}
 			}
 		}
 		

@@ -277,6 +277,9 @@ namespace rr
 
 		// other tools
 
+		//! Reports inconsistencies found in object. Returns number of problem reported.
+		unsigned checkConsistency(const char* objectNumber) const;
+
 		//! Creates and returns collision handler, that finds closest visible surface.
 		//
 		//! \n Finds closest surface with RRMaterial::sideBits::render.
@@ -453,6 +456,13 @@ namespace rr
 		//! \return
 		//!  Number of buffers allocated or reallocated.
 		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
+
+		//! Reports inconsistencies found in objects.
+		//
+		//! \param objectType
+		//!  Optional identifier of collection, e.g "static", "dynamic". May be NULL.
+		//! \return Number of problem reported.
+		unsigned checkConsistency(const char* objectType) const;
 
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};

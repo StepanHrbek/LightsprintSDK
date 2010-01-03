@@ -94,21 +94,6 @@ NiEmbedGamebryoLicenseCode;
 using namespace rr;
 
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// Verificiation
-//
-// Helps during development of new wrappers.
-// Define VERIFY to enable verification of wrappers and data.
-// RRReporter will be used to warn about detected data inconsistencies.
-// Once your code/data are verified and don't emit messages via RRReporter,
-// turn verifications off.
-// If you encounter strange behaviour with new data later,
-// reenable verifications to check that your data are ok.
-
-//#define VERIFY
-
-
 ////////////////////////////////////////////////////////////////////////////
 //
 // utility functions
@@ -1143,8 +1128,12 @@ public:
 		}
 		else
 		{
-			RRReporter::report(WARN,"Mesh %s doesn't have GIDescriptor.\n",(const efd::Char*)_mesh->GetName());
-			perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
+			// no GIDescriptor
+			// a) keep it cast shadows
+			//RRReporter::report(WARN,"Mesh %s doesn't have GIDescriptor.\n",(const efd::Char*)_mesh->GetName());
+			//perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
+			// b) remove it from scene
+			return NULL;
 		}
 
 #endif
@@ -1654,9 +1643,6 @@ private:
 			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(niMesh,perEntitySettings,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
-#ifdef VERIFY
-				rrObject->getCollider()->getMesh()->checkConsistency(CH_LIGHTMAP,size());
-#endif
 				push_back(rrObject);
 			}
 		}

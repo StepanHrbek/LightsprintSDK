@@ -28,21 +28,6 @@ using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Verificiation
-//
-// Helps during development of new adapters.
-// Define VERIFY to enable verification of adapters and data.
-// RRReporter will be used to warn about detected data inconsistencies.
-// Once your code/data are verified and don't emit messages via RRReporter,
-// turn verifications off.
-// If you encounter strange behaviour with new data later,
-// reenable verifications to check that your data are ok.
-
-//#define VERIFY
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RRObjectQuake3
 
 // See RRObject and RRMesh documentation for details
@@ -303,10 +288,6 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 
 #ifdef PACK_VERTICES
 	delete[] xlat;
-#endif
-
-#ifdef VERIFY
-	checkConsistency(CH_LIGHTMAP,UINT_MAX);
 #endif
 
 	// create collider

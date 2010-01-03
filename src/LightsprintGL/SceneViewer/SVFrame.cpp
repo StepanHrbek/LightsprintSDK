@@ -1043,7 +1043,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
 		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
-		case ME_CHECK_SCENE: solver->getMultiObjectCustom()->getCollider()->getMesh()->checkConsistency(); break;
+		case ME_CHECK_SCENE:
+			solver->getStaticObjects().checkConsistency("static");
+			solver->getDynamicObjects().checkConsistency("dynamic");
+			break;
 		case ME_ABOUT:
 			{
 				wxIcon* icon = loadIcon(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));

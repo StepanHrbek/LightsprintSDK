@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <set>
+#include <string>
 #include "../RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRObject.h"
@@ -268,6 +269,83 @@ void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
 void* RRObject::getCustomData(const char* name) const
 {
 	return NULL;
+}
+
+unsigned RRObject::checkConsistency(const char* _objectNumber) const
+{
+	unsigned numReports = 0;
+	std::string objectName(name.c_str());
+	if (!name.empty()) objectName += " ";
+	if (_objectNumber) objectName += std::string("(")+_objectNumber+")";
+
+	// collider, mesh
+	if (!getCollider())
+	{
+		RRReporter::report(ERRO,"Object %s has getCollider()=NULL.\n",objectName.c_str());
+		return 1;
+	}
+	if (!getCollider()->getMesh())
+	{
+		RRReporter::report(ERRO,"Object %s has getCollider()->getMesh()=NULL.\n",objectName.c_str());
+		return 1;
+	}
+
+	// matrix
+	const RRMatrix3x4* world = getWorldMatrix();
+	if (world)
+	{
+		for (unsigned i=0;i<3;i++)
+			for (unsigned j=0;j<4;j++)
+				if (!_finite(world->m[i][j]))
+				{
+					numReports++;
+					RRReporter::report(ERRO,"Object %s has broken world transformation.\n",objectName.c_str());
+					break;
+				}
+	}
+
+	// facegroups
+	unsigned numTrianglesInFacegroups = 0;
+	for (unsigned g=0;g<faceGroups.size();g++)
+		numTrianglesInFacegroups += faceGroups[g].numTriangles;
+	if (numTrianglesInFacegroups!=getCollider()->getMesh()->getNumTriangles())
+	{
+		numReports++;
+		RRReporter::report(ERRO,"Object %s faceGroups define materials for %d triangles out of %d.\n",objectName.c_str(),numTrianglesInFacegroups,getCollider()->getMesh()->getNumTriangles());
+	}
+
+	// materials
+	for (unsigned g=0;g<faceGroups.size();g++)
+	{
+		RRMaterial* material = faceGroups[g].material;
+		if (!material)
+		{
+			numReports++;
+			RRReporter::report(ERRO,"Object %s has NULL material.\n",objectName.c_str());
+		}
+		else
+		{
+			// todo: do texcoords exist?
+		}
+	}
+
+	// lightmapTexcoord
+	unsigned lightmapTexcoord = UINT_MAX;
+	for (unsigned g=0;g<faceGroups.size();g++)
+	{
+		if (faceGroups[g].material->lightmapTexcoord!=UINT_MAX)
+		{
+			if (lightmapTexcoord!=UINT_MAX && lightmapTexcoord!=faceGroups[g].material->lightmapTexcoord)
+			{
+				numReports++;
+				RRReporter::report(WARN,"Object %s combines materials with different lightmapTexcoord (%d,%d..).\n",objectName.c_str(),lightmapTexcoord,faceGroups[g].material->lightmapTexcoord);
+				break;
+			}
+			lightmapTexcoord = faceGroups[g].material->lightmapTexcoord;
+		}
+	}
+
+	return numReports + getCollider()->getMesh()->checkConsistency(lightmapTexcoord,objectName.c_str());
 }
 
 
