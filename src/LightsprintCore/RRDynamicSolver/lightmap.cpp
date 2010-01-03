@@ -374,8 +374,8 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
-	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d, %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
-		objectNumber,getStaticObjects().size(),
+	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d '%s', %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
+		objectNumber,getStaticObjects().size(),((unsigned)objectNumber<getStaticObjects().size())?getStaticObjects()[objectNumber]->name.c_str():"",
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
 		buffer?buffer->getWidth():0,buffer?buffer->getHeight():0,
 		(directionalLightmaps&&directionalLightmaps[0])?directionalLightmaps[0]->getWidth():0,
