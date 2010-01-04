@@ -122,7 +122,7 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI failed on custom varying
+	varying vec4 lightIndirectColor;
 #endif
 
 #if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
@@ -421,7 +421,7 @@ void main()
 		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 			vec4 lightIndirectLightmap = 
 					#ifdef LIGHT_INDIRECT_VCOLOR
-						+ gl_Color
+						+ lightIndirectColor
 					#endif
 					#ifdef LIGHT_INDIRECT_MAP
 						+ texture2D(lightIndirectMap, lightIndirectCoord)

@@ -77,7 +77,7 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI failed on custom varying
+	varying vec4 lightIndirectColor;
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR2
@@ -165,14 +165,12 @@ void main()
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
 		#ifdef LIGHT_INDIRECT_VCOLOR2
-			vec4 lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+gl_SecondaryColor*lightIndirectBlend;
+			lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+gl_SecondaryColor*lightIndirectBlend;
 		#else
-			vec4 lightIndirectColor = gl_Color;
+			lightIndirectColor = gl_Color;
 		#endif
 		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
-			gl_FrontColor = pow(lightIndirectColor,vec4(0.45,0.45,0.45,0.45));
-		#else
-			gl_FrontColor = lightIndirectColor;
+			lightIndirectColor = pow(lightIndirectColor,vec4(0.45,0.45,0.45,0.45));
 		#endif
 	#endif
 
