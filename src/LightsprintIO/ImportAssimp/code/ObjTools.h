@@ -93,7 +93,7 @@ inline Char_T getNextWord( Char_T pBuffer, Char_T pEnd )
 {
 	while ( !isEndOfBuffer( pBuffer, pEnd ) )
 	{
-		if ( !isSeparator( *pBuffer ) )
+		if ( !isSeparator( *pBuffer ) || isNewLine( *pBuffer )  )
 			break;
 		pBuffer++;
 	}
