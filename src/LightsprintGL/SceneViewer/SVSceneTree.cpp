@@ -158,16 +158,33 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 
 void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 {
+	wxKeyEvent keyEvent = event.GetKeyEvent();
+	long code = keyEvent.GetKeyCode();
+	if (code==WXK_LEFT||code==WXK_RIGHT||code==WXK_DOWN||code==WXK_UP||code==WXK_PAGEUP||code==WXK_PAGEDOWN||code==WXK_HOME||code==WXK_END)
+	{
+		// only for treectrl, don't forward
+	}
+	else
+	{
+		// useless for treectrl, forward to canvas
+		// our parent must be frame
+		SVFrame* frame = (SVFrame*)GetParent();
+		frame->m_canvas->OnKeyDown(keyEvent);
+	}
+}
+
+void SVSceneTree::OnKeyUp(wxKeyEvent& event)
+{
 	// our parent must be frame
 	SVFrame* frame = (SVFrame*)GetParent();
-	wxKeyEvent keyEvent = event.GetKeyEvent();
-	frame->m_canvas->OnKeyDown(keyEvent);
+	frame->m_canvas->OnKeyUp(event);
 }
 
 BEGIN_EVENT_TABLE(SVSceneTree, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED(-1,SVSceneTree::OnSelChanged)
 	EVT_TREE_ITEM_ACTIVATED(-1,SVSceneTree::OnItemActivated)
 	EVT_TREE_KEY_DOWN(-1,SVSceneTree::OnKeyDown)
+	EVT_KEY_UP(SVSceneTree::OnKeyUp)
 END_EVENT_TABLE()
 
  

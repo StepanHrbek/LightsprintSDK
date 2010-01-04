@@ -33,6 +33,7 @@ namespace rr_gl
 
 		//! Forwards all unused keys to canvas.
 		void OnKeyDown(wxTreeEvent& event);
+		void OnKeyUp(wxKeyEvent& event);
 
 	private:
 		wxTreeItemId findItem(EntityId entity, bool& isOk) const;
