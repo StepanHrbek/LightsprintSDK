@@ -36,6 +36,7 @@ namespace rr_gl
 
 		// initializes gl context and other stuff, must be called once after canvas is created and Show()n
 		// (wx asserts if we do it before our parent calls Show())
+		void createContextCore();
 		void createContext();
 
 		void OnPaintCore(wxPaintEvent& event);
@@ -82,6 +83,7 @@ namespace rr_gl
 		rr::RRRay*                 ray; // all users use this ray to prevent allocations in every frame
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;
+		bool                       fullyCreated; // true only after complete constructor and createContext
 
 		// help
 		bool                       helpLoadAttempted;

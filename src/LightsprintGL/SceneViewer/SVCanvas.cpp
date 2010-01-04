@@ -88,10 +88,11 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	entityIcons = NULL;
 	sunIconPosition = rr::RRVec3(0);
 	iconSize = 1;
+	fullyCreated = false;
 
 }
 
-void SVCanvas::createContext()
+void SVCanvas::createContextCore()
 {
 	context = new wxGLContext(this);
 	SetCurrent(*context);
@@ -191,15 +192,32 @@ void SVCanvas::createContext()
 		}
 	}
 
+#if defined(_WIN32)
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+#endif
+
 	water = new Water(svs.pathToShaders,true,true);
 	toneMapping = new ToneMapping(svs.pathToShaders);
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
-
 	exitRequested = false;
+	fullyCreated = true;
+}
 
-#if defined(_WIN32)
-	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+void SVCanvas::createContext()
+{
+#ifdef _MSC_VER
+	// this does not solve any real problem we found, it's just precaution
+	__try
+	{
+		createContextCore();
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Scene initialization crashed.\n"));
+	}
+#else
+	createContextCore();
 #endif
 }
 
@@ -701,6 +719,12 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 
 void SVCanvas::OnPaintCore(wxPaintEvent& event)
 {
+	if (!fullyCreated)
+	{
+		rr::RRReporter::report(rr::ERRO,"Looks like scene import crashed, exiting.\n");
+		exit(1);
+	}
+
 	wxPaintDC dc(this);
 
 	if (!context) return;
