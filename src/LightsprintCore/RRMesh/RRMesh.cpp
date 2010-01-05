@@ -187,6 +187,14 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 //
 // RRMesh tools
 
+struct AABBCache
+{
+	RRVec3 mini;
+	RRVec3 maxi;
+	RRVec3 center;
+	unsigned version;
+};
+
 RRMesh::RRMesh()
 {
 	aabbCache = NULL;
@@ -202,7 +210,7 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 	if (!aabbCache)
 	#pragma omp critical
 	{
-		const_cast<RRMesh*>(this)->aabbCache = new RRVec3[3]; // hack: we write to const mesh. critical section makes it safe
+		const_cast<RRMesh*>(this)->aabbCache = new AABBCache; // hack: we write to const mesh. critical section makes it safe
 		unsigned numVertices = getNumVertices();
 		if (numVertices)
 		{
@@ -226,23 +234,24 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 			for (unsigned j=0;j<3;j++)
 				if (mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
 
-			aabbCache[0] = mini;
-			aabbCache[1] = maxi;
-			aabbCache[2] = center/numVertices;
+			aabbCache->mini = mini;
+			aabbCache->maxi = maxi;
+			aabbCache->center = center/numVertices;
 		}
 		else
 		{
-			aabbCache[0] = RRVec3(0);
-			aabbCache[1] = RRVec3(0);
-			aabbCache[2] = RRVec3(0);
+			aabbCache->mini = RRVec3(0);
+			aabbCache->maxi = RRVec3(0);
+			aabbCache->center = RRVec3(0);
 		}
-		RR_ASSERT(IS_VEC3(aabbCache[0]));
-		RR_ASSERT(IS_VEC3(aabbCache[1]));
-		RR_ASSERT(IS_VEC3(aabbCache[2]));
+		aabbCache->version = 0;
+		RR_ASSERT(IS_VEC3(aabbCache->mini));
+		RR_ASSERT(IS_VEC3(aabbCache->maxi));
+		RR_ASSERT(IS_VEC3(aabbCache->center));
 	}
-	if (_mini) *_mini = aabbCache[0];
-	if (_maxi) *_maxi = aabbCache[1];
-	if (_center) *_center = aabbCache[2];
+	if (_mini) *_mini = aabbCache->mini;
+	if (_maxi) *_maxi = aabbCache->maxi;
+	if (_center) *_center = aabbCache->center;
 }
 
 RRReal RRMesh::getAverageVertexDistance() const

@@ -116,25 +116,6 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	return true;
 }
 
-bool RRMeshArrays::save(const char* filename) const
-{
-	//!!!
-	return false;
-}
-
-bool RRMeshArrays::reload(const char* filename)
-{
-	//!!!
-	return false;
-}
-
-RRMeshArrays* RRMeshArrays::load(const char* filename)
-{
-	RRMeshArrays* mesh = new RRMeshArrays();
-	if (!mesh->reload(filename))
-		RR_SAFE_DELETE(mesh);
-	return mesh;
-}
 
 bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<unsigned>& _texcoords)
 {
@@ -274,17 +255,15 @@ void RRMeshArrays::getTriangle(unsigned t, Triangle& out) const
 	out = triangle[t];
 }
 
-void RRMeshArrays::getTriangleBody(unsigned i, TriangleBody& out) const
+void RRMeshArrays::getTriangleBody(unsigned t, TriangleBody& out) const
 {
-	Triangle t;
-	RRMeshArrays::getTriangle(i,t);
-	Vertex v[3];
-	RRMeshArrays::getVertex(t[0],v[0]);
-	RRMeshArrays::getVertex(t[1],v[1]);
-	RRMeshArrays::getVertex(t[2],v[2]);
-	out.vertex0=v[0];
-	out.side1=v[1]-v[0];
-	out.side2=v[2]-v[0];
+	RR_ASSERT(t<numTriangles);
+	RR_ASSERT(triangle[t][0]<numVertices);
+	RR_ASSERT(triangle[t][1]<numVertices);
+	RR_ASSERT(triangle[t][2]<numVertices);
+	out.vertex0 = position[triangle[t][0]];
+	out.side1 = position[triangle[t][1]]-position[triangle[t][0]];
+	out.side2 = position[triangle[t][2]]-position[triangle[t][0]];
 }
 
 void RRMeshArrays::getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -334,6 +313,61 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 		out.uv[v] = texcoord[channel][triangle[t][v]];
 	}
 	return true;
+}
+
+struct AABBCache
+{
+	RRVec3 mini;
+	RRVec3 maxi;
+	RRVec3 center;
+	unsigned version;
+};
+
+void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
+{
+	if (!aabbCache || aabbCache->version!=version)
+	#pragma omp critical
+	{
+		if (!aabbCache)
+			const_cast<RRMeshArrays*>(this)->aabbCache = new AABBCache; // hack: we write to const mesh. critical section makes it safe
+		if (numVertices)
+		{
+			RRVec3 center = RRVec3(0);
+			RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
+			RRVec3 maxi = RRVec3(-1e37f);
+			for (unsigned v=0;v<numVertices;v++)
+			{
+				for (unsigned j=0;j<3;j++)
+					if (_finite(position[v][j])) // filter out INF/NaN
+					{
+						mini[j] = RR_MIN(mini[j],position[v][j]);
+						maxi[j] = RR_MAX(maxi[j],position[v][j]);
+						center[j] += position[v][j];
+					}
+			}
+
+			// fix negative size
+			for (unsigned j=0;j<3;j++)
+				if (mini[j]>maxi[j]) mini[j] = maxi[j] = 0;
+
+			aabbCache->mini = mini;
+			aabbCache->maxi = maxi;
+			aabbCache->center = center/numVertices;
+		}
+		else
+		{
+			aabbCache->mini = RRVec3(0);
+			aabbCache->maxi = RRVec3(0);
+			aabbCache->center = RRVec3(0);
+		}
+		aabbCache->version = version;
+		RR_ASSERT(IS_VEC3(aabbCache->mini));
+		RR_ASSERT(IS_VEC3(aabbCache->maxi));
+		RR_ASSERT(IS_VEC3(aabbCache->center));
+	}
+	if (_mini) *_mini = aabbCache->mini;
+	if (_maxi) *_maxi = aabbCache->maxi;
+	if (_center) *_center = aabbCache->center;
 }
 
 

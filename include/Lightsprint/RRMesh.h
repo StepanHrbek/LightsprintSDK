@@ -478,10 +478,8 @@ namespace rr
 		//! - Pre/PostImportNumbers are lost
 		class RRMeshArrays* createArrays(bool indexed, const RRVector<unsigned>& texcoords) const;
 
-		// Saves mesh to disk. RRMeshArrays::load() loads it back. Work in progress, file format is not yet stable.
-		//bool save(char* filename);
-	private:
-		RRVec3* aabbCache; //! Cached results of getAABB().
+	protected:
+		struct AABBCache* aabbCache; //! Cached results of getAABB().
 	};
 
 
@@ -528,11 +526,15 @@ namespace rr
 		//! If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
 		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords, bool _tangents);
 
-		// Save/load. Disk operations not implemented yet.
-		bool                 save(const char* filename) const;
-		bool                 reload(const char* filename);
+		//! Overwrites content of this RRMeshArrays, copies data from given RRMesh.
+		//
+		//! \param mesh
+		//!  Data source, mesh data are copied to this.
+		//! \param indexed
+		//!  False splits vertices, makes numVertices=3*numTriangles.
+		//! \param texcoords
+		//!  Lets you specify what texcoord channels to copy from original mesh.
 		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords);
-		static RRMeshArrays* load(const char* filename);
 
 		// Implementation of RRMesh interface.
 		RRMeshArrays();
@@ -544,6 +546,7 @@ namespace rr
 		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
 		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
+		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

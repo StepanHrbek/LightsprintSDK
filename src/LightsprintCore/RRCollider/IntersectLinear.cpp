@@ -117,11 +117,11 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	}
 #endif
 	importer = aimporter;
-	triangles = importer->getNumTriangles();
 
+	// only for kd/bsp, not used by linear
+	triangles = importer->getNumTriangles();
 	importer->getAABB(&box.min,&box.max,NULL);
 	box.init(box.min,box.max);
-
 	// lower number = danger of numeric errors
 	// higher number = slower intersection
 	// (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
@@ -170,47 +170,61 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	// having ray rejected early by box.intersect test is no excuse
 	// (!importer) shouldn't happen but linear is so slow that we can test it
 	// (!triangles) is valid case, we probably generate collider even for mesh without triangles
-	if (importer && triangles && box.intersect(ray))
+	if (importer)
 	{
-		ray->hitDistance = ray->hitDistanceMax;
-		update_rayDir(ray);
-		RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
-		FILL_STATISTIC(intersectStats.intersect_linear++);
-		for (unsigned t=0;t<triangles;t++)
+		// don't use this->triangles, mesh may be dynamic
+		unsigned numTriangles = importer->getNumTriangles();
+
+		if (numTriangles)
 		{
-			RRMesh::TriangleBody t2;
-			importer->getTriangleBody(t,t2);
-			if (intersect_triangle(ray,&t2))
+			// don't use this->box, mesh may be dynamic
+			Box boxUnaligned;
+			importer->getAABB(&boxUnaligned.min,&boxUnaligned.max,NULL);
+			boxUnaligned.init(boxUnaligned.min,boxUnaligned.max);
+
+			if (boxUnaligned.intersectUnaligned(ray))
 			{
-				ray->hitTriangle = t;
-	#ifdef COLLISION_HANDLER
-				if (ray->collisionHandler) 
+				ray->hitDistance = ray->hitDistanceMax;
+				update_rayDir(ray);
+				RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+				FILL_STATISTIC(intersectStats.intersect_linear++);
+				for (unsigned t=0;t<triangles;t++)
 				{
-	#ifdef FILL_HITPOINT3D
-					if (ray->rayFlags&RRRay::FILL_POINT3D)
+					RRMesh::TriangleBody t2;
+					importer->getTriangleBody(t,t2);
+					if (intersect_triangle(ray,&t2))
 					{
-						update_hitPoint3d(ray,ray->hitDistance);
+						ray->hitTriangle = t;
+			#ifdef COLLISION_HANDLER
+						if (ray->collisionHandler) 
+						{
+			#ifdef FILL_HITPOINT3D
+							if (ray->rayFlags&RRRay::FILL_POINT3D)
+							{
+								update_hitPoint3d(ray,ray->hitDistance);
+							}
+			#endif
+			#ifdef FILL_HITPLANE
+							if (ray->rayFlags&RRRay::FILL_PLANE)
+							{
+								update_hitPlane(ray,importer);
+							}
+			#endif
+							// hits are reported in random order
+							if (ray->collisionHandler->collides(ray)) 
+							{
+								memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
+								ray->hitDistanceMax = ray->hitDistance;
+								hit = true;
+							}
+						}
+						else
+			#endif
+						{
+							ray->hitDistanceMax = ray->hitDistance;
+							hit = true;
+						}
 					}
-	#endif
-	#ifdef FILL_HITPLANE
-					if (ray->rayFlags&RRRay::FILL_PLANE)
-					{
-						update_hitPlane(ray,importer);
-					}
-	#endif
-					// hits are reported in random order
-					if (ray->collisionHandler->collides(ray)) 
-					{
-						memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
-						ray->hitDistanceMax = ray->hitDistance;
-						hit = true;
-					}
-				}
-				else
-	#endif
-				{
-					ray->hitDistanceMax = ray->hitDistance;
-					hit = true;
 				}
 			}
 		}

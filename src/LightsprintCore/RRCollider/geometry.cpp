@@ -163,6 +163,40 @@ bool Box::intersect(RRRay* ray) const
 #endif
 }
 
+// the same for unaligned box
+bool Box::intersectUnaligned(RRRay* ray) const
+{
+	const __m128
+		box_min	= _mm_loadu_ps(&min.x),
+		box_max	= _mm_loadu_ps(&max.x),
+		pos	= loadps(&ray->rayOrigin),
+		inv_dir	= loadps(&ray->rayDirInv);
+
+	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
+	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+
+	__m128 lmax = maxps(l1, l2);
+	__m128 lmin = minps(l1, l2);
+
+	const __m128 lmax0 = rotatelps(lmax);
+	const __m128 lmin0 = rotatelps(lmin);
+	lmax = minss(lmax, lmax0);
+	lmin = maxss(lmin, lmin0);
+
+	const __m128 lmax1 = muxhps(lmax,lmax);
+	const __m128 lmin1 = muxhps(lmin,lmin);
+	lmax = minss(lmax, lmax1);
+	lmin = maxss(lmin, lmin1);
+
+	float t_near,t_far;
+	storess(lmin, &t_near);
+	storess(lmax, &t_far);
+
+	ray->hitDistanceMin = RR_MAX(t_near,ray->rayLengthMin);
+	ray->hitDistanceMax = RR_MIN(t_far,ray->rayLengthMax);
+	return ray->hitDistanceMin<ray->hitDistanceMax;
+}
+
 #endif
 
 } // namespace
