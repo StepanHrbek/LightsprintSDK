@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------
 //! \file Texture.h
 //! \brief LightsprintGL | Texture in OpenGL 2.0, extension of RRBuffer
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //! All rights reserved
 //--------------------------------------------------------------------------
 

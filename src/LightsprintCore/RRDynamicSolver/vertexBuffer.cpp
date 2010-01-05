@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Offline and realtime per-vertex lightmaps.
-// Copyright (c) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cfloat>

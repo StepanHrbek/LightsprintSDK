@@ -25,7 +25,7 @@
 // but is more open for your experiments, customization.
 // Everything important is in source code below.
 //
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef _WIN32

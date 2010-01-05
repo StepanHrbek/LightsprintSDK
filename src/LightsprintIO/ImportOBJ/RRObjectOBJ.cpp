@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for OBJ scene.
-// Copyright (C) 2008-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2008-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 // OBSOLETED: Assimp contains more complete .obj loader.

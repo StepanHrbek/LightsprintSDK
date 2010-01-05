@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // UberProgram, fully general Program with optional #defines.
-// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdlib>

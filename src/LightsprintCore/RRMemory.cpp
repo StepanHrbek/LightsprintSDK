@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Base class for safer object allocation/freeing.
-// Copyright (c) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRDebug.h"

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Format independent scene import.
-// Copyright (C) 2006-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2006-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/IO/ImportScene.h"

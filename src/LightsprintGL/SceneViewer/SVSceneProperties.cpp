@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - scene properties window.
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "SVSceneProperties.h"

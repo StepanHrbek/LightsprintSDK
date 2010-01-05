@@ -53,7 +53,7 @@
 // If we don't find unwrap in scene file, we build low quality unwrap automatically,
 // just to show something, even though results are poor.
 //
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #define SCENE_VIEWER // adds viewer option, runs scene viewer after lightmap build

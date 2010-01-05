@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file RendererOfScene.h
 //! \brief LightsprintGL | renders contents of RRDynamicSolver instance
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //! All rights reserved
 //----------------------------------------------------------------------------
 

@@ -4,7 +4,7 @@
 // Stanford Bunny model with 69451 triangles is loaded from disk,
 // intersections with random rays are detected, speed is measured.
 //
-// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "plymeshreader.h"

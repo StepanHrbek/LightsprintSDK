@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Assimp formats.
-// Copyright (C) 2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2009-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"

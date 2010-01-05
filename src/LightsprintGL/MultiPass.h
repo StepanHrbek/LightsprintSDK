@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //! \file MultiPass.h
 //! \brief LightsprintGL | splits complex rendering setup into simpler passes
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //! All rights reserved
 //---------------------------------------------------------------------------
 

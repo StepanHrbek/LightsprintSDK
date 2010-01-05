@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // FBO, OpenGL framebuffer object, GL_EXT_framebuffer_object.
-// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdio>

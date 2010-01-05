@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Camera.h
 //! \brief LightsprintGL | frustum with adjustable pos, dir, aspect, fov, near, far
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2009
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2010
 //! All rights reserved
 //----------------------------------------------------------------------------
 

@@ -4,7 +4,7 @@
 // This is bare bone BuildLightmaps, it builds lightmaps in koupelna scene
 // and saves them to disk, no GUI, everything is as simple as possible.
 //
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel lightmap, others get per-vertex

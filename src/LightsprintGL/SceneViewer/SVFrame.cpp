@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - main window with menu.
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1053,7 +1053,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
 				info.SetWebSite("http://lightsprint.com");
-				info.SetCopyright("(c) 1999-2009 Stepan Hrbek, Lightsprint");
+				info.SetCopyright("(c) 1999-2010 Stepan Hrbek, Lightsprint");
 				wxAboutBox(info);
 				delete icon;
 			}

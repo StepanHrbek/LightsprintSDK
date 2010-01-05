@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Ray-mesh intersection traversal - fast.
-// Copyright (c) 2000-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef COLLIDER_INTERSECTBSPFAST_H

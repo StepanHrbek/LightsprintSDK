@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // RendererOf3DS, Renderer implementation that renders 3DS model.
-// Copyright (C) 2005-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "RendererOf3DS.h"

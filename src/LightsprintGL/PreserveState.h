@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Preserving GL state.
-// Copyright (C) 2007-2009 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef PRESERVESTATE_H
