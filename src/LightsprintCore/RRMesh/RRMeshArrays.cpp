@@ -361,9 +361,9 @@ void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 			aabbCache->center = RRVec3(0);
 		}
 		aabbCache->version = version;
-		RR_ASSERT(IS_VEC3(aabbCache->mini));
-		RR_ASSERT(IS_VEC3(aabbCache->maxi));
-		RR_ASSERT(IS_VEC3(aabbCache->center));
+		RR_ASSERT(aabbCache->mini.finite());
+		RR_ASSERT(aabbCache->maxi.finite());
+		RR_ASSERT(aabbCache->center.finite());
 	}
 	if (_mini) *_mini = aabbCache->mini;
 	if (_maxi) *_maxi = aabbCache->maxi;
