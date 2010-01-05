@@ -272,14 +272,13 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
 	updateMenuBarNeeded = false;
-	userPreferences.currentWindowLayout = 0;
 	m_canvas = NULL;
 	m_sceneProperties = new SVSceneProperties(this,svs);
 	m_lightProperties = new SVLightProperties(this);
 	m_objectProperties = new SVObjectProperties(this);
 	m_materialProperties = new SVMaterialProperties(this,svs.precision);
 	m_sceneTree = new SVSceneTree(this,svs);
-
+	userPreferences.currentWindowLayout = 2;
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
