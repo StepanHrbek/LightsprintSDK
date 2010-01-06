@@ -170,6 +170,8 @@ void SVMaterialProperties::updateReadOnly()
 
 void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
+	bool diffuseChanged = false;
+	bool specularChanged = false;
 	bool emittanceChanged = false;
 
 	wxPGProperty *property = event.GetProperty();
@@ -211,6 +213,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propDiffuse->GetPropertyByName("uv"))
 	{
 		material->diffuseReflectance.texcoord = property->GetValue().GetInteger();
+		diffuseChanged = true;
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("texture"))
@@ -224,11 +227,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			if (!material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL))
 				RR_SAFE_DELETE(material->diffuseReflectance.texture);
 		}
+		diffuseChanged = true;
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("color"))
 	{
 		material->diffuseReflectance.color << property->GetValue();
+		diffuseChanged = true;
 	}
 	else
 
@@ -236,6 +241,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSpecular->GetPropertyByName("uv"))
 	{
 		material->specularReflectance.texcoord = property->GetValue().GetInteger();
+		specularChanged = true;
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("texture"))
@@ -249,11 +255,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			if (!material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL))
 				RR_SAFE_DELETE(material->specularReflectance.texture);
 		}
+		specularChanged = true;
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("color"))
 	{
 		material->specularReflectance.color << property->GetValue();
+		specularChanged = true;
 	}
 	else
 
@@ -349,6 +357,15 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			materialPhysical->copyFrom(*materialCustom);
 			materialPhysical->convertToCustomScale(lastSolver->getScaler());
 		}
+	}
+
+	// add/remove cubemaps after change in diffuse or specular
+	if (diffuseChanged || specularChanged)
+	{
+		// diffuse sphere doesn't have specular cube
+		// when we change material to specular, specular cube is allocated here
+		// warning: also deallocates if no longer necessary, may deallocate custom cubes
+		lastSolver->allocateBuffersForRealtimeGI(-1);
 	}
 
 	// update solver after change in emittance
