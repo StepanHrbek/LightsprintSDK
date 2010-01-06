@@ -23,6 +23,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		Append(propCamera);
 		SetPropertyReadOnly(propCamera,true,wxPG_DONT_RECURSE);
 
+
 		propCameraSpeed = new wxFloatProperty(wxT("Speed (m/s)"), wxPG_LABEL, svs.cameraMetersPerSecond);
 		propCameraSpeed->SetAttribute("Precision",svs.precision);
 		AppendIn(propCamera,propCameraSpeed);

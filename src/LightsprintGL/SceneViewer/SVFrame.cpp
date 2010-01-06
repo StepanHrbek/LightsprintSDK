@@ -611,6 +611,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			break;
 
 
+
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
