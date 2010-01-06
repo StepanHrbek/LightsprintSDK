@@ -341,6 +341,20 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		userPreferences.windowLayout[0].perspective = m_mgr.SavePerspective();
 	}
 
+	// setup dock art (colors etc)
+	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
+	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(250,0,0));
+	dockArt->SetColor(wxAUI_DOCKART_BORDER_COLOUR,wxColour(0,0,0));
+	//dockArt->SetColor(wxAUI_DOCKART_GRIPPER_COLOUR,wxColour(0,250,0));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,wxColour(0,0,0));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(190,190,190));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR,wxColour(255,255,255));
+	dockArt->SetMetric(wxAUI_DOCKART_GRADIENT_TYPE,wxAUI_GRADIENT_VERTICAL);
+	dockArt->SetMetric(wxAUI_DOCKART_CAPTION_SIZE,30);
+	static wxFont font(13,wxFONTFAMILY_SWISS,wxFONTSTYLE_ITALIC,wxFONTWEIGHT_BOLD);
+	dockArt->SetFont(wxAUI_DOCKART_CAPTION_FONT,font);
+	m_mgr.SetArtProvider(dockArt);
+
 	// create panes
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
