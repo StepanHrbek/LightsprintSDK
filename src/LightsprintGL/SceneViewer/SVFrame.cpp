@@ -200,7 +200,7 @@ void SVFrame::UpdateEverything()
 
 	updateSelection();
 
-	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane());
+	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane().PaneBorder(false));
 	m_mgr.Update();
 }
 
@@ -387,6 +387,7 @@ static void dirtyLights(rr_gl::RRDynamicSolverGL* solver)
 
 void SVFrame::UpdateMenuBar()
 {
+	if (svs.fullscreen) return; // menu in fullscreen is disabled
 	updateMenuBarNeeded = false;
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *winMenu = NULL;
@@ -1006,7 +1007,19 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 		case ME_WINDOW_FULLSCREEN:
 			svs.fullscreen = !svs.fullscreen;
+			if (svs.fullscreen)
+			{
+				// wxFULLSCREEN_ALL does not work for menu (probably wx error), hide it manualy
+				wxMenuBar* oldMenuBar = GetMenuBar();
+				SetMenuBar(NULL);
+				delete oldMenuBar;
+			}
 			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
+			if (!svs.fullscreen)
+			{
+				// wxFULLSCREEN_ALL does not work for menu (probably wx error), unhide it manualy
+				UpdateMenuBar();
+			}
 			GetPosition(windowCoord+0,windowCoord+1);
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
