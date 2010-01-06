@@ -173,6 +173,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	bool diffuseChanged = false;
 	bool specularChanged = false;
 	bool emittanceChanged = false;
+	bool textureChanged = false;
 
 	wxPGProperty *property = event.GetProperty();
 
@@ -228,6 +229,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 				RR_SAFE_DELETE(material->diffuseReflectance.texture);
 		}
 		diffuseChanged = true;
+		textureChanged = true;
 	}
 	else
 	if (property==propDiffuse->GetPropertyByName("color"))
@@ -256,6 +258,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 				RR_SAFE_DELETE(material->specularReflectance.texture);
 		}
 		specularChanged = true;
+		textureChanged = true;
 	}
 	else
 	if (property==propSpecular->GetPropertyByName("color"))
@@ -284,6 +287,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 				RR_SAFE_DELETE(material->diffuseEmittance.texture);
 		}
 		emittanceChanged = true;
+		textureChanged = true;
 	}
 	else
 	if (property==propEmissive->GetPropertyByName("color"))
@@ -310,6 +314,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			if (!material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL))
 				RR_SAFE_DELETE(material->specularTransmittance.texture);
 		}
+		textureChanged = true;
 	}
 	else
 	if (property==propTransparent->GetPropertyByName("color"))
@@ -372,6 +377,12 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (emittanceChanged)
 	{
 		lastSolver->setEmittance(1,16,true);
+	}
+
+	// after adding/deleting texture, readonly changes
+	if (textureChanged)
+	{
+		updateReadOnly();
 	}
 }
 
