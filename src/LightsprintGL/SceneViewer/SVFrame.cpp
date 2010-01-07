@@ -369,8 +369,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name(wxT("materialproperties")).Caption(wxT("Material properties")).CloseButton(true).Right());
 	if (!layoutLoaded)
 	{
-		userPreferences.windowLayout[2].fullscreen = true;
-		userPreferences.windowLayout[2].maximized = true;
+		userPreferences.windowLayout[2].fullscreen = false;
+		userPreferences.windowLayout[2].maximized = false;
 		userPreferences.windowLayout[2].perspective = m_mgr.SavePerspective();
 	}
 	userPreferencesApplyToWx();
