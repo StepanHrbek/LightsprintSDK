@@ -428,7 +428,7 @@ Texture formats
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - svn revision 511 used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - svn revision 511 (+fixes we contributed back to Assimp) used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>

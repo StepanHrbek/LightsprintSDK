@@ -147,7 +147,10 @@ void SVCanvas::createContextCore()
 		solver->setLights(manuallyOpenedScene->getLights());
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
+
+	// warning: when rendering scene from solver, original cube buffers are lost here
 	solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+
 
 	if (!svs.skyboxFilename.empty())
 	{
