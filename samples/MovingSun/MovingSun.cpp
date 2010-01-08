@@ -264,16 +264,8 @@ void display(void)
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-	//uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(
-		uberProgramSetup,
-		NULL,
-		true,
-		0,
-		-1,
-		0,
-		&brightness,
-		1);
+	uberProgramSetup.POSTPROCESS_GAMMA = true;
+	solver->renderScene(uberProgramSetup,NULL,true,0,-1,0,&brightness,contrast);
 
 	glutSwapBuffers();
 }
