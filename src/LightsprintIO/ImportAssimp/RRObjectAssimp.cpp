@@ -128,7 +128,7 @@ public:
 			bool reflectivitySet = aimaterial->Get(AI_MATKEY_REFLECTIVITY,reflectivity)==AI_SUCCESS;
 			reflectivity *= 0.01f;
 			if (specularColorSet && shininessStrengthSet) material.specularReflectance.color = convertColor(specularColor)*shininessStrength; else
-			if (specularColorSet && !shininessStrengthSet) material.specularReflectance.color = convertColor(specularColor); else
+			if (specularColorSet && !shininessStrengthSet) material.specularReflectance.color = RRVec3(0); else//convertColor(specularColor); else ...3ds with specularColorSet and !shininessStrengthSet should not spec.reflect
 			if (!specularColorSet && shininessStrengthSet) material.specularReflectance.color = RRVec3(shininessStrength); else
 			if (!specularColorSet && !shininessStrengthSet) material.specularReflectance.color = RRVec3(0);
 			if (reflectiveColorSet && reflectivitySet) material.specularReflectance.color += convertColor(specularColor)*reflectivity; else
