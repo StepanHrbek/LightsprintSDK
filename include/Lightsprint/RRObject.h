@@ -221,7 +221,7 @@ namespace rr
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		RRMesh* createWorldSpaceMesh();
 
-		//! Creates and returns union of multiple objects (contains geometry and materials from all objects).
+		//! Creates and returns union of multiple objects (contains geometry and materials from all objects), in world space.
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
 		//! but it depends on all objects from array, they must stay alive for whole life of MultiObject.
@@ -229,8 +229,7 @@ namespace rr
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
-		//!  see RRMesh::createMultiMesh(). Note that for non-negative vertexWeldDistance,
-		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
+		//!  see RRMesh::createMultiMesh().
 		//! \param objects
 		//!  Collection of objects you want to create multiobject from.
 		//!  Objects from collection should stay alive for whole life of multiobjects (this is your responsibility).

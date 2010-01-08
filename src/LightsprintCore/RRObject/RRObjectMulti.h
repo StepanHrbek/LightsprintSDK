@@ -196,7 +196,10 @@ public:
 		const RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
 		bool vertexStitching = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
-		if (numObjects>1 || vertexStitching || optimizeTriangles)
+		if (numObjects>1 || vertexStitching || optimizeTriangles
+			// sceneViewer expects solver->getMultiObject() in world space (all camera/debugging rays are shot in worldspace)
+			// without this test, SV has broken: finding mesh under mouse, camera auto near-far, renderlights collisions...
+			|| objects[0]->getWorldMatrix())
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
