@@ -385,8 +385,8 @@ int main(int argc, char **argv)
 	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds",0.3f);
 	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds",0.004f);
 	bool aborting = false;
-	robot = rr::RRObject::createMultiObject(&robotScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
-	potato = rr::RRObject::createMultiObject(&potatoScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL);
+	robot = rr::RRObject::createMultiObject(&robotScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	potato = rr::RRObject::createMultiObject(&potatoScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
 	rr::RRObjects dynamicObjects;
 	dynamicObjects.push_back(robot);
 	dynamicObjects.push_back(potato);

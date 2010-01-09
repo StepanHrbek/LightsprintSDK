@@ -410,7 +410,7 @@ int main(int argc, char **argv)
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		bool aborting = false;
-		dynamicObjects.push_back(rr::RRObject::createMultiObject(&characters[i%9]->getObjects(),rr::RRCollider::IT_LINEAR,aborting,0,0,true,0,NULL));
+		dynamicObjects.push_back(rr::RRObject::createMultiObject(&characters[i%9]->getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL));
 	}
 	solver->setDynamicObjects(dynamicObjects);
 
