@@ -715,7 +715,8 @@ Texture formats
  \section building_source LightsprintGL from source code
 
   LightsprintGL source code licensee only:
-  \n Before building LightsprintGL from source code,
+  \n LightsprintGL may be configured with or without rr_gl::sceneViewer() function.
+  \n Before building LightsprintGL with sceneViewer from source code,
   wxWidgets libraries must be available. See \subpage obtaining_wxwidgets.
 
 
