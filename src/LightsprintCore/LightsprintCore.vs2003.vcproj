@@ -576,9 +576,6 @@
 			<File
 				RelativePath="RRStaticSolver\RRStaticSolver.h">
 			</File>
-			<File
-				RelativePath="RRStaticSolver\RRVision.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="RRDynamicSolver">

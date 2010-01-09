@@ -78,7 +78,6 @@ RRStaticSolver/geometry_v.cpp \
 RRStaticSolver/interpol.cpp \
 RRStaticSolver/rrcore.cpp \
 RRStaticSolver/RRStaticSolver.cpp \
-RRStaticSolver/RRVision.cpp \
 squish/alpha.cpp \
 squish/clusterfit.cpp \
 squish/colourblock.cpp \
