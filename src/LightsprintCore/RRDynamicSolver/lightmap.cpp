@@ -423,8 +423,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		if (paramsAllowRealtime && objectNumber==-1)
 		{
-			// for multiobject, we use non-indexed render with numTriangles*3 vertices in vbuf
-			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3;
+			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(); // [multiobj indir is indexed]
 		}
 		else
 		{

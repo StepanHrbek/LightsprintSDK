@@ -231,7 +231,7 @@ void RendererOfOriginalScene::render(
 						}
 						else
 						{
-							// -1 = updates non-indexed multiobject buffer
+							// -1 = updates indexed multiobject buffer
 							_solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 						}
 					}

@@ -174,7 +174,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	}
 	unsigned numPostImportVertices = (objectNumber>=0)
 		? getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices() // elements in 1object vertex buffer
-		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
+		: getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(); // elements in multiobject vertex buffer [multiobj indir is indexed]
 	if (vertexBuffer->getType()!=BT_VERTEX_BUFFER || vertexBuffer->getWidth()<numPostImportVertices)
 	{
 		RR_ASSERT(0);
