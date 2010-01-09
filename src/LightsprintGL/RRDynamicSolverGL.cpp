@@ -72,8 +72,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 	rr::RRReporter::report(rr::INF1,"Detection quality: %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
 
-	rendererOfScene = new rr_gl::RendererOfScene(_pathToShaders);
-
 	// pointer 1 sent to RRBuffer::create = buffer will NOT allocate memory (we promise we won't touch it)
 	detectBigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X*faceSizeX,DDI_TRIANGLES_MAX_Y*faceSizeY,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	detectSmallMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y,1,rr::BF_RGBA,true,(unsigned char*)1),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
@@ -86,25 +84,24 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
+
 	observer = NULL;
 	oldObserverPos = rr::RRVec3(1e6);
-	
-	uberProgram1 = UberProgram::create(
-		tmpstr("%subershader.vs",pathToShaders),
-		tmpstr("%subershader.fs",pathToShaders));
+	rendererOfScene = new rr_gl::RendererOfScene(_pathToShaders);
+	uberProgram1 = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
-	delete[] detectedDirectSum;
 	delete rendererOfScene;
+	delete uberProgram1;
+	delete[] detectedDirectSum;
 	delete scaleDownProgram;
 	if (detectBigMap) delete detectBigMap->getBuffer();
 	delete detectBigMap;
 	if (detectSmallMap) delete detectSmallMap->getBuffer();
 	delete detectSmallMap;
-	delete uberProgram1;
 }
 
 void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
@@ -153,7 +150,6 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 				realtimeLight->getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
 			}
 		}
-
 	}
 
 	// reset detected direct lighting

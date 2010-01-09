@@ -3,6 +3,7 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+
 #include "CameraObjectDistance.h"
 
 namespace rr_gl
@@ -87,5 +88,5 @@ void CameraObjectDistance::addCamera(Camera* camera)
 	}
 }
 
-
 }; // namespace
+

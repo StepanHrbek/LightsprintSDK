@@ -3,6 +3,7 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+
 #include "Lightsprint/GL/Camera.h"
 
 namespace rr_gl
@@ -39,3 +40,4 @@ private:
 };
 
 }; // namespace
+
