@@ -227,7 +227,6 @@ namespace rr
 		//! but it depends on all objects from array, they must stay alive for whole life of MultiObject.
 		//! \n This can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
-		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
 		//!  see RRMesh::createMultiMesh().
 		//! \param objects
