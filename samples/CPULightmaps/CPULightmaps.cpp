@@ -91,8 +91,11 @@ int main(int argc, char **argv)
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
 
 	// save GI lightmaps, bent normals
-	for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
-		solver->getStaticObjects().saveLayer(layerNumber,"../../data/export/","png");
+	solver->getStaticObjects().saveLayer(0,"../../data/export/lmap","png");
+	solver->getStaticObjects().saveLayer(1,"../../data/export/dir1","png");
+	solver->getStaticObjects().saveLayer(2,"../../data/export/dir2","png");
+	solver->getStaticObjects().saveLayer(3,"../../data/export/dir3","png");
+	solver->getStaticObjects().saveLayer(4,"../../data/export/bent","png");
 
 	// release memory
 	delete solver;
