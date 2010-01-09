@@ -97,7 +97,7 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 #endif
 	RR_ASSERT(priv->postVertex2Ivertex.empty()); // _full_ clear to pink. without full clear, invalid values would stay alive in vertices we don't overwrite (e.g. needles)
 	priv->postVertex2Ivertex.resize(1+getStaticObjects().size());
-	priv->postVertex2Ivertex[0].resize(numPostImportMultiTriangles*3,&pink);
+	priv->postVertex2Ivertex[0].resize(numPostImportMultiVertices,&pink); // [multiobj indir is indexed]
 	for (int objectHandle=0;objectHandle<(int)getStaticObjects().size();objectHandle++)
 	{
 		priv->postVertex2Ivertex[1+objectHandle].resize(getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices(),&pink);
@@ -110,20 +110,18 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 		multiMesh->getTriangle(postImportMultiTriangle,postImportMultiTriangleVertices);
 		for (unsigned v=0;v<3;v++)
 		{
-			// for multiobject
-			const RRVec3* irrad = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
-			if (irrad)
-				priv->postVertex2Ivertex[0][postImportMultiTriangle*3+v] = irrad;
-			// for singleobjects
 			unsigned postImportMultiVertex = postImportMultiTriangleVertices[v];
 			if (postImportMultiVertex<numPostImportMultiVertices)
 			{
 				const RRVec3* irrad = priv->packedSolver->getTriangleIrradianceIndirect(postImportMultiTriangle,v);
 				if (irrad)
 				{
+					// for multiobject
+					priv->postVertex2Ivertex[0][postImportMultiVertex] = irrad; // [multiobj indir is indexed]
+					// for singleobjects
 					RRMesh::PreImportNumber postVertexMulti =
 						//!!! here we calculate preimport data
-						//    for postimport 1obj data, multiobj would have to remove preimport numbering
+						//    for postimport 1obj data, multiobj has to remove preimport numbering from 1objs
 						multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
 					priv->postVertex2Ivertex[1+postVertexMulti.object][postVertexMulti.index] = irrad;
 				}
@@ -189,7 +187,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		RR_ASSERT(priv->postVertex2Ivertex.size()==1+getStaticObjects().size());
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& postVertex2Ivertex = priv->postVertex2Ivertex[1+objectNumber];
-		RR_ASSERT(postVertex2Ivertex.size()==numPostImportVertices);
+		RR_ASSERT(postVertex2Ivertex.size()==numPostImportVertices); // [multiobj indir is indexed]
 		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
 		if (lock)
 		{

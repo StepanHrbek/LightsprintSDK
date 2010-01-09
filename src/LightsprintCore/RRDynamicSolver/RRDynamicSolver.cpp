@@ -623,7 +623,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int 
 		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
 		if (!multiIllumination.getLayer(lightmapLayerNumber))
 			multiIllumination.getLayer(lightmapLayerNumber) =
-				RRBuffer::create(rr::BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3,1,1,BF_RGBF,false,NULL);
+				RRBuffer::create(rr::BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
 	}
 	// allocate cube maps
 	if (diffuseCubeSize>=0 || specularCubeSize>=0)
