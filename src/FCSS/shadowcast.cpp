@@ -580,7 +580,7 @@ static void drawHelpMessage(int screen)
 		"'C'   - expand shadow frustum far clip plane",*/
 		NULL,
 		}
-/*#ifndef THREE_ONE
+/*
 		,{
 		"Works of following people were used in Lightsprint Demo:",
 		"",
@@ -605,7 +605,7 @@ static void drawHelpMessage(int screen)
 		"  - Amethyst7                    : \"Purple Nebula\" skybox",
 		NULL
 		}
-#endif*/
+*/
 	};
 	int i;
 
