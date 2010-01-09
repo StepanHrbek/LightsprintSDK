@@ -4,9 +4,10 @@
 // --------------------------------------------------------------------------
 
 #ifdef SUPPORT_SCENEVIEWER
-#if _MSC_VER==1500 // save/load depends on boost. we have it installed only in 2008. you can change this if arbitrarily
 
 #include "SVSaveLoad.h"
+
+#if _MSC_VER==1500 // save/load depends on boost. we have it installed only in 2008. you can change this if arbitrarily
 
 /////////////////////////////////////////////////////////////////////////////
 //
