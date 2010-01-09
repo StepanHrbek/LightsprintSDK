@@ -459,6 +459,13 @@ int main(int argc, char **argv)
 	dynamicObjects.push_back(potato);
 	solver->setDynamicObjects(dynamicObjects);
 
+	// edit some material
+	if (robot)
+	{
+		robot->faceGroups[0].material->diffuseReflectance.color = rr::RRVec3(0.2f,0,0);
+		robot->faceGroups[0].material->specularReflectance.color = rr::RRVec3(0.8f);
+	}
+
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
