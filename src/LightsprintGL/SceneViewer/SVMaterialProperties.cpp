@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVMaterialProperties.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVMaterialProperties.h"
 #include "SVCustomProperties.h"
 #include "Lightsprint/GL/Texture.h"
 

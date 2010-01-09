@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVApp.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVApp.h"
 #include "SVFrame.h"
 
 namespace rr_gl

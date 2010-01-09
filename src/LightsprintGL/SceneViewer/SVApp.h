@@ -6,10 +6,9 @@
 #ifndef SVAPP_H
 #define SVAPP_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
 #include <vector>

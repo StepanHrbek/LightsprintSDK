@@ -6,10 +6,9 @@
 #ifndef SVSCENEPROPERTIES_H
 #define SVSCENEPROPERTIES_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"

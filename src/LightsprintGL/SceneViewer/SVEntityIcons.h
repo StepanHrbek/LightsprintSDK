@@ -6,10 +6,9 @@
 #ifndef SVENTITYICONS_H
 #define SVENTITYICONS_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRCollider.h"
 #include "Lightsprint/GL/Camera.h"

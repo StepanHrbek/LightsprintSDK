@@ -6,10 +6,9 @@
 #ifndef SVLIGHTMAPVIEWER_H
 #define SVLIGHTMAPVIEWER_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "wx/wx.h"
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/Texture.h"

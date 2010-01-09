@@ -3,9 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVRayLog.h"
-
 #ifdef SUPPORT_SCENEVIEWER
+
+#include "SVRayLog.h"
 
 namespace rr_gl
 {

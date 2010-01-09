@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVSceneTree.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVSceneTree.h"
 #include "SVFrame.h"
 #include "../tmpstr.h"
 

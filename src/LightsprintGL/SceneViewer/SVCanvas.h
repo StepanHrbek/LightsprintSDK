@@ -6,10 +6,9 @@
 #ifndef SVCANVAS_H
 #define SVCANVAS_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"

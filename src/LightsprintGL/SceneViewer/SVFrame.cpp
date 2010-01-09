@@ -7,10 +7,9 @@
 //
 // include
 
-#include "SVFrame.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVFrame.h"
 #include "Lightsprint/RRScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "SVRayLog.h"

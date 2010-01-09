@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVLightmapViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVLightmapViewer.h"
 #include "../tmpstr.h"
 
 namespace rr_gl

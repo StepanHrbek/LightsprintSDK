@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVObjectProperties.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVObjectProperties.h"
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 

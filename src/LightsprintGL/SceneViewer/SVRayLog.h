@@ -6,10 +6,9 @@
 #ifndef SVRAYLOG_H
 #define SVRAYLOG_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRCollider.h"
 
 namespace rr_gl

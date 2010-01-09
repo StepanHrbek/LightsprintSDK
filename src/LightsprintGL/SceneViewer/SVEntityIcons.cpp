@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVEntityIcons.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVEntityIcons.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/Timer.h"
 #include "../PreserveState.h"

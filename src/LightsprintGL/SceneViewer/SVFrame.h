@@ -6,10 +6,9 @@
 #ifndef SVFRAME_H
 #define SVFRAME_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "SVCanvas.h"
 #include "wx/aui/aui.h"
 

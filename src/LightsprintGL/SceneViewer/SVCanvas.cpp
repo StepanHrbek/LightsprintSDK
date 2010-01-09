@@ -3,10 +3,9 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "SVCanvas.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVCanvas.h"
 #include "SVEntityIcons.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"

@@ -6,10 +6,9 @@
 #ifndef SVSAVELOAD_H
 #define SVSAVELOAD_H
 
-#include "Lightsprint/GL/SceneViewer.h"
-
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
 
 namespace rr_gl
