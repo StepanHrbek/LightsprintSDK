@@ -420,9 +420,7 @@ Object::Object()
 	triangles=0;
 	triangle=NULL;
 	objSourceExitingFlux=Channels(0);
-	IVertexPool=NULL;
-	IVertexPoolItems=0;
-	IVertexPoolItemsUsed=0;
+	topivertexArray = NULL;
 }
 
 unsigned Object::getTriangleIndex(Triangle* t)
@@ -434,7 +432,7 @@ unsigned Object::getTriangleIndex(Triangle* t)
 Object::~Object()
 {
 	delete[] triangle;
-	deleteIVertices();
+	delete[] topivertexArray;
 }
 
 void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)

@@ -183,12 +183,6 @@ namespace rr
 
 
 		//! Illumination smoothing parameters.
-		//
-		//! Default values are reasonable for both realtime and offline rendering, but
-		//! - if needle artifacts appear in realtime illumination,
-		//!   try increasing minFeatureSize (maxSmoothAngle must be positive)
-		//! - if seams between scene segments appear,
-		//!   try increasing minFeatureSize (maxSmoothAngle must be positive) or vertexWeldDistance
 		struct SmoothingParameters
 		{
 			//! Distance in world units. Vertices with lower or equal distance
@@ -200,32 +194,13 @@ namespace rr
 			//! and adapter doesn't split vertices (Collada adapter does),
 			//! set negative value to make calculation faster.
 			float vertexWeldDistance;
-			//! Angle in radians, controls smoothing mode and intensity.
-			//
-			//! Zero or negative value makes illumination smooth only where
-			//! difference between vertex normals is <=abs(maxSmoothAngle), ignoring minFeatureSize.
-			//! This mode preserves smoothing created by 3d artist.
-			//! It is enabled by default.
-			//!
-			//! Positive value makes illumination smooth where angle between face normals is smaller than maxSmoothAngle,
-			//! with additional blur specified by minFeatureSize.
-			//! Optimal positive value depends on your geometry, but reasonable value could be 0.33 (approx 19 degrees).
-			//! This mode generates smoothing automatically, ignoring artist's work (normals).
-			//! It is suitable for models with errors in smoothing.
+			//! Angle in radians, vertices are stitched and illumination smoothed only if difference
+			//! between vertex normals is <=abs(maxSmoothAngle).
 			float maxSmoothAngle;
-			//! Distance in world units. Smaller indirect light features will be smoothed. This could be imagined as a kind of blur.
-			//! Use default 0 for no blur and watch for possible artifacts in areas with small geometry details
-			//! and 'needle' triangles. Increase until artifacts disappear.
-			//! 0.15 could be good for typical interior game with 1m units.
-			//! Only indirect lighting is affected, so even 15cm blur is mostly invisible.
-			//! \n Note: minFeatureSize is ignored if maxSmoothAngle is <=0.
-			float minFeatureSize;
 			//! Makes needle-like triangles with equal or smaller angle (rad) ignored.
 			//! Default 0 removes only completely degenerated triangles.
 			//! 0.001 is a reasonable value to put extremely needle like triangles off calculation,
 			//! which may help in some situations.
-			//! \n Note: if you see needle-like artifacts in realtime rendering,
-			//! try increase minFeatureSize.
 			float ignoreSmallerAngle;
 			//! Makes smaller and equal size triangles ignored.
 			//! Default 0 removes only completely degenerated triangles.
@@ -236,9 +211,8 @@ namespace rr
 			//! Sets default values at creation time.
 			SmoothingParameters()
 			{
-				vertexWeldDistance = 0; // weld enabled for identical vertices
-				maxSmoothAngle = -0.01f; // smooth illumination where vertex normals differ <=0.01rad
-				minFeatureSize = 0; // disabled
+				vertexWeldDistance = 0; // weld/smooth if vertex positions are identical
+				maxSmoothAngle = 0.01f; // weld/smooth if vertex normals differ <=0.01rad
 				ignoreSmallerAngle = 0; // ignores degerated triangles
 				ignoreSmallerArea = 0; // ignores degerated triangles
 			}

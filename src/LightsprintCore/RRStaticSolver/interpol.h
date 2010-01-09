@@ -33,17 +33,10 @@ public:
 	~IVertex();
 
 	void    insert(Triangle* node,bool toplevel,real power);
-	bool    contains(Triangle* node);
-	unsigned splitTopLevelByAngleNew(RRVec3 *avertex, Object *obj, float maxSmoothAngle, bool& outOfMemory);
 	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
 
 	const Corner& getCorner(unsigned c) const;
 	Corner& getCorner(unsigned c);
-
-	// used by: merge close ivertices
-	void    fillInfo(Object* object, unsigned originalVertexIndex, struct IVertexInfo& info);
-	void    absorb(IVertex* aivertex);
-	unsigned getNumCorners() {return corners;}
 
 	// used by: triangledata -> vertexdata smoothing
 	RRVec3  getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride, class Triangle* triangles, unsigned numTriangles) const;
@@ -68,11 +61,7 @@ public:
 		Corner*  dynamicCorner;
 		Channels cache;	// cached irradiance
 
-		union
-		{
-			real     powerTopLevel;
-			IVertex* previousAllocBlock; // used by newIVertex() allocator 
-		};
+		real     powerTopLevel;
 
 		unsigned packedIndex; // index ivertexu v PackedSmoothing
 };

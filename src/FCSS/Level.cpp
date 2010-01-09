@@ -54,10 +54,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	rr::RRDynamicSolver::SmoothingParameters sp;
 	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
 	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
-	sp.minFeatureSize = setup->minFeatureSize; // asi se zapeka do fireballu, nestaci zmenit zde, nutny jeste rebuild fireballu
-#ifdef THREE_ONE
-	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
-#endif
 	solver->setStaticObjects(scene->getObjects(),&sp);
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

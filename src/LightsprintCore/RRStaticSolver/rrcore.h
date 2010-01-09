@@ -6,7 +6,6 @@
 #ifndef RRVISION_RRCORE_H
 #define RRVISION_RRCORE_H
 
-#define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 #define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
@@ -154,7 +153,6 @@ public:
 
 	// smoothing
 	IVertex *topivertex[3]; // 3x ivertex
-	IVertex *ivertex(int i);
 
 	friend class IVertex;
 	friend class Scene;
@@ -226,16 +224,7 @@ public:
 	unsigned triangles;
 	Triangle*triangle;
 	bool     buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting); // false when out of memory or aborting
-		private:
-		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, bool& aborting);
-		public:
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
-	// IVertex pool
-	IVertex *newIVertex();
-	void     deleteIVertices();
-	IVertex *IVertexPool;
-	unsigned IVertexPoolItems;
-	unsigned IVertexPoolItemsUsed;
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
@@ -243,7 +232,7 @@ public:
 
 private:
 	Object();
-	IVertex* topivertexArray; // NULL if auto smoothing, array of all ivertices (1:1 to vertices) if using original smoothing
+	IVertex* topivertexArray; // array of all ivertices
 };
 
 
