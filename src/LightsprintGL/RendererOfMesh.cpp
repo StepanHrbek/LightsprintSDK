@@ -472,10 +472,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 		createdFromMesh[index] = _mesh;
 		createdFromNumTriangles[index] = numTriangles;
 		createdFromNumVertices[index] = numVertices;
-		// when rendering multiobject (they may have vertices with different uv welded), fail indexed, allow only !indexed
-		// (indexed would be used only for shadowmaps, potentially speeding them up slightly,
-		//  but 25% more memory for VBOs is too expensive)
-		if (!_indexed || !_mesh->getPreImportTriangle(numTriangles-1).object)
+
 		{
 			const rr::RRMeshArrays* meshArrays = _indexed ? dynamic_cast<const rr::RRMeshArrays*>(_mesh) : NULL;
 			if (!meshArrays)
