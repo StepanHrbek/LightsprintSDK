@@ -134,7 +134,11 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		origNumVertices += getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
 		origNumTriangles += getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles();
 	}
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	// old smoothing code with stitching here in multiobject
+	//priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	// new smoothing stitches in Object::buildTopIVertices, no stitching here in multiobject
+	//  stitching here (it's based on positions and normals only) would corrupt uvs in indexed render
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 
 	// convert it to physical scale

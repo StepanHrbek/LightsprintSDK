@@ -40,7 +40,7 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 	}
 	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj,_aborting); // obj is filled but not yet adopted
 	   
-	if (!obj->buildTopIVertices(_smoothing->minFeatureSize,_smoothing->maxSmoothAngle,_aborting))
+	if (!obj->buildTopIVertices(_smoothing,_aborting))
 	{
 		delete solver;
 		delete obj;

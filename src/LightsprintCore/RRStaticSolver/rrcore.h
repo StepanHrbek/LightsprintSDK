@@ -225,7 +225,7 @@ public:
 	unsigned vertices;
 	unsigned triangles;
 	Triangle*triangle;
-	bool     buildTopIVertices(float minFeatureSize, float maxSmoothAngle, bool& aborting); // false when out of memory or aborting
+	bool     buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting); // false when out of memory or aborting
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize, bool& aborting);
 		public:
