@@ -91,13 +91,8 @@ namespace rr_gl
 		Camera* observer;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
-	private:
-		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap flag set.
-		//
-		//! It also copies position and direction from RealtimeLight-s to RRLight-s.
-		//! dirtyShadowmap flag is set when you call reportDirectIlluminationChange(,true,).
-		//! \n Called by calculate().
-		virtual void updateShadowmaps();
+
+	protected:
 		//! Detects direct illumination from lights (see setLights()) on all faces in scene and returns it in array of RGBA values.
 		//! Result may be immediately passed to setDirectIllumination().
 		//! \return Pointer to array of detected average per-triangle direct-lighting irradiances in custom scale
@@ -106,8 +101,15 @@ namespace rr_gl
 		//!  Return NULL when direct illumination was not detected for any reason, this
 		//!  function will be called again in next calculate().
 		virtual const unsigned* detectDirectIllumination();
+	private:
+		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap flag set.
+		//
+		//! It also copies position and direction from RealtimeLight-s to RRLight-s.
+		//! dirtyShadowmap flag is set when you call reportDirectIlluminationChange(,true,).
+		//! \n Called by calculate().
+		virtual void updateShadowmaps();
 		//! Helper function called from detectDirectIllumination().
-		virtual unsigned detectDirectIlluminationTo(RealtimeLight* light, unsigned* results, unsigned space);
+		unsigned detectDirectIlluminationTo(RealtimeLight* light, unsigned* results, unsigned space);
 
 		// for DDI
 		Texture* detectBigMap;
@@ -119,11 +121,10 @@ namespace rr_gl
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 
-		// for internal rendering (shadowmaps, DDI)
+		// for internal rendering (shadowmaps)
 		char pathToShaders[300];
 		RendererOfScene* rendererOfScene;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
-
 		rr::RRVec3 oldObserverPos;
 	};
 
