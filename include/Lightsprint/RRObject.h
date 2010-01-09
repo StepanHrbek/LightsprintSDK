@@ -241,6 +241,8 @@ namespace rr
 		//!  Distance in world units. Vertices with lower or equal distance may be stitched into one vertex
 		//!  (if they satisfy also maxRadiansBetweenNormalsToStitch).
 		//!  Zero may stitch only identical vertices, negative value means no action.
+		//!  \n Vertices are stitched even if uv coordinates differ. Therefore stitchig is safe for offline calculation,
+		//!  but it could break mapping in relatime renderer.
 		//! \param maxRadiansBetweenNormalsToStitch
 		//!  Vertices with lower or equal angle between normals may be stitched into one vertex
 		//!  (if they satisfy also maxDistanceBetweenVerticesToStitch).
