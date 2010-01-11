@@ -8,6 +8,7 @@
 #include "SVMaterialProperties.h"
 #include "SVCustomProperties.h"
 #include "Lightsprint/GL/Texture.h"
+#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -74,6 +75,17 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
 	setMaterial(NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
 }
 
+static void setMaterialProperty(wxPGProperty* wxproperty, rr::RRMaterial::Property& rrproperty)
+{
+	updateProperty(wxproperty->GetPropertyByName("color"),rrproperty.color);
+	updateInt(wxproperty->GetPropertyByName("uv"),rrproperty.texcoord);
+	updateString(wxproperty->GetPropertyByName("texture"),rrproperty.texture
+		?(rrproperty.texture->filename.empty()
+			?tmpstr("<%d*%d generated>",rrproperty.texture->getWidth(),rrproperty.texture->getHeight())
+			:rrproperty.texture->filename.c_str())
+		:"<no texture>");
+}
+
 void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
 {
 	lastSolver = solver;
@@ -122,21 +134,11 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 		updateBool(propFront,material->sideBits[0].renderFrom);
 		updateBool(propBack,material->sideBits[1].renderFrom);
 
-		updateProperty(propDiffuse->GetPropertyByName("color"),material->diffuseReflectance.color);
-		updateInt(propDiffuse->GetPropertyByName("uv"),material->diffuseReflectance.texcoord);
-		updateString(propDiffuse->GetPropertyByName("texture"),material->diffuseReflectance.texture?material->diffuseReflectance.texture->filename.c_str():"");
+		setMaterialProperty(propDiffuse,material->diffuseReflectance);
+		setMaterialProperty(propSpecular,material->specularReflectance);
+		setMaterialProperty(propEmissive,material->diffuseEmittance);
+		setMaterialProperty(propTransparent,material->specularTransmittance);
 
-		updateProperty(propSpecular->GetPropertyByName("color"),material->specularReflectance.color);
-		updateInt(propSpecular->GetPropertyByName("uv"),material->specularReflectance.texcoord);
-		updateString(propSpecular->GetPropertyByName("texture"),material->specularReflectance.texture?material->specularReflectance.texture->filename.c_str():"");
-
-		updateProperty(propEmissive->GetPropertyByName("color"),material->diffuseEmittance.color);
-		updateInt(propEmissive->GetPropertyByName("uv"),material->diffuseEmittance.texcoord);
-		updateString(propEmissive->GetPropertyByName("texture"),material->diffuseEmittance.texture?material->diffuseEmittance.texture->filename.c_str():"");
-
-		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
-		updateInt(propTransparent->GetPropertyByName("uv"),material->specularTransmittance.texcoord);
-		updateString(propTransparent->GetPropertyByName("texture"),material->specularTransmittance.texture?material->specularTransmittance.texture->filename.c_str():"");
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateFloat(propRefraction,material->refractionIndex);
