@@ -49,12 +49,12 @@
 	#pragma comment(lib,"NiLightMapUtility")
 	#pragma comment(lib,"NiLightMapMaterial")
 #else
-	// Lightspeed GI Package (for Gamebryo 3.0)
+	// Lightspeed GI Package (for Gamebryo 3.x)
 	#include "egmGI/GIService.h"
 	#include "egmGI/MeshUtility.h"
 	#pragma comment(lib,"egmGI" LIB_SUFFIX)
 	#pragma comment(lib,"NiGIMaterial" LIB_SUFFIX)
-	// additional libs required by Gamebryo 3.0
+	// additional libs required by Gamebryo 3.x
 	#include "efd/ServiceManager.h"
 	#pragma comment(lib,"ecr" LIB_SUFFIX)
 	#pragma comment(lib,"egf" LIB_SUFFIX)
@@ -519,7 +519,7 @@ public:
 #if GAMEBRYO_MAJOR_VERSION==3
 		if (channel==CH_LIGHTMAP)
 		{
-			// Gamebryo 3.0 inverted y
+			// Gamebryo 3.x inverted y
 			out.uv[0][1] = 1-out.uv[0][1];
 			out.uv[1][1] = 1-out.uv[1][1];
 			out.uv[2][1] = 1-out.uv[2][1];
@@ -572,13 +572,13 @@ public:
 
 
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-#if GAMEBRYO_MAJOR_VERSION==2 // Although written for both 2.6 and 3.0, only 2.6 currently uses this class.
+#if GAMEBRYO_MAJOR_VERSION==2 // Although written for both 2.6 and 3.x, only 2.6 currently uses this class.
 ////////////////////////////////////////////////////////////////////////////
 //
 // GamebryoLightCache
 
 //! Per-light acceleration structure, resolves shadow casting/receiving queries in a few CPU ticks.
-//! Gamebryo 3.0 Light entity has all shadows enabled/disabled at once so this structure is not necessary.
+//! Gamebryo 3.x Light entity has all shadows enabled/disabled at once so this structure is not necessary.
 class GamebryoLightCache
 {
 public:
@@ -1213,7 +1213,7 @@ public:
 				return NULL;
 			}
 #else // GAMEBRYO_MAJOR_VERSION!=2
-			// Gamebryo 3.0 entity has all shadows enabled/disabled at once,
+			// Gamebryo 3.x entity has all shadows enabled/disabled at once,
 			// so it's simpler, it illuminates all objects / casts all shadows.
 			return material;
 #endif // GAMEBRYO_MAJOR_VERSION!=2
@@ -1315,7 +1315,7 @@ public:
 		}
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
-	// path used by Gamebryo 3.0 Toolbench plugin
+	// path used by Gamebryo 3.x Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 		: materialCache(1)
 	{
@@ -1411,7 +1411,8 @@ public:
 				}
 			}
 		}
-		// Gamebryo 3.0 gives us meshes in random order. We sort them to improve caching performance.
+		// Gamebryo 3.x gives us meshes in random order. We sort them to make scene identical between two runs,
+		// so that cached colliders can be reused.
 		sortObjects();
 	}
 	// Sorts elements (RRObject) in this vector (RRObjects).
@@ -1684,8 +1685,8 @@ public:
 	}
 #else
 
-	// path used by for Gamebryo 3.0 .gsa
-	// note: We still support Gamebryo 3.0 .gsa files, from loading .gsa to saving individual lightmaps to disk,
+	// path used by Gamebryo 3.x .gsa
+	// note: We still support Gamebryo 3.x .gsa files, from loading .gsa to saving individual lightmaps to disk,
 	//       if you need it. However, Emergent replaced .gsa by new format, therefore it is
 	//       recommended to leave .gsa and start using Toolbench.
 	RRLightsGamebryo(NiScene* pkEntityScene)
@@ -1713,7 +1714,7 @@ public:
 		}
 	}
 
-	// path used by Gamebryo 3.0 .gsa
+	// path used by Gamebryo 3.x .gsa
 	void addNode(const NiAVObject* object)
 	{
 		if (!object)
@@ -1736,7 +1737,7 @@ public:
 		}
 	}
 
-	// path used by Gamebryo 3.0 Toolbench plugin
+	// path used by Gamebryo 3.x Toolbench plugin
 	RRLightsGamebryo(efd::ServiceManager* serviceManager)
 	{
 		if (serviceManager)
@@ -1756,7 +1757,7 @@ public:
 		}
 	}
 
-	// path used by Gamebryo 3.0 Toolbench plugin
+	// path used by Gamebryo 3.x Toolbench plugin
 	void addLight(egf::Entity* entity)
 	{
 		RR_ASSERT(entity);
@@ -1897,7 +1898,7 @@ public:
 #if GAMEBRYO_MAJOR_VERSION==2
 				rrLight->customData = new GamebryoLightCache(light);
 #else
-				rrLight->customData = NULL; // customData in Gamebryo 3.0 hold Entity*, it's not available in .gsa
+				rrLight->customData = NULL; // customData in Gamebryo 3.x hold Entity*, it's not available in .gsa
 #endif
 				NiShadowGenerator* shadowGenerator = light->GetShadowGenerator();
 				rrLight->castShadows = shadowGenerator && shadowGenerator->GetActive();
