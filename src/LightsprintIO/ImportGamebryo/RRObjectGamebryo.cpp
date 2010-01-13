@@ -1157,13 +1157,8 @@ public:
 	}
 	virtual ~RRObjectGamebryo()
 	{
-		delete collider->getMesh();
-		delete collider;
-	}
-
-	virtual const RRCollider* getCollider() const
-	{
-		return collider;
+		delete getCollider()->getMesh();
+		delete getCollider();
 	}
 
 	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
@@ -1254,7 +1249,7 @@ private:
 		NIASSERT(_collider);
 		mesh = _mesh;
 		meshIndex = 0;
-		collider = _collider;
+		setCollider(_collider);
 		lodInfo = _lodInfo;
 		setWorldMatrix(&convertMatrix(mesh->GetWorldTransform()));
 		material = _materialCache.getMaterial(mesh);
@@ -1262,7 +1257,6 @@ private:
 		name = mesh->GetName();
 	}
 
-	const RRCollider* collider;
 	RRMaterial* material;
 	LodInfo lodInfo;
 };
