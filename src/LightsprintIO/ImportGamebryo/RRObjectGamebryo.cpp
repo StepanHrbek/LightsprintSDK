@@ -1256,15 +1256,13 @@ private:
 		meshIndex = 0;
 		collider = _collider;
 		lodInfo = _lodInfo;
-		RRMatrix3x4 worldMatrix = convertMatrix(mesh->GetWorldTransform());
-		setWorldMatrix(&worldMatrix);
+		setWorldMatrix(&convertMatrix(mesh->GetWorldTransform()));
 		material = _materialCache.getMaterial(mesh);
 		faceGroups.push_back(FaceGroup(material,mesh->GetTotalPrimitiveCount()));
 		name = mesh->GetName();
 	}
 
 	const RRCollider* collider;
-	RRMatrix3x4 worldMatrix;
 	RRMaterial* material;
 	LodInfo lodInfo;
 };
@@ -1553,11 +1551,7 @@ public:
 		if (perEntitySettings.lsResolutionMode==PE_RESOLUTION_CALCULATED)
 		{
 			// create matrix that scales from lightsprint local space to gamebryo world space
-			RRMatrix3x4 worldMatrix;
-			if (rrObject->getWorldMatrix())
-				worldMatrix = *rrObject->getWorldMatrix();
-			else
-				worldMatrix.setIdentity();
+			RRMatrix3x4 worldMatrix = rrObject->getWorldMatrixRef();
 			for (unsigned i=0;i<3;i++)
 				for (unsigned j=0;j<4;j++)
 					worldMatrix.m[i][j] /= SCALE_GEOMETRY;
