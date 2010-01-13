@@ -1068,7 +1068,8 @@ public:
 				// lines, points etc
 				return NULL;
 		}
-		_mesh->UpdateEffects();
+		// do not call UpdateEffects, calling it and baking lightmaps switches several objects in 'Undead' scene to error shader
+		//_mesh->UpdateEffects();
 
 		// this is temporary local copy of settings
 		// it is initialized to user requested settings, but we may modify it to match mesh capabilities
