@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <map>
+#include <string>
 
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
