@@ -297,14 +297,16 @@ NiMaterialPointValuesPtr NiMaterialDetector::CreatePointMaterialTextures(NiMesh*
     m_spDirLight->SetSpecularColor(NiColor(0.0f, 0.0f, 0.0f));
     m_spDirLight->AttachAffectedNode(m_spNode);
     m_spNode->UpdateEffects();
-
     spColorValues->m_spDiffuseTexture = GetScenePixels(NiColor(0,0,0));
+	// If this results in error shader and random diffuse and specular colors,
+	// possible reason is wrong DirectX SDK version, consult your Gamebryo documentation.
+	// Gamebryo 2.6 needs DirectX SDK August 2008
+	// Gamebryo 3.1 needs DirectX SDK March 2009
 
     // Get Specular Color
     m_spDirLight->SetDiffuseColor(NiColor(0.0f, 0.0f, 0.0f));
     m_spDirLight->SetSpecularColor(NiColor(1.0f, 1.0f, 1.0f));
     m_spNode->UpdateEffects();
-    
     spColorValues->m_spSpecularTexture = GetScenePixels(NiColor(0,0,0));
 
     // Clear lighting

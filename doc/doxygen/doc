@@ -2349,6 +2349,8 @@ Texture formats
 
  \section g3_misc Misc
   - \ref trouble_memory "How to process even bigger scenes"
+  - \ref trouble_gamebryo_error_shader
+
 
 
 \page main_gamebryo3 LightSpeed
@@ -2466,6 +2468,7 @@ Texture formats
 
  \section g3_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
+  - \ref trouble_gamebryo_error_shader
 
 
 \page g3_g31 Using GI Package 2.0.2 in LightSpeed 3.1
@@ -3042,6 +3045,8 @@ rr::RRVector<*>{
 
  - \subpage trouble_exes_dont_run
 
+ - \subpage trouble_gamebryo_error_shader
+
 
 \page trouble_memory Not enough memory?
 
@@ -3067,6 +3072,15 @@ rr::RRVector<*>{
   - <code>LDR: LdrpWalkImportDescriptor() failed to probe ... for its manifest, ntstatus 0xc0150002</code>
 
   make sure your system is up to date, install all service packs and security updates for Windows (and for Visual Studio, if installed).
+
+
+\page trouble_gamebryo_error_shader Wrong color bleeding in Gamebryo
+
+ Always use DirectX SDK version required by Gamebryo, see Gamebryo documentation for details.
+
+ If you use different version, Gamebryo may occassionaly use error shader
+ when we detect material properties, this leads to random diffuse and specular colors detected.
+ In the end, color bleeding in lightmaps does not match real material colors, lightmaps look strange.
 
 */
 
