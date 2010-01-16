@@ -107,8 +107,8 @@ struct SceneViewerState
 		gamma = 1;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
 		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
-		precision = 2;
 		autodetectCamera = 1;
+		precision = -1; // display all significant digits
 	}
 };
 
