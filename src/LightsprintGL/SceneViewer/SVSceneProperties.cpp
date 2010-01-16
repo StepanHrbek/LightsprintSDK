@@ -12,8 +12,9 @@ namespace rr_gl
 {
 
 SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
-	: svs(_svs), wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
+	: svs(_svs), wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
 {
+	SV_SET_PG_COLORS;
 	wxColour headerColor(230,230,230);
 
 	// camera

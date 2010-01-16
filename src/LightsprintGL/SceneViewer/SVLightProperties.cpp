@@ -13,8 +13,9 @@ namespace rr_gl
 {
 
 SVLightProperties::SVLightProperties( wxWindow* parent )
-	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
+	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
 {
+	SV_SET_PG_COLORS;
 	rtlight = NULL;
 }
 

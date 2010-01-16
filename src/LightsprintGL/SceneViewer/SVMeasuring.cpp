@@ -6,5 +6,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVMeasuring.h"
+#include "SVApp.h"
 
 #endif // SUPPORT_SCENEVIEWER

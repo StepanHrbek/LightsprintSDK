@@ -338,15 +338,28 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
-	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(250,0,0));
+	//dockArt->SetMetric(wxAUI_DOCKART_SASH_SIZE,4);
+	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(255,255,255));
+
+	//dockArt->SetMetric(wxAUI_DOCKART_GRIPPER_SIZE,0);
+	//dockArt->SetColor(wxAUI_DOCKART_GRIPPER_COLOUR,wxColour(0,0,0));
+
+	dockArt->SetMetric(wxAUI_DOCKART_PANE_BORDER_SIZE,0);
 	dockArt->SetColor(wxAUI_DOCKART_BORDER_COLOUR,wxColour(0,0,0));
-	//dockArt->SetColor(wxAUI_DOCKART_GRIPPER_COLOUR,wxColour(0,250,0));
-	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,wxColour(0,0,0));
-	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(190,190,190));
-	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR,wxColour(255,255,255));
-	dockArt->SetMetric(wxAUI_DOCKART_GRADIENT_TYPE,wxAUI_GRADIENT_VERTICAL);
+
+	//dockArt->SetMetric(wxAUI_DOCKART_PANE_BUTTON_SIZE,20);
+	//dockArt->SetColor(wxAUI_DOCKART_BACKGROUND_COLOUR,wxColour(250,0,0));
+
+	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR,wxColour(235,235,255));
+	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(140,140,160));
+	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR,wxColour(0,0,0));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,wxColour(255,255,255));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(150,150,150));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR,wxColour(0,0,0));
+	dockArt->SetMetric(wxAUI_DOCKART_GRADIENT_TYPE,wxAUI_GRADIENT_HORIZONTAL);
+
 	dockArt->SetMetric(wxAUI_DOCKART_CAPTION_SIZE,30);
-	static wxFont font(13,wxFONTFAMILY_SWISS,wxFONTSTYLE_ITALIC,wxFONTWEIGHT_BOLD);
+	static wxFont font(13,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD);
 	dockArt->SetFont(wxAUI_DOCKART_CAPTION_FONT,font);
 	m_mgr.SetArtProvider(dockArt);
 

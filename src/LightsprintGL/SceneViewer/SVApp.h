@@ -13,6 +13,9 @@
 #include <string>
 #include <vector>
 
+	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
+	#define SV_SET_PG_COLORS SetMarginColour(wxColour(220,220,220))
+
 namespace rr_gl
 {
 

@@ -30,7 +30,7 @@ public:
 // SVSceneTree
 
 SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
-	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400), wxTR_HAS_BUTTONS|wxBORDER_SIMPLE ), svs(_svse)
+	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400), wxTR_HAS_BUTTONS|SV_SUBWINDOW_BORDER ), svs(_svse)
 {
 	allowEvents = true;
 

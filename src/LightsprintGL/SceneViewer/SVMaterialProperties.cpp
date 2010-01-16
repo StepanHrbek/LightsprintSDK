@@ -7,6 +7,7 @@
 
 #include "SVMaterialProperties.h"
 #include "SVCustomProperties.h"
+#include "SVApp.h"
 #include "Lightsprint/GL/Texture.h"
 #include "../tmpstr.h"
 
@@ -18,8 +19,9 @@ namespace rr_gl
 // SVMaterialProperties
 
 SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
-	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER )
+	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
 {
+	SV_SET_PG_COLORS;
 	lastSolver = NULL;
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
