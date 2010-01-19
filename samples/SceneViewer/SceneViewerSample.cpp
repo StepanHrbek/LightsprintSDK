@@ -70,28 +70,25 @@ int main(int argc, char **argv)
 	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	_chdir(exedir);
 	free(exedir);
-
 #endif // _WIN32
-
-	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
 
+	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 #if 1
 	// View scene _on disk_ in scene viewer.
 	// Works only for scenes in registered file formats.
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
-	rr_gl::SceneViewerState svs;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,false);
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",NULL,false);
 	return 0;
 #endif
 	// debug frees everything and reports memory leaks
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,true);
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",NULL,true);
 #else
 	// View scene _in memory_ in scene viewer.
 
@@ -121,20 +118,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
-// this is called only if you switch build setting from console to windowed
-#ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
-{
-	int argc;
-	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
-	char** argv = new char*[argc+1];
-	for (int i=0;i<argc;i++)
-	{
-		argv[i] = (char*)malloc(wcslen(argvw[i])+1);
-		sprintf(argv[i], "%ws", argvw[i]);
-	}
-	argv[argc] = NULL;
-	return main(argc,argv);
-}
-#endif
