@@ -146,7 +146,7 @@ namespace rr
 
 		//! Sets custom irradiance for all triangles in scene.
 		//
-		//! This is one of ways how light enters solver, others are setLights(), setEnvironment(), emissive materials.
+		//! This is one of paths for light to enter solver, others are setLights(), setEnvironment(), emissive materials.
 		//!
 		//! If you use rr_gl::RRDynamicSolverGL, setDirectIllumination() is called automatically
 		//! from calculate(). If you want to provide your own direct illumination data, use RRDynamicSolver
@@ -158,17 +158,15 @@ namespace rr
 		//!  but materials are not. So result for fully shadowed triangle is 0, fully lit
 		//!  0xffffff00 (00 is alpha, it is ignored).
 		//!
-		//!  Order of values in array is defined by order of triangles in solver's multiobject.
-		//!  By default, order can't be guessed without asking getMultiObjectCustom().
-		//!  However, if you disable all optimizations in setStaticObjects(), order is guaranteed to be
-		//!  the most simple one: first all triangles from object 0, then all triangles from object 1 etc.
+		//!  Order of values in array is defined by order of triangles in scene,
+		//!  first all triangles from object 0, then all triangles from object 1 etc.
 		//!
 		//!  Array must stay valid at least until next setDirectIllumination() call.
 		//!  Array is not adopted+deleted, you are still responsible for deleting it.
 		//!  You are free to set always the same array or each time different one,
 		//!  performace is identical.
 		//!
-		//!  Setting NULL is the same as setting array full of zeroes, no custom irradiance.
+		//!  Setting NULL is the same as setting array filled by zeroes, no custom irradiance.
 		void setDirectIllumination(const unsigned* perTriangleIrradiance);
 
 		//! Sets factor that multiplies intensity of direct illumination set by setDirectIllumination().

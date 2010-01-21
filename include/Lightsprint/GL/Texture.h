@@ -64,13 +64,14 @@ protected:
 
 //! Converts rr::RRBuffer to Texture so it can be immediately used as a texture in OpenGL.
 //
-//! Texture uses buffer's customData.
+//! All textures created by getTexture() are deleted at once by deleteAllTexture().
+//! For textures you want to delete individually, don't use getTexture(), use standard constructor,
+//! e.g. "Texture t(...);"
 //!
-//! It is safe to delete buffer and texture in any order.
+//! Texture uses buffer's customData, you must not use customData for other purposes.
 //!
-//! Parameters beyond buffer are respected only when called for first time.
-//! Once texture is created, successive calls return the same texture.
-//! Use Texture::reset() to change already created texture.
+//! Parameters beyond buffer are ignored if texture already exists and buffer version did not change.
+//! Change buffer version or use Texture::reset() to force texture update.
 RR_GL_API Texture* getTexture(const rr::RRBuffer* buffer, bool buildMipMaps = true, bool compress = true, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 //! Deletes all textures created by getTexture(). (But you can delete textures one by one as well.)
