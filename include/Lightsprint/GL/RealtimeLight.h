@@ -81,9 +81,13 @@ public:
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowmap(unsigned instance);
 
-	//! Whether soft shadows are allowed. Modified only by user, default=true. Affects getNumShadowSamples().
-	bool softShadowsAllowed;
-	//! Returns recommended number of shadow samples for given light type and instance.
+	//! Recommends number of shadow samples for given light. Valid numbers 1,2,4,8.
+	//! In case of dirlight, this is number of samples close to camera.
+	void setNumShadowSamples(unsigned numSamples);
+	//! Returns recommended number of shadow samples.
+	//! In case of dirlight, this is number of samples close to camera.
+	unsigned getNumShadowSamples() const;
+	//! Returns recommended number of shadow samples for given light instance.
 	unsigned getNumShadowSamples(unsigned instance) const;
 
 	//! Renders only shadows, no illumination. This is useful for simulating indirect shadows.
@@ -159,6 +163,8 @@ protected:
 	bool deleteParent;
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
 	unsigned shadowmapSize;
+	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.
+	unsigned numSoftShadowSamples;
 
 	rr::RRString projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
 	const Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.

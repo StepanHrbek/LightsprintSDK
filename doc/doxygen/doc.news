@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news98 ------------------------------------ 2010.01.xx -------------------------------------
+
+CHANGES
+
+- rr_gl::RealtimeLight::setNumShadowSamples() replaces rr_gl::RealtimeLight::softShadowsAllowed
+
 \section news97 ------------------------------------ 2010.01.10 -------------------------------------
 
 CHANGES

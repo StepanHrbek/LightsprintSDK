@@ -193,12 +193,12 @@ void setShadowTechnique()
 	if (currentFrame.shadowType>=2)
 	{
 		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
-		realtimeLight->softShadowsAllowed = true;
+		realtimeLight->setNumShadowSamples(4);
 	}
 	else
 	{
 		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
-		realtimeLight->softShadowsAllowed = false;
+		realtimeLight->setNumShadowSamples(1);
 	}
 	level->solver->reportDirectIlluminationChange(0,true,false);
 }

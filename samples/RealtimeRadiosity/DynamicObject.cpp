@@ -151,9 +151,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	else
 	{
 		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumShadowmaps()>1;
-		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(0); // for 3ds draw, not reset by MultiPass
-		//if (uberProgramSetup.SHADOW_SAMPLES) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for moving objects // don't reduce, looks bad in Lightsmark
-		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.SHADOW_CASCADE) uberProgramSetup.SHADOW_SAMPLES = 4; // increase shadow quality for cascade (even moving objects)
+		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(); // for 3ds draw, not reset by MultiPass
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 	}
 

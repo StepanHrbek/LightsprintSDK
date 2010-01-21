@@ -35,7 +35,7 @@ namespace rr_gl
 		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
-		softShadowsAllowed = true;
+		numSoftShadowSamples = 4;
 
 		projectedTextureSpecifiedByFilename = NULL;
 		projectedTextureSpecifiedByTexture = NULL;
@@ -202,16 +202,40 @@ namespace rr_gl
 		return shadowmaps[instance];
 	}
 
+	void RealtimeLight::setNumShadowSamples(unsigned _numSamples)
+	{
+		switch (_numSamples)
+		{
+			case 1:
+			case 2:
+			case 4:
+			case 8:
+				numSoftShadowSamples = _numSamples;
+		}
+	}
+
+	unsigned RealtimeLight::getNumShadowSamples() const
+	{
+		if (!getRRLight().castShadows) return 0;
+		switch(getRRLight().type)
+		{
+			case rr::RRLight::POINT: return 1;
+			case rr::RRLight::SPOT: return numSoftShadowSamples;
+			case rr::RRLight::DIRECTIONAL: return numSoftShadowSamples;
+			default: RR_ASSERT(0);
+		}
+		return 1;
+	}
+
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
 		if (instance>=getNumShadowmaps()) return 0;
 		if (!getRRLight().castShadows) return 0;
-		if (!softShadowsAllowed) return 1;
 		switch(getRRLight().type)
 		{
 			case rr::RRLight::POINT: return 1;
-			case rr::RRLight::SPOT: return 4;
-			case rr::RRLight::DIRECTIONAL: return (instance==getNumShadowmaps()-1)?4:1;
+			case rr::RRLight::SPOT: return numSoftShadowSamples;
+			case rr::RRLight::DIRECTIONAL: return (instance==getNumShadowmaps()-1)?numSoftShadowSamples:1;
 			default: RR_ASSERT(0);
 		}
 		return 1;
