@@ -38,8 +38,13 @@ namespace rr_gl
 		void createContextCore();
 		void createContext();
 
+		// paints to current buffer, may be called from outside to paint hires screenshot to texture
+		void Paint(wxPaintEvent& event);
+		// set context, paint, swap
 		void OnPaintCore(wxPaintEvent& event);
+		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
+
 		void OnSize(wxSizeEvent& event);
 		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.
 		void OnKeyDown(wxKeyEvent& event);

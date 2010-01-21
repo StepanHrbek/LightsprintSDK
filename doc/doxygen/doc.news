@@ -10,6 +10,12 @@ namespace rr
 
 \section news98 ------------------------------------ 2010.01.xx -------------------------------------
 
+NEWS
+
+- enhanced SceneViewer
+  - added File / Save enhanced screenshot
+  - added Light properties / Shadow samples
+
 CHANGES
 
 - rr_gl::RealtimeLight::setNumShadowSamples() replaces rr_gl::RealtimeLight::softShadowsAllowed

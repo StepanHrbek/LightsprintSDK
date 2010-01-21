@@ -353,6 +353,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	}
 	else switch(evkey)
 	{
+		case WXK_F9: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_FILE_SAVE_ENHANCED_SCREENSHOT)); break;
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
 
 		case WXK_NUMPAD_ADD:
@@ -760,6 +761,14 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 	}
 #endif
 
+	Paint(event);
+
+	// done
+	SwapBuffers();
+}
+
+void SVCanvas::Paint(wxPaintEvent& event)
+{
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (svs.renderLightmaps2d && lv)
 	{
@@ -1447,9 +1456,6 @@ rendered:
 			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
 		}
 	}
-
-	// done
-	SwapBuffers();
 }
 
 void SVCanvas::OnPaint(wxPaintEvent& event)

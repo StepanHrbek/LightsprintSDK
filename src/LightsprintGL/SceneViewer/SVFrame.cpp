@@ -420,6 +420,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
 		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
+		winMenu->Append(ME_FILE_SAVE_ENHANCED_SCREENSHOT,_T("Save enhanced screenshot (F9)"),_T("Saves enhanced screenshot to desktop, may fail on old GPUs."));
 		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
@@ -447,7 +448,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
 		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
 		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
-		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light"));
+		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light (del)"));
 		menuBar->Append(winMenu, _T("Lights"));
 	}
 
@@ -599,13 +600,105 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			}
 			break;
 		case ME_FILE_SAVE_SCREENSHOT:
+		case ME_FILE_SAVE_ENHANCED_SCREENSHOT:
 			{
 				wxSize size = m_canvas->GetSize();
 				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
-				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-				glReadBuffer(GL_BACK);
-				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-				sshot->unlock();
+				if (event.GetId()==ME_FILE_SAVE_SCREENSHOT)
+				{
+					// Saves content of backbuffer.
+					unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+					glReadBuffer(GL_BACK);
+					glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+					sshot->unlock();
+				}
+				else
+				{
+					// Saves frame rendered with 9*FSAA, 2*higher shadow resolution, 2*more shadow samples.
+					const unsigned AA = 3; // 3*2560<8k, 4*2560 uz by neslo na Radeonech 4xxx
+					const unsigned W = size.x*AA;
+					const unsigned H = size.y*AA;
+
+					// 1. enhance shadows
+					rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
+					unsigned* shadowSamples = new unsigned[lights.size()];
+					unsigned* shadowRes = new unsigned[lights.size()];
+					for (unsigned i=0;i<lights.size();i++)
+					{
+						RealtimeLight* rl = lights[i];
+						shadowRes[i] = rl->getShadowmapSize();
+						shadowSamples[i] = rl->getNumShadowSamples();
+						rl->setShadowmapSize(shadowRes[i]*2);
+						rl->setNumShadowSamples(8);
+					}
+					rr::RRDynamicSolver::CalculateParameters params;
+					params.qualityIndirectStatic = 0; // set it to update only shadows
+					params.qualityIndirectDynamic = 0;
+					m_canvas->solver->calculate(&params); // renders into FBO, must go before renderingToBegin()
+
+					// 2. alloc temporary textures
+					rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,W,H,1,rr::BF_RGB,true,NULL);
+					rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,W,H,1,rr::BF_DEPTH,true,(unsigned char*)1);
+					Texture texColor(bufColor,false,false);
+					Texture texDepth(bufDepth,false,false);
+
+					// 3. set new rendertarget, propagate new size to renderer
+					texColor.renderingToBegin();
+					texDepth.renderingToBegin();
+					m_canvas->winWidth = W;
+					m_canvas->winHeight = H;
+					glViewport(0,0,W,H);
+
+					// 4. disable automatic tonemapping, uses FBO, would not work
+					bool oldTonemapping = svs.adjustTonemapping;
+					svs.adjustTonemapping = false;
+
+					// 5. render to texColor
+					wxPaintEvent e;
+					m_canvas->Paint(e);
+
+					// 6. downscale to sshot
+					unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
+					glPixelStorei(GL_PACK_ALIGNMENT,1);
+					glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
+					unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+					for (int j=0;j<size.y;j++)
+						for (int i=0;i<size.x;i++)
+							for (unsigned k=0;k<3;k++)
+							{
+								unsigned a = 0;
+								for (int y=0;y<AA;y++)
+									for (int x=0;x<AA;x++)
+										a += pixelsBig[k+3*(AA*i+x+AA*size.x*(AA*j+y))];
+								pixelsSmall[k+3*(i+size.x*j)] = (a+AA*AA/2)/(AA*AA);
+							}
+					sshot->unlock();
+					bufColor->unlock();
+
+					// 4. cleanup
+					svs.adjustTonemapping = oldTonemapping;
+
+					// 3. cleanup
+					texDepth.renderingToEnd();
+					texColor.renderingToEnd();
+					m_canvas->winWidth = size.x;
+					m_canvas->winHeight = size.y;
+					glViewport(0,0,size.x,size.y);
+
+					// 2. cleanup
+					delete bufDepth;
+					delete bufColor;
+
+					// 1. cleanup
+					for (unsigned i=0;i<lights.size();i++)
+					{
+						RealtimeLight* rl = lights[i];
+						rl->setShadowmapSize(shadowRes[i]);
+						rl->setNumShadowSamples(shadowSamples[i]);
+					}
+					delete[] shadowSamples;
+					delete[] shadowRes;
+				}
 				char screenshotFilename[1000]=".";
 #ifdef _WIN32
 				SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
