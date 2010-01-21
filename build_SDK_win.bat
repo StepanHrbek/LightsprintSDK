@@ -29,7 +29,7 @@ if ERRORLEVEL 1 goto error
 echo Building VS2005 Release DLL/x64...
 devenv src\RR.vs2005.sln /build "Release DLL|x64" >%ERR%
 if ERRORLEVEL 1 goto error
-       
+
 set PATH=%PATH0%
 call "%VS90COMNTOOLS%\vsvars32.bat" >nul
 
