@@ -300,12 +300,12 @@ void main()
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
-					+shadow2D(shadowMap, center+1.8*shift1).z \
-					+shadow2D(shadowMap, center-1.8*shift1).z \
+					+shadow2D(shadowMap, center+0.3*shift1).z \
+					+shadow2D(shadowMap, center-0.6*shift1).z \
 					+shadow2D(shadowMap, center+shift2).z \
-					+shadow2D(shadowMap, center-shift2).z \
-					+shadow2D(shadowMap, center+0.6*shift2).z \
-					+shadow2D(shadowMap, center-0.6*shift2).z )
+					+shadow2D(shadowMap, center-0.9*shift2).z \
+					+shadow2D(shadowMap, center+0.8*shift2).z \
+					+shadow2D(shadowMap, center-0.7*shift2).z )
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 

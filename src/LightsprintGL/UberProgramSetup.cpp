@@ -436,7 +436,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	{
 		rr::RRBuffer* buffer = light->getShadowmap(firstInstance)->getBuffer();
 		unsigned shadowmapSize = buffer->getWidth()+buffer->getHeight();
-		program->sendUniform("shadowBlurWidth",6.f/shadowmapSize,-6.f/shadowmapSize,0.0f,3.f/shadowmapSize);
+		program->sendUniform("shadowBlurWidth",5.f/shadowmapSize,-5.f/shadowmapSize,0.0f,3.f/shadowmapSize);
 	}
 
 	if (LIGHT_DIRECT)
