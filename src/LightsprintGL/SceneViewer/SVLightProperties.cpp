@@ -108,6 +108,9 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowmapRes = new wxIntProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getShadowmapSize());
 			AppendIn(propCastShadows,propShadowmapRes);
 
+			propShadowSamples = new wxIntProperty(wxT("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
+			AppendIn(propCastShadows,propShadowSamples);
+
 			propNear = new wxFloatProperty(wxT("Near"),wxPG_LABEL,rtlight->getParent()->getNear());
 			propNear->SetAttribute("Precision",_precision);
 			AppendIn(propCastShadows,propNear);
@@ -141,6 +144,7 @@ void SVLightProperties::updateHide()
 	propFallOffAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
 	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
+	propShadowSamples->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
 	propFar->Hide(!light->castShadows,false);
 	propOrthoSize->Hide(light->type!=rr::RRLight::DIRECTIONAL,false);
@@ -281,6 +285,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propShadowmapRes)
 	{
 		rtlight->setShadowmapSize(property->GetValue().GetInteger());
+	}
+	else
+	if (property==propShadowSamples)
+	{
+		rtlight->setNumShadowSamples(property->GetValue().GetInteger());
 	}
 	else
 	if (property==propNear)
