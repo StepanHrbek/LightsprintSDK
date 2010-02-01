@@ -330,6 +330,7 @@ BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 1)
 #include <boost/archive/xml_oarchive.hpp>
 namespace bf = boost::filesystem;
 
+
 namespace rr_gl
 {
 
