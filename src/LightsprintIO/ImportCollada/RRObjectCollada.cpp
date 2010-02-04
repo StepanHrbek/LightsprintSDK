@@ -352,16 +352,6 @@ RRReal colorToFloat(FMVector4 color)
 	return (color.x+color.y+color.z)*0.333f;
 }
 
-RRVec4 getAvgColor(RRBuffer* buffer)
-{
-	enum {size = 8};
-	RRVec4 avg = RRVec4(0);
-	for (unsigned i=0;i<size;i++)
-		for (unsigned j=0;j<size;j++)
-			avg += buffer->getElement(RRVec3(i/(float)size,j/(float)size,0));
-	return avg/(size*size);
-}
-
 class MaterialCacheCollada
 {
 public:
@@ -505,10 +495,6 @@ private:
 			{
 				const fstring& filename = image->GetFilename();
 				materialProperty.texture = loadTextureTwoPaths(filename.c_str(),pathToTextures.c_str());
-				if (materialProperty.texture)
-				{
-					materialProperty.color = getAvgColor(materialProperty.texture);
-				}
 			}
 			// load texcoord
 			if (materialInstance)
@@ -568,12 +554,6 @@ private:
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
 		if (material.specularTransmittance.texture)
 		{
-			if (material.specularTransmittanceInAlpha)
-			{
-				RRVec4 avg = getAvgColor(material.specularTransmittance.texture);
-				material.specularTransmittance.color = RRVec3(1-avg[3]);
-			}
-
 			if (effectStandard->GetTranslucencyFactor()!=1)
 			{
 				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Translucency factor combined with texture ignored by Collada adapter.\n"));
