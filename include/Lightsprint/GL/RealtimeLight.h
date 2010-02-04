@@ -167,7 +167,7 @@ protected:
 	unsigned numSoftShadowSamples;
 
 	rr::RRString projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
-	const Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
+	Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
 	const Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
 };
 
