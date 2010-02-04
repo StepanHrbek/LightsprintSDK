@@ -39,6 +39,7 @@ namespace rr_gl
 
 		projectedTextureSpecifiedByFilename = NULL;
 		projectedTextureSpecifiedByTexture = NULL;
+		changesInProjectedTextureAffectGI = true;
 	}
 
 	RealtimeLight::~RealtimeLight()
@@ -71,6 +72,13 @@ namespace rr_gl
 		// First, check texture specified by setProjectedTexture(), it has higher priority.
 		if (projectedTextureSpecifiedByTexture)
 		{
+			if (projectedTextureSpecifiedByTexture && projectedTextureSpecifiedByTexture->version!=projectedTextureSpecifiedByTexture->getBuffer()->version)
+			{
+				// we return Texture, therefore we must detect version change and reset
+				// (would we return RRBuffer, user would call getTexture() that reset()s automatically)
+				projectedTextureSpecifiedByTexture->reset(false,false);
+				dirtyGI |= changesInProjectedTextureAffectGI;
+			}
 			return projectedTextureSpecifiedByTexture;
 		}
 		// Next, update and return projected texture specified by filename.
@@ -90,10 +98,10 @@ namespace rr_gl
 		}
 		if (projectedTextureSpecifiedByFilename && projectedTextureSpecifiedByFilename->version!=projectedTextureSpecifiedByFilename->getBuffer()->version)
 		{
-			// we return Texture, therefore user does not call getTexture() that would copy pixels from CPU to GPU
-			// we update pixels here
-			// alternative would be to return RRBuffer
+			// we return Texture, therefore we must detect version change and reset
+			// (would we return RRBuffer, user would call getTexture() that reset()s automatically)
 			projectedTextureSpecifiedByFilename->reset(false,false);
+			dirtyGI |= changesInProjectedTextureAffectGI;
 		}
 		return projectedTextureSpecifiedByFilename;
 	}

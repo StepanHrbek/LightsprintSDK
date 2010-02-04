@@ -118,7 +118,8 @@ public:
 	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
 	bool dirtyShadowmap;
 	//! Whether GI needs update.
-	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
+	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange() and by getProjectedTexture()
+	//! (see #changesInProjectedTextureAffectGI), cleared by RRDynamicSolverGL::calculate().
 	bool dirtyGI;
 	//! Eye position when direct lighting was detected.
 	//! Only for directional light.
@@ -132,6 +133,10 @@ public:
 	void setProjectedTexture(const Texture* projectedTexture);
 	//! Returns texture projected by spotlight.
 	const Texture* getProjectedTexture();
+	//! True = each time projected texture content changes, GI is updated.
+	//! For higher performance, clear it if you know that changes have small effect on GI.
+	//! Even if cleared, you can still set dirtyGI manually on big changes.
+	bool changesInProjectedTextureAffectGI;
 
 	//! Number of instances approximating area light. Used only for SPOT, 1 = standard spot, more = area light.
 	unsigned numInstancesInArea;
