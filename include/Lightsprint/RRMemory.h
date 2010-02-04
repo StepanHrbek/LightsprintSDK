@@ -15,6 +15,7 @@
 #define RR_SAFE_FREE(a)         {free(a);a=NULL;}
 #define RR_SAFE_DELETE(a)       {delete a;a=NULL;}
 #define RR_SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
+#define RR_SAFE_RELEASE(a)      {if(a){(a)->Release();a=NULL;}}
 #if defined(__BIG_ENDIAN__) || defined(__PPC__) // || defined(XBOX)
 #define RR_BIG_ENDIAN
 #endif
