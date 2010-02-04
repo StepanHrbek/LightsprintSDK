@@ -88,6 +88,13 @@ namespace rr_gl
 			}
 			projectedTextureFilenameCopy = rrlight.rtProjectedTextureFilename;
 		}
+		if (projectedTextureSpecifiedByFilename && projectedTextureSpecifiedByFilename->version!=projectedTextureSpecifiedByFilename->getBuffer()->version)
+		{
+			// we return Texture, therefore user does not call getTexture() that would copy pixels from CPU to GPU
+			// we update pixels here
+			// alternative would be to return RRBuffer
+			projectedTextureSpecifiedByFilename->reset(false,false);
+		}
 		return projectedTextureSpecifiedByFilename;
 	}
 
