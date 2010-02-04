@@ -11,7 +11,7 @@
 // Remove it from project and textures from disk won't be opened.
 
 // You can use any other image library if you implement two simple callbacks,
-// load and save, and call RRBuffer::setLoader().
+// load and save, and call RRBuffer::setReloader().
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
@@ -384,16 +384,11 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 
 bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideName[6])
 {
-	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
+	return (strstr(filename,".vbu") || strstr(filename,".VBU"))
 		? reloadVertexBuffer(buffer,filename)
 		: (cubeSideName
 		? reloadCube(buffer,filename,cubeSideName)
 		: reload2d(buffer,filename) );
-	if (!reloaded)
-	{
-		RRReporter::report(ERRO,"Failed to reload %s.\n",filename);
-	}
-	return reloaded;
 }
 
 
@@ -628,7 +623,7 @@ ende:
 
 void registerLoaderImages()
 {
-	RRBuffer::setLoader(main_reload);
+	RRBuffer::setReloader(main_reload);
 	RRBuffer::setSaver(main_save);
 }
 

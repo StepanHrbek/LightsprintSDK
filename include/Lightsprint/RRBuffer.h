@@ -201,7 +201,7 @@ namespace rr
 		//! Returns number of references to this instance, for debugging only.
 		virtual unsigned getReferenceCount() = 0;
 
-		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data.
+		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
@@ -248,6 +248,11 @@ namespace rr
 		static RRBuffer* loadCube(const char *filename);
 
 		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
+		//
+		//! Unlike load() that creates new instance of appropriate class, reload() keeps buffer instance, therefore it succeeds
+		//! only if buffer class and filename class are compatible. Currently Lightsprint SDK implements two buffer classes,
+		//! one for all static images, one for videos and some static images.
+		//! Therefore it's not always possible to reload() image into video or vice versa, use load() to avoid this issue.
 		bool reload(const char *filename, const char* cubeSideName[6]);
 		//! Similar to loadCube(), but loads from disk into existing buffer. Supports user implemented buffers.
 		bool reloadCube(const char *filename);
@@ -277,14 +282,26 @@ namespace rr
 		//!  or use setLoader() to assign custom code.
 		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
 
-		//! Type of user defined function that loads buffer from file.
-		typedef bool (Loader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6]);
-		//! Type of user defined function that saves buffer to file.
+		//! Type of user defined function that loads content from file into existing buffer, using reset().
+		typedef bool (Reloader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6]);
+		//! Type of user defined function that loads content from file into new buffer.
+		typedef RRBuffer* (Loader)(const char *filename);
+		//! Type of user defined function that saves buffer contents to file.
 		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
-		//! Hooks external code that handles loading images from disk.
+		//! Hooks external code that handles loading content from files into existing buffers.
 		//
 		//! Usually called from rr_io::registerLoaders().
-		//! Initial state is no code hooked, attempts to load buffer are ignored, reload() returns false.
+		//! Initial state is no code hooked, attempts to reload buffer are ignored, reload() returns false.
+		//! Reloader is designed for content that can be passed to existing buffer via reset() - images, cubemaps, vertex colors.
+		//! Both load() and reload() use reloader.
+		//! \return Previous reloader.
+		static Reloader* setReloader(Reloader* reloader);
+		//! Hooks external code that handles loading content from files into new buffers.
+		//
+		//! Usually called from rr_io::registerLoaders().
+		//! Initial state is no code hooked, attempts to load buffer fall back to creating empty buffer and reloading it (see setReloader()).
+		//! Loader is designed for content that can't be passed to existing buffer via reset() - videos.
+		//! Only load() uses loader, reload() can't use it, however, custom video buffers may implement its own reload().
 		//! \return Previous loader.
 		static Loader* setLoader(Loader* loader);
 		//! Hooks external code that handles saving images to disk.

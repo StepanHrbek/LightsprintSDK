@@ -17,6 +17,10 @@
 namespace rr
 {
 
+static RRBuffer::Reloader* s_reload = NULL;
+static RRBuffer::Loader* s_load = NULL;
+static RRBuffer::Saver* s_save = NULL;
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRBuffer
@@ -295,12 +299,23 @@ public:
 protected:
 	RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6])
 	{
-		RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-		if (!texture->reload(filename,cubeSideName))
+		// try reloader for images (with disabled reporting, even if reloader fails, loader may succeed)
 		{
-			RR_SAFE_DELETE(texture);
+			RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+			RRReporter* oldReporter = RRReporter::getReporter();
+			RRReporter::setReporter(NULL);
+			bool reloaded = texture->reload(filename,cubeSideName);
+			RRReporter::setReporter(oldReporter);
+			if (reloaded)
+				return texture;
+			delete texture;
 		}
-		return texture;
+		// try loader for videos
+		if (s_load)
+		{
+			return s_load(filename);
+		}
+		return NULL;
 	}
 	struct Value
 	{
@@ -321,13 +336,17 @@ ImageCache s_imageCache;
 //
 // save & load
 
-static RRBuffer::Loader* s_reload = NULL;
-static RRBuffer::Saver* s_save = NULL;
+RRBuffer::Reloader* RRBuffer::setReloader(Reloader* reloader)
+{
+	Reloader* result = s_reload;
+	s_reload = reloader;
+	return result;
+}
 
 RRBuffer::Loader* RRBuffer::setLoader(Loader* loader)
 {
-	Loader* result = s_reload;
-	s_reload = loader;
+	Loader* result = s_load;
+	s_load = loader;
 	return result;
 }
 
@@ -340,7 +359,7 @@ RRBuffer::Saver* RRBuffer::setSaver(Saver* saver)
 
 bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
 {
-	if (s_save && this && _filename && s_save(this,_filename,_cubeSideName,_parameters))
+	if (s_save && this && _filename && _filename[0] && s_save(this,_filename,_cubeSideName,_parameters))
 	{
 		filename = _filename;
 		return true;
@@ -350,18 +369,48 @@ bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const S
 
 bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6])
 {
-	if (s_reload && this && _filename && s_reload(this,_filename,_cubeSideName))
+	if (!_filename || !_filename[0])
 	{
-		filename = _filename;
-		return true;
+		return false;
 	}
-	return false;
+	if (!this)
+	{
+		RRReporter::report(WARN,"Attempted NULL->reload().\n");
+		return false;
+	}
+	if (!s_reload)
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't reload(), no reloader.\n"));
+		return false;
+	}
+	if (!s_reload(this,_filename,_cubeSideName))
+	{
+		RRReporter::report(WARN,"Failed to reload(%s).\n",_filename);
+		return false;
+	}
+	filename = _filename;
+	return true;
 }
 
-RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6])
+RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 {
+	if (!_filename || !_filename[0])
+	{
+		return NULL;
+	}
+	if (!s_load && !s_reload)
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load(), no loader or reloader.\n"));
+		return NULL;
+	}
 	// cached version
-	return s_imageCache.load_cached(filename,cubeSideName);
+	RRBuffer* result = s_imageCache.load_cached(_filename,_cubeSideName);
+	if (!result)
+	{
+		RRReporter::report(WARN,"Failed to load(%s).\n",_filename);
+		return NULL;
+	}
+	return result;
 
 	// non-cached version
 	//RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
@@ -372,10 +421,10 @@ RRBuffer* RRBuffer::load(const char *filename, const char* cubeSideName[6])
 	//return texture;
 }
 
-RRBuffer* RRBuffer::loadCube(const char *filename)
+RRBuffer* RRBuffer::loadCube(const char *_filename)
 {
 	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if (!texture->reloadCube(filename))
+	if (!texture->reloadCube(_filename))
 	{
 		RR_SAFE_DELETE(texture);
 	}
@@ -384,8 +433,10 @@ RRBuffer* RRBuffer::loadCube(const char *filename)
 
 bool RRBuffer::reloadCube(const char *_filename)
 {
-	if (!_filename)
+	if (!_filename || !_filename[0])
+	{
 		return false;
+	}
 	const unsigned numConventions = 3;
 	const char* cubeSideNames[numConventions][6] =
 	{
