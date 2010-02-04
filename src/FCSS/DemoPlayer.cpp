@@ -323,7 +323,7 @@ unsigned DemoPlayer::getNumProjectors()
 	return (unsigned)projectors.size();
 }
 
-const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
+rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 {
 	if (projectorIndex<projectors.size())
 	{

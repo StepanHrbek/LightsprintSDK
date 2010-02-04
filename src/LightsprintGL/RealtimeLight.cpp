@@ -57,7 +57,7 @@ namespace rr_gl
 		}
 	}
 
-	void RealtimeLight::setProjectedTexture(const Texture* _projectedTexture)
+	void RealtimeLight::setProjectedTexture(Texture* _projectedTexture)
 	{
 		projectedTextureSpecifiedByTexture = _projectedTexture;
 	}

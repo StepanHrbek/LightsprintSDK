@@ -130,7 +130,7 @@ public:
 	//! Texture is not adopted, not deleted.
 	//! If you never call setProjectedTexture() or set it to NULL,
 	//! light projects texture specified by getRRLight().rtProjectedTextureFilename.
-	void setProjectedTexture(const Texture* projectedTexture);
+	void setProjectedTexture(Texture* projectedTexture);
 	//! Returns texture projected by spotlight.
 	const Texture* getProjectedTexture();
 	//! True = each time projected texture content changes, GI is updated.
@@ -173,7 +173,7 @@ protected:
 
 	rr::RRString projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
 	Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
-	const Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
+	Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
 };
 
 typedef rr::RRVector<RealtimeLight*> RealtimeLights;
