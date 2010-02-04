@@ -222,20 +222,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propDiffuse->GetPropertyByName("texture"))
 	{
-		if (property->GetValue().GetString()=="")
-		{
-			RR_SAFE_DELETE(material->diffuseReflectance.texture);
-		}
-		else
-		if (!material->diffuseReflectance.texture)
-		{
-			material->diffuseReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-		}
-		else
-		{
-			if (!material->diffuseReflectance.texture->reload(property->GetValue().GetString(),NULL))
-				RR_SAFE_DELETE(material->diffuseReflectance.texture);
-		}
+		delete material->diffuseReflectance.texture;
+		material->diffuseReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
 		diffuseChanged = true;
 		textureChanged = true;
 	}
@@ -256,20 +244,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propSpecular->GetPropertyByName("texture"))
 	{
-		if (property->GetValue().GetString()=="")
-		{
-			RR_SAFE_DELETE(material->specularReflectance.texture);
-		}
-		else
-		if (!material->specularReflectance.texture)
-		{
-			material->specularReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-		}
-		else
-		{
-			if (!material->specularReflectance.texture->reload(property->GetValue().GetString(),NULL))
-				RR_SAFE_DELETE(material->specularReflectance.texture);
-		}
+		delete material->specularReflectance.texture;
+		material->specularReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
 		specularChanged = true;
 		textureChanged = true;
 	}
@@ -290,20 +266,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEmissive->GetPropertyByName("texture"))
 	{
-		if (property->GetValue().GetString()=="")
-		{
-			RR_SAFE_DELETE(material->diffuseEmittance.texture);
-		}
-		else
-		if (!material->diffuseEmittance.texture)
-		{
-			material->diffuseEmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-		}
-		else
-		{
-			if (!material->diffuseEmittance.texture->reload(property->GetValue().GetString(),NULL))
-				RR_SAFE_DELETE(material->diffuseEmittance.texture);
-		}
+		delete material->diffuseEmittance.texture;
+		material->diffuseEmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
 		emittanceChanged = true;
 		textureChanged = true;
 	}
@@ -323,20 +287,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTransparent->GetPropertyByName("texture"))
 	{
-		if (property->GetValue().GetString()=="")
-		{
-			RR_SAFE_DELETE(material->specularTransmittance.texture);
-		}
-		else
-		if (!material->specularTransmittance.texture)
-		{
-			material->specularTransmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
-		}
-		else
-		{
-			if (!material->specularTransmittance.texture->reload(property->GetValue().GetString(),NULL))
-				RR_SAFE_DELETE(material->specularTransmittance.texture);
-		}
+		delete material->specularTransmittance.texture;
+		material->specularTransmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
 		textureChanged = true;
 	}
 	else
