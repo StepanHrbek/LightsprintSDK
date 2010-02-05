@@ -36,30 +36,17 @@ namespace rr_gl
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		numSoftShadowSamples = 4;
-
-		projectedTextureSpecifiedByFilename = NULL;
-		projectedTextureSpecifiedByTexture = NULL;
 		changesInProjectedTextureAffectGI = true;
 	}
 
 	RealtimeLight::~RealtimeLight()
 	{
-		if (projectedTextureSpecifiedByFilename)
-		{
-			delete projectedTextureSpecifiedByFilename->getBuffer();
-			delete projectedTextureSpecifiedByFilename;
-		}
 		delete[] smallMapCPU;
 		if (deleteParent) delete getParent();
 		for (unsigned i=0;i<shadowmaps.size();i++)
 		{
 			delete shadowmaps[i];
 		}
-	}
-
-	void RealtimeLight::setProjectedTexture(Texture* _projectedTexture)
-	{
-		projectedTextureSpecifiedByTexture = _projectedTexture;
 	}
 
 	const Texture* RealtimeLight::getProjectedTexture()
@@ -69,41 +56,11 @@ namespace rr_gl
 		{
 			return NULL;
 		}
-		// First, check texture specified by setProjectedTexture(), it has higher priority.
-		if (projectedTextureSpecifiedByTexture)
-		{
-			if (projectedTextureSpecifiedByTexture && projectedTextureSpecifiedByTexture->version!=projectedTextureSpecifiedByTexture->getBuffer()->version)
-			{
-				// we return Texture, therefore we must detect version change and reset
-				// (would we return RRBuffer, user would call getTexture() that reset()s automatically)
-				projectedTextureSpecifiedByTexture->reset(false,false);
-				dirtyGI |= changesInProjectedTextureAffectGI;
-			}
-			return projectedTextureSpecifiedByTexture;
-		}
-		// Next, update and return projected texture specified by filename.
-		if (rrlight.rtProjectedTextureFilename!=projectedTextureFilenameCopy)
-		{
-			if (projectedTextureSpecifiedByFilename)
-			{
-				delete projectedTextureSpecifiedByFilename->getBuffer();
-				RR_SAFE_DELETE(projectedTextureSpecifiedByFilename);
-			}
-			if (!rrlight.rtProjectedTextureFilename.empty())
-			{
-				rr::RRBuffer* projectedBuffer = rr::RRBuffer::load(rrlight.rtProjectedTextureFilename.c_str());
-				projectedTextureSpecifiedByFilename = projectedBuffer ? new Texture(projectedBuffer,true,true) : NULL;
-			}
-			projectedTextureFilenameCopy = rrlight.rtProjectedTextureFilename;
-		}
-		if (projectedTextureSpecifiedByFilename && projectedTextureSpecifiedByFilename->version!=projectedTextureSpecifiedByFilename->getBuffer()->version)
-		{
-			// we return Texture, therefore we must detect version change and reset
-			// (would we return RRBuffer, user would call getTexture() that reset()s automatically)
-			projectedTextureSpecifiedByFilename->reset(false,false);
-			dirtyGI |= changesInProjectedTextureAffectGI;
-		}
-		return projectedTextureSpecifiedByFilename;
+		// Automatically dirty GI if texture changes.
+		rr::RRBuffer* buffer = getRRLight().rtProjectedTexture;
+		dirtyGI |= changesInProjectedTextureAffectGI && buffer && buffer->customData && ((Texture*)buffer->customData)->version!=buffer->version;
+
+		return getTexture(buffer);
 	}
 
 	void RealtimeLight::updateAfterRRLightChanges()

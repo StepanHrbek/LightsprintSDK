@@ -8,7 +8,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRMemory.h"
+#include "RRBuffer.h"
 #include "RRVector.h"
 
 namespace rr
@@ -215,14 +215,16 @@ namespace rr
 		// Realtime render
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Filename of projected texture, with colors in custom scale.
+		//! Projected texture.
 		//
 		//! Relevant only for realtime render, only for type=SPOT.
 		//! You may set/change it at any time, renderer updates automatically.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
 		//! When set, realtime spotlight is modulated only by texture.
-		RRString rtProjectedTextureFilename;
+		//!
+		//! When you set texture, ownership is passed to light, light deletes texture in destructor.
+		RRBuffer* rtProjectedTexture;
 
 		//! Limits area where shadows are computed.
 		//
@@ -246,7 +248,7 @@ namespace rr
 		//! Initialize light to defaults.
 		RRLight();
 		//! Destruct light.
-		virtual ~RRLight() {}
+		virtual ~RRLight() {delete rtProjectedTexture;}
 
 
 		//////////////////////////////////////////////////////////////////////////////

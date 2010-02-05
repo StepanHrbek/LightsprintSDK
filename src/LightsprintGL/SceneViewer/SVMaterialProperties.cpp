@@ -77,15 +77,20 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
 	setMaterial(NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
 }
 
+wxString getTextureDescription(rr::RRBuffer* buffer)
+{
+	return buffer
+		? (buffer->filename.empty()
+			?tmpstr("<%d*%d generated>",buffer->getWidth(),buffer->getHeight())
+			:buffer->filename.c_str())
+		:"<no texture>";
+}
+
 static void setMaterialProperty(wxPGProperty* wxproperty, rr::RRMaterial::Property& rrproperty)
 {
 	updateProperty(wxproperty->GetPropertyByName("color"),rrproperty.color);
 	updateInt(wxproperty->GetPropertyByName("uv"),rrproperty.texcoord);
-	updateString(wxproperty->GetPropertyByName("texture"),rrproperty.texture
-		?(rrproperty.texture->filename.empty()
-			?tmpstr("<%d*%d generated>",rrproperty.texture->getWidth(),rrproperty.texture->getHeight())
-			:rrproperty.texture->filename.c_str())
-		:"<no texture>");
+	updateString(wxproperty->GetPropertyByName("texture"),getTextureDescription(rrproperty.texture));
 }
 
 void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)

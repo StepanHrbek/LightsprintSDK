@@ -74,7 +74,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("spotExponent",a.spotExponent);
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTextureFilename.c_str()));
+	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTexture?a.rtProjectedTexture->filename.c_str():""));
 	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
 	// skip customData;
 }
@@ -103,7 +103,7 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 	{
 		std::string rtProjectedTextureFilenameString;
 		ar & make_nvp("rtProjectedTextureFilename", rtProjectedTextureFilenameString);
-		a.rtProjectedTextureFilename = rtProjectedTextureFilenameString.c_str();
+		a.rtProjectedTexture = rr::RRBuffer::load(rtProjectedTextureFilenameString.c_str());
 	}
 	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
 	// skip customData;

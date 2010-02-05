@@ -60,6 +60,8 @@ namespace rr_gl
 		DECLARE_EVENT_TABLE()
 	};
 
+	wxString getTextureDescription(rr::RRBuffer* buffer);
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER

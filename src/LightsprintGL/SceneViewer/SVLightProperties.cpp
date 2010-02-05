@@ -6,6 +6,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVLightProperties.h"
+#include "SVMaterialProperties.h" // getTextureDescription
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 
@@ -68,7 +69,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propColor);
 		}
 		{
-			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, light->rtProjectedTextureFilename.c_str());
+			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, getTextureDescription(light->rtProjectedTexture));
 			Append(propTexture);
 			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
 		}
@@ -232,7 +233,8 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTexture)
 	{
-		light->rtProjectedTextureFilename = property->GetValue().GetString();
+		delete light->rtProjectedTexture;
+		light->rtProjectedTexture = rr::RRBuffer::load(property->GetValue().GetString());
 	}
 	else
 	if (property==propDistanceAttType)

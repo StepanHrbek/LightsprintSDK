@@ -371,6 +371,7 @@ RRLight::RRLight()
 	spotExponent = 1;
 	castShadows = true;
 	customData = NULL;
+	rtProjectedTexture = NULL;
 	rtMaxShadowSize = 1000;
 }
 

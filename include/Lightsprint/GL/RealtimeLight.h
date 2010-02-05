@@ -125,12 +125,6 @@ public:
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;
 
-	//! Sets texture projected by spotlight.
-	//
-	//! Texture is not adopted, not deleted.
-	//! If you never call setProjectedTexture() or set it to NULL,
-	//! light projects texture specified by getRRLight().rtProjectedTextureFilename.
-	void setProjectedTexture(Texture* projectedTexture);
 	//! Returns texture projected by spotlight.
 	const Texture* getProjectedTexture();
 	//! True = each time projected texture content changes, GI is updated.
@@ -170,10 +164,6 @@ protected:
 	unsigned shadowmapSize;
 	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.
 	unsigned numSoftShadowSamples;
-
-	rr::RRString projectedTextureFilenameCopy; //! Copy of getRRLight().rtProjectedTextureFilename when projectedTexture was loaded.
-	Texture* projectedTextureSpecifiedByFilename; //! Created out of projectedTextureFilenameCopy.
-	Texture* projectedTextureSpecifiedByTexture; //! Set by setProjectedTexture().
 };
 
 typedef rr::RRVector<RealtimeLight*> RealtimeLights;

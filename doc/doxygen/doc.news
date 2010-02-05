@@ -8,6 +8,19 @@ namespace rr
 
 \page main_news What's new
 
+\section news99 ------------------------------------ 2010.02.xx -------------------------------------
+
+NEWS
+
+- added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI
+
+CHANGES
+
+- RRLight::rtProjectedTexture replaces RRLight::rtProjectedTextureFilename and RealtimeLight::setProjectedTexture(), simplified API
+- RRBuffer::Loader and RRBuffer::setLoader() split in two, adds flexibility necessary for video importers
+  - RRBuffer::Loader and RRBuffer::setLoader() sets implementation of RRBuffer::load()
+  - RRBuffer::Reloader and RRBuffer::setReloader sets implementation of RRBuffer::reload()
+
 \section news98 ------------------------------------ 2010.01.21 -------------------------------------
 
 NEWS
