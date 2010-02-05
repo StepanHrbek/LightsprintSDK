@@ -265,6 +265,14 @@ namespace rr
 		const RRObjects& getDynamicObjects() const;
 
 
+		//! Returns collection of all material, light and environment buffers in solver.
+		//
+		//! Can be used to gather all texture filenames, to pause all videos etc.
+		//! May shuffle elements that were already present in collection.
+		//! Removes duplicates, the same buffer is never listed twice.
+		void getAllBuffers(RRVector<RRBuffer*>& buffers) const;
+
+
 		//! Optional parameters of calculate(). Currently used only by Fireball.
 		struct CalculateParameters
 		{

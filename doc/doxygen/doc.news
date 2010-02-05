@@ -12,7 +12,10 @@ namespace rr
 
 NEWS
 
-- added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI
+- added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI,
+  \n makes it easier to manage GI quality when editing projected texture in realtime
+- added RRDynamicSolver::getAllBuffers(),
+  \n helper for gathering all texture filenames, memory statistics etc
 
 CHANGES
 

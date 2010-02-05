@@ -8,6 +8,7 @@
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // build of packed factors
+#include <boost/unordered_set.hpp>
 
 namespace rr
 {
@@ -212,6 +213,38 @@ void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
 const RRObjects& RRDynamicSolver::getDynamicObjects() const
 {
 	return priv->dynamicObjects;
+}
+
+void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& buffers) const
+{
+	typedef boost::unordered_set<RRBuffer*> Set;
+	Set set;
+	// fill set
+	for (unsigned i=0;i<buffers.size();i++)
+		set.insert(buffers[i]);
+	for (unsigned i=0;i<getLights().size();i++)
+		set.insert(getLights()[i]->rtProjectedTexture);
+	if (getMultiObjectCustom())
+	{
+		RRObject::FaceGroups& faceGroups = getMultiObjectCustom()->faceGroups;
+		for (unsigned g=0;g<faceGroups.size();g++)
+		{
+			RRMaterial* m = faceGroups[g].material;
+			if (m)
+			{
+				set.insert(m->diffuseReflectance.texture);
+				set.insert(m->specularReflectance.texture);
+				set.insert(m->diffuseEmittance.texture);
+				set.insert(m->specularTransmittance.texture);
+			}
+		}
+	}
+	set.insert(getEnvironment());
+	// copy set to buffers
+	buffers.clear();
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			buffers.push_back(*i);
 }
 
 RRObject* RRDynamicSolver::getMultiObjectCustom() const
