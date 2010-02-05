@@ -91,10 +91,10 @@ namespace rr
 		//!  Its RRBuffer::getValue() should return values in physical scale.
 		//!  Note that environment is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		void setEnvironment(const RRBuffer* environment);
+		void setEnvironment(RRBuffer* environment);
 
 		//! Returns environment around scene, set by setEnvironment().
-		const RRBuffer* getEnvironment() const;
+		RRBuffer* getEnvironment() const;
 
 
 		//! Sets lights in scene, all at once.

@@ -53,7 +53,7 @@ public:
 	//! Returns collection of lights in scene.
 	virtual const RRLights& getLights();
 	//! Returns scene environment, skybox.
-	virtual const RRBuffer* getEnvironment();
+	virtual RRBuffer* getEnvironment();
 
 	//! Template of custom scene loader.
 	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);

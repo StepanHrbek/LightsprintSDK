@@ -16,10 +16,14 @@ NEWS
 
 CHANGES
 
-- RRLight::rtProjectedTexture replaces RRLight::rtProjectedTextureFilename and RealtimeLight::setProjectedTexture(), simplified API
-- RRBuffer::Loader and RRBuffer::setLoader() split in two, adds flexibility necessary for video importers
+- RRLight::rtProjectedTexture replaces RRLight::rtProjectedTextureFilename and RealtimeLight::setProjectedTexture(),
+  \n simplifies API
+- RRBuffer::Loader and RRBuffer::setLoader() split in two,
   - RRBuffer::Loader and RRBuffer::setLoader() sets implementation of RRBuffer::load()
   - RRBuffer::Reloader and RRBuffer::setReloader sets implementation of RRBuffer::reload()
+  \n adds flexibility necessary for video importers
+- const removed from environment in RRScene::getEnvironment(), RRDynamicSolver::getEnvironment(), RRDynamicSolver::setEnvironment(),
+  \n makes it easier to manipulate environment in realtime
 
 \section news98 ------------------------------------ 2010.01.21 -------------------------------------
 

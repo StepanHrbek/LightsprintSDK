@@ -36,7 +36,7 @@ namespace rr
 
 		// lights: inputs
 		RRLights   lights;
-		const RRBuffer* environment;
+		RRBuffer*  environment;
 		const unsigned* customIrradianceRGBA8;
 
 		// scale: inputs

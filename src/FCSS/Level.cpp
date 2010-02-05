@@ -86,7 +86,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 200);
 			paramsIndirect.applyLights = 0;
 			paramsIndirect.locality = 1;
-			const rr::RRBuffer* oldEnv = solver->getEnvironment();
+			rr::RRBuffer* oldEnv = solver->getEnvironment();
 			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials on detail map
 			solver->setEnvironment(newEnv);
 			rr::RRDynamicSolver::FilteringParameters filtering;

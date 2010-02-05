@@ -163,7 +163,7 @@ const RRLights& RRScene::getLights()
 	return noLights;
 }
 
-const RRBuffer* RRScene::getEnvironment()
+RRBuffer* RRScene::getEnvironment()
 {
 	return implementation ? implementation->getEnvironment() : NULL;
 }

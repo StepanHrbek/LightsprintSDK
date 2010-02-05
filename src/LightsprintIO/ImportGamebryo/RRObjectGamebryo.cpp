@@ -1941,7 +1941,7 @@ public:
 		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,emissiveMultiplier);
 	}
 
-	virtual const RRBuffer* getEnvironment() {return environment;}
+	virtual RRBuffer* getEnvironment() {return environment;}
 
 protected:
 	void gamebryoInit();

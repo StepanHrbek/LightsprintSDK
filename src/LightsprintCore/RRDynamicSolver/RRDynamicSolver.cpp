@@ -55,7 +55,7 @@ const RRScaler* RRDynamicSolver::getScaler() const
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(const RRBuffer* _environment)
+void RRDynamicSolver::setEnvironment(RRBuffer* _environment)
 {
 	priv->environment = _environment;
 	if (priv->packedSolver)
@@ -67,7 +67,7 @@ void RRDynamicSolver::setEnvironment(const RRBuffer* _environment)
 	priv->solutionVersion++;
 }
 
-const RRBuffer* RRDynamicSolver::getEnvironment() const
+RRBuffer* RRDynamicSolver::getEnvironment() const
 {
 	return priv->environment;
 }
