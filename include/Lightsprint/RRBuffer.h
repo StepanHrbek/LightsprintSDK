@@ -49,27 +49,44 @@ namespace rr
 	//
 	//! Buffer, array of elements.
 	//
-	//! 1d buffers are used for vertex buffers.
-	//! 2d buffers are used for 2d textures.
-	//! 3d buffers are used for cube textures.
+	//! \section buf_types Buffer types
+	//!  - 1d buffers are used for vertex buffers.
+	//!  - 2d buffers are used for 2d textures and videos.
+	//!  - 3d buffers are used for cube textures.
 	//!
-	//! DirectX/OpenGL renderers can use buffers in two ways:
-	//! -# Let Lightsprint calculate lighting into buffers. Each time you request Lightsprint
-	//!    to calculate new data, lock() them and copy them to your DirectX/OpenGL buffer, e.g. texture.
-	//!    See rr_gl::Texture::reset() and rr_gl::getTexture() as an example.
-	//!    It is usually easier way and it performs very well.
-	//! -# Implement your own RRBuffer so that computed data are stored directly
-	//!    in DirectX/OpenGL buffer.
-	//!    It is more complicated, but it could be more efficient in some cases.
-	//!    It's possible to simplify subclassing by using helper RRBuffer::create() instance
-	//!    internally in subclass instance.
+	//! \section buf_dx_gl Using buffers in OpenGL/DirectX
+	//!  Two approaches exist for using buffers in DirectX/OpenGL renderer
+	//!  -# Use existing RRBuffer that stores data in system memory. Each time buffer version changes,
+	//!     copy data from buffer to DirectX/OpenGL texture.
+	//!     rr_gl::getTexture() implements this behaviour, it is flexible and fast.
+	//!  -# Subclass RRBuffer, make it store data directly in DirectX/OpenGL texture.
+	//!     It is less flexible, but it saves system memory and it could be faster if used with care.
 	//!
-	//! Functions used by LightsprintCore to update buffers
-	//! - vertex buffers by lock(BL_DISCARD_AND_WRITE) (if you implement your own buffer that doesn't support lock, setElement() is used)
-	//! - cube maps by lock(BL_DISCARD_AND_WRITE) (if you implement your own buffer that doesn't support lock, setElement() is used)
-	//! - lightmaps by setElement()
+	//! \section buf_update How solvers update buffers
+	//!  When implementing custom RRBuffer subclass, it may help to know how solvers update buffers
+	//!  - vertex buffers are updated by lock(BL_DISCARD_AND_WRITE), with fallback to setElement() if lock() fails
+	//!  - cube maps are updated by lock(BL_DISCARD_AND_WRITE), with fallback to setElement() if lock() fails
+	//!  - lightmaps are updated by setElement()
+	//!  - reset() is never called, so your type, size, format and scale are preserved
 	//!
-	//! LightsprintCore never calls reset(), so it never changes type, size, format or scale of your buffer.
+	//! \section buf_sharing How buffers are cached/shared
+	//!  Buffers loaded from disk may be shared to save memory and time.
+	//!  Sharing is automatic, you mostly don't have to care about it, but it's still good to know the rules,
+	//!  they are shown by example:
+	//!  \code
+	//!   a = RRBuffer::load("foo/bar.avi");  // a loaded from disk
+	//!   b = RRBuffer::load("foo/bar.avi");  // b found in cache, b==a
+	//!   c = RRBuffer::load("foo\\bar.avi"); // c loaded from disk, because filename differs
+	//!   a->setElement(0,RRVec4(0));         // modifies content of a==b
+	//!   d = RRBuffer::load("foo/bar.avi");  // d loaded from disk, because content differs
+	//!   delete a;                           // no memory freed, it's still in use by b
+	//!   delete b;                           // memory freed
+	//!   delete d;                           // no memory freed, d stays in cache
+	//!   e = RRBuffer::load("foo/bar.avi");  // e found in cache, e==d
+	//!   e->play();                          // starts playing image to buffer, audio to speakers
+	//!   //e->stop();                        // here we forget to stop
+	//!   delete e;                           // no memory freed, e stays in cache, still playing to speakers
+	//!  \endcode
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -166,6 +183,23 @@ namespace rr
 		virtual unsigned char* lock(RRBufferLock lock);
 		//! Unlocks previously locked buffer.
 		virtual void unlock();
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface for video
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! For video/capture/animated buffers, returns true if buffer content was updated and version changed.
+		virtual bool update() {return false;}
+		//! For video buffers, starts playing buffer. To update content of playing buffer, call update().
+		virtual void play() {}
+		//! For video buffers, stops playing buffer and rewinds to the beginning.
+		virtual void stop() {}
+		//! For video buffers, pauses playing buffer.
+		virtual void pause() {}
+		//! \return Duration of dynamic content (video) in seconds, 0 for static content (image, vertex colors), -1 for unlimited dynamic content (video capture).
+		virtual float getDuration() const {return 0;}
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc
