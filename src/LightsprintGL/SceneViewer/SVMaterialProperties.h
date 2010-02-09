@@ -18,7 +18,7 @@ namespace rr_gl
 	class SVMaterialProperties : public wxPropertyGrid
 	{
 	public:
-		SVMaterialProperties(wxWindow* parent, int precision);
+		SVMaterialProperties(wxWindow* parent, const SceneViewerState& svs);
 
 		//! Copy material -> property.
 		void setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
@@ -28,6 +28,8 @@ namespace rr_gl
 
 	private:
 		void updateReadOnly();
+
+		const SceneViewerState& svs;
 
 		rr::RRDynamicSolver* lastSolver;
 		unsigned          lastTriangle;
@@ -59,8 +61,6 @@ namespace rr_gl
 
 		DECLARE_EVENT_TABLE()
 	};
-
-	wxString getTextureDescription(rr::RRBuffer* buffer);
 
 }; // namespace
 

@@ -51,6 +51,14 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRBuffer* property
+
+wxString getTextureDescription(rr::RRBuffer* buffer);
+void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, bool playVideos);
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // updates faster than plain SetValue
 
 namespace rr_gl

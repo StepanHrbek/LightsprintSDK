@@ -6,6 +6,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
+#include "../tmpstr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -122,6 +123,33 @@ void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVar
 			break;
     }
     thisValue << rgb;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRBuffer* property
+
+wxString getTextureDescription(rr::RRBuffer* buffer)
+{
+	return buffer
+		? (buffer->filename.empty()
+		?rr_gl::tmpstr("<%d*%d generated>",buffer->getWidth(),buffer->getHeight())
+			:buffer->filename.c_str())
+		:"<no texture>";
+}
+
+void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, bool playVideos)
+{
+	if (buffer)
+	{
+		// stop if it looks like no more instances in scene
+		// (one instance is us, second is in cache, third is in eventual Texture in customData)
+		if (buffer->getReferenceCount()<=unsigned(buffer->customData?3:2))
+			buffer->stop();
+		delete buffer;
+	}
+	buffer = rr::RRBuffer::load(filename->GetValue().GetString().c_str());
 }
 
 #endif // SUPPORT_SCENEVIEWER

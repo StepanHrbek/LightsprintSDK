@@ -9,7 +9,6 @@
 #include "SVCustomProperties.h"
 #include "SVApp.h"
 #include "Lightsprint/GL/Texture.h"
-#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -18,8 +17,8 @@ namespace rr_gl
 //
 // SVMaterialProperties
 
-SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
-	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
+SVMaterialProperties::SVMaterialProperties(wxWindow* _parent, const SceneViewerState& _svs)
+	: wxPropertyGrid( _parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER ), svs(_svs)
 {
 	SV_SET_PG_COLORS;
 	lastSolver = NULL;
@@ -43,25 +42,25 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
 	SetPropertyEditor(propBack,wxPGEditor_CheckBox);
 
 	Append(propDiffuse = new wxStringProperty(wxT("Diffuse"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
+	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
 	AppendIn(propDiffuse,new wxFileProperty(wxT("texture")));
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(wxT("Specular"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
+	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
 	AppendIn(propSpecular,new wxFileProperty(wxT("texture")));
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(wxT("Emissive"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
+	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
 	AppendIn(propEmissive,new wxFileProperty(wxT("texture")));
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(wxT("Transparent"),wxPG_LABEL,wxT("<composed>")));
-	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,_precision));
+	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
 	AppendIn(propTransparent,new wxFileProperty(wxT("texture")));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
@@ -75,15 +74,6 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* parent, int _precision)
 	Append(propQualityForPoints = new wxIntProperty(wxT("Quality for point materials")));
 
 	setMaterial(NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
-}
-
-wxString getTextureDescription(rr::RRBuffer* buffer)
-{
-	return buffer
-		? (buffer->filename.empty()
-			?tmpstr("<%d*%d generated>",buffer->getWidth(),buffer->getHeight())
-			:buffer->filename.c_str())
-		:"<no texture>";
 }
 
 static void setMaterialProperty(wxPGProperty* wxproperty, rr::RRMaterial::Property& rrproperty)
@@ -227,8 +217,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propDiffuse->GetPropertyByName("texture"))
 	{
-		delete material->diffuseReflectance.texture;
-		material->diffuseReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
+		setTextureFilename(material->diffuseReflectance.texture,property,svs.playVideos);
 		diffuseChanged = true;
 		textureChanged = true;
 	}
@@ -249,8 +238,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propSpecular->GetPropertyByName("texture"))
 	{
-		delete material->specularReflectance.texture;
-		material->specularReflectance.texture = rr::RRBuffer::load(property->GetValue().GetString());
+		setTextureFilename(material->specularReflectance.texture,property,svs.playVideos);
 		specularChanged = true;
 		textureChanged = true;
 	}
@@ -271,8 +259,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEmissive->GetPropertyByName("texture"))
 	{
-		delete material->diffuseEmittance.texture;
-		material->diffuseEmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
+		setTextureFilename(material->diffuseEmittance.texture,property,svs.playVideos);
 		emittanceChanged = true;
 		textureChanged = true;
 	}
@@ -292,8 +279,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTransparent->GetPropertyByName("texture"))
 	{
-		delete material->specularTransmittance.texture;
-		material->specularTransmittance.texture = rr::RRBuffer::load(property->GetValue().GetString());
+		setTextureFilename(material->specularTransmittance.texture,property,svs.playVideos);
 		textureChanged = true;
 	}
 	else

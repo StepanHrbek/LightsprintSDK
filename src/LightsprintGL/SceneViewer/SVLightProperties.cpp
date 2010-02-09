@@ -6,15 +6,14 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVLightProperties.h"
-#include "SVMaterialProperties.h" // getTextureDescription
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 
 namespace rr_gl
 {
 
-SVLightProperties::SVLightProperties( wxWindow* parent )
-	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
+SVLightProperties::SVLightProperties(wxWindow* _parent, const SceneViewerState& _svs)
+	: wxPropertyGrid(_parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER), svs(_svs)
 {
 	SV_SET_PG_COLORS;
 	rtlight = NULL;
@@ -72,6 +71,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, getTextureDescription(light->rtProjectedTexture));
 			Append(propTexture);
 			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
+
+			propTextureChangeAffectsGI = new wxBoolProperty(wxT("Realtime GI from projected video"), wxPG_LABEL, rtlight->changesInProjectedTextureAffectGI);
+			AppendIn(propTexture,propTextureChangeAffectsGI);
+			SetPropertyEditor(propTextureChangeAffectsGI,wxPGEditor_CheckBox);
 		}
 
 		// distance attenuation
@@ -136,6 +139,7 @@ void SVLightProperties::updateHide()
 	propOuterAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
 	propRadius->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
 	propTexture->Hide(light->type!=rr::RRLight::SPOT,false);
+	propTextureChangeAffectsGI->Hide(!light->rtProjectedTexture,false);
 	propDistanceAttType->Hide(light->type==rr::RRLight::DIRECTIONAL,false);
 	propConstant->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propLinear->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
@@ -233,8 +237,13 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTexture)
 	{
-		delete light->rtProjectedTexture;
-		light->rtProjectedTexture = rr::RRBuffer::load(property->GetValue().GetString());
+		setTextureFilename(light->rtProjectedTexture,property,svs.playVideos);
+		updateHide();
+	}
+	else
+	if (property==propTextureChangeAffectsGI)
+	{
+		rtlight->changesInProjectedTextureAffectGI = property->GetValue().GetBool();
 	}
 	else
 	if (property==propDistanceAttType)

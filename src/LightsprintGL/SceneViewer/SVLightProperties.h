@@ -19,7 +19,7 @@ namespace rr_gl
 	class SVLightProperties : public wxPropertyGrid
 	{
 	public:
-		SVLightProperties( wxWindow* parent );
+		SVLightProperties(wxWindow* parent, const SceneViewerState& svs);
 
 		//! Copy light -> property (all values, show/hide).
 		void setLight(RealtimeLight* _rtlight, int _precision);
@@ -39,6 +39,8 @@ namespace rr_gl
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
 	private:
+		const SceneViewerState& svs;
+
 		RealtimeLight*    rtlight;
 
 		wxPGProperty*     propName;
@@ -49,6 +51,7 @@ namespace rr_gl
 		wxPGProperty*     propRadius;
 		wxPGProperty*     propColor;
 		wxPGProperty*     propTexture;
+		wxPGProperty*     propTextureChangeAffectsGI;
 		wxPGProperty*     propDistanceAttType;
 		wxPGProperty*     propConstant;
 		wxPGProperty*     propLinear;
