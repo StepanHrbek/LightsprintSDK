@@ -130,6 +130,7 @@ static GLint getBufferNumComponents(const rr::RRBuffer* buffer)
 	switch(buffer->getFormat())
 	{
 		case rr::BF_RGB:
+		case rr::BF_BGR:
 		case rr::BF_RGBF:
 			return 3;
 		case rr::BF_RGBA:
@@ -145,6 +146,7 @@ static GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 	switch(buffer->getFormat())
 	{
 		case rr::BF_RGB:
+		case rr::BF_BGR:
 		case rr::BF_RGBA:
 			return GL_UNSIGNED_BYTE;
 		case rr::BF_RGBF:

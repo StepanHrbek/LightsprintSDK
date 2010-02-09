@@ -72,6 +72,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 	switch(buffer->getFormat())
 	{
 		case rr::BF_RGB: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_BGR: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_RGBA: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8; glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_RGBF: glinternal = GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; break;
 		case rr::BF_RGBAF: glinternal = GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; break;

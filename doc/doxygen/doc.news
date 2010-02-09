@@ -16,6 +16,8 @@ NEWS
   \n makes it easier to manage GI quality when editing projected texture in realtime
 - added RRDynamicSolver::getAllBuffers(),
   \n helper for gathering all texture filenames, memory statistics etc
+- added BF_BGR format,
+  \n for DirectShow interoperability
 
 CHANGES
 

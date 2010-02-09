@@ -26,6 +26,7 @@ namespace rr
 	enum RRBufferFormat
 	{
 		BF_RGB,   ///< Integer RGB, 24bits per pixel. Format of textures natively supported by virtually all hardware. Usually not suitable for vertex buffers in hardware. Ideal for textures in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
+		BF_BGR,   ///< Integer BGR, 24bits per pixel. For DirectX interoperability.
 		BF_RGBA,  ///< Integer RGBA, 32bits per pixel. Format natively supported by virtually all hardware. Ideal for data in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
 		BF_RGBF,  ///< Floating point RGB, 96bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format. Ideal for vertex buffers in physical (linear) scale.
 		BF_RGBAF, ///< Floating point RGBA, 128bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format.

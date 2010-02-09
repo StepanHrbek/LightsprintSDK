@@ -86,6 +86,11 @@ void Interpolator::interpolate(const RRVec3* src, RRBuffer* dst, const RRScaler*
 					locked[headers[i].dstOffset1*3+1] = RR_FLOAT2BYTE(sum[1]);
 					locked[headers[i].dstOffset1*3+2] = RR_FLOAT2BYTE(sum[2]);
 					break;
+				case BF_BGR:
+					locked[headers[i].dstOffset1*3  ] = RR_FLOAT2BYTE(sum[2]);
+					locked[headers[i].dstOffset1*3+1] = RR_FLOAT2BYTE(sum[1]);
+					locked[headers[i].dstOffset1*3+2] = RR_FLOAT2BYTE(sum[0]);
+					break;
 				case BF_RGBAF:
 					((RRVec4*)locked)[headers[i].dstOffset1] = sum;
 					break;

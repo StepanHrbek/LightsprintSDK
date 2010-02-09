@@ -128,6 +128,7 @@ void RRBuffer::setFormatFloats()
 	switch (getFormat())
 	{
 		case BF_RGB:
+		case BF_BGR:
 			setFormat(BF_RGBF);
 			break;
 		case BF_DXT1:
@@ -144,6 +145,7 @@ void RRBuffer::invert()
 	switch (getFormat())
 	{
 		case BF_RGB:
+		case BF_BGR:
 		case BF_RGBA:
 		case BF_RGBF:
 		case BF_RGBAF:
@@ -175,6 +177,7 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	switch (getFormat())
 	{
 		case BF_RGB:
+		case BF_BGR:
 		case BF_RGBA:
 		case BF_RGBF:
 		case BF_RGBAF:
@@ -202,6 +205,7 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 	switch (getFormat())
 	{
 		case BF_RGB:
+		case BF_BGR:
 		case BF_RGBA:
 		case BF_RGBF:
 		case BF_RGBAF:

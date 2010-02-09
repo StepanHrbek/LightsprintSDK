@@ -30,6 +30,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 	switch(format)
 	{
 		case BF_RGB: return 3;
+		case BF_BGR: return 3;
 		case BF_RGBA: return 4;
 		case BF_RGBF: return 12;
 		case BF_RGBAF: return 16;
@@ -443,6 +444,7 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 		switch(buffer->getFormat())
 		{
 			case BF_RGB: fit = FIT_BITMAP; break;
+			case BF_BGR: fit = FIT_BITMAP; break;
 			case BF_RGBA: fit = FIT_BITMAP; break;
 			case BF_RGBF: fit = FIT_RGBF; break;
 			case BF_RGBAF: fit = FIT_RGBAF; break;
@@ -450,14 +452,15 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 		}
 
 		// select dst format
-		unsigned tryTable[4][4] = {
-			{24,32,96,128}, // what dst to try for src=24
-			{32,24,128,96}, // what dst to try for src=32
-			{96,128,24,32}, // what dst to try for src=96
-			{128,96,32,24}, // what dst to try for src=128
+		unsigned tryTable[5][4] = {
+			{24,32,96,128}, // RGB   what dst to try for src=24
+			{24,32,96,128}, // BGR   -"-
+			{32,24,128,96}, // RGBA  what dst to try for src=32
+			{96,128,24,32}, // RGBF  what dst to try for src=96
+			{128,96,32,24}, // RGBAF what dst to try for src=128
 			};
 		unsigned dstbipp;
-		RR_ASSERT(BF_RGB==0 && BF_RGBA==1 && BF_RGBF==2 && BF_RGBAF==3);
+		RR_ASSERT(BF_RGB==0 && BF_BGR==1 && BF_RGBA==2 && BF_RGBF==3 && BF_RGBAF==4);
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
@@ -497,6 +500,8 @@ bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[
 							unsigned width = buffer->getWidth();
 							unsigned numPixels = width*buffer->getHeight();
 							bool swaprb = dstbipp<=32;//(srcbipp>32) != (dstbipp>32);
+							if (buffer->getFormat()==BF_BGR)
+								swaprb = !swaprb;
 							for (unsigned i=0;i<numPixels;i++)
 							{
 								// read src pixel
