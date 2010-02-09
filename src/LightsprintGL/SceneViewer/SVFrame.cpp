@@ -269,9 +269,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
 	m_sceneProperties = new SVSceneProperties(this,svs);
-	m_lightProperties = new SVLightProperties(this);
+	m_lightProperties = new SVLightProperties(this,svs);
 	m_objectProperties = new SVObjectProperties(this);
-	m_materialProperties = new SVMaterialProperties(this,svs.precision);
+	m_materialProperties = new SVMaterialProperties(this,svs);
 	m_sceneTree = new SVSceneTree(this,svs);
 	userPreferences.currentWindowLayout = 2;
 	static const char * sample_xpm[] = {
