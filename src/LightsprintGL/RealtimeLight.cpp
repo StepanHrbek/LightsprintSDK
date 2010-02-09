@@ -58,8 +58,15 @@ namespace rr_gl
 		}
 		// Automatically dirty GI if texture changes.
 		rr::RRBuffer* buffer = getRRLight().rtProjectedTexture;
-		dirtyGI |= changesInProjectedTextureAffectGI && buffer && buffer->customData && ((Texture*)buffer->customData)->version!=buffer->version;
-
+		if (changesInProjectedTextureAffectGI && buffer)
+		{
+			const Texture* oldTexture = (Texture*)buffer->customData;
+			unsigned oldTextureVersion = oldTexture ? oldTexture->version : 369852;
+			const Texture* newTexture = getTexture(buffer);
+			unsigned newTextureVersion = newTexture ? newTexture->version : 258741;
+			dirtyGI |= newTextureVersion!=oldTextureVersion;
+			return newTexture;
+		}
 		return getTexture(buffer);
 	}
 
