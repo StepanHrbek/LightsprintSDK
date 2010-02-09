@@ -197,6 +197,15 @@ void SVFrame::UpdateEverything()
 
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane().PaneBorder(false));
 	m_mgr.Update();
+
+	// start playing videos
+	if (svs.playVideos)
+	{
+		svs.playVideos = false;
+		wxKeyEvent event;
+		event.m_keyCode = ' ';
+		m_canvas->OnKeyDown(event);
+	}
 }
 
 static wxImage* loadImage(const char* filename)
