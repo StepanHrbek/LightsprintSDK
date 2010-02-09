@@ -73,6 +73,12 @@ void RRMaterial::reset(bool twoSided)
 RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average)
 {
 	RR_ASSERT(buffer);
+	if (buffer->getDuration())
+	{
+		// video changes in time, ignore current frame and return average gray
+		average = RRVec4(0.5,0.5,0.5,1);
+		return RRVec4(0.5,0.5,0.5,0);
+	}
 	unsigned numElements = buffer->getWidth()*buffer->getHeight();
 	RR_ASSERT(numElements);
 	RRVec4 sum = RRVec4(0);
@@ -208,6 +214,11 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 {
 	RRReal blendImportanceSum = 0;
 	RR_ASSERT(transmittanceTexture);
+	if (transmittanceTexture->getDuration())
+	{
+		// video changes in time, ignore current frame and blend
+		return 1;
+	}
 	enum {size = 16};
 	unsigned width = transmittanceTexture->getWidth();
 	unsigned height = transmittanceTexture->getHeight();
