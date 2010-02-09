@@ -63,6 +63,7 @@ struct SceneViewerState
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
 	bool             renderTonemapping;         //! Render with tonemapping.
 	bool             adjustTonemapping;         //! Automatically adjust tonemapping operator.
+	bool             playVideos;                //! Play videos, false = videos are paused.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	rr::RRVec4       brightness;                //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
@@ -101,6 +102,7 @@ struct SceneViewerState
 		renderLogo = 0;
 		renderTonemapping = 1;
 		adjustTonemapping = 1;
+		playVideos = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		brightness = rr::RRVec4(1);

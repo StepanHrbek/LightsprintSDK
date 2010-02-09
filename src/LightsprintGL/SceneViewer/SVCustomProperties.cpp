@@ -150,6 +150,8 @@ void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, boo
 		delete buffer;
 	}
 	buffer = rr::RRBuffer::load(filename->GetValue().GetString().c_str());
+	if (buffer && playVideos)
+		buffer->play();
 }
 
 #endif // SUPPORT_SCENEVIEWER
