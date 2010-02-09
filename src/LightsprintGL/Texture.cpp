@@ -27,6 +27,13 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 
 	numPotentialFBOUsers++;
 
+	if (buffer->getDuration())
+	{
+		// this is video, let's disable compression and mipmaps
+		_compress = false;
+		_buildMipmaps = false;
+	}
+
 	glGenTextures(1, &id);
 	reset(_buildMipmaps,_compress);
 
@@ -59,8 +66,11 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		default: rr::RRReporter::report(rr::ERRO,"Texture of invalid type created.\n"); break;
 	}
 
-	// this might help some drivers (I experienced very rare crash in 8800 driver while creating 1x1 compressed mipmapped texture)
-	if (buffer->getWidth()==1 && buffer->getHeight()==1)
+	if (// it would be slow to mipmap or compress video
+		buffer->getDuration()
+		// this might help some drivers (I experienced very rare crash in 8800 driver while creating 1x1 compressed mipmapped texture)
+		|| (buffer->getWidth()==1 && buffer->getHeight()==1)
+		)
 	{
 		_buildMipmaps = false;
 		_compress = false;
@@ -305,6 +315,12 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 		texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
 		g_textures.push_back(texture);
 	}
+
+	// It's easier to have automatic update(). For now, we don't register any unwanted effects, but one day,
+	// we will possibly switch to manual update() and remove next line.
+	// (potentially unwanted: video rendered several times per frame may be different each time it is rendered)
+	buffer->update();
+
 	if (texture->version!=_buffer->version)
 		texture->reset(_buildMipMaps,_compress);
 	return texture;
