@@ -2032,6 +2032,22 @@
 				</Filter>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="DirectShow"
+			>
+			<File
+				RelativePath=".\ImportDirectShow\dxtrans.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportDirectShow\RRBufferDirectShow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportDirectShow\RRBufferDirectShow.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp"
 			>
