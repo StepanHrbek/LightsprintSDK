@@ -12,6 +12,23 @@ namespace rr
 
 NEWS
 
+- video
+  - spotlights can project video, with GI updated in realtime
+  - materials can have video in diffuse, emittance or transparency slot
+  - plays with sound
+  - total support throughout Lightsprint SDK, use foo.avi instead of foo.jpg
+    - in any 3d scene file (collada, 3ds, obj...)
+    - in Scene Viewer's light properties and material properties
+    - in your code
+  - RRBuffer extended to let you control video
+    - RRBuffer::play()
+    - RRBuffer::stop()
+    - RRBuffer::pause()
+    - RRBuffer::update()
+    - RRBuffer::getDuration()
+  - full source code in <code>src/LightsprintIO/ImportDirectShow</code>
+  - serves also as an example of writing custom RRBuffer
+  - supported in Windows only
 - added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI,
   \n makes it easier to manage GI quality when editing projected texture in realtime
 - added RRDynamicSolver::getAllBuffers(),

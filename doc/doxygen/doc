@@ -285,6 +285,13 @@ Texture formats
 - cube textures
 - 96bit float textures
 
+Video formats
+- .avi
+- .wmv
+- .asf
+- .mpg, .mpeg
+- any other format with codec installed in Windows (.mov, .mkv etc)
+
 
 \page supported_platforms Supported platforms
 
