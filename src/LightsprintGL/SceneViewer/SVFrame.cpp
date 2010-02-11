@@ -807,6 +807,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 			if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{
 				rr::RRLights newList = solver->getLights();
+
+				if (newList[svs.selectedLightIndex]->rtProjectedTexture)
+					newList[svs.selectedLightIndex]->rtProjectedTexture->stop();
+
 				newList.erase(svs.selectedLightIndex);
 
 				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe

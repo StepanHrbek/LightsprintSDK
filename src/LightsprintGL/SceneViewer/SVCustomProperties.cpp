@@ -143,10 +143,8 @@ void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, boo
 {
 	if (buffer)
 	{
-		// stop if it looks like no more instances in scene
-		// (one instance is us, second is in cache, third is in eventual Texture in customData)
-		if (buffer->getReferenceCount()<=unsigned(buffer->customData?3:2))
-			buffer->stop();
+		// stop it
+		buffer->stop();
 		delete buffer;
 	}
 	buffer = rr::RRBuffer::load(filename->GetValue().GetString().c_str());
