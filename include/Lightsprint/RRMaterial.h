@@ -204,13 +204,15 @@ namespace rr
 		RRReal        refractionIndex;
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		unsigned      lightmapTexcoord;
-		//! Hint for solver, material tells solver to use RRObject::getPointMaterial()
+		//! Hint/optimization for offline solver, material tells solver to use RRObject::getPointMaterial()
 		//! if desired lighting quality is equal or higher than this number.
 		//! Inited to UINT_MAX (=never use point materials), automatically adjusted by updateColorsFromTextures().
 		//!
 		//! Warning: If you don't call updateColorsFromTextures(), make sure you adjust minimalQualityForPointMaterials on per-material basis.
 		//! Keeping UINT_MAX would make keyed objects cast solid shadows to lightmaps.
 		//! Setting always 0 would make lightmap build very slow.
+		//!
+		//! Not used by realtime solver; you don't have to update it each time your realtime app changes texture.
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material.
 		RRString      name;

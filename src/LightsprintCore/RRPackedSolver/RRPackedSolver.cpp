@@ -314,20 +314,26 @@ void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bo
 	#pragma omp parallel for schedule(static)
 	for (int t=0;(unsigned)t<numTriangles;t++)
 	{
+		// removed optimization: very uniform materials (minimalQualityForPointMaterials>=quality*1000) used material color, not texture
+		// helped in extremely rare case: scene with mat1.emis = video, mat2.emis = nearly flat texture
+		// caused troubles in usual case: user sets emis video and forgets to set emis color, decrease minimalQualityForPointMaterials -> flat emis color (black) is used, no emission visible
+
 		bool useEmissiveTexture =
-			quality*1000>triangles[t].material->minimalQualityForPointMaterials // averages are ok for extremely uniform materials
+			quality // quality 0 = use material averages
 			&& (usePointMaterials // custom getPointMaterial() does not necessarily depend on diffuseEmittance.texture
 				|| triangles[t].material->diffuseEmittance.texture); // direct access depends on diffuseEmittance.texture
 
 		if (!useEmissiveTexture)
 		{
 			// super-fast per-material averages
+			// (quality=0 falls here)
 			triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.color * emissiveMultiplier;
 		}
 		else
 		if (!usePointMaterials)
 		{
 			// fast direct texture access
+			// (quality=0 never gets here)
 			const RRMaterial::Property& diffuseEmittance = triangles[t].material->diffuseEmittance;
 			RRVec3 sum(0);
 			for (unsigned i=0;i<quality;i++)
