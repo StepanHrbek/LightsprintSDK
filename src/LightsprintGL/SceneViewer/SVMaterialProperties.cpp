@@ -342,7 +342,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	// update solver after change in emittance
 	if (emittanceChanged)
 	{
-		lastSolver->setEmittance(1,16,true);
+		lastSolver->setEmittance(svs.emissiveMultiplier,16,true);
 	}
 
 	// after adding/deleting texture, readonly changes
