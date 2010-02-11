@@ -90,7 +90,7 @@ namespace rr
 		{
 			//! Material property expressed as 3 floats. If texture is present, this is average color of texture.
 			RRVec3                 color;
-			//! Material property expressed as a texture.
+			//! Material property expressed as a texture or video.
 			//
 			//! Texture is owned and deleted by RRMaterial, so in order to change texture,
 			//! delete old one before assigning new one.
