@@ -819,6 +819,26 @@ void SVCanvas::Paint(wxPaintEvent& event)
 				// rendering indirect -> calculate will update shadowmaps and improve indirect
 				//params.qualityIndirectDynamic = 6;
 				params.qualityIndirectStatic = 10000;
+
+				// for realtime GI from emissive videos
+				if (svs.videoEmittanceAffectsGI)
+				{
+					rr::RRReportInterval report(rr::INF3,"sample emittance...\n");
+					unsigned versionSum = 0;
+					const rr::RRObject* multiObject = solver->getMultiObjectCustom();
+					for (unsigned g=0;multiObject && g<multiObject->faceGroups.size();g++)
+					{
+						const rr::RRMaterial* material = multiObject->faceGroups[g].material;
+						if (material && material->diffuseEmittance.texture)
+							versionSum += material->diffuseEmittance.texture->version;
+					}
+					if (versionSum!=emissiveVersionSum)
+					{
+						emissiveVersionSum = versionSum;
+						//!!! videa nejsou updatnuta, sampluju minuly snimek
+						solver->setEmittance(svs.emissiveMultiplier,4,false);
+					}
+				}
 			}
 			else
 			{

@@ -88,6 +88,7 @@ namespace rr_gl
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;
 		bool                       fullyCreated; // true only after complete constructor and createContext
+		unsigned                   emissiveVersionSum; // cached from last frame
 
 		// help
 		bool                       helpLoadAttempted;
