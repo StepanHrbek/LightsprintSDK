@@ -86,9 +86,28 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 		propWaterLevel = new wxFloatProperty(wxT("Level"),wxPG_LABEL,svs.waterLevel);
 		propWaterLevel->SetAttribute("Precision",svs.precision);
-		AppendIn( propWater, propWaterLevel );
+		AppendIn(propWater,propWaterLevel);
 
 		SetPropertyBackgroundColour(propWater,headerColor,false);
+	}
+
+	// GI
+	{
+		propGI = new wxStringProperty(wxT("GI"), wxPG_LABEL);
+		Append(propGI);
+		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
+
+		propGIEmisMultiplier = new wxFloatProperty(wxT("Emissive multiplier"),wxPG_LABEL,svs.emissiveMultiplier);
+		propGIEmisMultiplier->SetAttribute("Precision",svs.precision);
+		AppendIn(propGI,propGIEmisMultiplier);
+
+		propGIEmisVideoAffectsGI = new wxBoolProperty(wxT("Emissive video realtime GI"), wxPG_LABEL, svs.videoEmittanceAffectsGI);
+		AppendIn(propGI,propGIEmisVideoAffectsGI);
+		SetPropertyEditor(propGIEmisVideoAffectsGI,wxPGEditor_CheckBox);
+
+		propGITranspVideoAffectsGI = new wxBoolProperty(wxT("Transparency video realtime GI"), wxPG_LABEL, svs.videoTransmittanceAffectsGI);
+		AppendIn(propGI,propGITranspVideoAffectsGI);
+		SetPropertyEditor(propGITranspVideoAffectsGI,wxPGEditor_CheckBox);
 	}
 /*
 	// size
@@ -136,6 +155,9 @@ void SVSceneProperties::updateProperties()
 		+ updateBool(propWater,svs.renderWater)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
+		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
+		+ updateBool(propGIEmisVideoAffectsGI,svs.videoEmittanceAffectsGI)
+		+ updateBool(propGITranspVideoAffectsGI,svs.videoTransmittanceAffectsGI)
 		;
 	if (numChanges)
 	{
@@ -221,6 +243,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propWaterLevel)
 	{
 		svs.waterLevel = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGIEmisMultiplier)
+	{
+		svs.emissiveMultiplier = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGIEmisVideoAffectsGI)
+	{
+		svs.videoEmittanceAffectsGI = property->GetValue().GetBool();
+	}
+	else
+	if (property==propGITranspVideoAffectsGI)
+	{
+		svs.videoTransmittanceAffectsGI = property->GetValue().GetBool();
 	}
 }
 

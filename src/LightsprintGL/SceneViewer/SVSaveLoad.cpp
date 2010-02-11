@@ -234,6 +234,9 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
 	ar & make_nvp("playVideos",a.playVideos);
+	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
+	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
+	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.brightness);
@@ -277,7 +280,13 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderLogo",a.renderLogo);
 	if (version>0) ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
-	if (version>1) ar & make_nvp("playVideos",a.playVideos);
+	if (version>1)
+	{
+		ar & make_nvp("playVideos",a.playVideos);
+		ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
+		ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
+		ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	}
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.brightness);

@@ -64,6 +64,9 @@ struct SceneViewerState
 	bool             renderTonemapping;         //! Render with tonemapping.
 	bool             adjustTonemapping;         //! Automatically adjust tonemapping operator.
 	bool             playVideos;                //! Play videos, false = videos are paused.
+	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
+	bool             videoEmittanceAffectsGI;   //! 
+	bool             videoTransmittanceAffectsGI;
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	rr::RRVec4       brightness;                //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
@@ -103,6 +106,9 @@ struct SceneViewerState
 		renderTonemapping = 1;
 		adjustTonemapping = 1;
 		playVideos = 1;
+		emissiveMultiplier = 1;
+		videoEmittanceAffectsGI = true;
+		videoTransmittanceAffectsGI = true;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		brightness = rr::RRVec4(1);

@@ -43,17 +43,27 @@ namespace rr_gl
 		wxPGProperty*     propCameraFov;
 		wxPGProperty*     propCameraNear;
 		wxPGProperty*     propCameraFar;
+
 		wxPGProperty*     propToneMapping;
 		wxPGProperty*     propToneMappingAutomatic;
 		wxPGProperty*     propToneMappingBrightness;
 		wxPGProperty*     propToneMappingContrast;
+
 		wxPGProperty*     propWater;
 		wxPGProperty*     propWaterColor;
 		wxPGProperty*     propWaterLevel;
+
+		wxPGProperty*     propGI;
+		wxPGProperty*     propGIEmisMultiplier;
+		wxPGProperty*     propGIEmisVideoAffectsGI;
+		wxPGProperty*     propGITranspVideoAffectsGI;
+
+		/*
 		wxPGProperty*     propSizes;
 		wxPGProperty*     propSizesSize;
 		wxPGProperty*     propSizesMin;
 		wxPGProperty*     propSizesMax;
+		*/
 
 		DECLARE_EVENT_TABLE()
 	};
