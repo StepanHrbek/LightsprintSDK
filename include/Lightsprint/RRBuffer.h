@@ -61,6 +61,7 @@ namespace rr
 	//!     rr_gl::getTexture() implements this behaviour, it is flexible and fast.
 	//!  -# Subclass RRBuffer, make it store data directly in DirectX/OpenGL texture.
 	//!     It is less flexible, but it saves system memory and it could be faster if used with care.
+	//!     For an example of RRBuffer subclass, see e.g. RRBufferDirectShow implemented in LightsprintIO.
 	//!
 	//! \section buf_update How solvers update buffers
 	//!  When implementing custom RRBuffer subclass, it may help to know how solvers update buffers
