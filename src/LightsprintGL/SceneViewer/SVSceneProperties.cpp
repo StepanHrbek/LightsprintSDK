@@ -8,6 +8,9 @@
 #include "SVSceneProperties.h"
 #include "SVCustomProperties.h"
 
+#include "SVFrame.h" // solver access
+#include "SVCanvas.h" // solver access
+
 namespace rr_gl
 {
 
@@ -248,6 +251,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEmisMultiplier)
 	{
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
+		// our parent must be frame
+		SVFrame* frame = (SVFrame*)GetParent();
+		frame->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
 	}
 	else
 	if (property==propGIEmisVideoAffectsGI)
