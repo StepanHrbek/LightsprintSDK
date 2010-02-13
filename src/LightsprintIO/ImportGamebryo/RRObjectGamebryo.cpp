@@ -695,13 +695,25 @@ private:
 //
 // Non cached, to be called at most once per mesh.
 
-static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
+struct MaterialInputs
+{
+	NiMesh* mesh;
+	float emissiveMultiplier;
+
+	MaterialInputs(NiMesh* _mesh, float _emissiveMultiplier)
+	{
+		mesh = _mesh;
+		emissiveMultiplier = _emissiveMultiplier;
+	}
+};
+
+static RRMaterial* detectMaterial(MaterialInputs _materialInputs)
 {
 	RRMaterial* materialPtr = new RRMaterial;
 	RRMaterial& material = *materialPtr;
 
 	// detect material properties
-	NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, mesh->GetProperty(NiProperty::STENCIL));
+	NiStencilProperty* pkStencilProperty = NiDynamicCast(NiStencilProperty, _materialInputs.mesh->GetProperty(NiProperty::STENCIL));
 	NiStencilProperty::DrawMode drawMode = pkStencilProperty ? pkStencilProperty->GetDrawMode() : NiStencilProperty::DRAW_CCW;
 	switch(drawMode)
 	{
@@ -733,7 +745,7 @@ static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 	NiMaterialDetector* materialDetector = NiMaterialDetector::GetInstance();
 	if (materialDetector)
 	{
-		NiMaterialPointValuesPtr spColorValues = materialDetector->CreatePointMaterialTextures(mesh);
+		NiMaterialPointValuesPtr spColorValues = materialDetector->CreatePointMaterialTextures(_materialInputs.mesh);
 		material.diffuseEmittance.texture = convertTexture(spColorValues->m_spEmittanceTexture);
 		material.diffuseEmittance.texcoord = CH_EMISSIVE;
 		material.diffuseReflectance.texture = convertTextureAndSubtract(spColorValues->m_spDiffuseTexture,material.diffuseEmittance.texture);
@@ -744,7 +756,7 @@ static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 		material.specularTransmittance.texcoord = CH_DIFFUSE; // transmittance has its own texture, but uv is shared with diffuse
 		material.specularTransmittanceInAlpha = false;
 		material.lightmapTexcoord = CH_LIGHTMAP;
-		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0)); // must be done after all subtractions
+		material.diffuseEmittance.multiplyAdd(RRVec4(_materialInputs.emissiveMultiplier),RRVec4(0)); // must be done after all subtractions
 
 		// get average colors from textures
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
@@ -760,7 +772,7 @@ static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 	// optimize material flags
 	material.updateSideBitsFromColors();
 
-	material.name = mesh->GetActiveMaterial() ? mesh->GetActiveMaterial()->GetName() : NULL;
+	material.name = _materialInputs.mesh->GetActiveMaterial() ? _materialInputs.mesh->GetActiveMaterial()->GetName() : NULL;
 	return materialPtr;
 }
 
@@ -777,23 +789,22 @@ static RRMaterial* detectMaterial(NiMesh* mesh, float emissiveMultiplier)
 class MaterialCacheGamebryo
 {
 public:
-	MaterialCacheGamebryo(float _emissiveMultiplier)
+	MaterialCacheGamebryo()
 	{
 		defaultMaterial.reset(false);
-		emissiveMultiplier = _emissiveMultiplier;
 	}
 	// Looks for material in cache. Not found -> creates new material and stores it in cache.
 	// Called once per mesh.
-	RRMaterial* getMaterial(NiMesh* mesh)
+	RRMaterial* getMaterial(MaterialInputs _materialInputs)
 	{
-		if (!mesh)
+		if (!_materialInputs.mesh)
 		{
 			return &defaultMaterial;
 		}
 		// quickly search in map by NiMaterial
 		SlowCache* slowCache;
 		{
-			FastCache::iterator i = fastCache.find(mesh->GetActiveMaterial());
+			FastCache::iterator i = fastCache.find(_materialInputs.mesh->GetActiveMaterial());
 			if (i!=fastCache.end())
 			{
 				//RRReporter::report(INF1,"1 in cache\n");
@@ -802,13 +813,13 @@ public:
 			else
 			{
 				//RRReporter::report(INF1,"1 new\n");
-				slowCache = &( fastCache[mesh->GetActiveMaterial()] );
+				slowCache = &( fastCache[_materialInputs.mesh->GetActiveMaterial()] );
 			}
 		}
 		// slowly scan whole list by isEqualMaterial
 		for (SlowCache::iterator i=slowCache->begin();i!=slowCache->end();++i)
 		{
-			if (isEqualMaterial(mesh,(*i).mesh))
+			if (isEqualMaterial(_materialInputs,(*i).materialInputs))
 			{
 				//RRReporter::report(INF1,"2 in cache\n");
 				return (*i).material;
@@ -817,25 +828,20 @@ public:
 		//RRReporter::report(INF1,"2 new\n");
 		// push CacheElement, then assign material
 		// (RRMaterial must not be assigned to temporary CacheElement, becuase ~CacheElement at the end of this scope would delete material textures)
-		slowCache->push_front(CacheElement(mesh));
-		return slowCache->begin()->material = detectMaterial(mesh,emissiveMultiplier);
-	}
-	void setEmissiveMultiplier(float _emissiveMultiplier)
-	{
-		emissiveMultiplier = _emissiveMultiplier;
+		slowCache->push_front(CacheElement(_materialInputs));
+		return slowCache->begin()->material = detectMaterial(_materialInputs);
 	}
 private:
 	RRMaterial defaultMaterial;
-	float emissiveMultiplier;
 
 	struct CacheElement
 	{
-		const NiMesh* mesh;
+		MaterialInputs materialInputs;
 		RRMaterial* material;
 
-		CacheElement(const NiMesh* _mesh)
+		CacheElement(MaterialInputs _materialInputs)
+			: materialInputs(_materialInputs)
 		{
-			mesh = _mesh;
 			material = NULL;
 		}
 		CacheElement& operator =(const CacheElement& a)
@@ -845,7 +851,7 @@ private:
 			// copying non-NULL material would lead to double delete
 			RR_ASSERT(!a.material);
 			material = NULL;
-			mesh = a.mesh;
+			materialInputs = a.materialInputs;
 		}
 		~CacheElement()
 		{
@@ -856,13 +862,15 @@ private:
 	typedef std::map<const NiMaterial*,SlowCache> FastCache;
 	FastCache fastCache;
 
-	static bool isEqualMaterial(const NiMesh* mesh1, const NiMesh* mesh2)
+	static bool isEqualMaterial(const MaterialInputs& mesh1, const MaterialInputs& mesh2)
 	{
-		// proper use of FastCache ensures that only meshes with identical active material are compared
-		RR_ASSERT(mesh1->GetActiveMaterial()==mesh2->GetActiveMaterial());
+		if (mesh1.emissiveMultiplier!=mesh2.emissiveMultiplier) return false;
 
-		NiPropertyState* ps1 = mesh1->GetPropertyState();
-		NiPropertyState* ps2 = mesh2->GetPropertyState();
+		// proper use of FastCache ensures that only meshes with identical active material are compared
+		RR_ASSERT(mesh1.mesh->GetActiveMaterial()==mesh2.mesh->GetActiveMaterial());
+
+		NiPropertyState* ps1 = mesh1.mesh->GetPropertyState();
+		NiPropertyState* ps2 = mesh2.mesh->GetPropertyState();
 		#define TEST_FAST(prop) if (!ps1->Get##prop()->IsEqualFast(*ps2->Get##prop())) return false;
 		#define TEST_SLOW(prop) if (!ps1->Get##prop()->IsEqual    ( ps2->Get##prop())) return false;
 		TEST_FAST(Alpha);
@@ -985,6 +993,7 @@ struct PerEntitySettings
 	float lsResolutionMultiplier;
 	unsigned lsResolutionFixedWidth;
 	unsigned lsResolutionFixedHeight;
+	float lsEmissiveMultiplier;
 
 	PerEntitySettings()
 	{
@@ -994,6 +1003,7 @@ struct PerEntitySettings
 		lsResolutionMultiplier = 1;
 		lsResolutionFixedWidth = 128;
 		lsResolutionFixedHeight = 128;
+		lsEmissiveMultiplier = 1;
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	void readFrom(egf::Entity* entity)
@@ -1017,6 +1027,9 @@ struct PerEntitySettings
 
 		entity->GetPropertyValue("LsResolutionFixedHeight", lsResolutionFixedHeight);
 		RR_CLAMP(lsResolutionFixedWidth,1,4096);
+
+		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
 	}
 	void inheritFrom(const PerSceneSettings& perSceneSettings)
 	{
@@ -1024,6 +1037,7 @@ struct PerEntitySettings
 			lsBakeTarget = perSceneSettings.lsDefaultBakeTarget;
 		if (lsBakeDirectionality==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
 			lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
+		lsEmissiveMultiplier *= perSceneSettings.lsEmissiveMultiplier;
 	}
 #endif
 };
@@ -1151,7 +1165,7 @@ public:
 			delete mesh;
 			return NULL;
 		}
-		RRObjectGamebryo* object = new RRObjectGamebryo(_mesh, collider, _lodInfo, _materialCache);
+		RRObjectGamebryo* object = new RRObjectGamebryo(MaterialInputs(_mesh,perEntitySettings.lsEmissiveMultiplier), collider, _lodInfo, _materialCache);
 		object->perEntitySettings = perEntitySettings;
 		return object;
 	}
@@ -1243,16 +1257,16 @@ public:
 	PerEntitySettings perEntitySettings;
 
 private:
-	RRObjectGamebryo(NiMesh* _mesh, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
+	RRObjectGamebryo(MaterialInputs _materialInputs, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
 	{
-		NIASSERT(_mesh);
+		NIASSERT(_materialInputs.mesh);
 		NIASSERT(_collider);
-		mesh = _mesh;
+		mesh = _materialInputs.mesh;
 		meshIndex = 0;
 		setCollider(_collider);
 		lodInfo = _lodInfo;
 		setWorldMatrix(&convertMatrix(mesh->GetWorldTransform()));
-		material = _materialCache.getMaterial(mesh);
+		material = _materialCache.getMaterial(_materialInputs);
 		faceGroups.push_back(FaceGroup(material,mesh->GetTotalPrimitiveCount()));
 		name = mesh->GetName();
 	}
@@ -1271,12 +1285,12 @@ class RRObjectsGamebryo : public RRObjects
 public:
 	// path used by .gsa
 	RRObjectsGamebryo(NiScene* _pkEntityScene, bool& _aborting, float _emissiveMultiplier)
-		: materialCache(_emissiveMultiplier)
 	{
 		// .gsa doesn't have entity settings, set defaults for .gsa
 		PerEntitySettings perEntitySettings;
 		perEntitySettings.lsBakeTarget = PE_TEXTURE;
 		perEntitySettings.lsBakeDirectionality = PE_NON_DIRECTIONAL;
+		perEntitySettings.lsEmissiveMultiplier = _emissiveMultiplier;
 
 		pkEntityScene = _pkEntityScene;
 		RRObject::LodInfo lodInfo;
@@ -1310,7 +1324,6 @@ public:
 #if GAMEBRYO_MAJOR_VERSION==3
 	// path used by Gamebryo 3.x Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
-		: materialCache(1)
 	{
 		pkEntityScene = NULL; // not used from plugin, but clear it anyway
 		RRObject::LodInfo lodInfo;
@@ -1339,7 +1352,6 @@ public:
 						if (entity->GetModel()->ContainsModel("LightsprintScene"))
 						{
 							perSceneSettings.readFrom(entity);
-							materialCache.setEmissiveMultiplier(perSceneSettings.lsEmissiveMultiplier);
 							numLightsprintScenes++;
 						}
 						if (entity && entity->GetModel()->ContainsModel("Mesh"))

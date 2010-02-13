@@ -12,6 +12,15 @@ namespace rr
 
 NEWS
 
+- \ref main_gamebryo3 "Lightspeed 3.1 integration" adds
+  - Direct light multiplier
+  - Indirect light multiplier
+  - Emissive multiplier (newly also in LightsprintMesh)
+  <table border=0><tr align=top><td>
+  \image html Toolbench-LightsprintScene.png
+  </td><td>
+  \image html Toolbench-LightsprintMesh.png
+  </td></tr></table>
 - video
   - spotlights can project video, with GI updated in realtime
   - materials can have video in diffuse, emittance or transparency slot
