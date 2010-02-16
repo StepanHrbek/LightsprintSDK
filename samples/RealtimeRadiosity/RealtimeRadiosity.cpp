@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // RealtimeRadiosity sample
 //
-// Shows realtime GI and area light+penumbra shadows _in custom renderer_.
+// Shows realtime GI + area light with penumbra shadows + projected video _in custom renderer_.
 //
 // Advantages
 // - source code of all draw commands
@@ -97,7 +97,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,1);
 
 	// render static scene
-	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,0))
+	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,0))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -222,6 +222,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
 	renderScene(uberProgramSetup);
@@ -384,9 +385,9 @@ int main(int argc, char **argv)
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
 	textureRenderer = new rr_gl::TextureRenderer("../../data/shaders/");
-	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
-	// for usual soft shadows, simply set shadowmapsPerPass=1
+	// for soft shadows, keep shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
+	// for penumbra shadows: increase it to maximal number of shadowmaps renderable in one pass
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_SAMPLES = 4; // for detectMaxShadowmaps, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -397,8 +398,8 @@ int main(int argc, char **argv)
 	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	if (!shadowmapsPerPass) error("",true);
 	
-	// init textures
-	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
+	// uncomment to load and render and calculate with skybox (not visible from closed scene)
+	//environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
 	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
@@ -435,18 +436,26 @@ int main(int argc, char **argv)
 				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 	// init light
-	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
-	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
+	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(0.4f,0.2f,1),RR_DEG2RAD(30),0.1f);
+	// project texture
+	//rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
+	// Project video. You can do this in any other sample or context, simply use video instead of image, then call play().
+	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/video/Televisi1960.avi");
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);
 	solver->setLights(rrlights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 	realtimeLight->setShadowmapSize(512);
+	realtimeLight->getParent()->setNear(0.5f); // adjusts shadowmapping near plane
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
 	solver->loadFireball(NULL,true) || solver->buildFireball(5000,NULL);
+
+	// start playing video
+	if (rrlight->rtProjectedTexture)
+		rrlight->rtProjectedTexture->play();
 
 	glutMainLoop();
 	return 0;
