@@ -11,10 +11,11 @@
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
 #include <windows.h>
-#include <dshow.h>
+#include <dshow.h> // not found? install Windows SDK or delete #define SUPPORT_DIRECTSHOW in supported_formats.h
 #include <Qedit.h> // ISampleGrabber
 
-#pragma comment(lib,"strmiids.lib")
+
+#pragma comment(lib,"strmiids.lib") // not found? install Windows SDK or delete #define SUPPORT_DIRECTSHOW in supported_formats.h
 
 struct __declspec(  uuid("{71771540-2017-11cf-ae26-0020afd79767}")  ) CLSID_Sampler;
 
