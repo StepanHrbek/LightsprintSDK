@@ -18,7 +18,7 @@ namespace rr
 	enum RRBufferType
 	{
 		BT_VERTEX_BUFFER, ///< Vertex buffer, 1d array of width elements. Used for object's realtime indirect lighting, precomputed per-vertex lighting.
-		BT_2D_TEXTURE,    ///< 2d texture, 2d array of width*height elements. Used for object's precomputed lightmaps, ambient occlusion maps, bent normal maps.
+		BT_2D_TEXTURE,    ///< 2d texture or video, 2d array of width*height elements. Used for object's precomputed lightmaps, ambient occlusion maps, bent normal maps, material textures and videos.
 		BT_CUBE_TEXTURE,  ///< Cube texture, 3d array of size*size*6 elements. Used for scene environment and for object's diffuse and specular reflection maps.
 	};
 

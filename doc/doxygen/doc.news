@@ -12,18 +12,15 @@ namespace rr
 
 NEWS
 
-- \ref main_gamebryo3 "Lightspeed 3.1 integration" adds
-  - Direct light multiplier
-  - Indirect light multiplier
-  - Emissive multiplier (newly also in LightsprintMesh)
-  <table border=0><tr align=top><td>
-  \image html Toolbench-LightsprintScene.png
-  </td><td>
-  \image html Toolbench-LightsprintMesh.png
-  </td></tr></table>
-- video
-  - spotlights can project video, with GI updated in realtime
-  - materials can have video in diffuse, emittance or transparency slot
+- <b>video</b>
+  - materials can play video in diffuse, emittance or transparency slot, GI updates in realtime
+    <table border=0><tr align=top><td>
+    \image html emissive_video_1.jpg video in emissive slot
+    </td><td>
+    \image html emissive_video_2.jpg (setting it takes 4 clicks in SceneViewer)
+    </td></tr></table>
+  - spotlights can project video, GI updates in realtime
+    \image html samples/RealtimeRadiosity_3.jpg projected video in RealtimeRadiosity sample
   - plays with sound
   - total support throughout Lightsprint SDK, use foo.avi instead of foo.jpg
     - in any 3d scene file (collada, 3ds, obj...)
@@ -38,6 +35,16 @@ NEWS
   - full source code in <code>src/LightsprintIO/ImportDirectShow</code>
   - serves also as an example of writing custom RRBuffer
   - supported in Windows only
+  - spacebar in SceneViewer pauses/resumes videos
+- \ref main_gamebryo3 "Lightspeed 3.1 integration" adds
+  - Direct light multiplier
+  - Indirect light multiplier
+  - Emissive multiplier (newly also in LightsprintMesh)
+  <table border=0><tr align=top><td>
+  \image html Toolbench-LightsprintScene.png
+  </td><td>
+  \image html Toolbench-LightsprintMesh.png
+  </td></tr></table>
 - added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI,
   \n makes it easier to manage GI quality when editing projected texture in realtime
 - added RRDynamicSolver::getAllBuffers(),

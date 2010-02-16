@@ -3009,11 +3009,11 @@ rr::RRVector<*>{
  <hr>
  <b>RealtimeRadiosity</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/RealtimeRadiosity_2.jpg freely move light, objects
+  \image html samples/RealtimeRadiosity_3.jpg freely move light, objects
   </td><td>
   \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
- - realtime GI, color bleeding, penumbra shadows _in custom renderer_
+ - realtime GI, color bleeding, penumbra shadows, projected video _in custom renderer_
  - all lights and objects movable
  - loads 3ds scene and 3ds dynamic objects, uses 1 custom area light rather than lights from file
  - shows that lighting works equally well for animated object

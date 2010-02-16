@@ -1420,8 +1420,9 @@ rendered:
 					"To MOVE, use arrows or wsadqzxc.\n"
 					"To ZOOM, use wheel.\n"
 					"To switch light/camera, left click.\n"
+					"To pause/resume videos, use spacebar.\n"
 					"\n"
-					"To change scene, skybox, lights, lighting techniques... use menu.",
+					"To edit scene, skybox, lights, materials, lighting etc, use menu.",
 					"Controls");
 			}
 		}
