@@ -627,7 +627,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				{
 					// Attempt to overwrite sshot by enhanced
 					// frame rendered with 3*3*FSAA, 2*2*higher shadow resolution, 2*more shadow samples.
-					const unsigned AA = 4; // 3*2560<8k, 4*2560 uz by neslo na Radeonech 4xxx
+					const unsigned AA = 3; // 3*2560<8k, 4*2560 uz by neslo na Radeonech 4xxx
 					const unsigned W = size.x*AA;
 					const unsigned H = size.y*AA;
 					
