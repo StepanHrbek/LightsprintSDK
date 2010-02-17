@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news99 ------------------------------------ 2010.02.xx -------------------------------------
+\section news99 ------------------------------------ 2010.02.17 -------------------------------------
 
 NEWS
 
@@ -45,6 +45,7 @@ NEWS
   </td><td>
   \image html Toolbench-LightsprintMesh.png
   </td></tr></table>
+  - lightmaps are not built for plain Mesh entities, make your entity PCLMesh or LightsprintMesh to get lightmap
 - added rr_gl::RealtimeLight::changesInProjectedTextureAffectGI,
   \n makes it easier to manage GI quality when editing projected texture in realtime
 - added RRDynamicSolver::getAllBuffers(),

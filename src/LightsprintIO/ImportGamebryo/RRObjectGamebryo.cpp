@@ -1387,6 +1387,11 @@ public:
 							if (entity->GetModel()->ContainsModel("LightsprintMesh"))
 								perEntitySettings.readFrom(entity); // call only if LightsprintMesh exists, otherwise it emits warnings
 							perEntitySettings.inheritFrom(perSceneSettings); // call always, converts default PE_INHERIT_... to nice values
+							if (!entity->GetModel()->ContainsModel("PrecomputedLightReceiver"))
+							{
+								// this is not PCLMesh, use it as occluder but don't build lightmap for it
+								perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
+							}
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
