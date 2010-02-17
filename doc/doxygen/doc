@@ -453,7 +453,7 @@ Video formats
 \page tpl_fcollada FCollada
   - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
-  - optional, remove by deleting <code>\#define SUPPORT_COLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
+  - optional, remove by deleting <code>\#define SUPPORT_FCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B (\subpage fcollada_patch "patched") is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B

@@ -9,7 +9,7 @@
 
 #define SUPPORT_GAMEBRYO   // Gamebryo .gsa
 #define SUPPORT_OPENCOLLADA// OpenCollada .dae (better than Fcollada)
-#define SUPPORT_COLLADA    // FCollada .dae (better than Assimp)
+#define SUPPORT_FCOLLADA   // FCollada .dae (better than Assimp)
 #define SUPPORT_ASSIMP     // Assimp dae 3ds x prj md2 md3 md5 ply mdl ase ask hmp smd vta mdc stl lwo lxo dxf nff enff raw off ac acc ac3d bvh xml irrmesh xml irr q3o q3s b3d ter csm 3d uc lws mot
 #define SUPPORT_QUAKE3     // Quake 3 .bsp
 #define SUPPORT_MGF        // Materials and Geometry Format .mgf
@@ -25,8 +25,8 @@
 // Actual support depends on your operating system, compiler etc.
 
 // FCollada doesn't support Visual Studio 2003.
-#if defined(SUPPORT_COLLADA) && defined(_MSC_VER) && (_MSC_VER < 1400)
-	#undef SUPPORT_COLLADA
+#if defined(SUPPORT_FCOLLADA) && defined(_MSC_VER) && (_MSC_VER < 1400)
+	#undef SUPPORT_FCOLLADA
 #endif
 
 // Gamebryo doesn't support Visual Studio 2003, 64-bit code, Linux.
