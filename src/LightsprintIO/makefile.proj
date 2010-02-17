@@ -33,7 +33,7 @@ CPP_FLAGS += -DLINUX
 SOURCES = \
 Import3DS/Model_3DS.cpp \
 Import3DS/RRObject3DS.cpp \
-ImportCollada/RRObjectCollada.cpp \
+ImportFCollada/RRObjectFCollada.cpp \
 ImportImages/ImportFreeImage.cpp \
 ImportMGF/RRObjectMGF.cpp \
 ImportMGF/badarg.c \
@@ -45,6 +45,7 @@ ImportMGF/parser.c \
 ImportMGF/words.c \
 ImportMGF/xf.c \
 ImportOBJ/RRObjectOBJ.cpp \
+ImportOpenCollada/RRObjectOpenCollada.cpp \
 ImportQuake3/Q3Loader.cpp \
 ImportQuake3/RRObjectBSP.cpp \
 ImportScene.cpp
