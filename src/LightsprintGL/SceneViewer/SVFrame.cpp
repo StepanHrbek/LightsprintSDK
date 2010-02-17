@@ -611,23 +611,26 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_FILE_SAVE_SCREENSHOT:
 		case ME_FILE_SAVE_ENHANCED_SCREENSHOT:
 			{
+				// Grabs content of backbuffer to sshot.
 				wxSize size = m_canvas->GetSize();
 				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+				glReadBuffer(GL_BACK);
+				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+
 				if (event.GetId()==ME_FILE_SAVE_SCREENSHOT)
 				{
-					// Saves content of backbuffer.
-					unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-					glReadBuffer(GL_BACK);
-					glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+					// No more work, use sshot.
 					sshot->unlock();
 				}
 				else
 				{
-					// Saves frame rendered with 9*FSAA, 2*higher shadow resolution, 2*more shadow samples.
-					const unsigned AA = 3; // 3*2560<8k, 4*2560 uz by neslo na Radeonech 4xxx
+					// Attempt to overwrite sshot by enhanced
+					// frame rendered with 3*3*FSAA, 2*2*higher shadow resolution, 2*more shadow samples.
+					const unsigned AA = 4; // 3*2560<8k, 4*2560 uz by neslo na Radeonech 4xxx
 					const unsigned W = size.x*AA;
 					const unsigned H = size.y*AA;
-
+					
 					// 1. enhance shadows
 					rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
 					unsigned* shadowSamples = new unsigned[lights.size()];
@@ -652,40 +655,41 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 					Texture texDepth(bufDepth,false,false);
 
 					// 3. set new rendertarget, propagate new size to renderer
-					texColor.renderingToBegin();
-					texDepth.renderingToBegin();
-					m_canvas->winWidth = W;
-					m_canvas->winHeight = H;
-					glViewport(0,0,W,H);
+					if (texColor.renderingToBegin() && texDepth.renderingToBegin())
+					{
+						m_canvas->winWidth = W;
+						m_canvas->winHeight = H;
+						glViewport(0,0,W,H);
 
-					// 4. disable automatic tonemapping, uses FBO, would not work
-					bool oldTonemapping = svs.adjustTonemapping;
-					svs.adjustTonemapping = false;
+						// 4. disable automatic tonemapping, uses FBO, would not work
+						bool oldTonemapping = svs.adjustTonemapping;
+						svs.adjustTonemapping = false;
 
-					// 5. render to texColor
-					wxPaintEvent e;
-					m_canvas->Paint(e);
+						// 5. render to texColor
+						wxPaintEvent e;
+						m_canvas->Paint(e);
 
-					// 6. downscale to sshot
-					unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
-					glPixelStorei(GL_PACK_ALIGNMENT,1);
-					glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
-					unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-					for (int j=0;j<size.y;j++)
-						for (int i=0;i<size.x;i++)
-							for (unsigned k=0;k<3;k++)
-							{
-								unsigned a = 0;
-								for (int y=0;y<AA;y++)
-									for (int x=0;x<AA;x++)
-										a += pixelsBig[k+3*(AA*i+x+AA*size.x*(AA*j+y))];
-								pixelsSmall[k+3*(i+size.x*j)] = (a+AA*AA/2)/(AA*AA);
-							}
-					sshot->unlock();
-					bufColor->unlock();
+						// 6. downscale to sshot
+						unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
+						glPixelStorei(GL_PACK_ALIGNMENT,1);
+						glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
+						unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+						for (int j=0;j<size.y;j++)
+							for (int i=0;i<size.x;i++)
+								for (unsigned k=0;k<3;k++)
+								{
+									unsigned a = 0;
+									for (int y=0;y<AA;y++)
+										for (int x=0;x<AA;x++)
+											a += pixelsBig[k+3*(AA*i+x+AA*size.x*(AA*j+y))];
+									pixelsSmall[k+3*(i+size.x*j)] = (a+AA*AA/2)/(AA*AA);
+								}
+						sshot->unlock();
+						bufColor->unlock();
 
-					// 4. cleanup
-					svs.adjustTonemapping = oldTonemapping;
+						// 4. cleanup
+						svs.adjustTonemapping = oldTonemapping;
+					}
 
 					// 3. cleanup
 					texDepth.renderingToEnd();
