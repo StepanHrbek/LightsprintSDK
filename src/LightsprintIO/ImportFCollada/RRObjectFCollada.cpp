@@ -80,15 +80,15 @@ enum
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMeshCollada
+// RRMeshFCollada
 
 // See RRMesh documentation for details
 // on individual member functions.
 
-class RRMeshCollada : public RRMesh
+class RRMeshFCollada : public RRMesh
 {
 public:
-	RRMeshCollada(const FCDGeometryMesh* _mesh);
+	RRMeshFCollada(const FCDGeometryMesh* _mesh);
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -105,10 +105,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMeshCollada load
+// RRMeshFCollada load
 
 // Doesn't create mesh copy, stores only pointer, so it depends on original collada mesh.
-RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh)
+RRMeshFCollada::RRMeshFCollada(const FCDGeometryMesh* _mesh)
 {
 	mesh = _mesh;
 }
@@ -201,9 +201,9 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMeshCollada implements RRMesh
+// RRMeshFCollada implements RRMesh
 
-unsigned RRMeshCollada::getNumVertices() const
+unsigned RRMeshFCollada::getNumVertices() const
 {
 	const FCDGeometrySource* source = mesh->GetVertexSource(0);
 	if (!source)
@@ -214,9 +214,9 @@ unsigned RRMeshCollada::getNumVertices() const
 	return (unsigned)source->GetValueCount();
 }
 
-void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
+void RRMeshFCollada::getVertex(unsigned v, Vertex& out) const
 {
-	RR_ASSERT(v<RRMeshCollada::getNumVertices());
+	RR_ASSERT(v<RRMeshFCollada::getNumVertices());
 	const FCDGeometrySource* source = mesh->GetVertexSource(0);
 	if (!source)
 	{
@@ -227,16 +227,16 @@ void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
 	memcpy(&out,source->GetValue(v),sizeof(out));
 }
 
-unsigned RRMeshCollada::getNumTriangles() const
+unsigned RRMeshFCollada::getNumTriangles() const
 {
 	// mesh must be triangulated
 	return (unsigned)mesh->GetFaceCount();
 }
 
-void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
+void RRMeshFCollada::getTriangle(unsigned t, Triangle& out) const
 {
 	// mesh must be triangulated
-	if (t>=RRMeshCollada::getNumTriangles()) 
+	if (t>=RRMeshFCollada::getNumTriangles()) 
 	{
 		RR_ASSERT(0);
 		return;
@@ -280,7 +280,7 @@ void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 	RR_ASSERT(0);
 }
 
-void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
+void RRMeshFCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	RRVec3 normal[3];
 	RRVec3 tangent[3];
@@ -312,7 +312,7 @@ void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }
 
-bool RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+bool RRMeshFCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 {
 	if (getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,channel,2,t,&out,sizeof(out)))
 	{
@@ -322,7 +322,7 @@ bool RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigne
 	if (channel==LIGHTMAP_CHANNEL)
 	{
 		// unwrap was not found, but we can autogenerate it
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectFCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
 		return RRMesh::getTriangleMapping(t,out,0);
 	}
 	return false;
@@ -352,10 +352,10 @@ RRReal colorToFloat(FMVector4 color)
 	return (color.x+color.y+color.z)*0.333f;
 }
 
-class MaterialCacheCollada
+class MaterialCacheFCollada
 {
 public:
-	MaterialCacheCollada(const char* _pathToTextures, float _emissiveMultiplier)
+	MaterialCacheFCollada(const char* _pathToTextures, float _emissiveMultiplier)
 	{
 		pathToTextures = _pathToTextures;
 		emissiveMultiplier = _emissiveMultiplier;
@@ -437,7 +437,7 @@ public:
 		}
 #endif
 	}
-	~MaterialCacheCollada()
+	~MaterialCacheFCollada()
 	{
 		// delete materials we created
 		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
@@ -620,23 +620,23 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectCollada
+// RRObjectFCollada
 
 // See RRObject documentation for details
 // on individual member functions.
 
-class RRObjectCollada : public RRObject
+class RRObjectFCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* collider, MaterialCacheCollada* materialCache);
-	virtual ~RRObjectCollada();
+	RRObjectFCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* collider, MaterialCacheFCollada* materialCache);
+	virtual ~RRObjectFCollada();
 
 private:
 	const FCDSceneNode*        node;
 	const FCDGeometryInstance* geometryInstance;
 
 	// materials
-	MaterialCacheCollada*      materialCache;
+	MaterialCacheFCollada*      materialCache;
 };
 
 void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatrix3x4* invWorldMatrix)
@@ -657,7 +657,7 @@ void getNodeMatrices(const FCDSceneNode* node, RRMatrix3x4* worldMatrix, RRMatri
 	}
 }
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, MaterialCacheCollada* _materialCache)
+RRObjectFCollada::RRObjectFCollada(const FCDSceneNode* _node, const FCDGeometryInstance* _geometryInstance, const RRCollider* _collider, MaterialCacheFCollada* _materialCache)
 {
 	RR_ASSERT(_node);
 	RR_ASSERT(_collider);
@@ -718,7 +718,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* _node, const FCDGeometryIns
 	}
 }
 
-RRObjectCollada::~RRObjectCollada()
+RRObjectFCollada::~RRObjectFCollada()
 {
 	// don't delete collider and mesh, we haven't created them
 }
@@ -726,28 +726,28 @@ RRObjectCollada::~RRObjectCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectsCollada
+// RRObjectsFCollada
 
-class RRObjectsCollada : public RRObjects
+class RRObjectsFCollada : public RRObjects
 {
 public:
-	RRObjectsCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier);
-	virtual ~RRObjectsCollada();
+	RRObjectsFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier);
+	virtual ~RRObjectsFCollada();
 
 private:
 	const RRCollider*          newColliderCached(const FCDGeometryMesh* mesh);
-	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
+	RRObjectFCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
 	void                       addNode(const FCDSceneNode* node);
 
 	// collider and mesh cache, for instancing
 	typedef std::map<const FCDGeometryMesh*,const RRCollider*> ColliderCache;
 	ColliderCache              colliderCache;
-	MaterialCacheCollada       materialCache;
+	MaterialCacheFCollada       materialCache;
 };
 
 // Creates new RRCollider from FCDGeometryMesh.
 // Caching on, first query creates collider, second query reads it from cache.
-const RRCollider* RRObjectsCollada::newColliderCached(const FCDGeometryMesh* mesh)
+const RRCollider* RRObjectsFCollada::newColliderCached(const FCDGeometryMesh* mesh)
 {
 	if (!mesh)
 	{
@@ -781,13 +781,13 @@ triangle_found:
 	else
 	{
 		bool aborting = false;
-		return colliderCache[mesh] = RRCollider::create(new RRMeshCollada(mesh),RRCollider::IT_LINEAR,aborting);
+		return colliderCache[mesh] = RRCollider::create(new RRMeshFCollada(mesh),RRCollider::IT_LINEAR,aborting);
 	}
 }
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders and meshes).
-RRObjectCollada* RRObjectsCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
+RRObjectFCollada* RRObjectsFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
 {
 	if (!geometryInstance)
 	{
@@ -808,11 +808,11 @@ RRObjectCollada* RRObjectsCollada::newObject(const FCDSceneNode* node, const FCD
 	{
 		return NULL;
 	}
-	return new RRObjectCollada(node,geometryInstance,collider,&materialCache);
+	return new RRObjectFCollada(node,geometryInstance,collider,&materialCache);
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void RRObjectsCollada::addNode(const FCDSceneNode* node)
+void RRObjectsFCollada::addNode(const FCDSceneNode* node)
 {
 	if (!node)
 		return;
@@ -823,7 +823,7 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 		if (entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
-			RRObjectCollada* object = newObject(node,geometryInstance);
+			RRObjectFCollada* object = newObject(node,geometryInstance);
 			if (object)
 			{
 				push_back(object);
@@ -841,7 +841,7 @@ void RRObjectsCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
+RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
 	: materialCache(pathToTextures,emissiveMultiplier)
 {
 	if (!document)
@@ -891,12 +891,12 @@ RRObjectsCollada::RRObjectsCollada(FCDocument* document, const char* pathToTextu
 	{
 		RRReportInterval report(INF3,"Adapting objects...\n");
 		const FCDSceneNode* root = document->GetVisualSceneInstance();
-		if (!root) RRReporter::report(WARN,"RRObjectCollada: No visual scene instance found.\n");
+		if (!root) RRReporter::report(WARN,"RRObjectFCollada: No visual scene instance found.\n");
 		addNode(root);
 	}
 }
 
-RRObjectsCollada::~RRObjectsCollada()
+RRObjectsFCollada::~RRObjectsFCollada()
 {
 	// delete objects
 	for (unsigned i=0;i<size();i++)
@@ -915,17 +915,17 @@ RRObjectsCollada::~RRObjectsCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRLightsCollada
+// RRLightsFCollada
 
-class RRLightsCollada : public RRLights
+class RRLightsFCollada : public RRLights
 {
 public:
-	RRLightsCollada(FCDocument* document);
+	RRLightsFCollada(FCDocument* document);
 	void addNode(const FCDSceneNode* node);
-	virtual ~RRLightsCollada();
+	virtual ~RRLightsFCollada();
 };
 
-RRLightsCollada::RRLightsCollada(FCDocument* document)
+RRLightsFCollada::RRLightsFCollada(FCDocument* document)
 {
 	if (!document)
 		return;
@@ -937,7 +937,7 @@ RRLightsCollada::RRLightsCollada(FCDocument* document)
 	addNode(document->GetVisualSceneInstance());
 }
 
-void RRLightsCollada::addNode(const FCDSceneNode* node)
+void RRLightsFCollada::addNode(const FCDSceneNode* node)
 {
 	if (!node)
 		return;
@@ -991,7 +991,7 @@ void RRLightsCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-RRLightsCollada::~RRLightsCollada()
+RRLightsFCollada::~RRLightsFCollada()
 {
 	// delete lights
 	for (unsigned i=0;i<size();i++)
@@ -1001,14 +1001,14 @@ RRLightsCollada::~RRLightsCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRSceneCollada
+// RRSceneFCollada
 
-class RRSceneCollada : public RRScene
+class RRSceneFCollada : public RRScene
 {
 public:
 	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
-		RRSceneCollada* scene = new RRSceneCollada;
+		RRSceneFCollada* scene = new RRSceneFCollada;
 		FCollada::Initialize();
 		scene->scene_dae = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
@@ -1036,7 +1036,7 @@ public:
 			return scene;
 		}
 	}
-	virtual ~RRSceneCollada()
+	virtual ~RRSceneFCollada()
 	{
 		delete scene_dae;
 		FCollada::Release();
@@ -1053,17 +1053,17 @@ private:
 
 RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
 {
-	return new RRObjectsCollada(document,pathToTextures,emissiveMultiplier);
+	return new RRObjectsFCollada(document,pathToTextures,emissiveMultiplier);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)
 {
-	return new RRLightsCollada(document);
+	return new RRLightsFCollada(document);
 }
 
 void registerLoaderFCollada()
 {
-	RRScene::registerLoader("*.dae",RRSceneCollada::load);
+	RRScene::registerLoader("*.dae",RRSceneFCollada::load);
 }
 
 #endif // SUPPORT_FCOLLADA
