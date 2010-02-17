@@ -6,7 +6,7 @@
 #include "../supported_formats.h"
 #ifdef SUPPORT_OPENCOLLADA
 
-// TODO sem prijde tak 20-40kB tveho kodu
+// TODO sem prijde tak 20-40kB tveho kodu, nedel to do vic souboru
 
 void registerLoaderOpenCollada()
 {

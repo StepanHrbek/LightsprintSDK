@@ -7,6 +7,7 @@
 #ifdef SUPPORT_ASSIMP
 
 #include "RRObjectAssimp.h"
+#include "Lightsprint/RRScene.h"
 #include "include/assimp.h"
 #include "include/aiConfig.h"
 #include "include/aiPostProcess.h"
