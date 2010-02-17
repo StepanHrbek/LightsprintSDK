@@ -3,8 +3,8 @@
 // Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifndef RROBJECTCOLLADA_H
-#define RROBJECTCOLLADA_H
+#ifndef RROBJECTFCOLLADA_H
+#define RROBJECTFCOLLADA_H
 
 #include "Lightsprint/RRScene.h"
 
@@ -18,6 +18,6 @@ rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document, const char* 
 rr::RRLights* adaptLightsFromFCollada(class FCDocument* document);
 
 //! Makes it possible to load .dae scenes from disk via rr::RRScene::RRScene().
-void registerLoaderCollada();
+void registerLoaderFCollada();
 
 #endif

@@ -11,7 +11,8 @@
 #include "Import3DS/RRObject3DS.h"
 #include "ImportAssimp/RRObjectAssimp.h"
 #include "ImportGamebryo/RRObjectGamebryo.h"
-#include "ImportCollada/RRObjectCollada.h"
+#include "ImportOpenCollada/RRObjectOpenCollada.h"
+#include "ImportFCollada/RRObjectFCollada.h"
 #include "ImportQuake3/RRObjectBSP.h"
 #include "ImportMGF/RRObjectMGF.h"
 #include "ImportOBJ/RRObjectOBJ.h"
@@ -20,7 +21,6 @@ void rr_io::registerLoaders()
 {
 	// if multiple loaders support the same format,
 	// register more robust implementations first
-	// (so Assimp goes after Collada but before obj)
 
 #ifdef SUPPORT_IMAGES
 	registerLoaderImages();
@@ -34,8 +34,14 @@ void rr_io::registerLoaders()
 	registerLoaderGamebryo();
 #endif
 
-#ifdef SUPPORT_COLLADA
-	registerLoaderCollada();
+#ifdef SUPPORT_OPENCOLLADA
+	// is better than FCollada
+	registerLoaderOpenCollada();
+#endif
+
+#ifdef SUPPORT_FCOLLADA
+	// is better than Assimp
+	registerLoaderFCollada();
 #endif
 
 #ifdef SUPPORT_QUAKE3
@@ -43,6 +49,7 @@ void rr_io::registerLoaders()
 #endif
 
 #ifdef SUPPORT_ASSIMP
+	// is better than 3ds and obj
 	registerLoaderAssimp();
 #endif
 

@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_COLLADA
+#ifdef SUPPORT_FCOLLADA
 
 // This code implements data adapters for access to Collada meshes,
 // objects, materials, loaded by FCollada library.
@@ -56,7 +56,7 @@
 #include "FCDocument/FCDVersion.h"
 #include "FUtils/FUFileManager.h"
 
-#include "RRObjectCollada.h"
+#include "RRObjectFCollada.h"
 
 #ifdef _MSC_VER
 	#if _MSC_VER<1400
@@ -1061,9 +1061,9 @@ RRLights* adaptLightsFromFCollada(class FCDocument* document)
 	return new RRLightsCollada(document);
 }
 
-void registerLoaderCollada()
+void registerLoaderFCollada()
 {
 	RRScene::registerLoader("*.dae",RRSceneCollada::load);
 }
 
-#endif // SUPPORT_COLLADA
+#endif // SUPPORT_FCOLLADA

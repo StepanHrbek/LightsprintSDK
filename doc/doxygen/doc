@@ -466,7 +466,7 @@ Video formats
     - Open the file <code>FCollada/FUtils/FUFileManager.cpp</code> and change "size" to "(unsigned int) size" at line 392.
     - On 64-bit platforms, open the file <code>FCollada/FUtils/FUStringBuilder.h</code> and replace "long" by "long long" at lines 139 and 140.
     - When building FCollada, use O2 optimization level for 64bit release version and O1 for 32bit to prevent linking issues with templates.
-    - We provide a makefile located at "src/LightsprintIO/ImportCollada" for your convenience.
+    - We provide a makefile located at "src/LightsprintIO/ImportFCollada" for your convenience.
 
 \page fcollada_patch FCollada patch
   Precompiled FCollada 3.05B in Lightsprint SDK includes our bugfix:

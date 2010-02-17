@@ -8,7 +8,8 @@
 // Comment out formats you don't need.
 
 #define SUPPORT_GAMEBRYO   // Gamebryo .gsa
-#define SUPPORT_COLLADA    // Collada .dae (better than Assimp)
+#define SUPPORT_OPENCOLLADA// OpenCollada .dae (better than Fcollada)
+#define SUPPORT_COLLADA    // FCollada .dae (better than Assimp)
 #define SUPPORT_ASSIMP     // Assimp dae 3ds x prj md2 md3 md5 ply mdl ase ask hmp smd vta mdc stl lwo lxo dxf nff enff raw off ac acc ac3d bvh xml irrmesh xml irr q3o q3s b3d ter csm 3d uc lws mot
 #define SUPPORT_QUAKE3     // Quake 3 .bsp
 #define SUPPORT_MGF        // Materials and Geometry Format .mgf

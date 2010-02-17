@@ -788,14 +788,14 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Collada"
+			Name="FCollada"
 			>
 			<File
-				RelativePath=".\ImportCollada\RRObjectCollada.cpp"
+				RelativePath=".\ImportFCollada\RRObjectFCollada.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ImportCollada\RRObjectCollada.h"
+				RelativePath=".\ImportFCollada\RRObjectFCollada.h"
 				>
 			</File>
 		</Filter>
@@ -2048,6 +2048,18 @@
 			</File>
 			<File
 				RelativePath=".\ImportDirectShow\RRBufferDirectShow.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="OpenCollada"
+			>
+			<File
+				RelativePath=".\ImportOpenCollada\RRObjectOpenCollada.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportOpenCollada\RRObjectOpenCollada.h"
 				>
 			</File>
 		</Filter>
