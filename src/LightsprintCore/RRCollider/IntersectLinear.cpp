@@ -182,7 +182,11 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			importer->getAABB(&boxUnaligned.min,&boxUnaligned.max,NULL);
 			boxUnaligned.init(boxUnaligned.min,boxUnaligned.max);
 
+#ifdef USE_SSE
 			if (boxUnaligned.intersectUnaligned(ray))
+#else
+			if (boxUnaligned.intersect(ray))
+#endif
 			{
 				ray->hitDistance = ray->hitDistanceMax;
 				update_rayDir(ray);
