@@ -48,13 +48,14 @@ void rr_io::registerLoaders()
 	registerLoaderQuake3();
 #endif
 
-#ifdef SUPPORT_ASSIMP
-	// is better than 3ds and obj
-	registerLoaderAssimp();
+#ifdef SUPPORT_3DS
+	// comparable to assimp, better smoothing, but no lights, no transformations
+	registerLoader3DS();
 #endif
 
-#ifdef SUPPORT_3DS
-	registerLoader3DS();
+#ifdef SUPPORT_ASSIMP
+	// is better than obj
+	registerLoaderAssimp();
 #endif
 
 #ifdef SUPPORT_MGF
