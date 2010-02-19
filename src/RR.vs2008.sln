@@ -164,6 +164,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NiLightMapMaterial", "C:\Em
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NiLightMapUtility", "C:\Emergent\Integrations\Gamebryo_GlobalIllumination_1.0.0\NiLightMapUtility\Win32\VC90\NiLightMapUtility.vcproj", "{BACF7E6D-6B86-41D1-8CD6-3722EDE11772}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLManager", "RENDERLights\RLManager.vcproj", "{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Mixed Platforms = Debug DLL|Mixed Platforms
@@ -970,6 +972,31 @@ Global
 		{BACF7E6D-6B86-41D1-8CD6-3722EDE11772}.Shipping DLL|Win32.ActiveCfg = Shipping|Win32
 		{BACF7E6D-6B86-41D1-8CD6-3722EDE11772}.Shipping DLL|Win32.Build.0 = Shipping|Win32
 		{BACF7E6D-6B86-41D1-8CD6-3722EDE11772}.Shipping DLL|x64.ActiveCfg = Shipping|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Mixed Platforms.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Mixed Platforms.Build.0 = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.Build.0 = Debug static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|x64.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Mixed Platforms.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Mixed Platforms.Build.0 = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.Build.0 = Debug static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|x64.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Mixed Platforms.ActiveCfg = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Mixed Platforms.Build.0 = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.ActiveCfg = Release static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.Build.0 = Release static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|x64.ActiveCfg = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Mixed Platforms.ActiveCfg = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Mixed Platforms.Build.0 = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.ActiveCfg = Release static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.Build.0 = Release static|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|x64.ActiveCfg = Release|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Mixed Platforms.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Mixed Platforms.Build.0 = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Win32.ActiveCfg = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Win32.Build.0 = Debug|Win32
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|x64.ActiveCfg = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -996,6 +1023,7 @@ Global
 		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAA2} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
+		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 		{47261285-5847-440D-9326-C0FB988F3D36} = {0C63F59A-F2D1-4720-A507-04DB3C954E1A}
 		{BACF7E6D-6B86-41D1-8CD6-3722EDE11772} = {0C63F59A-F2D1-4720-A507-04DB3C954E1A}
 	EndGlobalSection
