@@ -16,7 +16,7 @@ namespace rr
 // Pool
 //
 // used internally by ChunkList
-// allocates only, delete pool to delete all previousuly allocated memory
+// reset() frees all previously allocated elements, single element can't be freed
 
 template<class C>
 class Pool
@@ -46,6 +46,12 @@ public:
 		}
 		block->element[elementsUsed].next = NULL;
 		return block->element + elementsUsed++;
+	}
+	// free everything
+	void reset()
+	{
+		this->~Pool();
+		new(this) Pool();
 	}
 	~Pool()
 	{
