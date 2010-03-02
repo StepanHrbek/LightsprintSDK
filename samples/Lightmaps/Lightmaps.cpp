@@ -446,7 +446,7 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 
 	// init static scene
-	rr::RRScene scene("C:\\Users\\dee\\Downloads\\cad\\sala2_kryst1ok\\sala2_kryst1ok.3ds",0.01f);//../../data/scenes/koupelna/koupelna4.dae");
+	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
 	solver->setStaticObjects(scene.getObjects(), NULL);
 
 	// init dynamic objects
