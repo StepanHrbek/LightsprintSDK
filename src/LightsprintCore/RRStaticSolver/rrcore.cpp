@@ -1054,6 +1054,21 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 	}
 	if (phase==2)
 	{
+		// preallocate space for new factors. if it fails, keep old factors.
+		// can be deleted, its purpose is only to ensure that illumination doesn't get worse after allocation failure
+		{
+			unsigned numFactorsToInsert = 0;
+			for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
+			{
+				numFactorsToInsert += shootingKernels.shootingKernel[kernelNum].hitTriangles.size();
+			}
+			if (!factorAllocator.reserve(numFactorsToInsert))
+			{
+				// alloc failed, keep old factors
+				return;
+			}
+		}
+
 		// remove old factors
 		shotsForFactorsTotal-=source->shotsForFactors;
 		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);

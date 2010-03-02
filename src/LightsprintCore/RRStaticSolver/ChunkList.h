@@ -24,28 +24,22 @@ class Pool
 public:
 	Pool()
 	{
-		block = NULL;
+		firstBlock = NULL;
+		freeBlock = NULL;
 		elementsUsed = 0;
+		allocationFailed = false;
 	}
 	C* allocate()
 	{
-		if (!block || elementsUsed==Block::BLOCK_SIZE)
+		if (!reserve(1))
+			return NULL;
+		if (elementsUsed==Block::BLOCK_SIZE)
 		{
-			Block* oldBlock = block;
-			try // ignore warning, std::bad_alloc exception is catched properly
-			{
-				block = new Block;
-			}
-			catch(...)
-			{
-				RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Not enough memory, radiosity job interrupted.\n"));
-				return NULL;
-			}
-			block->next = oldBlock;
+			freeBlock = freeBlock->next;
 			elementsUsed = 0;
 		}
-		block->element[elementsUsed].next = NULL;
-		return block->element + elementsUsed++;
+		freeBlock->element[elementsUsed].next = NULL;
+		return freeBlock->element + elementsUsed++;
 	}
 	// free everything
 	void reset()
@@ -53,9 +47,23 @@ public:
 		this->~Pool();
 		new(this) Pool();
 	}
+	// did allocation fail since last constructor or reset?
+	bool failed()
+	{
+		return allocationFailed;
+	}
+	// preallocates space, ensures that next n allocate() calls won't fail
+	// true = ok
+	bool reserve(unsigned elementsToReserve)
+	{
+		allocationFailed |= !Block::reserve(freeBlock,elementsToReserve+elementsUsed);
+		if (!firstBlock)
+			firstBlock = freeBlock;
+		return !allocationFailed;
+	}
 	~Pool()
 	{
-		delete block;
+		delete firstBlock;
 	}
 
 private:
@@ -71,13 +79,37 @@ private:
 		{
 			delete next;
 		}
+		// preallocates space, ensures that blocks contain at least elementsToReserve
+		// true = ok
+		static bool reserve(Block*& block, unsigned elementsToReserve)
+		{
+			if (!block)
+			{
+				try // ignore warning, std::bad_alloc exception is catched properly
+				{
+					block = new Block;
+				}
+				catch(...)
+				{
+#if defined(_M_X64) || defined(_LP64)
+					RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Not enough memory, radiosity job interrupted.\n"));
+#else
+					RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Out of address space, radiosity job interrupted. Use 64bit version.\n"));
+#endif
+					return false;
+				}
+			}
+			return (elementsToReserve>BLOCK_SIZE) ? reserve(block->next,elementsToReserve-BLOCK_SIZE) : true;
+		}
 		enum {BLOCK_SIZE=1000000/sizeof(C)};
 		C element[BLOCK_SIZE];
-		Block* next;
+		Block* next; // allocated after us
 	};
 
-	Block* block;
-	unsigned elementsUsed;
+	Block* firstBlock; // pointer to first block
+	Block* freeBlock; // pointer to first block with free elements
+	unsigned elementsUsed; // number of elements used in freeBlock
+	bool allocationFailed; // previous allocation or reservation failed
 };
 
 

@@ -171,6 +171,7 @@ public:
 	void    reset();
 
 	void    insert(Triangle *key);
+	unsigned size() {return triangles;}
 	Triangle *get();
 
 	private:
@@ -353,7 +354,7 @@ public:
 		Triangle* getRandomExitRay(ShootingKernel* shootingKernel, Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 
 		// all factors allocated by this scene
-		// deallocated only in scene destructor
+		// deallocated only in scene destructor or when factors are reset
 		ChunkList<Factor>::Allocator factorAllocator;
 
 		// used only during fireball build to gather sky hits
