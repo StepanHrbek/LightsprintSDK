@@ -95,7 +95,6 @@ float                      speedRight = 0;
 float                      speedLeft = 0;
 rr::RRVec4                 brightness(2);
 float                      contrast = 1;
-unsigned                   solutionVersion = 0;
 
 // estimates where character foot is, moves it to given world coordinate, then rotates character around Y and Z axes
 static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVec2 rotYZ)
@@ -223,7 +222,6 @@ void keyboard(unsigned char c, int x, int y)
 				// start rendering computed maps
 				renderLayer = LAYER_OFFLINE_PIXEL;
 				modeMovingEye = true;
-				solutionVersion++; // change version so that illumination propagates into VRAM
 				break;
 			}
 
