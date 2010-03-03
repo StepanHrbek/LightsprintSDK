@@ -265,6 +265,17 @@ void SVFrame::userPreferencesApplyToWx()
 
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
+	// workaround for http://trac.wxwidgets.org/ticket/11787
+	// solves crash in second Toolbench Relighting 
+	wxPGEditor_TextCtrl = NULL;
+	wxPGEditor_Choice = NULL;
+	wxPGEditor_ComboBox = NULL;
+	wxPGEditor_TextCtrlAndButton = NULL;
+	wxPGEditor_CheckBox = NULL;
+	wxPGEditor_ChoiceAndButton = NULL;
+//	wxPGEditor_SpinCtrl = NULL;
+//	wxPGEditor_DatePickerCtrl = NULL;
+
 	// open at ~50% of screen size
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
