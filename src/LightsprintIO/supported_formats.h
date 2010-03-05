@@ -15,6 +15,7 @@
 #define SUPPORT_MGF        // Materials and Geometry Format .mgf
 #define SUPPORT_IMAGES     // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 #define SUPPORT_DIRECTSHOW // avi, wmv, mpg etc
+#define SUPPORT_GOOGLEEARTH// Google Earth .kmz
 
 // Old loaders obsoleted by Assimp.
 #define SUPPORT_3DS       // 3D Studio .3ds
@@ -35,7 +36,7 @@
 	#undef SUPPORT_GAMEBRYO
 #endif
 
-// We haven't tested mgflib outside Windows yet.
+// mgf should work everywhere, but we tested it only under Windows.
 #if defined(SUPPORT_MGF) && !defined(_WIN32)
 	#undef SUPPORT_MGF
 #endif
@@ -43,4 +44,8 @@
 // DirectShow exists only in Windows.
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)
 	#undef SUPPORT_DIRECTSHOW
+#endif
+
+#if defined SUPPORT_GOOGLEEARTH && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1500) )
+	#undef SUPPORT_GOOGLEEARTH
 #endif

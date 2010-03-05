@@ -11,6 +11,7 @@
 #include "Import3DS/RRObject3DS.h"
 #include "ImportAssimp/RRObjectAssimp.h"
 #include "ImportGamebryo/RRObjectGamebryo.h"
+#include "ImportGoogleEarth/RRObjectKMZ.h"
 #include "ImportOpenCollada/RRObjectOpenCollada.h"
 #include "ImportFCollada/RRObjectFCollada.h"
 #include "ImportQuake3/RRObjectBSP.h"
@@ -42,6 +43,10 @@ void rr_io::registerLoaders()
 #ifdef SUPPORT_FCOLLADA
 	// is better than Assimp
 	registerLoaderFCollada();
+#endif
+
+#ifdef SUPPORT_GOOGLEEARTH
+	registerLoaderGoogleEarth();
 #endif
 
 #ifdef SUPPORT_QUAKE3

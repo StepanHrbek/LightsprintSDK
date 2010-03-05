@@ -18,7 +18,7 @@
 #include "../tmpstr.h"
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
-#include <shlobj.h> // SHGetSpecialFolderPath
+	#include <shlobj.h> // SHGetSpecialFolderPath
 #endif
 
 	#define DEFAULT_FIREBALL_QUALITY 350

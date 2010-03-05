@@ -2060,6 +2060,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="GoogleEarth"
+			>
+			<File
+				RelativePath=".\ImportGoogleEarth\RRObjectKMZ.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportGoogleEarth\RRObjectKMZ.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp"
 			>
