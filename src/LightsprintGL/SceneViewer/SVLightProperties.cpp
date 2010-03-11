@@ -131,6 +131,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 	}
 }
 
+//! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVLightProperties::updateHide()
 {
 	rr::RRLight* light = &rtlight->getRRLight();

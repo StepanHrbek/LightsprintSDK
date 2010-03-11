@@ -850,6 +850,10 @@ RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTex
 	// standardize up axis and units
 	{
 		RRReportInterval report(INF3,"Standardizing geometry...\n");
+		// error in fcollada (very rare):
+		//  non-const light intensity in non-meter scenes is wrong
+		//  why? StandardizeUpAxisAndLength should (but does not) transform also light attenuation
+		//  solution: use our opencollada importer, it's better
 		FCDocumentTools::StandardizeUpAxisAndLength(document,FMVector3(0,1,0),1);
 	}
 
