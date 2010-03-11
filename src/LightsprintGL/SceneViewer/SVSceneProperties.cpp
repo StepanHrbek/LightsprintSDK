@@ -133,6 +133,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 }
 
 //! Copy svs -> hide/show property.
+//! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVSceneProperties::updateHide()
 {
 	propToneMappingAutomatic->Hide(!svs.renderTonemapping,false);
@@ -144,27 +145,35 @@ void SVSceneProperties::updateHide()
 
 void SVSceneProperties::updateProperties()
 {
-	unsigned numChanges =
+	unsigned numChangesRelevantForHiding =
+		+ updateBool(propToneMapping,svs.renderTonemapping)
+		+ updateBool(propWater,svs.renderWater)
+		;
+	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
 		+ updateProperty(propCameraAngles,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle))
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
-		+ updateBool(propToneMapping,svs.renderTonemapping)
 		+ updateBool(propToneMappingAutomatic,svs.adjustTonemapping)
 		+ updateFloat(propToneMappingBrightness,svs.brightness[0])
 		+ updateFloat(propToneMappingContrast,svs.gamma)
-		+ updateBool(propWater,svs.renderWater)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateBool(propGIEmisVideoAffectsGI,svs.videoEmittanceAffectsGI)
 		+ updateBool(propGITranspVideoAffectsGI,svs.videoTransmittanceAffectsGI)
 		;
-	if (numChanges)
+	if (numChangesRelevantForHiding+numChangesOther)
 	{
 		Refresh();
+		if (numChangesRelevantForHiding)
+		{
+			// Must not be called in every frame (e.g. because of auto tone mapping changing brightness in every frame),
+			// float property that is unhid in every frame loses focus immediately after click, can't be edited.
+			updateHide();
+		}
 	}
 }
 
