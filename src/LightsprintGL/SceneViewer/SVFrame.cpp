@@ -206,6 +206,7 @@ void SVFrame::UpdateEverything()
 		event.m_keyCode = ' ';
 		m_canvas->OnKeyDown(event);
 	}
+
 }
 
 static wxImage* loadImage(const char* filename)
@@ -412,6 +413,7 @@ SVFrame::~SVFrame()
 	userPreferences.save();
 	m_mgr.UnInit();
 }
+
 
 void SVFrame::OnExit(wxCommandEvent& event)
 {
