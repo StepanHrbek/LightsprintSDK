@@ -39,6 +39,14 @@ struct SceneViewerStateEx : public SceneViewerState
 		pathToShaders = NULL;
 		releaseResources = true;
 	}
+	bool operator ==(const SceneViewerStateEx& a) const
+	{
+		return this->SceneViewerState::operator==(a) && skyboxFilename==a.skyboxFilename;
+	}
+	bool operator !=(const SceneViewerStateEx& a) const
+	{
+		return !(a==*this);
+	}
 };
 
 }; // namespace

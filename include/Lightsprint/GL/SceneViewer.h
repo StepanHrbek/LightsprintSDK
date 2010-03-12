@@ -118,6 +118,53 @@ struct SceneViewerState
 		autodetectCamera = 1;
 		precision = -1; // display all significant digits
 	}
+	bool operator ==(const SceneViewerState& a) const
+	{
+		return 1
+			&& a.eye==eye
+			&& a.staticLayerNumber==staticLayerNumber
+			&& a.realtimeLayerNumber==realtimeLayerNumber
+			&& a.ldmLayerNumber==ldmLayerNumber
+			&& a.selectedLightIndex==selectedLightIndex
+			&& a.selectedObjectIndex==selectedObjectIndex
+			&& a.fullscreen==fullscreen
+			&& a.renderLightDirect==renderLightDirect
+			&& a.renderLightIndirect==renderLightIndirect
+			&& a.renderLightmaps2d==renderLightmaps2d
+			&& a.renderLightmapsBilinear==renderLightmapsBilinear
+			&& a.renderMaterialDiffuse==renderMaterialDiffuse
+			&& a.renderMaterialSpecular==renderMaterialSpecular
+			&& a.renderMaterialEmission==renderMaterialEmission
+			&& a.renderMaterialTransparency==renderMaterialTransparency
+			&& a.renderMaterialTextures==renderMaterialTextures
+			&& a.renderWater==renderWater
+			&& a.renderWireframe==renderWireframe
+			&& a.renderFPS==renderFPS
+			&& a.renderIcons==renderIcons
+			&& a.renderHelpers==renderHelpers
+			&& a.renderVignette==renderVignette
+			&& a.renderHelp==renderHelp
+			&& a.renderLogo==renderLogo
+			&& a.renderTonemapping==renderTonemapping
+			&& a.adjustTonemapping==adjustTonemapping
+			&& a.playVideos==playVideos
+			&& a.emissiveMultiplier==emissiveMultiplier
+			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
+			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI
+			&& a.cameraDynamicNear==cameraDynamicNear
+			&& a.cameraMetersPerSecond==cameraMetersPerSecond
+			&& (a.brightness==brightness || (renderTonemapping && adjustTonemapping)) // brightness may differ if automatic tonemapping is enabled
+			&& a.gamma==gamma
+			&& a.waterLevel==waterLevel
+			&& a.waterColor==waterColor
+			&& a.precision==precision
+			&& a.autodetectCamera==autodetectCamera
+			;
+	}
+	bool operator !=(const SceneViewerState& a) const
+	{
+		return !(a==*this);
+	}
 };
 
 //! Runs interactive scene viewer.

@@ -280,6 +280,10 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//! Returns true if member variables of both lights match (even if class differs).
+		bool operator ==(const RRLight& a) const;
+		bool operator !=(const RRLight& a) const;
+
 		//! Creates directional light without distance attenuation.
 		//
 		//! It is good approximation of sun, which is so distant, that its

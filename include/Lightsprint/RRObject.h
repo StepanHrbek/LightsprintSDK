@@ -68,6 +68,14 @@ namespace rr
 				material = _material;
 				numTriangles = _numTriangles;
 			}
+			bool operator ==(const FaceGroup& a) const
+			{
+				return material==a.material && numTriangles==a.numTriangles;
+			}
+			bool operator !=(const FaceGroup& a) const
+			{
+				return !(a==*this);
+			}
 		};
 		//! Specifies materials assigned to all triangles.
 		class RR_API FaceGroups : public RRVector<FaceGroup>

@@ -150,6 +150,21 @@ public:
 			RR_ASSERT(0);
 		}
 	}
+	bool operator ==(const RRVector<C>& a) const
+	{
+		if (size()!=a.size())
+			return false;
+		for (unsigned i=0;i<size();i++)
+		{
+			if ((*this)[i]!=a[i])
+				return false;
+		}
+		return true;
+	}
+	bool operator !=(const RRVector<C>& a) const
+	{
+		return !(a==*this);
+	}
 	//! Frees elements.
 	//! Doesn't call element destructors (unlike std::vector).
 	~RRVector()

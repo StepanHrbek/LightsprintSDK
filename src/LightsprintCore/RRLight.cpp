@@ -406,6 +406,35 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 	return RRVec3(0);
 }
 
+bool RRLight::operator ==(const RRLight& a) const
+{
+	// Q: should we ignore unused variables (like position in directional light)?
+	// A: irrelevant, unused variables most likely won't change
+	return 1
+		&& a.type==type
+		&& a.position==position
+		&& a.direction==direction
+		&& a.outerAngleRad==outerAngleRad
+		&& a.radius==radius
+		&& a.color==color
+		&& a.distanceAttenuationType==distanceAttenuationType
+		&& a.polynom==polynom
+		&& a.fallOffExponent==fallOffExponent
+		&& a.spotExponent==spotExponent
+		&& a.fallOffAngleRad==fallOffAngleRad
+		&& a.castShadows==castShadows
+		&& a.name==name
+		&& a.rtProjectedTexture==rtProjectedTexture
+		&& a.rtMaxShadowSize==rtMaxShadowSize
+		&& a.customData==customData
+		;
+}
+
+bool RRLight::operator !=(const RRLight& a) const
+{
+	return !(a==*this);
+}
+
 RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale)
 {
 	return new DirectionalLight(direction,color,physicalScale);
