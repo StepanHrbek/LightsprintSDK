@@ -1829,7 +1829,9 @@ public:
 				if (rrLight)
 				{
 					efd::utf8string name;
-					entity->GetPropertyValue("Name",name); // not tested
+					entity->GetPropertyValue("Name",name); //!!! returns ""
+					if (name.empty())
+						name = entity->GetModelName();
 					rrLight->name = name.c_str();
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 					rrLight->customData = entity;
@@ -1911,6 +1913,7 @@ public:
 #else
 				rrLight->castShadows = true;
 #endif
+				rrLight->name = light->GetName(); //!!! returns ""
 				push_back(rrLight);
 			}
 		}
