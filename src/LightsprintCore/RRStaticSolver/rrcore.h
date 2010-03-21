@@ -110,7 +110,6 @@ public:
 	unsigned shotsForFactors:30; // number of shots used for current ff
 	unsigned isLod0:1; // triangle is in lod0. constant for whole triangle lifetime
 	unsigned isReflector:1; // triangle (is in lod0 and) has some energy accumulated to reflect
-	real    accuracy(); // shots done per energy unit
 
 	// light acumulators
 	//  exitingXxx includes emittance

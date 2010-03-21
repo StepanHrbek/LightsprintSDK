@@ -95,11 +95,6 @@ void Triangle::reset(bool resetFactors)
 	totalExitingFluxToDiffuse=Channels(0);
 }
 
-real Triangle::accuracy()
-{
-	return shotsForFactors/(sum(abs(totalExitingFlux))+SMALL_ENERGY);
-}
-
 static real minAngle(real a,real b,real c) // delky stran
 {
 	real angleA = fast_acos((b*b+c*c-a*a)/(2*b*c));
@@ -306,8 +301,7 @@ restart:
 			else
 			// calculate quality of refresher
 			{
-				//q=-node[i]->accuracy();
-				q=sum(abs(node[i]->totalExitingFlux))/(node[i]->shotsForFactors+0.5f);
+				q = sum(abs(node[i]->totalExitingFlux)) / (node[i]->shotsForFactors+0.5f);
 			}
 
 			// sort [q,node] into best cache, bestQ[0] is highest
