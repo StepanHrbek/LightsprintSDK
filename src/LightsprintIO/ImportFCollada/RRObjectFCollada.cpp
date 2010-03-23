@@ -875,7 +875,7 @@ RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTex
 
 	// generate unique indices
 	// only important for realtime rendering
-	// very slow (4 minutes in 800ktri scene)
+	// very slow if microsoft debugger is attached (4 minutes in 800ktri scene), fast without debugger (1s)
 	// without this code, single vertex number has unique pos, but it could have different normal/uv in different triangles
 	{
 		RRReportInterval report(INF2,"Generating unique indices...\n");
