@@ -24,7 +24,6 @@ namespace rr
 #define SHOOT_FULL_RANGE       1     // 89/90=ignore 1 degree near surface, shoot only away from surface (to avoid occasional shots inside object)
 #define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
-#define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
 //#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
 
 
@@ -266,6 +265,7 @@ void Reflectors::insertObject(Object *o)
 
 #define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
 #define DISTRIB_LEVEL_LOW      0.000003// lower fraction of scene energy found in one node is ignored
+#define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
 
 
 BestInfo Reflectors::best(real allEnergyInScene)
