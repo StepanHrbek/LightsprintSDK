@@ -148,10 +148,10 @@ public:
 
 	// material
 	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
-	const RRMaterial *surface;     // material at outer and inner side of Triangle
+	const RRMaterial* surface;     // material at outer and inner side of Triangle
 
 	// smoothing
-	IVertex *topivertex[3]; // 3x ivertex
+	IVertex* topivertex[3]; // 3x ivertex
 
 	friend class IVertex;
 	friend class Scene;
@@ -171,12 +171,12 @@ public:
 
 	void    insert(Triangle *key);
 	unsigned size() {return triangles;}
-	Triangle *get();
+	Triangle* get();
 
 	private:
 		unsigned trianglesAllocated;
 		unsigned triangles;
-		Triangle **triangle;
+		Triangle** triangle;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -200,10 +200,10 @@ public:
 	~Reflectors();
 	void    reset(); // remove all reflectors
 	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
-
-	BestInfo best(real allEnergyInScene);
 	bool    insert(Triangle* anode); // returns true when node was inserted (=appended)
 	void    insertObject(class Object *o);
+
+	BestInfo best(real allEnergyInScene);
 
 	private:
 		unsigned nodesAllocated;
