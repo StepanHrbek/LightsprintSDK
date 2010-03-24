@@ -7,7 +7,7 @@
 #define RRVISION_RRCORE_H
 
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
-#define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define BESTS           400 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (e.g. polished steel) or specular transmittance that changes light color (e.g. colored glass))
