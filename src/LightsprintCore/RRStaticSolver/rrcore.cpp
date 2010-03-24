@@ -23,8 +23,6 @@ namespace rr
 #define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
 #define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
-#define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
-#define DISTRIB_LEVEL_LOW      0.000003// lower fraction of scene energy found in one node is ignored
 //#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
 
 
@@ -260,6 +258,11 @@ void Reflectors::insertObject(Object *o)
 	for (unsigned i=0;i<o->triangles;i++) insert(&o->triangle[i]);
 }
 
+////////////////////////////////////// stary best() //////////////////////////////////////
+
+#define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
+#define DISTRIB_LEVEL_LOW      0.000003// lower fraction of scene energy found in one node is ignored
+
 
 BestInfo Reflectors::best(real allEnergyInScene)
 {
@@ -342,6 +345,8 @@ restart:
 	RR_ASSERT(result.node);
 	return result;
 }
+
+/////////////////////////////////// konec stareho best()u ///////////////////////////////////
 
 struct NodeQ 
 {
