@@ -22,18 +22,6 @@
 namespace rr
 {
 
-#ifdef DIAGNOSTIC_RAYS
-unsigned logTexelIndex = 0;
-#define LOG_RAY(aeye,adir,adist,ainfinite,aunreliable) { \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=ainfinite; \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].unreliable=aunreliable; \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].index=logTexelIndex; \
-	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; }
-#endif
-
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // directional lightmaps, compatible with Unreal Engine 3

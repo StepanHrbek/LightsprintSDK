@@ -1746,8 +1746,6 @@ no_frame:
 
 	glutSwapBuffers();
 
-	//printf("cache: hits=%d misses=%d",rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheHits,rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheMisses);
-
 	{
 		// animaci nerozjede hned ale az po 2 snimcich (po 1 nestaci)
 		// behem kresleni prvnich snimku driver kompiluje shadery nebo co, pauza by narusila fps

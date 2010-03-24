@@ -251,11 +251,9 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		irrad *= tri->area;
 	}
 	out = irrad;
-	STATISTIC_INC(numCallsTriangleMeasureOk);
 	return true;
 zero:
 	out = RRVec3(0);
-	STATISTIC_INC(numCallsTriangleMeasureFail);
 	return false;
 }
 

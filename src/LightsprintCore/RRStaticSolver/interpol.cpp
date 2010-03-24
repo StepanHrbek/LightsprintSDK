@@ -112,10 +112,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		cacheDirect=measure.direct;
 		cacheIndirect=measure.indirect;
 		cacheValid=1;
-		STATISTIC_INC(numIrradianceCacheMisses);
 	}
-	else
-		STATISTIC_INC(numIrradianceCacheHits);
 
 	RR_ASSERT(IS_CHANNELS(cache));
 	return cache;

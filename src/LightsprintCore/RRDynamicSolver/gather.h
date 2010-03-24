@@ -12,7 +12,6 @@
 #include "LightmapFilter.h"
 	#include "../RRStaticSolver/ChunkList.h"
 
-
 namespace rr
 {
 

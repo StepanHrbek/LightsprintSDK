@@ -263,7 +263,6 @@ void Reflectors::insertObject(Object *o)
 
 BestInfo Reflectors::best(real allEnergyInScene)
 {
-	STATISTIC_INC(numCallsBest);
 	// if cache empty, fill cache
 	if (!bests && nodes)
 	{
@@ -672,13 +671,6 @@ RRVec3 refract(RRVec3 N,RRVec3 I,real r)
 
 unsigned __shot=0;
 
-#define LOG_RAY(aeye,adir,adist,hit) { \
-	STATISTIC( \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
-	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
-
 HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
@@ -695,7 +687,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	__shot++;
-	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		if (!hitTriangle && skyPatchHitsForCurrentTriangle)
@@ -713,20 +704,14 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	//static unsigned s_depth = 0;
 	//if (s_depth>25) 
 	//{
-	//	STATISTIC_INC(numDepthOverflows);
 	//	return HitChannels(0);
 	//}
 	//s_depth++;
-	if (ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
 	RR_ASSERT(side.catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
-	// stats
-	//if (!side.receiveFrom) RRStaticSolver::getSceneStatistics()->numRayTracePhotonHitsNotReceived++;
-	//RRStaticSolver::getSceneStatistics()->sumRayTracePhotonHitPower+=power;
-	//RRStaticSolver::getSceneStatistics()->sumRayTracePhotonDifRefl+=hitTriangle->surface->diffuseReflectance;
 	// diffuse reflection
 	// no real reflection is done here, but energy is stored for further
 	//  redistribution along existing or newly calculated form factors
@@ -737,7 +722,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		RRReal diffuseReflectPower = sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
 		if (diffuseReflectPower>0.01)
 		{
-			STATISTIC_INC(numRayTracePhotonHitsReceived);
 			hitPower += diffuseReflectPower;
 			#pragma omp critical
 			{
@@ -782,7 +766,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		// mirror reflection
 		if (specularReflect)
 		{
-			STATISTIC_INC(numRayTracePhotonHitsReflected);
 			// calculate new direction after ideal mirror reflection
 			RRVec3 newDirectionReflect = RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
 			// recursively call this function
@@ -792,7 +775,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		// transmission
 		if (specularTransmit)
 		{
-			STATISTIC_INC(numRayTracePhotonHitsTransmitted);
 			// recursively call this function
 			hitPower += rayTracePhoton(shootingKernel,hitPoint3d,newDirectionTransmit,hitTriangle);
 		}
@@ -945,9 +927,6 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 {
 	RR_ASSERT(IS_VEC3(energy));
 	RR_ASSERT(factor.power>=0);
-
-	// statistics
-	STATISTIC_INC(numCallsDistribFactor);
 
 	Triangle* destination = factor.destination;
 	RR_ASSERT(destination);
@@ -1108,17 +1087,6 @@ real Scene::avgAccuracy()
 bool Scene::energyFromDistributedUntil(BestInfo source,RRStaticSolver::EndFunc& endfunc)
 {
 	// refresh unaccurate form factors
-	if (phase==0)
-	{
-		if (source.needsRefresh())
-		{
-			STATISTIC_INC(numCallsRefreshFactors);
-		}
-		else
-		{
-			STATISTIC_INC(numCallsDistribFactors);
-		}
-	}
 	if (source.needsRefresh())
 	{
 		refreshFormFactorsFromUntil(source,endfunc);
@@ -1167,7 +1135,6 @@ RRStaticSolver::Improvement Scene::improveStatic(RRStaticSolver::EndFunc& endfun
 {
 	if (!IS_CHANNELS(staticSourceExitingFlux))
 		return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
-	STATISTIC_INC(numCallsImprove);
 	RRStaticSolver::Improvement improved=RRStaticSolver::NOT_IMPROVED;
 
 	do

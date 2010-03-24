@@ -45,9 +45,6 @@
 #include "ChunkList.h"
 #include "../RRPackedSolver/PackedSolverFile.h"
 
-#define STATISTIC(a)
-#define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
-
 namespace rr
 {
 

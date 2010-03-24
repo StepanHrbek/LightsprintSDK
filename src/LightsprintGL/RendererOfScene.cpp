@@ -15,7 +15,6 @@
 #include "RendererOfMesh.h"
 #include "tmpstr.h"
 
-
 namespace rr_gl
 {
 
