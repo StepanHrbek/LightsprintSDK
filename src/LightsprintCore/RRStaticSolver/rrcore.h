@@ -139,6 +139,11 @@ public:
 	// get any combination of direc/indirect/exiting light
 	RRVec3  getMeasure(RRRadiometricMeasure measure) const;
 
+	// precalc for best()
+	real    precalcDistributing;
+	real    precalcRefreshing;
+	void    updatePrecalc(unsigned numTrianglesTotal);
+
 	// geometry
 	real    area;
 	S8      setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAngle,float ignoreSmallerArea);
