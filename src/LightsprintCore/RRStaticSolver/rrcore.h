@@ -183,6 +183,14 @@ public:
 //
 // set of reflectors (light sources and things that reflect some light, no dark things)
 
+struct BestInfo
+{
+	Triangle* node;
+	unsigned shotsForNewFactors; // 0 = selected for distrib, not for shooting
+
+	bool needsRefresh() {return shotsForNewFactors>0;}
+};
+
 class Reflectors
 {
 public:
@@ -193,19 +201,16 @@ public:
 	void    reset(); // remove all reflectors
 	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
 
-	Triangle* best(real allEnergyInScene);
-	bool    lastBestWantsRefresh() {return refreshing;}
+	BestInfo best(real allEnergyInScene);
 	bool    insert(Triangle* anode); // returns true when node was inserted (=appended)
 	void    insertObject(class Object *o);
 
 	private:
 		unsigned nodesAllocated;
-	protected:
 		Triangle** node;
 		// pack of best reflectors (internal cache for best())
 		unsigned bests;
-		Triangle* bestNode[BESTS];
-		bool refreshing; // false = all nodes were selected for distrib, true = for refresh
+		BestInfo bestNode[BESTS];
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -334,12 +339,12 @@ public:
 
 	private:
 		int     phase;
-		Triangle* improvingStatic;
+		BestInfo improvingStatic;
 		RRMesh::TriangleBody improvingBody;
 		RRMesh::TangentBasis improvingBasisOrthonormal;
 		void    shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode);
-		void    refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,RRStaticSolver::EndFunc& endfunc);
-		bool    energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc& endfunc);
+		void    refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc& endfunc);
+		bool    energyFromDistributedUntil(BestInfo source,RRStaticSolver::EndFunc& endfunc);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
 		unsigned shotsForNewFactors;

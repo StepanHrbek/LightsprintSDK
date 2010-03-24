@@ -72,7 +72,9 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 					float shotsForFactors_bigPicture = avgRaysFromTriangle*object->triangles*object->triangle[t].area/sceneArea;
 					unsigned shotsForFactors_details = avgRaysFromTriangle;
 					unsigned shotsForFactors = RR_MAX(1,(unsigned)(shotsForFactors_bigPicture*(1-importanceOfDetails) + shotsForFactors_details*importanceOfDetails));
-					refreshFormFactorsFromUntil(&object->triangle[t],actualRaysFromTriangle[t]=shotsForFactors,neverEnd);
+					actualRaysFromTriangle[t] = shotsForFactors;
+					BestInfo bestInfo = {&object->triangle[t],shotsForFactors};
+					refreshFormFactorsFromUntil(bestInfo,neverEnd);
 				}
 			}
 

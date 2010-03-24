@@ -230,13 +230,11 @@ void Reflectors::reset()
 	for (int i=nodes;i--;) node[i]->isReflector=0;
 	nodes=0;
 	bests=0;
-	refreshing=1;
 }
 
 void Reflectors::resetBest()
 {
 	bests=0;
-	refreshing=1;
 }
 
 bool Reflectors::insert(Triangle* anode)
@@ -266,14 +264,14 @@ void Reflectors::insertObject(Object *o)
 }
 
 
-Triangle* Reflectors::best(real allEnergyInScene)
+BestInfo Reflectors::best(real allEnergyInScene)
 {
 	STATISTIC_INC(numCallsBest);
 	// if cache empty, fill cache
 	if (!bests && nodes)
 	{
 		// start accumulating nodes for refresh
-		refreshing=1;
+		bool refreshing=1;
 restart:
 		//RRReal unshot = 0; // accumulators for convergence update
 		//RRReal shot = 0;
@@ -317,7 +315,8 @@ restart:
 			}
 			if (pos<BESTS)
 			{
-				bestNode[pos]=node[i];
+				bestNode[pos].node=node[i];
+				bestNode[pos].shotsForNewFactors = refreshing ? (node[i]->shotsForFactors?REFRESH_MULTIPLY*node[i]->shotsForFactors:REFRESH_FIRST) : 0;
 				bestQ[pos]=q;
 				if (bests<BESTS) bests++;
 			}
@@ -338,13 +337,14 @@ restart:
 	// get best from cache
 	if (!bests)
 	{
-		return NULL;
+		BestInfo result = {NULL,0};
+		return result;
 	}
-	Triangle* best=bestNode[0];
+	BestInfo result = bestNode[0];
 	bests--;
 	for (unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
-	RR_ASSERT(best);
-	return best;
+	RR_ASSERT(result.node);
+	return result;
 }
 
 struct NodeQ 
@@ -591,7 +591,7 @@ Scene::Scene()
 {
 	object=NULL;
 	phase=0;
-	improvingStatic=NULL;
+	improvingStatic.node=NULL;
 	shotsForNewFactors=0;
 	shotsAccumulated=0;
 	shotsForFactorsTotal=0;
@@ -983,14 +983,12 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 //
 // refresh form factors from one source to all destinations that need it
 
-void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsForNewFactors,RRStaticSolver::EndFunc& endfunc)
+void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc& endfunc)
 {
 	if (phase==0)
 	{
 		// prepare shooting
-		shotsForNewFactors = forcedShotsForNewFactors ? forcedShotsForNewFactors : (source->shotsForFactors?REFRESH_MULTIPLY*source->shotsForFactors:REFRESH_FIRST);
-		if (!forcedShotsForNewFactors)
-			RR_ASSERT(shotsForNewFactors>source->shotsForFactors);
+		shotsForNewFactors = source.shotsForNewFactors;
 		RR_ASSERT(shotsAccumulated==0);
 		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
 		{
@@ -998,7 +996,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		}
 		shootingKernels.reset(shotsForNewFactors); // prepare homogenous shooting
 		// prepare data for shooting
-		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source);
+		unsigned triangleIndex = ARRAY_ELEMENT_TO_INDEX(object->triangle,source.node);
 		object->importer->getCollider()->getMesh()->getTriangleBody(triangleIndex,improvingBody);
 		improvingBasisOrthonormal.normal = orthogonalTo(improvingBody.side1,improvingBody.side2).normalized();
 		improvingBasisOrthonormal.buildBasisFromNormal();
@@ -1013,7 +1011,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			while (shotsAccumulated<shotsForNewFactors
 				)
 			{
-				shotFromToHalfspace(shootingKernels.shootingKernel,source);
+				shotFromToHalfspace(shootingKernels.shootingKernel,source.node);
 				shotsAccumulated++;
 				shotsTotal++;
 				if (shotsTotal%10==0 && endfunc.requestsEnd()) return;
@@ -1037,7 +1035,7 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 					#else
 						int threadNum = 0;
 					#endif
-					shotFromToHalfspace(shootingKernels.shootingKernel+threadNum,source);
+					shotFromToHalfspace(shootingKernels.shootingKernel+threadNum,source.node);
 				}
 			}
 			shotsAccumulated += shotsTodo;
@@ -1064,14 +1062,14 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 		}
 
 		// remove old factors
-		shotsForFactorsTotal-=source->shotsForFactors;
-		Channels ch(source->totalExitingFluxToDiffuse-source->totalExitingFlux);
-		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
+		shotsForFactorsTotal-=source.node->shotsForFactors;
+		Channels ch(source.node->totalExitingFluxToDiffuse-source.node->totalExitingFlux);
+		for (ChunkList<Factor>::const_iterator i=source.node->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, ch, &staticReflectors);
-		source->factors.clear();
+		source.node->factors.clear();
 
 		// insert new factors
-		ChunkList<Factor>::InsertIterator i(source->factors,factorAllocator);
+		ChunkList<Factor>::InsertIterator i(source.node->factors,factorAllocator);
 		Factor f;
 		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
 		{
@@ -1090,10 +1088,10 @@ void Scene::refreshFormFactorsFromUntil(Triangle* source,unsigned forcedShotsFor
 			}
 			shootingKernels.shootingKernel[kernelNum].hitTriangles.reset();
 		}
-		source->totalExitingFluxToDiffuse=source->totalExitingFlux;
-		source->shotsForFactors=shotsAccumulated;
+		source.node->totalExitingFluxToDiffuse=source.node->totalExitingFlux;
+		source.node->shotsForFactors=shotsAccumulated;
 		shotsAccumulated=0;
-		shotsForFactorsTotal+=source->shotsForFactors;
+		shotsForFactorsTotal+=source.node->shotsForFactors;
 		phase=0;
 	}
 }
@@ -1110,13 +1108,12 @@ real Scene::avgAccuracy()
 // return if everything was distributed
 
 // vraci true pri improved
-bool Scene::energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc& endfunc)
+bool Scene::energyFromDistributedUntil(BestInfo source,RRStaticSolver::EndFunc& endfunc)
 {
 	// refresh unaccurate form factors
-	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
 	if (phase==0)
 	{
-		if (needsRefresh)
+		if (source.needsRefresh())
 		{
 			STATISTIC_INC(numCallsRefreshFactors);
 		}
@@ -1125,17 +1122,17 @@ bool Scene::energyFromDistributedUntil(Triangle* source,RRStaticSolver::EndFunc&
 			STATISTIC_INC(numCallsDistribFactors);
 		}
 	}
-	if (needsRefresh)
+	if (source.needsRefresh())
 	{
-		refreshFormFactorsFromUntil(source,0,endfunc);
+		refreshFormFactorsFromUntil(source,endfunc);
 	}
 	if (phase==0)
 	{
 		// distribute energy via form factors
-		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
-			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
+		for (ChunkList<Factor>::const_iterator i=source.node->factors.begin(); *i; ++i)
+			distributeEnergyViaFactor(**i, source.node->totalExitingFluxToDiffuse, &staticReflectors);
 
-		source->totalExitingFluxToDiffuse=Channels(0);
+		source.node->totalExitingFluxToDiffuse=Channels(0);
 		return true;
 	}
 	return false;
@@ -1152,13 +1149,13 @@ bool Scene::distribute(real maxError)
 	int rezerva=20;
 	while (1)
 	{
-		Triangle* source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if (!source || ( sum(abs(source->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
+		BestInfo source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
+		if (!source.node || ( sum(abs(source.node->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 
-		for (ChunkList<Factor>::const_iterator i=source->factors.begin(); *i; ++i)
-			distributeEnergyViaFactor(**i, source->totalExitingFluxToDiffuse, &staticReflectors);
+		for (ChunkList<Factor>::const_iterator i=source.node->factors.begin(); *i; ++i)
+			distributeEnergyViaFactor(**i, source.node->totalExitingFluxToDiffuse, &staticReflectors);
 
-		source->totalExitingFluxToDiffuse=Channels(0);
+		source.node->totalExitingFluxToDiffuse=Channels(0);
 		steps++;
 		distributed=true;
 	}
@@ -1178,16 +1175,16 @@ RRStaticSolver::Improvement Scene::improveStatic(RRStaticSolver::EndFunc& endfun
 
 	do
 	{
-		if (improvingStatic==NULL)
+		if (improvingStatic.node==NULL)
 			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if (improvingStatic==NULL) 
+		if (improvingStatic.node==NULL) 
 		{
 			improved = RRStaticSolver::FINISHED;
 			break;
 		}
 		if (energyFromDistributedUntil(improvingStatic,endfunc))
 		{
-			improvingStatic=NULL;
+			improvingStatic.node=NULL;
 			improved=RRStaticSolver::IMPROVED;
 		}
 	}
@@ -1202,7 +1199,7 @@ RRStaticSolver::Improvement Scene::improveStatic(RRStaticSolver::EndFunc& endfun
 
 void Scene::abortStaticImprovement()
 {
-	if (improvingStatic)
+	if (improvingStatic.node)
 	{
 		Triangle *hitTriangle;
 		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
@@ -1212,7 +1209,7 @@ void Scene::abortStaticImprovement()
 		}
 		shotsAccumulated=0;
 		phase=0;
-		improvingStatic=NULL;
+		improvingStatic.node=NULL;
 	}
 }
 
@@ -1221,10 +1218,10 @@ void Scene::abortStaticImprovement()
 bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 {
 	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
-	if (improvingStatic)
+	if (improvingStatic.node)
 	{
 		// za techto podminek at uz dal nestrili
-		if (phase==1 && shotsAccumulated>=minimalImprovement*improvingStatic->shotsForFactors) phase=2;
+		if (phase==1 && shotsAccumulated>=minimalImprovement*improvingStatic.node->shotsForFactors) phase=2;
 		// vraci uspech pokud uz nestrili ale jeste neskoncil
 		return phase>=2;
 	}
@@ -1241,14 +1238,14 @@ public:
 bool Scene::finishStaticImprovement()
 {
 	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
-	if (improvingStatic)
+	if (improvingStatic.node)
 	{
 		RR_ASSERT(phase>0);
 		NeverEnd neverEnd;
 		bool e=energyFromDistributedUntil(improvingStatic,neverEnd);
 		RR_ASSERT(e); e=e;
 		RR_ASSERT(phase==0);
-		improvingStatic=NULL;
+		improvingStatic.node=NULL;
 		return true;
 	}
 	return false;
