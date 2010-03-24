@@ -1309,7 +1309,7 @@ void Scene::abortStaticImprovement()
 
 bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 {
-	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic.node!=NULL) == (phase!=0));
 	if (improvingStatic.node)
 	{
 		// za techto podminek at uz dal nestrili
@@ -1329,7 +1329,7 @@ public:
 
 bool Scene::finishStaticImprovement()
 {
-	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic.node!=NULL) == (phase!=0));
 	if (improvingStatic.node)
 	{
 		RR_ASSERT(phase>0);
