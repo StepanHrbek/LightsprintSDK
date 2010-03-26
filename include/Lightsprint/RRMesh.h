@@ -328,7 +328,7 @@ namespace rr
 		//!  Optional mesh name included in report if inconsistency is found. May be NULL.
 		//! \return
 		//!  Number of problem reported, 0 for valid mesh.
-		unsigned checkConsistency(unsigned lightmapTexcoord, const char* meshName) const;
+		virtual unsigned     checkConsistency(unsigned lightmapTexcoord, const char* meshName) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////

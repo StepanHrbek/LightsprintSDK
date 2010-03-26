@@ -546,6 +546,28 @@ private:
 unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName) const
 {
 	NumReports numReports(meshName); // unsigned numReports = 0; would work too, although without reporting meshNumber
+	// meshArrays
+	const RRMeshArrays* a = dynamic_cast<const RRMeshArrays*>(this);
+	if (a)
+	{
+		if (!((a->numTriangles && a->numVertices && a->position && a->normal) || (!a->numTriangles && !a->numVertices && !a->position && !a->normal)))
+		{
+			numReports++;
+			RRReporter::report(WARN,"numTriangles=%d, numVertices=%d, position=%s, normal=%s: all must be present, or all zero.\n",a->numTriangles,a->numVertices,a->position?"present":"missing",a->normal?"present":"missing");
+		}
+		if ((a->tangent==NULL) != (a->bitangent==NULL))
+		{
+			numReports++;
+			RRReporter::report(WARN,"tangent=%s, bitangent=%s: it's unusual to provide only one.\n",a->tangent?"present":"none",a->bitangent?"present":"none");
+		}
+		for (unsigned t=0;t<a->numTriangles;t++)
+			for (unsigned v=0;v<3;v++)
+				if (a->triangle[t][v]>=a->numVertices)
+				{
+					numReports++;
+					RRReporter::report(ERRO,"triangle[%d][%d]=%d is out of range, must be below numVertices=%d, expect crash.\n",t,v,a->triangle[t][v],a->numVertices);
+				}
+	}
 	// numVertices
 	unsigned numVertices = getNumVertices();
 	if (numVertices==0 || numVertices>=10000000)
