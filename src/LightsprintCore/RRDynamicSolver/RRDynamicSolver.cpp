@@ -114,6 +114,16 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]=NULL.\n",i);
 			return;
 		}
+		if (!_objects[i]->getCollider())
+		{
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
+			return;
+		}
+		if (!_objects[i]->getCollider()->getMesh())
+		{
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()->getMesh()=NULL.\n",i);
+			return;
+		}
 	}
 
 	priv->staticObjects = _objects;
@@ -207,6 +217,31 @@ const RRObjects& RRDynamicSolver::getStaticObjects() const
 
 void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
 {
+	// check inputs
+	if (!&_objects)
+	{
+		RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects=NULL.\n");
+		return;
+	}
+	for (unsigned i=0;i<_objects.size();i++)
+	{
+		if (!_objects[i])
+		{
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]=NULL.\n",i);
+			return;
+		}
+		if (!_objects[i]->getCollider())
+		{
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
+			return;
+		}
+		if (!_objects[i]->getCollider()->getMesh())
+		{
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()->getMesh()=NULL.\n",i);
+			return;
+		}
+	}
+
 	priv->dynamicObjects = _objects;
 }
 
