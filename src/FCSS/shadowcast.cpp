@@ -309,7 +309,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 //	rr::RRVector<rr_gl::RealtimeLight*> lights;
 //	lights.push_back(realtimeLight);
-	realtimeLight->setProjectedTexture(demoPlayer->getProjector(currentFrame.projectorIndex));
+	realtimeLight->getRRLight().rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
 	level->solver->renderScene(
 		uberProgramSetup,

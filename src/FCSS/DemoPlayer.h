@@ -37,7 +37,7 @@ public:
 	class DynamicObjects* getDynamicObjects();
 
 	unsigned getNumProjectors();
-	rr_gl::Texture* getProjector(unsigned projectorIndex);
+	rr::RRBuffer* getProjector(unsigned projectorIndex);
 
 	void setBigscreen(bool big);
 	void getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) const;
