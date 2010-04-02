@@ -8,18 +8,11 @@
 
 #pragma warning(disable:4996) // this warning is very frequent in boost 1.42, not helpful
 
-#define USE_XML // portable xml archive
+//#define USE_XML // portable xml archive
 //#define USE_BZIP2 // nonportable bzip2 archive, boost must be compiled with bzip2
-//#define USE_ZLIB // nonportable zlib archive, boost must be compiled with zlib
+#define USE_ZLIB // nonportable zlib archive, boost must be compiled with zlib
 //#define USE_BINARY // nonportable binary archive
-/*
-        bez_obrazku     s_obrazky
-        save load size  save load  size
-  dae                         610  1000(400dae,600jpg)
-  bz2     82   13   53   730  340  2225
-  zip     23    4   58   460   87  2815
-  bin      6    1  337    18    9  4458
-*/
+
 
 // .rr3 format depends on boost, http://boost.org.
 // If you don't have boost, install it or comment out #define SUPPORT_LIGHTSPRINT.
@@ -27,7 +20,6 @@
 #include "RRObjectLightsprint.h"
 #include "RRSerialization.h"
 #include <fstream>
-//#include <iostream>
 #ifdef USE_XML
 	#include <boost/archive/xml_iarchive.hpp>
 	#include <boost/archive/xml_oarchive.hpp>
