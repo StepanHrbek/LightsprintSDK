@@ -441,6 +441,8 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
+		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
+		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
 		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
 		winMenu->Append(ME_FILE_SAVE_ENHANCED_SCREENSHOT,_T("Save enhanced screenshot (F9)"),_T("Saves enhanced screenshot to desktop, may fail on old GPUs."));
 		winMenu->Append(ME_EXIT,_T("Exit"));
@@ -618,6 +620,65 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 				{
 					svs.sceneFilename = dialog.GetPath();
 					UpdateEverything();
+				}
+			}
+			break;
+		case ME_FILE_SAVE_SCENE:
+			// no name yet?
+			if (svs.sceneFilename.empty())
+				goto save_scene_as;
+			// name that can't be saved?
+			{
+				std::string extension = svs.sceneFilename.substr(svs.sceneFilename.find_last_of("."));
+				std::string extensions = rr::RRScene::getSupportedSaverExtensions();
+				bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
+				if (!extensionSupportsSave) goto save_scene_as;
+			}
+			// valid name, save it
+save_scene:
+			if (m_canvas->manuallyOpenedScene)
+			{
+				if (!m_canvas->manuallyOpenedScene->save(svs.sceneFilename.c_str()))
+					wxMessageBox("Save failed.","Not saved.",wxOK|wxICON_ERROR);
+			}
+			else
+			if (m_canvas->solver)
+			{
+				rr::RRScene scene;
+				scene.objects = m_canvas->solver->getStaticObjects();
+				scene.lights = m_canvas->solver->getLights();
+				scene.environment = m_canvas->solver->getEnvironment();
+				if (!scene.save(svs.sceneFilename.c_str()))
+					wxMessageBox("Scene save failed.","Not saved.",wxOK|wxICON_ERROR);
+				scene.environment = NULL; // would be deleted in destructor otherwise
+			}
+			break;
+		case ME_FILE_SAVE_SCENE_AS:
+			{
+save_scene_as:
+				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+				std::string extensions = rr::RRScene::getSupportedSaverExtensions();
+				if (extensions.empty())
+				{
+					wxMessageBox("Program built without saving.","No savers registered.",wxOK);
+				}
+				else
+				{
+					std::string wxextensions;
+					while (!extensions.empty())
+					{
+						size_t i = extensions.find(';');
+						std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
+						wxextensions += std::string("|")+ext+'|'+ext;
+						extensions.erase(0,ext.size()+1);
+					}
+					wxFileDialog dialog(this,"Save as","","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+					dialog.SetPath(svs.sceneFilename);
+					if (dialog.ShowModal()==wxID_OK)
+					{
+						svs.sceneFilename = dialog.GetPath();
+						goto save_scene;
+					}
 				}
 			}
 			break;
