@@ -388,8 +388,11 @@ void save(Archive & ar, const rr::RRMeshArrays& a, const unsigned int version)
 	ar & make_nvp("triangle",make_array_or_binary(a.triangle,a.numTriangles));
 	ar & make_nvp("position",make_array_or_binary(a.position,a.numVertices));
 	ar & make_nvp("normal",make_array_or_binary(a.normal,a.numVertices));
-	ar & make_nvp("tangent",make_array_or_binary(a.tangent,a.numVertices));
-	ar & make_nvp("bitangent",make_array_or_binary(a.bitangent,a.numVertices));
+	if (tangents)
+	{
+		ar & make_nvp("tangent",make_array_or_binary(a.tangent,a.numVertices));
+		ar & make_nvp("bitangent",make_array_or_binary(a.bitangent,a.numVertices));
+	}
 	for (unsigned i=0;i<a.texcoord.size();i++)
 		if (a.texcoord[i])
 			ar & make_nvp("texcoord",make_array_or_binary(a.texcoord[i],a.numVertices));
@@ -413,8 +416,11 @@ void load(Archive & ar, rr::RRMeshArrays& a, const unsigned int version)
 	ar & make_nvp("triangle",make_array_or_binary(a.triangle,numTriangles));
 	ar & make_nvp("position",make_array_or_binary(a.position,numVertices));
 	ar & make_nvp("normal",make_array_or_binary(a.normal,numVertices));
-	ar & make_nvp("tangent",make_array_or_binary(a.tangent,numVertices));
-	ar & make_nvp("bitangent",make_array_or_binary(a.bitangent,numVertices));
+	if (tangents)
+	{
+		ar & make_nvp("tangent",make_array_or_binary(a.tangent,numVertices));
+		ar & make_nvp("bitangent",make_array_or_binary(a.bitangent,numVertices));
+	}
 	for (unsigned i=0;i<a.texcoord.size();i++)
 		if (a.texcoord[i])
 			ar & make_nvp("texcoord",make_array_or_binary(a.texcoord[i],numVertices));
