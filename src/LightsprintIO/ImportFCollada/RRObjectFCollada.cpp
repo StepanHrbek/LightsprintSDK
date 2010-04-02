@@ -1034,8 +1034,8 @@ public:
 			char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 			if (tmp) tmp[1] = 0;
 			RRReportInterval report(INF3,"Adapting scene...\n");
-			scene->objects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures,emissiveMultiplier);
-			scene->lights = adaptLightsFromFCollada(scene->scene_dae);
+			scene->protectedObjects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures,emissiveMultiplier);
+			scene->protectedLights = adaptLightsFromFCollada(scene->scene_dae);
 			free(pathToTextures);
 			return scene;
 		}

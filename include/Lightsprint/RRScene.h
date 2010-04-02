@@ -21,39 +21,54 @@ namespace rr
 class RR_API RRScene : public RRUniformlyAllocatedNonCopyable
 {
 public:
+
+	//////////////////////////////////////////////////////////////////////////////
+	// Load
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! Creates empty scene.
+	RRScene();
 	//! Loads 3d scene from file.
 	//
 	//! Scene load is attempted using loaders registered via registerLoader().
-	//! Several loaders are implemented in LightsprintIO library,
+	//! Loaders for ~35 formats (\ref supported_formats)
+	//! are implemented in LightsprintIO library,
 	//! rr_io::registerLoaders() will register all of them for you.
-	//! See rr_io::registerLoaders() for details on formats/features supported.
 	//!
-	//! Known loaders try to load all textures from proper paths specified by scene file,
+	//! Our loaders try to load all textures from proper paths specified by scene file,
 	//! but if it fails, second attempts are made in the same directory where scene file is.
 	//!
 	//! \param filename
 	//!  Filename of scene. If it is NULL, scene will be empty.
 	//! \param scale
-	//!  If it is .gsa/.3ds/.obj, geometry is scaled(multiplied) by scale.
-	//!  These formats don't contain information about units or it is optional,
-	//!  so different files may need different scale to convert to meters.
 	//!  Scale is size of scene unit in meters.
+	//!  Scene is automatically converted to meters, i.e. scaled(multiplied) by scale.
+	//!  Default 1 keeps original units.
+	//!  This is format specific option, some formats may ignore it.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
 	RRScene(const char* filename, float scale = 1, bool* aborting = NULL, float emissiveMultiplier = 1);
-	//! Creates empty scene.
-	RRScene();
 	//! Deletes scene including all objects and lights.
 	virtual ~RRScene();
 
-	//! Returns collection of objects in scene.
-	virtual const RRObjects& getObjects();
-	//! Returns collection of lights in scene.
-	virtual const RRLights& getLights();
-	//! Returns scene environment, skybox.
-	virtual RRBuffer* getEnvironment();
+
+	//////////////////////////////////////////////////////////////////////////////
+	// Scene
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! Collection of objects in scene. May be freely modified, does not delete objects in destructor.
+	RRObjects objects;
+	//! Collection of lights in scene. May be freely modified, does not delete lights in destructor.
+	RRLights lights;
+	//! Scene environment, skybox. May be modified, but carefully, scene owns environment and deletes it in destructor, so delete old environment before setting new one.
+	RRBuffer* environment;
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	// Loaders
+	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
 	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
@@ -74,10 +89,10 @@ public:
 	static const char* getSupportedExtensions();
 
 protected:
-	//! Created in RRScene subclass, deleted automatically in base RRScene destructor.
-	RRObjects* objects;
-	//! Created in RRScene subclass, deleted automatically in base RRScene destructor.
-	RRLights* lights;
+	//! Protected collection of objects in scene, owns objects, deletes them in destructor. 
+	RRObjects* protectedObjects;
+	//! Protected collection of lights in scene, owns lights, deletes them in destructor. 
+	RRLights* protectedLights;
 private:
 	RRScene* implementation;
 };

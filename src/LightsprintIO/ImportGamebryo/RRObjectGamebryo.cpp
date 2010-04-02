@@ -1961,14 +1961,11 @@ public:
 		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,emissiveMultiplier);
 	}
 
-	virtual RRBuffer* getEnvironment() {return environment;}
-
 protected:
 	void gamebryoInit();
 	void gamebryoShutdown();
 	void updateCastersReceiversCache();
 
-	RRBuffer*                 environment;
 	bool                      initGamebryo;
 	NiScene*                  pkEntityScene; // used only in .gsa
 	HWND                      localHWND; // locally created window
@@ -1978,7 +1975,6 @@ protected:
 RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
 {
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
-	environment = NULL;
 	initGamebryo = _initGamebryo;
 	pkEntityScene = NULL;
 
@@ -2013,14 +2009,14 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
     }
 
 	// adapt lights
-	lights = adaptLightsFromGamebryo(pkEntityScene);
+	protectedLights = adaptLightsFromGamebryo(pkEntityScene);
 
 	// adapt meshes
-	objects = adaptObjectsFromGamebryo(pkEntityScene,_aborting,_emissiveMultiplier);
+	protectedObjects = adaptObjectsFromGamebryo(pkEntityScene,_aborting,_emissiveMultiplier);
 
 	updateCastersReceiversCache();
 
-	if ((!objects || !objects->size()) && !lights)
+	if ((!protectedObjects || !protectedObjects->size()) && !protectedLights)
 	{
 		RRReporter::report(WARN,"Scene %s empty.\n",_filename);
 	}
@@ -2029,17 +2025,16 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 #if GAMEBRYO_MAJOR_VERSION==3
 RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 {
-	environment = NULL;
 	initGamebryo = false;
 	pkEntityScene = NULL;
 
 	gamebryoInit();
 
 	// adapt lights
-	lights = adaptLightsFromGamebryo(serviceManager);
+	protectedLights = adaptLightsFromGamebryo(serviceManager);
 
 	// adapt meshes
-	objects = adaptObjectsFromGamebryo(serviceManager,_aborting);
+	protectedObjects = adaptObjectsFromGamebryo(serviceManager,_aborting);
 
 	// adapt environment
 	environment = adaptEnvironmentFromGamebryo(serviceManager);
@@ -2116,9 +2111,9 @@ RRSceneGamebryo::~RRSceneGamebryo()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 #if GAMEBRYO_MAJOR_VERSION==2
-	for (unsigned i=0;lights && i<lights->size();i++)
+	for (unsigned i=0;protectedLights && i<protectedLights->size();i++)
 	{
-		delete (GamebryoLightCache*)((*lights)[i]->customData);
+		delete (GamebryoLightCache*)((*protectedLights)[i]->customData);
 	}
 #endif
 #endif
@@ -2131,19 +2126,19 @@ void RRSceneGamebryo::updateCastersReceiversCache()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
 #if GAMEBRYO_MAJOR_VERSION==2
-	if (objects && lights)
+	if (protectedObjects && protectedLights)
 	{
 		// Reindex meshes.
-		for (unsigned i=0;i<objects->size();i++)
+		for (unsigned i=0;i<protectedObjects->size();i++)
 		{
-			((RRObjectGamebryo*)((*objects)[i]))->meshIndex = i;
+			((RRObjectGamebryo*)((*protectedObjects)[i]))->meshIndex = i;
 		}
 		// Update cache in lights.
-		for (unsigned i=0;i<lights->size();i++)
+		for (unsigned i=0;i<protectedLights->size();i++)
 		{
-			GamebryoLightCache* cache = (GamebryoLightCache*)((*lights)[i]->customData);
+			GamebryoLightCache* cache = (GamebryoLightCache*)((*protectedLights)[i]->customData);
 			if (cache)
-				cache->update(*objects);
+				cache->update(*protectedObjects);
 		}
 	}
 #endif

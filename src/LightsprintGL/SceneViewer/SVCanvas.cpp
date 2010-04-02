@@ -140,10 +140,10 @@ void SVCanvas::createContextCore()
 	{
 		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename.c_str());
 		solver->setScaler(rr::RRScaler::createRgbScaler());
-		solver->setEnvironment(manuallyOpenedScene->getEnvironment());
+		solver->setEnvironment(manuallyOpenedScene->environment);
 		envToBeDeletedOnExit = false;
-		solver->setStaticObjects(manuallyOpenedScene->getObjects(),NULL);
-		solver->setLights(manuallyOpenedScene->getLights());
+		solver->setStaticObjects(manuallyOpenedScene->objects,NULL);
+		solver->setLights(manuallyOpenedScene->lights);
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 

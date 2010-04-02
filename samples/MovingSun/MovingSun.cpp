@@ -372,9 +372,9 @@ int main(int argc, char **argv)
 
 	// load scene
 	rr::RRScene scene((argc>1)?argv[1]:DEFAULT_SCENE);
-	if (!scene.getObjects().size())
+	if (!scene.objects.size())
 		error("No objects in scene.",false);
-	solver->setStaticObjects(scene.getObjects(), NULL);
+	solver->setStaticObjects(scene.objects, NULL);
 	groundLevel = solver->getMultiObjectCustom()->getCollider()->getMesh()->findGroundLevel();
 
 	// init environment
@@ -410,7 +410,7 @@ int main(int argc, char **argv)
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		bool aborting = false;
-		dynamicObjects.push_back(rr::RRObject::createMultiObject(&characters[i%9]->getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL));
+		dynamicObjects.push_back(rr::RRObject::createMultiObject(&characters[i%9]->objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL));
 	}
 	solver->setDynamicObjects(dynamicObjects);
 

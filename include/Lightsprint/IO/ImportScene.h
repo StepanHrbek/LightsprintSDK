@@ -80,36 +80,12 @@
 namespace rr_io /// LightsprintIO - access to scenes and images on disk
 {
 
-//! Registers callbacks for loading and saving textures using FreeImage 3rd party library.
+//! Registers callbacks for loading and saving scenes, textures and videos in ~75 fileformats (\ref supported_formats).
 //
 //! After registering loaders, use
 //! - RRScene::RRScene(filename) to load 3d scenes
 //! - RRBuffer::load(filename) to load 2d images, cube maps, vertex buffers
-//! 
-//! Fully supported 3d formats:
-//! - .dae (Collada)
-//! - .gsa (Gamebryo)
-//!
-//! Partially supported 3d formats:
-//! - .3ds
-//! - .bsp (Quake3)
-//! - .obj
-//! - .mgf
-//!
-//! Supported 2d formats, cube maps, vertex buffers:
-//! - .jpg
-//! - .png
-//! - .hdr (float colors)
-//! - .exr (float colors)
-//! - .tga
-//! - .bmp
-//! - .dds
-//! - .tif
-//! - .jp2
-//! - .gif
-//! - .ico
-//! - .vbu (vertex buffer)
-//! - etc, see FreeImage for complete list
+//! - RRBuffer::save(filename) to save 2d images, vertex buffers
 void RR_IO_API registerLoaders();
 
 

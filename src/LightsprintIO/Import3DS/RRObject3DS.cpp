@@ -226,7 +226,7 @@ public:
 		}
 		else
 		{
-			scene->objects = adaptObjectsFrom3DS(&scene->scene_3ds);
+			scene->protectedObjects = adaptObjectsFrom3DS(&scene->scene_3ds);
 			return scene;
 		}
 	}

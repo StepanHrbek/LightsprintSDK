@@ -436,7 +436,7 @@ public:
 			char* maps = _strdup(filename);
 			char* mapsEnd;
 			mapsEnd = RR_MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
-			scene->objects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,NULL);
+			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,NULL);
 			free(maps);
 			return scene;
 		}

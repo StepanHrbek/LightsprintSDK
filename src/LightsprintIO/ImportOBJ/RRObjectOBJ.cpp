@@ -216,7 +216,7 @@ public:
 	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneOBJ* scene = new RRSceneOBJ;
-		scene->objects = adaptObjectsFromOBJ(filename);
+		scene->protectedObjects = adaptObjectsFromOBJ(filename);
 		return scene;
 	}
 };

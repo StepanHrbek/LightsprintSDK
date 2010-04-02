@@ -409,7 +409,7 @@ int main(int argc, char **argv)
 	//
 	// set solver geometry
 	//
-	solver->setStaticObjects(scene.getObjects(), NULL);
+	solver->setStaticObjects(scene.objects, NULL);
 
 	//
 	// set solver lights
@@ -420,7 +420,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		solver->setLights(scene.getLights());
+		solver->setLights(scene.lights);
 		rr::RRBuffer* environment = NULL;
 		if (globalParameters.skyBox)
 		{
@@ -436,14 +436,14 @@ int main(int argc, char **argv)
 	//
 	// allocate layers (decide resolution, format)
 	//
-	for (unsigned objectIndex=0;objectIndex<scene.getObjects().size();objectIndex++)
+	for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
 	{
 		// take per-object parameters
 		Parameters objectParameters(argc,argv,objectIndex);
 		// query size, format etc
-		scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
+		scene.objects.recommendLayerParameters(objectParameters.layerParameters);
 		// allocate
-		objectParameters.layersCreate(&scene.getObjects()[objectIndex]->illumination);
+		objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
 	}
 
 	//
@@ -485,14 +485,14 @@ int main(int argc, char **argv)
 		rr::RRReportInterval report(rr::INF1,"Saving results...\n");
 		unsigned saved = 0;
 
-		for (unsigned objectIndex=0;objectIndex<scene.getObjects().size();objectIndex++)
+		for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
 		{
 			// take per-object parameters
 			Parameters objectParameters(argc,argv,objectIndex);
 			// query filename
-			scene.getObjects().recommendLayerParameters(objectParameters.layerParameters);
+			scene.objects.recommendLayerParameters(objectParameters.layerParameters);
 			// save
-			saved += objectParameters.layersSave(&scene.getObjects()[objectIndex]->illumination);
+			saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
 		}
 
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);

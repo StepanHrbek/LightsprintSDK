@@ -39,7 +39,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	scene = new rr::RRScene(setup->filename, setup->scale);
 
-	if (!scene->getObjects().size())
+	if (!scene->objects.size())
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",setup->filename);
 		error("",false);
@@ -54,7 +54,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	rr::RRDynamicSolver::SmoothingParameters sp;
 	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
 	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
-	solver->setStaticObjects(scene->getObjects(),&sp);
+	solver->setStaticObjects(scene->objects,&sp);
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

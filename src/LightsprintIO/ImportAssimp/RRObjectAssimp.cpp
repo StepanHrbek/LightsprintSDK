@@ -23,7 +23,6 @@ using namespace rr;
 // - increased memory footprint (two instances of the same mesh are usually loaded as two meshes)
 
 // Lightsprint limitations
-// - 90dgr rotated
 // - doesn't read all material properties
 
 
@@ -459,8 +458,8 @@ public:
 		char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 		if (tmp) tmp[1] = 0;
 		RRReportInterval report(INF3,"Adapting scene...\n");
-		scene->objects = new RRObjectsAssimp(aiscene,scale,pathToTextures,emissiveMultiplier);
-		scene->lights = new RRLightsAssimp(aiscene,scale);
+		scene->protectedObjects = new RRObjectsAssimp(aiscene,scale,pathToTextures,emissiveMultiplier);
+		scene->protectedLights = new RRLightsAssimp(aiscene,scale);
 		free(pathToTextures);
 		aiReleaseImport(aiscene);
 		return scene;

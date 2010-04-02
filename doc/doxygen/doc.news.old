@@ -8,6 +8,144 @@ namespace rr
 
 \page main_news What's new
 
+\section news79 ------------------------------------ 2009.04.15 -------------------------------------
+
+CHANGES
+
+- RRMaterial moved to new header RRMaterial.h
+  \n (no changes to old code needed)
+
+FIXES
+
+- under specific circumstances, generic getPointMaterial() was called instead of custom one
+
+\section news78 ------------------------------------ 2009.04.03 -------------------------------------
+
+NEWS
+
+- improved Collada import, workarounds for Google SketchUp bugs
+- rr_gl::sceneViewer() additional parameter makes it possible to specify skybox by filename
+
+FIXES
+
+- under rare circumstances, random pixels in lightmaps received random colors
+
+\section news77 ------------------------------------ 2009.03.25 -------------------------------------
+
+NEWS
+
+- full Visual Studio 2005 x64 support
+- improved rr_gl::sceneViewer()
+  - new parameter makes it possible to view scene from file rather than from solver in memory
+  - new File menu with Open scene, Save screenshot
+- new texture manipulation functions
+  - RRBuffer::createCopy()
+  - RRBuffer::setFormat()
+  - RRBuffer::setFormatFloats()
+  - RRBuffer::invert()
+  - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
+  - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
+- improved scene import
+  - rr_io::ImportScene with fixed set of formats replaced by extensible RRScene
+  - parameter stripPaths was removed, all loaders load textures from full paths as if stripPaths=false,
+    but if it fails, second attempt is made automatically in scene directory as if stripPaths=true
+  - RRScene::getSupportedFormats()
+  - improved .3ds import (transparency, opacity map, self illum map...)
+- improved transparency realtime rendering
+
+CHANGES
+
+- rr_io::setImageLoader() replaced by rr_io::registerLoaders()
+  \n new function registers also 3d scene loaders that did not need registration before
+- RRObjects moved from RRDynamicSolver.h to RRObject.h
+
+FIXES
+
+- MovingSun sample lighting was incorrect
+
+\section news76 ------------------------------------ 2009.03.14 -------------------------------------
+
+NEWS
+
+- Improved handling of overlapping triangles.
+  \n It's still recommended to avoid them, but if you must use them, chances are that precomputed lightmaps will be ok.
+  \n Previously \ref main_ue3 "UE3" skylight created dark strips where terrain segments overlap.
+- tangent space vectors are displayed in rr_gl::sceneViewer() with helpers enabled
+
+FIXES
+
+- UE3 materials had swapped R and B (incorrect color bleeding)
+- one of cascaded shadow maps was not updated (incorrect realtime sunlight shadows)
+
+\section news75 ------------------------------------ 2009.02.23 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps in proximity of SpeedTree meshes
+  (fixed per-pixel material detection)
+
+\section news74 ------------------------------------ 2009.02.19 -------------------------------------
+
+NEWS
+
+- emissive multiplier, lets you boost or reduce emissivity in materials
+  - new parameter "emissivemultiplier=1" in BuildLightmaps tool
+  - new parameter in rr_io::ImportSceneRRLight::ImportSceneRRLight()
+  - adapters call new RRMaterial::Property::multiply() to apply emissive multiplier
+
+\section news73 ------------------------------------ 2009.02.06 -------------------------------------
+
+NEWS
+
+- RRLight::rtProjectedTextureFilename
+  \n lets you specify texture projected by light
+
+CHANGES
+
+- rr_gl::RealtimeLight::lightDirectMap replaced by
+  - rr_gl::RealtimeLight::setProjectedTexture()
+  - rr_gl::RealtimeLight::getProjectedTexture()
+- RRLight::createMutableLight() replaced by new RRLight()
+  \n RRLight is now fully implemented, previously RRLight::getIrradiance() was pure/abstract
+
+\section news72 ------------------------------------ 2009.01.10 -------------------------------------
+
+NEWS
+
+- sample BuildLightmaps supports setting sky from commandline (HDR or LDR texture or 6 textures or flat color or upper and lower hemisphere color)
+- improved realtime render of float textures
+  - uses floats where available, falls back to 8bit on ancient GPUs
+  - HDR skyboxes in physical scale are converted to sRGB in shader
+
+FIXED
+
+- Gamebryo adapter allocated too much memory and crashed in some scenes
+
+\section news71 ------------------------------------ 2009.01.08 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: now also SpeedTree materials are evaluated per-pixel
+
+CHANGES
+
+- default behaviour of back side of one sided material was changed
+  \n Previously, photons that hit back side of one-sided face were removed from simulation. Windows had to be made of 2-sided faces to transmit light in both directions.
+  \n Now photons are allowed to go through back side and refract according to material transmittance and refraction index. Windows transmit light in both directions even if they are made of 1-sided faces.
+
+\section news70 ------------------------------------ 2009.01.07 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: staticmesh and bspsurface materials are evaluated per-pixel
+- 2x faster windowed reporter (RRReporter::createWindowedReporter())
+  \n (real world example: building preview quality lightmaps in scene with 11000 meshes and windowed reporter took 600s, now 500s)
+
+CHANGES
+
+- rr_gl::sceneViewer() second parameter removed (bool createWindow)
+  \n window is always created, false was ignored since sceneViewer rewrite in 2008.12.8
+
 \section news69 ------------------------------------ 2008.12.19 -------------------------------------
 
 NEWS

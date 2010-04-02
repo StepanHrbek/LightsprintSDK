@@ -72,15 +72,17 @@ static bool extensionListMatches(const char* filename, const char* extensionList
 RRScene::RRScene()
 {
 	implementation = NULL;
-	objects = NULL;
-	lights = NULL;
+	protectedObjects = NULL;
+	protectedLights = NULL;
+	environment = NULL;
 }
 
 RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 {
 	implementation = NULL;
-	objects = NULL;
-	lights = NULL;
+	protectedObjects = NULL;
+	protectedLights = NULL;
+	environment = NULL;
 	if (!filename)
 	{
 		// don't warn, it's documented as a valid way to create empty scene
@@ -119,6 +121,10 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 			implementation = s_loaders[i].loader(filename,scale,aborting,emissiveMultiplier);
 			if (implementation)
 			{
+				lights = implementation->protectedLights ? *implementation->protectedLights : implementation->lights;
+				objects = implementation->protectedObjects ? *implementation->protectedObjects : implementation->objects;
+				if (implementation->environment)
+					environment = implementation->environment->createReference();
 				return; // loaded, success
 			}
 			// load failed, but don't give up for cycle yet,
@@ -142,30 +148,10 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 
 RRScene::~RRScene()
 {
-	delete lights;
-	delete objects;
+	delete environment;
+	delete protectedLights;
+	delete protectedObjects;
 	delete implementation;
-}
-
-const RRObjects& RRScene::getObjects()
-{
-	if (implementation) return implementation->getObjects();
-	if (objects) return *objects;
-	static RRObjects noObjects;
-	return noObjects;
-}
-
-const RRLights& RRScene::getLights()
-{
-	if (implementation) return implementation->getLights();
-	if (lights) return *lights;
-	static RRLights noLights;
-	return noLights;
-}
-
-RRBuffer* RRScene::getEnvironment()
-{
-	return implementation ? implementation->getEnvironment() : NULL;
 }
 
 void RRScene::registerLoader(const char* extensions, Loader* loader)

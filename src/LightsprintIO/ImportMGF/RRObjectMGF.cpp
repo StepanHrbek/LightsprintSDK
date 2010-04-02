@@ -322,7 +322,7 @@ public:
 	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneMGF* scene = new RRSceneMGF;
-		scene->objects = adaptObjectsFromMGF(filename);
+		scene->protectedObjects = adaptObjectsFromMGF(filename);
 		return scene;
 	}
 };

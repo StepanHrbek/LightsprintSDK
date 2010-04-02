@@ -379,14 +379,14 @@ int main(int argc, char **argv)
 
 	// load static scene
 	rr::RRScene staticScene("../../data/scenes/koupelna/koupelna4.dae");
-	solver->setStaticObjects(staticScene.getObjects(), NULL);
+	solver->setStaticObjects(staticScene.objects, NULL);
 
 	// load dynamic objects
 	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds",0.3f);
 	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds",0.004f);
 	bool aborting = false;
-	robot = rr::RRObject::createMultiObject(&robotScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
-	potato = rr::RRObject::createMultiObject(&potatoScene.getObjects(),rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	robot = rr::RRObject::createMultiObject(&robotScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	potato = rr::RRObject::createMultiObject(&potatoScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
 	rr::RRObjects dynamicObjects;
 	dynamicObjects.push_back(robot);
 	dynamicObjects.push_back(potato);
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// init lights
-	solver->setLights(staticScene.getLights());
+	solver->setLights(staticScene.lights);
 
 	// init buffers for calculated illumination
 	solver->allocateBuffersForRealtimeGI(0);
