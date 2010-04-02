@@ -2072,6 +2072,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Lightsprint"
+			>
+			<File
+				RelativePath=".\ImportLightsprint\RRObjectLightsprint.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\RRObjectLightsprint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\RRSerialization.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp"
 			>

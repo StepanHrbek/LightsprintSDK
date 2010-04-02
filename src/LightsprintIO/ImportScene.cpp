@@ -8,6 +8,7 @@
 #include "supported_formats.h"
 #include "ImportImages/ImportFreeImage.h"
 #include "ImportDirectShow/RRBufferDirectShow.h"
+#include "ImportLightsprint/RRObjectLightsprint.h"
 #include "Import3DS/RRObject3DS.h"
 #include "ImportAssimp/RRObjectAssimp.h"
 #include "ImportGamebryo/RRObjectGamebryo.h"
@@ -29,6 +30,10 @@ void rr_io::registerLoaders()
 
 #ifdef SUPPORT_DIRECTSHOW
 	registerLoaderDirectShow();
+#endif
+
+#ifdef SUPPORT_LIGHTSPRINT
+	registerLoaderLightsprint();
 #endif
 
 #ifdef SUPPORT_GAMEBRYO

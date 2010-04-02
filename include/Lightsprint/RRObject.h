@@ -63,6 +63,11 @@ namespace rr
 			RRMaterial* material; ///< Material assigned to all triangles in group. Must not be NULL.
 			unsigned numTriangles; ///< Number of triangles in group.
 
+			FaceGroup()
+			{
+				material = NULL; // Material must not stay NULL, set it as soon as possible.
+				numTriangles = 0;
+			}
 			FaceGroup(RRMaterial* _material, unsigned _numTriangles)
 			{
 				material = _material;

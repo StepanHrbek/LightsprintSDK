@@ -7,6 +7,7 @@
 // What file formats you wish to be supported by LightsprintIO.
 // Comment out formats you don't need.
 
+#define SUPPORT_LIGHTSPRINT// Lightsprint .rr3
 #define SUPPORT_GAMEBRYO   // Gamebryo .gsa
 #define SUPPORT_OPENCOLLADA// OpenCollada .dae (better than Fcollada)
 #define SUPPORT_FCOLLADA   // FCollada .dae (better than Assimp)
@@ -36,7 +37,7 @@
 	#undef SUPPORT_GAMEBRYO
 #endif
 
-// mgf should work everywhere, but we tested it only under Windows.
+// .mgf should work everywhere, but we tested it only under Windows.
 #if defined(SUPPORT_MGF) && !defined(_WIN32)
 	#undef SUPPORT_MGF
 #endif
@@ -46,6 +47,6 @@
 	#undef SUPPORT_DIRECTSHOW
 #endif
 
-#if defined SUPPORT_GOOGLEEARTH && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1500) )
+#if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1500) )
 	#undef SUPPORT_GOOGLEEARTH
 #endif

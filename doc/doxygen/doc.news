@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - saving 3d scenes
+  - .rr3 file format added, supports load and save (see full list of \ref supported_formats)
   - RRScene::save() added
   - RRScene::getSupportedExtensions() split into RRScene::getSupportedLoaderExtensions() and RRScene::getSupportedSaverExtensions()
   - RRScene::registerSaver() added
