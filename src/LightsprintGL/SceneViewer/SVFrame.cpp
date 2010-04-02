@@ -669,7 +669,9 @@ save_scene_as:
 					{
 						size_t i = extensions.find(';');
 						std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
-						wxextensions += std::string("|")+ext+'|'+ext;
+						if (!wxextensions.empty())
+							wxextensions += std::string("|");
+						wxextensions += ext+'|'+ext;
 						extensions.erase(0,ext.size()+1);
 					}
 					wxFileDialog dialog(this,"Save as","","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
