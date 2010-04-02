@@ -10,19 +10,6 @@
 namespace rr
 {
 
-struct LoaderExtensions
-{
-	RRScene::Loader* loader;
-	RRString extensions; // "*.dae;*.3ds;*.md5mesh"
-	// char* extensions would not work, some adapters register extensions using temporary string. RRString creates copy automatically
-};
-
-// static collection of registered loaders
-std::vector<LoaderExtensions> s_loaders;
-
-#define S_EXTENSIONS_LEN 1000
-char s_extensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
-
 // case insensitive match
 static bool extensionMatches(const char* filename, const char* extension) // ext="3ds"
 {
@@ -64,6 +51,31 @@ static bool extensionListMatches(const char* filename, const char* extensionList
 	}
 	return false;
 }
+
+struct LoaderExtensions
+{
+	RRScene::Loader* loader;
+	RRString extensions; // "*.dae;*.3ds;*.md5mesh"
+	// char* extensions would not work, some adapters register extensions using temporary string. RRString creates copy automatically
+};
+
+struct SaverExtensions
+{
+	RRScene::Saver* saver;
+	RRString extensions; // "*.dae;*.3ds;*.md5mesh"
+	// char* extensions would not work, some adapters register extensions using temporary string. RRString creates copy automatically
+};
+
+// static collection of registered loaders
+std::vector<LoaderExtensions> s_loaders;
+
+// static collection of registered savers
+std::vector<SaverExtensions> s_savers;
+
+#define S_EXTENSIONS_LEN 1000
+char s_loaderExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
+char s_saverExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -146,6 +158,45 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 	}
 }
 
+bool RRScene::save(const char* filename)
+{
+	if (!filename)
+	{
+		return false;
+	}
+
+	RRReportInterval report(INF1,"Saving scene %s...\n",filename);
+
+	// test whether savers were registered
+	if (s_savers.empty())
+	{
+		RRReporter::report(WARN,"No savers registered, call rr_io::registerLoaders() or RRScene::registerSaver() first.\n");
+		return false;
+	}
+
+	// attempt save
+	bool saverFound = false;
+	for (unsigned i=0;i<s_savers.size();i++)
+	{
+		if (extensionListMatches(filename,s_savers[i].extensions.c_str()))
+		{
+			if (s_savers[i].saver(this,filename))
+				return true; // saved, success
+			saverFound = true;
+			// save failed, but don't give up for cycle yet,
+			//  it's possible that another saver for the same extension will succeed
+		}
+	}
+
+	// test whether saver exists
+	if (!saverFound)
+	{
+		RRReporter::report(WARN,"Scene %s not saved, no saver for this extension was registered.\n",filename);
+	}
+
+	return false;
+}
+
 RRScene::~RRScene()
 {
 	delete environment;
@@ -163,12 +214,12 @@ void RRScene::registerLoader(const char* extensions, Loader* loader)
 		le.extensions = extensions;
 		s_loaders.push_back(le);
 
-		// update s_extensions
+		// update s_loaderExtensions
 		if (s_loaders.size()==1)
-			_snprintf(s_extensions,S_EXTENSIONS_LEN,extensions);
+			_snprintf(s_loaderExtensions,S_EXTENSIONS_LEN,extensions);
 		else
-			_snprintf(s_extensions+strlen(s_extensions),S_EXTENSIONS_LEN-strlen(s_extensions),";%s",extensions);
-		s_extensions[S_EXTENSIONS_LEN-1] = 0;
+			_snprintf(s_loaderExtensions+strlen(s_loaderExtensions),S_EXTENSIONS_LEN-strlen(s_loaderExtensions),";%s",extensions);
+		s_loaderExtensions[S_EXTENSIONS_LEN-1] = 0;
 	}
 	else
 	{
@@ -176,14 +227,46 @@ void RRScene::registerLoader(const char* extensions, Loader* loader)
 	}
 }
 
-const char* RRScene::getSupportedExtensions()
+void RRScene::registerSaver(const char* extensions, Saver* saver)
+{
+	if (saver && extensions)
+	{
+		SaverExtensions se;
+		se.saver = saver;
+		se.extensions = extensions;
+		s_savers.push_back(se);
+
+		// update s_saverExtensions
+		if (s_loaders.size()==1)
+			_snprintf(s_saverExtensions,S_EXTENSIONS_LEN,extensions);
+		else
+			_snprintf(s_saverExtensions+strlen(s_saverExtensions),S_EXTENSIONS_LEN-strlen(s_saverExtensions),";%s",extensions);
+		s_saverExtensions[S_EXTENSIONS_LEN-1] = 0;
+	}
+	else
+	{
+		RRReporter::report(WARN,"Invalid argument (NULL) in RRScene::registerSaver().\n");
+	}
+}
+
+const char* RRScene::getSupportedLoaderExtensions()
 {
 	if (s_loaders.empty())
 	{
 		// s_extensions not initialized yet
 		return "";
 	}
-	return s_extensions;
+	return s_loaderExtensions;
+}
+
+const char* RRScene::getSupportedSaverExtensions()
+{
+	if (s_savers.empty())
+	{
+		// s_extensions not initialized yet
+		return "";
+	}
+	return s_saverExtensions;
 }
 
 } // namespace rr

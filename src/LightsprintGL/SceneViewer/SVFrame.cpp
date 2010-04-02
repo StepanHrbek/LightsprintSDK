@@ -437,7 +437,7 @@ void SVFrame::UpdateMenuBar()
 	wxMenu *winMenu = NULL;
 
 	// File...
-	if (rr::RRScene::getSupportedExtensions() && rr::RRScene::getSupportedExtensions()[0])
+	if (rr::RRScene::getSupportedLoaderExtensions() && rr::RRScene::getSupportedLoaderExtensions()[0])
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
@@ -603,7 +603,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 		case ME_FILE_OPEN_SCENE:
 			{
 				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-				std::string extensions = rr::RRScene::getSupportedExtensions();
+				std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
 				std::string wxextensions = "All scene formats|"+extensions;
 				while (!extensions.empty())
 				{

@@ -23,7 +23,7 @@ class RR_API RRScene : public RRUniformlyAllocatedNonCopyable
 public:
 
 	//////////////////////////////////////////////////////////////////////////////
-	// Load
+	// Load/Save
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Creates empty scene.
@@ -50,6 +50,13 @@ public:
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
 	RRScene(const char* filename, float scale = 1, bool* aborting = NULL, float emissiveMultiplier = 1);
+	//! Saves 3d scene to file.
+	//
+	//! Scene save is attempted using savers registered via registerSaver().
+	//! One saver is implemented in LightsprintIO library,
+	//! rr_io::registerSavers() will register it for you.
+	//! See rr_io::registerSavers() for details on formats/features supported.
+	bool save(const char* filename);
 	//! Deletes scene including all objects and lights.
 	virtual ~RRScene();
 
@@ -67,11 +74,13 @@ public:
 
 
 	//////////////////////////////////////////////////////////////////////////////
-	// Loaders
+	// Loaders/Savers
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
 	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
+	//! Template of custom scene saver.
+	typedef bool Saver(const RRScene* scene, const char* filename);
 	//! Registers scene loader so it can be used by RRScene constructor.
 	//
 	//! Extensions are case insensitive, in "*.dae;*.3ds;*.md5mesh" format.
@@ -82,11 +91,18 @@ public:
 	//! Multiple loaders may be registered, even for the same extension.
 	//! If first loader fails to load scene, second one is tried etc.
 	static void registerLoader(const char* extensions, Loader* loader);
-	//! Returns list of supported extensions in "*.dae;*.3ds;*.md5mesh" format.
+	//! Similar to registerLoader().
+	static void registerSaver(const char* extensions, Saver* saver);
+	//! Returns list of supported loader extensions in "*.dae;*.3ds;*.md5mesh" format.
 	//
 	//! All extensions of registered loaders are returned in one static string, don't free() it.
 	//! NULL is returned if no loaders were registered.
-	static const char* getSupportedExtensions();
+	static const char* getSupportedLoaderExtensions();
+	//! Returns list of supported saver extensions in "*.dae;*.3ds;*.md5mesh" format.
+	//
+	//! All extensions of registered savers are returned in one static string, don't free() it.
+	//! NULL is returned if no savers were registered.
+	static const char* getSupportedSaverExtensions();
 
 protected:
 	//! Protected collection of objects in scene, owns objects, deletes them in destructor. 

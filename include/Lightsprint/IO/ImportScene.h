@@ -82,8 +82,9 @@ namespace rr_io /// LightsprintIO - access to scenes and images on disk
 
 //! Registers callbacks for loading and saving scenes, textures and videos in ~75 fileformats (\ref supported_formats).
 //
-//! After registering loaders, use
+//! After registering loaders and savers, use
 //! - RRScene::RRScene(filename) to load 3d scenes
+//! - RRScene::save(filename) to save 3d scenes
 //! - RRBuffer::load(filename) to load 2d images, cube maps, vertex buffers
 //! - RRBuffer::save(filename) to save 2d images, vertex buffers
 void RR_IO_API registerLoaders();

@@ -12,6 +12,11 @@ namespace rr
 
 NEWS
 
+- saving 3d scenes
+  - RRScene::save() added
+  - RRScene::getSupportedExtensions() split into RRScene::getSupportedLoaderExtensions() and RRScene::getSupportedSaverExtensions()
+  - RRScene::registerSaver() added
+  - RRScene::Saver added
 - editing 3d scenes
   - you can freely edit RRScene objects, lights and environment (they were read-only before)
 
