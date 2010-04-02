@@ -674,8 +674,16 @@ save_scene_as:
 						wxextensions += ext+'|'+ext;
 						extensions.erase(0,ext.size()+1);
 					}
+
+					// delete extension if it can't be saved, dialog will automatically append supported one
+					std::string presetFilename = svs.sceneFilename;
+					std::string extension = presetFilename.substr(svs.sceneFilename.find_last_of("."));
+					std::string extensions = rr::RRScene::getSupportedSaverExtensions();
+					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
+					if (!extensionSupportsSave) presetFilename = presetFilename.substr(0,presetFilename.size()-extension.size());
+
 					wxFileDialog dialog(this,"Save as","","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-					dialog.SetPath(svs.sceneFilename);
+					dialog.SetPath(presetFilename);
 					if (dialog.ShowModal()==wxID_OK)
 					{
 						svs.sceneFilename = dialog.GetPath();
