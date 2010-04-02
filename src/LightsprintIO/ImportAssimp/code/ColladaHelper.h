@@ -225,6 +225,7 @@ struct Node
 {
 	std::string mName;
 	std::string mID;
+  std::string mSID;
 	Node* mParent;
 	std::vector<Node*> mChildren;
 
@@ -270,6 +271,7 @@ struct Data
 struct Accessor
 {
 	size_t mCount;   // in number of objects
+	size_t mSize;    // size of an object, in elements (floats or strings, mostly 1)
 	size_t mOffset;  // in number of values
 	size_t mStride;  // Stride in number of values
 	std::vector<std::string> mParams; // names of the data streams in the accessors. Empty string tells to ignore. 
@@ -280,7 +282,7 @@ struct Accessor
 
 	Accessor() 
 	{ 
-		mCount = 0; mOffset = 0; mStride = 0; mData = NULL; 
+		mCount = 0; mSize = 0; mOffset = 0; mStride = 0; mData = NULL; 
 		mSubOffset[0] = mSubOffset[1] = mSubOffset[2] = mSubOffset[3] = 0;
 	}
 };
@@ -369,6 +371,9 @@ struct Controller
 
 	// accessor URL of the joint names
 	std::string mJointNameSource;
+
+  ///< The bind shape matrix, as array of floats. I'm not sure what this matrix actually describes, but it can't be ignored in all cases
+  float mBindShapeMatrix[16];
 
 	// accessor URL of the joint inverse bind matrices
 	std::string mJointOffsetMatrixSource;
@@ -514,11 +519,11 @@ struct Effect
 		, mTransparent	( 0, 0, 0, 1)
 		, mShininess    (10.0f)
 		, mRefractIndex (1.f)
+		, mReflectivity (1.f)
 		, mTransparency (0.f)
 		, mDoubleSided	(false)
 		, mWireframe    (false)
 		, mFaceted      (false)
-		, mReflectivity (1.f)
 	{ 
 	}
 };

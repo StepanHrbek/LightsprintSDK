@@ -14,7 +14,6 @@ using namespace boost;
 #include "irrXMLWrapper.h"
 
 
-
 namespace Assimp
 {
 namespace Ogre
@@ -47,13 +46,13 @@ void OgreImporter::InternReadFile(const std::string &pFile, aiScene *pScene, Ass
 	//Open the File:
 	boost::scoped_ptr<IOStream> file(pIOHandler->Open(pFile));
 	if( file.get() == NULL)
-		throw new ImportErrorException("Failed to open file "+pFile+".");
+		throw DeadlyImportError("Failed to open file "+pFile+".");
 
 	//Read the Mesh File:
 	boost::scoped_ptr<CIrrXML_IOStreamReader> mIOWrapper( new CIrrXML_IOStreamReader( file.get()));
 	XmlReader* MeshFile = irr::io::createIrrXMLReader(mIOWrapper.get());
 	if(!MeshFile)//parse the xml file
-		throw new ImportErrorException("Failed to create XML Reader for "+pFile);
+		throw DeadlyImportError("Failed to create XML Reader for "+pFile);
 
 
 	DefaultLogger::get()->debug("Mesh File opened");
@@ -61,13 +60,13 @@ void OgreImporter::InternReadFile(const std::string &pFile, aiScene *pScene, Ass
 	//Read root Node:
 	if(!(XmlRead(MeshFile) && string(MeshFile->getNodeName())=="mesh"))
 	{
-		throw new ImportErrorException("Root Node is not <mesh>! "+pFile+"  "+MeshFile->getNodeName());
+		throw DeadlyImportError("Root Node is not <mesh>! "+pFile+"  "+MeshFile->getNodeName());
 	}
 
 	//Go to the submeshs:
 	if(!(XmlRead(MeshFile) && string(MeshFile->getNodeName())=="submeshes"))
 	{
-		throw new ImportErrorException("No <submeshes> node in <mesh> node! "+pFile);
+		throw DeadlyImportError("No <submeshes> node in <mesh> node! "+pFile);
 	}
 
 
@@ -85,7 +84,7 @@ void OgreImporter::InternReadFile(const std::string &pFile, aiScene *pScene, Ass
 		
 		//Set the Material:
 		if(m_CurrentScene->mMaterials)
-			throw new ImportErrorException("only 1 material supported at this time!");
+			throw DeadlyImportError("only 1 material supported at this time!");
 		m_CurrentScene->mMaterials=new aiMaterial*[1];
 		m_CurrentScene->mNumMaterials=1;
 		m_CurrentScene->mMaterials[0]=MeshMat;
@@ -93,7 +92,7 @@ void OgreImporter::InternReadFile(const std::string &pFile, aiScene *pScene, Ass
 	}
 	//check for second root node:
 	if(MeshFile->getNodeName()==string("submesh"))
-		throw new ImportErrorException("more than one submesh in the file, abording!");
+		throw DeadlyImportError("more than one submesh in the file, abording!");
 
 	//____________________________________________________________
 
@@ -129,9 +128,9 @@ void OgreImporter::InternReadFile(const std::string &pFile, aiScene *pScene, Ass
 
 
 
-void OgreImporter::GetExtensionList(std::string &append)
+void OgreImporter::GetExtensionList(std::set<std::string>& extensions)
 {
-	append+="*.mesh.xml";
+	extensions.insert("mesh.xml");
 }
 
 
@@ -162,7 +161,7 @@ void OgreImporter::ReadSubMesh(SubMesh &theSubMesh, XmlReader *Reader)
 				NewFace.VertexIndices[2]=GetAttribute<int>(Reader, "v3");
 				if(Reader->getAttributeValue("v4"))//this should be supported in the future
 				{
-					throw new ImportErrorException("Submesh has quads, only traingles are supported!");
+					throw DeadlyImportError("Submesh has quads, only traingles are supported!");
 				}
 				theSubMesh.FaceList.push_back(NewFace);
 			}
@@ -179,7 +178,7 @@ void OgreImporter::ReadSubMesh(SubMesh &theSubMesh, XmlReader *Reader)
 			XmlRead(Reader);
 			if(!(Reader->getNodeName()==string("vertexbuffer")))
 			{
-				throw new ImportErrorException("vertexbuffer node is not first in geometry node!");
+				throw DeadlyImportError("vertexbuffer node is not first in geometry node!");
 			}
 			theSubMesh.HasPositions=GetAttribute<bool>(Reader, "positions");
 			theSubMesh.HasNormals=GetAttribute<bool>(Reader, "normals");
@@ -188,7 +187,7 @@ void OgreImporter::ReadSubMesh(SubMesh &theSubMesh, XmlReader *Reader)
 			else
 				theSubMesh.NumUvs=GetAttribute<int>(Reader, "texture_coords");
 			if(theSubMesh.NumUvs>1)
-				throw new ImportErrorException("too many texcoords (just 1 supported!)");
+				throw DeadlyImportError("too many texcoords (just 1 supported!)");
 
 			//read all the vertices:
 			XmlRead(Reader);
@@ -249,7 +248,8 @@ void OgreImporter::ReadSubMesh(SubMesh &theSubMesh, XmlReader *Reader)
 
 		}//end of boneassignments
 	}
-	DefaultLogger::get()->debug(str(format("Positionen: %1% Normale: %2% TexCoords: %3%") % theSubMesh.Positions.size() % theSubMesh.Normals.size() % theSubMesh.Uvs.size()));
+	DefaultLogger::get()->debug(str(format("Positionen: %1% Normale: %2% TexCoords: %3%")
+								% theSubMesh.Positions.size() % theSubMesh.Normals.size() % theSubMesh.Uvs.size()));
 	DefaultLogger::get()->warn(Reader->getNodeName());
 
 
@@ -308,7 +308,7 @@ void OgreImporter::CreateAssimpSubMesh(const SubMesh& theSubMesh, const vector<B
 {
 	//Mesh is fully loaded, copy it into the aiScene:
 	if(m_CurrentScene->mNumMeshes!=0)
-		throw new ImportErrorException("Currently only one mesh per File is allowed!!");
+		throw DeadlyImportError("Currently only one mesh per File is allowed!!");
 
 	aiMesh* NewAiMesh=new aiMesh();
 	
@@ -363,8 +363,8 @@ void OgreImporter::CreateAssimpSubMesh(const SubMesh& theSubMesh, const vector<B
 			NewBone->mNumWeights=aiWeights[i].size();
 			NewBone->mWeights=new aiVertexWeight[aiWeights[i].size()];
 			memcpy(NewBone->mWeights, &(aiWeights[i][0]), sizeof(aiVertexWeight)*aiWeights[i].size());
-			NewBone->mName=Bones[i].Name;//The bone list should be sorted after its ids, this was done in LoadSkeleton
-			NewBone->mOffsetMatrix=aiMatrix4x4(Bones[i].WorldToBoneSpace).Inverse();//we suggest, that the mesh space is the world space!
+			NewBone->mName=Bones[i].Name;//The bone list should be sorted after its id's, this was done in LoadSkeleton
+			NewBone->mOffsetMatrix=Bones[i].BoneToWorldSpace;
 				
 			aiBones.push_back(NewBone);
 		}
@@ -394,170 +394,6 @@ void OgreImporter::CreateAssimpSubMesh(const SubMesh& theSubMesh, const vector<B
 	NewAiMesh->mMaterialIndex=theSubMesh.MaterialIndex;//the index is set by the function who called ReadSubMesh
 }
 
-aiMaterial* OgreImporter::LoadMaterial(const std::string MaterialName)
-{
-	MaterialHelper *NewMaterial=new MaterialHelper();
-
-	aiString ts(MaterialName.c_str());
-	NewMaterial->AddProperty(&ts, AI_MATKEY_NAME);
-	/*For bettetr understanding of the material parser, here is a material example file:
-
-	material Sarg
-	{
-		receive_shadows on
-		technique
-		{
-			pass
-			{
-				ambient 0.500000 0.500000 0.500000 1.000000
-				diffuse 0.640000 0.640000 0.640000 1.000000
-				specular 0.500000 0.500000 0.500000 1.000000 12.500000
-				emissive 0.000000 0.000000 0.000000 1.000000
-				texture_unit
-				{
-					texture SargTextur.tga
-					tex_address_mode wrap
-					filtering linear linear none
-				}
-			}
-		}
-	}
-
-	*/
-
-
-	string MaterialFileName=m_CurrentFilename.substr(0, m_CurrentFilename.find('.'))+".material";
-	DefaultLogger::get()->info(str(format("Trying to load %1%") % MaterialFileName));
-
-	//Read the file into memory and put it in a stringstream
-	stringstream ss;
-	{// after this block, the temporarly loaded data will be released
-		IOStream* MatFilePtr=m_CurrentIOHandler->Open(MaterialFileName);
-		if(NULL==MatFilePtr)
-		{
-			MatFilePtr=m_CurrentIOHandler->Open(m_MaterialLibFilename);
-			if(NULL==MatFilePtr)
-			{
-				DefaultLogger::get()->error(m_MaterialLibFilename+" and "+MaterialFileName + " could not be opned, Material will not be loaded!");
-				return NewMaterial;
-			}
-		}
-		scoped_ptr<IOStream> MaterialFile(MatFilePtr);
-		vector<char> FileData(MaterialFile->FileSize());
-		MaterialFile->Read(&FileData[0], MaterialFile->FileSize(), 1);
-		BaseImporter::ConvertToUTF8(FileData);
-
-		ss << &FileData[0];
-	}
-
-	string Line;
-	ss >> Line;
-	unsigned int Level=0;//Hierarchielevels in the material file, like { } blocks into another
-	while(!ss.eof())
-	{
-		if(Line=="material")
-		{
-			ss >> Line;
-			if(Line==MaterialName)//Load the next material
-			{
-				ss >> Line;
-				if(Line!="{")
-					throw new ImportErrorException("empty material!");
-
-				while(Line!="}")//read until the end of the material
-				{
-					//Proceed to the first technique
-					ss >> Line;
-					if(Line=="technique")
-					{
-						ss >> Line;
-						if(Line!="{")
-							throw new ImportErrorException("empty technique!");
-						while(Line!="}")//read until the end of the technique
-						{
-							ss >> Line;
-							if(Line=="pass")
-							{
-								ss >> Line;
-								if(Line!="{")
-									throw new ImportErrorException("empty pass!");
-								while(Line!="}")//read until the end of the pass
-								{
-									ss >> Line;
-									if(Line=="ambient")
-									{
-										//read the ambient light values:
-									}
-									else if(Line=="diffuse")
-									{
-									}
-									else if(Line=="specular")
-									{
-									}
-									else if(Line=="emmisive")
-									{
-									}
-									else if(Line=="texture_unit")
-									{
-										ss >> Line;
-										if(Line!="{")
-											throw new ImportErrorException("empty texture unit!");
-										while(Line!="}")//read until the end of the texture_unit
-										{
-											ss >> Line;
-											if(Line=="texture")
-											{
-												ss >> Line;
-												aiString ts(Line.c_str());
-												NewMaterial->AddProperty(&ts, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
-											}
-										}//end of texture unit
-									}
-								}
-							}
-						}//end of technique
-
-						
-					}
-
-
-					DefaultLogger::get()->info(Line);
-					//read informations from a custom material:
-					if(Line=="set")
-					{
-						ss >> Line;
-						if(Line=="$specular")//todo load this values:
-						{
-						}
-						if(Line=="$diffuse")
-						{
-						}
-						if(Line=="$ambient")
-						{
-						}
-						if(Line=="$colormap")
-						{
-							ss >> Line;
-							aiString ts(Line.c_str());
-							NewMaterial->AddProperty(&ts, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
-						}
-						if(Line=="$normalmap")
-						{
-							ss >> Line;
-							aiString ts(Line.c_str());
-							NewMaterial->AddProperty(&ts, AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0));
-						}
-					}					
-				}//end of material
-			}
-			else {} //this is the wrong material, proceed the file until we reach the next material
-		}
-		ss >> Line;
-	}
-
-	return NewMaterial;
-}
-
 
 void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vector<Animation> &Animations)
 {
@@ -570,32 +406,32 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 	//Open the File:
 	boost::scoped_ptr<IOStream> File(m_CurrentIOHandler->Open(FileName));
 	if(NULL==File.get())
-		throw new ImportErrorException("Failed to open skeleton file "+FileName+".");
+		throw DeadlyImportError("Failed to open skeleton file "+FileName+".");
 
 	//Read the Mesh File:
 	boost::scoped_ptr<CIrrXML_IOStreamReader> mIOWrapper(new CIrrXML_IOStreamReader(File.get()));
 	XmlReader* SkeletonFile = irr::io::createIrrXMLReader(mIOWrapper.get());
 	if(!SkeletonFile)
-		throw new ImportErrorException(string("Failed to create XML Reader for ")+FileName);
+		throw DeadlyImportError(string("Failed to create XML Reader for ")+FileName);
 
 	//Quick note: Whoever read this should know this one thing: irrXml fucking sucks!!!
 
 	XmlRead(SkeletonFile);
 	if(string("skeleton")!=SkeletonFile->getNodeName())
-		throw new ImportErrorException("No <skeleton> node in SkeletonFile: "+FileName);
+		throw DeadlyImportError("No <skeleton> node in SkeletonFile: "+FileName);
 
 
 
 	//------------------------------------load bones-----------------------------------------
 	XmlRead(SkeletonFile);
 	if(string("bones")!=SkeletonFile->getNodeName())
-		throw new ImportErrorException("No bones node in skeleton "+FileName);
+		throw DeadlyImportError("No bones node in skeleton "+FileName);
 
 	XmlRead(SkeletonFile);
 
 	while(string("bone")==SkeletonFile->getNodeName())
 	{
-		//TODO: Maybe we can have bone ids for the errrors, but normaly, they should never appera, so what....
+		//TODO: Maybe we can have bone ids for the errrors, but normaly, they should never appear, so what....
 
 		//read a new bone:
 		Bone NewBone;
@@ -605,7 +441,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 		//load the position:
 		XmlRead(SkeletonFile);
 		if(string("position")!=SkeletonFile->getNodeName())
-			throw new ImportErrorException("Position is not first node in Bone!");
+			throw DeadlyImportError("Position is not first node in Bone!");
 		NewBone.Position.x=GetAttribute<float>(SkeletonFile, "x");
 		NewBone.Position.y=GetAttribute<float>(SkeletonFile, "y");
 		NewBone.Position.z=GetAttribute<float>(SkeletonFile, "z");
@@ -613,11 +449,11 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 		//Rotation:
 		XmlRead(SkeletonFile);
 		if(string("rotation")!=SkeletonFile->getNodeName())
-			throw new ImportErrorException("Rotation is not the second node in Bone!");
+			throw DeadlyImportError("Rotation is not the second node in Bone!");
 		NewBone.RotationAngle=GetAttribute<float>(SkeletonFile, "angle");
 		XmlRead(SkeletonFile);
 		if(string("axis")!=SkeletonFile->getNodeName())
-			throw new ImportErrorException("No axis specified for bone rotation!");
+			throw DeadlyImportError("No axis specified for bone rotation!");
 		NewBone.RotationAxis.x=GetAttribute<float>(SkeletonFile, "x");
 		NewBone.RotationAxis.y=GetAttribute<float>(SkeletonFile, "y");
 		NewBone.RotationAxis.z=GetAttribute<float>(SkeletonFile, "z");
@@ -640,7 +476,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 				IdsOk=false;
 		}
 		if(!IdsOk)
-			throw new ImportErrorException("Bone Ids are not valid!"+FileName);
+			throw DeadlyImportError("Bone Ids are not valid!"+FileName);
 	}
 	DefaultLogger::get()->debug(str(format("Number of bones: %1%") % Bones.size()));
 	//________________________________________________________________________________
@@ -652,7 +488,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 
 	//----------------------------load bonehierarchy--------------------------------
 	if(string("bonehierarchy")!=SkeletonFile->getNodeName())
-		throw new ImportErrorException("no bonehierarchy node in "+FileName);
+		throw DeadlyImportError("no bonehierarchy node in "+FileName);
 
 	DefaultLogger::get()->debug("loading bonehierarchy...");
 	XmlRead(SkeletonFile);
@@ -679,7 +515,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 	{
 		if(-1==theBone.ParentId) //the bone is a root bone
 		{
-			theBone.CalculateWorldToBoneSpaceMatrix(Bones);
+			theBone.CalculateBoneToWorldSpaceMatrix(Bones);
 		}
 	}
 	//_______________________________________________________________________
@@ -699,7 +535,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 			//Load all Tracks
 			XmlRead(SkeletonFile);
 			if(string("tracks")!=SkeletonFile->getNodeName())
-				throw new ImportErrorException("no tracks node in animation");
+				throw DeadlyImportError("no tracks node in animation");
 			XmlRead(SkeletonFile);
 			while(string("track")==SkeletonFile->getNodeName())
 			{
@@ -709,7 +545,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 				//Load all keyframes;
 				XmlRead(SkeletonFile);
 				if(string("keyframes")!=SkeletonFile->getNodeName())
-					throw new ImportErrorException("no keyframes node!");
+					throw DeadlyImportError("no keyframes node!");
 				XmlRead(SkeletonFile);
 				while(string("keyframe")==SkeletonFile->getNodeName())
 				{
@@ -719,7 +555,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 					//Position:
 					XmlRead(SkeletonFile);
 					if(string("translate")!=SkeletonFile->getNodeName())
-						throw new ImportErrorException("translate node not first in keyframe");
+						throw DeadlyImportError("translate node not first in keyframe");
 					NewKeyframe.Position.x=GetAttribute<float>(SkeletonFile, "x");
 					NewKeyframe.Position.y=GetAttribute<float>(SkeletonFile, "y");
 					NewKeyframe.Position.z=GetAttribute<float>(SkeletonFile, "z");
@@ -727,12 +563,12 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 					//Rotation:
 					XmlRead(SkeletonFile);
 					if(string("rotate")!=SkeletonFile->getNodeName())
-						throw new ImportErrorException("rotate is not second node in keyframe");
+						throw DeadlyImportError("rotate is not second node in keyframe");
 					float RotationAngle=GetAttribute<float>(SkeletonFile, "angle");
 					aiVector3D RotationAxis;
 					XmlRead(SkeletonFile);
 					if(string("axis")!=SkeletonFile->getNodeName())
-						throw new ImportErrorException("No axis for keyframe rotation!");
+						throw DeadlyImportError("No axis for keyframe rotation!");
 					RotationAxis.x=GetAttribute<float>(SkeletonFile, "x");
 					RotationAxis.y=GetAttribute<float>(SkeletonFile, "y");
 					RotationAxis.z=GetAttribute<float>(SkeletonFile, "z");
@@ -741,7 +577,7 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 					//Scaling:
 					XmlRead(SkeletonFile);
 					if(string("scale")!=SkeletonFile->getNodeName())
-						throw new ImportErrorException("no scalling key in keyframe!");
+						throw DeadlyImportError("no scalling key in keyframe!");
 					NewKeyframe.Scaling.x=GetAttribute<float>(SkeletonFile, "x");
 					NewKeyframe.Scaling.y=GetAttribute<float>(SkeletonFile, "y");
 					NewKeyframe.Scaling.z=GetAttribute<float>(SkeletonFile, "z");
@@ -765,12 +601,12 @@ void OgreImporter::LoadSkeleton(std::string FileName, vector<Bone> &Bones, vecto
 
 void OgreImporter::CreateAssimpSkeleton(const std::vector<Bone> &Bones, const std::vector<Animation> &Animations)
 {
-	//-----------------skeleton is completly loaded, now but it in the assimp scene:-------------------------------
+	//-----------------skeleton is completly loaded, now put it in the assimp scene:-------------------------------
 	
 	if(!m_CurrentScene->mRootNode)
-		throw new ImportErrorException("No root node exists!!");
+		throw DeadlyImportError("No root node exists!!");
 	if(0!=m_CurrentScene->mRootNode->mNumChildren)
-		throw new ImportErrorException("Root Node already has childnodes!");
+		throw DeadlyImportError("Root Node already has childnodes!");
 
 	//--------------Createt the assimp bone hierarchy-----------------
 	DefaultLogger::get()->debug("Root Bones");
@@ -780,7 +616,7 @@ void OgreImporter::CreateAssimpSkeleton(const std::vector<Bone> &Bones, const st
 		if(-1==theBone.ParentId) //the bone is a root bone
 		{
 			DefaultLogger::get()->debug(theBone.Name);
-			RootBoneNodes.push_back(CreateAiNodeFromBone(theBone.Id, Bones, m_CurrentScene->mRootNode));
+			RootBoneNodes.push_back(CreateAiNodeFromBone(theBone.Id, Bones, m_CurrentScene->mRootNode));//which will recursily add all other nodes
 		}
 	}
 	m_CurrentScene->mRootNode->mNumChildren=RootBoneNodes.size();
@@ -809,6 +645,9 @@ void OgreImporter::CreateAssimpSkeleton(const std::vector<Bone> &Bones, const st
 				aiNodeAnim* NewNodeAnim=new aiNodeAnim();
 				NewNodeAnim->mNodeName=Animations[i].Tracks[j].BoneName;
 
+				//we need this, to acces the bones default pose, which we need to make keys absolute
+				vector<Bone>::const_iterator CurBone=find(Bones.begin(), Bones.end(), NewNodeAnim->mNodeName);
+
 				//Create the keyframe arrays...
 				unsigned int KeyframeCount=Animations[i].Tracks[j].Keyframes.size();
 				NewNodeAnim->mNumPositionKeys=KeyframeCount;
@@ -821,14 +660,34 @@ void OgreImporter::CreateAssimpSkeleton(const std::vector<Bone> &Bones, const st
 				//...and fill them
 				for(unsigned int k=0; k<KeyframeCount; ++k)
 				{
+					aiMatrix4x4 t0, t1, t2, t3, t4;
+					//Create a matrix to transfrom a vector from the bones default pose to the bone bones in this animation key
+					aiMatrix4x4 PoseToKey=aiMatrix4x4::Scaling(Animations[i].Tracks[j].Keyframes[k].Scaling, t1)	//scale
+									* aiMatrix4x4(Animations[i].Tracks[j].Keyframes[k].Rotation.GetMatrix())		//rot
+									* aiMatrix4x4::Translation(Animations[i].Tracks[j].Keyframes[k].Position, t0);	//pos
+
+					aiMatrix4x4 DefBonePose=aiMatrix4x4::Rotation(CurBone->RotationAngle, CurBone->RotationAxis, t3)
+									* aiMatrix4x4::Translation(CurBone->Position, t2);
+									//The defautl bone pose doesnt have a scaling value
+
+					//calculate the complete transformation from world space to bone space
+					aiMatrix4x4 CompleteTransform=DefBonePose * PoseToKey;
+					
+					aiVector3D Pos;
+					aiQuaternion Rot;
+					aiVector3D Scale;
+
+					CompleteTransform.Decompose(Scale, Rot, Pos);
+
+
 					NewNodeAnim->mPositionKeys[k].mTime=Animations[i].Tracks[j].Keyframes[k].Time;
-					NewNodeAnim->mPositionKeys[k].mValue=Animations[i].Tracks[j].Keyframes[k].Position;
+					NewNodeAnim->mPositionKeys[k].mValue=Pos;
 					
 					NewNodeAnim->mRotationKeys[k].mTime=Animations[i].Tracks[j].Keyframes[k].Time;
-					NewNodeAnim->mRotationKeys[k].mValue=Animations[i].Tracks[j].Keyframes[k].Rotation;
+					NewNodeAnim->mRotationKeys[k].mValue=Rot;
 
 					NewNodeAnim->mScalingKeys[k].mTime=Animations[i].Tracks[j].Keyframes[k].Time;
-					NewNodeAnim->mScalingKeys[k].mValue=Animations[i].Tracks[j].Keyframes[k].Scaling;
+					NewNodeAnim->mScalingKeys[k].mValue=Scale;
 				}
 				
 				NewAnimation->mChannels[j]=NewNodeAnim;
@@ -850,9 +709,9 @@ aiNode* OgreImporter::CreateAiNodeFromBone(int BoneId, const std::vector<Bone> &
 
 	aiMatrix4x4 t0,t1;
 	//create a matrix from the transformation values of the ogre bone
-	NewNode->mTransformation=aiMatrix4x4::Translation(Bones[BoneId].Position, t0)
-							*
-							aiMatrix4x4::Rotation(Bones[BoneId].RotationAngle, Bones[BoneId].RotationAxis, t1)
+	NewNode->mTransformation=aiMatrix4x4::Rotation(Bones[BoneId].RotationAngle, Bones[BoneId].RotationAxis, t1)
+							*	aiMatrix4x4::Translation(Bones[BoneId].Position, t0)
+
 							;
 	//__________________________________________________________
 
@@ -871,29 +730,27 @@ aiNode* OgreImporter::CreateAiNodeFromBone(int BoneId, const std::vector<Bone> &
 }
 
 
-void Bone::CalculateWorldToBoneSpaceMatrix(vector<Bone> &Bones)
+void Bone::CalculateBoneToWorldSpaceMatrix(vector<Bone> &Bones)
 {
 	//Calculate the matrix for this bone:
+
 	aiMatrix4x4 t0,t1;
+	aiMatrix4x4 Transf=aiMatrix4x4::Translation(-Position, t0)
+						* aiMatrix4x4::Rotation(-RotationAngle, RotationAxis, t1)
+						;
 	if(-1==ParentId)
 	{
-		WorldToBoneSpace= aiMatrix4x4::Translation(Position, t0)
-						* aiMatrix4x4::Rotation(RotationAngle, RotationAxis, t1)
-						;
+		BoneToWorldSpace=Transf;
 	}
 	else
 	{
-		WorldToBoneSpace= Bones[ParentId].WorldToBoneSpace
-						* aiMatrix4x4::Translation(Position, t0)
-						* aiMatrix4x4::Rotation(RotationAngle, RotationAxis, t1)
-						;
-
+		BoneToWorldSpace=Transf*Bones[ParentId].BoneToWorldSpace;
 	}
 
 	//and recursivly for all children:
 	BOOST_FOREACH(int theChildren, Children)
 	{
-		Bones[theChildren].CalculateWorldToBoneSpaceMatrix(Bones);
+		Bones[theChildren].CalculateBoneToWorldSpaceMatrix(Bones);
 	}
 }
 

@@ -81,7 +81,7 @@ public:
 private:
 
 	//! \brief	Appends the supported extention.
-	void GetExtensionList(std::string& append);
+	void GetExtensionList(std::set<std::string>& extensions);
 
 	//!	\brief	File import implementation.
 	void InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
@@ -105,8 +105,7 @@ private:
 	void countObjects(const std::vector<ObjFile::Object*> &rObjects, int &iNumMeshes);
 
 	//!	\brief	Material creation.
-	void createMaterial(const ObjFile::Model* pModel, const ObjFile::Object* pData, 
-		aiScene* pScene);
+	void createMaterials(const ObjFile::Model* pModel, aiScene* pScene);
 
 	//!	\brief	Appends a child node to a parentnode and updates the datastructures.
 	void appendChildToParentNode(aiNode *pParent, aiNode *pChild);
@@ -125,9 +124,9 @@ private:
 
 // ------------------------------------------------------------------------------------------------
 //	
-inline void ObjFileImporter::GetExtensionList(std::string& append)
+inline void ObjFileImporter::GetExtensionList(std::set<std::string>& extensions)
 {
-	append.append("*.obj");
+	extensions.insert("obj");
 }
 
 // ------------------------------------------------------------------------------------------------

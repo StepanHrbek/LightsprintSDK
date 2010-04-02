@@ -118,6 +118,7 @@ namespace LWO {
 #define AI_LWO_PTCH  AI_IFF_FOURCC('P','T','C','H')
 #define AI_LWO_MBAL  AI_IFF_FOURCC('M','B','A','L')
 #define AI_LWO_BONE  AI_IFF_FOURCC('B','O','N','E')
+#define AI_LWO_SUBD  AI_IFF_FOURCC('S','U','B','D')
 
 /* polygon tags */
 #define AI_LWO_SURF  AI_IFF_FOURCC('S','U','R','F')
@@ -609,7 +610,7 @@ struct Surface
 #define AI_LWO_VALIDATE_CHUNK_LENGTH(length,name,size) \
 	if (length < size) \
 	{ \
-		throw new ImportErrorException("LWO: "#name" chunk is too small"); \
+		throw DeadlyImportError("LWO: "#name" chunk is too small"); \
 	} \
 
 

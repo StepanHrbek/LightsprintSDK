@@ -101,9 +101,9 @@ bool DXFImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
 
 // ------------------------------------------------------------------------------------------------
 // Get a list of all supported file extensions
-void DXFImporter::GetExtensionList(std::string& append)
+void DXFImporter::GetExtensionList(std::set<std::string>& extensions)
 {
-	append.append("*.dxf");
+	extensions.insert("dxf");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ void DXFImporter::InternReadFile( const std::string& pFile,
 
 	// Check whether we can read from the file
 	if( file.get() == NULL) {
-		throw new ImportErrorException( "Failed to open DXF file " + pFile + "");
+		throw DeadlyImportError( "Failed to open DXF file " + pFile + "");
 	}
 
 	// read the contents of the file in a buffer
@@ -175,7 +175,7 @@ void DXFImporter::InternReadFile( const std::string& pFile,
 
 	// check whether this is a binaray DXF file - we can't read binary DXF files :-(
 	if (!strncmp(AI_DXF_BINARY_IDENT,buffer,AI_DXF_BINARY_IDENT_LEN))
-		throw new ImportErrorException("DXF: Binary files are not supported at the moment");
+		throw DeadlyImportError("DXF: Binary files are not supported at the moment");
 
 	// now get all lines of the file
 	while (GetNextToken())	{
@@ -212,7 +212,7 @@ void DXFImporter::InternReadFile( const std::string& pFile,
 	}
 
 	if (!pScene->mNumMeshes)
-		throw new ImportErrorException("DXF: this file contains no 3d data");
+		throw DeadlyImportError("DXF: this file contains no 3d data");
 
 	pScene->mMeshes = new aiMesh*[ pScene->mNumMeshes ];
 	unsigned int m = 0;
@@ -326,14 +326,18 @@ bool DXFImporter::ParseEntities()
 {
 	while (GetNextToken())	{
 		if (!groupCode)	{			
-			if (!::strcmp(cursor,"3DFACE") || !::strcmp(cursor,"LINE") || !::strcmp(cursor,"3DLINE"))
-				if (!Parse3DFace()) return false; else bRepeat = true;
-
-			if (!::strcmp(cursor,"POLYLINE") || !::strcmp(cursor,"LWPOLYLINE"))
-				if (!ParsePolyLine()) return false; else bRepeat = true;
-
-			if (!::strcmp(cursor,"ENDSEC"))
+			if (!::strcmp(cursor,"3DFACE") || !::strcmp(cursor,"LINE") || !::strcmp(cursor,"3DLINE")){
+				//http://sourceforge.net/tracker/index.php?func=detail&aid=2970566&group_id=226462&atid=1067632
+				Parse3DFace();
+				bRepeat = true;
+			}
+			if (!::strcmp(cursor,"POLYLINE") || !::strcmp(cursor,"LWPOLYLINE")){
+				ParsePolyLine();
+				bRepeat = true;
+			}
+			if (!::strcmp(cursor,"ENDSEC")) {
 				return true;
+			}
 		}
 	}
 	return false;

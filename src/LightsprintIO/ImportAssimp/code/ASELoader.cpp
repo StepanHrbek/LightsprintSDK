@@ -87,9 +87,10 @@ bool ASEImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
 }
 
 // ------------------------------------------------------------------------------------------------
-void ASEImporter::GetExtensionList(std::string& append)
+void ASEImporter::GetExtensionList(std::set<std::string>& extensions)
 {
-	append.append("*.ase;*.ask");
+	extensions.insert("ase");
+	extensions.insert("ask");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ void ASEImporter::InternReadFile( const std::string& pFile,
 
 	// Check whether we can read from the file
 	if( file.get() == NULL) {
-		throw new ImportErrorException( "Failed to open ASE file " + pFile + ".");
+		throw DeadlyImportError( "Failed to open ASE file " + pFile + ".");
 	}
 
 	// Allocate storage and copy the contents of the file to a memory buffer
@@ -193,8 +194,9 @@ void ASEImporter::InternReadFile( const std::string& pFile,
 
 	// ------------------------------------------------------------------
 	// Copy all scene graph nodes - lights, cameras, dummies and meshes
-	// into one large array. FIXME: do this during parsing ...
+	// into one huge list.
 	//------------------------------------------------------------------
+	std::vector<BaseNode*> nodes;
 	nodes.reserve(mParser->m_vMeshes.size() +mParser->m_vLights.size()
 		+ mParser->m_vCameras.size() + mParser->m_vDummies.size());
 
@@ -212,10 +214,10 @@ void ASEImporter::InternReadFile( const std::string& pFile,
 		end = mParser->m_vDummies.end();it != end; ++it)nodes.push_back(&(*it));
 
 	// build the final node graph
-	BuildNodes();
+	BuildNodes(nodes);
 
 	// build output animations
-	BuildAnimations();
+	BuildAnimations(nodes);
 
 	// build output cameras
 	BuildCameras();
@@ -260,10 +262,10 @@ void ASEImporter::GenerateDefaultMaterial()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ASEImporter::BuildAnimations()
+void ASEImporter::BuildAnimations(const std::vector<BaseNode*>& nodes)
 {
 	// check whether we have at least one mesh which has animations
-	std::vector<ASE::BaseNode*>::iterator i =  nodes.begin();
+	std::vector<ASE::BaseNode*>::const_iterator i =  nodes.begin();
 	unsigned int iNum = 0;
 	for (;i != nodes.end();++i)	{
 
@@ -330,13 +332,13 @@ void ASEImporter::BuildAnimations()
 
 				// Allocate the key array and fill it
 				nd->mNumPositionKeys = (unsigned int) me->mTargetAnim.akeyPositions.size();
-				nd->mPositionKeys    = new aiVectorKey[nd->mNumPositionKeys];
+				nd->mPositionKeys = new aiVectorKey[nd->mNumPositionKeys];
 
 				::memcpy(nd->mPositionKeys,&me->mTargetAnim.akeyPositions[0],
 					nd->mNumPositionKeys * sizeof(aiVectorKey));
 			}
 
-			if (me->mAnim.akeyPositions.size() > 1 || me->mAnim.akeyRotations.size() > 1 || me->mAnim.akeyScaling.size()   > 1)	{
+			if (me->mAnim.akeyPositions.size() > 1 || me->mAnim.akeyRotations.size() > 1 || me->mAnim.akeyScaling.size() > 1)	{
 				// Begin a new node animation channel for this node
 				aiNodeAnim* nd = pcAnim->mChannels[iNum++] = new aiNodeAnim();
 				nd->mNodeName.Set(me->mName);
@@ -346,7 +348,7 @@ void ASEImporter::BuildAnimations()
 				{
 					// Allocate the key array and fill it
 					nd->mNumPositionKeys = (unsigned int) me->mAnim.akeyPositions.size();
-					nd->mPositionKeys    = new aiVectorKey[nd->mNumPositionKeys];
+					nd->mPositionKeys = new aiVectorKey[nd->mNumPositionKeys];
 
 					::memcpy(nd->mPositionKeys,&me->mAnim.akeyPositions[0],
 						nd->mNumPositionKeys * sizeof(aiVectorKey));
@@ -355,7 +357,7 @@ void ASEImporter::BuildAnimations()
 				if (me->mAnim.akeyRotations.size() > 1 )	{
 					// Allocate the key array and fill it
 					nd->mNumRotationKeys = (unsigned int) me->mAnim.akeyRotations.size();
-					nd->mRotationKeys    = new aiQuatKey[nd->mNumRotationKeys];
+					nd->mRotationKeys = new aiQuatKey[nd->mNumRotationKeys];
 
 					// --------------------------------------------------------------------
 					// Rotation keys are offsets to the previous keys.
@@ -384,7 +386,7 @@ void ASEImporter::BuildAnimations()
 				if (me->mAnim.akeyScaling.size() > 1 )	{
 					// Allocate the key array and fill it
 					nd->mNumScalingKeys = (unsigned int) me->mAnim.akeyScaling.size();
-					nd->mScalingKeys    = new aiVectorKey[nd->mNumScalingKeys];
+					nd->mScalingKeys = new aiVectorKey[nd->mNumScalingKeys];
 
 					::memcpy(nd->mScalingKeys,&me->mAnim.akeyScaling[0],
 						nd->mNumScalingKeys * sizeof(aiVectorKey));
@@ -403,7 +405,7 @@ void ASEImporter::BuildCameras()
 		pcScene->mCameras = new aiCamera*[pcScene->mNumCameras];
 
 		for (unsigned int i = 0; i < pcScene->mNumCameras;++i)	{
-			aiCamera* out   = pcScene->mCameras[i] = new aiCamera();
+			aiCamera* out = pcScene->mCameras[i] = new aiCamera();
 			ASE::Camera& in = mParser->m_vCameras[i];
 
 			// copy members
@@ -424,9 +426,8 @@ void ASEImporter::BuildLights()
 		pcScene->mNumLights = (unsigned int)mParser->m_vLights.size();
 		pcScene->mLights    = new aiLight*[pcScene->mNumLights];
 
-		for (unsigned int i = 0; i < pcScene->mNumLights;++i)
-		{
-			aiLight* out   = pcScene->mLights[i] = new aiLight();
+		for (unsigned int i = 0; i < pcScene->mNumLights;++i)	{
+			aiLight* out = pcScene->mLights[i] = new aiLight();
 			ASE::Light& in = mParser->m_vLights[i];
 
 			// The direction is encoded in the transformation matrix of the node. 
@@ -458,7 +459,7 @@ void ASEImporter::BuildLights()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ASEImporter::AddNodes(std::vector<BaseNode*>& nodes,
+void ASEImporter::AddNodes(const std::vector<BaseNode*>& nodes,
 	aiNode* pcParent,const char* szName)
 {
 	aiMatrix4x4 m;
@@ -520,7 +521,7 @@ void ASEImporter::AddMeshes(const ASE::BaseNode* snode,aiNode* node)
 
 // ------------------------------------------------------------------------------------------------
 // Add child nodes to a given parent node
-void ASEImporter::AddNodes (std::vector<BaseNode*>& nodes,
+void ASEImporter::AddNodes (const std::vector<BaseNode*>& nodes,
 	aiNode* pcParent, const char* szName,
 	const aiMatrix4x4& mat)
 {
@@ -616,7 +617,7 @@ void ASEImporter::AddNodes (std::vector<BaseNode*>& nodes,
 
 // ------------------------------------------------------------------------------------------------
 // Build the output node graph
-void ASEImporter::BuildNodes()	{
+void ASEImporter::BuildNodes(std::vector<BaseNode*>& nodes)	{
 	ai_assert(NULL != pcScene);
 
 	// allocate the one and only root node
@@ -702,7 +703,7 @@ void ASEImporter::BuildNodes()	{
 
 	// The root node should not have at least one child or the file is valid
 	if (!pcScene->mRootNode->mNumChildren) {
-		throw new ImportErrorException("ASE: No nodes loaded. The file is either empty or corrupt");
+		throw DeadlyImportError("ASE: No nodes loaded. The file is either empty or corrupt");
 	}
 	
 	// Now rotate the whole scene 90 degrees around the x axis to convert to internal coordinate system
@@ -967,7 +968,7 @@ void ASEImporter::ConvertMeshes(ASE::Mesh& mesh, std::vector<aiMesh*>& avOutMesh
 				p_pcOut->mNumFaces = (unsigned int)aiSplit[p].size();
 
 				// receive output vertex weights
-				std::vector<std::pair<unsigned int, float> >* avOutputBones;
+				std::vector<std::pair<unsigned int, float> > *avOutputBones = NULL;
 				if (!mesh.mBones.empty())	{
 					avOutputBones = new std::vector<std::pair<unsigned int, float> >[mesh.mBones.size()];
 				}
@@ -1293,7 +1294,7 @@ bool ASEImporter::GenerateNormals(ASE::Mesh& mesh)	{
 			}
 		}
 	}
-	// The array ís reused
+	// The array is reused.
 	ComputeNormalsWithSmoothingsGroups<ASE::Face>(mesh);
 	return false;
 }

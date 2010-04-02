@@ -68,7 +68,7 @@ ColladaParser::ColladaParser( IOSystem* pIOHandler, const std::string& pFile)
   // open the file
   boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile));
   if( file.get() == NULL)
-    throw new ImportErrorException( "Failed to open file " + pFile + ".");
+    throw DeadlyImportError( "Failed to open file " + pFile + ".");
 
 	// generate a XML reader for it
   boost::scoped_ptr<CIrrXML_IOStreamReader> mIOWrapper( new CIrrXML_IOStreamReader( file.get()));
@@ -479,9 +479,19 @@ void ColladaParser::ReadController( Collada::Controller& pController)
 			} 
 			else if( IsElement( "bind_shape_matrix"))
 			{
-				// content is 16 floats to define some sort of matrix... I'm going to ignore this
-				// as long as I don't have a clue how to interpret it
-				SkipElement();
+				// content is 16 floats to define a matrix... it seems to be important for some models
+	      const char* content = GetTextContent();
+
+	      // read the 16 floats
+	      for( unsigned int a = 0; a < 16; a++)
+	      {
+		      // read a number
+          content = fast_atof_move( content, pController.mBindShapeMatrix[a]);
+		      // skip whitespace after it
+		      SkipSpacesAndLineEnd( &content);
+	      }
+
+        TestClosing( "bind_shape_matrix");
 			} 
 			else if( IsElement( "source"))
 			{
@@ -1667,6 +1677,7 @@ void ColladaParser::ReadAccessor( const std::string& pID)
 	acc.mOffset = offset;
 	acc.mStride = stride;
 	acc.mSource = source+1; // ignore the leading '#'
+	acc.mSize = 0; // gets incremented with every param
 
 	// and read the components
 	while( mReader->read())
@@ -1705,8 +1716,22 @@ void ColladaParser::ReadAccessor( const std::string& pID)
 					/* Generic extra data, interpreted as UV data, too*/
 					else if( name == "U") acc.mSubOffset[0] = acc.mParams.size();
 					else if( name == "V") acc.mSubOffset[1] = acc.mParams.size();
-					else
-						DefaultLogger::get()->warn( boost::str( boost::format( "Unknown accessor parameter \"%s\". Ignoring data channel.") % name));
+					//else
+					//	DefaultLogger::get()->warn( boost::str( boost::format( "Unknown accessor parameter \"%s\". Ignoring data channel.") % name));
+				}
+
+				// read data type
+				int attrType = TestAttribute( "type");
+				if( attrType)
+				{
+					// for the moment we only distinguish between a 4x4 matrix and anything else. 
+					// TODO: (thom) I don't have a spec here at work. Check if there are other multi-value types
+					// which should be tested for here.
+					std::string type = mReader->getAttributeValue( attrType);
+					if( type == "float4x4")
+						acc.mSize += 16;
+					else 
+						acc.mSize += 1;
 				}
 
 				acc.mParams.push_back( name);
@@ -2148,6 +2173,9 @@ void ColladaParser::ExtractDataObjectFromChannel( const InputChannel& pInput, si
       }
 
 			break;
+	default:
+		// IT_Invalid and IT_Vertex 
+		ai_assert(false && "shouldn't ever get here");
 	}
 }
 
@@ -2216,6 +2244,9 @@ void ColladaParser::ReadSceneNode( Node* pNode)
 				int attrID = TestAttribute( "id");
 				if( attrID > -1)
 					child->mID = mReader->getAttributeValue( attrID);
+        int attrSID = TestAttribute( "sid");
+        if( attrSID > -1)
+          child->mSID = mReader->getAttributeValue( attrSID);
 
 				int attrName = TestAttribute( "name");
 				if( attrName > -1)
@@ -2500,7 +2531,7 @@ void ColladaParser::ReadScene()
 // Aborts the file reading with an exception
 void ColladaParser::ThrowException( const std::string& pError) const
 {
-	throw new ImportErrorException( boost::str( boost::format( "Collada: %s - %s") % mFileName % pError));
+	throw DeadlyImportError( boost::str( boost::format( "Collada: %s - %s") % mFileName % pError));
 }
 
 // ------------------------------------------------------------------------------------------------

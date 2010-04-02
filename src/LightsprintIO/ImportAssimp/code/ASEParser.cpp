@@ -54,9 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace Assimp;
 using namespace Assimp::ASE;
 
-#ifdef __GNUC__
-	#define _snprintf snprintf
-#endif
 
 // ------------------------------------------------------------------------------------------------
 // Begin an ASE parsing function
@@ -146,7 +143,7 @@ void Parser::LogWarning(const char* szWarn)
 #if _MSC_VER >= 1400
 	sprintf_s(szTemp,"Line %i: %s",iLineNumber,szWarn);
 #else
-	_snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
+	snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
 #endif
 
 	// output the warning to the logger ...
@@ -162,7 +159,7 @@ void Parser::LogInfo(const char* szWarn)
 #if _MSC_VER >= 1400
 	sprintf_s(szTemp,"Line %i: %s",iLineNumber,szWarn);
 #else
-	_snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
+	snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
 #endif
 
 	// output the information to the logger ...
@@ -178,11 +175,11 @@ void Parser::LogError(const char* szWarn)
 #if _MSC_VER >= 1400
 	sprintf_s(szTemp,"Line %i: %s",iLineNumber,szWarn);
 #else
-	_snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
+	snprintf(szTemp,1024,"Line %i: %s",iLineNumber,szWarn);
 #endif
 
 	// throw an exception
-	throw new ImportErrorException(szTemp);
+	throw DeadlyImportError(szTemp);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1288,8 +1285,8 @@ void Parser::ParseLV2NodeTransformBlock(ASE::BaseNode& mesh)
 					mesh.mName == temp.substr(0,s))
 				{
 					// This should be either a target light or a target camera
-					if ( mesh.mType == BaseNode::Light &&  ((ASE::Light&)mesh) .mLightType  == ASE::Light::TARGET ||
-						 mesh.mType == BaseNode::Camera && ((ASE::Camera&)mesh).mCameraType == ASE::Camera::TARGET)
+					if ( (mesh.mType == BaseNode::Light &&  ((ASE::Light&)mesh) .mLightType  == ASE::Light::TARGET) ||
+						 (mesh.mType == BaseNode::Camera && ((ASE::Camera&)mesh).mCameraType == ASE::Camera::TARGET))
 					{
 						mode = 2;
 					}

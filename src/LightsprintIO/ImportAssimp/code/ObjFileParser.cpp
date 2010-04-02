@@ -201,9 +201,10 @@ void ObjFileParser::copyNextLine(char *pBuffer, size_t length)
 	size_t index = 0;
 	while (m_DataIt != m_DataItEnd)
 	{
-		if (*m_DataIt == '\n' || *m_DataIt == '\r')
+		// (Aramis) removed assertion (index<length-1) in favour of an explicit check
+		if (*m_DataIt == '\n' || *m_DataIt == '\r' || index == length-1)
 			break;
-		assert (index+1 <= length);
+
 		pBuffer[ index ] = *m_DataIt;
 		++index;
 		++m_DataIt;
@@ -385,19 +386,12 @@ void ObjFileParser::getMaterialDesc()
 	{
 		// Not found, use default material
 		m_pModel->m_pCurrentMaterial = m_pModel->m_pDefaultMaterial;
-		//m_pModel->m_pCurrentMesh = new ObjFile::Mesh();
-		//m_pModel->m_Meshes.push_back( m_pModel->m_pCurrentMesh );
-		//m_pModel->m_pCurrentMesh->m_uiMaterialIndex = getMaterialIndex( DEFAULT_MATERIAL );
 	}
 	else
 	{
 		// Found, using detected material
 		m_pModel->m_pCurrentMaterial = (*it).second;
-
-		// Create a new mesh for a new material
-		//m_pModel->m_pCurrentMesh = new ObjFile::Mesh();
-		//m_pModel->m_Meshes.push_back( m_pModel->m_pCurrentMesh );
-		//m_pModel->m_pCurrentMesh->m_uiMaterialIndex = getMaterialIndex( strName );
+		m_pModel->m_pCurrentMesh->m_uiMaterialIndex = getMaterialIndex( strName );
 	}
 
 	// Skip rest of line
@@ -492,14 +486,14 @@ int ObjFileParser::getMaterialIndex( const std::string &strMaterialName )
 	int mat_index = -1;
 	if ( strMaterialName.empty() )
 		return mat_index;
-		for (size_t index = 0; index < m_pModel->m_MaterialLib.size(); ++index)
+	for (size_t index = 0; index < m_pModel->m_MaterialLib.size(); ++index)
+	{
+		if ( strMaterialName == m_pModel->m_MaterialLib[ index ])
 		{
-			if ( strMaterialName == m_pModel->m_MaterialLib[ index ])
-			{
-				mat_index = (int)index;
-				break;
-			}
+			mat_index = (int)index;
+			break;
 		}
+	}
 	return mat_index;
 }
 
@@ -525,8 +519,11 @@ void ObjFileParser::getGroupName()
 		// Search for already existing entry
 		ObjFile::Model::ConstGroupMapIt it = m_pModel->m_Groups.find(&strGroupName);
 		
+		// We are mapping groups into the object structure
+		/// TODO: Is this the right way to do it????
+		createObject( strGroupName );
+		
 		// New group name, creating a new entry
-		//ObjFile::Object *pObject = m_pModel->m_pCurrent;
 		if (it == m_pModel->m_Groups.end())
 		{
 			std::vector<unsigned int> *pFaceIDArray = new std::vector<unsigned int>;
@@ -596,12 +593,12 @@ void ObjFileParser::createObject(const std::string &strObjectName)
 
 	m_pModel->m_pCurrent = new ObjFile::Object();
 	m_pModel->m_pCurrent->m_strObjName = strObjectName;
-	m_pModel->m_Objects.push_back(m_pModel->m_pCurrent);
+	m_pModel->m_Objects.push_back( m_pModel->m_pCurrent );
 	
 	m_pModel->m_pCurrentMesh = new ObjFile::Mesh();
 	m_pModel->m_Meshes.push_back( m_pModel->m_pCurrentMesh );
 
-	if(m_pModel->m_pCurrentMaterial)
+	if( m_pModel->m_pCurrentMaterial )
 	{
 		m_pModel->m_pCurrentMesh->m_uiMaterialIndex = 
 			getMaterialIndex( m_pModel->m_pCurrentMaterial->MaterialName.data );

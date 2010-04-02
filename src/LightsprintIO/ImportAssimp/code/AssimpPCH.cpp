@@ -8,10 +8,10 @@
 // Legal information string - dont't remove from image!
 static const char* LEGAL_INFORMATION =
 
-"Open Asset Import Library (ASSIMP).\n"
+"Open Asset Import Library (Assimp).\n"
 "A free C/C++ library to import various 3D file formats into applications\n\n"
 
-"(c) ASSIMP Development Team, 2008-2009\n"
+"(c) ASSIMP Development Team, 2008-2010\n"
 "License: 3-clause BSD license\n"
 "Website: http://assimp.sourceforge.net\n"
 ;
@@ -59,9 +59,12 @@ ASSIMP_API unsigned int aiGetCompileFlags ()	{
 	return flags;
 }
 
+// include current build revision, which is even updated from time to time -- :-)
+#define SVNRevision  633
+
 // ------------------------------------------------------------------------------------------------
 ASSIMP_API unsigned int aiGetVersionRevision ()
 {
-	return 511; // 2009-12-09
+	return SVNRevision;
 }
 

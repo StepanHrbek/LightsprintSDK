@@ -425,7 +425,7 @@ void Discreet3DSImporter::ConvertMeshes(aiScene* pcOut)
 
 	// We should have at least one face here
 	if (!iFaceCnt)
-		throw new ImportErrorException("No faces loaded. The mesh is empty");
+		throw DeadlyImportError("No faces loaded. The mesh is empty");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -792,7 +792,7 @@ void Discreet3DSImporter::GenerateNodeGraph(aiScene* pcOut)
 
 	// If the root node is unnamed name it "<3DSRoot>"
 	if (::strstr( pcOut->mRootNode->mName.data, "UNNAMED" ) ||
-		pcOut->mRootNode->mName.data[0] == '$' && pcOut->mRootNode->mName.data[1] == '$')
+		(pcOut->mRootNode->mName.data[0] == '$' && pcOut->mRootNode->mName.data[1] == '$') )
 	{
 		pcOut->mRootNode->mName.Set("<3DSRoot>");
 	}

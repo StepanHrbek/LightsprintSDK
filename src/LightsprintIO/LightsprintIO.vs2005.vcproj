@@ -1061,58 +1061,10 @@
 						>
 					</File>
 					<Filter
-						Name="fake_boost"
-						>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\common_factor_rt.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\foreach.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\format.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\random\mersenne_twister.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\scoped_array.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\scoped_ptr.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\static_assert.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\tuple\tuple.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\random\uniform_int.hpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\BoostWorkaround\boost\random\variate_generator.hpp"
-							>
-						</File>
-					</Filter>
-					<Filter
 						Name="compiler"
 						>
 						<File
 							RelativePath=".\ImportAssimp\include\Compiler\poppack1.h"
-							>
-						</File>
-						<File
-							RelativePath=".\ImportAssimp\include\Compiler\pstdint.h"
 							>
 						</File>
 						<File
@@ -1301,6 +1253,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\assbin_chunks.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\Assimp.cpp"
 						>
 					</File>
@@ -1354,6 +1310,18 @@
 					</File>
 					<File
 						RelativePath=".\ImportAssimp\code\CalcTangentsProcess.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\COBLoader.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\COBLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\COBScene.h"
 						>
 					</File>
 					<File
@@ -1426,6 +1394,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportAssimp\code\DXFLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\Exceptional.h"
 						>
 					</File>
 					<File
@@ -1573,6 +1545,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\LineSplitter.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\LWOAnimation.cpp"
 						>
 					</File>
@@ -1701,6 +1677,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\MS3DLoader.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\MS3DLoader.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\NFFLoader.cpp"
 						>
 					</File>
@@ -1757,6 +1741,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\OgreImporterMaterial.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\OgreXmlHelper.h"
 						>
 					</File>
@@ -1806,6 +1794,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportAssimp\code\ProcessHelper.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\pstdint.h"
 						>
 					</File>
 					<File
@@ -1953,6 +1945,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\Subdivision.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\Subdivision.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\TargetAnimation.cpp"
 						>
 					</File>
@@ -1977,6 +1977,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportAssimp\code\TinyFormatter.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportAssimp\code\TriangulateProcess.cpp"
 						>
 					</File>
@@ -1998,6 +2002,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportAssimp\code\ValidateDataStructure.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\code\Vertex.h"
 						>
 					</File>
 					<File

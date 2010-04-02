@@ -91,9 +91,9 @@ bool ColladaLoader::CanRead( const std::string& pFile, IOSystem* pIOHandler, boo
 
 // ------------------------------------------------------------------------------------------------
 // Get file extension list
-void ColladaLoader::GetExtensionList( std::string& append)
+void ColladaLoader::GetExtensionList( std::set<std::string>& extensions )
 {
-	append.append("*.dae");
+	extensions.insert("dae");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void ColladaLoader::InternReadFile( const std::string& pFile, aiScene* pScene, I
 	ColladaParser parser( pIOHandler, pFile);
 
 	if( !parser.mRootNode)
-		throw new ImportErrorException( "Collada: File came out empty. Something is wrong here.");
+		throw DeadlyImportError( "Collada: File came out empty. Something is wrong here.");
 
 	// reserve some storage to avoid unnecessary reallocs
 	newMats.reserve(parser.mMaterialLibrary.size()*2);
@@ -178,23 +178,9 @@ aiNode* ColladaLoader::BuildHierarchy( const ColladaParser& pParser, const Colla
 	// create a node for it
 	aiNode* node = new aiNode();
 
-	// now setup the name of the node. We take the name if not empty, otherwise the collada ID
-	// FIX: Workaround for XSI calling the instanced visual scene 'untitled' by default.
-	if (!pNode->mName.empty() && pNode->mName != "untitled")
-		node->mName.Set(pNode->mName);
-	else if (!pNode->mID.empty())
-		node->mName.Set(pNode->mID);
-	else
-	{
-		// No need to worry. Unnamed nodes are no problem at all, except
-		// if cameras or lights need to be assigned to them.
-		if (!pNode->mLights.empty() || !pNode->mCameras.empty()) {
-	
-			::strcpy(node->mName.data,"$ColladaAutoName$_");
-			node->mName.length = 17 + ASSIMP_itoa10(node->mName.data+18,MAXLEN-18,(uint32_t)clock());
-		}
-	}
-	
+  // find a name for the new node. It's more complicated than you might think
+  node->mName.Set( FindNameForNode( pNode));
+
 	// calculate the transformation matrix for it
 	node->mTransformation = pParser.CalculateResultTransform( pNode->mTransforms);
 
@@ -591,7 +577,7 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 	{
 		// refuse if the vertex count does not match
 //		if( pSrcController->mWeightCounts.size() != dstMesh->mNumVertices)
-//			throw new ImportErrorException( "Joint Controller vertex count does not match mesh vertex count");
+//			throw DeadlyImportError( "Joint Controller vertex count does not match mesh vertex count");
 
 		// resolve references - joint names
 		const Collada::Accessor& jointNamesAcc = pParser.ResolveLibraryReference( pParser.mAccessorLibrary, pSrcController->mJointNameSource);
@@ -602,16 +588,16 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 		// joint vertex_weight name list - should refer to the same list as the joint names above. If not, report and reconsider
 		const Collada::Accessor& weightNamesAcc = pParser.ResolveLibraryReference( pParser.mAccessorLibrary, pSrcController->mWeightInputJoints.mAccessor);
 		if( &weightNamesAcc != &jointNamesAcc)
-			throw new ImportErrorException( "Temporary implementational lazyness. If you read this, please report to the author.");
+			throw DeadlyImportError( "Temporary implementational lazyness. If you read this, please report to the author.");
 		// vertex weights
 		const Collada::Accessor& weightsAcc = pParser.ResolveLibraryReference( pParser.mAccessorLibrary, pSrcController->mWeightInputWeights.mAccessor);
 		const Collada::Data& weights = pParser.ResolveLibraryReference( pParser.mDataLibrary, weightsAcc.mSource);
 
 		if( !jointNames.mIsStringArray || jointMatrices.mIsStringArray || weights.mIsStringArray)
-			throw new ImportErrorException( "Data type mismatch while resolving mesh joints");
+			throw DeadlyImportError( "Data type mismatch while resolving mesh joints");
 		// sanity check: we rely on the vertex weights always coming as pairs of BoneIndex-WeightIndex
 		if( pSrcController->mWeightInputJoints.mOffset != 0 || pSrcController->mWeightInputWeights.mOffset != 1)
-			throw new ImportErrorException( "Unsupported vertex_weight adresssing scheme. Fucking collada spec.");
+			throw DeadlyImportError( "Unsupported vertex_weight adresssing scheme. Fucking collada spec.");
 
 		// create containers to collect the weights for each bone
 		size_t numBones = jointNames.mStrings.size();
@@ -690,7 +676,41 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 			bone->mWeights = new aiVertexWeight[bone->mNumWeights];
 			std::copy( dstBones[a].begin(), dstBones[a].end(), bone->mWeights);
 
-			// and insert bone
+      // apply bind shape matrix to offset matrix
+      aiMatrix4x4 bindShapeMatrix;
+      bindShapeMatrix.a1 = pSrcController->mBindShapeMatrix[0];
+      bindShapeMatrix.a2 = pSrcController->mBindShapeMatrix[1];
+      bindShapeMatrix.a3 = pSrcController->mBindShapeMatrix[2];
+      bindShapeMatrix.a4 = pSrcController->mBindShapeMatrix[3];
+      bindShapeMatrix.b1 = pSrcController->mBindShapeMatrix[4];
+      bindShapeMatrix.b2 = pSrcController->mBindShapeMatrix[5];
+      bindShapeMatrix.b3 = pSrcController->mBindShapeMatrix[6];
+      bindShapeMatrix.b4 = pSrcController->mBindShapeMatrix[7];
+      bindShapeMatrix.c1 = pSrcController->mBindShapeMatrix[8];
+      bindShapeMatrix.c2 = pSrcController->mBindShapeMatrix[9];
+      bindShapeMatrix.c3 = pSrcController->mBindShapeMatrix[10];
+      bindShapeMatrix.c4 = pSrcController->mBindShapeMatrix[11];
+      bindShapeMatrix.d1 = pSrcController->mBindShapeMatrix[12];
+      bindShapeMatrix.d2 = pSrcController->mBindShapeMatrix[13];
+      bindShapeMatrix.d3 = pSrcController->mBindShapeMatrix[14];
+      bindShapeMatrix.d4 = pSrcController->mBindShapeMatrix[15];
+      bone->mOffsetMatrix *= bindShapeMatrix;
+
+      // HACK: (thom) Some exporters address the bone nodes by SID, others address them by ID or even name.
+      // Therefore I added a little name replacement here: I search for the bone's node by either name, ID or SID,
+      // and replace the bone's name by the node's name so that the user can use the standard
+      // find-by-name method to associate nodes with bones.
+      const Collada::Node* bnode = FindNode( pParser.mRootNode, bone->mName.data);
+      if( !bnode)
+        bnode = FindNodeBySID( pParser.mRootNode, bone->mName.data);
+
+      // assign the name that we would have assigned for the source node
+      if( bnode)
+        bone->mName.Set( FindNameForNode( bnode));
+      else
+        DefaultLogger::get()->warn( boost::str( boost::format( "ColladaLoader::CreateMesh(): could not find corresponding node for joint \"%s\".") % bone->mName.data));
+
+      // and insert bone
 			dstMesh->mBones[boneCount++] = bone;
 		}
 	}
@@ -890,7 +910,7 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 
 			// time count and value count must match
 			if( e.mTimeAccessor->mCount != e.mValueAccessor->mCount)
-				throw new ImportErrorException( boost::str( boost::format( "Time count / value count mismatch in animation channel \"%s\".") % e.mChannel->mTarget));
+				throw DeadlyImportError( boost::str( boost::format( "Time count / value count mismatch in animation channel \"%s\".") % e.mChannel->mTarget));
 
 			// find bounding times
 			startTime = std::min( startTime, ReadFloat( *e.mTimeAccessor, *e.mTimeData, 0, 0));
@@ -912,7 +932,7 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 
 				// find the keyframe behind the current point in time
 				size_t pos = 0;
-				float postTime;
+				float postTime = 0.f;
 				while( 1)
 				{
 					if( pos >= e.mTimeAccessor->mCount)
@@ -927,7 +947,7 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 
 				// read values from there
 				float temp[16];
-				for( size_t c = 0; c < e.mValueAccessor->mParams.size(); ++c)
+				for( size_t c = 0; c < e.mValueAccessor->mSize; ++c)
 					temp[c] = ReadFloat( *e.mValueAccessor, *e.mValueData, pos, c);
 
 				// if not exactly at the key time, interpolate with previous value set
@@ -936,15 +956,15 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 					float preTime = ReadFloat( *e.mTimeAccessor, *e.mTimeData, pos-1, 0);
 					float factor = (time - postTime) / (preTime - postTime);
 
-					for( size_t c = 0; c < e.mValueAccessor->mParams.size(); ++c)
+					for( size_t c = 0; c < e.mValueAccessor->mSize; ++c)
 					{
 						float v = ReadFloat( *e.mValueAccessor, *e.mValueData, pos-1, c);
-						temp[c] += (v - temp[6]) * factor;
+						temp[c] += (v - temp[c]) * factor;
 					}
 				}
 
 				// Apply values to current transformation
-				std::copy( temp, temp + e.mValueAccessor->mParams.size(), transforms[e.mTransformIndex].f + e.mSubElement);
+				std::copy( temp, temp + e.mValueAccessor->mSize, transforms[e.mTransformIndex].f + e.mSubElement);
 			}
 
 			// Calculate resulting transformation
@@ -1262,7 +1282,7 @@ const aiString& ColladaLoader::FindFilenameForEffectTexture( const ColladaParser
 	ColladaParser::ImageLibrary::const_iterator imIt = pParser.mImageLibrary.find( name);
 	if( imIt == pParser.mImageLibrary.end()) 
 	{
-		throw new ImportErrorException( boost::str( boost::format( 
+		throw DeadlyImportError( boost::str( boost::format( 
 			"Collada: Unable to resolve effect texture entry \"%s\", ended up at ID \"%s\".") % pName % name));
 	}
 
@@ -1272,7 +1292,7 @@ const aiString& ColladaLoader::FindFilenameForEffectTexture( const ColladaParser
 	if (imIt->second.mFileName.empty()) 
 	{
 		if (imIt->second.mImageData.empty())  {
-			throw new ImportErrorException("Collada: Invalid texture, no data or file reference given");
+			throw DeadlyImportError("Collada: Invalid texture, no data or file reference given");
 		}
 
 		aiTexture* tex = new aiTexture();
@@ -1351,7 +1371,7 @@ void ColladaLoader::CollectNodes( const aiNode* pNode, std::vector<const aiNode*
 
 // ------------------------------------------------------------------------------------------------
 // Finds a node in the collada scene by the given name
-const Collada::Node* ColladaLoader::FindNode( const Collada::Node* pNode, const std::string& pName)
+const Collada::Node* ColladaLoader::FindNode( const Collada::Node* pNode, const std::string& pName) const
 {
 	if( pNode->mName == pName || pNode->mID == pName)
 		return pNode;
@@ -1364,6 +1384,43 @@ const Collada::Node* ColladaLoader::FindNode( const Collada::Node* pNode, const 
 	}
 
 	return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Finds a node in the collada scene by the given SID
+const Collada::Node* ColladaLoader::FindNodeBySID( const Collada::Node* pNode, const std::string& pSID) const
+{
+  if( pNode->mSID == pSID)
+    return pNode;
+
+  for( size_t a = 0; a < pNode->mChildren.size(); ++a)
+  {
+    const Collada::Node* node = FindNodeBySID( pNode->mChildren[a], pSID);
+    if( node)
+      return node;
+  }
+
+  return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Finds a proper name for a node derived from the collada-node's properties
+std::string ColladaLoader::FindNameForNode( const Collada::Node* pNode) const
+{
+	// now setup the name of the node. We take the name if not empty, otherwise the collada ID
+	// FIX: Workaround for XSI calling the instanced visual scene 'untitled' by default.
+	if (!pNode->mName.empty() && pNode->mName != "untitled")
+		return pNode->mName;
+	else if (!pNode->mID.empty())
+		return pNode->mID;
+	else if (!pNode->mSID.empty())
+    return pNode->mSID;
+  else
+	{
+		// No need to worry. Unnamed nodes are no problem at all, except
+		// if cameras or lights need to be assigned to them.
+    return boost::str( boost::format( "$ColladaAutoName$_%d") % clock());
+	}
 }
 
 #endif // !! ASSIMP_BUILD_NO_DAE_IMPORTER

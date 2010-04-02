@@ -60,7 +60,7 @@ public:
 
 protected:
 
-	virtual void GetExtensionList(std::string& append);
+	virtual void GetExtensionList(std::set<std::string>& extensions);
 	virtual void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
 
 private:
@@ -105,7 +105,7 @@ private:
 	void ReadBB3D( aiScene *scene );
 
 	unsigned _pos;
-	unsigned _size;
+//	unsigned _size;
 	std::vector<unsigned char> _buf;
 	std::vector<unsigned> _stack;
 	

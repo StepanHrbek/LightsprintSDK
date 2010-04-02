@@ -26,7 +26,7 @@ class OgreImporter : public BaseImporter
 public:
 	virtual bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
 	virtual void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
-	virtual void GetExtensionList(std::string& append);
+	virtual void GetExtensionList(std::set<std::string>& extensions);
 	virtual void SetupProperties(const Importer* pImp);
 private:
 
@@ -95,7 +95,7 @@ struct Bone
 	float RotationAngle;
 	aiVector3D RotationAxis;
 	std::vector<int> Children;
-	aiMatrix4x4 WorldToBoneSpace;
+	aiMatrix4x4 BoneToWorldSpace;
 
 	///ctor
 	Bone(): Id(-1), ParentId(-1), RotationAngle(0.0f) {}
@@ -105,8 +105,10 @@ struct Bone
 	///this operator is needed to find a bone by its name in a vector<Bone>
 	bool operator==(const std::string& rval) const
 		{return Name==rval; }
+	bool operator==(const aiString& rval) const
+	{return Name==std::string(rval.data); }
 
-	void CalculateWorldToBoneSpaceMatrix(std::vector<Bone>& Bones);
+	void CalculateBoneToWorldSpaceMatrix(std::vector<Bone>& Bones);
 	
 };
 

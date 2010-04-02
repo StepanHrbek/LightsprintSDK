@@ -109,9 +109,10 @@ bool Discreet3DSImporter::CanRead( const std::string& pFile, IOSystem* pIOHandle
 
 // ------------------------------------------------------------------------------------------------
 // Get list of all extension supported by this loader
-void Discreet3DSImporter::GetExtensionList(std::string& append)
+void Discreet3DSImporter::GetExtensionList(std::set<std::string>& extensions)
 {
-	append.append("*.3ds;*.prj");
+	extensions.insert("3ds");
+	extensions.insert("prj");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,8 +131,9 @@ void Discreet3DSImporter::InternReadFile( const std::string& pFile,
 	this->stream = &stream;
 
 	// We should have at least one chunk
-	if (stream.GetRemainingSize() < 16)
-		throw new ImportErrorException("3DS file is either empty or corrupt: " + pFile);
+	if (stream.GetRemainingSize() < 16) {
+		throw DeadlyImportError("3DS file is either empty or corrupt: " + pFile);
+	}
 
 	// Allocate our temporary 3DS representation
 	mScene = new D3DS::Scene();
@@ -218,7 +220,7 @@ void Discreet3DSImporter::ReadChunk(Discreet3DS::Chunk* pcOut)
 	pcOut->Size = stream->GetI4();
 
 	if (pcOut->Size - sizeof(Discreet3DS::Chunk) > stream->GetRemainingSize())
-		throw new ImportErrorException("Chunk is too large");
+		throw DeadlyImportError("Chunk is too large");
 	
 	if (pcOut->Size - sizeof(Discreet3DS::Chunk) > stream->GetRemainingSizeToLimit())
 		DefaultLogger::get()->error("3DS: Chunk overflow");
@@ -1040,7 +1042,7 @@ void Discreet3DSImporter::ParseMeshChunk()
 
 		// Larger 3DS files could have multiple FACE chunks here
 		chunkSize = stream->GetRemainingSizeToLimit();
-		if (chunkSize > sizeof(Discreet3DS::Chunk))
+		if ( chunkSize > (int) sizeof(Discreet3DS::Chunk ) )
 			ParseFaceChunk();
 		}
 		break;

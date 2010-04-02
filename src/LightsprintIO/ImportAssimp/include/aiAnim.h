@@ -166,7 +166,9 @@ enum aiAnimBehaviour
 
 	/** This value is not used, it is just here to force the
 	 *  the compiler to map this enum to a 32 Bit integer  */
+#ifndef SWIG
 	_aiAnimBehaviour_Force32Bit = 0x8fffffff
+#endif
 };
 
 // ---------------------------------------------------------------------------
@@ -175,7 +177,9 @@ enum aiAnimBehaviour
  *  are given in three separate series of values, one each for position, 
  *  rotation and scaling. The transformation matrix computed from these
  *  values replaces the node's original transformation matrix at a
- *  specific time. The order in which the transformations are applied is
+ *  specific time.
+ *  This means all keys are absolute and not relative to the bone default pose.
+ *  The order in which the transformations are applied is
  *  - as usual - scaling, rotation, translation.
  *
  *  @note All keys are returned in their correct, chronological order.

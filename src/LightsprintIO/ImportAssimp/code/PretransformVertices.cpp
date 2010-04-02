@@ -105,13 +105,13 @@ unsigned int PretransformVertices::GetMeshVFormat(aiMesh* pcMesh)
 	// from scratch. The pointer is unused as animations are lost
 	// during PretransformVertices.
 	if (pcMesh->mBones)
-		return (unsigned int)(unsigned long)pcMesh->mBones;
+		return (unsigned int)(uint64_t)pcMesh->mBones;
 
 
 	const unsigned int iRet = GetMeshVFormatUnique(pcMesh);
 
 	// store the value for later use
-	pcMesh->mBones = (aiBone**)(unsigned long)iRet;
+	pcMesh->mBones = (aiBone**)(uint64_t)iRet;
 	return iRet;
 }
 
@@ -562,7 +562,7 @@ void PretransformVertices::Execute( aiScene* pScene)
 
 		// If no meshes are referenced in the node graph it is possible that we get no output meshes. 
 		if (apcOutMeshes.empty())	{		
-			throw new ImportErrorException("No output meshes: all meshes are orphaned and are not referenced by nodes");
+			throw DeadlyImportError("No output meshes: all meshes are orphaned and are not referenced by nodes");
 		}
 		else
 		{
