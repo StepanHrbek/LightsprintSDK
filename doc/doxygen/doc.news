@@ -14,13 +14,18 @@ NEWS
 
 - saving 3d scenes
   - scene viewer "File / Save scene" and "Save scene as..." added
-  - .rr3 file format added, supports load and save (see full list of \ref supported_formats)
   - RRScene::save() added
   - RRScene::getSupportedExtensions() split into RRScene::getSupportedLoaderExtensions() and RRScene::getSupportedSaverExtensions()
   - RRScene::registerSaver() added
   - RRScene::Saver added
 - editing 3d scenes
   - you can freely edit RRScene objects, lights and environment (they were read-only before)
+- new scene formats (full list of \ref supported_formats)
+  - Lightsprint .rr3, reading, writing
+    \n This is first time we introduce new format, after supporting ~35 existing scene formats.
+    Advantages: 50-200x faster load, 2-6x smaller than other formats.
+    You don't have to use .rr3, it's just an option.
+  - trueSpace .cob, reading
 
 CHANGES
 
@@ -28,7 +33,7 @@ CHANGES
   - change getObjects() to objects
   - change getLights() to lights
   - change getEnvironment() to environment
-  - you can edit objects, lights, environment, while getXxx() were read only
+  - you can edit objects, lights, environment, while getXxx() were for reading only
 - when implementing RRScene
   - load objects into RRScene::protectedObjects rather than into RRScene::objects
   - load lights into RRScene::protectedLights rather than into RRScene::lights
