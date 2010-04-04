@@ -45,8 +45,8 @@ namespace rr_gl
 		wxPGProperty*     propCameraNear;
 		wxPGProperty*     propCameraFar;
 
-		wxPGProperty*     propToneMapping;
-		wxPGProperty*     propToneMappingAutomatic;
+		BoolRefProperty*  propToneMapping;
+		BoolRefProperty*  propToneMappingAutomatic;
 		wxPGProperty*     propToneMappingBrightness;
 		wxPGProperty*     propToneMappingContrast;
 
@@ -64,14 +64,14 @@ namespace rr_gl
 		BoolRefProperty*  propRenderLogo;
 		BoolRefProperty*  propRenderVignettation;
 
-		wxPGProperty*     propWater;
+		BoolRefProperty*  propWater;
 		wxPGProperty*     propWaterColor;
 		wxPGProperty*     propWaterLevel;
 
 		wxPGProperty*     propGI;
 		wxPGProperty*     propGIEmisMultiplier;
-		wxPGProperty*     propGIEmisVideoAffectsGI;
-		wxPGProperty*     propGITranspVideoAffectsGI;
+		BoolRefProperty*  propGIEmisVideoAffectsGI;
+		BoolRefProperty*  propGITranspVideoAffectsGI;
 
 		/*
 		wxPGProperty*     propSizes;

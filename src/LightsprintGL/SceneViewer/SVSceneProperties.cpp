@@ -58,13 +58,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// tone mapping
 	{
-		propToneMapping = new wxBoolProperty(wxT("Tone Mapping"), wxPG_LABEL, svs.renderTonemapping);
+		propToneMapping = new BoolRefProperty(wxT("Tone Mapping"), wxPG_LABEL, svs.renderTonemapping);
 		Append(propToneMapping);
-		SetPropertyEditor(propToneMapping,wxPGEditor_CheckBox);
 
-		propToneMappingAutomatic = new wxBoolProperty(wxT("Automatic"), wxPG_LABEL, svs.adjustTonemapping);
+		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"), wxPG_LABEL, svs.adjustTonemapping);
 		AppendIn(propToneMapping,propToneMappingAutomatic);
-		SetPropertyEditor(propToneMappingAutomatic,wxPGEditor_CheckBox);
 
 		propToneMappingBrightness = new wxFloatProperty(wxT("Brightness"),wxPG_LABEL,svs.brightness[0]);
 		propToneMappingBrightness->SetAttribute("Precision",svs.precision);
@@ -127,9 +125,8 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// water
 	{
-		propWater = new wxBoolProperty(wxT("Water"), wxPG_LABEL, svs.renderWater);
+		propWater = new BoolRefProperty(wxT("Water"), wxPG_LABEL, svs.renderWater);
 		Append(propWater);
-		SetPropertyEditor(propWater,wxPGEditor_CheckBox);
 
 		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.precision,svs.waterColor);
 		AppendIn(propWater,propWaterColor);
@@ -151,13 +148,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propGIEmisMultiplier->SetAttribute("Precision",svs.precision);
 		AppendIn(propGI,propGIEmisMultiplier);
 
-		propGIEmisVideoAffectsGI = new wxBoolProperty(wxT("Emissive video realtime GI"), wxPG_LABEL, svs.videoEmittanceAffectsGI);
+		propGIEmisVideoAffectsGI = new BoolRefProperty(wxT("Emissive video realtime GI"), wxPG_LABEL, svs.videoEmittanceAffectsGI);
 		AppendIn(propGI,propGIEmisVideoAffectsGI);
-		SetPropertyEditor(propGIEmisVideoAffectsGI,wxPGEditor_CheckBox);
 
-		propGITranspVideoAffectsGI = new wxBoolProperty(wxT("Transparency video realtime GI"), wxPG_LABEL, svs.videoTransmittanceAffectsGI);
+		propGITranspVideoAffectsGI = new BoolRefProperty(wxT("Transparency video realtime GI"), wxPG_LABEL, svs.videoTransmittanceAffectsGI);
 		AppendIn(propGI,propGITranspVideoAffectsGI);
-		SetPropertyEditor(propGITranspVideoAffectsGI,wxPGEditor_CheckBox);
 
 		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
@@ -195,8 +190,8 @@ void SVSceneProperties::updateHide()
 void SVSceneProperties::updateProperties()
 {
 	unsigned numChangesRelevantForHiding =
-		+ updateBool(propToneMapping,svs.renderTonemapping)
-		+ updateBool(propWater,svs.renderWater)
+		+ updateBoolRef(propToneMapping)
+		+ updateBoolRef(propWater)
 		;
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
@@ -221,8 +216,8 @@ void SVSceneProperties::updateProperties()
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
-		+ updateBool(propGIEmisVideoAffectsGI,svs.videoEmittanceAffectsGI)
-		+ updateBool(propGITranspVideoAffectsGI,svs.videoTransmittanceAffectsGI)
+		+ updateBoolRef(propGIEmisVideoAffectsGI)
+		+ updateBoolRef(propGITranspVideoAffectsGI)
 		;
 	if (numChangesRelevantForHiding+numChangesOther)
 	{
@@ -282,13 +277,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propToneMapping)
 	{
-		svs.renderTonemapping = property->GetValue().GetBool();
 		updateHide();
-	}
-	else
-	if (property==propToneMappingAutomatic)
-	{
-		svs.adjustTonemapping = property->GetValue().GetBool();
 	}
 	else
 	if (property==propToneMappingBrightness)
@@ -302,7 +291,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propWater)
 	{
-		svs.renderWater = property->GetValue().GetBool();
 		updateHide();
 	}
 	else
@@ -322,16 +310,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		// our parent must be frame
 		SVFrame* frame = (SVFrame*)GetParent();
 		frame->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
-	}
-	else
-	if (property==propGIEmisVideoAffectsGI)
-	{
-		svs.videoEmittanceAffectsGI = property->GetValue().GetBool();
-	}
-	else
-	if (property==propGITranspVideoAffectsGI)
-	{
-		svs.videoTransmittanceAffectsGI = property->GetValue().GetBool();
 	}
 }
 
