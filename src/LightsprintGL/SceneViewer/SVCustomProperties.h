@@ -27,11 +27,11 @@ WX_PG_DECLARE_VARIANT_DATA(RRVec3)
 
 class RRVec3Property : public wxPGProperty
 {
-    WX_PG_DECLARE_PROPERTY_CLASS(RRVec3Property)
+	WX_PG_DECLARE_PROPERTY_CLASS(RRVec3Property)
 public:
-    RRVec3Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0) );
-    virtual void ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
-    virtual void RefreshChildren();
+	RRVec3Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0) );
+	virtual void ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
+	virtual void RefreshChildren();
 };
 
 
@@ -41,12 +41,12 @@ public:
 
 class HDRColorProperty : public wxPGProperty
 {
-    WX_PG_DECLARE_PROPERTY_CLASS(HDRColorProperty)
+	WX_PG_DECLARE_PROPERTY_CLASS(HDRColorProperty)
 public:
-    HDRColorProperty( const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1) );
+	HDRColorProperty( const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1) );
 	virtual ~HDRColorProperty();
-    virtual void ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
-    virtual void RefreshChildren();
+	virtual void ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
+	virtual void RefreshChildren();
 private:
 	wxImage image;
 	wxBitmap* bitmap;

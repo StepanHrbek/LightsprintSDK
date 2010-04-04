@@ -19,41 +19,41 @@ WX_PG_IMPLEMENT_PROPERTY_CLASS(RRVec3Property,wxPGProperty,RRVec3,const RRVec3&,
 
 
 RRVec3Property::RRVec3Property( const wxString& label, const wxString& name, int precision, const RRVec3& value )
-    : wxPGProperty(label,name)
+	: wxPGProperty(label,name)
 {
-    SetValue( WXVARIANT(value) );
+	SetValue( WXVARIANT(value) );
 	wxPGProperty* prop;
 	prop = new wxFloatProperty(wxT("x"),wxPG_LABEL,value.x);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(wxT("y"),wxPG_LABEL,value.y);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(wxT("z"),wxPG_LABEL,value.z);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 }
 
 void RRVec3Property::RefreshChildren()
 {
-    if ( !GetChildCount() ) return;
-    const RRVec3& vector = RRVec3RefFromVariant(m_value);
-    Item(0)->SetValue( vector.x );
-    Item(1)->SetValue( vector.y );
-    Item(2)->SetValue( vector.z );
+	if ( !GetChildCount() ) return;
+	const RRVec3& vector = RRVec3RefFromVariant(m_value);
+	Item(0)->SetValue( vector.x );
+	Item(1)->SetValue( vector.y );
+	Item(2)->SetValue( vector.z );
 }
 
 void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
 {
-    RRVec3 vector;
-    vector << thisValue;
-    switch ( childIndex )
-    {
-        case 0: vector.x = childValue.GetDouble(); break;
-        case 1: vector.y = childValue.GetDouble(); break;
-        case 2: vector.z = childValue.GetDouble(); break;
-    }
-    thisValue << vector;
+	RRVec3 vector;
+	vector << thisValue;
+	switch ( childIndex )
+	{
+		case 0: vector.x = childValue.GetDouble(); break;
+		case 1: vector.y = childValue.GetDouble(); break;
+		case 2: vector.z = childValue.GetDouble(); break;
+	}
+	thisValue << vector;
 }
 
 
@@ -64,43 +64,43 @@ void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVaria
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
 HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, int precision, const RRVec3& rgb )
-    : wxPGProperty(label,name), image(1,1), bitmap(NULL)
+	: wxPGProperty(label,name), image(1,1), bitmap(NULL)
 {
-    SetValue(WXVARIANT(rgb));
+	SetValue(WXVARIANT(rgb));
 
 	RRVec3 hsv = rgb.getHsvFromRgb();
 	wxPGProperty* prop;
 	prop = new wxFloatProperty(_("red"),wxPG_LABEL,rgb[0]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(_("green"),wxPG_LABEL,rgb[1]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(_("blue"),wxPG_LABEL,rgb[2]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(_("hue"),wxPG_LABEL,hsv[0]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(_("saturation"),wxPG_LABEL,hsv[1]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 	prop = new wxFloatProperty(_("value"),wxPG_LABEL,hsv[2]);
 	prop->SetAttribute("Precision",precision);
-    AddPrivateChild(prop);
+	AddPrivateChild(prop);
 }
 
 void HDRColorProperty::RefreshChildren()
 {
-    if ( !GetChildCount() ) return;
+	if ( !GetChildCount() ) return;
 	const RRVec3& rgb = RRVec3RefFromVariant(m_value);
 	RRVec3 hsv = rgb.getHsvFromRgb();
-    Item(0)->SetValue(rgb[0]);
-    Item(1)->SetValue(rgb[1]);
-    Item(2)->SetValue(rgb[2]);
-    Item(3)->SetValue(hsv[0]);
-    Item(4)->SetValue(hsv[1]);
-    Item(5)->SetValue(hsv[2]);
+	Item(0)->SetValue(rgb[0]);
+	Item(1)->SetValue(rgb[1]);
+	Item(2)->SetValue(rgb[2]);
+	Item(3)->SetValue(hsv[0]);
+	Item(4)->SetValue(hsv[1]);
+	Item(5)->SetValue(hsv[2]);
 
 	//wxSize size = GetImageSize();
 	unsigned char* data = image.GetData();
@@ -114,24 +114,24 @@ void HDRColorProperty::RefreshChildren()
 
 void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
 {
-    RRVec3 rgb;
-    rgb << thisValue;
+	RRVec3 rgb;
+	rgb << thisValue;
 	RRVec3 hsv = rgb.getHsvFromRgb();
-    switch ( childIndex )
-    {
-        case 0: 
-        case 1: 
-        case 2:
+	switch ( childIndex )
+	{
+		case 0: 
+		case 1: 
+		case 2:
 			rgb[childIndex] = childValue.GetDouble();
 			break;
-        case 3: 
-        case 4: 
-        case 5:
+		case 3: 
+		case 4: 
+		case 5:
 			hsv[childIndex-3] = childValue.GetDouble();
 			rgb = hsv.getRgbFromHsv();
 			break;
-    }
-    thisValue << rgb;
+	}
+	thisValue << rgb;
 }
 
 HDRColorProperty::~HDRColorProperty()
