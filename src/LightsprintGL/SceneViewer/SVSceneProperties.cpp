@@ -58,10 +58,10 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// tone mapping
 	{
-		propToneMapping = new BoolRefProperty(wxT("Tone Mapping"), wxPG_LABEL, svs.renderTonemapping);
+		propToneMapping = new BoolRefProperty(wxT("Tone Mapping"), svs.renderTonemapping);
 		Append(propToneMapping);
 
-		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"), wxPG_LABEL, svs.adjustTonemapping);
+		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"), svs.adjustTonemapping);
 		AppendIn(propToneMapping,propToneMappingAutomatic);
 
 		propToneMappingBrightness = new wxFloatProperty(wxT("Brightness"),wxPG_LABEL,svs.brightness[0]);
@@ -81,19 +81,19 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		Append(propRenderMaterials);
 		SetPropertyReadOnly(propRenderMaterials,true,wxPG_DONT_RECURSE);
 
-		propRenderMaterialDiffuse = new BoolRefProperty(wxT("Diffuse color"), wxT("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."), svs.renderMaterialDiffuse);
+		propRenderMaterialDiffuse = new BoolRefProperty(wxT("Diffuse color"), svs.renderMaterialDiffuse, wxT("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
 		AppendIn(propRenderMaterials,propRenderMaterialDiffuse);
 
-		propRenderMaterialSpecular = new BoolRefProperty(wxT("Specular"), wxT("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."), svs.renderMaterialSpecular);
+		propRenderMaterialSpecular = new BoolRefProperty(wxT("Specular"), svs.renderMaterialSpecular, wxT("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
 		AppendIn(propRenderMaterials,propRenderMaterialSpecular);
 
-		propRenderMaterialEmittance = new BoolRefProperty(wxT("Emittance"), wxT("Toggles rendering emittance of emissive surfaces."), svs.renderMaterialEmission);
+		propRenderMaterialEmittance = new BoolRefProperty(wxT("Emittance"), svs.renderMaterialEmission, wxT("Toggles rendering emittance of emissive surfaces."));
 		AppendIn(propRenderMaterials,propRenderMaterialEmittance);
 
-		propRenderMaterialTransparency = new BoolRefProperty(wxT("Transparency"), wxT("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."), svs.renderMaterialTransparency);
+		propRenderMaterialTransparency = new BoolRefProperty(wxT("Transparency"), svs.renderMaterialTransparency, wxT("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
-		propRenderMaterialTextures = new BoolRefProperty(wxT("Textures"), wxT("Toggles between material textures and flat colors. Disabling textures could make rendering faster."), svs.renderMaterialTextures);
+		propRenderMaterialTextures = new BoolRefProperty(wxT("Textures"), svs.renderMaterialTextures, wxT("(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
 		SetPropertyBackgroundColour(propRenderMaterials,headerColor,false);
@@ -105,19 +105,19 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		Append(propRenderOptions);
 		SetPropertyReadOnly(propRenderOptions,true,wxPG_DONT_RECURSE);
 
-		propRenderWireframe = new BoolRefProperty(wxT("Wireframe"), wxT("Toggles between solid and wireframe rendering modes."), svs.renderWireframe);
+		propRenderWireframe = new BoolRefProperty(wxT("Wireframe"), svs.renderWireframe, wxT("(ctrl-w) Toggles between solid and wireframe rendering modes."));
 		AppendIn(propRenderOptions,propRenderWireframe);
 
-		propRenderHelpers = new BoolRefProperty(wxT("Helpers"), wxT("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."), svs.renderHelpers);
+		propRenderHelpers = new BoolRefProperty(wxT("Helpers"), svs.renderHelpers, wxT("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
 		AppendIn(propRenderOptions,propRenderHelpers);
 
-		propRenderFPS = new BoolRefProperty(wxT("FPS"), wxT("FPS counter shows number of frames rendered in last second."), svs.renderFPS);
+		propRenderFPS = new BoolRefProperty(wxT("FPS"), svs.renderFPS, wxT("(ctrl-f) FPS counter shows number of frames rendered in last second."));
 		AppendIn(propRenderOptions,propRenderFPS);
 
-		propRenderLogo = new BoolRefProperty(wxT("Logo"), wxT("Logo is loaded from data/maps/sv_logo.png."), svs.renderLogo);
+		propRenderLogo = new BoolRefProperty(wxT("Logo"), svs.renderLogo, wxT("Logo is loaded from data/maps/sv_logo.png."));
 		AppendIn(propRenderOptions,propRenderLogo);
 
-		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), wxT("Vignette overlay is loaded from data/maps/vignette.png."), svs.renderVignette);
+		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), svs.renderVignette, wxT("Vignette overlay is loaded from data/maps/vignette.png."));
 		AppendIn(propRenderOptions,propRenderVignettation);
 
 		SetPropertyBackgroundColour(propRenderOptions,headerColor,false);
@@ -125,7 +125,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// water
 	{
-		propWater = new BoolRefProperty(wxT("Water"), wxPG_LABEL, svs.renderWater);
+		propWater = new BoolRefProperty(wxT("Water"), svs.renderWater);
 		Append(propWater);
 
 		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.precision,svs.waterColor);
@@ -148,10 +148,10 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propGIEmisMultiplier->SetAttribute("Precision",svs.precision);
 		AppendIn(propGI,propGIEmisMultiplier);
 
-		propGIEmisVideoAffectsGI = new BoolRefProperty(wxT("Emissive video realtime GI"), wxPG_LABEL, svs.videoEmittanceAffectsGI);
+		propGIEmisVideoAffectsGI = new BoolRefProperty(wxT("Emissive video realtime GI"), svs.videoEmittanceAffectsGI);
 		AppendIn(propGI,propGIEmisVideoAffectsGI);
 
-		propGITranspVideoAffectsGI = new BoolRefProperty(wxT("Transparency video realtime GI"), wxPG_LABEL, svs.videoTransmittanceAffectsGI);
+		propGITranspVideoAffectsGI = new BoolRefProperty(wxT("Transparency video realtime GI"), svs.videoTransmittanceAffectsGI);
 		AppendIn(propGI,propGITranspVideoAffectsGI);
 
 		SetPropertyBackgroundColour(propGI,headerColor,false);
