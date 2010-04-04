@@ -64,7 +64,7 @@ void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVaria
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
 HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, int precision, const RRVec3& rgb )
-    : wxPGProperty(label,name)
+    : wxPGProperty(label,name), image(1,1), bitmap(NULL)
 {
     SetValue(WXVARIANT(rgb));
 
@@ -101,6 +101,15 @@ void HDRColorProperty::RefreshChildren()
     Item(3)->SetValue(hsv[0]);
     Item(4)->SetValue(hsv[1]);
     Item(5)->SetValue(hsv[2]);
+
+	//wxSize size = GetImageSize();
+	unsigned char* data = image.GetData();
+	data[0] = RR_FLOAT2BYTE(rgb[0]);
+	data[1] = RR_FLOAT2BYTE(rgb[1]);
+	data[2] = RR_FLOAT2BYTE(rgb[2]);
+	delete bitmap;
+	bitmap = new wxBitmap(image);
+	SetValueImage(*bitmap);
 }
 
 void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
@@ -123,6 +132,11 @@ void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVar
 			break;
     }
     thisValue << rgb;
+}
+
+HDRColorProperty::~HDRColorProperty()
+{
+	delete bitmap;
 }
 
 

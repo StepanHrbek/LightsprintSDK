@@ -44,8 +44,12 @@ class HDRColorProperty : public wxPGProperty
     WX_PG_DECLARE_PROPERTY_CLASS(HDRColorProperty)
 public:
     HDRColorProperty( const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1) );
+	virtual ~HDRColorProperty();
     virtual void ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
     virtual void RefreshChildren();
+private:
+	wxImage image;
+	wxBitmap* bitmap;
 };
 
 
