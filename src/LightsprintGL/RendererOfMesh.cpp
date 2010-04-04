@@ -279,13 +279,13 @@ void MeshArraysVBOs::render(
 				boundUvChannel[shaderChannel] = uvChannel;
 				if (uvChannel>=texcoordVBO.size())
 				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Please use uv channels below 100 (channel %d out of range 0..%d).\n",uvChannel,texcoordVBO.size()-1));
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Material needs non existing uv channel %d (texcoord.size=%d).\n",uvChannel,texcoordVBO.size()));
 					RR_ASSERT(0);
 					return;
 				}
 				if (texcoordVBO[uvChannel]==0)
 				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Attempt to bind non existing VBO, uv channel %d.\n",uvChannel));
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Material needs non existing uv channel %d.\n",uvChannel));
 					return;
 				}
 				glClientActiveTexture(GL_TEXTURE0+shaderChannel);
