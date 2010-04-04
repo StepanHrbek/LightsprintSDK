@@ -10,6 +10,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
+#include "SVCustomProperties.h"
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
 
@@ -48,6 +49,20 @@ namespace rr_gl
 		wxPGProperty*     propToneMappingAutomatic;
 		wxPGProperty*     propToneMappingBrightness;
 		wxPGProperty*     propToneMappingContrast;
+
+		wxPGProperty*     propRenderMaterials;
+		BoolRefProperty*  propRenderMaterialDiffuse;
+		BoolRefProperty*  propRenderMaterialSpecular;
+		BoolRefProperty*  propRenderMaterialEmittance;
+		BoolRefProperty*  propRenderMaterialTransparency;
+		BoolRefProperty*  propRenderMaterialTextures;
+
+		wxPGProperty*     propRenderOptions;
+		BoolRefProperty*  propRenderWireframe;
+		BoolRefProperty*  propRenderHelpers;
+		BoolRefProperty*  propRenderFPS;
+		BoolRefProperty*  propRenderLogo;
+		BoolRefProperty*  propRenderVignettation;
 
 		wxPGProperty*     propWater;
 		wxPGProperty*     propWaterColor;

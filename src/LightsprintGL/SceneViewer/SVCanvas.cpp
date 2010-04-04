@@ -331,16 +331,16 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
 	{
 		case 'T': // ctrl-t
-			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_TEXTURES));
+			svs.renderMaterialTextures = !svs.renderMaterialTextures;
 			break;
 		case 'W': // ctrl-w
-			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_WIREFRAME));
+			svs.renderWireframe = !svs.renderWireframe;
 			break;
 		case 'H': // ctrl-h
-			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_HELPERS));
+			svs.renderHelpers = !svs.renderHelpers;
 			break;
 		case 'F': // ctrl-f
-			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_RENDER_FPS));
+			svs.renderFPS = !svs.renderFPS;
 			break;
 	}
 	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)

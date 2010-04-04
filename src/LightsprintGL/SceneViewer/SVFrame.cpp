@@ -387,13 +387,13 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// create panes
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Left());
 	if (!layoutLoaded)
 	{
 		userPreferences.windowLayout[1].fullscreen = false;
 		userPreferences.windowLayout[1].maximized = false;
 		userPreferences.windowLayout[1].perspective = m_mgr.SavePerspective();
 	}
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name(wxT("objectproperties")).Caption(wxT("Object properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name(wxT("materialproperties")).Caption(wxT("Material properties")).CloseButton(true).Right());
 	if (!layoutLoaded)
@@ -520,33 +520,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		menuBar->Append(winMenu, _T("Global illumination"));
-	}
-
-	// Render...
-	{
-		winMenu = new wxMenu;
-		winMenu->AppendCheckItem(ME_RENDER_DIFFUSE,_T("Diffuse color"),_T("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."));
-		winMenu->Check(ME_RENDER_DIFFUSE,svs.renderMaterialDiffuse);
-		winMenu->AppendCheckItem(ME_RENDER_SPECULAR,_T("Specular reflection"),_T("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."));
-		winMenu->Check(ME_RENDER_SPECULAR,svs.renderMaterialSpecular);
-		winMenu->AppendCheckItem(ME_RENDER_EMISSION,_T("Emittance"),_T("Toggles rendering emittance of emissive surfaces."));
-		winMenu->Check(ME_RENDER_EMISSION,svs.renderMaterialEmission);
-		winMenu->AppendCheckItem(ME_RENDER_TRANSPARENT,_T("Transparency"),_T("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."));
-		winMenu->Check(ME_RENDER_TRANSPARENT,svs.renderMaterialTransparency);
-		winMenu->AppendCheckItem(ME_RENDER_TEXTURES,_T("Material textures (ctrl-t)"),_T("Toggles between material textures and flat colors. Disabling textures could make rendering faster."));
-		winMenu->Check(ME_RENDER_TEXTURES,svs.renderMaterialTextures);
-		winMenu->AppendCheckItem(ME_RENDER_WIREFRAME,_T("Wireframe (ctrl-w)"),_T("Toggles between solid and wireframe rendering modes."));
-		winMenu->Check(ME_RENDER_WIREFRAME,svs.renderWireframe);
-		winMenu->AppendSeparator();
-		winMenu->AppendCheckItem(ME_RENDER_HELPERS,_T("Helpers/dignostics (ctrl-h)"),_T("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
-		winMenu->Check(ME_RENDER_HELPERS,svs.renderHelpers);
-		winMenu->AppendCheckItem(ME_RENDER_FPS,_T("FPS (ctrl-f)"),_T("FPS counter shows number of frames rendered in last second."));
-		winMenu->Check(ME_RENDER_FPS,svs.renderFPS);
-		winMenu->AppendCheckItem(ME_RENDER_LOGO,_T("Logo"),_T("Logo is loaded from data/maps/logo.png."));
-		winMenu->Check(ME_RENDER_LOGO,svs.renderLogo);
-		winMenu->AppendCheckItem(ME_RENDER_VIGNETTE,_T("Vignettation"),_T("Vignette overlay is loaded from data/maps/vignette.png."));
-		winMenu->Check(ME_RENDER_VIGNETTE,svs.renderVignette);
-		menuBar->Append(winMenu, _T("Render"));
 	}
 
 	// Window...
@@ -1203,20 +1176,6 @@ save_scene_as:
 				}
 			}
 			break;
-
-
-		//////////////////////////////// RENDER ///////////////////////////////
-
-		case ME_RENDER_DIFFUSE: svs.renderMaterialDiffuse = !svs.renderMaterialDiffuse; break;
-		case ME_RENDER_SPECULAR: svs.renderMaterialSpecular = !svs.renderMaterialSpecular; break;
-		case ME_RENDER_EMISSION: svs.renderMaterialEmission = !svs.renderMaterialEmission; break;
-		case ME_RENDER_TRANSPARENT: svs.renderMaterialTransparency = !svs.renderMaterialTransparency; break;
-		case ME_RENDER_TEXTURES: svs.renderMaterialTextures = !svs.renderMaterialTextures; break;
-		case ME_RENDER_WIREFRAME: svs.renderWireframe = !svs.renderWireframe; break;
-		case ME_RENDER_FPS: svs.renderFPS = !svs.renderFPS; break;
-		case ME_RENDER_HELPERS: svs.renderHelpers = !svs.renderHelpers; break;
-		case ME_RENDER_LOGO: svs.renderLogo = !svs.renderLogo; break;
-		case ME_RENDER_VIGNETTE: svs.renderVignette = !svs.renderVignette; break;
 
 
 		///////////////////////////////// WINDOW ////////////////////////////////

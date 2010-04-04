@@ -6,7 +6,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVSceneProperties.h"
-#include "SVCustomProperties.h"
 
 #include "SVFrame.h" // solver access
 #include "SVCanvas.h" // solver access
@@ -78,6 +77,54 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		SetPropertyBackgroundColour(propToneMapping,headerColor,false);
 	}
 
+	// render materials
+	{
+		propRenderMaterials = new wxStringProperty(wxT("Rendering materials"), wxPG_LABEL);
+		Append(propRenderMaterials);
+		SetPropertyReadOnly(propRenderMaterials,true,wxPG_DONT_RECURSE);
+
+		propRenderMaterialDiffuse = new BoolRefProperty(wxT("Diffuse color"), wxT("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."), svs.renderMaterialDiffuse);
+		AppendIn(propRenderMaterials,propRenderMaterialDiffuse);
+
+		propRenderMaterialSpecular = new BoolRefProperty(wxT("Specular"), wxT("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."), svs.renderMaterialSpecular);
+		AppendIn(propRenderMaterials,propRenderMaterialSpecular);
+
+		propRenderMaterialEmittance = new BoolRefProperty(wxT("Emittance"), wxT("Toggles rendering emittance of emissive surfaces."), svs.renderMaterialEmission);
+		AppendIn(propRenderMaterials,propRenderMaterialEmittance);
+
+		propRenderMaterialTransparency = new BoolRefProperty(wxT("Transparency"), wxT("Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster."), svs.renderMaterialTransparency);
+		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
+
+		propRenderMaterialTextures = new BoolRefProperty(wxT("Textures"), wxT("Toggles between material textures and flat colors. Disabling textures could make rendering faster."), svs.renderMaterialTextures);
+		AppendIn(propRenderMaterials,propRenderMaterialTextures);
+
+		SetPropertyBackgroundColour(propRenderMaterials,headerColor,false);
+	}
+
+	// render options
+	{
+		propRenderOptions = new wxStringProperty(wxT("Rendering options"), wxPG_LABEL);
+		Append(propRenderOptions);
+		SetPropertyReadOnly(propRenderOptions,true,wxPG_DONT_RECURSE);
+
+		propRenderWireframe = new BoolRefProperty(wxT("Wireframe"), wxT("Toggles between solid and wireframe rendering modes."), svs.renderWireframe);
+		AppendIn(propRenderOptions,propRenderWireframe);
+
+		propRenderHelpers = new BoolRefProperty(wxT("Helpers"), wxT("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."), svs.renderHelpers);
+		AppendIn(propRenderOptions,propRenderHelpers);
+
+		propRenderFPS = new BoolRefProperty(wxT("FPS"), wxT("FPS counter shows number of frames rendered in last second."), svs.renderFPS);
+		AppendIn(propRenderOptions,propRenderFPS);
+
+		propRenderLogo = new BoolRefProperty(wxT("Logo"), wxT("Logo is loaded from data/maps/sv_logo.png."), svs.renderLogo);
+		AppendIn(propRenderOptions,propRenderLogo);
+
+		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), wxT("Vignette overlay is loaded from data/maps/vignette.png."), svs.renderVignette);
+		AppendIn(propRenderOptions,propRenderVignettation);
+
+		SetPropertyBackgroundColour(propRenderOptions,headerColor,false);
+	}
+
 	// water
 	{
 		propWater = new wxBoolProperty(wxT("Water"), wxPG_LABEL, svs.renderWater);
@@ -111,6 +158,8 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propGITranspVideoAffectsGI = new wxBoolProperty(wxT("Transparency video realtime GI"), wxPG_LABEL, svs.videoTransmittanceAffectsGI);
 		AppendIn(propGI,propGITranspVideoAffectsGI);
 		SetPropertyEditor(propGITranspVideoAffectsGI,wxPGEditor_CheckBox);
+
+		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
 /*
 	// size
@@ -159,6 +208,16 @@ void SVSceneProperties::updateProperties()
 		+ updateBool(propToneMappingAutomatic,svs.adjustTonemapping)
 		+ updateFloat(propToneMappingBrightness,svs.brightness[0])
 		+ updateFloat(propToneMappingContrast,svs.gamma)
+		+ updateBoolRef(propRenderMaterialDiffuse)
+		+ updateBoolRef(propRenderMaterialSpecular)
+		+ updateBoolRef(propRenderMaterialEmittance)
+		+ updateBoolRef(propRenderMaterialTransparency)
+		+ updateBoolRef(propRenderMaterialTextures)
+		+ updateBoolRef(propRenderWireframe)
+		+ updateBoolRef(propRenderHelpers)
+		+ updateBoolRef(propRenderFPS)
+		+ updateBoolRef(propRenderLogo)
+		+ updateBoolRef(propRenderVignettation)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)

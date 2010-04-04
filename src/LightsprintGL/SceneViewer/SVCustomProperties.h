@@ -51,6 +51,30 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// BoolRefProperty
+
+class BoolRefProperty : public wxBoolProperty
+{
+public:
+	BoolRefProperty( const wxString& label, const wxString& name, bool& value)
+		: wxBoolProperty(label, name, value), ref(value)
+	{
+		SetValue(wxPGVariant_Bool(value));
+	}
+	virtual void OnSetValue()
+	{
+		ref = GetValue().GetBool();
+	}
+	const wxPGEditor* DoGetEditorClass() const
+	{
+		return wxPGEditor_CheckBox;
+	}
+	bool& ref;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRBuffer* property
 
 wxString getTextureDescription(rr::RRBuffer* buffer);
@@ -69,6 +93,16 @@ inline unsigned updateBool(wxPGProperty* prop,bool value)
 	if (value!=prop->GetValue().GetBool())
 	{
 		prop->SetValue(wxVariant(value));
+		return 1;
+	}
+	return 0;
+}
+
+inline unsigned updateBoolRef(BoolRefProperty* prop)
+{
+	if (prop->ref!=prop->GetValue().GetBool())
+	{
+		prop->SetValue(wxPGVariant_Bool(prop->ref));
 		return 1;
 	}
 	return 0;
