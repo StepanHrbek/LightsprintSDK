@@ -16,6 +16,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "../tmpstr.h"
+#include "../PreserveState.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
@@ -1117,11 +1118,10 @@ rendered:
 			centerTexel = UINT_MAX;
 			centerTriangle = UINT_MAX;
 			glDisable(GL_DEPTH_TEST);
+			PreserveMatrices p1;
 			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
 			glLoadIdentity();
 			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
 			glLoadIdentity();
 			gluOrtho2D(0, winWidth, winHeight, 0);
 			{
@@ -1372,9 +1372,6 @@ rendered:
 					}
 				}
 			}
-			glPopMatrix();
-			glMatrixMode(GL_MODELVIEW);
-			glPopMatrix();
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
