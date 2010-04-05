@@ -68,7 +68,9 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propColor);
 		}
 		{
-			propTexture = new wxFileProperty(wxT("Projected texture"), wxPG_LABEL, getTextureDescription(light->rtProjectedTexture));
+			propTexture = new ImageFileProperty(wxT("Projected texture"));
+			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
+			propTexture->updateIcon(light->rtProjectedTexture);
 			Append(propTexture);
 			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
 
@@ -238,7 +240,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTexture)
 	{
-		setTextureFilename(light->rtProjectedTexture,property,svs.playVideos);
+		propTexture->updateBufferAndIcon(light->rtProjectedTexture,svs.playVideos);
 		updateHide();
 	}
 	else

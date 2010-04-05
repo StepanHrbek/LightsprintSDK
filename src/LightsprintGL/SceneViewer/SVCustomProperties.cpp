@@ -64,7 +64,7 @@ void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVaria
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
 HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& name, int precision, const RRVec3& rgb )
-	: wxPGProperty(label,name), image(1,1), bitmap(NULL)
+	: wxPGProperty(label,name), image(2,1), bitmap(NULL)
 {
 	SetValue(WXVARIANT(rgb));
 
@@ -102,11 +102,11 @@ void HDRColorProperty::RefreshChildren()
 	Item(4)->SetValue(hsv[1]);
 	Item(5)->SetValue(hsv[2]);
 
-	//wxSize size = GetImageSize();
+	// update ValueImage
 	unsigned char* data = image.GetData();
-	data[0] = RR_FLOAT2BYTE(rgb[0]);
-	data[1] = RR_FLOAT2BYTE(rgb[1]);
-	data[2] = RR_FLOAT2BYTE(rgb[2]);
+	data[0] = data[3] = RR_FLOAT2BYTE(rgb[0]);
+	data[1] = data[4] = RR_FLOAT2BYTE(rgb[1]);
+	data[2] = data[5] = RR_FLOAT2BYTE(rgb[2]);
 	delete bitmap;
 	bitmap = new wxBitmap(image);
 	SetValueImage(*bitmap);
@@ -142,7 +142,63 @@ HDRColorProperty::~HDRColorProperty()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRBuffer* property
+// ImageFileProperty
+
+ImageFileProperty::ImageFileProperty( const wxString& label )
+	: wxFileProperty(label)
+{
+	image = NULL;
+	bitmap = NULL;
+}
+
+ImageFileProperty::~ImageFileProperty()
+{
+	delete bitmap;
+	delete image;
+}
+
+void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
+{
+	if (buffer)
+	{
+		wxSize size = wxSize(20,15);//GetImageSize();
+		delete image;
+		image = new wxImage(size);
+		unsigned char* data = image->GetData();
+		if (data)
+		{
+			for (int j=0;j<size.y;j++)
+			for (int i=0;i<size.x;i++)
+			{
+				rr::RRVec4 rgba = buffer->getElement(rr::RRVec3((i+0.45f)/size.x,(j+0.45f)/size.y,0));
+				data[(i+j*size.x)*3+0] = RR_FLOAT2BYTE(rgba[0]);
+				data[(i+j*size.x)*3+1] = RR_FLOAT2BYTE(rgba[1]);
+				data[(i+j*size.x)*3+2] = RR_FLOAT2BYTE(rgba[2]);
+			}
+		}
+		delete bitmap;
+		bitmap = new wxBitmap(*image);
+		SetValueImage(*bitmap);
+	}
+	else
+		SetValueImage(*(wxBitmap*)NULL);
+}
+
+void ImageFileProperty::updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVideos)
+{
+	if (buffer && GetValue().GetString()!=buffer->filename.c_str())
+	if (buffer)
+	{
+		// stop it
+		buffer->stop();
+		delete buffer;
+	}
+	buffer = rr::RRBuffer::load(GetValue().GetString().c_str());
+	if (buffer && playVideos)
+		buffer->play();
+
+	updateIcon(buffer);
+}
 
 wxString getTextureDescription(rr::RRBuffer* buffer)
 {
@@ -151,19 +207,6 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 		?rr_gl::tmpstr("<%d*%d generated>",buffer->getWidth(),buffer->getHeight())
 			:buffer->filename.c_str())
 		:"<no texture>";
-}
-
-void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, bool playVideos)
-{
-	if (buffer)
-	{
-		// stop it
-		buffer->stop();
-		delete buffer;
-	}
-	buffer = rr::RRBuffer::load(filename->GetValue().GetString().c_str());
-	if (buffer && playVideos)
-		buffer->play();
 }
 
 #endif // SUPPORT_SCENEVIEWER

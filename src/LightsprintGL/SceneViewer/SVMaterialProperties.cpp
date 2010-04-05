@@ -44,25 +44,25 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* _parent, const SceneViewerS
 	Append(propDiffuse = new wxStringProperty(wxT("Diffuse"),wxPG_LABEL,wxT("<composed>")));
 	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
-	AppendIn(propDiffuse,new wxFileProperty(wxT("texture")));
+	AppendIn(propDiffuse,new ImageFileProperty(wxT("texture")));
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(wxT("Specular"),wxPG_LABEL,wxT("<composed>")));
 	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
-	AppendIn(propSpecular,new wxFileProperty(wxT("texture")));
+	AppendIn(propSpecular,new ImageFileProperty(wxT("texture")));
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(wxT("Emissive"),wxPG_LABEL,wxT("<composed>")));
 	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
-	AppendIn(propEmissive,new wxFileProperty(wxT("texture")));
+	AppendIn(propEmissive,new ImageFileProperty(wxT("texture")));
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(wxT("Transparent"),wxPG_LABEL,wxT("<composed>")));
 	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
-	AppendIn(propTransparent,new wxFileProperty(wxT("texture")));
+	AppendIn(propTransparent,new ImageFileProperty(wxT("texture")));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
@@ -80,7 +80,9 @@ static void setMaterialProperty(wxPGProperty* wxproperty, rr::RRMaterial::Proper
 {
 	updateProperty(wxproperty->GetPropertyByName("color"),rrproperty.color);
 	updateInt(wxproperty->GetPropertyByName("uv"),rrproperty.texcoord);
-	updateString(wxproperty->GetPropertyByName("texture"),getTextureDescription(rrproperty.texture));
+	ImageFileProperty* imageprop = (ImageFileProperty*)wxproperty->GetPropertyByName("texture");
+	updateString(imageprop,getTextureDescription(rrproperty.texture));
+	imageprop->updateIcon(rrproperty.texture);
 }
 
 void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
@@ -217,7 +219,9 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propDiffuse->GetPropertyByName("texture"))
 	{
-		setTextureFilename(material->diffuseReflectance.texture,property,svs.playVideos);
+		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseReflectance.texture,svs.playVideos);
+		material->diffuseReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		updateProperty(propDiffuse->GetPropertyByName("color"),material->diffuseReflectance.color);
 		diffuseChanged = true;
 		textureChanged = true;
 	}
@@ -238,7 +242,9 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propSpecular->GetPropertyByName("texture"))
 	{
-		setTextureFilename(material->specularReflectance.texture,property,svs.playVideos);
+		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularReflectance.texture,svs.playVideos);
+		material->specularReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		updateProperty(propSpecular->GetPropertyByName("color"),material->specularReflectance.color);
 		specularChanged = true;
 		textureChanged = true;
 	}
@@ -259,7 +265,9 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEmissive->GetPropertyByName("texture"))
 	{
-		setTextureFilename(material->diffuseEmittance.texture,property,svs.playVideos);
+		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseEmittance.texture,svs.playVideos);
+		material->diffuseEmittance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		updateProperty(propEmissive->GetPropertyByName("color"),material->diffuseEmittance.color);
 		emittanceChanged = true;
 		textureChanged = true;
 	}
@@ -279,7 +287,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTransparent->GetPropertyByName("texture"))
 	{
-		setTextureFilename(material->specularTransmittance.texture,property,svs.playVideos);
+		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularTransmittance.texture,svs.playVideos);
+		if (material->specularTransmittance.texture && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBA && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBAF)
+			material->specularTransmittanceInAlpha = false;
+		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP);
+		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
 		textureChanged = true;
 	}
 	else

@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
+#include "SVCustomProperties.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 
 namespace rr_gl
@@ -50,7 +51,7 @@ namespace rr_gl
 		wxPGProperty*     propOuterAngleRad;
 		wxPGProperty*     propRadius;
 		wxPGProperty*     propColor;
-		wxPGProperty*     propTexture;
+		ImageFileProperty*propTexture;
 		wxPGProperty*     propTextureChangeAffectsGI;
 		wxPGProperty*     propDistanceAttType;
 		wxPGProperty*     propConstant;

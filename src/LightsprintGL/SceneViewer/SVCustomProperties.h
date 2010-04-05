@@ -80,10 +80,21 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRBuffer* property
+// ImageFileProperty
+
+class ImageFileProperty : public wxFileProperty
+{
+public:
+	ImageFileProperty( const wxString& label );
+	virtual ~ImageFileProperty();
+	void updateIcon(rr::RRBuffer* buffer);
+	void updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVideos);
+private:
+	wxImage* image;
+	wxBitmap* bitmap;
+};
 
 wxString getTextureDescription(rr::RRBuffer* buffer);
-void setTextureFilename(rr::RRBuffer*& buffer, const wxPGProperty* filename, bool playVideos);
 
 
 //////////////////////////////////////////////////////////////////////////////
