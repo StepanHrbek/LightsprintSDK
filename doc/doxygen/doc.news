@@ -26,6 +26,9 @@ NEWS
     Advantages: 50-200x faster load, 2-6x smaller than other formats.
     You don't have to use .rr3, it's just an option.
   - trueSpace .cob, reading
+- scene viewer improved
+  - "Material properties" shows texture miniatures and colors
+  - menu "Render" moved to "Scene properties"
 
 CHANGES
 
