@@ -512,7 +512,7 @@ private:
 					else
 					{
 						materialProperty.texcoord = UNSPECIFIED_CHANNEL;
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (texcoord binding missing).\n"));
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Not a proper Collada 1.4.1 file (<bind_vertex_input> missing).\n"));
 					}
 				}
 			}
