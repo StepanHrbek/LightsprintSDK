@@ -344,6 +344,7 @@ Video formats
  You are free to download their sources and modify them, use them in commercial applications
  without need to open your source code etc.
  All of these libraries serve as optional extensions, global illumination solver doesn't need them.
+ Some of them are included just in case you need them integrated, but we keep them disabled by default.
  
  Libraries used by LightsprintCore (global illumination solvers):
  - \subpage tpl_squish
@@ -358,6 +359,7 @@ Video formats
  Used by LightsprintIO (optional file format support):
  - \subpage tpl_assimp
  - \subpage tpl_freeimage
+ - \subpage tpl_opencollada
  - \subpage tpl_fcollada
  - \subpage tpl_libxml2
  - \subpage tpl_fragments
@@ -452,10 +454,26 @@ Video formats
       You can safely install and use different version in your Linux system.
   - XBox360, PS3 with system software: not used
 
+\page tpl_opencollada OpenCollada
+  - www: <a href="http://opencollada.org/">OpenCollada</a>
+  - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
+  - optional, remove by deleting <code>\#define SUPPORT_OPENCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
+  - OpenCollada rev 736 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+
+\page opencollada_patch OpenCollada patch
+ OpenCollada source code in our tree has one local modification:
+
+ File: COLLADABaseUtils\include\COLLADABUhash_map.h
+
+ We changed 1500 to 1600 to make OpenCollada not depend on
+ <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual C++ 2008 Feature Pack</a>.
+
+ This fix does not affect library function or performace.
+
 \page tpl_fcollada FCollada
   - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
-  - optional, remove by deleting <code>\#define SUPPORT_FCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove references from makefile)
+  - optional, not used unless you add <code>\#define SUPPORT_FCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, also add references to makefile)
   - Windows, Linux (including PS3): precompiled version 3.05B (\subpage fcollada_patch "patched") is a part of Lightsprint SDK
   - XBox360, PS3 with the System Software: not used
   - Linux / PS3 Linux: If you wish to build the library on your own, please note that the version 3.05B
@@ -519,7 +537,7 @@ Video formats
 \page tpl_libxml2 libxml2
   - www: <a href="http://xmlsoft.org/">libxml2</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
-  - optional, remove by disabling \ref tpl_fcollada
+  - optional, not used unless you enable \ref tpl_fcollada
   - Windows: not used
   - Linux (including PS3 Linux): should be already installed, install using
     - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
@@ -2865,7 +2883,7 @@ rr::RRVector<*>{
   It has simple and friendly user interface, one function without parameters.
 
   LightsprintIO comes with full source code, located in <code>src/LightsprintIO</code>.
-  LightsprintIO may call external dynamic libraries \ref tpl_fcollada and \ref tpl_freeimage
+  LightsprintIO may call external dynamic library \ref tpl_freeimage
   with source code also available for download.
 
  \section io_api API

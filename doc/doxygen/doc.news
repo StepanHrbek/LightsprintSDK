@@ -18,14 +18,20 @@ NEWS
   - RRScene::getSupportedExtensions() split into RRScene::getSupportedLoaderExtensions() and RRScene::getSupportedSaverExtensions()
   - RRScene::registerSaver() added
   - RRScene::Saver added
-- editing 3d scenes
-  - you can freely edit RRScene objects, lights and environment (they were read-only before)
 - new scene formats (full list of \ref supported_formats)
   - Lightsprint .rr3, reading, writing
     \n This is first time we introduce new format, after supporting ~35 existing scene formats.
     Advantages: 50-200x faster load, 2-6x smaller than other formats.
     You don't have to use .rr3, it's just an option.
   - trueSpace .cob, reading
+- state of the art Collada support
+  - new robust OpenCollada based loader, fully contained withing LightsprintIO library, no additional headers or libraries
+  - Collada 1.5.0 support (in addition to 1.4.x)
+  - Google SketchUp support (SketchUp exports Collada with unusual instancig technique, other loaders don't support)
+  - two other Collada loaders (FCollada, Assimp) still available for reference
+  - FCollada disabled by default, executables don't depend on fcollada.dll/so
+- editing 3d scenes
+  - you can freely edit RRScene objects, lights and environment (they were read-only before)
 - scene viewer improved
   - "Material properties" shows texture miniatures and colors
   - menu "Render" moved to "Scene properties"
@@ -38,8 +44,8 @@ CHANGES
   - change getEnvironment() to environment
   - you can edit objects, lights, environment, while getXxx() were for reading only
 - when implementing RRScene
-  - load objects into RRScene::protectedObjects rather than into RRScene::objects
-  - load lights into RRScene::protectedLights rather than into RRScene::lights
+  - change "objects =" to "protectedObjects ="
+  - change "lights =" to "protectedLights ="
   - remove environment and getEnvironment() from your implementation, environment is now in RRScene
 
 \section news99 ------------------------------------ 2010.02.17 -------------------------------------
