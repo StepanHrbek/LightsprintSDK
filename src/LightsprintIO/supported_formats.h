@@ -17,8 +17,8 @@
 #define SUPPORT_IMAGES      // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
 #define SUPPORT_GOOGLEEARTH // Google Earth .kmz
-#define SUPPORT_3DS         // 3D Studio .3ds (obsoleted by Assimp)
-#define SUPPORT_OBJ         // Wavefront .obj (obsoleted by Assimp)
+//#define SUPPORT_3DS       // 3D Studio .3ds (obsoleted by Assimp)
+//#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 
 
 // Actual support depends on your operating system, compiler etc.
