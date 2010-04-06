@@ -546,6 +546,7 @@ private:
 unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName) const
 {
 	NumReports numReports(meshName); // unsigned numReports = 0; would work too, although without reporting meshNumber
+	unsigned numUnwrapOutOfRange = 0;
 	// meshArrays
 	const RRMeshArrays* a = dynamic_cast<const RRMeshArrays*>(this);
 	if (a)
@@ -794,13 +795,22 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 				}
 				if (outOfRange)
 				{
-					numReports++;
-					RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
-						i,lightmapTexcoord,
-						triangleMapping.uv[0][0],triangleMapping.uv[0][1],
-						triangleMapping.uv[1][0],triangleMapping.uv[1][1],
-						triangleMapping.uv[2][0],triangleMapping.uv[2][1]
-						);
+					if (numUnwrapOutOfRange<3)
+					{
+						numReports++;
+						RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
+							i,lightmapTexcoord,
+							triangleMapping.uv[0][0],triangleMapping.uv[0][1],
+							triangleMapping.uv[1][0],triangleMapping.uv[1][1],
+							triangleMapping.uv[2][0],triangleMapping.uv[2][1]
+							);
+					}
+					else
+					if (numUnwrapOutOfRange==3)
+					{
+						RRReporter::report(WARN,"...\n");
+					}
+					numUnwrapOutOfRange++;
 				}
 			}
 		}
