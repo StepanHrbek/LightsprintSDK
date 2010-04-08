@@ -47,6 +47,9 @@ CHANGES
   - change "objects =" to "protectedObjects ="
   - change "lights =" to "protectedLights ="
   - remove environment and getEnvironment() from your implementation, environment is now in RRScene
+- moved from RRObjects to RRObject
+  - RRObject::LayerParameters
+  - RRObject::recommendLayerParameters()
 
 \section news99 ------------------------------------ 2010.02.17 -------------------------------------
 

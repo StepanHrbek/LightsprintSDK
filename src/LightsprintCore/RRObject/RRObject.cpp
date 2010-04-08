@@ -372,6 +372,71 @@ RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::Inte
 		
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObject recommends
+
+static char *bp(const char *fmt, ...)
+{
+	static char msg[1000];
+	va_list argptr;
+	va_start (argptr,fmt);
+	_vsnprintf (msg,999,fmt,argptr);
+	msg[999] = 0;
+	va_end (argptr);
+	return msg;
+}
+
+// formats filename from prefix(path), object number and postfix(ext)
+const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
+{
+	char* tmp = NULL;
+	const char* finalExt;
+	if (isVertexBuffer)
+	{
+		if (!ext)
+		{
+			finalExt = "vbu";
+		}
+		else
+		{
+			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
+			tmp = new char[strlen(ext)+5];
+			strcpy(tmp,ext);
+			unsigned i = (unsigned)strlen(ext);
+			while (i && tmp[i-1]!='.') i--;
+			strcpy(tmp+i,"vbu");
+			finalExt = tmp;
+		}
+	}
+	else
+	{
+		if (!ext)
+		{
+			finalExt = "png";
+		}
+		else
+		{
+			finalExt = ext;
+		}
+	}
+	const char* result = bp("%s%05d.%s",path?path:"",objectIndex,finalExt);
+	delete[] tmp;
+	return result;
+}
+
+void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParameters) const
+{
+	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : getCollider()->getMesh()->getNumVertices();
+	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
+	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
+	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
+	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
+	free(layerParameters.actualFilename);
+	layerParameters.actualFilename = _strdup(formatFilename(layerParameters.suggestedPath,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER));
+}
+
 // Moved to file with exceptions enabled:
 // void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
 

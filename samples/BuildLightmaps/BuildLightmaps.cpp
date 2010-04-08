@@ -125,7 +125,7 @@ struct Parameters
 	bool buildDirectional;
 	bool buildOcclusion;
 	bool buildBentNormals;
-	rr::RRObjects::LayerParameters layerParameters;
+	rr::RRObject::LayerParameters layerParameters;
 
 	// create parameters from commandline arguments
 	//  objectIndex=-1 -> gather global parameters
@@ -441,7 +441,7 @@ int main(int argc, char **argv)
 		// take per-object parameters
 		Parameters objectParameters(argc,argv,objectIndex);
 		// query size, format etc
-		scene.objects.recommendLayerParameters(objectParameters.layerParameters);
+		scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
 		// allocate
 		objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
 	}
@@ -490,7 +490,7 @@ int main(int argc, char **argv)
 			// take per-object parameters
 			Parameters objectParameters(argc,argv,objectIndex);
 			// query filename
-			scene.objects.recommendLayerParameters(objectParameters.layerParameters);
+			scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
 			// save
 			saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
 		}

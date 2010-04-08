@@ -1052,7 +1052,7 @@ class RRObjectGamebryo : public RRObjectGamebryoBase
 public:
 	// creates new RRObject from NiMesh
 	// return NULL for meshes of unsupported formats
-	static RRObjectGamebryo* create(NiMesh* _mesh, const PerEntitySettings& _perEntitySettings, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
+	static RRObjectGamebryo* create(NiScene* _pkEntityScene, NiMesh* _mesh, const PerEntitySettings& _perEntitySettings, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache, bool& _aborting)
 	{
 		if (!_mesh)
 		{
@@ -1167,6 +1167,7 @@ public:
 		}
 		RRObjectGamebryo* object = new RRObjectGamebryo(MaterialInputs(_mesh,perEntitySettings.lsEmissiveMultiplier), collider, _lodInfo, _materialCache);
 		object->perEntitySettings = perEntitySettings;
+		object->pkEntityScene = _pkEntityScene;
 		return object;
 	}
 	virtual ~RRObjectGamebryo()
@@ -1241,6 +1242,124 @@ public:
 		out = lodInfo;
 	}
 
+	virtual void recommendLayerParameters(RRObject::LayerParameters& layerParameters) const
+	{
+#if GAMEBRYO_MAJOR_VERSION==2
+		class LightmapFunctor : public NiVisitLightMapMeshFunctor
+		{
+		public:
+			virtual bool operator() (NiMesh* pkMesh, NiLightMapMeshProperties kProps)
+			{
+				if (pkMesh==object->mesh)
+				{
+					NiString kDirectoryName = NiString(layerParameters->suggestedPath);
+					size_t pathlen = strlen(layerParameters->suggestedPath);
+					if (pathlen
+						&& layerParameters->suggestedPath[pathlen-1]!='/'
+						&& layerParameters->suggestedPath[pathlen-1]!='\\') kDirectoryName += "/";
+					kDirectoryName += kProps.m_pcEntityDirectory;
+					if (!NiFile::DirectoryExists(kDirectoryName))
+					{
+						NiFile::CreateDirectoryRecursive(kDirectoryName);
+						if (!NiFile::DirectoryExists(kDirectoryName))
+						{
+							RRReporter::report(WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
+						}
+					}
+					free(layerParameters->actualFilename);
+					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt);
+					return true;
+				}
+				return false;
+			}
+			LayerParameters* layerParameters;
+			const RRObjectGamebryo* object;
+		};
+
+		// fill filename
+		RR_SAFE_FREE(layerParameters.actualFilename);
+		LightmapFunctor lightmapFunctor;
+		lightmapFunctor.layerParameters = &layerParameters;
+		lightmapFunctor.object = this;
+		NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,lightmapFunctor);
+
+		// fill size, type, format
+		int w,h;
+		NiLightMapUtility::GetLightMapResolution(w,h,lightmapFunctor.object->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+
+		layerParameters.actualWidth = w;
+		layerParameters.actualHeight = h;
+		layerParameters.actualType = BT_2D_TEXTURE;
+		layerParameters.actualFormat = BF_RGB;
+		layerParameters.actualScaled = true;
+		layerParameters.actualBuildNonDirectional = true;
+		layerParameters.actualBuildDirectional = false;
+		layerParameters.actualBuildBentNormals = false;
+#else
+		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
+		{
+			layerParameters.actualBuildNonDirectional = false;
+			layerParameters.actualBuildDirectional = false;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
+		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
+		{
+			layerParameters.actualType = BT_VERTEX_BUFFER;
+			layerParameters.actualWidth = getCollider()->getMesh()->getNumVertices();
+			layerParameters.actualHeight = 1;
+			layerParameters.actualFormat = BF_RGBA;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
+		if (perEntitySettings.lsResolutionMode==PE_RESOLUTION_CALCULATED)
+		{
+			// create matrix that scales from lightsprint local space to gamebryo world space
+			RRMatrix3x4 worldMatrix = getWorldMatrixRef();
+			for (unsigned i=0;i<3;i++)
+				for (unsigned j=0;j<4;j++)
+					worldMatrix.m[i][j] /= SCALE_GEOMETRY;
+
+			// calculate density in gamebryo world space
+			RRMesh* worldSpaceMesh = getCollider()->getMesh()->createTransformed(&worldMatrix);
+			float density = worldSpaceMesh->getMappingDensity(CH_LIGHTMAP);
+			delete worldSpaceMesh;
+
+			// density -> resolution
+			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
+			//resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+			unsigned resolutionPOT = RR_MAX(1,layerParameters.suggestedMinMapSize);
+			while (resolutionPOT<resolution && resolutionPOT*2<=layerParameters.suggestedMaxMapSize) resolutionPOT *= 2;
+
+			layerParameters.actualType = BT_2D_TEXTURE;
+			layerParameters.actualWidth = resolutionPOT;
+			layerParameters.actualHeight = resolutionPOT;
+			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+		else
+		{
+			layerParameters.actualType = BT_2D_TEXTURE;
+			layerParameters.actualWidth = RR_CLAMPED(perEntitySettings.lsResolutionFixedWidth,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+			layerParameters.actualHeight = RR_CLAMPED(perEntitySettings.lsResolutionFixedHeight,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
+			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
+			layerParameters.actualScaled = true;
+			RR_SAFE_FREE(layerParameters.actualFilename);
+			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
+			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
+			layerParameters.actualBuildBentNormals = false;
+		}
+#endif
+	}
+
 #if GAMEBRYO_MAJOR_VERSION==3
 	void* getCustomData(const char* name) const
 	{
@@ -1271,6 +1390,7 @@ private:
 		name = mesh->GetName();
 	}
 
+	NiScene* pkEntityScene; // used only to query lightmap names from .gsa
 	RRMaterial* material;
 	LodInfo lodInfo;
 };
@@ -1292,14 +1412,13 @@ public:
 		perEntitySettings.lsBakeDirectionality = PE_NON_DIRECTIONAL;
 		perEntitySettings.lsEmissiveMultiplier = _emissiveMultiplier;
 
-		pkEntityScene = _pkEntityScene;
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
 		lodInfo.level = 0;
-		unsigned uiCount = pkEntityScene->GetEntityCount();
+		unsigned uiCount = _pkEntityScene->GetEntityCount();
 		for (unsigned int uiEntity=0; uiEntity < uiCount; uiEntity++)
 		{
-			NiEntityInterface* pkEntity = pkEntityScene->GetEntityAt(uiEntity);
+			NiEntityInterface* pkEntity = _pkEntityScene->GetEntityAt(uiEntity);
 			const char* pcName = pkEntity->GetName();
 			unsigned int uiSceneRootCount;
 			NiFixedString kSceneRootPointer = "Scene Root Pointer";
@@ -1314,7 +1433,7 @@ public:
 						NiAVObject* pkRoot = NiDynamicCast(NiAVObject, pkObject);
 						if (pkRoot)
 						{
-							addNode(pkRoot,lodInfo,_aborting,perEntitySettings);
+							addNode(_pkEntityScene,pkRoot,lodInfo,_aborting,perEntitySettings);
 						}
 					}
 				}
@@ -1325,7 +1444,6 @@ public:
 	// path used by Gamebryo 3.x Toolbench plugin
 	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
 	{
-		pkEntityScene = NULL; // not used from plugin, but clear it anyway
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
 		lodInfo.level = 0;
@@ -1395,7 +1513,7 @@ public:
 
 							// manually traverse subtree (necessary for LOD support) and create adapters
 							NiAVObject* obj = sceneGraphService->GetSceneGraphFromEntity(entity->GetEntityID());
-							addNode(obj,lodInfo,_aborting,perEntitySettings);
+							addNode(NULL,obj,lodInfo,_aborting,perEntitySettings);
 
 							// traverse again using Gamebryo's visitor (necessary for getting egmGI::MeshProperties)
 							class Visitor : public egmGI::MeshVisitor
@@ -1471,142 +1589,10 @@ public:
 		}
 	}
 
-	virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
-	{
-#if GAMEBRYO_MAJOR_VERSION==2
-		class LightmapFunctor : public NiVisitLightMapMeshFunctor
-		{
-		public:
-			virtual bool operator() (NiMesh* pkMesh, NiLightMapMeshProperties kProps)
-			{
-				if (pkMesh==object->mesh)
-				{
-					NiString kDirectoryName = NiString(layerParameters->suggestedPath);
-					size_t pathlen = strlen(layerParameters->suggestedPath);
-					if (pathlen
-						&& layerParameters->suggestedPath[pathlen-1]!='/'
-						&& layerParameters->suggestedPath[pathlen-1]!='\\') kDirectoryName += "/";
-					kDirectoryName += kProps.m_pcEntityDirectory;
-					if (!NiFile::DirectoryExists(kDirectoryName))
-					{
-						NiFile::CreateDirectoryRecursive(kDirectoryName);
-						if (!NiFile::DirectoryExists(kDirectoryName))
-						{
-							RRReporter::report(WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
-						}
-					}
-					free(layerParameters->actualFilename);
-					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt);
-					return true;
-				}
-				return false;
-			}
-			LayerParameters* layerParameters;
-			RRObjectGamebryo* object;
-		};
-
-		if ((unsigned)layerParameters.objectIndex>=size())
-		{
-			RRReporter::report(ERRO,"recommendLayerParameters(): objectIndex out of range\n");
-			return;
-		}
-
-		// fill filename
-		RR_SAFE_FREE(layerParameters.actualFilename);
-		LightmapFunctor lightmapFunctor;
-		lightmapFunctor.layerParameters = &layerParameters;
-		lightmapFunctor.object = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex];
-		NiLightMapUtility::VisitLightMapMeshes(pkEntityScene,lightmapFunctor);
-
-		// fill size, type, format
-		int w,h;
-		NiLightMapUtility::GetLightMapResolution(w,h,lightmapFunctor.object->mesh,layerParameters.suggestedPixelsPerWorldUnit,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-
-		layerParameters.actualWidth = w;
-		layerParameters.actualHeight = h;
-		layerParameters.actualType = BT_2D_TEXTURE;
-		layerParameters.actualFormat = BF_RGB;
-		layerParameters.actualScaled = true;
-		layerParameters.actualBuildNonDirectional = true;
-		layerParameters.actualBuildDirectional = false;
-		layerParameters.actualBuildBentNormals = false;
-#else
-		if ((unsigned)layerParameters.objectIndex>=size())
-		{
-			RRReporter::report(ERRO,"recommendLayerParameters(): objectIndex out of range\n");
-			return;
-		}
-
-		RRObjectGamebryo* rrObject = (RRObjectGamebryo*)(*this)[layerParameters.objectIndex];
-		PerEntitySettings& perEntitySettings = rrObject->perEntitySettings;
-		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
-		{
-			layerParameters.actualBuildNonDirectional = false;
-			layerParameters.actualBuildDirectional = false;
-			layerParameters.actualBuildBentNormals = false;
-		}
-		else
-		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
-		{
-			layerParameters.actualType = BT_VERTEX_BUFFER;
-			layerParameters.actualWidth = rrObject->getCollider()->getMesh()->getNumVertices();
-			layerParameters.actualHeight = 1;
-			layerParameters.actualFormat = BF_RGBA;
-			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
-			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
-			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
-			layerParameters.actualBuildBentNormals = false;
-		}
-		else
-		if (perEntitySettings.lsResolutionMode==PE_RESOLUTION_CALCULATED)
-		{
-			// create matrix that scales from lightsprint local space to gamebryo world space
-			RRMatrix3x4 worldMatrix = rrObject->getWorldMatrixRef();
-			for (unsigned i=0;i<3;i++)
-				for (unsigned j=0;j<4;j++)
-					worldMatrix.m[i][j] /= SCALE_GEOMETRY;
-
-			// calculate density in gamebryo world space
-			RRMesh* worldSpaceMesh = rrObject->getCollider()->getMesh()->createTransformed(&worldMatrix);
-			float density = worldSpaceMesh->getMappingDensity(CH_LIGHTMAP);
-			delete worldSpaceMesh;
-
-			// density -> resolution
-			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
-			//resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-			unsigned resolutionPOT = RR_MAX(1,layerParameters.suggestedMinMapSize);
-			while (resolutionPOT<resolution && resolutionPOT*2<=layerParameters.suggestedMaxMapSize) resolutionPOT *= 2;
-
-			layerParameters.actualType = BT_2D_TEXTURE;
-			layerParameters.actualWidth = resolutionPOT;
-			layerParameters.actualHeight = resolutionPOT;
-			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
-			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
-			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
-			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
-			layerParameters.actualBuildBentNormals = false;
-		}
-		else
-		{
-			layerParameters.actualType = BT_2D_TEXTURE;
-			layerParameters.actualWidth = RR_CLAMPED(perEntitySettings.lsResolutionFixedWidth,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-			layerParameters.actualHeight = RR_CLAMPED(perEntitySettings.lsResolutionFixedHeight,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
-			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
-			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
-			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
-			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
-			layerParameters.actualBuildBentNormals = false;
-		}
-#endif
-	}
-
 private:
 	// Adds all instances from node and his subnodes to 'objects'.
 	// lodInfo.base==0 marks we are not in LOD
-	void addNode(const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const PerEntitySettings& perEntitySettings)
+	void addNode(NiScene* pkEntityScene, const NiAVObject* object, RRObject::LodInfo lodInfo, bool& aborting, const PerEntitySettings& perEntitySettings)
 	{
 		if (!object)
 		{
@@ -1632,7 +1618,7 @@ private:
 					lodInfo.level = i; // TODO: is GetAt(0) level 0?
 				}
 				// add node
-				addNode(node->GetAt(i),lodInfo,aborting,perEntitySettings);
+				addNode(pkEntityScene,node->GetAt(i),lodInfo,aborting,perEntitySettings);
 			}
 		}
 		// adapt single node
@@ -1647,7 +1633,7 @@ private:
 				lodInfo.base = object;
 				lodInfo.level = 0;
 			}
-			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(niMesh,perEntitySettings,lodInfo,materialCache,aborting);
+			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(pkEntityScene,niMesh,perEntitySettings,lodInfo,materialCache,aborting);
 			if (rrObject)
 			{
 				push_back(rrObject);
@@ -1656,7 +1642,6 @@ private:
 	}
 
 	MaterialCacheGamebryo materialCache;
-	NiScene* pkEntityScene; // used only to query lightmap names from .gsa
 #if GAMEBRYO_MAJOR_VERSION==3
 	PerSceneSettings perSceneSettings;
 #endif

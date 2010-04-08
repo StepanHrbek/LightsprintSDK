@@ -321,31 +321,12 @@ namespace rr
 		//! Fills faceGroups automatically, however, you may call it only if you implemented
 		//! your own RRObject with your own self-contained getTriangleMaterial() not reading data from faceGroups.
 		void updateFaceGroupsFromTriangleMaterials();
-	private:
-		const RRCollider* collider;
-		RRMatrix3x4* worldMatrix;
-	};
 
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRObjects
-	//! Set of objects with interface similar to std::vector.
-	//
-	//! GI solver uses this class to set all static or dynamic objects at once.
-	//! You can adapt content from memory or load content from files to RRObjects, see scene adapters in LightsprintIO library;
-	//! or you can fill RRObjects instance manually, using push_back(object).
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRObjects : public RRVector<RRObject*>
-	{
-	public:
 		//! Structure used by recommendLayerParameters().
 		struct LayerParameters
 		{
-			// inputs to RRObjects::recommendLayerParameters()
-			int            objectIndex; ///< -1 = global params for all objects; 0,1,2... params specific for given object
+			// inputs to RRObject::recommendLayerParameters()
+			int            objectIndex; ///< default implementation uses it only when formatting recommended filename
 			unsigned       suggestedMapSize;
 			unsigned       suggestedMinMapSize;
 			unsigned       suggestedMaxMapSize;
@@ -353,13 +334,13 @@ namespace rr
 			const char*    suggestedPath;
 			const char*    suggestedExt;
 
-			// outputs of RRObjects::recommendLayerParameters()
+			// outputs of RRObject::recommendLayerParameters()
 			RRBufferType   actualType;
 			unsigned       actualWidth;
 			unsigned       actualHeight;
 			RRBufferFormat actualFormat;
 			bool           actualScaled;
-			char*          actualFilename; ///< NULL in constructor, malloced in RRObjects::recommendLayerParameters(), freed in destructor.
+			char*          actualFilename; ///< NULL in constructor, malloced in RRObject::recommendLayerParameters(), freed in destructor.
 			bool           actualBuildNonDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildBentNormals; ///< not yet used outside Gamebryo
@@ -377,7 +358,7 @@ namespace rr
 				actualFilename = NULL;
 			}
 
-			//! Creates buffer from actualXxx fields (filled by RRObjects::recommendLayerParameters())
+			//! Creates buffer from actualXxx fields (filled by RRObject::recommendLayerParameters())
 			RRBuffer* createBuffer() const
 			{
 				// if DXT is recommended, RGB is created anyway because baker can't store directly to DXT
@@ -417,7 +398,28 @@ namespace rr
 		//! \param layerParameters
 		//!  Structure of both inputs (suggestedXxx) and outputs (actualXxx).
 		//!  Outputs are filled by this function.
-		virtual void recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const;
+		virtual void recommendLayerParameters(RRObject::LayerParameters& layerParameters) const;
+
+	private:
+		const RRCollider* collider;
+		RRMatrix3x4* worldMatrix;
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRObjects
+	//! Set of objects with interface similar to std::vector.
+	//
+	//! GI solver uses this class to set all static or dynamic objects at once.
+	//! You can adapt content from memory or load content from files to RRObjects, see scene adapters in LightsprintIO library;
+	//! or you can fill RRObjects instance manually, using push_back(object).
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRObjects : public RRVector<RRObject*>
+	{
+	public:
 		//! Loads illumination layer from disk.
 		//
 		//! It is shortcut for calling illumination->getLayer() = RRBuffer::load() on all elements in this container.

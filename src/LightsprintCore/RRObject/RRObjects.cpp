@@ -15,73 +15,12 @@ namespace rr
 //
 // RRObjects
 
-static char *bp(const char *fmt, ...)
-{
-	static char msg[1000];
-	va_list argptr;
-	va_start (argptr,fmt);
-	_vsnprintf (msg,999,fmt,argptr);
-	msg[999] = 0;
-	va_end (argptr);
-	return msg;
-}
-
 static bool exists(const char* filename)
 {
 	FILE* f = fopen(filename,"rb");
 	if (!f) return false;
 	fclose(f);
 	return true;
-}
-
-// formats filename from prefix(path), object number and postfix(ext)
-const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
-{
-	char* tmp = NULL;
-	const char* finalExt;
-	if (isVertexBuffer)
-	{
-		if (!ext)
-		{
-			finalExt = "vbu";
-		}
-		else
-		{
-			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
-			tmp = new char[strlen(ext)+5];
-			strcpy(tmp,ext);
-			unsigned i = (unsigned)strlen(ext);
-			while (i && tmp[i-1]!='.') i--;
-			strcpy(tmp+i,"vbu");
-			finalExt = tmp;
-		}
-	}
-	else
-	{
-		if (!ext)
-		{
-			finalExt = "png";
-		}
-		else
-		{
-			finalExt = ext;
-		}
-	}
-	const char* result = bp("%s%05d.%s",path?path:"",objectIndex,finalExt);
-	delete[] tmp;
-	return result;
-}
-
-void RRObjects::recommendLayerParameters(RRObjects::LayerParameters& layerParameters) const
-{
-	RR_ASSERT((unsigned)layerParameters.objectIndex<size());
-	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : (*this)[layerParameters.objectIndex]->getCollider()->getMesh()->getNumVertices();
-	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
-	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
-	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
-	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
-	free(layerParameters.actualFilename);
-	layerParameters.actualFilename = _strdup(formatFilename(layerParameters.suggestedPath,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER));
 }
 
 
@@ -95,17 +34,16 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			RRObject* object = (*this)[objectIndex];
 			// first try to load per-pixel format
 			RRBuffer* buffer = NULL;
-			RRObjects::LayerParameters layerParameters;
-			layerParameters.objectIndex = objectIndex;
+			RRObject::LayerParameters layerParameters;
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			layerParameters.suggestedMapSize = 256;
-			recommendLayerParameters(layerParameters);
+			object->recommendLayerParameters(layerParameters);
 			if ( !exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapSize = 0;
-				recommendLayerParameters(layerParameters);
+				object->recommendLayerParameters(layerParameters);
 				if (exists(layerParameters.actualFilename))
 					buffer = RRBuffer::load(layerParameters.actualFilename);
 			}
@@ -138,15 +76,15 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 	{
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
-			RRBuffer* buffer = (*this)[objectIndex]->illumination.getLayer(layerNumber);
+			RRObject* object = (*this)[objectIndex];
+			RRBuffer* buffer = object->illumination.getLayer(layerNumber);
 			if (buffer)
 			{
-				RRObjects::LayerParameters layerParameters;
-				layerParameters.objectIndex = objectIndex;
+				RRObject::LayerParameters layerParameters;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapSize = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
-				recommendLayerParameters(layerParameters);
+				object->recommendLayerParameters(layerParameters);
 				if (buffer->save(layerParameters.actualFilename))
 				{
 					result++;
