@@ -148,14 +148,11 @@ public:
 #ifdef USE_BINARY
 			boost::archive::binary_iarchive ar(ifs);
 #endif
-//			char* pathToTextures = _strdup(filename);
-//			char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
-//			if (tmp) tmp[1] = 0;
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
+			g_relocator.newReference = filename;
+			ar & boost::serialization::make_nvp("filename", g_relocator.oldReference);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
-
-//			free(pathToTextures);
 
 			// remember materials and meshes created by boost, so we can free them in destructor
 			// user is allowed to manipulate scene, add or remove parts, but we will still delete only what load() created
@@ -208,6 +205,8 @@ public:
 #ifdef USE_BINARY
 			boost::archive::binary_oarchive ar(ofs);
 #endif
+			g_relocator.newReference = g_relocator.oldReference = filename;
+			ar & boost::serialization::make_nvp("filename", g_relocator.oldReference);
 			ar & boost::serialization::make_nvp("scene", *scene);
 
 			return true;

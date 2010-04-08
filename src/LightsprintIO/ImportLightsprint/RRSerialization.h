@@ -11,12 +11,18 @@
 // If you don't have boost, simply don't include this header, e.g. by disabling #define SUPPORT_LIGHTSPRINT.
 
 #include "Lightsprint/RRScene.h"
+#include "RRRelocation.h"
 #include <boost/serialization/binary_object.hpp> // either install boost or don't serialize
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/unordered_set.hpp>
+
+// Helper for relocating absolute paths.
+// Must be set up before serialization.
+// Global, don't serialize in multiple threads at the same time.
+RRRelocator g_relocator;
 
 namespace boost {
 namespace serialization {
@@ -122,7 +128,7 @@ private:
 boost::unordered_set<RRBufferProxy*> RRBufferProxy::instances;
 
 #define prefix_buffer(b)          (*(RRBufferProxy**)&(b))
-#define postfix_buffer(Archive,b) {if (Archive::is_loading() && b) b = prefix_buffer(b)->buffer->createReference();} // all non-unique buffers get their own reference
+#define postfix_buffer(Archive,b) {if (Archive::is_loading() && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
 
 
 template<class Archive>
@@ -130,7 +136,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 {
 	// only unique non-NULL buffers get here
 	rr::RRBuffer& a = *(rr::RRBuffer*)&aa;
-	ar & make_nvp("filename",a.filename);
+	ar & make_nvp("filename",a.filename); // should be absolute path
 	if (a.filename.empty())
 	{
 		rr::RRBufferType type = a.getType();
@@ -181,7 +187,20 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	}
 	else
 	{
-		a.buffer = rr::RRBuffer::load(filename.c_str(),NULL);
+		// Disable reporter when trying different paths for textures.
+		RRReporter* oldReporter = RRReporter::getReporter();
+		RRReporter::setReporter(NULL);
+
+		// Look for file at expected new location.
+		std::string relocatedFilename = g_relocator.relocatedFilename(filename.c_str());
+		a.buffer = rr::RRBuffer::load(relocatedFilename.c_str(),NULL);
+		if (!a.buffer && relocatedFilename!=filename.c_str())
+		{
+			// Look for file at original location (where it was at save time).
+			a.buffer = rr::RRBuffer::load(filename.c_str(),NULL);
+		}
+
+		RRReporter::setReporter(oldReporter);
 	}
 }
 
