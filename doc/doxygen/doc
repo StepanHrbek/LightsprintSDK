@@ -2382,12 +2382,11 @@ Video formats
 
 \page main_gamebryo3 LightSpeed
 
- Lightsprint SDK adds global illumination to Gamebryo LightSpeed 3.1.
+ Lightsprint SDK adds global illumination to Gamebryo LightSpeed 3.1.1.
 
  \section g3_prerequisites Prerequisites
-  - Emergent's <code>Gamebryo LightSpeed 3.1</code> must be installed
-  - Emergent's <code>LightSpeed Global Illumination Package <b>2.0.2</b></code> must be installed,
-    \subpage g3_g31 "GI Package fix" applied.
+  - Emergent's <code>Gamebryo LightSpeed 3.1.1</code> must be installed
+  - Emergent's <code>LightSpeed Global Illumination Package <b>2.1.0</b></code> must be installed.
   - Lightsprint SDK with LightSpeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.
@@ -2402,7 +2401,8 @@ Video formats
   - full integration source code included
 
  \section g3_limits Limitations of current version
-  - terrain not supported (this is also GI Package 2.0.2 limitation)
+  - terrain not supported (this is also GI Package 2.1.0 limitation)
+  - light probes not updated (will be fixed very soon)
 
  \section g3_bake Baking in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
@@ -2496,21 +2496,6 @@ Video formats
  \section g3_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
   - \ref trouble_gamebryo_error_shader
-
-
-\page g3_g31 Using GI Package 2.0.2 in LightSpeed 3.1
-  Lightsprint integration requires Emergent's GI Package, but the latest GI Package, 2.0.2 requires LightSpeed 3.0. In order to let you use global illumination in LightSpeed 3.1, we offer this GI Package fix.
-  -# Make sure Emergent still did not release GI Package > 2.0.2. If it did, you don't need this fix, use updated version.
-  -# Make sure you have GI Package 2.0.2 installed. You can install it by <code>msiexec /a LightSpeed_GlobalIllumination_2.0.2_Win32.msi TARGETDIR=C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2 /qb</code> command.
-  -# Make sure LIGHTSPEED_GI_PATH environment variable is set. If it is not, set it to <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2</code>
-  -# Open GI Package project "NiGiMaterial", set "ShippingDLL" configuration and build it.
-  -# Open GI Package project "egmGI", set "ShippingDLL" configuration, change "Linker/Input/Additional Dependencies" to contain also "NiGiMaterial$(EE_EFD_DLL_Suffix).lib" and build it.
-  -# Open GI Package project "Emergent.Toolbench.WorldBuilder.GI", set "Shipping" configuration, change "Linker/Input/Additional Dependencies" to "efd31VC90S.lib egf31VC90S.lib NiSystem31VC90S.lib NiMain31VC90S.lib NiCollision31VC90S.lib NiMesh31VC90S.lib NiFloodgate31VC90S.lib NiAnimation31VC90S.lib NiTerrain31VC90S.lib NiDX9Renderer31VC90S.lib NiViewMath31VC90S.lib NiInput31VC90S.lib ecrInput31VC90S.lib ecr31VC90S.lib egmAnimation31VC90S.lib egmToolServices31VC90S.lib egmGI31VC90S.lib NiGIMaterial31VC90S.lib $(NOINHERIT)" and build it.
-  -# <code>copy C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2\\sdk\\Win32\\DLL\\egmGI31VC90S.dll        C:\\Emergent\\Gamebryo-LightSpeed-3.1-Binary\\sdk\\Win32\\DLL</code>
-  -# <code>copy C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.0.2\\sdk\\Win32\\DLL\\NiGIMaterial31VC90S.dll C:\\Emergent\\Gamebryo-LightSpeed-3.1-Binary\\sdk\\Win32\\DLL</code>
-  -# Open the only solution in Lightsprint SDK, set "Shipping DLL" configuration and build ToolBench plugins. At this moment, Lightsprint shipping plugins should be installed in ToolBench 3.1.
-  -# In case of need, similar procedure can be used for debug and release configurations.
-  -# Contact us in case of any troubles.
 
 
 

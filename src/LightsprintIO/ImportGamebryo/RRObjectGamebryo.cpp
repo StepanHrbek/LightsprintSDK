@@ -991,6 +991,9 @@ struct PerEntitySettings
 	PropertyEnum lsBakeDirectionality;
 	PropertyEnum lsResolutionMode;
 	float lsResolutionMultiplier;
+#if GAMEBRYO_MAJOR_VERSION==3
+	float perSceneSettings_lsPixelsPerWorldUnit;
+#endif
 	unsigned lsResolutionFixedWidth;
 	unsigned lsResolutionFixedHeight;
 	float lsEmissiveMultiplier;
@@ -1001,6 +1004,9 @@ struct PerEntitySettings
 		lsBakeDirectionality = PE_INHERIT_FROM_LIGHTSPRINT_SCENE;
 		lsResolutionMode = PE_RESOLUTION_CALCULATED;
 		lsResolutionMultiplier = 1;
+#if GAMEBRYO_MAJOR_VERSION==3
+		perSceneSettings_lsPixelsPerWorldUnit = 0.1f;
+#endif
 		lsResolutionFixedWidth = 128;
 		lsResolutionFixedHeight = 128;
 		lsEmissiveMultiplier = 1;
@@ -1038,6 +1044,7 @@ struct PerEntitySettings
 		if (lsBakeDirectionality==PE_INHERIT_FROM_LIGHTSPRINT_SCENE)
 			lsBakeDirectionality = perSceneSettings.lsDefaultBakeDirectionality;
 		lsEmissiveMultiplier *= perSceneSettings.lsEmissiveMultiplier;
+		perSceneSettings_lsPixelsPerWorldUnit = perSceneSettings.lsPixelsPerWorldUnit;
 	}
 #endif
 };
@@ -1330,7 +1337,7 @@ public:
 			delete worldSpaceMesh;
 
 			// density -> resolution
-			unsigned resolution = (unsigned)RR_MAX(1,density*perSceneSettings.lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
+			unsigned resolution = (unsigned)RR_MAX(1,density*perEntitySettings.perSceneSettings_lsPixelsPerWorldUnit*perEntitySettings.lsResolutionMultiplier+0.5f);
 			//resolution = RR_CLAMPED(resolution,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
 			unsigned resolutionPOT = RR_MAX(1,layerParameters.suggestedMinMapSize);
 			while (resolutionPOT<resolution && resolutionPOT*2<=layerParameters.suggestedMaxMapSize) resolutionPOT *= 2;
@@ -2001,7 +2008,7 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 
 	updateCastersReceiversCache();
 
-	if ((!protectedObjects || !protectedObjects->size()) && !protectedLights)
+	if (!protectedObjects->size() && !protectedLights->size())
 	{
 		RRReporter::report(WARN,"Scene %s empty.\n",_filename);
 	}
@@ -2023,6 +2030,11 @@ RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _abo
 
 	// adapt environment
 	environment = adaptEnvironmentFromGamebryo(serviceManager);
+
+	// instances constructed from filename receive special treatment, protectedObjects are copied to objects automatically.
+	// in this exceptional case (not from filename) we must explicitly copy protectedObjects to objects
+	lights = *protectedLights;
+	objects = *protectedObjects;
 
 	updateCastersReceiversCache();
 }
