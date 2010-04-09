@@ -816,6 +816,7 @@ Global
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Mixed Platforms.ActiveCfg = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Mixed Platforms.Build.0 = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Win32.ActiveCfg = Debug|Win32
+		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Win32.Build.0 = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|x64.ActiveCfg = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug static|Mixed Platforms.ActiveCfg = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug static|Mixed Platforms.Build.0 = Debug|Win32
@@ -824,6 +825,7 @@ Global
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release DLL|Mixed Platforms.ActiveCfg = Release|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release DLL|Mixed Platforms.Build.0 = Release|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release DLL|Win32.ActiveCfg = Release|Win32
+		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release DLL|Win32.Build.0 = Release|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release DLL|x64.ActiveCfg = Release|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release static|Mixed Platforms.ActiveCfg = Release|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Release static|Mixed Platforms.Build.0 = Release|Win32
@@ -837,6 +839,7 @@ Global
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug DLL|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug DLL|Mixed Platforms.Build.0 = Debug|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug DLL|Win32.ActiveCfg = Debug|Any CPU
+		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug DLL|Win32.Build.0 = Debug|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug DLL|x64.ActiveCfg = Debug|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug static|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Debug static|Mixed Platforms.Build.0 = Debug|Any CPU
@@ -845,6 +848,7 @@ Global
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release DLL|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release DLL|Mixed Platforms.Build.0 = Release|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release DLL|Win32.ActiveCfg = Release|Any CPU
+		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release DLL|Win32.Build.0 = Release|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release DLL|x64.ActiveCfg = Release|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release static|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Release static|Mixed Platforms.Build.0 = Release|Any CPU
