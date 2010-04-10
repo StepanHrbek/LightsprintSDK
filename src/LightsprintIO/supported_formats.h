@@ -23,6 +23,11 @@
 
 // Actual support depends on your operating system, compiler etc.
 
+// Assimp doesn't support Visual Studio 2003.
+#if defined(SUPPORT_ASSIMP) && defined(_MSC_VER) && (_MSC_VER < 1400)
+	#undef SUPPORT_ASSIMP
+#endif
+
 // FCollada doesn't support Visual Studio 2003.
 #if defined(SUPPORT_FCOLLADA) && defined(_MSC_VER) && (_MSC_VER < 1400)
 	#undef SUPPORT_FCOLLADA
@@ -39,6 +44,7 @@
 	#undef SUPPORT_DIRECTSHOW
 #endif
 
+// Google Earth support exists only for specific Visual Studio 2008 project.
 #if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1500) )
 	#undef SUPPORT_GOOGLEEARTH
 #endif
