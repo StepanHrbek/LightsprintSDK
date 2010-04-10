@@ -1,5 +1,15 @@
 @echo off
 
+start build_SDK_win_vs2003.bat
+start build_SDK_win_vs2005.bat
+start build_SDK_win_vs2008.bat
+
+goto end
+
+
+
+
+
 set PATH0=%PATH%
 set ERR=build_SDK_win.err
 
