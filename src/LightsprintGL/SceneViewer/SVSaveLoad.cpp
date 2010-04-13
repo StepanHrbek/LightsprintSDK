@@ -361,10 +361,6 @@ static std::string suggestPreferencesFilename()
 
 bool UserPreferences::save() const
 {
-	// temporarily disabled, save/load worsens problem reported as wxWidgets Ticket #11537
-	// waiting for fix
-	return false;
-
 	try
 	{
 		_mkdir(suggestPreferencesDirectory().c_str());
@@ -389,10 +385,6 @@ bool UserPreferences::save() const
 
 bool UserPreferences::load()
 {
-	// temporarily disabled, save/load worsens problem reported as wxWidgets Ticket #11537
-	// waiting for fix
-	return false;
-
 	try
 	{
 		std::ifstream ifs(suggestPreferencesFilename().c_str());
