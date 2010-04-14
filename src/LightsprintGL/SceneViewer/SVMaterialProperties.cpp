@@ -407,6 +407,19 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		updateReadOnly();
 	}
+
+	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL)
+	{
+		// fireball: skip reportMaterialChange(), it either switches to architect (current behaviour, fast, but surprising, possibly unwanted)
+		//           or rebuilds fireball (not enabled, would be very slow)
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball (both in Global Illumination menu).\n"));
+	}
+	else
+	if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+	{
+		// architect: reportMaterialChange() is cheap, call it
+		lastSolver->reportMaterialChange();
+	}
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)
