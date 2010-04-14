@@ -29,6 +29,31 @@ public:
 		return s;
 	}
 
+	// removes all dir/.. and ./ occurences from path
+	static void removeUnnecessaryDots(bf::path& path)
+	{
+	retry:
+		for (bf::path::iterator i = path.begin(); i!=path.end(); ++i)
+		{
+			bf::path::iterator iplus1 = i;
+			++iplus1;
+			bool foundDot = *i==".";
+			bool foundDots = *i!="." && *i!=".." && *iplus1=="..";
+			if (foundDot || foundDots)
+			{
+				// remove *i and *iplus1 from path and retry
+				bf::path path2;
+				for (bf::path::iterator j = path.begin(); j!=path.end(); ++j)
+				{
+					if ((foundDot && j!=i) || (foundDots && j!=i && j!=iplus1))
+						path2 /= *j;
+				}
+				path = path2;
+				goto retry;
+			}
+		}
+	}
+
 private:
 	static bf::path getRelativeFile(const bf::path& absoluteFile, const bf::path& basePath)
 	{
@@ -69,29 +94,6 @@ private:
 			relPath /= *itTo;
 		}
 		return relPath;
-	}
-
-	// removes all dir/.. occurences from path
-	static void removeUnnecessaryDots(bf::path& path)
-	{
-	retry:
-		for (bf::path::iterator i = path.begin(); i!=path.end(); ++i)
-		{
-			bf::path::iterator iplus1 = i;
-			++iplus1;
-			if (*i!=".." && *iplus1=="..")
-			{
-				// remove *i and *iplus1 from path and retry
-				bf::path path2;
-				for (bf::path::iterator j = path.begin(); j!=path.end(); ++j)
-				{
-					if (j!=i && j!=iplus1)
-						path2 /= *j;
-				}
-				path = path2;
-				goto retry;
-			}
-		}
 	}
 
 	// see how oldReference transformed into newReference and do the same transformation on filename
