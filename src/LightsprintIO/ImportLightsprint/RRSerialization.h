@@ -164,9 +164,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	else
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
-		bf::path absoluteFilename = bf::system_complete(bf::path(a.filename.c_str()));
-		RRRelocator::removeUnnecessaryDots(absoluteFilename);
-		ar & make_nvp("filename",absoluteFilename.file_string());
+		ar & make_nvp("filename",RRRelocator::getAbsoluteFilename(a.filename.c_str()));
 	}
 }
 
@@ -199,7 +197,7 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 		RRReporter::setReporter(NULL);
 
 		// Look for file at expected new location.
-		std::string relocatedFilename = g_relocator.relocatedFilename(filename.c_str());
+		std::string relocatedFilename = g_relocator.getRelocatedFilename(filename.c_str());
 		a.buffer = rr::RRBuffer::load(relocatedFilename.c_str(),NULL);
 		if (!a.buffer && relocatedFilename!=filename.c_str())
 		{

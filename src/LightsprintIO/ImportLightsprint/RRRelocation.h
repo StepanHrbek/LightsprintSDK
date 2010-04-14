@@ -22,13 +22,23 @@ public:
 		relocateFilename(filename,oldReference,newReference);
 	}
 
-	std::string relocatedFilename(const std::string& filename)
+	// use after loading path
+	std::string getRelocatedFilename(const std::string& filename)
 	{
 		std::string s = filename;
 		relocateFilename(s);
 		return s;
 	}
 
+	// use before saving path
+	static std::string getAbsoluteFilename(const std::string& filename)
+	{
+		bf::path absoluteFilename = bf::system_complete(bf::path(filename.c_str()));
+		removeUnnecessaryDots(absoluteFilename);
+		return absoluteFilename.file_string();
+	}
+
+private:
 	// removes all dir/.. and ./ occurences from path
 	static void removeUnnecessaryDots(bf::path& path)
 	{
@@ -54,7 +64,6 @@ public:
 		}
 	}
 
-private:
 	static bf::path getRelativeFile(const bf::path& absoluteFile, const bf::path& basePath)
 	{
 		bf::path::iterator itFrom = basePath.begin();
