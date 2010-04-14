@@ -98,6 +98,9 @@ private:
 	//rr::RRReporter::report(rr::INF1,"reloc2: %s\n",oldAbsoluteFilename.file_string().c_str());
 				oldAbsoluteFilename.normalize();
 	//rr::RRReporter::report(rr::INF1,"reloc3: %s\n",oldAbsoluteFilename.file_string().c_str());
+				if (oldAbsoluteFilename.root_name()!=oldBasePath.root_name())
+					oldAbsoluteFilename = (oldBasePath.root_name()+oldAbsoluteFilename.root_directory())/oldAbsoluteFilename.relative_path();
+	//rr::RRReporter::report(rr::INF1,"reloc3+ %s\n",oldAbsoluteFilename.file_string().c_str());
 				bf::path relativeFilename = getRelativeFile(oldAbsoluteFilename,oldBasePath);
 	//rr::RRReporter::report(rr::INF1,"reloc4: %s\n",relativeFilename.file_string().c_str());
 
