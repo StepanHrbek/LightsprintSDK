@@ -33,7 +33,7 @@ public:
 	// use before saving path
 	static std::string getAbsoluteFilename(const std::string& filename)
 	{
-		bf::path absoluteFilename = bf::system_complete(bf::path(filename.c_str()));
+		bf::path absoluteFilename = bf::system_complete(filename);
 		removeUnnecessaryDots(absoluteFilename);
 		return absoluteFilename.file_string();
 	}
@@ -138,9 +138,7 @@ private:
 			else
 			{
 				// relative path: just make it absolute
-				bf::path newAbsoluteFilename = bf::system_complete(filename);
-				removeUnnecessaryDots(newAbsoluteFilename);
-				filename = newAbsoluteFilename.file_string();
+				filename = getAbsoluteFilename(filename);
 			}
 		}
 	}
