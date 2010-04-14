@@ -36,6 +36,7 @@ NEWS
 - scene viewer improved
   - "Material properties" shows texture miniatures and colors
   - menu "Render" moved to "Scene properties"
+  - workspaces are persistent, saved to per-user config file
 
 CHANGES
 
