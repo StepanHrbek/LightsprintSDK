@@ -736,6 +736,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
 		// tell pool it can deallocate or mark everything as free, we promise we won't use previously allocated factors
+		// (this creates dangling pointers in Triangle::factors, we will NULL them in object->resetStaticIllumination() below)
 		factorAllocator.reset();
 	}
 	staticSourceExitingFlux=Channels(0);

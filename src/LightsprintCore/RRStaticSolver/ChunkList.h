@@ -147,8 +147,10 @@ public:
 		return numElements;
 	}
 
+	// Discards ChunkList content without deleting it. To be called when pool is deleted.
 	void clear()
 	{
+		firstChunk = NULL;
 		numElements = 0;
 	}
 
