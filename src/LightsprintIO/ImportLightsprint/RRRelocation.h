@@ -34,36 +34,11 @@ public:
 	static std::string getAbsoluteFilename(const std::string& filename)
 	{
 		bf::path absoluteFilename = bf::system_complete(filename);
-		removeUnnecessaryDots(absoluteFilename);
+		absoluteFilename.normalize();
 		return absoluteFilename.file_string();
 	}
 
 private:
-	// removes all dir/.. and ./ occurences from path
-	static void removeUnnecessaryDots(bf::path& path)
-	{
-	retry:
-		for (bf::path::iterator i = path.begin(); i!=path.end(); ++i)
-		{
-			bf::path::iterator iplus1 = i;
-			++iplus1;
-			bool foundDot = *i==".";
-			bool foundDots = *i!="." && *i!=".." && *iplus1=="..";
-			if (foundDot || foundDots)
-			{
-				// remove *i and *iplus1 from path and retry
-				bf::path path2;
-				for (bf::path::iterator j = path.begin(); j!=path.end(); ++j)
-				{
-					if ((foundDot && j!=i) || (foundDots && j!=i && j!=iplus1))
-						path2 /= *j;
-				}
-				path = path2;
-				goto retry;
-			}
-		}
-	}
-
 	static bf::path getRelativeFile(const bf::path& absoluteFile, const bf::path& basePath)
 	{
 		bf::path::iterator itFrom = basePath.begin();
@@ -108,6 +83,7 @@ private:
 	// see how oldReference transformed into newReference and do the same transformation on filename
 	static void relocateFilename(std::string& filename, const std::string& oldReference, const std::string& newReference)
 	{
+	//rr::RRReporter::report(rr::INF1,"reloc0: %s (%s -> %s)\n",filename.c_str(),oldReference.c_str(),newReference.c_str());
 		if (!filename.empty())
 		{
 			if (bf::path(filename).has_root_directory())
@@ -117,21 +93,22 @@ private:
 				// make filename relative using old reference
 	//rr::RRReporter::report(rr::INF1,"reloc1: %s\n",filename.c_str());
 				bf::path oldBasePath = system_complete(bf::path(oldReference).parent_path());
-				removeUnnecessaryDots(oldBasePath);
+				oldBasePath.normalize();
 				bf::path oldAbsoluteFilename = bf::system_complete(filename);
 	//rr::RRReporter::report(rr::INF1,"reloc2: %s\n",oldAbsoluteFilename.file_string().c_str());
-				removeUnnecessaryDots(oldAbsoluteFilename);
+				oldAbsoluteFilename.normalize();
 	//rr::RRReporter::report(rr::INF1,"reloc3: %s\n",oldAbsoluteFilename.file_string().c_str());
 				bf::path relativeFilename = getRelativeFile(oldAbsoluteFilename,oldBasePath);
 	//rr::RRReporter::report(rr::INF1,"reloc4: %s\n",relativeFilename.file_string().c_str());
 
 				// make filename absolute using new reference
 				bf::path newBasePath = system_complete(bf::path(newReference).parent_path());
-				removeUnnecessaryDots(newBasePath);
+				newBasePath.normalize();
 				bf::path newAbsoluteFilename = bf::complete(relativeFilename,newBasePath);
 	//rr::RRReporter::report(rr::INF1,"reloc5: %s\n",newAbsoluteFilename.file_string().c_str());
-				removeUnnecessaryDots(newAbsoluteFilename);
+				newAbsoluteFilename.normalize();
 	//rr::RRReporter::report(rr::INF1,"reloc6: %s\n",newAbsoluteFilename.file_string().c_str());
+	//rr::RRReporter::report(rr::INF1,"\n");
 
 				filename = newAbsoluteFilename.file_string();
 			}
