@@ -136,9 +136,9 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 {
 	// only unique non-NULL buffers get here
 	rr::RRBuffer& a = *(rr::RRBuffer*)&aa;
-	ar & make_nvp("filename",a.filename); // should be absolute path
 	if (a.filename.empty())
 	{
+		ar & make_nvp("filename",a.filename);
 		rr::RRBufferType type = a.getType();
 		ar & make_nvp("type",type);
 		unsigned width = a.getWidth();
@@ -160,6 +160,13 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 		unsigned char* data = a.lock(rr::BL_READ); // if you call saves in parallel (why?), they may lock in parallel. locking is thread safe in our buffer implementations, but is allowed to be unsafe in other people's implementations.
 		ar & make_nvp("data",binary_object(data,a.getBufferBytes()));
 		a.unlock();
+	}
+	else
+	{
+		// saved paths must be absolute, necessary for proper relocation at load time
+		bf::path absoluteFilename = bf::system_complete(bf::path(a.filename.c_str()));
+		RRRelocator::removeUnnecessaryDots(absoluteFilename);
+		ar & make_nvp("filename",absoluteFilename.file_string());
 	}
 }
 
