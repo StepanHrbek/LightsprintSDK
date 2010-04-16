@@ -801,20 +801,14 @@ save_scene_as:
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
+			svs.skyboxFilename = "../../data/maps/skybox/white.png";
+			goto reload_skybox;
 		case ME_ENV_BLACK:
+			svs.skyboxFilename = "../../data/maps/skybox/black.png";
+			goto reload_skybox;
 		case ME_ENV_WHITE_TOP:
-			if (envToBeDeletedOnExit)
-			{
-				delete solver->getEnvironment();
-			}
-			envToBeDeletedOnExit = true;
-			switch (event.GetId())
-			{
-				case ME_ENV_WHITE: solver->setEnvironment(rr::RRBuffer::createSky()); break;
-				case ME_ENV_BLACK: solver->setEnvironment(NULL); break;
-				case ME_ENV_WHITE_TOP: solver->setEnvironment(rr::RRBuffer::createSky(rr::RRVec4(1),rr::RRVec4(0))); break;
-			}
-			break;
+			svs.skyboxFilename = "../../data/maps/skybox/white_top.png";
+			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,"Choose a skybox image","","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
@@ -824,9 +818,10 @@ save_scene_as:
 
 				svs.skyboxFilename = dialog.GetPath();
 			}
-			// intentionally no break
+			goto reload_skybox;
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
+reload_skybox:
 				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str());
 				// skybox is used only if it exists
 				if (skybox)

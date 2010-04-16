@@ -329,7 +329,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 1)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 2)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 3)
 
 //---------------------------------------------------------------------------
 
