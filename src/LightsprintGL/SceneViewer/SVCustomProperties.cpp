@@ -159,7 +159,7 @@ ImageFileProperty::~ImageFileProperty()
 
 void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 {
-	if (buffer)
+	if (buffer && m_parentState) // be careful, wxWidgets SetValueImage would crash if m_parentState is NULL
 	{
 		wxSize size = wxSize(20,15);//GetImageSize();
 		delete image;
