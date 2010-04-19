@@ -265,7 +265,7 @@ public:
 
 	// --------- element access ---------
 
-	void setElement(unsigned index, const RRVec4& element)
+	virtual void setElement(unsigned index, const RRVec4& element)
 	{
 		if (index>=width*height)
 		{
@@ -277,7 +277,7 @@ public:
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
 		version++;
 	}
-	RRVec4 getElement(unsigned index) const
+	virtual RRVec4 getElement(unsigned index) const
 	{
 		if (index>=width*height)
 		{
@@ -290,7 +290,7 @@ public:
 			RR_BYTE2FLOAT(front[index*3+0]),
 			1);
 	}
-	RRVec4 getElement(const RRVec3& direction) const
+	virtual RRVec4 getElement(const RRVec3& direction) const
 	{
 		return getElement(((unsigned)(direction[0]*width)%width) + ((unsigned)(direction[1]*height)%height) * width);
 	}
@@ -393,7 +393,7 @@ public:
 
 private:
 	//! refCount is aligned and modified only by ++ and -- in createReference() and delete.
-	//! This and volatile makes it mosly thread safe, at least on x86
+	//! This and volatile makes it mostly thread safe, at least on x86
 	//! (still we clearly say it's not thread safe)
 	volatile unsigned refCount;
 
