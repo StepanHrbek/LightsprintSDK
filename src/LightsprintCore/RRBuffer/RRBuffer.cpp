@@ -255,7 +255,8 @@ public:
 		{
 			// image was found in cache
 			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
-				&& i->second.buffer->version==i->second.bufferVersionWhenLoaded
+				&& (i->second.buffer->getDuration() // always take videos from cache
+					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
 				// && i->second.fileTimeWhenLoaded==boost::filesystem::last_write_time(filename)
 				)
 			{
