@@ -347,7 +347,7 @@ void RendererOfOriginalScene::render(
 			//textureRenderer->renderEnvironment(_solver->getEnvironment(),NULL);
 			textureRenderer->renderEnvironmentBegin(_brightness,true,!env->getScaled(),_gamma);
 			if (env->getWidth()>2)
-				getTexture(env,true,false)->bindTexture(); // smooth
+				getTexture(env,false,false)->bindTexture(); // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 			else
 				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
 			glBegin(GL_POLYGON);
