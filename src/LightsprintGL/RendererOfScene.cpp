@@ -163,13 +163,19 @@ void RendererOfOriginalScene::render(
 	bool needsIndividualStaticObjects =
 		// optimized render is faster and supports rendering into shadowmaps (this will go away with colored shadows)
 		!_renderingFromThisLight
-		// optimized render is faster and supports everything in scenes with 1 object
-		&& _solver->getStaticObjects().size()>1
+
+		// disabled, this forced multiobj even if user expected lightmaps from 1obj to be rendered
+		// should be no loss, using multiobj in scenes with 1 object was faster only in old renderer, new renderer makes no difference
+		//&& _solver->getStaticObjects().size()>1
+
 		&& (
 			// optimized render can't sort
 			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
 			// optimized render can't render LDM for more than 1 object
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=UINT_MAX)
+			// if we are to use provided indirect, take it always from 1objects
+			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
+			|| (!_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
 			// optimized render looks bad with single specular cube per-scene
 			|| (_uberProgramSetup.MATERIAL_SPECULAR && (_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_auto))
 		);

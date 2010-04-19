@@ -60,12 +60,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-/*	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-		solver->getStaticObjects()[i]->illumination.getLayer(0) =
-			rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
-*/
-	solver->getMultiObjectCustom()->illumination.getLayer(0) = 
-		rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL); // [multiobj indir is indexed]
+	solver->allocateBuffersForRealtimeGI(0,0,0);
 
 	// init light
 	//rr::RRLights lights;
