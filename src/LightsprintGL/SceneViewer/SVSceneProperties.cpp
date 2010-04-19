@@ -255,9 +255,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraAngles)
 	{
-		svs.eye.angle = property->GetPropertyByName("a")->GetValue().GetDouble();
-		svs.eye.angleX = property->GetPropertyByName("b")->GetValue().GetDouble();
-		svs.eye.leanAngle = property->GetPropertyByName("c")->GetValue().GetDouble();
+		svs.eye.angle = property->GetPropertyByName("x")->GetValue().GetDouble();
+		svs.eye.angleX = property->GetPropertyByName("y")->GetValue().GetDouble();
+		svs.eye.leanAngle = property->GetPropertyByName("z")->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraFov)
