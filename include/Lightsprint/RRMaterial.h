@@ -118,9 +118,9 @@ namespace rr
 
 		//! Copies given material to this material.
 		//
-		//! Should be avoided, algorithms without copying are generally faster.
-		//! It is thread unsafe under very rare circumstances
-		//! (that's why we didn't make it "operator =", people expect thread safety in assignment).
+		//! Don't call it from multiple threads at the same time,
+		//! it is thread unsafe under very rare circumstances
+		//! (that's why we didn't make it "operator =", people expect safety in assignment).
 		void copyFrom(const RRMaterial& from);
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
