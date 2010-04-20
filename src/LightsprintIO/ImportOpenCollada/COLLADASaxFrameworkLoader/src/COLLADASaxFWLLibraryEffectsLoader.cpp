@@ -33,6 +33,7 @@ namespace COLLADASaxFWL
         , mInProfileCommonTechnique (false)
         , mInTexture (false)
         , mInSurface (false)
+        , mOpaqueMode( UNSPECIFIED_OPAQUE )
         , mInSampler2D (false)
         , mSurfaceIndex (0)
 	{

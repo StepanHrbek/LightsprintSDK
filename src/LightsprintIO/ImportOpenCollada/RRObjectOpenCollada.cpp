@@ -438,6 +438,30 @@ struct MaterialBindingPlaceholder
 	COLLADAFW::UniqueId                uniqueId;
 };
 
+typedef const unsigned int cuint;
+
+struct CachedMaterial
+{
+	unsigned int drC;
+	unsigned int deC;
+	unsigned int srC;
+	unsigned int stC;
+	unsigned int lmC;
+
+	unsigned int localId;
+
+	CachedMaterial(cuint& dr, cuint& de, cuint& sr, cuint& st, cuint& lm, cuint locid)
+	{
+		drC = dr;
+		deC = de;
+		srC = sr;
+		stC = st;
+		lmC = lm;
+
+		localId = locid;
+	}
+};
+
 struct IndexInfo
 {
 	IndexInfo()
@@ -464,6 +488,8 @@ typedef std::vector<COLLADAFW::VisualScene>                       VectorVisualSc
 typedef std::vector<COLLADAFW::LibraryNodes>                      VectorLibraryNodes;
 
 typedef std::vector<FaceGroupPlaceholder>                         VectorFaceGroupPlaceholder;
+
+typedef std::multimap<COLLADAFW::UniqueId, CachedMaterial>        MapUniqueCached;
 
 enum PARSE_RUN_TYPE
 {
@@ -504,6 +530,8 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 	MapUniqueNode                   nodeMap;
 	MapUniqueMesh                   meshMap;
 	MapUniqueLight                  lightMap;
+
+	MapUniqueCached                 cachedMap;
 
 	MapUniqueMaterialBinding        materialBindingMap;
 
@@ -642,7 +670,10 @@ public:
 
 			std::string name = instanceGeometry->getName();
 			if(name == "")
+			{
+				// NOTE change geometry instance name here to avoid copying names from parent nodes
 				name = node->getName();
+			}
 
 			// add RRObject
 			RRObjectOpenCollada* object = new RRObjectOpenCollada;
@@ -737,8 +768,13 @@ public:
 		return;
 	}
 
-	bool findTextureChannelIndex(unsigned int& texcoord, COLLADAFW::Texture& texture, COLLADAFW::MaterialBinding& colladaBinding, MapMaterialIdToUVSet& mapUV)
+	unsigned int findTextureChannelIndex(COLLADAFW::ColorOrTexture& cot, COLLADAFW::MaterialBinding& colladaBinding, MapMaterialIdToUVSet& mapUV)
 	{
+		if(!cot.isTexture())
+			return UINT_MAX;
+
+		COLLADAFW::Texture& texture = cot.getTexture();
+
 		for(unsigned textbind = 0; textbind < colladaBinding.getTextureCoordinateBindingArray().getCount(); textbind++)
 		{
 			if( colladaBinding.getTextureCoordinateBindingArray()[textbind].getTextureMapId() == texture.getTextureMapId() )
@@ -751,21 +787,20 @@ public:
 					if( physIter != localToPhysIter->second.end() )
 					{
 						// got it!
-						texcoord = physIter->second;
-						return true;
+						return physIter->second;
 					}
 					else
-						return false;
+						return UINT_MAX;
 				}
 				else
-					return false;
+					return UINT_MAX;
 			}
 		}
 
-		return false;
+		return UINT_MAX;
 	}
 
-	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, COLLADAFW::EffectCommon* common, COLLADAFW::MaterialBinding& colladaBinding, MapMaterialIdToUVSet& mapUV, float multiFactor = 1.0f, bool zeroBased = true)
+	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, bool zeroBased = true)
 	{
 		if(cot.isColor())
 		{
@@ -823,15 +858,16 @@ public:
 
 				if(buffer != NULL)
 				{
-					if( findTextureChannelIndex(prop.texcoord,texture,colladaBinding,mapUV) )
-					{
+					prop.texcoord = uvChannel;
+
+					if( uvChannel != UINT_MAX )
+					{	
 						prop.texture = buffer;
 					}
 					else
 					{
-						RRReporter::report(WARN,"Texture bound to a mesh without a proper textcoords channel.\n");
+						RRReporter::report(WARN,"Texture bound to a mesh without a proper uv channel index.\n");
 						prop.texture = buffer;
-						prop.texcoord = 0;
 					}
 				}
 				else
@@ -941,6 +977,7 @@ public:
 						COLLADAFW::Effect& effect = effectIter->second;
 						COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0];
 
+						//bool test = common->getOpacity().isValid();
 						if(common->getOpacity().isColor())
 						{
 							COLLADAFW::Color& color = common->getOpacity().getColor();
@@ -975,11 +1012,80 @@ public:
 
 					if( effectIter != effectMap.end() )
 					{
-						// convert collada material to ls material by using info from the connected effect (only COMMON) and extras
+						COLLADAFW::Effect& effect = effectIter->second;
+						COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0]; // NOTE all sample importers takes only the first one, is that ok?
+
+						// get all uv set indices first (saves -1 for color only or no binding found)
+						MapMaterialIdToUVSet& mapUV = bindingPlaceholder.sourceMesh->mapUV;
+
+						unsigned int drC = findTextureChannelIndex(common->getDiffuse(),colladaBinding,mapUV);
+						unsigned int deC = findTextureChannelIndex(common->getEmission(),colladaBinding,mapUV);
+						unsigned int srC = findTextureChannelIndex(common->getSpecular(),colladaBinding,mapUV);
+						unsigned int stC = findTextureChannelIndex(common->getOpacity(),colladaBinding,mapUV);
+						unsigned int lmC = findTextureChannelIndex(common->getAmbient(),colladaBinding,mapUV);
+
+						// see if we can find this material in cache with the same textcoord parameters
+						bool identicalCached = false, changedCached = false;
+						std::pair<MapUniqueCached::iterator,MapUniqueCached::iterator> range = cachedMap.equal_range( colladaBinding.getReferencedMaterial() );
+
+						for(MapUniqueCached::iterator cachedIter = range.first; cachedIter != range.second; cachedIter++)
+						{
+							// material is cached, now let's see if it is really the same with all uv set indices
+							CachedMaterial& cache = cachedIter->second;
+							MapUniqueCached::iterator nextIter = cachedIter; nextIter++;
+
+							if( cache.drC == drC && cache.deC == deC && cache.srC == srC &&
+								cache.stC == stC && cache.lmC == lmC
+								)
+							{
+								// indices are the same
+								RRReporter::report(INF3,"Found cached material.\n");
+								bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), cache.localId ) );
+								identicalCached = true;
+								break;
+							}
+							else
+							{
+								// indices are different
+								if( nextIter == range.second )
+								{
+									// this is the last set of indices, so we can safely say that
+									// there is no completely same set of indices already cached for this material
+									// hence, create a new material as a copy of the cached one and alter the indices
+									material.copyFrom( objects->materials[ cache.localId ] );
+
+									// NOTE change material name here
+									// get number of previous elements e.g. with cachedMap.count( colladaBinding.getReferencedMaterial() ) 
+
+									material.diffuseReflectance.texcoord    = drC;
+									material.diffuseEmittance.texcoord      = deC;
+									material.specularReflectance.texcoord   = srC;
+									material.specularTransmittance.texcoord = stC;
+									material.lightmapTexcoord               = lmC;
+
+									RRReporter::report(INF3,"Found cached material with different indices.\n");
+									changedCached = true;
+									break;
+								}
+							}
+						}
+
+						if(identicalCached)
+						{
+							continue;
+						}
+
 						bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), nextMaterial ) );
+						CachedMaterial cm(drC,deC,srC,stC,lmC,nextMaterial);
+						cachedMap.insert( std::make_pair( colladaBinding.getReferencedMaterial(), cm ) );
 						nextMaterial++;
 
-						COLLADAFW::Effect& effect = effectIter->second;
+						if(changedCached)
+						{
+							continue;
+						}
+
+						// material was not cached, let's create it from scratch from the connected effect (only COMMON) and extras
 						ExtraDataEffect* extraEffect = (ExtraDataEffect*)extraHandler.getData( effect.getUniqueId() );
 						ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
 
@@ -987,15 +1093,11 @@ public:
 						material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
 						material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
 
-						// FIXME every importer takes only the first one, is that ok?
-						COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0];
-
 						// basic material properties
-						MapMaterialIdToUVSet& mapUV = bindingPlaceholder.sourceMesh->mapUV;
-						applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), common, colladaBinding, mapUV);
-						applyColorOrTexture(material.diffuseEmittance, common->getEmission(), common, colladaBinding, mapUV, extraEffect->emission_level);
-						applyColorOrTexture(material.specularReflectance, common->getSpecular(), common, colladaBinding, mapUV,  extraEffect->spec_level, true);
-						applyColorOrTexture(material.specularTransmittance,common->getOpacity(), common, colladaBinding, bindingPlaceholder.sourceMesh->mapUV, 1.0f, transparencyInverted);
+						applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
+						applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
+						applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
+						applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, transparencyInverted);
 
 						if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
 							material.refractionIndex = common->getIndexOfRefraction().getFloatValue();
@@ -1005,12 +1107,8 @@ public:
 							material.refractionIndex = 1.f;
 
 
-						if(common->getAmbient().isTexture())
-						{
-							unsigned int coord;
-							if( findTextureChannelIndex(coord,common->getAmbient().getTexture(),colladaBinding,mapUV) )
-								material.lightmapTexcoord = coord;
-						}
+						if( lmC != UINT_MAX )
+							material.lightmapTexcoord = lmC;
 
 						// transparency in diffuse texture
 						if(material.diffuseReflectance.texture != NULL)
@@ -1110,13 +1208,19 @@ public:
 		return true;
 	}
 
-	typedef std::map<unsigned int, unsigned int> MapIntToInt;
+	struct UniqueData
+	{
+		unsigned int uniqueIndex;
+		unsigned int* data;
+	};
+
+	typedef std::map<unsigned int, UniqueData> MapIntToUniqueData;
 
 	/** Writes the geometry.
 	@return True on succeeded, false otherwise.*/
 	virtual bool writeGeometry ( const COLLADAFW::Geometry* geometry )
 	{
-		static int numGeom = 0;
+		//static int numGeom = 0;
 
 		if(geometry->getType() != COLLADAFW::Geometry::GEO_TYPE_MESH)
 			return true;
@@ -1229,7 +1333,7 @@ public:
 			unsigned int meshPosNormChannels = 1 + colladaMesh->hasNormals();
 			unsigned int meshNumChannels = meshPosNormChannels + meshNumUvChannels;
 
-			MapIntToInt uniqueMap;
+			MapIntToUniqueData uniqueMap;
 			size_t currUniqueIndex = 0;
 
 			// find out the number of unique combinations of indices accross all primitives
@@ -1253,7 +1357,7 @@ public:
 				unsigned int* indexArray = new unsigned int[meshNumChannels];
 
 				// go through all indexes, find unique combinations and create a remap
-				// NOTE for objects without normals all vertices are unique (is that ok?)
+				// NOTE for objects without normals all vertices are unique
 				if(primitiveElement->hasNormalIndices())
 				{
 					for(size_t vert=0; vert<primitiveElement->getPositionIndices().getCount(); ++vert)
@@ -1283,21 +1387,50 @@ public:
 							hash = hash * 131 + (indexArray[i]+1);
 						}
 
-						MapIntToInt::iterator iter = uniqueMap.find(hash);
+						MapIntToUniqueData::iterator iter = uniqueMap.find(hash);
+
+						bool insertNew = false;
 
 						if(iter != uniqueMap.end())
 						{
-							// this set of indices is already in the vertex buffer
-							remapInfo[ currIndexInMesh ].remap	= iter->second;
-							remapInfo[ currIndexInMesh ].insert	= false;
+							// check if this is really the case
+							for(unsigned cp = 0; cp < meshNumChannels; cp++)
+							{
+								if(!insertNew)
+									insertNew = (iter->second.data[cp] != indexArray[cp]);
+								else
+									break;
+							}
+
+							if(!insertNew)
+							{
+								// this set of indices is already in the vertex buffer
+								remapInfo[ currIndexInMesh ].remap	= iter->second.uniqueIndex;
+								remapInfo[ currIndexInMesh ].insert	= false;
+							}
 						}
 						else
+						{
+							insertNew = true;
+						}
+						
+						if(insertNew)
 						{
 							// will need to be inserted
 							remapInfo[ currIndexInMesh ].remap	= currUniqueIndex;
 							remapInfo[ currIndexInMesh ].insert	= true;
 
-							uniqueMap.insert( std::make_pair( hash, currUniqueIndex ) );
+							// copy indices for future check 
+							UniqueData ud;
+							ud.data = new unsigned int[meshNumChannels];
+							ud.uniqueIndex = currUniqueIndex;
+
+							for(unsigned cp = 0; cp < meshNumChannels; cp++)
+							{
+								ud.data[cp] = indexArray[cp];
+							}
+
+							uniqueMap.insert( std::make_pair( hash, ud ) );
 
 							currUniqueIndex++;
 						}
@@ -1310,8 +1443,8 @@ public:
 					// no normals, we will generate them, thus every vertex is unique
 					for(size_t vert=0; vert<primitiveElement->getPositionIndices().getCount(); ++vert)
 					{
-						remapInfo[ currIndexInMesh ].remap	= currUniqueIndex;
-						remapInfo[ currIndexInMesh ].insert	= true;
+						remapInfo[ currIndexInMesh ].remap = currUniqueIndex;
+						remapInfo[ currIndexInMesh ].insert = true;
 
 						currUniqueIndex++;
 						currIndexInMesh++;
@@ -1321,8 +1454,15 @@ public:
 				delete [] indexArray;
 			}
 
-			size_t numVertices	= currUniqueIndex;
-			size_t numUVSets	= colladaMesh->getUVCoords().getNumInputInfos();
+			// clean up unique data buffers
+			for(MapIntToUniqueData::iterator iter = uniqueMap.begin(); iter != uniqueMap.end(); iter++)
+			{
+				delete [] iter->second.data;
+			}
+
+			// resize collada mesh
+			size_t numVertices = currUniqueIndex;
+			size_t numUVSets = colladaMesh->getUVCoords().getNumInputInfos();
 
 			RRVector<unsigned> texcoords;
 
@@ -1490,6 +1630,7 @@ public:
 					}
 					else if(primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_FANS)
 					{
+						// NOTE this can probably be put together with polygons/polylists
 						if(currTriangle == 0)
 						{
 							mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
@@ -1502,7 +1643,6 @@ public:
 							currVertex = 2;
 						}
 					}
-					// NOTE this can probably be put together with polygons/polylists
 					else if(primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_STRIPS)
 					{
 						if(currTriangle == 0)
