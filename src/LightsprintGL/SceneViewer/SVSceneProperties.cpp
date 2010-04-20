@@ -120,6 +120,22 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), svs.renderVignette, wxT("Vignette overlay is loaded from data/maps/vignette.png."));
 		AppendIn(propRenderOptions,propRenderVignettation);
 
+		// grid
+		{
+			propGrid = new BoolRefProperty(wxT("Grid"), svs.renderGrid, wxT("Toggles rendering 2d grid in y=0 plane, around world center."));
+			AppendIn(propRenderOptions,propGrid);
+
+			propGridNumSegments = new wxFloatProperty(wxT("Segments"),wxPG_LABEL,svs.gridNumSegments);
+			propGridNumSegments->SetAttribute("Precision",svs.precision);
+			propGridNumSegments->SetAttribute("Min",1);
+			propGridNumSegments->SetAttribute("Max",1000);
+			AppendIn(propGrid,propGridNumSegments);
+
+			propGridSegmentSize = new wxFloatProperty(wxT("Segment size"),wxPG_LABEL,svs.gridSegmentSize);
+			propGridSegmentSize->SetAttribute("Precision",svs.precision);
+			AppendIn(propGrid,propGridSegmentSize);
+		}
+
 		SetPropertyBackgroundColour(propRenderOptions,headerColor,false);
 	}
 
@@ -185,6 +201,8 @@ void SVSceneProperties::updateHide()
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
 	propWaterColor->Hide(!svs.renderWater,false);
 	propWaterLevel->Hide(!svs.renderWater,false);
+	propGridNumSegments->Hide(!svs.renderGrid,false);
+	propGridSegmentSize->Hide(!svs.renderGrid,false);
 }
 
 void SVSceneProperties::updateProperties()
@@ -192,6 +210,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propToneMapping)
 		+ updateBoolRef(propWater)
+		+ updateBoolRef(propGrid)
 		;
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
@@ -215,6 +234,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderVignettation)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
+		+ updateInt(propGridNumSegments,svs.gridNumSegments)
+		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
@@ -302,6 +323,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propWaterLevel)
 	{
 		svs.waterLevel = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGrid)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGridNumSegments)
+	{
+		svs.gridNumSegments = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGridSegmentSize)
+	{
+		svs.gridSegmentSize = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGIEmisMultiplier)

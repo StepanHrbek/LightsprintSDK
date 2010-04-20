@@ -243,6 +243,9 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("gamma",a.gamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
 	ar & make_nvp("waterColor",a.waterColor);
+	ar & make_nvp("renderGrid",a.renderGrid);
+	ar & make_nvp("gridNumSegments",a.gridNumSegments);
+	ar & make_nvp("gridSegmentSize",a.gridSegmentSize);
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
@@ -278,7 +281,10 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
-	if (version>0) ar & make_nvp("renderTonemapping",a.renderTonemapping);
+	if (version>0)
+	{
+		ar & make_nvp("renderTonemapping",a.renderTonemapping);
+	}
 	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
 	if (version>1)
 	{
@@ -292,7 +298,16 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("brightness",a.brightness);
 	ar & make_nvp("gamma",a.gamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
-	if (version>0) ar & make_nvp("waterColor",a.waterColor);
+	if (version>0)
+	{
+		ar & make_nvp("waterColor",a.waterColor);
+	}
+	if (version>3)
+	{
+		ar & make_nvp("renderGrid",a.renderGrid);
+		ar & make_nvp("gridNumSegments",a.gridNumSegments);
+		ar & make_nvp("gridSegmentSize",a.gridSegmentSize);
+	}
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
@@ -329,7 +344,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 1)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 3)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 4)
 
 //---------------------------------------------------------------------------
 

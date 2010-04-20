@@ -73,6 +73,9 @@ struct SceneViewerState
 	float            gamma;                     //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
+	bool             renderGrid;                //! Show grid.
+	unsigned         gridNumSegments;           //! Number of grid segments per line, i.e. 10 makes grid with 10x10 squares.
+	float            gridSegmentSize;           //! Distance of grid lines in meters (scene units).
 	int              precision;                 //! Max number of digits after decimal point in float properties. -1 for full precision.
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
@@ -115,6 +118,9 @@ struct SceneViewerState
 		gamma = 1;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
 		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
+		renderGrid = 0;
+		gridNumSegments = 100;
+		gridSegmentSize = 1;
 		autodetectCamera = 1;
 		precision = -1; // display all significant digits
 	}
@@ -157,6 +163,9 @@ struct SceneViewerState
 			&& a.gamma==gamma
 			&& a.waterLevel==waterLevel
 			&& a.waterColor==waterColor
+			&& a.renderGrid==renderGrid
+			&& a.gridNumSegments==gridNumSegments
+			&& a.gridSegmentSize==gridSegmentSize
 			&& a.precision==precision
 			&& a.autodetectCamera==autodetectCamera
 			;

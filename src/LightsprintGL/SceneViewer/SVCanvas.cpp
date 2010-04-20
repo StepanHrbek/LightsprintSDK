@@ -1001,6 +1001,7 @@ rendered:
 		}
 
 		if (svs.renderHelpers
+			|| svs.renderGrid
 			)
 		{
 			// set shader
@@ -1009,14 +1010,14 @@ rendered:
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
 		}
-		if (svs.renderHelpers)
+		if (svs.renderGrid)
 		{
-			// render lines
+			// render grid
 			glBegin(GL_LINES);
-			enum {LINES=100, SIZE=100};
-			for (unsigned i=0;i<LINES+1;i++)
+			for (unsigned i=0;i<RR_MIN(svs.gridNumSegments+1,10001);i++)
 			{
-				if (i==LINES/2)
+				float SIZE = svs.gridNumSegments*svs.gridSegmentSize;
+				if (i==svs.gridNumSegments/2)
 				{
 					glColor3f(0,0,1);
 					glVertex3f(0,-0.5*SIZE,0);
@@ -1024,7 +1025,7 @@ rendered:
 				}
 				else
 					glColor3f(0,0,0.3f);
-				float q = (i/float(LINES)-0.5f)*SIZE;
+				float q = (i/float(svs.gridNumSegments)-0.5f)*SIZE;
 				glVertex3f(q,0,-0.5*SIZE);
 				glVertex3f(q,0,+0.5*SIZE);
 				glVertex3f(-0.5*SIZE,0,q);

@@ -68,6 +68,10 @@ namespace rr_gl
 		wxPGProperty*     propWaterColor;
 		wxPGProperty*     propWaterLevel;
 
+		BoolRefProperty*  propGrid;
+		wxPGProperty*     propGridNumSegments;
+		wxPGProperty*     propGridSegmentSize;
+
 		wxPGProperty*     propGI;
 		wxPGProperty*     propGIEmisMultiplier;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
