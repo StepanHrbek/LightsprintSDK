@@ -77,7 +77,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// render materials
 	{
-		propRenderMaterials = new wxStringProperty(wxT("Rendering materials"), wxPG_LABEL);
+		propRenderMaterials = new wxStringProperty(wxT("Render materials"), wxPG_LABEL);
 		Append(propRenderMaterials);
 		SetPropertyReadOnly(propRenderMaterials,true,wxPG_DONT_RECURSE);
 
@@ -99,31 +99,41 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		SetPropertyBackgroundColour(propRenderMaterials,headerColor,false);
 	}
 
-	// render options
+	// render extras
 	{
-		propRenderOptions = new wxStringProperty(wxT("Rendering options"), wxPG_LABEL);
-		Append(propRenderOptions);
-		SetPropertyReadOnly(propRenderOptions,true,wxPG_DONT_RECURSE);
+		propRenderExtras = new wxStringProperty(wxT("Render extras"), wxPG_LABEL);
+		Append(propRenderExtras);
+		SetPropertyReadOnly(propRenderExtras,true,wxPG_DONT_RECURSE);
+
+		// water
+		{
+			propWater = new BoolRefProperty(wxT("Water"), svs.renderWater);
+			AppendIn(propRenderExtras,propWater);
+
+			propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.precision,svs.waterColor);
+			AppendIn(propWater,propWaterColor);
+
+			propWaterLevel = new wxFloatProperty(wxT("Level"),wxPG_LABEL,svs.waterLevel);
+			propWaterLevel->SetAttribute("Precision",svs.precision);
+			AppendIn(propWater,propWaterLevel);
+		}
 
 		propRenderWireframe = new BoolRefProperty(wxT("Wireframe"), svs.renderWireframe, wxT("(ctrl-w) Toggles between solid and wireframe rendering modes."));
-		AppendIn(propRenderOptions,propRenderWireframe);
-
-		propRenderHelpers = new BoolRefProperty(wxT("Helpers"), svs.renderHelpers, wxT("Helpers are all non-scene elements rendered with scene, usually for diagnostic purposes."));
-		AppendIn(propRenderOptions,propRenderHelpers);
+		AppendIn(propRenderExtras,propRenderWireframe);
 
 		propRenderFPS = new BoolRefProperty(wxT("FPS"), svs.renderFPS, wxT("(ctrl-f) FPS counter shows number of frames rendered in last second."));
-		AppendIn(propRenderOptions,propRenderFPS);
+		AppendIn(propRenderExtras,propRenderFPS);
 
 		propRenderLogo = new BoolRefProperty(wxT("Logo"), svs.renderLogo, wxT("Logo is loaded from data/maps/sv_logo.png."));
-		AppendIn(propRenderOptions,propRenderLogo);
+		AppendIn(propRenderExtras,propRenderLogo);
 
 		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), svs.renderVignette, wxT("Vignette overlay is loaded from data/maps/vignette.png."));
-		AppendIn(propRenderOptions,propRenderVignettation);
+		AppendIn(propRenderExtras,propRenderVignettation);
 
 		// grid
 		{
 			propGrid = new BoolRefProperty(wxT("Grid"), svs.renderGrid, wxT("Toggles rendering 2d grid in y=0 plane, around world center."));
-			AppendIn(propRenderOptions,propGrid);
+			AppendIn(propRenderExtras,propGrid);
 
 			propGridNumSegments = new wxFloatProperty(wxT("Segments"),wxPG_LABEL,svs.gridNumSegments);
 			propGridNumSegments->SetAttribute("Precision",svs.precision);
@@ -136,22 +146,10 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 			AppendIn(propGrid,propGridSegmentSize);
 		}
 
-		SetPropertyBackgroundColour(propRenderOptions,headerColor,false);
-	}
+		propRenderHelpers = new BoolRefProperty(wxT("Helpers"), svs.renderHelpers, wxT("Helpers are non-scene elements rendered with scene, usually for diagnostic purposes."));
+		AppendIn(propRenderExtras,propRenderHelpers);
 
-	// water
-	{
-		propWater = new BoolRefProperty(wxT("Water"), svs.renderWater);
-		Append(propWater);
-
-		propWaterColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,svs.precision,svs.waterColor);
-		AppendIn(propWater,propWaterColor);
-
-		propWaterLevel = new wxFloatProperty(wxT("Level"),wxPG_LABEL,svs.waterLevel);
-		propWaterLevel->SetAttribute("Precision",svs.precision);
-		AppendIn(propWater,propWaterLevel);
-
-		SetPropertyBackgroundColour(propWater,headerColor,false);
+		SetPropertyBackgroundColour(propRenderExtras,headerColor,false);
 	}
 
 	// GI
