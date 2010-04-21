@@ -103,7 +103,7 @@ static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sor
 
 bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 {
-	return (*s_perObjectBuffers)[object].eyeDistance<(*s_perObjectBuffers)[a.object].eyeDistance;
+	return (*s_perObjectBuffers)[object].eyeDistance>(*s_perObjectBuffers)[a.object].eyeDistance;
 }
 
 RendererOfOriginalScene::RendererOfOriginalScene(const char* pathToShaders)
@@ -268,7 +268,7 @@ void RendererOfOriginalScene::render(
 								mesh->getAABB(NULL,NULL,&center);
 								const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 								if (worldMatrix)
-									worldMatrix->transformedPosition(center);
+									worldMatrix->transformPosition(center);
 								objectBuffers.eyeDistance = (eye->pos-center).length();
 							}
 						}
