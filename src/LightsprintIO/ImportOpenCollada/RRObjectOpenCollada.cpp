@@ -800,7 +800,7 @@ public:
 		return UINT_MAX;
 	}
 
-	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, bool zeroBased = true)
+	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, float defaultGrey = 0.5f, bool zeroBased = true)
 	{
 		if(cot.isColor())
 		{
@@ -863,6 +863,7 @@ public:
 					if( uvChannel != UINT_MAX )
 					{	
 						prop.texture = buffer;
+						return;
 					}
 					else
 					{
@@ -873,6 +874,10 @@ public:
 				else
 				{
 					RRReporter::report(WARN,"Can't load texture %s\n",imageFilePath.c_str());
+
+					prop.color.x = defaultGrey;
+					prop.color.y = defaultGrey;
+					prop.color.z = defaultGrey;
 				}
 			}
 		}
@@ -1097,7 +1102,7 @@ public:
 						applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
 						applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
 						applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
-						applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, transparencyInverted);
+						applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, 0.5f, transparencyInverted);
 
 						if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
 							material.refractionIndex = common->getIndexOfRefraction().getFloatValue();
