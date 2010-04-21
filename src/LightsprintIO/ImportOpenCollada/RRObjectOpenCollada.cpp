@@ -324,7 +324,9 @@ class RRObjectsOpenCollada : public RRObjects
 {
 public:
 	RRMaterial defaultMaterial;
-	RRMaterial* materials;
+
+	unsigned int numMaterials;
+	RRMaterial** materials;
 
 	RRMeshArrays* meshes;
 	unsigned int nextMesh;
@@ -349,15 +351,20 @@ public:
 
 		for (unsigned i=0;i<numMeshes;i++)
 		{
-			delete colliders[i];
+			if(colliders[i] != NULL)
+				delete colliders[i];
 		}
 		delete[] colliders;
 
 		if(meshes != NULL)
 			delete [] meshes;
 
-		if(materials != NULL)
-			delete [] materials;
+		for (unsigned i=0;i<numMaterials;i++)
+		{
+			if(materials[i] != NULL)
+				delete materials[i];
+		}
+		free(materials);
 	}
 };
 
@@ -412,12 +419,15 @@ struct MeshPlaceholder
 		}
 	}
 
-	VectorRRObjectOpenCollada          objectsWithMesh;
-	MapMaterialIdToUVSet               mapUV;
-	std::string                        meshName;
-	bool                               instanced;
-	COLLADAFW::UniqueId                uniqueId;
-	size_t                             lastUVSet;
+	VectorRRObjectOpenCollada  objectsWithMesh;
+	MapMaterialIdToUVSet       mapUV;
+	std::string                meshName;
+	bool                       instanced;
+	COLLADAFW::UniqueId        uniqueId;
+	size_t                     lastUVSet;
+	size_t                     numPrimitives;
+	size_t                     numTriangles;
+	size_t                     numIndices;
 };
 
 struct FaceGroupPlaceholder
@@ -797,7 +807,13 @@ public:
 			}
 		}
 
-		return UINT_MAX;
+		// use first valid uv set, otherwise return max
+		RRReporter::report(WARN,"No input set bound with bind_vertex_input.\n");
+		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  colladaBinding.getMaterialId() );
+		if(localToPhysIter->second.size()>0)
+			return localToPhysIter->second.begin()->second;
+		else
+			return UINT_MAX;
 	}
 
 	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, float defaultGrey = 0.5f, bool zeroBased = true)
@@ -947,20 +963,28 @@ public:
 			int numberOfMeshes = 0;
 			for(MapUniqueMesh::iterator iter = meshMap.begin(); iter != meshMap.end(); iter++)
 			{
-				if((*iter).second.instanced)
+				MeshPlaceholder& ph = (*iter).second;
+
+				if(ph.instanced && ph.numPrimitives != 0 && ph.numTriangles != 0 )
 					numberOfMeshes++;
 			}
 			objects->numMeshes = numberOfMeshes;
 			objects->meshes = new RRMeshArrays[numberOfMeshes];
 			objects->colliders = new const RRCollider*[numberOfMeshes];
 
-			// initialize all material instances
-			int numberOfMaterials = 0;
+			for(int i=0; i<numberOfMeshes; i++)
+				objects->colliders[i] = NULL;
+
+			// create array for all possible material instances
+			int numberOfMaterialInstances = 0;
 			for(MapUniqueMaterialBinding::iterator iter = materialBindingMap.begin(); iter != materialBindingMap.end(); iter++)
 			{
-				numberOfMaterials += iter->second.mba->getCount();
+				numberOfMaterialInstances += iter->second.mba->getCount();
 			}
-			objects->materials = new RRMaterial[ numberOfMaterials ];
+			objects->materials = (RRMaterial**)malloc(sizeof(RRMaterial*)*numberOfMaterialInstances);
+
+			for(int i=0; i<numberOfMaterialInstances; i++)
+				objects->materials[i] = NULL;
 
 			// NOTE because of possible transparency bug, let's find out which is the prevalent transparency default
 			// let's assume that one would not want most of the objects to be completely transparent
@@ -982,7 +1006,6 @@ public:
 						COLLADAFW::Effect& effect = effectIter->second;
 						COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0];
 
-						//bool test = common->getOpacity().isValid();
 						if(common->getOpacity().isColor())
 						{
 							COLLADAFW::Color& color = common->getOpacity().getColor();
@@ -1012,7 +1035,6 @@ public:
 				{
 					COLLADAFW::MaterialBinding& colladaBinding = (*bindingPlaceholder.mba)[i];
 					COLLADAFW::Material& colladaMaterial = materialMap.find( colladaBinding.getReferencedMaterial() )->second;
-					RRMaterial &material = objects->materials[ nextMaterial ];
 					MapUniqueEffect::iterator effectIter = effectMap.find( colladaMaterial.getInstantiatedEffect() );
 
 					if( effectIter != effectMap.end() )
@@ -1057,7 +1079,9 @@ public:
 									// this is the last set of indices, so we can safely say that
 									// there is no completely same set of indices already cached for this material
 									// hence, create a new material as a copy of the cached one and alter the indices
-									material.copyFrom( objects->materials[ cache.localId ] );
+									objects->materials[ nextMaterial ] = new RRMaterial();
+									RRMaterial& material = *objects->materials[ nextMaterial ];
+									material.copyFrom( *objects->materials[ cache.localId ] );
 
 									// NOTE change material name here
 									// get number of previous elements e.g. with cachedMap.count( colladaBinding.getReferencedMaterial() ) 
@@ -1083,6 +1107,8 @@ public:
 						bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), nextMaterial ) );
 						CachedMaterial cm(drC,deC,srC,stC,lmC,nextMaterial);
 						cachedMap.insert( std::make_pair( colladaBinding.getReferencedMaterial(), cm ) );
+						if(!changedCached) objects->materials[ nextMaterial ] = new RRMaterial();
+						RRMaterial& material = *objects->materials[ nextMaterial ];
 						nextMaterial++;
 
 						if(changedCached)
@@ -1146,6 +1172,9 @@ public:
 					}
 				}
 			}
+
+			objects->numMaterials = nextMaterial;
+			objects->materials = (RRMaterial**)realloc(objects->materials,sizeof(RRMaterial*)*objects->numMaterials);
 
 			RRReporter::report(INF1,"Finished with materials\n");
 
@@ -1225,8 +1254,6 @@ public:
 	@return True on succeeded, false otherwise.*/
 	virtual bool writeGeometry ( const COLLADAFW::Geometry* geometry )
 	{
-		//static int numGeom = 0;
-
 		if(geometry->getType() != COLLADAFW::Geometry::GEO_TYPE_MESH)
 			return true;
 
@@ -1265,28 +1292,16 @@ public:
 				ph.mapUV.insert( std::make_pair( matId, locToPhys ) );
 			}
 
-			meshMap.insert( std::make_pair( geometry->getUniqueId(), ph ) );
-		}
+			// run through primitives to get number of triangles (also for triangulable surfaces)
+			ph.numPrimitives = primitiveElementsArray.getCount();
 
-		if(parseStep == RUN_GEOMETRY)
-		{
-			MapUniqueMesh::iterator meshPlaceholderIter = meshMap.find( geometry->getUniqueId() );
-			if(meshPlaceholderIter == meshMap.end() || !(*meshPlaceholderIter).second.instanced)
-				return true;
-
-			MeshPlaceholder& meshPlaceholder = (*meshPlaceholderIter).second;
-
-			COLLADAFW::Mesh* colladaMesh = (COLLADAFW::Mesh*)geometry;
-			const COLLADAFW::String meshName = colladaMesh->getName();
-			const COLLADAFW::MeshPrimitiveArray& primitiveElementsArray = colladaMesh->getMeshPrimitives();
-			size_t numPrimitives = primitiveElementsArray.getCount();
-
-			if(numPrimitives == 0)
-				return true;
+			size_t& numPrimitives = ph.numPrimitives;
+			size_t& numTriangles = ph.numTriangles;
+			size_t& numIndices = ph.numIndices;
 
 			// base: triangles
-			size_t numTriangles = colladaMesh->getTrianglesTriangleCount();
-			size_t numIndices = colladaMesh->getTrianglesTriangleCount()*3;
+			numTriangles = colladaMesh->getTrianglesTriangleCount();
+			numIndices = colladaMesh->getTrianglesTriangleCount()*3;
 			// trifans
 			size_t numTrifansTris = colladaMesh->getTrifansTriangleCount();
 			if(numTrifansTris > 0)
@@ -1326,7 +1341,27 @@ public:
 				}
 			}
 
-			//RRReporter::report(INF1,"Geometry %d with %d triangles\n",numGeom++,numTriangles);
+			meshMap.insert( std::make_pair( geometry->getUniqueId(), ph ) );
+		}
+
+		if(parseStep == RUN_GEOMETRY)
+		{
+			MapUniqueMesh::iterator meshPlaceholderIter = meshMap.find( geometry->getUniqueId() );
+			if(meshPlaceholderIter == meshMap.end() || !(*meshPlaceholderIter).second.instanced)
+				return true;
+
+			MeshPlaceholder& meshPlaceholder = (*meshPlaceholderIter).second;
+
+			COLLADAFW::Mesh* colladaMesh = (COLLADAFW::Mesh*)geometry;
+			const COLLADAFW::String meshName = colladaMesh->getName();
+			const COLLADAFW::MeshPrimitiveArray& primitiveElementsArray = colladaMesh->getMeshPrimitives();
+			size_t numPrimitives = meshPlaceholder.numPrimitives;
+
+			if(numPrimitives == 0)
+				return true;
+
+			size_t numTriangles  = meshPlaceholder.numTriangles;
+			size_t numIndices    = meshPlaceholder.numIndices;
 
 			if(numTriangles == 0)
 				return true;
@@ -1759,7 +1794,7 @@ public:
 
 							if(materialId != -1)
 							{
-								mat = &objects->materials[ materialId ];
+								mat = objects->materials[ materialId ];
 							}
 							else
 								mat = &objects->defaultMaterial;
