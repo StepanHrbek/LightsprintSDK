@@ -1259,7 +1259,7 @@ public:
 		unsigned int* data;
 	};
 
-	typedef std::map<unsigned int, UniqueData> MapIntToUniqueData;
+	typedef std::multimap<unsigned int, UniqueData> MapIntToUniqueData;
 
 	/** Writes the geometry.
 	@return True on succeeded, false otherwise.*/
@@ -1431,38 +1431,38 @@ public:
 							indexArray[meshPosNormChannels + set] = uvChannel->getIndex(vert);
 						}
 
-						// hash to get uniqueness of each set of indices
+						// hash to get ~uniqueness of each set of indices
 						unsigned int hash = 0;
 						for (size_t i=0; i<meshNumChannels; ++i)
 						{
 							hash = hash * 131 + (indexArray[i]+1);
 						}
 
-						MapIntToUniqueData::iterator iter = uniqueMap.find(hash);
+						std::pair<MapIntToUniqueData::iterator,MapIntToUniqueData::iterator> range = uniqueMap.equal_range( hash );
 
-						bool insertNew = false;
+						bool insertNew = true;
 
-						if(iter != uniqueMap.end())
+						for(MapIntToUniqueData::iterator iter = range.first; iter != range.second; iter++)
 						{
-							// check if this is really the case
+							// check if it is really the same (hash can be colliding)
+							bool same = true;
 							for(unsigned cp = 0; cp < meshNumChannels; cp++)
 							{
-								if(!insertNew)
-									insertNew = (iter->second.data[cp] != indexArray[cp]);
-								else
+								if(iter->second.data[cp] != indexArray[cp])
+								{
+									same = false;
 									break;
+								}
 							}
 
-							if(!insertNew)
+							if(same)
 							{
-								// this set of indices is already in the vertex buffer
+								// this set of indices is really already in the vertex buffer
 								remapInfo[ currIndexInMesh ].remap	= iter->second.uniqueIndex;
 								remapInfo[ currIndexInMesh ].insert	= false;
+								insertNew = false;
+								break;
 							}
-						}
-						else
-						{
-							insertNew = true;
 						}
 						
 						if(insertNew)
@@ -1472,32 +1472,16 @@ public:
 							remapInfo[ currIndexInMesh ].insert	= true;
 
 							// copy indices for future check 
+							UniqueData ud;
+							ud.data = new unsigned int[meshNumChannels];
+							ud.uniqueIndex = currUniqueIndex;
 
-							// FIXME only the last is checked now
-							if(iter == uniqueMap.end())
+							for(unsigned cp = 0; cp < meshNumChannels; cp++)
 							{
-								UniqueData ud;
-								ud.data = new unsigned int[meshNumChannels];
-								ud.uniqueIndex = currUniqueIndex;
-
-								for(unsigned cp = 0; cp < meshNumChannels; cp++)
-								{
-									ud.data[cp] = indexArray[cp];
-								}
-
-								uniqueMap.insert( std::make_pair( hash, ud ) );
+								ud.data[cp] = indexArray[cp];
 							}
-							else
-							{
-								UniqueData& ud = iter->second;
 
-								ud.uniqueIndex = currUniqueIndex;
-
-								for(unsigned cp = 0; cp < meshNumChannels; cp++)
-								{
-									ud.data[cp] = indexArray[cp];
-								}
-							}
+							uniqueMap.insert( std::make_pair( hash, ud ) );
 
 							currUniqueIndex++;
 						}
