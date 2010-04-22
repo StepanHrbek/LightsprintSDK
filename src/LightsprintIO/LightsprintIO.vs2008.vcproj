@@ -51,7 +51,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
+				AdditionalIncludeDirectories="..\..\include;&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include&quot;;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib&quot;"
+				AdditionalLibraryDirectories="$(OutDir);&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib&quot;"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -226,7 +226,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
+				AdditionalIncludeDirectories="..\..\include;&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include&quot;;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -261,7 +261,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib&quot;"
+				AdditionalLibraryDirectories="$(OutDir);&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib&quot;"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -398,7 +398,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
+				AdditionalIncludeDirectories="..\..\include;&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include&quot;;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -434,7 +434,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib&quot;"
+				AdditionalLibraryDirectories="$(OutDir);&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				RandomizedBaseAddress="1"
@@ -595,7 +595,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
+				AdditionalIncludeDirectories="..\..\include;&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include&quot;;&quot;$(EGB_PATH)\SDK\Win32\Include&quot;;&quot;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include&quot;;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -631,7 +631,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib&quot;"
+				AdditionalLibraryDirectories="$(OutDir);&quot;C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86&quot;;&quot;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib&quot;;&quot;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib&quot;;&quot;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				RandomizedBaseAddress="1"

@@ -8,6 +8,20 @@ namespace rr
 
 \page main_news What's new
 
+\section news101 ------------------------------------ 2010.04.xx -------------------------------------
+
+NEWS
+
+- enhanced SceneViewer
+  - grid options in Scene properties
+
+CHANGES
+
+- if Visual Studio project needs specific DXSDK version, it explicitly specifies which one
+  - makes it possible to use different DXSDK versions in different projects, paths are specified in .vcproj
+  - should work without any changes on your side
+  - note: only Gamebryo integration needs DXSDK
+
 \section news100 ------------------------------------ 2010.04.11 -------------------------------------
 
 NEWS
@@ -33,7 +47,7 @@ NEWS
   - FCollada disabled by default, executables don't depend on fcollada.dll/so
 - editing 3d scenes
   - you can freely edit RRScene objects, lights and environment (they were read-only before)
-- scene viewer improved
+- enhanced SceneViewer
   - "Material properties" shows texture miniatures and colors
   - menu "Render" moved to "Scene properties"
   - workspaces are persistent, saved to per-user config file
