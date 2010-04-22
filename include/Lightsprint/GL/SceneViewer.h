@@ -11,7 +11,9 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
+#if _MSC_VER==1500
 //#define CUSTOMIZED_FOR_3DRENDER
+#endif
 
 namespace rr_gl
 {
