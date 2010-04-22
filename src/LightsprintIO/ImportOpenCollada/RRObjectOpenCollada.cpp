@@ -446,6 +446,11 @@ struct MaterialBindingPlaceholder
 	MeshPlaceholder*                   sourceMesh;
 	std::string                        instanceName;
 	COLLADAFW::UniqueId                uniqueId;
+
+	MaterialBindingPlaceholder()
+	{
+		mba = NULL;
+	}
 };
 
 typedef const unsigned int cuint;
@@ -689,21 +694,27 @@ public:
 			RRObjectOpenCollada* object = new RRObjectOpenCollada;
 			object->instanceId = instanceGeometry->getUniqueId();
 
-			MaterialBindingPlaceholder mbp;
-			mbp.mba = new COLLADAFW::MaterialBindingArray();
-			instanceGeometry->getMaterialBindings().cloneArray(*mbp.mba);
+			// add bindings for this object if not already done
+			MapUniqueMaterialBinding::iterator iterBinding = materialBindingMap.find( object->instanceId );
 
-			for ( size_t j = 0, count = mbp.mba->getCount(); j < count; ++j)
+			if(iterBinding == materialBindingMap.end())
 			{
-				const COLLADAFW::MaterialBinding& materialBinding = (*mbp.mba)[j];
-				mbp.mapBinding.insert( std::make_pair( materialBinding.getMaterialId(), materialBinding.getReferencedMaterial() ) );
+				MaterialBindingPlaceholder mbp;
+				mbp.mba = new COLLADAFW::MaterialBindingArray();
+				instanceGeometry->getMaterialBindings().cloneArray(*mbp.mba);
+
+				for ( size_t j = 0, count = mbp.mba->getCount(); j < count; ++j)
+				{
+					const COLLADAFW::MaterialBinding& materialBinding = (*mbp.mba)[j];
+					mbp.mapBinding.insert( std::make_pair( materialBinding.getMaterialId(), materialBinding.getReferencedMaterial() ) );
+				}
+
+				mbp.sourceMesh = &(*iter).second;
+				mbp.instanceName = name;
+				mbp.uniqueId = instanceGeometry->getUniqueId();
+
+				materialBindingMap.insert( std::make_pair( object->instanceId, mbp ) );
 			}
-
-			mbp.sourceMesh = &(*iter).second;
-			mbp.instanceName = name;
-			mbp.uniqueId = instanceGeometry->getUniqueId();
-
-			materialBindingMap.insert( std::make_pair( object->instanceId, mbp ) );
 
 			object->setWorldMatrix( &convertMatrix(matrix) );
 			object->name = name.c_str();
@@ -1461,16 +1472,32 @@ public:
 							remapInfo[ currIndexInMesh ].insert	= true;
 
 							// copy indices for future check 
-							UniqueData ud;
-							ud.data = new unsigned int[meshNumChannels];
-							ud.uniqueIndex = currUniqueIndex;
 
-							for(unsigned cp = 0; cp < meshNumChannels; cp++)
+							// FIXME only the last is checked now
+							if(iter == uniqueMap.end())
 							{
-								ud.data[cp] = indexArray[cp];
-							}
+								UniqueData ud;
+								ud.data = new unsigned int[meshNumChannels];
+								ud.uniqueIndex = currUniqueIndex;
 
-							uniqueMap.insert( std::make_pair( hash, ud ) );
+								for(unsigned cp = 0; cp < meshNumChannels; cp++)
+								{
+									ud.data[cp] = indexArray[cp];
+								}
+
+								uniqueMap.insert( std::make_pair( hash, ud ) );
+							}
+							else
+							{
+								UniqueData& ud = iter->second;
+
+								ud.uniqueIndex = currUniqueIndex;
+
+								for(unsigned cp = 0; cp < meshNumChannels; cp++)
+								{
+									ud.data[cp] = indexArray[cp];
+								}
+							}
 
 							currUniqueIndex++;
 						}
