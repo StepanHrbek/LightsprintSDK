@@ -129,7 +129,7 @@ public:
 class ExtraDataGeometry : public ExtraData
 {
 public:
-	float double_sided;          // maya
+	float double_sided;          // shared
 
 	ExtraDataGeometry()
 	{
@@ -140,6 +140,7 @@ public:
 	{
 		currValue = NULL;
 
+		// shared
 		if(strcmp(name,"double_sided")==0)
 			currValue = &double_sided;
 	}
@@ -150,17 +151,15 @@ class ExtraDataEffect : public ExtraData
 {
 public:
 	// from effect
-	float double_sided_max3d;        // max3d
+	float double_sided;              // shared
 
 	// from technique
-	float double_sided_googleearth;  // google earth
 	float spec_level;                // fcollada
 	float emission_level;            // fcollada
 
 	ExtraDataEffect()
 	{
-		double_sided_max3d = 0.f;
-		double_sided_googleearth = 0.f; 
+		double_sided = 0.f;
 		spec_level = 1.f;
 		emission_level = 1.f;
 	}
@@ -169,16 +168,19 @@ public:
 	{
 		currValue = NULL;
 
-		if(strcmp(name,"double_sided")==0 && strcmp(currentProfile,"MAX3D"))
-			currValue = &double_sided_max3d;
-		else if(strcmp(name,"double_sided")==0 && strcmp(currentProfile,"GOOGLEEARTH"))
-			currValue = &double_sided_googleearth;
-		else if(strcmp(name,"spec_level")==0)
-			defferedValue = &spec_level;
-		else if(strcmp(name,"emission_level")==0)
-			defferedValue = &emission_level;
+		// shared
+		if(strcmp(name,"double_sided")==0)
+			currValue = &double_sided;
 		else if(strcmp(name,"float")==0)
 			currValue = defferedValue;
+		// fcollada
+		else if(strcmp(currentProfile,"FCOLLADA")==0)
+		{
+			if(strcmp(name,"spec_level")==0)
+				defferedValue = &spec_level;
+			else if(strcmp(name,"emission_level")==0)
+				defferedValue = &emission_level;
+		}
 	}
 };
 
@@ -251,19 +253,15 @@ public:
 					currExtraData = getOrInsertDefaultData<ExtraDataLight>( uniqueId );
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_EFFECT:
-				if(strcmp(profileName,"MAX3D") == 0)
-					currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
+				currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_PROFILE_COMMON:
-				if(strcmp(profileName,"GOOGLEEARTH") == 0)
-					currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
+				currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_TECHNIQUE:
-				if(strcmp(profileName,"FCOLLADA") == 0)
-					currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
+				currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
 			case COLLADASaxFWL14::HASH_ELEMENT_GEOMETRY:
-				if(strcmp(profileName,"MAYA") == 0)
-					currExtraData = getOrInsertDefaultData<ExtraDataGeometry>( uniqueId );
+				currExtraData = getOrInsertDefaultData<ExtraDataGeometry>( uniqueId );
 				break;
 		}
 
@@ -635,7 +633,7 @@ public:
 
 			// create RRLight
 			RRVec3 color = RRVec3((rr::RRReal)light.getColor().getRed(),(rr::RRReal)light.getColor().getGreen(),(rr::RRReal)light.getColor().getBlue()) * extraLight->intensity;
-			RRVec4 polynom = RRVec4((rr::RRReal)light.getConstantAttenuation(),(rr::RRReal)light.getLinearAttenuation(),(rr::RRReal)light.getQuadraticAttenuation(),(rr::RRReal)0.0001f);
+			RRVec4 polynom = RRVec4((rr::RRReal)light.getConstantAttenuation(),(rr::RRReal)(light.getLinearAttenuation()/rescaleUnit),(rr::RRReal)(light.getQuadraticAttenuation()/rescaleUnit/rescaleUnit),(rr::RRReal)0.0001f);
 
 			RRLight* rrLight = NULL;
 
@@ -1140,7 +1138,7 @@ public:
 						ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
 
 						// init material
-						material.reset( extraEffect->double_sided_max3d == 1.f || extraEffect->double_sided_googleearth == 1.f || extraGeometry->double_sided == 1.f );
+						material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
 						material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
 
 						// basic material properties
