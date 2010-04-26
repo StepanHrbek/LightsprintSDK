@@ -110,7 +110,7 @@ public:
 class ExtraDataLight : public ExtraData
 {
 public:
-	float intensity; // fcollada
+	float intensity;             // fcollada
 
 	ExtraDataLight()
 	{
@@ -129,7 +129,7 @@ public:
 class ExtraDataGeometry : public ExtraData
 {
 public:
-	float double_sided;// maya
+	float double_sided;          // maya
 
 	ExtraDataGeometry()
 	{
@@ -150,15 +150,17 @@ class ExtraDataEffect : public ExtraData
 {
 public:
 	// from effect
-	float double_sided; // max3d
+	float double_sided_max3d;        // max3d
 
 	// from technique
-	float spec_level; // fcollada
-	float emission_level; // fcollada
+	float double_sided_googleearth;  // google earth
+	float spec_level;                // fcollada
+	float emission_level;            // fcollada
 
 	ExtraDataEffect()
 	{
-		double_sided = 0.f;
+		double_sided_max3d = 0.f;
+		double_sided_googleearth = 0.f; 
 		spec_level = 1.f;
 		emission_level = 1.f;
 	}
@@ -167,8 +169,10 @@ public:
 	{
 		currValue = NULL;
 
-		if(strcmp(name,"double_sided")==0)
-			currValue = &double_sided;
+		if(strcmp(name,"double_sided")==0 && strcmp(currentProfile,"MAX3D"))
+			currValue = &double_sided_max3d;
+		else if(strcmp(name,"double_sided")==0 && strcmp(currentProfile,"GOOGLEEARTH"))
+			currValue = &double_sided_googleearth;
 		else if(strcmp(name,"spec_level")==0)
 			defferedValue = &spec_level;
 		else if(strcmp(name,"emission_level")==0)
@@ -248,6 +252,10 @@ public:
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_EFFECT:
 				if(strcmp(profileName,"MAX3D") == 0)
+					currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
+				break;
+			case COLLADASaxFWL14::HASH_ELEMENT_PROFILE_COMMON:
+				if(strcmp(profileName,"GOOGLEEARTH") == 0)
 					currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_TECHNIQUE:
@@ -1132,7 +1140,7 @@ public:
 						ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
 
 						// init material
-						material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
+						material.reset( extraEffect->double_sided_max3d == 1.f || extraEffect->double_sided_googleearth == 1.f || extraGeometry->double_sided == 1.f );
 						material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
 
 						// basic material properties
