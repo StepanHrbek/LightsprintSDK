@@ -673,6 +673,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWHashFunctions.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWILoader.h"
 						>
 					</File>
@@ -710,6 +714,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceGeometry.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceKinematicsScene.h"
 						>
 					</File>
 					<File
@@ -1012,6 +1020,10 @@
 				<Filter
 					Name="src"
 					>
+					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp"
+						>
+					</File>
 					<File
 						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLAssetLoader.cpp"
 						>
@@ -1348,6 +1360,14 @@
 							>
 						</File>
 						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceArticulatedSystemLoader.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceKinematicsModelLoader.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryAnimationsLoader15.cpp"
 							>
 						</File>
@@ -1381,6 +1401,14 @@
 						</File>
 						<File
 							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsScenesLoader.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.cpp"
 							>
 						</File>
 						<File
@@ -1505,6 +1533,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceArticulatedSystemLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceKinematicsModelLoader.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIntermediateTargetable.h"
 						>
 					</File>
@@ -1570,6 +1606,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsModelsLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsScenesLoader.h"
 						>
 					</File>
 					<File
@@ -1857,6 +1897,10 @@
 						</File>
 						<File
 							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.h"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.h"
 							>
 						</File>
 						<File

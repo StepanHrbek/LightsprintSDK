@@ -469,14 +469,14 @@ Video formats
   - www: <a href="http://opencollada.org/">OpenCollada</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, remove by deleting <code>\#define SUPPORT_OPENCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - OpenCollada rev 736 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - OpenCollada rev 741 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
 \page opencollada_patch OpenCollada patch
  We contribute bugfixes back to original projects, however,
  fixes for bugs we found recently may still be present only in Lightsprint SDK:
 
  \section oc_patch1 Fix1
- File: COLLADABaseUtils\include\COLLADABUhash_map.h
+ File: COLLADABaseUtils\include\COLLADABUPrerequisites.h
 
  We changed 1500 to 1600 to make OpenCollada not depend on
  <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual C++ 2008 Feature Pack</a>.
