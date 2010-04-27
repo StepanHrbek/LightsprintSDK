@@ -1263,6 +1263,17 @@ public:
 	{
 		unsigned int uniqueIndex;
 		unsigned int* data;
+
+		UniqueData()
+		{
+			data = NULL;
+		}
+
+		void cleanup()
+		{
+			if(data != NULL)
+				delete [] data;
+		}
 	};
 
 	typedef std::multimap<unsigned int, UniqueData> MapIntToUniqueData;
@@ -1319,27 +1330,16 @@ public:
 			// base: triangles
 			numTriangles = colladaMesh->getTrianglesTriangleCount();
 			numIndices = colladaMesh->getTrianglesTriangleCount()*3;
-			// trifans
-			size_t numTrifansTris = colladaMesh->getTrifansTriangleCount();
-			if(numTrifansTris > 0)
-			{
-				numTriangles += numTrifansTris;
-				numIndices += numTrifansTris + 2;
-			}
-			// tristrips
-			size_t numTristripsTris = colladaMesh->getTristripsTriangleCount();
-			if(numTristripsTris > 0)
-			{
-				numTriangles += numTristripsTris;
-				numIndices += numTristripsTris + 2;
-			}
-			// polygons/polylists
+
+			// polygons/polylists/trifans/tristrips
 			for(size_t prim = 0; prim<numPrimitives; prim++)
 			{
 				COLLADAFW::MeshPrimitive* primitiveElement = primitiveElementsArray [ prim ];
 				const COLLADAFW::MeshPrimitive::PrimitiveType& primitiveType = primitiveElement->getPrimitiveType();
 
 				if(primitiveType != COLLADAFW::MeshPrimitive::POLYLIST &&
+					primitiveType != COLLADAFW::MeshPrimitive::TRIANGLE_STRIPS &&
+					primitiveType != COLLADAFW::MeshPrimitive::TRIANGLE_FANS &&
 					primitiveType != COLLADAFW::MeshPrimitive::POLYGONS
 					)
 					continue;
@@ -1353,8 +1353,9 @@ public:
 					if(numVertices >= 3)
 					{
 						numTriangles += numVertices - 2;
-						numIndices += numVertices;
 					}
+
+					numIndices += numVertices;
 				}
 			}
 
@@ -1464,6 +1465,7 @@ public:
 							if(same)
 							{
 								// this set of indices is really already in the vertex buffer
+								RR_ASSERT(currIndexInMesh < numIndices);
 								remapInfo[ currIndexInMesh ].remap	= iter->second.uniqueIndex;
 								remapInfo[ currIndexInMesh ].insert	= false;
 								insertNew = false;
@@ -1474,6 +1476,7 @@ public:
 						if(insertNew)
 						{
 							// will need to be inserted
+							RR_ASSERT(currIndexInMesh < numIndices);
 							remapInfo[ currIndexInMesh ].remap	= currUniqueIndex;
 							remapInfo[ currIndexInMesh ].insert	= true;
 
@@ -1514,7 +1517,7 @@ public:
 			// clean up unique data buffers
 			for(MapIntToUniqueData::iterator iter = uniqueMap.begin(); iter != uniqueMap.end(); iter++)
 			{
-				delete [] iter->second.data;
+				iter->second.cleanup();
 			}
 
 			// resize collada mesh
@@ -1559,6 +1562,7 @@ public:
 				size_t currVertex = 0;
 				size_t currPrimitiveTriangles = 0;
 
+				size_t currTriangleInGroup = 0;
 				size_t currVertexInGroup = 0;
 				size_t currGroup = 0;
 				size_t currGroupStartIndex = 0;
@@ -1684,62 +1688,64 @@ public:
 					if(primitiveType == COLLADAFW::MeshPrimitive::TRIANGLES)
 					{
 						mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
-					}
-					else if(primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_FANS)
-					{
-						// NOTE this can probably be put together with polygons/polylists
-						if(currTriangle == 0)
-						{
-							mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
-						}
-						else
-						{
-							mesh->triangle[currTriangle][0] = remapInfo[ 0 ].remap;
-							mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh - 1 ].remap;
-							mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh ].remap;
-							currVertex = 2;
-						}
-					}
-					else if(primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_STRIPS)
-					{
-						if(currTriangle == 0)
-						{
-							mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
-						}
-						else
-						{
-							mesh->triangle[currTriangle][0] = remapInfo[ currIndexInMesh ].remap;
-							mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh - 1].remap;
-							mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh - 2].remap;
-							currVertex = 2;
-						}
+						currVertex++;
 					}
 					// opencollada returns polylists as polygons
-					else if(primitiveType == COLLADAFW::MeshPrimitive::POLYLIST || primitiveType == COLLADAFW::MeshPrimitive::POLYGONS)
+					else if(primitiveType == COLLADAFW::MeshPrimitive::POLYLIST ||
+						primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_STRIPS ||
+						primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_FANS ||
+						primitiveType == COLLADAFW::MeshPrimitive::POLYGONS
+						)
 					{
-						if(currVertexInGroup < 3)
+						if( primitiveType == COLLADAFW::MeshPrimitive::TRIANGLE_STRIPS )
 						{
-							mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
+							if(currVertexInGroup >= 2)
+							{
+								if ((currTriangleInGroup & 0x1) == 0x0)
+								{
+									mesh->triangle[currTriangle][0] = remapInfo[ currIndexInMesh - 2 ].remap;
+									mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh - 1 ].remap;
+									mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh ].remap;
+								}
+								else
+								{
+									mesh->triangle[currTriangle][0] = remapInfo[ currIndexInMesh - 2 ].remap;
+									mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh ].remap;
+									mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh - 1 ].remap;
+								}
+								currVertex = 3;
+							}
 						}
 						else
 						{
-							mesh->triangle[currTriangle][0] = remapInfo[ currGroupStartIndex ].remap;
-							mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh - 1 ].remap;
-							mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh ].remap;
-							currVertex = 2;
+							if(currVertexInGroup < 3)
+							{
+								if(currVertexInGroup == 0)
+									currGroupStartIndex = currIndexInMesh;
+
+								mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
+								currVertex++;
+							}
+							else
+							{
+								mesh->triangle[currTriangle][0] = remapInfo[ currGroupStartIndex ].remap;
+								mesh->triangle[currTriangle][1] = remapInfo[ currIndexInMesh - 1 ].remap;
+								mesh->triangle[currTriangle][2] = remapInfo[ currIndexInMesh ].remap;
+								currVertex = 3;
+							}
 						}
 
 						// move in grouped vertices
 						currVertexInGroup++;
+						int cvig = primitiveElement->getGroupedVerticesVertexCount( currGroup );
 						if( (int)currVertexInGroup >= primitiveElement->getGroupedVerticesVertexCount( currGroup ) )
 						{
-							currGroupStartIndex = currIndexInMesh + 1;
+							currTriangleInGroup = 0;
 							currVertexInGroup = 0;
 							currGroup++;
 						}
 					}
 
-					currVertex++;
 					if(currVertex >= 3)
 					{
 						if(!colladaMesh->hasNormals())
@@ -1757,7 +1763,10 @@ public:
 								mesh->normal[ mesh->triangle[currTriangle][i] ] = normal;
 						}
 
-						// jump to next triangle
+						// jump to next triangle; don't add if just restarted
+						if(currVertexInGroup != 0)
+							currTriangleInGroup++;
+
 						currPrimitiveTriangles++;
 						currTriangle++;
 						currVertex = 0;
