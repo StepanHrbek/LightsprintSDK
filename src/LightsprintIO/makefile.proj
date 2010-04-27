@@ -166,6 +166,7 @@ ImportOpenCollada/COLLADAFramework/src/COLLADAFWFormula.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWFormulas.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWGeometry.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWImage.cpp \
+ImportOpenCollada/COLLADAFramework/src/COLLADAFWInstanceKinematicsScene.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWKinematicsController.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWKinematicsModel.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWKinematicsScene.cpp \
@@ -207,6 +208,8 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLIErrorHandler.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLIExtraDataCallbackHandler.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLIFilePartLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLInputUnshared.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLInstanceArticulatedSystemLoader.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLInstanceKinematicsModelLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLIParserImpl14.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLIParserImpl15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLJointsLoader.cpp \
@@ -221,6 +224,7 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryFormulasLoad
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryImagesLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryJointsLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryKinematicsModelsLoader.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryKinematicsScenesLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryLightsLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryMaterialsLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryNodesLoader.cpp \
@@ -282,6 +286,7 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibrary
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryImagesLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryJointsLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryKinematicsModelsLoader15.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryKinematicsScenesLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryLightsLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryMaterialsLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLLibraryNodesLoader15.cpp \
