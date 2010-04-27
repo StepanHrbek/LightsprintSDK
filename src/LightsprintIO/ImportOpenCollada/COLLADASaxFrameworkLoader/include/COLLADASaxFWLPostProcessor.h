@@ -52,7 +52,7 @@ namespace COLLADASaxFWL
 		/** Sets the parser to @a parserToBeSet.*/
 		virtual void setParser( COLLADASaxFWL15::ColladaParserAutoGen15* parserToBeSet ){ assert(false);}
 		/** Returns the absolute uri of the currently parsed file*/
-		virtual const COLLADABU::URI& getFileUri(){ assert(false); return COLLADABU::URI::INVALID; }
+		virtual const COLLADABU::URI& getFileUri(){ return COLLADABU::URI::INVALID; }
 
 		/****************************************************************************/
 

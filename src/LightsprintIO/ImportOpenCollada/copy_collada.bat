@@ -32,3 +32,5 @@ xcopy /s /y "%colladapath%\Externals\UTF\include\*.h" "%sdkpath%\Externals\UTF\i
 xcopy /s /y "%colladapath%\Externals\UTF\src\*.c" "%sdkpath%\Externals\UTF\src\"
 
 ..\..\..\bin\sed -e s/1500/1600/g "%colladapath%\COLLADABaseUtils\include\COLLADABUhash_map.h" > "%sdkpath%\COLLADABaseUtils\include\COLLADABUhash_map.h"
+
+echo V COLLADASaxFrameworkLoader/include/COLLADASaxFWLPostProcessor.h line55 musi byt smazany assert, hazel by ho v "COLLADA 1.5.0 Kinematics\COLLADA\simple\simple.dae".
