@@ -317,7 +317,7 @@ Video formats
  - for offline rendering, 3D API is not needed
 
  Compilers
- - Visual C++ 2008 with all security updates (32bit, 64bit)
+ - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2003 SP1 with all security updates
  - gcc (32bit, 64bit)
