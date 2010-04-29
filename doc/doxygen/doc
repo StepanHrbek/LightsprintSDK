@@ -2408,7 +2408,7 @@ Video formats
 
  \section g3_prerequisites Prerequisites
   - Emergent's <code>Gamebryo LightSpeed 3.1.1</code> must be installed
-  - Emergent's <code>LightSpeed Global Illumination Package <b>2.1.0</b></code> must be installed.
+  - Emergent's <code>LightSpeed Global Illumination Package <b>2.1.1</b></code> must be installed.
   - Lightsprint SDK with LightSpeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.
@@ -2423,7 +2423,7 @@ Video formats
   - full integration source code included
 
  \section g3_limits Limitations of current version
-  - terrain not supported (this is also GI Package 2.1.0 limitation)
+  - terrain not supported (this is also GI Package 2.1.1 limitation)
   - light probes not updated (will be fixed very soon)
 
  \section g3_bake Baking in Toolbench

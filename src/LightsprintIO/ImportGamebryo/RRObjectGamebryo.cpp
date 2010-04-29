@@ -50,11 +50,15 @@
 	#pragma comment(lib,"NiLightMapMaterial")
 #else
 	// Lightspeed GI Package (for Gamebryo 3.x)
+	#include "NiGIDescriptor.h"
 	#include "egmGI/GIService.h"
 	#include "egmGI/MeshUtility.h"
 	#pragma comment(lib,"egmGI" LIB_SUFFIX)
 	#pragma comment(lib,"NiGIMaterial" LIB_SUFFIX)
 	// additional libs required by Gamebryo 3.x
+	#include "ecr/SceneGraphService.h"
+	#include "egf/Entity.h"
+	#include "egf/EntityManager.h"
 	#include "efd/ServiceManager.h"
 	#pragma comment(lib,"ecr" LIB_SUFFIX)
 	#pragma comment(lib,"egf" LIB_SUFFIX)
