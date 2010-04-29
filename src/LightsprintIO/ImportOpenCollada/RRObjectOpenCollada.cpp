@@ -405,6 +405,9 @@ struct NodeInfo
 typedef std::vector<RRObjectOpenCollada*> VectorRRObjectOpenCollada;
 typedef std::map<COLLADAFW::MaterialId, COLLADAFW::UniqueId> MapMaterialIdToUnique;
 typedef std::map<COLLADAFW::MaterialId, int> MapMaterialIdToLocal;
+typedef std::map<COLLADAFW::UniqueId, COLLADAFW::MaterialId> MapUniqueToMaterialId;
+
+typedef std::map<unsigned int,std::string> MapUIntString;
 
 // this is harsh, evaluate me!
 typedef std::map<size_t,size_t> MapLocalToPhysicalUVSet;
@@ -426,6 +429,7 @@ struct MeshPlaceholder
 	}
 
 	VectorRRObjectOpenCollada  objectsWithMesh;
+	MapUIntString              localMaterials;
 	MapMaterialIdToUVSet       mapUV;
 	std::string                meshName;
 	bool                       instanced;
@@ -439,6 +443,7 @@ struct MeshPlaceholder
 struct FaceGroupPlaceholder
 {
 	COLLADAFW::MaterialId              materialId;
+	std::string                        materialString;
 	unsigned int                       triangleCount;
 };
 
@@ -447,7 +452,8 @@ struct MaterialBindingPlaceholder
 	MapMaterialIdToUnique              mapBinding;
 	MapMaterialIdToLocal               mapLocal;
 
-	COLLADAFW::MaterialBindingArray*   mba;
+	COLLADAFW::MaterialBindingArray*   boundBindingArray;
+	MapUniqueToMaterialId              unboundBindingArray;
 
 	MeshPlaceholder*                   sourceMesh;
 	std::string                        instanceName;
@@ -455,7 +461,7 @@ struct MaterialBindingPlaceholder
 
 	MaterialBindingPlaceholder()
 	{
-		mba = NULL;
+		boundBindingArray = NULL;
 	}
 };
 
@@ -511,6 +517,7 @@ typedef std::vector<COLLADAFW::LibraryNodes>                      VectorLibraryN
 typedef std::vector<FaceGroupPlaceholder>                         VectorFaceGroupPlaceholder;
 
 typedef std::multimap<COLLADAFW::UniqueId, CachedMaterial>        MapUniqueCached;
+typedef std::map<std::string, COLLADAFW::UniqueId>                MapStringUnique;
 
 enum PARSE_RUN_TYPE
 {
@@ -551,6 +558,8 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 	MapUniqueNode                   nodeMap;
 	MapUniqueMesh                   meshMap;
 	MapUniqueLight                  lightMap;
+
+	MapStringUnique					materialStringMap;
 
 	MapUniqueCached                 cachedMap;
 
@@ -706,18 +715,37 @@ public:
 			if(iterBinding == materialBindingMap.end())
 			{
 				MaterialBindingPlaceholder mbp;
-				mbp.mba = new COLLADAFW::MaterialBindingArray();
-				instanceGeometry->getMaterialBindings().cloneArray(*mbp.mba);
+				mbp.boundBindingArray = new COLLADAFW::MaterialBindingArray();
+				instanceGeometry->getMaterialBindings().cloneArray(*mbp.boundBindingArray);
 
-				for ( size_t j = 0, count = mbp.mba->getCount(); j < count; ++j)
+				for ( size_t j = 0, count = mbp.boundBindingArray->getCount(); j < count; ++j)
 				{
-					const COLLADAFW::MaterialBinding& materialBinding = (*mbp.mba)[j];
+					const COLLADAFW::MaterialBinding& materialBinding = (*mbp.boundBindingArray)[j];
 					mbp.mapBinding.insert( std::make_pair( materialBinding.getMaterialId(), materialBinding.getReferencedMaterial() ) );
 				}
 
 				mbp.sourceMesh = &(*iter).second;
 				mbp.instanceName = name;
 				mbp.uniqueId = instanceGeometry->getUniqueId();
+
+				// iterate through primitives to find the ones that do not have material binding
+				// add them to the binding list with a material unique ID found with the local name
+				// (some exporters do it like this)
+				for(MapUIntString::iterator locMatIter = ph.localMaterials.begin(); locMatIter != ph.localMaterials.end(); locMatIter++)
+				{
+					MapMaterialIdToUnique::iterator uniqueIter = mbp.mapBinding.find( locMatIter->first );
+					if(uniqueIter == mbp.mapBinding.end())
+					{
+						// this local material has no binding, let's try to find it by name
+						MapStringUnique::iterator stringMatIter = materialStringMap.find( locMatIter->second );
+						if(stringMatIter != materialStringMap.end())
+						{
+							// insert new binding for this unbound material found by matching string names with defined materials
+							mbp.mapBinding.insert( std::make_pair( locMatIter->first, stringMatIter->second ) );
+							mbp.unboundBindingArray.insert( std::make_pair( stringMatIter->second, locMatIter->first ) );
+						}
+					}
+				}
 
 				materialBindingMap.insert( std::make_pair( object->instanceId, mbp ) );
 			}
@@ -795,38 +823,41 @@ public:
 		return;
 	}
 
-	unsigned int findTextureChannelIndex(COLLADAFW::ColorOrTexture& cot, COLLADAFW::MaterialBinding& colladaBinding, MapMaterialIdToUVSet& mapUV)
+	unsigned int findTextureChannelIndex(COLLADAFW::ColorOrTexture& cot, const COLLADAFW::MaterialBinding* colladaBinding, COLLADAFW::MaterialId materialId, MapMaterialIdToUVSet& mapUV)
 	{
 		if(!cot.isTexture())
 			return UINT_MAX;
 
 		COLLADAFW::Texture& texture = cot.getTexture();
 
-		for(unsigned textbind = 0; textbind < colladaBinding.getTextureCoordinateBindingArray().getCount(); textbind++)
+		if(colladaBinding != NULL)
 		{
-			if( colladaBinding.getTextureCoordinateBindingArray()[textbind].getTextureMapId() == texture.getTextureMapId() )
+			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
 			{
-				size_t localSet = colladaBinding.getTextureCoordinateBindingArray()[textbind].getSetIndex();
-				MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  colladaBinding.getMaterialId() );
-				if( localToPhysIter != mapUV.end() )
+				if( colladaBinding->getTextureCoordinateBindingArray()[textbind].getTextureMapId() == texture.getTextureMapId() )
 				{
-					MapLocalToPhysicalUVSet::iterator physIter = localToPhysIter->second.find( localSet );
-					if( physIter != localToPhysIter->second.end() )
+					size_t localSet = colladaBinding->getTextureCoordinateBindingArray()[textbind].getSetIndex();
+					MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  materialId );
+					if( localToPhysIter != mapUV.end() )
 					{
-						// got it!
-						return physIter->second;
+						MapLocalToPhysicalUVSet::iterator physIter = localToPhysIter->second.find( localSet );
+						if( physIter != localToPhysIter->second.end() )
+						{
+							// got it!
+							return physIter->second;
+						}
+						else
+							return UINT_MAX;
 					}
 					else
 						return UINT_MAX;
 				}
-				else
-					return UINT_MAX;
 			}
 		}
 
 		// use first valid uv set, otherwise return max
-		RRReporter::report(WARN,"No input set bound with bind_vertex_input.\n");
-		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  colladaBinding.getMaterialId() );
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with bind_vertex_input.\n"));
+		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  materialId );
 		if(localToPhysIter->second.size()>0)
 			return localToPhysIter->second.begin()->second;
 		else
@@ -916,6 +947,146 @@ public:
 		}
 	}
 
+	void handleMaterialBinding(MaterialBindingPlaceholder& bindingPlaceholder, const COLLADAFW::MaterialBinding* colladaBinding, const COLLADAFW::UniqueId& materialUniqueId, const COLLADAFW::MaterialId materialId, const bool& transparencyInverted, unsigned int& nextMaterial)
+	{
+		COLLADAFW::Material& colladaMaterial = materialMap.find( materialUniqueId )->second;
+		MapUniqueEffect::iterator effectIter = effectMap.find( colladaMaterial.getInstantiatedEffect() );
+
+		if( effectIter != effectMap.end() )
+		{
+			COLLADAFW::Effect& effect = effectIter->second;
+			COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0]; // NOTE all sample importers takes only the first one, is that ok?
+
+			// get all uv set indices first (saves -1 for color only or no binding found)
+			MapMaterialIdToUVSet& mapUV = bindingPlaceholder.sourceMesh->mapUV;
+
+			unsigned int drC = findTextureChannelIndex(common->getDiffuse(),colladaBinding,materialId,mapUV);
+			unsigned int deC = findTextureChannelIndex(common->getEmission(),colladaBinding,materialId,mapUV);
+			unsigned int srC = findTextureChannelIndex(common->getSpecular(),colladaBinding,materialId,mapUV);
+			unsigned int stC = findTextureChannelIndex(common->getOpacity(),colladaBinding,materialId,mapUV);
+			unsigned int lmC = findTextureChannelIndex(common->getAmbient(),colladaBinding,materialId,mapUV);
+
+			// see if we can find this material in cache with the same textcoord parameters
+			bool identicalCached = false, changedCached = false;
+			std::pair<MapUniqueCached::iterator,MapUniqueCached::iterator> range = cachedMap.equal_range( materialUniqueId );
+
+			for(MapUniqueCached::iterator cachedIter = range.first; cachedIter != range.second; cachedIter++)
+			{
+				// material is cached, now let's see if it is really the same with all uv set indices
+				CachedMaterial& cache = cachedIter->second;
+				MapUniqueCached::iterator nextIter = cachedIter; nextIter++;
+
+				if( cache.drC == drC && cache.deC == deC && cache.srC == srC &&
+					cache.stC == stC && cache.lmC == lmC
+					)
+				{
+					// indices are the same
+					RRReporter::report(INF3,"Found cached material.\n");
+					bindingPlaceholder.mapLocal.insert( std::make_pair( materialId, cache.localId ) );
+					identicalCached = true;
+					break;
+				}
+				else
+				{
+					// indices are different
+					if( nextIter == range.second )
+					{
+						// this is the last set of indices, so we can safely say that
+						// there is no completely same set of indices already cached for this material
+						// hence, create a new material as a copy of the cached one and alter the indices
+						objects->materials[ nextMaterial ] = new RRMaterial();
+						RRMaterial& material = *objects->materials[ nextMaterial ];
+						material.copyFrom( *objects->materials[ cache.localId ] );
+
+						// NOTE change material name here
+						// get number of previous elements e.g. with cachedMap.count( colladaBinding.getReferencedMaterial() ) 
+
+						material.diffuseReflectance.texcoord    = drC;
+						material.diffuseEmittance.texcoord      = deC;
+						material.specularReflectance.texcoord   = srC;
+						material.specularTransmittance.texcoord = stC;
+						material.lightmapTexcoord               = lmC;
+
+						RRReporter::report(INF3,"Found cached material with different indices.\n");
+						changedCached = true;
+						break;
+					}
+				}
+			}
+
+			if(identicalCached)
+			{
+				return;
+			}
+
+			bindingPlaceholder.mapLocal.insert( std::make_pair( materialId, nextMaterial ) );
+			CachedMaterial cm(drC,deC,srC,stC,lmC,nextMaterial);
+			cachedMap.insert( std::make_pair( materialUniqueId, cm ) );
+			if(!changedCached) objects->materials[ nextMaterial ] = new RRMaterial();
+			RRMaterial& material = *objects->materials[ nextMaterial ];
+			nextMaterial++;
+
+			if(changedCached)
+			{
+				return;
+			}
+
+			// material was not cached, let's create it from scratch from the connected effect (only COMMON) and extras
+			ExtraDataEffect* extraEffect = (ExtraDataEffect*)extraHandler.getData( effect.getUniqueId() );
+			ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
+
+			// init material
+			material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
+			material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
+
+			// basic material properties
+			applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
+			applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
+			applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
+			applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, 0.5f, transparencyInverted);
+
+			if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
+				material.refractionIndex = common->getIndexOfRefraction().getFloatValue();
+
+			// opencollada have default -1 for refraction
+			if(material.refractionIndex == -1.f)
+				material.refractionIndex = 1.f;
+
+
+			if( lmC != UINT_MAX )
+				material.lightmapTexcoord = lmC;
+
+			// transparency in diffuse texture
+			if(material.diffuseReflectance.texture != NULL)
+			{
+				if( material.diffuseReflectance.texture->getFormat() == BF_RGBA )
+				{
+					RRReporter::report(WARN,"Transparency in diffuse map. Enabling workaround.\n");
+					material.specularTransmittance.texture  = material.diffuseReflectance.texture->createReference();
+					material.specularTransmittanceInAlpha   = true;
+					material.specularTransmittance.texcoord = material.specularTransmittance.texcoord;
+				}
+			}
+
+			material.name = colladaMaterial.getName().c_str();
+
+			// get average colors from textures
+			RRScaler* scaler = RRScaler::createRgbScaler();
+			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+			delete scaler;
+
+			// autodetect keying
+			material.updateKeyingFromTransmittance();
+
+			// optimize material flags
+			material.updateSideBitsFromColors();
+		}
+		else
+		{
+			bindingPlaceholder.mapLocal.insert( std::make_pair( materialId, -1 ) );
+		}
+	}
+
 	/** This method is called after the last write* method. No other methods will be called after this.*/
 	virtual void finish()
 	{
@@ -996,7 +1167,8 @@ public:
 			int numberOfMaterialInstances = 0;
 			for(MapUniqueMaterialBinding::iterator iter = materialBindingMap.begin(); iter != materialBindingMap.end(); iter++)
 			{
-				numberOfMaterialInstances += iter->second.mba->getCount();
+				numberOfMaterialInstances += iter->second.boundBindingArray->getCount();
+				numberOfMaterialInstances += iter->second.unboundBindingArray.size();
 			}
 			objects->materials = (RRMaterial**)malloc(sizeof(RRMaterial*)*numberOfMaterialInstances);
 
@@ -1012,9 +1184,9 @@ public:
 			for(MapUniqueMaterialBinding::iterator iter = materialBindingMap.begin(); iter != materialBindingMap.end(); iter++)
 			{
 				MaterialBindingPlaceholder& bindingPlaceholder = iter->second;
-				for(unsigned i = 0; i < bindingPlaceholder.mba->getCount(); i++)
+				for(unsigned i = 0; i < bindingPlaceholder.boundBindingArray->getCount(); i++)
 				{
-					COLLADAFW::MaterialBinding& colladaBinding = (*bindingPlaceholder.mba)[i];
+					COLLADAFW::MaterialBinding& colladaBinding = (*bindingPlaceholder.boundBindingArray)[i];
 					COLLADAFW::Material& colladaMaterial = materialMap.find( colladaBinding.getReferencedMaterial() )->second;
 					MapUniqueEffect::iterator effectIter = effectMap.find( colladaMaterial.getInstantiatedEffect() );
 
@@ -1048,145 +1220,17 @@ public:
 			{
 				MaterialBindingPlaceholder& bindingPlaceholder = iter->second;
 
-				for(unsigned i = 0; i < bindingPlaceholder.mba->getCount(); i++)
+				// handle all with defined bindings
+				for(unsigned i = 0; i < bindingPlaceholder.boundBindingArray->getCount(); i++)
 				{
-					COLLADAFW::MaterialBinding& colladaBinding = (*bindingPlaceholder.mba)[i];
-					COLLADAFW::Material& colladaMaterial = materialMap.find( colladaBinding.getReferencedMaterial() )->second;
-					MapUniqueEffect::iterator effectIter = effectMap.find( colladaMaterial.getInstantiatedEffect() );
+					COLLADAFW::MaterialBinding& colladaBinding = (*bindingPlaceholder.boundBindingArray)[i];
+					handleMaterialBinding(bindingPlaceholder, &colladaBinding, colladaBinding.getReferencedMaterial(), colladaBinding.getMaterialId(), transparencyInverted, nextMaterial);
+				}
 
-					if( effectIter != effectMap.end() )
-					{
-						COLLADAFW::Effect& effect = effectIter->second;
-						COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0]; // NOTE all sample importers takes only the first one, is that ok?
-
-						// get all uv set indices first (saves -1 for color only or no binding found)
-						MapMaterialIdToUVSet& mapUV = bindingPlaceholder.sourceMesh->mapUV;
-
-						unsigned int drC = findTextureChannelIndex(common->getDiffuse(),colladaBinding,mapUV);
-						unsigned int deC = findTextureChannelIndex(common->getEmission(),colladaBinding,mapUV);
-						unsigned int srC = findTextureChannelIndex(common->getSpecular(),colladaBinding,mapUV);
-						unsigned int stC = findTextureChannelIndex(common->getOpacity(),colladaBinding,mapUV);
-						unsigned int lmC = findTextureChannelIndex(common->getAmbient(),colladaBinding,mapUV);
-
-						// see if we can find this material in cache with the same textcoord parameters
-						bool identicalCached = false, changedCached = false;
-						std::pair<MapUniqueCached::iterator,MapUniqueCached::iterator> range = cachedMap.equal_range( colladaBinding.getReferencedMaterial() );
-
-						for(MapUniqueCached::iterator cachedIter = range.first; cachedIter != range.second; cachedIter++)
-						{
-							// material is cached, now let's see if it is really the same with all uv set indices
-							CachedMaterial& cache = cachedIter->second;
-							MapUniqueCached::iterator nextIter = cachedIter; nextIter++;
-
-							if( cache.drC == drC && cache.deC == deC && cache.srC == srC &&
-								cache.stC == stC && cache.lmC == lmC
-								)
-							{
-								// indices are the same
-								RRReporter::report(INF3,"Found cached material.\n");
-								bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), cache.localId ) );
-								identicalCached = true;
-								break;
-							}
-							else
-							{
-								// indices are different
-								if( nextIter == range.second )
-								{
-									// this is the last set of indices, so we can safely say that
-									// there is no completely same set of indices already cached for this material
-									// hence, create a new material as a copy of the cached one and alter the indices
-									objects->materials[ nextMaterial ] = new RRMaterial();
-									RRMaterial& material = *objects->materials[ nextMaterial ];
-									material.copyFrom( *objects->materials[ cache.localId ] );
-
-									// NOTE change material name here
-									// get number of previous elements e.g. with cachedMap.count( colladaBinding.getReferencedMaterial() ) 
-
-									material.diffuseReflectance.texcoord    = drC;
-									material.diffuseEmittance.texcoord      = deC;
-									material.specularReflectance.texcoord   = srC;
-									material.specularTransmittance.texcoord = stC;
-									material.lightmapTexcoord               = lmC;
-
-									RRReporter::report(INF3,"Found cached material with different indices.\n");
-									changedCached = true;
-									break;
-								}
-							}
-						}
-
-						if(identicalCached)
-						{
-							continue;
-						}
-
-						bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), nextMaterial ) );
-						CachedMaterial cm(drC,deC,srC,stC,lmC,nextMaterial);
-						cachedMap.insert( std::make_pair( colladaBinding.getReferencedMaterial(), cm ) );
-						if(!changedCached) objects->materials[ nextMaterial ] = new RRMaterial();
-						RRMaterial& material = *objects->materials[ nextMaterial ];
-						nextMaterial++;
-
-						if(changedCached)
-						{
-							continue;
-						}
-
-						// material was not cached, let's create it from scratch from the connected effect (only COMMON) and extras
-						ExtraDataEffect* extraEffect = (ExtraDataEffect*)extraHandler.getData( effect.getUniqueId() );
-						ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
-
-						// init material
-						material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
-						material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
-
-						// basic material properties
-						applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
-						applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
-						applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
-						applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, 0.5f, transparencyInverted);
-
-						if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
-							material.refractionIndex = common->getIndexOfRefraction().getFloatValue();
-
-						// opencollada have default -1 for refraction
-						if(material.refractionIndex == -1.f)
-							material.refractionIndex = 1.f;
-
-
-						if( lmC != UINT_MAX )
-							material.lightmapTexcoord = lmC;
-
-						// transparency in diffuse texture
-						if(material.diffuseReflectance.texture != NULL)
-						{
-							if( material.diffuseReflectance.texture->getFormat() == BF_RGBA )
-							{
-								RRReporter::report(WARN,"Transparency in diffuse map. Enabling workaround.\n");
-								material.specularTransmittance.texture  = material.diffuseReflectance.texture->createReference();
-								material.specularTransmittanceInAlpha   = true;
-								material.specularTransmittance.texcoord = material.specularTransmittance.texcoord;
-							}
-						}
-
-						material.name = colladaMaterial.getName().c_str();
-
-						// get average colors from textures
-						RRScaler* scaler = RRScaler::createRgbScaler();
-						material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
-						delete scaler;
-
-						// autodetect keying
-						material.updateKeyingFromTransmittance();
-
-						// optimize material flags
-						material.updateSideBitsFromColors();
-					}
-					else
-					{
-						bindingPlaceholder.mapLocal.insert( std::make_pair( colladaBinding.getMaterialId(), -1 ) );
-					}
+				// handle all without defined bindings, for which a material was found with the local string
+				for(MapUniqueToMaterialId::iterator unboundIter = bindingPlaceholder.unboundBindingArray.begin(); unboundIter != bindingPlaceholder.unboundBindingArray.end(); unboundIter++ )
+				{
+					handleMaterialBinding(bindingPlaceholder, NULL, unboundIter->first, unboundIter->second, transparencyInverted, nextMaterial);
 				}
 			}
 
@@ -1208,7 +1252,7 @@ public:
 			// clean material binding nodes
 			for(MapUniqueMaterialBinding::iterator iter = materialBindingMap.begin(); iter != materialBindingMap.end(); iter++)
 			{
-				delete (COLLADAFW::MaterialBindingArray*)iter->second.mba;
+				delete (COLLADAFW::MaterialBindingArray*)iter->second.boundBindingArray;
 			}
 		}
 		else
@@ -1278,6 +1322,19 @@ public:
 
 	typedef std::multimap<unsigned int, UniqueData> MapIntToUniqueData;
 
+
+	template<typename T>
+	void assignWithCheck(rr::RRReal& assigned, const COLLADAFW::ArrayPrimitiveType<T>* assignee, const unsigned int& position, const unsigned int& maximum)
+	{
+		if(position < maximum)
+			assigned = (rr::RRReal)(*assignee)[position];
+		else
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Vertex index out of bounds.\n"));
+			assigned = 0.0f;
+		}
+	}
+
 	/** Writes the geometry.
 	@return True on succeeded, false otherwise.*/
 	virtual bool writeGeometry ( const COLLADAFW::Geometry* geometry )
@@ -1295,12 +1352,14 @@ public:
 
 			extraHandler.getOrInsertDefaultData<ExtraDataGeometry>( colladaMesh->getUniqueId() );
 
-			// run through primitives to get textcoord channels mapping
+			// run through primitives to get textcoord channels mapping + map local material ids to material name string
 			ph.lastUVSet = 0;
 			const COLLADAFW::MeshPrimitiveArray& primitiveElementsArray = colladaMesh->getMeshPrimitives();
 			for(size_t prim = 0; prim < primitiveElementsArray.getCount(); prim++)
 			{
 				COLLADAFW::MeshPrimitive* primitiveElement = primitiveElementsArray [ prim ];
+
+				ph.localMaterials.insert( std::make_pair( primitiveElement->getMaterialId(), primitiveElement->getMaterial() ) );
 
 				MapLocalToPhysicalUVSet locToPhys;
 
@@ -1567,6 +1626,10 @@ public:
 				size_t currGroup = 0;
 				size_t currGroupStartIndex = 0;
 
+				size_t positionsCount = colladaMesh->getPositions().getValuesCount();
+				size_t normalsCount = colladaMesh->getNormals().getValuesCount();
+				size_t uvsCount = colladaMesh->getUVCoords().getValuesCount();
+
 				// go through all indexes and insert data as necessary
 				for(size_t vert=0; vert<primitiveElement->getPositionIndices().getCount(); ++vert)
 				{
@@ -1581,18 +1644,20 @@ public:
 						case COLLADAFW::MeshVertexData::DATA_TYPE_FLOAT:
 							{
 								const COLLADAFW::ArrayPrimitiveType<float>* values = colladaMesh->getPositions().getFloatValues();
-								mesh->position[remappedIndex].x = (*values)[positionIndex];
-								mesh->position[remappedIndex].y = (*values)[positionIndex+1];
-								mesh->position[remappedIndex].z = (*values)[positionIndex+2];
+								RR_ASSERT(values->getCount() == positionsCount);
+								assignWithCheck<float>(mesh->position[remappedIndex].x,values,positionIndex,positionsCount);
+								assignWithCheck<float>(mesh->position[remappedIndex].y,values,positionIndex+1,positionsCount);
+								assignWithCheck<float>(mesh->position[remappedIndex].z,values,positionIndex+2,positionsCount);
 								break;
 							}
 
 						case COLLADAFW::MeshVertexData::DATA_TYPE_DOUBLE:
 							{
 								const COLLADAFW::ArrayPrimitiveType<double>* values = colladaMesh->getPositions().getDoubleValues();
-								mesh->position[remappedIndex].x = (float)(*values)[positionIndex];
-								mesh->position[remappedIndex].y = (float)(*values)[positionIndex+1];
-								mesh->position[remappedIndex].z = (float)(*values)[positionIndex+2];
+								RR_ASSERT(values->getCount() == positionsCount);
+								assignWithCheck<double>(mesh->position[remappedIndex].x,values,positionIndex,positionsCount);
+								assignWithCheck<double>(mesh->position[remappedIndex].y,values,positionIndex+1,positionsCount);
+								assignWithCheck<double>(mesh->position[remappedIndex].z,values,positionIndex+2,positionsCount);
 								break;
 							}
 
@@ -1612,18 +1677,20 @@ public:
 								case COLLADAFW::MeshVertexData::DATA_TYPE_FLOAT:
 									{
 										const COLLADAFW::ArrayPrimitiveType<float>* values = colladaMesh->getNormals().getFloatValues();
-										mesh->normal[remappedIndex].x = (*values)[normalIndex];
-										mesh->normal[remappedIndex].y = (*values)[normalIndex+1];
-										mesh->normal[remappedIndex].z = (*values)[normalIndex+2];
+										RR_ASSERT(values->getCount() == normalsCount);
+										assignWithCheck<float>(mesh->normal[remappedIndex].x,values,normalIndex,normalsCount);
+										assignWithCheck<float>(mesh->normal[remappedIndex].y,values,normalIndex+1,normalsCount);
+										assignWithCheck<float>(mesh->normal[remappedIndex].z,values,normalIndex+2,normalsCount);
 										break;
 									}
 
 								case COLLADAFW::MeshVertexData::DATA_TYPE_DOUBLE:
 									{
 										const COLLADAFW::ArrayPrimitiveType<double>* values = colladaMesh->getNormals().getDoubleValues();
-										mesh->normal[remappedIndex].x = (float)(*values)[normalIndex];
-										mesh->normal[remappedIndex].y = (float)(*values)[normalIndex+1];
-										mesh->normal[remappedIndex].z = (float)(*values)[normalIndex+2];
+										RR_ASSERT(values->getCount() == normalsCount);
+										assignWithCheck<double>(mesh->normal[remappedIndex].x,values,normalIndex,normalsCount);
+										assignWithCheck<double>(mesh->normal[remappedIndex].y,values,normalIndex+1,normalsCount);
+										assignWithCheck<double>(mesh->normal[remappedIndex].z,values,normalIndex+2,normalsCount);
 										break;
 									}
 
@@ -1665,14 +1732,28 @@ public:
 								case COLLADAFW::MeshVertexData::DATA_TYPE_FLOAT:
 									{
 										const COLLADAFW::ArrayPrimitiveType<float>* values = colladaMesh->getUVCoords().getFloatValues();
-										mesh->texcoord[uvSet][remappedIndex] = RRVec2((*values)[uvIndex], (*values)[uvIndex+1]);
+										RR_ASSERT(values->getCount() == uvsCount);
+										if(uvIndex+1 < uvsCount)
+											mesh->texcoord[uvSet][remappedIndex] = RRVec2((*values)[uvIndex], (*values)[uvIndex+1]);
+										else
+										{
+											RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Vertex UV index out of bounds.\n"));
+											mesh->texcoord[uvSet][remappedIndex] = RRVec2(0.0f,0.0f);
+										}
 										break;
 									}
 
 								case COLLADAFW::MeshVertexData::DATA_TYPE_DOUBLE:
 									{
 										const COLLADAFW::ArrayPrimitiveType<double>* values = colladaMesh->getUVCoords().getDoubleValues();
-										mesh->texcoord[uvSet][remappedIndex] = RRVec2((float)(*values)[uvIndex], (float)(*values)[uvIndex+1]);
+										RR_ASSERT(values->getCount() == uvsCount);
+										if(uvIndex+1 < uvsCount)
+											mesh->texcoord[uvSet][remappedIndex] = RRVec2((float)(*values)[uvIndex], (float)(*values)[uvIndex+1]);
+										else
+										{
+											RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Vertex UV index out of bounds.\n"));
+											mesh->texcoord[uvSet][remappedIndex] = RRVec2(0.0f,0.0f);
+										}
 										break;
 									}
 
@@ -1725,7 +1806,7 @@ public:
 
 								mesh->triangle[currTriangle][currVertex] = remapInfo[ currIndexInMesh ].remap;
 								currVertex++;
-							}
+							} 
 							else
 							{
 								mesh->triangle[currTriangle][0] = remapInfo[ currGroupStartIndex ].remap;
@@ -1776,6 +1857,7 @@ public:
 				}
 
 				FaceGroupPlaceholder faceGroup;
+				faceGroup.materialString = primitiveElement->getMaterial();
 				faceGroup.materialId = primitiveElement->getMaterialId();
 				faceGroup.triangleCount = currPrimitiveTriangles;
 				faceGroupArray.push_back(faceGroup);
@@ -1828,7 +1910,8 @@ public:
 						else
 						{
 							mat = &objects->defaultMaterial;
-							RRReporter::report(WARN,"'%s' instance does not have correctly bound material.\nThere is no material bound with symbol name equal to the geometry material name.\n",meshName.c_str());
+							// There is no material bound to this geometry instance, or there's no material of that name present in the file
+							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Geometry instance does not have correctly bound material.\n",meshName.c_str()));
 						}
 					}
 
@@ -1857,6 +1940,10 @@ public:
 			return true;
 
 		materialMap.insert( std::make_pair( material->getUniqueId(), *material ) );
+
+		if(material->getName() != "")
+			materialStringMap.insert( std::make_pair( material->getName(), material->getUniqueId() ) );
+
 		return true;
 	}
 

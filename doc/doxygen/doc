@@ -476,19 +476,18 @@ Video formats
  fixes for bugs we found recently may still be present only in Lightsprint SDK:
 
  \section oc_patch1 Fix1
- File: COLLADABaseUtils\include\COLLADABUPrerequisites.h
-
- We changed 1500 to 1600 to make OpenCollada not depend on
- <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual C++ 2008 Feature Pack</a>.
-
- This fix does not affect library function or performace.
-
- \section oc_patch2 Fix2
- File: COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryEffectsLoader.cpp
+ File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryEffectsLoader.cpp
 
  We inserted ", mOpaqueMode( UNSPECIFIED_OPAQUE )" on line 36.
 
  This fixes randomly inverted opacity.
+
+ \section oc_patch2 Fix2
+ File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLMeshLoader.cpp
+
+ Multiple changes, compare our file with original.
+
+ This fills otherwise empty variables with data from scene. Necessary to workaround missing material binding in archicad exported scenes.
 
 \page tpl_fcollada FCollada
   - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
