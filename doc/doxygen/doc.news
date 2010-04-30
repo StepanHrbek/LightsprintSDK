@@ -8,12 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news101 ------------------------------------ 2010.04.xx -------------------------------------
+\section news101 ------------------------------------ 2010.04.30 -------------------------------------
 
 NEWS
 
-- enhanced SceneViewer
-  - grid options in Scene properties
+- enhanced collada import (workarounds for know bugs in exporters etc)
+- enhanced SceneViewer (grid options in Scene properties)
 
 CHANGES
 
@@ -26,7 +26,6 @@ CHANGES
 
 NEWS
 
-- \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
 - saving 3d scenes
   - scene viewer "File / Save scene" and "Save scene as..." added
   - RRScene::save() added
