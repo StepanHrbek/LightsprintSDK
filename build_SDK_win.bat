@@ -1,8 +1,10 @@
 @echo off
 
 start build_SDK_win_vs2003.bat
-start build_SDK_win_vs2005.bat
-start build_SDK_win_vs2008.bat
+start build_SDK_win_vs2005_32.bat
+start build_SDK_win_vs2005_64.bat
+start build_SDK_win_vs2008_32.bat
+start build_SDK_win_vs2008_64.bat
 
 goto end
 
