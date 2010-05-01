@@ -133,8 +133,12 @@ namespace rr
 This is a brief list of Lightsprint features, see \ref main_data_access,
 \ref main_api and \ref main_samples for more details.
 
-Supported platforms, compilers etc.
+Platforms, compilers etc.
 - \subpage supported_platforms
+
+Data input / output
+- reads 70+ standard file formats, writes 15+ file formats
+- \subpage supported_formats
 
 Global illumination
 - realtime global illumination / realtime radiosity / realtime raytracing
@@ -172,10 +176,6 @@ Renderers
 - integrates with external renderers
 - includes OpenGL 2.0 shader based renderer
 
-Scene and image formats
-- reads 66 formats, writes 16 formats
-- \subpage supported_formats
-
 Materials
 - supports all types of materials
 - diffuse maps, specular maps
@@ -185,11 +185,6 @@ Realtime/precomputed
 - supports realtime illumination
 - supports precomputed illumination
 - supports mix of realtime and precomputed illumination
-
-GPU/API access
-- full control over GPU access, source code
-- full control over filesystem access, source code
-- full control over scene data loading, source code
 
 Ray-Mesh collisions
 - up to 200x faster than commercial physical engines
@@ -305,8 +300,8 @@ Video formats
  - virtually any platform (static GI)
 
  GPUs on PC
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 2xx
- - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx
+ - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 1xx, 2xx, 3xx, 4xx
+ - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx, HD5xxx
  - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
  - subset of workstation versions (Quadro, FireGL)
  - for offline rendering, GPU is not needed
@@ -319,8 +314,8 @@ Video formats
  Compilers
  - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
- - Visual C++ 2003 SP1 with all security updates
- - gcc (32bit, 64bit)
+ - Visual C++ 2003 SP1 with all security updates (32bit)
+ - GCC (32bit, 64bit)
 
  Library configurations
  - Release DLL/so
@@ -349,11 +344,9 @@ Video formats
  Libraries used by LightsprintCore (global illumination solvers):
  - \subpage tpl_squish
 
- Used by LightsprintGL (optional OpenGL support):
- - \subpage tpl_glu
+ Used by LightsprintGL (optional OpenGL support and scene editor):
  - \subpage tpl_glew
  - \subpage tpl_wx
- - \subpage tpl_mesa
  - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
@@ -361,7 +354,6 @@ Video formats
  - \subpage tpl_freeimage
  - \subpage tpl_opencollada
  - \subpage tpl_fcollada
- - \subpage tpl_libxml2
  - \subpage tpl_fragments
  - \subpage tpl_gamebryo
 
@@ -380,13 +372,6 @@ Video formats
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, used only by Lightspeed integration, we can remove it on request
   - version 1.10 used internally, it is not visible from outside (no headers or dll files)
-
-\page tpl_glu GLU
-  - Windows: should be already installed, part of PlatformSDK by Microsoft
-  - Linux (including PS3): should be already installed; if it is not, install using
-    - Ubuntu: <code>sudo apt-get install libglu1-mesa-dev</code>
-    - Fedora: <code>pkcon install mesa-libGLU-devel</code>
-  - XBox360, PS3 with system software: not used
 
 \page tpl_glew GLEW
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>
@@ -415,32 +400,18 @@ Video formats
   - Windows: wxWidgets 2.9.0 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
-\page wxwidgets_patch wxWidgets patch
- We contribute bugfixes back to original projects, however,
- fixes for bugs we found recently may still be present only in Lightsprint SDK:
+ \page wxwidgets_patch wxWidgets patch
 
- \section wx_patch1 Fix1
- File: src/propgrid/framemanager.cpp
+  We contribute our improvements back to original projects, however,
+  recent improvements may still be present only in Lightsprint SDK.
 
- We changed line 2628 from <code>if (p.IsFloating())</code> to <code>if (p.IsFloating() && p.IsShown())</code>
+  \section wx_patch1 Fix1
 
- This fixes problem where closed floating pane can't be reopened.
+  File: src/propgrid/framemanager.cpp
 
-\page tpl_mesa Mesa 3D
-  - www: <a href="http://mesa3d.org/">Mesa 3D</a>
-  - license: <a href="http://mesa3d.org/license.html">modified MIT license</a>
-  - Windows: not used
-  - Linux: not used
-  - PS3 Linux: required as a rendering front end for samples, since there are no
-    hardware accelerated RSX drivers provided. Please follow these installation instructions:
-    - download and unpack MesaLib and MesaGLUT packages (the latest version at the time of
-      writing this document is 7.0.3).
-    - type <code>make linux-ppc</code>
-    - open the file "configs/default" and make sure the variable <code>INSTALL_DIR</code> is set to <code>usr/local</code>.
-      This will ensure that Mesa will install to <code>/usr/local/lib</code> and will not interfere with the system default
-      OpenGL library located at <code>usr/lib</code>.
-    - type <code>sudo make install</code>
-    - type <code>export LD_LIBRARY_PATH=/usr/local/lib</code> to make linker search for Mesa
+  We changed line 2628 from <code>if (p.IsFloating())</code> to <code>if (p.IsFloating() && p.IsShown())</code>
+
+  This fixes problem where closed floating pane can't be reopened.
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
@@ -450,7 +421,14 @@ Video formats
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - svn revision 641 (+fixes we contributed back to Assimp) used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - svn revision 641 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+
+ \page assimp_patch Assimp patch
+
+  We contribute our improvements back to original projects, however,
+  recent improvements may still be present only in Lightsprint SDK.
+
+  No changes in Lightsprint SDK at the moment. See Stepan Hrbek in Assimp credits.
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
@@ -471,23 +449,24 @@ Video formats
   - optional, remove by deleting <code>\#define SUPPORT_OPENCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - OpenCollada rev 741 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
-\page opencollada_patch OpenCollada patch
- We contribute bugfixes back to original projects, however,
- fixes for bugs we found recently may still be present only in Lightsprint SDK:
+ \page opencollada_patch OpenCollada patch
 
- \section oc_patch1 Fix1
- File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryEffectsLoader.cpp
+  We contribute our improvements back to original projects, however,
+  recent improvements may still be present only in Lightsprint SDK.
 
- We inserted ", mOpaqueMode( UNSPECIFIED_OPAQUE )" on line 36.
+  \section oc_patch1 Patch1
+  File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLLibraryEffectsLoader.cpp
 
- This fixes randomly inverted opacity.
+  We inserted ", mOpaqueMode( UNSPECIFIED_OPAQUE )" on line 36.
 
- \section oc_patch2 Fix2
- File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLMeshLoader.cpp
+  This fixes randomly inverted opacity.
 
- Multiple changes, compare our file with original.
+  \section oc_patch2 Patch2
+  File: COLLADASaxFrameworkLoader/src/COLLADASaxFWLMeshLoader.cpp
 
- This fills otherwise empty variables with data from scene. Necessary to workaround missing material binding in archicad exported scenes.
+  Multiple changes, compare our file with original.
+
+  This fills otherwise empty variables with data from scene. Necessary to workaround missing material binding in archicad exported scenes.
 
 \page tpl_fcollada FCollada
   - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
@@ -507,14 +486,16 @@ Video formats
     - When building FCollada, use O2 optimization level for 64bit release version and O1 for 32bit to prevent linking issues with templates.
     - We provide a makefile located at "src/LightsprintIO/ImportFCollada" for your convenience.
 
-\page fcollada_patch FCollada patch
-  We contribute bugfixes back to original projects, however, FCollada is no longer actively developed.
-  Only other patches developed by third parties exist, e.g.
-  http://o3d.googlecode.com/svn/trunk/googleclient/third_party/fcollada/README.google
+ \page fcollada_patch FCollada patch
+
+  We contribute our improvements back to original projects, however,
+  FCollada is no longer actively developed.
+  (Other patches exist, e.g.
+  http://o3d.googlecode.com/svn/trunk/googleclient/third_party/fcollada/README.google)
 
   Precompiled FCollada 3.05B in Lightsprint SDK includes our bugfix:
 
- \section fc_patch1 Fix1
+  \section fc_patch1 Fix1
 
   File: FCollada/FUtils/FUUniqueStringMap.cpp
   \code
@@ -554,16 +535,6 @@ Video formats
 	  </library_materials>
 	</COLLADA>
   \endcode
-
-	
-\page tpl_libxml2 libxml2
-  - www: <a href="http://xmlsoft.org/">libxml2</a>
-  - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
-  - optional, not used unless you enable \ref tpl_fcollada
-  - Windows: not used
-  - Linux (including PS3 Linux): should be already installed, install using
-    - Ubuntu: <code>sudo apt-get install libxml2-dev</code>
-    - Fedora: <code>pkcon install libxml2-devel</code>
 
 \page tpl_fragments code fragments
   - .3ds .bsp and .mgf loaders contain 3rd party open source code
