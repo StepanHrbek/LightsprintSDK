@@ -8,10 +8,16 @@
 
 #pragma warning(disable:4996) // this warning is very frequent in boost 1.42, not helpful
 
-//#define USE_XML // portable xml archive
-//#define USE_BZIP2 // nonportable bzip2 archive, boost must be compiled with bzip2
-#define USE_ZLIB // nonportable zlib archive, boost must be compiled with zlib
-//#define USE_BINARY // nonportable binary archive
+//#define USE_TEXT         // portable text archive
+//#define USE_TEXT_ZLIB    // portable text zlib archive, boost must be compiled with zlib
+//#define USE_XML          // portable xml archive
+//#define USE_XML_ZLIB     // portable xml zlib archive, boost must be compiled with zlib
+//#define USE_XML_BZIP2    // portable xml bzip2 archive, boost must be compiled with bzip2
+//#define USE_BINARY       // nonportable binary archive
+#define USE_BINARY_ZLIB  // nonportable binary zlib archive, boost must be compiled with zlib
+//#define USE_BINARY_BZIP2 // nonportable binary bzip2 archive, boost must be compiled with bzip2
+//#define USE_PORTABLE_BINARY // portable binary archive
+//#define USE_PORTABLE_BINARY_ZLIB // portable binary zlib archive, boost must be compiled with zlib
 
 
 // .rr3 format depends on boost, http://boost.org.
@@ -20,27 +26,63 @@
 #include "RRObjectLightsprint.h"
 #include "RRSerialization.h"
 #include <fstream>
+#ifdef USE_TEXT
+	#include <boost/archive/text_iarchive.hpp>
+	#include <boost/archive/text_oarchive.hpp>
+#endif
+#ifdef USE_TEXT_ZLIB
+	#include <boost/iostreams/filtering_stream.hpp>
+	#include <boost/iostreams/copy.hpp>
+	#include <boost/iostreams/filter/zlib.hpp>
+	#include <boost/archive/text_iarchive.hpp>
+	#include <boost/archive/text_oarchive.hpp>
+#endif
 #ifdef USE_XML
 	#include <boost/archive/xml_iarchive.hpp>
 	#include <boost/archive/xml_oarchive.hpp>
 #endif
-#ifdef USE_BZIP2
-	#include <boost/iostreams/filtering_streambuf.hpp>
+#ifdef USE_XML_ZLIB
+	#include <boost/iostreams/filtering_stream.hpp>
+	#include <boost/iostreams/copy.hpp>
+	#include <boost/iostreams/filter/zlib.hpp>
+	#include <boost/archive/xml_iarchive.hpp>
+	#include <boost/archive/xml_oarchive.hpp>
+#endif
+#ifdef USE_XML_BZIP2
+	#include <boost/iostreams/filtering_stream.hpp>
 	#include <boost/iostreams/copy.hpp>
 	#include <boost/iostreams/filter/bzip2.hpp>
+	#include <boost/archive/xml_iarchive.hpp>
+	#include <boost/archive/xml_oarchive.hpp>
+#endif
+#ifdef USE_BINARY
 	#include <boost/archive/binary_iarchive.hpp>
 	#include <boost/archive/binary_oarchive.hpp>
 #endif
-#ifdef USE_ZLIB
+#ifdef USE_BINARY_ZLIB
 	#include <boost/iostreams/filtering_streambuf.hpp>
 	#include <boost/iostreams/copy.hpp>
 	#include <boost/iostreams/filter/zlib.hpp>
 	#include <boost/archive/binary_iarchive.hpp>
 	#include <boost/archive/binary_oarchive.hpp>
 #endif
-#ifdef USE_BINARY
+#ifdef USE_BINARY_BZIP2
+	#include <boost/iostreams/filtering_streambuf.hpp>
+	#include <boost/iostreams/copy.hpp>
+	#include <boost/iostreams/filter/bzip2.hpp>
 	#include <boost/archive/binary_iarchive.hpp>
 	#include <boost/archive/binary_oarchive.hpp>
+#endif
+#ifdef USE_PORTABLE_BINARY
+	#include "portable_binary_oarchive.hpp"
+	#include "portable_binary_iarchive.hpp"
+#endif
+#ifdef USE_PORTABLE_BINARY_ZLIB
+	#include <boost/iostreams/filtering_stream.hpp>
+	#include <boost/iostreams/copy.hpp>
+	#include <boost/iostreams/filter/zlib.hpp>
+	#include "portable_binary_iarchive.hpp"
+	#include "portable_binary_oarchive.hpp"
 #endif
 
 using namespace std;
@@ -130,23 +172,53 @@ public:
 				return NULL;
 			}
 
+#ifdef USE_TEXT
+			boost::archive::text_iarchive ar(ifs);
+#endif
+#ifdef USE_TEXT_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::input> in;
+			in.push(boost::iostreams::zlib_decompressor());
+			in.push(ifs);
+			boost::archive::text_iarchive ar(in);
+#endif
 #ifdef USE_XML
 			boost::archive::xml_iarchive ar(ifs);
 #endif
-#ifdef USE_BZIP2
-			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+#ifdef USE_XML_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::input> in;
+			in.push(boost::iostreams::zlib_decompressor());
+			in.push(ifs);
+			boost::archive::xml_iarchive ar(in);
+#endif
+#ifdef USE_XML_BZIP2
+			boost::iostreams::filtering_stream<boost::iostreams::input> in;
 			in.push(boost::iostreams::bzip2_decompressor());
 			in.push(ifs);
-			boost::archive::binary_iarchive ar(in);
+			boost::archive::xml_iarchive ar(in);
 #endif
-#ifdef USE_ZLIB
+#ifdef USE_BINARY
+			boost::archive::binary_iarchive ar(ifs);
+#endif
+#ifdef USE_BINARY_ZLIB
 			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 			in.push(boost::iostreams::zlib_decompressor());
 			in.push(ifs);
 			boost::archive::binary_iarchive ar(in);
 #endif
-#ifdef USE_BINARY
-			boost::archive::binary_iarchive ar(ifs);
+#ifdef USE_BINARY_BZIP2
+			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+			in.push(boost::iostreams::bzip2_decompressor());
+			in.push(ifs);
+			boost::archive::binary_iarchive ar(in);
+#endif
+#ifdef USE_PORTABLE_BINARY
+			portable_binary_iarchive ar(ifs);
+#endif
+#ifdef USE_PORTABLE_BINARY_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::input> in;
+			in.push(boost::iostreams::zlib_decompressor());
+			in.push(ifs);
+			portable_binary_iarchive ar(in);
 #endif
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
@@ -187,23 +259,53 @@ public:
 				return false;
 			}
 
+#ifdef USE_TEXT
+			boost::archive::text_oarchive ar(ofs);
+#endif
+#ifdef USE_TEXT_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::output> out;
+			out.push(boost::iostreams::zlib_compressor());
+			out.push(ofs);
+			boost::archive::text_oarchive ar(out);
+#endif
 #ifdef USE_XML
 			boost::archive::xml_oarchive ar(ofs);
 #endif
-#ifdef USE_BZIP2
-			boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+#ifdef USE_XML_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::output> out;
+			out.push(boost::iostreams::zlib_compressor());
+			out.push(ofs);
+			boost::archive::xml_oarchive ar(out);
+#endif
+#ifdef USE_XML_BZIP2
+			boost::iostreams::filtering_stream<boost::iostreams::output> out;
 			out.push(boost::iostreams::bzip2_compressor());
 			out.push(ofs);
-			boost::archive::binary_oarchive ar(out);
+			boost::archive::xml_oarchive ar(out);
 #endif
-#ifdef USE_ZLIB
+#ifdef USE_BINARY
+			boost::archive::binary_oarchive ar(ofs);
+#endif
+#ifdef USE_BINARY_ZLIB
 			boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
 			out.push(boost::iostreams::zlib_compressor());
 			out.push(ofs);
 			boost::archive::binary_oarchive ar(out);
 #endif
-#ifdef USE_BINARY
-			boost::archive::binary_oarchive ar(ofs);
+#ifdef USE_BINARY_BZIP2
+			boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+			out.push(boost::iostreams::bzip2_compressor());
+			out.push(ofs);
+			boost::archive::binary_oarchive ar(out);
+#endif
+#ifdef USE_PORTABLE_BINARY
+			portable_binary_oarchive ar(ofs);
+#endif
+#ifdef USE_PORTABLE_BINARY_ZLIB
+			boost::iostreams::filtering_stream<boost::iostreams::output> out;
+			out.push(boost::iostreams::zlib_compressor());
+			out.push(ofs);
+			portable_binary_oarchive ar(out);
 #endif
 			g_relocator.newReference = g_relocator.oldReference = filename;
 			ar & boost::serialization::make_nvp("filename", g_relocator.oldReference);
