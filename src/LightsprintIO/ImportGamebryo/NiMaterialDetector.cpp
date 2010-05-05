@@ -261,7 +261,9 @@ NiPixelDataPtr NiMaterialDetector::GetScenePixels(NiColor kClearColor)
     pkRenderer->BeginUsingRenderTargetGroup(m_spRenderTargetGroup,
         NiRenderer::CLEAR_ALL);
     pkRenderer->SetCameraData(m_spOrthoCamera);
+//rr::RRReporter::report(rr::INF2,"GB is rendering...\n"); // GI Package 2.1.1 caused crash inside Gamebryo, next line
     m_spSquarePolygon->RenderImmediate(pkRenderer);
+//rr::RRReporter::report(rr::INF2,"done\n");
     pkRenderer->EndUsingRenderTargetGroup();
 
     NiPixelDataPtr spData = GetPixelsFromTexture();
@@ -301,7 +303,7 @@ NiMaterialPointValuesPtr NiMaterialDetector::CreatePointMaterialTextures(NiMesh*
 	// If this results in error shader and random diffuse and specular colors,
 	// possible reason is wrong DirectX SDK version, consult your Gamebryo documentation.
 	// Gamebryo 2.6 needs DirectX SDK August 2008
-	// Gamebryo 3.1 needs DirectX SDK March 2009
+	// Gamebryo 3.1.1 needs DirectX SDK August 2009
 
     // Get Specular Color
     m_spDirLight->SetDiffuseColor(NiColor(0.0f, 0.0f, 0.0f));
