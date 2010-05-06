@@ -136,6 +136,11 @@ namespace rr
 		//!   It gets through according to material transmittance and refraction index.
 		//! - Back side of 1-sided material does not emit or reflect light.
 		//! - Sides of 2-sided material behave nearly identically, only back side doesn't have diffuse reflection.
+		//!
+		//! Illumination produced by updateLightmap[s]() for faces with 2-sided material depends on solver.
+		//! Realtime solvers sum illumination of both sides, offline solver outputs front side illumination.
+		//! (Changing offline solver to work like realtime one would probably create more
+		//! confusion than it would fix, it's not clear how directional lightmaps would look etc.)
 		void          reset(bool twoSided);
 
 		//! Gathers information from textures, updates color for all Properties with texture. Updates also minimalQualityForPointMaterials.

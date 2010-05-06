@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news102 ------------------------------------ 2010.05.xx -------------------------------------
+
+NEWS
+
+- \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - HDR lightmaps support (automatic)
+  - updated to the most recent Lightspeed and GI Package versions
+- small API extensions
+  - RRBuffer::getMinMax() added
+  - RRObject::LayerParameter::createBuffers() optional parameter added
+
 \section news101 ------------------------------------ 2010.05.01 -------------------------------------
 
 NEWS
