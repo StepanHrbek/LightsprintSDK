@@ -239,6 +239,25 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 	}
 }
 
+void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
+{
+	// slow getElement path, faster path can be written using lock and direct access
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	RRVec4 mini = RRVec4(1e20f);
+	RRVec4 maxi = RRVec4(-1e20f);
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = getElement(i);
+		for (unsigned j=0;j<4;j++)
+		{
+			mini[j] = RR_MIN(mini[j],color[j]);
+			maxi[j] = RR_MAX(maxi[j],color[j]);
+		}
+	}
+	if (_mini) *_mini = mini;
+	if (_maxi) *_maxi = maxi;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

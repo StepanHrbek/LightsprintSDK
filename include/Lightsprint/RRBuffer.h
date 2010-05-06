@@ -363,6 +363,8 @@ namespace rr
 		virtual void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 		//! Flips buffer in x, y and/or z dimension. 
 		virtual void flip(bool flipX, bool flipY, bool flipZ);
+		//! Fills mini and maxi with extreme values found in buffer.
+		virtual void getMinMax(RRVec4* mini, RRVec4* maxi);
 	};
 
 } // namespace
