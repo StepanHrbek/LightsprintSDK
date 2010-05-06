@@ -323,7 +323,7 @@ namespace rr
 		void updateFaceGroupsFromTriangleMaterials();
 
 		//! Structure used by recommendLayerParameters().
-		struct LayerParameters
+		struct RR_API LayerParameters
 		{
 			// inputs to RRObject::recommendLayerParameters()
 			int            objectIndex; ///< default implementation uses it only when formatting recommended filename
@@ -358,21 +358,12 @@ namespace rr
 				actualFilename = NULL;
 			}
 
-			//! Creates buffer from actualXxx fields (filled by RRObject::recommendLayerParameters())
-			RRBuffer* createBuffer() const
-			{
-				// if DXT is recommended, RGB is created anyway because baker can't store directly to DXT
-				// user may change format later by buffer->setFormat(actualFormat)
-				RRBufferFormat f;
-				switch (actualFormat)
-				{
-					case BF_DXT1: f = BF_RGB; break;
-					case BF_DXT3: f = BF_RGBA; break;
-					case BF_DXT5: f = BF_RGBA; break;
-					default: f = actualFormat; break;
-				}
-				return RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
-			}
+			//! Creates buffer from actualXxx fields (filled by RRObject::recommendLayerParameters()).
+			//
+			//! If DXT format is recommended, RGB or RGBA is created instead, because solver can't store directly to DXT.
+			//! User may change format later by buffer->setFormat(actualFormat).
+			//! If forceFloats is set, float version of selected format is created.
+			RRBuffer* createBuffer(bool forceFloats = false) const;
 
 			~LayerParameters()
 			{

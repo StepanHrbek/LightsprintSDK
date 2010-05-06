@@ -17,6 +17,39 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// LayerParameters
+
+RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats) const
+{
+	RRBufferFormat f;
+	switch (actualFormat)
+	{
+		case BF_RGB:
+		case BF_BGR:
+		case BF_RGBF:
+			f = forceFloats ? BF_RGBF : actualFormat;
+			break;
+		case BF_RGBA:
+		case BF_RGBAF:
+			f = forceFloats ? BF_RGBAF : actualFormat;
+			break;
+		case BF_DXT1:
+			f = forceFloats ? BF_RGBF : BF_RGB;
+			break;
+		case BF_DXT3:
+		case BF_DXT5:
+			f = forceFloats ? BF_RGBAF : BF_RGBA;
+			break;
+		default:
+			f = actualFormat;
+			break;
+	}
+	return RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // FaceGroups
 
 bool RRObject::FaceGroups::containsEmittance() const
