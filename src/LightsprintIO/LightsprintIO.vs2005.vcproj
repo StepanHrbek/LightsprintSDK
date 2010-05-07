@@ -4239,6 +4239,26 @@
 			Name="Lightsprint"
 			>
 			<File
+				RelativePath=".\ImportLightsprint\portable_binary_archive.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\portable_binary_iarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\portable_binary_iarchive.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\portable_binary_oarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ImportLightsprint\portable_binary_oarchive.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ImportLightsprint\RRObjectLightsprint.cpp"
 				>
 			</File>

@@ -19,6 +19,10 @@ NEWS
   - RRBuffer::getMinMax() added
   - RRObject::LayerParameter::createBuffers() optional parameter added
 
+CHANGES
+
+- .rr3 format changed to ensure platform independence
+
 \section news101 ------------------------------------ 2010.05.01 -------------------------------------
 
 NEWS

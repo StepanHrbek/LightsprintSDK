@@ -350,6 +350,7 @@ Video formats
  - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
+ - \subpage tpl_boost
  - \subpage tpl_assimp
  - \subpage tpl_freeimage
  - \subpage tpl_opencollada
@@ -417,6 +418,11 @@ Video formats
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
   - optional, remove by replacing <code>data/maps/sv_[point|spot|sun].png</code> images
 
+\page tpl_boost Boost
+  - www: <a href="http://boost.org/">boost</a>
+  - license: <a href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>
+  - version 1.43 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
+
 \page tpl_assimp Assimp
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
@@ -428,7 +434,7 @@ Video formats
   We contribute our improvements back to original projects, however,
   recent improvements may still be present only in Lightsprint SDK.
 
-  No changes in Lightsprint SDK at the moment. See Stepan Hrbek in Assimp credits.
+  No changes in Lightsprint SDK at the moment. (Our contribution is listed in Assimp credits, Stepan Hrbek)
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>

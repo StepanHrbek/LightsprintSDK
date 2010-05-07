@@ -14,10 +14,10 @@
 //#define USE_XML_ZLIB     // portable xml zlib archive, boost must be compiled with zlib
 //#define USE_XML_BZIP2    // portable xml bzip2 archive, boost must be compiled with bzip2
 //#define USE_BINARY       // nonportable binary archive
-#define USE_BINARY_ZLIB  // nonportable binary zlib archive, boost must be compiled with zlib
+//#define USE_BINARY_ZLIB  // nonportable binary zlib archive, boost must be compiled with zlib
 //#define USE_BINARY_BZIP2 // nonportable binary bzip2 archive, boost must be compiled with bzip2
 //#define USE_PORTABLE_BINARY // portable binary archive
-//#define USE_PORTABLE_BINARY_ZLIB // portable binary zlib archive, boost must be compiled with zlib
+#define USE_PORTABLE_BINARY_ZLIB // portable binary zlib archive, boost must be compiled with zlib
 
 
 // .rr3 format depends on boost, http://boost.org.
