@@ -371,15 +371,15 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
 
 		case WXK_NUMPAD_ADD:
-		case '+': svs.brightness *= 1.2f; needsRefresh = true; break;
+		case '+': svs.tonemappingBrightness *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_SUBTRACT:
-		case '-': svs.brightness /= 1.2f; needsRefresh = true; break;
+		case '-': svs.tonemappingBrightness /= 1.2f; needsRefresh = true; break;
 
 		//case '8': if (event.GetModifiers()==0) break; // ignore '8', but accept '8' + shift as '*', continue to next case
 		case WXK_NUMPAD_MULTIPLY:
-		case '*': svs.gamma *= 1.2f; needsRefresh = true; break;
+		case '*': svs.tonemappingGamma *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_DIVIDE:
-		case '/': svs.gamma /= 1.2f; needsRefresh = true; break;
+		case '/': svs.tonemappingGamma /= 1.2f; needsRefresh = true; break;
 
 		case WXK_LEFT:
 		case 'a':
@@ -874,8 +874,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency && svs.renderMaterialTextures;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency;
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.brightness!=rr::RRVec4(1);
-			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.gamma!=1;
+			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.tonemappingBrightness!=rr::RRVec4(1);
+			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.tonemappingGamma!=1;
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
@@ -889,8 +889,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					svs.waterLevel,
-					svs.renderTonemapping?&svs.brightness:NULL,
-					svs.renderTonemapping?svs.gamma:1);
+					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
+					svs.renderTonemapping?svs.tonemappingGamma:1);
 				water->updateReflectionDone();
 				float oldFar = svs.eye.getFar();
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
@@ -916,8 +916,8 @@ rendered:
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					svs.waterLevel,
-					svs.renderTonemapping?&svs.brightness:NULL,
-					svs.renderTonemapping?svs.gamma:1);
+					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
+					svs.renderTonemapping?svs.tonemappingGamma:1);
 				svs.eye.setFar(oldFar);
 			}
 			else
@@ -929,11 +929,11 @@ rendered:
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					svs.waterLevel,
-					svs.renderTonemapping?&svs.brightness:NULL,
-					svs.renderTonemapping?svs.gamma:1);
+					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
+					svs.renderTonemapping?svs.tonemappingGamma:1);
 			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (svs.renderTonemapping && svs.adjustTonemapping
+			if (svs.renderTonemapping && svs.tonemappingAutomatic
 				&& !svs.renderWireframe
 				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
@@ -944,7 +944,9 @@ rendered:
 				TIME newTime = GETTIME;
 				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
 				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
-					toneMapping->adjustOperator(secondsSinceLastFrame,svs.brightness,svs.gamma,0.6f);
+				{
+					toneMapping->adjustOperator(secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
+				}
 				oldTime = newTime;
 			}
 		}
@@ -964,10 +966,10 @@ rendered:
 				// set shader (no direct light)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
-				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.brightness!=rr::RRVec4(1);
-				uberProgramSetup.POSTPROCESS_GAMMA = svs.gamma!=1;
+				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
+				uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,svs.waterLevel);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				glPushMatrix();
@@ -982,7 +984,7 @@ rendered:
 				uberProgramSetup.MATERIAL_DIFFUSE = false;
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
-				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.brightness,svs.gamma,svs.waterLevel);
+				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,svs.waterLevel);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};

@@ -721,8 +721,8 @@ save_scene_as:
 						glViewport(0,0,W,H);
 
 						// 4. disable automatic tonemapping, uses FBO, would not work
-						bool oldTonemapping = svs.adjustTonemapping;
-						svs.adjustTonemapping = false;
+						bool oldTonemapping = svs.tonemappingAutomatic;
+						svs.tonemappingAutomatic = false;
 
 						// 5. render to texColor
 						wxPaintEvent e;
@@ -747,7 +747,7 @@ save_scene_as:
 						bufColor->unlock();
 
 						// 4. cleanup
-						svs.adjustTonemapping = oldTonemapping;
+						svs.tonemappingAutomatic = oldTonemapping;
 					}
 
 					// 3. cleanup

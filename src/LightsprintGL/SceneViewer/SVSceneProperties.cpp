@@ -61,14 +61,28 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propToneMapping = new BoolRefProperty(wxT("Tone Mapping"), svs.renderTonemapping);
 		Append(propToneMapping);
 
-		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"), svs.adjustTonemapping);
+		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"), svs.tonemappingAutomatic);
 		AppendIn(propToneMapping,propToneMappingAutomatic);
 
-		propToneMappingBrightness = new wxFloatProperty(wxT("Brightness"),wxPG_LABEL,svs.brightness[0]);
+		{
+			propToneMappingAutomaticMin = new wxFloatProperty(wxT("Min Brightness"),wxPG_LABEL,svs.tonemappingAutomaticMin);
+			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticMin);
+
+			propToneMappingAutomaticMax = new wxFloatProperty(wxT("Max Brightness"),wxPG_LABEL,svs.tonemappingAutomaticMax);
+			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticMax);
+
+			propToneMappingAutomaticTarget = new wxFloatProperty(wxT("Target screen intensity"),wxPG_LABEL,svs.tonemappingAutomaticTarget);
+			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticTarget);
+
+			propToneMappingAutomaticSpeed = new wxFloatProperty(wxT("Speed"),wxPG_LABEL,svs.tonemappingAutomaticSpeed);
+			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticSpeed);
+		}
+
+		propToneMappingBrightness = new wxFloatProperty(wxT("Brightness"),wxPG_LABEL,svs.tonemappingBrightness[0]);
 		propToneMappingBrightness->SetAttribute("Precision",svs.precision);
 		AppendIn(propToneMapping,propToneMappingBrightness);
 
-		propToneMappingContrast = new wxFloatProperty(wxT("Contrast"),wxPG_LABEL,svs.gamma);
+		propToneMappingContrast = new wxFloatProperty(wxT("Contrast"),wxPG_LABEL,svs.tonemappingGamma);
 		propToneMappingContrast->SetAttribute("Precision",svs.precision);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
@@ -195,6 +209,10 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 void SVSceneProperties::updateHide()
 {
 	propToneMappingAutomatic->Hide(!svs.renderTonemapping,false);
+	propToneMappingAutomaticMin->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
+	propToneMappingAutomaticMax->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
+	propToneMappingAutomaticTarget->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
+	propToneMappingAutomaticSpeed->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingBrightness->Hide(!svs.renderTonemapping,false);
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
 	propWaterColor->Hide(!svs.renderWater,false);
@@ -207,6 +225,7 @@ void SVSceneProperties::updateProperties()
 {
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propToneMapping)
+		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propWater)
 		+ updateBoolRef(propGrid)
 		;
@@ -217,9 +236,12 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
-		+ updateBool(propToneMappingAutomatic,svs.adjustTonemapping)
-		+ updateFloat(propToneMappingBrightness,svs.brightness[0])
-		+ updateFloat(propToneMappingContrast,svs.gamma)
+		+ updateFloat(propToneMappingAutomaticMin,svs.tonemappingAutomaticMin)
+		+ updateFloat(propToneMappingAutomaticMax,svs.tonemappingAutomaticMax)
+		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
+		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
+		+ updateFloat(propToneMappingBrightness,svs.tonemappingBrightness[0])
+		+ updateFloat(propToneMappingContrast,svs.tonemappingGamma)
 		+ updateBoolRef(propRenderMaterialDiffuse)
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
@@ -299,13 +321,38 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
+	if (property==propToneMappingAutomatic)
+	{
+		updateHide();
+	}
+	else
+	if (property==propToneMappingAutomaticMin)
+	{
+		svs.tonemappingAutomaticMin = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propToneMappingAutomaticMax)
+	{
+		svs.tonemappingAutomaticMax = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propToneMappingAutomaticTarget)
+	{
+		svs.tonemappingAutomaticTarget = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propToneMappingAutomaticSpeed)
+	{
+		svs.tonemappingAutomaticSpeed = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propToneMappingBrightness)
 	{
-		svs.brightness = rr::RRVec4(property->GetValue().GetDouble());
+		svs.tonemappingBrightness = rr::RRVec4(property->GetValue().GetDouble());
 	}
 	if (property==propToneMappingContrast)
 	{
-		svs.gamma = property->GetValue().GetDouble();
+		svs.tonemappingGamma = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propWater)

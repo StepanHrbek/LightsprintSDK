@@ -19,10 +19,19 @@ NEWS
 - small API extensions
   - RRBuffer::getMinMax() added
   - RRObject::LayerParameter::createBuffers() optional parameter added
+- new tone mapping settings in rr_gl::SceneViewerState (available also from SceneViewer GUI)
+  - tonemappingAutomaticMin
+  - tonemappingAutomaticMax
+  - tonemappingAutomaticTarget
+  - tonemappingAutomaticSpeed
 
 CHANGES
 
 - .rr3 format changed to ensure platform independence
+- renames in rr_gl::SceneViewerState
+  - brightness renamed to tonemappingBrightness
+  - gamma renamed to tonemappingGamma
+  - adjustTonemapping renamed to tonemappingAutomatic
 
 \section news101 ------------------------------------ 2010.05.01 -------------------------------------
 

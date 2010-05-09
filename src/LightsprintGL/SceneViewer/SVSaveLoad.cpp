@@ -232,15 +232,19 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
 	ar & make_nvp("renderTonemapping",a.renderTonemapping);
-	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
+	ar & make_nvp("adjustTonemapping",a.tonemappingAutomatic);
+	ar & make_nvp("tonemappingAutomaticMin",a.tonemappingAutomaticMin);
+	ar & make_nvp("tonemappingAutomaticMax",a.tonemappingAutomaticMax);
+	ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
+	ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
 	ar & make_nvp("playVideos",a.playVideos);
 	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
-	ar & make_nvp("brightness",a.brightness);
-	ar & make_nvp("gamma",a.gamma);
+	ar & make_nvp("brightness",a.tonemappingBrightness);
+	ar & make_nvp("gamma",a.tonemappingGamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
 	ar & make_nvp("waterColor",a.waterColor);
 	ar & make_nvp("renderGrid",a.renderGrid);
@@ -285,7 +289,14 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	{
 		ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	}
-	ar & make_nvp("adjustTonemapping",a.adjustTonemapping);
+	ar & make_nvp("adjustTonemapping",a.tonemappingAutomatic);
+	if (version>4)
+	{
+		ar & make_nvp("tonemappingAutomaticMin",a.tonemappingAutomaticMin);
+		ar & make_nvp("tonemappingAutomaticMax",a.tonemappingAutomaticMax);
+		ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
+		ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
+	}
 	if (version>1)
 	{
 		ar & make_nvp("playVideos",a.playVideos);
@@ -295,8 +306,8 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	}
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
-	ar & make_nvp("brightness",a.brightness);
-	ar & make_nvp("gamma",a.gamma);
+	ar & make_nvp("brightness",a.tonemappingBrightness);
+	ar & make_nvp("gamma",a.tonemappingGamma);
 	ar & make_nvp("waterLevel",a.waterLevel);
 	if (version>0)
 	{
@@ -344,7 +355,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 1)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 4)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 5)
 
 //---------------------------------------------------------------------------
 

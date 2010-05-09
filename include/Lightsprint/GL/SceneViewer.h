@@ -64,15 +64,19 @@ struct SceneViewerState
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
 	bool             renderTonemapping;         //! Render with tonemapping.
-	bool             adjustTonemapping;         //! Automatically adjust tonemapping operator.
+	rr::RRVec4       tonemappingBrightness;     //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by tonemappingAutomatic.
+	float            tonemappingGamma;          //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
+	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
+	float            tonemappingAutomaticMin;   //! Lower limit for tonemappingAutomatic.
+	float            tonemappingAutomaticMax;   //! Upper limit for tonemappingAutomatic.
+	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
+	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! 
 	bool             videoTransmittanceAffectsGI;
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
-	rr::RRVec4       brightness;                //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by adjustTonemapping.
-	float            gamma;                     //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
 	bool             renderGrid;                //! Show grid.
@@ -109,15 +113,19 @@ struct SceneViewerState
 		renderHelp = 0;
 		renderLogo = 0;
 		renderTonemapping = 1;
-		adjustTonemapping = 1;
+		tonemappingAutomatic = 1;
+		tonemappingAutomaticMin = 0.1f;
+		tonemappingAutomaticMax = 100;
+		tonemappingAutomaticTarget = 0.5;
+		tonemappingAutomaticSpeed = 1;
+		tonemappingBrightness = rr::RRVec4(1);
+		tonemappingGamma = 1;
 		playVideos = 1;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoTransmittanceAffectsGI = true;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
-		brightness = rr::RRVec4(1);
-		gamma = 1;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
 		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
 		renderGrid = 0;
@@ -154,15 +162,19 @@ struct SceneViewerState
 			&& a.renderHelp==renderHelp
 			&& a.renderLogo==renderLogo
 			&& a.renderTonemapping==renderTonemapping
-			&& a.adjustTonemapping==adjustTonemapping
+			&& a.tonemappingAutomatic==tonemappingAutomatic
+			&& a.tonemappingAutomaticMin==tonemappingAutomaticMin
+			&& a.tonemappingAutomaticMax==tonemappingAutomaticMax
+			&& a.tonemappingAutomaticTarget==tonemappingAutomaticTarget
+			&& a.tonemappingAutomaticSpeed==tonemappingAutomaticSpeed
+			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
+			&& a.tonemappingGamma==tonemappingGamma
 			&& a.playVideos==playVideos
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
-			&& (a.brightness==brightness || (renderTonemapping && adjustTonemapping)) // brightness may differ if automatic tonemapping is enabled
-			&& a.gamma==gamma
 			&& a.waterLevel==waterLevel
 			&& a.waterColor==waterColor
 			&& a.renderGrid==renderGrid

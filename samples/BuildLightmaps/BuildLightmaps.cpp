@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 	if (globalParameters.runViewer || !globalParameters.buildQuality)
 	{
 		rr_gl::SceneViewerState svs;
-		svs.adjustTonemapping = false;
+		svs.tonemappingAutomatic = false;
 		svs.renderHelpers = true;
 		if (globalParameters.buildQuality)
 		{
