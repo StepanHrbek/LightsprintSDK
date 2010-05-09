@@ -92,6 +92,12 @@ protected:
 public:
 	virtual void elementBegin(const char* name, const char* currentProfile)=0;
 
+	ExtraData()
+	{
+		currValue = NULL;
+		defferedValue = NULL;
+	}
+
 	void elementData(const char* text, unsigned int length)
 	{
 		if(currValue != NULL)
@@ -174,7 +180,11 @@ public:
 		if(strcmp(name,"double_sided")==0)
 			currValue = &double_sided;
 		else if(strcmp(name,"float")==0)
-			currValue = defferedValue;
+		{
+			if(defferedValue != NULL)
+				currValue = defferedValue;
+			defferedValue = NULL;
+		}
 		// fcollada
 		else if(strcmp(currentProfile,"FCOLLADA")==0)
 		{
@@ -262,6 +272,7 @@ public:
 				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_TECHNIQUE:
 				currExtraData = getOrInsertDefaultData<ExtraDataEffect>( uniqueId );
+				break;
 			case COLLADASaxFWL14::HASH_ELEMENT_GEOMETRY:
 				currExtraData = getOrInsertDefaultData<ExtraDataGeometry>( uniqueId );
 				break;
