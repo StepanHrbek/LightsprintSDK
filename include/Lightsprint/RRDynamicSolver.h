@@ -276,19 +276,21 @@ namespace rr
 		//! Optional parameters of calculate(). Currently used only by Fireball.
 		struct CalculateParameters
 		{
+			//! Only for Fireball solver:
 			//! Quality of indirect lighting when direct lighting changes.
 			//! 1..20, default is 3.
 			//! Higher quality makes calculate() take longer.
 			unsigned qualityIndirectDynamic;
-			//! Possibly higher quality of indirect lighting when direct lighting doesn't change.
+			//! Only for Fireball solver:
+			//! Target quality of indirect lighting when direct lighting doesn't change.
 			//! 1..1000, default is 3.
 			//! Higher quality doesn't make calculate() take longer, but indirect lighting
-			//! improves in several consecutive frames when direct lighting doesn't change.
+			//! improves in several consecutive calculate()s when direct lighting doesn't change.
 			unsigned qualityIndirectStatic;
+			//! Only for RRDynamicSolverGL:
 			//! For how long time indirect illumination may stay unchanged.
 			//! 0 = update in each frame, highest quality.
 			//! 0.05 = update less frequently, faster.
-			//! Used by RRDynamicSolverGL, RRDynamicSolver ignores it.
 			float secondsBetweenDDI;
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
 			CalculateParameters()
