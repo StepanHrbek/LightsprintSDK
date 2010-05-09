@@ -45,6 +45,8 @@
 
 #include "Lightsprint/RRScene.h"
 
+#pragma warning(disable:4267) // there are too many size_t -> unsigned conversions
+
 using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////
