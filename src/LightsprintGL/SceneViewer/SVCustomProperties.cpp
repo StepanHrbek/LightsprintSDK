@@ -204,7 +204,7 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 {
 	return buffer
 		? (buffer->filename.empty()
-		?rr_gl::tmpstr("<%d*%d generated>",buffer->getWidth(),buffer->getHeight())
+		?rr_gl::tmpstr("<%d*%d embedded>",buffer->getWidth(),buffer->getHeight())
 			:buffer->filename.c_str())
 		:"<no texture>";
 }
