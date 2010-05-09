@@ -15,6 +15,7 @@ NEWS
 - \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
   - HDR lightmaps support (automatic)
   - updated to the most recent Lightspeed and GI Package versions
+- parallelized Architect solver, 2.5x speedup on 4core CPU
 - small API extensions
   - RRBuffer::getMinMax() added
   - RRObject::LayerParameter::createBuffers() optional parameter added

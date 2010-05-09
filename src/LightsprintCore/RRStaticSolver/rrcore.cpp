@@ -1093,24 +1093,11 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 	}
 	if (phase==1)
 	{
-		if (endfunc.requestsRealtimeResponse())
-		{
-			// shoot in 1 thread, slower, can be aborted
-			// this is used by real-time Architect solver
-			while (shotsAccumulated<shotsForNewFactors
-				)
-			{
-				shotFromToHalfspace(shootingKernels.shootingKernel,source.node);
-				shotsAccumulated++;
-				shotsTotal++;
-				if (shotsTotal%10==0 && endfunc.requestsEnd()) return;
-			}
-		}
-		else
-		{
-			// shoot in multiple threads, faster, can't be aborted
-			// this is used by offline solver
-			int shotsTodo = shotsForNewFactors-shotsAccumulated;
+		// parallel shooting, can be aborted after every 50000 shots
+		while (shotsAccumulated<shotsForNewFactors
+			)
+		{			
+			int shotsTodo = RR_MIN(shotsForNewFactors-shotsAccumulated,100000);
 			#if defined(_MSC_VER) && (_MSC_VER<1500)
 				#pragma omp parallel for // 2005 SP1 has broken if
 			#else
@@ -1118,19 +1105,31 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 			#endif
 			for (int i=0;i<shotsTodo;i++)
 			{
-				{
-					#ifdef _OPENMP
-						int threadNum = omp_get_thread_num();
-					#else
-						int threadNum = 0;
-					#endif
-					shotFromToHalfspace(shootingKernels.shootingKernel+threadNum,source.node);
-				}
+				#ifdef _OPENMP
+					int threadNum = omp_get_thread_num();
+				#else
+					int threadNum = 0;
+				#endif
+				shotFromToHalfspace(shootingKernels.shootingKernel+threadNum,source.node);
 			}
 			shotsAccumulated += shotsTodo;
 			shotsTotal += shotsTodo;
+/*			
+			static unsigned s_batches = 0; s_batches++;
+			static unsigned s_batchexits = 0;
+			static unsigned s_shots = 0; s_shots += shotsTodo;
+			static unsigned s_sec = 5;
+			static double s_start = 0;
+			double now = omp_get_wtime();
+			if (!s_start) s_start = now;
+			if (now-s_start>s_sec)
+			{
+				RRReporter::report(INF1,"%ds: %.0f Kray/s, %d batches, %d exits\n",s_sec,(float)(s_shots/(now-s_start)/1000),s_batches,s_batchexits);
+				s_sec+=5;
+			}
+*/
+			if (endfunc.requestsEnd()) return;
 		}
-	
 		phase=2;
 	}
 	if (phase==2)

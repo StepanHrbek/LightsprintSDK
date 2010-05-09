@@ -373,6 +373,18 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
+/*
+	static unsigned s_updates = 0; s_updates++;
+	static unsigned s_sec = 5;
+	static double s_start = 0;
+	double now = omp_get_wtime();
+	if (!s_start) s_start = now;
+	if (now-s_start>s_sec)
+	{
+		RRReporter::report(INF1,"%ds: %.1f updates/s\n",s_sec,(float)(s_updates/(now-s_start)));
+		s_sec+=5;
+	}
+*/
 	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->applyLights && !_params->applyEnvironment && !_params->quality));
 	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d '%s', %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
 		objectNumber,getStaticObjects().size(),((unsigned)objectNumber<getStaticObjects().size())?getStaticObjects()[objectNumber]->name.c_str():"",
