@@ -928,13 +928,13 @@ reload_skybox:
 				if (!fireballLoadAttempted)
 				{
 					fireballLoadAttempted = true;
-					solver->loadFireball(svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()),true);
+					solver->loadFireball(NULL,true);
 				}
 			}
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
-				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
+				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,NULL);
 				dirtyLights(solver);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
@@ -1028,7 +1028,7 @@ reload_skybox:
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
-					solver->buildFireball(quality,svs.sceneFilename.empty()?NULL:tmpstr("%s.fireball",svs.sceneFilename.c_str()));
+					solver->buildFireball(quality,NULL);
 					dirtyLights(solver);
 					fireballLoadAttempted = true;
 				}
