@@ -151,7 +151,6 @@ void SVCanvas::createContextCore()
 	// warning: when rendering scene from solver, original cube buffers are lost here
 	solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
 
-
 	if (!svs.skyboxFilename.empty())
 	{
 		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
