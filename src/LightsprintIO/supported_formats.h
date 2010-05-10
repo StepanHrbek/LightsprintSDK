@@ -11,13 +11,13 @@
 #define SUPPORT_GAMEBRYO    // Gamebryo .gsa
 #define SUPPORT_OPENCOLLADA // OpenCollada .dae (better than Fcollada and Assimp)
 //#define SUPPORT_FCOLLADA  // FCollada .dae (better than Assimp, but obsoleted by OpenCollada)
+#define SUPPORT_3DS         // 3D Studio .3ds (sometimes better, sometimes worse than Assimp)
 #define SUPPORT_ASSIMP      // Assimp dae 3ds x prj md2 md3 md5 ply mdl ase ask hmp smd vta mdc stl lwo lxo dxf nff enff raw off ac acc ac3d bvh xml irrmesh xml irr q3o q3s b3d ter csm 3d uc lws mot
 #define SUPPORT_QUAKE3      // Quake 3 .bsp
 #define SUPPORT_MGF         // Materials and Geometry Format .mgf
 #define SUPPORT_IMAGES      // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
 #define SUPPORT_GOOGLEEARTH // Google Earth .kmz
-//#define SUPPORT_3DS       // 3D Studio .3ds (obsoleted by Assimp)
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 
 
