@@ -477,7 +477,16 @@ void registerLoaderAssimp()
 	aiSetImportPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,aiComponent_COLORS|aiComponent_BONEWEIGHTS|aiComponent_ANIMATIONS|aiComponent_CAMERAS);
 	aiString extensions;
 	aiGetExtensionList(&extensions);
-	RRScene::registerLoader(convertStr(extensions),RRSceneAssimp::load);
+	std::string str(convertStr(extensions));
+#if defined(SUPPORT_OPENCOLLADA) || defined(SUPPORT_FCOLLADA)
+	// hide assimp collada loader if better exists
+	str.erase(str.find("*.dae;"),6);
+#endif
+#ifdef SUPPORT_3DS
+	// hide assimp 3ds loader if better? exists
+	str.erase(str.find("*.3ds;"),6);
+#endif
+	RRScene::registerLoader(str.c_str(),RRSceneAssimp::load);
 }
 
 #endif // SUPPORT_ASSIMP
