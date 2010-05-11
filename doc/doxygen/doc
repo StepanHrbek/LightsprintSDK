@@ -2379,7 +2379,7 @@ Video formats
 
 
 
-\page main_gamebryo3 LightSpeed
+\page main_gamebryo3 LightSpeed 3.1.1
 
  Lightsprint SDK adds global illumination to Gamebryo LightSpeed 3.1.1.
 
@@ -2400,11 +2400,13 @@ Video formats
   - full integration source code included
 
  \section g3_limits Limitations of current version
-  - Toolbench may crashes after bake, this is GI Package 2.1.1 problem.
-  - Plain lightmaps have wrong color or intensity. This is GI Package 2.1.1 limitation. Use RNM or Vertex colors for now.
-  - Baked lighting may fail to save to disk. This is GI Package 2.1.1 problem.
-  - Terrain lightmaps not supported. This is GI Package limitation.
-  - Light probes not updated. Will be fixed very soon.
+  - GI Package 2.1.1 is unfinished work, new version should arrive soon. We observed following problems with 2.1.1:
+    - Toolbench may report "Gamebryo Framework error." and become unstable after bake.
+    - Plain lightmaps may have wrong color or intensity. Use RNM for correct colors.
+    - Baked lighting may fail to save to disk.
+    - Plugin request to display GI after bake is ignored. Click toggle icon manually.
+  - Terrain lightmaps not supported. This is long term GI Package limitation.
+  - Light probes not updated. We will support them in next release, very soon.
 
  \section g3_bake Baking in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
