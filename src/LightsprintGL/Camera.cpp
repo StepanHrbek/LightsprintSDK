@@ -148,7 +148,7 @@ rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow) const
 		;
 }
 
-void Camera::setRangeDynamically(const rr::RRObject* object)
+void Camera::setRangeDynamically(const rr::RRObject* object, float waterLevel)
 {
 	if (!object)
 		return;
@@ -159,7 +159,7 @@ void Camera::setRangeDynamically(const rr::RRObject* object)
 	float objectSize = (aabbMaxi-aabbMini).length();
 
 	// get scene distance
-	CameraObjectDistance cod(object);
+	CameraObjectDistance cod(object,waterLevel);
 	cod.addCamera(this);
 
 	// set range

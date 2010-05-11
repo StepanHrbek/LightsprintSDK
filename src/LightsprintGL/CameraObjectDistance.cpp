@@ -13,9 +13,10 @@ namespace rr_gl
 //
 // CameraObjectDistance
 
-CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object)
+CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, float _waterLevel)
 {
 	object = _object;
+	waterLevel = _waterLevel;
 	distMin = 1e10f;
 	distMax = 0;
 	ray = rr::RRRay::create();
@@ -65,6 +66,10 @@ void CameraObjectDistance::addPoint(const rr::RRVec3& pos)
 			addRay(pos,rr::RRVec3(-1,u,v));
 		}
 	}
+	// measure distance to water level
+	float distanceOfPotentialNearPlane = fabs(pos.y-waterLevel);
+	distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
+	distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
 }
 
 void CameraObjectDistance::addCamera(Camera* camera)
@@ -86,6 +91,11 @@ void CameraObjectDistance::addCamera(Camera* camera)
 			addRay(camera->pos,camera->getDirection(rr::RRVec2(i/float(RAYS),j/float(RAYS))));
 		}
 	}
+	// measure distance to water level
+	// simplification: works as if camera always points to water
+	float distanceOfPotentialNearPlane = fabs(camera->pos.y-waterLevel);
+	distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
+	distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
 }
 
 }; // namespace

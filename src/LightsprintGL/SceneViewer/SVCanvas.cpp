@@ -806,7 +806,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 		if (svs.cameraDynamicNear)
 		{
 			// eye must already be updated here because next line depends on up, right
-			svs.eye.setRangeDynamically(solver->getMultiObjectCustom());
+			svs.eye.setRangeDynamically(solver->getMultiObjectCustom(),svs.renderWater?svs.waterLevel:-1e10f);
 			svs.eye.update();
 		}
 
