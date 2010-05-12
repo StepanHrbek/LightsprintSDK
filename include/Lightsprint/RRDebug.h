@@ -12,7 +12,7 @@
 #include "RRMemory.h"
 
 #define RR_LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if (times_done<times_max) {times_done++;action;}}
-
+#define RR_STATIC_ASSERT(constant_expression,message) typedef char __C_ASSERT__[(constant_expression) ? 1 : -1]
 #ifdef _DEBUG
 	#define RR_ASSERT(a) {if (!(a)) RR_LIMITED_TIMES(10,rr::RRReporter::assertionFailed(#a,__FUNCTION__,__FILE__,__LINE__));}
 #else

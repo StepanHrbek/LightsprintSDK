@@ -408,11 +408,11 @@ void save(Archive & ar, const rr::RRMeshArrays& a, const unsigned int version)
 	bool tangents = a.tangent && a.bitangent;
 	ar & make_nvp("tangents",tangents);
 
-	// make_binary_object doesn't ensure compatibility, let's check it ourselves
-	RR_ASSERT(sizeof(a.triangle[0])==12);
-	RR_ASSERT(sizeof(a.position[0])==12);
+	// we save/load mesh arrays in binary form (faster), platform differences must be compensated here
+	RR_STATIC_ASSERT(sizeof(a.triangle[0])==12,"TODO: change unsigned in Triangle to uint32_t.");
+	RR_STATIC_ASSERT(sizeof(a.position[0])==12,"What, RRReal is not 32bit?");
 	#ifdef RR_BIG_ENDIAN
-	#warning TODO: Change endianity when saving/loading .rr3 on this platform (will take several lines of code). 
+	#warning TODO: Toggle endianity here to ensure .rr3 compatibility on all platforms.
 	#endif
 
 	// arrays
@@ -443,11 +443,11 @@ void load(Archive & ar, rr::RRMeshArrays& a, const unsigned int version)
 	ar & make_nvp("tangents",tangents);
 	a.resizeMesh(numTriangles,numVertices,&texcoords,tangents);
 
-	// make_binary_object doesn't ensure compatibility, let's check it ourselves
-	RR_ASSERT(sizeof(a.triangle[0])==12);
-	RR_ASSERT(sizeof(a.position[0])==12);
+	// we save/load mesh arrays in binary form (faster), platform differences must be compensated here
+	RR_STATIC_ASSERT(sizeof(a.triangle[0])==12,"TODO: change unsigned in Triangle to uint32_t.");
+	RR_STATIC_ASSERT(sizeof(a.position[0])==12,"What, RRReal is not 32bit?");
 	#ifdef RR_BIG_ENDIAN
-	#warning TODO: Change endianity when saving/loading .rr3 on this platform (will take several lines of code). 
+	#warning TODO: Toggle endianity here to ensure .rr3 compatibility on all platforms.
 	#endif
 
 	// arrays
