@@ -51,7 +51,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -88,7 +88,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -142,7 +142,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -228,7 +228,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
@@ -264,7 +264,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
@@ -314,7 +314,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -350,7 +350,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -402,7 +402,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -439,7 +439,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				RandomizedBaseAddress="1"
@@ -502,7 +502,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -539,7 +539,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				RandomizedBaseAddress="1"
@@ -599,7 +599,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
@@ -636,7 +636,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				RandomizedBaseAddress="1"
@@ -696,7 +696,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -733,7 +733,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2008_64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				RandomizedBaseAddress="1"

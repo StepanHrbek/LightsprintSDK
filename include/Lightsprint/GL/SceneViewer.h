@@ -15,6 +15,10 @@
 //#define CUSTOMIZED_FOR_3DRENDER
 #endif
 
+#ifdef RR_GL_BUILD
+	#define wxMSVC_VERSION_AUTO // used only when building this library
+#endif
+
 namespace rr_gl
 {
 

@@ -398,7 +398,7 @@ Video formats
   - www: <a href="http://wxwidgets.org/">wxWidgets</a>
   - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
   - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
-  - Windows: wxWidgets 2.9.0 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+  - Windows: wxWidgets trunk svn revision 64295 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
  \page wxwidgets_patch wxWidgets patch
@@ -753,8 +753,7 @@ Video formats
  you need it only when rebuilding LightsprintGL from source code.
 
  \section wx_windows Windows
-   - Get wxWidgets 2.9 source code from wxWidgets.org (any official release or svn) (SDK is built from rev 61767).
-   - Change wxUSE_GLCANVAS from 0 to 1 (in include/wx/msw/setup.h).
+   - Get wxWidgets source code from wxWidgets.org svn trunk (SDK is built from rev 64295).
    - If you use one version of Visual Studio and target only win32,
      you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
      If you target x64, the only additional step is to add x64 target to that solution.
@@ -763,41 +762,12 @@ Video formats
      We provide script that builds all targets at once and keeps them separated, follow instructions:
      - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
        e.g. C:\\wxWidgets. No spaces please.
-     - Open \$(WXWIDGETS_DIR)\\include\\msvc\\wx\\setup.h and replace
-       \code
-	#ifdef WXUSINGDLL
-		#define wxLIB_SUBDIR vc_dll
-	#else // !DLL
-		#define wxLIB_SUBDIR vc_lib
-	#endif // DLL/!DLL
-       \endcode
-       by
-       \code
-	#if _MSC_VER<1400
-		#define wxCOMPILER 2003
-	#elif _MSC_VER<1500
-		#define wxCOMPILER 2005
-	#else
-		#define wxCOMPILER 2008
-	#endif
-
-	#ifdef _M_X64
-		#define wxBITS 64
-	#else
-		#define wxBITS 32
-	#endif
-
-	#ifdef WXUSINGDLL
-		#define wxLIB_SUBDIR wxCONCAT5(vc,wxCOMPILER,_,wxBITS,_dll)
-	#else // !DLL
-		#define wxLIB_SUBDIR wxCONCAT5(vc,wxCOMPILER,_,wxBITS,_lib)
-	#endif // DLL/!DLL
-       \endcode
      - Run bin/build_wxWidgets.bat.
-     - LightsprintGL DLL works now. For static LightsprintGL, add wx library path
+     - LightsprintGL DLL works now. For static LightsprintGL library, add wx library path
        to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
-	- \$(WXWIDGETS_DIR)\\lib\\vc2008_32_lib for vc2008 win32 target
-	- \$(WXWIDGETS_DIR)\\lib\\vc2005_64_lib for vc2005 x64 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc90_lib for vc2008 win32 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
 	- etc
 
  \section wx_linux Linux

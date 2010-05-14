@@ -51,7 +51,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc71_lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -114,7 +114,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc71_lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc71_lib"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -245,7 +245,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc2003_32_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc71_lib"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"

@@ -43,7 +43,7 @@ void RRVec3Property::RefreshChildren()
 	Item(2)->SetValue( vector.z );
 }
 
-void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
+wxVariant RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
 {
 	RRVec3 vector;
 	vector << thisValue;
@@ -54,6 +54,7 @@ void RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVaria
 		case 2: vector.z = childValue.GetDouble(); break;
 	}
 	thisValue << vector;
+	return thisValue;
 }
 
 
@@ -112,7 +113,7 @@ void HDRColorProperty::RefreshChildren()
 	SetValueImage(*bitmap);
 }
 
-void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
+wxVariant HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
 {
 	RRVec3 rgb;
 	rgb << thisValue;
@@ -132,6 +133,7 @@ void HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVar
 			break;
 	}
 	thisValue << rgb;
+	return thisValue;
 }
 
 HDRColorProperty::~HDRColorProperty()
