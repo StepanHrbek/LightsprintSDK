@@ -474,6 +474,13 @@ Video formats
 
   This fills otherwise empty variables with data from scene. Necessary to workaround missing material binding in archicad exported scenes.
 
+  \section oc_patch3 Patch3
+  File: COLLADABaseUtils/include/COLLADABUPrerequisites.cpp
+
+  We changed 1500 to 1700 on line 28.
+
+  This fixes Visual Studio 2010 compilation (and also Visual Studio 2008 RTM compilation, for those who did not upgrade to SP1).
+
 \page tpl_fcollada FCollada
   - www: <a href="http://downloads.sourceforge.net/colladamaya/FCollada_FREE_3.05B.zip">FCollada 3.05B download</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
