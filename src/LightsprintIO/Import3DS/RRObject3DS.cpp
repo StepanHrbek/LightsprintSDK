@@ -53,12 +53,7 @@ private:
 	RRMaterial defaultGray;
 
 	// copy of object's indices
-	struct TriangleInfo
-	{
-		RRMesh::Triangle t;
-		RRMaterial* material;
-	};
-	std::vector<TriangleInfo> triangles;
+	std::vector<RRMesh::Triangle> triangles;
 };
 
 
@@ -78,10 +73,10 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 	{
 		for (unsigned j=0;j<(unsigned)object->MatFaces[i].numSubFaces/3;j++)
 		{
-			TriangleInfo ti;
-			ti.t[0] = object->MatFaces[i].subFaces[3*j];
-			ti.t[1] = object->MatFaces[i].subFaces[3*j+1];
-			ti.t[2] = object->MatFaces[i].subFaces[3*j+2];
+			RRMesh::Triangle ti;
+			ti[0] = object->MatFaces[i].subFaces[3*j];
+			ti[1] = object->MatFaces[i].subFaces[3*j+1];
+			ti[2] = object->MatFaces[i].subFaces[3*j+2];
 			triangles.push_back(ti);
 		}
 		// create facegroup
@@ -137,7 +132,7 @@ void RRObject3DS::getTriangle(unsigned t, Triangle& out) const
 		RR_ASSERT(0);
 		return;
 	}
-	out = triangles[t].t;
+	out = triangles[t];
 }
 
 void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
