@@ -25,7 +25,7 @@
 #endif
 #else
 #  undef COLLADABU_HAVE_TR1_UNORDERED_MAP
-#  if defined(_MSC_VER) && (_MSC_VER >= 1500) \
+#  if defined(_MSC_VER) && (_MSC_VER >= 1700) \
    && defined(_MSC_FULL_VER) && \
    !defined(__SGI_STL_PORT) && \
    !defined(_STLPORT_VERSION) && \
