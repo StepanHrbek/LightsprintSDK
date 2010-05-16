@@ -357,6 +357,8 @@ public:
 	{
 		meshes = NULL;
 		materials = NULL;
+		colliders = NULL;
+		numMaterials = 0;
 		numMeshes = 0;
 		nextMesh = 0;
 	}
@@ -373,7 +375,9 @@ public:
 			if(colliders[i] != NULL)
 				delete colliders[i];
 		}
-		delete[] colliders;
+
+		if(colliders != NULL)
+			delete [] colliders;
 
 		if(meshes != NULL)
 			delete [] meshes;
@@ -383,7 +387,9 @@ public:
 			if(materials[i] != NULL)
 				delete materials[i];
 		}
-		free(materials);
+
+		if(materials != NULL)
+			free(materials);
 	}
 };
 
@@ -1107,16 +1113,28 @@ public:
 		{
 			RRReporter::report(INF1,"Finished with first pass\n");
 
+			if(instanceVisualScene == NULL)
+			{
+				RRReporter::report(WARN,"No visual scene instance found in the file.\n");
+				return;
+			}
+
 			// get active visual scene
 			const COLLADAFW::VisualScene  *activeScene = NULL;
 			for ( VectorVisualScene::iterator iter = visualSceneArray.begin(); iter != visualSceneArray.end(); iter++)
 			{
-				activeScene = &(*iter);
-
-				if ( instanceVisualScene->getInstanciatedObjectId() == activeScene->getUniqueId() )
+				if ( instanceVisualScene->getInstanciatedObjectId() == (*iter).getUniqueId() )
+				{
+					activeScene = &(*iter);
 					break;
+				}
 			}
-			RR_ASSERT(activeScene);
+
+			if(activeScene == NULL)
+			{
+				RRReporter::report(WARN,"Instanced visual scene not found in <library_visual_scenes>.\n");
+				return;
+			}
 
 			// import all nodes from visual scene + library nodes
 			importNodes( activeScene->getRootNodes() );
@@ -1301,7 +1319,9 @@ public:
 		if(parseStep != RUN_COPY_ELEMENTS)
 			return true;
 
-		instanceVisualScene = scene->getInstanceVisualScene ()->clone ();
+		if(scene->getInstanceVisualScene() != NULL)
+			instanceVisualScene = scene->getInstanceVisualScene ()->clone ();
+
 		return true;
 	}
 
