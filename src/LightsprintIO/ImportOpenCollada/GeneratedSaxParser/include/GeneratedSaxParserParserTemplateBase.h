@@ -316,7 +316,7 @@ namespace GeneratedSaxParser
 	DataType* ParserTemplateBase::newData(void** dataPtr)
 	{
 		DataType* data = (DataType*)mStackMemoryManager.newObject(sizeof(DataType));
-		memcpy(data, &DataType::DEFAULT, sizeof(DataType));
+		new(data)DataType(DataType::DEFAULT); // was: memcpy(data, &DataType::DEFAULT, sizeof(DataType));
 		*dataPtr = data;
 		return data;
 	}
