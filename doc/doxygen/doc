@@ -293,7 +293,7 @@ Video formats
 \page supported_platforms Supported platforms
 
  Platforms
- - Windows (XP, Vista, 32bit, 64bit)
+ - Windows (XP, Vista, 7, 32bit, 64bit)
  - Linux (32bit, 64bit)
  - Playstation 3
  - Xbox 360
@@ -312,6 +312,7 @@ Video formats
  - for offline rendering, 3D API is not needed
 
  Compilers
+ - Visual C++ 2010 with all security updates (32bit, 64bit)
  - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2003 SP1 with all security updates (32bit)

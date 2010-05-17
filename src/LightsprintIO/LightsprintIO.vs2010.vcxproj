@@ -1,0 +1,1406 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug DLL|Win32">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug DLL|x64">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|Win32">
+      <Configuration>Debug static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|x64">
+      <Configuration>Debug static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|Win32">
+      <Configuration>Release DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|x64">
+      <Configuration>Release DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|Win32">
+      <Configuration>Release static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|x64">
+      <Configuration>Release static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{98765432-1234-11D0-8D11-00A0C91BC942}</ProjectGuid>
+    <RootNamespace>LightsprintIO</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">$(ProjectName)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">$(ProjectName)_sr</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>copy dll to UE3</Message>
+      <Command>if exist "$(SolutionDir)..\..\Binaries" copy ..\..\bin\$(Platform)\$(ProjectName).dll "$(SolutionDir)..\..\Binaries"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>copy dll to UE3</Message>
+      <Command>if exist "$(SolutionDir)..\..\Binaries" copy ..\..\bin\$(Platform)\$(ProjectName)_dd.dll "$(SolutionDir)..\..\Binaries"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_IO_BUILD;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Import3DS\Model_3DS.cpp" />
+    <ClCompile Include="Import3DS\RRObject3DS.cpp" />
+    <ClCompile Include="ImportFCollada\RRObjectFCollada.cpp" />
+    <ClCompile Include="ImportMGF\badarg.c" />
+    <ClCompile Include="ImportMGF\context.c" />
+    <ClCompile Include="ImportMGF\fvect.c" />
+    <ClCompile Include="ImportMGF\lookup.c" />
+    <ClCompile Include="ImportMGF\object.c" />
+    <ClCompile Include="ImportMGF\parser.c" />
+    <ClCompile Include="ImportMGF\RRObjectMGF.cpp" />
+    <ClCompile Include="ImportMGF\words.c" />
+    <ClCompile Include="ImportMGF\xf.c" />
+    <ClCompile Include="ImportOBJ\RRObjectOBJ.cpp" />
+    <ClCompile Include="ImportQuake3\Q3Loader.cpp" />
+    <ClCompile Include="ImportQuake3\RRObjectBSP.cpp" />
+    <ClCompile Include="ImportGamebryo\NiMaterialDetector.cpp" />
+    <ClCompile Include="ImportGamebryo\RRObjectGamebryo.cpp" />
+    <ClCompile Include="ImportImages\ImportFreeImage.cpp" />
+    <ClCompile Include="ImportAssimp\RRObjectAssimp.cpp" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\adler32.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\compress.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\crc32.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\deflate.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\inffast.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\inflate.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\inftrees.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\trees.c" />
+    <ClCompile Include="ImportAssimp\contrib\zlib\zutil.c" />
+    <ClCompile Include="ImportAssimp\contrib\irrXML\irrXML.cpp" />
+    <ClCompile Include="ImportAssimp\contrib\ConvertUTF\ConvertUTF.c" />
+    <ClCompile Include="ImportAssimp\code\3DSConverter.cpp" />
+    <ClCompile Include="ImportAssimp\code\3DSLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ACLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\aiAssert.cpp" />
+    <ClCompile Include="ImportAssimp\code\ASELoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ASEParser.cpp" />
+    <ClCompile Include="ImportAssimp\code\Assimp.cpp" />
+    <ClCompile Include="ImportAssimp\code\AssimpPCH.cpp" />
+    <ClCompile Include="ImportAssimp\code\B3DImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\BaseImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\BaseProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\BVHLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\CalcTangentsProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\COBLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ColladaLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ColladaParser.cpp" />
+    <ClCompile Include="ImportAssimp\code\ComputeUVMappingProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\ConvertToLHProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\CSMLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\DefaultIOStream.cpp" />
+    <ClCompile Include="ImportAssimp\code\DefaultIOSystem.cpp" />
+    <ClCompile Include="ImportAssimp\code\DefaultLogger.cpp" />
+    <ClCompile Include="ImportAssimp\code\DXFLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\FindDegenerates.cpp" />
+    <ClCompile Include="ImportAssimp\code\FindInstancesProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\FindInvalidDataProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\FixNormalsStep.cpp" />
+    <ClCompile Include="ImportAssimp\code\GenFaceNormalsProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\GenVertexNormalsProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\HMPLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\Importer.cpp" />
+    <ClCompile Include="ImportAssimp\code\ImproveCacheLocality.cpp" />
+    <ClCompile Include="ImportAssimp\code\IRRLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IRRMeshLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IRRShared.cpp" />
+    <ClCompile Include="ImportAssimp\code\JoinVerticesProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\LimitBoneWeightsProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\LWOAnimation.cpp" />
+    <ClCompile Include="ImportAssimp\code\LWOBLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\LWOLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\LWOMaterial.cpp" />
+    <ClCompile Include="ImportAssimp\code\LWSLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MaterialSystem.cpp" />
+    <ClCompile Include="ImportAssimp\code\MD2Loader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MD3Loader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MD5Loader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MD5Parser.cpp" />
+    <ClCompile Include="ImportAssimp\code\MDCLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MDLLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MDLMaterialLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\MS3DLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\NFFLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ObjFileImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\ObjFileMtlImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\ObjFileParser.cpp" />
+    <ClCompile Include="ImportAssimp\code\OFFLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\OgreImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\OgreImporterMaterial.cpp" />
+    <ClCompile Include="ImportAssimp\code\OptimizeGraph.cpp" />
+    <ClCompile Include="ImportAssimp\code\OptimizeMeshes.cpp" />
+    <ClCompile Include="ImportAssimp\code\PlyLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\PlyParser.cpp" />
+    <ClCompile Include="ImportAssimp\code\PretransformVertices.cpp" />
+    <ClCompile Include="ImportAssimp\code\Q3DLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\RawLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\RemoveComments.cpp" />
+    <ClCompile Include="ImportAssimp\code\RemoveRedundantMaterials.cpp" />
+    <ClCompile Include="ImportAssimp\code\RemoveVCProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\SceneCombiner.cpp" />
+    <ClCompile Include="ImportAssimp\code\ScenePreprocessor.cpp" />
+    <ClCompile Include="ImportAssimp\code\SGSpatialSort.cpp" />
+    <ClCompile Include="ImportAssimp\code\SkeletonMeshBuilder.cpp" />
+    <ClCompile Include="ImportAssimp\code\SMDLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\SortByPTypeProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\SpatialSort.cpp" />
+    <ClCompile Include="ImportAssimp\code\SplitLargeMeshes.cpp" />
+    <ClCompile Include="ImportAssimp\code\StandardShapes.cpp" />
+    <ClCompile Include="ImportAssimp\code\STLLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\Subdivision.cpp" />
+    <ClCompile Include="ImportAssimp\code\TargetAnimation.cpp" />
+    <ClCompile Include="ImportAssimp\code\TerragenLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\TextureTransform.cpp" />
+    <ClCompile Include="ImportAssimp\code\TriangulateProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\UnrealLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ValidateDataStructure.cpp" />
+    <ClCompile Include="ImportAssimp\code\VertexTriangleAdjacency.cpp" />
+    <ClCompile Include="ImportAssimp\code\XFileImporter.cpp" />
+    <ClCompile Include="ImportAssimp\code\XFileParser.cpp" />
+    <ClCompile Include="ImportDirectShow\RRBufferDirectShow.cpp" />
+    <ClCompile Include="ImportOpenCollada\RRObjectOpenCollada.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWAxisInfo.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWCamera.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWColor.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWConstants.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWEffect.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWEffectCommon.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFileInfo.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFloatOrDoubleArray.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFormula.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFormulas.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWGeometry.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWImage.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsController.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsModel.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsScene.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWLight.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWLoaderUtils.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMaterial.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMatrix.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMesh.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMeshPrimitive.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMorphController.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWNode.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWPrecompiledHeaders.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRenderState.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRoot.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRotate.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSampler.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWScale.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSkinController.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSkinControllerData.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTexture.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTransformation.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTranslate.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWUniqueId.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWValidate.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWVisualScene.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLAssetLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLCOLLADACsymbol.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLDocumentProcessor.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataElementHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFileLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFilePartLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLinker.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryMaterialIdInfo.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIError.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIErrorHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIExtraDataCallbackHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIFilePartLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInputUnshared.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLJointsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsIntermediateData.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsSceneCreator.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryAnimationsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryArticulatedSystemsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryCamerasLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryControllersLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryEffectsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryFormulasLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryImagesLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryJointsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsModelsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryLightsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryMaterialsLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryNodesLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshPrimitiveInputList.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLNodeLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPostProcessor.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPrecompiledHeaders.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxFWLError.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserError.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserErrorHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSceneLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidAddress.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidTreeNode.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSourceArrayLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTransformationLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTypes.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVersionParser.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVisualSceneLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLAssetLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14Private.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateEnums.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFindElementHash.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFunctionMap.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFunctionMapFactory.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateNameMap.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLGeometryLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryAnimationsLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryCamerasLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryControllersLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryEffectsLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryImagesLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryLightsLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryMaterialsLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryNodesLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLMeshLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLNodeLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSceneLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSourceArrayLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLVisualSceneLoader14.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLAssetLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15Private.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateEnums.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFindElementHash.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFunctionMap.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFunctionMapFactory.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateNameMap.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLFormulasLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLGeometryLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceArticulatedSystemLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceKinematicsModelLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryAnimationsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryArticulatedSystemsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryCamerasLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryControllersLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryEffectsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryFormulasLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryImagesLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryJointsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsScenesLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryLightsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryMaterialsLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryNodesLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLMeshLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLNodeLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLSceneLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLSourceArrayLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLVisualSceneLoader15.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUHashFunctions.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUIDList.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUNativeString.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUPcreCompiledPattern.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUPrecompiledHeaders.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUStringUtils.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUURI.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUUtils.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathMatrix3.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathMatrix4.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathQuaternion.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathUtils.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathVector3.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_chartables.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_compile.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_exec.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_globals.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_newline.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_tables.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_try_flipped.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\UTF\src\ConvertUTF.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLEvaluatorVisitor.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSerializationUtil.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSerializationVisitor.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSolverFunctionExtensions.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSolverPrecompiled.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLString.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSymbolTable.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTArithmeticExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTBinaryComparisionExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTConstantExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTFragmentExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTFunctionExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTLogicExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTStringVisitor.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTUnaryArithmeticExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTVariableExpression.cpp" />
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmlparse.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmlrole.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok_impl.c" />
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok_ns.c" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserCoutErrorHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserExpatSaxParser.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserNamespaceStack.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParser.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserError.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserTemplate.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserTemplateBase.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserRawUnknownElementHandler.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserSaxParser.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserStackMemoryManager.cpp" />
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserUtils.cpp" />
+    <ClCompile Include="ImportGoogleEarth\RRObjectKMZ.cpp" />
+    <ClCompile Include="ImportLightsprint\portable_binary_iarchive.cpp" />
+    <ClCompile Include="ImportLightsprint\portable_binary_oarchive.cpp" />
+    <ClCompile Include="ImportLightsprint\RRObjectLightsprint.cpp" />
+    <ClCompile Include="ImportScene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Import3DS\Model_3DS.h" />
+    <ClInclude Include="Import3DS\RRObject3DS.h" />
+    <ClInclude Include="ImportFCollada\RRObjectFCollada.h" />
+    <ClInclude Include="ImportMGF\lookup.h" />
+    <ClInclude Include="ImportMGF\messages.h" />
+    <ClInclude Include="ImportMGF\mgfparser.h" />
+    <ClInclude Include="ImportMGF\RRObjectMGF.h" />
+    <ClInclude Include="ImportOBJ\RRObjectOBJ.h" />
+    <ClInclude Include="ImportQuake3\Q3Loader.h" />
+    <ClInclude Include="ImportQuake3\RRObjectBSP.h" />
+    <ClInclude Include="ImportGamebryo\NiMaterialDetector.h" />
+    <ClInclude Include="ImportGamebryo\RRObjectGamebryo.h" />
+    <ClInclude Include="ImportImages\ImportFreeImage.h" />
+    <ClInclude Include="ImportAssimp\RRObjectAssimp.h" />
+    <ClInclude Include="ImportAssimp\include\aiAnim.h" />
+    <ClInclude Include="ImportAssimp\include\aiAssert.h" />
+    <ClInclude Include="ImportAssimp\include\aiCamera.h" />
+    <ClInclude Include="ImportAssimp\include\aiConfig.h" />
+    <ClInclude Include="ImportAssimp\include\aiDefines.h" />
+    <ClInclude Include="ImportAssimp\include\aiFileIO.h" />
+    <ClInclude Include="ImportAssimp\include\aiLight.h" />
+    <ClInclude Include="ImportAssimp\include\aiMaterial.h" />
+    <ClInclude Include="ImportAssimp\include\aiMatrix3x3.h" />
+    <ClInclude Include="ImportAssimp\include\aiMatrix4x4.h" />
+    <ClInclude Include="ImportAssimp\include\aiMesh.h" />
+    <ClInclude Include="ImportAssimp\include\aiPostProcess.h" />
+    <ClInclude Include="ImportAssimp\include\aiQuaternion.h" />
+    <ClInclude Include="ImportAssimp\include\aiScene.h" />
+    <ClInclude Include="ImportAssimp\include\aiTexture.h" />
+    <ClInclude Include="ImportAssimp\include\aiTypes.h" />
+    <ClInclude Include="ImportAssimp\include\aiVector2D.h" />
+    <ClInclude Include="ImportAssimp\include\aiVector3D.h" />
+    <ClInclude Include="ImportAssimp\include\aiVersion.h" />
+    <ClInclude Include="ImportAssimp\include\assimp.h" />
+    <ClInclude Include="ImportAssimp\include\assimp.hpp" />
+    <ClInclude Include="ImportAssimp\include\DefaultLogger.h" />
+    <ClInclude Include="ImportAssimp\include\IOStream.h" />
+    <ClInclude Include="ImportAssimp\include\IOSystem.h" />
+    <ClInclude Include="ImportAssimp\include\Logger.h" />
+    <ClInclude Include="ImportAssimp\include\LogStream.h" />
+    <ClInclude Include="ImportAssimp\include\NullLogger.h" />
+    <ClInclude Include="ImportAssimp\include\Compiler\poppack1.h" />
+    <ClInclude Include="ImportAssimp\include\Compiler\pushpack1.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\crc32.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\deflate.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\inffast.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\inffixed.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\inflate.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\inftrees.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\trees.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\zconf.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\zconf.in.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\zlib.h" />
+    <ClInclude Include="ImportAssimp\contrib\zlib\zutil.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\CXMLReaderImpl.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\heapsort.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrArray.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrString.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrTypes.h" />
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrXML.h" />
+    <ClInclude Include="ImportAssimp\contrib\ConvertUTF\ConvertUTF.h" />
+    <ClInclude Include="ImportAssimp\code\3DSHelper.h" />
+    <ClInclude Include="ImportAssimp\code\3DSLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ACLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ASELoader.h" />
+    <ClInclude Include="ImportAssimp\code\ASEParser.h" />
+    <ClInclude Include="ImportAssimp\code\assbin_chunks.h" />
+    <ClInclude Include="ImportAssimp\code\AssimpPCH.h" />
+    <ClInclude Include="ImportAssimp\code\B3DImporter.h" />
+    <ClInclude Include="ImportAssimp\code\BaseImporter.h" />
+    <ClInclude Include="ImportAssimp\code\BaseProcess.h" />
+    <ClInclude Include="ImportAssimp\code\BVHLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ByteSwap.h" />
+    <ClInclude Include="ImportAssimp\code\CalcTangentsProcess.h" />
+    <ClInclude Include="ImportAssimp\code\COBLoader.h" />
+    <ClInclude Include="ImportAssimp\code\COBScene.h" />
+    <ClInclude Include="ImportAssimp\code\ColladaHelper.h" />
+    <ClInclude Include="ImportAssimp\code\ColladaLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ColladaParser.h" />
+    <ClInclude Include="ImportAssimp\code\ComputeUVMappingProcess.h" />
+    <ClInclude Include="ImportAssimp\code\ConvertToLHProcess.h" />
+    <ClInclude Include="ImportAssimp\code\CSMLoader.h" />
+    <ClInclude Include="ImportAssimp\code\DefaultIOStream.h" />
+    <ClInclude Include="ImportAssimp\code\DefaultIOSystem.h" />
+    <ClInclude Include="ImportAssimp\code\DXFLoader.h" />
+    <ClInclude Include="ImportAssimp\code\Exceptional.h" />
+    <ClInclude Include="ImportAssimp\code\fast_atof.h" />
+    <ClInclude Include="ImportAssimp\code\FileLogStream.h" />
+    <ClInclude Include="ImportAssimp\code\FileSystemFilter.h" />
+    <ClInclude Include="ImportAssimp\code\FindDegenerates.h" />
+    <ClInclude Include="ImportAssimp\code\FindInstancesProcess.h" />
+    <ClInclude Include="ImportAssimp\code\FindInvalidDataProcess.h" />
+    <ClInclude Include="ImportAssimp\code\FixNormalsStep.h" />
+    <ClInclude Include="ImportAssimp\code\GenericProperty.h" />
+    <ClInclude Include="ImportAssimp\code\GenFaceNormalsProcess.h" />
+    <ClInclude Include="ImportAssimp\code\GenVertexNormalsProcess.h" />
+    <ClInclude Include="ImportAssimp\code\HalfLifeFileData.h" />
+    <ClInclude Include="ImportAssimp\code\Hash.h" />
+    <ClInclude Include="ImportAssimp\code\HMPFileData.h" />
+    <ClInclude Include="ImportAssimp\code\HMPLoader.h" />
+    <ClInclude Include="ImportAssimp\code\IFF.h" />
+    <ClInclude Include="ImportAssimp\code\ImproveCacheLocality.h" />
+    <ClInclude Include="ImportAssimp\code\IRRLoader.h" />
+    <ClInclude Include="ImportAssimp\code\IRRMeshLoader.h" />
+    <ClInclude Include="ImportAssimp\code\IRRShared.h" />
+    <ClInclude Include="ImportAssimp\code\irrXMLWrapper.h" />
+    <ClInclude Include="ImportAssimp\code\JoinVerticesProcess.h" />
+    <ClInclude Include="ImportAssimp\code\LimitBoneWeightsProcess.h" />
+    <ClInclude Include="ImportAssimp\code\LineSplitter.h" />
+    <ClInclude Include="ImportAssimp\code\LWOAnimation.h" />
+    <ClInclude Include="ImportAssimp\code\LWOFileData.h" />
+    <ClInclude Include="ImportAssimp\code\LWOLoader.h" />
+    <ClInclude Include="ImportAssimp\code\LWSLoader.h" />
+    <ClInclude Include="ImportAssimp\code\MaterialSystem.h" />
+    <ClInclude Include="ImportAssimp\code\MD2FileData.h" />
+    <ClInclude Include="ImportAssimp\code\MD2Loader.h" />
+    <ClInclude Include="ImportAssimp\code\MD2NormalTable.h" />
+    <ClInclude Include="ImportAssimp\code\MD3FileData.h" />
+    <ClInclude Include="ImportAssimp\code\MD3Loader.h" />
+    <ClInclude Include="ImportAssimp\code\MD5Loader.h" />
+    <ClInclude Include="ImportAssimp\code\MD5Parser.h" />
+    <ClInclude Include="ImportAssimp\code\MDCFileData.h" />
+    <ClInclude Include="ImportAssimp\code\MDCLoader.h" />
+    <ClInclude Include="ImportAssimp\code\MDCNormalTable.h" />
+    <ClInclude Include="ImportAssimp\code\MDLDefaultColorMap.h" />
+    <ClInclude Include="ImportAssimp\code\MDLFileData.h" />
+    <ClInclude Include="ImportAssimp\code\MDLLoader.h" />
+    <ClInclude Include="ImportAssimp\code\MemoryIOWrapper.h" />
+    <ClInclude Include="ImportAssimp\code\MS3DLoader.h" />
+    <ClInclude Include="ImportAssimp\code\NFFLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ObjFileData.h" />
+    <ClInclude Include="ImportAssimp\code\ObjFileImporter.h" />
+    <ClInclude Include="ImportAssimp\code\ObjFileMtlImporter.h" />
+    <ClInclude Include="ImportAssimp\code\ObjFileParser.h" />
+    <ClInclude Include="ImportAssimp\code\ObjTools.h" />
+    <ClInclude Include="ImportAssimp\code\OFFLoader.h" />
+    <ClInclude Include="ImportAssimp\code\OgreImporter.h" />
+    <ClInclude Include="ImportAssimp\code\OgreXmlHelper.h" />
+    <ClInclude Include="ImportAssimp\code\OptimizeGraph.h" />
+    <ClInclude Include="ImportAssimp\code\OptimizeMeshes.h" />
+    <ClInclude Include="ImportAssimp\code\ParsingUtils.h" />
+    <ClInclude Include="ImportAssimp\code\PlyLoader.h" />
+    <ClInclude Include="ImportAssimp\code\PlyParser.h" />
+    <ClInclude Include="ImportAssimp\code\PretransformVertices.h" />
+    <ClInclude Include="ImportAssimp\code\ProcessHelper.h" />
+    <ClInclude Include="ImportAssimp\code\pstdint.h" />
+    <ClInclude Include="ImportAssimp\code\Q3DLoader.h" />
+    <ClInclude Include="ImportAssimp\code\qnan.h" />
+    <ClInclude Include="ImportAssimp\code\RawLoader.h" />
+    <ClInclude Include="ImportAssimp\code\RemoveComments.h" />
+    <ClInclude Include="ImportAssimp\code\RemoveRedundantMaterials.h" />
+    <ClInclude Include="ImportAssimp\code\RemoveVCProcess.h" />
+    <ClInclude Include="ImportAssimp\code\SceneCombiner.h" />
+    <ClInclude Include="ImportAssimp\code\ScenePreprocessor.h" />
+    <ClInclude Include="ImportAssimp\code\SGSpatialSort.h" />
+    <ClInclude Include="ImportAssimp\code\SkeletonMeshBuilder.h" />
+    <ClInclude Include="ImportAssimp\code\SMDLoader.h" />
+    <ClInclude Include="ImportAssimp\code\SmoothingGroups.h" />
+    <ClInclude Include="ImportAssimp\code\SortByPTypeProcess.h" />
+    <ClInclude Include="ImportAssimp\code\SpatialSort.h" />
+    <ClInclude Include="ImportAssimp\code\SplitLargeMeshes.h" />
+    <ClInclude Include="ImportAssimp\code\StandardShapes.h" />
+    <ClInclude Include="ImportAssimp\code\StdOStreamLogStream.h" />
+    <ClInclude Include="ImportAssimp\code\STLLoader.h" />
+    <ClInclude Include="ImportAssimp\code\StreamReader.h" />
+    <ClInclude Include="ImportAssimp\code\StringComparison.h" />
+    <ClInclude Include="ImportAssimp\code\Subdivision.h" />
+    <ClInclude Include="ImportAssimp\code\TargetAnimation.h" />
+    <ClInclude Include="ImportAssimp\code\TerragenLoader.h" />
+    <ClInclude Include="ImportAssimp\code\TextureTransform.h" />
+    <ClInclude Include="ImportAssimp\code\TinyFormatter.h" />
+    <ClInclude Include="ImportAssimp\code\TriangulateProcess.h" />
+    <ClInclude Include="ImportAssimp\code\UnrealLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ValidateDataStructure.h" />
+    <ClInclude Include="ImportAssimp\code\Vertex.h" />
+    <ClInclude Include="ImportAssimp\code\VertexTriangleAdjacency.h" />
+    <ClInclude Include="ImportAssimp\code\Win32DebugLogStream.h" />
+    <ClInclude Include="ImportAssimp\code\XFileHelper.h" />
+    <ClInclude Include="ImportAssimp\code\XFileImporter.h" />
+    <ClInclude Include="ImportAssimp\code\XFileParser.h" />
+    <ClInclude Include="ImportDirectShow\dxtrans.h" />
+    <ClInclude Include="ImportDirectShow\RRBufferDirectShow.h" />
+    <ClInclude Include="ImportOpenCollada\RRObjectOpenCollada.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFW.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimatable.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimatableFloat.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimation.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimationCurve.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimationList.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnnotate.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWArray.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWArrayPrimitiveType.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAxisInfo.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWCamera.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWCode.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWColor.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWColorOrTexture.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWConstants.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWController.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEdge.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEffect.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEffectCommon.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWException.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFileInfo.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFloatOrDoubleArray.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFloatOrParam.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormula.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormulaNewParam.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormulas.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWGeometry.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWHashFunctions.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWILoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWImage.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWImageSource.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInclude.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWIndexList.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceBase.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceBindingBase.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceCamera.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceController.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceGeometry.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceKinematicsScene.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceLight.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceNode.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceSceneGraph.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceVisualScene.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWIWriter.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWJoint.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWJointPrimitive.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsController.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsModel.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsScene.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLibraryNodes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLight.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLines.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLinestrips.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLoaderUtils.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLookat.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMaterial.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMaterialBinding.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMatrix.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMesh.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshPrimitive.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshPrimitiveWithFaceVertexCount.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshVertexData.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWModifier.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMorphController.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMotionProfile.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWNewParam.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWNode.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWObject.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWParam.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPass.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassClear.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassOutput.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassTarget.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPointerArray.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPolygons.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderDraw.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderState.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderStateStatic.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRoot.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRotate.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSampler.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWScale.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWScene.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSemantic.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSetParam.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderBlinn.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderConstantFX.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderElement.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderLambert.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderPhong.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShear.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkew.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkinController.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkinControllerData.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWStableHeaders.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTarget.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTargetableValue.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTechnique.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTexture.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTextureCoordinateBinding.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTransformation.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTranslate.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTriangles.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTrifans.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTristrips.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTypes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWUniqueId.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWValidate.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWValueType.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWVisualScene.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLAccessor.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLArrayElement.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLAssetLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLCOLLADACsymbol.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLDocumentProcessor.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLException.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLExtraDataElementHandler.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLExtraDataLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFileLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFilePartLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFormulasLinker.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFormulasLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLGeometryLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLGeometryMaterialIdInfo.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLHelperLoaderBase.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIError.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIErrorHandler.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIExtraDataCallbackHandler.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIFilePartLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInputShared.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInputUnshared.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceArticulatedSystemLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceKinematicsModelLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIntermediateTargetable.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInterpolationTypeSource.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLJointsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLKinematicsIntermediateData.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLKinematicsSceneCreator.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryAnimationsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryArticulatedSystemsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryCamerasLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryControllersLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryEffectsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryFormulasLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryImagesLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryJointsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsModelsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsScenesLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryLightsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryMaterialsLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryNodesLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLMeshLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLMeshPrimitiveInputList.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLNodeLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPHElement.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPolygons.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPostProcessor.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPrimitiveBase.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLRootParser14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLRootParser15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxFWLError.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxParserError.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxParserErrorHandler.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSceneLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSidAddress.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSidTreeNode.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSource.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSourceArrayLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLStableHeaders.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTechniqueCommon.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTransformationLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTypes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLUtils.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVersionParser.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVertices.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVisualSceneLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLXmlTypes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLAssetLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Attributes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Enums.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14FunctionMapFactory.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Private.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14ValidationData.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLGeometryLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryAnimationsLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryCamerasLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryControllersLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryEffectsLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryImagesLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryLightsLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryMaterialsLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryNodesLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLMeshLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLNodeLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSceneLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSourceArrayLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLVisualSceneLoader14.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLAssetLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Attributes.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Enums.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15FunctionMapFactory.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Private.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15ValidationData.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLFormulasLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLGeometryLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryAnimationsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryArticulatedSystemsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryCamerasLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryControllersLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryEffectsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryFormulasLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryImagesLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryJointsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryLightsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryMaterialsLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryNodesLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLMeshLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLNodeLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLSceneLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLSourceArrayLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLVisualSceneLoader15.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABU.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUException.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUhash_map.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUHashFunctions.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUIDList.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUNativeString.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPcreCompiledPattern.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPlatform.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUStableHeaders.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUStringUtils.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUURI.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUUtils.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathMatrix3.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathMatrix4.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathQuaternion.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathUtils.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathVector3.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_linux.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_mac.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_win.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\pcre.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\pcre_internal.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\ucp.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\UTF\include\ConvertUTF.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLError.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLEvaluatorVisitor.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLParser.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLParserConstants.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLPlatform.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSerializationUtil.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSerializationVisitor.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSingleton.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverFunctionExtensions.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverStableHeaders.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLStreamParser.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLStreamParserHandler.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLString.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSymbolTable.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTArithmeticExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTBinaryComparisionExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTConstantExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTFragmentExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTFunctionExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTLogicExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTNode.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTStringVisitor.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTUnaryArithmeticExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTVariableExpression.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTVisitor.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\amigaconfig.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\ascii.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\asciitab.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\expat.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\expat_external.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\iasciitab.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\internal.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\latin1tab.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\macconfig.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\nametab.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\utf8tab.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\winconfig.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmlrole.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmltok.h" />
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmltok_impl.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParser.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserCoutErrorHandler.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserExpatSaxParser.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserIErrorHandler.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserINamespaceHandler.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserIUnknownElementHandler.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserNamespaceStack.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParser.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserError.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserTemplate.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserTemplateBase.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserPrerequisites.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserRawUnknownElementHandler.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserSaxParser.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserStackMemoryManager.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserTypes.h" />
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserUtils.h" />
+    <ClInclude Include="ImportGoogleEarth\RRObjectKMZ.h" />
+    <ClInclude Include="ImportLightsprint\portable_binary_archive.hpp" />
+    <ClInclude Include="ImportLightsprint\portable_binary_iarchive.hpp" />
+    <ClInclude Include="ImportLightsprint\portable_binary_oarchive.hpp" />
+    <ClInclude Include="ImportLightsprint\RRObjectLightsprint.h" />
+    <ClInclude Include="ImportLightsprint\RRRelocation.h" />
+    <ClInclude Include="ImportLightsprint\RRSerialization.h" />
+    <ClInclude Include="..\..\include\Lightsprint\IO\ImportScene.h" />
+    <ClInclude Include="supported_formats.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ImportAssimp\include\aiMaterial.inl" />
+    <None Include="ImportAssimp\include\aiMatrix3x3.inl" />
+    <None Include="ImportAssimp\include\aiMatrix4x4.inl" />
+    <None Include="ImportAssimp\include\aiVector3D.inl" />
+    <None Include="ImportAssimp\code\SmoothingGroups.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2010.vcxproj">
+      <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

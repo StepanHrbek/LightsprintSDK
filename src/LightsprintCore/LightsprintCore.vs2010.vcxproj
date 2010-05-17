@@ -1,0 +1,787 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug DLL|Win32">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug DLL|x64">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|Win32">
+      <Configuration>Debug static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|x64">
+      <Configuration>Debug static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|Win32">
+      <Configuration>Release DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|x64">
+      <Configuration>Release DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|Win32">
+      <Configuration>Release static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|x64">
+      <Configuration>Release static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}</ProjectGuid>
+    <RootNamespace>LightsprintCore</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">$(ProjectName)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">$(ProjectName)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">$(ProjectName)_dd</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>copy dll to UE3</Message>
+      <Command>if exist "$(SolutionDir)..\..\Binaries" copy ..\..\bin\$(Platform)\$(ProjectName).dll "$(SolutionDir)..\..\Binaries"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>copy dll to UE3</Message>
+      <Command>if exist "$(SolutionDir)..\..\Binaries" copy ..\..\bin\$(Platform)\$(ProjectName)_dd.dll "$(SolutionDir)..\..\Binaries"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include; ..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="RRCollider\bsp.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRCollider\geometry.cpp" />
+    <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
+    <ClCompile Include="RRCollider\IntersectBspFast.cpp" />
+    <ClCompile Include="RRCollider\IntersectLinear.cpp" />
+    <ClCompile Include="RRCollider\IntersectVerification.cpp" />
+    <ClCompile Include="RRCollider\RRCollider.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRCollider\RRRay.cpp" />
+    <ClCompile Include="RRCollider\fpcube.cpp" />
+    <ClCompile Include="RRCollider\pcube.cpp" />
+    <ClCompile Include="RRMesh\RRMesh.cpp" />
+    <ClCompile Include="RRMesh\RRMeshAccelerated.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshArrays.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshLessVertices.cpp" />
+    <ClCompile Include="RRObject\RRCollisionHandler.cpp" />
+    <ClCompile Include="RRObject\RRObject.cpp" />
+    <ClCompile Include="RRObject\RRObjects.cpp" />
+    <ClCompile Include="RRObject\RRObjectWithPhysicalMaterials.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRLightField.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRObjectIllumination.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\exceptions.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\gatherer.cpp" />
+    <ClCompile Include="RRStaticSolver\geometry_v.cpp" />
+    <ClCompile Include="RRStaticSolver\interpol.cpp" />
+    <ClCompile Include="RRStaticSolver\rrcore.cpp" />
+    <ClCompile Include="RRStaticSolver\RRStaticSolver.cpp" />
+    <ClCompile Include="RRDynamicSolver\environmentMap.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\gather.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\Interpolator.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\lightmap.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\LightmapFilter.cpp" />
+    <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\vertexBuffer.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRPackedSolver\PackedSolverFileBuild.cpp" />
+    <ClCompile Include="RRPackedSolver\RRPackedSolver.cpp" />
+    <ClCompile Include="RRLight.cpp" />
+    <ClCompile Include="RRBuffer\RRBuffer.cpp" />
+    <ClCompile Include="RRBuffer\RRBufferInMemory.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporter.cpp" />
+    <ClCompile Include="RRReporter\RRReporterFile.cpp" />
+    <ClCompile Include="RRReporter\RRReporterOutputDebugString.cpp" />
+    <ClCompile Include="RRReporter\RRReporterPrintf.cpp" />
+    <ClCompile Include="RRReporter\RRReporterWindow.cpp" />
+    <ClCompile Include="RRReporter\RRReportInterval.cpp" />
+    <ClCompile Include="RRScene.cpp" />
+    <ClCompile Include="RRObject\RRMaterial.cpp" />
+    <ClCompile Include="RRHash\RRHash.cpp" />
+    <ClCompile Include="RRHash\sha1.cpp" />
+    <ClCompile Include="RRMath.cpp" />
+    <ClCompile Include="squish\alpha.cpp" />
+    <ClCompile Include="squish\clusterfit.cpp" />
+    <ClCompile Include="squish\colourblock.cpp" />
+    <ClCompile Include="squish\colourfit.cpp" />
+    <ClCompile Include="squish\colourset.cpp" />
+    <ClCompile Include="squish\maths.cpp" />
+    <ClCompile Include="squish\rangefit.cpp" />
+    <ClCompile Include="squish\singlecolourfit.cpp" />
+    <ClCompile Include="squish\squish.cpp" />
+    <ClCompile Include="OfflineSetup.cpp" />
+    <ClCompile Include="Preferences.cpp" />
+    <ClCompile Include="RRMemory.cpp" />
+    <ClCompile Include="RRObject\RRScaler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RRCollider\bsp.h" />
+    <ClInclude Include="RRCollider\config.h" />
+    <ClInclude Include="RRCollider\geometry.h" />
+    <ClInclude Include="RRCollider\IntersectBsp.h" />
+    <ClInclude Include="RRCollider\IntersectBspCompact.h" />
+    <ClInclude Include="RRCollider\IntersectBspFast.h" />
+    <ClInclude Include="RRCollider\IntersectLinear.h" />
+    <ClInclude Include="RRCollider\IntersectVerification.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRCollider.h" />
+    <ClInclude Include="RRCollider\pcube.h" />
+    <ClInclude Include="RRCollider\vec.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRMesh.h" />
+    <ClInclude Include="RRMesh\RRMeshFilter.h" />
+    <ClInclude Include="RRMesh\RRMeshFilterTransformed.h" />
+    <ClInclude Include="RRMesh\RRMeshIndexedTriList.h" />
+    <ClInclude Include="RRMesh\RRMeshIndexedTriStrip.h" />
+    <ClInclude Include="RRMesh\RRMeshLessTriangles.h" />
+    <ClInclude Include="RRMesh\RRMeshLessVertices.h" />
+    <ClInclude Include="RRMesh\RRMeshMulti.h" />
+    <ClInclude Include="RRMesh\RRMeshTriList.h" />
+    <ClInclude Include="RRMesh\RRMeshTriStrip.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRObject.h" />
+    <ClInclude Include="RRObject\RRObjectFilter.h" />
+    <ClInclude Include="RRObject\RRObjectFilterTransformed.h" />
+    <ClInclude Include="RRObject\RRObjectMulti.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRIllumination.h" />
+    <ClInclude Include="RRStaticSolver\ChunkList.h" />
+    <ClInclude Include="RRStaticSolver\gatherer.h" />
+    <ClInclude Include="RRStaticSolver\geometry_v.h" />
+    <ClInclude Include="RRStaticSolver\interpol.h" />
+    <ClInclude Include="RRStaticSolver\rrcore.h" />
+    <ClInclude Include="RRStaticSolver\RRStaticSolver.h" />
+    <ClInclude Include="RRDynamicSolver\gather.h" />
+    <ClInclude Include="RRDynamicSolver\Interpolator.h" />
+    <ClInclude Include="RRDynamicSolver\LightmapFilter.h" />
+    <ClInclude Include="RRDynamicSolver\private.h" />
+    <ClInclude Include="RRDynamicSolver\report.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRDynamicSolver.h" />
+    <ClInclude Include="RRPackedSolver\PackedSolverFile.h" />
+    <ClInclude Include="RRPackedSolver\RRPackedSolver.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRLight.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRBuffer.h" />
+    <ClInclude Include="RRBuffer\RRBufferInMemory.h" />
+    <ClInclude Include="RRReporter\reporterWindow.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRScene.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRMaterial.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRHash.h" />
+    <ClInclude Include="RRHash\sha1.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRMath.h" />
+    <ClInclude Include="RRMathPrivate.h" />
+    <ClInclude Include="squish\alpha.h" />
+    <ClInclude Include="squish\clusterfit.h" />
+    <ClInclude Include="squish\colourblock.h" />
+    <ClInclude Include="squish\colourfit.h" />
+    <ClInclude Include="squish\colourset.h" />
+    <ClInclude Include="squish\config.h" />
+    <ClInclude Include="squish\maths.h" />
+    <ClInclude Include="squish\rangefit.h" />
+    <ClInclude Include="squish\simd.h" />
+    <ClInclude Include="squish\simd_float.h" />
+    <ClInclude Include="squish\simd_sse.h" />
+    <ClInclude Include="squish\simd_ve.h" />
+    <ClInclude Include="squish\singlecolourfit.h" />
+    <ClInclude Include="squish\squish.h" />
+    <ClInclude Include="LicGen.h" />
+    <ClInclude Include="Preferences.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRDebug.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRVector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="squish\singlecolourlookup.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,660 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug DLL|Win32">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug DLL|x64">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|Win32">
+      <Configuration>Debug static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|x64">
+      <Configuration>Debug static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|Win32">
+      <Configuration>Release DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|x64">
+      <Configuration>Release DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|Win32">
+      <Configuration>Release static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|x64">
+      <Configuration>Release static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2D2907C3-3E69-234A-306C-243C989A3411}</ProjectGuid>
+    <RootNamespace>LightsprintGL</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\lib\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">$(ProjectName)_sd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">$(ProjectName)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">$(ProjectName)_sr</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sr.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_sd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_dd.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0405</Culture>
+      <AdditionalIncludeDirectories>..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Link>
+      <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc100_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(IntDir)vc90.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
+    <ClInclude Include="SceneViewer\SVApp.h" />
+    <ClInclude Include="SceneViewer\SVCanvas.h" />
+    <ClInclude Include="SceneViewer\SVComment.h" />
+    <ClInclude Include="SceneViewer\SVCustomProperties.h" />
+    <ClInclude Include="SceneViewer\SVEntity.h" />
+    <ClInclude Include="SceneViewer\SVEntityIcons.h" />
+    <ClInclude Include="SceneViewer\SVFrame.h" />
+    <ClInclude Include="SceneViewer\SVLightmapViewer.h" />
+    <ClInclude Include="SceneViewer\SVLightProperties.h" />
+    <ClInclude Include="SceneViewer\SVMaterialProperties.h" />
+    <ClInclude Include="SceneViewer\SVMeasuring.h" />
+    <ClInclude Include="SceneViewer\SVObjectProperties.h" />
+    <ClInclude Include="SceneViewer\SVRayLog.h" />
+    <ClInclude Include="SceneViewer\SVSaveLoad.h" />
+    <ClInclude Include="SceneViewer\SVSceneProperties.h" />
+    <ClInclude Include="SceneViewer\SVSceneTree.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\Camera.h" />
+    <ClInclude Include="CameraObjectDistance.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
+    <ClInclude Include="FBO.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="MultiPass.h" />
+    <ClInclude Include="PreserveState.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\RealtimeLight.h" />
+    <ClInclude Include="RendererOfMesh.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\RendererOfScene.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\Texture.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\Timer.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\ToneMapping.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\Water.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SceneViewer\SVApp.cpp" />
+    <ClCompile Include="SceneViewer\SVCanvas.cpp" />
+    <ClCompile Include="SceneViewer\SVComment.cpp" />
+    <ClCompile Include="SceneViewer\SVCustomProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVEntityIcons.cpp" />
+    <ClCompile Include="SceneViewer\SVFrame.cpp" />
+    <ClCompile Include="SceneViewer\SVLightmapViewer.cpp" />
+    <ClCompile Include="SceneViewer\SVLightProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVMaterialProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVMeasuring.cpp" />
+    <ClCompile Include="SceneViewer\SVObjectProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVRayLog.cpp" />
+    <ClCompile Include="SceneViewer\SVSaveLoad.cpp" />
+    <ClCompile Include="SceneViewer\SVSceneProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVSceneTree.cpp" />
+    <ClCompile Include="SceneViewer\SVStub.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CameraObjectDistance.cpp" />
+    <ClCompile Include="FBO.cpp" />
+    <ClCompile Include="FPS.cpp" />
+    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="MultiPass.cpp" />
+    <ClCompile Include="Program.cpp" />
+    <ClCompile Include="RealtimeLight.cpp" />
+    <ClCompile Include="RendererOfMesh.cpp" />
+    <ClCompile Include="RendererOfScene.cpp" />
+    <ClCompile Include="RRDynamicSolverGL.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureRenderer.cpp" />
+    <ClCompile Include="ToneMapping.cpp" />
+    <ClCompile Include="UberProgram.cpp" />
+    <ClCompile Include="UberProgramSetup.cpp" />
+    <ClCompile Include="Water.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\data\shaders\lightmap_build.fs" />
+    <None Include="..\..\data\shaders\lightmap_build.vs" />
+    <None Include="..\..\data\shaders\lightmap_filter.fs" />
+    <None Include="..\..\data\shaders\lightmap_filter.vs" />
+    <None Include="..\..\data\shaders\scaledown_filter.fs" />
+    <None Include="..\..\data\shaders\scaledown_filter.vs" />
+    <None Include="..\..\data\shaders\sky.fs" />
+    <None Include="..\..\data\shaders\sky.vs" />
+    <None Include="..\..\data\shaders\texture.fs" />
+    <None Include="..\..\data\shaders\texture.vs" />
+    <None Include="..\..\data\shaders\ubershader.fs" />
+    <None Include="..\..\data\shaders\ubershader.vs" />
+    <None Include="..\..\data\shaders\water.fs" />
+    <None Include="..\..\data\shaders\water.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2010.vcxproj">
+      <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

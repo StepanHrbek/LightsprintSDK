@@ -113,30 +113,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gamebryo Lightspeed", "Game
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "offline rendering samples", "offline rendering samples", "{DC77EDC9-4CFB-438A-92BE-DA33ED8C8D96}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RenderLights", "RenderLights", "{6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLViewer", "RENDERLights\RLViewer.vcproj", "{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{98765432-1234-11D0-8D11-00A0C91BC942} = {98765432-1234-11D0-8D11-00A0C91BC942}
-		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLPower", "RENDERLights\RLPower.vcproj", "{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{98765432-1234-11D0-8D11-00A0C91BC942} = {98765432-1234-11D0-8D11-00A0C91BC942}
-		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E2D79514-4603-434B-B393-32BE2B77CED4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsprint.Toolbench.Plugin", "Lightsprint.Toolbench.Plugin\Lightsprint.Toolbench.Plugin.vcproj", "{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lightsprint.Toolbench.Plugin.UI", "Lightsprint.Toolbench.Plugin.UI\Lightsprint.Toolbench.Plugin.UI.csproj", "{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLManager", "RENDERLights\RLManager.vcproj", "{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -701,62 +683,6 @@ Global
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Shipping DLL|Mixed Platforms.Build.0 = Debug DLL|x64
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Shipping DLL|Win32.ActiveCfg = Debug DLL|x64
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Shipping DLL|x64.ActiveCfg = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|Mixed Platforms.ActiveCfg = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|Mixed Platforms.Build.0 = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug DLL|x64.Build.0 = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|Mixed Platforms.ActiveCfg = Debug static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|Mixed Platforms.Build.0 = Debug static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|Win32.Build.0 = Debug static|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|x64.ActiveCfg = Debug static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Debug static|x64.Build.0 = Debug static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|Mixed Platforms.ActiveCfg = Release DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|Mixed Platforms.Build.0 = Release DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|x64.ActiveCfg = Release DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release DLL|x64.Build.0 = Release DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|Mixed Platforms.ActiveCfg = Release static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|Mixed Platforms.Build.0 = Release static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|Win32.ActiveCfg = Release static|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|Win32.Build.0 = Release static|Win32
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|x64.ActiveCfg = Release static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Release static|x64.Build.0 = Release static|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Shipping DLL|Mixed Platforms.ActiveCfg = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Shipping DLL|Mixed Platforms.Build.0 = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Shipping DLL|Win32.ActiveCfg = Debug DLL|x64
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1}.Shipping DLL|x64.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Mixed Platforms.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Mixed Platforms.Build.0 = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|x64.Build.0 = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Mixed Platforms.ActiveCfg = Debug static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Mixed Platforms.Build.0 = Debug static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Win32.Build.0 = Debug static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|x64.ActiveCfg = Debug static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|x64.Build.0 = Debug static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Mixed Platforms.ActiveCfg = Release DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Mixed Platforms.Build.0 = Release DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|x64.ActiveCfg = Release DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|x64.Build.0 = Release DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Mixed Platforms.ActiveCfg = Release static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Mixed Platforms.Build.0 = Release static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.ActiveCfg = Release static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.Build.0 = Release static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.ActiveCfg = Release static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.Build.0 = Release static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Shipping DLL|Mixed Platforms.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Shipping DLL|Mixed Platforms.Build.0 = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Shipping DLL|Win32.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Shipping DLL|x64.ActiveCfg = Debug DLL|x64
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Mixed Platforms.ActiveCfg = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Mixed Platforms.Build.0 = Debug|Win32
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}.Debug DLL|Win32.ActiveCfg = Debug|Win32
@@ -799,31 +725,6 @@ Global
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Shipping DLL|Win32.ActiveCfg = Shipping|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Shipping DLL|Win32.Build.0 = Shipping|Any CPU
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}.Shipping DLL|x64.ActiveCfg = Shipping|Any CPU
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Mixed Platforms.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Mixed Platforms.Build.0 = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.Build.0 = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|x64.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Mixed Platforms.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Mixed Platforms.Build.0 = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.Build.0 = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|x64.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Mixed Platforms.ActiveCfg = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Mixed Platforms.Build.0 = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.Build.0 = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|x64.ActiveCfg = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Mixed Platforms.ActiveCfg = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Mixed Platforms.Build.0 = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.ActiveCfg = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.Build.0 = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|x64.ActiveCfg = Release|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Mixed Platforms.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Mixed Platforms.Build.0 = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Win32.ActiveCfg = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|Win32.Build.0 = Debug|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Shipping DLL|x64.ActiveCfg = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -844,9 +745,6 @@ Global
 		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A} = {DC77EDC9-4CFB-438A-92BE-DA33ED8C8D96}
 		{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD} = {3EA1D8F7-F459-49EA-813E-3586D4D2922F}
 		{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660} = {3EA1D8F7-F459-49EA-813E-3586D4D2922F}
-		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		AMDCaProjectFile = C:\Users\dee\Documents\C\rr\src\CodeAnalyst\RR.vs2008.caw

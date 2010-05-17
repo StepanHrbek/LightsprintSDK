@@ -33,9 +33,9 @@
 	#undef SUPPORT_FCOLLADA
 #endif
 
-// Gamebryo doesn't support Visual Studio 2003, 64-bit code, Linux.
+// Gamebryo doesn't support Visual Studio 2003, 2010, 64-bit code, Linux.
 // We don't support Gamebryo in static LightsprintIO (it works, but Gamebryo libs are not automatically linked to samples).
-#if defined(SUPPORT_GAMEBRYO) && ( !defined(_MSC_VER) || _MSC_VER<1400 || defined(_M_X64) || defined(RR_IO_STATIC) )
+#if defined(SUPPORT_GAMEBRYO) && ( !defined(_MSC_VER) || _MSC_VER<1400 || _MSC_VER>1500 || defined(_M_X64) || defined(RR_IO_STATIC) )
 	#undef SUPPORT_GAMEBRYO
 #endif
 
@@ -44,7 +44,7 @@
 	#undef SUPPORT_DIRECTSHOW
 #endif
 
-// Google Earth support exists only for specific Visual Studio 2008 project.
-#if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1500) )
+// Google Earth support exists only for specific Visual Studio 2010 project.
+#if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1600) )
 	#undef SUPPORT_GOOGLEEARTH
 #endif

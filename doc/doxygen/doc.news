@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news103 ------------------------------------ 2010.05.xx -------------------------------------
+
+NEWS
+
+- full Visual Studio 2010 support (32bit, 64bit)
+
 \section news102 ------------------------------------ 2010.05.11 -------------------------------------
 
 NEWS
