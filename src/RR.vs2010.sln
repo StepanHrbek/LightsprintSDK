@@ -37,6 +37,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider.vs2010", "..\samples\MultiMeshCollider\MultiMeshCollider.vs2010.vcxproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsmark2008", "Lightsmark2008\Lightsmark2008.vcxproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2010", "..\samples\RealtimeLights\RealtimeLights.vs2010.vcxproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
 EndProject
