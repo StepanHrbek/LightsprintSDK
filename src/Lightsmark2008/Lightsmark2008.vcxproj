@@ -113,6 +113,12 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FCSS\FCSS.vs2010.vcxproj">
+      <Project>{5a0a9769-ea99-4a20-bc0d-74f39fdcca88}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
