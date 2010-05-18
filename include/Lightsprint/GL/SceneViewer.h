@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
-#if _MSC_VER==1500
+#if _MSC_VER==1600
 //#define CUSTOMIZED_FOR_3DRENDER
 #endif
 
