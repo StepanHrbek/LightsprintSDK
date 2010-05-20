@@ -991,6 +991,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	if (BspTree::allows_transition)
 	{
 		#define TREE_SIZE(tree,nodeSize,triSize) (tree ? tree->bspnodes*nodeSize + tree->kdnodes*(nodeSize+sizeof(real)) + tree->kdleaves*nodeSize + tree->faces*triSize : 0)
+		#pragma warning(disable:4101) // VS2010, stop warning that smallerTriInfo is unused variable, it is used type
 		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T smallerBspTree,smallerBspTree2;
 		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T::_TriInfo smallerTriInfo;
 		//unsigned frontSizeMax = TREE_SIZE(t->front,sizeof(BspTree),sizeof(typename BspTree::_TriInfo));
