@@ -1758,7 +1758,7 @@ public:
 								// physical set index for the whole mesh
 								size_t uvSet = colladaMesh->getUVSetIndexByName(uvChannel->getName());
 
-								uvIndex	= uvStart + uvStride * uvIndex;
+								uvIndex	= uvStride * uvIndex;
 
 								switch(colladaMesh->getUVCoords().getType())
 								{
