@@ -444,4 +444,7 @@ Global
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		AMDCaProjectFile = C:\Users\dee\Documents\C\rr\src\CodeAnalyst\RR.vs2010.caw
+	EndGlobalSection
 EndGlobal
