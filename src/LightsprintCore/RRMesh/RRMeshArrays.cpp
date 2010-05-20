@@ -116,7 +116,6 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	return true;
 }
 
-
 bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<unsigned>& _texcoords)
 {
 	if (!_mesh) return false;
@@ -382,13 +381,5 @@ RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texco
 	delete importer;
 	return NULL;
 }
-
-/*bool RRMesh::save(char* filename)
-{
-	RRMeshArrays* arrays = createArrays();
-	bool result = arrays && arrays->save(filename);
-	RR_SAFE_DELETE(arrays);
-	return result;
-}*/
 
 } // namespace rr
