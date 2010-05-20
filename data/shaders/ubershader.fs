@@ -568,9 +568,13 @@ void main()
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;
 		#else
-		#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-			gl_FragColor.a = opacity;
-		#endif
+			#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+				gl_FragColor.a = opacity;
+			#endif
+			#if (defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
+				// only if not defined by material, opacity is taken from lightmap/vertex colors
+				gl_FragColor.a = lightIndirectLightmap.a;
+			#endif
 		#endif
 	#else
 		// all lights are disabled, render black pixels
