@@ -373,10 +373,10 @@ public:
 	}
 	const Interpolator* getInterpolator(unsigned iSize, unsigned oSize, RRReal radius)
 	{
-		Key key;
-		key.iSize = iSize;
-		key.oSize = oSize;
-		key.radius = radius;
+		// this is just hash, but good enough for us
+		// (there was problem with proper struct Key in VS2010, reducing Key to float solved it)
+		float key = radius + iSize + oSize*3.378f;
+
 		Interpolator* result;
 		#pragma omp critical
 		{
@@ -403,17 +403,7 @@ public:
 		}
 	}
 private:
-	struct Key
-	{
-		unsigned iSize;
-		unsigned oSize;
-		RRReal radius;
-		operator float() const
-		{
-			return radius + iSize + oSize*3.3f;
-		}
-	};
-	typedef boost::unordered_map<Key,Interpolator*> Map;
+	typedef boost::unordered_map<float,Interpolator*> Map;
 	Map interpolators;
 };
 
