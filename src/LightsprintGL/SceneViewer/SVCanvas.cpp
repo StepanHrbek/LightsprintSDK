@@ -753,23 +753,9 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 	if (!fontInited)
 	{
 		fontInited = true;
-		HFONT font = CreateFont(
-			-15,							// Height Of Font
-			0,								// Width Of Font
-			0,								// Angle Of Escapement
-			0,								// Orientation Angle
-			FW_THIN,						// Font Weight
-			FALSE,							// Italic
-			FALSE,							// Underline
-			FALSE,							// Strikeout
-			ANSI_CHARSET,					// Character Set Identifier
-			OUT_TT_PRECIS,					// Output Precision
-			CLIP_DEFAULT_PRECIS,			// Clipping Precision
-			ANTIALIASED_QUALITY,			// Output Quality
-			FF_DONTCARE|FIXED_PITCH,		// Family And Pitch
-			_T("System"));					// Font Name
+		HFONT font = CreateFont(-15,0,0,0,FW_THIN,FALSE,FALSE,FALSE,ANSI_CHARSET,OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,ANTIALIASED_QUALITY,FF_DONTCARE|FIXED_PITCH,_T("System"));
 		SelectObject(wglGetCurrentDC(), font);
-		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000);
+		wglUseFontBitmaps(wglGetCurrentDC(),0,127,1000);
 		glListBase(1000);
 	}
 #endif
@@ -1393,7 +1379,7 @@ rendered:
 			RR_ASSERT(!vignetteImage);
 			vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
 		}
-		if (vignetteImage)
+		if (vignetteImage && textureRenderer)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1426,7 +1412,7 @@ rendered:
 					"Controls");
 			}
 		}
-		if (helpImage)
+		if (helpImage && textureRenderer)
 		{
 			float w = helpImage->getWidth()/(float)winWidth;
 			float h = helpImage->getHeight()/(float)winHeight;
@@ -1460,7 +1446,7 @@ rendered:
 			RR_ASSERT(!logoImage);
 			logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
 		}
-		if (logoImage)
+		if (logoImage && textureRenderer)
 		{
 			float w = logoImage->getWidth()/(float)winWidth;
 			float h = logoImage->getHeight()/(float)winHeight;
@@ -1485,7 +1471,7 @@ rendered:
 			RR_ASSERT(!fpsDisplay);
 			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
 		}
-		if (fpsDisplay)
+		if (fpsDisplay && textureRenderer)
 		{
 			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
 		}
