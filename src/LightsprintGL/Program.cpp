@@ -207,8 +207,7 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if (loc == -1)
 	{
-		rr::RRReporter::report(rr::ERRO,"Variable %s disappeared from shader. This is usually graphics card driver error.\n",name);
-		exit(0);
+		RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::ERRO,"Variable %s disappeared from shader. This is usually graphics card driver error.\n",name));
 	}
 	return loc;
 }

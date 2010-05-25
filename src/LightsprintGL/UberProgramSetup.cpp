@@ -426,11 +426,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		}
 		if (!LIGHT_DIRECTIONAL)
 		{
-			if (!program->uniformExists("worldLightPos"))
-			{
-				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Miscompiled shader, this is known driver bug.\n"));
-				return NULL;
-			}
 			program->sendUniform("worldLightPos",light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
 		}
 	}
