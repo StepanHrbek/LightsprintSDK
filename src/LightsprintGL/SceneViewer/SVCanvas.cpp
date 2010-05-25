@@ -28,6 +28,7 @@
 namespace rr_gl
 {
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // SVCanvas
@@ -124,6 +125,7 @@ void SVCanvas::createContextCore()
 		winWidth = viewport[2];
 		winHeight = viewport[3];
 	}
+
 
 	// init solver
 	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
@@ -1476,6 +1478,7 @@ rendered:
 			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
 		}
 	}
+
 }
 
 void SVCanvas::OnPaint(wxPaintEvent& event)
