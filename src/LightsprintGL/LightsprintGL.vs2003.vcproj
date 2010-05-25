@@ -496,6 +496,12 @@
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\Water.h">
 		</File>
+		<File
+			RelativePath="Workaround.cpp">
+		</File>
+		<File
+			RelativePath="Workaround.h">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

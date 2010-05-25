@@ -8,6 +8,7 @@
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRDebug.h"
 #include "FBO.h"
+#include "Workaround.h"
 #include <vector>
 
 namespace rr_gl
@@ -268,18 +269,9 @@ Texture::~Texture()
 //
 // ShadowMap
 
-// AMD doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
 static GLenum filtering()
 {
-	static GLenum mode = GL_LINEAR;
-	static bool inited = 0;
-	if (!inited)
-	{
-		char* renderer = (char*)glGetString(GL_RENDERER);
-		if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")||strstr(renderer,"FireGL"))) mode = GL_NEAREST;
-		inited = 1;
-	}
-	return mode;
+	return Workaround::needsUnfilteredShadowmaps()?GL_NEAREST:GL_LINEAR;
 }
 
 Texture* Texture::createShadowmap(unsigned width, unsigned height)

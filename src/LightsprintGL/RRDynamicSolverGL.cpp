@@ -12,6 +12,7 @@
 #include "CameraObjectDistance.h"
 #include "PreserveState.h"
 #include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
+#include "Workaround.h"
 #include "tmpstr.h"
 
 #define REPORT(a) //a
@@ -35,38 +36,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 			detectionQuality = _detectionQuality;
 			break;
 		default:
-		{
-			// known to driver-crash or otherwise fail with 8x8: X300, FireGL 3200
-			// known to work with 8x8: X1600, X2400, X3780, X4850, 6150, 7100, 8800
-			// so our automatic pick is:
-			//   4x4 for radeon 9500..9999, x100..1299, FireGL
-			//   8x8 for others
-			detectionQuality = DDI_8X8;
-			char* renderer = (char*)glGetString(GL_RENDERER);
-			if (renderer)
-			{
-				// find 4digit number
-				unsigned number = 0;
-				#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-				for (unsigned i=0;renderer[i];i++)
-					if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
-					{
-						number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
-						break;
-					}
-					else
-					if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
-					{
-						number = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
-						break;
-					}
-
-				if ( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500) ) detectionQuality = DDI_4X4; // fixes X300
-				//if ( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<6000) ) detectionQuality = DDI_4X4; // never tested
-				if ( strstr(renderer,"FireGL") ) detectionQuality = DDI_4X4; // fixes FireGL 3200
-			}
+			detectionQuality = Workaround::needsDDI4x4()?DDI_4X4:DDI_8X8;
 			break;
-		}
 	}
 	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;

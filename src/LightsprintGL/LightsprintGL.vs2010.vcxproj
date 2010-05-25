@@ -595,6 +595,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Water.h" />
+    <ClInclude Include="Workaround.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp" />
@@ -631,6 +632,7 @@
     <ClCompile Include="UberProgram.cpp" />
     <ClCompile Include="UberProgramSetup.cpp" />
     <ClCompile Include="Water.cpp" />
+    <ClCompile Include="Workaround.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\lightmap_build.fs" />

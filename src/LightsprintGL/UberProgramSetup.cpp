@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/RRDebug.h"
+#include "Workaround.h"
 
 namespace rr_gl
 {
@@ -118,8 +119,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
 
 const char* UberProgramSetup::getSetupString()
 {
-	static bool SHADOW_BILINEAR = true;
-	RR_LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
+	bool SHADOW_BILINEAR = !Workaround::needsUnfilteredShadowmaps();
 
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
@@ -222,40 +222,8 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 			|| (LIGHT_DIRECT && !program->uniformExists("worldLightPos")) // stop when uniform missing, workaround for Nvidia bug
 			) break;
 	}
-	unsigned instancesPerPassOrig = --SHADOW_MAPS;
-	char* renderer = (char*)glGetString(GL_RENDERER);
-	if (renderer)
-	{
-		// find 4digit number
-		unsigned number = 0;
-		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-		for (unsigned i=0;renderer[i];i++)
-			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
-			{
-				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
-				break;
-			}
-
-		// workaround for Catalyst bug (driver crashes or outputs garbage on long shader)
-		if ( strstr(renderer,"Radeon")||strstr(renderer,"RADEON") )
-		{
-			if ( (number>=1300 && number<=1999) )
-			{
-				// X1950 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
-				// X1650 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,4);
-			}
-			else
-			if ( (number>=9500 || number<=1299) )
-			{
-				// X300 in Lightsmark2008 5->2or1, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,1);
-			}
-		}
-	}
-	// 2 is ugly, prefer 1
-	if (SHADOW_MAPS==2) SHADOW_MAPS--;
-	rr::RRReporter::report(rr::INF1,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	SHADOW_MAPS--;
+	SHADOW_MAPS = Workaround::needsReducedQualityPenumbra(SHADOW_MAPS-1);
 	return SHADOW_MAPS;
 }
 

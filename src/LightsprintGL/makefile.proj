@@ -52,6 +52,7 @@ ToneMapping.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
 Water.cpp \
+Workaround.cpp \
 SceneViewer/SVApp.spp \
 SceneViewer/SVComment.spp \
 SceneViewer/SVCanvas.spp \
