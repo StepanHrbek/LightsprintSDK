@@ -36,7 +36,7 @@ void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
 	if (gfxRelated)
-		rr::RRReporter::report(rr::ERRO,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5200-9800, 100-295 (including GeForce Go)\n - Radeon 9500-9800, X300-1950, HD2300-5970 (including Mobility Radeon)\n - subset of FireGL and Quadro families");
+		rr::RRReporter::report(rr::ERRO,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5200-9800, 100-480, ION\n - Radeon 9500-9800, X300-1950, HD2300-5970\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
