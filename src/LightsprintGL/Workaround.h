@@ -19,7 +19,8 @@ class Workaround
 {
 public:
 	static bool needsUnfilteredShadowmaps();
-	static void needsIncreasedBias(float& slopeBias,float& fixedBias,rr::RRLight& light);
+	static bool needsOneSampleShadowmaps(const rr::RRLight& light);
+	static void needsIncreasedBias(float& slopeBias,float& fixedBias,const rr::RRLight& light);
 	static bool needsDDI4x4();
 	static unsigned needsReducedQualityPenumbra(unsigned SHADOW_MAPS);
 private:

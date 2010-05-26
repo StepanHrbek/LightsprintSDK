@@ -6,6 +6,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
+#include "Workaround.h"
 #include <GL/glew.h>
 
 namespace rr_gl
@@ -196,6 +197,8 @@ namespace rr_gl
 	unsigned RealtimeLight::getNumShadowSamples() const
 	{
 		if (!getRRLight().castShadows) return 0;
+		if (Workaround::needsOneSampleShadowmaps(getRRLight()))
+			return 1;
 		switch(getRRLight().type)
 		{
 			case rr::RRLight::POINT: return 1;

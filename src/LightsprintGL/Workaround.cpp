@@ -55,8 +55,8 @@ void Workaround::init()
 
 bool Workaround::needsUnfilteredShadowmaps()
 {
-	// legacy AMD doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
-	// X300 is bad, HD 2400,3870,4850 is ok
+	// legacy AMD (X300, X1650) doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
+	// HD 2400,3870,4850 is ok
 	// we don't know legacy firegl numbers, therefore we treat all firegl as new, with pros/cons:
 	//  + new firegl have shadows filtered
 	//  - legacy firegl pointlight shadows contain wireframe cube
@@ -64,10 +64,20 @@ bool Workaround::needsUnfilteredShadowmaps()
 	return isRadeon && (modelNumber>=9500 || modelNumber<2199);
 }
 
-void Workaround::needsIncreasedBias(float& slopeBias,float& fixedBias,rr::RRLight& light)
+bool Workaround::needsOneSampleShadowmaps(const rr::RRLight& light)
 {
+	// legacy AMD (X300, X1650) render shadow acne in distant 1-sample shadows if near shadows use 4 or 8 samples.
+	// increased bias did not help, forcing 1-sample for near shadows helps
 	init();
-	if (light.type==rr::RRLight::POINT && (isFire || (isRadeon && (modelNumber>=9500 || modelNumber<=4999)))) // fixes X300, HD 2400, 3870, 4850 (with 24 or 32bit depth, not necessary for 16bit), 5870 is ok, firegl not tested
+	return light.type==rr::RRLight::DIRECTIONAL && isRadeon && (modelNumber>=9500 || modelNumber<2199);
+}
+
+void Workaround::needsIncreasedBias(float& slopeBias,float& fixedBias,const rr::RRLight& light)
+{
+	// single bias value thet works everywhere would create unnecessarily high bias on modern GPUs
+	// therefore we adjust bias differently for different GPU families
+	init();
+	if (light.type==rr::RRLight::POINT && (isFire || (isRadeon && (modelNumber>=9500 || modelNumber<=4999)))) // fixes X300, X1650, HD 2400, 3870, 4850 (with 24 or 32bit depth, not necessary for 16bit), 5870 is ok, firegl not tested
 		fixedBias *= 60;
 	if (light.type==rr::RRLight::POINT && (isQuadro || isGeforce)) // fixes 8800, helps fix 7100
 		fixedBias *= 4;
