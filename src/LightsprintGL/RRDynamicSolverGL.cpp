@@ -263,8 +263,10 @@ void RRDynamicSolverGL::updateShadowmaps()
 				}
 				else
 				{
-					float bias = 1.f*light->getNumShadowSamples(i);
-					glPolygonOffset(bias,1.f*(10<<(shadowmap->getTexelBits()-16)));
+					float slopeBias = (light->getNumShadowSamples(i)==1)?1:4;
+					float fixedBias = slopeBias;
+					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
+					glPolygonOffset(slopeBias,fixedBias);
 					if (!shadowmap->getBuffer())
 					{
 						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (buffer=NULL).\n"));

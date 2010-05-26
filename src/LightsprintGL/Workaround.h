@@ -19,9 +19,11 @@ class Workaround
 {
 public:
 	static bool needsUnfilteredShadowmaps();
-	static bool needsIncreasedBias(rr::RRLight& light);
+	static void needsIncreasedBias(float& slopeBias,float& fixedBias,rr::RRLight& light);
 	static bool needsDDI4x4();
 	static unsigned needsReducedQualityPenumbra(unsigned SHADOW_MAPS);
+private:
+	static void init();
 };
 
 }; // namespace

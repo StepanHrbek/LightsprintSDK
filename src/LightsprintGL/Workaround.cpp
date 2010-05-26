@@ -14,35 +14,65 @@ namespace rr_gl
 //
 // Workaround
 
-bool Workaround::needsUnfilteredShadowmaps()
+static char* renderer = NULL;
+static bool isGeforce = false;
+static bool isQuadro = false;
+static bool isRadeon = false;
+static bool isFire = false;
+static unsigned modelNumber = 0;
+
+void Workaround::init()
 {
-	// AMD doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
-	static bool result = false;
 	static bool inited = 0;
 	if (!inited)
 	{
 		inited = 1;
-		char* renderer = (char*)glGetString(GL_RENDERER);
-		if (renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")||strstr(renderer,"FireGL")))
-			result = true;
+
+		renderer = (char*)glGetString(GL_RENDERER);
+		if (!renderer) renderer = "";
+
+		isGeforce = strstr(renderer,"GeForce")!=NULL;
+		isQuadro = strstr(renderer,"Quadro")!=NULL;
+		isRadeon = strstr(renderer,"Radeon") || strstr(renderer,"RADEON");
+		isFire = strstr(renderer,"Fire")!=NULL;
+
+		// find 3-4digit model number
+		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+		for (unsigned i=0;renderer[i];i++)
+			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+			{
+				modelNumber = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
+				break;
+			}
+			else
+			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
+			{
+				modelNumber = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
+				break;
+			}
 	}
-	return result;
 }
 
-bool Workaround::needsIncreasedBias(rr::RRLight& light)
+bool Workaround::needsUnfilteredShadowmaps()
 {
-	if (light.type!=rr::RRLight::POINT)
-		return false;
-	static bool result = false;
-	static bool inited = 0;
-	if (!inited)
-	{
-		inited = 1;
-		char* renderer = (char*)glGetString(GL_RENDERER);
-		if (renderer && (strstr(renderer,"GeForce")||strstr(renderer,"Quadro")))
-			result = true;
-	}
-	return result;
+	// legacy AMD doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
+	// X300 is bad, HD 2400,3870,4850 is ok
+	// we don't know legacy firegl numbers, therefore we treat all firegl as new, with pros/cons:
+	//  + new firegl have shadows filtered
+	//  - legacy firegl pointlight shadows contain wireframe cube
+	init();
+	return isRadeon && (modelNumber>=9500 || modelNumber<2199);
+}
+
+void Workaround::needsIncreasedBias(float& slopeBias,float& fixedBias,rr::RRLight& light)
+{
+	init();
+	if (light.type==rr::RRLight::POINT && (isFire || (isRadeon && (modelNumber>=9500 || modelNumber<=4999)))) // fixes X300, HD 2400, 3870, 4850 (with 24 or 32bit depth, not necessary for 16bit), 5870 is ok, firegl not tested
+		fixedBias *= 60;
+	if (light.type==rr::RRLight::POINT && (isQuadro || isGeforce)) // fixes 8800, helps fix 7100
+		fixedBias *= 4;
+	if (isQuadro || (isGeforce && (modelNumber>=5000 && modelNumber<=7999))) // fixes 7100
+		fixedBias *= 256;
 }
 
 bool Workaround::needsDDI4x4()
@@ -52,68 +82,36 @@ bool Workaround::needsDDI4x4()
 	// so our automatic pick is:
 	//   4x4 for radeon 9500..9999, x100..1299, FireGL
 	//   8x8 for others
-	char* renderer = (char*)glGetString(GL_RENDERER);
-	if (renderer)
-	{
-		// find 4digit number
-		unsigned number = 0;
-		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-		for (unsigned i=0;renderer[i];i++)
-			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
-			{
-				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
-				break;
-			}
-			else
-			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && !IS_DIGIT(renderer[i+4]))
-			{
-				number = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
-				break;
-			}
-
-		if ( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number<1300 || number>=9500) ) return true; // fixes X300
-		//if ( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<6000) ) detectionQuality = DDI_4X4; // never tested
-		if ( strstr(renderer,"FireGL") ) return true; // fixes FireGL 3200
-	}
+	init();
+	if ( isRadeon && (modelNumber>=9500 || modelNumber<=1299) ) return true; // fixes X300
+	//if ( isGeforce && (modelNumber>=5000 && modelNumber<=5999) ) detectionQuality = DDI_4X4; // never tested
+	if ( isFire ) return true; // fixes FireGL 3200
 	return false;
 }
 
 unsigned Workaround::needsReducedQualityPenumbra(unsigned SHADOW_MAPS)
 {
+	init();
 	unsigned instancesPerPassOrig = SHADOW_MAPS;
-	char* renderer = (char*)glGetString(GL_RENDERER);
-	if (renderer)
+	// workaround for Catalyst bug (driver crashes or outputs garbage on long shader)
+	if ( isRadeon || isFire )
 	{
-		// find 4digit number
-		unsigned number = 0;
-		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
-		for (unsigned i=0;renderer[i];i++)
-			if (!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
-			{
-				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
-				break;
-			}
-
-		// workaround for Catalyst bug (driver crashes or outputs garbage on long shader)
-		if ( strstr(renderer,"Radeon")||strstr(renderer,"RADEON")||strstr(renderer,"FireGL") )
+		if ( (modelNumber>=1300 && modelNumber<=1999) )
 		{
-			if ( (number>=1300 && number<=1999) )
-			{
-				// X1950 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
-				// X1650 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,4);
-			}
-			else
-			if ( (number>=9500 || number<=1299) )
-			{
-				// X300 in Lightsmark2008 5->2or1, otherwise reads garbage from last shadowmap
-				SHADOW_MAPS = RR_MIN(SHADOW_MAPS,1);
-			}
+			// X1950 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
+			// X1650 in Lightsmark2008 8->4, otherwise reads garbage from last shadowmap
+			SHADOW_MAPS = RR_MIN(SHADOW_MAPS,4);
+		}
+		else
+		if ( (modelNumber>=9500 || modelNumber<=1299) )
+		{
+			// X300 in Lightsmark2008 5->2or1, otherwise reads garbage from last shadowmap
+			SHADOW_MAPS = RR_MIN(SHADOW_MAPS,1);
 		}
 	}
 	// 2 is ugly, prefer 1
 	if (SHADOW_MAPS==2) SHADOW_MAPS--;
-	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer);
 	return SHADOW_MAPS;
 }
 

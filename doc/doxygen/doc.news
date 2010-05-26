@@ -8,6 +8,18 @@ namespace rr
 
 \page main_news What's new
 
+\section news104 ------------------------------------ 2010.05.xx -------------------------------------
+
+NEWS
+
+- improved realtime rendering quality
+  - greatly reduced shadow bias (more bits in shadowmaps)
+  - filtered shadowmap edges on Radeons HD 2400-5970
+  - antialiasing in Sceneviewer
+  - reduced z-fight in Sceneviewer (more bits in framebuffer depth)
+- improved realtime rendering robustness
+  - extended fallback mechanism for legacy GPUs
+
 \section news103 ------------------------------------ 2010.05.20 -------------------------------------
 
 NEWS
