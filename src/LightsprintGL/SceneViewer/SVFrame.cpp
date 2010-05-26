@@ -1300,6 +1300,7 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 
 			m_canvas->selectedType = entity.type;
 			svs.selectedLightIndex = entity.index;
+			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_LIGHT_PROPERTIES));
 			break;
 
 		case ST_STATIC_OBJECT:
@@ -1313,6 +1314,7 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 
 			m_canvas->selectedType = entity.type;
 			svs.selectedObjectIndex = entity.index;
+			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_OBJECT_PROPERTIES));
 			break;
 
 		case ST_CAMERA:
