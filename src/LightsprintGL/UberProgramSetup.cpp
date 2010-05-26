@@ -222,7 +222,6 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 			|| (LIGHT_DIRECT && !program->uniformExists("worldLightPos")) // stop when uniform missing, workaround for Nvidia bug
 			) break;
 	}
-	SHADOW_MAPS--;
 	SHADOW_MAPS = Workaround::needsReducedQualityPenumbra(SHADOW_MAPS-1);
 	return SHADOW_MAPS;
 }
