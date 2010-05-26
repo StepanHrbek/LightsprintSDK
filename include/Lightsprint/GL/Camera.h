@@ -117,9 +117,11 @@ public:
 	//! Camera should be up to date before call, use update() if it is not.
 	//! \param scene
 	//!  Multiobject with all objects in scene.
+	//! \param water
+	//!  Whether to test distance and prevent near/far clipping also for virtual water plane.
 	//! \param waterLevel
-	//!  Function works as if plane of given y coordinate is part of scene.
-	void  setRangeDynamically(const rr::RRObject* scene, float waterLevel=-1e10f);
+	//!  y coordinate of water plane.
+	void  setRangeDynamically(const rr::RRObject* scene, bool water=false, float waterLevel=-1e10f);
 
 	//! == operator, true when inputs are equal.
 	bool operator==(const Camera& a) const;

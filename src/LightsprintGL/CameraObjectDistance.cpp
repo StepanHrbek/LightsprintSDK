@@ -13,9 +13,10 @@ namespace rr_gl
 //
 // CameraObjectDistance
 
-CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, float _waterLevel)
+CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, bool _water, float _waterLevel)
 {
 	object = _object;
+	water = _water;
 	waterLevel = _waterLevel;
 	distMin = 1e10f;
 	distMax = 0;
@@ -67,9 +68,12 @@ void CameraObjectDistance::addPoint(const rr::RRVec3& pos)
 		}
 	}
 	// measure distance to water level
-	float distanceOfPotentialNearPlane = fabs(pos.y-waterLevel);
-	distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
-	distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
+	if (water)
+	{
+		float distanceOfPotentialNearPlane = fabs(pos.y-waterLevel);
+		distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
+		distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
+	}
 }
 
 void CameraObjectDistance::addCamera(Camera* camera)
@@ -93,9 +97,12 @@ void CameraObjectDistance::addCamera(Camera* camera)
 	}
 	// measure distance to water level
 	// simplification: works as if camera always points to water
-	float distanceOfPotentialNearPlane = fabs(camera->pos.y-waterLevel);
-	distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
-	distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
+	if (water)
+	{
+		float distanceOfPotentialNearPlane = fabs(camera->pos.y-waterLevel);
+		distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
+		distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
+	}
 }
 
 }; // namespace

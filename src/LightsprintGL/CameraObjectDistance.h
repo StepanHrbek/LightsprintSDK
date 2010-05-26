@@ -16,7 +16,7 @@ namespace rr_gl
 class CameraObjectDistance
 {
 public:
-	CameraObjectDistance(const rr::RRObject* object, float waterLevel=-1e10f);
+	CameraObjectDistance(const rr::RRObject* object, bool water=false, float waterLevel=-1e10f);
 	~CameraObjectDistance();
 
 	void addRay(const rr::RRVec3& pos, rr::RRVec3 dir);
@@ -34,6 +34,7 @@ public:
 
 private:
 	const rr::RRObject* object;
+	bool water;
 	float waterLevel;
 	float distMin;
 	float distMax;
