@@ -33,8 +33,16 @@ namespace rr_gl
 //
 // SVCanvas
 
+int attribList[] = {
+	WX_GL_RGBA,
+	WX_GL_DOUBLEBUFFER,
+	//WX_GL_SAMPLE_BUFFERS, GL_TRUE, // produces no visible improvement
+	WX_GL_SAMPLES, 4, // antialiasing. can be later disabled by glDisable(GL_MULTISAMPLE), but it doesn't improve speed (tested on X1650). it must be disabled here (change 4 to 1) for higher fps
+	WX_GL_DEPTH_SIZE, 24, // default is 16, explicit 24 should reduce z-fight. 32 fails on all cards tested including 5870
+	0, 0};
+
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
-	: wxGLCanvas(_parent, wxID_ANY, NULL, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE , _T("GLCanvas")), svs(_svs)
+	: wxGLCanvas(_parent, wxID_ANY, attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, _T("GLCanvas")), svs(_svs)
 {
 	context = NULL;
 	parent = _parent;
