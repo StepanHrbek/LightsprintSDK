@@ -150,26 +150,25 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 	if (!program)
 	{
-		// Radeon X300 fails to run some complex shaders in one pass
-		// disabling transparency map saves SceneViewer sample
+		// try disable transparency map
 		if (uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 		{
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
-			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with one feature disabled (transparency map).\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with transparency map disabled.\n"));
 		}
-		// disabling specular reflection saves SceneViewer sample (helps GF6150)
+		// try disable specular reflection (saves SceneViewer+GF6150)
 		if (!program && uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
-			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with some features disabled.\n"));
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with specular disabled.\n"));
 		}
-		// disabling light detail map saves Lightsmark (helps GF6150)
+		// try disable LDM (saves Lightsmark+GF6150)
 		if (!program && uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP)
 		{
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
@@ -177,7 +176,25 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
-		// splitting shader in two saves MovingSun sample (this might be important also for GF5/6/7)
+		// try disable emissive map
+		if (uberProgramSetup.MATERIAL_EMISSIVE_MAP)
+		{
+			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
+			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 1;
+			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with emissive map disabled.\n"));
+		}
+		// try disable diffuse map (saves SceneViewer+X300,X1650)
+		if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		{
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_CONST = 1;
+			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlaneY);
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with diffuse map disabled.\n"));
+		}
+		// try split blending shader in two
 		if (!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
 		{
 			separatedAmbientPass = 1;
