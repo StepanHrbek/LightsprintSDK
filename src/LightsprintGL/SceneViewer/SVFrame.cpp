@@ -611,6 +611,7 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 save_scene:
 			if (m_canvas->manuallyOpenedScene)
 			{
+				m_canvas->manuallyOpenedScene->lights = m_canvas->solver->getLights();
 				if (!m_canvas->manuallyOpenedScene->save(svs.sceneFilename.c_str()))
 					wxMessageBox("Save failed.","Not saved.",wxOK|wxICON_ERROR);
 			}
