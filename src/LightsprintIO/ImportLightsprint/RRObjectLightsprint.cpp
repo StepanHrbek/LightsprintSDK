@@ -20,7 +20,7 @@
 #define USE_PORTABLE_BINARY_ZLIB // portable binary zlib archive, boost must be compiled with zlib
 
 
-// .rr3 format depends on boost, http://boost.org.
+// .rr3 code uses boost, http://boost.org.
 // If you don't have boost, install it or comment out #define SUPPORT_LIGHTSPRINT.
 
 #include "RRObjectLightsprint.h"

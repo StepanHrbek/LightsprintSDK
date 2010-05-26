@@ -263,7 +263,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				}
 				else
 				{
-					float slopeBias = (light->getNumShadowSamples(i)==1)?1:4;
+					float slopeBias = (light->getNumShadowSamples(i)==1)?1.f:4.f;
 					float fixedBias = slopeBias;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
 					glPolygonOffset(slopeBias,fixedBias);
