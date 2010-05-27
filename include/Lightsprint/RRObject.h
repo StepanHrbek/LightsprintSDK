@@ -295,8 +295,8 @@ namespace rr
 
 		//! Creates and returns collision handler, that finds closest visible surface.
 		//
-		//! \n Finds closest surface with RRMaterial::sideBits::render.
-		//! \n It is suitable e.g for picking objects in rendering window, only rendered pixels collide.
+		//! \n Finds closest surface with RRMaterial::sideBits::render and specularTransmittance.color!=1.
+		//! \n It is suitable e.g for picking objects in rendering window, only visible pixels collide.
 		//!
 		//! Thread safe: this function yes, but created collision handler no.
 		//! (typical use case: for n threads, use 1 collider, n rays and n handlers.)
