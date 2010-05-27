@@ -135,6 +135,8 @@ void SVCanvas::createContextCore()
 	}
 
 
+	textureRenderer = new TextureRenderer(svs.pathToShaders);
+
 	// init solver
 	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
 	if (svs.initialInputSolver)
@@ -1382,10 +1384,6 @@ rendered:
 		if (!vignetteLoadAttempted)
 		{
 			vignetteLoadAttempted = true;
-			if (!textureRenderer)
-			{
-				textureRenderer = new TextureRenderer(svs.pathToShaders);
-			}
 			RR_ASSERT(!vignetteImage);
 			vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
 		}
@@ -1404,10 +1402,6 @@ rendered:
 		if (!helpLoadAttempted)
 		{
 			helpLoadAttempted = true;
-			if (!textureRenderer)
-			{
-				textureRenderer = new TextureRenderer(svs.pathToShaders);
-			}
 			RR_ASSERT(!helpImage);
 			helpImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_help.png",svs.pathToShaders));
 			if (!helpImage)
@@ -1449,10 +1443,6 @@ rendered:
 		if (!logoLoadAttempted)
 		{
 			logoLoadAttempted = true;
-			if (!textureRenderer)
-			{
-				textureRenderer = new TextureRenderer(svs.pathToShaders);
-			}
 			RR_ASSERT(!logoImage);
 			logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
 		}
@@ -1474,10 +1464,6 @@ rendered:
 		if (!fpsLoadAttempted)
 		{
 			fpsLoadAttempted = true;
-			if (!textureRenderer)
-			{
-				textureRenderer = new TextureRenderer(svs.pathToShaders);
-			}
 			RR_ASSERT(!fpsDisplay);
 			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
 		}
