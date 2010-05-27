@@ -562,6 +562,18 @@ void SVFrame::UpdateMenuBar()
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
+	try
+	{
+		OnMenuEventCore(event);
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Processing event failed.\n");
+	}
+}
+
+void SVFrame::OnMenuEventCore(wxCommandEvent& event)
+{
 	RR_ASSERT(m_canvas);
 	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
 	RR_ASSERT(solver);
@@ -651,7 +663,8 @@ save_scene_as:
 
 					// delete extension if it can't be saved, dialog will automatically append supported one
 					std::string presetFilename = svs.sceneFilename;
-					std::string extension = presetFilename.substr(svs.sceneFilename.find_last_of("."));
+					std::string::size_type lastDot = svs.sceneFilename.find_last_of(".");
+					std::string extension = (lastDot==std::string::npos) ? presetFilename : presetFilename.substr(lastDot);
 					std::string extensions = rr::RRScene::getSupportedSaverExtensions();
 					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
 					if (!extensionSupportsSave) presetFilename = presetFilename.substr(0,presetFilename.size()-extension.size());
