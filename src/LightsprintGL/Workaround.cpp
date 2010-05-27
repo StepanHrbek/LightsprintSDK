@@ -77,10 +77,8 @@ void Workaround::needsIncreasedBias(float& slopeBias,float& fixedBias,const rr::
 	// single bias value thet works everywhere would create unnecessarily high bias on modern GPUs
 	// therefore we adjust bias differently for different GPU families
 	init();
-	if (light.type==rr::RRLight::POINT && (isFire || (isRadeon && (modelNumber>=9500 || modelNumber<=4999)))) // fixes X300, X1650, HD 2400, 3870, 4850 (with 24 or 32bit depth, not necessary for 16bit), 5870 is ok, firegl not tested
-		fixedBias *= 60;
-	if (light.type==rr::RRLight::POINT && (isQuadro || isGeforce)) // fixes 8800, helps fix 7100
-		fixedBias *= 4;
+	if (light.type==rr::RRLight::POINT && (isFire || isRadeon)) // fixes all radeons (with 24 or 32bit depth, not necessary for 16bit), firegl not tested
+		fixedBias *= 15;
 	if (isQuadro || (isGeforce && (modelNumber>=5000 && modelNumber<=7999))) // fixes 7100
 		fixedBias *= 256;
 }
