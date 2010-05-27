@@ -89,23 +89,21 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 	leanAngle = 0;
 }
 
-void Camera::setAspect(float _aspect)
+void Camera::setAspect(float _aspect, float _effectOnFOV)
 {
+	float oldAspect = aspect;
 	aspect = RR_CLAMPED(_aspect,0.001f,1000);
+	if (_effectOnFOV)
+	{
+		double v0 = RR_DEG2RAD(fieldOfViewVerticalDeg);
+		double v1 = atan(tan(v0*0.5)*oldAspect/aspect)*2;
+		setFieldOfViewVerticalDeg((float)RR_RAD2DEG(v0+_effectOnFOV*(v1-v0)));
+	}
 }
 
 void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 {
-	if (aspect>1)
-	{
-		// wide screen, horizontal fov is closer to 180deg limit
-		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f/aspect);
-	}
-	else
-	{
-		// tall screen, vertical fov is closer to 180deg limit
-		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
-	}
+	fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
 }
 
 void Camera::setNear(float _near)

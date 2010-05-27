@@ -317,10 +317,6 @@ SVCanvas::~SVCanvas()
 
 void SVCanvas::OnSize(wxSizeEvent& event)
 {
-	// this is also necessary to update the context on some platforms
-	// obsoleted in 2.9, probably no longer necessary
-	//wxGLCanvas::OnSize(event);
-
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	int w, h;
 	GetClientSize(&w, &h);
@@ -330,7 +326,7 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 		glViewport(0, 0, (GLint) w, (GLint) h);
 		winWidth = w;
 		winHeight = h;
-		svs.eye.setAspect( winWidth/(float)winHeight );
+		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
 	}
 }
 
@@ -573,7 +569,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		if (event.GetWheelRotation()>0)
 		{
-			if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
+			if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
 		}
 		svs.eye.setFieldOfViewVerticalDeg(fov);
 	}

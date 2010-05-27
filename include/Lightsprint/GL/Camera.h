@@ -104,7 +104,13 @@ public:
 	float getFieldOfViewHorizontalRad() const {return atan(tan(getFieldOfViewVerticalRad()*0.5f)*aspect)*2;}
 	float getNear()                     const {return anear;}
 	float getFar()                      const {return afar;}
-	void  setAspect(float aspect);
+	//! Sets aspect ratio, with configurable effect on FOV.
+	//! \param aspect
+	//!  Your new aspect ratio, usually set to viewport width/height.
+	//! \param effectOnFOV
+	//!  0 to preserve vertical FOV, 1 to preserve horizontal FOV, values between 0 and 1 for blend of both options.
+	//!  Default 0 is absolutely numerically stable, other values add tiny error to FOV each time setAspect is called.
+	void  setAspect(float aspect, float effectOnFOV = 0);
 	void  setFieldOfViewVerticalDeg(float fieldOfViewVerticalDeg);
 	void  setNear(float _near);
 	void  setFar(float _far);
