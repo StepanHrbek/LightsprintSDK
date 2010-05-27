@@ -12,8 +12,8 @@ xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\Microsoft.VC90.CRT"    x64\Microsoft.VC90.CRT
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\Microsoft.VC90.OpenMP" x64\Microsoft.VC90.OpenMP
 
-xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\Microsoft.VC100.CRT"    win32\Microsoft.VC100.CRT
-xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\Microsoft.VC100.OpenMP" win32\Microsoft.VC100.OpenMP
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\Microsoft.VC100.CRT"    win32
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\Microsoft.VC100.OpenMP" win32
 
-xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.CRT"    x64\Microsoft.VC100.CRT
-xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.OpenMP" x64\Microsoft.VC100.OpenMP
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.CRT"    x64
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.OpenMP" x64
