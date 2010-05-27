@@ -29,6 +29,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2010", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2010.vcxproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore.vs2010", "LightsprintCore\LightsprintCore.vs2010.vcxproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh.vs2010", "..\samples\HelloMesh\HelloMesh.vs2010.vcxproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
 EndProject
