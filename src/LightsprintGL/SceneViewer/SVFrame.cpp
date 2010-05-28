@@ -562,17 +562,23 @@ void SVFrame::UpdateMenuBar()
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
-	try
+#ifdef _WIN32
+	__try
 	{
 		OnMenuEventCore(event);
 	}
-	catch(...)
+	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		rr::RRReporter::report(rr::ERRO,"Processing event failed.\n");
+		rr::RRReporter::report(rr::ERRO,"Processing event crashed.\n");
 	}
+#else
+	OnMenuEventCore(event);
+#endif
 }
 
 void SVFrame::OnMenuEventCore(wxCommandEvent& event)
+{
+	try
 {
 	RR_ASSERT(m_canvas);
 	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
@@ -1263,6 +1269,12 @@ reload_skybox:
 	}
 
 	UpdateMenuBar();
+
+}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Processing event failed.\n");
+	}
 }
 
 void SVFrame::OnPaneOpenClose(wxAuiManagerEvent& event)
