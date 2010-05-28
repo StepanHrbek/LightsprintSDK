@@ -438,6 +438,11 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 				svs.renderHelp = false;
 			}
 			else
+			if (svs.fullscreen)
+			{
+				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
+			}
+			else
 			{
 				exitRequested = true;
 			}
