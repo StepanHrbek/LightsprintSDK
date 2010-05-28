@@ -440,7 +440,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			else
 			if (svs.fullscreen)
 			{
-				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
+				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN));
 			}
 			else
 			{
