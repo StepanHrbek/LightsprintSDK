@@ -231,8 +231,6 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("renderLogo",a.renderLogo);
 	ar & make_nvp("renderTonemapping",a.renderTonemapping);
 	ar & make_nvp("adjustTonemapping",a.tonemappingAutomatic);
-	ar & make_nvp("tonemappingAutomaticMin",a.tonemappingAutomaticMin);
-	ar & make_nvp("tonemappingAutomaticMax",a.tonemappingAutomaticMax);
 	ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
 	ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
 	ar & make_nvp("playVideos",a.playVideos);
@@ -290,8 +288,6 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("adjustTonemapping",a.tonemappingAutomatic);
 	if (version>4)
 	{
-		ar & make_nvp("tonemappingAutomaticMin",a.tonemappingAutomaticMin);
-		ar & make_nvp("tonemappingAutomaticMax",a.tonemappingAutomaticMax);
 		ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
 		ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
 	}

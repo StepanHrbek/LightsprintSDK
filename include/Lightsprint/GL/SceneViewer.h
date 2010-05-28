@@ -71,8 +71,6 @@ struct SceneViewerState
 	rr::RRVec4       tonemappingBrightness;     //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by tonemappingAutomatic.
 	float            tonemappingGamma;          //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
-	float            tonemappingAutomaticMin;   //! Lower limit for tonemappingAutomatic.
-	float            tonemappingAutomaticMax;   //! Upper limit for tonemappingAutomatic.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
@@ -118,8 +116,6 @@ struct SceneViewerState
 		renderLogo = 0;
 		renderTonemapping = 1;
 		tonemappingAutomatic = 1;
-		tonemappingAutomaticMin = 0.1f;
-		tonemappingAutomaticMax = 100;
 		tonemappingAutomaticTarget = 0.5;
 		tonemappingAutomaticSpeed = 1;
 		tonemappingBrightness = rr::RRVec4(1);
@@ -167,8 +163,6 @@ struct SceneViewerState
 			&& a.renderLogo==renderLogo
 			&& a.renderTonemapping==renderTonemapping
 			&& a.tonemappingAutomatic==tonemappingAutomatic
-			&& a.tonemappingAutomaticMin==tonemappingAutomaticMin
-			&& a.tonemappingAutomaticMax==tonemappingAutomaticMax
 			&& a.tonemappingAutomaticTarget==tonemappingAutomaticTarget
 			&& a.tonemappingAutomaticSpeed==tonemappingAutomaticSpeed
 			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled

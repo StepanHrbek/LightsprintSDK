@@ -47,8 +47,6 @@ namespace rr_gl
 
 		BoolRefProperty*  propToneMapping;
 		BoolRefProperty*  propToneMappingAutomatic;
-		wxPGProperty*     propToneMappingAutomaticMin;
-		wxPGProperty*     propToneMappingAutomaticMax;
 		wxPGProperty*     propToneMappingAutomaticTarget;
 		wxPGProperty*     propToneMappingAutomaticSpeed;
 		wxPGProperty*     propToneMappingBrightness;

@@ -944,7 +944,6 @@ rendered:
 				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
 				{
 					toneMapping->adjustOperator(secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
-					svs.tonemappingBrightness = rr::RRVec4(RR_CLAMPED(svs.tonemappingBrightness[0],svs.tonemappingAutomaticMin,svs.tonemappingAutomaticMax));
 				}
 				oldTime = newTime;
 			}

@@ -65,12 +65,6 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		AppendIn(propToneMapping,propToneMappingAutomatic);
 
 		{
-			propToneMappingAutomaticMin = new wxFloatProperty(wxT("Min Brightness"),wxPG_LABEL,svs.tonemappingAutomaticMin);
-			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticMin);
-
-			propToneMappingAutomaticMax = new wxFloatProperty(wxT("Max Brightness"),wxPG_LABEL,svs.tonemappingAutomaticMax);
-			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticMax);
-
 			propToneMappingAutomaticTarget = new wxFloatProperty(wxT("Target screen intensity"),wxPG_LABEL,svs.tonemappingAutomaticTarget);
 			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticTarget);
 
@@ -209,8 +203,6 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 void SVSceneProperties::updateHide()
 {
 	propToneMappingAutomatic->Hide(!svs.renderTonemapping,false);
-	propToneMappingAutomaticMin->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
-	propToneMappingAutomaticMax->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingAutomaticTarget->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingAutomaticSpeed->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingBrightness->Hide(!svs.renderTonemapping,false);
@@ -236,8 +228,6 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
-		+ updateFloat(propToneMappingAutomaticMin,svs.tonemappingAutomaticMin)
-		+ updateFloat(propToneMappingAutomaticMax,svs.tonemappingAutomaticMax)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
 		+ updateFloat(propToneMappingBrightness,svs.tonemappingBrightness[0])
@@ -324,16 +314,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propToneMappingAutomatic)
 	{
 		updateHide();
-	}
-	else
-	if (property==propToneMappingAutomaticMin)
-	{
-		svs.tonemappingAutomaticMin = property->GetValue().GetDouble();
-	}
-	else
-	if (property==propToneMappingAutomaticMax)
-	{
-		svs.tonemappingAutomaticMax = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propToneMappingAutomaticTarget)
