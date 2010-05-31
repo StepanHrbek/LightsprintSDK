@@ -214,8 +214,10 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.setAspect( winWidth/(float)winHeight );
+	// the most simple bias setting sufficient for this sample
+	// other samples use Lightsprint renderer with more robust bias setting
 	GLint shadowDepthBits = realtimeLight->getShadowmap(0)->getTexelBits();
-	glPolygonOffset(4,(float)(42<<(shadowDepthBits-16)));
+	glPolygonOffset(4,(shadowDepthBits==24)?42*256:42);
 }
 
 void mouse(int button, int state, int x, int y)
