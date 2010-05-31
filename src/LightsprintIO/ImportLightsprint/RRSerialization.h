@@ -109,6 +109,7 @@ public:
 
 	RRBufferProxy()
 	{
+		buffer = NULL;
 		instances.insert(this);
 	}
 	~RRBufferProxy()
