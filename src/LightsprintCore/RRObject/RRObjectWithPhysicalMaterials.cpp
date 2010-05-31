@@ -169,9 +169,7 @@ empty_scene:
 		for (unsigned j=0;j<3;j++)
 			if (!_finite(pos[j]))
 				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
-		RRVec3 dir = (center-pos);
-		if (dir==RRVec3(0)) dir = RRVec3(1,0,0);
-		dir.normalize();
+		RRVec3 dir = (center-pos).normalizedSafe();
 		pos += dir*_maxdist*0.1f;
 
 		// measure quality (=number of unique triangles hit by 100 rays)
@@ -184,9 +182,13 @@ empty_scene:
 			ray->rayDirInv[1] = 1/rayDir[1];
 			ray->rayDirInv[2] = 1/rayDir[2];
 			ray->rayLengthMax = _maxdist;
-			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
 			if (getCollider()->intersect(ray))
-				hitTriangles.insert(ray->hitTriangle);
+			{
+				const RRMaterial* material = getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+				if ((material && material->sideBits[ray->hitFrontSide?0:1].renderFrom) || (!material && ray->hitFrontSide))
+					hitTriangles.insert(ray->hitTriangle);
+			}
 		}
 		if (hitTriangles.size()>=bestNumFaces)
 		{
