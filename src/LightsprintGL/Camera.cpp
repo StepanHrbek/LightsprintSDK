@@ -130,7 +130,7 @@ void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
 	object->generateRandomCamera(newPos,newDir,maxDistance);
 	// set them
 	pos = newPos;
-	setDirection(dir);
+	setDirection(newDir);
 	setRange(maxDistance/500,maxDistance);
 }
 
