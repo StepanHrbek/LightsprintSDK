@@ -97,7 +97,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,1);
 
 	// render static scene
-	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,0))
+	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,NULL))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -124,7 +124,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1,0);
+		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 	if (potato)
 	{
@@ -133,7 +133,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1,0);
+		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 }
 
@@ -161,7 +161,7 @@ protected:
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float _clipPlaneY,
+		float* _clipPlanes,
 		const rr::RRVec4* _brightness,
 		float _gamma)
 	{

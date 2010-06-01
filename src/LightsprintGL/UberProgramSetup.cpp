@@ -124,7 +124,7 @@ const char* UberProgramSetup::getSetupString()
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -168,7 +168,12 @@ const char* UberProgramSetup::getSetupString()
 		POSTPROCESS_GAMMA?"#define POSTPROCESS_GAMMA\n":"",
 		POSTPROCESS_BIGSCREEN?"#define POSTPROCESS_BIGSCREEN\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
-		CLIP_PLANE?"#define CLIP_PLANE\n":"",
+		CLIP_PLANE_XA?"#define CLIP_PLANE_XA\n":"",
+		CLIP_PLANE_XB?"#define CLIP_PLANE_XB\n":"",
+		CLIP_PLANE_YA?"#define CLIP_PLANE_YA\n":"",
+		CLIP_PLANE_YB?"#define CLIP_PLANE_YB\n":"",
+		CLIP_PLANE_ZA?"#define CLIP_PLANE_ZA\n":"",
+		CLIP_PLANE_ZB?"#define CLIP_PLANE_ZB\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
 		);
 	return setup;
@@ -336,13 +341,18 @@ void UberProgramSetup::validate()
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_IN_ALPHA = MATERIAL_TRANSPARENCY_IN_ALPHA; // if not preserved, breaks unlit alpha map
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_BLEND = MATERIAL_TRANSPARENCY_BLEND; // if not preserved, breaks Z-only pre rendering of >50% transparent objects
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
-		uberProgramSetupBlack.CLIP_PLANE = CLIP_PLANE;
+		uberProgramSetupBlack.CLIP_PLANE_XA = CLIP_PLANE_XA;
+		uberProgramSetupBlack.CLIP_PLANE_XB = CLIP_PLANE_XB;
+		uberProgramSetupBlack.CLIP_PLANE_YA = CLIP_PLANE_YA;
+		uberProgramSetupBlack.CLIP_PLANE_YB = CLIP_PLANE_YB;
+		uberProgramSetupBlack.CLIP_PLANE_ZA = CLIP_PLANE_ZA;
+		uberProgramSetupBlack.CLIP_PLANE_ZB = CLIP_PLANE_ZB;
 		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
 		*this = uberProgramSetupBlack;
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float* clipPlanes)
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 
@@ -566,9 +576,29 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		}
 	}
 
-	if (CLIP_PLANE)
+	if (CLIP_PLANE_XA)
 	{
-		program->sendUniform("clipPlaneY",clipPlaneY);
+		program->sendUniform("clipPlaneXA",clipPlanes?clipPlanes[0]:0);
+	}
+	if (CLIP_PLANE_XB)
+	{
+		program->sendUniform("clipPlaneXB",clipPlanes?clipPlanes[1]:0);
+	}
+	if (CLIP_PLANE_YA)
+	{
+		program->sendUniform("clipPlaneYA",clipPlanes?clipPlanes[2]:0);
+	}
+	if (CLIP_PLANE_YB)
+	{
+		program->sendUniform("clipPlaneYB",clipPlanes?clipPlanes[3]:0);
+	}
+	if (CLIP_PLANE_ZA)
+	{
+		program->sendUniform("clipPlaneZA",clipPlanes?clipPlanes[4]:0);
+	}
+	if (CLIP_PLANE_ZB)
+	{
+		program->sendUniform("clipPlaneZB",clipPlanes?clipPlanes[5]:0);
 	}
 
 	return program;

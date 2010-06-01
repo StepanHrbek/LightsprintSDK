@@ -874,19 +874,24 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.tonemappingGamma!=1;
+			float clipPlanes[6] = {0,0,0,0,0,0};
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
+				if (uberProgramSetup.CLIP_PLANE_YB)
+					clipPlanes[3] = RR_MAX(clipPlanes[3],svs.waterLevel);
+				else
+					uberProgramSetup.CLIP_PLANE_YB = true;
 				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,svs.waterLevel);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-				uberProgramSetup.CLIP_PLANE = true;
+				uberProgramSetup.CLIP_PLANE_YB = true;
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
-					svs.waterLevel,
+					clipPlanes,
 					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
 					svs.renderTonemapping?svs.tonemappingGamma:1);
 				water->updateReflectionDone();
@@ -913,7 +918,7 @@ rendered:
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
-					svs.waterLevel,
+					clipPlanes,
 					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
 					svs.renderTonemapping?svs.tonemappingGamma:1);
 				svs.eye.setFar(oldFar);
@@ -926,7 +931,7 @@ rendered:
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
-					svs.waterLevel,
+					clipPlanes,
 					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
 					svs.renderTonemapping?svs.tonemappingGamma:1);
 			}
@@ -967,7 +972,7 @@ rendered:
 				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
 				uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,svs.waterLevel);
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				glPushMatrix();
@@ -982,7 +987,7 @@ rendered:
 				uberProgramSetup.MATERIAL_DIFFUSE = false;
 				uberProgramSetup.MATERIAL_SPECULAR = true;
 				uberProgramSetup.OBJECT_SPACE = true;
-				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,svs.waterLevel);
+				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
 				// render
 				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -1008,7 +1013,7 @@ rendered:
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
+			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
 		}
 		if (svs.renderGrid)
 		{
@@ -1130,7 +1135,7 @@ rendered:
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,0);
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
 				program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
 			}
 			int x = 10;

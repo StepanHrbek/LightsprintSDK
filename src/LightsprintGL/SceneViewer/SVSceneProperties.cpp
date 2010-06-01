@@ -152,7 +152,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 	// GI
 	{
-		propGI = new wxStringProperty(wxT("GI"), wxPG_LABEL);
+		wxPGProperty* propGI = new wxStringProperty(wxT("GI"), wxPG_LABEL);
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
 
@@ -167,6 +167,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
+
 /*
 	// size
 	{

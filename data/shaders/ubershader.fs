@@ -45,7 +45,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
-//  #define CLIP_PLANE
+//  #define CLIP_PLANE_[X|Y|Z][A|B]
 //  #define FORCE_2D_POSITION
 
 #if SHADOW_SAMPLES>0
@@ -152,7 +152,7 @@
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE_XA) || defined(CLIP_PLANE_XB) || defined(CLIP_PLANE_YA) || defined(CLIP_PLANE_YB) || defined(CLIP_PLANE_ZA) || defined(CLIP_PLANE_ZB)
 	varying vec3 worldPos;
 #endif
 
@@ -190,8 +190,23 @@
 	uniform float postprocessGamma;
 #endif
 
-#ifdef CLIP_PLANE
-	uniform float clipPlaneY;
+#ifdef CLIP_PLANE_XA
+	uniform float clipPlaneXA;
+#endif
+#ifdef CLIP_PLANE_XB
+	uniform float clipPlaneXB;
+#endif
+#ifdef CLIP_PLANE_YA
+	uniform float clipPlaneYA;
+#endif
+#ifdef CLIP_PLANE_YB
+	uniform float clipPlaneYB;
+#endif
+#ifdef CLIP_PLANE_ZA
+	uniform float clipPlaneZA;
+#endif
+#ifdef CLIP_PLANE_ZB
+	uniform float clipPlaneZB;
 #endif
 
 void main()
@@ -201,8 +216,23 @@ void main()
 	//
 	// clipping
 
-	#ifdef CLIP_PLANE
-		if(worldPos.y<clipPlaneY) discard;
+	#ifdef CLIP_PLANE_XA
+		if(worldPos.x>clipPlaneXA) discard;
+	#endif
+	#ifdef CLIP_PLANE_XB
+		if(worldPos.x<clipPlaneXB) discard;
+	#endif
+	#ifdef CLIP_PLANE_YA
+		if(worldPos.y>clipPlaneYA) discard;
+	#endif
+	#ifdef CLIP_PLANE_YB
+		if(worldPos.y<clipPlaneYB) discard;
+	#endif
+	#ifdef CLIP_PLANE_ZA
+		if(worldPos.z>clipPlaneZA) discard;
+	#endif
+	#ifdef CLIP_PLANE_ZB
+		if(worldPos.z<clipPlaneZB) discard;
 	#endif
 
 

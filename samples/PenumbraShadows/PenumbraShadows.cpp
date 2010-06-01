@@ -77,7 +77,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,1);
 
 	// render static scene
-	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,0))
+	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,NULL))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);

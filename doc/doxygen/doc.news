@@ -12,13 +12,13 @@ namespace rr
 
 NEWS
 
-- improved realtime rendering quality
-  - greatly reduced shadow bias (more bits in shadowmaps)
+- improved realtime renderer
+  - reduced shadow bias (more bits in shadowmaps)
   - filtered shadowmap edges on Radeons HD 2400-5970
   - antialiasing in Sceneviewer
   - reduced z-fight in Sceneviewer (more bits in framebuffer depth)
-- improved realtime rendering robustness
-  - extended fallback mechanism for legacy GPUs
+  - extended fallback mechanism for legacy GPUs, better results e.g. on Radeon X300
+  - custom clipping extended from 1 to 6 planes (ubershader parameter CLIP_PLANE extended to CLIP_PLANE_[X|Y|Z][A|B], parameter float clipPlaneY in rendering functions extended to float* clipPlanes)
 
 \section news103 ------------------------------------ 2010.05.20 -------------------------------------
 

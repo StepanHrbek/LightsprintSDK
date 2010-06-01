@@ -108,7 +108,12 @@ struct RR_GL_API UberProgramSetup
 	bool     POSTPROCESS_GAMMA             :1; ///< Enables gamma correction of final color (after brightness).
 	bool     POSTPROCESS_BIGSCREEN         :1; ///< Simulates effect of party projected bigscreen with ambient light.
 	bool     OBJECT_SPACE                  :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix. Without OBJECT_SPACE, objects are rendered in their local spaces, you may get all objects stacked in world center.
-	bool     CLIP_PLANE                    :1; ///< Discards geometry with y<clipPlaneY. This is used to clip parts of scene below water level.
+	bool     CLIP_PLANE_XA                 :1; ///< Discards geometry with x<clipPlaneXA.
+	bool     CLIP_PLANE_XB                 :1; ///< Discards geometry with x<clipPlaneXB.
+	bool     CLIP_PLANE_YA                 :1; ///< Discards geometry with y<clipPlaneYA.
+	bool     CLIP_PLANE_YB                 :1; ///< Discards geometry with y<clipPlaneYB. This is used to clip parts of scene below water level.
+	bool     CLIP_PLANE_ZA                 :1; ///< Discards geometry with z<clipPlaneZA.
+	bool     CLIP_PLANE_ZB                 :1; ///< Discards geometry with z<clipPlaneZB.
 	bool     FORCE_2D_POSITION             :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 	bool     SKYBOX                        :1; ///< Enables rendering of skybox. This is unrelated to lighting by skybox.
 
@@ -163,7 +168,7 @@ struct RR_GL_API UberProgramSetup
 	//! Sets rendering pipeline so that following primitives are rendered by our program.
 	//! Camera::setupForRender() should precede this call.
 	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps() and useMaterial() should follow to set them.
-	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float clipPlaneY);
+	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float* clipPlanes);
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
 	void useMaterial(Program* program, const rr::RRMaterial* material) const;

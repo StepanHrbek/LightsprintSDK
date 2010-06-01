@@ -74,7 +74,7 @@ public:
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float _clipPlaneY,
+		float* _clipPlanes,
 		const rr::RRVec4* _brightness, float _gamma);
 
 	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
@@ -141,7 +141,7 @@ void RendererOfOriginalScene::render(
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float _clipPlaneY,
+		float* _clipPlanes,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	if (!_solver)
@@ -308,7 +308,7 @@ void RendererOfOriginalScene::render(
 		if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
 		{
 			const UberProgramSetup& classUberProgramSetup = i->first;
-			MultiPass multiPass(_lights,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlaneY);
+			MultiPass multiPass(_lights,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -390,7 +390,7 @@ void RendererOfOriginalScene::render(
 			fgUberProgramSetup.enableUsedMaterials(material);
 			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(_lights,fgUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlaneY);
+			MultiPass multiPass(_lights,fgUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -434,7 +434,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float _clipPlaneY,
+		float* _clipPlanes,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	renderer->render(
@@ -445,7 +445,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		_updateLightIndirect,
 		_lightIndirectLayer,
 		_lightDetailMapLayer,
-		_clipPlaneY,
+		_clipPlanes,
 		_brightness,
 		_gamma);
 }

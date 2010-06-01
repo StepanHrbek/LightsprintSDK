@@ -74,10 +74,10 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
-		wxPGProperty*     propGI;
 		wxPGProperty*     propGIEmisMultiplier;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		BoolRefProperty*  propGITranspVideoAffectsGI;
+
 
 		/*
 		wxPGProperty*     propSizes;

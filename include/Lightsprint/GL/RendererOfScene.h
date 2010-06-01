@@ -60,8 +60,8 @@ public:
 	//!  Function touches only existing buffers, does not allocate new ones.
 	//! \param _lightDetailMapLayer
 	//!  Specifies source of light detail maps.
-	//! \param _clipPlaneY
-	//!  Specifies global clip plane used by following render() commands.
+	//! \param _clipPlanes
+	//!  NULL or array of six floats specifying max x, min x, max y, min y, max z, min z coordinates of rendered geometry.
 	//! \param _brightness
 	//!  Specifies global brightness.
 	//! \param _gamma
@@ -74,7 +74,7 @@ public:
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float _clipPlaneY,
+		float* _clipPlanes,
 		const rr::RRVec4* _brightness,
 		float _gamma);
 

@@ -26,7 +26,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale)
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
 {
 	// use program
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1,0);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1,NULL);
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));

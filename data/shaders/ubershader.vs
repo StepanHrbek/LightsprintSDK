@@ -45,7 +45,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
-//  #define CLIP_PLANE
+//  #define CLIP_PLANE_[X|Y|Z][A|B]
 //  #define FORCE_2D_POSITION
 
 #define sqr(a) ((a)*(a))
@@ -88,7 +88,7 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE_XA) || defined(CLIP_PLANE_XB) || defined(CLIP_PLANE_YA) || defined(CLIP_PLANE_YB) || defined(CLIP_PLANE_ZA) || defined(CLIP_PLANE_ZB)
 varying
 #endif
 	vec3 worldPos;

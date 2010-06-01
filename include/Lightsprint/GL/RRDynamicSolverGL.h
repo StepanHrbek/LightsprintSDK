@@ -65,7 +65,7 @@ namespace rr_gl
 			bool _updateLightIndirect,
 			unsigned _lightIndirectLayer,
 			int _lightDetailMapLayer,
-			float _clipPlaneY,
+			float* _clipPlanes,
 			const rr::RRVec4* _brightness,
 			float _gamma);
 

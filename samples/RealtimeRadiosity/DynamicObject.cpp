@@ -107,7 +107,7 @@ void DynamicObject::updatePosition()
 		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma, float waterLevel)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
 	if (!uberProgramSetup.LIGHT_DIRECT)
 	{
@@ -161,7 +161,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL  = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	// use program
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,brightness,gamma,waterLevel);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,brightness,gamma,NULL);
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));

@@ -372,7 +372,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
-			uberProgramSetup.CLIP_PLANE = true;
+			uberProgramSetup.CLIP_PLANE_YB = true;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			water->updateReflectionDone();
 		}
