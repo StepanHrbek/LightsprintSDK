@@ -399,7 +399,7 @@ Video formats
   - www: <a href="http://wxwidgets.org/">wxWidgets</a>
   - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
   - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
-  - Windows: wxWidgets trunk svn revision 64295 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+  - Windows: wxWidgets trunk svn revision 64454 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
  \page wxwidgets_patch wxWidgets patch
@@ -761,7 +761,7 @@ Video formats
  you need it only when rebuilding LightsprintGL from source code.
 
  \section wx_windows Windows
-   - Get wxWidgets source code from wxWidgets.org svn trunk (SDK is built from rev 64295).
+   - Get \ref tpl_wx source code from wxWidgets.org svn trunk.
    - If you use one version of Visual Studio and target only win32,
      you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
      If you target x64, the only additional step is to add x64 target to that solution.

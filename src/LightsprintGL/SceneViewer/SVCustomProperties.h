@@ -21,7 +21,6 @@
 class FloatProperty : public wxFloatProperty
 {
 public:
-	//FloatProperty(const wxString& label=wxPG_LABEL, float value=0, int precision=-1, float mini=-1e10f, float maxi=1e10f, float step=1, bool wrap=false);
 	FloatProperty(const wxString& label, float value, int precision, float mini, float maxi, float step, bool wrap);
 };
 
