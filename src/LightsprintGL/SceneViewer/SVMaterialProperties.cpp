@@ -72,7 +72,7 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* _parent, const SceneViewerS
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
-	AppendIn(propTransparent,propRefraction = new wxFloatProperty(wxT("refraction index")));
+	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",1,_svs.precision,0,2,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,headerColor,false);
 	Collapse(propTransparent);
 

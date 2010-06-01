@@ -44,21 +44,19 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
 
-			propPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,_precision,light->position);
+			propPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,_precision,light->position,1);
 			AppendIn(propType,propPosition);
 
-			propDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,_precision,light->direction);
+			propDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propOuterAngleRad = new wxFloatProperty(wxT("Outer angle (rad)"),wxPG_LABEL,light->outerAngleRad);
-			propOuterAngleRad->SetAttribute("Precision",_precision);
+			propOuterAngleRad = new FloatProperty("Outer angle (rad)",light->outerAngleRad,_precision,0,3.14f,0.1f,false);
 			AppendIn(propType,propOuterAngleRad);
 
-			propFallOffAngleRad = new wxFloatProperty(wxT("Fall off angle (rad)"),wxPG_LABEL,light->fallOffAngleRad);
-			propFallOffAngleRad->SetAttribute("Precision",_precision);
+			propFallOffAngleRad = new FloatProperty("Fall off angle (rad)",light->fallOffAngleRad,_precision,0,3.14f,0.1f,false);
 			AppendIn(propType,propFallOffAngleRad);
 
-			propSpotExponent = new wxFloatProperty(wxT("Spot exponent"),wxPG_LABEL,light->spotExponent);
+			propSpotExponent = new FloatProperty("Spot exponent",light->spotExponent,_precision,0,1000,0.1f,false);
 			AppendIn(propType,propSpotExponent);
 		}
 
@@ -86,22 +84,22 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propDistanceAttType = new wxEnumProperty(wxT("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
 			Append(propDistanceAttType);
 
-			propConstant = new wxFloatProperty(wxT("Constant"),wxPG_LABEL,light->polynom[0]);
+			propConstant = new FloatProperty("Constant",light->polynom[0],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propConstant);
 
-			propLinear = new wxFloatProperty(wxT("Linear"),wxPG_LABEL,light->polynom[1]);
+			propLinear = new FloatProperty("Linear",light->polynom[1],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propLinear);
 
-			propQuadratic = new wxFloatProperty(wxT("Quadratic"),wxPG_LABEL,light->polynom[2]);
+			propQuadratic = new FloatProperty("Quadratic",light->polynom[2],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propQuadratic);
 
-			propClamp = new wxFloatProperty(wxT("Clamp"),wxPG_LABEL,light->polynom[3]);
+			propClamp = new FloatProperty("Clamp",light->polynom[3],_precision,0,1,0.01f,false);
 			AppendIn(propDistanceAttType,propClamp);
 
-			propRadius = new wxFloatProperty(wxT("Radius"),wxPG_LABEL,light->radius);
+			propRadius = new FloatProperty("Radius",light->radius,_precision,0,1e10f,1,false);
 			AppendIn(propDistanceAttType,propRadius);
 
-			propFallOffExponent = new wxFloatProperty(wxT("Exponent"),wxPG_LABEL,light->fallOffExponent);
+			propFallOffExponent = new FloatProperty("Exponent",light->fallOffExponent,_precision,0,100,0.1f,false);
 			AppendIn(propDistanceAttType,propFallOffExponent);
 		}
 
@@ -117,12 +115,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowSamples = new wxIntProperty(wxT("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
-			propNear = new wxFloatProperty(wxT("Near"),wxPG_LABEL,rtlight->getParent()->getNear());
-			propNear->SetAttribute("Precision",_precision);
+			propNear = new FloatProperty("Near",rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
-			propFar = new wxFloatProperty(wxT("Far"),wxPG_LABEL,rtlight->getParent()->getFar());
-			propFar->SetAttribute("Precision",_precision);
+			propFar = new FloatProperty("Far",rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
 
 			propOrthoSize = new wxIntProperty(wxT("Max shadow size"),wxPG_LABEL,light->rtMaxShadowSize);

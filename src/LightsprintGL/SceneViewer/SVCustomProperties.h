@@ -16,6 +16,18 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// FloatProperty
+
+class FloatProperty : public wxFloatProperty
+{
+public:
+	//FloatProperty(const wxString& label=wxPG_LABEL, float value=0, int precision=-1, float mini=-1e10f, float maxi=1e10f, float step=1, bool wrap=false);
+	FloatProperty(const wxString& label, float value, int precision, float mini, float maxi, float step, bool wrap);
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRVec3Property
 
 // wxVariant can handle only :: namespace classes
@@ -29,7 +41,7 @@ class RRVec3Property : public wxPGProperty
 {
 	WX_PG_DECLARE_PROPERTY_CLASS(RRVec3Property)
 public:
-	RRVec3Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0) );
+	RRVec3Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0), float step = 1.f );
 	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
 	virtual void RefreshChildren();
 };
