@@ -19,6 +19,9 @@ NEWS
   - reduced z-fight in Sceneviewer (more bits in framebuffer depth)
   - extended fallback mechanism for legacy GPUs, better results e.g. on Radeon X300
   - custom clipping extended from 1 to 6 planes (ubershader parameter CLIP_PLANE extended to CLIP_PLANE_[X|Y|Z][A|B], parameter float clipPlaneY in rendering functions extended to float* clipPlanes)
+- improved scene viewer
+  - spincontrols, edit by mouse click or motion
+  - readonly properties grayed out
 
 \section news103 ------------------------------------ 2010.05.20 -------------------------------------
 

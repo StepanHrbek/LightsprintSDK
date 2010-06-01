@@ -1,5 +1,5 @@
 // Sky
-// Copyright (C) Stepan Hrbek, Lightsprint 2007-2009
+// Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //
 // Options:
 //  #define POSTPROCESS_BRIGHTNESS

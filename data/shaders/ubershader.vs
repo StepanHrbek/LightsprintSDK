@@ -1,5 +1,5 @@
 // LightsprintGL: vertex ubershader
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2009
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2010
 //
 // Options:
 //  #define SHADOW_MAPS [0..10]

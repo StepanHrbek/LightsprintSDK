@@ -149,9 +149,9 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 void SVFrame::UpdateTitle()
 {
 	if (!svs.sceneFilename.empty())
-		SetTitle(APP_NAME+" - "+svs.sceneFilename);
+		SetTitle(APP_NAME+APP_VERSION_TITLE+" - "+svs.sceneFilename);
 	else
-		SetTitle(APP_NAME);
+		SetTitle(APP_NAME+APP_VERSION_TITLE);
 }
 
 void SVFrame::UpdateEverything()
