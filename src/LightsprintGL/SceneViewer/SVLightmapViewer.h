@@ -52,8 +52,7 @@ private:
 	Program* lmapAlphaProgram;
 	Program* lineProgram;
 	rr::RRBuffer* buffer;
-	const rr::RRMesh* mesh;
-	unsigned lightmapTexcoord;
+	const rr::RRObject* object;
 	wxPoint previousPosition;
 
 	// t_* define 2d transformation from uv space to screen space

@@ -23,7 +23,7 @@ SVLightmapViewer::SVLightmapViewer(const char* _pathToShaders)
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
 	buffer = NULL;
-	mesh = NULL;
+	object = NULL;
 }
 
 SVLightmapViewer::~SVLightmapViewer()
@@ -34,17 +34,7 @@ SVLightmapViewer::~SVLightmapViewer()
 void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
 {
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
-	mesh = _object ? _object->getCollider()->getMesh() : NULL;
-	lightmapTexcoord = 0;
-	if (_object)
-	{
-		unsigned numTriangles = _object->getCollider()->getMesh()->getNumTriangles();
-		const rr::RRMaterial* material = numTriangles ? _object->getTriangleMaterial(0,NULL,NULL) : NULL;
-		if (material)
-		{
-			lightmapTexcoord = material->lightmapTexcoord;
-		}
-	}
+	object = _object;
 	if (buffer)
 	{
 		getTexture(buffer);
@@ -145,7 +135,9 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 	}
 
 	// render mapping edges
-	if (mesh)
+	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;
+	unsigned numTriangles = mesh ? mesh->getNumTriangles() : 0;
+	if (numTriangles)
 	{
 		lineProgram->useIt();
 		
@@ -161,18 +153,22 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 		// mapping
 		lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
 		glBegin(GL_LINES);
-		for (unsigned i=0;i<mesh->getNumTriangles();i++)
+		for (unsigned i=0;i<numTriangles;i++)
 		{
-			rr::RRMesh::TriangleMapping mapping;
-			mesh->getTriangleMapping(i,mapping,lightmapTexcoord);
-			for (unsigned j=0;j<3;j++)
+			const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
+			if (material)
 			{
-				mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
-			}
-			for (unsigned j=0;j<3;j++)
-			{
-				glVertex2fv(&mapping.uv[j].x);
-				glVertex2fv(&mapping.uv[(j+1)%3].x);
+				rr::RRMesh::TriangleMapping mapping;
+				mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
+				for (unsigned j=0;j<3;j++)
+				{
+					mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
+				}
+				for (unsigned j=0;j<3;j++)
+				{
+					glVertex2fv(&mapping.uv[j].x);
+					glVertex2fv(&mapping.uv[(j+1)%3].x);
+				}
 			}
 		}
 		glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
