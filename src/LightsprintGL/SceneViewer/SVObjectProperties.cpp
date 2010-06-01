@@ -33,10 +33,10 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,object->name.c_str()));
 
 			Append(tmp = new wxIntProperty(wxT("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 
 			Append(tmp = new wxIntProperty(wxT("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 
 
 			rr::RRMatrix3x4 worldMatrix;
@@ -49,15 +49,15 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			mesh->getAABB(&mini,&maxi,&center);
 
 			Append(tmp = new RRVec3Property(wxT("Local size"),wxPG_LABEL,_precision,maxi-mini));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 			Append(tmp = new RRVec3Property(wxT("Local min"),wxPG_LABEL,_precision,mini));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 			Append(tmp = new RRVec3Property(wxT("Local max"),wxPG_LABEL,_precision,maxi));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 			Append(tmp = new RRVec3Property(wxT("Local center"),wxPG_LABEL,_precision,center));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 			Append(tmp = new RRVec3Property(wxT("World center"),wxPG_LABEL,_precision,worldMatrix.transformedPosition(center)));
-			SetPropertyReadOnly(tmp,true);
+			EnableProperty(tmp,false);
 
 			Append(propWTranslation = new RRVec3Property(wxT("World translation"),wxPG_LABEL,_precision,worldMatrix.getTranslation()));
 		}

@@ -34,7 +34,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 		propCameraDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,svs.precision,svs.eye.dir,0.2f);
 		AppendIn(propCamera,propCameraDirection);
-		SetPropertyReadOnly(propCameraDirection,true);
+		EnableProperty(propCameraDirection,false);
 
 		propCameraAngles = new RRVec3Property(wxT("Angles"),wxPG_LABEL,svs.precision,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle),0.2f);
 		AppendIn(propCamera,propCameraAngles);
@@ -44,11 +44,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 
 		propCameraNear = new FloatProperty("Near",svs.eye.getNear(),svs.precision,0,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
-		SetPropertyReadOnly(propCameraNear,true);
+		EnableProperty(propCameraNear,false);
 
 		propCameraFar = new FloatProperty("Far",svs.eye.getFar(),svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
-		SetPropertyReadOnly(propCameraFar,true);
+		EnableProperty(propCameraFar,false);
 
 		SetPropertyBackgroundColour(propCamera,headerColor,false);
 	}
@@ -168,23 +168,6 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
 
-/*
-	// size
-	{
-		propSizes = new wxStringProperty(wxT("Sizes"), wxPG_LABEL);
-		Append(propSizes);
-
-		propSizesSize = new wxStringProperty(wxT("Scene size"),wxPG_LABEL,wxT("..."));
-		AppendIn(propSizes,propSizesSize);
-		propSizesMin = new wxStringProperty(wxT("Scene min"),wxPG_LABEL,wxT("..."));
-		AppendIn(propSizes,propSizesMin);
-		propSizesMax = new wxStringProperty(wxT("Scene max"),wxPG_LABEL,wxT("..."));
-		AppendIn(propSizes,propSizesMax);
-
-		SetPropertyReadOnly(propSizes);
-		SetPropertyBackgroundColour(propSizes,headerColor,false);
-	}
-*/
 	updateHide();
 }
 

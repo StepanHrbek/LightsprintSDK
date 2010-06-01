@@ -186,22 +186,22 @@ void SVMaterialProperties::updateReadOnly()
 {
 	if (material)
 	{
-		SetPropertyReadOnly(propFront,showPoint);
-		SetPropertyReadOnly(propBack,showPoint);
-		SetPropertyReadOnly(propDiffuse,showPoint);
+		EnableProperty(propFront,!showPoint);
+		EnableProperty(propBack,!showPoint);
+		EnableProperty(propDiffuse,!showPoint);
 		SetPropertyReadOnly(propDiffuse,true,0);
-		SetPropertyReadOnly(propDiffuse->GetPropertyByName("color"),showPoint||material->diffuseReflectance.texture);
-		SetPropertyReadOnly(propSpecular,showPoint);
+		EnableProperty(propDiffuse->GetPropertyByName("color"),!(showPoint||material->diffuseReflectance.texture));
+		EnableProperty(propSpecular,!showPoint);
 		SetPropertyReadOnly(propSpecular,true,0);
-		SetPropertyReadOnly(propSpecular->GetPropertyByName("color"),showPoint||material->specularReflectance.texture);
-		SetPropertyReadOnly(propEmissive,showPoint);
+		EnableProperty(propSpecular->GetPropertyByName("color"),!(showPoint||material->specularReflectance.texture));
+		EnableProperty(propEmissive,!showPoint);
 		SetPropertyReadOnly(propEmissive,true,0);
-		SetPropertyReadOnly(propEmissive->GetPropertyByName("color"),showPoint||material->diffuseEmittance.texture);
-		SetPropertyReadOnly(propTransparent,showPoint);
+		EnableProperty(propEmissive->GetPropertyByName("color"),!(showPoint||material->diffuseEmittance.texture));
+		EnableProperty(propTransparent,!showPoint);
 		SetPropertyReadOnly(propTransparent,true,0);
-		SetPropertyReadOnly(propTransparent->GetPropertyByName("color"),showPoint||material->specularTransmittance.texture);
-		SetPropertyReadOnly(propLightmapTexcoord,showPoint);
-		SetPropertyReadOnly(propQualityForPoints,showPoint);
+		EnableProperty(propTransparent->GetPropertyByName("color"),!(showPoint||material->specularTransmittance.texture));
+		EnableProperty(propLightmapTexcoord,!showPoint);
+		EnableProperty(propQualityForPoints,!showPoint);
 	}
 }
 
