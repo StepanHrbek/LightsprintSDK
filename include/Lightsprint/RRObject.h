@@ -291,6 +291,7 @@ namespace rr
 		// other tools
 
 		//! Reports inconsistencies found in object. Returns number of problem reported.
+		//! \param objectNumber Arbitrary string that is inserted into error messages, to identify object.
 		unsigned checkConsistency(const char* objectNumber) const;
 
 		//! Creates and returns collision handler, that finds closest visible surface.

@@ -523,8 +523,8 @@ namespace rr
 		//! Memory management. Resizing doesn't preserve old data.
 		//
 		//! If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
-		//! If allocation fails, mesh is resized to 0 (to keep it consistent) and false is returned.
-		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords, bool _tangents);
+		//! If allocation fails, mesh is resized to 0 and false is returned.
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords, bool tangents);
 
 		//! Overwrites content of this RRMeshArrays, copies data from given RRMesh.
 		//

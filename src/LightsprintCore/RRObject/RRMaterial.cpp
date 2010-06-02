@@ -61,7 +61,7 @@ void RRMaterial::reset(bool twoSided)
 	specularTransmittanceInAlpha = false;
 	specularTransmittanceKeyed   = false;
 	refractionIndex              = 1;
-	lightmapTexcoord             = 0;
+	lightmapTexcoord             = 0; // maybe UINT_MAX(=no unwrap) would be better default?
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name                         = NULL;
 }
