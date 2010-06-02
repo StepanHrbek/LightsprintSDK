@@ -144,7 +144,7 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 }
 
 	#define APP_NAME wxString("SceneViewer")
-	#define APP_VERSION __DATE__
+	#define APP_VERSION_TITLE __DATE__
 
 void SVFrame::UpdateTitle()
 {
