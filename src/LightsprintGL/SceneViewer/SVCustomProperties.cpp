@@ -206,7 +206,7 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 	// must not contain <>*?/\, wxFileProperty would say "Validation conflict: '<no texture>' is invalid." on attempt to change texture
 	return buffer
 		? (buffer->filename.empty()
-		?rr_gl::tmpstr("(%d*%d embedded)",buffer->getWidth(),buffer->getHeight())
+		?rr_gl::tmpstr("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
 			:buffer->filename.c_str())
 		:"(no texture)";
 }
