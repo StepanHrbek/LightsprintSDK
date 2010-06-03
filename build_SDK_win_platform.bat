@@ -1,4 +1,6 @@
 @echo off
+if x%1==x exit
+
 set ACTION=%1
 set COMPILER=%2
 set TARGET=%3
