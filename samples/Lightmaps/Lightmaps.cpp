@@ -478,8 +478,8 @@ int main(int argc, char **argv)
 		// offline per-vertex
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_VERTEX) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 		// offline per-pixel
-		unsigned res = 8;
-		float sizeFactor = 0.1; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
+		unsigned res = 16;
+		float sizeFactor = 5;
 		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles()))) res*=2;
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
