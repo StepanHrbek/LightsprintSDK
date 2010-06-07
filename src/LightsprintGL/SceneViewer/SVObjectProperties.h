@@ -36,6 +36,7 @@ namespace rr_gl
 
 	private:
 		rr::RRObject*     object;
+		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;
 		wxPGProperty*     propWTranslation;
