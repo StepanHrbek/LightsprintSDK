@@ -50,16 +50,19 @@ public:
 	//! Uses memcpy to copy elements (unlike std::vector).
 	RRVector& operator=(const RRVector& a)
 	{
-		free(c);
-		numUsed = a.numUsed;
-		numAllocated = a.numAllocated;
-		if (numAllocated)
+		if (&a!=this)
 		{
-			c = (C*)malloc(sizeof(C)*numAllocated);
-			memcpy(c,a.c,sizeof(C)*numUsed);
+			free(c);
+			numUsed = a.numUsed;
+			numAllocated = a.numAllocated;
+			if (numAllocated)
+			{
+				c = (C*)malloc(sizeof(C)*numAllocated);
+				memcpy(c,a.c,sizeof(C)*numUsed);
+			}
+			else
+				c = NULL;
 		}
-		else
-			c = NULL;
 		return *this;
 	}
 	//! Resizes vector, adding or removing elements at the end.
