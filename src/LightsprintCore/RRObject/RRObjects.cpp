@@ -35,6 +35,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			// first try to load per-pixel format
 			RRBuffer* buffer = NULL;
 			RRObject::LayerParameters layerParameters;
+			layerParameters.objectIndex = objectIndex;
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			layerParameters.suggestedMapSize = 256;
@@ -81,6 +82,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 			if (buffer)
 			{
 				RRObject::LayerParameters layerParameters;
+				layerParameters.objectIndex = objectIndex;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapSize = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
