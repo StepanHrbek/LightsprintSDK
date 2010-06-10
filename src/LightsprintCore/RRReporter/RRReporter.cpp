@@ -36,9 +36,11 @@ void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 {
 	if (reporter && type>=ERRO && type<=TIMI && typeEnabled[type])
 	{
-		char msg[1000];
-		_vsnprintf(msg,999,format,vars);
-		msg[999] = 0;
+		enum {MAX_REPORT_SIZE=1000};
+		char msg[MAX_REPORT_SIZE+1];
+		_vsnprintf(msg,MAX_REPORT_SIZE,format,vars);
+		msg[MAX_REPORT_SIZE-1] = '\n';
+		msg[MAX_REPORT_SIZE] = 0;
 		reporter->customReport(type,indentation,msg);
 	}
 }
