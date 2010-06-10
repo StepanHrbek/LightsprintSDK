@@ -18,16 +18,20 @@ namespace rr_gl
 //! Has slots for several strings, call to tmpstr() overwrites one of previously returned strings.
 inline const char* tmpstr(const char* fmt, ...)
 {
-	#define STRINGS 12 // FpsDisplay::FpsDisplay requires at least 12
+	enum
+	{
+		MAX_STRINGS=12, // FpsDisplay::FpsDisplay requires at least 12
+		MAX_STRING_SIZE=1000
+	};
 	static unsigned i = 0;
-	i++;
-	static char msg[STRINGS][1000];
+	static char bufs[MAX_STRINGS][MAX_STRING_SIZE+1];
+	char* buf = bufs[++i%MAX_STRINGS];
 	va_list argptr;
 	va_start (argptr,fmt);
-	_vsnprintf (msg[i%STRINGS],999,fmt,argptr);
-	msg[i%STRINGS][999] = 0;
+	_vsnprintf (buf,MAX_STRING_SIZE,fmt,argptr);
+	buf[MAX_STRING_SIZE] = 0;
 	va_end (argptr);
-	return msg[i%STRINGS];
+	return buf;
 }
 
 }; // namespace
