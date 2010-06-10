@@ -441,6 +441,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
+		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."));
 		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
 		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
 		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
@@ -560,6 +561,21 @@ void SVFrame::UpdateMenuBar()
 	delete oldMenuBar;
 }
 
+static std::string getSupportedLoaderExtensions()
+{
+	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+	std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
+	std::string wxextensions = "All scene formats|"+extensions;
+	while (!extensions.empty())
+	{
+		size_t i = extensions.find(';');
+		std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
+		wxextensions += std::string("|")+ext+'|'+ext;
+		extensions.erase(0,ext.size()+1);
+	}
+	return wxextensions;
+}
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 #ifdef _WIN32
@@ -595,22 +611,24 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 
 		case ME_FILE_OPEN_SCENE:
 			{
-				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-				std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
-				std::string wxextensions = "All scene formats|"+extensions;
-				while (!extensions.empty())
-				{
-					size_t i = extensions.find(';');
-					std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
-					wxextensions += std::string("|")+ext+'|'+ext;
-					extensions.erase(0,ext.size()+1);
-				}
-				wxFileDialog dialog(this,"Choose a 3d scene","","",wxextensions.c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,"Choose a 3d scene to open","","",getSupportedLoaderExtensions().c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					svs.sceneFilename = dialog.GetPath();
 					UpdateEverything();
+				}
+			}
+			break;
+		case ME_FILE_MERGE_SCENE:
+			{
+				wxFileDialog dialog(this,"Choose a 3d scene to merge with current scene","","",getSupportedLoaderExtensions().c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				dialog.SetPath(svs.sceneFilename);
+				if (dialog.ShowModal()==wxID_OK)
+				{
+					rr::RRScene* scene = new rr::RRScene(dialog.GetPath());
+					m_canvas->addOrRemoveScene(scene,true);
+					m_canvas->mergedScenes.push_back(scene);
 				}
 			}
 			break;
@@ -627,13 +645,6 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 			}
 			// valid name, save it
 save_scene:
-			if (m_canvas->manuallyOpenedScene)
-			{
-				m_canvas->manuallyOpenedScene->lights = m_canvas->solver->getLights();
-				if (!m_canvas->manuallyOpenedScene->save(svs.sceneFilename.c_str()))
-					wxMessageBox("Save failed.","Not saved.",wxOK|wxICON_ERROR);
-			}
-			else
 			if (m_canvas->solver)
 			{
 				rr::RRScene scene;

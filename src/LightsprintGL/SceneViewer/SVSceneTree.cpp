@@ -36,6 +36,7 @@ SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
 
 	wxTreeItemId root = AddRoot("root");
 
+
 	lights = AppendItem(root,"lights");
 
 	staticObjects = AppendItem(root,"static objects");

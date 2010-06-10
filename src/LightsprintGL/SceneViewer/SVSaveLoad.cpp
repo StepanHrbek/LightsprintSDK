@@ -251,6 +251,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	// skip pathToShaders;
 	ar & make_nvp("sceneFilename",a.sceneFilename);
 	ar & make_nvp("skyboxFilename",a.skyboxFilename);
+	ar & make_nvp("xrefFilenames",a.xrefFilenames);
 	// skip releaseResources;
 }
 
@@ -349,7 +350,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 1)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 6)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 7)
 
 //---------------------------------------------------------------------------
 

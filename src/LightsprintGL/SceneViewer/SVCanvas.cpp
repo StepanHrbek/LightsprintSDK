@@ -47,7 +47,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	context = NULL;
 	parent = _parent;
 	solver = NULL;
-	manuallyOpenedScene = NULL;
 	selectedType = ST_CAMERA;
 	winWidth = 0;
 	winHeight = 0;
@@ -151,12 +150,15 @@ void SVCanvas::createContextCore()
 	else
 	if (!svs.sceneFilename.empty())
 	{
-		manuallyOpenedScene = new rr::RRScene(svs.sceneFilename.c_str());
+		// load scene
+		mergedScenes.push_back(new rr::RRScene(svs.sceneFilename.c_str()));
+
+		// send everything to solver
 		solver->setScaler(rr::RRScaler::createRgbScaler());
-		solver->setEnvironment(manuallyOpenedScene->environment);
+		solver->setEnvironment(mergedScenes[0]->environment);
 		envToBeDeletedOnExit = false;
-		solver->setStaticObjects(manuallyOpenedScene->objects,NULL);
-		solver->setLights(manuallyOpenedScene->lights);
+		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
+		solver->setLights(mergedScenes[0]->lights);
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
@@ -235,6 +237,53 @@ void SVCanvas::createContext()
 #endif
 }
 
+void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
+{
+	if (scene)
+	{
+		// add or remove scene from solver
+		rr::RRObjects objects = solver->getStaticObjects();
+		rr::RRLights lights = solver->getLights();
+		if (add)
+		{
+			objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
+			lights.insert(lights.end(),scene->lights.begin(),scene->lights.end());
+			if (!solver->getEnvironment() && scene->environment)
+				solver->setEnvironment(scene->environment);
+		}
+		else
+		{
+			for (unsigned i=objects.size();i--;)
+				for (unsigned j=0;j<scene->objects.size();j++)
+					if (objects[i]==scene->objects[j])
+					{
+						objects.erase(i);
+						break;
+					}
+			for (unsigned i=lights.size();i--;)
+				for (unsigned j=0;j<scene->lights.size();j++)
+					if (lights[i]==scene->lights[j])
+					{
+						lights.erase(i);
+						break;
+					}
+		}
+		solver->setStaticObjects(objects,NULL);
+		solver->setLights(lights);
+
+		// fix dangling pointer in light properties pane
+		parent->updateSelection();
+
+		// fix dangling pointer in collisionHandler
+		delete collisionHandler;
+		collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+
+		// alloc rtgi buffers, otherwise new objects would have no realtime indirect
+		if (add)
+			solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+	}
+}
+
 SVCanvas::~SVCanvas()
 {
 	if (!svs.releaseResources)
@@ -304,7 +353,7 @@ SVCanvas::~SVCanvas()
 		}
 	}
 	RR_SAFE_DELETE(solver);
-	RR_SAFE_DELETE(manuallyOpenedScene);
+	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
 	RR_SAFE_DELETE(lv);
 	RR_SAFE_DELETE(lightField);
 	RR_SAFE_DELETE(lightFieldObjectIllumination);

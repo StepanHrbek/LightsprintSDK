@@ -38,6 +38,8 @@ namespace rr_gl
 		void createContextCore();
 		void createContext();
 
+		void addOrRemoveScene(rr::RRScene* scene, bool add);
+
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
 		void Paint(wxPaintEvent& event);
 		// set context, paint, swap
@@ -61,7 +63,7 @@ namespace rr_gl
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerStateEx&        svs;
-		rr::RRScene*               manuallyOpenedScene; // Inited to NULL, created by user via menu File/Open, deleted when no longer needed.
+		std::vector<rr::RRScene*>  mergedScenes; // Inited empty, filled by user via menu File/Open|Merge, deleted when no longer needed.
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
