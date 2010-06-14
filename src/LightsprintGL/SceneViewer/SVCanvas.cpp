@@ -930,7 +930,10 @@ void SVCanvas::Paint(wxPaintEvent& event)
 				if (uberProgramSetup.CLIP_PLANE_YB)
 					clipPlanes[3] = RR_MAX(clipPlanes[3],svs.waterLevel);
 				else
+				{
+					clipPlanes[3] = svs.waterLevel;
 					uberProgramSetup.CLIP_PLANE_YB = true;
+				}
 				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,svs.waterLevel);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				uberProgramSetup.CLIP_PLANE_YB = true;
@@ -959,7 +962,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 						goto rendered;
 					}
 				}
-				water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0));
+				water->render(svs.eye.getFar()*4,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0)); // far*4 makes triangle end before far only in unusually wide aspects, error is nearly invisible. higher constant would increase float errors in shader
 rendered:
 				solver->renderScene(
 					uberProgramSetup,
