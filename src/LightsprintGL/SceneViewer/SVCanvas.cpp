@@ -423,7 +423,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 
-		case WXK_F9: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_FILE_SAVE_ENHANCED_SCREENSHOT)); break;
+		case WXK_F9: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_FILE_SAVE_SCREENSHOT)); break;
 		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
 
 		case WXK_NUMPAD_ADD:

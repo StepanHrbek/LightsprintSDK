@@ -715,9 +715,11 @@ save_scene_as:
 				{
 					// Attempt to overwrite sshot by enhanced
 					// frame rendered with 2*2*FSAA, 2*2*higher shadow resolution, 2*more shadow samples.
-					// (even 3*3*FSAA works fine, 3*2560<8k, but it's probably too much for older cards)
-					// (4*2560 uz by neslo na Radeonech 4xxx)
-					const unsigned AA = 2;
+					// (1*1*FSAA is ugly, worse than plain capture)
+					// (2*2*FSAA works fine, but it's too much for Quadro)
+					// (3*3*FSAA works fine too, 3*2560<8k, but it's probably too much for older cards)
+					// (4*2560 would definitely exceed Radeon 4xxx limits)
+					const unsigned AA = 3;
 					const unsigned W = size.x*AA;
 					const unsigned H = size.y*AA;
 					
