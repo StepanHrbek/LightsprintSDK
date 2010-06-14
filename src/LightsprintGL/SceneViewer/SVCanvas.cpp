@@ -271,6 +271,11 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 		solver->setStaticObjects(objects,NULL);
 		solver->setLights(lights);
 
+		// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
+		// must be changed if setStaticObjects() behaviour changes
+		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
+			svs.renderLightIndirect = LI_REALTIME_ARCHITECT;
+
 		// fix dangling pointer in light properties pane
 		parent->updateSelection();
 
