@@ -864,7 +864,7 @@ Video formats
 
 \page what_is_an_adapter What is an adapter
 
-  Adapter is a class that provides Lightsprint interface to non-Lightsprint data structures.
+  Adapter is a class that provides Lightsprint interface (e.g. RRScene) to data in other formats (e.g. Gamebryo scene in memory, Collada scene on disk).
 
   Lightsprint transports light between object surfaces,
   so it needs to know everything
@@ -882,7 +882,7 @@ Video formats
   When writing new adapter, you can pick existing one as a template. (\ref what_is_an_adapter)
 
   - RRObjectAssimp.h/cpp (500 lines) loads scene from disk to 3rd party structures, copies them to Lightsprint structures, frees 3rd party structures after load.
-    Fills plain RRMeshArrays and RRObject instances, without subclassing.
+    Uses plain RRMeshArrays and RRObject instances, without subclassing.
     (Subclassing is necessary e.g. for LODs or for objects that receive light/shadows only from selected lights/objects.)
     Supports geometry instancing.
   - RRObjectOpenCollada.h/cpp (2000 lines) streams data from disk directly into plain RRMeshArrays and RRObject instances, without subclassing.
@@ -899,7 +899,7 @@ Video formats
   - RRObjectMGF.h/cpp (350 lines) streams data from disk directly into subclassed RRMesh and RRObject. For simplicity, it loads whole scene as a single object.
 
   Source code of adapters is in src/LightsprintIO/ImportXXX/RRObjectXXX.h|cpp.
-  Only selected adapters are included in evaluation version.
+  Only selected adapters have source code included in evaluation version.
 
 \page detect_material_properties Detect material properties
 
