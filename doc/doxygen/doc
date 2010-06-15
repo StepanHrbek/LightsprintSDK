@@ -839,18 +839,18 @@ Video formats
  </td></tr></table>
 
   - For quick start, pick one of existing projects, our SceneViewer sample or your application. If not sure, pick SceneViewer.
-  - For quick second step, pick one of <b> \subpage existing_adapters, </b> one with features you need. We recommend Assimp or Collada.
+  - For quick second step, pick one of <b> \subpage existing_adapters, </b> one with features you need, e.g. Assimp.
   - Copy selected adapter to RRObjectCustom.h/cpp and insert it into your project.
-  - Delete all unwanted third party \#includes in your adapter, e.g. FCollada or Assimp.
+  - Delete all unwanted third party \#includes in your adapter, e.g. Assimp.
   - Build reports errors on all references to 3rd party model,
-    change code so it works with your engine's 3d model rather than with FCollada or Assimp.
-    Replace all references to FCollada/Assimp with your custom format.
+    change code so it works with your engine's 3d model rather than with Assimp.
+    Replace all references to Assimp with your custom format.
     For more details, see
     - comments in RRObjectCustom source code
     - <b> \subpage detect_material_properties </b>
-    - interfaces of RRMesh and RRObject you implement
-  - Open your scene in scene viewer, using code from SceneViewerSample.cpp. Read comments there, small modification is necessary
-    to open scene from memory rather than from disk.
+    - interfaces of RRMesh and RRObject, if you decide to subclass them
+  - Open your scene in Scene Viewer sample.
+    To open scene from memory rather than from disk, small modification is necessary, read comments in SceneViewerSample.cpp.
   - Review adapted geometry, materials, lights in scene viewer.
     If scene doesn't look as expected, go back to adapter and fix it.
     To diagnose problems automatically, click "Help/Log scene errors" in scene viewer or call checkConsistency() from your adapter.
@@ -881,19 +881,25 @@ Video formats
 
   When writing new adapter, you can pick existing one as a template. (\ref what_is_an_adapter)
 
-  - RRObjectAssimp.h/cpp (500 lines) is the only adapter that copies data from 3rd party structures to Lightsprint structures.
-    It's also the only adapter that creates only basic meshes and objects, without subclassing.
+  - RRObjectAssimp.h/cpp (500 lines) loads scene from disk to 3rd party structures, copies them to Lightsprint structures, frees 3rd party structures after load.
+    Fills plain RRMeshArrays and RRObject instances, without subclassing.
     (Subclassing is necessary e.g. for LODs or for objects that receive light/shadows only from selected lights/objects.)
-    It supports geometry instancing.
-  - RRObjectCollada.h/cpp (1000 lines) accesses data in original 3rd party structures. It supports geometry instancing.
-  - RRObjectGamebryo.h/cpp (2500 lines) accesses data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
-  - RRObjectUE3.h/cpp (1200 lines) accesses data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
-  - RRObjectBSP.h/cpp (500 lines) accesses data in original 3rd party structures. It loads whole scene as a single object.
-  - RRObject3DS.h/cpp (300 lines) accesses vertex data in original 3rd party structures. Model_3DS.cpp was modified to load materials directly into our structures (another ~200 lines).
-  - RRObjectOBJ.h/cpp (250 lines) loads data from disk into custom structure (std::vector). It loads whole scene as a single object.
-  - RRObjectMGF.h/cpp (350 lines) loads data from disk into custom structure (std::vector). It loads whole scene as a single object. It calls third party loader code.
+    Supports geometry instancing.
+  - RRObjectOpenCollada.h/cpp (2000 lines) streams data from disk directly into plain RRMeshArrays and RRObject instances, without subclassing.
+    Supports geometry instancing.
+  - RRObjectLightsprint.h/cpp (300 lines) streams data from disk directly to plain RRMeshArrays and RRObject instances, without subclassing.
+    Supports geometry instancing.
+    Supports saving to disk.
+  - RRObjectFCollada.h/cpp (1000 lines) loads scene to 3rd party structures, subclassess RRMesh and RRObject to access data in original 3rd party structures. It supports geometry instancing.
+  - RRObjectGamebryo.h/cpp (2500 lines) subclassess RRMesh and RRObject to access data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
+  - RRObjectUE3.h/cpp (1200 lines) subclassess RRMesh and RRObject to access data in original 3rd party structures. It has virtually everything, geometry instancing, LODs, automatic detection of material properties from shaders, lists of lights and objects that do/don't interact etc.
+  - RRObjectBSP.h/cpp (500 lines) loads scene to 3rd party structures, subclassess RRMesh and RRObject to access data in original 3rd party structures. For simplicity, it loads whole scene as a single object.
+  - RRObject3DS.h/cpp (300 lines) loads scene to 3rd party structures, subclassess RRMesh and RRObject to access data in original 3rd party structures. Model_3DS.cpp was modified to load materials directly into our structures.
+  - RRObjectOBJ.h/cpp (250 lines) streams data from disk directly into subclassed RRMesh and RRObject. For simplicity, it loads whole scene as a single object.
+  - RRObjectMGF.h/cpp (350 lines) streams data from disk directly into subclassed RRMesh and RRObject. For simplicity, it loads whole scene as a single object.
 
   Source code of adapters is in src/LightsprintIO/ImportXXX/RRObjectXXX.h|cpp.
+  Only selected adapters are included in evaluation version.
 
 \page detect_material_properties Detect material properties
 
