@@ -26,21 +26,6 @@ using namespace rr;
 // - doesn't read all material properties
 
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// Verificiation
-//
-// Helps during development of new adapters.
-// Define VERIFY to enable verification of adapters and data.
-// RRReporter will be used to warn about detected data inconsistencies.
-// Once your code/data are verified and don't emit messages via RRReporter,
-// turn verifications off.
-// If you encounter strange behaviour with new data later,
-// reenable verifications to check that your data are ok.
-
-//#define VERIFY
-
-
 ////////////////////////////////////////////////////////////////////////////
 //
 // utility functions
@@ -479,11 +464,11 @@ void registerLoaderAssimp()
 	aiGetExtensionList(&extensions);
 	std::string str(convertStr(extensions));
 #if defined(SUPPORT_OPENCOLLADA) || defined(SUPPORT_FCOLLADA)
-	// hide assimp collada loader if better exists
+	// hide assimp collada loader if better one exists
 	str.erase(str.find("*.dae;"),6);
 #endif
 #ifdef SUPPORT_3DS
-	// hide assimp 3ds loader if better? exists
+	// hide assimp 3ds loader if better? one exists
 	str.erase(str.find("*.3ds;"),6);
 #endif
 	RRScene::registerLoader(str.c_str(),RRSceneAssimp::load);
