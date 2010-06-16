@@ -43,8 +43,8 @@ public:
 		if (!custom)
 			return custom;
 		// Fast path if no scaler was provided.
-		if (!scaler)
-			return custom;
+		// Commented out, it would open path for invalid materials into solver.
+		//if (!scaler) return custom;
 		// Otherwise we ignore inherited and read result from our faceGroups.
 		// We sync with inherited only when update() is called.
 		return RRObject::getTriangleMaterial(t,light,receiver);
@@ -78,7 +78,8 @@ public:
 	virtual void update(bool& aborting)
 	{
 		faceGroups = inherited->faceGroups;
-		if (!scaler) return;
+		// Commented out, it would open path for invalid materials into solver.
+		//if (!scaler) return;
 		// delete physical materials
 		for (Cache::iterator i=cache.begin();i!=cache.end();++i)
 		{
@@ -116,6 +117,12 @@ private:
 
 RRObject* RRObject::createObjectWithPhysicalMaterials(const RRScaler* scaler, bool& aborting)
 {
+	// Commented out, it would open path for invalid materials into solver.
+	//if (!scaler)
+	//{
+	//	RRReporter::report(WARN,"createObjectWithPhysicalMaterials(NULL), you warrant material validity.\n");
+	//	return this;
+	//}
 	if (!this)
 	{
 		return NULL;

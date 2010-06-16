@@ -344,8 +344,8 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 		scaler->getCustomScale(diffuseEmittance.color);
 		scaler->getCustomFactor(specularReflectance.color);
 		scaler->getCustomFactor(specularTransmittance.color);
-		validate();
 	}
+	validate();
 }
 
 void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
@@ -356,8 +356,8 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 		scaler->getPhysicalScale(diffuseEmittance.color);
 		scaler->getPhysicalFactor(specularReflectance.color);
 		scaler->getPhysicalFactor(specularTransmittance.color);
-		validate();
 	}
+	validate();
 }
 
 bool RRMaterial::needsBlending() const

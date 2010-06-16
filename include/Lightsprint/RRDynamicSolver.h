@@ -65,10 +65,6 @@ namespace rr
 		//! In 99% of cases you want to set scaler before using solver as nearly all
 		//! existing renderers and datasets use sRGB or other custom scale.
 		//! Not setting scaler is allowed for future rendering pipelines working fully in physical scale.
-		//! Note that if scaler is not set, internal material corrections are disabled,
-		//! so if you provide solver with invalid materials (for example material that reflects
-		//! more light than it receives), solution will diverge to infinite values,
-		//! debug version will assert.
 		//! \param scaler
 		//!  Scaler for converting illumination between physical and custom scale.
 		//!  It will be used by all data input and output paths in RRDynamicSolver, if not specified otherwise.

@@ -283,6 +283,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used for custom scale -> physical scale conversion.
 		//!  Provide the same scaler you use for the rest of calculation.
+		//!  If it is NULL, 'this' is returned.
 		//! \param aborting
 		//!  May be set asynchronously, aborts creation.
 		class RRObject* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
