@@ -428,6 +428,7 @@
     <ClInclude Include="..\..\include\Lightsprint\RRDebug.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRVector.h" />
+    <ClInclude Include="NumReports.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="squish\singlecolourlookup.inl">

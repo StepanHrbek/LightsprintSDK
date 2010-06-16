@@ -716,6 +716,7 @@
     <ClCompile Include="RRObject\RRScaler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NumReports.h" />
     <ClInclude Include="RRCollider\bsp.h" />
     <ClInclude Include="RRCollider\config.h" />
     <ClInclude Include="RRCollider\geometry.h" />

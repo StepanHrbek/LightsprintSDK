@@ -1816,6 +1816,10 @@
 			>
 		</File>
 		<File
+			RelativePath="NumReports.h"
+			>
+		</File>
+		<File
 			RelativePath="OfflineSetup.cpp"
 			>
 		</File>

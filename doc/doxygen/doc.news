@@ -14,6 +14,7 @@ NEWS
 
 - improved scene viewer
   - File / Merge scene...
+- improved RRObject::checkConsistency(), performs detailed unwrap analysis
 
 \section news104 ------------------------------------ 2010.06.03 -------------------------------------
 

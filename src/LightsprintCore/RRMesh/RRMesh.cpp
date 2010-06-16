@@ -12,6 +12,7 @@
 #include "RRMeshLessTriangles.h"
 #include "RRMeshFilterTransformed.h"
 #include "RRMeshMulti.h"
+#include "../NumReports.h"
 #include "../RRMathPrivate.h"
 #include <cstdio>
 
@@ -508,44 +509,11 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 	return new RRHidePreImportFilter(this);
 }
 
-// helper for checkConsistency(), similar to unsigned, but reports object number
-class NumReports
+unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName, class NumReports* numReports) const
 {
-public:
-	NumReports(const char* _meshName)
-	{
-		numReports = 0;
-		meshName = _meshName;
-		indented = false;
-	}
-	~NumReports()
-	{
-		if (indented)
-			RRReporter::indent(-2);
-	}
-	void operator ++(int i)
-	{
-		if (!numReports && meshName)
-		{
-			RRReporter::report(WARN,"Inconsistency found in %s:\n",meshName);
-			RRReporter::indent(2);
-			indented = true;
-		}
-		numReports++;
-	}
-	operator unsigned() const
-	{
-		return numReports;
-	}
-private:
-	unsigned numReports;
-	const char* meshName;
-	bool indented;
-};
-
-unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName) const
-{
-	NumReports numReports(meshName); // unsigned numReports = 0; would work too, although without reporting meshNumber
+	NumReports localNumReports(meshName); // unsigned numReports = 0; would work too, although without reporting meshNumber
+	if (!numReports)
+		numReports = &localNumReports;
 	unsigned numUnwrapOutOfRange = 0;
 	// meshArrays
 	const RRMeshArrays* a = dynamic_cast<const RRMeshArrays*>(this);
@@ -553,19 +521,19 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 	{
 		if (!((a->numTriangles && a->numVertices && a->position && a->normal) || (!a->numTriangles && !a->numVertices && !a->position && !a->normal)))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"numTriangles=%d, numVertices=%d, position=%s, normal=%s: all must be present, or all zero.\n",a->numTriangles,a->numVertices,a->position?"present":"missing",a->normal?"present":"missing");
 		}
 		if ((a->tangent==NULL) != (a->bitangent==NULL))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"tangent=%s, bitangent=%s: it's unusual to provide only one.\n",a->tangent?"present":"none",a->bitangent?"present":"none");
 		}
 		for (unsigned t=0;t<a->numTriangles;t++)
 			for (unsigned v=0;v<3;v++)
 				if (a->triangle[t][v]>=a->numVertices)
 				{
-					numReports++;
+					numReports[0]++;
 					RRReporter::report(ERRO,"triangle[%d][%d]=%d is out of range, must be below numVertices=%d, expect crash.\n",t,v,a->triangle[t][v],a->numVertices);
 				}
 	}
@@ -573,14 +541,14 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 	unsigned numVertices = getNumVertices();
 	if (numVertices==0 || numVertices>=10000000)
 	{
-		numReports++;
+		numReports[0]++;
 		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 	}
 	// numTriangles
 	unsigned numTriangles = getNumTriangles();
 	if (numTriangles==0 || numTriangles>=10000000)
 	{
-		numReports++;
+		numReports[0]++;
 		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 	}
 	// texcoords
@@ -598,7 +566,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		getVertex(i,vertex);
 		if (!IS_VEC3(vertex))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
 		}
 	}
@@ -610,12 +578,12 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		getTriangle(i,triangle);
 		if (triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 		}
 		if (triangle.m[0]==triangle.m[1] || triangle.m[0]==triangle.m[2] || triangle.m[1]==triangle.m[2])
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"degen: getTriangle(%d)==%d %d %d\n",i,triangle.m[0],triangle.m[1],triangle.m[2]);
 		}
 
@@ -624,27 +592,27 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		getTriangleBody(i,triangleBody);
 		if (!IS_VEC3(triangleBody.vertex0))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
 		}
 		if (!IS_VEC3(triangleBody.side1))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
 		}
 		if (!IS_VEC3(triangleBody.side2))
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 		}
 		if (!triangleBody.side1.length2())
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"degen: getTriangleBody(%d).side1==0\n",i);
 		}
 		if (!triangleBody.side2.length2())
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 		}
 
@@ -655,7 +623,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		getVertex(triangle.m[2],vertex[2]);
 		if (triangleBody.vertex0[0]!=vertex[0][0] || triangleBody.vertex0[1]!=vertex[0][1] || triangleBody.vertex0[2]!=vertex[0][2])
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2],
@@ -672,7 +640,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			fabs(vertex[1][2]-vertex[0][2]-triangleBody.side1[2]);
 		if (dif>scale*1e-5)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2],
@@ -690,7 +658,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			fabs(vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
 		if (dif>scale*1e-5)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2],
@@ -725,7 +693,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		}
 		if (nanOrInf)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
@@ -734,7 +702,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		else
 		if (denormalized)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths of v0 norm/tang/bitang: %f %f %f, v1 %f %f %f, v2 %f %f %f.\n",i,
 				size(triangleNormals.vertex[0].normal),size(triangleNormals.vertex[0].tangent),size(triangleNormals.vertex[0].bitangent),
 				size(triangleNormals.vertex[1].normal),size(triangleNormals.vertex[1].tangent),size(triangleNormals.vertex[1].bitangent),
@@ -743,7 +711,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		else
 		if (badDirection)
 		{
-			numReports++;
+			numReports[0]++;
 			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 		}
 		else
@@ -759,13 +727,13 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			TriangleMapping triangleMapping;
 			if (!getTriangleMapping(i,triangleMapping,texcoords[u]))
 			{
-				numReports++;
+				numReports[0]++;
 				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) missing.\n",i,texcoords[u]);
 			}
 			else
 			if (!triangleMapping.uv[0].finite() || !triangleMapping.uv[1].finite() || !triangleMapping.uv[2].finite())
 			{
-				numReports++;
+				numReports[0]++;
 				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) not finite, %f %f  %f %f  %f %f.\n",
 					i,texcoords[u],
 					triangleMapping.uv[0][0],triangleMapping.uv[0][1],
@@ -781,7 +749,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			TriangleMapping triangleMapping;
 			if (!getTriangleMapping(i,triangleMapping,lightmapTexcoord))
 			{
-				numReports++;
+				numReports[0]++;
 				RRReporter::report(WARN,"Texcoord getTriangleMapping(%d,,%d) missing.\n",i,lightmapTexcoord);
 			}
 			else
@@ -797,7 +765,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 				{
 					if (numUnwrapOutOfRange<3)
 					{
-						numReports++;
+						numReports[0]++;
 						RRReporter::report(WARN,"Unwrap getTriangleMapping(%d,,%d) out of range, %f %f  %f %f  %f %f.\n",
 							i,lightmapTexcoord,
 							triangleMapping.uv[0][0],triangleMapping.uv[0][1],
@@ -816,7 +784,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		}
 		
 	}
-	return numReports;
+	return *numReports;
 }
 
 unsigned RRMesh::getNumPreImportVertices() const 

@@ -34,10 +34,26 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 	return area;
 }
 
+struct UnwrapStatistics
+{
+	bool subtexelsInMapSpace; // makes enumerateTexels produce subtexels with unInTriangleSpace in map space
+	unsigned numTrianglesWithoutUnwrap;
+	unsigned numTrianglesWithUnwrap;
+	unsigned numTrianglesWithUnwrapOutOfRange;
+	UnwrapStatistics()
+	{
+		subtexelsInMapSpace = false;
+		numTrianglesWithoutUnwrap = 0;
+		numTrianglesWithUnwrap = 0;
+		numTrianglesWithUnwrapOutOfRange = 0;
+	}		
+};
+
 bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		unsigned mapWidth, unsigned mapHeight,
 		unsigned rectXMin, unsigned rectYMin, unsigned rectXMaxPlus1, unsigned rectYMaxPlus1, 
-		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc,
+		RRReal minimalSafeDistance, UnwrapStatistics& unwrapStatistics, int onlyTriangleNumber=-1)
 {
 	if (!multiObject)
 	{
@@ -65,7 +81,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	try
 	{
 	// iterate only triangles in singlemesh
-	RRObject* singleObject = tc.solver->getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
+	const RRObject* singleObject = tc.solver ? tc.solver->getStaticObjects()[objectNumber] : multiObject; // safe objectNumber, checked in updateLightmap()
 	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for (unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
@@ -81,8 +97,16 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			RRMesh::TriangleMapping mapping;
 			{
 				const RRMaterial* material = singleObject->getTriangleMaterial(singlePostImportTriangle,NULL,NULL);
-				unsigned lightmapTexcoord = material ? material->lightmapTexcoord : 0;
-				singleMesh->getTriangleMapping(singlePostImportTriangle,mapping,lightmapTexcoord);
+				unsigned lightmapTexcoord = material ? material->lightmapTexcoord : UINT_MAX;
+				if (singleMesh->getTriangleMapping(singlePostImportTriangle,mapping,lightmapTexcoord))
+				{
+					unwrapStatistics.numTrianglesWithUnwrap++;
+				}
+				else
+				{
+					unwrapStatistics.numTrianglesWithoutUnwrap++;
+					continue; // early exit from triangle without unwrap
+				}
 			}
 			// remember any triangle in selected object, for relevantLights
 			multiPostImportTriangleNumber = t;
@@ -99,9 +123,9 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				RRReal ymax = mapHeight * RR_MAX(mapping.uv[0][1],RR_MAX(mapping.uv[1][1],mapping.uv[2][1]));
 				yminu = (unsigned)RR_MAX(ymin,rectYMin); // !negative
 				ymaxu = (unsigned)RR_CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
+				if (xmin<0 || xmax>mapWidth || ymin<0 || ymax>mapHeight)
+					unwrapStatistics.numTrianglesWithUnwrapOutOfRange++;
 				if (yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
-				if (!(xmin>=0 && xmax<=mapWidth) || !(ymin>=0 && ymax<=mapHeight))
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Unwrap coordinates out of 0..1 range.\n"));
 			}
 			//  prepare mapspace -> trianglespace matrix
 			RRReal m[3][3] = {
@@ -122,7 +146,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			{
 				for (unsigned x=xminu;x<xmaxu;x++)
 				{
-					if ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
+					if (!tc.solver || ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting)) // process only texel selected for debugging
 					{
 						// start with full texel, 4 vertices
 						unsigned polySize = 4;
@@ -208,6 +232,18 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 						// triangulate polygon into subtexels
 						if (polySize)
 						{
+							if (unwrapStatistics.subtexelsInMapSpace)
+							{
+								// checkUnwrapConsistency() asks us to return subtexels in lightmap space,
+								// convert them
+								// numerical stability is poor (vertices are converted to trispace and back), analysis must take tiny overlaps as false positives
+								for (unsigned i=0;i<polySize;i++)
+								{
+									#define TRIANGLESPACE_TO_MAPSPACE(xy) RRVec2( (xy.x)*m[0][0] + (xy.y)*m[0][1] + m[0][2], (xy.x)*m[1][0] + (xy.y)*m[1][1] + m[1][2] )
+									polyVertexInTriangleSpace[i] = TRIANGLESPACE_TO_MAPSPACE(polyVertexInTriangleSpace[i]);
+									#undef TRIANGLESPACE_TO_MAPSPACE
+								}
+							}
 							SubTexel subTexel;
 							subTexel.multiObjPostImportTriIndex = t;
 							subTexel.uvInTriangleSpace[0] = polyVertexInTriangleSpace[0];
@@ -245,7 +281,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	RRRay* rays = RRRay::create(2*numThreads);
 
 	// 4. preallocate and populate relevantLights
-	unsigned numAllLights = tc.solver->getLights().size();
+	unsigned numAllLights = tc.solver ? tc.solver->getLights().size() : 0;
 	unsigned numRelevantLights = 0;
 	const RRLight** relevantLightsForObject = new const RRLight*[numAllLights*numThreads];
 	for (unsigned i=0;i<numAllLights;i++)
@@ -273,7 +309,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			unsigned indexInRect = (i-rectXMin)+(j-rectYMin)*(rectXMaxPlus1-rectXMin);
 			if (texelsRect[indexInRect].size())
 			{
-				if ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting) // process only texel selected for debugging
+				if (!tc.solver || ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting)) // process only texel selected for debugging
 				{
 					ProcessTexelParams ptp(tc);
 					ptp.uv[0] = i;
@@ -318,7 +354,10 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 //!  Function called for each enumerated texel. Must be thread safe.
 //! \param context
 //!  Context is passed unchanged to callback.
-bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+//! \param unwrapStatistics
+//!  Values in this structure are incremented.
+//! \return False if failed to enumerate all texels.
+bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, UnwrapStatistics& unwrapStatistics, int onlyTriangleNumber=-1)
 {
 	enum {MAX_TEXELS_PER_PASS=512*512};
 	unsigned numTexelsInMap = mapWidth*mapHeight;
@@ -330,7 +369,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	{
 		for (unsigned i=0;i<numPasses;i++)
 		{
-			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
 		return true;
@@ -339,11 +378,144 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	{
 		for (unsigned i=0;i<numPasses;i++)
 		{
-			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
 		return true;
 	}
+}
+
+// helper for RRObject::checkConsistency()
+const char* checkUnwrapConsistency(const RRObject* object)
+{
+	enum
+	{
+		MAP_WIDTH = 64,
+	};
+	struct UnwrapStatisticsEx : public UnwrapStatistics
+	{
+		unsigned numTexels;
+		unsigned numTexelsUsed;
+		unsigned numTexelsWithOverlap;
+		UnwrapStatisticsEx()
+		{
+			numTexels = MAP_WIDTH*MAP_WIDTH;
+			numTexelsUsed = 0;
+			numTexelsWithOverlap = 0;
+		}
+		static bool isPointInsideTriangle(const RRVec2& point, const RRVec2* triangle)
+		{
+			RRVec2 s = triangle[0];
+			RRVec2 r = triangle[1]-triangle[0];
+			RRVec2 l = triangle[2]-triangle[0];
+			float b = ((point[1]-s[1])*r[0] - (point[0]-s[0])*r[1]);
+			float a = ((point[0]-s[0])*l[1] - (point[1]-s[1])*l[0]);
+			float d = l[1]*r[0] - l[0]*r[1];
+			float epsilon = d*0.001f;
+			if (d>0)
+				return a>epsilon && b>epsilon && d-a-b>epsilon;
+			else
+				return a<epsilon && b<epsilon && d-a-b<epsilon;
+		}
+		static ProcessTexelResult callback(const struct ProcessTexelParams& pti)
+		{
+			UnwrapStatisticsEx* us = reinterpret_cast<UnwrapStatisticsEx*>(pti.context.singleObjectReceiver);
+
+			// multiple threads modify us at once
+			// we could ensure atomicity by #pragma omp atomic but we don't need absolutely exact result, speed is better
+
+			// we found used texel
+			us->numTexelsUsed++;
+
+			// do subtexels overlap?
+			if (pti.subTexels->size()>1)
+			{
+				// measure area of subtexels, ignoring overlap
+				float sumOfTriangleAreasInMap = 0;
+				for (TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
+				{
+					sumOfTriangleAreasInMap += i->areaInMapSpace;
+				}
+
+				if (sumOfTriangleAreasInMap*us->numTexels<1.05f)
+				{
+					// sample 40 random points in subtexels
+					TexelSubTexels::const_iterator subTexelIterator = pti.subTexels->begin();
+					RRReal areaAccu = -pti.subTexels->begin()->areaInMapSpace;
+					unsigned numSamples = 20;
+					RRReal areaStep = sumOfTriangleAreasInMap/(numSamples+0.91f);
+					for (unsigned seriesShooterNum=0;seriesShooterNum<numSamples;seriesShooterNum++)
+					{
+						// select random subtexel
+						areaAccu += areaStep;
+						while (areaAccu>0)
+						{
+							++subTexelIterator;
+							if (subTexelIterator==pti.subTexels->end())
+								subTexelIterator = pti.subTexels->begin();
+							areaAccu -= subTexelIterator->areaInMapSpace;
+						}
+						const SubTexel* subTexel = *subTexelIterator;
+						// select random point in subtexel
+						unsigned u=rand();
+						unsigned v=rand();
+						if (u+v>RAND_MAX)
+						{
+							u=RAND_MAX-u;
+							v=RAND_MAX-v;
+						}
+						RRVec2 point(subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u+0.5f)/(RAND_MAX+1) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v+0.5f)/(RAND_MAX+1));
+						// test point against all other triangles
+						for (TexelSubTexels::const_iterator subTexel2=pti.subTexels->begin();subTexel2!=pti.subTexels->end();++subTexel2)
+						{
+							if (*subTexel2!=subTexel && isPointInsideTriangle(point,subTexel2->uvInTriangleSpace))
+							{
+								goto overlap_found;
+							}
+						}
+					}
+				}
+				else
+				{
+					// sum of subtexels is too large to fit in texel, must overlap
+					overlap_found:
+					us->numTexelsWithOverlap++;
+				}
+			}
+
+			// return anything, it is not used
+			return ProcessTexelResult();
+		}
+	};
+	unsigned numTriangles = object->getCollider()->getMesh()->getNumTriangles();
+	if (numTriangles)
+	{
+		UnwrapStatisticsEx us;
+		us.subtexelsInMapSpace = true;
+		TexelContext tc;
+		memset(&tc,0,sizeof(tc));
+		tc.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
+		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,tc,0,us);
+		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
+		float outofrange = us.numTrianglesWithUnwrapOutOfRange/(float)numTriangles;
+		float overlap = us.numTexelsWithOverlap/(float)(us.numTexelsUsed?us.numTexelsUsed:1);
+		float coverage = us.numTexelsUsed/(float)us.numTexels;
+		bool notUnwrap =  missing>0.02f || outofrange>0.02f || overlap>0.02f || us.numTexelsUsed<=1;
+		bool poorUnwrap =  missing || outofrange || overlap>0.01f || coverage<0.05f;
+		if (poorUnwrap)
+		{
+			static char buf[100];
+			sprintf(buf,"%s unwrap (%d%% missing, %d%% out of range, %d%% overlap, %d%% coverage)",
+				notUnwrap?"Bad":"Poor",
+				(int)(missing*100),
+				(int)(outofrange*100),
+				(int)(overlap*100),
+				(int)(coverage*100)
+				);
+			return buf;
+		}
+	}
+	return NULL;
 }
 
 void scaleAndFlushToBuffer(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
@@ -561,7 +733,8 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.gatherDirectEmitors = getMultiObjectCustom()->faceGroups.containsEmittance(); // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
-		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance);
+		UnwrapStatistics us;
+		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance,us);
 
 		unsigned numBuffersEmpty = 0;
 		unsigned numBuffersFull = 0;

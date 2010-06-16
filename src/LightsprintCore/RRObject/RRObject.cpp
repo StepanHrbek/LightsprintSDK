@@ -11,6 +11,7 @@
 #include "RRObjectFilter.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
+#include "../NumReports.h"
 
 namespace rr
 {
@@ -304,24 +305,27 @@ void* RRObject::getCustomData(const char* name) const
 	return NULL;
 }
 
+extern const char* checkUnwrapConsistency(const RRObject* object); // our small helper in lightmap.cpp
+
 unsigned RRObject::checkConsistency(const char* _objectNumber) const
 {
-	unsigned numReports = 0;
 	std::string objectName(name.c_str());
 	if (!name.empty()) objectName += " ";
 	if (_objectNumber) objectName += std::string("(")+_objectNumber+")";
+	NumReports numReports(objectName.c_str());
 
 	// collider, mesh
 	if (!getCollider())
 	{
-		RRReporter::report(ERRO,"Object %s has getCollider()=NULL.\n",objectName.c_str());
+		RRReporter::report(ERRO,"getCollider()=NULL.\n");
 		return 1;
 	}
 	if (!getCollider()->getMesh())
 	{
-		RRReporter::report(ERRO,"Object %s has getCollider()->getMesh()=NULL.\n",objectName.c_str());
+		RRReporter::report(ERRO,"getCollider()->getMesh()=NULL.\n");
 		return 1;
 	}
+	getCollider()->getMesh()->checkConsistency(UINT_MAX,objectName.c_str(),&numReports);
 
 	// matrix
 	const RRMatrix3x4* world = getWorldMatrix();
@@ -332,7 +336,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 				if (!_finite(world->m[i][j]))
 				{
 					numReports++;
-					RRReporter::report(ERRO,"Object %s has broken world transformation.\n",objectName.c_str());
+					RRReporter::report(ERRO,"Broken world transformation.\n");
 					break;
 				}
 	}
@@ -344,7 +348,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	if (numTrianglesInFacegroups!=getCollider()->getMesh()->getNumTriangles())
 	{
 		numReports++;
-		RRReporter::report(ERRO,"Object %s faceGroups define materials for %d triangles out of %d.\n",objectName.c_str(),numTrianglesInFacegroups,getCollider()->getMesh()->getNumTriangles());
+		RRReporter::report(ERRO,"faceGroups define materials for %d triangles out of %d.\n",numTrianglesInFacegroups,getCollider()->getMesh()->getNumTriangles());
 	}
 
 	// materials
@@ -354,7 +358,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		if (!material)
 		{
 			numReports++;
-			RRReporter::report(ERRO,"Object %s has NULL material.\n",objectName.c_str());
+			RRReporter::report(ERRO,"NULL material.\n");
 		}
 		else
 		{
@@ -363,22 +367,43 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	}
 
 	// lightmapTexcoord
-	unsigned lightmapTexcoord = UINT_MAX;
+	unsigned noUnwrap = 0;
 	for (unsigned g=0;g<faceGroups.size();g++)
+		if (faceGroups[g].material->lightmapTexcoord==UINT_MAX)
+			noUnwrap++;
+	if (noUnwrap==faceGroups.size())
 	{
-		if (faceGroups[g].material->lightmapTexcoord!=UINT_MAX)
+			numReports++;
+			RRReporter::report(WARN,"No unwrap.\n");
+	}
+	else
+	if (noUnwrap)
+	{
+			numReports++;
+			RRReporter::report(WARN,"Part of unwrap missing.\n");
+	}
+	for (unsigned g=1;g<faceGroups.size();g++)
+	{
+		if (faceGroups[g].material->lightmapTexcoord!=faceGroups[g-1].material->lightmapTexcoord)
 		{
-			if (lightmapTexcoord!=UINT_MAX && lightmapTexcoord!=faceGroups[g].material->lightmapTexcoord)
-			{
-				numReports++;
-				RRReporter::report(WARN,"Object %s combines materials with different lightmapTexcoord (%d,%d..).\n",objectName.c_str(),lightmapTexcoord,faceGroups[g].material->lightmapTexcoord);
-				break;
-			}
-			lightmapTexcoord = faceGroups[g].material->lightmapTexcoord;
+			numReports++;
+			RRReporter::report(WARN,"Combines materials with different lightmapTexcoord (%d,%d..).\n",faceGroups[g-1].material->lightmapTexcoord,faceGroups[g].material->lightmapTexcoord);
+			break;
 		}
 	}
 
-	return numReports + getCollider()->getMesh()->checkConsistency(lightmapTexcoord,objectName.c_str());
+	// unwrap
+	if (!noUnwrap)
+	{
+		const char* unwrapWarning = checkUnwrapConsistency(this);
+		if (unwrapWarning)
+		{
+			numReports++;
+			RRReporter::report(WARN,"%s\n",unwrapWarning);
+		}
+	}
+
+	return numReports;
 }
 
 

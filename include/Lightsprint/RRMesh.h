@@ -326,9 +326,11 @@ namespace rr
 		//!  Optional lightmap texcoord channel. UINT_MAX disables unwrap check.
 		//! \param meshName
 		//!  Optional mesh name included in report if inconsistency is found. May be NULL.
+		//! \param numReports
+		//!  Reserved, keep it NULL.
 		//! \return
 		//!  Number of problem reported, 0 for valid mesh.
-		virtual unsigned     checkConsistency(unsigned lightmapTexcoord, const char* meshName) const;
+		virtual unsigned     checkConsistency(unsigned lightmapTexcoord, const char* meshName, class NumReports* numReports = NULL) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////
