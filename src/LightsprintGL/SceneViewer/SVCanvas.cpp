@@ -138,8 +138,10 @@ void SVCanvas::createContextCore()
 
 	// init solver
 	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
+	solver->setScaler(rr::RRScaler::createRgbScaler());
 	if (svs.initialInputSolver)
 	{
+		delete solver->getScaler();
 		solver->setScaler(svs.initialInputSolver->getScaler());
 		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
 		envToBeDeletedOnExit = false;
@@ -154,7 +156,6 @@ void SVCanvas::createContextCore()
 		mergedScenes.push_back(new rr::RRScene(svs.sceneFilename.c_str()));
 
 		// send everything to solver
-		solver->setScaler(rr::RRScaler::createRgbScaler());
 		solver->setEnvironment(mergedScenes[0]->environment);
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
