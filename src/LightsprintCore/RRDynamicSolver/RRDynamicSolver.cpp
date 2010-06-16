@@ -153,7 +153,8 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 
 	// convert it to physical scale
-	RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
+	if (!getScaler())
+		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler(),aborting) : NULL; // no scaler -> physical==custom
 	priv->staticSolverCreationFailed = false;
 
