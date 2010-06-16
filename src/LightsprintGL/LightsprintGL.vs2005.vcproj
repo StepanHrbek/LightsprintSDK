@@ -1036,6 +1036,10 @@
 			>
 		</File>
 		<File
+			RelativePath="tmpstr.h"
+			>
+		</File>
+		<File
 			RelativePath="ToneMapping.cpp"
 			>
 		</File>

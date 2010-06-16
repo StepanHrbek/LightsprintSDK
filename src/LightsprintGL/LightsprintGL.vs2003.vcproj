@@ -473,6 +473,9 @@
 			RelativePath="..\..\include\Lightsprint\GL\Timer.h">
 		</File>
 		<File
+			RelativePath="tmpstr.h">
+		</File>
+		<File
 			RelativePath="ToneMapping.cpp">
 		</File>
 		<File

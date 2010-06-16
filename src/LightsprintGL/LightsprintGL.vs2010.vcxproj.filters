@@ -82,6 +82,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Water.h" />
     <ClInclude Include="Workaround.h" />
+    <ClInclude Include="tmpstr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
