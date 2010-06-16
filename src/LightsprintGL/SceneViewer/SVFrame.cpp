@@ -450,7 +450,6 @@ void SVFrame::UpdateMenuBar()
 		menuBar->Append(winMenu, _T("File"));
 	}
 
-
 	// Camera...
 	{
 		winMenu = new wxMenu;
@@ -458,6 +457,7 @@ void SVFrame::UpdateMenuBar()
 		menuBar->Append(winMenu, _T("Camera"));
 	}
 
+	// Environment...
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_ENV_OPEN,_T("Load skybox..."),_T("Supported formats: cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images."));
@@ -476,7 +476,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light (del)"));
 		menuBar->Append(winMenu, _T("Lights"));
 	}
-
 
 	// Global illumination...
 	{
