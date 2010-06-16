@@ -649,6 +649,7 @@ ShootingKernel::ShootingKernel()
 	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	sceneRay->rayLengthMax = BIG_REAL;
 	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
+	recursionDepth = 0;
 }
 
 ShootingKernel::~ShootingKernel()
@@ -814,12 +815,12 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		return HitChannels(0);
 	}
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	//static unsigned s_depth = 0;
-	//if (s_depth>25) 
-	//{
-	//	return HitChannels(0);
-	//}
-	//s_depth++;
+	if (shootingKernel->recursionDepth>25) 
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Photon bounce limit reached, scene may contain physically impossible materials.\n"));
+		return HitChannels(0);
+	}
+	shootingKernel->recursionDepth++;
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
 	RR_ASSERT(side.catchFrom); // check that bad side was not hit
@@ -893,7 +894,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		}
 	}
 
-	//s_depth--;
+	shootingKernel->recursionDepth--;
 	return hitPower;
 }
 

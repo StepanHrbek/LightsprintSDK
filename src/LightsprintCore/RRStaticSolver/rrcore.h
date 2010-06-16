@@ -292,6 +292,7 @@ public:
 	HomogenousFiller filler;
 	RussianRoulette russianRoulette;
 	Triangles hitTriangles;
+	unsigned recursionDepth;
 };
 
 class ShootingKernels
