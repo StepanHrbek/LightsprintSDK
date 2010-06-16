@@ -117,12 +117,11 @@ private:
 
 RRObject* RRObject::createObjectWithPhysicalMaterials(const RRScaler* scaler, bool& aborting)
 {
-	// Commented out, it would open path for invalid materials into solver.
-	//if (!scaler)
-	//{
-	//	RRReporter::report(WARN,"createObjectWithPhysicalMaterials(NULL), you warrant material validity.\n");
-	//	return this;
-	//}
+	if (!scaler)
+	{
+		// Commented out, it would open path for invalid materials into solver.
+		//return this;
+	}
 	if (!this)
 	{
 		return NULL;
