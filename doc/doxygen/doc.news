@@ -16,6 +16,10 @@ NEWS
   - File / Merge scene...
 - improved RRObject::checkConsistency(), performs detailed unwrap analysis
 
+CHANGES
+
+- Modified lightmap filtering, better results with small gutter, sharp boundaries appear in lightmaps.
+
 \section news104 ------------------------------------ 2010.06.03 -------------------------------------
 
 NEWS
