@@ -30,24 +30,16 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 		#pragma omp parallel for schedule(static)
 		for (int i=0;i<(int)size;i++)
 		{
-			RRVec4 c = inputs[i];
-			if (c[3]>=1)
+			if (inputs[i][3]>=1)
 			{
-				outputs[i] = c;
+				outputs[i] = inputs[i];
 			}
 			else
 			{
-				RRVec4 c1 = inputs[(i+1)%size];
-				RRVec4 c2 = inputs[(i-1)%size];
-				RRVec4 c3 = inputs[(i+width)%size];
-				RRVec4 c4 = inputs[(i-width)%size];
-				RRVec4 c5 = inputs[(i+1+width)%size];
-				RRVec4 c6 = inputs[(i+1-width)%size];
-				RRVec4 c7 = inputs[(i-1+width)%size];
-				RRVec4 c8 = inputs[(i-1-width)%size];
-
-				RRVec4 cc = ( c + (c1+c2+c3+c4)*0.25f + (c5+c6+c7+c8)*0.166f )*6;
-
+				RRVec4 cc = inputs[i]*6
+					+ (inputs[(i+1)%size] + inputs[(i-1)%size] + inputs[(i+width)%size] + inputs[(i-width)%size])*1.5f
+					+ inputs[(i+1+width)%size] + inputs[(i+1-width)%size] + inputs[(i-1+width)%size] + inputs[(i-1-width)%size];
+				
 				outputs[i] = cc/RR_MAX(cc.w,1.0f);
 
 				changed = true;
@@ -60,10 +52,9 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 		#pragma omp parallel for schedule(static)
 		for (int i=0;i<(int)size;i++)
 		{
-			RRVec4 c = inputs[i];
-			if (c[3]>=1)
+			if (inputs[i][3]>=1)
 			{
-				outputs[i] = c;
+				outputs[i] = inputs[i];
 			}
 			else
 			{
@@ -71,16 +62,10 @@ void filter(RRVec4* inputs,RRVec4* outputs,unsigned width,unsigned height,bool* 
 				int y = i/width;
 				int w = (int)width;
 				int h = (int)height;
-				RRVec4 c1 = inputs[RR_MIN(x+1,w-1) + y*w];
-				RRVec4 c2 = inputs[RR_MAX(x-1,0)   + y*w];
-				RRVec4 c3 = inputs[x               + RR_MIN(y+1,h-1)*w];
-				RRVec4 c4 = inputs[x               + RR_MAX(y-1,0)*w];
-				RRVec4 c5 = inputs[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w];
-				RRVec4 c6 = inputs[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w];
-				RRVec4 c7 = inputs[RR_MAX(x-1,0)   + RR_MIN(y+1,h-1)*w];
-				RRVec4 c8 = inputs[RR_MAX(x-1,0)   + RR_MAX(y-1,0)*w];
 
-				RRVec4 cc = ( c + (c1+c2+c3+c4)*0.25f + (c5+c6+c7+c8)*0.166f )*6;
+				RRVec4 cc = inputs[i]*6
+					+ (inputs[RR_MIN(x+1,w-1) + y*w] + inputs[RR_MAX(x-1,0) + y*w] + inputs[x + RR_MIN(y+1,h-1)*w] + inputs[x + RR_MAX(y-1,0)*w])*1.5f
+					+ inputs[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w] + inputs[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w] + inputs[RR_MAX(x-1,0) + RR_MIN(y+1,h-1)*w] + inputs[RR_MAX(x-1,0) + RR_MAX(y-1,0)*w];
 
 				outputs[i] = cc/RR_MAX(cc.w,1.0f);
 
