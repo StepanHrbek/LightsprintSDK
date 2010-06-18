@@ -229,6 +229,7 @@
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
     <ClCompile Include="RRObject\RRScaler.cpp" />
+    <ClCompile Include="Unwrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">

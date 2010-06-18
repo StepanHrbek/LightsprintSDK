@@ -466,6 +466,26 @@ namespace rr
 		//! \return Number of problem reported.
 		unsigned checkConsistency(const char* objectType) const;
 
+		//! Rebuilds unwrap in all meshes.
+		//
+		//! New unwrap is created into the lowest unused uv channel, the same channel in all meshes.
+		//! Old unwrap and other unused uv channels may be removed.
+		//! All materials are updated to use new unwrap.
+		//!
+		//! Unwrapper doesn't modify pointers to objects, colliders, materials or meshes,
+		//! but it may add new vertices in mesh, if unwrap contains seams.
+		//! Therefore structures that depend on exact number of vertices may need update after unwrapping.
+		//! This is case of solver; if you build unwrap in solver <code>solver->getStaticObjects().buildUnwrap(...)</code>,
+		//! you have to to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
+		//! \param resolution
+		//!  Expected lightmap resolution.
+		//! \param removeUnusedUvChannels
+		//!  Whether to remove old unwrap and other uv channels not referenced by materials.
+		//! \param aborting
+		//!  May be set asynchronously, aborts build.
+		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.
+		virtual unsigned buildUnwrap(unsigned resolution, bool removeUnusedUvChannels, bool& aborting) const;
+
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
 	};

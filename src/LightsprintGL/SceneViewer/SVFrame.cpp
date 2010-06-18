@@ -509,8 +509,9 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build Fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default ") wxSTRINGIZE_T(DEFAULT_FIREBALL_QUALITY) _T(")."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build LDM (light detail map)..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
+		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_T("Build unwrap..."),_T("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
-		winMenu->Append(ME_STATIC_2D,_T("Inspect lightmaps in 2D"),_T("Shows lightmap in 2D, with unwrap wireframe."));
+		winMenu->Append(ME_STATIC_2D,_T("Inspect unwrap+lightmaps in 2D"),_T("Shows unwrap and lightmap in 2D."));
 		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
 		//winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
 #ifdef DEBUG_TEXEL
@@ -1166,6 +1167,28 @@ reload_skybox:
 			}
 			break;
 #endif
+		case ME_STATIC_BUILD_UNWRAP:
+			{
+				unsigned res = 256;
+				if (getResolution("Unwrap build",this,res,false))
+				{
+					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
+					solver->aborting = false;
+
+					// buildUnwrap usually splits a few vertices, we have to send modified data to solver
+					// solver would crash if we add/remove triangles/vertices silently
+					solver->setStaticObjects(solver->getStaticObjects(),NULL);
+
+					// fix dangling pointer in collisionHandler
+					delete m_canvas->collisionHandler;
+					m_canvas->collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+
+					// resize rtgi buffers, vertex counts may differ
+					solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+				}
+			}
+			break;
+
 		case ME_STATIC_BUILD:
 			{
 				unsigned res = 256; // 0=vertex buffers

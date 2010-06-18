@@ -901,6 +901,9 @@
 		<File
 			RelativePath="..\..\include\Lightsprint\RRVector.h">
 		</File>
+		<File
+			RelativePath="Unwrapper.cpp">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

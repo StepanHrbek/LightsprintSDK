@@ -93,7 +93,8 @@ RRLightField.cpp \
 RRMath.cpp \
 RRMemory.cpp \
 RRObjectIllumination.cpp \
-RRScene.cpp
+RRScene.cpp \
+Unwrapper.cpp
 
 # libraries
 
