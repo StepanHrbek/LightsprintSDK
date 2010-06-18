@@ -22,27 +22,21 @@ namespace rr
 	//
 	//! \section s1 Provided information
 	//! %RRObject provides information about
-	//! - object material properties
-	//! - object collider for fast ray-mesh intersections
-	//! - indirectly also object geometry (via getCollider()->getMesh())
-	//! - optionally object transformation matrix
-	//! - optionally unwrap (for future versions)
-	//!
-	//! \section s2 Creating instances
-	//! The only way to create first instance is to derive from %RRObject.
-	//! This is caused by lack of standard material description formats,
-	//! everyone uses different description and needs his own object importer.
-	//!
-	//! Once you have object importers, there is built-in support for 
-	//! - pretransforming mesh, see createWorldSpaceMesh()
-	//! - baking multiple objects together, see createMultiObject()
+	//! - materials and their assignment to faces, see #faceGroups
+	//! - transformation matrix, see getWorldMatrix() and setWorldMatrix()
+	//! - collider for fast ray-mesh intersections, see getCollider() and setCollider()
+	//! - indirectly also mesh (via getCollider()->getMesh())
+	//! - LODs, see getTriangleLOD()
+	//! - object illumination, see #illumination
+	//! - object name, see #name
 	//!
 	//! \section s3 Links between objects
-	//! solver -> RRObject -> RRCollider -> RRMesh
+	//! solver and RRScene -> RRObjects -> RRObject -> RRCollider -> RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
-	//! \n This means you may have multiple objects sharing one collider and mesh.
+	//! \n This means that multiple objects may share one collider and mesh,
+	//!    multiple scenes or solvers may share one object etc.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
