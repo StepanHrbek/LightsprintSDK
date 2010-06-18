@@ -810,7 +810,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
 	materialProperty.texture = rr::RRBuffer::load(fullname,NULL);
-	materialProperty.texcoord = Material::CH_DIFFUSE_SPECULAR_EMISSIVE_OPACITY;
+	materialProperty.texcoord = 0;
 	if (materialProperty.texture)
 	{
 		rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();

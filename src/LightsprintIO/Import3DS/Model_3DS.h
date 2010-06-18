@@ -57,15 +57,9 @@ public:
 	// Material is read directly to Lightsprint's RRMaterial
 	struct Material : public rr::RRMaterial
 	{
-		enum // uv channels
-		{
-			CH_DIFFUSE_SPECULAR_EMISSIVE_OPACITY,
-			CH_LIGHTMAP,
-		};
 		Material()
 		{
 			reset(false); // Model_3DS::MaterialChunkProcessor expects 1-sided is already set
-			lightmapTexcoord = CH_LIGHTMAP;
 		}
 	};
 

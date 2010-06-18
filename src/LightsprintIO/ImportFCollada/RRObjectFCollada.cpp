@@ -314,18 +314,7 @@ void RRMeshFCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 
 bool RRMeshFCollada::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
 {
-	if (getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,channel,2,t,&out,sizeof(out)))
-	{
-		// collada contains requested data
-		return true;
-	}
-	if (channel==LIGHTMAP_CHANNEL)
-	{
-		// unwrap was not found, but we can autogenerate it
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRObjectFCollada: No TEXCOORD channel for lightmaps, falling back to automatic.\n"));
-		return RRMesh::getTriangleMapping(t,out,0);
-	}
-	return false;
+	return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,channel,2,t,&out,sizeof(out));
 }
 
 
