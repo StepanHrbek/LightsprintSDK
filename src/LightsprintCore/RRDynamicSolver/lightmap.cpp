@@ -364,7 +364,6 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	unsigned numPasses = (numTexelsInMap+MAX_TEXELS_PER_PASS-1)/MAX_TEXELS_PER_PASS;
 	if (numPasses==0)
 		return false;
-	else
 	if (mapWidth<=mapHeight)
 	{
 		for (unsigned i=0;i<numPasses;i++)
@@ -372,7 +371,6 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
-		return true;
 	}
 	else
 	{
@@ -381,8 +379,8 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
-		return true;
 	}
+	return true;
 }
 
 // helper for RRObject::checkConsistency()
@@ -735,6 +733,24 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		UnwrapStatistics us;
 		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance,us);
+
+		// report unwrap errors
+		if (gathered && (us.numTrianglesWithoutUnwrap || us.numTrianglesWithUnwrapOutOfRange))
+		{
+			if (!us.numTrianglesWithUnwrap)
+			{
+				RRReporter::report(WARN,"No unwrap. Build unwrap or bake GI per-vertex.\n");
+				gathered = false;
+			}
+			else
+			{
+				unsigned numTriangles = us.numTrianglesWithUnwrap+us.numTrianglesWithoutUnwrap;
+				RRReporter::report(WARN,"Bad unwrap, %d%% missing, %d%% out of range. Fix it or bake GI per-vertex.\n",
+					(100*us.numTrianglesWithoutUnwrap+numTriangles-1)/numTriangles,
+					(100*us.numTrianglesWithUnwrapOutOfRange+numTriangles-1)/numTriangles
+					);
+			}
+		}
 
 		unsigned numBuffersEmpty = 0;
 		unsigned numBuffersFull = 0;
