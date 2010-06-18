@@ -121,13 +121,13 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 					RRBuffer*& buffer = illumination.getLayer(lightmapLayerNumber);
 					if (!buffer && allocateNewBuffers)
 					{
-						buffer = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+						buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
 						buffersTouched++;
 					}
 					else
 					if (buffer && changeExistingBuffers)
 					{
-						buffer->reset(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
+						buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
 						buffersTouched++;
 					}
 				}
@@ -136,13 +136,13 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 				{
 					if (!illumination.diffuseEnvMap && allocateNewBuffers)
 					{
-						illumination.diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,rr::BF_RGBA,true,NULL);
+						illumination.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,BF_RGBA,true,NULL);
 						buffersTouched++;
 					}
 					else
 					if (illumination.diffuseEnvMap && changeExistingBuffers)
 					{
-						illumination.diffuseEnvMap->reset(rr::BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,rr::BF_RGBA,true,NULL);
+						illumination.diffuseEnvMap->reset(BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,BF_RGBA,true,NULL);
 						buffersTouched++;
 					}
 				}
@@ -156,7 +156,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 						float maxSpecular = 0;
 						for (unsigned g=0;g<object->faceGroups.size();g++)
 						{
-							const rr::RRMaterial* material = object->faceGroups[g].material;
+							const RRMaterial* material = object->faceGroups[g].material;
 							if (material)
 							{
 								maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
@@ -167,29 +167,29 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 						if (maxSpecular>RR_MAX(0.01f,maxDiffuse*0.5f))
 						{
 							// measure object's size
-							rr::RRVec3 mini,maxi;
+							RRVec3 mini,maxi;
 							mesh->getAABB(&mini,&maxi,NULL);
-							rr::RRVec3 size = maxi-mini;
+							RRVec3 size = maxi-mini;
 							float sizeMidi = size.sum()-size.maxi()-size.mini();
 							// continue only for non-planar objects, cubical reflection looks bad on plane
 							// (size is in object's space, so this is not precise for non-uniform scale)
 							if (size.mini()>0.3*sizeMidi)
 							{
 								// allocate specular cube map
-								rr::RRVec3 center;
+								RRVec3 center;
 								mesh->getAABB(NULL,NULL,&center);
-								const rr::RRMatrix3x4* matrix = object->getWorldMatrix();
+								const RRMatrix3x4* matrix = object->getWorldMatrix();
 								if (matrix) matrix->transformPosition(center);
 								illumination.envMapWorldCenter = center;
 								if (!illumination.specularEnvMap && allocateNewBuffers)
 								{
-									illumination.specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,rr::BF_RGBA,true,NULL);
+									illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,BF_RGBA,true,NULL);
 									buffersTouched++;
 								}
 								else
 								if (illumination.specularEnvMap && changeExistingBuffers)
 								{
-									illumination.specularEnvMap->reset(rr::BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,rr::BF_RGBA,true,NULL);
+									illumination.specularEnvMap->reset(BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,BF_RGBA,true,NULL);
 									buffersTouched++;
 								}
 								//updateEnvironmentMapCache(illumination);
