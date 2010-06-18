@@ -12,9 +12,14 @@ namespace rr
 
 NEWS
 
+- high quality automatic unwrap generation
+  \n in code: call RRObjects::buildUnwrap()
+  \n in Scene Viewer: click menu Global Illumination / Build unwrap
+  \n changed default RRMaterial::lightmapTexcoord to UINT_MAX (no unwrap present)
+  \n improved diagnostics if unwrap is missing/invalid
+  \n removed old automatic unwrapping from default RRMesh::getTriangleMapping(,,0)
 - improved scene viewer
   - File / Merge scene...
-- improved RRObject::checkConsistency(), performs detailed unwrap analysis
 
 CHANGES
 

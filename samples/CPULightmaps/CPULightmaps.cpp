@@ -70,9 +70,9 @@ int main(int argc, char **argv)
 		if (i==SELECTED_OBJECT_NUMBER)
 		{
 			// allocate lightmaps for selected object
+			// we guess reasonable lightmap size here, you may need to tweak this
 			unsigned res = 16;
-			unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
-			while (res<2048 && (float)res<sizeFactor*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
+			while (res<2048 && (float)res<5*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 				solver->getStaticObjects()[i]->illumination.getLayer(layerNumber) =
 					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);

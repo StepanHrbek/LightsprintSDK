@@ -632,7 +632,7 @@ Video formats
 
 \page main_artist_offline Static GI
 
-  Static lighting is a mainstream approach today.
+  Static lighting is mainstream approach today.
   Superior lighting quality is reached at cost of fixing lights in static positions,
   global illumination is precomputed.
 
@@ -640,6 +640,15 @@ Video formats
   - lightmaps, directional lightmaps, bent normals and ambient occlusion
     for static objects
   - lightfields for dynamic objects
+  - unwrap, if you don't provide yours
+
+ \section artist_offline_sceneviewer SceneViewer tool
+  SceneViewer is an interactive tool ready for immediate use
+  in both static GI and realtime GI. It lets you build lightmaps, ambient occlusion, unwrap,
+  manipulate lights, materials and geometry with immediate GI updates etc.
+  \ref samples_realtime "More about SceneViewer".
+  \n Run prebuilt version by bin/win32/SceneViewer.vs2005.exe or bin/x64/SceneViewer.vs2008.exe,
+  or build your own version, source code is included.
 
  \section artist_offline_buildlightmaps BuildLightmaps tool
   BuildLightmaps is a commandline tool ready for immediate use.
@@ -672,6 +681,9 @@ Video formats
  \section artist_offline_lights Lights
   All light sources are supported - point, spot, directional, emissive materials,
   sky (flat color, LDR or HDR texture).
+
+ \section artist_offline_unwrap Unwrap
+  Lightsprint SDK supports both user-provided and automatically generated unwrap.
 
 
 
@@ -1585,7 +1597,7 @@ Video formats
    - Generic example:
      \n Creating vertex buffer.
      \code
-	vertexBuffer = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,NULL);
+	vertexBuffer = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,true,NULL);
      \endcode
    - OpenGL example:
      \n Rendering with per vertex ambient.
@@ -1711,10 +1723,11 @@ Video formats
      knowing direction of incoming indirect light.
 
  \section d23 Disadvantages
-   - You need additional uv channel with object's unwrap (for lightmap mapping).
+   - One more uv channel needed, compared to vertex buffers.
+     (Meshes need additional uv channel with unwrap, for mapping texture.
      If you don't have it, ask your 3d artists
-     to bake unwrap into meshes as an additional uv channel.
-     Unwraps are often genrated automatically, using existing free or commercial tools.
+     to bake unwrap into meshes as an additional uv channel, or build unwrap
+     automatically with RRObjects::buildUnwrap().)
 
  \section d25 Interface, implementations
    - RRBuffer
@@ -1733,24 +1746,9 @@ Video formats
 
  \section d27 Examples
    - Generic example:
-     \n Providing access to unwrap in your implementation of rr::RRMesh interface.
-     \code
-	// access to uv channel with object's unwrap
-	void YourImplementationOfRRMesh::getTriangleMapping(
-		unsigned t, TriangleMapping& out) const
-	{
-		for(unsigned v=0;v<2;v++)
-		{
-			// copy uv baked with your mesh
-			// for vertex v (v=0..2) in triangle t
-			out.uv[v][0] = ...; // u coordinate
-			out.uv[v][1] = ...; // v coordinate
-		}
-	}
-     \endcode
      \n Creating lightmap.
      \code
-	lightmap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,NULL);
+	lightmap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,256,256,1,rr::BF_RGBF,true,NULL);
      \endcode
    - OpenGL example:
      Rendering with lightmap.

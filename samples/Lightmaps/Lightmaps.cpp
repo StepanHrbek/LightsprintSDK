@@ -34,9 +34,8 @@
 //  */= change contrast
 //
 // Remarks:
-// - map quality depends on unwrap quality,
-//   make sure you have good unwrap in your scenes
-//   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
+// - map quality depends on unwrap quality.
+//   If your scene doesn't contain unwrap, you can build it with RRObjects::buildUnwrap().
 //
 // Copyright (C) 2006-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // Models by Raist, orillionbeta, atp creations
