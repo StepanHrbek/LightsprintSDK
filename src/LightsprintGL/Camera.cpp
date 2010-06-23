@@ -353,4 +353,46 @@ void Camera::mirror(float altitude)
 	// it is not completely mirrored, up stays {0,1,0} in update()
 }
 
+////////////////////////////////////////////////////////////////////////
+//
+// blend
+
+// returns a*(1-alpha) + b*alpha;
+template<class C>
+C blendNormal(C a,C b,rr::RRReal alpha)
+{
+	// don't interpolate between identical values,
+	//  results would be slightly different for different alphas (in win64, not in win32)
+	//  some optimizations are enabled only when data don't change between frames (see shadowcast.cpp bool lightChanged)
+	return (a==b) ? a : (a*(1-alpha) + b*alpha);
+}
+
+// returns a*(1-alpha) + b*alpha; (a and b are points on 360degree circle)
+// using shortest path between a and b
+rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal modulo)
+{
+	a = fmodf(a,modulo);
+	b = fmodf(b,modulo);
+	if (a<b-(modulo/2)) a += modulo; else
+	if (a>b+(modulo/2)) a -= modulo;
+	return blendNormal(a,b,alpha);
+}
+
+void Camera::blend(const Camera& a, const Camera& b, float blend)
+{
+	pos = blendNormal(a.pos,b.pos,blend);
+	angle = blendModulo(a.angle,b.angle,blend,(float)(2*RR_PI));
+	leanAngle = blendNormal(a.leanAngle,b.leanAngle,blend);
+	angleX = blendNormal(a.angleX,b.angleX,blend);
+	aspect = blendNormal(a.aspect,b.aspect,blend);
+	fieldOfViewVerticalDeg = blendNormal(a.fieldOfViewVerticalDeg,b.fieldOfViewVerticalDeg,blend);
+	anear = blendNormal(a.anear,b.anear,blend);
+	afar = blendNormal(a.afar,b.afar,blend);
+	orthogonal = a.orthogonal;
+	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
+	updateDirFromAngles = a.updateDirFromAngles;
+	dir = blendNormal(a.dir,b.dir,blend);
+	update();
+}
+
 }; // namespace

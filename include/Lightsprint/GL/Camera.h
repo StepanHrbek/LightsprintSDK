@@ -152,6 +152,8 @@ public:
 	//! Mirrors camera for reflection rendering. Second call takes changes back.
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);
+	//! Fills this with linear interpolation of a and b; a if blend=0, b if blend=1.
+	void blend(const Camera& a, const Camera& b, float blend);
 	//! Updates all outputs, recalculates them from inputs.
 	//
 	//! \param observer
