@@ -283,6 +283,12 @@
 				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h">
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVAnimationProperties.cpp">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVAnimationProperties.h">
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVApp.cpp">
 			</File>
 			<File

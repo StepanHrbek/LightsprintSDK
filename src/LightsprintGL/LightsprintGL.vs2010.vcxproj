@@ -566,6 +566,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
+    <ClInclude Include="SceneViewer\SVAnimationProperties.h" />
     <ClInclude Include="SceneViewer\SVApp.h" />
     <ClInclude Include="SceneViewer\SVCanvas.h" />
     <ClInclude Include="SceneViewer\SVComment.h" />
@@ -607,6 +608,7 @@
     <ClInclude Include="Workaround.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SceneViewer\SVAnimationProperties.cpp" />
     <ClCompile Include="SceneViewer\SVApp.cpp" />
     <ClCompile Include="SceneViewer\SVCanvas.cpp" />
     <ClCompile Include="SceneViewer\SVComment.cpp" />

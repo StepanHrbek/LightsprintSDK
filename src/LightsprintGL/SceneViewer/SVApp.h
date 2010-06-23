@@ -11,13 +11,12 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
-#include <vector>
-
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
 	#define SV_SET_PG_COLORS SetMarginColour(wxColour(220,220,220))
 
 namespace rr_gl
 {
+
 
 //! Extended SceneViewerState.
 struct SceneViewerStateEx : public SceneViewerState
@@ -41,7 +40,9 @@ struct SceneViewerStateEx : public SceneViewerState
 	}
 	bool operator ==(const SceneViewerStateEx& a) const
 	{
-		return this->SceneViewerState::operator==(a) && skyboxFilename==a.skyboxFilename;
+		return this->SceneViewerState::operator==(a)
+			&& a.skyboxFilename==skyboxFilename
+			;
 	}
 	bool operator !=(const SceneViewerStateEx& a) const
 	{

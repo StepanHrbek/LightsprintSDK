@@ -19,10 +19,10 @@ namespace rr_gl
 class ItemData : public wxTreeItemData
 {
 public:
-	ItemData(EntityId _id) : id(_id)
+	ItemData(EntityId _entityId) : entityId(_entityId)
 	{
 	}
-	EntityId id;
+	EntityId entityId;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,10 +37,10 @@ SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
 	wxTreeItemId root = AddRoot("root");
 
 
-	lights = AppendItem(root,"lights");
+	lights = AppendItem(root,"0 lights");
 
-	staticObjects = AppendItem(root,"static objects");
-	dynamicObjects = AppendItem(root,"dynamic objects");
+	staticObjects = AppendItem(root,"0 static objects");
+	dynamicObjects = AppendItem(root,"0 dynamic objects");
 
 
 	Expand(lights); // wxmsw ignores this because lights is empty
@@ -59,43 +59,54 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
 		"scene");
 
-	// insert all lights
-	SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
-	DeleteChildren(lights);
-	for (unsigned i=0;solver && i<solver->getLights().size();i++)
+	// update lights
+	if (solver)
 	{
-		wxString name = solver->getLights()[i]->name.c_str();
-		if (name.empty()) name = wxString("light ")<<i;
-		AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
+		SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
+		DeleteChildren(lights);
+		for (unsigned i=0;solver && i<solver->getLights().size();i++)
+		{
+			wxString name = solver->getLights()[i]->name.c_str();
+			if (name.empty()) name = wxString("light ")<<i;
+			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
+		}
 	}
 
-	// insert first 1000 static objects, more would be slow and difficult to control
-	SetItemText(staticObjects,tmpstr("%d static objects",solver?solver->getStaticObjects().size():0));
-	DeleteChildren(staticObjects);
-	unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
-	for (unsigned i=0;solver && i<numStaticObjects;i++)
+	// update first 1000 static objects, more would be slow and difficult to control
+	if (solver)
 	{
-		wxString name = solver->getStaticObjects()[i]->name.c_str();
-		if (name.empty()) name = wxString("object ")<<i;
-		AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
+		SetItemText(staticObjects,tmpstr("%d static objects",solver?solver->getStaticObjects().size():0));
+		DeleteChildren(staticObjects);
+		unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
+		for (unsigned i=0;solver && i<numStaticObjects;i++)
+		{
+			wxString name = solver->getStaticObjects()[i]->name.c_str();
+			if (name.empty()) name = wxString("object ")<<i;
+			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
+		}
 	}
 
-	// insert first 1000 dynamic objects
-	SetItemText(dynamicObjects,tmpstr("%d dynamic objects",solver?solver->getDynamicObjects().size():0));
-	DeleteChildren(dynamicObjects);
-	unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
-	for (unsigned i=0;solver && i<numDynamicObjects;i++)
+	// update first 1000 dynamic objects
+	if (solver)
 	{
-		wxString name = solver->getDynamicObjects()[i]->name.c_str();
-		if (name.empty()) name = wxString("object ")<<i;
-		AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
+		SetItemText(dynamicObjects,tmpstr("%d dynamic objects",solver?solver->getDynamicObjects().size():0));
+		DeleteChildren(dynamicObjects);
+		unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
+		for (unsigned i=0;solver && i<numDynamicObjects;i++)
+		{
+			wxString name = solver->getDynamicObjects()[i]->name.c_str();
+			if (name.empty()) name = wxString("object ")<<i;
+			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
+		}
 	}
 
+
+	//selectEntity(EntityId(m_canvas->selectedType svs.selectedAnimationFrameIndex));
 
 	allowEvents = true;
 }
 
-wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
+wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 {
 	wxTreeItemId searchRoot;
 	switch (entity.type)
@@ -103,7 +114,7 @@ wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 		case ST_LIGHT: searchRoot = lights; break;
 		case ST_STATIC_OBJECT: searchRoot = staticObjects; break;
 		case ST_DYNAMIC_OBJECT: searchRoot = dynamicObjects; break;
-		case ST_CAMERA: isOk = false; return wxTreeItemId();
+		case ST_CAMERA: return wxTreeItemId();
 	}
 	wxTreeItemIdValue cookie;
 	wxTreeItemId item = GetFirstChild(searchRoot,cookie);
@@ -111,15 +122,19 @@ wxTreeItemId SVSceneTree::findItem(EntityId entity, bool& isOk) const
 	{
 		item = GetNextChild(searchRoot,cookie);
 	}
-	isOk = item.IsOk();
 	return item;
+}
+
+EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
+{
+	ItemData* data = (ItemData*)GetItemData(item);
+	return data ? data->entityId : EntityId();
 }
 
 void SVSceneTree::selectItem(EntityId entity)
 {
-	bool isOk;
-	wxTreeItemId item = findItem(entity,isOk);
-	if (isOk)
+	wxTreeItemId item = entityIdToItemId(entity);
+	if (item.IsOk())
 	{
 		SelectItem(item,true);
 		EnsureVisible(item);
@@ -130,13 +145,12 @@ void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 {
 	if (allowEvents)
 	{
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		ItemData* data = (ItemData*)GetItemData(event.GetItem());
-
-		if (data) // is non-NULL only in leaf nodes of tree
+		EntityId entityId = itemIdToEntityId(event.GetItem());
+		if (entityId.isOk())
 		{
-			frame->selectEntity(data->id,false,SEA_SELECT);
+			// our parent must be frame
+			SVFrame* frame = (SVFrame*)GetParent();
+			frame->selectEntity(entityId,false,SEA_SELECT);
 		}
 	}
 }
@@ -145,16 +159,16 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 {
 	if (allowEvents)
 	{
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		ItemData* data = (ItemData*)GetItemData(event.GetItem());
-
-		if (data) // is non-NULL only in leaf nodes of tree
+		EntityId entityId = itemIdToEntityId(event.GetItem());
+		if (entityId.isOk())
 		{
-			frame->selectEntity(data->id,false,SEA_ACTION);
+			// our parent must be frame
+			SVFrame* frame = (SVFrame*)GetParent();
+			frame->selectEntity(entityId,false,SEA_ACTION);
 		}
 	}
 }
+
 
 void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 {

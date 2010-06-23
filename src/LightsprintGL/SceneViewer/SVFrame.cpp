@@ -1422,6 +1422,7 @@ void SVFrame::updateSelection()
 		m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex],svs.precision);
 	}
 
+
 	// update scene tree
 	m_sceneTree->updateContent(m_canvas->solver);
 	m_sceneTree->selectItem(getSelectedEntity());

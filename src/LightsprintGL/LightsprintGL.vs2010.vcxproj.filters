@@ -83,6 +83,9 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\Water.h" />
     <ClInclude Include="Workaround.h" />
     <ClInclude Include="tmpstr.h" />
+    <ClInclude Include="SceneViewer\SVAnimationProperties.h">
+      <Filter>SceneViewer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -152,6 +155,9 @@
     <ClCompile Include="UberProgramSetup.cpp" />
     <ClCompile Include="Water.cpp" />
     <ClCompile Include="Workaround.cpp" />
+    <ClCompile Include="SceneViewer\SVAnimationProperties.cpp">
+      <Filter>SceneViewer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\lightmap_build.fs">

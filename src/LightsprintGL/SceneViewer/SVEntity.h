@@ -10,6 +10,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
+#include <vector>
 
 namespace rr_gl
 {
@@ -21,10 +22,12 @@ namespace rr_gl
 
 	enum EntityType
 	{
+		ST_FIRST,
 		ST_CAMERA,
 		ST_LIGHT,
 		ST_STATIC_OBJECT,
 		ST_DYNAMIC_OBJECT,
+		ST_LAST
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -38,6 +41,11 @@ namespace rr_gl
 		EntityType type;
 		unsigned index;
 
+		EntityId()
+		{
+			type = ST_FIRST;
+			index = 0;
+		}
 		EntityId(EntityType _type, unsigned _index)
 		{
 			type = _type;
@@ -46,6 +54,10 @@ namespace rr_gl
 		bool operator ==(const EntityId& a)
 		{
 			return type==a.type && index==a.index;
+		}
+		bool isOk()
+		{
+			return type>ST_FIRST && type<ST_LAST;
 		}
 	};
 

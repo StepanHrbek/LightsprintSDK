@@ -115,11 +115,11 @@ namespace rr_gl
 			ME_ABOUT,
 		};
 
-		SVCanvas*                m_canvas; // public only for SVSceneTree, SVComment
-		class SVSceneTree*       m_sceneTree; // public only for SVComment
-		class SVLightProperties* m_lightProperties; // public only for SVCanvas
-		class SVObjectProperties* m_objectProperties; // public only for SVCanvas
-		class SVMaterialProperties* m_materialProperties; // public only for SVCanvas
+		SVCanvas*                    m_canvas; // public only for SVSceneTree, SVComment
+		class SVSceneTree*           m_sceneTree; // public only for SVComment
+		class SVLightProperties*     m_lightProperties; // public only for SVCanvas
+		class SVObjectProperties*    m_objectProperties; // public only for SVCanvas
+		class SVMaterialProperties*  m_materialProperties; // public only for SVCanvas
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
