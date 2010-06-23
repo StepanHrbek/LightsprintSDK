@@ -27,6 +27,27 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRVec2Property
+
+// wxVariant can handle only :: namespace classes
+// workaround: we create RRVec2 copy and everything in ::
+// this will be removed when possible
+typedef rr::RRVec2 RRVec2; 
+
+WX_PG_DECLARE_VARIANT_DATA(RRVec2)
+
+class RRVec2Property : public wxPGProperty
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(RRVec2Property)
+public:
+	RRVec2Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec2& value = RRVec2(0), float step = 1.f );
+	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
+	virtual void RefreshChildren();
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRVec3Property
 
 // wxVariant can handle only :: namespace classes

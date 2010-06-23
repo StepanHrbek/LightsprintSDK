@@ -29,12 +29,48 @@ FloatProperty::FloatProperty(const wxString& label, float value, int precision, 
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRVec2Property
+
+WX_PG_IMPLEMENT_VARIANT_DATA_DUMMY_EQ(RRVec2)
+WX_PG_IMPLEMENT_PROPERTY_CLASS(RRVec2Property,wxPGProperty,RRVec2,const RRVec2&,TextCtrl)
+
+RRVec2Property::RRVec2Property( const wxString& label, const wxString& name, int precision, const RRVec2& value, float step )
+	: wxPGProperty(label,name)
+{
+	step *= 0.1f;
+	SetValue( WXVARIANT(value) );
+	AddPrivateChild(new FloatProperty("x",value.x,precision,-1e10f,1e10f,step,false));
+	AddPrivateChild(new FloatProperty("y",value.y,precision,-1e10f,1e10f,step,false));
+}
+
+void RRVec2Property::RefreshChildren()
+{
+	if ( !GetChildCount() ) return;
+	const RRVec2& vector = RRVec2RefFromVariant(m_value);
+	Item(0)->SetValue( vector.x );
+	Item(1)->SetValue( vector.y );
+}
+
+wxVariant RRVec2Property::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
+{
+	RRVec2 vector;
+	vector << thisValue;
+	switch ( childIndex )
+	{
+		case 0: vector.x = childValue.GetDouble(); break;
+		case 1: vector.y = childValue.GetDouble(); break;
+	}
+	thisValue << vector;
+	return thisValue;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRVec3Property
 
 WX_PG_IMPLEMENT_VARIANT_DATA_DUMMY_EQ(RRVec3)
-
 WX_PG_IMPLEMENT_PROPERTY_CLASS(RRVec3Property,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
-
 
 RRVec3Property::RRVec3Property( const wxString& label, const wxString& name, int precision, const RRVec3& value, float step )
 	: wxPGProperty(label,name)
