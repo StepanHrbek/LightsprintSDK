@@ -372,7 +372,16 @@ namespace rr_gl
 
 static std::string suggestPreferencesDirectory()
 {
-	return std::string(getenv("LOCALAPPDATA")) + "\\Lightsprint";
+	// Vista, 7
+	const char* appdata = getenv("LOCALAPPDATA");
+	if (appdata)
+		return std::string(appdata) + "\\Lightsprint";
+	// XP
+	const char* user = getenv("USERPROFILE");
+	if (user)
+		return std::string(user) + "\\Local Settings\\Application Data\\Lightsprint";
+	// unknown
+	return "\\Lightsprint";
 }
 
 static std::string suggestPreferencesFilename()
