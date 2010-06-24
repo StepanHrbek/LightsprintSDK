@@ -36,16 +36,36 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 
 struct UnwrapStatistics
 {
+	// enumeration parameters (for gathering extra statistics)
 	bool subtexelsInMapSpace; // makes enumerateTexels produce subtexels with unInTriangleSpace in map space
+
+	// stats for missing
 	unsigned numTrianglesWithoutUnwrap;
 	unsigned numTrianglesWithUnwrap;
+
+	// stats for out of range
+	unsigned pass; // texels in lmaps over 512*512 are enumerated in several passes, to reduce memory footprint
 	unsigned numTrianglesWithUnwrapOutOfRange;
+	float areaOfAllTriangles; // sum(triangle's unwrap area), valid only if subtexelsInMapSpace
+	float areaOfAllTrianglesInRange; // sum(triangle's unwrap area in range), valid only if subtexelsInMapSpace
+
+	// stats for coverage
+	unsigned numTexelsProcessed;
+
 	UnwrapStatistics()
 	{
+		// enumeration parameters
 		subtexelsInMapSpace = false;
+		// stats for missing
 		numTrianglesWithoutUnwrap = 0;
 		numTrianglesWithUnwrap = 0;
+		// stats for out of range
+		pass = 0;
 		numTrianglesWithUnwrapOutOfRange = 0;
+		areaOfAllTriangles = 0;
+		areaOfAllTrianglesInRange = 0;
+		// stats for coverage
+		numTexelsProcessed = 0;
 	}		
 };
 
@@ -123,8 +143,16 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 				RRReal ymax = mapHeight * RR_MAX(mapping.uv[0][1],RR_MAX(mapping.uv[1][1],mapping.uv[2][1]));
 				yminu = (unsigned)RR_MAX(ymin,rectYMin); // !negative
 				ymaxu = (unsigned)RR_CLAMPED(ymax+1,0,rectYMaxPlus1); // !negative
-				if (xmin<0 || xmax>mapWidth || ymin<0 || ymax>mapHeight)
-					unwrapStatistics.numTrianglesWithUnwrapOutOfRange++;
+				if (unwrapStatistics.pass==0)
+				{
+					if (unwrapStatistics.subtexelsInMapSpace)
+					{
+						RRReal triangleAreaInMapSpace = getArea(mapping.uv[0],mapping.uv[1],mapping.uv[2]);
+						unwrapStatistics.areaOfAllTriangles += triangleAreaInMapSpace;
+					}
+					if (xmin<0 || xmax>mapWidth || ymin<0 || ymax>mapHeight)
+						unwrapStatistics.numTrianglesWithUnwrapOutOfRange++;
+				}
 				if (yminu>=ymaxu || xminu>=xmaxu) continue; // early exit from triangle outside our rectangle
 			}
 			//  prepare mapspace -> trianglespace matrix
@@ -252,6 +280,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								subTexel.uvInTriangleSpace[1] = polyVertexInTriangleSpace[i+1];
 								subTexel.uvInTriangleSpace[2] = polyVertexInTriangleSpace[i+2];
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
+								unwrapStatistics.areaOfAllTrianglesInRange += subTexelAreaInTriangleSpace;
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
 								if (_finite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
 									texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel
@@ -296,7 +325,8 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	}
 
 	// 5. gather, shoot rays from texels
-	#pragma omp parallel for schedule(dynamic)
+	unsigned numTexelsProcessed = 0;
+	#pragma omp parallel for schedule(dynamic) reduction(+:numTexelsProcessed)
 	for (int j=(int)rectYMin;j<(int)rectYMaxPlus1;j++)
 	{
 #ifdef _OPENMP
@@ -322,10 +352,12 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 					ptp.numRelevantLights = numRelevantLights;
 					ptp.relevantLightsFilled = true;
 					callback(ptp);
+					numTexelsProcessed++;
 				}
 			}
 		}
 	}
+	unwrapStatistics.numTexelsProcessed += numTexelsProcessed;
 
 	// 6. cleanup
 	delete[] relevantLightsForObject;
@@ -368,6 +400,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	{
 		for (unsigned i=0;i<numPasses;i++)
 		{
+			unwrapStatistics.pass = i;
 			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
@@ -376,6 +409,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 	{
 		for (unsigned i=0;i<numPasses;i++)
 		{
+			unwrapStatistics.pass = i;
 			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
@@ -393,12 +427,10 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	struct UnwrapStatisticsEx : public UnwrapStatistics
 	{
 		unsigned numTexels;
-		unsigned numTexelsUsed;
 		unsigned numTexelsWithOverlap;
 		UnwrapStatisticsEx()
 		{
 			numTexels = MAP_WIDTH*MAP_WIDTH;
-			numTexelsUsed = 0;
 			numTexelsWithOverlap = 0;
 		}
 		static bool isPointInsideTriangle(const RRVec2& point, const RRVec2* triangle)
@@ -418,12 +450,6 @@ const char* checkUnwrapConsistency(const RRObject* object)
 		static ProcessTexelResult callback(const struct ProcessTexelParams& pti)
 		{
 			UnwrapStatisticsEx* us = reinterpret_cast<UnwrapStatisticsEx*>(pti.context.singleObjectReceiver);
-
-			// multiple threads modify us at once
-			// we could ensure atomicity by #pragma omp atomic but we don't need absolutely exact result, speed is better
-
-			// we found used texel
-			us->numTexelsUsed++;
 
 			// do subtexels overlap?
 			if (pti.subTexels->size()>1)
@@ -477,6 +503,8 @@ const char* checkUnwrapConsistency(const RRObject* object)
 				{
 					// sum of subtexels is too large to fit in texel, must overlap
 					overlap_found:
+					// multiple threads modify us at once
+					// we could ensure atomicity by #pragma omp atomic but we don't need absolutely exact result, speed is better
 					us->numTexelsWithOverlap++;
 				}
 			}
@@ -495,21 +523,29 @@ const char* checkUnwrapConsistency(const RRObject* object)
 		tc.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
 		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,tc,0,us);
 		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
-		float outofrange = us.numTrianglesWithUnwrapOutOfRange/(float)numTriangles;
-		float overlap = us.numTexelsWithOverlap/(float)(us.numTexelsUsed?us.numTexelsUsed:1);
-		float coverage = us.numTexelsUsed/(float)us.numTexels;
-		bool notUnwrap =  missing>0.02f || outofrange>0.02f || overlap>0.02f || us.numTexelsUsed<=1;
-		bool poorUnwrap =  missing || outofrange || overlap>0.01f || coverage<0.05f;
+		bool missingBad = missing>0.02f;
+		bool missingPoor = missing>0;
+		float outofrangeT = us.numTrianglesWithUnwrapOutOfRange/(float)numTriangles;
+		float outofrangeA = (outofrangeT && us.areaOfAllTriangles) ? (us.areaOfAllTriangles-us.areaOfAllTrianglesInRange)/us.areaOfAllTriangles : 0;
+		bool outofrangeBad = outofrangeA>0.02f;
+		bool outofrangePoor = outofrangeT!=0;
+		float overlap = us.numTexelsWithOverlap/(float)(us.numTexelsProcessed?us.numTexelsProcessed:1);
+		bool overlapBad = overlap>0.02f;
+		bool overlapPoor = overlap>0.01f;
+		float coverage = us.numTexelsProcessed/(float)us.numTexels;
+		bool coverageBad = us.numTexelsProcessed<=1;
+		bool coveragePoor = coverage<0.05f;
+		bool badUnwrap =  missingBad || outofrangeBad || overlapBad || coverageBad;
+		bool poorUnwrap =  missingPoor || outofrangePoor || overlapPoor || coveragePoor;
 		if (poorUnwrap)
 		{
-			static char buf[100];
-			sprintf(buf,"%s unwrap (%d%% missing, %d%% out of range, %d%% overlap, %d%% coverage)",
-				notUnwrap?"Bad":"Poor",
-				(int)(missing*100),
-				(int)(outofrange*100),
-				(int)(overlap*100),
-				(int)(coverage*100)
-				);
+			static char buf[150];
+			sprintf(buf,badUnwrap?"Bad unwrap":"Imperfect unwrap");
+			if (missingPoor) sprintf(strchr(buf,0),", %d%% missing",(int)(missing*100));
+			if (outofrangeBad) sprintf(strchr(buf,0),", %d%% out of range(%d%% triangles)",(int)(outofrangeA*100),(int)(outofrangeT*100));
+			if (overlapPoor) sprintf(strchr(buf,0),", %d%% overlap",(int)(overlap*100));
+			if (coveragePoor) sprintf(strchr(buf,0),", %d%% coverage",(int)(coverage*100));
+			if (outofrangePoor && !outofrangeBad) sprintf(strchr(buf,0),", %d%% triangles slightly out of range",(int)(outofrangeT*100));
 			return buf;
 		}
 	}
@@ -737,16 +773,25 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		// report unwrap errors
 		if (gathered && (us.numTrianglesWithoutUnwrap || us.numTrianglesWithUnwrapOutOfRange))
 		{
-			if (!us.numTrianglesWithUnwrap)
+			if (us.numTrianglesWithoutUnwrap)
 			{
-				RRReporter::report(WARN,"No unwrap. Build unwrap or bake GI per-vertex.\n");
-				gathered = false;
+				if (!us.numTrianglesWithUnwrap)
+				{
+					RRReporter::report(WARN,"No unwrap. Build unwrap or bake GI per-vertex.\n");
+					gathered = false;
+				}
+				else
+				{
+					unsigned numTriangles = us.numTrianglesWithUnwrap+us.numTrianglesWithoutUnwrap;
+					RRReporter::report(WARN,"Bad unwrap, %d%% missing. Fix it or bake GI per-vertex.\n",
+						(100*us.numTrianglesWithoutUnwrap+numTriangles-1)/numTriangles
+						);
+				}
 			}
 			else
 			{
 				unsigned numTriangles = us.numTrianglesWithUnwrap+us.numTrianglesWithoutUnwrap;
-				RRReporter::report(WARN,"Bad unwrap, %d%% missing, %d%% out of range. Fix it or bake GI per-vertex.\n",
-					(100*us.numTrianglesWithoutUnwrap+numTriangles-1)/numTriangles,
+				RRReporter::report(WARN,"Imperfect unwrap, %d%% triangles reach out of range.\n",
 					(100*us.numTrianglesWithUnwrapOutOfRange+numTriangles-1)/numTriangles
 					);
 			}

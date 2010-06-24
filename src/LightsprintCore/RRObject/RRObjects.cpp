@@ -93,10 +93,14 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 					RRReporter::report(INF3,"Saved %s.\n",layerParameters.actualFilename);
 				}
 				else
+				if (layerParameters.actualFilename)
 					RRReporter::report(WARN,"Not saved %s.\n",layerParameters.actualFilename);
 			}
 		}
-		RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+		if (result)
+			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+		else
+			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %s.\n",layerNumber,size(),path);
 	}
 	return result;
 }
