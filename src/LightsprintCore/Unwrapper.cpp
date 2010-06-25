@@ -602,11 +602,11 @@ try_next_channel:
 
 	// 4. generate unwraps
 	Unwrapper unwrapper;
-#if 0
+#if _MSC_VER<1400 // VS2003
 	// serial
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
-		unwrapper.buildUnwrap(i->first,unwrapChannel,i->second,resolution,2.5f,1);
+		unwrapper.buildUnwrap(i->first,unwrapChannel,i->second,resolution,2.5f,1,aborting);
 	}
 #else
 	// parallel

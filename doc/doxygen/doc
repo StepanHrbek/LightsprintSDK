@@ -181,6 +181,10 @@ Materials
 - diffuse maps, specular maps
 - emissive maps, transparency/opacity maps
 
+Unwrap
+- imports your unwrap
+- automatically builds new unwrap
+
 Realtime/precomputed
 - supports realtime illumination
 - supports precomputed illumination

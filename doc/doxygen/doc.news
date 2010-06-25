@@ -20,12 +20,17 @@ NEWS
   \n removed old automatic unwrapping from default RRMesh::getTriangleMapping(,,0)
 - improved scene viewer
   - File / Merge scene...
-- small helpers added
+- small helper added
   rr_gl::Camera::blend()
 
 CHANGES
 
 - Modified lightmap filtering, better results with small gutter, sharp boundaries appear in lightmaps.
+
+FIXES
+
+- Fixed Scene viewer crash in Windows XP
+- Workaround added for GI Package bug that made Gamebryo 3.1.1 crash
 
 \section news104 ------------------------------------ 2010.06.03 -------------------------------------
 
@@ -60,8 +65,6 @@ NEWS
   - RRBuffer::getMinMax() added
   - RRObject::LayerParameter::createBuffers() optional parameter added
 - new tone mapping settings in rr_gl::SceneViewerState (available also from SceneViewer GUI)
-  - tonemappingAutomaticMin
-  - tonemappingAutomaticMax
   - tonemappingAutomaticTarget
   - tonemappingAutomaticSpeed
 
