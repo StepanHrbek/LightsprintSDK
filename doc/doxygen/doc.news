@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news105 ------------------------------------ 2010.06.xx -------------------------------------
+\section news105 ------------------------------------ 2010.06.25 -------------------------------------
 
 NEWS
 
@@ -20,6 +20,8 @@ NEWS
   \n removed old automatic unwrapping from default RRMesh::getTriangleMapping(,,0)
 - improved scene viewer
   - File / Merge scene...
+- small helpers added
+  rr_gl::Camera::blend()
 
 CHANGES
 

@@ -2382,13 +2382,11 @@ Video formats
   - full integration source code included
 
  \section g3_limits Limitations of current version
-  - GI Package 2.1.1 is unfinished work, new version should arrive soon. We observed following problems with 2.1.1:
-    - Toolbench may report "Gamebryo Framework error." and become unstable after bake.
-    - Plain lightmaps may have wrong color or intensity. Use RNM for correct colors.
-    - Baked lighting may fail to save to disk.
+  - GI Package 2.1.1 has several issues, currently being adressed, with fix expected soon:
+    - Results of baking may fail to appear or save to disk. Bake again to workaround the issue.
     - Plugin request to display GI after bake is ignored. Click toggle icon manually.
   - Terrain lightmaps not supported. This is long term GI Package limitation.
-  - Light probes not updated. We will support them in next release, very soon.
+  - Light probes not updated. We will support them in next release.
 
  \section g3_bake Baking in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
@@ -2482,7 +2480,6 @@ Video formats
  \section g3_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
   - \ref trouble_gamebryo_error_shader
-  - \ref trouble_gamebryo_gipackage_mess
 
 
 
@@ -3046,8 +3043,6 @@ rr::RRVector<*>{
 
  - \subpage trouble_gamebryo_error_shader
 
- - \subpage trouble_gamebryo_gipackage_mess
-
 
 \page trouble_memory Not enough memory?
 
@@ -3083,10 +3078,6 @@ rr::RRVector<*>{
  when we detect material properties, this leads to random diffuse and specular colors detected.
  In the end, color bleeding in lightmaps does not match real material colors, lightmaps look strange.
 
-
-\page trouble_gamebryo_gipackage_mess Crash or wrong GI with GI Package 2.1.x
-
- We found multiple errors in GI Packages 2.1.x, we work with Emergent on fixing them.
 
 */
 
