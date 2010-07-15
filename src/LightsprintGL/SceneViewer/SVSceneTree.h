@@ -23,6 +23,7 @@ namespace rr_gl
 		SVSceneTree(wxWindow* parent, SceneViewerStateEx& svse);
 
 		// If solver is NULL, lights and objects are not updated.
+		// Does not preserve cursor position in tree, use selectItem() to restore it.
 		void updateContent(class RRDynamicSolverGL* solver);
 
 		//! Selects entity in tree, without changing anything outside tree.

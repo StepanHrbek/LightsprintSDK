@@ -1098,6 +1098,7 @@ rendered:
 			}
 			glEnd();
 		}
+
 	}
 
 	if (svs.renderHelpers
