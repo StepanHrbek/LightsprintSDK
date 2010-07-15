@@ -1430,7 +1430,10 @@ void SVFrame::updateSelection()
 
 void SVFrame::updateSceneTree()
 {
+	// updateContent does not preserve cursor
 	m_sceneTree->updateContent(m_canvas->solver);
+	// this restores our cursor
+	m_sceneTree->selectItem(getSelectedEntity());
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)
