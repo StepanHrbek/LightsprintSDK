@@ -1505,12 +1505,18 @@ public:
 				{
 					if (entity && entity->GetModel()->ContainsModel("Mesh"))
 					{
-						bool isStatic = true;
-						// whole cathedral has IsStatic=false, it does not mark static meshes, let's ignore it.
-						//entity->GetPropertyValue("IsStatic", isStatic);
-						bool useForPrecomputedLighting = true;
-						entity->GetPropertyValue("UseForPrecomputedLighting", useForPrecomputedLighting);
-						if (isStatic && useForPrecomputedLighting)
+						// note: IsStatic does not mark static meshes, whole cathedral has it false
+
+						bool affectsGI = true;
+						if (entity->GetModel()->ContainsModel("PCLMesh"))
+						{
+							entity->GetPropertyValue("UseForPrecomputedLighting", affectsGI);
+						}
+						else
+						{
+							entity->GetPropertyValue("IsCastingShadow", affectsGI);
+						}
+						if (affectsGI)
 						{
 							PerEntitySettings perEntitySettings;
 							if (entity->GetModel()->ContainsModel("LightsprintMesh"))

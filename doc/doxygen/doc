@@ -2444,6 +2444,10 @@ Video formats
     - To bake indirect illumination only,
       set light properties UseForPrecomputedLighting, LightPCLObjectsAtRuntime and LightNonPCLObjectsAtRuntime to true.
 
+   \subsection g3_exclude - excluding geometry from GI solution
+    - To exclude PCLMesh from GI calculation, set its UseForPrecomputedLighting to false.
+    - To exclude Mesh that is not PCLMesh from GI calculation, set its IsCastingShadow to false.
+
    \subsection g3_resolution - lightmap resolution
     - LightsprintScene and LightsprintMesh properties let you control lightmap resolution globally and then tweak it for individual meshes.
     - For fixed resolution, change mesh property LsResolutionMode to "Use Fixed Resolution".
