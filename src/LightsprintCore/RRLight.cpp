@@ -409,10 +409,11 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 bool RRLight::operator ==(const RRLight& a) const
 {
 	// Q: should we ignore unused variables (like position in directional light)?
-	// A: irrelevant, unused variables most likely won't change
+	// A: yes at least for position in dirlight, it freely changes
+	//    irrelevant for other unused variables, they don't change
 	return 1
 		&& a.type==type
-		&& a.position==position
+		&& (type==DIRECTIONAL || a.position==position) // position may differ in directional light
 		&& a.direction==direction
 		&& a.outerAngleRad==outerAngleRad
 		&& a.radius==radius
