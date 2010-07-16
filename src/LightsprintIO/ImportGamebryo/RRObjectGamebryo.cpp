@@ -956,7 +956,8 @@ struct PerSceneSettings
 	PropertyEnum lsDefaultBakeDirectionality;
 	float lsPixelsPerWorldUnit;
 	float lsEmissiveMultiplier;
-	// and lsEnvironmentXxx, but we don't need it here
+	bool lsUseNonPCLMeshes;
+	// we don't need the rest here
 
 	PerSceneSettings()
 	{
@@ -964,6 +965,7 @@ struct PerSceneSettings
 		lsDefaultBakeDirectionality = PE_NON_DIRECTIONAL;
 		lsPixelsPerWorldUnit = 0.1f;
 		lsEmissiveMultiplier = 1;
+		lsUseNonPCLMeshes = true;
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	void readFrom(egf::Entity* entity)
@@ -981,6 +983,8 @@ struct PerSceneSettings
 
 		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
 		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
+
+		entity->GetPropertyValue("LsUseNonPCLMeshes", lsUseNonPCLMeshes);
 	}
 #endif
 };
@@ -1511,7 +1515,9 @@ public:
 						}
 						else
 						{
-							entity->GetPropertyValue("IsCastingShadow", affectsGI);
+							affectsGI = perSceneSettings.lsUseNonPCLMeshes;
+							if (affectsGI)
+								entity->GetPropertyValue("IsCastingShadow", affectsGI);
 						}
 						if (affectsGI)
 						{
@@ -1750,12 +1756,23 @@ public:
 			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
 			if (entityManager)
 			{
+				// should we use non-PCL lights?
+				bool useNonPCLLights = true;
 				egf::Entity *entity = NULL;
+				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
+				{
+					if (entity && entity->GetModel()->ContainsModel("LightsprintScene"))
+					{
+						entity->GetPropertyValue("LsUseNonPCLLights",useNonPCLLights);	
+					}
+				}
+				// add all PCL and optionally also non-PCL lights
 				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
 				{
 					if (entity && entity->GetModel()->ContainsModel("Light"))
 					{
-						addLight(serviceManager,entity);
+						if (useNonPCLLights || entity->GetModel()->ContainsModel("PrecomputedLightConfig"))
+							addLight(serviceManager,entity);
 					}
 				}
 			}
@@ -2051,8 +2068,8 @@ RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _abo
 	// adapt environment
 	environment = adaptEnvironmentFromGamebryo(serviceManager);
 
-	// instances constructed from filename receive special treatment, protectedObjects are copied to objects automatically.
-	// in this exceptional case (not from filename) we must explicitly copy protectedObjects to objects
+	// Scenes constructed from filename receive special treatment, protectedObjects are copied to objects automatically.
+	// In this exceptional case (not from filename) we must explicitly copy protectedObjects to objects.
 	lights = *protectedLights;
 	objects = *protectedObjects;
 
@@ -2186,6 +2203,9 @@ RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
 
 void removeLightsWithoutDirectIllumination(RRLights& lights)
 {
+	// Lights from adaptSceneFromGamebryo() have GamebryoLightCache created.
+	// Here we only remove some lights from collection (without deleting them or their GamebryoLightCache),
+	// so all lights still have valid GamebryoLightCache, updating them is not necessary.
 	for (unsigned i=lights.size();i--;)
 	{
 		if (lights[i] && lights[i]->customData)

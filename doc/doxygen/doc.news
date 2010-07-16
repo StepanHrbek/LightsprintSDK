@@ -12,8 +12,11 @@ namespace rr
 
 NEWS
 
-- \ref main_gamebryo3 improved "Gamebryo Lightspeed 3.1.1 integration"
-  - responds to IsCastingShadow/IsReceivingShadow in Mesh and AlwaysAffectedByLight/NeverAffectedByLight in Light
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - new LsUseNonPCLMeshes in LightsprintScene lets you exclude non-PCL meshes from baking
+  - new LsUseNonPCLLights in LightsprintScene lets you exclude non-PCL lights from baking
+  - baking respects IsCastingShadow and IsReceivingShadow in Mesh
+  - baking respects AlwaysAffectedByLight and NeverAffectedByLight in Light
 
 \section news105 ------------------------------------ 2010.06.25 -------------------------------------
 
