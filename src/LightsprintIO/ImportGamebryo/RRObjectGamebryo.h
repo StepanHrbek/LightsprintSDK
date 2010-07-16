@@ -48,6 +48,9 @@ rr::RRObjects* adaptObjectsFromGamebryo(class efd::ServiceManager* serviceManage
 //!  You can get ServiceManager* from Emergent::Toolbench::Framework::FrameworkService::ActiveServiceManager::get().
 rr::RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager);
 
+//! Removes lights from the list, that don't have direct illumination enabled. Lights are not deleted.
+void removeLightsWithoutDirectIllumination(rr::RRLights& lights);
+
 //! Creates Lightsprint interface for Gamebryo environment in memory.
 //
 //! Implemented only for Gamebryo 3.0, suitable for Toolbench plugins.

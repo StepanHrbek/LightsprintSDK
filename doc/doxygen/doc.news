@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news106 ------------------------------------ 2010.07.xx -------------------------------------
+
+NEWS
+
+- \ref main_gamebryo3 improved "Gamebryo Lightspeed 3.1.1 integration"
+  - responds to IsCastingShadow/IsReceivingShadow in Mesh and AlwaysAffectedByLight/NeverAffectedByLight in Light
+
 \section news105 ------------------------------------ 2010.06.25 -------------------------------------
 
 NEWS

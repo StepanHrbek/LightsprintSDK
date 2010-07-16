@@ -55,8 +55,8 @@
 	#include "egmGI/MeshUtility.h"
 	#pragma comment(lib,"egmGI" LIB_SUFFIX)
 	#pragma comment(lib,"NiGIMaterial" LIB_SUFFIX)
-	// additional libs required by Gamebryo 3.x
 	#include "ecr/SceneGraphService.h"
+	#include "ecr/LightService.h"
 	#include "egf/Entity.h"
 	#include "egf/EntityManager.h"
 	#include "efd/ServiceManager.h"
@@ -576,29 +576,33 @@ public:
 
 
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-#if GAMEBRYO_MAJOR_VERSION==2 // Although written for both 2.6 and 3.x, only 2.6 currently uses this class.
 ////////////////////////////////////////////////////////////////////////////
 //
 // GamebryoLightCache
 
 //! Per-light acceleration structure, resolves shadow casting/receiving queries in a few CPU ticks.
-//! Gamebryo 3.x Light entity has all shadows enabled/disabled at once so this structure is not necessary.
 class GamebryoLightCache
 {
 public:
+#if GAMEBRYO_MAJOR_VERSION==3
+	egf::Entity* entity;
+#endif
 	NiDynamicEffect* gamebryoLight;
 
 	//! Initializes cache, lights don't cast shadows until you call update().
 	GamebryoLightCache(NiDynamicEffect* _gamebryoLight)
 	{
+#if GAMEBRYO_MAJOR_VERSION==3
+		entity = NULL;
+#endif
 		gamebryoLight = _gamebryoLight;
 	}
 
 	//! Updates our internal copy of Gamebryo state.
-	void update(RRObjects& objects)
+	void update(const RRObjects& objects)
 	{
 		isCaster.clear();
-		isCaster.resize(objects.size());
+		isCaster.resize(objects.size()); // clear all to false, later we will set some
 		isReceiver.clear();
 		isReceiver.resize(objects.size());
 		if (gamebryoLight)
@@ -689,7 +693,6 @@ private:
 	std::vector<bool> isReceiver;
 };
 
-#endif // GAMEBRYO_MAJOR_VERSION==2
 #endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
 
 
@@ -1199,7 +1202,6 @@ public:
 				// This mesh is not lit and it does not cast shadows.
 				return NULL;
 			}
-#if GAMEBRYO_MAJOR_VERSION==2
 			const GamebryoLightCache* gamebryoLightCache = (GamebryoLightCache*)light->customData;
 			if (!gamebryoLightCache)
 			{
@@ -1234,11 +1236,6 @@ public:
 				// No, light does not affect this mesh.
 				return NULL;
 			}
-#else // GAMEBRYO_MAJOR_VERSION!=2
-			// Gamebryo 3.x entity has all shadows enabled/disabled at once,
-			// so it's simpler, it illuminates all objects / casts all shadows.
-			return material;
-#endif // GAMEBRYO_MAJOR_VERSION!=2
 		}
 		else
 #endif // SUPPORT_DISABLED_LIGHTING_SHADOWING
@@ -1758,7 +1755,7 @@ public:
 				{
 					if (entity && entity->GetModel()->ContainsModel("Light"))
 					{
-						addLight(entity);
+						addLight(serviceManager,entity);
 					}
 				}
 			}
@@ -1766,16 +1763,14 @@ public:
 	}
 
 	// path used by Gamebryo 3.x Toolbench plugin
-	void addLight(egf::Entity* entity)
+	void addLight(efd::ServiceManager* serviceManager, egf::Entity* entity)
 	{
 		RR_ASSERT(entity);
-		bool isStatic = true;
-		//entity->GetPropertyValue("IsStatic", isStatic); it is not set in meshes, better ignore it in lights too
 		bool useForPrecomputedLighting = true;
 		entity->GetPropertyValue("UseForPrecomputedLighting", useForPrecomputedLighting);
 		bool isVisible = true;
 		entity->GetPropertyValue("IsVisible", isVisible);
-		if (isStatic && useForPrecomputedLighting && isVisible)
+		if (useForPrecomputedLighting && isVisible)
 		{
 			efd::Color diffuseColor(1,1,1);
 			entity->GetPropertyValue("DiffuseColor", diffuseColor);
@@ -1836,7 +1831,26 @@ public:
 						name = entity->GetModelName();
 					rrLight->name = name.c_str();
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-					rrLight->customData = entity;
+					if (serviceManager)
+					{
+						ecr::LightService* lightService = serviceManager->GetSystemServiceAs<ecr::LightService>();
+						if (lightService)
+						{
+							NiLight* light = lightService->GetLightFromEntity(entity->GetEntityID());
+							if (light)
+							{
+								GamebryoLightCache* lightCache = new GamebryoLightCache(light);
+								lightCache->entity = entity;
+								rrLight->customData = lightCache;
+							}
+							else
+								RR_LIMITED_TIMES(1,RRReporter::report(WARN,"GetLightFromEntity() failed, some properties will be ignored.\n"));
+						}
+						else
+							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"LightService not available, some properties will be ignored.\n"));
+					}
+					else
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"ServiceManager not available, some properties will be ignored.\n"));
 					rrLight->castShadows = true;
 					entity->GetPropertyValue("CastShadows", rrLight->castShadows);
 #else
@@ -1905,11 +1919,7 @@ public:
 			if (rrLight)
 			{
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-#if GAMEBRYO_MAJOR_VERSION==2
 				rrLight->customData = new GamebryoLightCache(light);
-#else
-				rrLight->customData = NULL; // customData in Gamebryo 3.x hold Entity*, it's not available in .gsa
-#endif
 				NiShadowGenerator* shadowGenerator = light->GetShadowGenerator();
 				rrLight->castShadows = shadowGenerator && shadowGenerator->GetActive();
 #else
@@ -2117,12 +2127,10 @@ void RRSceneGamebryo::gamebryoShutdown()
 RRSceneGamebryo::~RRSceneGamebryo()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-#if GAMEBRYO_MAJOR_VERSION==2
 	for (unsigned i=0;protectedLights && i<protectedLights->size();i++)
 	{
 		delete (GamebryoLightCache*)((*protectedLights)[i]->customData);
 	}
-#endif
 #endif
 	if (pkEntityScene) pkEntityScene->DecRefCount();
 
@@ -2132,7 +2140,6 @@ RRSceneGamebryo::~RRSceneGamebryo()
 void RRSceneGamebryo::updateCastersReceiversCache()
 {
 #ifdef SUPPORT_DISABLED_LIGHTING_SHADOWING
-#if GAMEBRYO_MAJOR_VERSION==2
 	if (protectedObjects && protectedLights)
 	{
 		// Reindex meshes.
@@ -2148,7 +2155,6 @@ void RRSceneGamebryo::updateCastersReceiversCache()
 				cache->update(*protectedObjects);
 		}
 	}
-#endif
 #endif
 }
 
@@ -2176,6 +2182,26 @@ RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool& a
 RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
 {
 	return new RRLightsGamebryo(serviceManager);
+}
+
+void removeLightsWithoutDirectIllumination(RRLights& lights)
+{
+	for (unsigned i=lights.size();i--;)
+	{
+		if (lights[i] && lights[i]->customData)
+		{
+			egf::Entity* entity = ((GamebryoLightCache*)lights[i]->customData)->entity;
+			if (entity)
+			{
+				bool lightPCLObjectsAtRuntime = false;
+				bool lightNonPCLObjectsAtRuntime = true;
+				entity->GetPropertyValue("LightPCLObjectsAtRuntime",lightPCLObjectsAtRuntime);
+				entity->GetPropertyValue("LightNonPCLObjectsAtRuntime",lightNonPCLObjectsAtRuntime);
+				if (lightPCLObjectsAtRuntime && lightNonPCLObjectsAtRuntime)
+					lights.erase(i);
+			}
+		}
+	}
 }
 
 RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceManager)
