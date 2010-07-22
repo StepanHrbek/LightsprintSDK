@@ -580,8 +580,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.LeftDown())
 	{
 		// find scene distance, adjust search range to look only for closer icons
-		ray->rayOrigin = svs.eye.pos;
-		rr::RRVec3 directionToMouse = svs.eye.getDirection(mousePositionInWindow);
+		ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
+		rr::RRVec3 directionToMouse = svs.eye.getRayDirection(mousePositionInWindow);
 		float directionToMouseLength = directionToMouse.length();
 		ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
 		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
@@ -624,16 +624,26 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 	else if (event.GetWheelRotation())
 	{
-		float fov = svs.eye.getFieldOfViewVerticalDeg();
-		if (event.GetWheelRotation()<0)
+		if (svs.eye.orthogonal)
 		{
-			if (fov>13) fov -= 10; else fov /= 1.4f;
+			if (event.GetWheelRotation()<0)
+				svs.eye.orthoSize /= 1.4f;
+			if (event.GetWheelRotation()>0)
+				svs.eye.orthoSize *= 1.4f;
 		}
-		if (event.GetWheelRotation()>0)
+		else
 		{
-			if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
+			float fov = svs.eye.getFieldOfViewVerticalDeg();
+			if (event.GetWheelRotation()<0)
+			{
+				if (fov>13) fov -= 10; else fov /= 1.4f;
+			}
+			if (event.GetWheelRotation()>0)
+			{
+				if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
+			}
+			svs.eye.setFieldOfViewVerticalDeg(fov);
 		}
-		svs.eye.setFieldOfViewVerticalDeg(fov);
 	}
 	else if (event.RightDown())
 	{
@@ -1127,8 +1137,8 @@ rendered:
 		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
 			// ray and collisionHandler are used in this block
-			rr::RRVec3 dir = svs.eye.getDirection(mousePositionInWindow).normalized();
-			ray->rayOrigin = svs.eye.pos;
+			rr::RRVec3 dir = svs.eye.getRayDirection(mousePositionInWindow).normalized();
+			ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 			ray->rayDirInv[0] = 1/dir[0];
 			ray->rayDirInv[1] = 1/dir[1];
 			ray->rayDirInv[2] = 1/dir[2];

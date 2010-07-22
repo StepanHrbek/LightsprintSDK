@@ -185,7 +185,7 @@ void SVFrame::UpdateEverything()
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
 	m_canvas->createContext();
-	
+
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
 

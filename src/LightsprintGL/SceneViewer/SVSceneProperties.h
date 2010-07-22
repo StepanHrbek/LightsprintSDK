@@ -41,9 +41,12 @@ namespace rr_gl
 		wxPGProperty*     propCameraPosition;
 		wxPGProperty*     propCameraDirection;
 		wxPGProperty*     propCameraAngles;
+		BoolRefProperty*  propCameraOrtho;
+		wxPGProperty*     propCameraOrthoSize;
 		wxPGProperty*     propCameraFov;
 		wxPGProperty*     propCameraNear;
 		wxPGProperty*     propCameraFar;
+		wxPGProperty*     propCameraCenter;
 
 		BoolRefProperty*  propToneMapping;
 		BoolRefProperty*  propToneMappingAutomatic;

@@ -8,6 +8,20 @@ namespace rr
 
 \page main_news What's new
 
+\section news107 ------------------------------------ 2010.07.xx -------------------------------------
+
+NEWS
+
+- enhanced camera
+  - in rr_gl::Camera
+    - rr_gl::Camera::screenCenter added
+    - rr_gl::Camera::getRayOrigin() added
+    - rr_gl::Camera::getDirection() renamed to rr_gl::Camera::getRayDirection()
+  - in scene viewer
+    - Scene properties / Camera / Orthogonal
+    - Scene properties / Camera / Center of screen
+    - when working with ortho camera, mouse wheel changes ortho size
+
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 
 NEWS

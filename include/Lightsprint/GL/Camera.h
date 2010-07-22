@@ -45,12 +45,14 @@ private:
 	//! Camera's far plane distance in world units. Must be greater than near.
 	float    afar;
 public:
-	//! Whether camera is orthogonal, set for directional lights.
+	//! Is camera orthogonal or perspective?
 	union
 	{
 		bool     orthogonal;
 		float    dummy1; // AnimationFrame needs everything float sized
 	};
+	//! Only if perspective: maps view direction into screen position, default 0,0 maps view direction to screen center.
+	rr::RRVec2 screenCenter;
 	//! Only if orthogonal: World space distance between closest points projected to top and bottom of screen.
 	float    orthoSize;
 	//! True(default): you set angle+leanAngle+angleX, update() computes direction from angles. False: you set direction, update() doesn't touch it.
@@ -92,10 +94,13 @@ public:
 	Camera(rr::RRLight& light);
 	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
-	//! Converts position in window (2d) to world space directions (3d) from eye to given point in scene.
-	//! Vector is not normalized, length is >=1, so that pos+getDirection() is always in depth=1 plane.
+	//! Converts position in window (2d) to world space ray origin (3d), suitable for raycasting screen pixels.
 	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-	rr::RRVec3 getDirection(rr::RRVec2 posInWindow = rr::RRVec2(0)) const;
+	rr::RRVec3 getRayOrigin(rr::RRVec2 posInWindow) const;
+	//! Converts position in window (2d) to world space ray direction (3d) from origin to depth=1.
+	//! Vector is not normalized, length is >=1, so that getRayPosition()+getRayDirection() is always in depth=1 plane.
+	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	rr::RRVec3 getRayDirection(rr::RRVec2 posInWindow) const;
 
 	float getAspect()                   const {return aspect;}
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}

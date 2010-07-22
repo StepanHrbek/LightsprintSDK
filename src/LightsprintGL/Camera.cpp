@@ -25,7 +25,8 @@ Camera::Camera()
 	setFieldOfViewVerticalDeg(90);
 	setRange(0.1f,100);
 	orthogonal = 0;
-	orthoSize = 0;
+	orthoSize = 100;
+	screenCenter = rr::RRVec2(0);
 	updateDirFromAngles = true;
 	origin = NULL;
 	update();
@@ -43,7 +44,8 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	setFieldOfViewVerticalDeg(_fieldOfViewVerticalDeg); // aspect must be already set
 	setRange(_anear,_afar);
 	orthogonal = 0;
-	orthoSize = 0;
+	orthoSize = 100;
+	screenCenter = rr::RRVec2(0);
 	updateDirFromAngles = true;
 	origin = NULL;
 	update();
@@ -68,6 +70,7 @@ Camera::Camera(rr::RRLight& light)
 	setRange( (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f, (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f );
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
+	screenCenter = rr::RRVec2(0);
 	updateDirFromAngles = true;
 	origin = &light;
 	update();
@@ -134,15 +137,26 @@ void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
 	setRange(maxDistance/500,maxDistance);
 }
 
-rr::RRVec3 Camera::getDirection(rr::RRVec2 posInWindow) const
+rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
+{
+	if (!orthogonal)
+		return pos;
+	return
+		pos
+		+ right * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
+		- up    * (posInWindow[1]-screenCenter[1]) * orthoSize
+		;
+}
+
+rr::RRVec3 Camera::getRayDirection(rr::RRVec2 posInWindow) const
 {
 	if (orthogonal)
-		return dir;
+		return dir.RRVec3::normalized();
 	// CameraObjectDistance uses length of our result, don't normalize
 	return
 		dir.RRVec3::normalized()
-		+ right * ( posInWindow[0] * tan(getFieldOfViewHorizontalRad()/2) )
-		- up    * ( posInWindow[1] * tan(getFieldOfViewVerticalRad()  /2) )
+		+ right * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
+		- up    * ( (posInWindow[1]-screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
 		;
 }
 
@@ -247,6 +261,8 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 		frustumMatrix[0] = 1/(orthoSize*aspect);
 		frustumMatrix[5] = 1/orthoSize;
 		frustumMatrix[10] = -1/(afar-anear);
+		frustumMatrix[12] = -screenCenter.x;
+		frustumMatrix[13] = -screenCenter.y;
 		frustumMatrix[14] = -(anear+afar)/(afar-anear);
 		frustumMatrix[15] = 1;
 	}
@@ -254,6 +270,8 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 	{
 		frustumMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect);
 		frustumMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2);
+		frustumMatrix[8] = screenCenter.x;
+		frustumMatrix[9] = screenCenter.y;
 		frustumMatrix[10] = -(afar+anear)/(afar-anear);
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);
@@ -390,6 +408,7 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 	afar = blendNormal(a.afar,b.afar,blend);
 	orthogonal = a.orthogonal;
 	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
+	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
 	updateDirFromAngles = a.updateDirFromAngles;
 	dir = blendNormal(a.dir,b.dir,blend);
 	update();

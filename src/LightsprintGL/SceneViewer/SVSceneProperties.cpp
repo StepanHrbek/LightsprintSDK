@@ -39,8 +39,14 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propCameraAngles = new RRVec3Property(wxT("Angles"),wxPG_LABEL,svs.precision,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle),0.2f);
 		AppendIn(propCamera,propCameraAngles);
 
+		propCameraOrtho = new BoolRefProperty(wxT("Orthogonal"), svs.eye.orthogonal);
+		AppendIn(propCamera,propCameraOrtho);
+
+		propCameraOrthoSize = new FloatProperty(wxT("Size"), svs.eye.orthoSize,svs.precision,0,1000000,10,false);
+		AppendIn(propCameraOrtho,propCameraOrthoSize);
+
 		propCameraFov = new FloatProperty("FOV vertical degrees",svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
-		AppendIn(propCamera,propCameraFov);
+		AppendIn(propCameraOrtho,propCameraFov);
 
 		propCameraNear = new FloatProperty("Near",svs.eye.getNear(),svs.precision,0,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
@@ -49,6 +55,9 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propCameraFar = new FloatProperty("Far",svs.eye.getFar(),svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
 		EnableProperty(propCameraFar,false);
+
+		propCameraCenter = new RRVec2Property(wxT("Center of screen"),wxPG_LABEL,svs.precision,svs.eye.screenCenter,1);
+		AppendIn(propCamera,propCameraCenter);
 
 		SetPropertyBackgroundColour(propCamera,headerColor,false);
 	}
@@ -175,6 +184,8 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVSceneProperties::updateHide()
 {
+	propCameraFov->Hide(svs.eye.orthogonal,false);
+	propCameraOrthoSize->Hide(!svs.eye.orthogonal,false);
 	propToneMappingAutomatic->Hide(!svs.renderTonemapping,false);
 	propToneMappingAutomaticTarget->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingAutomaticSpeed->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
@@ -189,6 +200,7 @@ void SVSceneProperties::updateHide()
 void SVSceneProperties::updateProperties()
 {
 	unsigned numChangesRelevantForHiding =
+		+ updateBoolRef(propCameraOrtho)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propWater)
@@ -198,9 +210,11 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
 		+ updateProperty(propCameraAngles,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle))
+		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
+		+ updateProperty(propCameraCenter,svs.eye.screenCenter)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
 		+ updateFloat(propToneMappingBrightness,svs.tonemappingBrightness[0])
@@ -264,6 +278,16 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.eye.leanAngle = property->GetPropertyByName("z")->GetValue().GetDouble();
 	}
 	else
+	if (property==propCameraOrtho)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraOrthoSize)
+	{
+		svs.eye.orthoSize = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propCameraFov)
 	{
 		svs.eye.setFieldOfViewVerticalDeg(property->GetValue().GetDouble());
@@ -277,6 +301,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraFar)
 	{
 		svs.eye.setFar(property->GetValue().GetDouble());
+	}
+	else
+	if (property==propCameraCenter)
+	{
+		svs.eye.screenCenter << property->GetValue();
 	}
 	else
 	if (property==propToneMapping)

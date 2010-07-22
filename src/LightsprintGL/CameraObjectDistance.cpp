@@ -82,17 +82,13 @@ void CameraObjectDistance::addCamera(Camera* camera)
 		return;
 	if (!camera)
 		return;
-	if (camera->orthogonal)
-	{
-		RR_ASSERT(!camera->orthogonal);
-		return;
-	}
 	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2
 	for (int i=-RAYS;i<=RAYS;i++)
 	{
 		for (int j=-RAYS;j<=RAYS;j++)
 		{
-			addRay(camera->pos,camera->getDirection(rr::RRVec2(i/float(RAYS),j/float(RAYS))));
+			rr::RRVec2 posInWindow(i/float(RAYS),j/float(RAYS));
+			addRay(camera->getRayOrigin(posInWindow),camera->getRayDirection(posInWindow));
 		}
 	}
 	// measure distance to water level
