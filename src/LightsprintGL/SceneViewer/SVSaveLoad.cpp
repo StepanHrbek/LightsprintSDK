@@ -195,6 +195,8 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 	}
 	ar & make_nvp("orthogonal",a.orthogonal);
 	ar & make_nvp("orthoSize",a.orthoSize);
+	if (a.orthoSize<=0)
+		a.orthoSize = 100; // cameras used to be initialized with orthoSize=0, fix it
 	ar & make_nvp("updateDirFromAngles",a.updateDirFromAngles);
 	ar & make_nvp("dir",a.dir);
 }
