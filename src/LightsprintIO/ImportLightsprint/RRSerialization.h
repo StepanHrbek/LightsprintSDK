@@ -127,6 +127,7 @@ private:
 };
 
 boost::unordered_set<RRBufferProxy*> RRBufferProxy::instances;
+bool g_nextBufferIsCube = false;
 
 #define prefix_buffer(b)          (*(RRBufferProxy**)&(b))
 #define postfix_buffer(Archive,b) {if (Archive::is_loading() && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
@@ -165,7 +166,9 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	else
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
-		ar & make_nvp("filename",RRRelocator::getAbsoluteFilename(a.filename.c_str()));
+		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
+		RRString absoluteFilename = RRRelocator::getAbsoluteFilename(a.filename.c_str()).c_str();
+		ar & make_nvp("filename",absoluteFilename);
 	}
 }
 
@@ -199,7 +202,10 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 
 		// Look for file at expected new location.
 		std::string relocatedFilename = g_relocator.getRelocatedFilename(filename.c_str());
-		a.buffer = rr::RRBuffer::load(relocatedFilename.c_str(),NULL);
+		if (g_nextBufferIsCube)
+			a.buffer = rr::RRBuffer::loadCube(relocatedFilename.c_str());
+		else
+			a.buffer = rr::RRBuffer::load(relocatedFilename.c_str(),NULL);
 		if (!a.buffer && relocatedFilename!=filename.c_str())
 		{
 			// Look for file at original location (where it was at save time).
@@ -601,9 +607,12 @@ void serialize(Archive & ar, rr::RRObjects& a, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 {
+	g_nextBufferIsCube = false;
 	ar & make_nvp("objects",a.objects);
 	ar & make_nvp("lights",a.lights);
+	g_nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
 	ar & make_nvp("environment",prefix_buffer(a.environment)); postfix_buffer(Archive,a.environment);
+	g_nextBufferIsCube = false;
 	// must be called after load. there's nothing to free after save
 	RRBufferProxy::freeMemory();
 	RRMeshProxy::freeMemory();
