@@ -2462,11 +2462,11 @@ Video formats
 
  \section g3_max Preparing art assets
     - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:
-    - Due to GI Package 2.1.1 bug, LightMapMaterial is not available in Max out of the box.
+    - Due to GI Package 2.1.1 bug, LightMapMaterial is not available in 3ds Max out of the box.
       To fix it, open GI Package solution in VS 2005 (usually <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Build\\Win32\\VC80\\Gamebryo_GI.sln</code>), change configuration to Shipping DLL and rebuild.
     - See GI Package documentation, usually installed at <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Documentation\\GI Package Documentation.pdf</code>
     - See video tutorial at https://pulse.emergent.net/index.php?autocom=downloads&showfile=288, it shows how to set up your objects to receive light maps in your art tool.
-      While other parts of the tutorial are highly Gamebryo 2.6 specific, this part is still valid for Gamebyo 3.1.1.
+      While other parts of the tutorial are Gamebryo 2.6 specific, this part is still relevant for Gamebyo 3.1.1.
     - Note that you need meshes with unwrap uv channel only for baking GI into lightmap textures. If you don't have unwrap, you can still set LsBakeTarget=Vertices and bake GI into vertices.
 
  \section g3_gsa Legacy .gsa support
