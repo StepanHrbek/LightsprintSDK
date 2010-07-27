@@ -88,7 +88,11 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 		if (dir[2]<0) angle = (rr::RRReal)(RR_PI-angle);
 	}
 	else
-		angle = 0;	
+	{
+		// We are looking straight up or down, current angle has no effect.
+		// Let's not zero it, it still may have effect in future when angleX changes.
+		// angle = 0;	
+	}
 	leanAngle = 0;
 }
 
@@ -216,6 +220,14 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 
 	// - leaning
 	rr::RRVec3 tmpup(0,1,0);
+	if (fabs(fabs(dir[1])-1)<1e-7f)
+	{
+		// choose better start for camera up vector when looking straight up or down
+		// without this code, straight up/down views would ignore angle
+		tmpup[0] = sin(angle)*cos(angleX+0.1f);
+		tmpup[1] = sin(angleX);
+		tmpup[2] = cos(angle)*cos(angleX+0.1f);
+	}
 	rr::RRVec3 tmpright;
 	dir.RRVec3::normalize();
 	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
