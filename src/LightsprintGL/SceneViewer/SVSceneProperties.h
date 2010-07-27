@@ -37,6 +37,7 @@ namespace rr_gl
 
 		SceneViewerStateEx& svs;
 		wxPGProperty*     propCamera;
+		wxPGProperty*     propCameraView;
 		wxPGProperty*     propCameraSpeed;
 		wxPGProperty*     propCameraPosition;
 		wxPGProperty*     propCameraDirection;

@@ -29,6 +29,11 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		propCameraSpeed = new FloatProperty("Speed (m/s)",svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
 
+		const wxChar* viewStrings[] = {wxT("Random (perspective)"),wxT("Top"),wxT("Bottom"),wxT("Front"),wxT("Back"),wxT("Left"),wxT("Right"),NULL};
+		const long viewValues[] = {SVFrame::ME_VIEW_RANDOM,SVFrame::ME_VIEW_TOP,SVFrame::ME_VIEW_BOTTOM,SVFrame::ME_VIEW_FRONT,SVFrame::ME_VIEW_BACK,SVFrame::ME_VIEW_LEFT,SVFrame::ME_VIEW_RIGHT};
+		propCameraView = new wxEnumProperty(wxT("View"), wxPG_LABEL, viewStrings, viewValues, SVFrame::ME_VIEW_RANDOM);
+		AppendIn(propCamera,propCameraView);
+
 		propCameraPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,svs.precision,svs.eye.pos,1);
 		AppendIn(propCamera,propCameraPosition);
 
@@ -36,7 +41,7 @@ SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(wxT("Angles"),wxPG_LABEL,svs.precision,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle),0.2f);
+		propCameraAngles = new RRVec3Property(wxT("Angles"),wxPG_LABEL,svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
 		AppendIn(propCamera,propCameraAngles);
 
 		propCameraOrtho = new BoolRefProperty(wxT("Orthogonal"), svs.eye.orthogonal);
@@ -209,7 +214,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
-		+ updateProperty(propCameraAngles,RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle))
+		+ updateProperty(propCameraAngles,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)))
 		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
@@ -261,6 +266,14 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
 
+	if (property==propCameraView)
+	{
+		int menuCode = property->GetValue().GetInteger();
+		// our parent must be frame
+		SVFrame* frame = (SVFrame*)GetParent();
+		frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,menuCode));
+	}
+	else
 	if (property==propCameraSpeed)
 	{
 		svs.cameraMetersPerSecond = property->GetValue().GetDouble();
@@ -273,9 +286,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraAngles)
 	{
-		svs.eye.angle = property->GetPropertyByName("x")->GetValue().GetDouble();
-		svs.eye.angleX = property->GetPropertyByName("y")->GetValue().GetDouble();
-		svs.eye.leanAngle = property->GetPropertyByName("z")->GetValue().GetDouble();
+		svs.eye.angle = RR_DEG2RAD(property->GetPropertyByName("x")->GetValue().GetDouble());
+		svs.eye.angleX = RR_DEG2RAD(property->GetPropertyByName("y")->GetValue().GetDouble());
+		svs.eye.leanAngle = RR_DEG2RAD(property->GetPropertyByName("z")->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraOrtho)
