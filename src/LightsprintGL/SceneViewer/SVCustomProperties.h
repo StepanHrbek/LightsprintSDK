@@ -96,7 +96,7 @@ public:
 		: wxBoolProperty(label, wxPG_LABEL, value), ref(value)
 	{
 		SetValue(wxPGVariant_Bool(value));
-		SetHelpString(help); //!!! doesn't seem to work. not even with SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
+		SetHelpString(help);
 	}
 	virtual void OnSetValue()
 	{
