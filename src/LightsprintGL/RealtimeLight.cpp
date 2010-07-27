@@ -82,7 +82,7 @@ namespace rr_gl
 		else
 		if (getParent()->orthogonal && rrlight.type!=rr::RRLight::DIRECTIONAL)
 		{
-			// when leaving directional, clear orthogonal and reasonable near/fat
+			// when leaving directional, clear orthogonal and reasonable near/far
 			getParent()->orthogonal = false;
 			getParent()->setRange(0.1f,100);
 		}
