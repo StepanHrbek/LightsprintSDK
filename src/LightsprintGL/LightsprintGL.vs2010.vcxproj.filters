@@ -86,6 +86,9 @@
     <ClInclude Include="SceneViewer\SVAnimationProperties.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
+    <ClInclude Include="SceneViewer\SVProperties.h">
+      <Filter>SceneViewer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">

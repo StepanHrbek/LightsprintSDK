@@ -125,6 +125,7 @@ namespace rr_gl
 		class SVLightProperties*     m_lightProperties; // public only for SVCanvas
 		class SVObjectProperties*    m_objectProperties; // public only for SVCanvas
 		class SVMaterialProperties*  m_materialProperties; // public only for SVCanvas
+		SceneViewerStateEx&          svs; // the only svs instance used throughout whole scene viewer. public only for SVProperties
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
@@ -140,7 +141,6 @@ namespace rr_gl
 		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
 		void UpdateMenuBar();
 
-		SceneViewerStateEx&      svs; // the only svs instance used throughout whole scene viewer
 		bool                     updateMenuBarNeeded;
 		UserPreferences          userPreferences;
 		wxAuiManager             m_mgr;

@@ -13,10 +13,9 @@
 namespace rr_gl
 {
 
-SVLightProperties::SVLightProperties(wxWindow* _parent, const SceneViewerState& _svs)
-	: wxPropertyGrid(_parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER), svs(_svs)
+SVLightProperties::SVLightProperties(SVFrame* _svframe)
+	: SVProperties(_svframe)
 {
-	SV_SET_PG_COLORS;
 	rtlight = NULL;
 }
 
@@ -189,9 +188,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propName)
 	{
 		light->name = property->GetValue().GetString().c_str();
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		frame->updateSceneTree();
+		svframe->updateSceneTree();
 	}
 	else
 	if (property==propType)

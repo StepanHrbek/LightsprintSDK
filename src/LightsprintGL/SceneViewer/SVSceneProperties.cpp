@@ -6,17 +6,15 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVSceneProperties.h"
-
 #include "SVFrame.h" // solver access
 #include "SVCanvas.h" // solver access
 
 namespace rr_gl
 {
 
-SVSceneProperties::SVSceneProperties(wxWindow* parent, SceneViewerStateEx& _svs)
-	: svs(_svs), wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
+SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
+	: SVProperties(_svframe)
 {
-	SV_SET_PG_COLORS;
 	wxColour headerColor(230,230,230);
 
 	// camera
@@ -269,9 +267,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraView)
 	{
 		int menuCode = property->GetValue().GetInteger();
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		frame->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,menuCode));
+		svframe->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,menuCode));
 	}
 	else
 	if (property==propCameraSpeed)
@@ -383,9 +379,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEmisMultiplier)
 	{
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		frame->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
+		svframe->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
 	}
 }
 

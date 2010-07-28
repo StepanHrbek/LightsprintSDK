@@ -883,6 +883,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVProperties.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVRayLog.cpp"
 				>
 			</File>

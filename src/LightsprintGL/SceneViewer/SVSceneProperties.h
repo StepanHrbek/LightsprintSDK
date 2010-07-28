@@ -9,18 +9,16 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
-#include "SVApp.h"
+#include "SVProperties.h"
 #include "SVCustomProperties.h"
-#include "wx/wx.h"
-#include "wx/propgrid/propgrid.h"
 
 namespace rr_gl
 {
 
-	class SVSceneProperties : public wxPropertyGrid
+	class SVSceneProperties : public SVProperties
 	{
 	public:
-		SVSceneProperties(wxWindow* parent, SceneViewerStateEx& svs);
+		SVSceneProperties(SVFrame* svframe);
 
 		//! Copy svs -> property.
 		void updateProperties();
@@ -35,7 +33,6 @@ namespace rr_gl
 		//! Copy svs -> hide/show property.
 		void updateHide();
 
-		SceneViewerStateEx& svs;
 		wxPGProperty*     propCamera;
 		wxPGProperty*     propCameraView;
 		wxPGProperty*     propCameraSpeed;

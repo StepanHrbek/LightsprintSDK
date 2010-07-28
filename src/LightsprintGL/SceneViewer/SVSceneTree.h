@@ -20,7 +20,7 @@ namespace rr_gl
 	class SVSceneTree : public wxTreeCtrl
 	{
 	public:
-		SVSceneTree(wxWindow* parent, SceneViewerStateEx& svse);
+		SVSceneTree(SVFrame* svframe);
 
 		// If solver is NULL, lights and objects are not updated.
 		// Does not preserve cursor position in tree, use selectItem() to restore it.
@@ -40,6 +40,7 @@ namespace rr_gl
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
 		EntityId itemIdToEntityId(wxTreeItemId item) const;
 
+		SVFrame* svframe;
 		SceneViewerStateEx& svs;
 		bool allowEvents;
 		wxTreeItemId lights;

@@ -9,16 +9,15 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
-#include "wx/wx.h"
-#include "wx/propgrid/propgrid.h"
+#include "SVProperties.h"
 
 namespace rr_gl
 {
 
-	class SVObjectProperties : public wxPropertyGrid
+	class SVObjectProperties : public SVProperties
 	{
 	public:
-		SVObjectProperties( wxWindow* parent );
+		SVObjectProperties(SVFrame* svframe);
 
 		//! Copy light -> property (all values, show/hide).
 		void setObject(rr::RRObject* _object, int _precision);

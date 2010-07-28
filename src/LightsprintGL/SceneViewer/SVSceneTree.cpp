@@ -29,9 +29,10 @@ public:
 //
 // SVSceneTree
 
-SVSceneTree::SVSceneTree(wxWindow* _parent, SceneViewerStateEx& _svse)
-	: wxTreeCtrl( _parent, wxID_ANY, wxDefaultPosition, wxSize(250,400), wxTR_HAS_BUTTONS|SV_SUBWINDOW_BORDER ), svs(_svse)
+SVSceneTree::SVSceneTree(SVFrame* _svframe)
+	: wxTreeCtrl(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxTR_HAS_BUTTONS|SV_SUBWINDOW_BORDER), svs(_svframe->svs)
 {
+	svframe = _svframe;
 	allowEvents = true;
 
 	wxTreeItemId root = AddRoot("root");
@@ -148,9 +149,7 @@ void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 		EntityId entityId = itemIdToEntityId(event.GetItem());
 		if (entityId.isOk())
 		{
-			// our parent must be frame
-			SVFrame* frame = (SVFrame*)GetParent();
-			frame->selectEntity(entityId,false,SEA_SELECT);
+			svframe->selectEntity(entityId,false,SEA_SELECT);
 		}
 	}
 }
@@ -162,9 +161,7 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 		EntityId entityId = itemIdToEntityId(event.GetItem());
 		if (entityId.isOk())
 		{
-			// our parent must be frame
-			SVFrame* frame = (SVFrame*)GetParent();
-			frame->selectEntity(entityId,false,SEA_ACTION);
+			svframe->selectEntity(entityId,false,SEA_ACTION);
 		}
 	}
 }
@@ -181,17 +178,13 @@ void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 	else
 	{
 		// useless for treectrl, forward to canvas
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		frame->m_canvas->OnKeyDown(keyEvent);
+		svframe->m_canvas->OnKeyDown(keyEvent);
 	}
 }
 
 void SVSceneTree::OnKeyUp(wxKeyEvent& event)
 {
-	// our parent must be frame
-	SVFrame* frame = (SVFrame*)GetParent();
-	frame->m_canvas->OnKeyUp(event);
+	svframe->m_canvas->OnKeyUp(event);
 }
 
 BEGIN_EVENT_TABLE(SVSceneTree, wxTreeCtrl)

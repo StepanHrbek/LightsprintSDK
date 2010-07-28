@@ -13,10 +13,9 @@
 namespace rr_gl
 {
 
-SVObjectProperties::SVObjectProperties(wxWindow* parent)
-	: wxPropertyGrid( parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER )
+SVObjectProperties::SVObjectProperties(SVFrame* _svframe)
+	: SVProperties(_svframe)
 {
-	SV_SET_PG_COLORS;
 	object = NULL;
 }
 
@@ -75,9 +74,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propName)
 	{
 		object->name = property->GetValue().GetString().c_str();
-		// our parent must be frame
-		SVFrame* frame = (SVFrame*)GetParent();
-		frame->updateSceneTree();
+		svframe->updateSceneTree();
 	}
 	else
 	if (property==propWTranslation)

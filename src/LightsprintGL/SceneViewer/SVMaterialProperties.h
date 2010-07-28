@@ -9,16 +9,15 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
-#include "wx/wx.h"
-#include "wx/propgrid/propgrid.h"
+#include "SVProperties.h"
 
 namespace rr_gl
 {
 
-	class SVMaterialProperties : public wxPropertyGrid
+	class SVMaterialProperties : public SVProperties
 	{
 	public:
-		SVMaterialProperties(wxWindow* parent, const SceneViewerState& svs);
+		SVMaterialProperties(SVFrame* svframe);
 
 		//! Copy material -> property.
 		void setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
@@ -28,8 +27,6 @@ namespace rr_gl
 
 	private:
 		void updateReadOnly();
-
-		const SceneViewerState& svs;
 
 		rr::RRDynamicSolver* lastSolver;
 		unsigned          lastTriangle;

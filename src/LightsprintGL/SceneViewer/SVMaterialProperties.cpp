@@ -17,10 +17,9 @@ namespace rr_gl
 //
 // SVMaterialProperties
 
-SVMaterialProperties::SVMaterialProperties(wxWindow* _parent, const SceneViewerState& _svs)
-	: wxPropertyGrid( _parent, wxID_ANY, wxDefaultPosition, wxSize(300,400), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER ), svs(_svs)
+SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
+	: SVProperties(_svframe)
 {
-	SV_SET_PG_COLORS;
 	wxColour headerColor(230,230,230);
 
 	lastSolver = NULL;
@@ -44,35 +43,35 @@ SVMaterialProperties::SVMaterialProperties(wxWindow* _parent, const SceneViewerS
 	SetPropertyEditor(propBack,wxPGEditor_CheckBox);
 
 	Append(propDiffuse = new wxStringProperty(wxT("Diffuse")));
-	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
+	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
 	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
 	AppendIn(propDiffuse,new ImageFileProperty(wxT("texture")));
 	SetPropertyBackgroundColour(propDiffuse,headerColor,false);
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(wxT("Specular")));
-	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
+	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
 	AppendIn(propSpecular,new ImageFileProperty(wxT("texture")));
 	SetPropertyBackgroundColour(propSpecular,headerColor,false);
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(wxT("Emissive")));
-	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
+	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
 	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
 	AppendIn(propEmissive,new ImageFileProperty(wxT("texture")));
 	SetPropertyBackgroundColour(propEmissive,headerColor,false);
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(wxT("Transparent")));
-	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,_svs.precision));
+	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
 	AppendIn(propTransparent,new ImageFileProperty(wxT("texture")));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
-	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",1,_svs.precision,0,2,0.1f,false));
+	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",1,svs.precision,0,2,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,headerColor,false);
 	Collapse(propTransparent);
 

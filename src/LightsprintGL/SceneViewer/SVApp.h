@@ -12,7 +12,6 @@
 #include "Lightsprint/RRScene.h"
 #include <string>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
-#define SV_SET_PG_COLORS {SetMarginColour(wxColour(220,220,220));SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);}
 
 namespace rr_gl
 {

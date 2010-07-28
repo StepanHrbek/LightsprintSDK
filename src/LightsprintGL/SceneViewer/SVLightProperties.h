@@ -9,18 +9,17 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
-#include "wx/wx.h"
-#include "wx/propgrid/propgrid.h"
+#include "SVProperties.h"
 #include "SVCustomProperties.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 
 namespace rr_gl
 {
 
-	class SVLightProperties : public wxPropertyGrid
+	class SVLightProperties : public SVProperties
 	{
 	public:
-		SVLightProperties(wxWindow* parent, const SceneViewerState& svs);
+		SVLightProperties(SVFrame* svframe);
 
 		//! Copy light -> property (all values, show/hide).
 		void setLight(RealtimeLight* _rtlight, int _precision);
@@ -40,8 +39,6 @@ namespace rr_gl
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
 	private:
-		const SceneViewerState& svs;
-
 		RealtimeLight*    rtlight;
 
 		wxPGProperty*     propName;
