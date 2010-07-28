@@ -28,8 +28,8 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 
 	if (showLog)
 	{
-		rr::RRReporter::report(rr::INF1,"Building %s + %s\n",vertexShader,fragmentShader);
-		if (defines && defines[0]) rr::RRReporter::report(rr::INF1,"%s",defines);
+		rr::RRReporter::report(rr::INF2,"Building %s + %s\n",vertexShader,fragmentShader);
+		if (defines && defines[0]) rr::RRReporter::report(rr::INF2,"%s",defines);
 	}
 
 	if (vertexShader)
@@ -58,19 +58,19 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 		if (!alinked)
-			rr::RRReporter::report(rr::INF1,"Link failed%c\n",(debugLength>2)?':':'.');
+			rr::RRReporter::report(rr::INF2,"Link failed%c\n",(debugLength>2)?':':'.');
 		if (debugLength>2)
 		{
 			GLchar *debug = new GLchar[debugLength];
 			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
-			rr::RRReporter::report(rr::INF1,"%s\n",debug);
+			rr::RRReporter::report(rr::INF2,"%s\n",debug);
 			delete[] debug;
 		}
 	}
 end:
 	if (showLog)
 	{
-		rr::RRReporter::report(rr::INF1,"\n");
+		rr::RRReporter::report(rr::INF2,"\n");
 	}
 
 }
