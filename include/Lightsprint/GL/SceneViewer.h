@@ -64,6 +64,7 @@ struct SceneViewerState
 	bool             renderFPS;                 //! Render FPS counter.
 	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
+	bool             renderBloom;               //! Render bloom effect.
 	bool             renderVignette;            //! Render vignette overlay from vignette.png.
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
@@ -111,6 +112,7 @@ struct SceneViewerState
 		renderIcons = 1;
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
+		renderBloom = 0;
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
@@ -158,6 +160,7 @@ struct SceneViewerState
 			&& a.renderFPS==renderFPS
 			&& a.renderIcons==renderIcons
 			&& a.renderHelpers==renderHelpers
+			&& a.renderBloom==renderBloom
 			&& a.renderVignette==renderVignette
 			&& a.renderHelp==renderHelp
 			&& a.renderLogo==renderLogo

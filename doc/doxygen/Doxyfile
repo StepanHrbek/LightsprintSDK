@@ -95,6 +95,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/RRObject.h" \
                          "../../include/Lightsprint/RRScene.h" \
                          "../../include/Lightsprint/RRVector.h" \
+                         "../../include/Lightsprint/GL/Bloom.h" \
                          "../../include/Lightsprint/GL/Camera.h" \
                          "../../include/Lightsprint/GL/DemoEngine.h" \
                          "../../include/Lightsprint/GL/Program.h" \

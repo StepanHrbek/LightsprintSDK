@@ -89,6 +89,7 @@
     <ClInclude Include="SceneViewer\SVProperties.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\GL\Bloom.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -161,20 +162,9 @@
     <ClCompile Include="SceneViewer\SVAnimationProperties.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
+    <ClCompile Include="Bloom.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\data\shaders\lightmap_build.fs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\data\shaders\lightmap_build.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\data\shaders\lightmap_filter.fs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\data\shaders\lightmap_filter.vs">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\..\data\shaders\scaledown_filter.fs">
       <Filter>Shaders</Filter>
     </None>
@@ -203,6 +193,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\water.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\bloom.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\bloom.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

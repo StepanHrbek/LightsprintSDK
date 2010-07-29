@@ -389,6 +389,12 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="Bloom.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Bloom.h">
+		</File>
+		<File
 			RelativePath="Camera.cpp">
 		</File>
 		<File

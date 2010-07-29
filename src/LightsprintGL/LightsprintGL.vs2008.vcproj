@@ -920,19 +920,11 @@
 			Name="Shaders"
 			>
 			<File
-				RelativePath="..\..\data\shaders\lightmap_build.fs"
+				RelativePath="..\..\data\shaders\bloom.fs"
 				>
 			</File>
 			<File
-				RelativePath="..\..\data\shaders\lightmap_build.vs"
-				>
-			</File>
-			<File
-				RelativePath="..\..\data\shaders\lightmap_filter.fs"
-				>
-			</File>
-			<File
-				RelativePath="..\..\data\shaders\lightmap_filter.vs"
+				RelativePath="..\..\data\shaders\bloom.vs"
 				>
 			</File>
 			<File
@@ -976,6 +968,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="Bloom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\Bloom.h"
+			>
+		</File>
 		<File
 			RelativePath="Camera.cpp"
 			>

@@ -565,6 +565,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\Lightsprint\GL\Bloom.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
     <ClInclude Include="SceneViewer\SVAnimationProperties.h" />
     <ClInclude Include="SceneViewer\SVApp.h" />
@@ -609,6 +610,7 @@
     <ClInclude Include="Workaround.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="SceneViewer\SVAnimationProperties.cpp" />
     <ClCompile Include="SceneViewer\SVApp.cpp" />
     <ClCompile Include="SceneViewer\SVCanvas.cpp" />
@@ -647,10 +649,8 @@
     <ClCompile Include="Workaround.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\data\shaders\lightmap_build.fs" />
-    <None Include="..\..\data\shaders\lightmap_build.vs" />
-    <None Include="..\..\data\shaders\lightmap_filter.fs" />
-    <None Include="..\..\data\shaders\lightmap_filter.vs" />
+    <None Include="..\..\data\shaders\bloom.fs" />
+    <None Include="..\..\data\shaders\bloom.vs" />
     <None Include="..\..\data\shaders\scaledown_filter.fs" />
     <None Include="..\..\data\shaders\scaledown_filter.vs" />
     <None Include="..\..\data\shaders\sky.fs" />

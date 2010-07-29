@@ -23,6 +23,9 @@ NEWS
     - Scene properties / Camera / Center of screen
     - when working with ortho camera, mouse wheel changes ortho size
     - removed Camera menu, functionality moved to Scene properties / Camera / View
+- bloom effect
+  - rr_gl::Bloom
+  - Bloom checkbox in Scene properties in scene viewer
 
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 

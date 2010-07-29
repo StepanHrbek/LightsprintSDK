@@ -15,6 +15,9 @@
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/ToneMapping.h"
+#include "Lightsprint/GL/Water.h"
 #include "../tmpstr.h"
 #include "../PreserveState.h"
 #ifdef _WIN32
@@ -78,6 +81,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 
 	helpLoadAttempted = false;
 	helpImage = NULL;
+
+	bloomLoadAttempted = false;
+	bloom = NULL;
 
 	vignetteLoadAttempted = false;
 	vignetteImage = NULL;
@@ -1454,6 +1460,21 @@ rendered:
 		}
 	}
 
+
+	// bloom
+	if (svs.renderBloom)
+	{
+		if (!bloomLoadAttempted)
+		{
+			bloomLoadAttempted = true;
+			RR_ASSERT(!bloom);
+			bloom = new Bloom(svs.pathToShaders);
+		}
+		if (bloom)
+		{
+			bloom->applyBloom(winWidth,winHeight);
+		}
+	}
 
 	// vignette
 	if (svs.renderVignette)

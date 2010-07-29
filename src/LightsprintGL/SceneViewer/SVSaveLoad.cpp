@@ -231,6 +231,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("renderFPS",a.renderFPS);
 	ar & make_nvp("renderIcons",a.renderIcons);
 	ar & make_nvp("renderHelpers",a.renderHelpers);
+	ar & make_nvp("renderBloom",a.renderBloom);
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
@@ -284,6 +285,10 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderFPS",a.renderFPS);
 	ar & make_nvp("renderIcons",a.renderIcons);
 	ar & make_nvp("renderHelpers",a.renderHelpers);
+	if (version>9)
+	{
+		ar & make_nvp("renderBloom",a.renderBloom);
+	}
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
@@ -356,7 +361,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 1)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 9)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)
 
 //---------------------------------------------------------------------------
 

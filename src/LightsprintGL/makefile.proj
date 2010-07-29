@@ -35,6 +35,7 @@ CPP_FLAGS += -DSUPPORT_LIGHTFIELD
 # source files
 
 SOURCES = \
+Bloom.cpp \
 Camera.cpp \
 CameraObjectDistance.cpp \
 FBO.cpp \

@@ -141,6 +141,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderLogo = new BoolRefProperty(wxT("Logo"), svs.renderLogo, wxT("Logo is loaded from data/maps/sv_logo.png."));
 		AppendIn(propRenderExtras,propRenderLogo);
 
+		propRenderBloom = new BoolRefProperty(wxT("Bloom"), svs.renderBloom, wxT("Applies fullscreen bloom effect."));
+		AppendIn(propRenderExtras,propRenderBloom);
+
 		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), svs.renderVignette, wxT("Vignette overlay is loaded from data/maps/vignette.png."));
 		AppendIn(propRenderExtras,propRenderVignettation);
 
@@ -231,6 +234,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
 		+ updateBoolRef(propRenderLogo)
+		+ updateBoolRef(propRenderBloom)
 		+ updateBoolRef(propRenderVignettation)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)

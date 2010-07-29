@@ -9,15 +9,13 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/FPS.h"
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
 #include "SVEntity.h"
 #include "SVLightmapViewer.h"
-#include "Lightsprint/GL/ToneMapping.h"
-#include "Lightsprint/GL/Water.h"
-#include "Lightsprint/GL/FPS.h"
 #include "SVSaveLoad.h"
 
 namespace rr_gl
@@ -67,8 +65,8 @@ namespace rr_gl
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
-		Water*                     water;
-		ToneMapping*               toneMapping;
+		class Water*               water;
+		class ToneMapping*         toneMapping;
 		bool                       fireballLoadAttempted;
 		float                      speedForward;
 		float                      speedBack;
@@ -95,6 +93,10 @@ namespace rr_gl
 		// help
 		bool                       helpLoadAttempted;
 		rr::RRBuffer*              helpImage;
+
+		// bloom
+		bool                       bloomLoadAttempted;
+		class Bloom*               bloom;
 
 		// vignette
 		bool                       vignetteLoadAttempted;

@@ -65,6 +65,7 @@ namespace rr_gl
 		BoolRefProperty*  propRenderHelpers;
 		BoolRefProperty*  propRenderFPS;
 		BoolRefProperty*  propRenderLogo;
+		BoolRefProperty*  propRenderBloom;
 		BoolRefProperty*  propRenderVignettation;
 
 		BoolRefProperty*  propWater;
