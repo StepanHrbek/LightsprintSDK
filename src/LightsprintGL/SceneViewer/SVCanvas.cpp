@@ -1030,6 +1030,21 @@ rendered:
 			}
 		}
 
+		// bloom
+		if (svs.renderBloom)
+		{
+			if (!bloomLoadAttempted)
+			{
+				bloomLoadAttempted = true;
+				RR_ASSERT(!bloom);
+				bloom = new Bloom(svs.pathToShaders);
+			}
+			if (bloom)
+			{
+				bloom->applyBloom(winWidth,winHeight);
+			}
+		}
+
 
 		if (svs.renderHelpers)
 		{
@@ -1460,21 +1475,6 @@ rendered:
 		}
 	}
 
-
-	// bloom
-	if (svs.renderBloom)
-	{
-		if (!bloomLoadAttempted)
-		{
-			bloomLoadAttempted = true;
-			RR_ASSERT(!bloom);
-			bloom = new Bloom(svs.pathToShaders);
-		}
-		if (bloom)
-		{
-			bloom->applyBloom(winWidth,winHeight);
-		}
-	}
 
 	// vignette
 	if (svs.renderVignette)
