@@ -53,7 +53,7 @@ public:
 
 	//! Renders 2d texture into rectangle.
 	//
-	//! x/y/w/h are in 0..1 space, x/y is top left corner.
+	//! x/y/w/h are in 0..1 space; 0,0 and x,y are top left corner.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! \n render2D() internally calls render2dBegin() + render2dQuad() + render2dEnd().
 	//! For rendering N textures, it's possible to simply call render2D() N times,

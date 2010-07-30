@@ -144,6 +144,18 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderBloom = new BoolRefProperty(wxT("Bloom"), svs.renderBloom, wxT("Applies fullscreen bloom effect."));
 		AppendIn(propRenderExtras,propRenderBloom);
 
+		// lens flare
+		{
+			propLensFlare = new BoolRefProperty(wxT("Lens Flare"), svs.renderLensFlare, wxT("Renders lens flare for all directional lights."));
+			AppendIn(propRenderExtras,propLensFlare);
+
+			propLensFlareSize = new FloatProperty("Size",(float)svs.lensFlareSize,svs.precision,0,40,0.5,false);
+			AppendIn(propLensFlare,propLensFlareSize);
+
+			propLensFlareId = new FloatProperty("Id",(float)svs.lensFlareId,svs.precision,1,UINT_MAX,10,true);
+			AppendIn(propLensFlare,propLensFlareId);
+		}
+
 		propRenderVignettation = new BoolRefProperty(wxT("Vignettation"), svs.renderVignette, wxT("Vignette overlay is loaded from data/maps/vignette.png."));
 		AppendIn(propRenderExtras,propRenderVignettation);
 
@@ -199,6 +211,8 @@ void SVSceneProperties::updateHide()
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
 	propWaterColor->Hide(!svs.renderWater,false);
 	propWaterLevel->Hide(!svs.renderWater,false);
+	propLensFlareSize->Hide(!svs.renderLensFlare,false);
+	propLensFlareId->Hide(!svs.renderLensFlare,false);
 	propGridNumSegments->Hide(!svs.renderGrid,false);
 	propGridSegmentSize->Hide(!svs.renderGrid,false);
 }
@@ -210,6 +224,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propWater)
+		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propGrid)
 		;
 	unsigned numChangesOther =
@@ -235,6 +250,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderFPS)
 		+ updateBoolRef(propRenderLogo)
 		+ updateBoolRef(propRenderBloom)
+		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
+		+ updateFloat(propLensFlareId,svs.lensFlareId)
 		+ updateBoolRef(propRenderVignettation)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
@@ -363,6 +380,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propWaterLevel)
 	{
 		svs.waterLevel = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propLensFlare)
+	{
+		updateHide();
+	}
+	else
+	if (property==propLensFlareSize)
+	{
+		svs.lensFlareSize = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propLensFlareId)
+	{
+		svs.lensFlareId = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGrid)

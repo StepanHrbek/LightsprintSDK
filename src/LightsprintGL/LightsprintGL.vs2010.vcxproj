@@ -566,6 +566,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\GL\Bloom.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\LensFlare.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
     <ClInclude Include="SceneViewer\SVAnimationProperties.h" />
     <ClInclude Include="SceneViewer\SVApp.h" />
@@ -611,6 +612,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="LensFlare.cpp" />
     <ClCompile Include="SceneViewer\SVAnimationProperties.cpp" />
     <ClCompile Include="SceneViewer\SVApp.cpp" />
     <ClCompile Include="SceneViewer\SVCanvas.cpp" />

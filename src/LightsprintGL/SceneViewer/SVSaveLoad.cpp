@@ -232,6 +232,9 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("renderIcons",a.renderIcons);
 	ar & make_nvp("renderHelpers",a.renderHelpers);
 	ar & make_nvp("renderBloom",a.renderBloom);
+	ar & make_nvp("renderLensFlare",a.renderLensFlare);
+	ar & make_nvp("lensFlareSize",a.lensFlareSize);
+	ar & make_nvp("lensFlareId",a.lensFlareId);
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);
 	ar & make_nvp("renderLogo",a.renderLogo);
@@ -288,6 +291,9 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	if (version>9)
 	{
 		ar & make_nvp("renderBloom",a.renderBloom);
+		ar & make_nvp("renderLensFlare",a.renderLensFlare);
+		ar & make_nvp("lensFlareSize",a.lensFlareSize);
+		ar & make_nvp("lensFlareId",a.lensFlareId);
 	}
 	ar & make_nvp("renderVignette",a.renderVignette);
 	ar & make_nvp("renderHelp",a.renderHelp);

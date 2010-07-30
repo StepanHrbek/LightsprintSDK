@@ -15,6 +15,7 @@ NEWS
 - enhanced camera
   - in rr_gl::Camera
     - rr_gl::Camera::screenCenter added
+    - rr_gl::Camera::getPositionInWindow() added
     - rr_gl::Camera::getRayOrigin() added
     - rr_gl::Camera::getDirection() renamed to rr_gl::Camera::getRayDirection()
   - in scene viewer
@@ -26,6 +27,9 @@ NEWS
 - bloom effect
   - rr_gl::Bloom
   - Bloom checkbox in Scene properties in scene viewer
+- lens flare effect
+  - rr_gl::LensFlare
+  - Lens Flare checkbox in Scene properties in scene viewer
 
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 

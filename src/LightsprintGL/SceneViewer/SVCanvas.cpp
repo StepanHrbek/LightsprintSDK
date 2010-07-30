@@ -16,6 +16,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
 #include "../tmpstr.h"
@@ -84,6 +85,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 
 	bloomLoadAttempted = false;
 	bloom = NULL;
+
+	lensFlareLoadAttempted = false;
+	lensFlare = NULL;
 
 	vignetteLoadAttempted = false;
 	vignetteImage = NULL;
@@ -327,6 +331,12 @@ SVCanvas::~SVCanvas()
 
 	// vignette
 	RR_SAFE_DELETE(vignetteImage);
+
+	// lens flare
+	RR_SAFE_DELETE(lensFlare);
+
+	// bloom
+	RR_SAFE_DELETE(bloom);
 
 	// help
 	RR_SAFE_DELETE(helpImage);
@@ -1042,6 +1052,22 @@ rendered:
 			if (bloom)
 			{
 				bloom->applyBloom(winWidth,winHeight);
+			}
+		}
+
+		// lens flare
+		if (svs.renderLensFlare && textureRenderer && !svs.eye.orthogonal)
+		{
+			if (!lensFlareLoadAttempted)
+			{
+				lensFlareLoadAttempted = true;
+				RR_ASSERT(!lensFlare);
+				lensFlare = new LensFlare(svs.pathToShaders);
+			}
+			if (lensFlare)
+			{
+				ray->collisionHandler = collisionHandler; // setup collision handler that penetrates transparent pixels in materials
+				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,ray,svs.eye,solver->getLights(),solver->getMultiObjectCustom());
 			}
 		}
 

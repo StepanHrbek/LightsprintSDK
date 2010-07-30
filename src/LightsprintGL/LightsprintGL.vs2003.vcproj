@@ -422,6 +422,12 @@
 			RelativePath="..\..\include\Lightsprint\GL\FPS.h">
 		</File>
 		<File
+			RelativePath="LensFlare.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\LensFlare.h">
+		</File>
+		<File
 			RelativePath="matrix.cpp">
 		</File>
 		<File

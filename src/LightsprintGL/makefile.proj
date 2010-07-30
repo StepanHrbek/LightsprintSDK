@@ -39,6 +39,7 @@ Bloom.cpp \
 Camera.cpp \
 CameraObjectDistance.cpp \
 FBO.cpp \
+LensFlare.cpp \
 matrix.cpp \
 MultiPass.cpp \
 Program.cpp \

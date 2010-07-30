@@ -65,6 +65,9 @@ struct SceneViewerState
 	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderBloom;               //! Render bloom effect.
+	bool             renderLensFlare;           //! Render lens flare effect.
+	float            lensFlareSize;             //! Relative lens flare size, 1 for typical size.
+	unsigned         lensFlareId;               //! Other lens flare parameters are generated from this number.
 	bool             renderVignette;            //! Render vignette overlay from vignette.png.
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
@@ -113,6 +116,9 @@ struct SceneViewerState
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
 		renderBloom = 0;
+		renderLensFlare = 0;
+		lensFlareSize = 1;
+		lensFlareId = 0;
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
@@ -161,6 +167,9 @@ struct SceneViewerState
 			&& a.renderIcons==renderIcons
 			&& a.renderHelpers==renderHelpers
 			&& a.renderBloom==renderBloom
+			&& a.renderLensFlare==renderLensFlare
+			&& a.lensFlareSize==lensFlareSize
+			&& a.lensFlareId==lensFlareId
 			&& a.renderVignette==renderVignette
 			&& a.renderHelp==renderHelp
 			&& a.renderLogo==renderLogo

@@ -98,6 +98,10 @@ namespace rr_gl
 		bool                       bloomLoadAttempted;
 		class Bloom*               bloom;
 
+		// lens flare
+		bool                       lensFlareLoadAttempted;
+		class LensFlare*           lensFlare;
+
 		// vignette
 		bool                       vignetteLoadAttempted;
 		rr::RRBuffer*              vignetteImage;
