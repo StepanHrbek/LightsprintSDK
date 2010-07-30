@@ -94,13 +94,16 @@ public:
 	Camera(rr::RRLight& light);
 	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
+	//! Converts world space position (3d) to position in window (2d).
+	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	rr::RRVec2 getPositionInWindow(rr::RRVec3 worldPosition) const;
 	//! Converts position in window (2d) to world space ray origin (3d), suitable for raycasting screen pixels.
-	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-	rr::RRVec3 getRayOrigin(rr::RRVec2 posInWindow) const;
+	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	rr::RRVec3 getRayOrigin(rr::RRVec2 positionInWindow) const;
 	//! Converts position in window (2d) to world space ray direction (3d) from origin to depth=1.
 	//! Vector is not normalized, length is >=1, so that getRayPosition()+getRayDirection() is always in depth=1 plane.
-	//! posInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-	rr::RRVec3 getRayDirection(rr::RRVec2 posInWindow) const;
+	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	rr::RRVec3 getRayDirection(rr::RRVec2 positionInWindow) const;
 
 	float getAspect()                   const {return aspect;}
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}

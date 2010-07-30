@@ -141,6 +141,14 @@ void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
 	setRange(maxDistance/500,maxDistance);
 }
 
+rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
+{
+	GLint viewport[4] = {-1,-1,2,2};
+	GLdouble positionInWindow[3];
+	gluProject(worldPosition[0],worldPosition[1],worldPosition[2],viewMatrix,frustumMatrix,viewport,positionInWindow,positionInWindow+1,positionInWindow+2);
+	return rr::RRVec2((rr::RRReal)positionInWindow[0],(rr::RRReal)positionInWindow[1]);
+}
+
 rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
 {
 	if (!orthogonal)
