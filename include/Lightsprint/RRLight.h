@@ -189,7 +189,7 @@ namespace rr
 		//! Exponent that controls attenuation from innerAngle to outerAngle in spotlight.
 		RRReal spotExponent;
 
-		//! Outer-inner code angle in radians. Relevant only for SPOT light. Read/write.
+		//! Outer-inner cone angle in radians. Relevant only for SPOT light. Read/write.
 		//
 		//! Light rays with direction diverted less than outerAngleRad from direction,
 		//! but more than outerAngleRad-fallOffAngleRad, are attenuated.

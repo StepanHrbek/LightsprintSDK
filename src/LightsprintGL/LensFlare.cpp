@@ -55,7 +55,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	{
 		float color[4];
 		color[rand()%3] = rand()*1.2f/RAND_MAX;
-		size = baseSize * (1+(rand()%5));
+		size = baseSize * (float)(1+(rand()%5));
 		center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
 		topleft = center-size/2;
 		_textureRenderer->render2D(getTexture(secondaryMap[rand()%NUM_SECONDARY_MAPS]),color,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);

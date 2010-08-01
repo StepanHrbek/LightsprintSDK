@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>
-//#include <cstdio>
 #include "Lightsprint/GL/Bloom.h"
 #include "tmpstr.h"
 

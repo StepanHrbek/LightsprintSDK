@@ -53,7 +53,7 @@ public:
 	};
 	//! Only if perspective: maps view direction into screen position, default 0,0 maps view direction to screen center.
 	rr::RRVec2 screenCenter;
-	//! Only if orthogonal: World space distance between closest points projected to top and bottom of screen.
+	//! Only if orthogonal: World space distance between top and bottom of viewport.
 	float    orthoSize;
 	//! True(default): you set angle+leanAngle+angleX, update() computes direction from angles. False: you set direction, update() doesn't touch it.
 	union
