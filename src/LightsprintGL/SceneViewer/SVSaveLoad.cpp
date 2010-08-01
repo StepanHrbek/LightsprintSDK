@@ -205,12 +205,36 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 }
 
 
+//------------------------------ tm -----------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, tm& a, const unsigned int version)
+{
+	a.tm_year += 1900;
+	a.tm_mon += 1;
+	ar & make_nvp("year",a.tm_year);
+	ar & make_nvp("month",a.tm_mon); // 1..12
+	ar & make_nvp("day",a.tm_mday); // 1..31
+	ar & make_nvp("hour",a.tm_hour);
+	ar & make_nvp("minute",a.tm_min);
+	ar & make_nvp("second",a.tm_sec);
+	a.tm_mon -= 1;
+	a.tm_year -= 1900;
+}
+
 //------------------------- SceneViewerStateEx ------------------------------
 
 template<class Archive>
 void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int version)
 {
 	ar & make_nvp("eye",a.eye);
+
+	ar & make_nvp("envSimulateSky",a.envSimulateSky);
+	ar & make_nvp("envSimulateSun",a.envSimulateSun);
+	ar & make_nvp("envLongitude",a.envLongitude);
+	ar & make_nvp("envLatitude",a.envLatitude);
+	ar & make_nvp("envDateTime",a.envDateTime);
+
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
 	ar & make_nvp("realtimeLayerNumber",a.realtimeLayerNumber);
 	ar & make_nvp("ldmLayerNumber",a.ldmLayerNumber);
@@ -268,6 +292,14 @@ template<class Archive>
 void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 {
 	ar & make_nvp("eye",a.eye);
+	if (version>9)
+	{
+		ar & make_nvp("envSimulateSky",a.envSimulateSky);
+		ar & make_nvp("envSimulateSun",a.envSimulateSun);
+		ar & make_nvp("envLongitude",a.envLongitude);
+		ar & make_nvp("envLatitude",a.envLatitude);
+		ar & make_nvp("envDateTime",a.envDateTime);
+	}
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
 	ar & make_nvp("realtimeLayerNumber",a.realtimeLayerNumber);
 	ar & make_nvp("ldmLayerNumber",a.ldmLayerNumber);

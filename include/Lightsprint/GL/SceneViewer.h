@@ -10,6 +10,7 @@
 
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
+#include "ctime" // struct tm
 
 #if _MSC_VER==1600
 //#define CUSTOMIZED_FOR_3DRENDER
@@ -44,6 +45,13 @@ enum LightingIndirect
 struct SceneViewerState
 {
 	Camera           eye;                       //! Current camera.
+
+	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
+	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?
+	float            envLongitude;              //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
+	float            envLatitude;               //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
+	tm               envDateTime;               //! Date and time for sky/sun simulation.
+
 	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
 	unsigned         realtimeLayerNumber;       //! Layer used for all realtime lighting operations.
 	unsigned         ldmLayerNumber;            //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
@@ -79,22 +87,29 @@ struct SceneViewerState
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
-	bool             videoEmittanceAffectsGI;   //! 
-	bool             videoTransmittanceAffectsGI;
+	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
+	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
 	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
 	bool             renderGrid;                //! Show grid.
-	unsigned         gridNumSegments;           //! Number of grid segments per line, i.e. 10 makes grid with 10x10 squares.
+	unsigned         gridNumSegments;           //! Number of grid segments per line, e.g. 10 makes grid with 10x10 squares.
 	float            gridSegmentSize;           //! Distance of grid lines in meters (scene units).
 	int              precision;                 //! Max number of digits after decimal point in float properties. -1 for full precision.
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
-	// sets default state with realtime GI and random camera
+	//! Sets default state with realtime GI and random camera.
 	SceneViewerState()
 		: eye(-1.856f,1.8f,2.097f, 2.404f,0,-0.3f, 1.3f, 90, 0.1f,1000)
 	{
+		envSimulateSky = false;
+		envSimulateSun = false;
+		envLongitude = 14+26/60.f; // Prague
+		envLatitude = 50+5/60.f;
+		time_t now = time(NULL);
+		envDateTime = *localtime(&now);
+
 		staticLayerNumber = 192837464; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
 		realtimeLayerNumber = 192837465;
 		ldmLayerNumber = 192837466;
@@ -142,15 +157,28 @@ struct SceneViewerState
 		autodetectCamera = 1;
 		precision = -1; // display all significant digits
 	}
+	//! Used to check whether important state was modified, less important state is commented out. 
 	bool operator ==(const SceneViewerState& a) const
 	{
 		return 1
 			&& a.eye==eye
+
+			&& a.envSimulateSky==envSimulateSky
+			&& a.envSimulateSun==envSimulateSun
+			&& a.envLongitude==envLongitude
+			&& a.envLatitude==envLatitude
+			&& a.envDateTime.tm_year==envDateTime.tm_year
+			&& a.envDateTime.tm_mon==envDateTime.tm_mon
+			&& a.envDateTime.tm_mday==envDateTime.tm_mday
+			&& a.envDateTime.tm_hour==envDateTime.tm_hour
+			&& a.envDateTime.tm_min==envDateTime.tm_min
+			&& a.envDateTime.tm_sec==envDateTime.tm_sec
+
 			&& a.staticLayerNumber==staticLayerNumber
 			&& a.realtimeLayerNumber==realtimeLayerNumber
 			&& a.ldmLayerNumber==ldmLayerNumber
-			&& a.selectedLightIndex==selectedLightIndex
-			&& a.selectedObjectIndex==selectedObjectIndex
+			//&& a.selectedLightIndex==selectedLightIndex // differs after click to scene tree
+			//&& a.selectedObjectIndex==selectedObjectIndex
 			&& a.fullscreen==fullscreen
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect

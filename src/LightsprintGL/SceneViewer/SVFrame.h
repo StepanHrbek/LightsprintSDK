@@ -47,6 +47,9 @@ namespace rr_gl
 		//! Shortcut for subwindows so that they don't have to include SVSceneTree+SVCanvas.
 		void updateSceneTree();
 
+		//! Updates sun (first dirlight) direction, called when user changes time or location.
+		void simulateSun();
+
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
 

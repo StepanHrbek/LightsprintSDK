@@ -20,7 +20,7 @@ namespace rr_gl
 	{
 	public:
 		SVProperties(SVFrame* _svframe)
-		: wxPropertyGrid(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER), svs(_svframe->svs)
+		: wxPropertyGrid(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER|wxPG_TOOLTIPS), svs(_svframe->svs)
 		{
 			svframe = _svframe;
 			SetMarginColour(wxColour(220,220,220));
@@ -29,7 +29,7 @@ namespace rr_gl
 
 	protected:
 		SVFrame* svframe; // we must remember our main frame, reading it from parent is not reliable, wxAUI may reparent us
-		SceneViewerState& svs; // shortcut for svframe->svs
+		SceneViewerStateEx& svs; // shortcut for svframe->svs
 	};
 
 }; // namespace

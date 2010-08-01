@@ -39,9 +39,9 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			// object
 			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,object->name.c_str()));
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
-			Append(tmp = new RRVec3Property(wxT("World center"),wxPG_LABEL,_precision,worldMatrix.transformedPosition(localCenter)));
+			Append(tmp = new RRVec3Property(wxT("World center"),"Center of object in world space",_precision,worldMatrix.transformedPosition(localCenter)));
 			EnableProperty(tmp,false);
-			Append(propWTranslation = new RRVec3Property(wxT("World translation"),wxPG_LABEL,_precision,worldMatrix.getTranslation()));
+			Append(propWTranslation = new RRVec3Property(wxT("World translation"),"Translation of object in world space",_precision,worldMatrix.getTranslation()));
 
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
@@ -58,10 +58,10 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				AppendIn(tmp, new wxBoolProperty(wxT("tangents"),wxPG_LABEL,arrays->tangent?true:false));
 				AppendIn(tmp, new wxIntProperty(wxT("version"),wxPG_LABEL,arrays->version));
 			}
-			AppendIn(tmp, new RRVec3Property(wxT("Local size"),wxPG_LABEL,_precision,maxi-mini));
-			AppendIn(tmp, new RRVec3Property(wxT("Local min"),wxPG_LABEL,_precision,mini));
-			AppendIn(tmp, new RRVec3Property(wxT("Local max"),wxPG_LABEL,_precision,maxi));
-			AppendIn(tmp, new RRVec3Property(wxT("Local center"),wxPG_LABEL,_precision,localCenter));
+			AppendIn(tmp, new RRVec3Property(wxT("Local size"),"Mesh size in object space",_precision,maxi-mini));
+			AppendIn(tmp, new RRVec3Property(wxT("Local min"),"Mesh AABB min in object space",_precision,mini));
+			AppendIn(tmp, new RRVec3Property(wxT("Local max"),"Mesh AABB max in object space",_precision,maxi));
+			AppendIn(tmp, new RRVec3Property(wxT("Local center"),"Mesh center in object space",_precision,localCenter));
 			EnableProperty(tmp,false);
 			SetPropertyBackgroundColour(tmp,headerColor,false);
 		}

@@ -45,7 +45,9 @@ namespace rr_gl
 		wxPGProperty*     propType;
 		wxPGProperty*     propPosition;
 		wxPGProperty*     propDirection;
-		wxPGProperty*     propOuterAngleRad;
+		wxPGProperty*     propAltitude;
+		wxPGProperty*     propAzimuth;
+		wxPGProperty*     propOuterAngle;
 		wxPGProperty*     propRadius;
 		wxPGProperty*     propColor;
 		ImageFileProperty*propTexture;
@@ -56,7 +58,7 @@ namespace rr_gl
 		wxPGProperty*     propQuadratic;
 		wxPGProperty*     propClamp;
 		wxPGProperty*     propFallOffExponent;
-		wxPGProperty*     propFallOffAngleRad;
+		wxPGProperty*     propFallOffAngle;
 		wxPGProperty*     propCastShadows;
 		wxPGProperty*     propSpotExponent;
 		wxPGProperty*     propShadowmapRes;

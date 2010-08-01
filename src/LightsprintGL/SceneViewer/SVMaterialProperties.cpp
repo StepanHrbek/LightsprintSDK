@@ -30,10 +30,8 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	showPhysical = false;
 	shown = true;
 
-	Append(propPoint = new wxBoolProperty(wxT("Pixel details"), wxPG_LABEL, showPoint));
-	SetPropertyEditor(propPoint,wxPGEditor_CheckBox);
-	Append(propPhysical = new wxBoolProperty(wxT("In physical scale"), wxPG_LABEL, showPhysical));
-	SetPropertyEditor(propPhysical,wxPGEditor_CheckBox);
+	Append(propPoint = new BoolRefProperty(wxT("Pixel details"),"Clicking scene shows material properties of pixel rather than face.",showPoint));
+	Append(propPhysical = new BoolRefProperty(wxT("In physical scale"),"Displays values in linear physical scale, rather than in sRGB.",showPhysical));
 
 	Append(propName = new wxStringProperty(wxT("Name")));
 
@@ -43,35 +41,37 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	SetPropertyEditor(propBack,wxPGEditor_CheckBox);
 
 	Append(propDiffuse = new wxStringProperty(wxT("Diffuse")));
-	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
+	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
 	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
-	AppendIn(propDiffuse,new ImageFileProperty(wxT("texture")));
+	AppendIn(propDiffuse,new ImageFileProperty(wxT("texture"),"Diffuse texture"));
 	SetPropertyBackgroundColour(propDiffuse,headerColor,false);
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(wxT("Specular")));
-	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
+	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
-	AppendIn(propSpecular,new ImageFileProperty(wxT("texture")));
+	AppendIn(propSpecular,new ImageFileProperty(wxT("texture"),"Specular texture"));
 	SetPropertyBackgroundColour(propSpecular,headerColor,false);
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(wxT("Emissive")));
-	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
+	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
 	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
-	AppendIn(propEmissive,new ImageFileProperty(wxT("texture")));
+	AppendIn(propEmissive,new ImageFileProperty(wxT("texture"),"Emissive texture"));
 	SetPropertyBackgroundColour(propEmissive,headerColor,false);
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(wxT("Transparent")));
-	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),wxPG_LABEL,svs.precision));
+	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
-	AppendIn(propTransparent,new ImageFileProperty(wxT("texture")));
+	AppendIn(propTransparent,new ImageFileProperty(wxT("texture"),"Opacity texture."));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
+	propTransparency1bit->SetHelpString("Makes opacity either 0%% or 100%%.");
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
-	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",1,svs.precision,0,2,0.1f,false));
+	propTransparencyInAlpha->SetHelpString("Reads opacity from alpha rather than from rgb.");
+	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index","Index of refraction when light hits surface from front side.",1,svs.precision,0,2,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,headerColor,false);
 	Collapse(propTransparent);
 
@@ -214,15 +214,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	wxPGProperty *property = event.GetProperty();
 
 	// propagate change from wx to material
-	if (property==propPoint)
+	if (property==propPoint || property==propPhysical)
 	{
-		showPoint = property->GetValue().GetBool();
-		setMaterial(lastSolver,lastTriangle,lastPoint2d); // load different material
-	}
-	else
-	if (property==propPhysical)
-	{
-		showPhysical = property->GetValue().GetBool();
 		setMaterial(lastSolver,lastTriangle,lastPoint2d); // load different material
 	}
 	if (!material)

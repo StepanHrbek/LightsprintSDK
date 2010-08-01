@@ -450,16 +450,6 @@ void SVFrame::UpdateMenuBar()
 		menuBar->Append(winMenu, _T("File"));
 	}
 
-	// Environment...
-	{
-		winMenu = new wxMenu;
-		winMenu->Append(ME_ENV_OPEN,_T("Load skybox..."),_T("Supported formats: cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images."));
-		winMenu->Append(ME_ENV_WHITE,_T("Set white"),_T("Sets uniform white environment."));
-		winMenu->Append(ME_ENV_BLACK,_T("Set black"),_T("Sets uniform black environment."));
-		winMenu->Append(ME_ENV_WHITE_TOP,_T("Set white top"),_T("Sets uniform white environment in upper hemisphere, black in lower hemisphere."));
-		menuBar->Append(winMenu, _T("Environment"));
-	}
-
 	// Lights...
 	{
 		winMenu = new wxMenu;
@@ -932,6 +922,8 @@ reload_skybox:
 				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 				newList.push_back(newLight);
 				solver->setLights(newList); // RealtimeLight in light props is deleted here
+				if (event.GetId()==ME_LIGHT_DIR)
+					simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
 
 				// select newly added light (it's probably better to not select it)
 				//m_canvas->selectedType = ST_LIGHT;
@@ -1480,6 +1472,39 @@ void SVFrame::updateSceneTree()
 	m_sceneTree->updateContent(m_canvas->solver);
 	// this restores our cursor
 	m_sceneTree->selectItem(getSelectedEntity());
+}
+
+void SVFrame::simulateSun()
+{
+	if (svs.envSimulateSun && m_canvas->solver)
+	{
+		const rr::RRLights& lights = m_canvas->solver->getLights();
+		for (unsigned i=0;i<lights.size();i++)
+		{
+			if (lights[i] && lights[i]->type==rr::RRLight::DIRECTIONAL)
+			{
+				double longitudeDeg = svs.envLongitude;
+				double latitudeRad = RR_DEG2RAD(svs.envLatitude);
+				double hour = svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.;
+				unsigned daysBeforeMonth[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
+				unsigned dayInYear = daysBeforeMonth[svs.envDateTime.tm_mon]+svs.envDateTime.tm_mday-1; // svs.envDateTime.tm_yday is not set, calculate it here
+				double g = (M_PI*2/365.25)*(dayInYear + hour/24); // fractional year, rad
+				double D = RR_DEG2RAD(0.396372-22.91327*cos(g)+4.02543*sin(g)-0.387205*cos(2*g)+0.051967*sin(2*g)-0.154527*cos(3*g) + 0.084798*sin(3*g)); // sun declination, rad
+				double TC = 0.004297+0.107029*cos(g)-1.837877*sin(g)-0.837378*cos(2*g)-2.340475*sin(2*g); // time correction for solar angle, deg
+				double SHA = RR_DEG2RAD((hour-12)*15 + longitudeDeg + TC); // solar hour angle, rad
+				double cosSZA = sin(latitudeRad)*sin(D)+cos(latitudeRad)*cos(D)*cos(SHA); // sun zenith angle, cos
+				RR_CLAMP(cosSZA,-1,1);
+				double SZA = acos(cosSZA); // sun zenith angle, rad
+				double cosAZ = -(sin(D)-sin(latitudeRad)*cosSZA)/(cos(latitudeRad)*sin(SZA)); // azimuth angle, cos
+				RR_CLAMP(cosAZ,-1,1);
+				double AZ = acos(cosAZ); // azimuth angle, rad
+				if (SHA>0) AZ = -AZ;
+				lights[i]->direction = rr::RRVec3((rr::RRReal)(sin(AZ)*sin(SZA)),(rr::RRReal)(-cosSZA),(rr::RRReal)(cosAZ*sin(SZA))); // north = Z+, east = X+, up = Y+
+				m_canvas->solver->realtimeLights[i]->updateAfterRRLightChanges();
+				break;
+			}
+		}
+	}
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)

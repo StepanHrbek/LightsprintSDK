@@ -9,6 +9,11 @@
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 
+// for direction presented as altitude+azimuth
+#define ANGLEX2ALT(angleX) RR_RAD2DEG(-angleX)
+#define ANGLE2AZI(angle) fmod(fmod(180-RR_RAD2DEG(angle),360)+360,360)
+#define ALT2ANGLEX(alt) RR_DEG2RAD(-alt)
+#define AZI2ANGLE(azi) RR_DEG2RAD(180-azi)
 
 namespace rr_gl
 {
@@ -44,29 +49,35 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
 
-			propPosition = new RRVec3Property(wxT("Position"),wxPG_LABEL,_precision,light->position,1);
+			propPosition = new RRVec3Property(wxT("Position (m)"),"Light source position in world space",_precision,light->position,1);
 			AppendIn(propType,propPosition);
 
-			propDirection = new RRVec3Property(wxT("Direction"),wxPG_LABEL,_precision,light->direction,0.1f);
+			propDirection = new RRVec3Property(wxT("Direction"),"Major light direction in world space, normalized",_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propOuterAngleRad = new FloatProperty("Outer angle (rad)",light->outerAngleRad,_precision,0,3.14f,0.1f,false);
-			AppendIn(propType,propOuterAngleRad);
+			propAltitude = new FloatProperty("Elevation (deg)","Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon.",ANGLEX2ALT(rtlight->getParent()->angleX),_precision,-90,90,10,false);
+			AppendIn(propType,propAltitude);
 
-			propFallOffAngleRad = new FloatProperty("Fall off angle (rad)",light->fallOffAngleRad,_precision,0,3.14f,0.1f,false);
-			AppendIn(propType,propFallOffAngleRad);
+			propAzimuth = new FloatProperty("Azimuth (deg)","Solar azimuth angle, 90 for east, 180 for south, 270 for west.",ANGLE2AZI(rtlight->getParent()->angle),_precision,0,360,10,true);
+			AppendIn(propType,propAzimuth);
 
-			propSpotExponent = new FloatProperty("Spot exponent",light->spotExponent,_precision,0,1000,0.1f,false);
+			propOuterAngle = new FloatProperty("Outer angle (deg)","Outer cone angle, angle between major direction and border direction.",RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
+			AppendIn(propType,propOuterAngle);
+
+			propFallOffAngle = new FloatProperty("Fall off angle (deg)","Outer angle minus inner angle, part of outer angle where intensity falls off.",RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
+			AppendIn(propType,propFallOffAngle);
+
+			propSpotExponent = new FloatProperty("Spot exponent","Controls attenuation curve inside fall off angle.",light->spotExponent,_precision,0,1000,0.1f,false);
 			AppendIn(propType,propSpotExponent);
 		}
 
 		// color
 		{
-			propColor = new HDRColorProperty(wxT("Color"),wxPG_LABEL,_precision,light->color);
+			propColor = new HDRColorProperty(wxT("Color"),"Light color and intensity.",_precision,light->color);
 			Append(propColor);
 		}
 		{
-			propTexture = new ImageFileProperty(wxT("Projected texture"));
+			propTexture = new ImageFileProperty(wxT("Projected texture"),"Texture projected by light. Both color and texture are applied.");
 			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
 			propTexture->updateIcon(light->rtProjectedTexture);
 			Append(propTexture);
@@ -84,22 +95,22 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propDistanceAttType = new wxEnumProperty(wxT("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
 			Append(propDistanceAttType);
 
-			propConstant = new FloatProperty("Constant",light->polynom[0],_precision,0,1e10f,0.1f,false);
+			propConstant = new FloatProperty("Constant","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[0],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propConstant);
 
-			propLinear = new FloatProperty("Linear",light->polynom[1],_precision,0,1e10f,0.1f,false);
+			propLinear = new FloatProperty("Linear","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[1],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propLinear);
 
-			propQuadratic = new FloatProperty("Quadratic",light->polynom[2],_precision,0,1e10f,0.1f,false);
+			propQuadratic = new FloatProperty("Quadratic","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[2],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propQuadratic);
 
-			propClamp = new FloatProperty("Clamp",light->polynom[3],_precision,0,1,0.01f,false);
+			propClamp = new FloatProperty("Clamp","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[3],_precision,0,1,0.01f,false);
 			AppendIn(propDistanceAttType,propClamp);
 
-			propRadius = new FloatProperty("Radius",light->radius,_precision,0,1e10f,1,false);
+			propRadius = new FloatProperty("Radius (m)","One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)",light->radius,_precision,0,1e10f,1,false);
 			AppendIn(propDistanceAttType,propRadius);
 
-			propFallOffExponent = new FloatProperty("Exponent",light->fallOffExponent,_precision,0,100,0.1f,false);
+			propFallOffExponent = new FloatProperty("Exponent","One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)",light->fallOffExponent,_precision,0,100,0.1f,false);
 			AppendIn(propDistanceAttType,propFallOffExponent);
 		}
 
@@ -115,13 +126,13 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowSamples = new wxIntProperty(wxT("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
-			propNear = new FloatProperty("Near",rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
+			propNear = new FloatProperty("Near (m)","Near plane distance for generating shadowmaps. Greater value reduces shadow bias.",rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
-			propFar = new FloatProperty("Far",rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
+			propFar = new FloatProperty("Far (m)","Far plane distance for generating shadowmaps.",rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
 
-			propOrthoSize = new wxIntProperty(wxT("Max shadow size"),wxPG_LABEL,light->rtMaxShadowSize);
+			propOrthoSize = new wxIntProperty(wxT("Max shadow size (m)"),wxPG_LABEL,light->rtMaxShadowSize);
 			AppendIn(propCastShadows,propOrthoSize);
 		}
 
@@ -135,7 +146,9 @@ void SVLightProperties::updateHide()
 	rr::RRLight* light = &rtlight->getRRLight();
 	propPosition->Hide(light->type==rr::RRLight::DIRECTIONAL,false);
 	propDirection->Hide(light->type==rr::RRLight::POINT,false);
-	propOuterAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
+	propAltitude->Hide(light->type!=rr::RRLight::DIRECTIONAL,false);
+	propAzimuth->Hide(light->type!=rr::RRLight::DIRECTIONAL,false);
+	propOuterAngle->Hide(light->type!=rr::RRLight::SPOT,false);
 	propRadius->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
 	propTexture->Hide(light->type!=rr::RRLight::SPOT,false);
 	propTextureChangeAffectsGI->Hide(!light->rtProjectedTexture,false);
@@ -145,7 +158,7 @@ void SVLightProperties::updateHide()
 	propQuadratic->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propClamp->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propFallOffExponent->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
-	propFallOffAngleRad->Hide(light->type!=rr::RRLight::SPOT,false);
+	propFallOffAngle->Hide(light->type!=rr::RRLight::SPOT,false);
 	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propShadowSamples->Hide(!light->castShadows,false);
@@ -162,7 +175,9 @@ void SVLightProperties::updatePosDir()
 			updateFloat(propNear,rtlight->getParent()->getNear()) +
 			updateFloat(propFar,rtlight->getParent()->getFar()) +
 			updateProperty(propPosition,rtlight->getParent()->pos) +
-			updateProperty(propDirection,rtlight->getParent()->dir)
+			updateProperty(propDirection,rtlight->getParent()->dir) +
+			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->angleX)) +
+			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->angle))
 			;
 		if (numChanges)
 		{
@@ -217,9 +232,18 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		light->direction << property->GetValue();
 	}
 	else
-	if (property==propOuterAngleRad)
+	if (property==propAltitude || property==propAzimuth)
 	{
-		light->outerAngleRad = property->GetValue().GetDouble();
+		float angleX = ALT2ANGLEX(propAltitude->GetValue().GetDouble());
+		float angle = AZI2ANGLE(propAzimuth->GetValue().GetDouble());
+		light->direction[0] = sin(angle)*cos(angleX);
+		light->direction[1] = sin(angleX);
+		light->direction[2] = cos(angle)*cos(angleX);
+	}
+	else
+	if (property==propOuterAngle)
+	{
+		light->outerAngleRad = RR_DEG2RAD(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propRadius)
@@ -274,9 +298,9 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		light->fallOffExponent = property->GetValue().GetDouble();
 	}
 	else
-	if (property==propFallOffAngleRad)
+	if (property==propFallOffAngle)
 	{
-		light->fallOffAngleRad = property->GetValue().GetDouble();
+		light->fallOffAngleRad = RR_DEG2RAD(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCastShadows)

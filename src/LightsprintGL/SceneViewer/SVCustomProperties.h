@@ -21,7 +21,7 @@
 class FloatProperty : public wxFloatProperty
 {
 public:
-	FloatProperty(const wxString& label, float value, int precision, float mini, float maxi, float step, bool wrap);
+	FloatProperty(const wxString& label, const wxString& help, float value, int precision, float mini, float maxi, float step, bool wrap);
 };
 
 
@@ -61,8 +61,8 @@ class RRVec3Property : public wxPGProperty
 {
 	WX_PG_DECLARE_PROPERTY_CLASS(RRVec3Property)
 public:
-	RRVec3Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0), float step = 1.f );
-	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
+	RRVec3Property(const wxString& label = wxPG_LABEL,const wxString& help = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0), float step = 1.f);
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
 	virtual void RefreshChildren();
 };
 
@@ -75,9 +75,9 @@ class HDRColorProperty : public wxPGProperty
 {
 	WX_PG_DECLARE_PROPERTY_CLASS(HDRColorProperty)
 public:
-	HDRColorProperty( const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1) );
+	HDRColorProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1));
 	virtual ~HDRColorProperty();
-	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
 	virtual void RefreshChildren();
 private:
 	wxImage image;
@@ -92,7 +92,7 @@ private:
 class BoolRefProperty : public wxBoolProperty
 {
 public:
-	BoolRefProperty( const wxString& label, bool& value, const wxString& help = wxEmptyString)
+	BoolRefProperty(const wxString& label, const wxString& help, bool& value)
 		: wxBoolProperty(label, wxPG_LABEL, value), ref(value)
 	{
 		SetValue(wxPGVariant_Bool(value));
@@ -117,7 +117,7 @@ public:
 class ImageFileProperty : public wxFileProperty
 {
 public:
-	ImageFileProperty( const wxString& label );
+	ImageFileProperty(const wxString& label, const wxString& help);
 	virtual ~ImageFileProperty();
 	void updateIcon(rr::RRBuffer* buffer);
 	void updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVideos);
@@ -127,6 +127,24 @@ private:
 };
 
 wxString getTextureDescription(rr::RRBuffer* buffer);
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// LocationProperty
+
+class LocationProperty : public wxPGProperty
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(LocationProperty)
+public:
+	LocationProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, int precision = -1, const RRVec2& latitudeLongitude = RRVec2(0));
+	~LocationProperty();
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
+	virtual void RefreshChildren();
+private:
+	const wxChar** cityStrings;
+	long* cityValues;
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -179,6 +197,16 @@ inline unsigned updateFloat(wxPGProperty* prop,float value)
 inline unsigned updateString(wxPGProperty* prop,wxString value)
 {
 	if (value!=prop->GetValue().GetString())
+	{
+		prop->SetValue(wxVariant(value));
+		return 1;
+	}
+	return 0;
+}
+
+inline unsigned updateDate(wxPGProperty* prop,wxDateTime value)
+{
+	if (value!=prop->GetValue().GetDateTime())
 	{
 		prop->SetValue(wxVariant(value));
 		return 1;
