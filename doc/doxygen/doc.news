@@ -14,16 +14,18 @@ NEWS
 
 - enhanced camera
   - in scene viewer
-    - Scene properties / Camera / View, can be set to Top, Bottom, Front, Back, Left, Right, Random
+    - Scene properties / Camera / View, can be set to Top, Bottom, Front, Back, Left, Right, Custom
     - Scene properties / Camera / Orthogonal
     - Scene properties / Camera / Center of screen
     - when working with ortho camera, mouse wheel changes ortho size
     - removed Camera menu, functionality moved to Scene properties / Camera / View
+    - l/r/f/b/t hotkeys change camera view (left, right, front, back, top)
   - in rr_gl::Camera
-    - rr_gl::Camera::screenCenter added
-    - rr_gl::Camera::getPositionInWindow() added
-    - rr_gl::Camera::getRayOrigin() added
-    - rr_gl::Camera::getDirection() renamed to rr_gl::Camera::getRayDirection()
+    - rr_gl::Camera::setView()
+    - rr_gl::Camera::getView()
+    - rr_gl::Camera::screenCenter
+    - rr_gl::Camera::getPositionInWindow()
+    - rr_gl::Camera::getRayOrigin()
 - environment simulation in scene viewer
   - Sun can be automatically positioned according to geolocation and datetime, see Scene properties / Environment
   - Sun can be manually positioned also by azimuth and elevation angles, see Light properties
@@ -34,6 +36,12 @@ NEWS
 - lens flare effect
   - rr_gl::LensFlare
   - in scene viewer: Scene properties / Render extras / Lens Flare
+
+CHANGES
+
+- minor cleanup in rr_gl::Camera
+  - rr_gl::Camera::getDirection() renamed to rr_gl::Camera::getRayDirection()
+  - rr_gl::Camera::setPosDirRangeRandomly() removed, use rr_gl::Camera::setView(RANDOM)
 
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 
