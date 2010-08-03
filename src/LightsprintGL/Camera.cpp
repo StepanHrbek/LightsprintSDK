@@ -221,9 +221,9 @@ void Camera::update(const Camera* observer, float maxShadowArea)
 	// update dir
 	if (updateDirFromAngles)
 	{
-		dir[0] = sin(angle)*cos(angleX);
+		dir[0] = cos(angleX)*sin(angle);
 		dir[1] = sin(angleX);
-		dir[2] = cos(angle)*cos(angleX);
+		dir[2] = cos(angleX)*cos(angle);
 	}
 
 	// - leaning
@@ -387,7 +387,9 @@ void Camera::lean(float units)
 void Camera::mirror(float altitude)
 {
 	pos[1] = 2*altitude-pos[1];
-	angleX = -angleX;
+	angleX = angleX*-1;
+	screenCenter.y = -screenCenter.y;
+	leanAngle = -leanAngle;
 	// it is not completely mirrored, up stays {0,1,0} in update()
 }
 
