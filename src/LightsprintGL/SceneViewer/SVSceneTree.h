@@ -17,6 +17,7 @@
 namespace rr_gl
 {
 
+
 	class SVSceneTree : public wxTreeCtrl
 	{
 	public:
@@ -35,6 +36,7 @@ namespace rr_gl
 		//! Forwards all unused keys to canvas.
 		void OnKeyDown(wxTreeEvent& event);
 		void OnKeyUp(wxKeyEvent& event);
+
 
 	private:
 		wxTreeItemId entityIdToItemId(EntityId entity) const;

@@ -1376,31 +1376,39 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 	}
 }
 
+// Ensures that index is in 0..size-1 range.
+// If it can't be satisfied, sets it to 0 and returns false.
+static bool validateIndex(unsigned& index, unsigned size)
+{
+	if (index>=size)
+	{
+		if (size)
+			index = size-1;
+		else
+		{
+			index = 0;
+			return false;
+		}
+	}
+	return true;
+}
+
+// Ensure that all svs.selectedXxxIndex are in range. Update all panels. (ok, not all)
 void SVFrame::updateSelection()
 {
-	// update svs
-	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
-	{
-		svs.selectedLightIndex = m_canvas->solver->getLights().size();
-		if (svs.selectedLightIndex)
-			svs.selectedLightIndex--;
-		else
-		if (m_canvas->selectedType==ST_LIGHT)
-			m_canvas->selectedType = ST_CAMERA;
-	}
-
-	// update light props
-	if (svs.selectedLightIndex>=m_canvas->solver->getLights().size())
+	// update selected light
+	if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
 	{
 		m_lightProperties->setLight(NULL,svs.precision);
+		m_canvas->selectedType = ST_CAMERA;
 	}
 	else
 	{
 		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex],svs.precision);
 	}
 
-	// update object props
-	if (svs.selectedObjectIndex>=m_canvas->solver->getStaticObjects().size())
+	// update selected object
+	if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()))
 	{
 		m_objectProperties->setObject(NULL,svs.precision);
 	}
