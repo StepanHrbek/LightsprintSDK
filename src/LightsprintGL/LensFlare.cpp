@@ -71,9 +71,9 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 	{
 		for (unsigned i=0;i<_lights.size();i++)
 		{
-			// is it sun?
+			// is it sun above horizon?
 			rr::RRLight* light = _lights[i];
-			if (light && light->type==rr::RRLight::DIRECTIONAL)
+			if (light && light->type==rr::RRLight::DIRECTIONAL && light->direction.y<=0)
 			{
 				// is it on screen?
 				rr::RRVec2 lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-light->direction*1e10f);
