@@ -48,8 +48,8 @@ struct SceneViewerState
 
 	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
 	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?
-	float            envLongitude;              //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
-	float            envLatitude;               //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
+	float            envLongitudeDeg;           //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
+	float            envLatitudeDeg;            //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
 	tm               envDateTime;               //! Date and time for sky/sun simulation.
 
 	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
@@ -105,8 +105,8 @@ struct SceneViewerState
 	{
 		envSimulateSky = false;
 		envSimulateSun = false;
-		envLongitude = 14+26/60.f; // Prague
-		envLatitude = 50+5/60.f;
+		envLongitudeDeg = 14+26/60.f; // Prague
+		envLatitudeDeg = 50+5/60.f;
 		time_t now = time(NULL);
 		envDateTime = *localtime(&now);
 
@@ -165,8 +165,8 @@ struct SceneViewerState
 
 			&& a.envSimulateSky==envSimulateSky
 			&& a.envSimulateSun==envSimulateSun
-			&& a.envLongitude==envLongitude
-			&& a.envLatitude==envLatitude
+			&& a.envLongitudeDeg==envLongitudeDeg
+			&& a.envLatitudeDeg==envLatitudeDeg
 			&& a.envDateTime.tm_year==envDateTime.tm_year
 			&& a.envDateTime.tm_mon==envDateTime.tm_mon
 			&& a.envDateTime.tm_mday==envDateTime.tm_mday

@@ -231,8 +231,8 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 
 	ar & make_nvp("envSimulateSky",a.envSimulateSky);
 	ar & make_nvp("envSimulateSun",a.envSimulateSun);
-	ar & make_nvp("envLongitude",a.envLongitude);
-	ar & make_nvp("envLatitude",a.envLatitude);
+	ar & make_nvp("envLongitude",a.envLongitudeDeg);
+	ar & make_nvp("envLatitude",a.envLatitudeDeg);
 	ar & make_nvp("envDateTime",a.envDateTime);
 
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
@@ -296,8 +296,8 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	{
 		ar & make_nvp("envSimulateSky",a.envSimulateSky);
 		ar & make_nvp("envSimulateSun",a.envSimulateSun);
-		ar & make_nvp("envLongitude",a.envLongitude);
-		ar & make_nvp("envLatitude",a.envLatitude);
+		ar & make_nvp("envLongitude",a.envLongitudeDeg);
+		ar & make_nvp("envLatitude",a.envLatitudeDeg);
 		ar & make_nvp("envDateTime",a.envDateTime);
 	}
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);

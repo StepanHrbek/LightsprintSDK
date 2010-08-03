@@ -82,7 +82,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
-		propEnvLocation = new LocationProperty(wxT("Location"),"Geolocation used for Sun and sky simulation.",svs.precision,rr::RRVec2(svs.envLatitude,svs.envLongitude));
+		propEnvLocation = new LocationProperty(wxT("Location"),"Geolocation used for Sun and sky simulation.",svs.precision,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg));
 		AppendIn(propEnv,propEnvLocation);
 
 		propEnvDate = new wxDateProperty(wxT("Date"),wxPG_LABEL,wxDateTime(svs.envDateTime));
@@ -284,7 +284,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?svframe->m_canvas->solver->getEnvironment()->filename.c_str():"(no texture)")
-		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitude,svs.envLongitude))
+		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
 		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
@@ -411,8 +411,8 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		rr::RRVec2 latitudeLongitude;
 		latitudeLongitude << property->GetValue();
-		svs.envLatitude = latitudeLongitude[0];
-		svs.envLongitude = latitudeLongitude[1];
+		svs.envLatitudeDeg = latitudeLongitude[0];
+		svs.envLongitudeDeg = latitudeLongitude[1];
 		svframe->simulateSun();
 	}
 	else
