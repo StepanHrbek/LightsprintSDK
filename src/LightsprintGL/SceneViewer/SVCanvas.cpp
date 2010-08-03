@@ -499,6 +499,12 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_DELETE));
 			break;
 
+		case 'L': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_VIEW_LEFT)); break;
+		case 'R': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_VIEW_RIGHT)); break;
+		case 'F': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_VIEW_FRONT)); break;
+		case 'B': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_VIEW_BACK)); break;
+		case 'T': parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_VIEW_TOP)); break;
+
 
 		case 27:
 			if (svs.renderLightmaps2d)

@@ -392,7 +392,7 @@ int main(int argc, char **argv)
 
 	// auto-set camera, speed
 	//srand((unsigned)time(NULL));
-	eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
+	eye.setView(rr_gl::Camera::RANDOM,solver->getMultiObjectCustom());
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
 	// init dynamic objects

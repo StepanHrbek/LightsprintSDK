@@ -587,11 +587,6 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 	int* windowCoord = m_canvas->windowCoord;
 	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
 
-	// for ME_VIEW_XXX
-	rr::RRVec3 mini(-1),maxi(1),center(0);
-	if (solver && solver->getMultiObjectCustom())
-		solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-
 	switch (event.GetId())
 	{
 
@@ -814,59 +809,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_RANDOM:
-			svs.eye.orthogonal = false;
-			svs.eye.setPosDirRangeRandomly(solver->getMultiObjectCustom());
-			svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f;
-			break;
-		case ME_VIEW_TOP:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
-			svs.eye.pos = rr::RRVec3((mini[0]+maxi[0])/2,maxi[1]+svs.eye.orthoSize,(mini[2]+maxi[2])/2);
-			svs.eye.angle = (float)(M_PI);
-			svs.eye.angleX = (float)(-M_PI/2);
-			svs.eye.leanAngle = 0;
-			break;
-		case ME_VIEW_BOTTOM:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
-			svs.eye.pos = rr::RRVec3((mini[0]+maxi[0])/2,mini[1]-svs.eye.orthoSize,(mini[2]+maxi[2])/2);
-			svs.eye.angle = (float)(M_PI);
-			svs.eye.angleX = (float)(M_PI/2);
-			svs.eye.leanAngle = 0;
-			break;
-		case ME_VIEW_LEFT:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
-			svs.eye.pos = rr::RRVec3(mini[0]-svs.eye.orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
-			svs.eye.angle = (float)(M_PI/2);
-			svs.eye.angleX = 0;
-			svs.eye.leanAngle = 0;
-			break;
-		case ME_VIEW_RIGHT:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
-			svs.eye.pos = rr::RRVec3(maxi[0]+svs.eye.orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
-			svs.eye.angle = (float)(-M_PI/2);
-			svs.eye.angleX = 0;
-			svs.eye.leanAngle = 0;
-			break;
-		case ME_VIEW_FRONT:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
-			svs.eye.pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+svs.eye.orthoSize);
-			svs.eye.angle = (float)(M_PI);
-			svs.eye.angleX = 0;
-			svs.eye.leanAngle = 0;
-			break;
-		case ME_VIEW_BACK:
-			svs.eye.orthogonal = true;
-			svs.eye.orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
-			svs.eye.pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-svs.eye.orthoSize);
-			svs.eye.angle = 0;
-			svs.eye.angleX = 0;
-			svs.eye.leanAngle = 0;
-			break;
+		case ME_VIEW_TOP:    svs.eye.setView(Camera::TOP   ,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_BOTTOM: svs.eye.setView(Camera::BOTTOM,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_LEFT:   svs.eye.setView(Camera::LEFT  ,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_RIGHT:  svs.eye.setView(Camera::RIGHT ,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_FRONT:  svs.eye.setView(Camera::FRONT ,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_BACK:   svs.eye.setView(Camera::BACK  ,solver->getMultiObjectCustom()); break;
+		case ME_VIEW_RANDOM: svs.eye.setView(Camera::RANDOM,solver->getMultiObjectCustom()); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////

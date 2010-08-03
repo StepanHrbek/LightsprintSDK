@@ -13,6 +13,20 @@
 namespace rr_gl
 {
 
+int view2ME_VIEW(Camera::View view)
+{
+	switch (view)
+	{
+		case Camera::TOP: return SVFrame::ME_VIEW_TOP;
+		case Camera::BOTTOM: return SVFrame::ME_VIEW_BOTTOM;
+		case Camera::FRONT: return SVFrame::ME_VIEW_FRONT;
+		case Camera::BACK: return SVFrame::ME_VIEW_BACK;
+		case Camera::LEFT: return SVFrame::ME_VIEW_LEFT;
+		case Camera::RIGHT: return SVFrame::ME_VIEW_RIGHT;
+	};
+	return SVFrame::ME_VIEW_RANDOM;
+}
+
 SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
@@ -28,9 +42,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraSpeed = new FloatProperty("Speed (m/s)","Controls how quickly camera moves when controlled by arrows/wsad.",svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
 
-		const wxChar* viewStrings[] = {wxT("Random (perspective)"),wxT("Top"),wxT("Bottom"),wxT("Front"),wxT("Back"),wxT("Left"),wxT("Right"),NULL};
+		const wxChar* viewStrings[] = {wxT("Custom"),wxT("Top"),wxT("Bottom"),wxT("Front"),wxT("Back"),wxT("Left"),wxT("Right"),NULL};
 		const long viewValues[] = {SVFrame::ME_VIEW_RANDOM,SVFrame::ME_VIEW_TOP,SVFrame::ME_VIEW_BOTTOM,SVFrame::ME_VIEW_FRONT,SVFrame::ME_VIEW_BACK,SVFrame::ME_VIEW_LEFT,SVFrame::ME_VIEW_RIGHT};
-		propCameraView = new wxEnumProperty(wxT("View"), wxPG_LABEL, viewStrings, viewValues, SVFrame::ME_VIEW_RANDOM);
+		propCameraView = new wxEnumProperty(wxT("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
 
 		propCameraPosition = new RRVec3Property(wxT("Position (m)"),"Camera position in world space",svs.precision,svs.eye.pos,1);
@@ -276,6 +290,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
 		+ updateProperty(propCameraAngles,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)))
+		+ updateInt(propCameraView,view2ME_VIEW(svs.eye.getView()))
 		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())

@@ -123,8 +123,6 @@ public:
 	void  setNear(float _near);
 	void  setFar(float _far);
 	void  setRange(float _near, float _far);
-	//! Sets pos and dir randomly, and near-far range based on scene size. Uses raycasting (~1000 rays).
-	void  setPosDirRangeRandomly(const rr::RRObject* scene);
 	//! Sets near and far to cover scene visible by camera, but not much more.
 	//
 	//! Uses raycasting (~100 rays), performance hit is acceptable even if called once per frame.
@@ -178,6 +176,20 @@ public:
 	void setupForRender() const;
 	//! Returns last camera that executed setupForRender().
 	static const Camera* getRenderCamera();
+
+	//! Predefined camera views.
+	enum View
+	{
+		TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT, RANDOM, OTHER // note: in case of changing order, fix getView()
+	};
+	//! Sets one of predefined orthogonal camera views, or random perspective view if RANDOM is requested.
+	//! Setting OTHER has no effect.
+	//! If scene is provided, adjusts also position/near/far.
+	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays).
+	void setView(View view, const rr::RRObject* scene);
+	//! Returns whether camera is in one of predefined orthogonal views, or OTHER if it is not.
+	//! View is detected from direction angles, position and range are ignored.
+	View getView() const;
 };
 
 }; // namespace

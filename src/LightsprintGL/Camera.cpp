@@ -129,18 +129,6 @@ void Camera::setRange(float _near, float _far)
 	afar = RR_MAX(anear*2,_far);
 }
 
-void Camera::setPosDirRangeRandomly(const rr::RRObject* object)
-{
-	// generate new values
-	rr::RRVec3 newPos, newDir;
-	float maxDistance;
-	object->generateRandomCamera(newPos,newDir,maxDistance);
-	// set them
-	pos = newPos;
-	setDirection(newDir);
-	setRange(maxDistance/500,maxDistance);
-}
-
 rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
 {
 	GLint viewport[4] = {-1,-1,2,2};
@@ -392,6 +380,93 @@ void Camera::mirror(float altitude)
 	leanAngle = -leanAngle;
 	// it is not completely mirrored, up stays {0,1,0} in update()
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// views
+
+float viewAngles[6][3] = // angle, angleX, leanAngle
+{
+	{RR_PI,-RR_PI/2,0}, // TOP
+	{RR_PI,RR_PI/2,0}, // BOTTOM
+	{RR_PI,0,0}, // FRONT
+	{0,0,0}, // BACK
+	{RR_PI/2,0,0}, // LEFT
+	{-RR_PI/2,0,0}, // RIGHT
+};
+
+void Camera::setView(Camera::View view, const rr::RRObject* scene)
+{
+	// process RANDOM
+	if (view==RANDOM)
+	{
+		// generate new values
+		rr::RRVec3 newPos, newDir;
+		float maxDistance;
+		scene->generateRandomCamera(newPos,newDir,maxDistance);
+		// set them
+		orthogonal = false;
+		pos = newPos;
+		setDirection(newDir);
+		setRange(maxDistance/500,maxDistance);
+		return;
+	}
+
+	// process OTHER and invalid inputs
+	if (!(view==TOP || view==BOTTOM || view==FRONT || view==BACK || view==LEFT || view==RIGHT))
+	{
+		return;
+	}
+
+	// process TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT
+	orthogonal = true;
+	angle = viewAngles[view][0];
+	angleX = viewAngles[view][1];
+	leanAngle = viewAngles[view][2];
+	if (scene)
+	{
+		rr::RRVec3 mini,maxi;
+		scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		switch (view)
+		{
+			case TOP:
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
+				pos = rr::RRVec3((mini[0]+maxi[0])/2,maxi[1]+orthoSize,(mini[2]+maxi[2])/2);
+				break;
+			case BOTTOM:
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
+				pos = rr::RRVec3((mini[0]+maxi[0])/2,mini[1]-orthoSize,(mini[2]+maxi[2])/2);
+				break;
+			case LEFT:
+				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
+				pos = rr::RRVec3(mini[0]-orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+				break;
+			case RIGHT:
+				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
+				pos = rr::RRVec3(maxi[0]+orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+				break;
+			case FRONT:
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
+				pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+orthoSize);
+				break;
+			case BACK:
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
+				pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
+			break;
+		}
+	}
+}
+
+Camera::View Camera::getView() const
+{
+	if (orthogonal)
+		for (View view=TOP;view<=RIGHT;view=(View)(view+1))
+			if (angle==viewAngles[view][0] && angleX==viewAngles[view][1] && leanAngle==viewAngles[view][2])
+				return view;
+	return OTHER;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
