@@ -51,9 +51,13 @@ namespace rr_gl
 			type = _type;
 			index = _index;
 		}
-		bool operator ==(const EntityId& a)
+		bool operator ==(const EntityId& a) const
 		{
 			return type==a.type && index==a.index;
+		}
+		bool operator !=(const EntityId& a) const
+		{
+			return !(a==*this);
 		}
 		bool isOk()
 		{

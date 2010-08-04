@@ -290,7 +290,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 			svs.renderLightIndirect = LI_CONSTANT;
 
 		// fix dangling pointer in light properties pane
-		parent->updateSelection();
+		parent->updateAllPanels();
 
 		// fix dangling pointer in collisionHandler
 		delete collisionHandler;
@@ -627,7 +627,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (entityIcons->intersectIcons(entities,ray,iconSize))
 		{
 			// clicked icon
-			parent->selectEntity(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),true,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+			parent->selectEntityInTreeAndUpdatePanel(EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index),event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
 		}
 		else
 		{

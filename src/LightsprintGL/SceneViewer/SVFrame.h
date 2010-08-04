@@ -38,14 +38,20 @@ namespace rr_gl
 		//! Returns currently selected entity.
 		EntityId getSelectedEntity() const;
 
-		//! Fully handles clicking light/object/etc (selects it in scene tree, opens its properties etc).
-		void selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAction action);
+		//! Fully handles clicking light/object/etc (selects it in scene tree, updates property panel with its properties).
+		void selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityAction action);
 
-		//! Handles changes in light list (updates tree content, selects different light etc).
-		void updateSelection();
+		//! Ensures that svs.selectedXxxIndex are in range.
+		//! Updates all panels, according to svs.selectedXxxIndex.
+		void updateAllPanels();
 
 		//! Shortcut for subwindows so that they don't have to include SVSceneTree+SVCanvas.
 		void updateSceneTree();
+
+		//! Must be called before every insert/delete/select/deselect.
+		//! Such operations may delete and recreate properties in panels.
+		//! Deleting property with uncommited changes is not just data loss, it sometimes crashes wx.
+		void commitPropertyChanges();
 
 		//! Updates sun (first dirlight) direction, called when user changes time or location.
 		void simulateSun();

@@ -193,7 +193,7 @@ void SVFrame::UpdateEverything()
 
 	UpdateTitle();
 
-	updateSelection();
+	updateAllPanels();
 
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane().PaneBorder(false));
 	m_mgr.Update();
@@ -878,7 +878,7 @@ reload_skybox:
 				//m_canvas->selectedType = ST_LIGHT;
 				//svs.selectedLightIndex = newList.size()-1;
 
-				updateSelection();
+				updateAllPanels();
 			}
 			break;
 		case ME_LIGHT_DELETE:
@@ -892,7 +892,7 @@ reload_skybox:
 				newList.erase(svs.selectedLightIndex);
 
 				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
-				updateSelection(); // deletes lightprops
+				updateAllPanels(); // deletes lightprops
 			}
 			break;
 
@@ -1333,7 +1333,7 @@ EntityId SVFrame::getSelectedEntity() const
 	}
 }
 
-void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAction action)
+void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityAction action)
 {
 	bool alreadySelected = entity==getSelectedEntity();
 	switch (entity.type)
@@ -1368,11 +1368,16 @@ void SVFrame::selectEntity(EntityId entity, bool updateSceneTree, SelectEntityAc
 			m_canvas->selectedType = entity.type;
 			break;
 
+		default:
+			// When user selects tree item with entity.type that has no function for us (e.g "0 lights" with type ST_FIRST),
+			// we must still accept it and save it to selectedType. Otherwise Delete key would delete previously selected item,
+			// according to old selectedType.
+			m_canvas->selectedType = entity.type;
 	}
 
-	if (updateSceneTree && m_sceneTree)
+	if (m_sceneTree)
 	{
-		m_sceneTree->selectItem(entity);
+		m_sceneTree->selectEntityInTree(entity);
 	}
 }
 
@@ -1393,8 +1398,8 @@ static bool validateIndex(unsigned& index, unsigned size)
 	return true;
 }
 
-// Ensure that all svs.selectedXxxIndex are in range. Update all panels. (ok, not all)
-void SVFrame::updateSelection()
+// Ensure that all svs.selectedXxxIndex are in range. Update all panels. (ok, not all, but the rest probably doesn't matter)
+void SVFrame::updateAllPanels()
 {
 	// update selected light
 	if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
@@ -1418,17 +1423,20 @@ void SVFrame::updateSelection()
 	}
 
 
-	// update scene tree
-	m_sceneTree->updateContent(m_canvas->solver);
-	m_sceneTree->selectItem(getSelectedEntity());
+	updateSceneTree();
 }
 
 void SVFrame::updateSceneTree()
 {
-	// updateContent does not preserve cursor
 	m_sceneTree->updateContent(m_canvas->solver);
-	// this restores our cursor
-	m_sceneTree->selectItem(getSelectedEntity());
+}
+
+void SVFrame::commitPropertyChanges()
+{
+	m_lightProperties->CommitChangesFromEditor();
+	m_sceneProperties->CommitChangesFromEditor();
+	m_objectProperties->CommitChangesFromEditor();
+	m_materialProperties->CommitChangesFromEditor();
 }
 
 void SVFrame::simulateSun()

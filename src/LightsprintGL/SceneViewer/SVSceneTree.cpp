@@ -33,7 +33,8 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	: wxTreeCtrl(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxTR_HAS_BUTTONS|SV_SUBWINDOW_BORDER), svs(_svframe->svs)
 {
 	svframe = _svframe;
-	allowEvents = true;
+	callDepth = 0;
+	needsUpdateContent = false;
 
 	wxTreeItemId root = AddRoot("root");
 
@@ -50,10 +51,12 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 
 void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 {
-	// DeleteChildren generates EVT_TREE_SEL_CHANGED, breaking our stuff
-	// (despite docs saying it does not generate events)
-	// let's ignore all events temporarily
-	allowEvents = false;
+	if (callDepth)
+	{
+		needsUpdateContent = true;
+		return;
+	}
+	callDepth++;
 
 	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str) :
 	SetItemText(GetRootItem(),
@@ -102,9 +105,11 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	}
 
 
-	//selectEntity(EntityId(m_canvas->selectedType svs.selectedAnimationFrameIndex));
+	// tree rebuild moved cursor. move it back
+	selectEntityInTree(svframe->getSelectedEntity());
 
-	allowEvents = true;
+	needsUpdateContent = false;
+	callDepth--;
 }
 
 wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
@@ -116,6 +121,11 @@ wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 		case ST_STATIC_OBJECT: searchRoot = staticObjects; break;
 		case ST_DYNAMIC_OBJECT: searchRoot = dynamicObjects; break;
 		case ST_CAMERA: return wxTreeItemId();
+	}
+	if (!searchRoot.IsOk())
+	{
+		// requested entity does not exist
+		return wxTreeItemId();
 	}
 	wxTreeItemIdValue cookie;
 	wxTreeItemId item = GetFirstChild(searchRoot,cookie);
@@ -132,7 +142,7 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-void SVSceneTree::selectItem(EntityId entity)
+void SVSceneTree::selectEntityInTree(EntityId entity)
 {
 	wxTreeItemId item = entityIdToItemId(entity);
 	if (item.IsOk())
@@ -144,26 +154,30 @@ void SVSceneTree::selectItem(EntityId entity)
 
 void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 {
-	if (allowEvents)
+	if (callDepth)
+		return;
+	callDepth++;
+
+	EntityId entityId = itemIdToEntityId(event.GetItem());
+	svframe->selectEntityInTreeAndUpdatePanel(entityId,SEA_SELECT);
+
+	callDepth--;	
+	if (needsUpdateContent)
 	{
-		EntityId entityId = itemIdToEntityId(event.GetItem());
-		if (entityId.isOk())
-		{
-			svframe->selectEntity(entityId,false,SEA_SELECT);
-		}
+		updateContent(NULL);
 	}
 }
 
 void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 {
-	if (allowEvents)
-	{
-		EntityId entityId = itemIdToEntityId(event.GetItem());
-		if (entityId.isOk())
-		{
-			svframe->selectEntity(entityId,false,SEA_ACTION);
-		}
-	}
+	if (callDepth)
+		return;
+	callDepth++;
+
+	EntityId entityId = itemIdToEntityId(event.GetItem());
+	svframe->selectEntityInTreeAndUpdatePanel(entityId,SEA_ACTION);
+
+	callDepth--;
 }
 
 
