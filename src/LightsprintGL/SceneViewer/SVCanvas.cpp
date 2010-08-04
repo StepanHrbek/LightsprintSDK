@@ -435,6 +435,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	else switch(evkey)
 	{
 		case ' ':
+			// pause/play videos
 			{
 				rr::RRVector<rr::RRBuffer*> buffers;
 				solver->getAllBuffers(buffers);
