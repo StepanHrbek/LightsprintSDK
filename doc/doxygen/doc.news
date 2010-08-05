@@ -21,6 +21,7 @@ NEWS
     - removed Camera menu, functionality moved to Scene properties / Camera / View
     - l/r/f/b/t hotkeys change camera view (left, right, front, back, top)
   - in rr_gl::Camera
+    - rr_gl::Camera::blendAkima() (lets you do spline transitions between cameras)
     - rr_gl::Camera::setView()
     - rr_gl::Camera::getView()
     - rr_gl::Camera::screenCenter

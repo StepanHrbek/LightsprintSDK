@@ -158,8 +158,23 @@ public:
 	//! Mirrors camera for reflection rendering. Second call takes changes back.
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);
+
 	//! Fills this with linear interpolation of a and b; a if blend=0, b if blend=1.
 	void blend(const Camera& a, const Camera& b, float blend);
+	//! Fills this with Akima interpolation of cameras, non uniformly scattered on time scale.
+	//
+	//! \param numCameras
+	//!  Number of elements in cameras and times arrays.
+	//!  Interpolations uses at most 3 preceding and 3 following cameras, providing more does not increase quality.
+	//! \param cameras
+	//!  Pointers to numCameras cameras.
+	//! \param times
+	//!  Array of times assigned to cameras.
+	//!  Sequence must be monotonic increasing, result is undefined if it is not.
+	//! \param time
+	//!  Time assigned to this camera.
+	void blendAkima(unsigned numCameras, const Camera** cameras, float* times, float time);
+
 	//! Updates all outputs, recalculates them from inputs.
 	//
 	//! \param observer

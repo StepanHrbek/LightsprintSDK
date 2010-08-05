@@ -4,6 +4,9 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
+#if _MSC_VER>=1600 || defined(__GNUC__)
+#include <functional>
+#endif
 #include "Lightsprint/GL/Camera.h"
 #include "CameraObjectDistance.h"
 #include "matrix.h"
@@ -493,6 +496,7 @@ rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal mod
 	return blendNormal(a,b,alpha);
 }
 
+// linear interpolation
 void Camera::blend(const Camera& a, const Camera& b, float blend)
 {
 	pos = blendNormal(a.pos,b.pos,blend);
@@ -510,5 +514,129 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 	dir = blendNormal(a.dir,b.dir,blend);
 	update();
 }
+
+#if _MSC_VER>=1600 || defined(__GNUC__)
+
+//static inline float abs(float a)
+//{
+//	return fabs(a);
+//}
+
+static inline rr::RRVec3 abs(rr::RRVec3 a)
+{
+	return a.abs();
+}
+
+//static inline void ifBoth0SetBoth1(float& a,float& b)
+//{
+//	if (!a && !b) a=b=1;
+//}
+
+static inline void ifBoth0SetBoth1(rr::RRVec3& a,rr::RRVec3& b)
+{
+	if (!a[0] && !b[0]) a[0]=b[0]=1;
+	if (!a[1] && !b[1]) a[1]=b[1]=1;
+	if (!a[2] && !b[2]) a[2]=b[2]=1;
+}
+
+template <class X, class Y>
+static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y, X xx)
+{
+	// handle patological cases that can't be supported otherwise
+	if (numPoints==0 || !x) return Y(0);
+	if (numPoints==1) return y(0);
+	
+	// optimization: handle simple cases for speedup
+	if (numPoints==2) return y(0)+(y(1)-y(0))*(xx-x[0])/(x[1]-x[0]);
+
+	// find how many points we have before/after
+	unsigned numPointsBeforeXx = 0;
+	while (x[numPointsBeforeXx]<xx && numPointsBeforeXx<numPoints) numPointsBeforeXx++;
+	unsigned numPointsAfterXx = numPoints-numPointsBeforeXx;
+
+	// for testing only: do linear interpolation instead of Akima
+	//return y[numPointsBeforeXx-1]+(y[numPointsBeforeXx]-y[numPointsBeforeXx-1])*(xx-x[numPointsBeforeXx-1])/(x[numPointsBeforeXx]-x[numPointsBeforeXx-1]);
+
+	// create fixed size dataset
+	X x0,x1,x2,x3,x4,x5;
+	Y y0,y1,y2,y3,y4,y5;
+	// - fill in know values
+	if (numPointsBeforeXx>=3) { x0 = x[numPointsBeforeXx-3]; y0 = y(numPointsBeforeXx-3); }
+	if (numPointsBeforeXx>=2) { x1 = x[numPointsBeforeXx-2]; y1 = y(numPointsBeforeXx-2); }
+	if (numPointsBeforeXx>=1) { x2 = x[numPointsBeforeXx-1]; y2 = y(numPointsBeforeXx-1); }
+	if (numPointsAfterXx >=1) { x3 = x[numPointsBeforeXx  ]; y3 = y(numPointsBeforeXx  ); }
+	if (numPointsAfterXx >=2) { x4 = x[numPointsBeforeXx+1]; y4 = y(numPointsBeforeXx+1); }
+	if (numPointsAfterXx >=3) { x5 = x[numPointsBeforeXx+2]; y5 = y(numPointsBeforeXx+2); }
+	// - extrapolate missing and the most common invalid values (x[i]>=x[i+1])
+	if (numPointsBeforeXx< 1 || x2>=x3) { x2 = x3*2-x4; y2 = y3*2-y4; }
+	if (numPointsBeforeXx< 2 || x1>=x2) { x1 = x2*2-x3; y1 = y2*2-y3; }
+	if (numPointsBeforeXx< 3 || x0>=x1) { x0 = x1*2-x2; y0 = y1*2-y2; }
+	if (numPointsAfterXx < 1 || x3<=x2) { x3 = x2*2-x1; y3 = y2*2-y1; }
+	if (numPointsAfterXx < 2 || x4<=x3) { x4 = x3*2-x2; y4 = y3*2-y2; }
+	if (numPointsAfterXx < 3 || x5<=x4) { x5 = x4*2-x3; y5 = y4*2-y3; }
+
+	// perform Akima interpolation
+	Y m0 = (y1-y0)/(x1-x0);
+	Y m1 = (y2-y1)/(x2-x1);
+	Y m2 = (y3-y2)/(x3-x2);
+	Y m3 = (y4-y3)/(x4-x3);
+	Y m4 = (y5-y4)/(x5-x4);
+	Y d0 = abs(m1-m0);
+	Y d1 = abs(m2-m1);
+	Y d2 = abs(m3-m2);
+	Y d3 = abs(m4-m3);
+	//Y z0 = (d2+d0) ? (d2*m1+d0*m2)/(d2+d0) : (m2+m1)/2;
+	//Y z1 = (d3+d1) ? (d3*m2+d1*m3)/(d3+d1) : (m3+m2)/2;
+	ifBoth0SetBoth1(d0,d2);
+	ifBoth0SetBoth1(d1,d3);
+	Y z0 = (d2*m1+d0*m2)/(d2+d0);
+	Y z1 = (d3*m2+d1*m3)/(d3+d1);
+	X b = x3-x2;
+	X a = xx-x2;
+	return y2+z0*a+(m2*3-z0*2-z1)*(a*a/b) + (z0+z1-m2*2)*(a*a*a/(b*b));
+}
+
+// Akima interpolation
+void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* times, float time)
+{
+	// handle corner cases
+	if (!numCameras || !cameras || !times)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if (numCameras==1)
+	{
+		*this = *cameras[0];
+		return;
+	}
+
+	// init this with the most closely preceding camera (or first one if none is preceding)
+	unsigned i = 1;
+	while (i<numCameras && times[i]<time) i++;
+	*this = *cameras[i-1];
+
+	// interpolate
+	//#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	//#define BLEND_RRVEC2(name) {name = interpolAkima<float,rr::RRVec2>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	#define BLEND_RRVEC3(name) {name = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	#define BLEND_3FLOATS(name1,name2,name3) {rr::RRVec3 tmp = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return rr::RRVec3(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
+
+	BLEND_RRVEC3(pos);
+	BLEND_3FLOATS(angle,leanAngle,angleX);
+	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
+	BLEND_3FLOATS(screenCenter.x,screenCenter.y,orthoSize);
+	BLEND_RRVEC3(dir);
+	update();
+}
+
+#else
+
+void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* times, float time)
+{
+	rr::RRReporter::report(rr::WARN,"blendAkima() not yet implemented for this compiler, use VS 2010 or GCC.\n");
+}
+
+#endif
 
 }; // namespace
