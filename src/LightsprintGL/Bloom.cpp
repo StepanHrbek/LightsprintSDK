@@ -5,6 +5,7 @@
 
 #include <GL/glew.h>
 #include "Lightsprint/GL/Bloom.h"
+#include "PreserveState.h"
 #include "tmpstr.h"
 
 namespace rr_gl
@@ -46,6 +47,12 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY);
 		smallMap2->reset(false,false);
 	}
+
+	// disable depth
+	PreserveDepthTest p1;
+	PreserveDepthMask p2;
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
 
 	// copy from render target to bigMap
 	bigMap->bindTexture();
