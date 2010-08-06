@@ -53,7 +53,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	unsigned numSecondaryFlares = rand()%10;
 	for (unsigned i=0;i<numSecondaryFlares;i++)
 	{
-		float color[4];
+		float color[4] = {0,0,0,0};
 		color[rand()%3] = rand()*1.2f/RAND_MAX;
 		size = baseSize * (float)(1+(rand()%5));
 		center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
