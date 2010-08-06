@@ -44,7 +44,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	unsigned oldSeed = rand();
 	srand(_flareId);
 
-	rr::RRVec2 baseSize = rr::RRVec2(sqrtf(_aspect),1/sqrtf(_aspect))*_flareSize/30;
+	rr::RRVec2 baseSize = rr::RRVec2(1/sqrtf(_aspect),sqrtf(_aspect))*_flareSize/30;
 	rr::RRVec2 size = baseSize * 6;
 	rr::RRVec2 center = _lightPositionInWindow;
 	rr::RRVec2 topleft = center-size/2;
