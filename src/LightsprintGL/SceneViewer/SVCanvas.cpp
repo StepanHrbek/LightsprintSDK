@@ -399,7 +399,8 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 		glViewport(0, 0, (GLint) w, (GLint) h);
 		winWidth = w;
 		winHeight = h;
-		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
+		if (winWidth && winHeight)
+			svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
 	}
 }
 
