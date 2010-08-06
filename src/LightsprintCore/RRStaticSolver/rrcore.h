@@ -338,7 +338,9 @@ public:
 	//! \param importanceOfDetails
 	//!  0=optimize for big picture, features are calculated at quality proportional to their size, micropolygons are noisy
 	//!  1=optimize for details, all features are calculated at the same quality, even micropolygons
-	PackedSolverFile* packSolver(unsigned raysFromTriangle, float importanceOfDetails);
+	//! \param aborting
+	//!  May be set asynchronously, aborts update.
+	PackedSolverFile* packSolver(unsigned raysFromTriangle, float importanceOfDetails, bool& aborting);
 
 	private:
 		int     phase;

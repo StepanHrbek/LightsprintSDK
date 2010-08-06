@@ -29,8 +29,10 @@ public:
 	virtual bool requestsRealtimeResponse() {return false;}
 };
 
-PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importanceOfDetails)
+PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importanceOfDetails, bool& aborting)
 {
+	if (aborting)
+		return NULL;
 	if (object->triangles>PackedFactor::MAX_TRIANGLES)
 	{
 		RRReporter::report(WARN,"Fireball not created, max %d triangles per solver supported.\n",PackedFactor::MAX_TRIANGLES);
@@ -60,7 +62,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 		if (sceneArea)
 		{
 			// update factors - all triangles
-			for (unsigned t=0;t<object->triangles;t++)
+			for (unsigned t=0;t<object->triangles;t++) if (!aborting)
 			{
 				if (object->triangle[t].surface)
 				{
@@ -220,7 +222,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	// convert sky-tri direct factors to GI factors
 
 	RRVec3* directIrradiancePhysicalRGB = new RRVec3[object->triangles];
-	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++)
+	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++) if (!aborting)
 	{
 		// reset solver to direct from sky patch
 		for (unsigned t=0;t<object->triangles;t++)
@@ -265,9 +267,9 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 //
 // RRStaticSolver
 
-const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, float importanceOfDetails)
+const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, float importanceOfDetails, bool& aborting)
 {
-	const PackedSolverFile* packedSolverFile = scene->packSolver(raysPerTriangle,importanceOfDetails);
+	const PackedSolverFile* packedSolverFile = scene->packSolver(raysPerTriangle,importanceOfDetails,aborting);
 	return packedSolverFile;
 }
 
@@ -288,7 +290,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		RRReporter::report(WARN,"Fireball not built, empty scene.\n");
 		return false;
 	}
-	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle,importanceOfDetails);
+	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle,importanceOfDetails,aborting);
 	if (!packedSolverFile)
 		return false;
 	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",
