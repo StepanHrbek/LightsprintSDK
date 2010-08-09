@@ -893,7 +893,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 
 		svs.eye.update();
 
-		if (svs.cameraDynamicNear)
+		if (svs.cameraDynamicNear && !svs.eye.orthogonal) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on up, right
 			svs.eye.setRangeDynamically(solver->getMultiObjectCustom(),svs.renderWater,svs.waterLevel);

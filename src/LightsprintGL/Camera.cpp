@@ -404,15 +404,18 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 	// process RANDOM
 	if (view==RANDOM)
 	{
-		// generate new values
-		rr::RRVec3 newPos, newDir;
-		float maxDistance;
-		scene->generateRandomCamera(newPos,newDir,maxDistance);
-		// set them
 		orthogonal = false;
-		pos = newPos;
-		setDirection(newDir);
-		setRange(maxDistance/500,maxDistance);
+		if (scene)
+		{
+			// generate new values
+			rr::RRVec3 newPos, newDir;
+			float maxDistance;
+			scene->generateRandomCamera(newPos,newDir,maxDistance);
+			// set them
+			pos = newPos;
+			setDirection(newDir);
+			setRange(maxDistance/500,maxDistance);
+		}
 		return;
 	}
 
@@ -458,6 +461,11 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 				pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
 			break;
 		}
+		// move pos to center, so that camera rotation keeps object in viewport
+		// user application is advised to stop setting range dynamically
+		pos = (maxi+mini)/2;
+		anear = 1.3f*(mini-maxi).maxi();
+		afar = -1.1f*anear;
 	}
 }
 
