@@ -76,13 +76,6 @@ public:
 		while (!instanceData->shown) Sleep(1);
 		time_t t = time(NULL);
 		localReport(INF1,"STARTED %s",asctime(localtime(&t)));
-
-		// When helper thread opens dialog, main thread loses right to create foreground windows.
-		// Temporary fix: Main thread opens dialog that closes itself immediately.
-		//                Must be done after first window receives WM_SHOWWINDOW.
-		// Tested: XP SP2 32bit, Vista SP1 x64
-		// If you know proper fix, please help.
-		DialogBoxIndirect(GetModuleHandle(NULL),getDialogResource(),NULL,BringMainThreadToForeground);
 	}
 
 	virtual void customReport(RRReportType type, int indentation, const char* message)
@@ -104,11 +97,14 @@ public:
 		strcat(space,typePrefix[type]);
 		// statistics
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-		RR_ASSERT(instanceData);
-		if (instanceData)
+		if (!instanceData)
 		{
-			instanceData->numLines[type]++;
+			// message received before log window initialized
+			RR_ASSERT(instanceData);
+			return;
 		}
+		instanceData->numLines[type]++;
+
 		// message
 		strcat(space,message);
 		// crlf
@@ -236,18 +232,6 @@ private:
 	{
 		DialogBoxIndirectParam(GetModuleHandle(NULL),getDialogResource(),NULL,DlgProc,(LPARAM)instanceData);
 		delete instanceData;
-	}
-
-	static INT_PTR CALLBACK BringMainThreadToForeground(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-	{
-		switch (message)
-		{
-			case WM_INITDIALOG:
-				return (INT_PTR)TRUE;
-			case WM_SHOWWINDOW:
-				EndDialog(hDlg, LOWORD(wParam));
-		}
-		return (INT_PTR)FALSE;
 	}
 
 	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

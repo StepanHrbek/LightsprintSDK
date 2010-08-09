@@ -156,9 +156,16 @@ void SVFrame::UpdateTitle()
 
 void SVFrame::UpdateEverything()
 {
-	// workaround for 2.8.9 problem fixed in 2.9.0
-	// remember canvas size, only first canvas is sized automatically
-	wxSize newSize = m_canvas ? m_canvas->GetSize() : wxDefaultSize;
+	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
+
+	// display log window with 'abort' while this function runs
+	rr::RRReporter* localReporter = NULL;
+	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+	if (m_canvas)
+	{
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver);
+		rr::RRReporter::setReporter(localReporter);
+	}
 
 	bool firstUpdate = !m_canvas;
 
@@ -174,16 +181,25 @@ void SVFrame::UpdateEverything()
 	if (!firstUpdate) svs.initialInputSolver = NULL;
 
 	// creates canvas
-	// loads scene if it is specified by filename
-	m_canvas = new SVCanvas( svs, this, newSize);
+	m_canvas = nextCanvas;
 
 
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
 	Show(true);
 
+	// display log window with 'abort' while this function runs
+	// when doing it for first time, it must go after Show(),
+	//  otherwise log window close would bring text console to front, occluding sceneviewer
+	if (!m_canvas)
+	{
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver);
+		rr::RRReporter::setReporter(localReporter);
+	}
+
 	UpdateMenuBar();
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
+	// loads scene if it is specified by filename
 	m_canvas->createContext();
 
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
@@ -207,6 +223,10 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
+
+	// restore old reporter
+	rr::RRReporter::setReporter(oldReporter);
+	delete localReporter;
 }
 
 static wxImage* loadImage(const char* filename)
@@ -1008,6 +1028,11 @@ reload_skybox:
 				unsigned quality = 100;
 				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
 				{
+					// display log window with 'abort' while this function runs
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+					rr::RRReporter::setReporter(localReporter);
+
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					fireballLoadAttempted = false;
 					solver->leaveFireball();
@@ -1037,6 +1062,10 @@ reload_skybox:
 
 					// switch to fireball+ldm
 					OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM));
+
+					// restore old reporter
+					rr::RRReporter::setReporter(oldReporter);
+					delete localReporter;
 				}
 			}
 			break;
@@ -1045,12 +1074,22 @@ reload_skybox:
 				static unsigned quality = DEFAULT_FIREBALL_QUALITY;
 				if (getQuality("Fireball build",this,quality))
 				{
+
+					// display log window with 'abort' while this function runs
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+					rr::RRReporter::setReporter(localReporter);
+
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->buildFireball(quality,NULL);
 					dirtyLights(solver);
 					fireballLoadAttempted = true;
+
+					// restore old reporter
+					rr::RRReporter::setReporter(oldReporter);
+					delete localReporter;
 				}
 			}
 			break;
@@ -1159,7 +1198,14 @@ reload_skybox:
 				unsigned res = 256;
 				if (getResolution("Unwrap build",this,res,false))
 				{
+					// display log window with 'abort' while this function runs
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+					rr::RRReporter::setReporter(localReporter);
+
 					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
+					// static objects may be modified even after abort (unwrap is not atomic)
+					// so it's better if following setStaticObjects is not aborted
 					solver->aborting = false;
 
 					// buildUnwrap usually splits a few vertices, we have to send modified data to solver
@@ -1172,6 +1218,10 @@ reload_skybox:
 
 					// resize rtgi buffers, vertex counts may differ
 					solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+
+					// restore old reporter
+					rr::RRReporter::setReporter(oldReporter);
+					delete localReporter;
 				}
 			}
 			break;
@@ -1182,6 +1232,11 @@ reload_skybox:
 				unsigned quality = 100;
 				if (getResolution("Lightmap build",this,res,true) && getQuality("Lightmap build",this,quality))
 				{
+					// display log window with 'abort' while this function runs
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+					rr::RRReporter::setReporter(localReporter);
+
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
@@ -1212,6 +1267,10 @@ reload_skybox:
 
 					// save calculated lightmaps
 					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+
+					// restore old reporter
+					rr::RRReporter::setReporter(oldReporter);
+					delete localReporter;
 				}
 			}
 			break;

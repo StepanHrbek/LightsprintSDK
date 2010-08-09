@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- enhanced scene viewer
+  - log window with "Abort" button shows up during slow operations
 - enhanced camera
   - in scene viewer
     - Scene properties / Camera / View, can be set to Top, Bottom, Front, Back, Left, Right, Custom
