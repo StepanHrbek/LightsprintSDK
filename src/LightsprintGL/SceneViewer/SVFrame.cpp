@@ -278,7 +278,7 @@ void SVFrame::userPreferencesApplyToWx()
 {
 	if (userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen != svs.fullscreen)
 		OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
-	if (userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
+	if (!svs.fullscreen && userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
 		Maximize(!IsMaximized());
 	m_mgr.LoadPerspective(userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective,true);
 	UpdateMenuBar();
