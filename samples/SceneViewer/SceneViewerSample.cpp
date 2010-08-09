@@ -32,11 +32,9 @@
 	#include <windows.h>
 #endif // _WIN32
 
-void error(const char* message, bool gfxRelated)
+void error(const char* message)
 {
 	rr::RRReporter::report(rr::ERRO,message);
-	if (gfxRelated)
-		rr::RRReporter::report(rr::ERRO,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5200-9800, 100-480, ION\n - Radeon 9500-9800, X300-1950, HD2300-5970\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
@@ -54,7 +52,7 @@ int main(int argc, char **argv)
 	if (!RR_INTERFACE_OK)
 	{
 		printf(RR_INTERFACE_MISMATCH_MSG);
-		error("",false);
+		error("");
 	}
 	// Log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
@@ -74,7 +72,7 @@ int main(int argc, char **argv)
 
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
-		error(licError,false);
+		error(licError);
 
 	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 #if 1
