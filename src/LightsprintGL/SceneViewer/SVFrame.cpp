@@ -22,6 +22,7 @@
 #endif
 
 	#define DEFAULT_FIREBALL_QUALITY 350
+	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
 #define LMAP_PREFIX (wxString(svs.sceneFilename)+".").c_str()
 #define LMAP_POSTFIX "lightmap.png"
@@ -157,17 +158,16 @@ void SVFrame::UpdateTitle()
 void SVFrame::UpdateEverything()
 {
 	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
+	bool firstUpdate = !m_canvas;
 
 	// display log window with 'abort' while this function runs
 	rr::RRReporter* localReporter = NULL;
 	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-	if (m_canvas)
+	if (!firstUpdate)
 	{
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver);
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver,LOG_CAPTION);
 		rr::RRReporter::setReporter(localReporter);
 	}
-
-	bool firstUpdate = !m_canvas;
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
@@ -190,9 +190,9 @@ void SVFrame::UpdateEverything()
 	// display log window with 'abort' while this function runs
 	// when doing it for first time, it must go after Show(),
 	//  otherwise log window close would bring text console to front, occluding sceneviewer
-	if (!m_canvas)
+	if (firstUpdate)
 	{
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver);
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver,LOG_CAPTION);
 		rr::RRReporter::setReporter(localReporter);
 	}
 
@@ -1029,7 +1029,7 @@ reload_skybox:
 				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
 					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 					rr::RRReporter::setReporter(localReporter);
 
@@ -1076,7 +1076,7 @@ reload_skybox:
 				{
 
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
 					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 					rr::RRReporter::setReporter(localReporter);
 
@@ -1199,7 +1199,7 @@ reload_skybox:
 				if (getResolution("Unwrap build",this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
 					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 					rr::RRReporter::setReporter(localReporter);
 
@@ -1233,7 +1233,7 @@ reload_skybox:
 				if (getResolution("Lightmap build",this,res,true) && getQuality("Lightmap build",this,quality))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver);
+					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
 					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 					rr::RRReporter::setReporter(localReporter);
 

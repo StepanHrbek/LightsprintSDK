@@ -43,6 +43,7 @@ NEWS
 - lens flare effect
   - rr_gl::LensFlare
   - in scene viewer: Scene properties / Render extras / Lens Flare
+- RRReporter::createWindowedReporter() has new parameter, lets you change log window title
 
 CHANGES
 

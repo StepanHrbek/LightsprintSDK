@@ -43,6 +43,7 @@ class RRReporterWindow : public RRReporter
 		bool reporterDeleted; // code deleted reporter
 		HWND* hWndInReporter; // pointer to HWND in reporter; set at window open so reporter can send us messages
 		RRCallback* abortCallback; // <deleted with reporter>
+		const char* caption;
 		unsigned numLines[TIMI+1];
 
 		unsigned numCharsShort; // number of characters in short log edit control
@@ -58,7 +59,7 @@ class RRReporterWindow : public RRReporter
 	};
 
 public:
-	RRReporterWindow(RRCallback* _abortCallback)
+	RRReporterWindow(RRCallback* _abortCallback, const char* _caption)
 	{
 		// necessary for changing text color
 		LoadLibrary("riched20.dll");
@@ -69,6 +70,7 @@ public:
 		memset(instanceData,0,sizeof(InstanceData));
 		instanceData->hWndInReporter = &hWnd;
 		instanceData->abortCallback = _abortCallback;
+		instanceData->caption = _caption;
 		_beginthread(windowThreadFunc,0,instanceData);
 
 		// Wait until window initializes.
@@ -257,6 +259,8 @@ private:
 							ShowWindow(GetDlgItem(hWnd,IDC_LOG_SHORT),SW_HIDE);
 						}
 
+						if (instanceData->caption)
+							SetWindowText(hWnd,instanceData->caption);
 						WhenDone whenDone = (WhenDone)(int)Preferences::getValue(LOCATION,"whendone",WD_CONTINUE);
 						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"close log");
 						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"wait");
@@ -399,17 +403,17 @@ private:
 class RRReporterWindowAbortSolver : public RRReporterWindow
 {
 public:
-	RRReporterWindowAbortSolver(class RRDynamicSolver** _solver)
-		: abort(_solver), RRReporterWindow(&abort)
+	RRReporterWindowAbortSolver(class RRDynamicSolver** _solver, const char* caption)
+		: abort(_solver), RRReporterWindow(&abort,caption)
 	{
 	}
 private:
 	Abort abort;
 };
 
-RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver)
+RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver, const char* caption)
 {
-	return new RRReporterWindowAbortSolver(&_solver);
+	return new RRReporterWindowAbortSolver(&_solver,caption);
 }
 
 } //namespace

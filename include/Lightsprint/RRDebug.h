@@ -146,7 +146,7 @@ namespace rr
 		//! delete RRReporter::getReporter();
 		//! // here solver is no longer referenced (even if window may still exist)
 		//! \endcode
-		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver);
+		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver, const char* caption = NULL);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
