@@ -146,6 +146,13 @@ namespace rr
 		//! delete RRReporter::getReporter();
 		//! // here solver is no longer referenced (even if window may still exist)
 		//! \endcode
+		//! \param solver
+		//!  Pointer to solver. It may be NULL or non-NULL, you are free to change it at any moment, but restrictions exist:
+		//!  - The pointer must exist at least as long as the reporter,
+		//!    make sure that you don't pass local pointer that is going out of scope before you delete the reporter.
+		//!  - The pointer must be NULL or point to valid solver, make sure that you NULL it when you delete the solver.
+		//! \param caption
+		//!  Optional custom window caption, NULL for default one.
 		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver, const char* caption = NULL);
 	};
 
