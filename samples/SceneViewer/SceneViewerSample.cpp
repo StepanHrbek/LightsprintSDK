@@ -12,7 +12,9 @@
 //
 // Controls:
 // arrows or wsadqz   ... movement
-// right mouse button ... look
+// left mouse button  ... look
+// middle mouse button... pan
+// right mouse button ... inspect (rotate around)
 // wheel              ... zoom
 // F11                ... fullscreen
 //

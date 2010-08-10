@@ -13,6 +13,10 @@ namespace rr
 NEWS
 
 - enhanced scene viewer
+  - new mouse controls
+    - move mouse with left button pressed = looking around
+    - move mouse with middle button pressed = panning (pixel perfect)
+    - move mouse with right button pressed = inspection (rotates around clicked pixel)
   - log window with "Abort" button shows up during slow operations
 - enhanced camera
   - in scene viewer
