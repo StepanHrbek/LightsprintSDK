@@ -47,7 +47,7 @@ namespace rr_gl
 		wxPGProperty*     propCameraCenter;
 
 		wxPGProperty*     propEnv;
-		BoolRefProperty*  propEnvSimulateSky;
+		//BoolRefProperty*  propEnvSimulateSky;
 		BoolRefProperty*  propEnvSimulateSun;
 		ImageFileProperty*propEnvMap;
 		LocationProperty* propEnvLocation;

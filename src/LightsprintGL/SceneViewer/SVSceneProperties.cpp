@@ -86,15 +86,15 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propEnv);
 		SetPropertyReadOnly(propEnv,true,wxPG_DONT_RECURSE);
 
-		propEnvSimulateSky = new BoolRefProperty(wxT("Simulate sky"),"Work in progress, has no effect.",svs.envSimulateSky);
-		AppendIn(propEnv,propEnvSimulateSky);
-
-		propEnvSimulateSun = new BoolRefProperty(wxT("Simulate Sun"),"Calculates Sun position from date, time and location. Affects first directional light only, insert one if none exists. World directions: north=Z+, east=X+, up=Y+.",svs.envSimulateSun);
-		AppendIn(propEnv,propEnvSimulateSun);
-
 		propEnvMap = new ImageFileProperty(wxT("Skybox texture"),"Supported formats: cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR.");
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
+
+		//propEnvSimulateSky = new BoolRefProperty(wxT("Simulate sky"),"Work in progress, has no effect.",svs.envSimulateSky);
+		//AppendIn(propEnv,propEnvSimulateSky);
+
+		propEnvSimulateSun = new BoolRefProperty(wxT("Simulate Sun"),"Calculates Sun position from date, time and location. Affects first directional light only, insert one if none exists. World directions: north=Z+, east=X+, up=Y+.",svs.envSimulateSun);
+		AppendIn(propEnv,propEnvSimulateSun);
 
 		propEnvLocation = new LocationProperty(wxT("Location"),"Geolocation used for Sun and sky simulation.",svs.precision,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg));
 		AppendIn(propEnv,propEnvLocation);
@@ -278,7 +278,7 @@ void SVSceneProperties::updateProperties()
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propCameraOrtho)
-		+ updateBoolRef(propEnvSimulateSky)
+		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
@@ -296,7 +296,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
 		+ updateProperty(propCameraCenter,svs.eye.screenCenter)
-		+ updateBoolRef(propEnvSimulateSky)
+		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?svframe->m_canvas->solver->getEnvironment()->filename.c_str():"(no texture)")
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
@@ -405,11 +405,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.eye.screenCenter << property->GetValue();
 	}
 	else
-	if (property==propEnvSimulateSky)
-	{
-		updateHide();
-	}
-	else
+	//if (property==propEnvSimulateSky)
+	//{
+	//	updateHide();
+	//}
+	//else
 	if (property==propEnvSimulateSun)
 	{
 		updateHide();
