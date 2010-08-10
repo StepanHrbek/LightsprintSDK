@@ -131,6 +131,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propToneMappingContrast = new FloatProperty("Contrast","Contrast correction applied to rendered images, default=1.",svs.tonemappingGamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
+
 		SetPropertyBackgroundColour(propToneMapping,headerColor,false);
 	}
 
