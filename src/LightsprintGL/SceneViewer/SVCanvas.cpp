@@ -600,6 +600,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
+	static bool s_inited = false; // is contents of s_xxx valid?
 	static int s_prevX = 0;
 	static int s_prevY = 0;
 	static int s_origX = 0;
@@ -618,6 +619,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.ButtonDown())
 	{
 		// init static variables when dragging starts
+		s_inited = true;
 		s_prevX = s_origX = event.GetX();
 		s_prevY = s_origY = event.GetY();
 		s_origAngle = svs.eye.angle;
@@ -682,7 +684,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 
 	// handle dragging
-	if (event.Dragging() && event.GetX()!=s_prevX || event.GetY()!=s_prevY)
+	if (event.Dragging() && s_inited && (event.GetX()!=s_prevX || event.GetY()!=s_prevY))
 	{
 		float dragX = (event.GetX()-s_origX)/(float)winWidth;
 		float dragY = (event.GetY()-s_origY)/(float)winHeight;
@@ -749,6 +751,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			solver->reportInteraction();
 		}
 
+	}
+	if (!event.ButtonDown() && !event.Dragging())
+	{
+		// dragging ended, all s_xxx become invalid
+		s_inited = false;
 	}
 
 	// handle wheel

@@ -75,7 +75,6 @@ namespace rr_gl
 			ME_VIEW_RIGHT,
 			ME_VIEW_FRONT,
 			ME_VIEW_BACK,
-
 			ME_ENV_WHITE,
 			ME_ENV_BLACK,
 			ME_ENV_WHITE_TOP,
