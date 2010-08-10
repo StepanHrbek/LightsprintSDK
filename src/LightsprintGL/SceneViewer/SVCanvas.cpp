@@ -578,6 +578,22 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 	event.Skip();
 }
 
+// Filled on click, original data acquired at click time.
+struct ClickInfo
+{
+	int mouseX;
+	int mouseY;
+	float angle;
+	float angleX;
+	rr::RRVec3 pos;
+	rr::RRVec3 rayOrigin;
+	rr::RRVec3 rayDirection;
+	unsigned hitTriangle;
+	float hitDistance;
+	rr::RRVec2 hitPoint2d;
+	EntityId clickedEntity;
+};
+
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	if (event.IsButton())
@@ -600,38 +616,30 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
-	static bool s_inited = false; // is contents of s_xxx valid?
-	static int s_prevX = 0;
-	static int s_prevY = 0;
-	static int s_origX = 0;
-	static int s_origY = 0;
-	static float s_origAngle = 0;
-	static float s_origAngleX = 0;
-	static rr::RRVec3 s_origPos(0); // eye or light pos, depends on what is clicked
-	static rr::RRVec3 s_origRayOrigin(0);
-	static rr::RRVec3 s_origRayDirection(0);
-	static float s_origHitDistance = 0; // set on click, constant during drag
+	// set on click (but not set on click that closes menu), valid and constant during drag
+	static bool s_ciRelevant = false; // is contents of s_xxx valid?
+	static ClickInfo s_ci;
+	// set on every frame of dragging
+	static int s_prevX;
+	static int s_prevY;
 
-	// scene clicked: fill clickedEntity, hitTriangle, hitPoint2d, s_origXxx
-	EntityId clickedEntity(ST_CAMERA,0);
-	unsigned hitTriangle = UINT_MAX;
-	rr::RRVec2 hitPoint2d;
+	// scene clicked: fill s_xxx
 	if (event.ButtonDown())
 	{
 		// init static variables when dragging starts
-		s_inited = true;
-		s_prevX = s_origX = event.GetX();
-		s_prevY = s_origY = event.GetY();
-		s_origAngle = svs.eye.angle;
-		s_origAngleX = svs.eye.angleX;
-		s_origPos = svs.eye.pos;
-		s_origRayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
-		s_origRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
+		s_ciRelevant = true;
+		s_prevX = s_ci.mouseX = event.GetX();
+		s_prevY = s_ci.mouseY = event.GetY();
+		s_ci.angle = svs.eye.angle;
+		s_ci.angleX = svs.eye.angleX;
+		s_ci.pos = svs.eye.pos;
+		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
+		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
 
 		// find scene distance, adjust search range to look only for closer icons
-		s_origHitDistance = svs.eye.getNear()*0.9f+svs.eye.getFar()*0.1f;
-		ray->rayOrigin = s_origRayOrigin;
-		rr::RRVec3 directionToMouse = s_origRayDirection;
+		s_ci.hitDistance = svs.eye.getNear()*0.9f+svs.eye.getFar()*0.1f;
+		ray->rayOrigin = s_ci.rayOrigin;
+		rr::RRVec3 directionToMouse = s_ci.rayDirection;
 		float directionToMouseLength = directionToMouse.length();
 		ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
 		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
@@ -642,9 +650,15 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// in next step, look only for closer lights
 			ray->rayLengthMax = ray->hitDistance;
-			hitTriangle = ray->hitTriangle;
-			s_origHitDistance = ray->hitDistance;
-			hitPoint2d = ray->hitPoint2d;
+			s_ci.hitTriangle = ray->hitTriangle;
+			s_ci.hitDistance = ray->hitDistance;
+			s_ci.hitPoint2d = ray->hitPoint2d;
+		}
+		else
+		{
+			s_ci.hitTriangle = UINT_MAX;
+			s_ci.hitDistance = 0;
+			s_ci.hitPoint2d = rr::RRVec2(0);
 		}
 
 		// find icon distance
@@ -653,19 +667,23 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			entities.addLights(solver->getLights(),sunIconPosition);
 		if (entityIcons->intersectIcons(entities,ray,iconSize))
 		{
-			clickedEntity = EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index);
-			s_origHitDistance = ray->hitDistance;
+			s_ci.clickedEntity = EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index);
+			s_ci.hitDistance = ray->hitDistance;
+		}
+		else
+		{
+			s_ci.clickedEntity = EntityId(ST_CAMERA,0);
 		}
 	}
 
-	// handle clicking
-	if (event.LeftDown())
+	// handle clicking (mouse released at the same place where it was pressed)
+	if (event.LeftUp() && event.GetX()==s_ci.mouseX && event.GetY()==s_ci.mouseY)
 	{
 		// selection
-		if (clickedEntity.type!=ST_CAMERA)
+		if (s_ci.clickedEntity.type!=ST_CAMERA)
 		{
 			// clicked icon
-			parent->selectEntityInTreeAndUpdatePanel(clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+			parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
 		}
 		else
 		{
@@ -673,21 +691,21 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			selectedType = ST_CAMERA;
 			rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
 			rr::RRObject* selectedObject = NULL;
-			if (hitTriangle!=UINT_MAX)
+			if (s_ci.hitTriangle!=UINT_MAX)
 			{
-				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(hitTriangle);
+				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
 				selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
 			}		
 			parent->m_objectProperties->setObject(selectedObject,svs.precision);
-			parent->m_materialProperties->setMaterial(solver,hitTriangle,hitPoint2d);
+			parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
 		}
 	}
 
 	// handle dragging
-	if (event.Dragging() && s_inited && (event.GetX()!=s_prevX || event.GetY()!=s_prevY))
+	if (event.Dragging() && s_ciRelevant && (event.GetX()!=s_prevX || event.GetY()!=s_prevY))
 	{
-		float dragX = (event.GetX()-s_origX)/(float)winWidth;
-		float dragY = (event.GetY()-s_origY)/(float)winHeight;
+		float dragX = (event.GetX()-s_ci.mouseX)/(float)winWidth;
+		float dragY = (event.GetY()-s_ci.mouseY)/(float)winHeight;
 		s_prevX = event.GetX();
 		s_prevY = event.GetY();
 
@@ -701,8 +719,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				{
 					solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
 					Camera* light = solver->realtimeLights[svs.selectedLightIndex]->getParent();
-					light->angle = s_origAngle-5*dragX;
-					light->angleX = s_origAngleX-5*dragY;
+					light->angle = s_ci.angle-5*dragX;
+					light->angleX = s_ci.angleX-5*dragY;
 					RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 					// changes position a bit, together with rotation
 					// if we don't call it, solver updates light in a standard way, without position change
@@ -713,8 +731,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			else
 			{
-				svs.eye.angle = s_origAngle-dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.angleX = s_origAngleX-dragY*5*svs.eye.getFieldOfViewVerticalDeg()/90;
+				svs.eye.angle = s_ci.angle-dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90;
+				svs.eye.angleX = s_ci.angleX-dragY*5*svs.eye.getFieldOfViewVerticalDeg()/90;
 				RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			}
 			solver->reportInteraction();
@@ -726,28 +744,28 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			rr::RRVec3 pan;
 			if (svs.eye.orthogonal)
 			{
-				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_origX*2.0f/winWidth-1,s_origY*2.0f/winHeight-1);
+				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
 				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
 			}
 			else
 			{
 				rr::RRVec3 newRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
-				pan = (s_origRayDirection-newRayDirection)*(s_origHitDistance/s_origRayDirection.length());
+				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			}
-			svs.eye.pos = s_origPos + pan;
+			svs.eye.pos = s_ci.pos + pan;
 			solver->reportInteraction();
 		}
 		if (event.RightIsDown())
 		{
 			// inspection
 			//  rotate around clicked point, point does not move on screen
-			svs.eye.angle = s_origAngle-dragX*8;
-			svs.eye.angleX = s_origAngleX-dragY*8;
+			svs.eye.angle = s_ci.angle-dragX*8;
+			svs.eye.angleX = s_ci.angleX-dragY*8;
 			RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			svs.eye.update();
-			rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_origX*2.0f/winWidth-1,s_origY*2.0f/winHeight-1);
+			rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
 			rr::RRVec3 newRayDirection = svs.eye.getRayDirection(origMousePositionInWindow);
-			svs.eye.pos = s_origPos + (s_origRayDirection-newRayDirection)*(s_origHitDistance/s_origRayDirection.length());
+			svs.eye.pos = s_ci.pos + (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			solver->reportInteraction();
 		}
 
@@ -755,7 +773,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (!event.ButtonDown() && !event.Dragging())
 	{
 		// dragging ended, all s_xxx become invalid
-		s_inited = false;
+		s_ciRelevant = false;
 	}
 
 	// handle wheel
