@@ -1464,7 +1464,8 @@ void SVFrame::updateAllPanels()
 	if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
 	{
 		m_lightProperties->setLight(NULL,svs.precision);
-		m_canvas->selectedType = ST_CAMERA;
+		if (m_canvas->selectedType==ST_LIGHT)
+			m_canvas->selectedType = ST_CAMERA;
 	}
 	else
 	{

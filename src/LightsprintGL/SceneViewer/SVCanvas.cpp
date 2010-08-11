@@ -1243,7 +1243,7 @@ rendered:
 		}
 		if (s_ciRelevant && s_ci.mouseRight)
 		{
-			// inspection camera, render crosshair in rotation center
+			// render crosshair in rotation center of inspection camera
 			rr::RRVec3 pos = s_ci.hitPoint3d;
 			float size = s_ci.hitDistance/30;
 			glColor3f(1,0,0);
