@@ -583,6 +583,9 @@ struct ClickInfo
 {
 	int mouseX;
 	int mouseY;
+	bool mouseLeft;
+	bool mouseRight;
+	bool mouseMiddle;
 	float angle;
 	float angleX;
 	rr::RRVec3 pos;
@@ -591,8 +594,13 @@ struct ClickInfo
 	unsigned hitTriangle;
 	float hitDistance;
 	rr::RRVec2 hitPoint2d;
+	rr::RRVec3 hitPoint3d;
 	EntityId clickedEntity;
 };
+// set by OnMouseEvent on click (but not set on click that closes menu), valid and constant during drag
+// read also by OnPaint (paints crosshair)
+static bool s_ciRelevant = false; // are we dragging and is s_ci describing click that started it?
+static ClickInfo s_ci;
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
@@ -616,9 +624,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
-	// set on click (but not set on click that closes menu), valid and constant during drag
-	static bool s_ciRelevant = false; // is contents of s_xxx valid?
-	static ClickInfo s_ci;
 	// set on every frame of dragging
 	static int s_prevX;
 	static int s_prevY;
@@ -630,6 +635,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ciRelevant = true;
 		s_prevX = s_ci.mouseX = event.GetX();
 		s_prevY = s_ci.mouseY = event.GetY();
+		s_ci.mouseLeft = event.LeftIsDown();
+		s_ci.mouseMiddle = event.MiddleIsDown();
+		s_ci.mouseRight = event.RightIsDown();
 		s_ci.angle = svs.eye.angle;
 		s_ci.angleX = svs.eye.angleX;
 		s_ci.pos = svs.eye.pos;
@@ -653,12 +661,14 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			s_ci.hitTriangle = ray->hitTriangle;
 			s_ci.hitDistance = ray->hitDistance;
 			s_ci.hitPoint2d = ray->hitPoint2d;
+			s_ci.hitPoint3d = ray->hitPoint3d;
 		}
 		else
 		{
 			s_ci.hitTriangle = UINT_MAX;
 			s_ci.hitDistance = 0;
 			s_ci.hitPoint2d = rr::RRVec2(0);
+			s_ci.hitPoint3d = rr::RRVec3(0);
 		}
 
 		// find icon distance
@@ -669,6 +679,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			s_ci.clickedEntity = EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index);
 			s_ci.hitDistance = ray->hitDistance;
+			s_ci.hitPoint2d = rr::RRVec2(0);
+			s_ci.hitPoint3d = ray->rayOrigin + rr::RRVec3(1)/ray->rayDirInv*ray->hitDistance;
 		}
 		else
 		{
@@ -1220,6 +1232,7 @@ rendered:
 
 		if (svs.renderHelpers
 			|| svs.renderGrid
+			|| (s_ciRelevant && s_ci.mouseRight)
 			)
 		{
 			// set shader
@@ -1227,6 +1240,21 @@ rendered:
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+		}
+		if (s_ciRelevant && s_ci.mouseRight)
+		{
+			// inspection camera, render crosshair in rotation center
+			rr::RRVec3 pos = s_ci.hitPoint3d;
+			float size = s_ci.hitDistance/30;
+			glColor3f(1,0,0);
+			glBegin(GL_LINES);
+			glVertex3f(pos.x-size,pos.y,pos.z);
+			glVertex3f(pos.x+size,pos.y,pos.z);
+			glVertex3f(pos.x,pos.y-size,pos.z);
+			glVertex3f(pos.x,pos.y+size,pos.z);
+			glVertex3f(pos.x,pos.y,pos.z-size);
+			glVertex3f(pos.x,pos.y,pos.z+size);
+			glEnd();
 		}
 		if (svs.renderGrid)
 		{
