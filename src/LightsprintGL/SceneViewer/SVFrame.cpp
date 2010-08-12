@@ -1380,11 +1380,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 	{
 		case ST_LIGHT:
 			// update light properties
-			if (m_lightProperties->IsShown())
-			{
-				m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index],svs.precision);
-			}
-
+			m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index],svs.precision);
 			m_canvas->selectedType = entity.type;
 			svs.selectedLightIndex = entity.index;
 			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_LIGHT_PROPERTIES));
@@ -1393,12 +1389,10 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 		case ST_STATIC_OBJECT:
 		case ST_DYNAMIC_OBJECT:
 			// update object properties
-			if (m_objectProperties->IsShown())
 			{
 				const rr::RRObjects& objects = (entity.type==ST_STATIC_OBJECT)?m_canvas->solver->getStaticObjects():m_canvas->solver->getDynamicObjects();
 				m_objectProperties->setObject(objects[entity.index],svs.precision);
 			}
-
 			m_canvas->selectedType = entity.type;
 			svs.selectedObjectIndex = entity.index;
 			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_OBJECT_PROPERTIES));

@@ -39,6 +39,7 @@ namespace rr_gl
 		EntityId getSelectedEntity() const;
 
 		//! Fully handles clicking light/object/etc (selects it in scene tree, updates property panel with its properties).
+		//! Panels are updated even if hidden, at least ctrl-<number> handler expects it.
 		void selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityAction action);
 
 		//! Ensures that svs.selectedXxxIndex are in range.
