@@ -32,6 +32,32 @@
 namespace rr_gl
 {
 
+class LogWithAbort
+{
+public:
+	LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver)
+	{
+		// display log window with 'abort'
+		window = _window;
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
+		oldReporter = rr::RRReporter::getReporter();
+		rr::RRReporter::setReporter(localReporter);
+	}
+	~LogWithAbort()
+	{
+		// restore old reporter, close log
+		rr::RRReporter::setReporter(oldReporter);
+		delete localReporter;
+		// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
+		// This bring SV back to front.
+		window->Raise();
+	}
+private:
+	wxWindow* window;
+	rr::RRReporter* localReporter;
+	rr::RRReporter* oldReporter;
+};
+
 // "123abc" -> 123
 unsigned getUnsigned(const wxString& str)
 {
@@ -158,16 +184,9 @@ void SVFrame::UpdateTitle()
 void SVFrame::UpdateEverything()
 {
 	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
-	bool firstUpdate = !m_canvas;
 
 	// display log window with 'abort' while this function runs
-	rr::RRReporter* localReporter = NULL;
-	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-	if (!firstUpdate)
-	{
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver,LOG_CAPTION);
-		rr::RRReporter::setReporter(localReporter);
-	}
+	LogWithAbort logWithAbort(this,nextCanvas->solver);
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
@@ -178,7 +197,7 @@ void SVFrame::UpdateEverything()
 	// initialInputSolver may be changed only if canvas is NULL
 	// we NULL it to avoid rendering solver contents again (new scene was opened)
 	// it has also minor drawback: initialInputSolver->abort will be ignored
-	if (!firstUpdate) svs.initialInputSolver = NULL;
+	if (m_canvas) svs.initialInputSolver = NULL;
 
 	// creates canvas
 	m_canvas = nextCanvas;
@@ -186,15 +205,6 @@ void SVFrame::UpdateEverything()
 
 	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
 	Show(true);
-
-	// display log window with 'abort' while this function runs
-	// when doing it for first time, it must go after Show(),
-	//  otherwise log window close would bring text console to front, occluding sceneviewer
-	if (firstUpdate)
-	{
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&nextCanvas->solver,LOG_CAPTION);
-		rr::RRReporter::setReporter(localReporter);
-	}
 
 	UpdateMenuBar();
 
@@ -223,10 +233,6 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
-
-	// restore old reporter
-	rr::RRReporter::setReporter(oldReporter);
-	delete localReporter;
 }
 
 static wxImage* loadImage(const char* filename)
@@ -1029,9 +1035,7 @@ reload_skybox:
 				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
-					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-					rr::RRReporter::setReporter(localReporter);
+					LogWithAbort logWithAbort(this,solver);
 
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					fireballLoadAttempted = false;
@@ -1062,10 +1066,6 @@ reload_skybox:
 
 					// switch to fireball+ldm
 					OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM));
-
-					// restore old reporter
-					rr::RRReporter::setReporter(oldReporter);
-					delete localReporter;
 				}
 			}
 			break;
@@ -1074,11 +1074,8 @@ reload_skybox:
 				static unsigned quality = DEFAULT_FIREBALL_QUALITY;
 				if (getQuality("Fireball build",this,quality))
 				{
-
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
-					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-					rr::RRReporter::setReporter(localReporter);
+					LogWithAbort logWithAbort(this,solver);
 
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
@@ -1086,10 +1083,6 @@ reload_skybox:
 					solver->buildFireball(quality,NULL);
 					dirtyLights(solver);
 					fireballLoadAttempted = true;
-
-					// restore old reporter
-					rr::RRReporter::setReporter(oldReporter);
-					delete localReporter;
 				}
 			}
 			break;
@@ -1199,9 +1192,7 @@ reload_skybox:
 				if (getResolution("Unwrap build",this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
-					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-					rr::RRReporter::setReporter(localReporter);
+					LogWithAbort logWithAbort(this,solver);
 
 					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
 					// static objects may be modified even after abort (unwrap is not atomic)
@@ -1218,10 +1209,6 @@ reload_skybox:
 
 					// resize rtgi buffers, vertex counts may differ
 					solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
-
-					// restore old reporter
-					rr::RRReporter::setReporter(oldReporter);
-					delete localReporter;
 				}
 			}
 			break;
@@ -1233,9 +1220,7 @@ reload_skybox:
 				if (getResolution("Lightmap build",this,res,true) && getQuality("Lightmap build",this,quality))
 				{
 					// display log window with 'abort' while this function runs
-					rr::RRReporter* localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&solver,LOG_CAPTION);
-					rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
-					rr::RRReporter::setReporter(localReporter);
+					LogWithAbort logWithAbort(this,solver);
 
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -1267,10 +1252,6 @@ reload_skybox:
 
 					// save calculated lightmaps
 					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
-
-					// restore old reporter
-					rr::RRReporter::setReporter(oldReporter);
-					delete localReporter;
 				}
 			}
 			break;
