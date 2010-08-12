@@ -181,9 +181,7 @@ public:
 	//!  When observer is set, camera is moved to cover area around observer.
 	//!  Typically, observer is player and this is directional (sun) light with shadows;
 	//!  updated sun travels with player.
-	//! \param maxShadowArea
-	//!  Only for directional light: Limits area where shadows are computed, default is 1000x1000.
-	void update(const Camera* observer=NULL, float maxShadowArea=1000);
+	void update(const Camera* observer=NULL);
 	//! Rotates viewMatrix into one of 6 directions of point light. To be called after update().
 	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

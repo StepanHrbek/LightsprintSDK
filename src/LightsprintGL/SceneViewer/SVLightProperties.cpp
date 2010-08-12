@@ -131,9 +131,6 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 
 			propFar = new FloatProperty("Far (m)","Far plane distance for generating shadowmaps.",rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
-
-			propOrthoSize = new wxIntProperty(wxT("Max shadow size (m)"),wxPG_LABEL,light->rtMaxShadowSize);
-			AppendIn(propCastShadows,propOrthoSize);
 		}
 
 		updateHide();
@@ -164,7 +161,6 @@ void SVLightProperties::updateHide()
 	propShadowSamples->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
 	propFar->Hide(!light->castShadows,false);
-	propOrthoSize->Hide(light->type!=rr::RRLight::DIRECTIONAL,false);
 }
 
 void SVLightProperties::updatePosDir()
@@ -332,11 +328,6 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propFar)
 	{
 		rtlight->getParent()->setFar(property->GetValue().GetDouble());
-	}
-	else
-	if (property==propOrthoSize)
-	{
-		light->rtMaxShadowSize = property->GetValue().GetDouble();
 	}
 	//rtlight->dirtyShadowmap = true;
 	//rtlight->dirtyGI = true;

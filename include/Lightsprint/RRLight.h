@@ -226,14 +226,6 @@ namespace rr
 		//! When you set texture, ownership is passed to light, light deletes texture in destructor.
 		RRBuffer* rtProjectedTexture;
 
-		//! Limits area where shadows are computed.
-		//
-		//! Relevant only for realtime render, only for type=DIRECTIONAL.
-		//!
-		//! This is temporary control, it will be removed later.
-		//! Default value is 1000, so area with shadows computed is 1000x1000 or smaller.
-		float rtMaxShadowSize;
-
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

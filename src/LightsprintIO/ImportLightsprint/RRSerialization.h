@@ -372,7 +372,11 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
 	ar & make_nvp("rtProjectedTexture",prefix_buffer(a.rtProjectedTexture)); postfix_buffer(Archive,a.rtProjectedTexture);
-	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
+	if (version<1)
+	{
+		float rtMaxShadowSize;
+		ar & make_nvp("rtMaxShadowSize",rtMaxShadowSize);
+	}
 	// skip customData;
 }
 
@@ -631,5 +635,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRMeshArrays)
 BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
+
+BOOST_CLASS_VERSION(rr::RRLight,1)
 
 #endif

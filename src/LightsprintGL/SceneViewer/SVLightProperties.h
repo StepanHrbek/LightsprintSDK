@@ -65,7 +65,6 @@ namespace rr_gl
 		wxPGProperty*     propShadowSamples;
 		wxPGProperty*     propNear;
 		wxPGProperty*     propFar;
-		wxPGProperty*     propOrthoSize;
 
 		DECLARE_EVENT_TABLE()
 	};

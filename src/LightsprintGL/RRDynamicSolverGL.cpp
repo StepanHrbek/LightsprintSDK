@@ -225,7 +225,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 			//   eye direction changes -> eye far automatically changes -> light far would change -> old CSM would render incorerectly
 			if (light->getParent()->orthogonal && light->getNumShadowmaps())
 			{
-				light->getParent()->update(observer,light->getRRLight().rtMaxShadowSize);
+				light->getParent()->update(observer);
 			}
 
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));

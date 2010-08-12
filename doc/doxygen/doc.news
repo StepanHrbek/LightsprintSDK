@@ -47,9 +47,11 @@ NEWS
 
 CHANGES
 
-- minor cleanup in rr_gl::Camera
-  - rr_gl::Camera::getDirection() renamed to rr_gl::Camera::getRayDirection()
-  - rr_gl::Camera::setPosDirRangeRandomly() removed, use rr_gl::Camera::setView(RANDOM)
+- minor cleanup in rr_gl::Camera and RRLight
+  - renamed rr_gl::Camera::getDirection() to rr_gl::Camera::getRayDirection()
+  - removed rr_gl::Camera::setPosDirRangeRandomly(), use rr_gl::Camera::setView(RANDOM)
+  - removed second optional parameter in rr_gl::Camera::update()
+  - removed RRLight::rtMaxShadowSize
 
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 

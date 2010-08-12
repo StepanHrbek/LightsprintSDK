@@ -372,7 +372,6 @@ RRLight::RRLight()
 	castShadows = true;
 	customData = NULL;
 	rtProjectedTexture = NULL;
-	rtMaxShadowSize = 1000;
 }
 
 RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -426,7 +425,6 @@ bool RRLight::operator ==(const RRLight& a) const
 		&& a.castShadows==castShadows
 		&& a.name==name
 		&& a.rtProjectedTexture==rtProjectedTexture
-		&& a.rtMaxShadowSize==rtMaxShadowSize
 		&& a.customData==customData
 		;
 }

@@ -73,7 +73,6 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
 	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTexture?a.rtProjectedTexture->filename.c_str():""));
-	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
 	// skip customData;
 }
 
@@ -103,7 +102,11 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 		ar & make_nvp("rtProjectedTextureFilename", rtProjectedTextureFilenameString);
 		a.rtProjectedTexture = rr::RRBuffer::load(rtProjectedTextureFilenameString.c_str());
 	}
-	ar & make_nvp("rtMaxShadowSize",a.rtMaxShadowSize);
+	if (version<2)
+	{
+		float rtMaxShadowSize;
+		ar & make_nvp("rtMaxShadowSize",rtMaxShadowSize);
+	}
 	// skip customData;
 }
 
@@ -397,7 +400,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
-BOOST_CLASS_VERSION(rr::RRLight, 1)
+BOOST_CLASS_VERSION(rr::RRLight, 2)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)
 
