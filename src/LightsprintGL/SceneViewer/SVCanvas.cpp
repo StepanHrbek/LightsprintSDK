@@ -1230,9 +1230,10 @@ rendered:
 			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 		}
 
+		bool renderCrosshair = s_ciRelevant && (s_ci.mouseMiddle || s_ci.mouseRight);
 		if (svs.renderHelpers
 			|| svs.renderGrid
-			|| (s_ciRelevant && s_ci.mouseRight)
+			|| renderCrosshair
 			)
 		{
 			// set shader
@@ -1241,9 +1242,9 @@ rendered:
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
 		}
-		if (s_ciRelevant && s_ci.mouseRight)
+		if (renderCrosshair)
 		{
-			// render crosshair in rotation center of inspection camera
+			// render crosshair in camera inspection/panning center point
 			rr::RRVec3 pos = s_ci.hitPoint3d;
 			float size = s_ci.hitDistance/30;
 			glColor3f(1,0,0);
