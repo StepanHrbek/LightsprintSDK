@@ -190,15 +190,14 @@ void RRDynamicSolverGL::updateShadowmaps()
 		for (unsigned i=0;i<realtimeLights.size();i++)
 			if (realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumShadowmaps())
 			{
-				// dirty shadowmap always
+				// dirty shadowmap
+				// possible optimization (complicated):
+				//   remember dirty per instance and position per instance,
+				//   dirty instance only when observer moved too far,
+				//   support position per map in ubershader
 				realtimeLights[i]->dirtyShadowmap = true;
-				// dirty GI only when observer moved too far
-				// (direct illum is detected and indirect calculated only in orthoSize*orthoSize range around observer,
-				//  so when observer moves far enough, we redetect direct illum automatically)
-				if ((observer->pos-realtimeLights[i]->positionOfLastDDI).length()>realtimeLights[i]->getParent()->orthoSize/4)
-				{
-					realtimeLights[i]->dirtyGI = true;
-				}
+				// don't dirty GI, shadows are still the same
+				//realtimeLights[i]->dirtyGI = true;
 			}
 	}
 
