@@ -217,7 +217,7 @@ namespace rr
 
 		//! Projected texture.
 		//
-		//! Relevant only for realtime render, only for type=SPOT.
+		//! Relevant only for realtime renderer (has rt prefix), only for type=SPOT.
 		//! You may set/change it at any time, renderer updates automatically.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
@@ -226,6 +226,11 @@ namespace rr
 		//! When you set texture, ownership is passed to light, light deletes texture in destructor.
 		RRBuffer* rtProjectedTexture;
 
+		//! How many shadowmaps realtime renderer should use. More = higher quality, slower.
+		//
+		//! Relevant only for realtime renderer (has rt prefix).
+		//! You may set/change it at any time, renderer updates automatically.
+		unsigned rtNumShadowmaps;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

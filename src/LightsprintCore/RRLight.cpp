@@ -370,8 +370,9 @@ RRLight::RRLight()
 	fallOffAngleRad = 0;
 	spotExponent = 1;
 	castShadows = true;
-	customData = NULL;
 	rtProjectedTexture = NULL;
+	rtNumShadowmaps = 6;
+	customData = NULL;
 }
 
 RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
@@ -425,6 +426,7 @@ bool RRLight::operator ==(const RRLight& a) const
 		&& a.castShadows==castShadows
 		&& a.name==name
 		&& a.rtProjectedTexture==rtProjectedTexture
+		&& a.rtNumShadowmaps==rtNumShadowmaps
 		&& a.customData==customData
 		;
 }

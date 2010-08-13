@@ -27,6 +27,8 @@ namespace rr_gl
 		dirtyShadowmap = true;
 		dirtyGI = true;
 
+		csmObserverPos = rr::RRVec3(0);
+		csmSceneSize = rr::RRVec3(1);
 		parent = new Camera(_rrlight);
 		deleteParent = true;
 		shadowmapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
@@ -47,6 +49,23 @@ namespace rr_gl
 		for (unsigned i=0;i<shadowmaps.size();i++)
 		{
 			delete shadowmaps[i];
+		}
+	}
+
+	void RealtimeLight::configureCSM(Camera* observer, rr::RRObject* scene)
+	{
+		if (observer)
+		{
+			csmObserverPos = observer->pos;
+		}
+		if (scene)
+		{
+			rr::RRVec3 mini,maxi;
+			scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+			getParent()->pos = (maxi+mini)/2;
+			getParent()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
+			getParent()->orthoSize = (maxi-mini).maxi();
+			csmSceneSize = maxi-mini;
 		}
 	}
 
@@ -125,7 +144,7 @@ namespace rr_gl
 		{
 			case rr::RRLight::POINT: return 6;
 			case rr::RRLight::SPOT: return numInstancesInArea;
-			case rr::RRLight::DIRECTIONAL: return 2;
+			case rr::RRLight::DIRECTIONAL: return RR_CLAMPED(rrlight.rtNumShadowmaps,1,3);
 			default: RR_ASSERT(0); return 0;
 		}
 	}
@@ -240,10 +259,21 @@ namespace rr_gl
 		{
 			// setup second map in cascade
 			// DDI needs map0 big, so map0 is big, map1 is smaller
-			RR_ASSERT(numInstances==2); // dir must have 1 or 2 instances
-			if (instance==1)
+			if (instance==0)
 			{
-				light.orthoSize *= 0.2f; // cascade goes in 5x size steps
+				// already set by configureCSM()
+			}
+			else
+			{
+				light.pos = csmObserverPos;
+				light.orthoSize *= powf(0.2f,(float)instance);
+				double r = light.pos[0]*light.inverseViewMatrix[0]+light.pos[1]*light.inverseViewMatrix[1]+light.pos[2]*light.inverseViewMatrix[2];
+				double u = light.pos[0]*light.inverseViewMatrix[4]+light.pos[1]*light.inverseViewMatrix[5]+light.pos[2]*light.inverseViewMatrix[6];
+				double tmp;
+				double pixelSize = light.orthoSize/shadowmapSize*2;
+				r = modf(r/pixelSize,&tmp)*pixelSize;
+				u = modf(u/pixelSize,&tmp)*pixelSize;
+				light.pos -= light.right*(float)r+light.up*(float)u;
 			}
 			light.update();
 			return;

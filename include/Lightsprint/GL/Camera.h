@@ -176,12 +176,7 @@ public:
 	void blendAkima(unsigned numCameras, const Camera** cameras, float* times, float time);
 
 	//! Updates all outputs, recalculates them from inputs.
-	//
-	//! \param observer
-	//!  When observer is set, camera is moved to cover area around observer.
-	//!  Typically, observer is player and this is directional (sun) light with shadows;
-	//!  updated sun travels with player.
-	void update(const Camera* observer=NULL);
+	void update();
 	//! Rotates viewMatrix into one of 6 directions of point light. To be called after update().
 	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

@@ -182,25 +182,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 	PreserveViewport p1;
 	PreserveMatrices p2;
 
-	// after camera change, dirty travelling lights
-	if (observer && observer->pos!=oldObserverPos)
-	{
-		//rr::RRReporter::report(rr::INF2,"Dirty directional lights.\n");
-		oldObserverPos = observer->pos;
-		for (unsigned i=0;i<realtimeLights.size();i++)
-			if (realtimeLights[i]->getParent()->orthogonal && realtimeLights[i]->getNumShadowmaps())
-			{
-				// dirty shadowmap
-				// possible optimization (complicated):
-				//   remember dirty per instance and position per instance,
-				//   dirty instance only when observer moved too far,
-				//   support position per map in ubershader
-				realtimeLights[i]->dirtyShadowmap = true;
-				// don't dirty GI, shadows are still the same
-				//realtimeLights[i]->dirtyGI = true;
-			}
-	}
-
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		RealtimeLight* light = realtimeLights[i];
@@ -210,25 +191,15 @@ void RRDynamicSolverGL::updateShadowmaps()
 			continue;
 		}
 
-		// update non-dirlight position (this is probably redundant operation)
-		//if (!light->getParent()->orthogonal || !light->getNumShadowmaps())
-		//{
-		//	light->getParent()->update();
-		//}
-
 		// update shadowmap[s]
-		if (light->dirtyShadowmap)
+		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->pos!=oldObserverPos && light->getParent()->orthogonal && light->getNumShadowmaps();
+		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
-			// update dirlight position, it moves with observer camera
-			//  but only if shadowmap changes, to prevent this error scenario:
-			//   eye direction changes -> eye far automatically changes -> light far would change -> old CSM would render incorerectly
-			if (light->getParent()->orthogonal && light->getNumShadowmaps())
-			{
-				light->getParent()->update(observer);
-			}
-
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
+			if (observer)
+				oldObserverPos = observer->pos;
+			light->configureCSM(observer,getMultiObjectCustom());
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
@@ -250,7 +221,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 				default:
 					RR_ASSERT(0);
 			}
-			for (unsigned i=0;i<light->getNumShadowmaps();i++)
+			for (unsigned i=isDirtyOnlyBecauseObserverHasMoved?1:0 // don't update instance 0 just because of observer movement
+			     ;i<light->getNumShadowmaps();i++)
 			{
 				Camera* lightInstance = light->getShadowmapCamera(i);
 				lightInstance->setupForRender();

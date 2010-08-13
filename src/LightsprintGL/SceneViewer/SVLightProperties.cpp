@@ -120,6 +120,9 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propCastShadows);
 			SetPropertyEditor(propCastShadows,wxPGEditor_CheckBox);
 
+			propShadowmaps = new FloatProperty("Shadowmaps","Number of shadowmaps, more=higher quality, slower.",light->rtNumShadowmaps,0,1,3,10,false);
+			AppendIn(propCastShadows,propShadowmaps);
+
 			propShadowmapRes = new wxIntProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getShadowmapSize());
 			AppendIn(propCastShadows,propShadowmapRes);
 
@@ -157,6 +160,7 @@ void SVLightProperties::updateHide()
 	propFallOffExponent->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
 	propFallOffAngle->Hide(light->type!=rr::RRLight::SPOT,false);
 	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
+	propShadowmaps->Hide(!light->castShadows || light->type!=rr::RRLight::DIRECTIONAL,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propShadowSamples->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
@@ -308,6 +312,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSpotExponent)
 	{
 		light->spotExponent = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propShadowmaps)
+	{
+		light->rtNumShadowmaps = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propShadowmapRes)

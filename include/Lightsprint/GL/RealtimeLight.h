@@ -67,6 +67,8 @@ public:
 	//! Returns number of shadowmaps.
 	virtual unsigned getNumShadowmaps() const;
 
+	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
+	void configureCSM(Camera* observer, rr::RRObject* scene);
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
 	virtual Camera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
@@ -158,6 +160,8 @@ protected:
 	//!  \n For full effect, it should be enabled only when generating OR using shadowmap, not in both cases.
 	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
 	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
+	rr::RRVec3 csmObserverPos;
+	rr::RRVec3 csmSceneSize;
 	Camera* parent;
 	bool deleteParent;
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.

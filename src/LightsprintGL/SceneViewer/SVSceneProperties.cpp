@@ -66,11 +66,11 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraFov = new FloatProperty("FOV vertical (deg)","Vertical field of view angle, angle between top and bottom of viewport",svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
 		AppendIn(propCameraOrtho,propCameraFov);
 
-		propCameraNear = new FloatProperty("Near (m)","Near plane distance, elements closer to camera are not rendered.",svs.eye.getNear(),svs.precision,0,1e10f,0.1f,false);
+		propCameraNear = new FloatProperty("Near (m)","Near plane distance, elements closer to camera are not rendered.",svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
 		EnableProperty(propCameraNear,false);
 
-		propCameraFar = new FloatProperty("Far (m)","Far plane distance, elements farther from camera are not rendered.",svs.eye.getFar(),svs.precision,0,1e10f,1,false);
+		propCameraFar = new FloatProperty("Far (m)","Far plane distance, elements farther from camera are not rendered.",svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
 		EnableProperty(propCameraFar,false);
 

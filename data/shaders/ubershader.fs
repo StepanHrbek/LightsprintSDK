@@ -349,15 +349,26 @@ void main()
 			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index) * step(0.0,shadowCoord[index].z)
 		#endif
 
-		vec3 center;
+		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			// Catalyst drivers recently introduced new bug (observed on 4870, cat811-901)
 			// if neighboring pixels use different path in following "if", some of them incorrectly get visibility=0
-			center = shadowCoord[1].xyz/shadowCoord[1].w;
-			if(center.x>0.96 || center.x<0.04 || center.y>0.96 || center.y<0.04)
+			vec2 center2 = abs(shadowCoord[1].xy/shadowCoord[1].w-vec2(0.5));
+			if (max(center2.x,center2.y)>0.48)
 				visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
 			else
-				{SHADOWMAP_LOOKUP(shadowMap1,1);}
+			{
+				#if SHADOW_MAPS==2
+					SHADOWMAP_LOOKUP(shadowMap1,1);
+				#else
+					center2 = abs(shadowCoord[2].xy/shadowCoord[2].w-vec2(0.5));
+					if (max(center2.x,center2.y)>0.48)
+						visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
+						//{shift1 *= 0.5; shift2 *= 0.5; SHADOWMAP_LOOKUP(shadowMap1,1);}
+					else
+						{SHADOWMAP_LOOKUP(shadowMap2,2);}
+				#endif
+			}
 		#else
 			#if SHADOW_MAPS>0
 				SHADOWMAP_LOOKUP(shadowMap0,0);
@@ -365,9 +376,9 @@ void main()
 			#if SHADOW_MAPS>1
 				SHADOWMAP_LOOKUP(shadowMap1,1);
 			#endif
-		#endif
-		#if SHADOW_MAPS>2
-			SHADOWMAP_LOOKUP(shadowMap2,2);
+			#if SHADOW_MAPS>2
+				SHADOWMAP_LOOKUP(shadowMap2,2);
+			#endif
 		#endif
 		#if SHADOW_MAPS>3
 			SHADOWMAP_LOOKUP(shadowMap3,3);

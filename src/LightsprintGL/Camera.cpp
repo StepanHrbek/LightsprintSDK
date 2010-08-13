@@ -118,18 +118,23 @@ void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 
 void Camera::setNear(float _near)
 {
-	anear = RR_MAX(0.00000001f,_near);
+	anear = _near;
+	if (afar<=anear) afar = anear+100;
 }
 
 void Camera::setFar(float _far)
 {
-	afar = RR_MAX(anear*2,_far);
+	afar = _far;
+	if (anear>=afar) anear = (afar>0)?afar/10:afar-1;
 }
 
 void Camera::setRange(float _near, float _far)
 {
-	anear = RR_MAX(0.00000001f,_near);
-	afar = RR_MAX(anear*2,_far);
+	if (_near<_far)
+	{
+		anear = _near;
+		afar = _far;
+	}
 }
 
 rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
@@ -207,7 +212,7 @@ bool Camera::operator!=(const Camera& a) const
 	return !(*this==a);
 }
 
-void Camera::update(const Camera* observer)
+void Camera::update()
 {
 	// update dir
 	if (updateDirFromAngles)
@@ -236,28 +241,6 @@ void Camera::update(const Camera* observer)
 	float c = cos(leanAngle);
 	up = (tmpup*c+tmpright*s).normalized();
 	right = (tmpright*c-tmpup*s).normalized();
-
-	// update pos (the same for all cascade steps)
-	if (observer)
-	{
-		// update matrices
-		//update(NULL,0);
-		// update visible range to roughly match observer range
-		orthoSize = observer->afar;
-		afar = orthoSize*2.6f; // light must have 2x bigger range because it goes in 2 directions from observer. for unknown reason, sponza needs at least 2.6
-		anear = afar/10;
-		// set new pos
-		pos = observer->pos - dir*((afar-anear)*0.5f);// + observer->dir*(orthoSize*0.5f);
-		/*/ adjust pos
-		RRMatrix4x4 viewProjMatrix = viewMatrix*frustumMatrix;
-		RRVec2 screenPos = pos * viewProjMatrix;
-		RRVec3 rightDir = RRVec3(1,-1,-1)*viewProjMatrix - RRVec3(-1,-1,-1)*viewProjMatrix;
-		RRVec3 upDir = RRVec3(-1,1,-1)*viewProjMatrix - RRVec3(-1,-1,-1)*viewProjMatrix;
-		RRReal tmp;
-		RRReal rightFix = modf(screenPos[0]*(shadowmapSize/2),&tmp)/shadowmapSize;
-		RRReal upFix = modf(-screenPos[1]*(shadowmapSize/2),&tmp)/shadowmapSize;
-		pos += rightFix*rightDir + upFix*upDir;*/
-	}
 
 	// update viewMatrix
 	buildLookAtMatrix(viewMatrix,
@@ -437,35 +420,35 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 		switch (view)
 		{
 			case TOP:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
-				pos = rr::RRVec3((mini[0]+maxi[0])/2,maxi[1]+orthoSize,(mini[2]+maxi[2])/2);
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
+				//pos = rr::RRVec3((mini[0]+maxi[0])/2,maxi[1]+orthoSize,(mini[2]+maxi[2])/2);
 				break;
 			case BOTTOM:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2]);
-				pos = rr::RRVec3((mini[0]+maxi[0])/2,mini[1]-orthoSize,(mini[2]+maxi[2])/2);
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
+				//pos = rr::RRVec3((mini[0]+maxi[0])/2,mini[1]-orthoSize,(mini[2]+maxi[2])/2);
 				break;
 			case LEFT:
-				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
-				pos = rr::RRVec3(mini[0]-orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
+				//pos = rr::RRVec3(mini[0]-orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
 				break;
 			case RIGHT:
-				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2]);
-				pos = rr::RRVec3(maxi[0]+orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
+				//pos = rr::RRVec3(maxi[0]+orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
 				break;
 			case FRONT:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
-				pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+orthoSize);
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
+				//pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+orthoSize);
 				break;
 			case BACK:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1]);
-				pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
+				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
+				//pos = rr::RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
 			break;
 		}
 		// move pos to center, so that camera rotation keeps object in viewport
 		// user application is advised to stop setting range dynamically
 		pos = (maxi+mini)/2;
-		anear = 1.3f*(mini-maxi).maxi();
-		afar = -1.1f*anear;
+		anear = -(mini-maxi).length()/2;
+		afar = -1.5f*anear;
 	}
 }
 

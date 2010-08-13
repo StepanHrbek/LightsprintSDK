@@ -377,6 +377,10 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 		float rtMaxShadowSize;
 		ar & make_nvp("rtMaxShadowSize",rtMaxShadowSize);
 	}
+	else
+	{
+		ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
+	}
 	// skip customData;
 }
 

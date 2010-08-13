@@ -12,6 +12,11 @@ namespace rr
 
 NEWS
 
+- enhanced realtime shadows from Sun
+  - smoother, more detailed, work in scenes of all sizes
+  - can be configured for higher speed or quality, use
+    - RRLight::rtNumShadowmaps
+    - "Light properties / Shadowmaps" in scene viewer
 - enhanced scene viewer
   - new mouse controls
     - move mouse with left button pressed = looking around
@@ -33,6 +38,7 @@ NEWS
     - rr_gl::Camera::screenCenter
     - rr_gl::Camera::getPositionInWindow()
     - rr_gl::Camera::getRayOrigin()
+    - negative near and far allowed
 - environment simulation in scene viewer
   - Sun can be automatically positioned according to geolocation and datetime, see Scene properties / Environment
   - Sun can be manually positioned also by azimuth and elevation angles, see Light properties
@@ -47,11 +53,13 @@ NEWS
 
 CHANGES
 
-- minor cleanup in rr_gl::Camera and RRLight
+- minor cleanup in camera and light
   - renamed rr_gl::Camera::getDirection() to rr_gl::Camera::getRayDirection()
   - removed rr_gl::Camera::setPosDirRangeRandomly(), use rr_gl::Camera::setView(RANDOM)
   - removed second optional parameter in rr_gl::Camera::update()
+  - removed optional parameter in rr_gl::Camera::update()
   - removed RRLight::rtMaxShadowSize
+  - added rr_gl::RealtimeLight::configureCSM(), called automatically from RRDynamicSolverGL::updateShadowmaps()
 
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 
