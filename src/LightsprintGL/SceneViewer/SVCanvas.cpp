@@ -638,8 +638,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
-		s_ci.angle = svs.eye.angle;
-		s_ci.angleX = svs.eye.angleX;
+		Camera* cam = (event.LeftIsDown() && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getParent() : &svs.eye;
+		s_ci.angle = cam->angle; // when rotating light, init with light angles rather than camera angles
+		s_ci.angleX = cam->angleX;
 		s_ci.pos = svs.eye.pos;
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
