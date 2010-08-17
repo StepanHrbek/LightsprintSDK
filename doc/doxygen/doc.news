@@ -61,6 +61,10 @@ CHANGES
   - removed RRLight::rtMaxShadowSize
   - added rr_gl::RealtimeLight::configureCSM(), called automatically from RRDynamicSolverGL::updateShadowmaps()
 
+FIXES
+
+- BuildLightmaps sample ignored "direct" and "indirect" parameters
+
 \section news106 ------------------------------------ 2010.07.16 -------------------------------------
 
 NEWS

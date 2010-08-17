@@ -143,6 +143,7 @@ protected:
 
 	//! Modifies light to become given instance.
 	//
+	//! Inputs are not update()d, outputs are update()d.
 	//! \param light
 	//!  This is in/out parameter.
 	//!  On input, it is copy of parent spotlight.
