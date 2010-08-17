@@ -1491,7 +1491,7 @@ void SVFrame::simulateSun()
 				double g = (M_PI*2/365.25)*(dayInYear + hour/24); // fractional year, rad
 				double D = RR_DEG2RAD(0.396372-22.91327*cos(g)+4.02543*sin(g)-0.387205*cos(2*g)+0.051967*sin(2*g)-0.154527*cos(3*g) + 0.084798*sin(3*g)); // sun declination, rad
 				double TC = 0.004297+0.107029*cos(g)-1.837877*sin(g)-0.837378*cos(2*g)-2.340475*sin(2*g); // time correction for solar angle, deg
-				double SHA = RR_DEG2RAD((hour-12)*15 + longitudeDeg + TC); // solar hour angle, rad
+				double SHA = RR_DEG2RAD((hour-12)*15 + TC); //+ longitudeDeg); // solar hour angle, rad. longitude correction is not necessary because hour is local time
 				double cosSZA = sin(latitudeRad)*sin(D)+cos(latitudeRad)*cos(D)*cos(SHA); // sun zenith angle, cos
 				RR_CLAMP(cosSZA,-1,1);
 				double SZA = acos(cosSZA); // sun zenith angle, rad
