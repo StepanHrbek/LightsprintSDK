@@ -54,18 +54,21 @@ namespace rr_gl
 
 	void RealtimeLight::configureCSM(Camera* observer, rr::RRObject* scene)
 	{
-		if (observer)
+		if (rrlight.type==rr::RRLight::DIRECTIONAL)
 		{
-			csmObserverPos = observer->pos;
-		}
-		if (scene)
-		{
-			rr::RRVec3 mini,maxi;
-			scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-			getParent()->pos = (maxi+mini)/2;
-			getParent()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
-			getParent()->orthoSize = (maxi-mini).maxi();
-			csmSceneSize = maxi-mini;
+			if (observer)
+			{
+				csmObserverPos = observer->pos;
+			}
+			if (scene)
+			{
+				rr::RRVec3 mini,maxi;
+				scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+				getParent()->pos = (maxi+mini)/2;
+				getParent()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
+				getParent()->orthoSize = (maxi-mini).maxi();
+				csmSceneSize = maxi-mini;
+			}
 		}
 	}
 
@@ -153,7 +156,7 @@ namespace rr_gl
 	{
 		if (!parent || instance>=getNumShadowmaps())
 			return NULL;
-		Camera* c = new Camera(*parent);
+		Camera* c = new Camera(*parent); // default copy constructor. c might need update, because parent was not necessarily update()d
 		if (!c)
 			return NULL;
 		instanceMakeup(*c,instance,jittered);
