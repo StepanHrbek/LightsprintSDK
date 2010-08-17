@@ -139,8 +139,8 @@ struct Parameters
 		skyBox = NULL;
 		emissiveMultiplier = 1;
 		buildQuality = 0;
-		buildDirect = true;
-		buildIndirect = true;
+		buildDirect = false;
+		buildIndirect = false;
 		buildDirectional = false;
 		buildOcclusion = false;
 		buildBentNormals = false;
