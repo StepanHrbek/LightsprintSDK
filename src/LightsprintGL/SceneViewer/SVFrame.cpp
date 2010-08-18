@@ -32,6 +32,124 @@
 namespace rr_gl
 {
 
+
+#ifdef _WIN32
+/////////////////////////////////////////////////////////////////////////////
+//
+// AlphaSplashScreen
+
+class AlphaSplashScreen
+{
+public:
+	AlphaSplashScreen(const char* filename)
+	{
+		// load image
+		hWnd = 0;
+		rr::RRBuffer* buffer = rr::RRBuffer::load(filename);
+		if (!buffer)
+			return;
+
+		// register class
+		WNDCLASSEX wcex;
+		wcex.cbSize         = sizeof(WNDCLASSEX);
+		wcex.style			= CS_HREDRAW | CS_VREDRAW;
+		wcex.lpfnWndProc	= DefWindowProc;
+		wcex.cbClsExtra		= 0;
+		wcex.cbWndExtra		= 0;
+		wcex.hInstance		= NULL;
+		wcex.hIcon			= LoadIcon(NULL, IDI_APPLICATION);
+		wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		wcex.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
+		wcex.lpszMenuName	= NULL;
+		wcex.lpszClassName	= TEXT("Splash");
+		wcex.hIconSm		= LoadIcon(NULL, IDI_APPLICATION);
+		RegisterClassEx(&wcex);
+
+		// create window
+		RECT workArea;
+		SystemParametersInfo(SPI_GETWORKAREA,0,&workArea,0);
+		int x = workArea.left + RR_MAX(0,workArea.right-workArea.left-buffer->getWidth())/2;
+		int y = workArea.top + RR_MAX(0,workArea.bottom-workArea.top-buffer->getHeight())/2;
+		hWnd = CreateWindowEx(WS_EX_LAYERED|WS_EX_TOPMOST,TEXT("Splash"),TEXT("Splash"),WS_POPUPWINDOW|WS_VISIBLE,x,y,buffer->getWidth(),buffer->getHeight(),NULL,NULL,NULL,NULL);
+		if (!hWnd)
+		{
+			RR_ASSERT(0);
+			delete buffer;
+			return;
+		}
+
+		// copy image to windows
+		HDC hdcScreen = GetDC(NULL);
+		HDC hdcBackBuffer = CreateCompatibleDC(hdcScreen);
+		HBITMAP hbmBackBuffer = CreateCompatibleBitmap(hdcScreen, buffer->getWidth(), buffer->getHeight());
+		HGDIOBJ hbmOld = SelectObject(hdcBackBuffer, hbmBackBuffer);
+		BITMAPINFO bitmapinfo;
+		memset(&bitmapinfo,0,sizeof(bitmapinfo));
+		bitmapinfo.bmiHeader.biSize = sizeof(bitmapinfo.bmiHeader);
+		bitmapinfo.bmiHeader.biWidth = buffer->getWidth();
+		bitmapinfo.bmiHeader.biHeight = buffer->getHeight();
+		bitmapinfo.bmiHeader.biPlanes = 1;
+		bitmapinfo.bmiHeader.biBitCount = 32;
+		bitmapinfo.bmiHeader.biCompression = BI_RGB;
+		buffer->setFormat(rr::BF_RGBA);
+		unsigned char* data = buffer->lock(rr::BL_READ_WRITE);
+		for (unsigned i=0;i<buffer->getBufferBytes();i+=4)
+		{
+			// swap r,b, premultiply by a
+			unsigned char r = data[i];
+			unsigned char g = data[i+1];
+			unsigned char b = data[i+2];
+			unsigned char a = data[i+3];
+			data[i] = b*a/255;
+			data[i+1] = g*a/255;
+			data[i+2] = r*a/255;
+			data[i+3] = a;
+		}
+		SetDIBitsToDevice(hdcBackBuffer,0,0,buffer->getWidth(),buffer->getHeight(),0,0,0,buffer->getHeight(),data,&bitmapinfo,0);
+		buffer->unlock();
+		delete buffer;
+
+		// start rendering splash
+		POINT ptSrc;
+		ptSrc.x = 0;
+		ptSrc.y = 0;
+		SIZE size;
+		size.cx = buffer->getWidth();
+		size.cy = buffer->getHeight();
+		BLENDFUNCTION bf;
+		bf.AlphaFormat = AC_SRC_ALPHA;
+		bf.SourceConstantAlpha = 255;
+		bf.BlendFlags = 0;
+		bf.BlendOp = AC_SRC_OVER;
+		UpdateLayeredWindow(hWnd, NULL, NULL, &size, hdcBackBuffer, &ptSrc, 0, &bf, ULW_ALPHA);
+		SelectObject(hdcBackBuffer, hbmOld);
+		DeleteDC(hdcBackBuffer);
+		_beginthread(windowThreadFunc,0,NULL);
+	}
+
+	~AlphaSplashScreen()
+	{
+		DestroyWindow(hWnd);
+	}
+private:
+	static void windowThreadFunc(void* instanceData)
+	{
+		MSG msg;
+		while (GetMessage(&msg,NULL,0,0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	HWND hWnd;
+};
+#endif // _WIN32
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// LogWithAbort
+
 class LogWithAbort
 {
 public:
@@ -57,6 +175,11 @@ private:
 	rr::RRReporter* localReporter;
 	rr::RRReporter* oldReporter;
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// UI dialogs
 
 // "123abc" -> 123
 unsigned getUnsigned(const wxString& str)
@@ -169,6 +292,11 @@ static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
 	}
 	return false;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SVFrame
 
 	#define APP_NAME wxString("SceneViewer")
 	#define APP_VERSION_TITLE __DATE__
@@ -430,7 +558,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	}
 	userPreferencesApplyToWx();
 	m_mgr.Update();
-
 }
 
 SVFrame::~SVFrame()
