@@ -19,6 +19,7 @@
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetSpecialFolderPath
+	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
 
 	#define DEFAULT_FIREBALL_QUALITY 350
@@ -37,6 +38,8 @@ namespace rr_gl
 /////////////////////////////////////////////////////////////////////////////
 //
 // AlphaSplashScreen
+
+bool g_alphaSplashOn = false;
 
 class AlphaSplashScreen
 {
@@ -125,11 +128,13 @@ public:
 		SelectObject(hdcBackBuffer, hbmOld);
 		DeleteDC(hdcBackBuffer);
 		_beginthread(windowThreadFunc,0,NULL);
+		g_alphaSplashOn = true;
 	}
 
 	~AlphaSplashScreen()
 	{
 		DestroyWindow(hWnd);
+		g_alphaSplashOn = false;
 	}
 private:
 	static void windowThreadFunc(void* instanceData)

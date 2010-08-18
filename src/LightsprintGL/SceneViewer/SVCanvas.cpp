@@ -972,6 +972,7 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 	SwapBuffers();
 }
 
+
 void SVCanvas::Paint(wxPaintEvent& event)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
