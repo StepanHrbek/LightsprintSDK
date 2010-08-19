@@ -155,12 +155,15 @@ private:
 //
 // LogWithAbort
 
+bool g_logIsOn = false;
+
 class LogWithAbort
 {
 public:
 	LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver)
 	{
 		// display log window with 'abort'
+		g_logIsOn = true;
 		window = _window;
 		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
 		oldReporter = rr::RRReporter::getReporter();
@@ -169,6 +172,7 @@ public:
 	~LogWithAbort()
 	{
 		// restore old reporter, close log
+		g_logIsOn = false;
 		rr::RRReporter::setReporter(oldReporter);
 		delete localReporter;
 		// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
@@ -504,7 +508,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #ifdef _WIN32
 #ifdef NDEBUG
 	double splashStartSec = GETSEC;
-	AlphaSplashScreen splash(tmpstr("%s../maps/sv_splash.png",svs.pathToShaders),170,-230);
+	AlphaSplashScreen splash(tmpstr("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
 #endif
 #endif
 
@@ -1120,11 +1124,17 @@ reload_skybox:
 			}
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
+				// display log window with 'abort' while this function runs
+				// don't display it if it is already displayed (we may be automatically called when scene loads and fireball is requested, log is already on)
+				LogWithAbort* logWithAbort = g_logIsOn ? NULL : new LogWithAbort(this,solver);
+
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
 				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,NULL);
 				dirtyLights(solver);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
+
+				delete logWithAbort;
 			}
 			break;
 
