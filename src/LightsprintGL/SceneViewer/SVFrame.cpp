@@ -1465,21 +1465,21 @@ reload_skybox:
 			break;
 		case ME_SUPPORT:
 			ShellExecuteA(NULL,"open",tmpstr("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
-#if defined(_WIN32)
+	#if defined(_WIN32)
 				"win",
-#else
+	#else
 				"linux",
-#endif
-#if defined(_M_X64) || defined(_LP64)
+	#endif
+	#if defined(_M_X64) || defined(_LP64)
 				64,
-#else
+	#else
 				32,
-#endif
-#if defined(_MSC_VER)
+	#endif
+	#if defined(_MSC_VER)
 				_MSC_VER
-#else
+	#else
 				0
-#endif
+	#endif
 				),NULL,NULL,SW_SHOWNORMAL);
 			break;
 		case ME_LIGHTSPRINT:

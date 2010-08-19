@@ -125,10 +125,10 @@ namespace rr_gl
 
 			ME_HELP,
 			ME_SDK_HELP,
-			ME_CHECK_SOLVER,
-			ME_CHECK_SCENE,
 			ME_SUPPORT,
 			ME_LIGHTSPRINT,
+			ME_CHECK_SOLVER,
+			ME_CHECK_SCENE,
 			ME_ABOUT,
 		};
 
