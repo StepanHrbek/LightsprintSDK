@@ -23,6 +23,7 @@ NEWS
     - move mouse with middle button pressed = panning (pixel perfect)
     - move mouse with right button pressed = inspection (rotates around clicked pixel)
   - log window with "Abort" button shows up during slow operations
+  - more help in Help menu
 - enhanced camera
   - in scene viewer
     - Scene properties / Camera / View, can be set to Top, Bottom, Front, Back, Left, Right, Custom

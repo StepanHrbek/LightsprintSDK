@@ -44,7 +44,7 @@ bool g_alphaSplashOn = false;
 class AlphaSplashScreen
 {
 public:
-	AlphaSplashScreen(const char* filename)
+	AlphaSplashScreen(const char* filename, int dx=0, int dy=0)
 	{
 		// load image
 		hWnd = 0;
@@ -71,8 +71,8 @@ public:
 		// create window
 		RECT workArea;
 		SystemParametersInfo(SPI_GETWORKAREA,0,&workArea,0);
-		int x = workArea.left + RR_MAX(0,workArea.right-workArea.left-buffer->getWidth())/2;
-		int y = workArea.top + RR_MAX(0,workArea.bottom-workArea.top-buffer->getHeight())/2;
+		int x = workArea.left + RR_MAX(0,workArea.right-workArea.left-buffer->getWidth())/2 + dx;
+		int y = workArea.top + RR_MAX(0,workArea.bottom-workArea.top-buffer->getHeight())/2 + dy;
 		hWnd = CreateWindowEx(WS_EX_LAYERED|WS_EX_TOPMOST,TEXT("Splash"),TEXT("Splash"),WS_POPUPWINDOW|WS_VISIBLE,x,y,buffer->getWidth(),buffer->getHeight(),NULL,NULL,NULL,NULL);
 		if (!hWnd)
 		{
@@ -336,10 +336,10 @@ void SVFrame::UpdateEverything()
 	m_canvas = nextCanvas;
 
 
-	// must go after SVCanvas() otherwise canvas stays 16x16 pixels
-	Show(true);
-
 	UpdateMenuBar();
+
+	// should go as late as possible, we don't want window displayed yet
+	Show(true);
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
 	// loads scene if it is specified by filename
@@ -501,6 +501,12 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	CreateStatusBar();
 
+#ifdef _WIN32
+#ifdef NDEBUG
+	double splashStartSec = GETSEC;
+	AlphaSplashScreen splash(tmpstr("%s../maps/sv_splash.png",svs.pathToShaders),170,-230);
+#endif
+#endif
 
 	m_mgr.SetManagedWindow(this);
 
