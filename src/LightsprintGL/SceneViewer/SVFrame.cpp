@@ -690,9 +690,12 @@ void SVFrame::UpdateMenuBar()
 	// About...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_HELP,_T("Help (h)"));
+		winMenu->Append(ME_HELP,_T("Help - controls (h)"));
+		winMenu->Append(ME_SDK_HELP,_T("Lightsprint SDK manual"));
+		winMenu->Append(ME_SUPPORT,_T("Report bug, get support"));
 		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"),_T("For diagnostic purposes."));
 		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"),_T("For diagnostic purposes."));
+		winMenu->Append(ME_LIGHTSPRINT,_T("Lightsprint web"));
 		winMenu->Append(ME_ABOUT,_T("About"));
 		menuBar->Append(winMenu, _T("Help"));
 	}
@@ -1441,7 +1444,34 @@ reload_skybox:
 		//////////////////////////////// HELP ///////////////////////////////
 
 		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
-		case ME_CHECK_SOLVER: solver->checkConsistency(); break;
+		case ME_SDK_HELP:
+			ShellExecuteA(NULL,"open",tmpstr("%s..\\..\\doc\\Lightsprint.chm",svs.pathToShaders),NULL,NULL,SW_SHOWNORMAL);
+			break;
+		case ME_SUPPORT:
+			ShellExecuteA(NULL,"open",tmpstr("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
+#if defined(_WIN32)
+				"win",
+#else
+				"linux",
+#endif
+#if defined(_M_X64) || defined(_LP64)
+				64,
+#else
+				32,
+#endif
+#if defined(_MSC_VER)
+				_MSC_VER
+#else
+				0
+#endif
+				),NULL,NULL,SW_SHOWNORMAL);
+			break;
+		case ME_LIGHTSPRINT:
+			ShellExecuteA(NULL,"open","http://lightsprint.com",NULL,NULL,SW_SHOWNORMAL);
+			break;
+		case ME_CHECK_SOLVER:
+			solver->checkConsistency();
+			break;
 		case ME_CHECK_SCENE:
 			solver->getStaticObjects().checkConsistency("static");
 			solver->getDynamicObjects().checkConsistency("dynamic");
