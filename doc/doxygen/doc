@@ -217,7 +217,7 @@ Scene formats
 - Gamebryo 2.6 ( *.gsa )
 - Unreal Engine 3
 - Lightsprint ( .rr3 )
-- Collada ( *.dae )     <------ if not sure, use Collada
+- Collada ( *.dae )    <------ if not sure, use Collada, see \subpage collada_plugins
 - Biovision BVH ( *.bvh )
 - 3D Studio Max 3DS ( *.3ds )
 - 3D Studio Max ASE ( *.ase )
@@ -328,6 +328,37 @@ Video formats
  - Release static (source code license only)
  - Debug static (source code license only)
 
+
+
+\page collada_plugins Collada plugins
+
+ Collada plugins for Max/Maya are available from several parties.
+
+ \section cp_fcollada FCollada
+  <a href="http://sourceforge.net/projects/colladamaya/files/">FCollada plugin (3.05C)</a> is no longer developed, but it is probably still the best option.
+
+  Significant plugin errors:
+  - It may export inverted opacity. This is problem of Collada 1.4.1 format, solved in 1.5.0 by addition of RGB_ONE and A_ZERO modes.
+    FCollada will always support only 1.4.1, so this problem will stay.
+
+ \section cp_opencollada OpenCollada
+  <a href="http://opencollada.org/download.html">OpenCollada plugin</a> has bright future,
+  it is under development, aiming to replace FCollada, and it is already very close.
+
+  Significant plugin errors:
+  - <a href="http://code.google.com/p/opencollada/issues/detail?id=36">Everything has specular reflection</a>
+    This is the only problem that stops us from recommending OpenCollada over FCollada.
+  - It may export inverted opacity. This is problem of Collada 1.4.1 format, solved in 1.5.0 by addition of RGB_ONE and A_ZERO modes.
+    OpenCollada exports to 1.4.1, but developers promise option to export to Collada 1.5.0.
+    Right now, version can be changed in plugin source code, by passing COLLADA_1_5_0 as third parameter to the mStreamWriter ctor at
+    http://code.google.com/p/opencollada/source/browse/trunk/COLLADAMax/src/COLLADAMaxDocumentExporter.cpp#58
+  - Other less significant problems are listed in <a href="http://code.google.com/p/opencollada/issues/list">issue tracker</a>
+
+ \section cp_nexgen NexGen
+  Avoid. This is old name of OpenCollada plugin, therefore NexGen plugin is less developed than OpenCollada.
+
+ \section cp_autodesk Autodesk Collada
+  Avoid. Max/Maya may include Collada support out of the box. We have never seen it doing its job well.
 
 
 
@@ -689,6 +720,11 @@ Video formats
  \section artist_offline_unwrap Unwrap
   Lightsprint SDK supports both user-provided and automatically generated unwrap.
 
+ \section artist_offline_formats File formats
+  Lightsprint SDK does not lock your data in properietary formats.
+  Instead, it supports \ref supported_formats "over 70 standard file formats".
+  In case you pick Collada, here's list of available \ref collada_plugins.
+
 
 
 \page main_artist_realtime Realtime GI
@@ -745,6 +781,11 @@ Video formats
  \section artist_realtime_lights Lights
   All light sources are supported - point, spot, directional, emissive materials,
   sky (flat color, LDR or HDR texture) and they may arbitrarily change in realtime.
+
+ \section artist_offline_formats File formats
+  Lightsprint SDK does not lock your data in properietary formats.
+  Instead, it supports \ref supported_formats "over 70 standard file formats".
+  In case you pick Collada, here's list of available \ref collada_plugins.
 
 
 
@@ -831,8 +872,6 @@ Video formats
 
   - Convert your scene to one of \ref supported_formats
   - If you plan to compute maps rather than per-vertex values, include uv channel for lightmaps or ambient maps.
-    Only small subset of formats supports this, one of them is Collada.
-    Collada plugins for Max/Maya are available from several parties, see e.g. <a href="http://opencollada.org">[opencollada.org]</a>.
   - Load scene into BuildLightmaps, CPULightmaps, SceneViewer or Lightmaps sample.
     For usage details, read comments at the beginning of sample source code.
 
@@ -841,7 +880,6 @@ Video formats
  </td></tr></table>
 
   - 1 day
-
 
 
 
@@ -2866,7 +2904,7 @@ rr::RRVector<*>{
  \section io_overview Overview
 
   LightsprintIO is an optional utility library that imports 3D scenes and textures
-  from over 50 file formats (\ref supported_formats).
+  from \ref supported_formats "over 70 file formats".
 
   It has simple and friendly user interface, one function without parameters.
 
