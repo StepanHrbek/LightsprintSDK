@@ -21,8 +21,10 @@ namespace rr_gl
 // LensFlare
 
 //! Lens flare effect.
+//
 //! Images by Michael Tanczos, published at http://www.gamedev.net/reference/articles/article874.asp.
 //! To use your own images, save them over existing data/maps/flare*.png.
+//! \image html lensflare.jpg
 class RR_GL_API LensFlare
 {
 public:

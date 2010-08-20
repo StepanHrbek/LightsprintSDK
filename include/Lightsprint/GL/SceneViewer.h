@@ -228,10 +228,16 @@ struct SceneViewerState
 	}
 };
 
-//! Runs interactive scene viewer.
+//! Runs interactive scene viewer/editor.
 //
-//! Scene viewer includes debugging and relighting features. All lights and skybox are editable.
+//! \image html SceneViewer_2.jpg
+//! Scene viewer includes debugging and editing features.
+//! All lights and materials can be freely edited and skybox changed.
 //! All lighting techniques for both realtime and precomputed GI are available via menu.
+//! All effects can be enabled and configured via scene properties.
+//!
+//! Scene viewer can serve as a base for development of custom products.
+//! If you need new feature added, we offer to do it for you or license you full scene viewer source code.
 //!
 //! \param inputSolver
 //!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.

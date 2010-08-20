@@ -20,6 +20,9 @@ namespace rr_gl
 // Bloom
 
 //! Bloom postprocess.
+//
+//! Example:
+//! \image html bloom.jpg
 class RR_GL_API Bloom
 {
 public:
@@ -29,6 +32,7 @@ public:
 	Bloom(const char* pathToShaders);
 	~Bloom();
 
+	//! Adds bloom effect to image in current render target, to region of size w*h.
 	void applyBloom(unsigned w, unsigned h);
 
 protected:

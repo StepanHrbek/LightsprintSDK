@@ -311,8 +311,8 @@ Video formats
  - for offline rendering, GPU is not needed
 
  3D APIs
- - OpenGL 2/3 (examples included)
- - Direct3D 9/10 (no examples yet)
+ - OpenGL 2/3/4 (examples included)
+ - Direct3D 9/10/11 (no examples yet)
  - for offline rendering, 3D API is not needed
 
  Compilers
@@ -2421,6 +2421,7 @@ Video formats
   - Toolbench plugins let you bake global illumination in HDR, results are immediately displayed in WorldBuilder
   - illumination can be baked to lightmaps, directional lightmaps (a.k.a. radiosity normal maps), vertex colors
   - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
+  - postprocessing: color tone, brightness and contrast can be changed in a second
   - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
   - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
   - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
@@ -2497,6 +2498,16 @@ Video formats
       - Then, resolution is multiplied by LsResolutionMultiplier.
       - Then, resolution is rounded up to power of two. If you have use for non power of two resolutions, we will add checkbox to disable rounding.
       - Finally, resolution is limited to be >=32 and <=2048. Let us know if you want to change these limits, we will expose them in LightsprintScene.
+
+   \subsection g3_cache - lightmap cache
+    - located in (asset root)/PrecomputedLighting/cache
+    - how it works?
+      - "Bake lighting" calculates lighting, saves raw lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
+      - "Bake lighting from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
+    - serves three purposes
+      - Lets you look at lightmaps. Once cache is filled by "Bake lighting", you can look at lightmaps in any modern image viewer. (Note that there are no tools for looking at lightmaps in Gamebryo's .nif).
+      - Lets you edit lightmaps. Once cache is filled by "Bake lighting", you can edit cached lightmaps and apply results to scene by "Bake lighting from cache".
+      - Makes postprocessing near instant. Once cache is filled by "Bake lighting", you can change color tone, brightness, contrast and compression and apply changes by "Bake lighting from cache".
 
  \section g3_max Preparing art assets
     - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:

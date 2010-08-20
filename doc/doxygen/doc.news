@@ -12,26 +12,34 @@ namespace rr
 
 NEWS
 
-- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
-  - lightmap postprocessing, new options in LightsprintScene
+- <b>improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"</b>
+    <table><tr><td>
+  - Lightmap postprocessing, new options added to LightsprintScene
     - LsColorTone
     - LsBrightness
     - LsContrast
-  - you can quickly modify lightmaps without full bake
-    - if you have GI baked and change postprocessing or texture compression settings, click "Bake from cache"
-  - you can see individual lightmaps in float precision
-    - look into (asset root)/PrecomputedLighting/cache
-    - it is just copy for you, Gamebryo has lightmaps stored in .nif
-  - you can edit individual lightmaps in float precision, in three steps:
-    -# Bake
-    -# edit maps in (asset root)/PrecomputedLighting/cache
-    -# Bake from cache
-- enhanced realtime shadows from Sun
+    </td><td>
+    \image html Toolbench-postprocessing.png
+    </td></tr><tr><td>
+  - You can change above settings in near realtime.
+    - First, you have to "Bake" once to fill cache.
+    - Then if you change postprocessing or compression option, click "Bake lighting from cache" for near instant update.
+    </td><td>
+    \image html Toolbench-menu.png
+    </td></tr></table>
+  - You can see individual lightmaps (in float precision).
+    - Stored in (asset root)/PrecomputedLighting/cache.
+    - Images in cache are only for you, Gamebryo has lightmaps stored in .nif (where one can't easily see them).
+  - You can edit individual lightmaps (in float precision), in three steps
+    - "Bake"
+    - Then edit maps created in (asset root)/PrecomputedLighting/cache
+    - And finally "Bake from cache" to apply your maps
+- <b>enhanced realtime shadows</b> from Sun
   - smoother, more detailed, work in scenes of all sizes
   - can be configured for higher speed or quality, use
     - RRLight::rtNumShadowmaps
     - "Light properties / Shadowmaps" in scene viewer
-- enhanced scene viewer
+- <b>enhanced scene viewer</b>
   - environment simulation
     - Sun can be automatically positioned according to geolocation and datetime, see Scene properties / Environment
     - Sun can be manually positioned also by azimuth and elevation angles, see Light properties
@@ -42,7 +50,7 @@ NEWS
     - move mouse with right button pressed = inspection (rotates around clicked pixel)
   - log window with "Abort" button shows up during slow operations
   - more help in Help menu
-- enhanced camera
+- <b>enhanced camera</b>
   - in scene viewer
     - Scene properties / Camera / View, can be set to Top, Bottom, Front, Back, Left, Right, Custom
     - Scene properties / Camera / Orthogonal
@@ -58,12 +66,20 @@ NEWS
     - rr_gl::Camera::getPositionInWindow()
     - rr_gl::Camera::getRayOrigin()
     - negative near and far allowed
-- bloom effect
-  - rr_gl::Bloom
-  - in scene viewer: Scene properties / Render extras / Bloom
-- lens flare effect
-  - rr_gl::LensFlare
-  - in scene viewer: Scene properties / Render extras / Lens Flare
+- <b>new effects</b>
+  <table><tr><td valign=top>
+  - bloom
+    - rr_gl::Bloom
+    - in scene viewer: Scene properties / Render extras / Bloom
+    </td><td>
+    \image html bloom.jpg
+    </td></tr><tr><td valign=top>
+  - lens flare
+    - rr_gl::LensFlare
+    - in scene viewer: Scene properties / Render extras / Lens Flare
+    </td><td>
+    \image html lensflare.jpg
+  </td></tr></table>
 - random small enhancements
   - RRBuffer::brightnessGamma() added
   - RRReporter::createWindowedReporter() has new parameter, lets you change log window title
