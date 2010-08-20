@@ -12,12 +12,30 @@ namespace rr
 
 NEWS
 
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - lightmap postprocessing, new options in LightsprintScene
+    - LsColorTone
+    - LsBrightness
+    - LsContrast
+  - you can quickly modify lightmaps without full bake
+    - if you have GI baked and change postprocessing or texture compression settings, click "Bake from cache"
+  - you can see individual lightmaps in float precision
+    - look into (asset root)/PrecomputedLighting/cache
+    - it is just copy for you, Gamebryo has lightmaps stored in .nif
+  - you can edit individual lightmaps in float precision, in three steps:
+    -# Bake
+    -# edit maps in (asset root)/PrecomputedLighting/cache
+    -# Bake from cache
 - enhanced realtime shadows from Sun
   - smoother, more detailed, work in scenes of all sizes
   - can be configured for higher speed or quality, use
     - RRLight::rtNumShadowmaps
     - "Light properties / Shadowmaps" in scene viewer
 - enhanced scene viewer
+  - environment simulation
+    - Sun can be automatically positioned according to geolocation and datetime, see Scene properties / Environment
+    - Sun can be manually positioned also by azimuth and elevation angles, see Light properties
+    - removed Environment menu, functionality moved to Scene properties / Environment
   - new mouse controls
     - move mouse with left button pressed = looking around
     - move mouse with middle button pressed = panning (pixel perfect)
@@ -40,17 +58,15 @@ NEWS
     - rr_gl::Camera::getPositionInWindow()
     - rr_gl::Camera::getRayOrigin()
     - negative near and far allowed
-- environment simulation in scene viewer
-  - Sun can be automatically positioned according to geolocation and datetime, see Scene properties / Environment
-  - Sun can be manually positioned also by azimuth and elevation angles, see Light properties
-  - removed Environment menu, functionality moved to Scene properties / Environment
 - bloom effect
   - rr_gl::Bloom
   - in scene viewer: Scene properties / Render extras / Bloom
 - lens flare effect
   - rr_gl::LensFlare
   - in scene viewer: Scene properties / Render extras / Lens Flare
-- RRReporter::createWindowedReporter() has new parameter, lets you change log window title
+- random small enhancements
+  - RRBuffer::brightnessGamma() added
+  - RRReporter::createWindowedReporter() has new parameter, lets you change log window title
 
 CHANGES
 
