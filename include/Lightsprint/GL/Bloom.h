@@ -21,7 +21,7 @@ namespace rr_gl
 
 //! Bloom postprocess.
 //
-//! Example:
+//! This is how it looks:
 //! \image html bloom.jpg
 class RR_GL_API Bloom
 {
