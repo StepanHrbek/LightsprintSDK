@@ -202,6 +202,10 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 
 void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 {
+	if (!flipX && !flipY && !flipZ)
+	{
+		return;
+	}
 	switch (getFormat())
 	{
 		case BF_RGB:
@@ -236,6 +240,24 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 		case BF_DXT5:
 			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"flip() not supported for compressed formats.\n"));
 			break;
+	}
+}
+
+void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
+{
+	if (brightness==RRVec4(1) && gamma==RRVec4(1))
+	{
+		return;
+	}
+	// slow getElement path, faster path can be written using lock and direct access
+	int numElements = getWidth()*getHeight()*getDepth();
+#pragma omp parallel for
+	for (int i=0;i<numElements;i++)
+	{
+		rr::RRVec4 element = getElement(i);
+		for (unsigned j=0;j<4;j++)
+			element[j] = pow(element[j]*brightness[j],gamma[j]);
+		setElement(i,element);
 	}
 }
 

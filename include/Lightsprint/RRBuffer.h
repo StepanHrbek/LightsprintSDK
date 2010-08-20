@@ -363,6 +363,11 @@ namespace rr
 		virtual void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 		//! Flips buffer in x, y and/or z dimension. 
 		virtual void flip(bool flipX, bool flipY, bool flipZ);
+		//! Changes all colors in buffer to pow(color*brightness,gamma).
+		//
+		//! Preserves buffer format.
+		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
+		virtual void brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma);
 		//! Fills mini and maxi with extreme values found in buffer.
 		virtual void getMinMax(RRVec4* mini, RRVec4* maxi);
 	};
