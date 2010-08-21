@@ -230,6 +230,7 @@ namespace rr
 		//
 		//! Relevant only for realtime renderer (has rt prefix).
 		//! You may set/change it at any time, renderer updates automatically.
+		//! 1 or 2 is optimal for small scenes and for viewing scenes from distance where additional details that 3 provides are hardly visible.
 		unsigned rtNumShadowmaps;
 
 		//////////////////////////////////////////////////////////////////////////////

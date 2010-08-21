@@ -52,7 +52,7 @@ namespace rr_gl
 		}
 	}
 
-	void RealtimeLight::configureCSM(Camera* observer, rr::RRObject* scene)
+	void RealtimeLight::configureCSM(const Camera* observer, const rr::RRObject* scene)
 	{
 		if (rrlight.type==rr::RRLight::DIRECTIONAL)
 		{

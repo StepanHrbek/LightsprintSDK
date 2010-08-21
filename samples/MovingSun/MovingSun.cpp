@@ -61,7 +61,8 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observ
 	RR_ASSERT(_solver->getLights().size()==1);
 	_solver->realtimeLights[0]->getParent()->dir = _solver->getLights()[0]->direction = rr::RRVec3(-0.5f,-sin(_lightTime01*3.14f),-cos(_lightTime01*3.14f));
 	_solver->realtimeLights[0]->getParent()->updateDirFromAngles = false;
-	_solver->realtimeLights[0]->getParent()->update(_observer);
+	_solver->realtimeLights[0]->configureCSM(_observer,_solver->getMultiObjectCustom());
+	_solver->realtimeLights[0]->getParent()->update();
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
 	_solver->reportDirectIlluminationChange(0,true,true);
 }
@@ -386,6 +387,7 @@ int main(int argc, char **argv)
 	{
 		rr::RRLights lights;
 		lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(1),rr::RRVec3(3),true)); 
+		lights[0]->rtNumShadowmaps = 2; // 2 reduces details, but they are hardly visible in this scene; use 3 for bigger scenes or closeups
 		//lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),0.8f,0.4f)); 
 		solver->setLights(lights);
 	}
