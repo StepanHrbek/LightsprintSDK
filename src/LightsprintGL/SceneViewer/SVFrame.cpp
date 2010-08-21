@@ -34,7 +34,7 @@ namespace rr_gl
 {
 
 
-#ifdef _WIN32
+#if defined(_WIN32) && _MSC_VER>=1400
 /////////////////////////////////////////////////////////////////////////////
 //
 // AlphaSplashScreen
@@ -505,7 +505,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	CreateStatusBar();
 
-#ifdef _WIN32
+#if defined(_WIN32) && _MSC_VER>=1400
 #ifdef NDEBUG
 	double splashStartSec = GETSEC;
 	AlphaSplashScreen splash(tmpstr("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
