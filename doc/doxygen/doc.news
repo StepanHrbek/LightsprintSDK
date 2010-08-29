@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news108 ------------------------------------ 2010.09.xx -------------------------------------
+
+NEWS
+
+- realtime shadow tweaks (reduced shadow acne, reduced bias in detailed sun shadows, increased bias in other shadows)
+
 \section news107 ------------------------------------ 2010.08.21 -------------------------------------
 
 NEWS

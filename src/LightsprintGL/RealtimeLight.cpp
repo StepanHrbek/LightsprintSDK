@@ -269,7 +269,10 @@ namespace rr_gl
 			else
 			{
 				light.pos = csmObserverPos;
-				light.orthoSize *= powf(0.2f,(float)instance);
+				float visibleArea = powf(0.2f,(float)instance);
+				light.orthoSize *= visibleArea;
+				if (Workaround::supportsDepthClamp())
+					light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
 				double r = light.pos[0]*light.inverseViewMatrix[0]+light.pos[1]*light.inverseViewMatrix[1]+light.pos[2]*light.inverseViewMatrix[2];
 				double u = light.pos[0]*light.inverseViewMatrix[4]+light.pos[1]*light.inverseViewMatrix[5]+light.pos[2]*light.inverseViewMatrix[6];
 				double tmp;

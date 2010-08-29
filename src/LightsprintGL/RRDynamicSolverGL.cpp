@@ -234,7 +234,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				}
 				else
 				{
-					float slopeBias = (light->getNumShadowSamples(i)==1)?1.f:4.f;
+					float slopeBias = (light->getNumShadowSamples(i)==1)?1.3f:4.f; // GF220+258.96: 1.2f = shadow acne in 1-sample SM0 in MovingSun, 1.3f = ok
 					float fixedBias = (light->getRRLight().type==rr::RRLight::POINT)?slopeBias*4:slopeBias;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
 					glPolygonOffset(slopeBias,fixedBias);
@@ -253,7 +253,10 @@ void RRDynamicSolverGL::updateShadowmaps()
 						else
 						{
 							glClear(GL_DEPTH_BUFFER_BIT);
+							bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
+							if (depthClamp) glEnable(GL_DEPTH_CLAMP);
 							renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,NULL,1);
+							if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 						}
 					}
 				}

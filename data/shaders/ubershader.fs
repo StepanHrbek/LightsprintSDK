@@ -353,16 +353,16 @@ void main()
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			// Catalyst drivers recently introduced new bug (observed on 4870, cat811-901)
 			// if neighboring pixels use different path in following "if", some of them incorrectly get visibility=0
-			vec2 center2 = abs(shadowCoord[1].xy/shadowCoord[1].w-vec2(0.5));
-			if (max(center2.x,center2.y)>0.48)
+			center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
+			if (center.x>0.48 || center.y>0.48 || center.z>0.48)
 				visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
 			else
 			{
 				#if SHADOW_MAPS==2
 					SHADOWMAP_LOOKUP(shadowMap1,1);
 				#else
-					center2 = abs(shadowCoord[2].xy/shadowCoord[2].w-vec2(0.5));
-					if (max(center2.x,center2.y)>0.48)
+					center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
+					if (center.x>0.48 || center.y>0.48 || center.z>0.48)
 						visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
 						//{shift1 *= 0.5; shift2 *= 0.5; SHADOWMAP_LOOKUP(shadowMap1,1);}
 					else

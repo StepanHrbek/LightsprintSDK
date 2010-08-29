@@ -20,8 +20,32 @@ static bool isQuadro = false;
 static bool isRadeon = false;
 static bool isFire = false;
 static unsigned modelNumber = 0;
+static bool isDepthClampSupported = false;
 
-void Workaround::init()
+#include <string.h>
+
+static bool isExtensionSupported(const char *extension)
+{
+	// Extension names should not have spaces.
+	GLubyte* where = (GLubyte*)strchr(extension,' ');
+	if (where || *extension==0)
+		return false;
+
+	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
+	// It takes a bit of care to be fool-proof about parsing the OpenGL extensions string. Don't be fooled by sub-strings, etc.
+	const GLubyte* start = extensions;
+	for(GLubyte* where=(GLubyte*)strstr((const char*)start,extension);where;)
+	{
+		GLubyte *terminator = where + strlen(extension);
+		if (where==start || *(where-1)==' ')
+			if (*terminator==' ' || *terminator==0)
+				return true;
+		start = terminator;
+	}
+	return false;
+}
+
+static void init()
 {
 	static bool inited = 0;
 	if (!inited)
@@ -50,6 +74,8 @@ void Workaround::init()
 				modelNumber = (renderer[i+1]-'0')*100 + (renderer[i+2]-'0')*10 + (renderer[i+3]-'0');
 				break;
 			}
+
+		isDepthClampSupported = isExtensionSupported("GL_ARB_depth_clamp");
 	}
 }
 
@@ -121,6 +147,18 @@ unsigned Workaround::needsReducedQualityPenumbra(unsigned SHADOW_MAPS)
 	if (SHADOW_MAPS==2) SHADOW_MAPS--;
 	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer);
 	return SHADOW_MAPS;
+}
+
+bool Workaround::supportsDepthClamp()
+{
+	// if true, volume of detailed shadows is reduced in near/far direction,
+	// but visible shadow bias is smaller in this volume
+	//
+	// true: all geforces, radeon 5870
+	// false:
+	// unknown: older radeons
+	init();
+	return isDepthClampSupported;
 }
 
 }; // namespace

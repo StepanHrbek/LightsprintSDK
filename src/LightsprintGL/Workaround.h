@@ -18,13 +18,15 @@ namespace rr_gl
 class Workaround
 {
 public:
+	// is workaround needed?
 	static bool needsUnfilteredShadowmaps();
 	static bool needsOneSampleShadowmaps(const rr::RRLight& light);
 	static void needsIncreasedBias(float& slopeBias,float& fixedBias,const rr::RRLight& light);
 	static bool needsDDI4x4();
 	static unsigned needsReducedQualityPenumbra(unsigned SHADOW_MAPS);
-private:
-	static void init();
+
+	// is feature supported?
+	static bool supportsDepthClamp();
 };
 
 }; // namespace
