@@ -60,8 +60,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLViewer", "RENDERLights\RL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLPower", "RENDERLights\RLPower.vcxproj", "{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLManager", "RENDERLights\RLManager.vcxproj", "{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -413,18 +411,6 @@ Global
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.Build.0 = Release static|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.ActiveCfg = Release static|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.Build.0 = Release static|x64
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|Win32.Build.0 = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug DLL|x64.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|Win32.Build.0 = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Debug static|x64.ActiveCfg = Debug static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|Win32.Build.0 = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release DLL|x64.ActiveCfg = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.ActiveCfg = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|Win32.Build.0 = Release static|Win32
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6}.Release static|x64.ActiveCfg = Release static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -445,7 +431,6 @@ Global
 		{396A4522-9173-ABCD-23AA-91827364ABEE} = {DC77EDC9-4CFB-438A-92BE-DA33ED8C8D96}
 		{1CA3701A-B342-AEF3-3B11-3B42CC2EFAA1} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
-		{ABEF6721-DFAC-8371-A2E3-482056D8E7A6} = {6EF370D5-8ED5-4CF1-8BA5-6DDD5C03A6AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		AMDCaProjectFile = C:\Users\dee\Documents\C\rr\src\CodeAnalyst\RR.vs2010.caw
