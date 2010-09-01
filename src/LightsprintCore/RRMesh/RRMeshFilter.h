@@ -76,6 +76,12 @@ public:
 		return inherited->getPostImportTriangle(preImportTriangle);
 	}
 
+	// tools
+	virtual void         getUvChannels(rr::RRVector<unsigned>& out) const
+	{
+		inherited->getUvChannels(out);
+	}
+
 protected:
 	const RRMesh*   inherited;
 	unsigned        numVertices;
