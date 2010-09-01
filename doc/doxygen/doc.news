@@ -14,6 +14,13 @@ NEWS
 
 - realtime shadow tweaks (reduced shadow acne, reduced bias in detailed sun shadows, increased bias in other shadows)
 - RRMesh::getUvChannels() added
+- enhanced scene viewer
+  - alt-f toggles flashlight
+
+CHANGES
+
+- scene viewer
+  - lights are inserted from scene tree context menu, main menu "Lights" was removed
 
 \section news107 ------------------------------------ 2010.08.21 -------------------------------------
 

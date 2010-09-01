@@ -57,6 +57,8 @@ namespace rr_gl
 		// public only for SVFrame::selectEntity()
 		rr_gl::RRDynamicSolverGL*  solver;
 		EntityType                 selectedType;
+		// public only for SVSceneTree::runContextMenuAction()
+		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
@@ -78,7 +80,6 @@ namespace rr_gl
 		bool                       exitRequested;
 		int                        menuHandle;
 		bool                       envToBeDeletedOnExit; // whether environment is owned and deleted by us
-		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 		SVLightmapViewer*          lv; // 2d lightmap viewer
 		rr::RRVec2                 mousePositionInWindow; // -1,-1 top left corner, 0,0 center, 1,1 bottom right corner (set by OnMouseEvent)
 		unsigned                   centerObject; // object pointed by mouse

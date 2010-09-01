@@ -618,16 +618,6 @@ void SVFrame::UpdateMenuBar()
 		menuBar->Append(winMenu, _T("File"));
 	}
 
-	// Lights...
-	{
-		winMenu = new wxMenu;
-		winMenu->Append(ME_LIGHT_DIR,_T("Add Sun light"));
-		winMenu->Append(ME_LIGHT_SPOT,_T("Add spot light (alt-s)"));
-		winMenu->Append(ME_LIGHT_POINT,_T("Add point light (alt-o)"));
-		winMenu->Append(ME_LIGHT_DELETE,_T("Delete selected light (del)"));
-		menuBar->Append(winMenu, _T("Lights"));
-	}
-
 	// Global illumination...
 	{
 		winMenu = new wxMenu;
@@ -694,7 +684,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"),_T("Custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3"),_T("Custom window layout, changes automatically saved per user."));
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
-		menuBar->Append(winMenu, _T("Window"));
+		menuBar->Append(winMenu, _T("Windows"));
 	}
 
 	// About...
@@ -1027,45 +1017,11 @@ reload_skybox:
 			
 		//////////////////////////////// LIGHTS ///////////////////////////////
 
-		case ME_LIGHT_DIR:
-		case ME_LIGHT_SPOT:
-		case ME_LIGHT_POINT:
-			{
-				rr::RRLights newList = solver->getLights();
-				rr::RRLight* newLight = NULL;
-				switch (event.GetId())
-				{
-					case ME_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); newLight->name = "Sun"; break;
-					case ME_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
-					case ME_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
-				}
-				m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
-				newList.push_back(newLight);
-				solver->setLights(newList); // RealtimeLight in light props is deleted here
-				if (event.GetId()==ME_LIGHT_DIR)
-					simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
-
-				// select newly added light (it's probably better to not select it)
-				//m_canvas->selectedType = ST_LIGHT;
-				//svs.selectedLightIndex = newList.size()-1;
-
-				updateAllPanels();
-			}
-			break;
-		case ME_LIGHT_DELETE:
-			if (svs.selectedLightIndex<solver->realtimeLights.size())
-			{
-				rr::RRLights newList = solver->getLights();
-
-				if (newList[svs.selectedLightIndex]->rtProjectedTexture)
-					newList[svs.selectedLightIndex]->rtProjectedTexture->stop();
-
-				newList.erase(svs.selectedLightIndex);
-
-				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
-				updateAllPanels(); // deletes lightprops
-			}
-			break;
+		case ME_LIGHT_SPOT: m_sceneTree->runContextMenuAction(CM_LIGHT_SPOT,EntityId(ST_LIGHT,0)); break;
+		case ME_LIGHT_POINT: m_sceneTree->runContextMenuAction(CM_LIGHT_POINT,EntityId(ST_LIGHT,0)); break;
+		case ME_LIGHT_DIR: m_sceneTree->runContextMenuAction(CM_LIGHT_DIR,EntityId(ST_LIGHT,0)); break;
+		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityId(ST_LIGHT,0)); break;
+		case ME_LIGHT_DELETE: m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex)); break;
 
 
 		//////////////////////////////// SETTINGS ///////////////////////////////

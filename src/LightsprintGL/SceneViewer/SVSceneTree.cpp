@@ -58,7 +58,8 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	}
 	callDepth++;
 
-	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str) :
+	//#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? (str.size()>maxlength?std::string("...")+(str.c_str()+str.size()-maxlength):str) :
+	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? str :
 	SetItemText(GetRootItem(),
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
 		"scene");
@@ -180,6 +181,110 @@ void SVSceneTree::OnItemActivated(wxTreeEvent& event)
 	callDepth--;
 }
 
+void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
+{
+	temporaryContext = event.GetItem();
+	if (temporaryContext.IsOk())
+	{
+		if (temporaryContext==lights)
+		{
+			wxMenu menu;
+			menu.Append(CM_LIGHT_SPOT, wxT("Add spot light (alt-s)"));
+			menu.Append(CM_LIGHT_POINT, wxT("Add point light (alt-o)"));
+			menu.Append(CM_LIGHT_DIR, wxT("Add directional light"));
+			menu.Append(CM_LIGHT_FLASH, wxT("Toggle flashlight (alt-f)"));
+			PopupMenu(&menu, event.GetPoint());
+		}
+		else
+		if (GetItemParent(temporaryContext)==lights)
+		{
+			wxMenu menu;
+			menu.Append(CM_LIGHT_DELETE, wxT("Delete light (del)"));
+			PopupMenu(&menu, event.GetPoint());
+		}
+	}
+}
+
+void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
+{
+	EntityId contextEntityId = itemIdToEntityId(temporaryContext);
+	runContextMenuAction(event.GetId(),contextEntityId);
+}
+
+void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEntityId)
+{
+	callDepth++;
+	svframe->commitPropertyChanges();
+	callDepth--;
+
+	switch (actionCode)
+	{
+		case CM_LIGHT_SPOT:
+		case CM_LIGHT_POINT:
+		case CM_LIGHT_DIR:
+			{
+				rr::RRLights newList = svframe->m_canvas->solver->getLights();
+				rr::RRLight* newLight = NULL;
+				switch (actionCode)
+				{
+					case CM_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); newLight->name = "Sun"; break;
+					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
+					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
+				}
+				svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
+				newList.push_back(newLight);
+				svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here
+				if (actionCode==CM_LIGHT_DIR)
+					svframe->simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
+			}
+			break;
+		case CM_LIGHT_FLASH:
+			{
+				bool deleting = false;
+				rr::RRLights lights = svframe->m_canvas->solver->getLights();
+				for (unsigned i=lights.size();i--;)
+					if (lights[i] && lights[i]->type==rr::RRLight::SPOT && lights[i]->name=="Flashlight")
+						deleting = true;
+				if (deleting)
+				{
+					// delete all flashlights
+					for (unsigned i=lights.size();i--;)
+						if (lights[i] && lights[i]->type==rr::RRLight::SPOT && lights[i]->name=="Flashlight")
+							lights.erase(i);
+				}
+				else
+				{
+					// insert one flashlight
+					rr::RRLight* newLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(0),rr::RRVec3(1),rr::RRVec3(1),0.5f,0.1f);
+					newLight->name = "Flashlight";
+					lights.push_back(newLight);
+				}
+				svframe->m_canvas->solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+				// updateAllPanels() must follow, it deletes lightprops
+			}
+			break;
+		case CM_LIGHT_DELETE:
+			if (contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->realtimeLights.size())
+			{
+				rr::RRLights newList = svframe->m_canvas->solver->getLights();
+
+				if (newList[contextEntityId.index]->rtProjectedTexture)
+					newList[contextEntityId.index]->rtProjectedTexture->stop();
+
+				newList.erase(contextEntityId.index);
+
+				svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+				// updateAllPanels() must follow, it deletes lightprops
+			}
+			break;
+
+	}
+	// validate all svs.selectedXxxIndex (some may be out of range after delete)
+	// update all property panels (some may point to deleted item)
+	// update scene tree panel
+	svframe->updateAllPanels();
+}
+
 
 void SVSceneTree::OnKeyDown(wxTreeEvent& event)
 {
@@ -204,6 +309,8 @@ void SVSceneTree::OnKeyUp(wxKeyEvent& event)
 BEGIN_EVENT_TABLE(SVSceneTree, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED(-1,SVSceneTree::OnSelChanged)
 	EVT_TREE_ITEM_ACTIVATED(-1,SVSceneTree::OnItemActivated)
+	EVT_TREE_ITEM_MENU(-1,SVSceneTree::OnContextMenuCreate)
+	EVT_MENU(-1,SVSceneTree::OnContextMenuRun)
 	EVT_TREE_KEY_DOWN(-1,SVSceneTree::OnKeyDown)
 	EVT_KEY_UP(SVSceneTree::OnKeyUp)
 END_EVENT_TABLE()

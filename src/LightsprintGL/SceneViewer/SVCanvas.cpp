@@ -432,6 +432,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'O': // alt-o
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_POINT));
 			break;
+		case 'F': // alt-f
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_FLASH));
+			break;
 	}
 	else switch(evkey)
 	{
@@ -993,6 +996,18 @@ void SVCanvas::Paint(wxPaintEvent& event)
 	else
 	{
 		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
+
+		// move flashlight
+		for (unsigned i=solver->getLights().size();i--;)
+			if (solver->getLights()[i] && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
+			{
+				svs.eye.update(); // svs.eye.dir is one frame old, we must update before reading it
+				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
+				solver->getLights()[i]->direction = svs.eye.dir;
+				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*0.6f;
+				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*0.4f;
+				solver->realtimeLights[i]->updateAfterRRLightChanges();
+			}
 
 		svs.eye.update();
 
@@ -1662,11 +1677,11 @@ rendered:
 					"To ZOOM, use wheel.\n"
 					"To PAN, move mouse with middle button pressed.\n"
 					"To INSPECT, move mouse with right button pressed.\n"
-					"To switch light/camera, left click.\n"
-					"To pause/resume videos, use spacebar.\n"
-					"\n"
-					"To edit scene, skybox, lights, materials, lighting etc, use menu.",
-					"Controls");
+					"Edit everything in property panels.\n"
+					"Run actions from menu.\n"
+					"Run more actions from scene tree context menu (e.g. add lights).\n"
+					"Play/pause videos with spacebar.\n"
+					,"Controls");
 			}
 		}
 		if (helpImage && textureRenderer)
