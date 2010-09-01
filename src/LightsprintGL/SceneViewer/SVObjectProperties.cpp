@@ -42,9 +42,9 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			Append(tmp = new RRVec3Property(wxT("World center"),"Center of object in world space",_precision,worldMatrix.transformedPosition(localCenter)));
 			EnableProperty(tmp,false);
 			Append(propWTranslation = new RRVec3Property(wxT("World translation"),"Translation of object in world space",_precision,worldMatrix.getTranslation()));
-			Append(tmp = new FloatProperty("Diffuse cube size","Size of realtime raytraced diffuse reflection cubemap",object->illumination.diffuseEnvMap?object->illumination.diffuseEnvMap->getWidth():0,_precision,0,UINT_MAX,1,false));
+			Append(tmp = new FloatProperty("Diffuse cube size","Size of realtime raytraced diffuse reflection cubemap",object->illumination.diffuseEnvMap?object->illumination.diffuseEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(tmp,false);
-			Append(tmp = new FloatProperty("Specular cube size","Size of realtime raytraced specular reflection cubemap",object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,UINT_MAX,1,false));
+			Append(tmp = new FloatProperty("Specular cube size","Size of realtime raytraced specular reflection cubemap",object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(tmp,false);
 
 			// mesh
