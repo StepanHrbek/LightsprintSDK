@@ -480,16 +480,12 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 			if (!meshArrays)
 			{
 				g_helpers.texcoords.clear();
-				for (unsigned i=0;i<=100;i++)
+				_mesh->getUvChannels(g_helpers.texcoords);
+				if (g_helpers.texcoords.size()>20)
 				{
-					rr::RRMesh::TriangleMapping mapping;
-					if (_mesh->getTriangleMapping(0,mapping,i))
-						g_helpers.texcoords.push_back(i);
+					rr::RRReporter::report(rr::WARN,"Mesh has over 20 uv channels, please reduce number of uv channels to save memory.\n");
 				}
-				if (g_helpers.texcoords.size()>40)
-				{
-					rr::RRReporter::report(rr::WARN,"getTriangleMapping() returns true for (nearly) all uv channels, please reduce number of uv channels to save memory.\n");
-				}
+				// copy data to arrays
 				g_helpers.meshArrays.reload(_mesh,_indexed,g_helpers.texcoords);
 			}
 			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&g_helpers.meshArrays,_indexed);

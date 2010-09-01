@@ -523,10 +523,7 @@ void save(Archive & ar, const RRMeshProxy& a, const unsigned int version)
 	if (!meshArrays)
 	{
 		rr::RRVector<unsigned> texcoords;
-		rr::RRMesh::TriangleMapping tm;
-		for (unsigned i=0;i<100;i++)
-			if (mesh->getTriangleMapping(0,tm,i))
-				texcoords.push_back(i);
+		mesh->getUvChannels(texcoords);
 		meshArrays = mesh->createArrays(true,texcoords);
 	}
 	save(ar,*meshArrays,version);

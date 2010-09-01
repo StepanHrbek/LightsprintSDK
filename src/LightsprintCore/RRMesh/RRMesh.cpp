@@ -147,6 +147,15 @@ RRMesh::~RRMesh()
 	delete aabbCache;
 }
 
+void RRMesh::getUvChannels(rr::RRVector<unsigned>& out) const
+{
+	out.clear();
+	TriangleMapping mapping;
+	for (unsigned i=0;i<=100;i++)
+		if (getTriangleMapping(0,mapping,i))
+			out.push_back(i);
+}
+
 void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	if (!aabbCache)
@@ -494,12 +503,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 	}
 	// texcoords
 	RRVector<unsigned> texcoords;
-	for (unsigned i=0;i<100;i++)
-	{
-		TriangleMapping tm;
-		if (getTriangleMapping(0,tm,i))
-			texcoords.push_back(i);
-	}
+	getUvChannels(texcoords);
 	// vertices
 	for (unsigned i=0;i<numVertices;i++)
 	{

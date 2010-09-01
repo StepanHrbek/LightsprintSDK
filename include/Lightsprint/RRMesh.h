@@ -295,6 +295,10 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//! Fills out with uv channels provided by mesh, in ascending order.
+		//! Default implementation queries presence of channels 0 to 100, ignores higher channels.
+		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
+
 		//! Returns axis aligned bounding box and center of mesh. Fast (cached).
 		//
 		//! \param mini
@@ -546,6 +550,7 @@ namespace rr
 		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
 		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
+		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.

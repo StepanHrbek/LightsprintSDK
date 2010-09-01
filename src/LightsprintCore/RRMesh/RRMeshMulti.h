@@ -130,6 +130,19 @@ public:
 		return singles[preImport.object].numTrianglesBefore+midImportTriangle;
 	}
 
+	virtual void getUvChannels(rr::RRVector<unsigned>& out) const
+	{
+		out.clear();
+		TriangleMapping mapping;
+		for (unsigned i=0;i<=100;i++)
+			for (unsigned s=0;s<numSingles;s++)
+				if (singles[s].mesh->getTriangleMapping(0,mapping,i))
+				{
+					out.push_back(i);
+					break;
+				}
+	}
+
 	virtual ~RRMeshMultiFast()
 	{
 		delete[] postImportToMidImportVertex;
@@ -361,6 +374,23 @@ public:
 				return UNDEFINED;
 			}
 			return pack[0].getNumTriangles() + tmp;
+		}
+	}
+
+	virtual void getUvChannels(rr::RRVector<unsigned>& out) const
+	{
+		// get channels from 2 sons
+		rr::RRVector<unsigned> a,b;
+		pack[0].getMesh()->getUvChannels(a);
+		pack[1].getMesh()->getUvChannels(b);
+		// merge lists, remove duplicates
+		out.clear();
+		unsigned ai=0,bi=0;
+		while (ai<a.size() || bi<b.size())
+		{
+			unsigned ch = (bi>=b.size()||(ai<a.size()&&a[ai]<b[bi]))?a[ai++]:b[bi++];
+			if (!out.size() || out[out.size()-1]!=ch)
+				out.push_back(ch);
 		}
 	}
 

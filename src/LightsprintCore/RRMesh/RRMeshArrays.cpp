@@ -314,6 +314,15 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 	return true;
 }
 
+void RRMeshArrays::getUvChannels(rr::RRVector<unsigned>& out) const
+{
+	out.clear();
+	rr::RRMesh::TriangleMapping mapping;
+	for (unsigned i=0;i<texcoord.size();i++)
+		if (texcoord[i])
+			out.push_back(i);
+}
+
 struct AABBCache
 {
 	RRVec3 mini;

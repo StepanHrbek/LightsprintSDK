@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - realtime shadow tweaks (reduced shadow acne, reduced bias in detailed sun shadows, increased bias in other shadows)
+- RRMesh::getUvChannels() added
 
 \section news107 ------------------------------------ 2010.08.21 -------------------------------------
 
