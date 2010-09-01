@@ -419,7 +419,6 @@ BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)
 #include <boost/archive/xml_oarchive.hpp>
 namespace bf = boost::filesystem;
 
-
 namespace rr_gl
 {
 
@@ -429,16 +428,17 @@ namespace rr_gl
 
 static std::string suggestPreferencesDirectory()
 {
+	#define APPDATA_SUBDIR "\\Lightsprint"
 	// Vista, 7
 	const char* appdata = getenv("LOCALAPPDATA");
 	if (appdata)
-		return std::string(appdata) + "\\Lightsprint";
+		return std::string(appdata) + APPDATA_SUBDIR;
 	// XP
 	const char* user = getenv("USERPROFILE");
 	if (user)
-		return std::string(user) + "\\Local Settings\\Application Data\\Lightsprint";
+		return std::string(user) + "\\Local Settings\\Application Data" + APPDATA_SUBDIR;
 	// unknown
-	return "\\Lightsprint";
+	return APPDATA_SUBDIR;
 }
 
 static std::string suggestPreferencesFilename()
