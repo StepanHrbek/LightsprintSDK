@@ -680,9 +680,9 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_T("Material properties"),_T("Opens material properties window."));
 		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1"),_T("Custom window layout, changes automatically saved per user."));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2"),_T("Custom window layout, changes automatically saved per user."));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3"),_T("Custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1 (alt-1)"),_T("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2 (alt-2)"),_T("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3 (alt-3)"),_T("Your custom window layout, changes automatically saved per user."));
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		menuBar->Append(winMenu, _T("Windows"));
 	}

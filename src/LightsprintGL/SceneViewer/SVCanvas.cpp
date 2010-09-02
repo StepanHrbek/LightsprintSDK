@@ -435,6 +435,11 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'F': // alt-f
 			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHT_FLASH));
 			break;
+		case '1':
+		case '2':
+		case '3':
+			parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_LAYOUT1+evkey-'1'));
+			break;
 	}
 	else switch(evkey)
 	{
