@@ -609,7 +609,7 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
-		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."));
+		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."),_T("Merge automatically reduces lighting quality, click Global Illumination / Indirect: Firebal to restore it when you finish merging."));
 		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
 		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
 		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
