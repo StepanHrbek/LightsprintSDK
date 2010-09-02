@@ -391,6 +391,12 @@ void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsi
 template<class Archive>
 void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
 {
+	// Older version files may have fewer panels, don't read them,
+	//  it seems it's not safe to tell wx to restore old layout that had fewer panels
+	//  (Douglas reports F11 not working after running old RL version).
+	if (version<1)
+		throw 1;
+
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
 }
@@ -407,6 +413,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 2)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)
 
 //---------------------------------------------------------------------------
