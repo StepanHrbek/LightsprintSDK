@@ -801,26 +801,34 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
-		// zoom
-		if (svs.eye.orthogonal)
+		if (!event.ControlDown())
 		{
-			if (event.GetWheelRotation()<0)
-				svs.eye.orthoSize /= 1.4f;
-			if (event.GetWheelRotation()>0)
-				svs.eye.orthoSize *= 1.4f;
+			// move forward/backward
+			svs.eye.pos -= svs.eye.dir * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta());
 		}
 		else
 		{
-			float fov = svs.eye.getFieldOfViewVerticalDeg();
-			if (event.GetWheelRotation()<0)
+			// zoom
+			if (svs.eye.orthogonal)
 			{
-				if (fov>13) fov -= 10; else fov /= 1.4f;
+				if (event.GetWheelRotation()<0)
+					svs.eye.orthoSize /= 1.4f;
+				if (event.GetWheelRotation()>0)
+					svs.eye.orthoSize *= 1.4f;
 			}
-			if (event.GetWheelRotation()>0)
+			else
 			{
-				if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
+				float fov = svs.eye.getFieldOfViewVerticalDeg();
+				if (event.GetWheelRotation()<0)
+				{
+					if (fov>13) fov -= 10; else fov /= 1.4f;
+				}
+				if (event.GetWheelRotation()>0)
+				{
+					if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
+				}
+				svs.eye.setFieldOfViewVerticalDeg(fov);
 			}
-			svs.eye.setFieldOfViewVerticalDeg(fov);
 		}
 	}
 
