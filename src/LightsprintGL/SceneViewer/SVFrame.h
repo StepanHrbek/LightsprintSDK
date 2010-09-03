@@ -161,6 +161,7 @@ namespace rr_gl
 		DECLARE_EVENT_TABLE()
 	};
 
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER
