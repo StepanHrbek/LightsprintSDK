@@ -353,13 +353,6 @@ SVCanvas::~SVCanvas()
 	// delete objects referenced by solver
 	if (solver)
 	{
-		// delete all textures created by us
-		if (solver->getEnvironment())
-			((rr::RRBuffer*)solver->getEnvironment())->customData = NULL; //!!! customData is modified in const object
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
-				solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->customData = NULL;
-
 		// delete all lightmaps for realtime rendering
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		{
