@@ -347,23 +347,20 @@ void RendererOfOriginalScene::render(
 	// Render skybox.
  	if (!_renderingFromThisLight && !_uberProgramSetup.FORCE_2D_POSITION)
 	{
-		const rr::RRBuffer* env = _solver->getEnvironment();
-		if (textureRenderer && env)
+		const rr::RRBuffer* env0 = _solver->getEnvironment(0);
+		if (textureRenderer && env0)
 		{
-			//textureRenderer->renderEnvironment(_solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(_brightness,true,!env->getScaled(),_gamma);
-			if (env->getWidth()>2)
-				getTexture(env,false,false)->bindTexture(); // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
-			else
-				getTexture(env,false,false,GL_NEAREST,GL_NEAREST)->bindTexture(); // used by 2x2 sky
-			glBegin(GL_POLYGON);
-				const GLfloat depth = 1;
-				glVertex3f(-1,-1,depth);
-				glVertex3f(1,-1,depth);
-				glVertex3f(1,1,depth);
-				glVertex3f(-1,1,depth);
-			glEnd();
-			textureRenderer->renderEnvironmentEnd();
+			const rr::RRBuffer* env1 = _solver->getEnvironment(1);
+			float blendFactor = _solver->getEnvironmentBlendFactor();
+			Texture* texture0 = (env0->getWidth()>2)
+				? getTexture(env0,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
+				: getTexture(env0,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
+				;
+			Texture* texture1 = env1 ? ( (env1->getWidth()>2)
+				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
+				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
+				) : NULL;
+			textureRenderer->renderEnvironment(texture0,texture1,blendFactor,_brightness,_gamma,true);
 		}
 	}
 

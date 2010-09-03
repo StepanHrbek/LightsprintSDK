@@ -78,19 +78,31 @@ namespace rr
 
 		//! Sets environment around scene.
 		//
-		//! This is one of ways how light enters solver, others are setLights(), setDirectIllumination(), emissive materials.
-		//! Environment is rendered around scene and scene is lit by environment (but only in offline solver).
+		//! This is one of ways for light to enter solver; others are setLights(), setDirectIllumination(), emissive materials.
+		//! Environment is rendered around scene and scene is illuminated by environment.
 		//!
 		//! By default, scene contains no environment, which is the same as black environment.
-		//! \param environment
-		//!  HDR map of environment around scene.
-		//!  Its RRBuffer::getValue() should return values in physical scale.
-		//!  Note that environment is not adopted, you are still responsible for deleting it
-		//!  when it's no longer needed.
-		void setEnvironment(RRBuffer* environment);
+		//! \param environment0
+		//!  LDR or HDR cube map of environment.
+		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
+		//! \param environment1
+		//!  Optional second environment map, solver is able to work with blend of two environments, see setEnvironmentBlendFactor().
+		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
+		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=NULL);
+		//! Returns scene environment set by setEnvironment().
+		RRBuffer* getEnvironment(unsigned environmentIndex=0) const;
 
-		//! Returns environment around scene, set by setEnvironment().
-		RRBuffer* getEnvironment() const;
+		//! Sets environment blend factor, specifies how two environments are blended together.
+		//
+		//! \param blendFactor
+		//!  Any value between 0 and 1, tells solver how to blend two environments.
+		//!  0 = use only environment0, this is default.
+		//!  1 = use only environment1.
+		//!  Lightsprint realtime GI solvers and realtime renderer fully support blending,
+		//!  offline GI solver works as if blendFactor is 0.
+		void setEnvironmentBlendFactor(float blendFactor);
+		//! Returns environment blend factor set by setEnvironment().
+		float  getEnvironmentBlendFactor() const;
 
 
 		//! Sets lights in scene, all at once.

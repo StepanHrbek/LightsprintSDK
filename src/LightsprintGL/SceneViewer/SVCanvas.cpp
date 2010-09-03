@@ -108,6 +108,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	iconSize = 1;
 	fullyCreated = false;
 
+	timeWhenSkyboxBlendingStarted = 0;
+
 }
 
 void SVCanvas::createContextCore()
@@ -1021,6 +1023,25 @@ void SVCanvas::Paint(wxPaintEvent& event)
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*0.4f;
 				solver->realtimeLights[i]->updateAfterRRLightChanges();
 			}
+
+		// blend skyboxes
+		if (timeWhenSkyboxBlendingStarted)
+		{
+			float blend = (float)(GETSEC-timeWhenSkyboxBlendingStarted)/3;
+			// blending adds small CPU+GPU overhead, so don't blend if not necessary
+			// blend only if 3sec period running && second texture is present && differs from first one
+			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
+			{
+				// blend
+				solver->setEnvironmentBlendFactor(1-blend);
+			}
+			else
+			{
+				// stop blending
+				solver->setEnvironmentBlendFactor(0);
+				timeWhenSkyboxBlendingStarted = 0;
+			}
+		}
 
 		svs.eye.update();
 

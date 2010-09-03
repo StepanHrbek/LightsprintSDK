@@ -34,22 +34,12 @@ public:
 	//! Shutdowns renderer, freeing shaders.
 	~TextureRenderer();
 
-	//! Renders cubemap as if camera is inside the cube.
+	//! Renders cubemap or blend of two cubemaps as if camera is inside the cube.
+	//! Use blendFactor=0 to render only texture0, texture1 then may be NULL.
 	//! Current OpenGL transformation matrices are used.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
-	bool renderEnvironment(const Texture* texture, const rr::RRVec4* color, float gamma);
-
-	//! Initializes shader and render states for rendering cubemap.
-	//! It is one component of renderEnvironment().
-	//! For non-NULL color, texture is multiplied by color.
-	//! Color is finally gamma corrected by gamma, 1 = no correction.
-	//! With physical set, shader will convert texture samples from physical scale to sRGB.
-	bool renderEnvironmentBegin(const rr::RRVec4* color, bool allowDepthTest, bool physical, float gamma);
-
-	//! Restores original render states after renderEnvironmentBegin().
-	//! It is one component of renderEnvironment().
-	void renderEnvironmentEnd();
+	bool renderEnvironment(const Texture* texture0, const Texture* texture1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
 
 	//! Renders 2d texture into rectangle.
 	//
@@ -70,6 +60,7 @@ public:
 private:
 	class Program *skyScaledProgram;
 	class Program *skyPhysicalProgram;
+	class Program *skyBlendProgram;
 	class Program *twodProgram;
 	unsigned char culling;
 	unsigned char depthTest;

@@ -271,11 +271,24 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 	return NULL;
 }
 
-void RRPackedSolver::setEnvironment(const RRBuffer* environment, const RRScaler* scaler)
+void RRPackedSolver::setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scaler)
 {
-	// convert environment to 13 patches
+	// convert environment to 13 patches, remember them
 	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysical;
-	bool skyExitancePresent = PackedSkyTriangleFactor::getSkyExitancePhysical(environment,scaler,skyExitancePhysical);
+	PackedSkyTriangleFactor::getSkyExitancePhysical(environment0,scaler,skyExitancePhysical);
+	memcpy(skyExitancePhysical0,skyExitancePhysical.patches,sizeof(skyExitancePhysical0));
+	PackedSkyTriangleFactor::getSkyExitancePhysical(environment1,scaler,skyExitancePhysical);
+	memcpy(skyExitancePhysical1,skyExitancePhysical.patches,sizeof(skyExitancePhysical1));
+
+	setEnvironmentBlendFactor(blendFactor);
+}
+
+void RRPackedSolver::setEnvironmentBlendFactor(float blendFactor)
+{
+	// gamma correct blend of sky exitances
+	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysical;
+	for (unsigned i=0;i<PackedSkyTriangleFactor::NUM_PATCHES;i++)
+		skyExitancePhysical.patches[i] = skyExitancePhysical0[i]*(1-blendFactor)+skyExitancePhysical1[i]*blendFactor;
 
 	// add environment GI to solution
 	for (unsigned t=0;t<numTriangles;t++)

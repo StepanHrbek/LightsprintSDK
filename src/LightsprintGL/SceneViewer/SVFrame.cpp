@@ -1008,9 +1008,10 @@ reload_skybox:
 				if (skybox)
 				{
 					if (envToBeDeletedOnExit)
-						delete solver->getEnvironment();
-					solver->setEnvironment(skybox);
+						delete solver->getEnvironment(0);
+					solver->setEnvironment(skybox,solver->getEnvironment(0));
 					envToBeDeletedOnExit = true;
+					m_canvas->timeWhenSkyboxBlendingStarted = GETSEC; // starts 3sec smooth transition in SVCanvas::Paint()
 				}
 			}
 			break;

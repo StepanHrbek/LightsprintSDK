@@ -56,21 +56,39 @@ const RRScaler* RRDynamicSolver::getScaler() const
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(RRBuffer* _environment)
+void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1)
 {
-	priv->environment = _environment;
+	priv->environment0 = _environment0;
+	priv->environment1 = _environment1;
 	if (priv->packedSolver)
 	{
-		priv->packedSolver->setEnvironment(_environment,getScaler());
+		priv->packedSolver->setEnvironment(_environment0,_environment1,priv->environmentBlendFactor,getScaler());
 	}
 	// affects everything in fireball
 	// affects only specular cubemaps in architect
 	priv->solutionVersion++;
 }
 
-RRBuffer* RRDynamicSolver::getEnvironment() const
+RRBuffer* RRDynamicSolver::getEnvironment(unsigned _environmentIndex) const
 {
-	return priv->environment;
+	return _environmentIndex ? priv->environment1 : priv->environment0;
+}
+
+void RRDynamicSolver::setEnvironmentBlendFactor(float _blendFactor)
+{
+	priv->environmentBlendFactor = _blendFactor;
+	if (priv->packedSolver)
+	{
+		priv->packedSolver->setEnvironmentBlendFactor(_blendFactor);
+	}
+	// affects everything in fireball
+	// affects only specular cubemaps in architect
+	priv->solutionVersion++;
+}
+
+float RRDynamicSolver::getEnvironmentBlendFactor() const
+{
+	return priv->environmentBlendFactor;
 }
 
 void RRDynamicSolver::setLights(const RRLights& _lights)

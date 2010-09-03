@@ -12,17 +12,29 @@ namespace rr
 
 NEWS
 
+- skybox blending
+  - two skybox textures can be blended together
+  - GI is calculated and rendered in realtime, without noticeable slowdown
+  - gamma correct
+  - RRDynamicSolver::setEnvironment() accepts optional second parameter, second texture
+  - RRDynamicSolver::setEnvironmentBlendFactor() controls how textures are mixed
+  - RRDynamicSolver::getEnvironment() accepts optional parameter, texture index, 0 or 1
+  - RRDynamicSolver::getEnvironmentBlendFactor()
+  - rr_gl::TextureRenderer::renderEnvironment() extended to support 2 skybox textures
 - realtime shadow tweaks (reduced shadow acne, reduced bias in detailed sun shadows, increased bias in other shadows)
 - RRMesh::getUvChannels() added
 - enhanced scene viewer
+  - skyboxes change with 3sec smooth transition with realtime GI
+  - flashlight, alt-f toggles it
   - mouse wheel+ctrl moves camera forward/backward
-  - alt-f toggles flashlight
   - alt-1,2,3 sets custom window layout 1, 2 or 3
 
 CHANGES
 
 - scene viewer
   - lights are inserted from scene tree context menu, main menu "Lights" was removed
+- rr_gl::TextureRenderer
+  - renderEnvironmentBegin() and renderEnvironmentEnd() removed, use renderEnvironment()
 
 \section news107 ------------------------------------ 2010.08.21 -------------------------------------
 

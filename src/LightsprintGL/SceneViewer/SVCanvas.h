@@ -127,6 +127,9 @@ namespace rr_gl
 		float                      iconSize; // for icons
 		class SVEntityIcons*       entityIcons;
 
+		// skybox blending
+		double                     timeWhenSkyboxBlendingStarted;
+
 
 		friend class SVFrame;
 

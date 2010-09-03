@@ -36,7 +36,9 @@ namespace rr
 
 		// lights: inputs
 		RRLights   lights;
-		RRBuffer*  environment;
+		RRBuffer*  environment0;
+		RRBuffer*  environment1;
+		float      environmentBlendFactor;
 		const unsigned* customIrradianceRGBA8;
 
 		// scale: inputs
@@ -70,7 +72,9 @@ namespace rr
 		Private()
 		{
 			// scene: inputs
-			environment = NULL;
+			environment0 = NULL;
+			environment1 = NULL;
+			environmentBlendFactor = 0;
 			// scene: function of inputs
 			multiObjectCustom = NULL;
 			forcedMultiObjectCustom = false;

@@ -24,7 +24,9 @@ public:
 	//! To enable GI from environment, call setEnvironment().
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
-	void setEnvironment(const RRBuffer* environment, const RRScaler* scaler);
+	void setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scaler);
+	//! Optimized version of setEnvironment() that does not change textures.
+	void setEnvironmentBlendFactor(float blendFactor);
 
 	//! See RRDynamicSolver::setEmittance().
 	//
@@ -91,6 +93,8 @@ protected:
 	unsigned currentVersionInVertices; // version of results available per vertex. getTriangleIrradianceIndirectUpdate() updates it to triangle version
 	unsigned currentQuality; // number of best200 groups processed since reset
 	RRReal terminalFluxToDistribute; // set during illuminationImprove(), when the best node has fluxToDistribute lower, improvement terminates
+	RRVec3 skyExitancePhysical0[13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment0
+	RRVec3 skyExitancePhysical1[13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment1
 };
 
 } // namespace

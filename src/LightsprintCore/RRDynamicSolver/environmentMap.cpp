@@ -158,7 +158,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // outputs:
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
-static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRBuffer* environment, const RRScaler* scalerForReadingEnv, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
 #ifdef POINT_MATERIALS
 	RRCollisionHandlerGatherHemisphere* collisionHandlers[6];
@@ -180,11 +180,14 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 		// this is legal, renderer asks us to build small cubemap from solver with big environment and 0 objects
 		//RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));
 	}
-	if (environment && !environment->getScaled())
-	{
-		// env not scaled -> don't scale in loop below
-		scalerForReadingEnv = NULL;
-	}
+
+	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
+	if (!blendFactor) environment1 = NULL;
+
+	// simplify tests for scaling from if(env0 && env0->getScaled() && scalerForReadingEnv0) to if(scalerForReadingEnv0)
+	const RRScaler* scalerForReadingEnv0 = (environment0 && environment0->getScaled()) ? scalerForReadingEnv : NULL;
+	const RRScaler* scalerForReadingEnv1 = (environment1 && environment1->getScaled()) ? scalerForReadingEnv : NULL;
+
 // vypnuto kdyz nas vola worker thread s nizkou prioritou (!exitanceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
 // zapnuto kdyz nas vola uzivatel (exitanceHdr)
 //#pragma omp parallel for if (exitanceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
@@ -222,15 +225,26 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 					if (face==UINT_MAX)
 					{
 						// read exitance of sky
-						//exitanceHdr[ofs] = environment ? environment->getValue(dir) : RRVec3(0);
-						if (!environment)
+						if (!environment0)
 						{
+							// no environment
 							exitanceHdr[ofs] = RRVec3(0);
 						}
 						else
+						if (!environment1)
 						{
-							exitanceHdr[ofs] = environment->getElement(dir);
-							if (scalerForReadingEnv) scalerForReadingEnv->getPhysicalScale(exitanceHdr[ofs]);
+							// 1 environment
+							exitanceHdr[ofs] = environment0->getElement(dir);
+							if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(exitanceHdr[ofs]);
+						}
+						else
+						{
+							// blend of 2 environments
+							RRVec3 env0color = environment0->getElement(dir);
+							if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(env0color);
+							RRVec3 env1color = environment1->getElement(dir);
+							if (scalerForReadingEnv1) scalerForReadingEnv1->getPhysicalScale(env1color);
+							exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 						}
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
@@ -259,7 +273,7 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
 	if (!scene && !packedSolver)
 	{
@@ -271,24 +285,44 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		RR_ASSERT(0);
 		return;
 	}
-	if (environment && !environment->getScaled())
-	{
-		// env not scaled -> don't scale in loop below
-		scalerForReadingEnv = NULL;
-	}
+
+	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
+	if (!blendFactor) environment1 = NULL;
+
+	// simplify tests for scaling from if(env0->getScaled() && scalerForReadingEnv) to if(scalerForReadingEnv0)
+	const RRScaler* scalerForReadingEnv0 = (environment0 && environment0->getScaled()) ? scalerForReadingEnv : NULL;
+	const RRScaler* scalerForReadingEnv1 = (environment1 && environment1->getScaled()) ? scalerForReadingEnv : NULL;
+
 #pragma omp parallel for schedule(static)
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
 		unsigned face = triangleNumbers[ofs];
 		if (face==UINT_MAX)
 		{
-			if (!environment)
+			// read exitance of sky
+			if (!environment0)
+			{
+				// no environment
 				exitanceHdr[ofs] = RRVec3(0);
+			}
+			else
+			if (!environment1)
+			{
+				// 1 environment
+				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
+				exitanceHdr[ofs] = environment0->getElement(dir);
+				if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(exitanceHdr[ofs]);
+				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+			}
 			else
 			{
-				// read exitance of sky
-				exitanceHdr[ofs] = environment->getElement(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
-				if (scalerForReadingEnv) scalerForReadingEnv->getPhysicalScale(exitanceHdr[ofs]);
+				// blend of 2 environments
+				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
+				RRVec3 env0color = environment0->getElement(dir);
+				if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(env0color);
+				RRVec3 env1color = environment1->getElement(dir);
+				if (scalerForReadingEnv1) scalerForReadingEnv1->getPhysicalScale(env1color);
+				exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 		}
@@ -497,7 +531,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 		}
 		if (!illumination->cachedTriangleNumbers)
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
-		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),NULL,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL))
+		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),NULL,NULL,0,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -554,7 +588,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		{
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
 		}
-		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,gatheredExitance))
+		if (cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,gatheredExitance))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -570,7 +604,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	else
 	{
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
 
 	unsigned updatedMaps = 0;

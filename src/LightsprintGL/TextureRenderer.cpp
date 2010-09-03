@@ -11,6 +11,9 @@
 #include "Lightsprint/RRDebug.h"
 #include "tmpstr.h"
 
+#define PHYS2SRGB 0.45f
+#define SRGB2PHYS 2.22222222f
+
 namespace rr_gl
 {
 
@@ -28,6 +31,10 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 		tmpstr("%ssky.vs",pathToShaders),
 		tmpstr("%ssky.fs",pathToShaders));
 	if (!skyPhysicalProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
+	skyBlendProgram = Program::create("#define POSTPROCESS_BRIGHTNESS\n#define POSTPROCESS_GAMMA\n#define BLEND\n",
+		tmpstr("%ssky.vs",pathToShaders),
+		tmpstr("%ssky.fs",pathToShaders));
+	if (!skyBlendProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
 	twodProgram = Program::create("#define TEXTURE\n",
 		tmpstr("%stexture.vs",pathToShaders),
 		tmpstr("%stexture.fs",pathToShaders));
@@ -38,35 +45,58 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 TextureRenderer::~TextureRenderer()
 {
 	delete twodProgram;
+	delete skyBlendProgram;
 	delete skyScaledProgram;
 	delete skyPhysicalProgram;
 }
 
-bool TextureRenderer::renderEnvironmentBegin(const rr::RRVec4* _color, bool _allowDepthTest, bool _physical, float _gamma)
+bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture* _texture1, float _blendFactor, const rr::RRVec4* _brightness, float _gamma, bool _allowDepthTest)
 {
-	if (_physical) _gamma *= 0.45f;
-	Program* program = (_gamma!=1) ? skyPhysicalProgram : skyScaledProgram;
+	if (!_texture0)
+	{
+		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
+		return false;
+	}
+	rr::RRVec3 brightness = _brightness ? *_brightness : rr::RRVec3(1);
+	if (!_texture0->getBuffer()->getScaled() || _blendFactor)
+	{
+		brightness[0] = pow(brightness[0],SRGB2PHYS);
+		brightness[1] = pow(brightness[1],SRGB2PHYS);
+		brightness[2] = pow(brightness[2],SRGB2PHYS);
+		_gamma *= PHYS2SRGB;
+	}
+	Program* program = _blendFactor ? skyBlendProgram : ((_gamma!=1) ? skyPhysicalProgram : skyScaledProgram);
 	if (!program)
 	{
 		RR_ASSERT(0);
 		return false;
 	}
+
 	// backup render states
 	culling = glIsEnabled(GL_CULL_FACE);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
+
 	// setup render states
 	if (!_allowDepthTest) glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
-	// render cube
 	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
-	program->sendUniform("cube",0);
-
-	rr::RRVec4 correctedBrightness = _color?(*_color)*pow(_gamma,0.45f):rr::RRVec4(1.0f);
-	program->sendUniform4fv("postprocessBrightness",&correctedBrightness.x);
-	if (_gamma!=1)
+	_texture0->bindTexture();
+	program->sendUniform("cube0",0);
+	if (_blendFactor)
+	{
+		glActiveTexture(GL_TEXTURE1);
+		_texture1->bindTexture();
+		program->sendUniform("cube1",1);
+		program->sendUniform("blendFactor",_blendFactor);
+		program->sendUniform("gamma0",_texture0->getBuffer()->getScaled()?SRGB2PHYS:1.0f);
+		program->sendUniform("gamma1",_texture1->getBuffer()->getScaled()?SRGB2PHYS:1.0f);
+	}
+	program->sendUniform4fv("postprocessBrightness",&brightness.x);
+	if (program!=skyScaledProgram)
 		program->sendUniform("postprocessGamma",_gamma);
+
 	oldCamera = Camera::getRenderCamera();
 	if (oldCamera)
 	{
@@ -76,11 +106,15 @@ bool TextureRenderer::renderEnvironmentBegin(const rr::RRVec4* _color, bool _all
 		tmp.update();
 		tmp.setupForRender();
 	}
-	return true;
-}
 
-void TextureRenderer::renderEnvironmentEnd()
-{
+	// render
+	glBegin(GL_POLYGON);
+		glVertex3f(-1,-1,1);
+		glVertex3f(1,-1,1);
+		glVertex3f(1,1,1);
+		glVertex3f(-1,1,1);
+	glEnd();
+
 	// restore render states
 	if (depthTest) glEnable(GL_DEPTH_TEST);
 	if (depthMask) glDepthMask(GL_TRUE);
@@ -89,28 +123,7 @@ void TextureRenderer::renderEnvironmentEnd()
 	{
 		oldCamera->setupForRender();
 	}
-}
-
-bool TextureRenderer::renderEnvironment(const Texture* texture,const rr::RRVec4* color,float gamma)
-{
-	if (!texture)
-	{
-		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
-		return false;
-	}
-	if (renderEnvironmentBegin(color,false,!texture->getBuffer()->getScaled(),gamma))
-	{
-		texture->bindTexture();
-		glBegin(GL_POLYGON);
-			glVertex3f(-1,-1,1);
-			glVertex3f(1,-1,1);
-			glVertex3f(1,1,1);
-			glVertex3f(-1,1,1);
-		glEnd();
-		renderEnvironmentEnd();
-		return true;
-	}
-	return false;
+	return true;
 };
 
 bool TextureRenderer::render2dBegin(float color[4])
