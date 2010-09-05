@@ -1025,9 +1025,6 @@ reload_skybox:
 		case ME_LIGHT_DELETE: m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex)); break;
 
 
-		//////////////////////////////// SETTINGS ///////////////////////////////
-
-
 
 		//////////////////////////////// GLOBAL ILLUMINATION - DIRECT ///////////////////////////////
 
