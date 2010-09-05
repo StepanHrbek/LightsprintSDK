@@ -351,24 +351,32 @@ void main()
 
 		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
-			// Catalyst drivers recently introduced new bug (observed on 4870, cat811-901)
-			// if neighboring pixels use different path in following "if", some of them incorrectly get visibility=0
-			center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
-			if (center.x>0.48 || center.y>0.48 || center.z>0.48)
-				visibility = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
-			else
-			{
-				#if SHADOW_MAPS==2
-					SHADOWMAP_LOOKUP(shadowMap1,1);
-				#else
-					center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
-					if (center.x>0.48 || center.y>0.48 || center.z>0.48)
-						visibility = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
-						//{shift1 *= 0.5; shift2 *= 0.5; SHADOWMAP_LOOKUP(shadowMap1,1);}
-					else
-						{SHADOWMAP_LOOKUP(shadowMap2,2);}
-				#endif
-			}
+			#if SHADOW_MAPS==2
+				float visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
+				{SHADOWMAP_LOOKUP(shadowMap1,1);}
+				center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
+				float centerMax = max(center.x,max(center.y,center.z));
+				float blendFactor = smoothstep(0.3,0.49,centerMax);
+				visibility = mix(visibility,visibility0,blendFactor);
+			#else
+				float visibility1 = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
+				center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
+				float centerMax = max(center.x,max(center.y,center.z));
+				if (centerMax>0.49)
+				{
+					float visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
+					center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
+					float centerMax = max(center.x,max(center.y,center.z));
+					float blendFactor = smoothstep(0.3,0.49,centerMax);
+					visibility = mix(visibility1,visibility0,blendFactor);
+				}
+				else
+				{
+					{SHADOWMAP_LOOKUP(shadowMap2,2);}
+					float blendFactor = smoothstep(0.3,0.49,centerMax);
+					visibility = mix(visibility,visibility1,blendFactor);
+				}
+			#endif
 		#else
 			#if SHADOW_MAPS>0
 				SHADOWMAP_LOOKUP(shadowMap0,0);
