@@ -79,6 +79,7 @@ namespace rr_gl
 		unsigned index;
 		rr::RRVec3 position;
 		unsigned icon;
+		bool bright;
 
 		SVEntity(const rr::RRLight& _light, unsigned _index, rr::RRVec3& _dirlightPosition)
 		{
@@ -94,6 +95,7 @@ namespace rr_gl
 				position = _light.position;
 			}
 			icon = _light.type;
+			bright = _light.enabled;
 		}
 	};
 
@@ -108,7 +110,8 @@ namespace rr_gl
 		{
 			for (unsigned i=0;i<lights.size();i++)
 			{
-				push_back(SVEntity(*lights[i],i,dirlightPosition));
+				if (lights[i] && lights[i]->name!="Flashlight")
+					push_back(SVEntity(*lights[i],i,dirlightPosition));
 			}
 		}
 	};

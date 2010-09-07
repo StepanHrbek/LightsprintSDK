@@ -85,7 +85,10 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, u
 	{
 		if (i==0 || i==selectedIndex+1)
 		{
-			program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+			if (entities[i].bright)
+				program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+			else
+				program->sendUniform("lightIndirectConst",0.3f,0.3f,0.3f,1.0f);
 		}
 		if (i==selectedIndex)
 		{
