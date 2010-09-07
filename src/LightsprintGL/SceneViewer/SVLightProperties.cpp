@@ -42,6 +42,12 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,light->name.c_str()));
 		}
 
+		// enabled
+		{
+			propEnabled = new BoolRefProperty(wxT("Enabled"), "Disabled light has no effect on scene, no light, no shadows.", light->enabled);
+			Append(propEnabled);
+		}
+
 		// light type
 		{
 			const wxChar* typeStrings[] = {wxT("Directional"),wxT("Point"),wxT("Spot"),NULL};
@@ -116,10 +122,9 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 
 		// shadows
 		{
-			propCastShadows = new wxBoolProperty(wxT("Cast shadows"), wxPG_LABEL, light->castShadows);
+			propCastShadows = new BoolRefProperty(wxT("Cast shadows"), "Shadows add realism, but reduce speed.", light->castShadows);
 			Append(propCastShadows);
-			SetPropertyEditor(propCastShadows,wxPGEditor_CheckBox);
-
+			
 			propShadowmaps = new FloatProperty("Shadowmaps","Number of shadowmaps, more=higher quality, slower.",light->rtNumShadowmaps,0,1,3,10,false);
 			AppendIn(propCastShadows,propShadowmaps);
 
@@ -305,7 +310,6 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCastShadows)
 	{
-		light->castShadows = property->GetValue().GetBool();
 		updateHide();
 	}
 	else

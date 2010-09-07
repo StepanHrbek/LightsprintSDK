@@ -60,6 +60,7 @@ template<class Archive>
 void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 {
 	ar & make_nvp("name",std::string(a.name.c_str()));
+	ar & make_nvp("enabled",a.enabled);
 	ar & make_nvp("type",a.type);
 	ar & make_nvp("position",a.position);
 	ar & make_nvp("direction",a.direction);
@@ -85,6 +86,10 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 		std::string name;
 		ar & make_nvp("name", name);
 		a.name = name.c_str();
+	}
+	if (version>2)
+	{
+		ar & make_nvp("enabled", a.enabled);
 	}
 	ar & make_nvp("type",a.type);
 	ar & make_nvp("position",a.position);
@@ -411,7 +416,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
-BOOST_CLASS_VERSION(rr::RRLight, 2)
+BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)

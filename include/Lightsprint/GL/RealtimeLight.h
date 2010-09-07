@@ -69,6 +69,8 @@ public:
 
 	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
 	void configureCSM(const Camera* observer, const rr::RRObject* scene);
+	//! Returns position of observer from previous configureCSM() call.
+	rr::RRVec3 getObserverPos() const;
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
 	virtual Camera* getShadowmapCamera(unsigned instance, bool jittered = false) const;

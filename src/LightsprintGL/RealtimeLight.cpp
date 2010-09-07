@@ -72,6 +72,11 @@ namespace rr_gl
 		}
 	}
 
+	rr::RRVec3 RealtimeLight::getObserverPos() const
+	{
+		return csmObserverPos;
+	}
+
 	const Texture* RealtimeLight::getProjectedTexture()
 	{
 		// Ignore projected texture for point and dir lights.

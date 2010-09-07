@@ -57,7 +57,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	detectedNumTriangles = 0;
 
 	observer = NULL;
-	oldObserverPos = rr::RRVec3(1e6);
 	rendererOfScene = new rr_gl::RendererOfScene(_pathToShaders);
 	uberProgram1 = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
 }
@@ -81,10 +80,10 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	RRDynamicSolver::setLights(_lights);
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	realtimeLights.clear();
-	for (unsigned i=0;i<_lights.size();i++)
+	for (unsigned i=0;i<getLights().size();i++)
 	{
-		RR_ASSERT(_lights[i]);
-		realtimeLights.push_back(new RealtimeLight(*_lights[i]));
+		RR_ASSERT(getLights()[i]);
+		realtimeLights.push_back(new RealtimeLight(*getLights()[i]));
 	}
 
 	// adjust near/far to better match current scene
@@ -154,7 +153,9 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 	if (realtimeLights.size())
 	{
 		bool dirtyGI = false;
-		for (unsigned i=0;i<realtimeLights.size();i++) dirtyGI |= realtimeLights[i]->dirtyGI && !realtimeLights[i]->shadowOnly;
+		for (unsigned i=0;i<realtimeLights.size();i++)
+			if (realtimeLights[i] && realtimeLights[i]->getRRLight().enabled)
+				dirtyGI |= realtimeLights[i]->dirtyGI && !realtimeLights[i]->shadowOnly;
 		if (dirtyGI)
 		{
 			double now = GETSEC;
@@ -190,15 +191,15 @@ void RRDynamicSolverGL::updateShadowmaps()
 			RR_ASSERT(0);
 			continue;
 		}
+		if (!light->getRRLight().enabled)
+			continue;
 
 		// update shadowmap[s]
-		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->pos!=oldObserverPos && light->getParent()->orthogonal && light->getNumShadowmaps();
+		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->pos!=light->getObserverPos() && light->getParent()->orthogonal && light->getNumShadowmaps();
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
-			if (observer)
-				oldObserverPos = observer->pos;
 			light->configureCSM(observer,getMultiObjectCustom());
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
@@ -298,6 +299,8 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			RR_ASSERT(0);
 			continue;
 		}
+		if (!light->getRRLight().enabled)
+			continue;
 		if (numTriangles!=light->numTriangles)
 		{
 			delete[] light->smallMapCPU;
@@ -319,22 +322,44 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		}
 	}
 
-	// sum smallMapsCPU into detectedDirectSum
-	if (updatedSmallMaps && realtimeLights.size()>1)
+	// find the only enabled light
+	RealtimeLight* theOnlyEnabledLight = NULL;
+	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
-		unsigned numLights = realtimeLights.size();
-#pragma omp parallel for
-		for (int b=0;b<(int)numTriangles*4;b++)
-		{
-			unsigned sum = 0;
-			for (unsigned l=0;l<numLights;l++)
-				sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
-			((unsigned char*)detectedDirectSum)[b] = RR_CLAMPED(sum,0,255);
-		}
+		if (realtimeLights[i] && realtimeLights[i]->getRRLight().enabled)
+			if (!theOnlyEnabledLight)
+			{
+				// first enabled light found
+				theOnlyEnabledLight = realtimeLights[i];
+			}
+			else
+			{
+				// second enabled light found
+				// sum all enabled smallMapsCPU into detectedDirectSum
+				if (updatedSmallMaps && realtimeLights.size()>1)
+				{
+					unsigned numLights = realtimeLights.size();
+					#pragma omp parallel for
+					for (int b=0;b<(int)numTriangles*4;b++)
+					{
+						unsigned sum = 0;
+						for (unsigned l=0;l<numLights;l++)
+							if (realtimeLights[l] && realtimeLights[l]->getRRLight().enabled)
+								sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
+						((unsigned char*)detectedDirectSum)[b] = RR_CLAMPED(sum,0,255);
+					}
+				}
+				// return sum
+				return detectedDirectSum;
+			}
 	}
-
-	if (realtimeLights.size()==1) return realtimeLights[0]->smallMapCPU;
-	return detectedDirectSum;
+	if (theOnlyEnabledLight)
+	{
+		// return data for the only light, no summing
+		return theOnlyEnabledLight->smallMapCPU;
+	}
+	// return NULL for no lights
+	return NULL;
 }
 
 unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)

@@ -359,6 +359,10 @@ template<class Archive>
 void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 {
 	ar & make_nvp("name",a.name);
+	if (version>1)
+	{
+		ar & make_nvp("enabled", a.enabled);
+	}
 	ar & make_nvp("type",a.type);
 	ar & make_nvp("position",a.position);
 	ar & make_nvp("direction",a.direction);
@@ -637,6 +641,6 @@ BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 
-BOOST_CLASS_VERSION(rr::RRLight,1)
+BOOST_CLASS_VERSION(rr::RRLight,2)
 
 #endif

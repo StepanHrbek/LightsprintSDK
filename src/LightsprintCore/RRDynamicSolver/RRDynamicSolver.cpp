@@ -690,16 +690,20 @@ RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType() con
 
 bool RRDynamicSolver::containsLightSource() const
 {
-	return getLights().size()
-		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance())
-		|| getEnvironment();
+	for (unsigned i=0;i<getLights().size();i++)
+		if (getLights()[i] && getLights()[i]->enabled)
+			return true;
+	return getEnvironment()
+		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
 bool RRDynamicSolver::containsRealtimeGILightSource() const
 {
-	return getLights().size()
-		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance())
-		|| (getEnvironment() && getInternalSolverType()==FIREBALL); // Fireball calculates skybox realtime GI, Architect does not
+	for (unsigned i=0;i<getLights().size();i++)
+		if (getLights()[i] && getLights()[i]->enabled)
+			return true;
+	return (getEnvironment() && getInternalSolverType()==FIREBALL) // Fireball calculates skybox realtime GI, Architect does not
+		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
 void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize, int specularCubeSize, bool allocateNewBuffers, bool changeExistingBuffers) const

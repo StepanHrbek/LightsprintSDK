@@ -14,20 +14,35 @@ MultiPass::MultiPass(const RealtimeLights* _lights, UberProgramSetup _mainUberPr
 {
 	// inputs
 	lights = _lights;
+	unsigned numLights = 0; // count only non-NULL enabled lights
+	if (lights)
+		for (unsigned i=0;i<lights->size();i++)
+			if ((*lights)[i] && (*lights)[i]->getRRLight().enabled)
+				numLights++;
 	mainUberProgramSetup = _mainUberProgramSetup;
 	uberProgram = _uberProgram;
 	brightness = _brightness;
 	gamma = _gamma;
 	clipPlanes = _clipPlanes;
-	numLights = lights?lights->size():0;
 	separatedZPass = (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && (mainUberProgramSetup.MATERIAL_TRANSPARENCY_CONST || mainUberProgramSetup.MATERIAL_TRANSPARENCY_MAP || mainUberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA) && !mainUberProgramSetup.FORCE_2D_POSITION)?1:0;
 	separatedAmbientPass = (!numLights)?1:0;
 	lightIndex = -separatedZPass-separatedAmbientPass;
+	colorPassIndex = -separatedZPass;
 }
 
-Program* MultiPass::getNextPass(UberProgramSetup& outUberProgramSetup, RealtimeLight*& outLight)
+Program* MultiPass::getNextPass(UberProgramSetup& _outUberProgramSetup, RealtimeLight*& _outLight)
 {
-	return getPass(lightIndex++,outUberProgramSetup,outLight);
+	// skip NULL and disabled lights
+	if (lights && lightIndex>=0)
+		while (lightIndex<(int)lights->size() && (!(*lights)[lightIndex] || !(*lights)[lightIndex]->getRRLight().enabled))
+			lightIndex++;
+
+	Program* result = getPass(lightIndex,_outUberProgramSetup,_outLight);
+
+	lightIndex++;
+	colorPassIndex++;
+
+	return result;
 }
 
 // returns true and all outXxx are set, do render
@@ -50,7 +65,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		//glDepthMask(0);
 	}
 
-	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass)
+	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass) // colorPassIndex==-1
 	{
 		light = NULL;
 		uberProgramSetup.SHADOW_MAPS = 0;
@@ -96,11 +111,12 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		//if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",_lightIndex); else printf(" %d: nothing\n",_lightIndex);
 	}
 	else
-	if (_lightIndex<(int)numLights)
+	if (_lightIndex>=0 && _lightIndex<(int)(lights?lights->size():0))
 	{
 		// adjust program for n-th light (0-th includes indirect, others have it disabled)
 		light = (*lights)[_lightIndex];
 		RR_ASSERT(light);
+		RR_ASSERT(light->getRRLight().enabled);
 		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowmaps() : 0;
 		uberProgramSetup.SHADOW_SAMPLES = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowSamples() : 0;
 		uberProgramSetup.SHADOW_PENUMBRA = mainUberProgramSetup.SHADOW_MAPS && light->getRRLight().type==rr::RRLight::SPOT;
@@ -209,7 +225,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		}
 	}
 
-	if (_lightIndex==-separatedAmbientPass+1)
+	if (colorPassIndex==1)
 	{
 		// additional passes add to framebuffer
 		// 0. if already blending, there's no simple mode for multipass blending, better skip additional passes

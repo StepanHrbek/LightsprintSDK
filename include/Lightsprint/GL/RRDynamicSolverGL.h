@@ -125,7 +125,6 @@ namespace rr_gl
 		char pathToShaders[300];
 		RendererOfScene* rendererOfScene;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
-		rr::RRVec3 oldObserverPos;
 	};
 
 };

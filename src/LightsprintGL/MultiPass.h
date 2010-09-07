@@ -50,10 +50,10 @@ protected:
 	float* clipPlanes;
 
 	// intermediates
-	unsigned numLights;
 	int separatedZPass; ///< Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
 	int separatedAmbientPass; ///< Ambient pass is separated if there are no lights to piggyback on.
-	int lightIndex;
+	int lightIndex; // getNextPass() may increase it by more than one in presence of disabled light.
+	int colorPassIndex; // getNextPass increases it always by one. Starts at -1 for Z-only pass, 0 otherwise.
 	PreserveBlend p1;
 	PreserveBlendFunc p2;
 };

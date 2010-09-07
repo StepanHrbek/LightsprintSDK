@@ -198,6 +198,13 @@ namespace rr
 		//! changes you make later are accepted without checks.
 		RRReal fallOffAngleRad;
 
+		//! Enables/disables light.
+		//
+		//! There are other slower ways to enable/disable light:
+		//! - Add/remove light from solver. But it takes longer to add/remove light than to flip flag.
+		//! - Set light color to 0. But it does not speed up calculation/rendering, light is not optimized out.
+		bool enabled;
+
 		//! Whether light casts shadows.
 		//
 		//! Shadows are enabled by default, so light behaves realistically.
@@ -206,9 +213,6 @@ namespace rr
 		//! Global illumination replaces fill lights, ambient lights and other fakes,
 		//! you should remove such lights.
 		bool castShadows;
-
-		//! Optional name of light.
-		RRString name;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -236,6 +240,9 @@ namespace rr
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc
 		//////////////////////////////////////////////////////////////////////////////
+
+		//! Optional name of light.
+		RRString name;
 
 		//! Custom data, initialized to NULL, never accessed by LightsprintCore again. 
 		//

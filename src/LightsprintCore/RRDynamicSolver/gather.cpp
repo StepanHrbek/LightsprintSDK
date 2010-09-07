@@ -461,7 +461,7 @@ public:
 			const RRLights& allLights = _pti.context.solver->getLights();
 			const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
 			for (unsigned i=0;i<allLights.size();i++)
-				if (multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
+				if (allLights[i]->enabled && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
 				{
 					pti.relevantLights[numRelevantLights++] = allLights[i];
 				}
@@ -924,8 +924,14 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	params.quality = RR_MAX(1,params.quality);
 	
 	// optimize params
-	if (params.applyLights && !getLights().size())
+	if (params.applyLights)
+	{
+		for (unsigned i=0;i<getLights().size();i++)
+			if (getLights()[i] && getLights()[i]->enabled)
+				goto hasAtLeastOneEnabledLight;
 		params.applyLights = false;
+		hasAtLeastOneEnabledLight:;
+	}
 	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
@@ -976,13 +982,14 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 		for (unsigned lightNumber=0;lightNumber<numAllLights;lightNumber++)
 		{
 			const RRLight* light = getLights()[lightNumber];
-			if (// make all lights relevant in rare case we picked invalid triangle
-				// - UINT_MAX is returned if triangle 0 is not in multiobject, this happens when opening kalasatama.dae in MovingSun, koupelna3.3ds+1light in SceneViewer
-				// - out of range number is returned if object has 0 triangles, this happens when building lmaps in koupelna3 with inserted light
-				postImportTriangleNumber>=numPostImportTriangles
+			if (light && light->enabled)
+				if (// make all lights relevant in rare case we picked invalid triangle
+					// - UINT_MAX is returned if triangle 0 is not in multiobject, this happens when opening kalasatama.dae in MovingSun, koupelna3.3ds+1light in SceneViewer
+					// - out of range number is returned if object has 0 triangles, this happens when building lmaps in koupelna3 with inserted light
+					postImportTriangleNumber>=numPostImportTriangles
 
-				|| multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
-				relevantLightsPerObject[objectNumber].push_back(light);
+					|| multiObject->getTriangleMaterial(postImportTriangleNumber,light,0))
+					relevantLightsPerObject[objectNumber].push_back(light);
 		}
 	}
 

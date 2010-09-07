@@ -316,7 +316,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	for (unsigned i=0;i<numAllLights;i++)
 	{
 		RRLight* light = tc.solver->getLights()[i];
-		if (multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
+		if (light && light->enabled && multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
 		{
 			for (int k=0;k<numThreads;k++)
 				relevantLightsForObject[k*numAllLights+numRelevantLights] = light;

@@ -806,7 +806,7 @@ namespace rr
 
 		//! Returns true if solver contains at least one light source.
 		//
-		//! This could be light, emissive material or environment/skybox.
+		//! This could be enabled light, emissive material or environment/skybox.
 		//! Simple presence of light source is tested, it is not guaranteed
 		//! that light source actually affects objects in scene.
 		virtual bool containsLightSource() const;
