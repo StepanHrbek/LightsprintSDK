@@ -240,27 +240,28 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			break;
 		case CM_LIGHT_FLASH:
 			{
-				bool deleting = false;
+				bool containsFlashlight[2] = {false,false};
 				rr::RRLights lights = svframe->m_canvas->solver->getLights();
 				for (unsigned i=lights.size();i--;)
 					if (lights[i] && lights[i]->type==rr::RRLight::SPOT && lights[i]->name=="Flashlight")
-						deleting = true;
-				if (deleting)
+						containsFlashlight[lights[i]->enabled?1:0] = true;
+				if (containsFlashlight[0] || containsFlashlight[1])
 				{
-					// delete all flashlights
+					// toggle all flashlights
 					for (unsigned i=lights.size();i--;)
 						if (lights[i] && lights[i]->type==rr::RRLight::SPOT && lights[i]->name=="Flashlight")
-							lights.erase(i);
+							lights[i]->enabled = !lights[i]->enabled;
 				}
 				else
 				{
 					// insert one flashlight
 					rr::RRLight* newLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(0),rr::RRVec3(1),rr::RRVec3(1),0.5f,0.1f);
 					newLight->name = "Flashlight";
+					newLight->rtProjectedTexture = rr::RRBuffer::load(tmpstr("%s../maps/rl_flashlight.png",svs.pathToShaders));
 					lights.push_back(newLight);
+					svframe->m_canvas->solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+					// updateAllPanels() must follow, it deletes lightprops
 				}
-				svframe->m_canvas->solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
-				// updateAllPanels() must follow, it deletes lightprops
 			}
 			break;
 		case CM_LIGHT_DELETE:

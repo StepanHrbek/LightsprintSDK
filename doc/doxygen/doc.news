@@ -30,6 +30,7 @@ NEWS
 - lights can be easily enabled/disabled at any moment
   - RRlight::enabled
   - scene viewer / Light properties / Enabled
+  - icons of disabled lights are dark
 - RRMesh::getUvChannels() added
 
 CHANGES
