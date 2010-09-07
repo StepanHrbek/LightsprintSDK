@@ -216,7 +216,7 @@ void SVCanvas::createContextCore()
 
 			//iconSize = (sceneMax-sceneMin).avg()*0.04f;
 			// better, insensitive to single triangle in 10km distance
-			iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.02f;
+			iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.017f;
 
 			sunIconPosition.y = sceneMax.y + 5*iconSize;
 		}

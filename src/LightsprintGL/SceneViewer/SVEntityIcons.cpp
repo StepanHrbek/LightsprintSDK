@@ -103,9 +103,8 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, u
 //kdybych kreslil 3d objekt, prusecik je snadny, udelam z nej RRObject, jen mu zmenim matici
 void SVEntityIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize)
 {
-//!!! kdyz je zarovka nad kamerou, kresli ji strasne malinkou
 	rr::RRVec3 toLight = (entity.position-eyePos).normalizedSafe();
-	rr::RRVec3 toLeftFromLight(toLight[2],0,-toLight[0]);
+	rr::RRVec3 toLeftFromLight = rr::RRVec3(toLight[2],0,-toLight[0]).normalizedSafe();
 	rr::RRVec3 toUpFromLight = toLight.cross(toLeftFromLight);
 	float lightDistance = (entity.position-eyePos).length();
 	vertex[0] = entity.position-(toLeftFromLight-toUpFromLight)*iconSize; // top left
