@@ -98,6 +98,14 @@ void RRDynamicSolver::setLights(const RRLights& _lights)
 		RRReporter::report(WARN,"setLights: Invalid input, lights=NULL.\n");
 		return;
 	}
+	for (unsigned i=0;i<_lights.size();i++)
+	{
+		if (!_lights[i])
+		{
+			RRReporter::report(WARN,"setLights: Invalid input, lights[%d]=NULL.\n",i);
+			return;
+		}
+	}
 	priv->lights = _lights;
 }
 
