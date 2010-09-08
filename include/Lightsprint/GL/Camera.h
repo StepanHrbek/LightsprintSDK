@@ -135,7 +135,7 @@ public:
 	//!  y coordinate of water plane.
 	void  setRangeDynamically(const rr::RRObject* scene, bool water=false, float waterLevel=-1e10f);
 
-	//! == operator, true when inputs are equal.
+	//! == operator, true when inputs without aspect are equal.
 	bool operator==(const Camera& a) const;
 	//! != operator, true when inputs differ.
 	bool operator!=(const Camera& a) const;

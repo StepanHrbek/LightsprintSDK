@@ -101,13 +101,16 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 
 void Camera::setAspect(float _aspect, float _effectOnFOV)
 {
-	float oldAspect = aspect;
-	aspect = RR_CLAMPED(_aspect,0.001f,1000);
-	if (_effectOnFOV)
+	if (_aspect!=aspect)
 	{
-		double v0 = RR_DEG2RAD(fieldOfViewVerticalDeg);
-		double v1 = atan(tan(v0*0.5)*oldAspect/aspect)*2;
-		setFieldOfViewVerticalDeg((float)RR_RAD2DEG(v0+_effectOnFOV*(v1-v0)));
+		float oldAspect = aspect;
+		aspect = RR_CLAMPED(_aspect,0.001f,1000);
+		if (_effectOnFOV)
+		{
+			double v0 = RR_DEG2RAD(fieldOfViewVerticalDeg);
+			double v1 = atan(tan(v0*0.5)*oldAspect/aspect)*2;
+			setFieldOfViewVerticalDeg((float)RR_RAD2DEG(v0+_effectOnFOV*(v1-v0)));
+		}
 	}
 }
 
@@ -201,10 +204,16 @@ void Camera::setRangeDynamically(const rr::RRObject* object, bool water, float w
 
 bool Camera::operator==(const Camera& a) const
 {
-	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2]
-		&& angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX
-		&& aspect==a.aspect && fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
-		&& anear==a.anear && afar==a.afar;
+	return pos[0]==a.pos[0]
+		&& pos[1]==a.pos[1]
+		&& pos[2]==a.pos[2]
+		&& angle==a.angle
+		&& leanAngle==a.leanAngle
+		&& angleX==a.angleX
+		//&& aspect==a.aspect ... aspect is usually just byproduct of window size, users don't want "scene was modified" just because window size changed
+		&& fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
+		&& anear==a.anear
+		&& afar==a.afar;
 }
 
 bool Camera::operator!=(const Camera& a) const
