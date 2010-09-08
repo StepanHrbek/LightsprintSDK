@@ -579,6 +579,8 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 
 unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
 {
+	if (aborting)
+		return 0;
 /*
 	static unsigned s_updates = 0; s_updates++;
 	static unsigned s_sec = 5;
