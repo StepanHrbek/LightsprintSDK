@@ -394,8 +394,6 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 		glViewport(0, 0, (GLint) w, (GLint) h);
 		winWidth = w;
 		winHeight = h;
-		if (winWidth && winHeight)
-			svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
 	}
 }
 
@@ -1004,6 +1002,12 @@ void SVCanvas::Paint(wxPaintEvent& event)
 	else
 	{
 		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
+
+		// aspect needs update after
+		// - OnSize()
+		// - RL: restored previously saved camera and window size differs
+		// - RL: calculated camera from previously saved keyframes and window size differs
+		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
 
 		// move flashlight
 		for (unsigned i=solver->getLights().size();i--;)
