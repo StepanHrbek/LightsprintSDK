@@ -22,6 +22,7 @@ NEWS
   - RRDynamicSolver::getEnvironmentBlendFactor()
   - rr_gl::TextureRenderer::renderEnvironment() extended to support 2 skybox textures
 - enhanced scene viewer
+  - unit conversion dialog when opening scene with unknown units
   - skyboxes change with 3sec smooth transition with realtime GI
   - flashlight, alt-f toggles it
   - mouse wheel+ctrl moves camera forward/backward

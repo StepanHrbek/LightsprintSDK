@@ -165,7 +165,7 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		mergedScenes.push_back(new rr::RRScene(svs.sceneFilename.c_str()));
+		mergedScenes.push_back(new rr::RRScene(svs.sceneFilename.c_str(),svs.sceneScale,&solver->aborting));
 
 		// send everything to solver
 		solver->setEnvironment(mergedScenes[0]->environment);

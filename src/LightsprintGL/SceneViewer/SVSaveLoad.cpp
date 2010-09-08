@@ -297,7 +297,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	// skip pathToShaders;
 	ar & make_nvp("sceneFilename",a.sceneFilename);
 	ar & make_nvp("skyboxFilename",a.skyboxFilename);
-	ar & make_nvp("xrefFilenames",a.xrefFilenames);
+	ar & make_nvp("xrefs",a.xrefs);
 	// skip releaseResources;
 }
 
@@ -419,7 +419,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 10)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 11)
 
 //---------------------------------------------------------------------------
 
