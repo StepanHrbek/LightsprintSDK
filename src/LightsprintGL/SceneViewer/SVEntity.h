@@ -110,7 +110,7 @@ namespace rr_gl
 		{
 			for (unsigned i=0;i<lights.size();i++)
 			{
-				if (lights[i] && lights[i]->name!="Flashlight")
+				if (lights[i])
 					push_back(SVEntity(*lights[i],i,dirlightPosition));
 			}
 		}
