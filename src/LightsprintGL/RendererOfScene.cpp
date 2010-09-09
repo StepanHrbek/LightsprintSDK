@@ -82,6 +82,11 @@ public:
 		return rendererOfMeshCache.getRendererOfMesh(mesh);
 	}
 
+	TextureRenderer* getTextureRenderer()
+	{
+		return textureRenderer;
+	}
+
 private:
 	// PERMANENT CONTENT
 	TextureRenderer* textureRenderer;
@@ -447,9 +452,14 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		_gamma);
 }
 
-class RendererOfMesh* RendererOfScene::getRendererOfMesh(const rr::RRMesh* _mesh)
+RendererOfMesh* RendererOfScene::getRendererOfMesh(const rr::RRMesh* _mesh)
 {
 	return renderer->getRendererOfMesh(_mesh);
+}
+
+TextureRenderer* RendererOfScene::getTextureRenderer()
+{
+	return renderer->getTextureRenderer();
 }
 
 }; // namespace

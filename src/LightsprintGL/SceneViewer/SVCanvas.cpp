@@ -146,10 +146,9 @@ void SVCanvas::createContextCore()
 	}
 
 
-	textureRenderer = new TextureRenderer(svs.pathToShaders);
-
 	// init solver
 	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
+	textureRenderer = solver->getRendererOfScene()->getTextureRenderer();
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	if (svs.initialInputSolver)
 	{
@@ -326,7 +325,7 @@ SVCanvas::~SVCanvas()
 
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
-	RR_SAFE_DELETE(textureRenderer);
+	textureRenderer = NULL;
 
 	// logo
 	RR_SAFE_DELETE(logoImage);
@@ -1195,7 +1194,7 @@ rendered:
 				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
 				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
 				{
-					toneMapping->adjustOperator(secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
+					toneMapping->adjustOperator(textureRenderer,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
 				}
 				oldTime = newTime;
 			}
@@ -1217,7 +1216,7 @@ rendered:
 		}
 
 		// lens flare
-		if (svs.renderLensFlare && textureRenderer && !svs.eye.orthogonal)
+		if (svs.renderLensFlare && !svs.eye.orthogonal)
 		{
 			if (!lensFlareLoadAttempted)
 			{
@@ -1771,7 +1770,7 @@ rendered:
 			RR_ASSERT(!fpsDisplay);
 			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
 		}
-		if (fpsDisplay && textureRenderer)
+		if (fpsDisplay)
 		{
 			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
 		}

@@ -8,7 +8,7 @@
 #ifndef TONEMAPPING_H
 #define TONEMAPPING_H
 
-#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/DemoEngine.h"
 
 namespace rr_gl
 {
@@ -31,6 +31,8 @@ public:
 	//! To be called when image was already rendered, but not yet flipped from backbuffer to frontbuffer.
 	//! Only operator is adjusted here, not texture, it's your responsibility
 	//! to pass brightness and contrast to renderer.
+	//! \param textureRenderer
+	//!  Pass your texture renderer instance, so that ToneMapping doesn't have to create its own.
 	//! \param secondsSinceLastAdjustment
 	//!  Number of seconds since last call to this function.
 	//! \param brightness
@@ -39,11 +41,10 @@ public:
 	//!  Not used for now, may be adjusted in future.
 	//! \param targetIntensity
 	//!  Average pixel intensity we want to see after tone mapping, in 0..1 range, e.g. 0.5.
-	void adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVec3& brightness, rr::RRReal contrast, rr::RRReal targetIntensity);
+	void adjustOperator(class TextureRenderer* textureRenderer, rr::RRReal secondsSinceLastAdjustment, rr::RRVec3& brightness, rr::RRReal contrast, rr::RRReal targetIntensity);
 private:
-	Texture* bigTexture;
-	Texture* smallTexture;
-	TextureRenderer* textureRenderer;
+	class Texture* bigTexture;
+	class Texture* smallTexture;
 };
 
 }; // namespace

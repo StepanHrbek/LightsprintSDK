@@ -91,6 +91,8 @@ namespace rr_gl
 		Camera* observer;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
+		//! Users can reuse our renderer for their own rendering.
+		RendererOfScene* getRendererOfScene() {return rendererOfScene;}
 
 	protected:
 		//! Detects direct illumination from lights (see setLights()) on all faces in scene and returns it in array of RGBA values.

@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include "Lightsprint/GL/ToneMapping.h"
-//#include "Lightsprint/RRDebug.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 
 namespace rr_gl
 {
@@ -19,12 +19,10 @@ ToneMapping::ToneMapping(const char* pathToShaders)
 {
 	bigTexture = NULL;
 	smallTexture = NULL;
-	textureRenderer = new TextureRenderer(pathToShaders);
 }
 
 ToneMapping::~ToneMapping()
 {
-	delete textureRenderer;
 	if (smallTexture)
 	{
 		delete smallTexture->getBuffer();
@@ -37,7 +35,7 @@ ToneMapping::~ToneMapping()
 	}
 }
 
-void ToneMapping::adjustOperator(rr::RRReal secondsSinceLastAdjustment, rr::RRVec3& brightness, rr::RRReal contrast, rr::RRReal targetIntensity)
+void ToneMapping::adjustOperator(TextureRenderer* textureRenderer, rr::RRReal secondsSinceLastAdjustment, rr::RRVec3& brightness, rr::RRReal contrast, rr::RRReal targetIntensity)
 {
 	if (!textureRenderer) return;
 	GLint viewport[4];

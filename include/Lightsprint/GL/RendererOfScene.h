@@ -79,6 +79,7 @@ public:
 		float _gamma);
 
 	class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh);
+	class TextureRenderer* getTextureRenderer();
 private:
 	class RendererOfOriginalScene* renderer;
 };
