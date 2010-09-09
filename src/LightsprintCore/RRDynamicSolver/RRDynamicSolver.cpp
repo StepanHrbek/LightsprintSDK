@@ -64,6 +64,8 @@ void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environ
 	{
 		priv->packedSolver->setEnvironment(_environment0,_environment1,priv->environmentBlendFactor,getScaler());
 	}
+	// temporary diagnostic
+	RRReporter::report(INF2,"******* setEnvironment(), env=0x%x,0x%x, bl=%f, fb=0x%x\n",priv->environment0,priv->environment1,priv->environmentBlendFactor,priv->packedSolver);
 	// affects everything in fireball
 	// affects only specular cubemaps in architect
 	priv->solutionVersion++;
@@ -81,6 +83,8 @@ void RRDynamicSolver::setEnvironmentBlendFactor(float _blendFactor)
 	{
 		priv->packedSolver->setEnvironmentBlendFactor(_blendFactor);
 	}
+	// temporary diagnostic
+	RRReporter::report(INF2,"******* setEnvironmentBlendFactor(), env=0x%x,0x%x, bl=%f, fb=0x%x\n",priv->environment0,priv->environment1,priv->environmentBlendFactor,priv->packedSolver);
 	// affects everything in fireball
 	// affects only specular cubemaps in architect
 	priv->solutionVersion++;
