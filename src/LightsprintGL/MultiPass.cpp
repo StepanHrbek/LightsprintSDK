@@ -52,20 +52,20 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
 	RealtimeLight* light;
 
-	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass)
+	if (separatedZPass && colorPassIndex==-1)
 	{
 		// before Z pass: write z only
 		glColorMask(0,0,0,0);
 		//glDepthMask(GL_TRUE); does not work
 	}
-	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass+1)
+	if (separatedZPass && colorPassIndex==0)
 	{
 		// after Z pass: write color only
 		glColorMask(1,1,1,1);
 		//glDepthMask(0);
 	}
 
-	if (separatedZPass && _lightIndex==-separatedZPass-separatedAmbientPass) // colorPassIndex==-1
+	if (separatedZPass && colorPassIndex==-1)
 	{
 		light = NULL;
 		uberProgramSetup.SHADOW_MAPS = 0;
@@ -138,7 +138,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 
 		uberProgramSetup.SHADOW_ONLY = light->shadowOnly;
 
-		if (_lightIndex>-separatedAmbientPass)
+		if (colorPassIndex>0)
 		{
 			// additional passes don't include indirect
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
