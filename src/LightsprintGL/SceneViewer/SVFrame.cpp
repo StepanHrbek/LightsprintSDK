@@ -814,6 +814,9 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 				{
 					if (getScale(this,dialog.GetPath(),svs.sceneScale))
 					{
+						// display log window with 'abort' while this function runs
+						LogWithAbort logWithAbort(this,m_canvas->solver);
+
 						rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),svs.sceneScale,&solver->aborting);
 						m_canvas->addOrRemoveScene(scene,true);
 						m_canvas->mergedScenes.push_back(scene);
