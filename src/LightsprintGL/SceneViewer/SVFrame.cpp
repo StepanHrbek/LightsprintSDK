@@ -162,24 +162,32 @@ class LogWithAbort
 public:
 	LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver)
 	{
-		// display log window with 'abort'
-		g_logIsOn = true;
-		window = _window;
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
-		oldReporter = rr::RRReporter::getReporter();
-		rr::RRReporter::setReporter(localReporter);
+		enabled = !g_logIsOn; // do nothing if log is already enabled
+		if (enabled)
+		{
+			// display log window with 'abort'
+			g_logIsOn = true;
+			window = _window;
+			localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
+			oldReporter = rr::RRReporter::getReporter();
+			rr::RRReporter::setReporter(localReporter);
+		}
 	}
 	~LogWithAbort()
 	{
-		// restore old reporter, close log
-		g_logIsOn = false;
-		rr::RRReporter::setReporter(oldReporter);
-		delete localReporter;
-		// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
-		// This bring SV back to front.
-		window->Raise();
+		if (enabled)
+		{
+			// restore old reporter, close log
+			g_logIsOn = false;
+			rr::RRReporter::setReporter(oldReporter);
+			delete localReporter;
+			// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
+			// This bring SV back to front.
+			window->Raise();
+		}
 	}
 private:
+	bool enabled;
 	wxWindow* window;
 	rr::RRReporter* localReporter;
 	rr::RRReporter* oldReporter;
@@ -1117,15 +1125,13 @@ reload_skybox:
 			{
 				// display log window with 'abort' while this function runs
 				// don't display it if it is already displayed (we may be automatically called when scene loads and fireball is requested, log is already on)
-				LogWithAbort* logWithAbort = g_logIsOn ? NULL : new LogWithAbort(this,solver);
+				LogWithAbort logWithAbort(this,solver);
 
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
 				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,NULL);
 				dirtyLights(solver);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
-
-				delete logWithAbort;
 			}
 			break;
 
