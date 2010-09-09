@@ -1013,11 +1013,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			if (solver->getLights()[i] && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
 				svs.eye.update(); // svs.eye.dir is one frame old, we must update before reading it
-				rr::RRVec3 newPos = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
-				rr::RRVec3 newDir = svs.eye.dir;
-				const float speed = 0.2f;
-				solver->getLights()[i]->position = solver->getLights()[i]->position*(1-speed)+newPos*speed;
-				solver->getLights()[i]->direction = solver->getLights()[i]->direction*(1-speed)+newDir*speed;
+				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
+				solver->getLights()[i]->direction = svs.eye.dir;
 				float viewportWidthCovered = 0.9f;
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
