@@ -257,7 +257,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					// insert one flashlight
 					rr::RRLight* newLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(0),rr::RRVec3(1),rr::RRVec3(1),0.5f,0.1f);
 					newLight->name = "Flashlight";
-					newLight->rtProjectedTexture = rr::RRBuffer::load(tmpstr("%s../maps/rl_flashlight.png",svs.pathToShaders));
 					lights.push_back(newLight);
 					svframe->m_canvas->solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
 					// updateAllPanels() must follow, it deletes lightprops
