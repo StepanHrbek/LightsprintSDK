@@ -796,7 +796,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.ControlDown())
 		{
 			// move forward/backward
-			svs.eye.pos -= svs.eye.dir * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta());
+			svs.eye.pos -= svs.eye.dir * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta()/3);
 		}
 		else
 		{
