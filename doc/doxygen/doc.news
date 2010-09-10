@@ -8,14 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news108 ------------------------------------ 2010.09.xx -------------------------------------
+\section news108 ------------------------------------ 2010.09.10 -------------------------------------
 
 NEWS
 
 - skybox blending
   - two skybox textures can be blended together
-  - GI is calculated and rendered in realtime, without noticeable slowdown
-  - gamma correct
+  - GI is updated in realtime, without noticeable slowdown
+  - gamma correct, can blend both LDR and HDR 
   - RRDynamicSolver::setEnvironment() accepts optional second parameter, second texture
   - RRDynamicSolver::setEnvironmentBlendFactor() controls how textures are mixed
   - RRDynamicSolver::getEnvironment() accepts optional parameter, texture index, 0 or 1
@@ -28,7 +28,7 @@ NEWS
   - mouse wheel+ctrl moves camera forward/backward
   - alt-1,2,3 sets custom window layout 1, 2 or 3
 - improved realtime shadow (CSM maps blend together, reduced shadow acne, reduced bias in detailed sun shadows, increased bias in other shadows)
-- lights can be easily enabled/disabled at any moment
+- light can be easily enabled/disabled at any moment
   - RRlight::enabled
   - scene viewer / Light properties / Enabled
   - icons of disabled lights are dark
