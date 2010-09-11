@@ -46,10 +46,21 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	// update factors (tri-tri GI factors, sky-tri direct factors)
 
 	// allocate space for sky-tri factors
-	skyPatchHitsForAllTriangles = new PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
+	skyPatchHitsForAllTriangles = new (std::nothrow) PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
+	if (!skyPatchHitsForAllTriangles)
+	{
+		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(1).\n",sizeof(PackedSkyTriangleFactor::UnpackedFactor)*object->triangles/1024/1024);
+		return NULL;
+	}
 
 	RRReal sceneArea = 0;
-	unsigned* actualRaysFromTriangle = new unsigned[object->triangles];
+	unsigned* actualRaysFromTriangle = new (std::nothrow) unsigned[object->triangles];
+	if (!actualRaysFromTriangle)
+	{
+		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(2).\n",sizeof(unsigned)*object->triangles/1024/1024);
+		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
+		return NULL;
+	}
 
 	{
 		abortStaticImprovement();
@@ -167,9 +178,17 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 		}
 
 	// 3 naalokuje packed
-	packedSolverFile->packedSmoothTriangles = new PackedSmoothTriangle[object->triangles];
+	packedSolverFile->packedSmoothTriangles = new (std::nothrow) PackedSmoothTriangle[object->triangles];
 	packedSolverFile->packedSmoothTrianglesBytes = sizeof(PackedSmoothTriangle)*object->triangles;
-	packedSolverFile->packedIvertices = new PackedIvertices(numIvertices,numWeights);
+	packedSolverFile->packedIvertices = new (std::nothrow) PackedIvertices(numIvertices,numWeights);
+	if (!packedSolverFile->packedSmoothTriangles || !packedSolverFile->packedIvertices)
+	{
+		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(3).\n",sizeof(PackedSmoothTriangle)*object->triangles/1024/1024);
+		RR_SAFE_DELETE(packedSolverFile);
+		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
+		RR_SAFE_DELETE_ARRAY(actualRaysFromTriangle);
+		return NULL;
+	}
 
 	// 4 pruchod pres triangly:
 	//     do packed zapisuje ivertexy
@@ -221,27 +240,34 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	//
 	// convert sky-tri direct factors to GI factors
 
-	RRVec3* directIrradiancePhysicalRGB = new RRVec3[object->triangles];
-	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++) if (!aborting)
+	RRVec3* directIrradiancePhysicalRGB = new (std::nothrow) RRVec3[object->triangles];
+	if (!directIrradiancePhysicalRGB)
 	{
-		// reset solver to direct from sky patch
-		for (unsigned t=0;t<object->triangles;t++)
-		{
-			directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/actualRaysFromTriangle[t]);
-		}
-		resetStaticIllumination(false,true,NULL,NULL,directIrradiancePhysicalRGB);
-
-		// calculate
-		//!!! disable emissive surfaces
-		distribute(0.001f);
-
-		// convert direct from sky patch to GI from sky patch
-		for (unsigned t=0;t<object->triangles;t++)
-		{
-			skyPatchHitsForAllTriangles[t].patches[p] = object->triangle[t].getTotalIrradiance();
-		}
+		RRReporter::report(WARN,"Fireball quality reduced, allocating %dMB failed.\n",sizeof(RRVec3)*object->triangles/1024/1024);
 	}
-	RR_SAFE_DELETE_ARRAY(directIrradiancePhysicalRGB);
+	else
+	{
+		for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++) if (!aborting)
+		{
+			// reset solver to direct from sky patch
+			for (unsigned t=0;t<object->triangles;t++)
+			{
+				directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/actualRaysFromTriangle[t]);
+			}
+			resetStaticIllumination(false,true,NULL,NULL,directIrradiancePhysicalRGB);
+
+			// calculate
+			//!!! disable emissive surfaces
+			distribute(0.001f);
+
+			// convert direct from sky patch to GI from sky patch
+			for (unsigned t=0;t<object->triangles;t++)
+			{
+				skyPatchHitsForAllTriangles[t].patches[p] = object->triangle[t].getTotalIrradiance();
+			}
+		}
+		RR_SAFE_DELETE_ARRAY(directIrradiancePhysicalRGB);
+	}
 
 
 	/////////////////////////////////////////////////////////////////////////
