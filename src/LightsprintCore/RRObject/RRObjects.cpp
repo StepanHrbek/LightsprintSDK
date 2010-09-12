@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
-#include <string>
 #include "Lightsprint/RRObject.h"
 
 namespace rr
@@ -205,21 +204,6 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 		}
 	}
 	return buffersTouched;
-}
-
-unsigned RRObjects::checkConsistency(const char* objectType) const
-{
-	unsigned numReports = 0;
-	for (unsigned i=0;i<size();i++)
-	{
-		std::string objectNumber;
-		if (objectType) objectNumber += std::string(objectType)+" ";
-		char buf[30];
-		sprintf(buf,"object %d/%d",i,size());
-		objectNumber += buf;
-		numReports += (*this)[i]->checkConsistency(objectNumber.c_str());
-	}
-	return numReports;
 }
 
 } // namespace

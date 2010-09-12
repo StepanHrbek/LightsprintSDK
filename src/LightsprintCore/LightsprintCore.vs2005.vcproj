@@ -801,38 +801,6 @@
 			<File
 				RelativePath="RRCollider\bsp.cpp"
 				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRCollider\bsp.h"
@@ -965,74 +933,10 @@
 			<File
 				RelativePath="RRMesh\RRMeshAccelerated.cpp"
 				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshArrays.cpp"
 				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshFilter.h"
@@ -1153,38 +1057,6 @@
 			<File
 				RelativePath="RRLightField.cpp"
 				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRObjectIllumination.cpp"
@@ -1601,38 +1473,6 @@
 			<File
 				RelativePath="RRBuffer\RRBufferInMemory.cpp"
 				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRBuffer\RRBufferInMemory.h"
@@ -1677,6 +1517,38 @@
 			<File
 				RelativePath="RRScene.cpp"
 				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release static|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRScene.h"
@@ -1854,6 +1726,38 @@
 		<File
 			RelativePath="Unwrapper.cpp"
 			>
+			<FileConfiguration
+				Name="Release static|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release static|x64"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|x64"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

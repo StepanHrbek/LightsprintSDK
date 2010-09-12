@@ -227,13 +227,17 @@ public:
 	{
 		RR_SAFE_DELETE_ARRAY(rawField);
 		RR_SAFE_DELETE_ARRAY(rawCell);
-		try
+		rawField = new (std::nothrow) unsigned char[header.fieldSize()];
+		if (!rawField)
 		{
-			rawField = new unsigned char[header.fieldSize()];
-			rawCell = new unsigned char[header.cellSize()];
+			RRReporter::report(WARN,"Lightfield not created, allocating %dMB failed(1).\n",header.fieldSize()/1024/1024);
+			return false;
 		}
-		catch(...)
+		rawCell = new (std::nothrow) unsigned char[header.cellSize()];
+		if (!rawCell)
 		{
+			RRReporter::report(WARN,"Lightfield not created, allocating %dMB failed(2).\n",header.cellSize()/1024/1024);
+			RR_SAFE_DELETE_ARRAY(rawField);
 			return false;
 		}
 		return true;

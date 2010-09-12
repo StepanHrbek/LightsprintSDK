@@ -577,12 +577,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="RRCollider\bsp.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRCollider\bsp.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
     <ClCompile Include="RRCollider\IntersectBspFast.cpp" />
@@ -598,18 +593,8 @@
     <ClCompile Include="RRCollider\fpcube.cpp" />
     <ClCompile Include="RRCollider\pcube.cpp" />
     <ClCompile Include="RRMesh\RRMesh.cpp" />
-    <ClCompile Include="RRMesh\RRMeshAccelerated.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
-    <ClCompile Include="RRMesh\RRMeshArrays.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshAccelerated.cpp" />
+    <ClCompile Include="RRMesh\RRMeshArrays.cpp" />
     <ClCompile Include="RRMesh\RRMeshLessVertices.cpp" />
     <ClCompile Include="RRObject\RRCollisionHandler.cpp" />
     <ClCompile Include="RRObject\RRObject.cpp" />
@@ -620,12 +605,7 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRLightField.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRLightField.cpp" />
     <ClCompile Include="RRObjectIllumination.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
@@ -684,19 +664,19 @@
     <ClCompile Include="RRPackedSolver\RRPackedSolver.cpp" />
     <ClCompile Include="RRLight.cpp" />
     <ClCompile Include="RRBuffer\RRBuffer.cpp" />
-    <ClCompile Include="RRBuffer\RRBufferInMemory.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRBuffer\RRBufferInMemory.cpp" />
     <ClCompile Include="RRReporter\RRReporter.cpp" />
     <ClCompile Include="RRReporter\RRReporterFile.cpp" />
     <ClCompile Include="RRReporter\RRReporterOutputDebugString.cpp" />
     <ClCompile Include="RRReporter\RRReporterPrintf.cpp" />
     <ClCompile Include="RRReporter\RRReporterWindow.cpp" />
     <ClCompile Include="RRReporter\RRReportInterval.cpp" />
-    <ClCompile Include="RRScene.cpp" />
+    <ClCompile Include="RRScene.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
     <ClCompile Include="RRObject\RRMaterial.cpp" />
     <ClCompile Include="RRHash\RRHash.cpp" />
     <ClCompile Include="RRHash\sha1.cpp" />
@@ -714,7 +694,12 @@
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
     <ClCompile Include="RRObject\RRScaler.cpp" />
-    <ClCompile Include="Unwrapper.cpp" />
+    <ClCompile Include="Unwrapper.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NumReports.h" />

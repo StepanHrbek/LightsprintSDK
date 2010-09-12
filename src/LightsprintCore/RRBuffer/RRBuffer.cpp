@@ -10,10 +10,6 @@
 #include "Lightsprint/RRDebug.h"
 #include "../squish/squish.h"
 
-// image cache
-#include <boost/unordered_map.hpp>
-#include <string>
-
 namespace rr
 {
 
@@ -284,98 +280,30 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 //////////////////////////////////////////////////////////////////////////////
 //
 // ImageCache
+// - needs exceptions, implemented in exceptions.cpp
 
-
-class ImageCache
+RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6])
 {
-public:
-	RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
+	// try reloader for images (with disabled reporting, even if reloader fails, loader may succeed)
 	{
-		Cache::iterator i = cache.find(filename);
-		if (i!=cache.end())
-		{
-			// image was found in cache
-			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
-				&& (i->second.buffer->getDuration() // always take videos from cache
-					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
-				// && i->second.fileTimeWhenLoaded==boost::filesystem::last_write_time(filename)
-				)
-			{
-				// image is already in memory and it was not modified since load, use it
-				return i->second.buffer->createReference(); // add one ref for user
-			}
-			// modified after load, delete it from cache, we can't use it anymore
-			delete i->second.buffer;
-			cache.erase(i);
-		}
-		// load new file into cache
-		Value& value = cache[filename];
-		value.buffer = load_noncached(filename,cubeSideName);
-		if (value.buffer)
-		{
-			value.buffer->createReference(); // keep initial ref for us, add one ref for user
-			value.bufferVersionWhenLoaded = value.buffer->version;
-			//value.fileTimeWhenLoaded = boost::filesystem::last_write_time(filename);
-		}
-		return value.buffer;
+		RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+		RRReporter* oldReporter = RRReporter::getReporter();
+		RRReporter::setReporter(NULL);
+		bool reloaded = texture->reload(filename,cubeSideName);
+		RRReporter::setReporter(oldReporter);
+		if (reloaded)
+			return texture;
+		delete texture;
 	}
-	size_t getMemoryOccupied()
+	// try loader for videos
+	if (s_load)
 	{
-		size_t memoryOccupied = 0;
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
-		{
-			if (i->second.buffer)
-				memoryOccupied += i->second.buffer->getBufferBytes();
-		}
-		return memoryOccupied;
+		return s_load(filename);
 	}
-	~ImageCache()
-	{
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
-		{
-#ifdef _DEBUG
-			// If users deleted their buffers, refcount should be down at 1 and this delete is final
-			// Don't report in release, some samples knowingly leak, to make code simpler
-			if (i->second.buffer && i->second.buffer->getReferenceCount()!=1)
-				RRReporter::report(WARN,"Memory leak, image %s not deleted (%dx).\n",i->second.buffer->filename.c_str(),i->second.buffer->getReferenceCount()-1);
-#endif
-			delete i->second.buffer;
-		}
-	}
-protected:
-	RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6])
-	{
-		// try reloader for images (with disabled reporting, even if reloader fails, loader may succeed)
-		{
-			RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-			RRReporter* oldReporter = RRReporter::getReporter();
-			RRReporter::setReporter(NULL);
-			bool reloaded = texture->reload(filename,cubeSideName);
-			RRReporter::setReporter(oldReporter);
-			if (reloaded)
-				return texture;
-			delete texture;
-		}
-		// try loader for videos
-		if (s_load)
-		{
-			return s_load(filename);
-		}
-		return NULL;
-	}
-	struct Value
-	{
-		RRBuffer* buffer;
-		unsigned bufferVersionWhenLoaded;
-		//std::time_t fileTimeWhenLoaded;
-	};
-	typedef boost::unordered_map<std::string,Value> Cache;
-	Cache cache;
-};
+	return NULL;
+}
 
-// Single cache works better than individual cache instances in scenes,
-// especially if user loads many models that share textures.
-ImageCache s_imageCache;
+extern RRBuffer* load_cached(const char* filename, const char* cubeSideName[6]);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -450,7 +378,7 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 		return NULL;
 	}
 	// cached version
-	RRBuffer* result = s_imageCache.load_cached(_filename,_cubeSideName);
+	RRBuffer* result = load_cached(_filename,_cubeSideName);
 	if (!result)
 	{
 		RRReporter::report(WARN,"Failed to load(%s).\n",_filename);

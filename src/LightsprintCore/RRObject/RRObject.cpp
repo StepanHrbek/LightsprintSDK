@@ -3,8 +3,6 @@
 // Copyright (c) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <set>
-#include <string>
 #include "../RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRObject.h"
@@ -15,6 +13,29 @@
 
 namespace rr
 {
+
+//! Returns formatted string (printf-like) for immediate use.
+//
+//! Fully static, no allocations.
+//! Has slots for several strings, call to tmpstr() overwrites one of previously returned strings.
+const char* tmpstr(const char* fmt, ...)
+{
+	enum
+	{
+		MAX_STRINGS=2, // checkConsistency() needs 2 strings
+		MAX_STRING_SIZE=1000
+	};
+	static unsigned i = 0;
+	static char bufs[MAX_STRINGS][MAX_STRING_SIZE+1];
+	char* buf = bufs[++i%MAX_STRINGS];
+	va_list argptr;
+	va_start (argptr,fmt);
+	_vsnprintf (buf,MAX_STRING_SIZE,fmt,argptr);
+	buf[MAX_STRING_SIZE] = 0;
+	va_end (argptr);
+	return buf;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -65,31 +86,6 @@ bool RRObject::FaceGroups::containsEmittance() const
 		}
 	}
 	return false;
-}
-
-void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _forUnwrap, bool _forDiffuse, bool _forSpecular, bool _forEmissive, bool _forTransparent) const
-{
-	std::set<unsigned> texcoords;
-	for (unsigned fg=0; fg<size(); fg++)
-	{
-		rr::RRMaterial* material = (*this)[fg].material;
-		if (material)
-		{
-			if (_forUnwrap)
-				texcoords.insert(material->lightmapTexcoord);
-			if (_forDiffuse && material->diffuseReflectance.texture)
-				texcoords.insert(material->diffuseReflectance.texcoord);
-			if (_forSpecular && material->specularReflectance.texture)
-				texcoords.insert(material->specularReflectance.texcoord);
-			if (_forEmissive && material->diffuseEmittance.texture)
-				texcoords.insert(material->diffuseEmittance.texcoord);
-			if (_forTransparent && material->specularTransmittance.texture)
-				texcoords.insert(material->specularTransmittance.texcoord);
-		}
-	}
-	_texcoords.clear();
-	for (std::set<unsigned>::const_iterator i=texcoords.begin();i!=texcoords.end();++i)
-		_texcoords.push_back(*i);
 }
 
 
@@ -309,10 +305,8 @@ extern const char* checkUnwrapConsistency(const RRObject* object); // our small 
 
 unsigned RRObject::checkConsistency(const char* _objectNumber) const
 {
-	std::string objectName(name.c_str());
-	if (!name.empty()) objectName += " ";
-	if (_objectNumber) objectName += std::string("(")+_objectNumber+")";
-	NumReports numReports(objectName.c_str());
+	const char* objectName = tmpstr("%s%s%s%s%s",name.c_str(),name.empty()?"":" ",_objectNumber?"(":"",_objectNumber?_objectNumber:"",_objectNumber?")":"");
+	NumReports numReports(objectName);
 
 	// collider, mesh
 	if (!getCollider())
@@ -325,7 +319,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		RRReporter::report(ERRO,"getCollider()->getMesh()=NULL.\n");
 		return 1;
 	}
-	getCollider()->getMesh()->checkConsistency(UINT_MAX,objectName.c_str(),&numReports);
+	getCollider()->getMesh()->checkConsistency(UINT_MAX,objectName,&numReports);
 
 	// matrix
 	const RRMatrix3x4* world = getWorldMatrix();
@@ -406,6 +400,17 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	return numReports;
 }
 
+unsigned RRObjects::checkConsistency(const char* objectType) const
+{
+	unsigned numReports = 0;
+	for (unsigned i=0;i<size();i++)
+	{
+		const char* objectNumber = tmpstr("%s%sobject %d/%d",objectType?objectType:"",objectType?" ":"",i,size());
+		numReports += (*this)[i]->checkConsistency(objectNumber);
+	}
+	return numReports;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -434,17 +439,6 @@ RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::Inte
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRObject recommends
-
-static char *bp(const char *fmt, ...)
-{
-	static char msg[1000];
-	va_list argptr;
-	va_start (argptr,fmt);
-	_vsnprintf (msg,999,fmt,argptr);
-	msg[999] = 0;
-	va_end (argptr);
-	return msg;
-}
 
 // formats filename from prefix(path), object number and postfix(ext)
 const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
@@ -479,7 +473,7 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 			finalExt = ext;
 		}
 	}
-	const char* result = bp("%s%05d.%s",path?path:"",objectIndex,finalExt);
+	const char* result = tmpstr("%s%05d.%s",path?path:"",objectIndex,finalExt);
 	delete[] tmp;
 	return result;
 }

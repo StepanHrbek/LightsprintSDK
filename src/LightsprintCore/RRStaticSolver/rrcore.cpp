@@ -512,6 +512,25 @@ Triangles::~Triangles()
 //
 // object, part of scene
 
+Object* Object::create(int _vertices,int _triangles)
+{
+	Object* o = new Object();
+	unsigned size1 = (sizeof(RRVec3)*_vertices+sizeof(Triangle)*_triangles);
+	unsigned size2 = sizeof(IVertex)*_vertices;
+	if (size1+size2>10000000)
+		RRReporter::report(INF1,"Memory taken by static solver: %d+%dMB\n",size1/1024/1024,size2/1024/1024);
+
+	o->vertices = _vertices;
+	o->triangles = _triangles;
+	o->triangle = new (std::nothrow) Triangle[_triangles];
+	if (!o->triangle)
+	{
+		RR_SAFE_DELETE(o);
+		RRReporter::report(WARN,"Solver not created, allocating %dMB failed.\n",sizeof(Triangle)*_triangles/1024/1024);
+	}
+	return o;
+}
+
 Object::Object()
 {
 	vertices=0;

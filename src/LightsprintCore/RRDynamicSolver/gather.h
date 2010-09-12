@@ -88,17 +88,15 @@ public:
 
 	static GatheredPerTriangleData* create(unsigned numTriangles, bool gatherLightmap, bool gatherDirections, bool gatherBentNormals)
 	{
-		GatheredPerTriangleData* a = NULL;
-		try
-		{
-			a = new GatheredPerTriangleData;
-			a->data[LS_LIGHTMAP] = gatherLightmap ? new RRVec3[numTriangles] : NULL;
-			a->data[LS_DIRECTION1] = gatherDirections ? new RRVec3[numTriangles] : NULL;
-			a->data[LS_DIRECTION2] = gatherDirections ? new RRVec3[numTriangles] : NULL;
-			a->data[LS_DIRECTION3] = gatherDirections ? new RRVec3[numTriangles] : NULL;
-			a->data[LS_BENT_NORMALS] = gatherBentNormals ? new RRVec3[numTriangles] : NULL;
-		}
-		catch(std::bad_alloc)
+		GatheredPerTriangleData* a = new GatheredPerTriangleData;
+		a->data[LS_LIGHTMAP] = gatherLightmap ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		a->data[LS_DIRECTION1] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		a->data[LS_DIRECTION2] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		a->data[LS_DIRECTION3] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		a->data[LS_BENT_NORMALS] = gatherBentNormals ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		if ((gatherLightmap && !a->data[LS_LIGHTMAP])
+			|| (gatherDirections && (!a->data[LS_DIRECTION1] || !a->data[LS_DIRECTION2] || !a->data[LS_DIRECTION3]))
+			|| (gatherBentNormals && !a->data[LS_BENT_NORMALS]))
 		{
 			RR_SAFE_DELETE(a);
 		}

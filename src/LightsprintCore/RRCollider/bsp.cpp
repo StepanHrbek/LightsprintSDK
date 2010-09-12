@@ -197,8 +197,14 @@ BspBuilder(bool& _aborting) : buildParams(RRCollider::IT_BSP_FASTEST), aborting(
 BSP_TREE *new_node()
 {
 	BSP_TREE* oldbsptree=bsptree;
-	if (bsptree_id<CACHE_SIZE) return bsptree+bsptree_id++;
-	bsptree=nALLOC(BSP_TREE,CACHE_SIZE+1); bsptree[CACHE_SIZE].front=oldbsptree; bsptree_id=1; return bsptree;
+	if (bsptree_id<CACHE_SIZE)
+		return bsptree+bsptree_id++;
+	bsptree = nALLOC(BSP_TREE,CACHE_SIZE+1);
+	if (!bsptree)
+		return NULL;
+	bsptree[CACHE_SIZE].front = oldbsptree;
+	bsptree_id = 1;
+	return bsptree;
 }
 
 static void free_node(BSP_TREE* t)
@@ -698,12 +704,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	for (int i=0;space[i];i++) pn++;
 
 	// alloc node
-	BSP_TREE *t=NULL;
-	try
-	{
-		t=new_node();
-	}
-	catch(...)
+	BSP_TREE *t = new_node();
+	if (!t)
 	{
 		RRReporter::report(ERRO,"Not enough memory to build collider.\n");
 		return NULL;

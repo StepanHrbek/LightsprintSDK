@@ -293,18 +293,6 @@
 			Name="RRCollider">
 			<File
 				RelativePath="RRCollider\bsp.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRCollider\bsp.h">
@@ -392,33 +380,9 @@
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshAccelerated.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshArrays.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRMesh\RRMeshFilter.h">
@@ -497,18 +461,6 @@
 			</File>
 			<File
 				RelativePath="RRLightField.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRObjectIllumination.cpp">
@@ -725,18 +677,6 @@
 			</File>
 			<File
 				RelativePath="RRBuffer\RRBufferInMemory.cpp">
-				<FileConfiguration
-					Name="Release static|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="TRUE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRBuffer\RRBufferInMemory.h">
@@ -770,6 +710,18 @@
 			Name="RRScene">
 			<File
 				RelativePath="RRScene.cpp">
+				<FileConfiguration
+					Name="Release static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\RRScene.h">
@@ -903,6 +855,18 @@
 		</File>
 		<File
 			RelativePath="Unwrapper.cpp">
+			<FileConfiguration
+				Name="Release static|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="TRUE"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="TRUE"/>
+			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

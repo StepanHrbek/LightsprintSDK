@@ -171,15 +171,15 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	if (!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
 	{
 		RR_SAFE_DELETE_ARRAY(data);
-		try
+		// pointer value 1 = don't allocate buffer, caller promises he will never use it
+		if ((_data || _format!=BF_DEPTH) && _data!=(unsigned char*)1)
 		{
-			// pointer value 1 = don't allocate buffer, caller promises he will never use it
-			data = ((_data || _format!=BF_DEPTH) && _data!=(unsigned char*)1) ? new unsigned char[bytesTotal] : NULL;
-		}
-		catch(std::bad_alloc e)
-		{
-			RRReporter::report(ERRO,"Not enough memory, %dMB buffer not created.\n",bytesTotal/1024/1024);
-			return false;
+			data = new (std::nothrow) unsigned char[bytesTotal];
+			if (!data)
+			{
+				RRReporter::report(ERRO,"Not enough memory, %dMB buffer not created.\n",bytesTotal/1024/1024);
+				return false;
+			}
 		}
 	}
 	if (data && data!=_data)

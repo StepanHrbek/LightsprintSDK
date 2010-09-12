@@ -85,11 +85,8 @@ private:
 		{
 			if (!block)
 			{
-				try // ignore warning, std::bad_alloc exception is catched properly
-				{
-					block = new Block;
-				}
-				catch(...)
+				block = new (std::nothrow) Block;
+				if (!block)
 				{
 #if defined(_M_X64) || defined(_LP64)
 					RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Not enough memory, radiosity job interrupted.\n"));
@@ -129,6 +126,9 @@ private:
 // - all instances share one pool
 //
 // beware: it's compatible with STL only for our use case, it won't work elsewhere
+//
+// Pool takes care of of "not enough memory for sizeof(C)" situation.
+// If C() allocates additional memory dynamically, it should handle dynamic failures itself.
 
 template<class C>
 class ChunkList

@@ -44,12 +44,9 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	char* pool = (char*)triangle;
 	if (newSize>poolSize)
 	{
-		try
-		{
-			free(triangle);
-			pool = newSize ? (char*)malloc(newSize) : NULL;
-		}
-		catch(...)
+		free(triangle);
+		pool = newSize ? (char*)malloc(newSize) : NULL;
+		if (newSize && !pool)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
 			resizeMesh(0,0,NULL,false);
