@@ -61,7 +61,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	SetPropertyBackgroundColour(propEmissive,headerColor,false);
 	Collapse(propEmissive);
 
-	Append(propTransparent = new wxStringProperty(wxT("Transparent")));
+	Append(propTransparent = new wxStringProperty(wxT("Transparency")));
 	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
 	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
 	AppendIn(propTransparent,new ImageFileProperty(wxT("texture"),"Opacity texture."));
@@ -209,6 +209,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	bool diffuseChanged = false;
 	bool specularChanged = false;
 	bool emittanceChanged = false;
+	bool transmittanceChanged = false;
 	bool textureChanged = false;
 
 	wxPGProperty *property = event.GetProperty();
@@ -318,6 +319,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTransparent->GetPropertyByName("uv"))
 	{
 		material->specularTransmittance.texcoord = property->GetValue().GetInteger();
+		transmittanceChanged = true;
 	}
 	else
 	if (property==propTransparent->GetPropertyByName("texture"))
@@ -328,6 +330,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP);
 		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
+		transmittanceChanged = true;
 		textureChanged = true;
 	}
 	else
@@ -335,6 +338,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		material->specularTransmittance.color << property->GetValue();
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
+		transmittanceChanged = true;
 	}
 	else
 
@@ -342,11 +346,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTransparency1bit)
 	{
 		material->specularTransmittanceKeyed = property->GetValue().GetBool();
+		transmittanceChanged = true;
 	}
 	else
 	if (property==propTransparencyInAlpha)
 	{
 		material->specularTransmittanceInAlpha = property->GetValue().GetBool();
+		transmittanceChanged = true;
 	}
 	else
 	if (property==propRefraction)
@@ -400,18 +406,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateReadOnly();
 	}
 
-	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL)
-	{
-		// fireball: skip reportMaterialChange(), it either switches to architect (current behaviour, fast, but surprising, possibly unwanted)
-		//           or rebuilds fireball (not enabled, would be very slow)
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball (both in Global Illumination menu).\n"));
-	}
-	else
-	if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
-	{
-		// architect: reportMaterialChange() is cheap, call it
-		lastSolver->reportMaterialChange();
-	}
+	lastSolver->reportMaterialChange(transmittanceChanged,true);
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)

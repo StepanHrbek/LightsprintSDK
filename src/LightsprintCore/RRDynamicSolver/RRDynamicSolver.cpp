@@ -338,14 +338,31 @@ bool RRDynamicSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRR
 	return false;
 }
 
-void RRDynamicSolver::reportMaterialChange()
+void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
-	priv->dirtyMaterials = true;
+	// here we dirty shadowmaps and DDI
+	//  we dirty DDI only if shadows are dirtied too, DDI with unchanged shadows would lead to the same GI
+	if (dirtyShadows)
+		for (unsigned i=0;i<getLights().size();i++)
+			reportDirectIlluminationChange(i,dirtyShadows,dirtyGI);
+	// here we dirty factors in solver
+	if (dirtyGI)
+	{
+		if (priv->packedSolver)
+		{
+			// don't set dirtyMaterials, it would switch to architect solver and probably confuse user
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball.\n"));
+		}
+		else
+		{
+			priv->dirtyMaterials = true;
+		}
+	}
 	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
-void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
+void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadows, bool dirtyGI)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
 }

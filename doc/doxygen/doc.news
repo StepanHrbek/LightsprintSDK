@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news109 ------------------------------------ 2010.09.xx -------------------------------------
+
+CHANGES
+
+- RRDynamicSolver::reportMaterialChange() has two new parameters
+  \n lets you comfortably update things that were not updated before
+
 \section news108 ------------------------------------ 2010.09.10 -------------------------------------
 
 NEWS

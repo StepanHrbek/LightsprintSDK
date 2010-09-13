@@ -689,9 +689,13 @@ namespace rr
 		//
 		//! Call this when you changed material properties of static objects
 		//! (and RRObject::getTriangleMaterial() returns new materials).
-		//! If you use \ref calc_fireball, material changes don't apply
-		//! until you rebuild it (see buildFireball()).
-		virtual void reportMaterialChange();
+		//! \param dirtyShadowmaps
+		//!  Set this if you want shadows updated. Shadows may need update after change in material transparency.
+		//! \param dirtyGI
+		//!  Set this if you want GI quickly updated, or keep it false to save time.
+		//!  If you use \ref calc_fireball, material changes don't apply
+		//!  until you rebuild it (see buildFireball()).
+		virtual void reportMaterialChange(bool dirtyShadows, bool dirtyGI);
 
 		//! Reports that scene has changed and direct or global illumination should be updated.
 		//
@@ -699,7 +703,7 @@ namespace rr
 		//! so that shadows and/or GI should be updated.
 		//! \param lightIndex
 		//!  Light number in list of lights, see setLights().
-		//! \param dirtyShadowmap
+		//! \param dirtyShadows
 		//!  Tells us that direct shadows should be updated.
 		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
 		//!  use it to update light's shadowmaps.
@@ -711,7 +715,7 @@ namespace rr
 		//!  change in GI would be hardly visible. This is usually case when objects move,
 		//!  but lights stay static or nearly static - moving objects have much weaker global effects
 		//!  than moving lights.
-		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI);
+		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadows, bool dirtyGI);
 
 		//! Reports interaction between user and application.
 		//
