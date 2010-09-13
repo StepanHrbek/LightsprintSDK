@@ -73,7 +73,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("spotExponent",a.spotExponent);
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTextureFilename", std::string(a.rtProjectedTexture?a.rtProjectedTexture->filename.c_str():""));
+	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).file_string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
 	// skip customData;
 }
@@ -295,8 +295,8 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
-	ar & make_nvp("sceneFilename",a.sceneFilename);
-	ar & make_nvp("skyboxFilename",a.skyboxFilename);
+	ar & make_nvp("sceneFilename",bf::system_complete(a.sceneFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("skyboxFilename",bf::system_complete(a.skyboxFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("xrefs",a.xrefs);
 	// skip releaseResources;
 }
