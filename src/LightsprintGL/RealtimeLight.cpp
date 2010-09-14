@@ -274,7 +274,9 @@ namespace rr_gl
 			else
 			{
 				light.pos = csmObserverPos;
-				float visibleArea = powf(0.2f,(float)instance);
+				float base = 0.3f-pow(light.orthoSize,0.3f)/80; // base is 0.2 for ortho up to 1km, drops to 0.1 above 10km
+				RR_CLAMP(base,0.1f,0.2f);
+				float visibleArea = powf(base,(float)instance);
 				light.orthoSize *= visibleArea;
 				if (Workaround::supportsDepthClamp())
 					light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
