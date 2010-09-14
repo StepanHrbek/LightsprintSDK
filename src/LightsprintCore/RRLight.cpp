@@ -74,6 +74,7 @@ public:
 			color[1] = pow(color[1],2.2222f);
 			color[2] = pow(color[2],2.2222f);
 		}
+		rtNumShadowmaps = 3;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -212,6 +213,7 @@ public:
 		#define DELTA 0.0001f
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		rtNumShadowmaps = 1;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -250,6 +252,7 @@ public:
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		rtNumShadowmaps = 1;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -288,6 +291,7 @@ public:
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		rtNumShadowmaps = 1;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -330,6 +334,7 @@ public:
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
 		spotExponent = RR_CLAMPED(_spotExponent,0,1e10f);
+		rtNumShadowmaps = 1;
 	}
 	virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
