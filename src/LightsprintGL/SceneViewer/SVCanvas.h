@@ -36,6 +36,9 @@ namespace rr_gl
 		void createContextCore();
 		void createContext();
 
+		//! Adds scene to solver or removes it from solver.
+		//! \param add
+		//!  True = add, false = remove.
 		void addOrRemoveScene(rr::RRScene* scene, bool add);
 
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
