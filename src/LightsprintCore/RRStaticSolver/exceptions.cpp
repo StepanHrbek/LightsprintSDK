@@ -6,7 +6,7 @@
 // RRMesh
 #include "Lightsprint/RRMesh.h"
 #include "../RRMathPrivate.h"
-#include <boost/unordered_map.hpp> // findGroundLevel
+#include <boost/unordered_map.hpp>
 
 // ImageCache
 #include "Lightsprint/RRBuffer.h"
@@ -16,6 +16,10 @@
 // FaceGroups
 #include "Lightsprint/RRObject.h"
 #include <set>
+
+// RRObjects
+//#include "Lightsprint/RRObject.h"
+#include <boost/unordered_set.hpp>
 
 namespace rr
 {
@@ -183,6 +187,33 @@ void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _fo
 	_texcoords.clear();
 	for (std::set<unsigned>::const_iterator i=texcoords.begin();i!=texcoords.end();++i)
 		_texcoords.push_back(*i);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObjects
+
+void RRObjects::getAllMaterials(RRVector<RRMaterial*>& materials) const
+{
+	typedef boost::unordered_set<RRMaterial*> Set;
+	Set set;
+	// fill set
+	for (unsigned i=0;i<materials.size();i++)
+		set.insert(materials[i]);
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject::FaceGroups& faceGroups = (*this)[i]->faceGroups;
+		for (unsigned g=0;g<faceGroups.size();g++)
+		{
+			set.insert(faceGroups[g].material);
+		}
+	}
+	// copy set to buffers
+	materials.clear();
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			materials.push_back(*i);
 }
 
 } // namespace

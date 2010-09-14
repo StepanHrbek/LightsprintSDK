@@ -486,6 +486,12 @@ namespace rr
 		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.
 		virtual unsigned buildUnwrap(unsigned resolution, bool removeUnusedUvChannels, bool& aborting) const;
 
+		//! Inserts all materials found in objects into collection.
+		//
+		//! May shuffle elements that were already present in collection.
+		//! Removes duplicates, the same material is never listed twice.
+		void getAllMaterials(RRVector<RRMaterial*>& materials) const;
+
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
 	};

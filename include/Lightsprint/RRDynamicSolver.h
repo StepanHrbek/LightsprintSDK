@@ -273,9 +273,10 @@ namespace rr
 		const RRObjects& getDynamicObjects() const;
 
 
-		//! Returns collection of all material, light and environment buffers in solver.
+		//! Inserts all buffers found in solver's materials, lights and environment into collection.
 		//
 		//! Can be used to gather all texture filenames, to pause all videos etc.
+		//! Note that illumination buffers (lightmaps) are not inserted.
 		//! May shuffle elements that were already present in collection.
 		//! Removes duplicates, the same buffer is never listed twice.
 		void getAllBuffers(RRVector<RRBuffer*>& buffers) const;
@@ -702,7 +703,7 @@ namespace rr
 		//! Call this function when light moves, changes color etc.. or when shadow caster moves,
 		//! so that shadows and/or GI should be updated.
 		//! \param lightIndex
-		//!  Light number in list of lights, see setLights().
+		//!  Light number in list of lights, see setLights(). If it is -1, change is reported for all lights in solver.
 		//! \param dirtyShadows
 		//!  Tells us that direct shadows should be updated.
 		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
@@ -715,7 +716,7 @@ namespace rr
 		//!  change in GI would be hardly visible. This is usually case when objects move,
 		//!  but lights stay static or nearly static - moving objects have much weaker global effects
 		//!  than moving lights.
-		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadows, bool dirtyGI);
+		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI);
 
 		//! Reports interaction between user and application.
 		//

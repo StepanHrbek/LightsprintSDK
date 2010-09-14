@@ -73,7 +73,8 @@ namespace rr_gl
 		virtual void renderLights();
 
 
-		virtual void reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI);
+		//! Sets dirty flags in given light, or in all lights if lightIndex is negative.
+		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI);
 
 		//! Updates shadowmaps, detects direct illumination, calculates GI.
 		//

@@ -344,8 +344,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	// here we dirty shadowmaps and DDI
 	//  we dirty DDI only if shadows are dirtied too, DDI with unchanged shadows would lead to the same GI
 	if (dirtyShadows)
-		for (unsigned i=0;i<getLights().size();i++)
-			reportDirectIlluminationChange(i,dirtyShadows,dirtyGI);
+		reportDirectIlluminationChange(-1,dirtyShadows,dirtyGI);
 	// here we dirty factors in solver
 	if (dirtyGI)
 	{
@@ -362,7 +361,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
-void RRDynamicSolver::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadows, bool dirtyGI)
+void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
 }

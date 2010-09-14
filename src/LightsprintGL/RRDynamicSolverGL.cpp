@@ -126,10 +126,18 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
-void RRDynamicSolverGL::reportDirectIlluminationChange(unsigned lightIndex, bool dirtyShadowmap, bool dirtyGI)
+void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI)
 {
+	if (lightIndex==-1)
+	{
+		for (unsigned i=0;i<realtimeLights.size();i++)
+		{
+			reportDirectIlluminationChange(i,true,true);
+		}
+		return;
+	}
 	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI);
-	if (lightIndex<realtimeLights.size())
+	if (lightIndex>=0 && lightIndex<(int)realtimeLights.size())
 	{
 		realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
 		realtimeLights[lightIndex]->dirtyGI |= dirtyGI;

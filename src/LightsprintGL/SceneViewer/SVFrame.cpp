@@ -628,14 +628,6 @@ void SVFrame::OnExit(wxCommandEvent& event)
 	Close(true);
 }
 
-static void dirtyLights(rr_gl::RRDynamicSolverGL* solver)
-{
-	for (unsigned i=0;i<solver->realtimeLights.size();i++)
-	{
-		solver->reportDirectIlluminationChange(i,true,true);
-	}
-}
-
 void SVFrame::UpdateMenuBar()
 {
 	if (svs.fullscreen) return; // menu in fullscreen is disabled
@@ -1115,7 +1107,7 @@ reload_skybox:
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
-			dirtyLights(solver);
+			solver->reportDirectIlluminationChange(-1,true,true);
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
 			{
 				if (!fireballLoadAttempted)
@@ -1132,7 +1124,7 @@ reload_skybox:
 
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
 				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,NULL);
-				dirtyLights(solver);
+				solver->reportDirectIlluminationChange(-1,true,true);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
 			}
@@ -1143,7 +1135,7 @@ reload_skybox:
 			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
-			dirtyLights(solver);
+			solver->reportDirectIlluminationChange(-1,true,true);
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
 			break;
@@ -1232,7 +1224,7 @@ reload_skybox:
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->buildFireball(quality,NULL);
-					dirtyLights(solver);
+					solver->reportDirectIlluminationChange(-1,true,true);
 					fireballLoadAttempted = true;
 				}
 			}
