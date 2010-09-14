@@ -111,7 +111,16 @@ namespace rr_gl
 			for (unsigned i=0;i<lights.size();i++)
 			{
 				if (lights[i])
-					push_back(SVEntity(*lights[i],i,dirlightPosition));
+				{
+					SVEntity entity(*lights[i],i,dirlightPosition);
+					if (lights[i]->name=="Flashlight")
+					{
+						// makes icon invisible without deleting it
+						// we need all light icons present so that they can be indexed like lights in solver
+						entity.position.x += 1e10f;
+					}
+					push_back(entity);
+				}
 			}
 		}
 	};
