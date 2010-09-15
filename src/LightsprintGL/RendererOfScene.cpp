@@ -177,7 +177,7 @@ void RendererOfOriginalScene::render(
 			// optimized render can't sort
 			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
 			// optimized render can't render LDM for more than 1 object
-			|| ((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=UINT_MAX)
+			|| ((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=-1)
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| (!_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
