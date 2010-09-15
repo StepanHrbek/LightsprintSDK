@@ -1002,26 +1002,6 @@ void SVCanvas::Paint(wxPaintEvent& event)
 	{
 		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
 
-		// aspect needs update after
-		// - OnSize()
-		// - RL: restored previously saved camera and window size differs
-		// - RL: calculated camera from previously saved keyframes and window size differs
-		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
-
-		// move flashlight
-		for (unsigned i=solver->getLights().size();i--;)
-			if (solver->getLights()[i] && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
-			{
-				svs.eye.update(); // svs.eye.dir is one frame old, we must update before reading it
-				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
-				solver->getLights()[i]->direction = svs.eye.dir;
-				float viewportWidthCovered = 0.9f;
-				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
-				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
-				solver->realtimeLights[i]->getParent()->setRange(svs.eye.getNear(),svs.eye.getFar());
-				solver->realtimeLights[i]->updateAfterRRLightChanges();
-			}
-
 		// blend skyboxes
 		if (timeWhenSkyboxBlendingStarted)
 		{
@@ -1041,7 +1021,27 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			}
 		}
 
+
+		// aspect needs update after
+		// - OnSize()
+		// - RL: restored previously saved camera and window size differs
+		// - RL: calculated camera from previously saved keyframes and window size differs
+		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
 		svs.eye.update();
+
+		// move flashlight
+		for (unsigned i=solver->getLights().size();i--;)
+			if (solver->getLights()[i] && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
+			{
+				// eye must already be updated otherwise flashlight will lag one frame
+				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
+				solver->getLights()[i]->direction = svs.eye.dir;
+				float viewportWidthCovered = 0.9f;
+				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
+				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
+				solver->realtimeLights[i]->getParent()->setRange(svs.eye.getNear(),svs.eye.getFar());
+				solver->realtimeLights[i]->updateAfterRRLightChanges();
+			}
 
 		if (svs.cameraDynamicNear && !svs.eye.orthogonal) // don't change range in ortho, fixed range from setView() is better
 		{
