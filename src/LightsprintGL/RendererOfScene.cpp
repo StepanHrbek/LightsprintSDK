@@ -165,7 +165,7 @@ void RendererOfOriginalScene::render(
 
 	// Will we render multiobject or individual objects?
 	//unsigned lightIndirectVersion = _solver?_solver->getSolutionVersion():0;
-	bool needsIndividualStaticObjects =
+	bool needsIndividualStaticObjectsForEverything =
 		// optimized render is faster and supports rendering into shadowmaps (this will go away with colored shadows)
 		!_renderingFromThisLight
 
@@ -174,10 +174,8 @@ void RendererOfOriginalScene::render(
 		//&& _solver->getStaticObjects().size()>1
 
 		&& (
-			// optimized render can't sort
-			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
 			// optimized render can't render LDM for more than 1 object
-			|| ((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=-1)
+			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=-1)
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
@@ -185,7 +183,17 @@ void RendererOfOriginalScene::render(
 			|| (_uberProgramSetup.MATERIAL_SPECULAR && (_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_auto))
 		);
 
-	rr::RRReportInterval report(rr::INF3,"Rendering %s scene...\n",needsIndividualStaticObjects?"1obj":"multiobj");
+	// Will we render opaque parts from multiobject and blended parts from 1objects?
+	// It's optimizations, makes render 10x faster in diacor (25k 1objects), compared to rendering everything from 1objects.
+	bool needsIndividualStaticObjectsOnlyForBlending =
+		!needsIndividualStaticObjectsForEverything
+		&& !_renderingFromThisLight
+		&& (
+			// optimized render can't sort
+			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
+		);
+
+	rr::RRReportInterval report(rr::INF3,"Rendering %s%s scene...\n",needsIndividualStaticObjectsForEverything?"1obj":"multiobj",needsIndividualStaticObjectsOnlyForBlending?"+1objblend":"");
 
 	// Preprocess scene, gather information about shader classes.
 	perObjectBuffers.clear();
@@ -194,14 +202,27 @@ void RendererOfOriginalScene::render(
 	blendedFaceGroups.clear();
 	multiObjects.clear();
 	multiObjects.push_back(_solver->getMultiObjectCustom());
-	for (unsigned dynamic=0;
-		dynamic<(_uberProgramSetup.FORCE_2D_POSITION?1u:2u); // force2d always wants to render only static scene
-		dynamic++)
+	for (unsigned pass=0;pass<3;pass++)
 	{
-		const rr::RRObjects& objects = dynamic?_solver->getDynamicObjects():(needsIndividualStaticObjects?_solver->getStaticObjects():multiObjects);
-		for (unsigned i=0;i<objects.size();i++)
+		const rr::RRObjects* objects;
+		switch (pass)
 		{
-			rr::RRObject* object = objects[i];
+			case 0:
+				if (needsIndividualStaticObjectsForEverything) continue;
+				objects = &multiObjects;
+				break;
+			case 1:
+				if (!needsIndividualStaticObjectsForEverything && !needsIndividualStaticObjectsOnlyForBlending) continue;
+				objects = &_solver->getStaticObjects();
+				break;
+			case 2:
+				if (_uberProgramSetup.FORCE_2D_POSITION) continue;
+				objects = &_solver->getDynamicObjects();
+				break;
+		}
+		for (unsigned i=0;i<objects->size();i++)
+		{
+			rr::RRObject* object = (*objects)[i];
 			if (object)// && !eye->frustumCull(object))
 			{
 				const rr::RRMesh* mesh = object->getCollider()->getMesh();
@@ -218,7 +239,7 @@ void RendererOfOriginalScene::render(
 				objectBuffers.lightIndirectDetailMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP) ? onlyLmap(illumination.getLayer(_lightDetailMapLayer)) : NULL;
 
 				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
-				if (dynamic && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
+				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
 					objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynamic objects
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = objectBuffers.diffuseEnvironment!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = objectBuffers.specularEnvironment!=NULL;
@@ -227,36 +248,11 @@ void RendererOfOriginalScene::render(
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 				objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
 
-				if (_updateLightIndirect)
-				{
-					// update vertex buffers
-					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR && !dynamic
-						// quit if buffer is already up to date
-						&& lightIndirectVcolor->version!=_solver->getSolutionVersion())
-					{
-						if (needsIndividualStaticObjects)
-						{
-							// updates indexed 1object buffer
-							_solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
-						}
-						else
-						{
-							// -1 = updates indexed multiobject buffer
-							_solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
-						}
-					}
-					// update cube maps
-					// built-in version check
-					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-					{
-						_solver->updateEnvironmentMap(&illumination);
-					}
-				}
-
 				const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
 				bool blendedAlreadyFoundInObject = false;
 				unsigned triangleInFgFirst = 0;
 				unsigned triangleInFgLastPlus1 = 0;
+				bool objectWillBeRendered = true; // solid 1obj won't be rendered if we mix solid from multiobj and blended from 1objs. then it does not need indirect updated
 				for (unsigned g=0;g<faceGroups.size();g++)
 				{
 					triangleInFgLastPlus1 += faceGroups[g].numTriangles;
@@ -265,20 +261,26 @@ void RendererOfOriginalScene::render(
 					{
 						if (material->needsBlending() && _uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 						{
-							blendedFaceGroups.push_back(FaceGroupRange(perObjectBuffers.size(),g,triangleInFgFirst,triangleInFgLastPlus1));
-							if (!blendedAlreadyFoundInObject)
+							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0)
 							{
-								blendedAlreadyFoundInObject = true;
-								rr::RRVec3 center;
-								mesh->getAABB(NULL,NULL,&center);
-								const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
-								if (worldMatrix)
-									worldMatrix->transformPosition(center);
-								objectBuffers.eyeDistance = (eye->pos-center).length();
+								objectWillBeRendered = true;
+								blendedFaceGroups.push_back(FaceGroupRange(perObjectBuffers.size(),g,triangleInFgFirst,triangleInFgLastPlus1));
+								if (!blendedAlreadyFoundInObject)
+								{
+									blendedAlreadyFoundInObject = true;
+									rr::RRVec3 center;
+									mesh->getAABB(NULL,NULL,&center);
+									const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
+									if (worldMatrix)
+										worldMatrix->transformPosition(center);
+									objectBuffers.eyeDistance = (eye->pos-center).length();
+								}
 							}
 						}
 						else
+						if (!needsIndividualStaticObjectsOnlyForBlending || pass!=1)
 						{
+							objectWillBeRendered = true;
 							UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
 							fgUberProgramSetup.enableUsedMaterials(material);
 							fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
@@ -298,6 +300,33 @@ void RendererOfOriginalScene::render(
 					triangleInFgFirst = triangleInFgLastPlus1;
 				}
 				perObjectBuffers.push_back(objectBuffers);
+
+				if (_updateLightIndirect && objectWillBeRendered)
+				{
+					// update vertex buffers
+					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
+						// quit if buffer is already up to date
+						&& lightIndirectVcolor->version!=_solver->getSolutionVersion())
+					{
+						if (pass==1)
+						{
+							// updates indexed 1object buffer
+							_solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
+						}
+						else
+						if (pass==0)
+						{
+							// -1 = updates indexed multiobject buffer
+							_solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
+						}
+					}
+					// update cube maps
+					// built-in version check
+					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+					{
+						_solver->updateEnvironmentMap(&illumination);
+					}
+				}
 			}
 		}
 	}
