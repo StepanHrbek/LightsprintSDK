@@ -222,11 +222,29 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propRenderExtras,headerColor,false);
 	}
 
-	// GI
+	// GI quality
 	{
-		wxPGProperty* propGI = new wxStringProperty(wxT("GI"), wxPG_LABEL);
+		wxPGProperty* propGI = new wxStringProperty(wxT("GI quality"), wxPG_LABEL);
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
+
+		propGIFireballQuality = new FloatProperty("Fireball quality","More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect.",svs.fireballQuality,0,0,1000000,100,false);
+		AppendIn(propGI,propGIFireballQuality);
+
+		// cubes
+		{
+			propGIRaytracedCubes = new BoolRefProperty("Realtime raytraced reflections","Increases realism by realtime raytracing diffuse and specular reflection cubemaps.",svs.raytracedCubesEnabled);
+			AppendIn(propGI,propGIRaytracedCubes);
+		
+			propGIRaytracedCubesDiffuseRes = new FloatProperty("Diffuse resolution","Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4.",svs.raytracedCubesDiffuseRes,0,1,16,1,false);
+			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesDiffuseRes);
+
+			propGIRaytracedCubesSpecularRes = new FloatProperty("Specular resolution","Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16.",svs.raytracedCubesSpecularRes,0,1,64,1,false);
+			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesSpecularRes);
+
+			propGIRaytracedCubesMaxObjects = new FloatProperty("Max objects","How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects.",svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
+			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
+		}
 
 		propGIEmisMultiplier = new FloatProperty("Emissive multiplier","Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1.",svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGI,propGIEmisMultiplier);
@@ -269,6 +287,10 @@ void SVSceneProperties::updateHide()
 
 	propGridNumSegments->Hide(!svs.renderGrid,false);
 	propGridSegmentSize->Hide(!svs.renderGrid,false);
+
+	propGIRaytracedCubesDiffuseRes->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesSpecularRes->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 }
 
 void SVSceneProperties::updateProperties()
@@ -324,6 +346,11 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
+		+ updateInt(propGIFireballQuality,svs.fireballQuality)
+		+ updateBoolRef(propGIRaytracedCubes)
+		+ updateInt(propGIRaytracedCubesDiffuseRes,svs.raytracedCubesDiffuseRes)
+		+ updateInt(propGIRaytracedCubesSpecularRes,svs.raytracedCubesSpecularRes)
+		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
@@ -526,6 +553,28 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGridSegmentSize)
 	{
 		svs.gridSegmentSize = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGIFireballQuality)
+	{
+		svs.fireballQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGIRaytracedCubes)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGIRaytracedCubesDiffuseRes || property==propGIRaytracedCubesSpecularRes)
+	{
+		svs.raytracedCubesDiffuseRes = propGIRaytracedCubesDiffuseRes->GetValue().GetInteger();
+		svs.raytracedCubesSpecularRes = propGIRaytracedCubesSpecularRes->GetValue().GetInteger();
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+	if (property==propGIRaytracedCubesMaxObjects)
+	{
+		svs.raytracedCubesMaxObjects = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGIEmisMultiplier)

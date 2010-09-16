@@ -734,12 +734,12 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize, int specularCubeSize, bool allocateNewBuffers, bool changeExistingBuffers) const
+void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize, int specularCubeSize, int gatherCubeSize, bool allocateNewBuffers, bool changeExistingBuffers) const
 {
 	// allocate vertex buffers
 	if (lightmapLayerNumber>=0 && getMultiObjectCustom())
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(lightmapLayerNumber,0,0,allocateNewBuffers,changeExistingBuffers);
+		getStaticObjects().allocateBuffersForRealtimeGI(lightmapLayerNumber,0,0,-1,allocateNewBuffers,changeExistingBuffers);
 		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
 		if (!multiIllumination.getLayer(lightmapLayerNumber))
 			multiIllumination.getLayer(lightmapLayerNumber) =
@@ -748,8 +748,8 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int 
 	// allocate cube maps
 	if (diffuseCubeSize>=0 || specularCubeSize>=0)
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(-1,0,specularCubeSize,allocateNewBuffers,changeExistingBuffers);
-		getDynamicObjects().allocateBuffersForRealtimeGI(-1,diffuseCubeSize,specularCubeSize,allocateNewBuffers,changeExistingBuffers);
+		getStaticObjects().allocateBuffersForRealtimeGI(-1,0,specularCubeSize,gatherCubeSize,allocateNewBuffers,changeExistingBuffers);
+		getDynamicObjects().allocateBuffersForRealtimeGI(-1,diffuseCubeSize,specularCubeSize,gatherCubeSize,allocateNewBuffers,changeExistingBuffers);
 	}
 }
 

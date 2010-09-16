@@ -89,6 +89,11 @@ struct SceneViewerState
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
+	unsigned         fireballQuality;           //! Quality used each time Fireball needs rebuild.
+	bool             raytracedCubesEnabled;     //! Enables realtime raytraced diffuse and specular cubemap reflections.
+	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
+	unsigned         raytracedCubesSpecularRes; //! Resolution of specular cubes.
+	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
@@ -148,6 +153,11 @@ struct SceneViewerState
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoTransmittanceAffectsGI = true;
+		fireballQuality = 350;
+		raytracedCubesEnabled = true;
+		raytracedCubesDiffuseRes = 4;
+		raytracedCubesSpecularRes = 16;
+		raytracedCubesMaxObjects = 1000;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
@@ -213,6 +223,11 @@ struct SceneViewerState
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI
+			&& a.fireballQuality==fireballQuality
+			&& a.raytracedCubesEnabled==raytracedCubesEnabled
+			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes
+			&& a.raytracedCubesSpecularRes==raytracedCubesSpecularRes
+			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
 			&& a.waterLevel==waterLevel

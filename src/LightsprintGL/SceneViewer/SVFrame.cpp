@@ -22,7 +22,6 @@
 	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
 
-	#define DEFAULT_FIREBALL_QUALITY 350
 	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
 #define LMAP_PREFIX (wxString(svs.sceneFilename)+".").c_str()
@@ -678,7 +677,7 @@ void SVFrame::UpdateMenuBar()
 			case LI_NONE: winMenu->Check(ME_LIGHTING_INDIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build Fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. You can change GI quality here (from default ") wxSTRINGIZE_T(DEFAULT_FIREBALL_QUALITY) _T(")."));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build Fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. Scene properties / GI quality / Fireball quality is ") wxSTRINGIZE_T(svs.fireballQuality) _T("."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build LDM (light detail map)..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_T("Build unwrap..."),_T("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
@@ -1123,7 +1122,7 @@ reload_skybox:
 				LogWithAbort logWithAbort(this,solver);
 
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
-				solver->buildFireball(DEFAULT_FIREBALL_QUALITY,NULL);
+				solver->buildFireball(svs.fireballQuality,NULL);
 				solver->reportDirectIlluminationChange(-1,true,true);
 				// this would ask questions
 				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
@@ -1214,8 +1213,7 @@ reload_skybox:
 			break;
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
-				static unsigned quality = DEFAULT_FIREBALL_QUALITY;
-				if (getQuality("Fireball build",this,quality))
+				if (getQuality("Fireball build",this,svs.fireballQuality))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
@@ -1351,7 +1349,7 @@ reload_skybox:
 					m_canvas->collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
 					// resize rtgi buffers, vertex counts may differ
-					solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+					m_canvas->reallocateBuffersForRealtimeGI(true);
 				}
 			}
 			break;

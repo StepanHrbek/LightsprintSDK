@@ -180,7 +180,7 @@ void RendererOfOriginalScene::render(
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
 			// optimized render looks bad with single specular cube per-scene
-			|| (_uberProgramSetup.MATERIAL_SPECULAR && (_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_auto))
+			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 		);
 
 	// Will we render opaque parts from multiobject and blended parts from 1objects?
@@ -231,8 +231,8 @@ void RendererOfOriginalScene::render(
 				PerObjectBuffers objectBuffers;
 				objectBuffers.object = object;
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
-				objectBuffers.diffuseEnvironment = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) ? illumination.diffuseEnvMap : NULL;
-				objectBuffers.specularEnvironment = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? illumination.specularEnvMap : NULL;
+				objectBuffers.diffuseEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE ? illumination.diffuseEnvMap : NULL;
+				objectBuffers.specularEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR ? illumination.specularEnvMap : NULL;
 				rr::RRBuffer* lightIndirectVcolor = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_VCOLOR) ? onlyVbuf(illumination.getLayer(_lightIndirectLayer)) : NULL;
 				rr::RRBuffer* lightIndirectMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_MAP) ? onlyLmap(illumination.getLayer(_lightIndirectLayer)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;

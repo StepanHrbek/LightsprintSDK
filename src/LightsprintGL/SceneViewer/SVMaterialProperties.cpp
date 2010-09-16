@@ -390,8 +390,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// diffuse sphere doesn't have specular cube
 		// when we change material to specular, specular cube is allocated here
-		// warning: also deallocates if no longer necessary, may deallocate custom cubes
-		lastSolver->allocateBuffersForRealtimeGI(-1);
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 
 	// update solver after change in emittance

@@ -41,6 +41,8 @@ namespace rr_gl
 		//!  True = add, false = remove.
 		void addOrRemoveScene(rr::RRScene* scene, bool add);
 
+		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
+
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
 		void Paint(wxPaintEvent& event);
 		// set context, paint, swap

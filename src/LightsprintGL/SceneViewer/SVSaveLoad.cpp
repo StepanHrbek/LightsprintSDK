@@ -283,6 +283,11 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	ar & make_nvp("fireballQuality",a.fireballQuality);
+	ar & make_nvp("raytracedCubesEnabled",a.raytracedCubesEnabled);
+	ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
+	ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
+	ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.tonemappingBrightness);
@@ -360,6 +365,14 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 		ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 		ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
 	}
+	if (version>11)
+	{
+		ar & make_nvp("fireballQuality",a.fireballQuality);
+		ar & make_nvp("raytracedCubesEnabled",a.raytracedCubesEnabled);
+		ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
+		ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
+		ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
+	}
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.tonemappingBrightness);
@@ -419,7 +432,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 11)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 12)
 
 //---------------------------------------------------------------------------
 

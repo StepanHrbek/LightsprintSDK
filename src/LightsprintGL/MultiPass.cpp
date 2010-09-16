@@ -84,9 +84,9 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
+		uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
-		uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;

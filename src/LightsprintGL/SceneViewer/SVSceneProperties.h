@@ -89,6 +89,11 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
+		wxPGProperty*     propGIFireballQuality;
+		BoolRefProperty*  propGIRaytracedCubes;
+		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
+		wxPGProperty*     propGIRaytracedCubesSpecularRes;
+		wxPGProperty*     propGIRaytracedCubesMaxObjects;
 		wxPGProperty*     propGIEmisMultiplier;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		BoolRefProperty*  propGITranspVideoAffectsGI;

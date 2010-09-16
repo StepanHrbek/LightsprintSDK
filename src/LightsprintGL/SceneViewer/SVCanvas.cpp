@@ -174,8 +174,8 @@ void SVCanvas::createContextCore()
 		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
-	// warning: when rendering scene from solver, original cube buffers are lost here
-	solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+	// warning: when rendering scene from initialInputSolver, original cube buffers are lost here
+	reallocateBuffersForRealtimeGI(true);
 
 	// load skybox from filename only if we don't have it from inputsolver or scene yet
 	if (!solver->getEnvironment() && !svs.skyboxFilename.empty())
@@ -299,8 +299,15 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 
 		// alloc rtgi buffers, otherwise new objects would have no realtime indirect
 		if (add)
-			solver->allocateBuffersForRealtimeGI(svs.realtimeLayerNumber);
+			reallocateBuffersForRealtimeGI(true);
 	}
+}
+
+void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
+{
+	solver->allocateBuffersForRealtimeGI(
+		reallocateAlsoVbuffers?svs.realtimeLayerNumber:-1,
+		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes));
 }
 
 SVCanvas::~SVCanvas()
@@ -1102,6 +1109,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
 			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()<svs.raytracedCubesMaxObjects && svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;

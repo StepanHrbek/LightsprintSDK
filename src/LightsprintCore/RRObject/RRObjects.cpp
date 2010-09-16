@@ -104,7 +104,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 	return result;
 }
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -146,6 +146,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 					if (illumination.diffuseEnvMap && changeExistingBuffers)
 					{
 						illumination.diffuseEnvMap->reset(BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,BF_RGBA,true,NULL);
+						illumination.diffuseEnvMap->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
 						buffersTouched++;
 					}
 				}
@@ -193,6 +194,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 								if (illumination.specularEnvMap && changeExistingBuffers)
 								{
 									illumination.specularEnvMap->reset(BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,BF_RGBA,true,NULL);
+									illumination.specularEnvMap->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
 									buffersTouched++;
 								}
 								//updateEnvironmentMapCache(illumination);
@@ -200,6 +202,9 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 						}
 					}
 				}
+				// change gatherEnvMapSize
+				if (gatherEnvMapSize>=0)
+					illumination.gatherEnvMapSize = gatherEnvMapSize;
 			}
 		}
 	}

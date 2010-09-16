@@ -115,12 +115,6 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		// (withouth this, we would enable SHADOW_SAMPLES and it's invalid with LIGHT_DIRECT=0)
 		lights = NULL;
 	}
-	if (uberProgramSetup.LIGHT_INDIRECT_auto)
-	{
-		uberProgramSetup.LIGHT_INDIRECT_auto = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
-		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
-	}
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
 	// when indirect illum is off, do nothing, it's probably render of shadow into shadowmap.

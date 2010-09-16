@@ -10,13 +10,22 @@ namespace rr
 
 \section news109 ------------------------------------ 2010.09.xx -------------------------------------
 
-CHANGES
+NEWS
 
 - RRDynamicSolver::reportMaterialChange() has two new parameters
   \n lets you comfortably update things that were not updated before
 - enhanced realtime renderer
   - faster rendering with blending in huge scenes (10x faster in scene with 25k objects)
   - more detailed sun shadows in huge scenes (4x smaller details in 10x10km scene)
+- enhanced scene viewer
+  - lots of new options in Scene properties / GI quality
+
+CHANGES
+
+- allocateBuffersForRealtimeGI() has fourth parameter inserted
+  \n Old code must be updated, find all allocateBuffersForRealtimeGI() calls with at least 4 parameters and insert fourth parameter -1.
+- LIGHT_INDIRECT_auto=true does not enable LIGHT_INDIRECT_ENV_DIFFUSE and LIGHT_INDIRECT_ENV_SPECULAR.
+  \n To get old behaviour, find all places where you set LIGHT_INDIRECT_auto=true and add LIGHT_INDIRECT_ENV_DIFFUSE=LIGHT_INDIRECT_ENV_SPECULAR=true.
 
 \section news108 ------------------------------------ 2010.09.10 -------------------------------------
 

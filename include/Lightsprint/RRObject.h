@@ -451,13 +451,15 @@ namespace rr
 		//!  If >0, specular reflection maps in illumination->specularEnvMap are allocated for objects that benefit from them.
 		//!  Size 16 is good compromise between speed and quality.
 		//!  Good for both static and dynamic objects.
+		//! \param gatherEnvMapSize
+		//!  If it is not negative, value is copied into RRObjectIllumination::gatherEnvMapSize of all objects.
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
 		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
-		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
+		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
 
 		//! Reports inconsistencies found in objects.
 		//

@@ -80,7 +80,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map.
 	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, set by diffuse reflection environment map.
 	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, set by specular reflection environment map.
-	bool     LIGHT_INDIRECT_auto           :1; ///< Extension. Makes renderer set all LIGHT_INDIRECT_xxx flags automatically (except _CONST) according to available data.
+	bool     LIGHT_INDIRECT_auto           :1; ///< Extension. Makes renderer set LIGHT_INDIRECT_[VCOLOR*|MAP*|DETAIL_MAP] flags automatically according to available data.
 
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
 	bool     MATERIAL_DIFFUSE_X2           :1; ///< Enables material's diffuse reflectance multiplied by 2. (used by Quake3 engine scenes)

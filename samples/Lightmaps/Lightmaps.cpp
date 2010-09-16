@@ -342,6 +342,8 @@ void display(void)
 	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_auto = true; // enable indirect illumination
+	uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
+	uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
@@ -483,8 +485,8 @@ int main(int argc, char **argv)
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 	// create remaining cubemaps and multiObject vertex buffers
-	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,4,16,true,false);
-	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX,0,0,true,false);
+	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,4,16,-1,true,false);
+	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX,0,0,-1,true,false);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
