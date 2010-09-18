@@ -1221,7 +1221,7 @@ reload_skybox:
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
-					solver->buildFireball(quality,NULL);
+					solver->buildFireball(svs.fireballQuality,NULL);
 					solver->reportDirectIlluminationChange(-1,true,true);
 					fireballLoadAttempted = true;
 				}
