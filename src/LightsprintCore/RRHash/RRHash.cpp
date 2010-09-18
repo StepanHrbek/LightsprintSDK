@@ -117,8 +117,22 @@ RRHash RRObject::getHash() const
 				const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 				if (material)
 				{
-					sideBits[0] = material->sideBits[0];
-					sideBits[1] = material->sideBits[1];
+					// sideBits is bitfield, it contains at least one unused uninitialized bit
+					// we don't want any random data here, so we memset target and copy only used bits
+					sideBits[0].renderFrom   = material->sideBits[0].renderFrom;
+					sideBits[0].emitTo       = material->sideBits[0].emitTo;
+					sideBits[0].catchFrom    = material->sideBits[0].catchFrom;
+					sideBits[0].legal        = material->sideBits[0].legal;
+					sideBits[0].receiveFrom  = material->sideBits[0].receiveFrom;
+					sideBits[0].reflect      = material->sideBits[0].reflect;
+					sideBits[0].transmitFrom = material->sideBits[0].transmitFrom;
+					sideBits[1].renderFrom   = material->sideBits[1].renderFrom;
+					sideBits[1].emitTo       = material->sideBits[1].emitTo;
+					sideBits[1].catchFrom    = material->sideBits[1].catchFrom;
+					sideBits[1].legal        = material->sideBits[1].legal;
+					sideBits[1].receiveFrom  = material->sideBits[1].receiveFrom;
+					sideBits[1].reflect      = material->sideBits[1].reflect;
+					sideBits[1].transmitFrom = material->sideBits[1].transmitFrom;
 					materialData[0] = material->diffuseReflectance.color;
 					materialData[1] = material->diffuseEmittance.color;
 					materialData[2] = material->specularReflectance.color;
