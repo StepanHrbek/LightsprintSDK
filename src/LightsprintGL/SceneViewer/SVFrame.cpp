@@ -310,7 +310,7 @@ static bool getScale(wxWindow* parent, wxString filename, float& scale)
 
 // true = valid answer
 // false = dialog was escaped
-static bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
+bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
 {
 	char value[30];
 	sprintf(value,"%f",factor);

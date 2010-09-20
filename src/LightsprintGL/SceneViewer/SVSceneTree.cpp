@@ -211,6 +211,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),contextEntityId);
 }
 
+
 void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEntityId)
 {
 	callDepth++;
