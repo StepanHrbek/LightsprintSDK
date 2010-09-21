@@ -432,7 +432,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 12)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 13)
 
 //---------------------------------------------------------------------------
 

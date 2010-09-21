@@ -138,6 +138,7 @@ void SVCanvas::createContextCore()
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
+
 	{
 		int viewport[4];
 		glGetIntegerv(GL_VIEWPORT,viewport);
@@ -1345,6 +1346,24 @@ rendered:
 			glEnd();
 		}
 
+		// vignette
+		if (svs.renderVignette)
+		{
+			if (!vignetteLoadAttempted)
+			{
+				vignetteLoadAttempted = true;
+				RR_ASSERT(!vignetteImage);
+				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
+			}
+			if (vignetteImage && textureRenderer)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
+				glDisable(GL_BLEND);
+			}
+		}
+
 	}
 
 	if (svs.renderHelpers
@@ -1689,24 +1708,6 @@ rendered:
 		}
 	}
 
-
-	// vignette
-	if (svs.renderVignette)
-	{
-		if (!vignetteLoadAttempted)
-		{
-			vignetteLoadAttempted = true;
-			RR_ASSERT(!vignetteImage);
-			vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
-		}
-		if (vignetteImage && textureRenderer)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
-			glDisable(GL_BLEND);
-		}
-	}
 
 	// help
 	if (svs.renderHelp)
