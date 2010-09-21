@@ -580,7 +580,8 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEmisMultiplier)
 	{
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
-		svframe->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
+		if (svframe->m_canvas->solver)
+			svframe->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
 	}
 }
 

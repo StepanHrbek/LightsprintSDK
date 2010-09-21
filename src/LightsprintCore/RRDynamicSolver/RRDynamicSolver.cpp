@@ -284,6 +284,8 @@ const RRObjects& RRDynamicSolver::getDynamicObjects() const
 
 void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& buffers) const
 {
+	if (!this)
+		return;
 	typedef boost::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set

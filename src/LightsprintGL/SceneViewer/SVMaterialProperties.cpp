@@ -123,7 +123,7 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 	lastTriangle = hitTriangle;
 	lastPoint2d = hitPoint2d;
 
-	if (hitTriangle==UINT_MAX)
+	if (hitTriangle==UINT_MAX || !solver)
 	{
 		material = NULL;
 	}
@@ -371,7 +371,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 
 	// propagate change from physical material to custom and vice versa
-	if (!showPoint && materialPhysical && materialCustom)
+	if (!showPoint && materialPhysical && materialCustom && lastSolver)
 	{
 		if (showPhysical)
 		{
@@ -394,7 +394,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 
 	// update solver after change in emittance
-	if (emittanceChanged)
+	if (emittanceChanged && lastSolver)
 	{
 		lastSolver->setEmittance(svs.emissiveMultiplier,16,true);
 	}
@@ -405,7 +405,10 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateReadOnly();
 	}
 
-	lastSolver->reportMaterialChange(transmittanceChanged,true);
+	if (lastSolver)
+	{
+		lastSolver->reportMaterialChange(transmittanceChanged,true);
+	}
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)

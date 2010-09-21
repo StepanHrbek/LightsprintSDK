@@ -444,6 +444,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		case ' ':
 			// pause/play videos
+			if (solver)
 			{
 				rr::RRVector<rr::RRBuffer*> buffers;
 				solver->getAllBuffers(buffers);
@@ -540,7 +541,8 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 //			return;
 	}
 
-	solver->reportInteraction();
+	if (solver)
+		solver->reportInteraction();
 	if (needsRefresh)
 	{
 		Refresh(false);
@@ -843,7 +845,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if (!winWidth) return; // can't work without window
 
-	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || solver->aborting || exitRequested)
+	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || !solver || solver->aborting || exitRequested)
 	{
 		parent->Close(true);
 		return;
@@ -956,6 +958,9 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 
 void SVCanvas::OnPaintCore(wxPaintEvent& event)
 {
+	// checks must go in this order, so that we return silently if (exitRequested && !fullyCreated)
+	if (exitRequested)
+		return;
 	if (!fullyCreated)
 	{
 		rr::RRReporter::report(rr::ERRO,"Looks like scene import crashed, exiting.\n");

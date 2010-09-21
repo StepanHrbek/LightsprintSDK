@@ -768,11 +768,10 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 
 void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 {
-	try
+	if (m_canvas && m_canvas->solver)
+		try
 {
-	RR_ASSERT(m_canvas);
 	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
-	RR_ASSERT(solver);
 	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
 	int* windowCoord = m_canvas->windowCoord;
@@ -1009,13 +1008,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_TOP:    svs.eye.setView(Camera::TOP   ,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_BOTTOM: svs.eye.setView(Camera::BOTTOM,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_LEFT:   svs.eye.setView(Camera::LEFT  ,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_RIGHT:  svs.eye.setView(Camera::RIGHT ,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_FRONT:  svs.eye.setView(Camera::FRONT ,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_BACK:   svs.eye.setView(Camera::BACK  ,solver->getMultiObjectCustom()); break;
-		case ME_VIEW_RANDOM: svs.eye.setView(Camera::RANDOM,solver->getMultiObjectCustom()); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
+		case ME_VIEW_TOP:    svs.eye.setView(Camera::TOP   ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_BOTTOM: svs.eye.setView(Camera::BOTTOM,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_LEFT:   svs.eye.setView(Camera::LEFT  ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_RIGHT:  svs.eye.setView(Camera::RIGHT ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_FRONT:  svs.eye.setView(Camera::FRONT ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_BACK:   svs.eye.setView(Camera::BACK  ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_RANDOM: svs.eye.setView(Camera::RANDOM,solver?solver->getMultiObjectCustom():NULL); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
@@ -1603,26 +1602,29 @@ static bool validateIndex(unsigned& index, unsigned size)
 // Ensure that all svs.selectedXxxIndex are in range. Update all panels. (ok, not all, but the rest probably doesn't matter)
 void SVFrame::updateAllPanels()
 {
-	// update selected light
-	if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
+	if (m_canvas->solver)
 	{
-		m_lightProperties->setLight(NULL,svs.precision);
-		if (m_canvas->selectedType==ST_LIGHT)
-			m_canvas->selectedType = ST_CAMERA;
-	}
-	else
-	{
-		m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex],svs.precision);
-	}
+		// update selected light
+		if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
+		{
+			m_lightProperties->setLight(NULL,svs.precision);
+			if (m_canvas->selectedType==ST_LIGHT)
+				m_canvas->selectedType = ST_CAMERA;
+		}
+		else
+		{
+			m_lightProperties->setLight(m_canvas->solver->realtimeLights[svs.selectedLightIndex],svs.precision);
+		}
 
-	// update selected object
-	if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()))
-	{
-		m_objectProperties->setObject(NULL,svs.precision);
-	}
-	else
-	{
-		m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex],svs.precision);
+		// update selected object
+		if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()))
+		{
+			m_objectProperties->setObject(NULL,svs.precision);
+		}
+		else
+		{
+			m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex],svs.precision);
+		}
 	}
 
 

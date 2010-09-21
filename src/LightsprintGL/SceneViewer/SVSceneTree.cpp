@@ -223,6 +223,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 		case CM_LIGHT_SPOT:
 		case CM_LIGHT_POINT:
 		case CM_LIGHT_DIR:
+			if (svframe->m_canvas->solver)
 			{
 				rr::RRLights newList = svframe->m_canvas->solver->getLights();
 				rr::RRLight* newLight = NULL;
@@ -240,6 +241,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			}
 			break;
 		case CM_LIGHT_FLASH:
+			if (svframe->m_canvas->solver)
 			{
 				bool containsFlashlight[2] = {false,false};
 				rr::RRLights lights = svframe->m_canvas->solver->getLights();
@@ -265,7 +267,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			}
 			break;
 		case CM_LIGHT_DELETE:
-			if (contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->realtimeLights.size())
+			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->realtimeLights.size())
 			{
 				rr::RRLights newList = svframe->m_canvas->solver->getLights();
 
