@@ -155,6 +155,18 @@ RRHash RRObject::getHash() const
 	return hash;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//  RRHash
+
+RRHash::RRHash(unsigned char* data, unsigned size)
+{
+	sha1::sha1_context ctx;
+	sha1::sha1_starts(&ctx);
+	sha1::sha1_update(&ctx, data, size);
+	sha1::sha1_finish(&ctx, value);
+}
+
 void RRHash::getFileName(char* buf, unsigned bufsize, unsigned version, const char* cacheLocation, const char* extension) const
 {
 	if (!bufsize) return;

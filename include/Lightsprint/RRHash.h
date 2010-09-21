@@ -16,14 +16,19 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRHash
-	//! Helper class that stores hash and converts it to filename.
-	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Helper class that calculates/stores hash and converts it to filename.
 
 	class RR_API RRHash
 	{
 	public:
-		//! Hash value, uninitialized by us, should be computed externally.
+		//! Hash value.
 		unsigned char value[20];
+
+		//! Default constructor keeps hash value uninitialized. For users who compute hash externally.
+		RRHash() {}
+		//! Calculates hash value from data.
+		RRHash(unsigned char* data, unsigned size);
 
 		//! Creates filename from hash value.
 		//! \param outputFilename

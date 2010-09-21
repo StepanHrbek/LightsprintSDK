@@ -14,6 +14,8 @@ NEWS
 
 - RRDynamicSolver::reportMaterialChange() has two new parameters
   \n lets you comfortably update things that were not updated before
+- RRHash has new constructor
+  \n lets you calculate SHA-1 hash easily
 - enhanced realtime renderer
   - faster rendering with blending in huge scenes (10x faster in scene with 25k objects)
   - more detailed sun shadows in huge scenes (4x smaller details in 10x10km scene)
