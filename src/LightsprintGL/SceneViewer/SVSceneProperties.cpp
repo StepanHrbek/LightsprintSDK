@@ -183,8 +183,11 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderFPS = new BoolRefProperty("FPS","(ctrl-f) FPS counter shows number of frames rendered in last second.",svs.renderFPS);
 		AppendIn(propRenderExtras,propRenderFPS);
 
-		propRenderLogo = new BoolRefProperty("Logo","Logo is loaded from data/maps/sv_logo.png.",svs.renderLogo);
-		AppendIn(propRenderExtras,propRenderLogo);
+		// logo
+		{
+			propLogo = new BoolRefProperty("Logo","Logo is loaded from data/maps/sv_logo.png.",svs.renderLogo);
+			AppendIn(propRenderExtras,propLogo);
+		}
 
 		propRenderBloom = new BoolRefProperty("Bloom","Applies fullscreen bloom effect.",svs.renderBloom);
 		AppendIn(propRenderExtras,propRenderBloom);
@@ -282,6 +285,7 @@ void SVSceneProperties::updateHide()
 	propWaterColor->Hide(!svs.renderWater,false);
 	propWaterLevel->Hide(!svs.renderWater,false);
 
+
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
 	propLensFlareId->Hide(!svs.renderLensFlare,false);
 
@@ -306,6 +310,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propWater)
+		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propGrid)
 		;
@@ -337,7 +342,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
-		+ updateBoolRef(propRenderLogo)
 		+ updateBoolRef(propRenderBloom)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)

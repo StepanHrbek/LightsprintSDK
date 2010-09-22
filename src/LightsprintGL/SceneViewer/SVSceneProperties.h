@@ -72,7 +72,9 @@ namespace rr_gl
 		BoolRefProperty*  propRenderWireframe;
 		BoolRefProperty*  propRenderHelpers;
 		BoolRefProperty*  propRenderFPS;
-		BoolRefProperty*  propRenderLogo;
+
+		BoolRefProperty*  propLogo;
+
 		BoolRefProperty*  propRenderBloom;
 
 		BoolRefProperty*  propLensFlare;

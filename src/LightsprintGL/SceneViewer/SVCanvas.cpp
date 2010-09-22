@@ -185,6 +185,7 @@ void SVCanvas::createContextCore()
 		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
 	}
 
+
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
 	if (solver->getStaticObjects().size())
 	{
@@ -1752,22 +1753,25 @@ rendered:
 	}
 
 	// logo
-	if (svs.renderLogo)
+	if (textureRenderer)
 	{
-		if (!logoLoadAttempted)
+		if (svs.renderLogo)
 		{
-			logoLoadAttempted = true;
-			RR_ASSERT(!logoImage);
-			logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
-		}
-		if (logoImage && textureRenderer)
-		{
-			float w = logoImage->getWidth()/(float)winWidth;
-			float h = logoImage->getHeight()/(float)winHeight;
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
-			glDisable(GL_BLEND);
+			if (!logoLoadAttempted)
+			{
+				logoLoadAttempted = true;
+				RR_ASSERT(!logoImage);
+				logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
+			}
+			if (logoImage)
+			{
+				float w = logoImage->getWidth()/(float)winWidth;
+				float h = logoImage->getHeight()/(float)winHeight;
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
+				glDisable(GL_BLEND);
+			}
 		}
 	}
 

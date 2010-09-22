@@ -302,6 +302,9 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	// skip pathToShaders;
 	ar & make_nvp("sceneFilename",bf::system_complete(a.sceneFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("skyboxFilename",bf::system_complete(a.skyboxFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("logoFilename",bf::system_complete(a.logoFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("logoSize",a.logoSize);
+	ar & make_nvp("logoPosition",a.logoPosition);
 	ar & make_nvp("xrefs",a.xrefs);
 	// skip releaseResources;
 }
@@ -432,7 +435,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 1) // this number and number in serialize(Archive & ar, rr_gl::UserPreferences& a) must be increased each time new panel is added
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 13)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 14)
 
 //---------------------------------------------------------------------------
 
