@@ -201,8 +201,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propLensFlare,propLensFlareId);
 		}
 
-		propRenderVignettation = new BoolRefProperty("Vignettation","Vignette overlay is loaded from data/maps/vignette.png.",svs.renderVignette);
-		AppendIn(propRenderExtras,propRenderVignettation);
+		propRenderVignette = new BoolRefProperty("Vignette","Vignette overlay is loaded from data/maps/vignette.png.",svs.renderVignette);
+		AppendIn(propRenderExtras,propRenderVignette);
 
 		// grid
 		{
@@ -341,7 +341,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderBloom)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
-		+ updateBoolRef(propRenderVignettation)
+		+ updateBoolRef(propRenderVignette)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)

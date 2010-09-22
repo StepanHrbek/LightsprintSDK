@@ -79,7 +79,7 @@ namespace rr_gl
 		FloatProperty*    propLensFlareSize;
 		FloatProperty*    propLensFlareId;
 
-		BoolRefProperty*  propRenderVignettation;
+		BoolRefProperty*  propRenderVignette;
 
 		BoolRefProperty*  propWater;
 		wxPGProperty*     propWaterColor;
