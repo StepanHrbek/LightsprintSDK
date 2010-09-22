@@ -21,6 +21,7 @@ NEWS
   - more detailed sun shadows in huge scenes (4x smaller details in 10x10km scene)
 - enhanced scene viewer
   - lots of new options in Scene properties / GI quality
+  - Window / Set viewport size
 
 CHANGES
 

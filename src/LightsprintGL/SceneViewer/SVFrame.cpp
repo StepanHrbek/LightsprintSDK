@@ -277,6 +277,26 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution
 	return false;
 }
 
+// true = valid answer
+// false = dialog was escaped
+// Incoming resolution is taken as default value.
+static bool getResolution(wxString title, wxWindow* parent, unsigned& width, unsigned& height)
+{
+	wxString result = wxGetTextFromUser(title,"Resolution",tmpstr("%dx%d",width,height),parent);
+	unsigned x = result.find('x');
+	if (x>0)
+	{
+		unsigned long w,h;
+		if (result.Left(x).ToULong(&w) && result.Right(result.size()-x-1).ToULong(&h))
+		{
+			width = w;
+			height = h;
+			return true;
+		}
+	}
+	return false;
+}
+
 // true = valid answer or fileformat defines scale
 // false = dialog was escaped
 // Incoming scale is taken as default value.
@@ -714,6 +734,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2 (alt-2)"),_T("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3 (alt-3)"),_T("Your custom window layout, changes automatically saved per user."));
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
+		winMenu->AppendSeparator();
+		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_T("Set viewport size"),_T("Lets you set exact viewport size in pixels."));
 		menuBar->Append(winMenu, _T("Windows"));
 	}
 
@@ -1443,6 +1465,34 @@ reload_skybox:
 			userPreferencesGatherFromWx();
 			userPreferences.currentWindowLayout = event.GetId()-ME_WINDOW_LAYOUT1;
 			userPreferencesApplyToWx();
+			break;
+		case ME_WINDOW_RESIZE:
+			{
+				unsigned w = m_canvas->winWidth;
+				unsigned h = m_canvas->winHeight;
+				if (getResolution("Please enter desired resolution of 3d viewport in pixels",this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
+				{
+					if (svs.fullscreen)
+					{
+						OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
+					}
+					if (IsMaximized())
+					{
+						Restore();
+					}
+
+					// don't touch window, panes
+					//m_canvas->SetSize(w,h);
+					// resize window, don't touch panes
+					wxSize windowSize = GetClientSize();
+					SetClientSize(windowSize.x+w-m_canvas->winWidth,windowSize.y+h-m_canvas->winHeight);
+					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
+					{
+						bool panes = m_sceneTree->IsShown() || m_sceneProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
+						wxMessageBox(panes?"There's not enough space. You can make more space by resizing or closing panes.":"There's not enough space. Switch to fullscreen mode for maximal resolution.");
+					}
+				}
+			}
 			break;
 
 
