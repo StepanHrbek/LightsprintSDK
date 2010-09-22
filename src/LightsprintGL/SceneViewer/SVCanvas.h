@@ -64,11 +64,11 @@ namespace rr_gl
 		EntityType                 selectedType;
 		// public only for SVSceneTree::runContextMenuAction()
 		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
+		std::vector<rr::RRScene*>  mergedScenes; // Inited empty, filled by user via menu File/Open|Merge, deleted when no longer needed.
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerStateEx&        svs;
-		std::vector<rr::RRScene*>  mergedScenes; // Inited empty, filled by user via menu File/Open|Merge, deleted when no longer needed.
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
