@@ -395,14 +395,50 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 	//return texture;
 }
 
+static const char** selectCubeSideNames(char *_filename)
+{
+	const unsigned numConventions = 3;
+	const char* cubeSideNames[numConventions][6] =
+	{
+		{"bk","ft","up","dn","rt","lf"}, // Quake
+		{"BK","FT","UP","DN","RT","LF"}, // Quake
+		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
+	};
+	// inserts %s if it is one of 6 images
+	size_t filenameLen = strlen(_filename);
+	for (unsigned c=0;c<numConventions;c++)
+	{
+		for (unsigned s=0;s<6;s++)
+		{
+			const char* suffix = cubeSideNames[c][s];
+			size_t suffixLen = strlen(suffix);
+			if (filenameLen>=suffixLen+4 && strncmp(_filename+filenameLen-suffixLen-4,suffix,suffixLen)==0 && _filename[filenameLen-4]=='.')
+			{
+				_filename[filenameLen-suffixLen-4] = '%';
+				_filename[filenameLen-suffixLen-3] = 's';
+				_filename[filenameLen-suffixLen-2] = '.';
+				_filename[filenameLen-suffixLen-1] = _filename[filenameLen-3];
+				_filename[filenameLen-suffixLen  ] = _filename[filenameLen-2];
+				_filename[filenameLen-suffixLen+1] = _filename[filenameLen-1];
+				_filename[filenameLen-suffixLen+2] = 0;
+				return cubeSideNames[c];
+			}
+		}
+	}
+	return cubeSideNames[0];
+}
+
 RRBuffer* RRBuffer::loadCube(const char *_filename)
 {
-	RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	if (!texture->reloadCube(_filename))
+	if (!_filename || !_filename[0])
 	{
-		RR_SAFE_DELETE(texture);
+		return NULL;
 	}
-	return texture;
+	char* filename = _strdup(_filename);
+	const char** cubeSideNames = selectCubeSideNames(filename);
+	RRBuffer* result = load(filename,cubeSideNames);
+	free(filename);
+	return result;
 }
 
 bool RRBuffer::reloadCube(const char *_filename)
@@ -411,39 +447,9 @@ bool RRBuffer::reloadCube(const char *_filename)
 	{
 		return false;
 	}
-	const unsigned numConventions = 3;
-	const char* cubeSideNames[numConventions][6] =
-	{
-		{"bk","ft","up","dn","rt","lf"}, // Quake
-		{"BK","FT","UP","DN","RT","LF"}, // Quake
-		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
-	};
-	const char** selectedConvention = cubeSideNames[0];
-	// inserts %s if it is one of 6 images
 	char* filename = _strdup(_filename);
-	size_t filenameLen = strlen(filename);
-	for (unsigned c=0;c<numConventions;c++)
-	{
-		for (unsigned s=0;s<6;s++)
-		{
-			const char* suffix = cubeSideNames[c][s];
-			size_t suffixLen = strlen(suffix);
-			if (filenameLen>=suffixLen+4 && strncmp(filename+filenameLen-suffixLen-4,suffix,suffixLen)==0 && filename[filenameLen-4]=='.')
-			{
-				filename[filenameLen-suffixLen-4] = '%';
-				filename[filenameLen-suffixLen-3] = 's';
-				filename[filenameLen-suffixLen-2] = '.';
-				filename[filenameLen-suffixLen-1] = filename[filenameLen-3];
-				filename[filenameLen-suffixLen  ] = filename[filenameLen-2];
-				filename[filenameLen-suffixLen+1] = filename[filenameLen-1];
-				filename[filenameLen-suffixLen+2] = 0;
-				selectedConvention = cubeSideNames[c];
-				goto done;
-			}
-		}
-	}
-done:
-	bool result = reload(filename,selectedConvention);
+	const char** cubeSideNames = selectCubeSideNames(filename);
+	bool result = reload(filename,cubeSideNames);
 	free(filename);
 	return result;
 }
