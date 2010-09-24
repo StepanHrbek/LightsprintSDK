@@ -28,7 +28,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 
 	numPotentialFBOUsers++;
 
-	if (buffer->getDuration())
+	if (buffer && buffer->getDuration())
 	{
 		// this is video, let's disable compression and mipmaps
 		_compress = false;
