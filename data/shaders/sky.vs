@@ -2,7 +2,10 @@
 // Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //
 // Options:
-// #define PHYSICAL
+//  #define PROJECTION_CUBE
+//  #define PROJECTION_EQUIRECTANGULAR
+//  #define POSTPROCESS_BRIGHTNESS
+//  #define POSTPROCESS_GAMMA
 
 varying vec3 dir;
 

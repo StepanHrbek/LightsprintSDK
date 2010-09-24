@@ -58,9 +58,9 @@ public:
 	void render2dEnd();
 
 private:
-	class Program *skyScaledProgram;
-	class Program *skyPhysicalProgram;
-	class Program *skyBlendProgram;
+	bool renderEnvironment(const Texture* texture, rr::RRVec3 brightness, float gamma);
+
+	class Program* skyProgram[2][2]; // [projection][scaled]
 	class Program *twodProgram;
 	unsigned char culling;
 	unsigned char depthTest;

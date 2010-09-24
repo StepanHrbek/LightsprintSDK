@@ -2,40 +2,45 @@
 // Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
 //
 // Options:
+//  #define PROJECTION_CUBE
+//  #define PROJECTION_EQUIRECTANGULAR
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
-//  #define BLEND
 
-uniform samplerCube cube0;
 varying vec3 dir;
 
+#ifdef PROJECTION_CUBE
+	uniform samplerCube map;
+#endif
+
+#ifdef PROJECTION_EQUIRECTANGULAR
+	uniform sampler2D map;
+	uniform vec4 shape;
+#endif
+
 #ifdef POSTPROCESS_BRIGHTNESS
-	uniform vec4 postprocessBrightness;
+	uniform vec3 postprocessBrightness;
 #endif
 
 #ifdef POSTPROCESS_GAMMA
 	uniform float postprocessGamma;
 #endif
 
-#ifdef BLEND
-	uniform samplerCube cube1;
-	uniform float blendFactor;
-	uniform float gamma0;
-	uniform float gamma1;
-#endif
-
 void main()
 {
-#ifdef BLEND
-	vec3 color0 = pow(textureCube(cube0,dir).rgb,vec3(gamma0,gamma0,gamma0)); // convert pixels from both LDR or HDR skyboxes to physical scale
-	vec3 color1 = pow(textureCube(cube1,dir).rgb,vec3(gamma1,gamma1,gamma1));
-	gl_FragColor.rgb = color0*(1.0-blendFactor)+color1*blendFactor; // to make this blending gamma correct
-#else
-	gl_FragColor = textureCube(cube0,dir);
+#ifdef PROJECTION_CUBE
+	gl_FragColor = textureCube(map,dir);
+#endif
+
+#ifdef PROJECTION_EQUIRECTANGULAR
+	float PI = 3.14159265358979323846264;
+	vec2 angle = vec2(asin(normalize(dir.xz).x),asin(normalize(dir).y));
+	if (dir.z<0.0) angle.x = PI-angle.x;
+	gl_FragColor = texture2D(map,angle*shape.xy+shape.zw);
 #endif
 
 #ifdef POSTPROCESS_BRIGHTNESS
-	gl_FragColor.rgb *= postprocessBrightness.rgb;
+	gl_FragColor.rgb *= postprocessBrightness;
 #endif
 
 #ifdef POSTPROCESS_GAMMA
