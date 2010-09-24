@@ -398,7 +398,7 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 static const char** selectCubeSideNames(char *_filename)
 {
 	const unsigned numConventions = 3;
-	const char* cubeSideNames[numConventions][6] =
+	static const char* cubeSideNames[numConventions][6] =
 	{
 		{"bk","ft","up","dn","rt","lf"}, // Quake
 		{"BK","FT","UP","DN","RT","LF"}, // Quake
