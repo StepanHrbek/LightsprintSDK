@@ -82,19 +82,17 @@ Camera::Camera(rr::RRLight& light)
 void Camera::setDirection(const rr::RRVec3& _dir)
 {
 	dir = _dir.normalized();
-	angleX = asin(dir[1]);
-	if (fabs(cos(angleX))>0.0001f)
+	angleX = asin(dir.y);
+	float d = _dir.x*_dir.x+_dir.z*_dir.z;
+	if (d)
 	{
-		float sin_angle = dir[0]/cos(angleX);
-		RR_CLAMP(sin_angle,-1,1);
-		angle = asin(sin_angle);
-		if (dir[2]<0) angle = (rr::RRReal)(RR_PI-angle);
+		float sin_angle = _dir.x/d;
+		angle = asin(RR_CLAMPED(sin_angle,-1,1));
+		if (_dir.z<0) angle = (rr::RRReal)(RR_PI-angle);
 	}
 	else
 	{
-		// We are looking straight up or down, current angle has no effect.
-		// Let's not zero it, it still may have effect in future when angleX changes.
-		// angle = 0;	
+		// We are looking straight up or down. Keep old angle, don't reset it.
 	}
 	leanAngle = 0;
 }
