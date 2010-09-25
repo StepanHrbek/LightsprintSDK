@@ -1072,6 +1072,8 @@ reload_skybox:
 					solver->setEnvironment(skybox,solver->getEnvironment(0));
 					envToBeDeletedOnExit = true;
 					m_canvas->timeWhenSkyboxBlendingStarted = GETSEC; // starts 3sec smooth transition in SVCanvas::Paint()
+					if (svs.playVideos)
+						skybox->play();
 				}
 			}
 			break;
