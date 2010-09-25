@@ -31,7 +31,8 @@ public:
 	virtual bool getScaled() const {return scaled;}
 	virtual unsigned getBufferBytes() const;
 	virtual RRVec4 getElement(unsigned index) const;
-	virtual RRVec4 getElement(const RRVec3& coord) const;
+	virtual RRVec4 getElementAtPosition(const RRVec3& position) const;
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction) const;
 	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
 	virtual void unlock() {}
 

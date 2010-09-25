@@ -290,9 +290,23 @@ public:
 			RR_BYTE2FLOAT(front[index*3+0]),
 			1);
 	}
-	virtual RRVec4 getElement(const RRVec3& direction) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position) const
 	{
-		return getElement(((unsigned)(direction[0]*width)%width) + ((unsigned)(direction[1]*height)%height) * width);
+		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width);
+	}
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction) const
+	{
+		// 360*180 degree panorama (equirectangular projection)
+		unsigned index = ((unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height) * width;
+		float d = direction.x*direction.x+direction.z*direction.z;
+		if (d)
+		{
+			float sin_angle = direction.x/sqrt(d);
+			float angle = asin(sin_angle);
+			if (direction.z<0) angle = (rr::RRReal)(RR_PI-angle);
+			index += (unsigned)( (angle*(-0.5f/RR_PI)+0.75f) * width) % width;
+		}
+		return getElement(index);
 	}
 
 	// --------- whole buffer access ---------

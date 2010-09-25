@@ -304,7 +304,16 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 	return result;
 }
 
-RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& position) const
+{
+	unsigned coord[3];
+	coord[0] = (unsigned)(position[0] * width) % width;
+	coord[1] = (unsigned)(position[1] * height) % height;
+	coord[2] = (unsigned)(position[2] * depth) % depth;
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+}
+
+RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
 {
 	unsigned coord[3];
 	switch(type)
@@ -329,9 +338,19 @@ RRVec4 RRBufferInMemory::getElement(const RRVec3& direction) const
 			}
 		default:
 			{
-				coord[0] = (unsigned)(direction[0] * width) % width;
-				coord[1] = (unsigned)(direction[1] * height) % height;
-				coord[2] = (unsigned)(direction[2] * depth) % depth;
+				// 360*180 degree panorama
+				float d = direction.x*direction.x+direction.z*direction.z;
+				if (d)
+				{
+					float sin_angle = direction.x/sqrt(d);
+					float angle = asin(sin_angle);
+					if (direction.z<0) angle = (rr::RRReal)(RR_PI-angle);
+					coord[0] = (unsigned)( (angle*(-0.5f/RR_PI)+0.75f) * width) % width;
+				}
+				else
+					coord[0] = 0;
+				coord[1] = (unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height;
+				coord[2] = 0;
 				break;
 			}
 	}

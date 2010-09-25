@@ -55,7 +55,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned s
 		// ray left scene
 		if (environment)
 		{
-			RRVec3 irrad = environment->getElement(direction);
+			RRVec3 irrad = environment->getElementAtDirection(direction);
 			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
 			return visibility * irrad;
 		}

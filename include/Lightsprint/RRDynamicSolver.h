@@ -83,10 +83,11 @@ namespace rr
 		//!
 		//! By default, scene contains no environment, which is the same as black environment.
 		//! \param environment0
-		//!  LDR or HDR cube map of environment.
+		//!  LDR or HDR environment stored in cube map or in 2d texture with 360*180 degree panorama (equirectangular projection).
 		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
 		//! \param environment1
 		//!  Optional second environment map, solver is able to work with blend of two environments, see setEnvironmentBlendFactor().
+		//!  It's ok to mix LDR and HDR maps, 2d and cube maps, all combinations work.
 		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
 		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=NULL);
 		//! Returns scene environment set by setEnvironment().

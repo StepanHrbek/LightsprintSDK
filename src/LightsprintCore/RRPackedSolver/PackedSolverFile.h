@@ -318,7 +318,7 @@ public:
 	//! Optimized for simplicity, can be made faster later.
 	static bool getSkyExitancePhysical(const RRBuffer* inSky, const RRScaler* scaler, UnpackedFactor& outPatchExitancesPhysical)
 	{
-		if (!inSky || inSky->getType()!=BT_CUBE_TEXTURE)
+		if (!inSky)
 		{
 			return false;
 		}
@@ -337,7 +337,7 @@ public:
 		{
 			RRVec3 normalizedDirection = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2)).normalized();
 			unsigned patchIndex = getPatchIndex(normalizedDirection);
-			RRVec3 exitance = inSky->getElement(normalizedDirection);
+			RRVec3 exitance = inSky->getElementAtDirection(normalizedDirection);
 			if (scaler)
 				scaler->getPhysicalScale(exitance);
 			outPatchExitancesPhysical.patches[patchIndex] += exitance;

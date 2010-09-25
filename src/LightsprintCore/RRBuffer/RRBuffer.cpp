@@ -37,9 +37,15 @@ RRVec4 RRBuffer::getElement(unsigned index) const
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElement(const RRVec3& coord) const
+RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord) const
 {
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
+	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtPosition() called.\n"));
+	return RRVec4(0);
+}
+
+RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir) const
+{
+	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtDirection() called.\n"));
 	return RRVec4(0);
 }
 

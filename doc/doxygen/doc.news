@@ -12,6 +12,15 @@ namespace rr
 
 NEWS
 
+- panoramic textures
+  - no API changes, setEnvironment() now accepts more texture types
+  - no scene viewer changes, "Sky texture" now accepts more texture types
+  - 2d textures (not cross shaped) are interpreted as 360*180 degree panorama in equirectangular projection
+  - fully supported, works in
+    - offline GI, illuminates scene
+    - realtime GI, dynamically illuminates scene, may be animated
+    - realtime rendering
+    - blending, you can blend e.g. lowres HDR panorama with hires LDR cubemap and it just works
 - RRDynamicSolver::reportMaterialChange() has two new parameters
   \n lets you comfortably update things that were not updated before
 - RRHash has new constructor
@@ -25,6 +34,12 @@ NEWS
 
 CHANGES
 
+- RRBuffer::getElement(RRVec3) split in two functions
+  - RRBuffer::getElementAtPosition(RRVec3)
+    \n now you can sample also cube maps by planar coordinates
+  - RRBuffer::getElementAtDirection(RRVec3)
+    \n now you can sample also panorama textures by direction
+- RRBuffer::loadCube() and RRBuffer::reloadCube() accept also 2d textures (in hope they are panoramic)
 - allocateBuffersForRealtimeGI() has fourth parameter inserted
   \n Old code must be updated, find all allocateBuffersForRealtimeGI() calls with at least 4 parameters and insert fourth parameter -1.
 - LIGHT_INDIRECT_auto=true does not enable LIGHT_INDIRECT_ENV_DIFFUSE and LIGHT_INDIRECT_ENV_SPECULAR.

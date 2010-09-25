@@ -354,7 +354,7 @@ void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bo
 				RRMesh::TriangleMapping triangleMapping;
 				object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
 				RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
-				RRVec3 color = diffuseEmittance.texture->getElement(RRVec3(materialUv[0],materialUv[1],0));
+				RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 				if (scaler)
 				{
 					scaler->getPhysicalScale(color);

@@ -170,12 +170,14 @@ namespace rr
 		virtual RRVec4 getElement(unsigned index) const;
 		//! Returns value addressed by given float coordinates.
 		//
-		//! For cube texture, coordinates are direction from center, not necessarily normalized.
-		//! For other buffers, coordinates are array indices in 0..1 range covering whole buffer.
+		//! Coordinates are array indices in 0..1 range covering whole buffer.
 		//! Out of range indices are wrapped to 0..1.
-		//! \n Not mandatory, implementation may always return 0.
-		//! Used by offline solver to read illumination from environment (cube map).
-		virtual RRVec4 getElement(const RRVec3& coord) const;
+		virtual RRVec4 getElementAtPosition(const RRVec3& position) const;
+		//! Returns environment sample addressed by given direction (not necessarily normalized).
+		//
+		//! 2d texture is interpreted as 360*180 degree panorama.
+		//! Cube texture is interpreted as standard cube.
+		virtual RRVec4 getElementAtDirection(const RRVec3& direction) const;
 		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
 		//
 		//! Behaviour of lock is not defined when buffer is already locked.
@@ -271,15 +273,17 @@ namespace rr
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
 		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL);
-		//! Loads cube texture from 1 or 6 files to system memory.
+		//! Loads texture from 1 or 6 files to system memory, converting it to cubemap if possible.
 		//
 		//! This is convenience function working with incomplete information,
-		//! it attempts to guess whether you want to load cubemap from 1 file or from 6 files.
+		//! it attempts to guess whether you want to load texture from 1 file or from 6 files.
 		//! It calls load() with guessed parameters.
 		//! If you know exactly what to load, call load() yourself and avoid any guesswork.
 		//! \param filename
-		//!  Filename of 1 cross shaped 4:3 or 3:4 image;
-		//!  or filename of one of 6 images that make cube map.
+		//!  It could be one of
+		//!  - one of 6 images that make cube map; they are loaded into cubemap
+		//!  - cross shaped 4:3 or 3:4 image; is loaded into cubemap
+		//!  - any other 2d image; is loaded into 2d map
 		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%%s.jpg.
 		static RRBuffer* loadCube(const char *filename);
 

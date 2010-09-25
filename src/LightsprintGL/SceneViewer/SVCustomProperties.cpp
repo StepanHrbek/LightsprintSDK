@@ -212,7 +212,7 @@ void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 			for (int j=0;j<size.y;j++)
 			for (int i=0;i<size.x;i++)
 			{
-				rr::RRVec4 rgba = buffer->getElement(rr::RRVec3((i+0.45f)/size.x,(j+0.45f)/size.y,0));
+				rr::RRVec4 rgba = buffer->getElementAtPosition(rr::RRVec3((i+0.45f)/size.x,(j+0.45f)/size.y,0));
 				data[(i+j*size.x)*3+0] = RR_FLOAT2BYTE(rgba[0]);
 				data[(i+j*size.x)*3+1] = RR_FLOAT2BYTE(rgba[1]);
 				data[(i+j*size.x)*3+2] = RR_FLOAT2BYTE(rgba[2]);
