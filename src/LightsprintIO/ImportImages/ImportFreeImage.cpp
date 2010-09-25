@@ -43,7 +43,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 //
 // FreeImage
 
-static unsigned char* loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
+static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
 	// uncomment if you wish to skip loading from network
 //	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
@@ -298,7 +298,7 @@ static bool reload2d(RRBuffer* texture, const char *filename)
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
 	bool scaled = true;
-	unsigned char* pixels = loadFreeImage(filename,false,false,false,width,height,format,scaled);
+	unsigned char* pixels = loadFreeImage(filename,false,false,width,height,format,scaled);
 	if (!pixels)
 	{
 		return false;
@@ -323,14 +323,21 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
-		pixels = loadFreeImage(filenameMask,false,true,true,width,height,format,scaled);
+		pixels = loadFreeImage(filenameMask,true,true,width,height,format,scaled);
 		if (!pixels)
 			return false;
 		if (!shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format)))
 		{
+			// In early days, we returned only cubes.
+			//delete[] pixels;
+			//RRReporter::report(WARN,"%s is 2d image, not a cubemap. Hint: provide 3:4 or 4:3 image or sequence of 6 images.\n",filenameMask);
+			//return false;
+
+			// Today we return also 2d image, hoping that it is 360*180 degree panorama.
+			texture->reset(BT_2D_TEXTURE,width,height,1,format,scaled,pixels);
+			texture->flip(true,true,false);
 			delete[] pixels;
-			RRReporter::report(WARN,"%s is 2d image, not a cubemap. Hint: provide 3:4 or 4:3 image or sequence of 6 images.\n",filenameMask);
-			return false;
+			return true;
 		}
 	}
 	else
@@ -346,7 +353,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 			unsigned tmpWidth, tmpHeight;
 			RRBufferFormat tmpFormat;
 
-			sides[side] = loadFreeImage(buf,true,true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
+			sides[side] = loadFreeImage(buf,true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
 			if (!sides[side])
 				return false;
 
