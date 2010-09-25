@@ -86,7 +86,7 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 	float d = _dir.x*_dir.x+_dir.z*_dir.z;
 	if (d)
 	{
-		float sin_angle = _dir.x/d;
+		float sin_angle = _dir.x/sqrt(d);
 		angle = asin(RR_CLAMPED(sin_angle,-1,1));
 		if (_dir.z<0) angle = (rr::RRReal)(RR_PI-angle);
 	}
