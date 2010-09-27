@@ -303,7 +303,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& width, uns
 static bool getScale(wxWindow* parent, wxString filename, float& scale)
 {
 	wxString ext = filename.Right(4).Lower();
-	if (ext==".rr3" || ext==".dae")
+	if (ext==".rr3" || ext==".dae" || ext==".kmz")
 	{
 		// format defines units
 		scale = 1;
