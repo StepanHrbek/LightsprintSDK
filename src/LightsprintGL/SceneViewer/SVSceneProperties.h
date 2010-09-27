@@ -98,7 +98,10 @@ namespace rr_gl
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;
 		wxPGProperty*     propGIEmisMultiplier;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
+		wxPGProperty*     propGIEmisVideoGIQuality;
 		BoolRefProperty*  propGITranspVideoAffectsGI;
+		BoolRefProperty*  propGIEnvVideoAffectsGI;
+		wxPGProperty*     propGIEnvVideoGIQuality;
 
 
 		/*

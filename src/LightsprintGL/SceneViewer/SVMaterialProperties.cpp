@@ -393,12 +393,6 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 
-	// update solver after change in emittance
-	if (emittanceChanged && lastSolver)
-	{
-		lastSolver->setEmittance(svs.emissiveMultiplier,16,true);
-	}
-
 	// after adding/deleting texture, readonly changes
 	if (textureChanged)
 	{

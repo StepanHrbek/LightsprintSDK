@@ -88,7 +88,10 @@ struct SceneViewerState
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
+	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
 	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
+	bool             videoEnvironmentAffectsGI; //! Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame.
+	unsigned         videoEnvironmentGIQuality; //! Quality if videoEnvironmentAffectsGI is true.
 	unsigned         fireballQuality;           //! Quality used each time Fireball needs rebuild.
 	bool             raytracedCubesEnabled;     //! Enables realtime raytraced diffuse and specular cubemap reflections.
 	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
@@ -152,7 +155,10 @@ struct SceneViewerState
 		playVideos = 1;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
+		videoEmittanceGIQuality = 5;
 		videoTransmittanceAffectsGI = true;
+		videoEnvironmentAffectsGI = true;
+		videoEnvironmentGIQuality = 3000;
 		fireballQuality = 350;
 		raytracedCubesEnabled = true;
 		raytracedCubesDiffuseRes = 4;
@@ -222,7 +228,10 @@ struct SceneViewerState
 			&& a.playVideos==playVideos
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
+			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality
 			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI
+			&& a.videoEnvironmentAffectsGI==videoEnvironmentAffectsGI
+			&& a.videoEnvironmentGIQuality==videoEnvironmentGIQuality
 			&& a.fireballQuality==fireballQuality
 			&& a.raytracedCubesEnabled==raytracedCubesEnabled
 			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes

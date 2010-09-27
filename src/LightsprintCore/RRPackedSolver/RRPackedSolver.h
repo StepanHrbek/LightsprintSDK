@@ -24,18 +24,16 @@ public:
 	//! To enable GI from environment, call setEnvironment().
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
-	void setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scaler);
-	//! Optimized version of setEnvironment() that does not change textures.
-	void setEnvironmentBlendFactor(float blendFactor);
+	//! \return False = no change detected.
+	bool setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, unsigned environmentStaticQuality, unsigned environmentVideoQuality, float environmentBlendFactor, const RRScaler* scaler);
 
-	//! See RRDynamicSolver::setEmittance().
-	//
-	//! This function updates emittances in solver,
-	//! but they are not used until you call illuminationReset().
+	//! Updates emittances in solver, but new values are not used until you call illuminationReset().
 	//!
 	//! Scaler is used to convert emissive texture values to physical scale.
 	//! Used only if quality && !usePointMaterials.
-	void setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials, const RRScaler* scaler);
+	//!
+	//! \return False = no change detected.
+	bool setMaterialEmittance(bool materialEmittanceForceReload, float materialEmittanceMultiplier, unsigned materialEmittanceStaticQuality, unsigned materialEmittanceVideoQuality, bool materialEmittanceUsePointMaterials, const RRScaler* scaler);
 	//! Returns triangle emittance, physical, flat.
 	//RRVec3 getTriangleEmittance(unsigned t);
 	//! Sets triangle emittance, physical.
@@ -72,7 +70,7 @@ public:
 
 	~RRPackedSolver();
 
-protected:
+private:
 	RRPackedSolver(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
 	// all objects exist, pointers are never NULL
@@ -88,13 +86,23 @@ protected:
 
 	// varying data
 	class PackedBests* packedBests;
-	RRVec3* ivertexIndirectIrradiance; // per-vertex results filled by getTriangleIrradianceIndirectUpdate()
+	RRVec3*  ivertexIndirectIrradiance; // per-vertex results filled by getTriangleIrradianceIndirectUpdate()
 	unsigned currentVersionInTriangles; // version of results available per triangle. reset, improve and setEnvironment may increment it
 	unsigned currentVersionInVertices; // version of results available per vertex. getTriangleIrradianceIndirectUpdate() updates it to triangle version
 	unsigned currentQuality; // number of best200 groups processed since reset
-	RRReal terminalFluxToDistribute; // set during illuminationImprove(), when the best node has fluxToDistribute lower, improvement terminates
-	RRVec3 skyExitancePhysical0[13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment0
-	RRVec3 skyExitancePhysical1[13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment1
+	RRReal   terminalFluxToDistribute; // set during illuminationImprove(), when the best node has fluxToDistribute lower, improvement terminates
+	// environment caching
+	RRVec3   environmentExitancePhysical[2][13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment0,1
+	unsigned environmentVersion[2]; // made from environment0,1. we use it to detect that environment texture has changed
+	float    environmentBlendFactor;
+	// material emittance caching
+	unsigned materialEmittanceVersionSum[2]; // 0=static, 1=video
+	float    materialEmittanceMultiplier;
+	unsigned materialEmittanceStaticQuality;
+	unsigned materialEmittanceVideoQuality;
+	bool     materialEmittanceUsePointMaterials;
+	unsigned numSamplePoints;
+	RRVec2*  samplePoints;
 };
 
 } // namespace

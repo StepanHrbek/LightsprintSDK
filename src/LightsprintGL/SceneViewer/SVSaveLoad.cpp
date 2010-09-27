@@ -282,7 +282,10 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("playVideos",a.playVideos);
 	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
+	ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
 	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	ar & make_nvp("videoEnvironmentAffectsGI",a.videoEnvironmentAffectsGI);
+	ar & make_nvp("videoEnvironmentGIQuality",a.videoEnvironmentGIQuality);
 	ar & make_nvp("fireballQuality",a.fireballQuality);
 	ar & make_nvp("raytracedCubesEnabled",a.raytracedCubesEnabled);
 	ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
@@ -366,7 +369,19 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 		ar & make_nvp("playVideos",a.playVideos);
 		ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 		ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
+	}
+	if (version>13)
+	{
+		ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
+	}
+	if (version>1)
+	{
 		ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	}
+	if (version>13)
+	{
+		ar & make_nvp("videoEnvironmentAffectsGI",a.videoEnvironmentAffectsGI);
+		ar & make_nvp("videoEnvironmentGIQuality",a.videoEnvironmentGIQuality);
 	}
 	if (version>11)
 	{

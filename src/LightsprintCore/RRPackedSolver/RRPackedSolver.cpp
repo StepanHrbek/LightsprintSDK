@@ -235,6 +235,10 @@ protected:
 
 RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* _adopt_packedSolverFile)
 {
+	// constant precomputed data
+	packedSolverFile = _adopt_packedSolverFile;
+
+	// constant realtime acquired data
 	object = _object;
 	const RRMesh* mesh = object->getCollider()->getMesh();
 	numTriangles = mesh->getNumTriangles();
@@ -256,12 +260,28 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 		triangles[t].diffuseEmittance.clear();
 		triangles[t].emissiveFluxToDiffuse.clear();
 	}
+
+	// varying data
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
-	packedSolverFile = _adopt_packedSolverFile;
 	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
 	currentVersionInVertices = 0;
 	currentVersionInTriangles = 1;
 	currentQuality = 0;
+	terminalFluxToDistribute = 0;
+	// environment caching
+	memset(environmentExitancePhysical,0,sizeof(environmentExitancePhysical));
+	environmentVersion[0] = 0;
+	environmentVersion[1] = 0;
+	environmentBlendFactor = 0;
+	// material emittance caching
+	materialEmittanceVersionSum[0] = 0;
+	materialEmittanceVersionSum[1] = 0;
+	materialEmittanceMultiplier = 0;
+	materialEmittanceStaticQuality = 0;
+	materialEmittanceVideoQuality = 0;
+	materialEmittanceUsePointMaterials = false;
+	numSamplePoints = 0;
+	samplePoints = NULL;
 }
 
 RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolverFile* adopt_packedSolverFile)
@@ -271,44 +291,65 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 	return NULL;
 }
 
-void RRPackedSolver::setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scaler)
+bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRScaler* _scaler)
 {
 	// convert environment to 13 patches, remember them
-	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysical;
-	PackedSkyTriangleFactor::getSkyExitancePhysical(environment0,scaler,skyExitancePhysical);
-	memcpy(skyExitancePhysical0,skyExitancePhysical.patches,sizeof(skyExitancePhysical0));
-	PackedSkyTriangleFactor::getSkyExitancePhysical(environment1,scaler,skyExitancePhysical);
-	memcpy(skyExitancePhysical1,skyExitancePhysical.patches,sizeof(skyExitancePhysical1));
+	unsigned numChanges = 
+		PackedSkyTriangleFactor::getSkyExitancePhysical(_environment0,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[0],environmentVersion[0]) +
+		PackedSkyTriangleFactor::getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[1],environmentVersion[1]);
 
-	setEnvironmentBlendFactor(blendFactor);
-}
+	// caching, quit if things did not change
+	if (!numChanges && environmentBlendFactor==_environmentBlendFactor)
+		return false;
 
-void RRPackedSolver::setEnvironmentBlendFactor(float blendFactor)
-{
 	// gamma correct blend of sky exitances
-	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysical;
+	environmentBlendFactor = _environmentBlendFactor;
+	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysicalBlend;
 	for (unsigned i=0;i<PackedSkyTriangleFactor::NUM_PATCHES;i++)
-		skyExitancePhysical.patches[i] = skyExitancePhysical0[i]*(1-blendFactor)+skyExitancePhysical1[i]*blendFactor;
+		skyExitancePhysicalBlend.patches[i] = environmentExitancePhysical[0][i]*(1-environmentBlendFactor)+environmentExitancePhysical[1][i]*environmentBlendFactor;
 
 	// add environment GI to solution
 	for (unsigned t=0;t<numTriangles;t++)
 	{
-		RRVec3 triangleIrradiancePhysical = packedSolverFile->packedFactors->getC1(t)->packedSkyTriangleFactor.getTriangleIrradiancePhysical(skyExitancePhysical,packedSolverFile->intensityTable);
+		RRVec3 triangleIrradiancePhysical = packedSolverFile->packedFactors->getC1(t)->packedSkyTriangleFactor.getTriangleIrradiancePhysical(skyExitancePhysicalBlend,packedSolverFile->intensityTable);
 		triangles[t].incidentFluxSky = triangleIrradiancePhysical * triangles[t].area;
 	}
 	currentVersionInTriangles++;
+	return true;
 }
 
-void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials, const RRScaler* scaler)
+bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRScaler* _scaler)
 {
+	// 0 = do no work
+	if (!_materialEmittanceStaticQuality && !_materialEmittanceVideoQuality)
+		return false;
+
+	// caching, return false if things did not change
+	unsigned versionSum[2] = {0,0}; // 0=static, 1=video
+	for (unsigned g=0;object && g<object->faceGroups.size();g++)
+	{
+		const rr::RRMaterial* material = object->faceGroups[g].material;
+		if (material && material->diffuseEmittance.texture)
+			versionSum[material->diffuseEmittance.texture->getDuration()?1:0] += material->diffuseEmittance.texture->version;
+	}
+	if (!_materialEmittanceForceReload
+		&& (materialEmittanceVersionSum[0]==versionSum[0] || !_materialEmittanceStaticQuality)
+		&& (materialEmittanceVersionSum[1]==versionSum[1] || !_materialEmittanceVideoQuality)
+		&& materialEmittanceMultiplier==_materialEmittanceMultiplier
+		&& materialEmittanceStaticQuality==_materialEmittanceStaticQuality
+		&& materialEmittanceVideoQuality==_materialEmittanceVideoQuality
+		&& materialEmittanceUsePointMaterials==_materialEmittanceUsePointMaterials)
+		return false;
+
 	//RRReportInterval report(INF2,"setEmittance(%d)\n",quality);
 	// deterministically generate points in triangle space 0,0 1,0 0,1
-	RRVec2* samplePoints = NULL;
-	if (quality)
+	if (numSamplePoints<RR_MAX(_materialEmittanceStaticQuality,_materialEmittanceVideoQuality))
 	{
-		samplePoints = new RRVec2[quality];
+		numSamplePoints = RR_MAX(_materialEmittanceStaticQuality,_materialEmittanceVideoQuality);
+		delete[] samplePoints;
+		samplePoints = new RRVec2[numSamplePoints];
 		static const RRReal dir[4][3]={{0,0,-0.5f},{0.333333f,-0.166666f,0.5f},{-0.166666f,0.333333f,0.5f},{-0.166666f,-0.166666f,0.5f}};
-		for (unsigned i=0;i<quality;i++)
+		for (unsigned i=0;i<numSamplePoints;i++)
 		{
 			RRReal dist=1;
 			RRVec2 uv(0.333333f);
@@ -324,60 +365,71 @@ void RRPackedSolver::setEmittance(float emissiveMultiplier, unsigned quality, bo
 		}
 	}
 
-	#pragma omp parallel for schedule(static)
+	materialEmittanceVersionSum[0] = versionSum[0];
+	materialEmittanceVersionSum[1] = versionSum[1];
+	materialEmittanceMultiplier = _materialEmittanceMultiplier;
+	materialEmittanceStaticQuality = _materialEmittanceStaticQuality;
+	materialEmittanceVideoQuality = _materialEmittanceVideoQuality;
+	materialEmittanceUsePointMaterials = _materialEmittanceUsePointMaterials;
+
+	// prepsat na cykl pres fgrupy (typicky usetri spoustu prace tim ze zahodi cely fgrupy bez emisivity), zmerit co je rychlejsi
+	#pragma omp parallel for
 	for (int t=0;(unsigned)t<numTriangles;t++)
 	{
 		// removed optimization: very uniform materials (minimalQualityForPointMaterials>=quality*1000) used material color, not texture
 		// helped in extremely rare case: scene with mat1.emis = video, mat2.emis = nearly flat texture
 		// caused troubles in usual case: user sets emis video and forgets to set emis color, decrease minimalQualityForPointMaterials -> flat emis color (black) is used, no emission visible
 
-		bool useEmissiveTexture =
-			quality // quality 0 = use material averages
-			&& (usePointMaterials // custom getPointMaterial() does not necessarily depend on diffuseEmittance.texture
-				|| triangles[t].material->diffuseEmittance.texture); // direct access depends on diffuseEmittance.texture
-
-		if (!useEmissiveTexture)
+		if (_materialEmittanceUsePointMaterials // custom getPointMaterial() does not necessarily depend on diffuseEmittance.texture
+			|| triangles[t].material->diffuseEmittance.texture) // direct access depends on diffuseEmittance.texture
 		{
-			// super-fast per-material averages
-			// (quality=0 falls here)
-			triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.color * emissiveMultiplier;
-		}
-		else
-		if (!usePointMaterials)
-		{
-			// fast direct texture access
-			// (quality=0 never gets here)
-			const RRMaterial::Property& diffuseEmittance = triangles[t].material->diffuseEmittance;
-			RRVec3 sum(0);
-			for (unsigned i=0;i<quality;i++)
+			bool isVideo = triangles[t].material->diffuseEmittance.texture && triangles[t].material->diffuseEmittance.texture->getDuration();
+			unsigned quality = isVideo?_materialEmittanceVideoQuality:_materialEmittanceStaticQuality;
+			if (!quality)
+				continue;
+			unsigned numSamples = quality-1;
+			if (numSamples) // 0 samples = use material averages
 			{
-				RRMesh::TriangleMapping triangleMapping;
-				object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
-				RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
-				RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-				if (scaler)
+				if (!_materialEmittanceUsePointMaterials)
 				{
-					scaler->getPhysicalScale(color);
+					// fast direct texture access
+					// (quality=1 never gets here)
+					const RRMaterial::Property& diffuseEmittance = triangles[t].material->diffuseEmittance;
+					RRVec3 sum(0);
+					for (unsigned i=0;i<numSamples;i++)
+					{
+						RRMesh::TriangleMapping triangleMapping;
+						object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
+						RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
+						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+						if (_scaler)
+						{
+							_scaler->getPhysicalScale(color);
+						}
+						sum += color;
+					}
+					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				}
-				sum += color;
+				else
+				{
+					// slow point materials
+					RRVec3 sum(0);
+					for (unsigned i=0;i<numSamples;i++)
+					{
+						RRPointMaterial material;
+						object->getPointMaterial((unsigned)t,samplePoints[i],material);
+						sum += material.diffuseEmittance.color;
+					}
+					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
+				}
+				continue;
 			}
-			triangles[t].diffuseEmittance = sum * (emissiveMultiplier/quality);
 		}
-		else
-		{
-			// slow point materials
-			RRVec3 sum(0);
-			for (unsigned i=0;i<quality;i++)
-			{
-				RRPointMaterial material;
-				object->getPointMaterial((unsigned)t,samplePoints[i],material);
-				sum += material.diffuseEmittance.color;
-			}
-			triangles[t].diffuseEmittance = sum * (emissiveMultiplier/quality);
-		}
+		// super-fast per-material averages (numSamples = 0)
+		triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.color * _materialEmittanceMultiplier;
 	}
 
-	delete[] samplePoints;
+	return true;
 }
 
 void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, const RRReal* customToPhysical)
@@ -588,6 +640,7 @@ zero:
 
 RRPackedSolver::~RRPackedSolver()
 {
+	delete[] samplePoints;
 	delete[] triangles;
 	delete[] ivertexIndirectIrradiance;
 	delete packedBests;

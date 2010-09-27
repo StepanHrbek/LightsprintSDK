@@ -60,14 +60,7 @@ void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environ
 {
 	priv->environment0 = _environment0;
 	priv->environment1 = _environment1;
-	if (priv->packedSolver)
-	{
-		priv->packedSolver->setEnvironment(_environment0,_environment1,priv->environmentBlendFactor,getScaler());
-	}
-	// temporary diagnostic
-	RRReporter::report(INF2,"******* setEnvironment(), env=0x%x,0x%x, bl=%f, fb=0x%x\n",priv->environment0,priv->environment1,priv->environmentBlendFactor,priv->packedSolver);
-	// affects everything in fireball
-	// affects only specular cubemaps in architect
+	// affects specular cubemaps
 	priv->solutionVersion++;
 }
 
@@ -79,14 +72,7 @@ RRBuffer* RRDynamicSolver::getEnvironment(unsigned _environmentIndex) const
 void RRDynamicSolver::setEnvironmentBlendFactor(float _blendFactor)
 {
 	priv->environmentBlendFactor = _blendFactor;
-	if (priv->packedSolver)
-	{
-		priv->packedSolver->setEnvironmentBlendFactor(_blendFactor);
-	}
-	// temporary diagnostic
-	RRReporter::report(INF2,"******* setEnvironmentBlendFactor(), env=0x%x,0x%x, bl=%f, fb=0x%x\n",priv->environment0,priv->environment1,priv->environmentBlendFactor,priv->packedSolver);
-	// affects everything in fireball
-	// affects only specular cubemaps in architect
+	// affects specular cubemaps
 	priv->solutionVersion++;
 }
 
@@ -116,17 +102,6 @@ void RRDynamicSolver::setLights(const RRLights& _lights)
 const RRLights& RRDynamicSolver::getLights() const
 {
 	return priv->lights;
-}
-
-void RRDynamicSolver::setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials)
-{
-	if (priv->packedSolver)
-	{
-		// loads emittance from materials to fireball
-		priv->packedSolver->setEmittance(emissiveMultiplier,quality,usePointMaterials,getScaler());
-		// next calculateCore() will call Fireball::illuminationReset(), to start using new emittance
-		priv->dirtyCustomIrradiance = true;
-	}
 }
 
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
@@ -350,15 +325,12 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	// here we dirty factors in solver
 	if (dirtyGI)
 	{
-		if (priv->packedSolver)
-		{
-			// don't set dirtyMaterials, it would switch to architect solver and probably confuse user
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball.\n"));
-		}
-		else
-		{
-			priv->dirtyMaterials = true;
-		}
+		//if (priv->packedSolver)
+		//{
+		//	// don't set dirtyMaterials, it would switch to architect solver and probably confuse user
+		//	RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball.\n"));
+		//}
+		priv->dirtyMaterials = true;
 	}
 	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
@@ -461,10 +433,14 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	if (!_params) _params = &s_params;
 
 	bool dirtyFactors = false;
+	bool forceEmittanceReload = false;
 	if (priv->dirtyMaterials)
 	{
 		priv->dirtyMaterials = false;
-		dirtyFactors = true;
+		if (priv->packedSolver)
+			forceEmittanceReload = true;
+		else
+			dirtyFactors = true;
 		//RR_SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 	}
 	if (!priv->scene && !priv->staticSolverCreationFailed
@@ -492,6 +468,27 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		priv->solutionVersion++;
 		priv->readingResultsPeriodSteps = 0;
 	}
+
+	if (priv->packedSolver)
+	{
+		{
+			rr::RRReportInterval report(rr::INF3,"Updating illumination from emissive materials...\n");
+			// loads emittance from materials to fireball
+			//!!! videa nejsou updatnuta, sampluju minuly snimek
+			if (priv->packedSolver->setMaterialEmittance(forceEmittanceReload,_params->materialEmittanceMultiplier,_params->materialEmittanceStaticQuality,_params->materialEmittanceVideoQuality,_params->materialEmittanceUsePointMaterials,getScaler()))
+				// Fireball::illuminationReset() must be called to start using new emittance
+				priv->dirtyCustomIrradiance = true;
+		}
+
+		{
+			rr::RRReportInterval report(rr::INF3,"Updating illumination from environment...\n");
+			// loads environment to fireball
+			//!!! videa nejsou updatnuta, sampluju minuly snimek
+			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
+				priv->solutionVersion++;
+		}
+	}
+
 	if (priv->dirtyCustomIrradiance)
 	{
 		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));

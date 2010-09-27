@@ -117,42 +117,6 @@ namespace rr
 		const RRLights& getLights() const;
 
 
-		//! Sets how emittance is handled by solver.
-		//
-		//! Emissive surfaces work out of the box.
-		//! This function lets you only tweak emittance in Fireball realtime GI solver.
-		//! What it does is reload emittance values from materials to Fireball,
-		//! so that following calculate() uses them to produce global illumination.
-		//!
-		//! To illuminate scene by dynamic emissive texture (e.g. streamed from video),
-		//! use Fireball and call setEmittance(multiplier,4,false) after updating emissive textures
-		//! in materials in every frame.
-		//!
-		//! \param emissiveMultiplier
-		//!  Multiplies emittance values in solver, but not emissive materials itself.
-		//!  So when realtime rendering scene, emissive materials are not affected,
-		//!  but indirect illumination they create is multiplied.
-		//! \param quality
-		//!  - 0 = max speed, flat emittance colors stored in materials are used.
-		//!    All triangles that share the same material emit the same average color.
-		//!    Eventual changes in textures and non-uniform distribution of colors in texture are ignored.
-		//!  - 1 or more = higher precision, emissive textures are sampled,
-		//!    quality specifies number of samples per triangle.
-		//!    Triangles emit their average emissive colors and changes in textures are detected.
-		//!    When updating emittance in every frame, quality 4 is good compromise between speed and quality.
-		//!    When updating once in time, reasonable quality is 16.
-		//! \param usePointMaterials
-		//!  For quality=0, this parameter is ignored.
-		//!  For quality>0, two paths exist
-		//!  - false = Fast direct access to material's emissive texture. Recommended.
-		//!    At quality 16, it is roughly 5x slower than quality 0. If you haven't overloaded getPointMaterial(),
-		//!    both paths produce identical results, but this one is faster.
-		//!  - true = Slow access via customizable virtual function getPointMaterial().
-		//!    At quality 16, it is roughly 100x slower than quality 0.
-		//!    Use it only if you need your overloaded getPointMaterial() to be used.
-		void setEmittance(float emissiveMultiplier, unsigned quality, bool usePointMaterials);
-
-
 		//! Sets custom irradiance for all triangles in scene.
 		//
 		//! This is one of paths for light to enter solver, others are setLights(), setEnvironment(), emissive materials.
@@ -287,24 +251,71 @@ namespace rr
 		struct CalculateParameters
 		{
 			//! Only for Fireball solver:
+			//! Multiplies emittance values in solver, but not emissive materials itself.
+			//! So when realtime rendering scene, emissive materials are not affected,
+			//! but indirect illumination they create is multiplied.
+			float materialEmittanceMultiplier;
+
+			//! Only for Fireball solver:
+			//!  - 0 disables updates, existing lighting stays unchanged.
+			//!  - 1 = max speed, flat emittance colors stored in materials are used.
+			//!    All triangles that share the same material emit the same average color.
+			//!    Eventual changes in textures and non-uniform distribution of colors in texture are ignored.
+			//!  - 2 or more = higher precision, emissive textures are sampled,
+			//!    quality specifies number of samples per triangle.
+			//!    Triangles emit their average emissive colors and changes in textures are detected.
+			unsigned materialEmittanceStaticQuality;
+			//! Only for Fireball solver:
+			//! Like materialEmittanceStaticQuality, applied when there is video in emissive texture.
+			unsigned materialEmittanceVideoQuality;
+
+			//! Only for Fireball solver:
+			//! For materialEmittanceQuality=0, this parameter is ignored.
+			//! For materialEmittanceQuality>0, two paths exist
+			//!  - false = Fast direct access to material's emissive texture. Recommended.
+			//!    At quality 16, it is roughly 5x slower than quality 0. If you haven't overloaded getPointMaterial(),
+			//!    both paths produce identical results, but this one is faster.
+			//!  - true = Slow access via customizable virtual function getPointMaterial().
+			//!    At quality 16, it is roughly 100x slower than quality 0.
+			//!    Use it only if you need your overloaded getPointMaterial() to be used.
+			bool materialEmittanceUsePointMaterials;
+
+			//! Only for Fireball solver:
+			//! Quality of lighting from environment, number of samples.
+			//! 0 disables updates, existing lighting stays unchanged.
+			unsigned environmentStaticQuality;
+			//! Only for Fireball solver:
+			//! Like environmentStaticQuality, applied when there is video in environment texture.
+			unsigned environmentVideoQuality;
+
+			//! Only for Fireball solver:
 			//! Quality of indirect lighting when direct lighting changes.
 			//! 1..20, default is 3.
 			//! Higher quality makes calculate() take longer.
 			unsigned qualityIndirectDynamic;
+
 			//! Only for Fireball solver:
 			//! Target quality of indirect lighting when direct lighting doesn't change.
 			//! 1..1000, default is 3.
 			//! Higher quality doesn't make calculate() take longer, but indirect lighting
 			//! improves in several consecutive calculate()s when direct lighting doesn't change.
 			unsigned qualityIndirectStatic;
+
 			//! Only for RRDynamicSolverGL:
 			//! For how long time indirect illumination may stay unchanged.
 			//! 0 = update in each frame, highest quality.
 			//! 0.05 = update less frequently, faster.
 			float secondsBetweenDDI;
+
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
 			CalculateParameters()
 			{
+				materialEmittanceMultiplier = 1;
+				materialEmittanceStaticQuality = 17;
+				materialEmittanceVideoQuality = 5;
+				materialEmittanceUsePointMaterials = false;
+				environmentStaticQuality = 6000;
+				environmentVideoQuality = 3000;
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
 				secondsBetweenDDI = 0;
@@ -687,16 +698,17 @@ namespace rr
 		bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const;
 
 
-		//! Reports that appearance of one or more materials has changed.
+		//! Reports that appearance of one or more materials in static objects has changed.
 		//
 		//! Call this when you changed material properties of static objects
 		//! (and RRObject::getTriangleMaterial() returns new materials).
-		//! \param dirtyShadowmaps
+		//! \param dirtyShadows
 		//!  Set this if you want shadows updated. Shadows may need update after change in material transparency.
 		//! \param dirtyGI
-		//!  Set this if you want GI quickly updated, or keep it false to save time.
-		//!  If you use \ref calc_fireball, material changes don't apply
-		//!  until you rebuild it (see buildFireball()).
+		//!  Set this if you want GI updated, or keep it false to save time.
+		//!  If you use \ref calc_fireball, changes in emissive textures are
+		//!  recognized automatically, you don't have to report them, however, some other material changes
+		//!  won't affect GI until you rebuild fireball with buildFireball().
 		virtual void reportMaterialChange(bool dirtyShadows, bool dirtyGI);
 
 		//! Reports that scene has changed and direct or global illumination should be updated.

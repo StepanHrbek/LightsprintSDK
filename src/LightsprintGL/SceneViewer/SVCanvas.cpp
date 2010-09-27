@@ -1069,33 +1069,20 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			rr::RRDynamicSolver::CalculateParameters params;
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
-				// rendering indirect -> calculate will update shadowmaps and improve indirect
-				//params.qualityIndirectDynamic = 6;
+				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
+				params.materialEmittanceMultiplier = svs.emissiveMultiplier;
+				params.materialEmittanceVideoQuality = svs.videoEmittanceAffectsGI?svs.videoEmittanceGIQuality+1:0;
+				params.environmentVideoQuality = svs.videoEnvironmentAffectsGI?svs.videoEnvironmentGIQuality+1:0;
+				//params.qualityIndirectDynamic = 3;
 				params.qualityIndirectStatic = 10000;
-
-				// for realtime GI from emissive videos
-				if (svs.videoEmittanceAffectsGI)
-				{
-					rr::RRReportInterval report(rr::INF3,"sample emittance...\n");
-					unsigned versionSum = 0;
-					const rr::RRObject* multiObject = solver->getMultiObjectCustom();
-					for (unsigned g=0;multiObject && g<multiObject->faceGroups.size();g++)
-					{
-						const rr::RRMaterial* material = multiObject->faceGroups[g].material;
-						if (material && material->diffuseEmittance.texture)
-							versionSum += material->diffuseEmittance.texture->version;
-					}
-					if (versionSum!=emissiveVersionSum)
-					{
-						emissiveVersionSum = versionSum;
-						//!!! videa nejsou updatnuta, sampluju minuly snimek
-						solver->setEmittance(svs.emissiveMultiplier,4,false);
-					}
-				}
 			}
 			else
 			{
 				// rendering direct only -> calculate will update shadowmaps only
+				params.materialEmittanceStaticQuality = 0;
+				params.materialEmittanceVideoQuality = 0;
+				params.environmentStaticQuality = 0;
+				params.environmentVideoQuality = 0;
 				params.qualityIndirectDynamic = 0;
 				params.qualityIndirectStatic = 0;
 			}

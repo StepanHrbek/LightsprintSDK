@@ -86,7 +86,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propEnv);
 		SetPropertyReadOnly(propEnv,true,wxPG_DONT_RECURSE);
 
-		propEnvMap = new ImageFileProperty(wxT("Skybox texture"),"Supported formats: cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR.");
+		propEnvMap = new ImageFileProperty(wxT("Sky texture"),"Supported formats: equirectangular panoramas, cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR.");
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
@@ -252,11 +252,26 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propGIEmisMultiplier = new FloatProperty("Emissive multiplier","Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1.",svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGI,propGIEmisMultiplier);
 
-		propGIEmisVideoAffectsGI = new BoolRefProperty("Emissive video realtime GI","Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEmittanceAffectsGI);
-		AppendIn(propGI,propGIEmisVideoAffectsGI);
+		// emissive video
+		{
+			propGIEmisVideoAffectsGI = new BoolRefProperty("Emissive video realtime GI","Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEmittanceAffectsGI);
+			AppendIn(propGI,propGIEmisVideoAffectsGI);
+
+			propGIEmisVideoGIQuality = new FloatProperty("Quality","Number of samples taken from each triangle.",svs.videoEmittanceGIQuality,0,1,1000,10,false);
+			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
+		}
 
 		propGITranspVideoAffectsGI = new BoolRefProperty("Transparency video realtime GI","Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.",svs.videoTransmittanceAffectsGI);
 		AppendIn(propGI,propGITranspVideoAffectsGI);
+
+		// environment video
+		{
+			propGIEnvVideoAffectsGI = new BoolRefProperty("Environment video realtime GI","Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEnvironmentAffectsGI);
+			AppendIn(propGI,propGIEnvVideoAffectsGI);
+
+			propGIEnvVideoGIQuality = new FloatProperty("Quality","Number of samples taken from environment.",svs.videoEnvironmentGIQuality,0,1,100000,200,false);
+			AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
+		}
 
 		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
@@ -295,6 +310,9 @@ void SVSceneProperties::updateHide()
 	propGIRaytracedCubesDiffuseRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesSpecularRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
+
+	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
+	propGIEnvVideoGIQuality->Hide(!svs.videoEnvironmentAffectsGI,false);
 }
 
 void SVSceneProperties::updateProperties()
@@ -313,6 +331,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propGrid)
+		+ updateBoolRef(propGIEmisVideoAffectsGI)
+		+ updateBoolRef(propGIEnvVideoAffectsGI)
 		;
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
@@ -356,8 +376,9 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propGIRaytracedCubesSpecularRes,svs.raytracedCubesSpecularRes)
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
-		+ updateBoolRef(propGIEmisVideoAffectsGI)
+		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
+		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
 		;
 	if (numChangesRelevantForHiding+numChangesOther)
 	{
@@ -584,8 +605,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEmisMultiplier)
 	{
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
-		if (svframe->m_canvas->solver)
-			svframe->m_canvas->solver->setEmittance(svs.emissiveMultiplier,16,true);
+	}
+	else
+	if (property==propGIEmisVideoAffectsGI || property==propGIEnvVideoAffectsGI)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGIEmisVideoGIQuality)
+	{
+		svs.videoEmittanceGIQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGIEnvVideoGIQuality)
+	{
+		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
 	}
 }
 

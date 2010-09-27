@@ -314,43 +314,56 @@ public:
 		absoluteError /= 3*NUM_PATCHES;
 		return RRVec2(relativeError,absoluteError);
 	}
-	//! Converts environment to physical exitances, one per patch. Returns false for no valid environment.
+
+	//! Converts environment to physical exitances, one per patch.
+	//! inoutVersion serves as a cache.
 	//! Optimized for simplicity, can be made faster later.
-	static bool getSkyExitancePhysical(const RRBuffer* inSky, const RRScaler* scaler, UnpackedFactor& outPatchExitancesPhysical)
+	//! Returns 0 if exitance did not change, 1 if it did.
+	static bool getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRScaler* inScaler, RRVec3 inoutPatchExitancesPhysical[NUM_PATCHES], unsigned& inoutSkyVersion)
 	{
-		if (!inSky)
-		{
-			return false;
-		}
+		bool isVideo = inSky && inSky->getDuration();
+		unsigned quality = isVideo ? inVideoQuality : inStaticQuality;
+		// 0 = do no work
+		if (quality==0)
+			return 0;
+		// use cached result if possible
+		unsigned version = (inSky?inSky->version:0)+quality*357;
+		if (inoutSkyVersion==version)
+			return 0;
+		inoutSkyVersion = version;
 		// init to zeroes
 		unsigned numSamplesGathered[NUM_PATCHES];
 		for (unsigned p=0;p<NUM_PATCHES;p++)
 		{
-			outPatchExitancesPhysical.patches[p] = RRVec3(0);
+			inoutPatchExitancesPhysical[p] = RRVec3(0);
 			numSamplesGathered[p] = 0;
 		}
+		if (!inSky)
+			return 1;
 		// do we have to scale sky to physical? no -> null scaler
 		if (!inSky->getScaled())
-			scaler = NULL;
+			inScaler = NULL;
 		// accumulate sky exitances
-		for (unsigned i=0;i<3000;i++)
+		unsigned numSamples = inSky->getDuration()?inVideoQuality:inStaticQuality;
+		for (unsigned i=0;i<numSamples;i++)
 		{
 			RRVec3 normalizedDirection = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2)).normalized();
 			unsigned patchIndex = getPatchIndex(normalizedDirection);
 			RRVec3 exitance = inSky->getElementAtDirection(normalizedDirection);
-			if (scaler)
-				scaler->getPhysicalScale(exitance);
-			outPatchExitancesPhysical.patches[patchIndex] += exitance;
+			if (inScaler)
+				inScaler->getPhysicalScale(exitance);
+			inoutPatchExitancesPhysical[patchIndex] += exitance;
 			numSamplesGathered[patchIndex]++;
 		}
 		// average
 		for (unsigned p=0;p<NUM_PATCHES;p++)
 		{
 			if (numSamplesGathered[p])
-				outPatchExitancesPhysical.patches[p] /= (RRReal)numSamplesGathered[p];
+				inoutPatchExitancesPhysical[p] /= (RRReal)numSamplesGathered[p];
 		}
-		return true;
+		return 1;
 	}
+
 	//! Returns triangle's GI from sky computed as a dot product of patch exitances and patch factors.
 	RRVec3 getTriangleIrradiancePhysical(const UnpackedFactor& patchExitancesPhysical, const float* intensityTable) const
 	{
