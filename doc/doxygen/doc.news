@@ -8,11 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news109 ------------------------------------ 2010.09.xx -------------------------------------
+\section news109 ------------------------------------ 2010.09.27 -------------------------------------
 
 NEWS
 
-- panoramic textures, panoramic video
+- <b>panoramic textures, panoramic video</b>
   - no API changes, setEnvironment() now accepts more texture types
   - no scene viewer changes, "Sky texture" now accepts more texture types
   - 2d textures (not cross shaped) and videos are interpreted as 360*180 degree panorama in equirectangular projection
@@ -21,13 +21,14 @@ NEWS
     - realtime GI, dynamically illuminates scene
     - realtime rendering
     - blending, you can blend e.g. lowres HDR panorama video with hires LDR cubemap and it just works
-- simpler and more flexible realtime GI
+  - <a href="http://www.google.com/images?q=equirectangular">example images</a> \image html equirectangular.jpg
+- <b>simpler and more flexible realtime GI</b>
   - RRDynamicSolver::reportMaterialChange() has two new parameters
     \n lets you comfortably update things that were not updated before
   - RRDynamicSolver::CalculateParameters contains new settings,
     \n gives you more control over GI calculation
   - RRDynamicSolver::setEmittance(parameters) removed, use existing RRDynamicSolver::reportMaterialChange(,true) and RRDynamicSolver::calculate(parameters)
-  - if emissive textures change, Fireball updates GI automatically, it's not necessary to reportMaterialChange()
+  - if emissive textures/videos change, Fireball updates GI automatically, it's not necessary to reportMaterialChange()
 - RRHash has new constructor
   \n lets you calculate SHA-1 hash easily
 - enhanced realtime renderer
@@ -54,7 +55,7 @@ CHANGES
 
 NEWS
 
-- skybox blending
+- <b>skybox blending</b>
   - two skybox textures can be blended together
   - GI is updated in realtime, without noticeable slowdown
   - gamma correct, can blend both LDR and HDR 
