@@ -14,6 +14,42 @@
 namespace rr_gl
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// CollisionHandlerTransparency
+
+class CollisionHandlerTransparency : public rr::RRCollisionHandler
+{
+public:
+	virtual void init(rr::RRRay* ray)
+	{
+		ray->rayFlags |= rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
+		transparency = rr::RRVec3(1);
+	}
+	virtual bool collides(const rr::RRRay* ray)
+	{
+		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_POINT2D);
+		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_SIDE);
+
+		rr::RRPointMaterial pointMaterial;
+		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
+			transparency *= pointMaterial.specularTransmittance.color;
+		return transparency==rr::RRVec3(0);
+	}
+	virtual bool done()
+	{
+		return false;
+	}
+	const rr::RRObject* object;
+	rr::RRVec3 transparency;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// LensFlare
+
 #define NO_SYSTEM_MEMORY (unsigned char*)1
 
 LensFlare::LensFlare(const char* pathToShaders)
@@ -22,10 +58,15 @@ LensFlare::LensFlare(const char* pathToShaders)
 		primaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/flare_prim%d.png",pathToShaders,i+1));
 	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
 		secondaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/flare_sec%d.png",pathToShaders,i+1));
+	ray = rr::RRRay::create();
+	collisionHandlerTransparency = new CollisionHandlerTransparency;
+	ray->collisionHandler = collisionHandlerTransparency;
 }
 
 LensFlare::~LensFlare()
 {
+	delete collisionHandlerTransparency;
+	delete ray;
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
 		delete primaryMap[i];
 	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
@@ -65,10 +106,11 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	srand(oldSeed);
 }
 
-void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, rr::RRRay* _ray, const Camera& _eye, const rr::RRLights& _lights, const rr::RRObject* _scene)
+void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, const Camera& _eye, const rr::RRLights& _lights, const rr::RRObject* _scene, unsigned _quality)
 {
 	if (_textureRenderer)
 	{
+		if (!_quality) _quality = 1;
 		for (unsigned i=0;i<_lights.size();i++)
 		{
 			// is it sun above horizon?
@@ -80,19 +122,32 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 				if (_eye.dir.dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
 					// is it visible, not occluded?
-					bool occluded = false;
-					if (_scene && _ray)
+					rr::RRVec3 transparencySum(0);
+					if (_scene)
 					{
-						_ray->rayOrigin = _eye.getRayOrigin(_eye.pos);
-						_ray->rayDirInv = rr::RRVec3(-1)/light->direction;
-						_ray->rayLengthMin = 0;
-						_ray->rayLengthMax = 1e10f;
-						_ray->rayFlags = 0;
-						occluded = _scene->getCollider()->intersect(_ray);
+						ray->rayOrigin = _eye.getRayOrigin(_eye.pos);
+						ray->rayLengthMin = 0;
+						ray->rayLengthMax = 1e10f;
+						ray->rayFlags = 0;
+						collisionHandlerTransparency->object = _scene;
+
+						// generate everything from _flareId
+						unsigned oldSeed = rand();
+						srand(_flareId);
+
+						for (unsigned i=0;i<_quality;i++)
+						{
+							ray->rayDirInv = rr::RRVec3(-1)/(light->direction.normalized()+rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.1f).normalized();
+							_scene->getCollider()->intersect(ray);
+							transparencySum += collisionHandlerTransparency->transparency;
+						}
+						// cleanup
+						srand(oldSeed);
 					}
-					if (!occluded)
+					float transparency = transparencySum.avg()/_quality;
+					if (transparency)
 					{
-						renderLensFlare(_flareSize,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+						renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
 					}
 				}
 			}

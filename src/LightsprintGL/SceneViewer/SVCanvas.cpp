@@ -1228,8 +1228,7 @@ rendered:
 			}
 			if (lensFlare)
 			{
-				ray->collisionHandler = collisionHandler; // setup collision handler that penetrates transparent pixels in materials
-				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,ray,svs.eye,solver->getLights(),solver->getMultiObjectCustom());
+				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,svs.eye,solver->getLights(),solver->getMultiObjectCustom(),64);
 			}
 		}
 
