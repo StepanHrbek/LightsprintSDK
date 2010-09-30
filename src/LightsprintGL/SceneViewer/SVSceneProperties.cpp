@@ -313,6 +313,7 @@ void SVSceneProperties::updateHide()
 
 	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
 	propGIEnvVideoGIQuality->Hide(!svs.videoEnvironmentAffectsGI,false);
+
 }
 
 void SVSceneProperties::updateProperties()

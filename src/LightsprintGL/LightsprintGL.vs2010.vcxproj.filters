@@ -42,9 +42,6 @@
     <ClInclude Include="SceneViewer\SVMaterialProperties.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
-    <ClInclude Include="SceneViewer\SVMeasuring.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
     <ClInclude Include="SceneViewer\SVObjectProperties.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
@@ -118,9 +115,6 @@
       <Filter>SceneViewer</Filter>
     </ClCompile>
     <ClCompile Include="SceneViewer\SVMaterialProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVMeasuring.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
     <ClCompile Include="SceneViewer\SVObjectProperties.cpp">

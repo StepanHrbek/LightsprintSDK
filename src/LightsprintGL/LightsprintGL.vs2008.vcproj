@@ -860,14 +860,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SceneViewer\SVMeasuring.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SceneViewer\SVMeasuring.h"
-				>
-			</File>
-			<File
 				RelativePath=".\SceneViewer\SVObjectProperties.cpp"
 				>
 			</File>
