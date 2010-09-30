@@ -1284,6 +1284,24 @@ rendered:
 			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 		}
 
+		// vignette
+		if (svs.renderVignette)
+		{
+			if (!vignetteLoadAttempted)
+			{
+				vignetteLoadAttempted = true;
+				RR_ASSERT(!vignetteImage);
+				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
+			}
+			if (vignetteImage && textureRenderer)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
+				glDisable(GL_BLEND);
+			}
+		}
+
 		bool renderCrosshair = s_ciRelevant && (s_ci.mouseMiddle || s_ci.mouseRight);
 		if (svs.renderHelpers
 			|| svs.renderGrid
@@ -1335,24 +1353,6 @@ rendered:
 				glVertex3f(+0.5*SIZE,0,q);
 			}
 			glEnd();
-		}
-
-		// vignette
-		if (svs.renderVignette)
-		{
-			if (!vignetteLoadAttempted)
-			{
-				vignetteLoadAttempted = true;
-				RR_ASSERT(!vignetteImage);
-				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
-			}
-			if (vignetteImage && textureRenderer)
-			{
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
-				glDisable(GL_BLEND);
-			}
 		}
 
 	}
