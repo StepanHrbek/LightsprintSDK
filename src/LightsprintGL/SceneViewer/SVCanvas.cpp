@@ -861,6 +861,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	{
 		// ray is used in this block
 
+
 		// camera/light keyboard move
 		float seconds = (nowTime-prevTime)/(float)PER_SEC;
 		RR_CLAMP(seconds,0.001f,0.3f);
