@@ -1405,7 +1405,6 @@ rendered:
 			}
 		}
 
-
 		// render debug rays, using previously set shader
 		if (svs.renderHelpers && (!svs.renderLightmaps2d || !lv) && SVRayLog::size)
 		{
@@ -1437,7 +1436,8 @@ rendered:
 			drawTriangle(selectedTriangleBody);
 		}
 
-		// render helper text, using custom shader (because text output ignores color passed to previous shader)
+
+		// render helper text, using own shader (because text output ignores color passed to line shader shader)
 		if (svs.renderHelpers)
 		{
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
