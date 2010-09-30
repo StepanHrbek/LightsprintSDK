@@ -49,7 +49,7 @@ namespace rr
 		//! Positive result stops further searching, negative makes it continue.
 		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
 		//! For IT_LINEAR technique, intersections go unsorted.
-		//! \return Return true if you want ray to continue penetrating mesh in the same direction and search for further intersections.
+		//! \return Return false if you want ray to continue penetrating mesh in the same direction and search for further intersections.
 		virtual bool collides(const class RRRay* ray) = 0;
 
 		//! Cleans up after single intersection test.
