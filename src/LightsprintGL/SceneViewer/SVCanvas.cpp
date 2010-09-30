@@ -1302,6 +1302,7 @@ rendered:
 			rr::RRVec3 pos = s_ci.hitPoint3d;
 			float size = s_ci.hitDistance/30;
 			glColor3f(1,0,0);
+			glLineWidth(3);
 			glBegin(GL_LINES);
 			glVertex3f(pos.x-size,pos.y,pos.z);
 			glVertex3f(pos.x+size,pos.y,pos.z);
@@ -1310,6 +1311,7 @@ rendered:
 			glVertex3f(pos.x,pos.y,pos.z-size);
 			glVertex3f(pos.x,pos.y,pos.z+size);
 			glEnd();
+			glLineWidth(1);
 		}
 		if (svs.renderGrid)
 		{
