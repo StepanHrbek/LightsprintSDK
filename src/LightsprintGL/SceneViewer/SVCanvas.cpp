@@ -591,6 +591,7 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 // Filled on click, original data acquired at click time.
 struct ClickInfo
 {
+	TIME time;
 	int mouseX;
 	int mouseY;
 	bool mouseLeft;
@@ -645,6 +646,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ciRelevant = true;
 		s_prevX = s_ci.mouseX = event.GetX();
 		s_prevY = s_ci.mouseY = event.GetY();
+		s_ci.time = GETTIME;
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
@@ -700,8 +702,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	}
 
-	// handle clicking (mouse released at the same place where it was pressed)
-	if (event.LeftUp() && event.GetX()==s_ci.mouseX && event.GetY()==s_ci.mouseY)
+	// handle clicking (mouse released in less than 0.2s in less than 20pix distance)
+	if (event.LeftUp() && (GETTIME-s_ci.time)<0.2f*PER_SEC && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
 	{
 		// selection
 		if (s_ci.clickedEntity.type!=ST_CAMERA)
