@@ -1201,7 +1201,7 @@ rendered:
 			}
 		}
 
-		// bloom
+		// render bloom, using own shader
 		if (svs.renderBloom)
 		{
 			if (!bloomLoadAttempted)
@@ -1216,7 +1216,7 @@ rendered:
 			}
 		}
 
-		// lens flare
+		// render lens flare, using own shader
 		if (svs.renderLensFlare && !svs.eye.orthogonal)
 		{
 			if (!lensFlareLoadAttempted)
@@ -1233,58 +1233,54 @@ rendered:
 		}
 
 
-		if (svs.renderHelpers)
+		// render light field, using own shader
+		if (svs.renderHelpers && lightField)
 		{
-			rr::RRReportInterval report(rr::INF3,"render helpers 1...\n");
-			// render light field
-			if (lightField)
-			{
-				// update cube
-				lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(svs.eye.pos[0]+svs.eye.dir[0],svs.eye.pos[1]+svs.eye.dir[1],svs.eye.pos[2]+svs.eye.dir[2]);
-				rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.dir[2],-svs.eye.dir[0]).normalized()*0.05f;
-				lightField->updateEnvironmentMap(lightFieldObjectIllumination,0);
+			// update cube
+			lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(svs.eye.pos[0]+svs.eye.dir[0],svs.eye.pos[1]+svs.eye.dir[1],svs.eye.pos[2]+svs.eye.dir[2]);
+			rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.dir[2],-svs.eye.dir[0]).normalized()*0.05f;
+			lightField->updateEnvironmentMap(lightFieldObjectIllumination,0);
 
-				// diffuse
-				// set shader (no direct light)
-				UberProgramSetup uberProgramSetup;
-				uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
-				uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
-				uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
-				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
-				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
-				// render
-				glPushMatrix();
-				glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
-				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
-				glPopMatrix();
+			// diffuse
+			// set shader (no direct light)
+			UberProgramSetup uberProgramSetup;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
+			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
+			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
+			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
+			// render
+			glPushMatrix();
+			glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
+			gluSphere(lightFieldQuadric, 0.05f, 16, 16);
+			glPopMatrix();
 
-				// specular
-				// set shader (no direct light)
-				uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
-				uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
-				uberProgramSetup.MATERIAL_DIFFUSE = false;
-				uberProgramSetup.MATERIAL_SPECULAR = true;
-				uberProgramSetup.OBJECT_SPACE = true;
-				program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
-				uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
-				// render
-				float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
-				program->sendUniform("worldMatrix",worldMatrix,false,4);
-				gluSphere(lightFieldQuadric, 0.05f, 16, 16);
-			}
+			// specular
+			// set shader (no direct light)
+			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
+			uberProgramSetup.MATERIAL_DIFFUSE = false;
+			uberProgramSetup.MATERIAL_SPECULAR = true;
+			uberProgramSetup.OBJECT_SPACE = true;
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
+			// render
+			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
+			program->sendUniform("worldMatrix",worldMatrix,false,4);
+			gluSphere(lightFieldQuadric, 0.05f, 16, 16);
 		}
 
+		// render light icons, using own shader
 		if (entityIcons->isOk())
 		{
-			// render light icons (changes program)
 			SVEntities entities;
 			if (parent->m_lightProperties->IsShown())
 				entities.addLights(solver->getLights(),sunIconPosition);
 			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 		}
 
-		// vignette
+		// render vignette, using own shader
 		if (svs.renderVignette)
 		{
 			if (!vignetteLoadAttempted)
@@ -1303,56 +1299,57 @@ rendered:
 		}
 
 		bool renderCrosshair = s_ciRelevant && (s_ci.mouseMiddle || s_ci.mouseRight);
-		if (svs.renderHelpers
-			|| svs.renderGrid
-			|| renderCrosshair
-			)
+		if (svs.renderGrid || renderCrosshair)
 		{
-			// set shader
-			UberProgramSetup uberProgramSetup;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
-		}
-		if (renderCrosshair)
-		{
-			// render crosshair in camera inspection/panning center point
-			rr::RRVec3 pos = s_ci.hitPoint3d;
-			float size = s_ci.hitDistance/30;
-			glColor3f(1,0,0);
-			glLineWidth(3);
-			glBegin(GL_LINES);
-			glVertex3f(pos.x-size,pos.y,pos.z);
-			glVertex3f(pos.x+size,pos.y,pos.z);
-			glVertex3f(pos.x,pos.y-size,pos.z);
-			glVertex3f(pos.x,pos.y+size,pos.z);
-			glVertex3f(pos.x,pos.y,pos.z-size);
-			glVertex3f(pos.x,pos.y,pos.z+size);
-			glEnd();
-			glLineWidth(1);
-		}
-		if (svs.renderGrid)
-		{
-			// render grid
-			glBegin(GL_LINES);
-			for (unsigned i=0;i<RR_MIN(svs.gridNumSegments+1,10001);i++)
+			// set line shader
 			{
-				float SIZE = svs.gridNumSegments*svs.gridSegmentSize;
-				if (i==svs.gridNumSegments/2)
-				{
-					glColor3f(0,0,1);
-					glVertex3f(0,-0.5*SIZE,0);
-					glVertex3f(0,+0.5*SIZE,0);
-				}
-				else
-					glColor3f(0,0,0.3f);
-				float q = (i/float(svs.gridNumSegments)-0.5f)*SIZE;
-				glVertex3f(q,0,-0.5*SIZE);
-				glVertex3f(q,0,+0.5*SIZE);
-				glVertex3f(-0.5*SIZE,0,q);
-				glVertex3f(+0.5*SIZE,0,q);
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
+				uberProgramSetup.MATERIAL_DIFFUSE = 1;
+				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
 			}
-			glEnd();
+
+			// render crosshair, using previously set shader
+			if (renderCrosshair)
+			{
+				rr::RRVec3 pos = s_ci.hitPoint3d;
+				float size = s_ci.hitDistance/30;
+				glColor3f(1,0,0);
+				glLineWidth(3);
+				glBegin(GL_LINES);
+				glVertex3f(pos.x-size,pos.y,pos.z);
+				glVertex3f(pos.x+size,pos.y,pos.z);
+				glVertex3f(pos.x,pos.y-size,pos.z);
+				glVertex3f(pos.x,pos.y+size,pos.z);
+				glVertex3f(pos.x,pos.y,pos.z-size);
+				glVertex3f(pos.x,pos.y,pos.z+size);
+				glEnd();
+				glLineWidth(1);
+			}
+
+			// render grid, using previously set shader
+			if (svs.renderGrid)
+			{
+				glBegin(GL_LINES);
+				for (unsigned i=0;i<RR_MIN(svs.gridNumSegments+1,10001);i++)
+				{
+					float SIZE = svs.gridNumSegments*svs.gridSegmentSize;
+					if (i==svs.gridNumSegments/2)
+					{
+						glColor3f(0,0,1);
+						glVertex3f(0,-0.5*SIZE,0);
+						glVertex3f(0,+0.5*SIZE,0);
+					}
+					else
+						glColor3f(0,0,0.3f);
+					float q = (i/float(svs.gridNumSegments)-0.5f)*SIZE;
+					glVertex3f(q,0,-0.5*SIZE);
+					glVertex3f(q,0,+0.5*SIZE);
+					glVertex3f(-0.5*SIZE,0,q);
+					glVertex3f(+0.5*SIZE,0,q);
+				}
+				glEnd();
+			}
 		}
 
 	}
@@ -1360,7 +1357,13 @@ rendered:
 	if (svs.renderHelpers
 		)
 	{
-		rr::RRReportInterval report(rr::INF3,"render helpers 2...\n");
+		// set line shader
+		{
+			UberProgramSetup uberProgramSetup;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+		}
 
 		// gather information about scene
 		unsigned numLights = solver->getLights().size();
@@ -1403,40 +1406,40 @@ rendered:
 		}
 
 
+		// render debug rays, using previously set shader
+		if (svs.renderHelpers && (!svs.renderLightmaps2d || !lv) && SVRayLog::size)
+		{
+			glBegin(GL_LINES);
+			for (unsigned i=0;i<SVRayLog::size;i++)
+			{
+				if (SVRayLog::log[i].unreliable)
+					glColor3ub(255,0,0);
+				else
+				if (SVRayLog::log[i].infinite)
+					glColor3ub(0,0,255);
+				else
+					glColor3ub(0,255,0);
+				glVertex3fv(&SVRayLog::log[i].begin[0]);
+				glColor3ub(0,0,0);
+				//glVertex3fv(&SVRayLog::log[i].end[0]);
+				glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
+			}
+			glEnd();
+		}
+
+		// render arrows, using previously set shader
+		if (svs.renderHelpers && !svs.renderLightmaps2d)
+		{
+			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
+			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
+			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
+			drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
+			drawTriangle(selectedTriangleBody);
+		}
+
+		// render helper text, using custom shader (because text output ignores color passed to previous shader)
 		if (svs.renderHelpers)
 		{
-			// render debug rays, using previously set shader
-			if ((!svs.renderLightmaps2d || !lv) && SVRayLog::size)
-			{
-				glBegin(GL_LINES);
-				for (unsigned i=0;i<SVRayLog::size;i++)
-				{
-					if (SVRayLog::log[i].unreliable)
-						glColor3ub(255,0,0);
-					else
-					if (SVRayLog::log[i].infinite)
-						glColor3ub(0,0,255);
-					else
-						glColor3ub(0,255,0);
-					glVertex3fv(&SVRayLog::log[i].begin[0]);
-					glColor3ub(0,0,0);
-					//glVertex3fv(&SVRayLog::log[i].end[0]);
-					glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
-				}
-				glEnd();
-			}
-
-			// render arrows, using previously set shader
-			if (!svs.renderLightmaps2d)
-			{
-				drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
-				drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
-				drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
-				drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
-				drawTriangle(selectedTriangleBody);
-			}
-
-			// render text, using custom shader (because text output ignores color passed to previous shader)
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 			centerTexel = UINT_MAX;
 			centerTriangle = UINT_MAX;
@@ -1699,8 +1702,7 @@ rendered:
 		}
 	}
 
-
-	// help
+	// render help, using own shader
 	if (svs.renderHelp)
 	{
 		if (!helpLoadAttempted)
@@ -1743,7 +1745,7 @@ rendered:
 		}
 	}
 
-	// logo
+	// render logo, using own shader
 	if (textureRenderer)
 	{
 		if (svs.renderLogo)
@@ -1766,7 +1768,7 @@ rendered:
 		}
 	}
 
-	// fps
+	// render fps, using own shader
 	unsigned fps = fpsCounter.getFps();
 	if (svs.renderFPS)
 	{
