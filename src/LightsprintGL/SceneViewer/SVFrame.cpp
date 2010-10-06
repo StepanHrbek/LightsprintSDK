@@ -853,6 +853,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 				{
 					if (getScale(this,dialog.GetPath(),svs.sceneScale))
 					{
+						svs.initialInputSolver = NULL;
 						svs.sceneFilename = dialog.GetPath();
 						UpdateEverything();
 					}
