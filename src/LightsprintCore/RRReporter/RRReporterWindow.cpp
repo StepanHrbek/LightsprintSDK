@@ -163,9 +163,9 @@ public:
 		RR_ASSERT(instanceData);
 		if (instanceData)
 		{
+			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]); // warnings must go first, becuase all these messages are warnings, they increase count
 			if (instanceData->numLines[ERRO]) localReport(WARN," %d ERRORS\n",instanceData->numLines[ERRO]);
 			if (instanceData->numLines[ASSE]) localReport(WARN," %d ASSERTS\n",instanceData->numLines[ASSE]);
-			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]);
 			instanceData->reporterDeleted = true;
 			instanceData->abortCallback = NULL;
 
