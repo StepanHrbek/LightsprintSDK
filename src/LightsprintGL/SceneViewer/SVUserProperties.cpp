@@ -18,7 +18,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 	// sshot
 	{
-		propSshot = new wxStringProperty(wxT("Screenshot"), wxPG_LABEL);
+		propSshot = new wxStringProperty(wxT("Screenshots"), wxPG_LABEL);
 		Append(propSshot);
 		SetPropertyReadOnly(propSshot,true,wxPG_DONT_RECURSE);
 

@@ -668,7 +668,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."),_T("Merge automatically reduces lighting quality, click Global Illumination / Indirect: Firebal to restore it when you finish merging."));
 		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
 		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
-		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("See options in user preferences."));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot (F9)"),_T("See options in user preferences."));
 		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
