@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - "Relighting" can open/save scenes from/to disk, like standalone SceneViewer sample
 - enhanced scene viewer
   - User preferences panel with lots of new options
   - enhanced screenshot making, up to 16k*16k images with better shadows
