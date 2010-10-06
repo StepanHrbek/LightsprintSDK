@@ -1040,6 +1040,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 
 		// aspect needs update after
 		// - OnSize()
+		// - rendering enhanced screenshot
 		// - RL: restored previously saved camera and window size differs
 		// - RL: calculated camera from previously saved keyframes and window size differs
 		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);

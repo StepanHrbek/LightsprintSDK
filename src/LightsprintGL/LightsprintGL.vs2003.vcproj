@@ -381,6 +381,12 @@
 			<File
 				RelativePath=".\SceneViewer\SVStub.cpp">
 			</File>
+			<File
+				RelativePath=".\SceneViewer\SVUserProperties.cpp">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVUserProperties.h">
+			</File>
 		</Filter>
 		<File
 			RelativePath="Bloom.cpp">
@@ -404,10 +410,7 @@
 			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h">
 		</File>
 		<File
-			RelativePath="FBO.cpp">
-		</File>
-		<File
-			RelativePath="FBO.h">
+			RelativePath="..\..\include\Lightsprint\GL\FBO.h">
 		</File>
 		<File
 			RelativePath="FPS.cpp">

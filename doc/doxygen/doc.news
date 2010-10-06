@@ -8,6 +8,22 @@ namespace rr
 
 \page main_news What's new
 
+\section news110 ------------------------------------ 2010.10.xx -------------------------------------
+
+NEWS
+
+- enhanced scene viewer
+  - User preferences panel with lots of new options
+  - enhanced screenshot making, up to 16k*16k images with better shadows
+
+CHANGES
+
+- new render target API
+  - removed rr_gl::Texture::renderingToBegin() and renderingToEnd()
+  - added class rr_gl::FBO and header Lightsprint/GL/FBO.h
+  - provides much finer control over render targets
+  - all SDK elements support rendering to texture (solver, renderer, samples..)
+
 \section news109 ------------------------------------ 2010.09.27 -------------------------------------
 
 NEWS

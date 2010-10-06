@@ -8,8 +8,10 @@
 #include "SVFrame.h"
 #include "Lightsprint/RRScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/FBO.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"
+#include "SVUserProperties.h"
 #include "SVSceneProperties.h"
 #include "SVLightProperties.h"
 #include "SVObjectProperties.h"
@@ -259,7 +261,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution
 	choices.Add("1024x1024");
 	choices.Add("2048x2048");
 	choices.Add("4096x4096");
-	wxSingleChoiceDialog dialog(parent,title,"Please select texture resolution",choices);
+	wxSingleChoiceDialog dialog(parent,title,"Resolution",choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
 		unsigned u = getUnsigned(choices[i]);
@@ -510,6 +512,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 {
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
+	bool layoutLoaded = userPreferences.load(); // must be loaded before SVUserProperties is created
+	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);
 	m_lightProperties = new SVLightProperties(this);
 	m_objectProperties = new SVObjectProperties(this);
@@ -575,8 +579,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	UpdateEverything(); // slow. if specified by filename, loads scene from disk
 	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
 
-	// load layouts, create layouts if load failed
-	bool layoutLoaded = userPreferences.load();
+	// create layouts if load failed
 	if (!layoutLoaded)
 	{
 		userPreferences.windowLayout[0].fullscreen = false;
@@ -613,6 +616,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	// create panes
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
+	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name(wxT("userproperties")).Caption(wxT("User preferences")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
 	if (!layoutLoaded)
 	{
@@ -635,8 +639,10 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 SVFrame::~SVFrame()
 {
-	userPreferencesGatherFromWx();
-	userPreferences.save();
+	{
+		userPreferencesGatherFromWx();
+		userPreferences.save();
+	}
 	m_mgr.UnInit();
 }
 
@@ -662,8 +668,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."),_T("Merge automatically reduces lighting quality, click Global Illumination / Indirect: Firebal to restore it when you finish merging."));
 		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
 		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
-		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("Saves screenshot to desktop."));
-		winMenu->Append(ME_FILE_SAVE_ENHANCED_SCREENSHOT,_T("Save enhanced screenshot (F9)"),_T("Saves enhanced screenshot to desktop, may fail on old GPUs."));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot"),_T("See options in user preferences."));
 		winMenu->Append(ME_EXIT,_T("Exit"));
 		menuBar->Append(winMenu, _T("File"));
 	}
@@ -721,6 +726,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_FULLSCREEN,svs.fullscreen);
 		winMenu->AppendCheckItem(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_T("User preferences"),_T("Opens user preferences window."));
+		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_userProperties->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_T("Scene properties"),_T("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window and starts rendering light icons."));
@@ -770,6 +777,40 @@ static std::string getSupportedLoaderExtensions()
 		extensions.erase(0,ext.size()+1);
 	}
 	return wxextensions;
+}
+
+static void incrementFilename(std::string& filename)
+{
+	size_t i = filename.find_last_of('.');
+	while (i>0)
+	{
+		i--;
+		if (filename[i]=='/' || filename[i]=='\\' || filename[i]==':' || filename[i]=='.')
+		{
+			break;
+		}
+		if (filename[i]=='9')
+		{
+			filename[i] = '0';
+			continue;
+		}
+		if (filename[i]=='Z')
+		{
+			filename[i] = 'A';
+			continue;
+		}
+		if (filename[i]=='z')
+		{
+			filename[i] = 'a';
+			continue;
+		}
+		filename[i]++;
+		if (!(filename[i]>='a' && filename[i]<='z') && !(filename[i]>='A' && filename[i]<='Z') && !(filename[i]>='0' && filename[i]<='9') && filename[i]!='/' && filename[i]!='\\' && filename[i]!=':' && filename[i]!='.')
+		{
+			filename[i] = '0';
+		}
+		break;
+	}
 }
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
@@ -901,33 +942,56 @@ save_scene_as:
 			}
 			break;
 		case ME_FILE_SAVE_SCREENSHOT:
-		case ME_FILE_SAVE_ENHANCED_SCREENSHOT:
 			{
-				// Grabs content of backbuffer to sshot.
-				wxSize size = m_canvas->GetSize();
-				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
-				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-				glReadBuffer(GL_BACK);
-				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-
-				if (event.GetId()==ME_FILE_SAVE_SCREENSHOT)
+				if (!userPreferences.sshotEnhanced)
 				{
-					// No more work, use sshot.
+					// Grab content of backbuffer to sshot.
+					wxSize size = m_canvas->GetSize();
+					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+					unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+					glReadBuffer(GL_BACK);
+					glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
 					sshot->unlock();
+
+					// 8. fix empty filename
+					if (userPreferences.sshotFilename.empty())
+					{
+						char screenshotFilename[1000]=".";
+#ifdef _WIN32
+						SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+#endif
+						userPreferences.sshotFilename = screenshotFilename;
+						time_t t = time(NULL);
+						userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
+					}
+
+					// 9. save
+					rr::RRBuffer::SaveParameters saveParameters;
+					saveParameters.jpegQuality = 100;
+					if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
+						rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
+					else
+						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
+
+					// 10. increment filename
+					incrementFilename(userPreferences.sshotFilename);
+					m_userProperties->updateProperties();
+
+					// cleanup
+					delete sshot;
 				}
 				else
 				{
-					// Attempt to overwrite sshot by enhanced
-					// frame rendered with 2*2*FSAA, 2*2*higher shadow resolution, 2*more shadow samples.
+					// 1a. enable FSAA
 					// (1*1*FSAA is ugly, worse than plain capture)
 					// (2*2*FSAA works fine, but it's too much for Quadro)
 					// (3*3*FSAA works fine too, 3*2560<8k, but it's probably too much for older cards)
 					// (4*2560 would definitely exceed Radeon 4xxx limits)
-					const unsigned AA = 3;
-					const unsigned W = size.x*AA;
-					const unsigned H = size.y*AA;
+					wxSize smallSize(userPreferences.sshotEnhancedWidth,userPreferences.sshotEnhancedHeight);
+					const int AA = (unsigned)sqrtf((float)userPreferences.sshotEnhancedFSAA);
+					wxSize bigSize = AA*smallSize;
 					
-					// 1. enhance shadows
+					// 1b. enhance shadows
 					rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
 					unsigned* shadowSamples = new unsigned[lights.size()];
 					unsigned* shadowRes = new unsigned[lights.size()];
@@ -936,8 +1000,9 @@ save_scene_as:
 						RealtimeLight* rl = lights[i];
 						shadowRes[i] = rl->getShadowmapSize();
 						shadowSamples[i] = rl->getNumShadowSamples();
-						rl->setShadowmapSize(shadowRes[i]*2);
-						rl->setNumShadowSamples(8);
+						rl->setShadowmapSize(shadowRes[i]*userPreferences.sshotEnhancedShadowResolutionFactor);
+						if (userPreferences.sshotEnhancedShadowSamples)
+							rl->setNumShadowSamples(userPreferences.sshotEnhancedShadowSamples);
 					}
 					rr::RRDynamicSolver::CalculateParameters params;
 					params.qualityIndirectStatic = 0; // set it to update only shadows
@@ -945,60 +1010,102 @@ save_scene_as:
 					m_canvas->solver->calculate(&params); // renders into FBO, must go before renderingToBegin()
 
 					// 2. alloc temporary textures
-					rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,W,H,1,rr::BF_RGB,true,NULL);
-					rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,W,H,1,rr::BF_DEPTH,true,(unsigned char*)1);
+					rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
+					rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,(unsigned char*)1);
 					Texture texColor(bufColor,false,false);
 					Texture texDepth(bufDepth,false,false);
 
-					// 3. set new rendertarget, propagate new size to renderer
-					if (texColor.renderingToBegin() && texDepth.renderingToBegin())
+					// 3a. set new rendertarget
+					FBO oldFBOState = FBO::getState();
+					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,&texDepth);
+					FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
+					if (!FBO::isOk())
 					{
-						m_canvas->winWidth = W;
-						m_canvas->winHeight = H;
-						glViewport(0,0,W,H);
+						wxMessageBox("Try lower resolution or disable FSAA (both in User preferences / Screenshot).","Rendering screenshot failed.");
+					}
+					else
+					{
+						// 3b. propagate new size/aspect to renderer
+						wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
+						//rr::RRVec2 oldCenter = svs.eye.screenCenter;
+						//svs.eye.screenCenter = rr::RRVec2(0);
+						m_canvas->winWidth = bigSize.x;
+						m_canvas->winHeight = bigSize.y;
+						glViewport(0,0,bigSize.x,bigSize.x);
 
 						// 4. disable automatic tonemapping, uses FBO, would not work
 						bool oldTonemapping = svs.tonemappingAutomatic;
 						svs.tonemappingAutomatic = false;
 
-						// 5. render to texColor
+						// 6. render to texColor
 						wxPaintEvent e;
 						m_canvas->Paint(e);
 
-						// 6. downscale to sshot
+						// 7. downscale to sshot
+						rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
 						unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
 						glPixelStorei(GL_PACK_ALIGNMENT,1);
-						glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
+						glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
 						unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-						for (int j=0;j<size.y;j++)
-							for (int i=0;i<size.x;i++)
+						for (int j=0;j<smallSize.y;j++)
+							for (int i=0;i<smallSize.x;i++)
 								for (unsigned k=0;k<3;k++)
 								{
 									unsigned a = 0;
 									for (int y=0;y<AA;y++)
 										for (int x=0;x<AA;x++)
-											a += pixelsBig[k+3*(AA*i+x+AA*size.x*(AA*j+y))];
-									pixelsSmall[k+3*(i+size.x*j)] = (a+AA*AA/2)/(AA*AA);
+											a += pixelsBig[k+3*(AA*i+x+AA*smallSize.x*(AA*j+y))];
+									pixelsSmall[k+3*(i+smallSize.x*j)] = (a+AA*AA/2)/(AA*AA);
 								}
 						sshot->unlock();
 						bufColor->unlock();
 
+						// 8. fix empty filename
+						if (userPreferences.sshotFilename.empty())
+						{
+							char screenshotFilename[1000]=".";
+#ifdef _WIN32
+							SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+#endif
+							userPreferences.sshotFilename = screenshotFilename;
+							time_t t = time(NULL);
+							userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
+						}
+
+						// 9. save
+						rr::RRBuffer::SaveParameters saveParameters;
+						saveParameters.jpegQuality = 100;
+						if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
+							rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
+						else
+							rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
+
+						// 10. increment filename
+						incrementFilename(userPreferences.sshotFilename);
+						m_userProperties->updateProperties();
+
+						// 7. cleanup
+						delete sshot;
+
+
 						// 4. cleanup
 						svs.tonemappingAutomatic = oldTonemapping;
+
+						// 3b. cleanup
+						m_canvas->winWidth = oldSize.x;
+						m_canvas->winHeight = oldSize.y;
+						//svs.eye.screenCenter = oldCenter;
 					}
 
-					// 3. cleanup
-					texDepth.renderingToEnd();
-					texColor.renderingToEnd();
-					m_canvas->winWidth = size.x;
-					m_canvas->winHeight = size.y;
-					glViewport(0,0,size.x,size.y);
+					// 3a. cleanup
+					oldFBOState.restore();
+					glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
 
 					// 2. cleanup
 					delete bufDepth;
 					delete bufColor;
 
-					// 1. cleanup
+					// 1b. cleanup
 					for (unsigned i=0;i<lights.size();i++)
 					{
 						RealtimeLight* rl = lights[i];
@@ -1008,19 +1115,6 @@ save_scene_as:
 					delete[] shadowSamples;
 					delete[] shadowRes;
 				}
-				char screenshotFilename[1000]=".";
-#ifdef _WIN32
-				SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-				time_t t = time(NULL);
-				sprintf(screenshotFilename+strlen(screenshotFilename),"/screenshot%04d.jpg",t%10000);
-				rr::RRBuffer::SaveParameters saveParameters;
-				saveParameters.jpegQuality = 100;
-				if (sshot->save(screenshotFilename,NULL,&saveParameters))
-					rr::RRReporter::report(rr::INF2,"Saved %s.\n",screenshotFilename);
-				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",screenshotFilename);
-				delete sshot;
 			}
 			break;
 		case ME_EXIT:
@@ -1445,6 +1539,10 @@ reload_skybox:
 			m_mgr.GetPane(wxT("scenetree")).Show(!m_sceneTree->IsShown());
 			m_mgr.Update();
 			break;
+		case ME_WINDOW_USER_PROPERTIES:
+			m_mgr.GetPane(wxT("userproperties")).Show(!m_userProperties->IsShown());
+			m_mgr.Update();
+			break;
 		case ME_WINDOW_SCENE_PROPERTIES:
 			m_mgr.GetPane(wxT("sceneproperties")).Show(!m_sceneProperties->IsShown());
 			m_mgr.Update();
@@ -1472,7 +1570,7 @@ reload_skybox:
 			{
 				unsigned w = m_canvas->winWidth;
 				unsigned h = m_canvas->winHeight;
-				if (getResolution("Please enter desired resolution of 3d viewport in pixels",this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
+				if (getResolution("3d viewport",this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
 				{
 					if (svs.fullscreen)
 					{
@@ -1490,7 +1588,7 @@ reload_skybox:
 					SetClientSize(windowSize.x+w-m_canvas->winWidth,windowSize.y+h-m_canvas->winHeight);
 					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
 					{
-						bool panes = m_sceneTree->IsShown() || m_sceneProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
+						bool panes = m_sceneTree->IsShown() || m_userProperties->IsShown() || m_sceneProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
 						wxMessageBox(panes?"There's not enough space. You can make more space by resizing or closing panes.":"There's not enough space. Switch to fullscreen mode for maximal resolution.");
 					}
 				}

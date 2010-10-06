@@ -115,6 +115,7 @@ namespace rr_gl
 
 			ME_WINDOW_FULLSCREEN,
 			ME_WINDOW_TREE,
+			ME_WINDOW_USER_PROPERTIES,
 			ME_WINDOW_SCENE_PROPERTIES,
 			ME_WINDOW_LIGHT_PROPERTIES,
 			ME_WINDOW_OBJECT_PROPERTIES,
@@ -139,6 +140,7 @@ namespace rr_gl
 		class SVObjectProperties*    m_objectProperties; // public only for SVCanvas
 		class SVMaterialProperties*  m_materialProperties; // public only for SVCanvas
 		SceneViewerStateEx&          svs; // the only svs instance used throughout whole scene viewer. public only for SVProperties
+		UserPreferences              userPreferences; // public only for SVUserProperties
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
@@ -155,9 +157,9 @@ namespace rr_gl
 		void UpdateMenuBar();
 
 		bool                     updateMenuBarNeeded;
-		UserPreferences          userPreferences;
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
+		class SVUserProperties*  m_userProperties;
 
 		DECLARE_EVENT_TABLE()
 	};

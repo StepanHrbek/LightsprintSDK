@@ -6,6 +6,8 @@
 #ifndef PRESERVESTATE_H
 #define PRESERVESTATE_H
 
+#include <Lightsprint/GL/FBO.h>
+
 namespace rr_gl
 {
 
@@ -47,6 +49,7 @@ DECLARE_PRESERVE_STATE( PreserveAlphaFunc ,GLint func;GLfloat ref ,glGetIntegerv
 DECLARE_PRESERVE_STATE( PreserveMatrix    ,                       ,glPushMatrix()                              ,glPopMatrix(););
 // projection and modelview matrices only
 DECLARE_PRESERVE_STATE( PreserveMatrices  ,GLint matrixMode       ,glGetIntegerv(GL_MATRIX_MODE,&matrixMode);glMatrixMode(GL_PROJECTION);glPushMatrix();glMatrixMode(GL_MODELVIEW);glPushMatrix(), glMatrixMode(GL_PROJECTION);glPopMatrix();glMatrixMode(GL_MODELVIEW);glPopMatrix();glMatrixMode(matrixMode););
+DECLARE_PRESERVE_STATE( PreserveFBO       ,FBO state              ,state=FBO::getState()                       ,state.restore());
 
 #undef DECLARE_PRESERVE_STATE
 

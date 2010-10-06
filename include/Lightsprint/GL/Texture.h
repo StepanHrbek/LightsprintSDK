@@ -15,10 +15,15 @@
 namespace rr_gl
 {
 
-//! Texture is very simple OpenGL wrapper around data from rr::RRBuffer.
+/////////////////////////////////////////////////////////////////////////////
 //
-//! It's basicly glGenTexture() and glTexImage2D(...,buffer->lock(BL_READ)) for 2d data
-//! or cube map data so you can immediately use them as a texture in OpenGL pipeline.
+// Texture
+
+//! Texture is simple OpenGL wrapper around rr::RRBuffer.
+//
+//! It supports BT_2D_TEXTURE and BT_CUBE_TEXTURE buffer types.
+//! It can be constructed and destructed manually (use one of constructor)
+//! or automatically by getTexture() function.
 class RR_GL_API Texture : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
@@ -36,31 +41,20 @@ public:
 	void bindTexture() const;
 	//! Returns number of bits per texel.
 	unsigned getTexelBits() const;
-
-	//! Begins rendering into the texture, sets graphics pipeline so that
-	//! following rendering commands use this texture as render target.
-	//! 
-	//! You may set color render target and depth render target independently
-	//! by calling colorTexture->renderingToBegin() and depthTexture->renderingToBegin().
-	//! Be aware that current setting is not archived and restored at renderingToEnd(),
-	//! so opening multiple renderingToBegin/End pairs will likely fail.
-	//! \param side
-	//!  Selects cube side for rendering into.
-	//!  Set to 0 for 2D texture or 0..5 for cube texture, where
-	//!  0=x+ side, 1=x- side, 2=y+ side, 3=y- side, 4=z+ side, 5=z- side.
-	//! \return True on success, fail when rendering into texture is not possible.
-	bool renderingToBegin(unsigned side = 0);
-	//! Ends rendering into the texture, restores backbuffer (not previous settings).
-	void renderingToEnd();
-	
 	~Texture();
 
 	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
 protected:
+	friend class FBO;
 	rr::RRBuffer* buffer;
-	GLuint   id;
+	GLuint   id; // For internal use only.
 	GLenum   cubeOr2d; // GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// getTexture
 
 //! Converts rr::RRBuffer to Texture so it can be immediately used as a texture in OpenGL.
 //

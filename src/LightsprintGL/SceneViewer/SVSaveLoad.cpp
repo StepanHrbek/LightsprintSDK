@@ -416,8 +416,6 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 
 //------------------------- UserPreferences ------------------------------
 
-#define WINDOW_LAYOUT_VERSION 2 // must be increased each time panel is added/removed
-
 template<class Archive>
 void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsigned int version)
 {
@@ -429,14 +427,24 @@ void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsi
 template<class Archive>
 void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
 {
-	// Different version files may have fewer panels, don't read them,
+	// Versions 0..2 may have fewer panels, don't read them,
 	//  it seems it's not safe to tell wx to restore old layout that had fewer panels
 	//  (Douglas reports F11 not working after running old RL version).
-	if (version!=WINDOW_LAYOUT_VERSION)
+	if (version<3)
 		throw 1;
 
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
+	if (version>2)
+	{
+		ar & make_nvp("sshotFilename",a.sshotFilename);
+		ar & make_nvp("sshotEnhanced",a.sshotEnhanced);
+		ar & make_nvp("sshotEnhancedWidth",a.sshotEnhancedWidth);
+		ar & make_nvp("sshotEnhancedHeight",a.sshotEnhancedHeight);
+		ar & make_nvp("sshotEnhancedFSAA",a.sshotEnhancedFSAA);
+		ar & make_nvp("sshotEnhancedShadowResolutionFactor",a.sshotEnhancedShadowResolutionFactor);
+		ar & make_nvp("sshotEnhancedShadowSamples",a.sshotEnhancedShadowSamples);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -451,7 +459,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences, WINDOW_LAYOUT_VERSION)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences, 3) // must be increased also each time panel is added/removed
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 15)
 
 //---------------------------------------------------------------------------
@@ -462,6 +470,9 @@ BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 15)
 #include <boost/filesystem.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#ifdef _WIN32
+	#include <shlobj.h> // SHGetSpecialFolderPath
+#endif
 namespace bf = boost::filesystem;
 
 namespace rr_gl
@@ -471,31 +482,35 @@ namespace rr_gl
 //
 // UserPreferences save/load
 
-static std::string suggestPreferencesDirectory()
+static std::wstring suggestPreferencesDirectory()
 {
-	#define APPDATA_SUBDIR "\\Lightsprint"
-	// Vista, 7
-	const char* appdata = getenv("LOCALAPPDATA");
-	if (appdata)
-		return std::string(appdata) + APPDATA_SUBDIR;
-	// XP
-	const char* user = getenv("USERPROFILE");
-	if (user)
-		return std::string(user) + "\\Local Settings\\Application Data" + APPDATA_SUBDIR;
-	// unknown
-	return APPDATA_SUBDIR;
+#ifdef _WIN32
+		#define APPDATA_SUBDIR L"\\Lightsprint"
+		// Vista, 7
+		const wchar_t* appdata = _wgetenv(L"LOCALAPPDATA");
+		if (appdata)
+			return std::wstring(appdata) + APPDATA_SUBDIR;
+		// XP
+		const wchar_t* user = _wgetenv(L"USERPROFILE");
+		if (user)
+			return std::wstring(user) + L"\\Local Settings\\Application Data" + APPDATA_SUBDIR;
+		// unknown
+		return APPDATA_SUBDIR;
+#else
+	return L".";
+#endif
 }
 
-static std::string suggestPreferencesFilename()
+static std::wstring suggestPreferencesFilename()
 {
-	return suggestPreferencesDirectory() + "\\SceneViewer.prefs";
+	return suggestPreferencesDirectory() + L"\\SceneViewer.prefs";
 }
 
 bool UserPreferences::save() const
 {
 	try
 	{
-		_mkdir(suggestPreferencesDirectory().c_str());
+		bf::create_directories(suggestPreferencesDirectory());
 		std::ofstream ofs(suggestPreferencesFilename().c_str());
 		if (!ofs || ofs.bad())
 		{

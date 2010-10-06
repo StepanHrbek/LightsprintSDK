@@ -9,7 +9,7 @@
 #define WATER_H
 
 #include "Program.h"
-#include "Texture.h"
+#include "FBO.h"
 #include "Camera.h"
 
 namespace rr_gl
@@ -80,6 +80,7 @@ protected:
 	Program* mirrorProgram;
 	Camera*  eye;
 	float    altitude;
+	FBO      oldFBOState;
 	GLint    viewport[4];
 	bool     fresnel;
 	bool     dirlight;

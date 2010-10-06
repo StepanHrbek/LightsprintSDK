@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/FBO.h"
 
 namespace rr_gl
 {
@@ -56,11 +57,12 @@ void ToneMapping::adjustOperator(TextureRenderer* textureRenderer, rr::RRReal se
 	{
 		smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,swidth,sheight,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 	}
-	smallTexture->renderingToBegin();
+	FBO oldFBOState = FBO::getState();
+	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallTexture);
 	glViewport(0,0,swidth,sheight);
 	textureRenderer->render2D(bigTexture,NULL,0,0,1,1);
 	glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);
-	smallTexture->renderingToEnd();
+	oldFBOState.restore();
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	for (unsigned i=0;i<256;i++)
 		histo[i] = 0;

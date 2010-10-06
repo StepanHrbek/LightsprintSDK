@@ -51,8 +51,9 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,NULL);
 		mirrorDepth->reset(false,false);
 	}
-	mirrorDepth->renderingToBegin();
-	mirrorMap->renderingToBegin();
+	oldFBOState = FBO::getState();
+	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,mirrorDepth);
+	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorMap);
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	glViewport(0,0,mirrorMap->getBuffer()->getWidth(),mirrorMap->getBuffer()->getHeight());
 	eye = _eye;
@@ -69,8 +70,7 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 void Water::updateReflectionDone()
 {
 	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
-	mirrorDepth->renderingToEnd();
-	mirrorMap->renderingToEnd();
+	oldFBOState.restore();
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	if (eye)
 	{

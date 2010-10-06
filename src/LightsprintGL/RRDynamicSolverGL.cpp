@@ -190,6 +190,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 
 	PreserveViewport p1;
 	PreserveMatrices p2;
+	PreserveFBO p3; // must go after viewport, so that viewport is restored later
 
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
@@ -254,7 +255,8 @@ void RRDynamicSolverGL::updateShadowmaps()
 					else
 					{
 						glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
-						if (!shadowmap->renderingToBegin())
+						FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);
+						if (!FBO::isOk())
 						{
 							// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
 							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
@@ -272,9 +274,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			glColorMask(1,1,1,1);
-			if (light->getNumShadowmaps())
-				if (light->getShadowmap(0)) // shadowmap must exist. FBO shutdown skipped if shadowmap does not exist (because someone set shadowmap size 0)
-					light->getShadowmap(0)->renderingToEnd();
 		}
 	}
 }
@@ -397,6 +396,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 	PreserveCullFace p3;
 	PreserveDepthMask p4;
 	PreserveDepthTest p5;
+	PreserveFBO p6; // must go after viewport, so that viewport is restored later
 
 	// setup render states
 	glClearColor(0,0,0,1);
@@ -425,7 +425,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		unsigned triCountYInThisPass = (lastCapturedTrianglePlus1-firstCapturedTriangle+triCountX-1)/triCountX; // may be bit lower in last pass of multipass, this prevents writing too far beyond end of _results
 
 		// prepare for scaling down -> render to texture
-		detectBigMap->renderingToBegin();
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,detectBigMap);
 
 		// clear
 		glViewport(0, 0, pixelWidth,pixelHeightInOnePass);
@@ -464,7 +464,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 			NULL);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
-		detectSmallMap->renderingToBegin();
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,detectSmallMap);
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getBuffer()->getWidth(),1.0f/detectBigMap->getBuffer()->getHeight());
@@ -488,7 +488,6 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountY));
 		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
 		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
-		detectSmallMap->renderingToEnd();
 	}
 
 	return 1;

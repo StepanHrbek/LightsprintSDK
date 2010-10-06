@@ -5,19 +5,155 @@
 
 #include <climits> // UINT_MAX
 #include <cstdlib> // rand
-#include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/FBO.h"
 #include "Lightsprint/RRDebug.h"
-#include "FBO.h"
 #include "Workaround.h"
 #include <vector>
 
 namespace rr_gl
 {
 
-// single FBO instance used by renderingToBegin()
-// automatically created when needed, destructed with last texture instances
-FBO* globalFBO = NULL;
-unsigned numPotentialFBOUsers = 0;
+/////////////////////////////////////////////////////////////////////////////
+//
+// FBO
+
+static FBO      s_fboState;
+static unsigned s_numPotentialFBOUsers = 0;
+static GLuint   s_fb_id = 0;
+
+void FBO::init()
+{
+	if (!glewIsSupported("GL_EXT_framebuffer_object"))
+	{
+		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n");
+		exit(0);
+	}
+
+	glGenFramebuffersEXT(1, &s_fb_id);
+
+	// necessary for "new FBO; setRenderTargetDepth; render..."
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, s_fb_id);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+void FBO::done()
+{
+	glDeleteFramebuffersEXT(1, &s_fb_id);
+}
+
+void FBO::setRenderTarget(GLenum attachment, GLenum target, Texture* tex)
+{
+	setRenderTargetGL(attachment,target,tex?tex->id:0);
+}
+
+void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
+{
+	RR_ASSERT(attachment==GL_DEPTH_ATTACHMENT_EXT || attachment==GL_COLOR_ATTACHMENT0_EXT);
+	RR_ASSERT(target==GL_TEXTURE_2D || (target>=GL_TEXTURE_CUBE_MAP_POSITIVE_X && target<=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z));
+
+	GLuint fb_id = (tex_id || (attachment==GL_DEPTH_ATTACHMENT_EXT && s_fboState.color_id) || (attachment==GL_COLOR_ATTACHMENT0_EXT && s_fboState.depth_id)) ? s_fb_id : 0;
+	if (s_fboState.fb_id != fb_id)
+	{
+		if (!fb_id)
+		{
+			if (s_fboState.depth_id)
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, s_fboState.depth_id = 0, 0);
+			if (s_fboState.color_id)
+			{
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+			}
+		}
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, s_fboState.fb_id = fb_id);
+	}
+	if (fb_id)
+	{
+		if (attachment==GL_DEPTH_ATTACHMENT_EXT)
+		{
+			RR_ASSERT(target==GL_TEXTURE_2D);
+			if (s_fboState.depth_id != tex_id)
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, s_fboState.depth_id = tex_id, 0);
+		}
+		else
+		{
+			if (s_fboState.color_target != target || s_fboState.color_id != tex_id)
+			{
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
+				if (tex_id)
+				{
+					glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+					glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+				}
+				else
+				{
+					glDrawBuffer(GL_NONE);
+					glReadBuffer(GL_NONE);
+				}
+			}
+		}
+	}
+}
+
+bool FBO::isOk()
+{
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	switch(status)
+	{
+		case GL_FRAMEBUFFER_COMPLETE_EXT:
+			return true;
+		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+			// choose different formats
+			// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
+			rr::RRReporter::report(rr::ERRO,"FBO failed.\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			// programming error; will fail on all hardware
+			// possible reason: color_id texture has LINEAR_MIPMAP_LINEAR, but only one mip level (=incomplete)
+			RR_ASSERT(0);
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+			// programming error; will fail on all hardware
+			// possible reason: color_id and depth_id textures differ in size
+			RR_ASSERT(0);
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+			// programming error; will fail on all hardware
+			// possible reason: glDrawBuffer(GL_NONE);glReadBuffer(GL_NONE); was not called before rendering to depth texture
+			RR_ASSERT(0);
+			break;
+		default:
+			// programming error; will fail on all hardware
+			RR_ASSERT(0);
+	}
+	return false;
+}
+
+FBO::FBO()
+{
+	fb_id = 0;
+	color_target = GL_TEXTURE_2D;
+	color_id = 0;
+	depth_id = 0;
+}
+
+FBO FBO::getState()
+{
+	return s_fboState;
+}
+
+void FBO::restore()
+{
+	setRenderTargetGL(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depth_id);
+	setRenderTargetGL(GL_COLOR_ATTACHMENT0_EXT,color_target,color_id);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
 
 Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int magn, int mini, int wrapS, int wrapT)
 {
@@ -25,8 +161,13 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
 
 	buffer = _buffer ? _buffer->createReference() : NULL;
+	buffer->customData = this;
 
-	numPotentialFBOUsers++;
+	if (!s_numPotentialFBOUsers)
+	{
+		s_fboState.init();
+	}
+	s_numPotentialFBOUsers++;
 
 	if (buffer && buffer->getDuration())
 	{
@@ -214,41 +355,6 @@ unsigned Texture::getTexelBits() const
 	}
 }
 
-bool Texture::renderingToBegin(unsigned side)
-{
-	if (!buffer) return false;
-
-	if (!globalFBO)
-	{
-		globalFBO = new FBO();
-	}
-	if (side>=6 || (cubeOr2d!=GL_TEXTURE_CUBE_MAP && side))
-	{
-		RR_ASSERT(0);
-		return false;
-	}
-	if (buffer->getFormat()==rr::BF_DEPTH)
-		globalFBO->setRenderTargetDepth(id);
-	else
-		globalFBO->setRenderTargetColor(id,(cubeOr2d==GL_TEXTURE_CUBE_MAP)?GL_TEXTURE_CUBE_MAP_POSITIVE_X+side:GL_TEXTURE_2D);
-	return globalFBO->isStatusOk();
-}
-
-void Texture::renderingToEnd()
-{
-	if (!buffer) return;
-
-	if (buffer->getFormat()==rr::BF_DEPTH)
-		globalFBO->setRenderTargetDepth(0);
-	else
-		globalFBO->setRenderTargetColor(0,GL_TEXTURE_2D);
-	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
-		for (unsigned i=0;i<6;i++)
-			globalFBO->setRenderTargetColor(0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+i);
-	globalFBO->restoreDefaultRenderTarget();
-	version = rand();
-}
-
 Texture::~Texture()
 {
 	if (buffer)
@@ -260,10 +366,11 @@ Texture::~Texture()
 	}
 	glDeleteTextures(1, &id);
 	id = UINT_MAX;
-	numPotentialFBOUsers--;
-	if (!numPotentialFBOUsers)
+
+	s_numPotentialFBOUsers--;
+	if (!s_numPotentialFBOUsers)
 	{
-		RR_SAFE_DELETE(globalFBO);
+		s_fboState.done();
 	}
 }
 
@@ -303,8 +410,8 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 {
 	if (!_buffer)
 		return NULL;
-	rr::RRBuffer* buffer = const_cast<rr::RRBuffer*>(_buffer); //!!! customData is modified in const object
-	Texture*& texture = *(Texture**)(&buffer->customData);
+	rr::RRBuffer* buffer = const_cast<rr::RRBuffer*>(_buffer); //!!! new Texture() may modify customData in const object
+	Texture* texture = (Texture*)(buffer->customData);
 	if (!texture)
 	{
 		texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);

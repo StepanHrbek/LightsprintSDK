@@ -22,9 +22,34 @@ namespace rr_gl
 			bool fullscreen;
 			bool maximized;
 			std::string perspective;
+			WindowLayout()
+			{
+				fullscreen = false;
+				maximized = false;
+				perspective = "";
+			}
 		};
 		WindowLayout windowLayout[3];
 
+		std::string sshotFilename;
+		bool        sshotEnhanced;
+		unsigned    sshotEnhancedWidth;
+		unsigned    sshotEnhancedHeight;
+		unsigned    sshotEnhancedFSAA;
+		float       sshotEnhancedShadowResolutionFactor;
+		unsigned    sshotEnhancedShadowSamples;
+
+		UserPreferences()
+		{
+			currentWindowLayout = 0;
+			sshotFilename = "";
+			sshotEnhanced = true;
+			sshotEnhancedWidth = 1920;
+			sshotEnhancedHeight = 1080;
+			sshotEnhancedFSAA = 4;
+			sshotEnhancedShadowResolutionFactor = 2;
+			sshotEnhancedShadowSamples = 8;
+		}
 		//! Saves preferences, filename is automatic.
 		bool save() const;
 		//! Loads preferences, filename is automatic.
