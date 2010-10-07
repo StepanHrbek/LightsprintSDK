@@ -2422,6 +2422,7 @@ Video formats
   - illumination can be baked to lightmaps, directional lightmaps (a.k.a. radiosity normal maps), vertex colors
   - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
   - postprocessing: color tone, brightness and contrast can be changed in a second
+  - baking GI for multiple scene configurations at once
   - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
   - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
   - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
@@ -2432,7 +2433,7 @@ Video formats
     - Results of baking may fail to appear or save to disk. Bake again to workaround the issue.
     - Plugin request to display GI after bake is ignored. Click toggle icon manually.
   - Terrain lightmaps not supported. This is long term GI Package limitation.
-  - Light probes not updated. We will support them in next release.
+  - Light probes not updated. We will support them in next GI Package.
 
  \section g3_bake Baking in Toolbench
     - Run <code>bin/install_toolbench_plugins.bat</code>.
@@ -2508,6 +2509,10 @@ Video formats
       - Lets you look at lightmaps. Once cache is filled by "Bake lighting", you can look at lightmaps in any modern image viewer. (Note that there are no tools for looking at lightmaps in Gamebryo's .nif).
       - Lets you edit lightmaps. Once cache is filled by "Bake lighting", you can edit cached lightmaps and apply results to scene by "Bake lighting from cache".
       - Makes postprocessing near instant. Once cache is filled by "Bake lighting", you can change color tone, brightness, contrast and compression and apply changes by "Bake lighting from cache".
+
+   \subsection g3_configs - baking multiple configurations at once
+    - LightsprintMesh properties LsReplacementCase and LsReplacementConfiguration let you define multiple scene configurations
+    - GI is automatically baked for all configurations at once, without increasing baking time
 
  \section g3_max Preparing art assets
     - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:

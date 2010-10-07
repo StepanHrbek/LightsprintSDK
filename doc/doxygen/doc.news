@@ -13,6 +13,12 @@ namespace rr
 NEWS
 
 - improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - baking GI for multiple scene configurations at once
+    - LsReplacementCase
+    - LsReplacementConfiguration
+    - If game always renders only one of several meshes (i.e. only one of bridge_new, bridge_damaged, bridge_collapsed),
+      give them the same unique LsReplacementCase number (e.g. 100) and different LsReplacementConfiguration (e.g. 0,1,2).
+      In a replacement case, different configurations don't shadow and illuminate each other; and only configuration 0 shadows and illuminates the rest of scene.
   - "Relighting" can open/save scenes from/to disk, like standalone SceneViewer sample
 - enhanced scene viewer
   - User preferences panel with lots of new options

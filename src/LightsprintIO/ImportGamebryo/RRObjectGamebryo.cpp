@@ -1008,6 +1008,8 @@ struct PerEntitySettings
 	unsigned lsResolutionFixedWidth;
 	unsigned lsResolutionFixedHeight;
 	float lsEmissiveMultiplier;
+	unsigned lsReplacementCase;
+	unsigned lsReplacementConfiguration;
 
 	PerEntitySettings()
 	{
@@ -1021,6 +1023,8 @@ struct PerEntitySettings
 		lsResolutionFixedWidth = 128;
 		lsResolutionFixedHeight = 128;
 		lsEmissiveMultiplier = 1;
+		lsReplacementCase = 0;
+		lsReplacementConfiguration = 0;
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	void readFrom(egf::Entity* entity)
@@ -1047,6 +1051,9 @@ struct PerEntitySettings
 
 		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
 		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
+
+		entity->GetPropertyValue("LsReplacementCase", lsReplacementCase);
+		entity->GetPropertyValue("LsReplacementConfiguration", lsReplacementConfiguration);
 	}
 	void inheritFrom(const PerSceneSettings& perSceneSettings)
 	{
@@ -1650,8 +1657,8 @@ private:
 			{
 				// this is not LOD, give it unique base and level 0
 				// (only for this mesh, must not be propagated into children)
-				lodInfo.base = object;
-				lodInfo.level = 0;
+				lodInfo.base = (void*)perEntitySettings.lsReplacementCase;
+				lodInfo.level = perEntitySettings.lsReplacementConfiguration;
 			}
 			RRObjectGamebryo* rrObject = RRObjectGamebryo::create(pkEntityScene,niMesh,perEntitySettings,lodInfo,materialCache,aborting);
 			if (rrObject)
