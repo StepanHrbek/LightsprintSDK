@@ -156,12 +156,19 @@ namespace rr
 		//!  reads custom scale colors from textures and converts them to physical scale using scaler.
 		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler = NULL) const;
 
-		//! Information about single object, what LOD it is.
+		//! Information about single object, its place in hierarchy of LODs.
+		//
+		//! Objects with the same #base represent the same entity, they are levels of detail (LOD) of the same entity.
+		//! If they share #base but differ in #level, they are different LODs of the same entity
+		//! and they don't shadow and illuminate each other. Only #level 0 shadows and illuminates other entities.
+		//! If they share both #base and #level, they are the same representation of the same entity,
+		//! i.e. they shadow and illuminate each other.
 		struct LodInfo
 		{
-			//! Two objects are LODs of the same model only if they have identical bases.
+			//! Objects with the same #base represent the same entity, they are levels of detail (LOD) of the same entity.
 			const void* base;
-			//! LODs of the same model always differ in level. There must be always at least level 0 for each base.
+			//! Objects that share #base but differ in #level are different LODs of the same entity
+			//! and they don't shadow and illuminate each other. Only level 0 shadows and illuminates other entities.
 			unsigned level;
 			//! Object is rendered only if its distance satisfies distanceMin<=distance<distanceMax.
 			RRReal distanceMin;
