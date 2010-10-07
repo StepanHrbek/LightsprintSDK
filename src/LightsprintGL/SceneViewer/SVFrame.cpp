@@ -1008,7 +1008,7 @@ save_scene_as:
 					rr::RRDynamicSolver::CalculateParameters params;
 					params.qualityIndirectStatic = 0; // set it to update only shadows
 					params.qualityIndirectDynamic = 0;
-					m_canvas->solver->calculate(&params); // renders into FBO, must go before renderingToBegin()
+					m_canvas->solver->calculate(&params); // renders into FBO, must go before FBO::setRenderTarget()
 
 					// 2. alloc temporary textures
 					rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
