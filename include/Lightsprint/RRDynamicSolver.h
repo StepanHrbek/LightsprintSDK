@@ -852,7 +852,7 @@ namespace rr
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
-		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
+		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
 		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().

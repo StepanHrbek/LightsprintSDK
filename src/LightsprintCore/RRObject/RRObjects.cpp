@@ -150,6 +150,11 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 						buffersTouched++;
 					}
 				}
+				else
+				{
+					if (changeExistingBuffers)
+						RR_SAFE_DELETE(illumination.diffuseEnvMap);
+				}
 				// allocate specular cubes for LIGHT_INDIRECT_CUBE_SPECULAR
 				if (specularEnvMapSize)
 				{
@@ -199,6 +204,16 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 								}
 								//updateEnvironmentMapCache(illumination);
 							}
+							else
+							{
+								if (changeExistingBuffers)
+									RR_SAFE_DELETE(illumination.specularEnvMap);
+							}
+						}
+						else
+						{
+							if (changeExistingBuffers)
+								RR_SAFE_DELETE(illumination.specularEnvMap);
 						}
 					}
 				}

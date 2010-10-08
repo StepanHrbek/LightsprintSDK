@@ -463,7 +463,7 @@ namespace rr
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
-		//!  If buffer already exists, true = it will be resized accordingly, false = no action.
+		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
 		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
