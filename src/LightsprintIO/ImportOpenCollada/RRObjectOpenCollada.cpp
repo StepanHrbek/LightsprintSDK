@@ -45,6 +45,8 @@
 
 #include "Lightsprint/RRScene.h"
 
+#include <boost/filesystem.hpp> // system_complete
+
 #pragma warning(disable:4267) // there are too many size_t -> unsigned conversions
 
 using namespace rr;
@@ -610,7 +612,8 @@ public:
 
 		loader.registerExtraDataCallbackHandler ( &extraHandler );
 
-		if ( !root.loadDocument(filename) )
+//		if ( !root.loadDocument(filename) )
+		if ( !root.loadDocument(boost::filesystem::system_complete(filename).file_string()) ) // workaround for http://code.google.com/p/opencollada/issues/detail?id=122
 			return false;
 
 		return true;
