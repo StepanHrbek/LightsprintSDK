@@ -2737,15 +2737,6 @@
     <None Include="ImportAssimp\code\BlenderDNA.inl">
       <Filter>Assimp\code</Filter>
     </None>
-    <None Include="ImportAssimp\code\CMakeLists.txt">
-      <Filter>Assimp\code</Filter>
-    </None>
-    <None Include="ImportAssimp\code\makefile">
-      <Filter>Assimp\code</Filter>
-    </None>
-    <None Include="ImportAssimp\code\makefile.mingw">
-      <Filter>Assimp\code</Filter>
-    </None>
     <None Include="ImportAssimp\code\SmoothingGroups.inl">
       <Filter>Assimp\code</Filter>
     </None>

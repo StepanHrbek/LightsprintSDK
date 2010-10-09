@@ -1426,9 +1426,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ImportAssimp\code\BlenderDNA.inl" />
-    <None Include="ImportAssimp\code\CMakeLists.txt" />
-    <None Include="ImportAssimp\code\makefile" />
-    <None Include="ImportAssimp\code\makefile.mingw" />
     <None Include="ImportAssimp\code\SmoothingGroups.inl" />
     <None Include="ImportAssimp\include\aiMaterial.inl" />
     <None Include="ImportAssimp\include\aiMatrix3x3.inl" />
