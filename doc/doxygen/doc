@@ -445,13 +445,13 @@ Video formats
   We contribute our improvements back to original projects, however,
   recent improvements may still be present only in Lightsprint SDK.
 
-  \section wx_patch1 Fix1
+  \section wx_patch1 Patch1
+  We submitted patch at http://trac.wxwidgets.org/ticket/11787
+  It fixes crash when scene viewer is opened second time.
 
-  File: src/propgrid/framemanager.cpp
-
-  We changed line 2628 from <code>if (p.IsFloating())</code> to <code>if (p.IsFloating() && p.IsShown())</code>
-
-  This fixes problem where closed floating pane can't be reopened.
+  \section wx_patch2 Patch2
+  We submitted patch at http://trac.wxwidgets.org/ticket/11537
+  It fixes: closed floating pane can't be reopened.
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
@@ -507,14 +507,14 @@ Video formats
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=92
   It fixes crashes.
 
-  \section oc_patch2 Patch3
+  \section oc_patch3 Patch3
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=94
 
-  \section oc_patch3 Patch4
+  \section oc_patch4 Patch4
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=120
   It fixes Visual Studio 2010 compilation.
 
-  \section oc_patch4 Patch5
+  \section oc_patch5 Patch5
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=119
   It fixes crashes.
 

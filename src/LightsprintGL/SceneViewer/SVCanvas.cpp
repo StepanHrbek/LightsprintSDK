@@ -246,6 +246,7 @@ void SVCanvas::createContext()
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Scene initialization crashed.\n"));
+		exit(1);
 	}
 #else
 	createContextCore();
@@ -407,6 +408,9 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 
 void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
+	if (exitRequested || !fullyCreated)
+		return;
+
 	bool needsRefresh = false;
 	long evkey = event.GetKeyCode();
 	float speed = (event.GetModifiers()==wxMOD_SHIFT) ? 3 : 1;
@@ -552,6 +556,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 void SVCanvas::OnKeyUp(wxKeyEvent& event)
 {
+	if (exitRequested || !fullyCreated)
+		return;
+
 	long evkey = event.GetKeyCode();
 	switch(evkey)
 	{
@@ -615,6 +622,9 @@ static ClickInfo s_ci;
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
+	if (exitRequested || !fullyCreated)
+		return;
+
 	if (event.IsButton())
 	{
 		// regain focus, innocent actions like clicking menu take it away
@@ -846,13 +856,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 
 void SVCanvas::OnIdle(wxIdleEvent& event)
 {
-	if (!winWidth) return; // can't work without window
-
-	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || !solver || solver->aborting || exitRequested)
+	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || (fullyCreated && !solver) || (solver && solver->aborting) || exitRequested)
 	{
 		parent->Close(true);
 		return;
 	}
+	if (!fullyCreated)
+		return;
 
 	// camera/light movement
 	static TIME prevTime = 0;
@@ -962,14 +972,8 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 
 void SVCanvas::OnPaintCore(wxPaintEvent& event)
 {
-	// checks must go in this order, so that we return silently if (exitRequested && !fullyCreated)
-	if (exitRequested)
+	if (exitRequested || !fullyCreated || !winWidth || !winHeight)
 		return;
-	if (!fullyCreated)
-	{
-		rr::RRReporter::report(rr::ERRO,"Looks like scene import crashed, exiting.\n");
-		exit(1);
-	}
 
 	wxPaintDC dc(this);
 
