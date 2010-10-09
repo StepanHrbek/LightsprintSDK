@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -108,6 +108,10 @@ private:
 	void getObjectName();
 	/// Creates a new object.
 	void createObject(const std::string &strObjectName);
+	///	Creates a new mesh.
+	void createMesh(); 
+	///	Returns true, if a new mesh instance must be created.
+	bool needsNewMesh( const std::string &rMaterialName );
 	///	Error report in token
 	void reportErrorTokenInFace();
 

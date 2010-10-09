@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -167,6 +167,9 @@ void SplitLargeMeshesProcess_Triangle::SplitMesh(
 			aiMesh* pcMesh			= new aiMesh;			
 			pcMesh->mNumFaces		= iOutFaceNum;
 			pcMesh->mMaterialIndex	= pMesh->mMaterialIndex;
+
+			// the name carries the adjacency information between the meshes
+			pcMesh->mName = pMesh->mName;
 
 			if (i == iSubMeshes-1)
 			{
@@ -441,6 +444,9 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
 			aiMesh* pcMesh			= new aiMesh;			
 			pcMesh->mNumVertices	= 0;
 			pcMesh->mMaterialIndex	= pMesh->mMaterialIndex;
+
+			// the name carries the adjacency information between the meshes
+			pcMesh->mName = pMesh->mName;
 
 			typedef std::vector<aiVertexWeight> BoneWeightList;
 			if (pMesh->HasBones())

@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -109,6 +109,20 @@ public:
 
 	template <typename TToken>
 	basic_formatter& operator << (const TToken& s) {
+		underlying << s;
+		return *this;
+	}
+
+
+	// comma operator overloaded as well, choose your preferred way.
+	template <typename TToken>
+	const basic_formatter& operator, (const TToken& s) const {
+		underlying << s;
+		return *this;
+	}
+
+	template <typename TToken>
+	basic_formatter& operator, (const TToken& s) {
 		underlying << s;
 		return *this;
 	}

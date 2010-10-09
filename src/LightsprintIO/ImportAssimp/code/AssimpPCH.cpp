@@ -25,13 +25,13 @@ ASSIMP_API const char*  aiGetLegalString  ()	{
 // ------------------------------------------------------------------------------------------------
 // Get Assimp minor version
 ASSIMP_API unsigned int aiGetVersionMinor ()	{
-	return 5;
+	return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Get Assimp major version
 ASSIMP_API unsigned int aiGetVersionMajor ()	{
-	return 0;
+	return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -59,8 +59,7 @@ ASSIMP_API unsigned int aiGetCompileFlags ()	{
 	return flags;
 }
 
-// include current build revision, which is even updated from time to time -- :-)
-#define SVNRevision  633
+#define SVNRevision  826
 
 // ------------------------------------------------------------------------------------------------
 ASSIMP_API unsigned int aiGetVersionRevision ()

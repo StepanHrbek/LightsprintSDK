@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -178,32 +178,31 @@ aiNode* ColladaLoader::BuildHierarchy( const ColladaParser& pParser, const Colla
 	// create a node for it
 	aiNode* node = new aiNode();
 
-  // find a name for the new node. It's more complicated than you might think
-  node->mName.Set( FindNameForNode( pNode));
+	// find a name for the new node. It's more complicated than you might think
+	node->mName.Set( FindNameForNode( pNode));
 
 	// calculate the transformation matrix for it
 	node->mTransformation = pParser.CalculateResultTransform( pNode->mTransforms);
 
 	// now resolve node instances
-	std::vector<Collada::Node*> instances;
+	std::vector<const Collada::Node*> instances;
 	ResolveNodeInstances(pParser,pNode,instances);
 
 	// add children. first the *real* ones
 	node->mNumChildren = pNode->mChildren.size()+instances.size();
 	node->mChildren = new aiNode*[node->mNumChildren];
 
-	unsigned int a = 0;
-	for(; a < pNode->mChildren.size(); a++)
+	for( size_t a = 0; a < pNode->mChildren.size(); a++)
 	{
 		node->mChildren[a] = BuildHierarchy( pParser, pNode->mChildren[a]);
 		node->mChildren[a]->mParent = node;
 	}
 
 	// ... and finally the resolved node instances
-	for(; a < node->mNumChildren; a++)
+	for( size_t a = 0; a < instances.size(); a++)
 	{
-		node->mChildren[a] = BuildHierarchy( pParser, instances[a-pNode->mChildren.size()]);
-		node->mChildren[a]->mParent = node;
+		node->mChildren[pNode->mChildren.size() + a] = BuildHierarchy( pParser, instances[a]);
+		node->mChildren[pNode->mChildren.size() + a]->mParent = node;
 	}
 
 	// construct meshes
@@ -220,7 +219,7 @@ aiNode* ColladaLoader::BuildHierarchy( const ColladaParser& pParser, const Colla
 // ------------------------------------------------------------------------------------------------
 // Resolve node instances
 void ColladaLoader::ResolveNodeInstances( const ColladaParser& pParser, const Collada::Node* pNode,
-	std::vector<Collada::Node*>& resolved)
+	std::vector<const Collada::Node*>& resolved)
 {
 	// reserve enough storage
 	resolved.reserve(pNode->mNodeInstances.size());
@@ -230,13 +229,21 @@ void ColladaLoader::ResolveNodeInstances( const ColladaParser& pParser, const Co
 		 end = pNode->mNodeInstances.end(); it != end; ++it)
 	{
 		// find the corresponding node in the library
-		ColladaParser::NodeLibrary::const_iterator fnd = pParser.mNodeLibrary.find((*it).mNode);
-		if (fnd == pParser.mNodeLibrary.end()) 
+		const ColladaParser::NodeLibrary::const_iterator itt = pParser.mNodeLibrary.find((*it).mNode);
+		Collada::Node* nd = itt == pParser.mNodeLibrary.end() ? NULL : (*itt).second;
+
+		// FIX for http://sourceforge.net/tracker/?func=detail&aid=3054873&group_id=226462&atid=1067632
+		// need to check for both name and ID to catch all. To avoid breaking valid files,
+		// the workaround is only enabled when the first attempt to resolve the node has failed.
+		if (!nd) {
+			nd = const_cast<Collada::Node*>(FindNode(pParser.mRootNode,(*it).mNode));
+		}
+		if (!nd) 
 			DefaultLogger::get()->error("Collada: Unable to resolve reference to instanced node " + (*it).mNode);
 		
 		else {
 			//	attach this node to the list of children
-			resolved.push_back((*fnd).second);
+			resolved.push_back(nd);
 		}
 	}
 }
@@ -358,12 +365,14 @@ void ColladaLoader::BuildCamerasForNode( const ColladaParser& pParser, const Col
 		if (srcCamera->mHorFov != 10e10f) {
 			out->mHorizontalFOV = srcCamera->mHorFov; 
 
-			if (srcCamera->mVerFov != 10e10f && srcCamera->mAspect != 10e10f) {
-				out->mAspect = srcCamera->mHorFov/srcCamera->mVerFov;
+			if (srcCamera->mVerFov != 10e10f && srcCamera->mAspect == 10e10f) {
+				out->mAspect = tan(AI_DEG_TO_RAD(srcCamera->mHorFov)) /
+                    tan(AI_DEG_TO_RAD(srcCamera->mVerFov));
 			}
 		}
 		else if (srcCamera->mAspect != 10e10f && srcCamera->mVerFov != 10e10f)	{
-			out->mHorizontalFOV = srcCamera->mAspect*srcCamera->mVerFov;
+			out->mHorizontalFOV = 2.0f * AI_RAD_TO_DEG(atan(srcCamera->mAspect *
+                tan(AI_DEG_TO_RAD(srcCamera->mVerFov) * 0.5f)));
 		}
 
 		// Collada uses degrees, we use radians
@@ -792,6 +801,58 @@ void ColladaLoader::StoreAnimations( aiScene* pScene, const ColladaParser& pPars
 	// recursivly collect all animations from the collada scene
 	StoreAnimations( pScene, pParser, &pParser.mAnims, "");
 
+	// catch special case: many animations with the same length, each affecting only a single node.
+	// we need to unite all those single-node-anims to a proper combined animation
+	for( size_t a = 0; a < mAnims.size(); ++a)
+	{
+		aiAnimation* templateAnim = mAnims[a];
+		if( templateAnim->mNumChannels == 1)
+		{
+			// search for other single-channel-anims with the same duration
+			std::vector<size_t> collectedAnimIndices;
+			for( size_t b = a+1; b < mAnims.size(); ++b)
+			{
+				aiAnimation* other = mAnims[b];
+				if( other->mNumChannels == 1 && other->mDuration == templateAnim->mDuration && other->mTicksPerSecond == templateAnim->mTicksPerSecond )
+					collectedAnimIndices.push_back( b);
+			}
+
+			// if there are other animations which fit the template anim, combine all channels into a single anim
+			if( !collectedAnimIndices.empty() )
+			{
+				aiAnimation* combinedAnim = new aiAnimation();
+				combinedAnim->mName = aiString( std::string( "combinedAnim_") + char( '0' + a));
+				combinedAnim->mDuration = templateAnim->mDuration;
+				combinedAnim->mTicksPerSecond = templateAnim->mTicksPerSecond;
+				combinedAnim->mNumChannels = collectedAnimIndices.size() + 1;
+				combinedAnim->mChannels = new aiNodeAnim*[combinedAnim->mNumChannels];
+				// add the template anim as first channel by moving its aiNodeAnim to the combined animation
+				combinedAnim->mChannels[0] = templateAnim->mChannels[0];
+				templateAnim->mChannels[0] = NULL;
+				delete templateAnim;
+				// combined animation replaces template animation in the anim array
+				mAnims[a] = combinedAnim;
+
+				// move the memory of all other anims to the combined anim and erase them from the source anims
+				for( size_t b = 0; b < collectedAnimIndices.size(); ++b)
+				{
+					aiAnimation* srcAnimation = mAnims[collectedAnimIndices[b]];
+					combinedAnim->mChannels[1 + b] = srcAnimation->mChannels[0];
+					srcAnimation->mChannels[0] = NULL;
+					delete srcAnimation;
+				}
+
+				// in a second go, delete all the single-channel-anims that we've stripped from their channels
+				// back to front to preserve indices - you know, removing an element from a vector moves all elements behind the removed one
+				while( !collectedAnimIndices.empty() )
+				{
+					mAnims.erase( mAnims.begin() + collectedAnimIndices.back());
+					collectedAnimIndices.pop_back();
+				}
+			}
+		}
+	}
+
 	// now store all anims in the scene
 	if( !mAnims.empty())
 	{
@@ -1056,8 +1117,8 @@ void ColladaLoader::AddTexture ( Assimp::MaterialHelper& mat, const ColladaParse
 	aiTextureType type, unsigned int idx)
 {
 	// first of all, basic file name
-	mat.AddProperty( &FindFilenameForEffectTexture( pParser, effect, sampler.mName), 
-		_AI_MATKEY_TEXTURE_BASE,type,idx);
+	const aiString name = FindFilenameForEffectTexture( pParser, effect, sampler.mName );
+	mat.AddProperty( &name, _AI_MATKEY_TEXTURE_BASE, type, idx );
 
 	// mapping mode
 	int map = aiTextureMapMode_Clamp;
@@ -1261,7 +1322,7 @@ void ColladaLoader::BuildMaterials( const ColladaParser& pParser, aiScene* pScen
 
 // ------------------------------------------------------------------------------------------------
 // Resolves the texture name for the given effect texture entry
-const aiString& ColladaLoader::FindFilenameForEffectTexture( const ColladaParser& pParser,
+aiString ColladaLoader::FindFilenameForEffectTexture( const ColladaParser& pParser,
 	const Collada::Effect& pEffect, const std::string& pName)
 {
 	// recurse through the param references until we end up at an image
@@ -1286,7 +1347,7 @@ const aiString& ColladaLoader::FindFilenameForEffectTexture( const ColladaParser
 			"Collada: Unable to resolve effect texture entry \"%s\", ended up at ID \"%s\".") % pName % name));
 	}
 
-	static aiString result;
+	aiString result;
 
 	// if this is an embedded texture image setup an aiTexture for it
 	if (imIt->second.mFileName.empty()) 

@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -63,10 +63,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "aiQuaternion.h"
 
 #ifdef __cplusplus
-#	include <string> // for aiString::Set(const std::string&)
+#include <new>		// for std::nothrow_t
+#include <string>	// for aiString::Set(const std::string&)
 
 namespace Assimp	{
-
 	//! @cond never
 namespace Intern		{
 	// --------------------------------------------------------------------
@@ -82,17 +82,22 @@ namespace Intern		{
 	 * the application is determined to crash.
 	 */
 	// --------------------------------------------------------------------
+#ifndef SWIG
 	struct ASSIMP_API AllocateFromAssimpHeap	{
+		// http://www.gotw.ca/publications/mill15.htm
 
 		// new/delete overload
-		void *operator new    ( size_t num_bytes);
+		void *operator new    ( size_t num_bytes) /* throw( std::bad_alloc ) */;
+		void *operator new    ( size_t num_bytes, const std::nothrow_t& ) throw();
 		void  operator delete ( void* data);
 
 		// array new/delete overload
-		void *operator new[]    ( size_t num_bytes);
+		void *operator new[]    ( size_t num_bytes) /* throw( std::bad_alloc ) */;
+		void *operator new[]    ( size_t num_bytes, const std::nothrow_t& )  throw();
 		void  operator delete[] ( void* data);
 
 	}; // struct AllocateFromAssimpHeap
+#endif
 } // namespace Intern
 	//! @endcond
 } // namespace Assimp
@@ -227,7 +232,8 @@ struct aiColor3D
  *  UTF-8 strings to their working character set (i.e. MBCS, WideChar).
  *
  *  We use this representation instead of std::string to be C-compatible. The 
- *  (binary) length of such a string is limited to MAXLEN characters (excluding the 0).
+ *  (binary) length of such a string is limited to MAXLEN characters (including the
+ *  the terminating zero).
 */
 struct aiString
 {

@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -527,7 +527,8 @@ class ComputeSpatialSortProcess : public BaseProcess
 
 	void Execute( aiScene* pScene)
 	{
-		typedef std::pair<SpatialSort, float> _Type;
+		typedef std::pair<SpatialSort, float> _Type; 
+		DefaultLogger::get()->debug("Generate spatially-sorted vertex cache");
 
 		std::vector<_Type>* p = new std::vector<_Type>(pScene->mNumMeshes); 
 		std::vector<_Type>::iterator it = p->begin();

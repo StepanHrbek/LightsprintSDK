@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -160,7 +160,7 @@ bool LWOImporter::HandleTextures(MaterialHelper* pcMat, const TextureList& in, a
 				trafo.mScaling.y = (*it).wrapAmountH;
 
 				BOOST_STATIC_ASSERT(sizeof(aiUVTransform)/sizeof(float) == 5);
-				pcMat->AddProperty((float*)&trafo,5,AI_MATKEY_UVTRANSFORM(type,cur));
+				pcMat->AddProperty(&trafo,1,AI_MATKEY_UVTRANSFORM(type,cur));
 			}
 			DefaultLogger::get()->debug("LWO2: Setting up non-UV mapping");
 		}

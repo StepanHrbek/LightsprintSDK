@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -115,6 +115,9 @@ protected:
 
 	//! checks for a separator char, either a ',' or a ';'
 	void CheckForSeparator();
+
+  /// tests and possibly consumes a separator char, but does nothing if there was no separator
+  void TestForSeparator();
 
 	//! reads a x file style string
 	void GetNextTokenAsString( std::string& poString);

@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -61,6 +61,12 @@ inline void PrefixString(aiString& string,const char* prefix, unsigned int len)
 	// If the string is already prefixed, we won't prefix it a second time
 	if (string.length >= 1 && string.data[0] == '$')
 		return;
+
+	if (len+string.length>=MAXLEN-1) {
+		DefaultLogger::get()->debug("Can't add an unique prefix because the string is too long");
+		ai_assert(false);
+		return;
+	}
 
 	// Add the prefix
 	::memmove(string.data+len,string.data,string.length+1);

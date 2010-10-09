@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -50,8 +50,9 @@ using namespace Assimp;
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 BaseProcess::BaseProcess()
+: shared()
+, progress()
 {
-	shared = NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -64,7 +65,13 @@ BaseProcess::~BaseProcess()
 // ------------------------------------------------------------------------------------------------
 void BaseProcess::ExecuteOnScene( Importer* pImp)
 {
-	ai_assert(NULL != pImp && NULL != pImp->pimpl->mScene)
+	ai_assert(NULL != pImp && NULL != pImp->pimpl->mScene);
+
+	progress = pImp->GetProgressHandler();
+	ai_assert(progress);
+
+	SetupProperties( pImp );
+
 	// catch exceptions thrown inside the PostProcess-Step
 	try
 	{

@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -170,7 +170,8 @@ aiVector3D B3DImporter::ReadVec3(){
 
 // ------------------------------------------------------------------------------------------------
 aiQuaternion B3DImporter::ReadQuat(){
-	float w=ReadFloat();
+	// (aramis_acg) Fix to adapt the loader to changed quat orientation
+	float w=-ReadFloat();
 	float x=ReadFloat();
 	float y=ReadFloat();
 	float z=ReadFloat();

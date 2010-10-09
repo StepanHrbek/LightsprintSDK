@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -124,8 +124,8 @@ public:
 	/** @brief	Attach a new logstream
 	 *
 	 *  The logger takes ownership of the stream and is responsible
-	 *  for its destruction (which is done when the logger itself 
-	 *  is destroyed). Call detachStream to detach a stream and to
+	 *  for its destruction (which is done using ::delete when the logger
+	 *  itself is destroyed). Call detachStream to detach a stream and to
 	 *  gain ownership of it again.
 	 *	 @param	pStream	 Logstream to attach
 	 *  @param severity  Message filter, specified which types of log

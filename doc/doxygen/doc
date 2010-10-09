@@ -231,7 +231,7 @@ Scene formats
 - Valve Model ( *.smd,*.vta )
 - Quake I ( *.mdl )
 - Quake II ( *.md2 )
-- Quake III ( *.md3, *.bsp )
+- Quake III ( *.md3,*.bsp,*.pk3 )
 - RtCW ( *.mdc )
 - Doom 3 ( *.md5mesh )
 - DirectX X ( *.x )
@@ -248,6 +248,9 @@ Scene formats
 - 3D GameStudio Terrain ( *.hmp )
 - Ogre ( *.mesh.xml;*.material )
 - TrueSpace ( *.cob )
+- Unreal ( *.3d,*.uc )
+- Blender ( *.blend )
+- Nendo ( *.ndo )
 - Material and Geometry Format ( *.mgf )
 - framework for custom formats
 - complete source code
@@ -463,7 +466,7 @@ Video formats
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - svn revision 726 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - svn revision 826 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
  \page assimp_patch Assimp patch
 
@@ -2713,16 +2716,15 @@ rr::RRVector<*>{
  Lightsprint API consists of following libraries:
 
  - <b> \subpage api_core "LIGHTSPRINT CORE" </b> -
-  Calculates global illumination in dynamic scenes.
-  Includes fast ray-scene intersections.
-  Is OpenGL/Direct3D independent, file format independent.
+  is a set of offline and realtime GI solvers that can be integrated with arbitrary graphics API or game engine
+  (includes also fast ray-scene intersections)
 
  - <b> \subpage api_gl "LIGHTSPRINT GL" </b> -
-  Optional integration with OpenGL 2.0,
-  realtime rendering with penumbra shadows.
+  is such an integration with OpenGL
+  (includes also high performance renderer and scene editor)
 
  - <b> \subpage api_io "LIGHTSPRINT IO" </b> -
-  Optional access to scenes and images stored on disk.
+  provides support for 70+ fileformats
 
  structured into core layer and extensions:
 
@@ -2858,42 +2860,40 @@ rr::RRVector<*>{
 
  \section gl_overview Overview
 
- LightsprintGL implements realtime rendering and scene viewer/editor on top of LightsprintCore.
-
- Features of LightsprintGL renderer
-   - realtime global illumination
-   - arbitrary number of realtime dynamic point, spot, directional lights
-   - linear and area spotlights with realtime penumbra shadows
-   - tone mapping
-   - separately enabled/disabled light features:
-     - color
-     - projected texture
-     - polynomial, exponential, none or physically correct distance attenuation models
-     - shadows with variable softness, resolution, automatically cascaded in outdoor
-   - separately enabled/disabled material features:
-     - diffuse reflection: none, constant, per vertex, per pixel
-     - specular reflection: none, constant, per vertex, per pixel
-     - emission: none, constant, per pixel
-     - transparency: none, constant, per pixel / blend or 1bit alpha keying
-     - normal map
-   - supports OpenGL 2.0 GPUs (GeForce 5xxx and higher, Radeon 9500 and higher etc)
+ LightsprintGL consists of 3 components
+   -# integration of GI solvers with OpenGL
+     - implemented in rr_gl::RRDynamicSolverGL
+   -# high performance OpenGL renderer
+     - realtime global illumination from lights, emissive materials, sky, custom
+     - unlimited number of realtime lights
+     - linear and area spotlights with realtime penumbra shadows
+     - sky: cubemap, cross, equirectangular, HDR, LDR, blending
+     - effects: tone mapping, bloom, lens flare
+     - separately enabled/disabled light features:
+       - color
+       - projected texture
+       - polynomial, exponential, none or physically correct distance attenuation models
+       - shadows with variable softness, resolution, automatically cascaded in outdoor
+     - separately enabled/disabled material features:
+       - diffuse reflection: none, constant, per vertex, per pixel
+       - specular reflection: none, constant, per vertex, per pixel
+       - emission: none, constant, per pixel
+       - transparency: none, constant, per pixel / blend or 1bit alpha keying
+       - normal map
+     - minimal requirements: OpenGL 2.0
+     - supported GPUs: GeForce 5xxx and higher, Radeon 9500 and higher etc
+   -# scene viewer and editor
+     - see it by running SceneViewer sample
+     - implemented in rr_gl::sceneViewer()
 
  \section gl_api API
 
  Namespace: rr_gl
 
  <hr>
- Header: Lightsprint/GL/SceneViewer.h
-
- - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
-   with realtime and static GI, with 2d viewer of lightmaps and mappings.
-   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
-   examine and experiment with all scene properties.
-
- <hr>
  Header: Lightsprint/GL/RRDynamicSolverGL.h
 
- - rr_gl::RRDynamicSolverGL extends RRDynamicSolver for realtime rendering in OpenGL 2.0
+ - rr_gl::RRDynamicSolverGL integrates GI solvers with OpenGL 2.0
 
  <hr>
  Header: Lightsprint/GL/RendererOfScene.h
@@ -2904,7 +2904,15 @@ rr::RRVector<*>{
  - detects what data are available (lightmaps, vertex colors)
 
  <hr>
- Other headers:
+ Header: Lightsprint/GL/SceneViewer.h
+
+ - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
+   with realtime and static GI, with 2d viewer of lightmaps and mappings.
+   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
+   examine and experiment with all scene properties.
+
+ <hr>
+ Other headers/classes:
 
  - rr_gl::Texture is OpenGL texture, extension of RRBuffer needed for realtime rendering
  - rr_gl::Program is GLSL program
@@ -2919,14 +2927,10 @@ rr::RRVector<*>{
 
  \section io_overview Overview
 
-  LightsprintIO is an optional utility library that imports 3D scenes and textures
-  from \ref supported_formats "over 70 file formats".
+  LightsprintIO provides support for \subpage supported_formats "70+ fileformats", by registering import/export callbacks
+  for textures and 3d scenes.
 
   It has simple and friendly user interface, one function without parameters.
-
-  LightsprintIO comes with full source code, located in <code>src/LightsprintIO</code>.
-  LightsprintIO may call external dynamic library \ref tpl_freeimage
-  with source code also available for download.
 
  \section io_api API
 

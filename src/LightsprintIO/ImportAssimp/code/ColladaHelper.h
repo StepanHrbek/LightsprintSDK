@@ -4,7 +4,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -426,8 +426,8 @@ struct Sampler
 	Sampler()
 		:	mWrapU		(true)
 		,	mWrapV		(true)
-		,	mMirrorU	(true)
-		,	mMirrorV	(true)
+		,	mMirrorU	()
+		,	mMirrorV	()
 		,	mOp			(aiTextureOp_Multiply)
 		,	mUVId		(0xffffffff)
 		,	mWeighting  (1.f)

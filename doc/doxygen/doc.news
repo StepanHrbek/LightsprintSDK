@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news111 ------------------------------------ 2010.10.xx -------------------------------------
+
+NEWS
+
+- improved import, new fileformats supported
+  - Blender *.blend
+  - Quake3 *.pk3
+  - Nendo *.ndo
+
 \section news110 ------------------------------------ 2010.10.07 -------------------------------------
 
 NEWS

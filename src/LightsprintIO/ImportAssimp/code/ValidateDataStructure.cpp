@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -246,6 +246,15 @@ void ValidateDSProcess::Execute( aiScene* pScene)
 	else if (pScene->mLights)	{
 		ReportError("aiScene::mLights is non-null although there are no lights");
 	}
+
+	// validate all textures
+	if (pScene->mNumTextures) {
+		DoValidation(pScene->mTextures,pScene->mNumTextures,
+			"mTextures","mNumTextures");
+	}
+	else if (pScene->mTextures)	{
+		ReportError("aiScene::mTextures is non-null although there are no textures");
+	}
 	
 	// validate all materials
 	if (pScene->mNumMaterials) {
@@ -309,6 +318,8 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 			pMesh->mMaterialIndex,mScene->mNumMaterials-1);
 	}
 
+	Validate(&pMesh->mName);
+
 	for (unsigned int i = 0; i < pMesh->mNumFaces; ++i)
 	{
 		aiFace& face = pMesh->mFaces[i];
@@ -359,14 +370,21 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 		ReportError("The mesh contains no vertices");
 	}
 
+	if (pMesh->mNumVertices > AI_MAX_VERTICES) {
+		ReportError("Mesh has too many vertices: %u, but the limit is %u",pMesh->mNumVertices,AI_MAX_VERTICES);
+	}
+	if (pMesh->mNumFaces > AI_MAX_FACES) {
+		ReportError("Mesh has too many faces: %u, but the limit is %u",pMesh->mNumFaces,AI_MAX_FACES);
+	}
+
 	// if tangents are there there must also be bitangent vectors ...
 	if ((pMesh->mTangents != NULL) != (pMesh->mBitangents != NULL))	{
-		ReportError("If there are tangents there must also be bitangent vectors");
+		ReportError("If there are tangents, bitangent vectors must be present as well");
 	}
 
 	// faces, too
 	if (!pMesh->mNumFaces || (!pMesh->mFaces && !mScene->mFlags))	{
-		ReportError("The mesh contains no faces");
+		ReportError("Mesh contains no faces");
 	}
 
 	// now check whether the face indexing layout is correct:
@@ -376,6 +394,10 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 	for (unsigned int i = 0; i < pMesh->mNumFaces;++i)
 	{
 		aiFace& face = pMesh->mFaces[i];
+		if (face.mNumIndices > AI_MAX_FACE_INDICES) {
+			ReportError("Face %u has too many faces: %u, but the limit is %u",i,face.mNumIndices,AI_MAX_FACE_INDICES);
+		}
+
 		for (unsigned int a = 0; a < face.mNumIndices;++a)
 		{
 			if (face.mIndices[a] >= pMesh->mNumVertices)	{
@@ -439,10 +461,10 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 			ReportError("aiMesh::mBones is NULL (aiMesh::mNumBones is %i)",
 				pMesh->mNumBones);
 		}
-		float* afSum = NULL;
+		boost::scoped_array<float> afSum(NULL);
 		if (pMesh->mNumVertices)
 		{
-			afSum = new float[pMesh->mNumVertices];
+			afSum.reset(new float[pMesh->mNumVertices]);
 			for (unsigned int i = 0; i < pMesh->mNumVertices;++i)
 				afSum[i] = 0.0f;
 		}
@@ -450,19 +472,22 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 		// check whether there are duplicate bone names
 		for (unsigned int i = 0; i < pMesh->mNumBones;++i)
 		{
+			const aiBone* bone = pMesh->mBones[i];
+			if (bone->mNumWeights > AI_MAX_BONE_WEIGHTS) {
+				ReportError("Bone %u has too many weights: %u, but the limit is %u",i,bone->mNumWeights,AI_MAX_BONE_WEIGHTS);
+			}
+
 			if (!pMesh->mBones[i])
 			{
-				delete[] afSum;
 				ReportError("aiMesh::mBones[%i] is NULL (aiMesh::mNumBones is %i)",
 					i,pMesh->mNumBones);
 			}
-			Validate(pMesh,pMesh->mBones[i],afSum);
+			Validate(pMesh,pMesh->mBones[i],afSum.get());
 
 			for (unsigned int a = i+1; a < pMesh->mNumBones;++a)
 			{
 				if (pMesh->mBones[i]->mName == pMesh->mBones[a]->mName)
 				{
-					delete[] afSum;
 					ReportError("aiMesh::mBones[%i] has the same name as "
 						"aiMesh::mBones[%i]",i,a);
 				}
@@ -475,7 +500,6 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 				ReportWarning("aiMesh::mVertices[%i]: bone weight sum != 1.0 (sum is %f)",i,afSum[i]);
 			}
 		}
-		delete[] afSum;
 	}
 	else if (pMesh->mBones)
 	{
@@ -767,7 +791,7 @@ void ValidateDSProcess::Validate( const aiTexture* pTexture)
 		(sz[1] >= 'A' && sz[1] <= 'Z') ||
 		(sz[2] >= 'A' && sz[2] <= 'Z') ||
 		(sz[3] >= 'A' && sz[3] <= 'Z'))	{
-		ReportError("aiTexture::achFormatHint contains non-lowercase characters");
+		ReportError("aiTexture::achFormatHint contains non-lowercase letters");
 	}
 }
 

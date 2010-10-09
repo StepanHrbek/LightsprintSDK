@@ -3,7 +3,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -220,6 +220,9 @@ void SortByPTypeProcess::Execute( aiScene* pScene)
 			*meshIdx = (unsigned int) outMeshes.size();
 			outMeshes.push_back(new aiMesh());
 			aiMesh* out = outMeshes.back();
+
+			// the name carries the adjacency information between the meshes
+			out->mName = mesh->mName;
 
 			// copy data members
 			out->mPrimitiveTypes = 1u << real;

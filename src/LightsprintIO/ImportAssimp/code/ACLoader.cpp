@@ -4,7 +4,7 @@
 Open Asset Import Library (ASSIMP)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2010, ASSIMP Development Team
 
 All rights reserved.
 
@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "AssimpPCH.h"
 
-#ifndef AI_BUILD_NO_AC_IMPORTER
+#ifndef ASSIMP_BUILD_NO_AC_IMPORTER
 
 // internal headers
 #include "ACLoader.h"
@@ -396,8 +396,7 @@ void AC3DImporter::ConvertMaterial(const Object& object,
 			aiUVTransform transform;
 			transform.mScaling = object.texRepeat;
 			transform.mTranslation = object.texOffset;
-			matDest.AddProperty<float>((float*)&transform,sizeof(aiUVTransform),
-				AI_MATKEY_UVTRANSFORM_DIFFUSE(0));
+			matDest.AddProperty(&transform,1,AI_MATKEY_UVTRANSFORM_DIFFUSE(0));
 		}
 	}
 
@@ -854,4 +853,4 @@ void AC3DImporter::InternReadFile( const std::string& pFile,
 	}
 }
 
-#endif //!defined AI_BUILD_NO_AC_IMPORTER
+#endif //!defined ASSIMP_BUILD_NO_AC_IMPORTER
