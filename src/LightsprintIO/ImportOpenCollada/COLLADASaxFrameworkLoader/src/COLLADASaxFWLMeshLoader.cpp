@@ -32,7 +32,7 @@ namespace COLLADASaxFWL
 		: SourceArrayLoader (callingFilePartLoader )
 		, mMeshUniqueId(createUniqueIdFromId((ParserChar*)geometryId.c_str(), COLLADAFW::Geometry::ID()))
 		, mMesh ( new COLLADAFW::Mesh(mMeshUniqueId) )
-		, mMaterialIdInfo(getMeshMaterialIdInfo(mMeshUniqueId))
+		, mMaterialIdInfo(getMeshMaterialIdInfo())
 		, mCurrentMeshPrimitive(0)
 		, mCurrentVertexInput(0)
         , mInVertices ( false )
@@ -854,6 +854,7 @@ namespace COLLADASaxFWL
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
 			mCurrentMeshPrimitive->setMaterial( attributeData.material );
 		}
+		mCurrentMeshPrimitive->setMaterial(attributeData.material);
 		return true;
 	}
 
@@ -911,7 +912,8 @@ namespace COLLADASaxFWL
 		if ( attributeData.material )
 		{
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
-			mCurrentMeshPrimitive->setMaterial( attributeData.material );
+			mCurrentMeshPrimitive->setMaterial(attributeData.material);
+
 		}
 		return true;
 	}
@@ -968,7 +970,10 @@ namespace COLLADASaxFWL
 		mCurrentMeshPrimitive = lineStrips;
 		mCurrentPrimitiveType = LINESTRIPS;
 		if ( attributeData.material )
+		{
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
+			mCurrentMeshPrimitive->setMaterial(attributeData.material);
+		}
 		return true;
 	}
 
@@ -1032,7 +1037,7 @@ namespace COLLADASaxFWL
 		if ( attributeData.material )
 		{
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
-			mCurrentMeshPrimitive->setMaterial( attributeData.material );
+			mCurrentMeshPrimitive->setMaterial(attributeData.material);
 		}
 		return true;
 	}
@@ -1112,7 +1117,7 @@ namespace COLLADASaxFWL
 		if ( attributeData.material )
 		{
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
-			mCurrentMeshPrimitive->setMaterial( attributeData.material );
+			mCurrentMeshPrimitive->setMaterial(attributeData.material);
 		}
 		return true;
 	}
@@ -1148,7 +1153,7 @@ namespace COLLADASaxFWL
 		if ( attributeData.material )
 		{
 			mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId( attributeData.material ));
-			mCurrentMeshPrimitive->setMaterial( attributeData.material );
+			mCurrentMeshPrimitive->setMaterial(attributeData.material);
 		}
 		return true;
 	}
@@ -1198,6 +1203,7 @@ namespace COLLADASaxFWL
                     // TODO pre-alloc memory for uv indices
                 }
                 mCurrentMeshPrimitive->setMaterialId(mMaterialIdInfo.getMaterialId(mCurrentMeshMaterial));
+				mCurrentMeshPrimitive->setMaterial(mCurrentMeshMaterial);
             }
             break;
 		case TRIFANS:

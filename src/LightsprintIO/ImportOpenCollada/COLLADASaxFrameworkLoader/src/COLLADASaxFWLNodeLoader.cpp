@@ -244,11 +244,12 @@ namespace COLLADASaxFWL
 		COLLADAFW::Node* currentNode = mNodeStack.top();
 
 		COLLADAFW::UniqueId instantiatedGeometryUniqueId = getHandlingFilePartLoader()->createUniqueIdFromUrl( attributeData.url, COLLADAFW::Geometry::ID());
-		mCurrentMaterialInfo = &getHandlingFilePartLoader()->getMeshMaterialIdInfo(instantiatedGeometryUniqueId);
+		mCurrentMaterialInfo = &getHandlingFilePartLoader()->getMeshMaterialIdInfo();
 
         COLLADAFW::UniqueId uniqueId = getHandlingFilePartLoader()->createUniqueId ( COLLADAFW::InstanceGeometry::ID() );
 		COLLADAFW::InstanceGeometry* instanceGeometry = FW_NEW COLLADAFW::InstanceGeometry ( uniqueId, instantiatedGeometryUniqueId );
 		mCurrentInstanceGeometry = instanceGeometry;
+		instanceGeometry->setName(currentNode->getName());
 		currentNode->getInstanceGeometries().append(instanceGeometry);
 
 		return true;
@@ -314,6 +315,7 @@ namespace COLLADASaxFWL
         {
             COLLADAFW::TextureCoordinateBinding texCoordinateBinding;
             texCoordinateBinding.setSetIndex ( (size_t)attributeData.input_set );
+            texCoordinateBinding.setSemantic( attributeData.semantic );
             texCoordinateBinding.setTextureMapId ( getHandlingFilePartLoader()->getTextureMapIdBySematic( attributeData.semantic ) );
             mCurrentTextureCoordinateBindings.insert(texCoordinateBinding);
         }
@@ -382,7 +384,7 @@ namespace COLLADASaxFWL
 	{
 		COLLADAFW::Node* currentNode = mNodeStack.top();
 		COLLADAFW::UniqueId instantiatedControllerUniqueId = getHandlingFilePartLoader()->createUniqueIdFromUrl( attributeData.url, COLLADAFW::SkinControllerData::ID() );
-		mCurrentMaterialInfo = &getHandlingFilePartLoader()->getMeshMaterialIdInfo(instantiatedControllerUniqueId);
+		mCurrentMaterialInfo = &getHandlingFilePartLoader()->getMeshMaterialIdInfo();
 
         COLLADAFW::UniqueId uniqueId = getHandlingFilePartLoader()->createUniqueId ( COLLADAFW::InstanceController::ID() );
 		COLLADAFW::InstanceController* instanceController = FW_NEW COLLADAFW::InstanceController( uniqueId, instantiatedControllerUniqueId);
