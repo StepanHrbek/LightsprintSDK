@@ -490,6 +490,7 @@ void SVFrame::userPreferencesApplyToWx()
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
 	// workaround for http://trac.wxwidgets.org/ticket/11787
+	// fixed after 2.9.1, in 65666 (small detail finished in 65787)
 	// solves crash in second Toolbench Relighting 
 	wxPGEditor_TextCtrl = NULL;
 	wxPGEditor_Choice = NULL;
@@ -1180,7 +1181,6 @@ reload_skybox:
 		case ME_LIGHT_DIR: m_sceneTree->runContextMenuAction(CM_LIGHT_DIR,EntityId(ST_LIGHT,0)); break;
 		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityId(ST_LIGHT,0)); break;
 		case ME_LIGHT_DELETE: m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex)); break;
-
 
 
 		//////////////////////////////// GLOBAL ILLUMINATION - DIRECT ///////////////////////////////
