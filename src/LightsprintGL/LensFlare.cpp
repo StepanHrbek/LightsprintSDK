@@ -123,6 +123,7 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 				{
 					// is it visible, not occluded?
 					rr::RRVec3 transparencySum(0);
+					rr::RRVec3 dirSum(0);
 					if (_scene)
 					{
 						ray->rayOrigin = _eye.getRayOrigin(_eye.pos);
@@ -137,16 +138,21 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 
 						for (unsigned i=0;i<_quality;i++)
 						{
-							ray->rayDirInv = rr::RRVec3(-1)/(light->direction.normalized()+rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.1f).normalized();
+							rr::RRVec3 rayDir = (light->direction.normalized()+rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.1f).normalized();
+							ray->rayDirInv = rr::RRVec3(-1)/rayDir;
 							_scene->getCollider()->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;
+							dirSum += rayDir*collisionHandlerTransparency->transparency.sum();
 						}
 						// cleanup
 						srand(oldSeed);
 					}
 					float transparency = transparencySum.avg()/_quality;
-					if (transparency)
+					if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
 					{
+						// move flare a bit if light is half occluded
+						lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-dirSum*1e10f);
+
 						renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
 					}
 				}
