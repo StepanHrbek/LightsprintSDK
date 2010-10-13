@@ -999,7 +999,7 @@ RRLightsFCollada::~RRLightsFCollada()
 class RRSceneFCollada : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneFCollada* scene = new RRSceneFCollada;
 		FCollada::Initialize();

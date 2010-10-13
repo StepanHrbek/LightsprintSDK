@@ -16,6 +16,44 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 {
 	wxColour headerColor(230,230,230);
 
+	// import
+	{
+		propImport = new wxStringProperty(wxT("Import"), wxPG_LABEL);
+		Append(propImport);
+		SetPropertyReadOnly(propImport,true,wxPG_DONT_RECURSE);
+
+		// units
+		{
+			const wxChar* viewStrings[] = {wxT("custom"),wxT("m"),wxT("inch"),wxT("cm"),wxT("mm"),NULL};
+			const long viewValues[] = {ImportParameters::U_CUSTOM,ImportParameters::U_M,ImportParameters::U_INCH,ImportParameters::U_CM,ImportParameters::U_MM};
+			propImportUnitsEnum = new wxEnumProperty(wxT("Units"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUnitsEnum->SetValueFromInt(userPreferences.import.unitEnum,wxPG_FULL_VALUE);
+			propImportUnitsEnum->SetHelpString("How long it is if imported scene file says 1?");
+			AppendIn(propImport,propImportUnitsEnum);
+
+			propImportUnitsFloat = new FloatProperty(wxT("Unit length in meters"),"Define any other unit by specifying its lenth in meters.",userPreferences.import.unitFloat,svs.precision,0,10000000,1,false);
+			AppendIn(propImportUnitsEnum,propImportUnitsFloat);
+
+			propImportUnitsForce = new BoolRefProperty(wxT("Force units"),"Checked = selected units are used always. Unchecked = only if file does not know its own units.",userPreferences.import.unitForce);
+			AppendIn(propImport,propImportUnitsForce);
+		}
+
+		// up
+		{
+			const wxChar* viewStrings[] = {wxT("x"),wxT("y"),wxT("z"),NULL};
+			const long viewValues[] = {0,1,2};
+			propImportUp = new wxEnumProperty(wxT("Up axis"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUp->SetValueFromInt(userPreferences.import.up,wxPG_FULL_VALUE);
+			propImportUp->SetHelpString("What axis in imported scene file points up?");
+			AppendIn(propImport,propImportUp);
+
+			propImportUpForce = new BoolRefProperty(wxT("Force up"),"Checked = selected up is used always. Unchecked = only if file does not know its own up.",userPreferences.import.upForce);
+			AppendIn(propImport,propImportUpForce);
+		}
+
+		SetPropertyBackgroundColour(propImport,headerColor,false);
+	}
+
 	// sshot
 	{
 		propSshot = new wxStringProperty(wxT("Screenshots"), wxPG_LABEL);
@@ -78,6 +116,7 @@ void SVUserProperties::updateProperties()
 
 void SVUserProperties::updateHide()
 {
+	propImportUnitsFloat->Hide(userPreferences.import.unitEnum!=ImportParameters::U_CUSTOM,false);
 	propSshotEnhancedWidth->Hide(!userPreferences.sshotEnhanced,false);
 	propSshotEnhancedHeight->Hide(!userPreferences.sshotEnhanced,false);
 	propSshotEnhancedFSAA->Hide(!userPreferences.sshotEnhanced,false);
@@ -89,6 +128,22 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
 
+	if (property==propImportUnitsEnum)
+	{
+		userPreferences.import.unitEnum = (ImportParameters::Unit)(property->GetValue().GetInteger());
+		updateHide();
+	}
+	else
+	if (property==propImportUnitsFloat)
+	{
+		userPreferences.import.unitFloat = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propImportUp)
+	{
+		userPreferences.import.up = property->GetValue().GetInteger();
+	}
+	else
 	if (property==propSshotFilename)
 	{
 		userPreferences.sshotFilename = property->GetValue().GetString();

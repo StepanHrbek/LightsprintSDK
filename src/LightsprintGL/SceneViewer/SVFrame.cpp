@@ -299,37 +299,6 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& width, uns
 	return false;
 }
 
-// true = valid answer or fileformat defines scale
-// false = dialog was escaped
-// Incoming scale is taken as default value.
-static bool getScale(wxWindow* parent, wxString filename, float& scale)
-{
-	wxString ext = filename.Right(4).Lower();
-	if (ext==".rr3" || ext==".dae" || ext==".kmz")
-	{
-		// format defines units
-		scale = 1;
-		return true;
-	}
-	float scales[] = {1,0.0254f,0.01f,0.001f};
-	wxArrayString choices;
-	choices.Add("m");
-	choices.Add("inch");
-	choices.Add("cm");
-	choices.Add("mm");
-	wxSingleChoiceDialog dialog(parent,"This file uses units of unknown length, please select unit from list below.","Please select file units",choices);
-	dialog.SetSelection(0);
-	for (size_t i=0;i<choices.size();i++)
-		if (scale==scales[i])
-			dialog.SetSelection((int)i);
-	if (dialog.ShowModal()==wxID_OK)
-	{
-		scale = scales[dialog.GetSelection()];
-		return true;
-	}
-	return false;
-}
-
 // true = valid answer
 // false = dialog was escaped
 bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
@@ -852,12 +821,9 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					if (getScale(this,dialog.GetPath(),svs.sceneScale))
-					{
-						svs.initialInputSolver = NULL;
-						svs.sceneFilename = dialog.GetPath();
-						UpdateEverything();
-					}
+					svs.initialInputSolver = NULL;
+					svs.sceneFilename = dialog.GetPath();
+					UpdateEverything();
 				}
 			}
 			break;
@@ -867,15 +833,14 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					if (getScale(this,dialog.GetPath(),svs.sceneScale))
-					{
-						// display log window with 'abort' while this function runs
-						LogWithAbort logWithAbort(this,m_canvas->solver);
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,m_canvas->solver);
 
-						rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),svs.sceneScale,&solver->aborting);
-						m_canvas->addOrRemoveScene(scene,true);
-						m_canvas->mergedScenes.push_back(scene);
-					}
+					rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),&solver->aborting);
+					scene->normalizeUnits(userPreferences.import.getUnitLength(dialog.GetPath()));
+					scene->normalizeUpAxis(userPreferences.import.getUpAxis(dialog.GetPath()));
+					m_canvas->addOrRemoveScene(scene,true);
+					m_canvas->mergedScenes.push_back(scene);
 				}
 			}
 			break;
@@ -938,6 +903,8 @@ save_scene_as:
 					if (dialog.ShowModal()==wxID_OK)
 					{
 						svs.sceneFilename = dialog.GetPath();
+						UpdateTitle();
+						updateSceneTree();
 						goto save_scene;
 					}
 				}

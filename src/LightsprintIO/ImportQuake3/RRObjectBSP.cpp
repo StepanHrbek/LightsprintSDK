@@ -422,7 +422,7 @@ public:
 class RRSceneQuake3 : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneQuake3* scene = new RRSceneQuake3;
 		if (!readMap(filename,scene->scene_bsp))

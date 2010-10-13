@@ -34,7 +34,7 @@ using namespace rr;
 class RRObjectOBJ : public RRObject, RRMesh
 {
 public:
-	RRObjectOBJ(const char* filename, float scale)
+	RRObjectOBJ(const char* filename)
 	{
 		// .obj indices start by 1, push dummy elements indexed by 0
 		positions.push_back(RRVec3(0));
@@ -190,9 +190,9 @@ private:
 class RRObjectsOBJ : public RRObjects
 {
 public:
-	RRObjectsOBJ(const char* filename, float scale)
+	RRObjectsOBJ(const char* filename)
 	{
-		RRObjectOBJ* object = new RRObjectOBJ(filename,scale);
+		RRObjectOBJ* object = new RRObjectOBJ(filename);
 		if (object->getNumTriangles())
 			push_back(object);
 		else
@@ -213,7 +213,7 @@ public:
 class RRSceneOBJ : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
 	{
 		RRSceneOBJ* scene = new RRSceneOBJ;
 		scene->protectedObjects = adaptObjectsFromOBJ(filename);
@@ -226,9 +226,9 @@ public:
 //
 // main
 
-RRObjects* adaptObjectsFromOBJ(const char* filename, float scale)
+RRObjects* adaptObjectsFromOBJ(const char* filename)
 {
-	return new RRObjectsOBJ(filename,scale);
+	return new RRObjectsOBJ(filename);
 }
 
 void registerLoaderOBJ()

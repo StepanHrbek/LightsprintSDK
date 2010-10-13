@@ -50,12 +50,13 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 
 bool DynamicObjects::addObject(const char* filename, float scale)
 {
-	rr::RRScene* scene = new rr::RRScene(filename,scale);
+	rr::RRScene* scene = new rr::RRScene(filename);
 	if (!scene->objects.size())
 	{
 		delete scene;
 		return false;
 	}
+	scene->normalizeUnits(scale);
 	bool aborting = false;
 	push_back(rr::RRObject::createMultiObject(&scene->objects,rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL));
 	scenesToBeDeleted.push_back(scene);

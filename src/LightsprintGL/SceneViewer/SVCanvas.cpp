@@ -165,7 +165,10 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		mergedScenes.push_back(new rr::RRScene(svs.sceneFilename.c_str(),svs.sceneScale,&solver->aborting));
+		rr::RRScene* scene = new rr::RRScene(svs.sceneFilename.c_str(),&solver->aborting);
+		scene->normalizeUnits(parent->userPreferences.import.getUnitLength(svs.sceneFilename.c_str()));
+		scene->normalizeUpAxis(parent->userPreferences.import.getUpAxis(svs.sceneFilename.c_str()));
+		mergedScenes.push_back(scene);
 
 		// send everything to solver
 		solver->setEnvironment(mergedScenes[0]->environment);

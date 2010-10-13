@@ -7,6 +7,7 @@
 
 #include "SVSaveLoad.h"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // boost::serialization support
@@ -414,6 +415,18 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	// skip releaseResources;
 }
 
+//------------------------- ImportParameters ------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr_gl::ImportParameters& a, const unsigned int version)
+{
+	ar & make_nvp("unitEnum",a.unitEnum);
+	ar & make_nvp("unitFloat",a.unitFloat);
+	ar & make_nvp("unitForce",a.unitForce);
+	ar & make_nvp("up",a.up);
+	ar & make_nvp("upForce",a.upForce);
+}
+
 //------------------------- UserPreferences ------------------------------
 
 template<class Archive>
@@ -435,6 +448,10 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
+	if (version>3)
+	{
+		ar & make_nvp("import",a.import);
+	}
 	if (version>2)
 	{
 		ar & make_nvp("sshotFilename",a.sshotFilename);
@@ -459,7 +476,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences, 3) // must be increased also each time panel is added/removed
+BOOST_CLASS_VERSION(rr_gl::UserPreferences, 4) // must be increased also each time panel is added/removed
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 15)
 
 //---------------------------------------------------------------------------
@@ -477,6 +494,45 @@ namespace bf = boost::filesystem;
 
 namespace rr_gl
 {
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// ImportParameters
+
+ImportParameters::ImportParameters()
+{
+	unitEnum = U_M;
+	unitFloat = 1;
+	unitForce = false;
+	up = 0;
+	upForce = false;
+}
+
+float ImportParameters::getUnitLength(const char* filename) const
+{
+	wxString ext = wxString(filename).Right(4).Lower();
+	bool alreadyNormalized = ext==".rr3" || ext==".dae" || ext==".kmz";
+	if (alreadyNormalized && !unitForce)
+		return 1;
+	switch (unitEnum)
+	{
+		case U_CUSTOM: return unitFloat;
+		case U_M: return 1;
+		case U_INCH: return 0.0254f;
+		case U_CM: return 0.01f;
+		case U_MM: return 0.001f;
+		default: RR_ASSERT(0);return 1;
+	}
+}
+
+unsigned ImportParameters::getUpAxis(const char* filename) const
+{
+	wxString ext = wxString(filename).Right(4).Lower();
+	bool alreadyNormalized = ext!=".obj" && ext!=".stl";
+	if (alreadyNormalized && !upForce)
+		return 1;
+	return up;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -12,10 +12,22 @@ namespace rr
 
 NEWS
 
-- improved import, new fileformats supported
-  - Blender *.blend
-  - Quake3 *.pk3
-  - Nendo *.ndo
+- improved import
+  - new fileformats supported
+    - Blender *.blend
+    - Quake3 *.pk3
+    - Nendo *.ndo
+  - new options in scene viewer
+    - User preferences / Import / Units
+    - User preferences / Import / Up axis
+  - new options in API
+    - RRScene::normalizeUnits()
+    - RRScene::normalizeUpAxis()
+    - RRScene::transform()
+
+CHANGES
+
+- RRScene::RRScene() second parameter removed. If it was not 1, call RRScene::normalizeUnits()
 
 \section news110 ------------------------------------ 2010.10.07 -------------------------------------
 

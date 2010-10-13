@@ -381,8 +381,10 @@ int main(int argc, char **argv)
 	solver->setStaticObjects(staticScene.objects, NULL);
 
 	// load dynamic objects
-	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds",0.3f);
-	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds",0.004f);
+	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds");
+	robotScene.normalizeUnits(0.3f);
+	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds");
+	potatoScene.normalizeUnits(0.004f);
 	bool aborting = false;
 	robot = rr::RRObject::createMultiObject(&robotScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
 	potato = rr::RRObject::createMultiObject(&potatoScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);

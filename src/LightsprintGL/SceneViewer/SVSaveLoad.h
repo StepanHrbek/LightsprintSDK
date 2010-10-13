@@ -14,6 +14,29 @@
 namespace rr_gl
 {
 
+	struct ImportParameters
+	{
+		enum Unit
+		{
+			U_CUSTOM,
+			U_M,
+			U_INCH,
+			U_CM,
+			U_MM
+		};
+		Unit        unitEnum;
+		float       unitFloat;
+		bool        unitForce; // false=use selected units only if file does not know, true=use selected units even if file knows its units
+
+		unsigned    up; // 0=x,1=y,2=z
+		bool        upForce; // false=use selected up only if file does not know, true=use selected up even if file knows its up
+
+		ImportParameters();
+
+		float getUnitLength(const char* filename) const;
+		unsigned getUpAxis(const char* filename) const;
+	};
+
 	struct UserPreferences
 	{
 		unsigned currentWindowLayout;
@@ -30,6 +53,8 @@ namespace rr_gl
 			}
 		};
 		WindowLayout windowLayout[3];
+
+		ImportParameters import;
 
 		std::string sshotFilename;
 		bool        sshotEnhanced;

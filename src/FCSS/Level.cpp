@@ -37,13 +37,15 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 		light = tmplight;
 	}*/
 
-	scene = new rr::RRScene(setup->filename, setup->scale);
+	scene = new rr::RRScene(setup->filename);
 
 	if (!scene->objects.size())
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",setup->filename);
 		error("",false);
 	}
+
+	scene->normalizeUnits(setup->scale);
 
 	// smoothuje scenu.
 	// pozor, odstrani pritom triangly v zavislosti na vysledcich floatovych operaci, ruzna cpu ruzne triangly.

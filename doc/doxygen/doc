@@ -745,6 +745,14 @@ Video formats
   so we recommend creating as lowpoly walls as possible, with eventual details
   baked into normal maps or parallax occlusion maps.
 
+  Huge unnecessary polygons (e.g. box around scene) reduce speed and quality, remove them.
+
+  To achieve the best quality and performance, keep triangle sizes similar (on the same order of magnitude),
+  avoid mixing very small and very large triangles.
+  If very large polygon must be present, and it reflects light, tessellate scene a bit,
+  just to break huge triangles - GI quality will improve.
+  Don't tessellate too much, both performance and quality would drop.
+
   Realtime GI consists of several components mixed together: per-pixel direct lighting,
   per-pixel indirect lighting and per-vertex indirect lighting.
   Because of per-vertex component, all static meshes must satisfy one simple rule
@@ -3119,6 +3127,10 @@ rr::RRVector<*>{
 
  - \subpage trouble_gamebryo_error_shader
 
+ - \subpage trouble_bad_up
+
+ - \subpage trouble_bad_units
+
 
 \page trouble_memory Not enough memory?
 
@@ -3154,6 +3166,27 @@ rr::RRVector<*>{
  when we detect material properties, this leads to random diffuse and specular colors detected.
  In the end, color bleeding in lightmaps does not match real material colors, lightmaps look strange.
 
+
+\page trouble_bad_up Wrong up direction, scene is 90 degree rotated
+
+ If you open scene in scene viewer and it looks 90 degrees rotated, it's because
+ some scene formats don't contain information on up vector, it's not possible to open them correctly without manual adjustment.
+
+ Solution is simple - open User preferences window, adjust Import / Up and open scene again.
+
+ Global illumination solvers in Lightsprint SDK are up vector independent, they don't need to know up vector and rotate scene.
+ Only scene viewer and default camera settings expect up vector Y, so scenes are converted at import time.
+
+
+\page trouble_bad_units Wrong units, scene too small or too large
+
+ If you open scene in scene viewer and it looks too small or too large (for example when merging several scenes), it's because
+ some scene formats don't contain information on units, it's not possible to open them correctly without manual adjustment.
+
+ Solution is simple - open User preferences window, adjust Import / Units and open scene again.
+
+ Lightsprint SDK itself is unit independent, global illumination does not need to know units or convert scene to meters.
+ Only scene viewer converts imported scenes to meters, to simplify merging scenes etc.
 
 */
 

@@ -89,7 +89,7 @@ RRScene::RRScene()
 	environment = NULL;
 }
 
-RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
+RRScene::RRScene(const char* filename, bool* aborting, float emissiveMultiplier)
 {
 	implementation = NULL;
 	protectedObjects = NULL;
@@ -130,7 +130,7 @@ RRScene::RRScene(const char* filename, float scale, bool* aborting, float emissi
 		if (extensionListMatches(filename,s_loaders[i].extensions.c_str()))
 		{
 			loaderFound = true;
-			implementation = s_loaders[i].loader(filename,scale,aborting,emissiveMultiplier);
+			implementation = s_loaders[i].loader(filename,aborting,emissiveMultiplier);
 			if (implementation)
 			{
 				lights = implementation->protectedLights ? *implementation->protectedLights : implementation->lights;
@@ -195,6 +195,55 @@ bool RRScene::save(const char* filename)
 	}
 
 	return false;
+}
+
+void RRScene::transform(const RRMatrix3x4& transformation)
+{
+	for (unsigned i=0;i<objects.size();i++)
+	{
+		RRObject* object = objects[i];
+		if (object)
+		{
+			object->setWorldMatrix(&(transformation*object->getWorldMatrixRef()));
+		}
+	}
+	RRReal scale = transformation.getUniformScale();
+	for (unsigned i=0;i<lights.size();i++)
+	{
+		RRLight* light = lights[i];
+		if (light)
+		{
+			transformation.transformPosition(light->position);
+			light->direction = transformation.transformedDirection(light->direction).normalized();
+			light->polynom[1] /= scale;
+			light->polynom[2] /= scale*scale;
+			light->radius *= scale;
+		}
+	}
+}
+
+void RRScene::normalizeUnits(float currentUnitLengthInMeters)
+{
+	RRMatrix3x4 m = {currentUnitLengthInMeters,0,0,0, 0,currentUnitLengthInMeters,0,0, 0,0,currentUnitLengthInMeters,0};
+	transform(m);
+}
+
+void RRScene::normalizeUpAxis(unsigned currentUpAxis)
+{
+	switch (currentUpAxis)
+	{
+		case 0:
+			{RRMatrix3x4 m = {0,-1,0,0, 1,0,0,0, 0,0,1,0}; transform(m);}
+			return;
+		case 1:
+			return;
+		case 2:
+			{RRMatrix3x4 m = {1,0,0,0, 0,0,1,0, 0,-1,0,0}; transform(m);}
+			return;
+		default:
+			RR_ASSERT(0);
+			return;
+	}
 }
 
 RRScene::~RRScene()

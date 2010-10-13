@@ -405,7 +405,7 @@ class RRSceneOpenCollada : public RRScene
 {
 	friend class RRWriterOpenCollada;
 public:
-	static RRScene* load(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
+	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier);
 
 	virtual ~RRSceneOpenCollada() { }
 };
@@ -2079,7 +2079,7 @@ private:
 //
 // RRSceneOpenCollada
 
-RRScene* RRSceneOpenCollada::load(const char* filename, float scale, bool* aborting, float emissiveMultiplier)
+RRScene* RRSceneOpenCollada::load(const char* filename, bool* aborting, float emissiveMultiplier)
 {
 	//return NULL;
 	RRReportInterval report(INF2,"Importing with OpenCollada\n");

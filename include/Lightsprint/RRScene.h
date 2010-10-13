@@ -38,18 +38,15 @@ public:
 	//! Our loaders try to load all textures from proper paths specified by scene file,
 	//! but if it fails, second attempts are made in the same directory where scene file is.
 	//!
+	//! If RScefile contains information on units or up direction,
+	//! our importers convert units to meters and up to Y.
 	//! \param filename
 	//!  Filename of scene. If it is NULL, scene will be empty.
-	//! \param scale
-	//!  Scale is size of scene unit in meters.
-	//!  Scene is automatically converted to meters, i.e. scaled(multiplied) by scale.
-	//!  Default 1 keeps original units.
-	//!  This is format specific option, some formats may ignore it.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
-	RRScene(const char* filename, float scale = 1, bool* aborting = NULL, float emissiveMultiplier = 1);
+	RRScene(const char* filename, bool* aborting = NULL, float emissiveMultiplier = 1);
 	//! Saves 3d scene to file.
 	//
 	//! Scene save is attempted using savers registered via registerSaver().
@@ -74,11 +71,31 @@ public:
 
 
 	//////////////////////////////////////////////////////////////////////////////
+	// Tools
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! Transforms scene by given matrix (i.e. transforms all object matrices and lights).
+	void transform(const RRMatrix3x4& transformation);
+	//! Changes units to meters.
+	//
+	//! Importers already try to change units to meters, so use this only if automatic conversion fails.
+	//! Using meters is not strictly necessary, global illumination works on all scales.
+	void normalizeUnits(float currentUnitLengthInMeters);
+	//! Changes up axist to Y.
+	//
+	//! Importers already try to change up to Y, so use this only if automatic conversion fails.
+	//! Using up Y is not strictly necessary, global illumination works in all directions.
+	//! \param currentUpAxis
+	//!  0=X, 1=Y, 2=Z
+	void normalizeUpAxis(unsigned currentUpAxis);
+
+
+	//////////////////////////////////////////////////////////////////////////////
 	// Loaders/Savers
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
-	typedef RRScene* Loader(const char* filename, float scale, bool* aborting, float emissiveMultiplier);
+	typedef RRScene* Loader(const char* filename, bool* aborting, float emissiveMultiplier);
 	//! Template of custom scene saver.
 	typedef bool Saver(const RRScene* scene, const char* filename);
 	//! Registers scene loader so it can be used by RRScene constructor.
