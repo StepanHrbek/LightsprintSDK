@@ -121,19 +121,18 @@ RRVec3& RRMatrix3x4::transformDirection(RRVec3& a) const
 
 RRMatrix3x4 RRMatrix3x4::operator *(const RRMatrix3x4& b) const
 {
-	RRMatrix3x4 a = *this;
-	return a *= b;
+	RRMatrix3x4 c;
+	for (unsigned j=0;j<3;j++)
+	{
+		for (unsigned i=0;i<4;i++)
+			c.m[j][i] = m[j][0]*b.m[0][i]+m[j][1]*b.m[1][i]+m[j][2]*b.m[2][i]+((i==3)?m[j][3]:0);
+	}
+	return c;
 }
 
 RRMatrix3x4& RRMatrix3x4::operator *=(const RRMatrix3x4& b)
 {
-	RRMatrix3x4 a = *this;
-	for (unsigned j=0;j<3;j++)
-	{
-		for (unsigned i=0;i<4;i++)
-			m[j][i] = a.m[j][0]*b.m[0][i]+a.m[j][1]*b.m[1][i]+a.m[j][2]*b.m[2][i]+((i==3)?a.m[j][3]:0);
-	}
-	return *this;
+	return *this = *this * b;
 }
 
 RRReal RRMatrix3x4::determinant3x3() const
