@@ -1114,7 +1114,7 @@ public:
 	{
 		if(parseStep == RUN_COPY_ELEMENTS)
 		{
-			RRReporter::report(INF1,"Finished with first pass\n");
+			RRReporter::report(INF3,"Finished with first pass\n");
 
 			if(instanceVisualScene == NULL)
 			{
@@ -1179,7 +1179,7 @@ public:
 
 			handleNodes( activeScene->getRootNodes() );
 
-			RRReporter::report(INF1,"Nodes handled\n");
+			RRReporter::report(INF3,"Nodes handled\n");
 
 			// get the number of instantiated parent meshes
 			int numberOfMeshes = 0;
@@ -1271,7 +1271,7 @@ public:
 			objects->numMaterials = nextMaterial;
 			objects->materials = (RRMaterial**)realloc(objects->materials,sizeof(RRMaterial*)*objects->numMaterials);
 
-			RRReporter::report(INF1,"Finished with materials\n");
+			RRReporter::report(INF3,"Finished with materials\n");
 
 			objects->defaultMaterial.reset(false);
 			objects->defaultMaterial.lightmapTexcoord = UINT_MAX;
@@ -1279,7 +1279,7 @@ public:
 			objects->defaultMaterial.updateSideBitsFromColors();
 
 			// parse the file again, now creating all neccessary geometry and pairing it to instances
-			RRReporter::report(INF1,"Starting second pass\n");
+			RRReporter::report(INF3,"Starting second pass\n");
 			parseStep = RUN_GEOMETRY;
 			parseDocument();
 
@@ -1291,7 +1291,7 @@ public:
 		}
 		else
 		{
-			RRReporter::report(INF1,"Finished with second pass\n");
+			RRReporter::report(INF3,"Finished with second pass\n");
 		}
 	}
 
