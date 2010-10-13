@@ -317,7 +317,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 		true,
 		0,
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
-		level->setup->waterLevel,
+		NULL,//level->setup->waterLevel,
 		&globalBrightnessBoosted,
 		globalGammaBoosted);
 }
