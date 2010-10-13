@@ -68,11 +68,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		propCameraNear = new FloatProperty("Near (m)","Near plane distance, elements closer to camera are not rendered.",svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
-		EnableProperty(propCameraNear,false);
 
 		propCameraFar = new FloatProperty("Far (m)","Far plane distance, elements farther from camera are not rendered.",svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
-		EnableProperty(propCameraFar,false);
+
+		propCameraRangeAutomatic = new BoolRefProperty(wxT("Automatic near/far"),"Near/far is set automatically based on distance of objects in viewport.",svs.cameraDynamicNear);
+		AppendIn(propCamera,propCameraRangeAutomatic);
 
 		propCameraCenter = new RRVec2Property(wxT("Center of screen"),"Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines.",svs.precision,svs.eye.screenCenter,1);
 		AppendIn(propCamera,propCameraCenter);
@@ -285,6 +286,8 @@ void SVSceneProperties::updateHide()
 {
 	propCameraFov->Hide(svs.eye.orthogonal,false);
 	propCameraOrthoSize->Hide(!svs.eye.orthogonal,false);
+	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
+	EnableProperty(propCameraFar,!svs.cameraDynamicNear);
 
 	propEnvMap->Hide(svs.envSimulateSky,false);
 	propEnvLocation->Hide(!svs.envSimulateSky&&!svs.envSimulateSun);
@@ -324,6 +327,7 @@ void SVSceneProperties::updateProperties()
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propCameraOrtho)
+		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
@@ -452,6 +456,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraFar)
 	{
 		svs.eye.setFar(property->GetValue().GetDouble());
+	}
+	else
+	if (property==propCameraRangeAutomatic)
+	{
+		updateHide();
 	}
 	else
 	if (property==propCameraCenter)

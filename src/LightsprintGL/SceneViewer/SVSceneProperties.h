@@ -44,6 +44,7 @@ namespace rr_gl
 		wxPGProperty*     propCameraFov;
 		wxPGProperty*     propCameraNear;
 		wxPGProperty*     propCameraFar;
+		BoolRefProperty*  propCameraRangeAutomatic;
 		wxPGProperty*     propCameraCenter;
 
 		wxPGProperty*     propEnv;
