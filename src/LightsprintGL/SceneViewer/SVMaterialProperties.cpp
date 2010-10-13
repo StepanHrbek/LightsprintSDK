@@ -231,12 +231,14 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		rr::RRSideBits visible[2] = {{0,0,1,1,0,0,1},{1,1,1,1,1,1,1}};
 		material->sideBits[0] = visible[property->GetValue().GetBool()?1:0];
+		transmittanceChanged = true;
 	}
 	else
 	if (property==propBack)
 	{
 		rr::RRSideBits visible[2] = {{0,0,1,1,0,0,1},{1,0,1,1,1,1,1}};
 		material->sideBits[1] = visible[property->GetValue().GetBool()?1:0];
+		transmittanceChanged = true;
 	}
 	else
 
