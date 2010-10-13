@@ -119,6 +119,23 @@ RRVec3& RRMatrix3x4::transformDirection(RRVec3& a) const
 	return a;
 }
 
+RRMatrix3x4 RRMatrix3x4::operator *(const RRMatrix3x4& b) const
+{
+	RRMatrix3x4 a = *this;
+	return a *= b;
+}
+
+RRMatrix3x4& RRMatrix3x4::operator *=(const RRMatrix3x4& b)
+{
+	RRMatrix3x4 a = *this;
+	for (unsigned j=0;j<3;j++)
+	{
+		for (unsigned i=0;i<4;i++)
+			m[j][i] = a.m[j][0]*b.m[0][i]+a.m[j][1]*b.m[1][i]+a.m[j][2]*b.m[2][i]+((i==3)?a.m[j][3]:0);
+	}
+	return *this;
+}
+
 RRReal RRMatrix3x4::determinant3x3() const
 {
 	return m[0][0]*(m[1][1]*m[2][2]-m[2][1]*m[1][2]) + m[0][1]*(m[1][2]*m[2][0]-m[2][2]*m[1][0]) + m[0][2]*(m[1][0]*m[2][1]-m[2][0]*m[1][1]);
@@ -168,6 +185,15 @@ void RRMatrix3x4::setTranslation(const RRVec3& a)
 	m[0][3] = a[0];
 	m[1][3] = a[1];
 	m[2][3] = a[2];
+}
+
+RRReal RRMatrix3x4::getUniformScale() const
+{
+	RRReal scale = 0;
+	for (unsigned j=0;j<3;j++)
+		for (unsigned i=0;i<3;i++)
+			scale += fabs(m[i][j]);
+	return scale/3;
 }
 
 

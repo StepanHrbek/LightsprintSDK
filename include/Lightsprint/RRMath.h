@@ -296,14 +296,22 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 transformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
 		RRVec3& transformDirection(RRVec3& a) const;
+
+		RRMatrix3x4 operator *(const RRMatrix3x4& a) const;
+		RRMatrix3x4& operator *=(const RRMatrix3x4& a);
+
 		//! Returns determinant of first 3x3 elements.
 		RRReal determinant3x3() const;
+
 		//! Sets matrix to identity.
 		void setIdentity();
 		//! Tests whether matrix is identity.
 		bool isIdentity() const;
+
 		RRVec3 getTranslation() const;
 		void setTranslation(const RRVec3& a);
+
+		RRReal getUniformScale() const;
 	};
 
 } // namespace
