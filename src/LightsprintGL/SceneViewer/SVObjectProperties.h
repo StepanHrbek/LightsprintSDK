@@ -19,18 +19,13 @@ namespace rr_gl
 	public:
 		SVObjectProperties(SVFrame* svframe);
 
-		//! Copy light -> property (all values, show/hide).
-		void setObject(rr::RRObject* _object, int _precision);
+		//! Copy object -> property (all values, show/hide).
+		void setObject(rr::RRObject* object, int precision);
 
-		//! Copy light -> property (show/hide).
-		void updateHide();
+		//! Copy object -> property (cube sizes).
+		void updateProperties();
 
-		//! Copy light -> property (8 floats).
-		//! Update pos+dir properties according to current light state.
-		//! They may be changed outside dialog, this must be called to update values in dialog.
-		void updatePosDir();
-
-		//! Copy property -> light (all values).
+		//! Copy property -> object (all values).
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
 	private:
@@ -39,6 +34,9 @@ namespace rr_gl
 
 		wxPGProperty*     propName;
 		wxPGProperty*     propWTranslation;
+
+		wxPGProperty*     propCubeDiffuse;
+		wxPGProperty*     propCubeSpecular;
 
 		DECLARE_EVENT_TABLE()
 	};
