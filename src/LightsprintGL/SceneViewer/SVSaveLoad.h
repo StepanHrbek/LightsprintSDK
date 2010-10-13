@@ -43,7 +43,7 @@ namespace rr_gl
 		{
 			currentWindowLayout = 0;
 			sshotFilename = "";
-			sshotEnhanced = true;
+			sshotEnhanced = false;
 			sshotEnhancedWidth = 1920;
 			sshotEnhancedHeight = 1080;
 			sshotEnhancedFSAA = 4;
