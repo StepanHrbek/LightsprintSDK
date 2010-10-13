@@ -342,6 +342,12 @@ void RendererOfOriginalScene::render(
 		if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
 		{
 			const UberProgramSetup& classUberProgramSetup = i->first;
+			if (_uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
+			{
+				// we are rendering with culling, but it was disabled in this class because front=back
+				// setup culling at the beginning
+				glDisable(GL_CULL_FACE);
+			}
 			MultiPass multiPass(_lights,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
