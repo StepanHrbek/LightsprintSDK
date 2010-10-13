@@ -526,7 +526,7 @@ bool UserPreferences::save() const
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to save %s.\n",suggestPreferencesFilename().c_str());
+		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",suggestPreferencesFilename().c_str());
 		return false;
 	}
 
@@ -553,7 +553,7 @@ bool UserPreferences::load()
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load %s.\n",suggestPreferencesFilename().c_str());
+		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",suggestPreferencesFilename().c_str());
 		return false;
 	}
 
