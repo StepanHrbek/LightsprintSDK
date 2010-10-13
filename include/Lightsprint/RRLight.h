@@ -96,21 +96,14 @@ namespace rr
 	//! Standard point/spot/dir lights with physical, polynomial
 	//! or exponential distance attenuations are supported via createXxx functions.
 	//!
-	//! Custom lights with this interface may be created.
-	//! Offline renderer in LightsprintCore accesses #type, #position, #direction and getIrradiance().
-	//! Realtime renderer in LightsprintGL accesses all attributes.
+	//! All light properties are public and you are free to change them at any moment.
 	//!
-	//! Contains atributes of all standard lights.
-	//! Unused attributes (e.g. fallOffExponent when distanceAttenuation=NONE) are set to zero.
+	//! Custom lights with this interface may be created.
+	//! Offline solver in LightsprintCore accesses #type, #position, #direction and getIrradiance().
+	//! Realtime renderer in LightsprintGL accesses all attributes.
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
-	//!
-	//! Nearly all light properties can be changed at any moment in light's life.
-	//! There is only one exception - getIrradiance() in lights created by createXxx() functions
-	//! has light type and distance attenuation hardcoded for higher speed in offline solver.
-	//! So if you use createXxx(), then change type or distanceAttenuation and then use
-	//! light in offline solver, original type and attenuation are used.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -131,17 +124,17 @@ namespace rr
 			//! Spot light source, all light rays start in one point (position) and leave it in cone (direction).
 			SPOT,
 		};
-		//! Type of light source. Read only (lights from createXxx can't change type on the fly).
+		//! Type of light source.
 		Type type;
 
-		//! Position of light source in world space. Relevant only for POINT and SPOT light. Read/write.
+		//! Position of light source in world space. Relevant only for POINT and SPOT light.
 		RRVec3 position;
 
-		//! Normalized direction of light in world space. Relevant only for DIRECTIONAL and SPOT light. Read/write.
+		//! Normalized direction of light in world space. Relevant only for DIRECTIONAL and SPOT light.
 		//! Be careful, setting unnormalized value would break lightmap building.
 		RRVec3 direction;
 
-		//! Outer cone angle in radians. Relevant only for SPOT light. Read/write.
+		//! Outer cone angle in radians. Relevant only for SPOT light.
 		//
 		//! Insight: This is half width of spot, FOV/2. \n
 		//! Light rays go in directions up to outerAngleRad far from direction.
@@ -174,7 +167,7 @@ namespace rr
 			//! Intensity in physical scale is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.
 			EXPONENTIAL,
 		};
-		//! Type of distance attenuation. Read only (lights from createXxx can't change type on the fly).
+		//! Type of distance attenuation.
 		DistanceAttenuationType distanceAttenuationType;
 
 		//! Relevant only for distanceAttenuation==POLYNOMIAL.
@@ -189,7 +182,7 @@ namespace rr
 		//! Exponent that controls attenuation from innerAngle to outerAngle in spotlight.
 		RRReal spotExponent;
 
-		//! Outer-inner cone angle in radians. Relevant only for SPOT light. Read/write.
+		//! Outer-inner cone angle in radians. Relevant only for SPOT light.
 		//
 		//! Light rays with direction diverted less than outerAngleRad from direction,
 		//! but more than outerAngleRad-fallOffAngleRad, are attenuated.
