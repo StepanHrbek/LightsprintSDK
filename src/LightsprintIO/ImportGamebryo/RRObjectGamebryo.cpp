@@ -930,7 +930,7 @@ bool getPropertyEnum(efd::utf8string propertyString, PropertyEnum& out)
 		"Calculate from LsPixelsPerWorldUnit*LsResolutionMultiplier",
 		"Use Fixed Resolution"
 	};
-	for (unsigned i=0;i<7;i++)
+	for (unsigned i=0;i<8;i++)
 	{
 		if (!strcmp(propertyString.c_str(),propertyStrings[i]))
 		{
