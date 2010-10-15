@@ -34,9 +34,11 @@ static bool extensionListMatches(const char* filename, const char* extensionList
 		return false;
 	}
 	char extension[50];
-	for (const char* src = extensionList; *src ; src++)
+	for (const char* src = extensionList; *src ; )
 	{
 		char* dst = extension;
+		if (src[0]==';')
+			src++;
 		if (src[0]=='*' && src[1]=='.')
 		{
 			src += 2;
