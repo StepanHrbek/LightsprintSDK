@@ -437,7 +437,7 @@ Video formats
   - www: <a href="http://wxwidgets.org/">wxWidgets</a>
   - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
   - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
-  - Windows: wxWidgets trunk svn revision 65014 (that's 2.9.1) (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+  - Windows: wxWidgets trunk svn revision 65804 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
  \page wxwidgets_patch wxWidgets patch
@@ -452,6 +452,10 @@ Video formats
   \section wx_patch2 Patch2
   We submitted patch at http://trac.wxwidgets.org/ticket/11537
   It fixes: closed floating pane can't be reopened.
+
+  \section wx_patch3 Patch3
+  We applied patch from http://trac.wxwidgets.org/ticket/12553
+  It fixes: message dialog box missing.
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
@@ -727,6 +731,27 @@ Video formats
   Instead, it supports \ref supported_formats "over 70 standard file formats".
   In case you pick Collada, here's list of available \ref collada_plugins.
 
+ \section artist_offline_night Night scenes
+  When creating night scene, you might consider two options - reduce light intensity
+  or make materials darker. Both have the same effect on direct illumination.
+  But global illumination reveals dramatic difference -
+  bright materials reflect lots of light and create rich indirect illumination
+  with color bleeding; dark materials absorb light and hardly
+  create any indirect illumination.
+  So reducing light intensity simulates night in normal world;
+  making all materials dark simulates day in world covered by black color.
+  Of course we recommend keeping usual materials and reducing light intensity,
+  results look better.
+
+ \section artist_offline_tangent Tangent space
+  Directional lightmaps (RNMs) approximate illumination by storing light incoming from 3 directions.
+  These directions are derived from tangent basis - normal, tangent and bitangent.
+  When using different tangent basis, lighting is approximated differently,
+  and may be slightly brighter or darker.
+  So if you need things to look identically, ensure that they use identical
+  tangent bases or properly mirrored bases. Mirroring with RNMs is tricky,
+  it works only in one axis, tangent or bitangent (depends on naming convention).
+  When mirrored along wrong axis, RNMs use different set of directions and lighting differs.
 
 
 \page main_artist_realtime Realtime GI
@@ -796,6 +821,18 @@ Video formats
   Lightsprint SDK does not lock your data in properietary formats.
   Instead, it supports \ref supported_formats "over 70 standard file formats".
   In case you pick Collada, here's list of available \ref collada_plugins.
+
+ \section artist_offline_night Night scenes
+  When creating night scene, you might consider two options - reduce light intensity
+  or make materials darker. Both have the same effect on direct illumination.
+  But global illumination reveals dramatic difference -
+  bright materials reflect lots of light and create rich indirect illumination
+  with color bleeding; dark materials absorb light and hardly
+  create any indirect illumination.
+  So reducing light intensity simulates night in normal world;
+  making all materials dark simulates day in world covered by black color.
+  Of course we recommend keeping usual materials and reducing light intensity,
+  results look better.
 
 
 

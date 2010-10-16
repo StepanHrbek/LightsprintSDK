@@ -24,6 +24,12 @@ NEWS
     - RRScene::normalizeUnits()
     - RRScene::normalizeUpAxis()
     - RRScene::transform()
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - LightsprintScene / LsMimicRealtimeLighting
+    \n makes direct illumination in lightmaps perfectly match realtime lighting, even if it is not realistic
+  - fixed bug that made lightmaps darker
+- improved offline GI solver
+  - RRLight::directLambertScaled added
 
 CHANGES
 

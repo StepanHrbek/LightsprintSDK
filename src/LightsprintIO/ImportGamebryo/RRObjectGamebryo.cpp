@@ -957,6 +957,7 @@ struct PerSceneSettings
 	float lsPixelsPerWorldUnit;
 	float lsEmissiveMultiplier;
 	bool lsUseNonPCLMeshes;
+	bool lsMimicRealtimeLighting;
 	// we don't need the rest here
 
 	PerSceneSettings()
@@ -966,25 +967,28 @@ struct PerSceneSettings
 		lsPixelsPerWorldUnit = 0.1f;
 		lsEmissiveMultiplier = 1;
 		lsUseNonPCLMeshes = true;
+		lsMimicRealtimeLighting = false;
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	void readFrom(egf::Entity* entity)
 	{
 		efd::utf8string str;
 
-		entity->GetPropertyValue("LsDefaultBakeTarget", str);
+		entity->GetPropertyValue("LsDefaultBakeTarget",str);
 		getPropertyEnum(str,lsDefaultBakeTarget);
 
-		entity->GetPropertyValue("LsDefaultBakeDirectionality", str);
+		entity->GetPropertyValue("LsDefaultBakeDirectionality",str);
 		getPropertyEnum(str,lsDefaultBakeDirectionality);
 
-		entity->GetPropertyValue("LsPixelsPerWorldUnit", lsPixelsPerWorldUnit);
+		entity->GetPropertyValue("LsPixelsPerWorldUnit",lsPixelsPerWorldUnit);
 		RR_CLAMP(lsPixelsPerWorldUnit,1e-6f,1e6f);
 
-		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+		entity->GetPropertyValue("LsEmissiveMultiplier",lsEmissiveMultiplier);
 		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
 
-		entity->GetPropertyValue("LsUseNonPCLMeshes", lsUseNonPCLMeshes);
+		entity->GetPropertyValue("LsUseNonPCLMeshes",lsUseNonPCLMeshes);
+
+		entity->GetPropertyValue("LsMimicRealtimeLighting",lsMimicRealtimeLighting);
 	}
 #endif
 };
@@ -1031,29 +1035,29 @@ struct PerEntitySettings
 	{
 		efd::utf8string str;
 
-		entity->GetPropertyValue("LsBakeTarget", str);
+		entity->GetPropertyValue("LsBakeTarget",str);
 		getPropertyEnum(str,lsBakeTarget);
 
-		entity->GetPropertyValue("LsBakeDirectionality", str);
+		entity->GetPropertyValue("LsBakeDirectionality",str);
 		getPropertyEnum(str,lsBakeDirectionality);
 
-		entity->GetPropertyValue("LsResolutionMode", str);
+		entity->GetPropertyValue("LsResolutionMode",str);
 		getPropertyEnum(str,lsResolutionMode);
 
-		entity->GetPropertyValue("LsResolutionMultiplier", lsResolutionMultiplier);
+		entity->GetPropertyValue("LsResolutionMultiplier",lsResolutionMultiplier);
 		RR_CLAMP(lsResolutionMultiplier,1e-6f,1e6f);
 
-		entity->GetPropertyValue("LsResolutionFixedWidth", lsResolutionFixedWidth);
+		entity->GetPropertyValue("LsResolutionFixedWidth",lsResolutionFixedWidth);
 		RR_CLAMP(lsResolutionFixedWidth,1,4096);
 
-		entity->GetPropertyValue("LsResolutionFixedHeight", lsResolutionFixedHeight);
+		entity->GetPropertyValue("LsResolutionFixedHeight",lsResolutionFixedHeight);
 		RR_CLAMP(lsResolutionFixedWidth,1,4096);
 
-		entity->GetPropertyValue("LsEmissiveMultiplier", lsEmissiveMultiplier);
+		entity->GetPropertyValue("LsEmissiveMultiplier",lsEmissiveMultiplier);
 		RR_CLAMP(lsEmissiveMultiplier,0,1e6f);
 
-		entity->GetPropertyValue("LsReplacementCase", lsReplacementCase);
-		entity->GetPropertyValue("LsReplacementConfiguration", lsReplacementConfiguration);
+		entity->GetPropertyValue("LsReplacementCase",lsReplacementCase);
+		entity->GetPropertyValue("LsReplacementConfiguration",lsReplacementConfiguration);
 	}
 	void inheritFrom(const PerSceneSettings& perSceneSettings)
 	{
@@ -1764,13 +1768,15 @@ public:
 			if (entityManager)
 			{
 				// should we use non-PCL lights?
-				bool useNonPCLLights = true;
+				bool lsUseNonPCLLights = true;
+				bool lsMimicRealtimeLighting = false;
 				egf::Entity *entity = NULL;
 				for (egf::EntityManager::EntityMap::const_iterator iterator = entityManager->GetFirstEntityPos(); entityManager->GetNextEntity(iterator, entity); )
 				{
 					if (entity && entity->GetModel()->ContainsModel("LightsprintScene"))
 					{
-						entity->GetPropertyValue("LsUseNonPCLLights",useNonPCLLights);	
+						entity->GetPropertyValue("LsUseNonPCLLights",lsUseNonPCLLights);
+						entity->GetPropertyValue("LsMimicRealtimeLighting",lsMimicRealtimeLighting);
 					}
 				}
 				// add all PCL and optionally also non-PCL lights
@@ -1778,8 +1784,8 @@ public:
 				{
 					if (entity && entity->GetModel()->ContainsModel("Light"))
 					{
-						if (useNonPCLLights || entity->GetModel()->ContainsModel("PrecomputedLightConfig"))
-							addLight(serviceManager,entity);
+						if (lsUseNonPCLLights || entity->GetModel()->ContainsModel("PrecomputedLightConfig"))
+							addLight(serviceManager,entity,lsMimicRealtimeLighting);
 					}
 				}
 			}
@@ -1787,7 +1793,7 @@ public:
 	}
 
 	// path used by Gamebryo 3.x Toolbench plugin
-	void addLight(efd::ServiceManager* serviceManager, egf::Entity* entity)
+	void addLight(efd::ServiceManager* serviceManager, egf::Entity* entity, bool lsMimicRealtimeLighting)
 	{
 		RR_ASSERT(entity);
 		bool useForPrecomputedLighting = true;
@@ -1880,6 +1886,7 @@ public:
 #else
 					rrLight->castShadows = true;
 #endif
+					rrLight->directLambertScaled = lsMimicRealtimeLighting;
 					push_back(rrLight);
 				}
 			}
@@ -1950,6 +1957,7 @@ public:
 				rrLight->castShadows = true;
 #endif
 				rrLight->name = light->GetName(); //!!! returns ""
+				rrLight->directLambertScaled = false;
 				push_back(rrLight);
 			}
 		}

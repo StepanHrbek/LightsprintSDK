@@ -207,6 +207,16 @@ namespace rr
 		//! you should remove such lights.
 		bool castShadows;
 
+		//! Enables workaround for error in game engines.
+		//
+		//! False = realistic lighting, default.
+		//! True = copy error that is present in 99% of game engines,
+		//! calculate direct Lambertian reflection in sRGB, make offline calculated
+		//! lightmaps more similar to realtime lighting in game engines.
+		//! Affects offline solver only, realtime solvers integrate with arbitrary direct
+		//! lighting without need for extra settings.
+		bool directLambertScaled;
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Realtime render

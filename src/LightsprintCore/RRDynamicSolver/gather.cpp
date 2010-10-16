@@ -534,6 +534,8 @@ public:
 				}
 				if (!pti.context.gatherAllDirections)
 				{
+					if (tools.scaler && _light->directLambertScaled)
+						tools.scaler->getPhysicalScale(normalIncidence);
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
 					RR_ASSERT(IS_VEC3(irrad));
 					RR_ASSERT(_finite(normalIncidence));
@@ -548,6 +550,8 @@ public:
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
 						if (normalIncidence>0)
 						{
+							if (tools.scaler && _light->directLambertScaled)
+								tools.scaler->getPhysicalScale(normalIncidence);
 							irradiancePhysicalLights[i] += irrad * normalIncidence;
 							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 						}

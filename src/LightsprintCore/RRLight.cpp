@@ -266,6 +266,7 @@ RRLight::RRLight()
 	spotExponent = 1;
 	enabled	= true;
 	castShadows = true;
+	directLambertScaled = false;
 	rtProjectedTexture = NULL;
 	rtNumShadowmaps = 6;
 	customData = NULL;
@@ -422,6 +423,7 @@ bool RRLight::operator ==(const RRLight& a) const
 		&& a.fallOffAngleRad==fallOffAngleRad
 		&& a.enabled==enabled
 		&& a.castShadows==castShadows
+		&& a.directLambertScaled==directLambertScaled
 		&& a.name==name
 		&& a.rtProjectedTexture==rtProjectedTexture
 		&& a.rtNumShadowmaps==rtNumShadowmaps
