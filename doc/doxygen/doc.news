@@ -34,6 +34,8 @@ NEWS
 CHANGES
 
 - RRScene::RRScene() second parameter removed. If it was not 1, call RRScene::normalizeUnits()
+- directional lightmaps are calculated for rendering with normalized tangent basis, like in Gamebryo
+  \n let us know if you need old behaviour, maps for rendering with unnormalized tangent basis
 
 \section news110 ------------------------------------ 2010.10.07 -------------------------------------
 

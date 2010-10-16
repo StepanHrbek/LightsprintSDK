@@ -202,17 +202,12 @@ public:
 	// inputs:
 	//  - pti.rays[0].rayOrigin
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
-	void shotRay(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
+	void shotRay(const RRMesh::TangentBasis& _basisSkewedNormalized, const RRMesh::TangentBasis& _basisOrthonormal, unsigned _skipTriangleIndex)
 	{
-		// build orthonormal basis (so that probabilities of exit directions are correct)
-		// don't use _basisSkewed, because it's not orthonormal, it's made for compatibility with UE3
-		RRMesh::TangentBasis basisOrthonormal;
-		basisOrthonormal.normal = _basisSkewed.normal.normalized();
-		basisOrthonormal.tangent = orthogonalTo(basisOrthonormal.normal).normalized();
-		basisOrthonormal.bitangent = orthogonalTo(basisOrthonormal.normal,basisOrthonormal.tangent);
-
 		// random exit dir
-		RRVec3 dir = getRandomExitDirNormalized(fillerDir,basisOrthonormal);
+		// use orthonormal basis (so that probabilities of exit directions are correct)
+		// don't use _basisSkewedNormalized, because it's not orthonormal, it's made for compatibility with UE3
+		RRVec3 dir = getRandomExitDirNormalized(fillerDir,_basisOrthonormal);
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
@@ -227,14 +222,14 @@ public:
 		{
 			// 4 irradiance values are computed for different normal directions
 			// dot(dir,normal) must be compensated twice because dirs close to main normal are picked more often
-			float normalIncidence1 = dot(dir,basisOrthonormal.normal);
+			float normalIncidence1 = dot(dir,_basisSkewedNormalized.normal);
 			// dir je spocteny z neorthogonalni baze, nejsou tedy zadne zaruky ze dot vyjde >0
 			if (normalIncidence1>0)
 			{
 				float normalIncidence1Inv = 1/normalIncidence1;
 				for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				{
-					RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
+					RRVec3 lightmapDirection = _basisSkewedNormalized.tangent*g_lightmapDirections[i][0] + _basisSkewedNormalized.bitangent*g_lightmapDirections[i][1] + _basisSkewedNormalized.normal*g_lightmapDirections[i][2];
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
 					if (normalIncidence2>0)
 						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
@@ -492,7 +487,7 @@ public:
 	// inputs:
 	// - pti.rays[1].rayOrigin
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
-	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basisSkewed)
+	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basisSkewedNormalized)
 	{
 		if (!_light) return;
 		RRRay* ray = &pti.rays[1];
@@ -501,7 +496,7 @@ public:
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-		float normalIncidence = dot(dir,_basisSkewed.normal.normalized());
+		float normalIncidence = dot(dir,_basisSkewedNormalized.normal);
 		if (normalIncidence<=0 || !_finite(normalIncidence))
 		{
 			// face is not oriented towards light (or wrong normal, extremely rare) -> reliable black (selfshadowed)
@@ -546,7 +541,7 @@ public:
 				{
 					for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 					{
-						RRVec3 lightmapDirection = _basisSkewed.tangent*g_lightmapDirections[i][0] + _basisSkewed.bitangent*g_lightmapDirections[i][1] + _basisSkewed.normal*g_lightmapDirections[i][2];
+						RRVec3 lightmapDirection = _basisSkewedNormalized.tangent*g_lightmapDirections[i][0] + _basisSkewedNormalized.bitangent*g_lightmapDirections[i][1] + _basisSkewedNormalized.normal*g_lightmapDirections[i][2];
 						float normalIncidence = dot( dir, lightmapDirection.normalized() );
 						if (normalIncidence>0)
 						{
@@ -586,11 +581,11 @@ public:
 
 	// 1 ray per light
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
-	void shotRayPerLight(const RRMesh::TangentBasis& _basisSkewed, unsigned _skipTriangleIndex)
+	void shotRayPerLight(const RRMesh::TangentBasis& _basisSkewedNormalized, unsigned _skipTriangleIndex)
 	{
 		collisionHandlerGatherLight.setShooterTriangle(_skipTriangleIndex);
 		for (unsigned i=0;i<numRelevantLights;i++)
-			shotRay(pti.relevantLights[i],_basisSkewed);
+			shotRay(pti.relevantLights[i],_basisSkewedNormalized);
 		shotRounds++;
 	}
 
@@ -702,7 +697,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
 	RRMesh::TriangleNormals cache_bases;
-	RRMesh::TangentBasis cache_basis_skewed;
+	RRMesh::TangentBasis cache_basis_skewed_normalized;
+	RRMesh::TangentBasis cache_basis_orthonormal;
 
 
 	// init subtexel selector
@@ -765,17 +761,23 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			if (subTexel!=cache_subTexelPtr)
 			{
 				cache_subTexelPtr = subTexel;
-				// tangent basis is precomputed for center of texel is used by all rays from subtexel, saves 6% of time in lightmap build
+				// tangent bases precomputed for center of texel are used by all rays from subtexel, saves 6% of time in lightmap build
+				// 1. What is cache_basis_skewed_normalized?
+				//    Basis used for lightmap calculation, must exactly match basis in shader.
+				//    UE3 shader uses linear interpolation of vertex bases, i.e. we need cache_basis_skewed.
+				//    GB (Gamebryo GI Package 2.1.1) shader uses normalized linear interpolation of vertex bases,
+				//     i.e. we need cache_basis_skewed_normalized.
 				RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
 				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-				cache_basis_skewed.normal = cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1];
-				cache_basis_skewed.tangent = cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1];
-				cache_basis_skewed.bitangent = cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1];
-				// tangent basis for point in triangle was computed as linear interpolation of vertex bases
-				// -> result is not orthogonal, lengths are not unit
-				//    compatibility with Unreal Engine 3 is secured
+				cache_basis_skewed_normalized.normal = (cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1]).normalized();
+				cache_basis_skewed_normalized.tangent = (cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1]).normalized();
+				cache_basis_skewed_normalized.bitangent = (cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1]).normalized();
 				//if (!cache_basis_skewed.normal.finite()) // shows #IND normal in undead scene
 				//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"cached_normal=%f %f %f uvInTriSpace=%f %f\n",cache_basis_skewed.normal[0],cache_basis_skewed.normal[1],cache_basis_skewed.normal[2],uvInTriangleSpace[0],uvInTriangleSpace[1]));
+				// 2. What is cache_basis_orthonormal?
+				//    Helper for homogenous shooting to hemisphere, must be orthonormal.
+				cache_basis_orthonormal.normal = cache_basis_skewed_normalized.normal;
+				cache_basis_orthonormal.buildBasisFromNormal();
 			}
 
 			// random 2d pos in subtexel
@@ -803,7 +805,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumHemisphereShootersShot*(seriesNumShootersTotal-1)<hemisphere.rays*seriesShooterNum) // shooting both, sometimes hemisphere
 				{
 					seriesNumHemisphereShootersShot++;
-					hemisphere.shotRay(cache_basis_skewed,subTexel->multiObjPostImportTriIndex);
+					hemisphere.shotRay(cache_basis_skewed_normalized,cache_basis_orthonormal,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 			
@@ -820,7 +822,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
 				{
 					seriesNumGilightsShootersShot++;
-					gilights.shotRayPerLight(cache_basis_skewed,subTexel->multiObjPostImportTriIndex);
+					gilights.shotRayPerLight(cache_basis_skewed_normalized,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 		}
