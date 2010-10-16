@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news111 ------------------------------------ 2010.10.xx -------------------------------------
+\section news111 ------------------------------------ 2010.10.16 -------------------------------------
 
 NEWS
 
@@ -25,8 +25,8 @@ NEWS
     - RRScene::normalizeUpAxis()
     - RRScene::transform()
 - improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
-  - LightsprintScene / LsMimicRealtimeLighting
-    \n makes direct illumination in lightmaps perfectly match realtime lighting, even if it is not realistic
+  - LightsprintScene / LsMimicRealtimeLighting added
+    \n makes lightmaps more similar to realtime lighting
   - fixed bug that made lightmaps darker
 - improved offline GI solver
   - RRLight::directLambertScaled added

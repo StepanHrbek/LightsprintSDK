@@ -2477,8 +2477,8 @@ Video formats
 
  \section g3_limits Limitations of current version
   - GI Package 2.1.1 has several issues, currently being adressed, with fix expected soon:
-    - Results of baking may fail to appear or save to disk. Bake again to workaround the issue.
-    - Plugin request to display GI after bake is ignored. Click toggle icon manually.
+    - Results of baking may fail to appear or save to disk. One of these may help to workaround the issue: 1) Unset and set LightingFile in GIScene. 2) Bake again.
+    - Plugin request to display GI after bake is ignored. Click "Toggle Precomputed Lights" icon manually.
   - Terrain lightmaps not supported. This is long term GI Package limitation.
   - Light probes not updated. We will support them in next GI Package.
 
