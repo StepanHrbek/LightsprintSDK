@@ -28,6 +28,18 @@ public:
 		gamma = agamma;
 		invGamma = 1/gamma;
 	}
+	virtual void getCustomScale(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = (a>=0)?pow(a,gamma):-pow(-a,gamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getPhysicalScale(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = (a>=0)?pow(a,invGamma):-pow(-a,invGamma);
+		RR_ASSERT(_finite(a));
+	}
 	virtual void getCustomScale(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
@@ -81,6 +93,18 @@ public:
 	{
 		gamma = agamma;
 		invGamma = 1/gamma;
+	}
+	virtual void getCustomScale(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = pow(a,gamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getPhysicalScale(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = pow(a,invGamma);
+		RR_ASSERT(_finite(a));
 	}
 	virtual void getCustomScale(RRVec3& color) const
 	{
