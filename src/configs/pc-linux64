@@ -9,6 +9,22 @@ CPP_FLAGS += -DNDEBUG
 
 LINK_FLAGS += -s
 
-GL_LIBS = -lGL -lglut -lGLEW
-FCOLLADA_LIB = ../../lib/pc-linux64/libfcollada.a -lxml2
+CORE_LIBS = \
+	-lstdc++ \
+	-lgomp \
+	../../bin/$(CONFIG)/libLightsprintCore.so
+
+GL_LIBS = \
+	-lGL \
+	-lGLEW \
+	../../bin/$(CONFIG)/libLightsprintGL.so
+
+IO_LIBS = \
+	-lfreeimage \
+	-lboost_serialization \
+	-lboost_iostreams \
+	-lboost_filesystem \
+	../../bin/$(CONFIG)/libLightsprintIO.so
+#	-lxml2 \
+#	/../../lib/pc-linux64/libfcollada.a \
 
