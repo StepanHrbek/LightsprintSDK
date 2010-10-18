@@ -647,6 +647,8 @@ try_next_channel:
 
 #else // !_WIN32
 
+#include "Lightsprint/RRObject.h"
+
 namespace rr
 {
 

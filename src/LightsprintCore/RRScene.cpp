@@ -206,7 +206,8 @@ void RRScene::transform(const RRMatrix3x4& transformation)
 		RRObject* object = objects[i];
 		if (object)
 		{
-			object->setWorldMatrix(&(transformation*object->getWorldMatrixRef()));
+			RRMatrix3x4 world = transformation*object->getWorldMatrixRef();
+			object->setWorldMatrix(&world);
 		}
 	}
 	RRReal scale = transformation.getUniformScale();
@@ -267,7 +268,7 @@ void RRScene::registerLoader(const char* extensions, Loader* loader)
 
 		// update s_loaderExtensions
 		if (s_loaders.size()==1)
-			_snprintf(s_loaderExtensions,S_EXTENSIONS_LEN,extensions);
+			_snprintf(s_loaderExtensions,S_EXTENSIONS_LEN,"%s",extensions);
 		else
 			_snprintf(s_loaderExtensions+strlen(s_loaderExtensions),S_EXTENSIONS_LEN-strlen(s_loaderExtensions),";%s",extensions);
 		s_loaderExtensions[S_EXTENSIONS_LEN-1] = 0;
@@ -289,7 +290,7 @@ void RRScene::registerSaver(const char* extensions, Saver* saver)
 
 		// update s_saverExtensions
 		if (s_loaders.size()==1)
-			_snprintf(s_saverExtensions,S_EXTENSIONS_LEN,extensions);
+			_snprintf(s_saverExtensions,S_EXTENSIONS_LEN,"%s",extensions);
 		else
 			_snprintf(s_saverExtensions+strlen(s_saverExtensions),S_EXTENSIONS_LEN-strlen(s_saverExtensions),";%s",extensions);
 		s_saverExtensions[S_EXTENSIONS_LEN-1] = 0;

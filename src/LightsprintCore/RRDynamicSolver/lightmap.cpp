@@ -6,6 +6,7 @@
 
 #include <cmath> // necessary for mingw gcc4.3
 #include <cfloat>
+#include <cstdio> // sprintf
 #include <vector>
 #include <algorithm>
 #ifdef _OPENMP
@@ -488,7 +489,7 @@ const char* checkUnwrapConsistency(const RRObject* object)
 							u=RAND_MAX-u;
 							v=RAND_MAX-v;
 						}
-						RRVec2 point(subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u+0.5f)/(RAND_MAX+1) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v+0.5f)/(RAND_MAX+1));
+						RRVec2 point(subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u+0.5f)/(RAND_MAX+1.f) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v+0.5f)/(RAND_MAX+1.f));
 						// test point against all other triangles
 						for (TexelSubTexels::const_iterator subTexel2=pti.subTexels->begin();subTexel2!=pti.subTexels->end();++subTexel2)
 						{
