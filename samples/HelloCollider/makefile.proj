@@ -23,14 +23,7 @@ HelloCollider.cpp
 
 # libraries
 
-ifdef STATIC
-LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
-else
-LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
-endif
-
-LIBS += -lstdc++
-LIBS += -lgomp
+LIBS += $(CORE_LIBS)
 
 # include directories
 

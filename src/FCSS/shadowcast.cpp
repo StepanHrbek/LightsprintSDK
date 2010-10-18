@@ -679,7 +679,7 @@ static void drawHelpMessage(int screen)
 		const AnimationFrame* frame = level->setup->getFrameByIndex(frameIndex+1);
 		sprintf(buf,"scene %d/%d, frame %d(%d)/%d, %.1f/%.1fs",
 			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
-			frameIndex+1,frame?frame->layerNumber:0,level->setup->frames.size(),
+			frameIndex+1,frame?frame->layerNumber:0,(int)level->setup->frames.size(),
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
 		sprintf(buf,"bright %.1f, gamma %.1f",

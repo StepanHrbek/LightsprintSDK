@@ -23,21 +23,7 @@ BuildLightmaps.cpp
 
 # libraries
 
-ifdef STATIC
-LIBS += ../../lib/$(CONFIG)/libLightsprintIO.a
-LIBS += ../../lib/$(CONFIG)/libLightsprintGL.a
-LIBS += ../../lib/$(CONFIG)/libLightsprintCore.a
-else
-LIBS += ../../bin/$(CONFIG)/libLightsprintIO.so
-LIBS += ../../bin/$(CONFIG)/libLightsprintGL.so
-LIBS += ../../bin/$(CONFIG)/libLightsprintCore.so
-endif
-
-LIBS += -lstdc++
-LIBS += -lgomp
-LIBS += -lfreeimage
-LIBS += $(GL_LIBS)
-LIBS += $(FCOLLADA_LIB)
+LIBS += $(CORE_LIBS) $(GL_LIBS) $(IO_LIBS)
 
 # include directories
 

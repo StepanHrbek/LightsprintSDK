@@ -7,6 +7,7 @@ all: .phony
 	cd HelloCollider && make
 	cd HelloMesh && make
 	cd Lightmaps && make
+	cd MovingSun && make
 	cd MultiMeshCollider && make
 	cd PenumbraShadows && make
 	cd RealtimeLights && make
@@ -20,6 +21,7 @@ clean:
 	cd HelloCollider && make clean
 	cd HelloMesh && make clean
 	cd Lightmaps && make clean
+	cd MovingSun && make clean
 	cd MultiMeshCollider && make clean
 	cd PenumbraShadows && make clean
 	cd RealtimeLights && make clean
@@ -33,6 +35,7 @@ clean:
 	cd HelloCollider && make $@
 	cd HelloMesh && make $@
 	cd Lightmaps && make $@
+	cd MovingSun && make $@
 	cd MultiMeshCollider && make $@
 	cd PenumbraShadows && make $@
 	cd RealtimeLights && make $@

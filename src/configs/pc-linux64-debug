@@ -5,6 +5,21 @@ CPP_FLAGS += -O0
 CPP_FLAGS += -g
 CPP_FLAGS += -D_DEBUG
 
-GL_LIBS = -lGL -lglut -lGLEW
-FCOLLADA_LIB = ../../lib/pc-linux64/libfcollada.a -lxml2
+CORE_LIBS = \
+	-lstdc++ \
+	../../bin/$(CONFIG)/libLightsprintCore.so
+#	-lgomp \
 
+GL_LIBS = \
+	-lGL \
+	-lGLEW \
+	../../bin/$(CONFIG)/libLightsprintGL.so
+
+IO_LIBS = \
+	-lfreeimage \
+	-lboost_serialization \
+	-lboost_iostreams \
+	-lboost_filesystem \
+	../../bin/$(CONFIG)/libLightsprintIO.so
+#	-lxml2 \
+#	/../../lib/pc-linux64/libfcollada.a \
