@@ -223,7 +223,8 @@ public:
 				{
 					RRObject* object = new RRObject;
 					object->setCollider(collider);
-					object->setWorldMatrix(&convertMatrix(_transformation));
+					RRMatrix3x4 world = convertMatrix(_transformation);
+					object->setWorldMatrix(&world);
 					object->name = convertStr(_node->mName);
 					object->faceGroups.push_back(RRObject::FaceGroup(&materials[_scene->mMeshes[meshIndex]->mMaterialIndex],meshes[meshIndex].numTriangles));
 					push_back(object);

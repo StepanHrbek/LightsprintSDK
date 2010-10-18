@@ -80,7 +80,8 @@ void load(Archive & ar, rr::RRMatrix3x4& a, const unsigned int version)
 template<class Archive>
 void save(Archive & ar, const rr::RRString& a, const unsigned int version)
 {
-	save(ar,std::string(a.c_str()));
+	std::string s(a.c_str());
+	save(ar,s);
 }
 
 template<class Archive>
@@ -130,7 +131,7 @@ boost::unordered_set<RRBufferProxy*> RRBufferProxy::instances;
 bool g_nextBufferIsCube = false;
 
 #define prefix_buffer(b)          (*(RRBufferProxy**)&(b))
-#define postfix_buffer(Archive,b) {if (Archive::is_loading() && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
+#define postfix_buffer(Archive,b) {if (Archive::is_loading::value && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
 
 
 template<class Archive>
@@ -151,23 +152,18 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 		ar & make_nvp("depth",depth);
 		rr::RRBufferFormat format = a.getFormat();
 		ar & make_nvp("format",format);
-/*		enum Compression
-		{
-			C_NONE
-		};
-		Compression compression = C_NONE;
-		ar & make_nvp("compression",compression);*/
 		bool scaled = a.getScaled();
 		ar & make_nvp("scaled",scaled);
 		unsigned char* data = a.lock(rr::BL_READ); // if you call saves in parallel (why?), they may lock in parallel. locking is thread safe in our buffer implementations, but is allowed to be unsafe in other people's implementations.
-		ar & make_nvp("data",binary_object(data,a.getBufferBytes()));
+		binary_object bo(data,a.getBufferBytes());
+		ar & make_nvp("data",bo);
 		a.unlock();
 	}
 	else
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
 		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
-		RRString absoluteFilename = RRRelocator::getAbsoluteFilename(a.filename.c_str()).c_str();
+		rr::RRString absoluteFilename = RRRelocator::getAbsoluteFilename(a.filename.c_str()).c_str();
 		ar & make_nvp("filename",absoluteFilename);
 	}
 }
@@ -191,14 +187,15 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 		bool scaled;
 		ar & make_nvp("scaled",scaled);
 		a.buffer = rr::RRBuffer::create(type,width,height,depth,format,scaled,NULL);
-		ar & make_nvp("data",binary_object(a.buffer->lock(rr::BL_DISCARD_AND_WRITE),a.buffer->getBufferBytes()));
+		binary_object bo(binary_object(a.buffer->lock(rr::BL_DISCARD_AND_WRITE),a.buffer->getBufferBytes()));
+		ar & make_nvp("data",bo);
 		a.buffer->unlock();
 	}
 	else
 	{
 		// Disable reporter when trying different paths for textures.
-		RRReporter* oldReporter = RRReporter::getReporter();
-		RRReporter::setReporter(NULL);
+		rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+		rr::RRReporter::setReporter(NULL);
 
 		// Look for file at expected new location.
 		std::string relocatedFilename = g_relocator.getRelocatedFilename(filename.c_str());
@@ -212,7 +209,7 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 			a.buffer = rr::RRBuffer::load(filename.c_str(),NULL);
 		}
 
-		RRReporter::setReporter(oldReporter);
+		rr::RRReporter::setReporter(oldReporter);
 	}
 }
 
@@ -539,7 +536,7 @@ template<class Archive>
 void load(Archive & ar, RRMeshProxy& a, const unsigned int version)
 {
 	// here we get only unique non-NULL meshes
-	a.mesh = new RRMeshArrays;
+	a.mesh = new rr::RRMeshArrays;
 	load(ar,*a.mesh,version);
 }
 
@@ -572,7 +569,7 @@ void save(Archive & ar, const rr::RRObject& a, const unsigned int version)
 	{
 		RRMeshProxy* proxy = (RRMeshProxy*)a.getCollider()->getMesh();
 		if (!proxy)
-			RRReporter::report(ERRO,"Saved NULL mesh.\n");
+			rr::RRReporter::report(rr::ERRO,"Saved NULL mesh.\n");
 		ar & make_nvp("mesh",proxy);
 	}
 }
@@ -583,7 +580,7 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 	ar & make_nvp("name",a.name);
 	ar & make_nvp("faceGroups",a.faceGroups);
 	{
-		RRMatrix3x4 worldMatrix;
+		rr::RRMatrix3x4 worldMatrix;
 		ar & make_nvp("worldMatrix",worldMatrix);
 		a.setWorldMatrix(&worldMatrix);
 	}
@@ -597,7 +594,7 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 		}
 		else
 		{
-			RRReporter::report(ERRO,"Loaded NULL mesh.\n");
+			rr::RRReporter::report(rr::ERRO,"Loaded NULL mesh.\n");
 		}
 	}
 }

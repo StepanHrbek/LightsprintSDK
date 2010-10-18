@@ -38,7 +38,6 @@ SOURCES = \
 Bloom.cpp \
 Camera.cpp \
 CameraObjectDistance.cpp \
-FBO.cpp \
 LensFlare.cpp \
 matrix.cpp \
 MultiPass.cpp \
@@ -64,7 +63,6 @@ SceneViewer/SVFrame.spp \
 SceneViewer/SVLightProperties.spp \
 SceneViewer/SVLightmapViewer.spp \
 SceneViewer/SVMaterialProperties.spp \
-SceneViewer/SVMeasuring.spp \
 SceneViewer/SVObjectProperties.spp \
 SceneViewer/SVRayLog.spp \
 SceneViewer/SVSaveLoad.spp \

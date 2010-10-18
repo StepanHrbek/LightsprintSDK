@@ -42,7 +42,7 @@ private:
 	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture);
 
 	// Automatic one time initialization.
-	friend Texture;
+	friend class Texture;
 	//! Called automatically when first texture is created.
 	static void init();
 	//! Called automatically when last texture is deleted.

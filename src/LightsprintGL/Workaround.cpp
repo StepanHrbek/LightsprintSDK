@@ -14,7 +14,7 @@ namespace rr_gl
 //
 // Workaround
 
-static char* renderer = NULL;
+static const char* renderer = NULL;
 static bool isGeforce = false;
 static bool isQuadro = false;
 static bool isRadeon = false;
@@ -52,7 +52,7 @@ static void init()
 	{
 		inited = 1;
 
-		renderer = (char*)glGetString(GL_RENDERER);
+		renderer = (const char*)glGetString(GL_RENDERER);
 		if (!renderer) renderer = "";
 
 		isGeforce = strstr(renderer,"GeForce")!=NULL;

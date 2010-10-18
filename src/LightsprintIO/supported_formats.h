@@ -48,3 +48,8 @@
 #if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1600) )
 	#undef SUPPORT_GOOGLEEARTH
 #endif
+
+// OpenCollada comilation takes ages, maybe we can disable it at least in Linux?
+//#if defined(SUPPORT_OPENCOLLADA) && !defined(_WIN32)
+//	#undef SUPPORT_OPENCOLLADA
+//#endif

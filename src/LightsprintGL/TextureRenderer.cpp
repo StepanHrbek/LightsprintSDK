@@ -105,7 +105,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
 		return false;
 	}
-	rr::RRVec3 brightness = _brightness ? *_brightness : rr::RRVec3(1);
+	rr::RRVec3 brightness = _brightness ? (rr::RRVec3)*_brightness : rr::RRVec3(1);
 
 	// setup render states
 	PreserveDepthTest p1;

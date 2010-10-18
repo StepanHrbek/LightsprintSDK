@@ -39,7 +39,8 @@ LIBS += -lstdc++
 LIBS += -lgomp
 LIBS += -lfreeimage
 LIBS += $(GL_LIBS)
-LIBS += $(FCOLLADA_LIB)
+LIBS += -lboost_serialization -lboost_iostreams -lboost_filesystem
+#LIBS += $(FCOLLADA_LIB)
 
 # include directories
 

@@ -4,8 +4,8 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
-#if _MSC_VER>=1600 || defined(__GNUC__)
-#include <functional>
+#if defined(_MSC_VER) && _MSC_VER>=1600
+	#include <functional>
 #endif
 #include "Lightsprint/GL/Camera.h"
 #include "CameraObjectDistance.h"
@@ -513,7 +513,7 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 	update();
 }
 
-#if _MSC_VER>=1600 || defined(__GNUC__)
+#if defined(_MSC_VER) && _MSC_VER>=1600
 
 //static inline float abs(float a)
 //{
@@ -632,7 +632,7 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 
 void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* times, float time)
 {
-	rr::RRReporter::report(rr::WARN,"blendAkima() not yet implemented for this compiler, use VS 2010 or GCC.\n");
+	rr::RRReporter::report(rr::WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
 }
 
 #endif

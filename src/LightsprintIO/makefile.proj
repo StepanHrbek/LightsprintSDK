@@ -27,6 +27,7 @@ ifdef STATIC
 CPP_FLAGS += -DRR_IO_STATIC
 endif
 CPP_FLAGS += -DLINUX
+CPP_FLAGS += -DGENERATEDSAXPARSER_XMLPARSER_EXPAT -DPCRE_STATIC -DCOMPILED_FROM_DSP
 
 # source files
 
@@ -118,7 +119,22 @@ ImportAssimp/code/Importer.cpp \
 ImportAssimp/code/LWOMaterial.cpp \
 ImportAssimp/code/RemoveVCProcess.cpp \
 ImportAssimp/code/MDCLoader.cpp \
+ImportAssimp/code/COBLoader.cpp \
+ImportAssimp/code/MS3DLoader.cpp \
+ImportAssimp/code/OgreImporterMaterial.cpp \
+ImportAssimp/code/Subdivision.cpp \
+ImportAssimp/code/BlenderDNA.cpp \
+ImportAssimp/code/BlenderLoader.cpp \
+ImportAssimp/code/BlenderModifier.cpp \
+ImportAssimp/code/BlenderScene.cpp \
+ImportAssimp/code/MakeVerboseFormat.cpp \
+ImportAssimp/code/NDOLoader.cpp \
+ImportAssimp/code/Q3BSPFileImporter.cpp \
+ImportAssimp/code/Q3BSPFileParser.cpp \
+ImportAssimp/code/Q3BSPZipArchive.cpp \
 ImportAssimp/contrib/irrXML/irrXML.cpp \
+ImportAssimp/contrib/unzip/ioapi.c \
+ImportAssimp/contrib/unzip/unzip.c \
 ImportAssimp/contrib/zlib/trees.c \
 ImportAssimp/contrib/zlib/zutil.c \
 ImportAssimp/contrib/zlib/deflate.c \
@@ -298,6 +314,11 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLNodeLoa
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLSceneLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLSourceArrayLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLVisualSceneLoader15.cpp \
+ImportOpenCollada/Externals/expat/lib/xmlparse.c \
+ImportOpenCollada/Externals/expat/lib/xmlrole.c \
+ImportOpenCollada/Externals/expat/lib/xmltok.c \
+ImportOpenCollada/Externals/expat/lib/xmltok_impl.c \
+ImportOpenCollada/Externals/expat/lib/xmltok_ns.c \
 ImportOpenCollada/Externals/MathMLSolver/src/MathMLEvaluatorVisitor.cpp \
 ImportOpenCollada/Externals/MathMLSolver/src/MathMLSerializationUtil.cpp \
 ImportOpenCollada/Externals/MathMLSolver/src/MathMLSerializationVisitor.cpp \
@@ -314,6 +335,13 @@ ImportOpenCollada/Externals/MathMLSolver/src/AST/MathMLASTLogicExpression.cpp \
 ImportOpenCollada/Externals/MathMLSolver/src/AST/MathMLASTStringVisitor.cpp \
 ImportOpenCollada/Externals/MathMLSolver/src/AST/MathMLASTUnaryArithmeticExpression.cpp \
 ImportOpenCollada/Externals/MathMLSolver/src/AST/MathMLASTVariableExpression.cpp \
+ImportOpenCollada/Externals/pcre/src/pcre_chartables.c \
+ImportOpenCollada/Externals/pcre/src/pcre_compile.c \
+ImportOpenCollada/Externals/pcre/src/pcre_exec.c \
+ImportOpenCollada/Externals/pcre/src/pcre_globals.c \
+ImportOpenCollada/Externals/pcre/src/pcre_newline.c \
+ImportOpenCollada/Externals/pcre/src/pcre_tables.c \
+ImportOpenCollada/Externals/pcre/src/pcre_try_flipped.c \
 ImportOpenCollada/GeneratedSaxParser/src/GeneratedSaxParserCoutErrorHandler.cpp \
 ImportOpenCollada/GeneratedSaxParser/src/GeneratedSaxParserExpatSaxParser.cpp \
 ImportOpenCollada/GeneratedSaxParser/src/GeneratedSaxParserNamespaceStack.cpp \
@@ -334,7 +362,18 @@ ImportScene.cpp
 # include directories
 
 INC_DIRS = .
-INC_DIRS += ../../include
+INC_DIRS += ../../include \
+ImportOpenCollada/COLLADASaxFrameworkLoader/include/generated15 \
+ImportOpenCollada/COLLADASaxFrameworkLoader/include/generated14 \
+ImportOpenCollada/COLLADASaxFrameworkLoader/include \
+ImportOpenCollada/COLLADABaseUtils/include \
+ImportOpenCollada/COLLADAFramework/include \
+ImportOpenCollada/GeneratedSaxParser/include \
+ImportOpenCollada/Externals/expat/lib \
+ImportOpenCollada/Externals/MathMLSolver/include \
+ImportOpenCollada/Externals/MathMLSolver/include/AST \
+ImportOpenCollada/Externals/pcre/include \
+ImportOpenCollada/Externals/UTF/include
 
 # library directories
 

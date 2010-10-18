@@ -620,19 +620,4 @@ bool UserPreferences::load()
 
 }; // namespace
 
-#else // _MSC_VER==1500
-
-// empty implementation for platforms with disabled boost
-namespace rr_gl
-{
-	bool UserPreferences::save() const
-	{
-		return false;
-	}
-	bool UserPreferences::load()
-	{
-		return false;
-	}
-}
-
 #endif // SUPPORT_SCENEVIEWER
