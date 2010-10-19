@@ -354,6 +354,11 @@ void SVFrame::UpdateEverything()
 	// display log window with 'abort' while this function runs
 	LogWithAbort logWithAbort(this,nextCanvas->solver);
 
+	// stop showing properties of stuff we are going to delete
+	m_objectProperties->setObject(NULL,0);
+	m_lightProperties->setLight(NULL,0);
+	m_materialProperties->setMaterial(NULL,0,rr::RRVec2(0));
+
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
 	if (m_canvas) m_mgr.DetachPane(m_canvas);
