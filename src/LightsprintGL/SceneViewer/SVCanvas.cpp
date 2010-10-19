@@ -1059,7 +1059,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			if (solver->getLights()[i] && solver->getLights()[i]->enabled && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
 				// eye must already be updated otherwise flashlight will lag one frame
-				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.1f+svs.eye.right*svs.cameraMetersPerSecond*0.1f;
+				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.03f+svs.eye.right*svs.cameraMetersPerSecond*0.03f;
 				solver->getLights()[i]->direction = svs.eye.dir;
 				float viewportWidthCovered = 0.9f;
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
