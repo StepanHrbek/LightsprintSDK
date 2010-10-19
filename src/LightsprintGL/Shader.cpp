@@ -22,7 +22,7 @@ char* readShader(const char *filename)
 	char *buf;
 	buf = new char[count + 1];
 	fseek(f,0,SEEK_SET);
-	fread(buf,1,count,f);
+	count = fread(buf,1,count,f);
 	fclose(f);
 	buf[count] = 0;
 	return buf;

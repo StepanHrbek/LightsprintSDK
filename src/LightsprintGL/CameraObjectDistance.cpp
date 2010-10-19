@@ -24,7 +24,9 @@ CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, bool _wa
 	ray->rayLengthMin = 0;
 	ray->rayLengthMax = 1e12f;
 	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
-	ray->collisionHandler = object ? object->createCollisionHandlerFirstVisible() : NULL;
+	ray->collisionHandler = NULL;
+	if (object)
+		ray->collisionHandler = object->createCollisionHandlerFirstVisible();
 }
 
 CameraObjectDistance::~CameraObjectDistance()

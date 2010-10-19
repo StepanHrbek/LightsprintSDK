@@ -8,20 +8,20 @@ CPP_FLAGS += -D_DEBUG
 
 CORE_LIBS = \
 	-lstdc++ \
-	../../lib/$(CONFIG)/libLightsprintCore.so
+	../../lib/$(CONFIG)/libLightsprintCore.a
 #	-lgomp \
 
 GL_LIBS = \
 	-lGL \
 	-lGLEW \
-	../../lib/$(CONFIG)/libLightsprintGL.so
+	../../lib/$(CONFIG)/libLightsprintGL.a
 
 IO_LIBS = \
 	-lfreeimage \
 	-lboost_serialization \
 	-lboost_iostreams \
 	-lboost_filesystem \
-	../../lib/$(CONFIG)/libLightsprintIO.so
+	../../lib/$(CONFIG)/libLightsprintIO.a
 #	-lxml2 \
 #	/../../lib/pc-linux64/libfcollada.a \
 

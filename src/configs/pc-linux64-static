@@ -13,19 +13,19 @@ LINK_FLAGS += -s
 CORE_LIBS = \
 	-lstdc++ \
 	-lgomp \
-	../../lib/$(CONFIG)/libLightsprintCore.so
+	../../lib/$(CONFIG)/libLightsprintCore.a
 
 GL_LIBS = \
 	-lGL \
 	-lGLEW \
-	../../lib/$(CONFIG)/libLightsprintGL.so
+	../../lib/$(CONFIG)/libLightsprintGL.a
 
 IO_LIBS = \
 	-lfreeimage \
 	-lboost_serialization \
 	-lboost_iostreams \
 	-lboost_filesystem \
-	../../lib/$(CONFIG)/libLightsprintIO.so
+	../../lib/$(CONFIG)/libLightsprintIO.a
 #	-lxml2 \
 #	/../../lib/pc-linux64/libfcollada.a \
 
