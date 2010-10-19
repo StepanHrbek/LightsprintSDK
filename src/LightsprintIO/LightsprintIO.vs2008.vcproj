@@ -4353,18 +4353,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="GoogleEarth"
-			>
-			<File
-				RelativePath=".\ImportGoogleEarth\RRObjectKMZ.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ImportGoogleEarth\RRObjectKMZ.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Lightsprint"
 			>
 			<File

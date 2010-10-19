@@ -890,7 +890,6 @@
     <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserSaxParser.cpp" />
     <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserStackMemoryManager.cpp" />
     <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserUtils.cpp" />
-    <ClCompile Include="ImportGoogleEarth\RRObjectKMZ.cpp" />
     <ClCompile Include="ImportLightsprint\portable_binary_iarchive.cpp" />
     <ClCompile Include="ImportLightsprint\portable_binary_oarchive.cpp" />
     <ClCompile Include="ImportLightsprint\RRObjectLightsprint.cpp" />
@@ -1414,7 +1413,6 @@
     <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserStackMemoryManager.h" />
     <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserTypes.h" />
     <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserUtils.h" />
-    <ClInclude Include="ImportGoogleEarth\RRObjectKMZ.h" />
     <ClInclude Include="ImportLightsprint\portable_binary_archive.hpp" />
     <ClInclude Include="ImportLightsprint\portable_binary_iarchive.hpp" />
     <ClInclude Include="ImportLightsprint\portable_binary_oarchive.hpp" />

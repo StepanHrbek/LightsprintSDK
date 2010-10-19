@@ -17,7 +17,6 @@
 #define SUPPORT_MGF         // Materials and Geometry Format .mgf
 #define SUPPORT_IMAGES      // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
-#define SUPPORT_GOOGLEEARTH // Google Earth .kmz
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 
 
@@ -43,13 +42,3 @@
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)
 	#undef SUPPORT_DIRECTSHOW
 #endif
-
-// Google Earth support exists only for specific Visual Studio 2010 project.
-#if defined(SUPPORT_GOOGLEEARTH) && ( !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER<1600) )
-	#undef SUPPORT_GOOGLEEARTH
-#endif
-
-// OpenCollada comilation takes ages, maybe we can disable it at least in Linux?
-//#if defined(SUPPORT_OPENCOLLADA) && !defined(_WIN32)
-//	#undef SUPPORT_OPENCOLLADA
-//#endif

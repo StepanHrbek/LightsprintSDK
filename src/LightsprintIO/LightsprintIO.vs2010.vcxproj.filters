@@ -124,9 +124,6 @@
     <Filter Include="OpenCollada\GeneratedSaxParser\src">
       <UniqueIdentifier>{a33b47d0-74cf-45da-9b1f-af6908b6ab15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GoogleEarth">
-      <UniqueIdentifier>{3ba1c7b3-f752-4983-bf6b-31bdef2328ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lightsprint">
       <UniqueIdentifier>{becf5260-283e-4759-b334-be8c04fe6767}</UniqueIdentifier>
     </Filter>
@@ -833,9 +830,6 @@
     </ClCompile>
     <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserUtils.cpp">
       <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportGoogleEarth\RRObjectKMZ.cpp">
-      <Filter>GoogleEarth</Filter>
     </ClCompile>
     <ClCompile Include="ImportLightsprint\portable_binary_iarchive.cpp">
       <Filter>Lightsprint</Filter>
@@ -2285,9 +2279,6 @@
     </ClInclude>
     <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserUtils.h">
       <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportGoogleEarth\RRObjectKMZ.h">
-      <Filter>GoogleEarth</Filter>
     </ClInclude>
     <ClInclude Include="ImportLightsprint\portable_binary_archive.hpp">
       <Filter>Lightsprint</Filter>
