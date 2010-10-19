@@ -24,7 +24,7 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 # project-dependent compiler/preprocessor flags
 
 ifdef STATIC
-CPP_FLAGS += -DRR_GL_STATIC
+CPP_FLAGS += -DRR_STATIC -DRR_GL_STATIC
 endif
 
 CPP_FLAGS += -DSUPPORT_OFFLINE
