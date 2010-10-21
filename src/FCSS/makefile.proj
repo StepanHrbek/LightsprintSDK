@@ -14,10 +14,6 @@ TARGET = ../../bin/$(CONFIG)/$(PROJECT)
 CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
-# project-dependent compiler/preprocessor flags
-
-CPP_FLAGS += -DRR_STATIC -DRR_GL_STATIC -DRR_IO_STATIC
-
 # source files
 
 SOURCES = \
@@ -32,7 +28,7 @@ shadowcast.cpp
 
 # libraries
 
-LIBS += $(CORE_LIBS) $(GL_LIBS) $(IO_LIBS) -lglut
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) -lglut
 ifeq ($(BITS),32)
 LIBS += ../../bin/pc-linux32/libfmodex.so
 else

@@ -23,9 +23,6 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
-ifdef STATIC
-CPP_FLAGS += -DRR_STATIC -DRR_IO_STATIC
-endif
 CPP_FLAGS += -DLINUX
 CPP_FLAGS += -DGENERATEDSAXPARSER_XMLPARSER_EXPAT -DPCRE_STATIC -DCOMPILED_FROM_DSP
 

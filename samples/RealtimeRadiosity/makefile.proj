@@ -28,7 +28,7 @@ RendererWithCache.cpp
 
 # libraries
 
-LIBS += $(CORE_LIBS) $(GL_LIBS) $(IO_LIBS) -lglut
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) -lglut
 
 # include directories
 

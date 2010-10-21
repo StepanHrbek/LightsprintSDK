@@ -403,7 +403,7 @@ Video formats
 
  Installation of 3rd party components:
  - Windows: works out of the box
- - Ubuntu: <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev libglut3-dev</code>
+ - Ubuntu: <code>sudo apt-get install build-essential libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev libglut3-dev</code>
  - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (not tested for some time, may be incomplete)
 
 \page tpl_squish libsquish

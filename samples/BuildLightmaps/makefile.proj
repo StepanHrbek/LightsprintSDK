@@ -23,7 +23,7 @@ BuildLightmaps.cpp
 
 # libraries
 
-LIBS += $(CORE_LIBS) $(GL_LIBS) $(IO_LIBS)
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS)
 
 # include directories
 

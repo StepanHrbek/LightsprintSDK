@@ -7,6 +7,7 @@ CPP_FLAGS += -O3
 CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
+CPP_FLAGS += -DRR_STATIC -DRR_GL_STATIC -DRR_IO_STATIC
 
 LINK_FLAGS += -s
 
