@@ -90,6 +90,7 @@ struct SceneViewerState
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
 	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
+	bool             videoTransmittanceAffectsGIFull;//! Updates GI rather than shadows only.
 	bool             videoEnvironmentAffectsGI; //! Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEnvironmentGIQuality; //! Quality if videoEnvironmentAffectsGI is true.
 	unsigned         fireballQuality;           //! Quality used each time Fireball needs rebuild.
@@ -156,6 +157,7 @@ struct SceneViewerState
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;
 		videoTransmittanceAffectsGI = true;
+		videoTransmittanceAffectsGIFull = true;
 		videoEnvironmentAffectsGI = true;
 		videoEnvironmentGIQuality = 3000;
 		fireballQuality = 350;
@@ -228,6 +230,7 @@ struct SceneViewerState
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality
 			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI
+			&& a.videoTransmittanceAffectsGIFull==videoTransmittanceAffectsGIFull
 			&& a.videoEnvironmentAffectsGI==videoEnvironmentAffectsGI
 			&& a.videoEnvironmentGIQuality==videoEnvironmentGIQuality
 			&& a.fireballQuality==fireballQuality

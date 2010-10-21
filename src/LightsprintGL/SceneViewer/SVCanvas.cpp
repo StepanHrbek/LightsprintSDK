@@ -1083,9 +1083,13 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
 				params.materialEmittanceMultiplier = svs.emissiveMultiplier;
+				params.materialEmittanceStaticQuality = 17;
 				params.materialEmittanceVideoQuality = svs.videoEmittanceAffectsGI?svs.videoEmittanceGIQuality+1:0;
+				params.materialTransmittanceStaticQuality = 0; // don't check static textures in each frame, we manually reportMaterialChange() when they change
+				params.materialTransmittanceVideoQuality = svs.videoTransmittanceAffectsGI?(svs.videoTransmittanceAffectsGIFull?2:1):0;
+				params.environmentStaticQuality = 6000;
 				params.environmentVideoQuality = svs.videoEnvironmentAffectsGI?svs.videoEnvironmentGIQuality+1:0;
-				//params.qualityIndirectDynamic = 3;
+				params.qualityIndirectDynamic = 3;
 				params.qualityIndirectStatic = 10000;
 			}
 			else
@@ -1093,6 +1097,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 				// rendering direct only -> calculate will update shadowmaps only
 				params.materialEmittanceStaticQuality = 0;
 				params.materialEmittanceVideoQuality = 0;
+				params.materialTransmittanceStaticQuality = 0;
+				params.materialTransmittanceVideoQuality = svs.videoTransmittanceAffectsGI?1:0; // only shadows
 				params.environmentStaticQuality = 0;
 				params.environmentVideoQuality = 0;
 				params.qualityIndirectDynamic = 0;

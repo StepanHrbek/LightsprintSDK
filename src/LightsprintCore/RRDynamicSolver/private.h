@@ -63,6 +63,7 @@ namespace rr
 		bool       staticSolverCreationFailed; // set after failure so that we don't try again
 		unsigned   solutionVersion; // incremented each time we want user to update lightmaps (not after every change in solution, slightly less frequently)
 		RRPackedSolver* packedSolver;
+		unsigned   materialTransmittanceVersionSum[2];
 
 		// read results
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
@@ -109,6 +110,8 @@ namespace rr
 			solutionVersion = 1; // set solver to 1 so users can start with 0 and solver (even if incremented) will differ
 			minimalSafeDistance = 0;
 			packedSolver = NULL;
+			materialTransmittanceVersionSum[0] = 0;
+			materialTransmittanceVersionSum[1] = 0;
 		}
 		~Private()
 		{

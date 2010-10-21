@@ -285,6 +285,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
 	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	ar & make_nvp("videoTransmittanceAffectsGIFull",a.videoTransmittanceAffectsGIFull);
 	ar & make_nvp("videoEnvironmentAffectsGI",a.videoEnvironmentAffectsGI);
 	ar & make_nvp("videoEnvironmentGIQuality",a.videoEnvironmentGIQuality);
 	ar & make_nvp("fireballQuality",a.fireballQuality);
@@ -378,6 +379,10 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	if (version>1)
 	{
 		ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
+	}
+	if (version>15)
+	{
+		ar & make_nvp("videoTransmittanceAffectsGIFull",a.videoTransmittanceAffectsGIFull);
 	}
 	if (version>13)
 	{
@@ -477,7 +482,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 4) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 15)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 16)
 
 //---------------------------------------------------------------------------
 

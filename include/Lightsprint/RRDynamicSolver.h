@@ -257,6 +257,7 @@ namespace rr
 			float materialEmittanceMultiplier;
 
 			//! Only for Fireball solver:
+			//! Specifies what to do when emissive texture changes.
 			//!  - 0 disables updates, existing lighting stays unchanged.
 			//!  - 1 = max speed, flat emittance colors stored in materials are used.
 			//!    All triangles that share the same material emit the same average color.
@@ -280,7 +281,18 @@ namespace rr
 			//!    Use it only if you need your overloaded getPointMaterial() to be used.
 			bool materialEmittanceUsePointMaterials;
 
+			//! Only for Fireball and Architect solvers:
+			//! Specifies what to do when transmittance texture changes.
+			//!  - 0 = no updates, existing lighting stays unchanged.
+			//!  - 1 = update only shadows.
+			//!  - 2 = update full GI.
+			unsigned materialTransmittanceStaticQuality;
+			//! Only for Fireball and Architect solvers:
+			//! Like materialTransmittanceStaticQuality, applied when there is video in transmittance texture.
+			unsigned materialTransmittanceVideoQuality;
+
 			//! Only for Fireball solver:
+			//! Specifies what to do when environment changes.
 			//! Quality of lighting from environment, number of samples.
 			//! 0 disables updates, existing lighting stays unchanged.
 			unsigned environmentStaticQuality;
@@ -314,6 +326,8 @@ namespace rr
 				materialEmittanceStaticQuality = 17;
 				materialEmittanceVideoQuality = 5;
 				materialEmittanceUsePointMaterials = false;
+				materialTransmittanceStaticQuality = 2;
+				materialTransmittanceVideoQuality = 2;
 				environmentStaticQuality = 6000;
 				environmentVideoQuality = 3000;
 				qualityIndirectDynamic = 3;

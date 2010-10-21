@@ -262,8 +262,14 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
 		}
 
-		propGITranspVideoAffectsGI = new BoolRefProperty("Transparency video realtime GI","Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.",svs.videoTransmittanceAffectsGI);
-		AppendIn(propGI,propGITranspVideoAffectsGI);
+		// transmittance video
+		{
+			propGITranspVideoAffectsGI = new BoolRefProperty("Transparency video realtime GI","Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.",svs.videoTransmittanceAffectsGI);
+			AppendIn(propGI,propGITranspVideoAffectsGI);
+
+			propGITranspVideoAffectsGIFull = new BoolRefProperty("Full GI","Full GI is updated rather than just shadows.",svs.videoTransmittanceAffectsGIFull);
+			AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
+		}
 
 		// environment video
 		{
@@ -315,6 +321,7 @@ void SVSceneProperties::updateHide()
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 
 	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
+	propGITranspVideoAffectsGIFull->Hide(!svs.videoEnvironmentAffectsGI,false);
 	propGIEnvVideoGIQuality->Hide(!svs.videoEnvironmentAffectsGI,false);
 
 }
@@ -337,6 +344,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propGrid)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
+		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
 		;
 	unsigned numChangesOther =
@@ -382,7 +390,7 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
-		+ updateBoolRef(propGITranspVideoAffectsGI)
+		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
 		;
 	if (numChangesRelevantForHiding+numChangesOther)

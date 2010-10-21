@@ -101,6 +101,7 @@ namespace rr_gl
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		wxPGProperty*     propGIEmisVideoGIQuality;
 		BoolRefProperty*  propGITranspVideoAffectsGI;
+		BoolRefProperty*  propGITranspVideoAffectsGIFull;
 		BoolRefProperty*  propGIEnvVideoAffectsGI;
 		wxPGProperty*     propGIEnvVideoGIQuality;
 
