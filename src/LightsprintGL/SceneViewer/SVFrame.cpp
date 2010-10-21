@@ -1792,7 +1792,7 @@ void SVFrame::simulateSun()
 				RR_CLAMP(cosAZ,-1,1);
 				double AZ = acos(cosAZ); // azimuth angle, rad
 				if (SHA>0) AZ = -AZ;
-				lights[i]->direction = rr::RRVec3((rr::RRReal)(sin(AZ)*sin(SZA)),(rr::RRReal)(-cosSZA),(rr::RRReal)(cosAZ*sin(SZA))); // north = Z+, east = X+, up = Y+
+				lights[i]->direction = rr::RRVec3((rr::RRReal)(-sin(AZ)*sin(SZA)),(rr::RRReal)(-cosSZA),(rr::RRReal)(-cosAZ*sin(SZA))); // north = Z-, east = X-, up = Y+
 				m_canvas->solver->realtimeLights[i]->updateAfterRRLightChanges();
 				break;
 			}

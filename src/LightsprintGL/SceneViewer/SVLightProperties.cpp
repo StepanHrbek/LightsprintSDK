@@ -11,9 +11,9 @@
 
 // for direction presented as altitude+azimuth
 #define ANGLEX2ALT(angleX) RR_RAD2DEG(-angleX)
-#define ANGLE2AZI(angle) fmod(fmod(180-RR_RAD2DEG(angle),360)+360,360)
+#define ANGLE2AZI(angle) fmod(fmod(-RR_RAD2DEG(angle),360)+360,360)
 #define ALT2ANGLEX(alt) RR_DEG2RAD(-alt)
-#define AZI2ANGLE(azi) RR_DEG2RAD(180-azi)
+#define AZI2ANGLE(azi) RR_DEG2RAD(360-azi)
 
 namespace rr_gl
 {
