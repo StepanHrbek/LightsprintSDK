@@ -40,6 +40,7 @@ struct SceneViewerStateEx : public SceneViewerState
 	bool operator ==(const SceneViewerStateEx& a) const
 	{
 		return this->SceneViewerState::operator==(a)
+			&& a.sceneFilename==sceneFilename
 			&& a.skyboxFilename==skyboxFilename
 			;
 	}
