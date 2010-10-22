@@ -331,7 +331,7 @@ struct AABBCache
 void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	if (!aabbCache || aabbCache->version!=version)
-	#pragma omp critical
+	#pragma omp critical(aabbCache)
 	{
 		if (!aabbCache)
 			const_cast<RRMeshArrays*>(this)->aabbCache = new AABBCache; // hack: we write to const mesh. critical section makes it safe

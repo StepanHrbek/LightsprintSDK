@@ -827,7 +827,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 			// convert direction to patch index
 			unsigned skyPatchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
 			// store patch hit
-			#pragma omp critical
+			#pragma omp critical(skyPatchHitsForCurrentTriangle)
 			skyPatchHitsForCurrentTriangle->patches[skyPatchIndex][0] += power;
 		}
 		// ray left scene and vanished
@@ -856,7 +856,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		if (diffuseReflectPower>0.01)
 		{
 			hitPower += diffuseReflectPower;
-			#pragma omp critical
+			#pragma omp critical(hitTriangles)
 			{
 				// cheap storage with accumulated power -> subdivision is not possible
 				// put triangle among other hit triangles

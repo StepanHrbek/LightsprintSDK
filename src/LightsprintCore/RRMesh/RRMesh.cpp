@@ -159,7 +159,7 @@ void RRMesh::getUvChannels(rr::RRVector<unsigned>& out) const
 void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	if (!aabbCache)
-	#pragma omp critical
+	#pragma omp critical(aabbCache)
 	{
 		const_cast<RRMesh*>(this)->aabbCache = new AABBCache; // hack: we write to const mesh. critical section makes it safe
 		unsigned numVertices = getNumVertices();
