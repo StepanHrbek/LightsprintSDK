@@ -82,6 +82,8 @@ namespace rr
 		unsigned gatherEnvMapSize;
 		//! World coordinate of object center. To be updated by you when object moves.
 		RRVec3 envMapWorldCenter;
+		RRReal envMapWorldRadius;
+		unsigned envMapObjectNumber;
 
 	protected:
 		//
@@ -97,7 +99,6 @@ namespace rr
 		RRVec3 cachedCenter;
 		unsigned cachedGatherSize;
 		unsigned* cachedTriangleNumbers;
-		class RRRay* ray6;
 	};
 
 

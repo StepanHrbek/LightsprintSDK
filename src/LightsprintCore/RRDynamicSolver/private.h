@@ -13,6 +13,15 @@
 
 namespace rr
 {
+	class CubeGatheringKit
+	{
+	public:
+		bool inUse;
+		RRRay* ray6;
+		class ReflectionCubeCollisionHandler* handler6;
+		CubeGatheringKit();
+		~CubeGatheringKit();
+	};
 
 	struct RRDynamicSolver::Private
 	{
@@ -69,6 +78,7 @@ namespace rr
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
 		std::vector<std::vector<TriangleVertexPair> > postVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver. indexed by objectNumber. depends on static objects, must be updated when they change
 		std::vector<std::vector<const RRVec3*> > postVertex2Ivertex; ///< readResults lookup table for RRPackedSolver. indexed by 1+objectNumber, 0 is multiObject. depends on static objects and packed solver, must be updated when they change
+		CubeGatheringKit cubeGatheringKits[10];
 
 		Private()
 		{

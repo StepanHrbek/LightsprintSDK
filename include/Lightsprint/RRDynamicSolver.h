@@ -895,6 +895,7 @@ namespace rr
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();
 		void updateVertexLookupTablePackedSolver();
+		bool cubeMapGather(RRObjectIllumination* illumination, RRVec3* exitanceHdr);
 		struct Private;
 		Private* priv;
 		friend class GatheredIrradianceHemisphere;

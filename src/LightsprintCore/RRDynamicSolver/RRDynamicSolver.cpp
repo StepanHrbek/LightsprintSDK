@@ -215,6 +215,27 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			unsigned(memoryOccupiedByTextures>>20),
 			priv->staticSceneContainsLods?"yes":"no");
 	}
+
+	// update illumination.envMapXxx
+	for (unsigned i=0;i<getStaticObjects().size();i++)
+	{
+		// slower, precise even with non-uniform scale (would make updateEnvironmentMap() faster)
+		//RRMesh* worldMesh = getStaticObjects()[i]->createWorldSpaceMesh();
+		//if (worldMesh)
+		//{
+		//	RRVec3 mini,maxi;
+		//	worldMesh->getAABB(&mini,&maxi,NULL);
+		//	getStaticObjects()[i]->illumination.envMapObjectNumber = i;
+		//	getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2;
+		//	delete worldMesh;
+		//}
+
+		// faster, less precise with non-uniform scale (would make updateEnvironmentMap() slower)
+		RRVec3 mini,maxi;
+		getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		getStaticObjects()[i]->illumination.envMapObjectNumber = i;
+		getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2*getStaticObjects()[i]->getWorldMatrixRef().getUniformScale();
+	}
 }
 
 const RRObjects& RRDynamicSolver::getStaticObjects() const

@@ -20,14 +20,15 @@ RRObjectIllumination::RRObjectIllumination()
 	layersMap = new LayersMap;
 
 	// dynamic
-	envMapWorldCenter = RRVec3(0);
 	diffuseEnvMap = NULL;
 	specularEnvMap = NULL;
 	gatherEnvMapSize = 16;
+	envMapWorldCenter = RRVec3(0);
+	envMapWorldRadius = 0;
+	envMapObjectNumber = UINT_MAX;
 	cachedCenter = RRVec3(0);
 	cachedGatherSize = 0;
 	cachedTriangleNumbers = NULL;
-	ray6 = RRRay::create(6);
 }
 
 RRBuffer*& RRObjectIllumination::getLayer(unsigned layerNumber)
@@ -47,7 +48,6 @@ RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 RRObjectIllumination::~RRObjectIllumination()
 {
 	// dynamic
-	delete[] ray6;
 	delete[] cachedTriangleNumbers;
 	delete specularEnvMap;
 	delete diffuseEnvMap;
