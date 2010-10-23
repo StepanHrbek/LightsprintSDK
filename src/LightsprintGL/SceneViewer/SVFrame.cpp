@@ -916,16 +916,125 @@ save_scene_as:
 			}
 			break;
 		case ME_FILE_SAVE_SCREENSHOT:
+			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,userPreferences.sshotEnhanced?SVFrame::ME_FILE_SAVE_SCREENSHOT_ENHANCED:SVFrame::ME_FILE_SAVE_SCREENSHOT_ORIGINAL));
+			break;
+		case ME_FILE_SAVE_SCREENSHOT_ORIGINAL:
 			{
-				if (!userPreferences.sshotEnhanced)
+				// Grab content of backbuffer to sshot.
+				wxSize size = m_canvas->GetSize();
+				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+				glReadBuffer(GL_BACK);
+				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+				sshot->unlock();
+
+				// 8. fix empty filename
+				if (userPreferences.sshotFilename.empty())
 				{
-					// Grab content of backbuffer to sshot.
-					wxSize size = m_canvas->GetSize();
-					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
-					unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-					glReadBuffer(GL_BACK);
-					glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+					char screenshotFilename[1000]=".";
+#ifdef _WIN32
+					SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+#endif
+					userPreferences.sshotFilename = screenshotFilename;
+					time_t t = time(NULL);
+					userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
+				}
+
+				// 9. save
+				rr::RRBuffer::SaveParameters saveParameters;
+				saveParameters.jpegQuality = 100;
+				if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
+					rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
+				else
+					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
+
+				// 10. increment filename
+				incrementFilename(userPreferences.sshotFilename);
+				m_userProperties->updateProperties();
+
+				// cleanup
+				delete sshot;
+			}
+			break;
+		case ME_FILE_SAVE_SCREENSHOT_ENHANCED:
+			{
+				// 1a. enable FSAA
+				// (1*1*FSAA is ugly, worse than plain capture)
+				// (2*2*FSAA works fine, but it's too much for Quadro)
+				// (3*3*FSAA works fine too, 3*2560<8k, but it's probably too much for older cards)
+				// (4*2560 would definitely exceed Radeon 4xxx limits)
+				wxSize smallSize(userPreferences.sshotEnhancedWidth,userPreferences.sshotEnhancedHeight);
+				const int AA = (unsigned)sqrtf((float)userPreferences.sshotEnhancedFSAA);
+				wxSize bigSize = AA*smallSize;
+					
+				// 1b. enhance shadows
+				rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
+				unsigned* shadowSamples = new unsigned[lights.size()];
+				unsigned* shadowRes = new unsigned[lights.size()];
+				for (unsigned i=0;i<lights.size();i++)
+				{
+					RealtimeLight* rl = lights[i];
+					shadowRes[i] = rl->getShadowmapSize();
+					shadowSamples[i] = rl->getNumShadowSamples();
+					rl->setShadowmapSize(shadowRes[i]*userPreferences.sshotEnhancedShadowResolutionFactor);
+					if (userPreferences.sshotEnhancedShadowSamples)
+						rl->setNumShadowSamples(userPreferences.sshotEnhancedShadowSamples);
+				}
+				rr::RRDynamicSolver::CalculateParameters params;
+				params.qualityIndirectStatic = 0; // set it to update only shadows
+				params.qualityIndirectDynamic = 0;
+				m_canvas->solver->calculate(&params); // renders into FBO, must go before FBO::setRenderTarget()
+
+				// 2. alloc temporary textures
+				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
+				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,(unsigned char*)1);
+				Texture texColor(bufColor,false,false);
+				Texture texDepth(bufDepth,false,false);
+
+				// 3a. set new rendertarget
+				FBO oldFBOState = FBO::getState();
+				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,&texDepth);
+				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
+				if (!FBO::isOk())
+				{
+					wxMessageBox("Try lower resolution or disable FSAA (both in User preferences / Screenshot).","Rendering screenshot failed.");
+				}
+				else
+				{
+					// 3b. propagate new size/aspect to renderer
+					wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
+					//rr::RRVec2 oldCenter = svs.eye.screenCenter;
+					//svs.eye.screenCenter = rr::RRVec2(0);
+					m_canvas->winWidth = bigSize.x;
+					m_canvas->winHeight = bigSize.y;
+					glViewport(0,0,bigSize.x,bigSize.x);
+
+					// 4. disable automatic tonemapping, uses FBO, would not work
+					bool oldTonemapping = svs.tonemappingAutomatic;
+					svs.tonemappingAutomatic = false;
+
+					// 6. render to texColor
+					wxPaintEvent e;
+					m_canvas->Paint(e);
+
+					// 7. downscale to sshot
+					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
+					unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
+					glPixelStorei(GL_PACK_ALIGNMENT,1);
+					glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
+					unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+					for (int j=0;j<smallSize.y;j++)
+						for (int i=0;i<smallSize.x;i++)
+							for (unsigned k=0;k<3;k++)
+							{
+								unsigned a = 0;
+								for (int y=0;y<AA;y++)
+									for (int x=0;x<AA;x++)
+										a += pixelsBig[k+3*(AA*i+x+AA*smallSize.x*(AA*j+y))];
+								pixelsSmall[k+3*(i+smallSize.x*j)] = (a+AA*AA/2)/(AA*AA);
+							}
 					sshot->unlock();
+					bufColor->unlock();
 
 					// 8. fix empty filename
 					if (userPreferences.sshotFilename.empty())
@@ -951,144 +1060,36 @@ save_scene_as:
 					incrementFilename(userPreferences.sshotFilename);
 					m_userProperties->updateProperties();
 
-					// cleanup
+					// 7. cleanup
 					delete sshot;
+
+
+					// 4. cleanup
+					svs.tonemappingAutomatic = oldTonemapping;
+
+					// 3b. cleanup
+					m_canvas->winWidth = oldSize.x;
+					m_canvas->winHeight = oldSize.y;
+					//svs.eye.screenCenter = oldCenter;
 				}
-				else
+
+				// 3a. cleanup
+				oldFBOState.restore();
+				glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
+
+				// 2. cleanup
+				delete bufDepth;
+				delete bufColor;
+
+				// 1b. cleanup
+				for (unsigned i=0;i<lights.size();i++)
 				{
-					// 1a. enable FSAA
-					// (1*1*FSAA is ugly, worse than plain capture)
-					// (2*2*FSAA works fine, but it's too much for Quadro)
-					// (3*3*FSAA works fine too, 3*2560<8k, but it's probably too much for older cards)
-					// (4*2560 would definitely exceed Radeon 4xxx limits)
-					wxSize smallSize(userPreferences.sshotEnhancedWidth,userPreferences.sshotEnhancedHeight);
-					const int AA = (unsigned)sqrtf((float)userPreferences.sshotEnhancedFSAA);
-					wxSize bigSize = AA*smallSize;
-					
-					// 1b. enhance shadows
-					rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
-					unsigned* shadowSamples = new unsigned[lights.size()];
-					unsigned* shadowRes = new unsigned[lights.size()];
-					for (unsigned i=0;i<lights.size();i++)
-					{
-						RealtimeLight* rl = lights[i];
-						shadowRes[i] = rl->getShadowmapSize();
-						shadowSamples[i] = rl->getNumShadowSamples();
-						rl->setShadowmapSize(shadowRes[i]*userPreferences.sshotEnhancedShadowResolutionFactor);
-						if (userPreferences.sshotEnhancedShadowSamples)
-							rl->setNumShadowSamples(userPreferences.sshotEnhancedShadowSamples);
-					}
-					rr::RRDynamicSolver::CalculateParameters params;
-					params.qualityIndirectStatic = 0; // set it to update only shadows
-					params.qualityIndirectDynamic = 0;
-					m_canvas->solver->calculate(&params); // renders into FBO, must go before FBO::setRenderTarget()
-
-					// 2. alloc temporary textures
-					rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
-					rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,(unsigned char*)1);
-					Texture texColor(bufColor,false,false);
-					Texture texDepth(bufDepth,false,false);
-
-					// 3a. set new rendertarget
-					FBO oldFBOState = FBO::getState();
-					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,&texDepth);
-					FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
-					if (!FBO::isOk())
-					{
-						wxMessageBox("Try lower resolution or disable FSAA (both in User preferences / Screenshot).","Rendering screenshot failed.");
-					}
-					else
-					{
-						// 3b. propagate new size/aspect to renderer
-						wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
-						//rr::RRVec2 oldCenter = svs.eye.screenCenter;
-						//svs.eye.screenCenter = rr::RRVec2(0);
-						m_canvas->winWidth = bigSize.x;
-						m_canvas->winHeight = bigSize.y;
-						glViewport(0,0,bigSize.x,bigSize.x);
-
-						// 4. disable automatic tonemapping, uses FBO, would not work
-						bool oldTonemapping = svs.tonemappingAutomatic;
-						svs.tonemappingAutomatic = false;
-
-						// 6. render to texColor
-						wxPaintEvent e;
-						m_canvas->Paint(e);
-
-						// 7. downscale to sshot
-						rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
-						unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
-						glPixelStorei(GL_PACK_ALIGNMENT,1);
-						glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
-						unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
-						for (int j=0;j<smallSize.y;j++)
-							for (int i=0;i<smallSize.x;i++)
-								for (unsigned k=0;k<3;k++)
-								{
-									unsigned a = 0;
-									for (int y=0;y<AA;y++)
-										for (int x=0;x<AA;x++)
-											a += pixelsBig[k+3*(AA*i+x+AA*smallSize.x*(AA*j+y))];
-									pixelsSmall[k+3*(i+smallSize.x*j)] = (a+AA*AA/2)/(AA*AA);
-								}
-						sshot->unlock();
-						bufColor->unlock();
-
-						// 8. fix empty filename
-						if (userPreferences.sshotFilename.empty())
-						{
-							char screenshotFilename[1000]=".";
-#ifdef _WIN32
-							SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-							userPreferences.sshotFilename = screenshotFilename;
-							time_t t = time(NULL);
-							userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
-						}
-
-						// 9. save
-						rr::RRBuffer::SaveParameters saveParameters;
-						saveParameters.jpegQuality = 100;
-						if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
-							rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
-						else
-							rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
-
-						// 10. increment filename
-						incrementFilename(userPreferences.sshotFilename);
-						m_userProperties->updateProperties();
-
-						// 7. cleanup
-						delete sshot;
-
-
-						// 4. cleanup
-						svs.tonemappingAutomatic = oldTonemapping;
-
-						// 3b. cleanup
-						m_canvas->winWidth = oldSize.x;
-						m_canvas->winHeight = oldSize.y;
-						//svs.eye.screenCenter = oldCenter;
-					}
-
-					// 3a. cleanup
-					oldFBOState.restore();
-					glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
-
-					// 2. cleanup
-					delete bufDepth;
-					delete bufColor;
-
-					// 1b. cleanup
-					for (unsigned i=0;i<lights.size();i++)
-					{
-						RealtimeLight* rl = lights[i];
-						rl->setShadowmapSize(shadowRes[i]);
-						rl->setNumShadowSamples(shadowSamples[i]);
-					}
-					delete[] shadowSamples;
-					delete[] shadowRes;
+					RealtimeLight* rl = lights[i];
+					rl->setShadowmapSize(shadowRes[i]);
+					rl->setNumShadowSamples(shadowSamples[i]);
 				}
+				delete[] shadowSamples;
+				delete[] shadowRes;
 			}
 			break;
 		case ME_EXIT:
