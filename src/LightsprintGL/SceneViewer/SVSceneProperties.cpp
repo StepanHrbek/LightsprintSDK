@@ -205,7 +205,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propLensFlare,propLensFlareId);
 		}
 
-		propRenderVignette = new BoolRefProperty("Vignette","Vignette overlay is loaded from data/maps/vignette.png.",svs.renderVignette);
+		propRenderVignette = new BoolRefProperty("Vignette","Renders vignette overlay image.",svs.renderVignette);
 		AppendIn(propRenderExtras,propRenderVignette);
 
 		// grid

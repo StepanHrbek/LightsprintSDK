@@ -1302,7 +1302,7 @@ rendered:
 			{
 				vignetteLoadAttempted = true;
 				RR_ASSERT(!vignetteImage);
-				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/vignette.png",svs.pathToShaders));
+				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_vignette.png",svs.pathToShaders));
 			}
 			if (vignetteImage && textureRenderer)
 			{
@@ -1759,6 +1759,7 @@ rendered:
 			glDisable(GL_BLEND);
 		}
 	}
+
 
 	// render logo, using own shader
 	if (textureRenderer)

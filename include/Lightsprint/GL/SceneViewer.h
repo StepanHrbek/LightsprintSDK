@@ -76,7 +76,7 @@ struct SceneViewerState
 	bool             renderLensFlare;           //! Render lens flare effect.
 	float            lensFlareSize;             //! Relative lens flare size, 1 for typical size.
 	unsigned         lensFlareId;               //! Other lens flare parameters are generated from this number.
-	bool             renderVignette;            //! Render vignette overlay from vignette.png.
+	bool             renderVignette;            //! Render vignette overlay from sv_vignette.png.
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
 	bool             renderTonemapping;         //! Render with tonemapping.

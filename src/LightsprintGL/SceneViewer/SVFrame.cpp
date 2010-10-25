@@ -1611,8 +1611,8 @@ reload_skybox:
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
-				info.SetWebSite("http://lightsprint.com");
-				info.SetCopyright("(c) 1999-2010 Stepan Hrbek, Lightsprint");
+				info.SetCopyright("(c) 1999-2010 Stepan Hrbek, Lightsprint\n\nhttp://lightsprint.com\n\n3rd party contributions - see Lightsprint SDK manual.");
+				//info.SetWebSite("http://lightsprint.com"); ... makes wx rev 65804 assert
 				wxAboutBox(info);
 				delete icon;
 			}
