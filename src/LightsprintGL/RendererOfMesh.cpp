@@ -263,33 +263,27 @@ void MeshArraysVBOs::render(
 		struct UvChannelBinding
 		{
 			unsigned boundUvChannel[5]; // indexed by MULTITEXCOORD_XXX
-			void bindUvChannel(const rr::RRVector<unsigned>& texcoordVBO, unsigned shaderChannel, unsigned uvChannel, const rr::RRBuffer* buffer)
+			void bindUvChannel(const rr::RRVector<unsigned>& _texcoordVBO, unsigned _shaderChannel, unsigned _uvChannel, const rr::RRBuffer* _buffer, const rr::RRString& _objectName, const rr::RRString& _materialName)
 			{
-				RR_ASSERT(shaderChannel<5);
-				if (boundUvChannel[shaderChannel]==uvChannel)
+				RR_ASSERT(_shaderChannel<5);
+				if (boundUvChannel[_shaderChannel]==_uvChannel)
 				{
 					// already set
 					return;
 				}
-				if (!buffer)
+				if (!_buffer)
 				{
 					// 1x1 texture is probably used and uv is irrelevant
 					return;
 				}
-				boundUvChannel[shaderChannel] = uvChannel;
-				if (uvChannel>=texcoordVBO.size())
+				boundUvChannel[_shaderChannel] = _uvChannel;
+				if (_uvChannel>=_texcoordVBO.size() || _texcoordVBO[_uvChannel]==0)
 				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Material needs non existing uv channel %d (texcoord.size=%d).\n",uvChannel,texcoordVBO.size()));
-					RR_ASSERT(0);
+					RR_LIMITED_TIMES(20,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
 					return;
 				}
-				if (texcoordVBO[uvChannel]==0)
-				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Material needs non existing uv channel %d.\n",uvChannel));
-					return;
-				}
-				glClientActiveTexture(GL_TEXTURE0+shaderChannel);
-				BIND_VBO3(TexCoord,2,texcoordVBO[uvChannel]);
+				glClientActiveTexture(GL_TEXTURE0+_shaderChannel);
+				BIND_VBO3(TexCoord,2,_texcoordVBO[_uvChannel]);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 		};
@@ -334,13 +328,13 @@ void MeshArraysVBOs::render(
 							// set material
 							_uberProgramSetup.useMaterial(_program,material);
 							if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture);
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_EMISSIVE_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture);
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture);
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1);
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 
 							// render one facegroup
 							if (createdIndexed)
