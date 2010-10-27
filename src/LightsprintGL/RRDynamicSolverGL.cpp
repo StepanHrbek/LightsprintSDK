@@ -161,9 +161,21 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 	if (realtimeLights.size())
 	{
 		bool dirtyGI = false;
+		unsigned numLightsEnabled = 0;
 		for (unsigned i=0;i<realtimeLights.size();i++)
 			if (realtimeLights[i] && realtimeLights[i]->getRRLight().enabled)
+			{
+				numLightsEnabled++;
 				dirtyGI |= realtimeLights[i]->dirtyGI && !realtimeLights[i]->shadowOnly;
+			}
+		// When user disables light (rrlight->enabled=false;rtlight->dirtyGI=true), enabled lights stay clean,
+		// but DDI needs update. So we detect when number of enabled lights changes.
+		if (numLightsEnabled!=lastDDINumLightsEnabled)
+		{
+			lastDDINumLightsEnabled = numLightsEnabled;
+			lastDDITime = 0;
+			dirtyGI = true;
+		}
 		if (dirtyGI)
 		{
 			double now = GETSEC;

@@ -123,6 +123,7 @@ namespace rr_gl
 		// for DDI of multiple lights
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
+		unsigned lastDDINumLightsEnabled;
 
 		// for internal rendering (shadowmaps)
 		char pathToShaders[300];
