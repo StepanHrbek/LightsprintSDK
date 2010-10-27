@@ -159,7 +159,7 @@ public:
 	}
 	virtual void init(RRRay* ray)
 	{
-		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT3D;
+		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE;
 		hitTriangleMemory = UINT_MAX;
 	}
 	virtual bool collides(const RRRay* ray)
@@ -167,7 +167,6 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT3D);
 
 		// don't collide with self
 		RRMesh::PreImportNumber preImport = multiObject->getCollider()->getMesh()->getPreImportTriangle(ray->hitTriangle);
@@ -190,7 +189,6 @@ public:
 		// kdyz zasahnu jiny obj Y mimo AABB X: { skoncit s M?M:Z }
 		if (hitTriangleMemory==UINT_MAX)
 			hitTriangleMemory = ray->hitTriangle;
-		return (ray->hitPoint3d-ray->rayOrigin).length()>singleObjectWorldRadius;
 		return ray->hitDistance>singleObjectWorldRadius;
 	}
 	virtual bool done()
