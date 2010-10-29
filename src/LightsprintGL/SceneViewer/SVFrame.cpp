@@ -494,7 +494,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_objectProperties = new SVObjectProperties(this);
 	m_materialProperties = new SVMaterialProperties(this);
 	m_sceneTree = new SVSceneTree(this);
-	userPreferences.currentWindowLayout = 2;
 	static const char * sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
@@ -552,8 +551,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.SetManagedWindow(this);
 
 	UpdateEverything(); // slow. if specified by filename, loads scene from disk
-	if (svs.fullscreen) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
-
 	// create layouts if load failed
 	if (!layoutLoaded)
 	{
@@ -598,6 +595,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		userPreferences.windowLayout[1].fullscreen = false;
 		userPreferences.windowLayout[1].maximized = false;
 		userPreferences.windowLayout[1].perspective = m_mgr.SavePerspective();
+		userPreferences.currentWindowLayout = 2;
 	}
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name(wxT("objectproperties")).Caption(wxT("Object properties")).CloseButton(true).Right());
@@ -608,7 +606,19 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		userPreferences.windowLayout[2].maximized = false;
 		userPreferences.windowLayout[2].perspective = m_mgr.SavePerspective();
 	}
+
+	// synchronize fullscreen state between 3 places
+	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen
+	//   - was just loaded from file or initiaized to default
+	//     this is what we want to set
+	// - svs.fullscreen
+	//   - may be set by user who calls sceneViewer()
+	//     we will ignore it
+	// - actual state of wx
+	//   - is windowed right now
+	svs.fullscreen = false;
 	userPreferencesApplyToWx();
+
 	m_mgr.Update();
 }
 
@@ -697,8 +707,8 @@ void SVFrame::UpdateMenuBar()
 	// Window...
 	{
 		winMenu = new wxMenu;
-		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
-		winMenu->Check(ME_WINDOW_FULLSCREEN,svs.fullscreen);
+		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN_META,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->Check(ME_WINDOW_FULLSCREEN_META,svs.fullscreen);
 		winMenu->AppendCheckItem(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_T("User preferences"),_T("Opens user preferences window."));
@@ -1491,6 +1501,7 @@ reload_skybox:
 
 		///////////////////////////////// WINDOW ////////////////////////////////
 
+		case ME_WINDOW_FULLSCREEN_META:
 		case ME_WINDOW_FULLSCREEN:
 			svs.fullscreen = !svs.fullscreen;
 			if (svs.fullscreen)
@@ -1548,7 +1559,7 @@ reload_skybox:
 				{
 					if (svs.fullscreen)
 					{
-						OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
+						OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN_META));
 					}
 					if (IsMaximized())
 					{

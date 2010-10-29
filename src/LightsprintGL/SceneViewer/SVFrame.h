@@ -113,7 +113,8 @@ namespace rr_gl
 			ME_STATIC_BUILD_LIGHTFIELD_2D,
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
 
-			ME_WINDOW_FULLSCREEN,
+			ME_WINDOW_FULLSCREEN_META, // SV: identical to non-META. RL: toggles two predefined workspaces
+			ME_WINDOW_FULLSCREEN, // toggles fullscreen in current workspace
 			ME_WINDOW_TREE,
 			ME_WINDOW_USER_PROPERTIES,
 			ME_WINDOW_SCENE_PROPERTIES,

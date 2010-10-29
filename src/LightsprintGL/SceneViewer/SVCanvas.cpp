@@ -467,8 +467,8 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 
+		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN_META)); break;
 		case WXK_F9: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_FILE_SAVE_SCREENSHOT)); break;
-		case WXK_F11: parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN)); break;
 		case WXK_NUMPAD_ADD:
 		case '+': svs.tonemappingBrightness *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_SUBTRACT:
@@ -538,7 +538,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			else
 			if (svs.fullscreen)
 			{
-				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN));
+				parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN_META));
 			}
 			else
 			{
@@ -739,6 +739,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			parent->m_objectProperties->setObject(selectedObject,svs.precision);
 			parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
 		}
+	}
+
+	// handle double clicking
+	if (event.LeftDClick() && s_ci.hitTriangle==UINT_MAX)
+	{
+		parent->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_WINDOW_FULLSCREEN_META));
 	}
 
 	// handle dragging

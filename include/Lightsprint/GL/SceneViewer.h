@@ -57,7 +57,7 @@ struct SceneViewerState
 	unsigned         ldmLayerNumber;            //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
-	bool             fullscreen;                //! Fullscreen rather than window.
+	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	LightingDirect   renderLightDirect;         //! Render direct illumination.
 	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
