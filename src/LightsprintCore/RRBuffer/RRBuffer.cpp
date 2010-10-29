@@ -288,23 +288,27 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 // ImageCache
 // - needs exceptions, implemented in exceptions.cpp
 
-RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6])
+RRBuffer* load_noncached(const char *_filename, const char* _cubeSideName[6])
 {
-	// try reloader for images (with disabled reporting, even if reloader fails, loader may succeed)
+	if (!_filename || !_filename[0])
+	{
+		return NULL;
+	}
+	// try reloader for images (don't call texture->reload(), it would report failure)
+	if (s_reload)
 	{
 		RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-		RRReporter* oldReporter = RRReporter::getReporter();
-		RRReporter::setReporter(NULL);
-		bool reloaded = texture->reload(filename,cubeSideName);
-		RRReporter::setReporter(oldReporter);
-		if (reloaded)
+		if (s_reload(texture,_filename,_cubeSideName))
+		{
+			texture->filename = _filename;
 			return texture;
+		}
 		delete texture;
 	}
 	// try loader for videos
 	if (s_load)
 	{
-		return s_load(filename);
+		return s_load(_filename);
 	}
 	return NULL;
 }
@@ -380,7 +384,7 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 	}
 	if (!s_load && !s_reload)
 	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load(), no loader or reloader.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load(), register loader or reloader first, see LightsprintIO.\n"));
 		return NULL;
 	}
 	// cached version
