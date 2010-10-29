@@ -88,6 +88,14 @@ class ImageCache
 public:
 	RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
 	{
+		// here we disable caching of cubemaps, because
+		//  - it saves nothing in real world scenarios (cubes are rare)
+		//  - if cross shaped is loaded as 2d, it is cached as 2d. when we load it as cube later, 2d is returned
+		if (cubeSideName)
+		{
+			return load_noncached(filename,cubeSideName);
+		}
+
 		Cache::iterator i = cache.find(filename);
 		if (i!=cache.end())
 		{
