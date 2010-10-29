@@ -88,14 +88,6 @@ class ImageCache
 public:
 	RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
 	{
-		// here we disable caching of cubemaps, because
-		//  - it saves nothing in real world scenarios (cubes are rare)
-		//  - if cross shaped is loaded as 2d, it is cached as 2d. when we load it as cube later, 2d is returned
-		if (cubeSideName)
-		{
-			return load_noncached(filename,cubeSideName);
-		}
-
 		Cache::iterator i = cache.find(filename);
 		if (i!=cache.end())
 		{
@@ -106,6 +98,12 @@ public:
 				// && i->second.fileTimeWhenLoaded==boost::filesystem::last_write_time(filename)
 				)
 			{
+				// detect and report possible error
+				bool cached2dCross = i->second.buffer->getType()==BT_2D_TEXTURE && (i->second.buffer->getWidth()*3==i->second.buffer->getHeight()*4 || i->second.buffer->getWidth()*4==i->second.buffer->getHeight()*3);
+				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
+				if ((cached2dCross && cubeSideName) || (cachedCube && !cubeSideName))
+					RRReporter::report(WARN,"You broke image cache by loading %s as both 2d and cube.\n",filename);
+
 				// image is already in memory and it was not modified since load, use it
 				return i->second.buffer->createReference(); // add one ref for user
 			}
