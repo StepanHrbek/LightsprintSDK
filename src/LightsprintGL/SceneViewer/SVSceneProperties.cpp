@@ -205,8 +205,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propLensFlare,propLensFlareId);
 		}
 
-		propRenderVignette = new BoolRefProperty("Vignette","Renders vignette overlay image.",svs.renderVignette);
-		AppendIn(propRenderExtras,propRenderVignette);
+		// vignette
+		{
+			propVignette = new BoolRefProperty("Vignette","Renders vignette overlay image.",svs.renderVignette);
+			AppendIn(propRenderExtras,propVignette);
+
+		}
 
 		// grid
 		{
@@ -313,6 +317,7 @@ void SVSceneProperties::updateHide()
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
 	propLensFlareId->Hide(!svs.renderLensFlare,false);
 
+
 	propGridNumSegments->Hide(!svs.renderGrid,false);
 	propGridSegmentSize->Hide(!svs.renderGrid,false);
 
@@ -342,6 +347,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propWater)
 		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propLensFlare)
+		+ updateBoolRef(propVignette)
 		+ updateBoolRef(propGrid)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
@@ -378,7 +384,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderBloom)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
-		+ updateBoolRef(propRenderVignette)
 		+ updateProperty(propWaterColor,svs.waterColor)
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
