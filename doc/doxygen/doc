@@ -2478,7 +2478,7 @@ Video formats
 
  \section g3_limits Limitations of current version
   - GI Package 2.1.1 has several issues, currently being adressed, with fix expected soon:
-    - Results of baking may fail to appear or save to disk. One of these may help to workaround the issue: 1) Unset and set LightingFile in GIScene. 2) Bake again.
+    - Results of baking may fail to appear or save to disk. One of these may help to workaround the issue: 1) Click Toggle Precomputed Lights icon. 2) Click Toggle Default Lights icon. 3) Unset and set LightingFile in GIScene. 4) Reopen block. 5) Bake again.
     - Plugin request to display GI after bake is ignored. Click "Toggle Precomputed Lights" icon manually.
   - Terrain lightmaps not supported. This is long term GI Package limitation.
   - Light probes not updated. We will support them in next GI Package.
@@ -2550,7 +2550,7 @@ Video formats
 
    \subsection g3_cache - lightmap cache
     - located in (asset root)/PrecomputedLighting/cache
-    - how it works?
+    - how does it work?
       - "Bake lighting" calculates lighting, saves raw lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
       - "Bake lighting from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
     - serves three purposes
@@ -2561,6 +2561,14 @@ Video formats
    \subsection g3_configs - baking multiple configurations at once
     - LightsprintMesh properties LsReplacementCase and LsReplacementConfiguration let you define multiple scene configurations
     - GI is automatically baked for all configurations at once, without increasing baking time
+
+   \subsection g3_opti - reducing bake time
+    - Baking time depends nearly linearly on quality and number of texels and vertex colors calculated.
+    - Reduce number of texels calculated.
+      Make all lightmaps smaller by reducing LsPixelsPerWorldUnit. Bake and if lighting errors (leaks) show up or lighting is too blurry, increase lightmap sizes in objects that need it.
+    - Select hi-poly meshes and change LsBakeTarget to Vertices. Bake and if lighting is too blurry, change target back in objects that need it.
+    - Use lower quality/resolution for non final builds.
+    - Use faster CPU. Performance increases nearly linearly with number of cores.
 
  \section g3_max Preparing art assets
     - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:

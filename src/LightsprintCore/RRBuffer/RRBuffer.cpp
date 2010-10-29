@@ -384,7 +384,7 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
 	}
 	if (!s_load && !s_reload)
 	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load(), register loader or reloader first, see LightsprintIO.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load images, register loader or reloader first, see LightsprintIO.\n"));
 		return NULL;
 	}
 	// cached version
