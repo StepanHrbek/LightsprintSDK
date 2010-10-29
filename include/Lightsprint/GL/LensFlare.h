@@ -31,8 +31,8 @@ public:
 	//! \param pathToShaders
 	//!  Path to directory with shaders.
 	//!  Must be terminated with slash (or be empty for current dir).
-	//!  Textures are loaded from paths relative to shaders, e.g. ../maps/flare1.png.
-	LensFlare(const char* pathToShaders);
+	//!  Textures are loaded from paths relative to shaders, e.g. <pathToShaders>../maps/<prefix>flare_prim1.png.
+	LensFlare(const char* pathToShaders, const char* prefix=NULL);
 	~LensFlare();
 
 	//! Renders lens flares for single light source.

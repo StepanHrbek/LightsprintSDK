@@ -52,12 +52,12 @@ public:
 
 #define NO_SYSTEM_MEMORY (unsigned char*)1
 
-LensFlare::LensFlare(const char* pathToShaders)
+LensFlare::LensFlare(const char* pathToShaders, const char* prefix)
 {
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
-		primaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/flare_prim%d.png",pathToShaders,i+1));
+		primaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/%sflare_prim%d.png",pathToShaders,prefix?prefix:"",i+1));
 	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
-		secondaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/flare_sec%d.png",pathToShaders,i+1));
+		secondaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/%sflare_sec%d.png",pathToShaders,prefix?prefix:"",i+1));
 	ray = rr::RRRay::create();
 	collisionHandlerTransparency = new CollisionHandlerTransparency;
 	ray->collisionHandler = collisionHandlerTransparency;
