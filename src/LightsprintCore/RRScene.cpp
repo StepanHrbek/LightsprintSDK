@@ -289,7 +289,7 @@ void RRScene::registerSaver(const char* extensions, Saver* saver)
 		s_savers.push_back(se);
 
 		// update s_saverExtensions
-		if (s_loaders.size()==1)
+		if (s_savers.size()==1)
 			_snprintf(s_saverExtensions,S_EXTENSIONS_LEN,"%s",extensions);
 		else
 			_snprintf(s_saverExtensions+strlen(s_saverExtensions),S_EXTENSIONS_LEN-strlen(s_saverExtensions),";%s",extensions);
