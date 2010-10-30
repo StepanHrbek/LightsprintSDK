@@ -406,6 +406,8 @@ class RRSceneOpenCollada : public RRScene
 	friend class RRWriterOpenCollada;
 public:
 	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier);
+	static bool save141(const RRScene* scene, const char* filename);
+	static bool save150(const RRScene* scene, const char* filename);
 
 	virtual ~RRSceneOpenCollada() { }
 };
@@ -2100,6 +2102,18 @@ RRScene* RRSceneOpenCollada::load(const char* filename, bool* aborting, float em
 	return scene;
 }
 
+bool RRSceneOpenCollada::save141(const RRScene* scene, const char* filename)
+{
+	RRReportInterval report(INF2,"Exporting Collada 1.4.1\n");
+	return false;
+}
+
+bool RRSceneOpenCollada::save150(const RRScene* scene, const char* filename)
+{
+	RRReportInterval report(INF2,"Exporting Collada 1.5.0\n");
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // main
@@ -2107,6 +2121,8 @@ RRScene* RRSceneOpenCollada::load(const char* filename, bool* aborting, float em
 void registerLoaderOpenCollada()
 {
 	RRScene::registerLoader("*.dae",RRSceneOpenCollada::load);
+	RRScene::registerSaver("*.1.5.0.dae",RRSceneOpenCollada::save150);
+	RRScene::registerSaver("*.1.4.1.dae",RRSceneOpenCollada::save141);
 }
 
 #endif // SUPPORT_OPENCOLLADA
