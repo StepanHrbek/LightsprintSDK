@@ -141,9 +141,6 @@
     <ClCompile Include="RRDynamicSolver\lightmap.cpp">
       <Filter>RRDynamicSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\LightmapFilter.cpp">
-      <Filter>RRDynamicSolver</Filter>
-    </ClCompile>
     <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
       <Filter>RRDynamicSolver</Filter>
     </ClCompile>
@@ -332,9 +329,6 @@
       <Filter>RRDynamicSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRDynamicSolver\Interpolator.h">
-      <Filter>RRDynamicSolver</Filter>
-    </ClInclude>
-    <ClInclude Include="RRDynamicSolver\LightmapFilter.h">
       <Filter>RRDynamicSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRDynamicSolver\private.h">

@@ -497,15 +497,13 @@ namespace rr
 		struct FilteringParameters
 		{
 			//! How far foreground (used) colors spread into background (unused) regions.
-			//! For lightmaps that are bilinearly filtered at application time, set 2 or higher
+			//! For lightmaps that are bilinearly filtered at application time, set 1 or higher
 			//! to prevent background color leaking into foreground.
-			//! For lightmaps that are unfiltered at application time, set 1 or higher.
+			//! For lightmaps that are unfiltered at application time, set 0 or higher.
 			//! Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
 			unsigned spreadForegroundColor;
 			//! Color of unused background pixels.
 			RRVec4 backgroundColor;
-			//! Smooth foreground-background transition.
-			bool smoothBackground;
 			//! Smooth colors between opposite borders.
 			//! Some mappings need it to prevent seams, e.g. one kind of spherical mapping.
 			//! Generally, enable wrap if lightmap is to be later applied with wrapping enabled.
@@ -513,9 +511,8 @@ namespace rr
 			//! Sets default parameters.
 			FilteringParameters()
 			{
-				spreadForegroundColor = 2;
+				spreadForegroundColor = 4;
 				backgroundColor = RRVec4(0);
-				smoothBackground = false;
 				wrap = true;
 			}
 		};

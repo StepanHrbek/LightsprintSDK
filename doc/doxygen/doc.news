@@ -8,6 +8,22 @@ namespace rr
 
 \page main_news What's new
 
+\section news112 ------------------------------------ 2010.11.xx -------------------------------------
+
+NEWS
+
+- RRBuffer tools
+  - RRBuffer::clear()
+  - RRBuffer::copyElementsTo()
+  - RRBuffer::growForeground()
+  - RRBuffer::fillBackground()
+
+CHANGES
+
+- RRDynamicSolver::FilteringParameters::spreadForegroundColor is 2x more sensitive,
+  old default 2 was changed to 4 to get the same result
+- RRDynamicSolver::FilteringParameters::smoothBackground removed
+
 \section news111 ------------------------------------ 2010.10.16 -------------------------------------
 
 NEWS

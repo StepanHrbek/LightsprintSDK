@@ -647,7 +647,6 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\LightmapFilter.cpp" />
     <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
@@ -737,7 +736,6 @@
     <ClInclude Include="RRStaticSolver\RRStaticSolver.h" />
     <ClInclude Include="RRDynamicSolver\gather.h" />
     <ClInclude Include="RRDynamicSolver\Interpolator.h" />
-    <ClInclude Include="RRDynamicSolver\LightmapFilter.h" />
     <ClInclude Include="RRDynamicSolver\private.h" />
     <ClInclude Include="RRDynamicSolver\report.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRDynamicSolver.h" />

@@ -241,6 +241,14 @@ namespace rr
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
+		//! Copies contents of buffer. Buffer format and scale are preserved, data are converted as necessary.
+		//
+		//! \param destination
+		//!  Destination buffer. Must have the same width, height, depth, may differ in format, scale.
+		//! \param scaler
+		//!  Scaler used if buffers differ in scale. May be NULL for no conversion.
+		//! \return True on success.
+		bool copyElementsTo(RRBuffer* destination, const class RRScaler* scaler) const;
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
@@ -355,6 +363,9 @@ namespace rr
 		virtual void setFormat(RRBufferFormat newFormat);
 		//! Changes buffer format to floats, RGB to RGBF, RGBA to RGBAF.
 		virtual void setFormatFloats();
+
+		//! Clears buffer to clearColor.
+		virtual void clear(RRVec4 clearColor = RRVec4(0));
 		//! Changes all colors in buffer to 1-color.
 		//
 		//! Preserves buffer format.
@@ -372,6 +383,17 @@ namespace rr
 		//! Preserves buffer format.
 		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
 		virtual void brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma);
+		//! Spreads foreground colors into background.
+		//
+		//! Foreground consists of texels with alpha>0.
+		//! \param distance
+		//!  Distance in pixels, how deep into background to grow foreground.
+		//! \param wrap
+		//!  True = grows through buffer boundaries.
+		//! \return True on success.
+		virtual bool growForeground(unsigned distance, bool wrap);
+		//! Fills background by backgroundColor. Background consists of texels with alpha<=0.
+		virtual void fillBackground(RRVec4 backgroundColor);
 		//! Fills mini and maxi with extreme values found in buffer.
 		virtual void getMinMax(RRVec4* mini, RRVec4* maxi);
 	};

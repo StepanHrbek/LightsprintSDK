@@ -8,6 +8,7 @@
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRLight.h"
 #include "../squish/squish.h"
 
 namespace rr
@@ -66,6 +67,35 @@ RRBuffer* RRBuffer::createCopy()
 	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),getFormat(),getScaled(),data);
 	unlock();
 	return copy;
+}
+
+bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) const
+{
+	const RRBuffer* source = this; 
+	if (!source || !destination)
+	{
+		RR_ASSERT(0); // invalid inputs
+		return false;
+	}
+	unsigned w = destination->getWidth();
+	unsigned h = destination->getHeight();
+	unsigned d = destination->getDepth();
+	if (source->getWidth()!=w || source->getHeight()!=h || source->getDepth()!=d)
+	{
+		RR_ASSERT(0); // invalid inputs
+		return false;
+	}
+	unsigned size = w*h*d;
+	const RRScaler* toCust = (!source->getScaled() && destination->getScaled()) ? scaler : NULL;
+	const RRScaler* toPhys = (source->getScaled() && !destination->getScaled()) ? scaler : NULL;
+	for (unsigned i=0;i<size;i++)
+	{
+		RRVec4 color = source->getElement(i);
+		if (toCust) toCust->getCustomScale(color); else
+		if (toPhys) toPhys->getPhysicalScale(color);
+		destination->setElement(i,color);
+	}
+	return true;
 }
 
 void RRBuffer::setFormat(RRBufferFormat newFormat)
@@ -139,6 +169,15 @@ void RRBuffer::setFormatFloats()
 		case BF_RGBA:
 			setFormat(BF_RGBAF);
 			break;
+	}
+}
+
+void RRBuffer::clear(RRVec4 clearColor)
+{
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		setElement(i,clearColor);
 	}
 }
 
@@ -260,6 +299,118 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 		for (unsigned j=0;j<4;j++)
 			element[j] = pow(element[j]*brightness[j],gamma[j]);
 		setElement(i,element);
+	}
+}
+
+bool RRBuffer::growForeground(unsigned _numSteps, bool _wrap)
+{
+	if (!this)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	if (_numSteps==0)
+		return true;
+	if (getFormat()==BF_DXT1 || getFormat()==BF_DXT3 || getFormat()==BF_DXT5)
+	{
+		// can't manipulate compressed buffer
+		return false;
+	}
+	if (getFormat()!=BF_RGBA && getFormat()!=BF_RGBAF)
+	{
+		// no alpha -> everything is foreground -> no space to grow
+		return true;
+	}
+
+	// copy image from buffer to temp
+	unsigned width = getWidth();
+	unsigned height = getHeight();
+	unsigned size = width*height;
+	RRVec4* buf;
+	buf = new (std::nothrow) RRVec4[size*2];
+	if (!buf)
+	{
+		RRReporter::report(WARN,"Allocation of %dMB failed in growForeground().\n",size*2*sizeof(RRVec4)/1024/1024);
+		return false;
+	}
+	RRVec4* source = buf;
+	RRVec4* destination = buf+size;
+	for (unsigned i=0;i<size;i++)
+	{
+		RRVec4 c = getElement(i);
+		source[i] = c[3]>0 ? RRVec4(c[0],c[1],c[2],1) : RRVec4(0);
+	}
+
+	// grow temp
+	while (_numSteps--)
+	{
+		bool changed = false;
+		if (_wrap)
+		{
+			// faster version with wrap
+			#pragma omp parallel for schedule(static)
+			for (int i=0;i<(int)size;i++)
+			{
+				RRVec4 c = source[i];
+				if (c[3]==0)
+				{
+					RRVec4 d = (source[(i+1)%size] + source[(i-1)%size] + source[(i+width)%size] + source[(i-width)%size]) * 1.6f
+						+ (source[(i+1+width)%size] + source[(i+1-width)%size] + source[(i-1+width)%size] + source[(i-1-width)%size]);
+					if (d[3]!=0)
+					{
+						c = d/d[3];
+						changed = true;
+					}
+				}
+				destination[i] = c;
+			}
+		}
+		else
+		{
+			// slower version without wrap
+			#pragma omp parallel for schedule(static)
+			for (int i=0;i<(int)size;i++)
+			{
+				RRVec4 c = source[i];
+				if (c[3]==0)
+				{
+					int x = i%width;
+					int y = i/width;
+					int w = (int)width;
+					int h = (int)height;
+					RRVec4 d = (source[RR_MIN(x+1,w-1) + y*w] + source[RR_MAX(x-1,0) + y*w] + source[x + RR_MIN(y+1,h-1)*w] + source[x + RR_MAX(y-1,0)*w]) * 1.6f
+						+ (source[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w] + source[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w] + source[RR_MAX(x-1,0) + RR_MIN(y+1,h-1)*w] + source[RR_MAX(x-1,0) + RR_MAX(y-1,0)*w]);
+					if (d[3]!=0)
+					{
+						c = d/d[3];
+						changed = true;
+					}
+				}
+				destination[i] = c;
+			}
+		}
+		if (!changed)
+			_numSteps = 0; // stop growing if it has no effect
+		RRVec4* temp = source;
+		source = destination;
+		destination = temp;
+	}
+
+	// copy temp back to buffer
+	for (unsigned i=0;i<size;i++)
+		if (source[i][3]>0)
+			setElement(i,source[i]);
+	delete[] buf;
+	return true;
+}
+
+void RRBuffer::fillBackground(RRVec4 backgroundColor)
+{
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = getElement(i);
+		setElement(i,(color[3]<0)?backgroundColor:color);
 	}
 }
 

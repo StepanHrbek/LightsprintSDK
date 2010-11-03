@@ -875,7 +875,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			result.irradiancePhysical[i][3] = 1; // only completely unreliable results stay at 0, others get 1 here
 		// store irradiance (no scaling yet)
 		if (pti.context.pixelBuffers[i])
-			pti.context.pixelBuffers[i]->renderTexelPhysical(pti.uv,result.irradiancePhysical[i]);
+			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i]);
 	}
 //RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradiancePhysicalLights[LS_LIGHTMAP][0],hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
@@ -890,7 +890,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// store bent normal (no scaling)
 	if (pti.context.pixelBuffers[LS_BENT_NORMALS])
 	{
-		pti.context.pixelBuffers[LS_BENT_NORMALS]->renderTexelPhysical(pti.uv,
+		pti.context.pixelBuffers[LS_BENT_NORMALS]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[LS_BENT_NORMALS]->getWidth(),
 			// instead of result.bentNormal
 			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
 			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1)

@@ -14,7 +14,6 @@
 #endif
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRDynamicSolver.h"
-#include "LightmapFilter.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
@@ -578,7 +577,7 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
 }
 
-unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* filtering)
+unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* _filtering)
 {
 	if (aborting)
 		return 0;
@@ -727,7 +726,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			GatheredPerTriangleData* finalGatherPhysical = GatheredPerTriangleData::create(numTriangles,allVertexBuffers[LS_LIGHTMAP]?1:0,allVertexBuffers[LS_DIRECTION1]||allVertexBuffers[LS_DIRECTION2]||allVertexBuffers[LS_DIRECTION3],allVertexBuffers[LS_BENT_NORMALS]?1:0);
 			if (!finalGatherPhysical)
 			{
-				RRReporter::report(ERRO,"Not enough memory, vertex buffer not updated.\n");
+				RRReporter::report(ERRO,"Allocation failed, vertex buffer not updated.\n");
 			}
 			else
 			{
@@ -751,20 +750,21 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 	{
 		TexelContext tc;
 		tc.solver = this;
-		try
-		{
-			for (unsigned i=0;i<NUM_BUFFERS;i++)
-				tc.pixelBuffers[i] = NULL;
-			for (unsigned i=0;i<NUM_BUFFERS;i++)
-				tc.pixelBuffers[i] = allPixelBuffers[i]?new LightmapFilter(pixelBufferWidth,pixelBufferHeight):NULL;
-		}
-		catch(std::bad_alloc)
-		{
-			for (unsigned i=0;i<NUM_BUFFERS;i++)
-				delete tc.pixelBuffers[i];
-			RRReporter::report(ERRO,"Not enough memory, lightmap not updated(0).\n");
-			return updatedBuffers;
-		}
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
+			tc.pixelBuffers[i] = NULL;
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
+			if (allPixelBuffers[i])
+			{
+				tc.pixelBuffers[i] = RRBuffer::create(BT_2D_TEXTURE,pixelBufferWidth,pixelBufferHeight,1,BF_RGBAF,false,NULL);
+				if (!tc.pixelBuffers[i])
+				{
+					for (unsigned i=0;i<NUM_BUFFERS;i++)
+						delete tc.pixelBuffers[i];
+					RRReporter::report(ERRO,"Allocation failed, lightmap not updated(0).\n");
+					return updatedBuffers;
+				}
+				tc.pixelBuffers[i]->clear();
+			}
 		tc.params = &params;
 		tc.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
 		tc.gatherDirectEmitors = getMultiObjectCustom()->faceGroups.containsEmittance(); // this is final gather -> gather from emitors
@@ -800,6 +800,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			}
 		}
 
+		const FilteringParameters filteringLocal;
+		if (!_filtering)
+			_filtering = &filteringLocal;
 		unsigned numBuffersEmpty = 0;
 		unsigned numBuffersFull = 0;
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -810,7 +813,15 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
-					if (!tc.pixelBuffers[i]->getNumRenderedTexels())
+					unsigned numTexels = tc.pixelBuffers[i]->getWidth()*tc.pixelBuffers[i]->getHeight();
+					bool empty = true;
+					for (unsigned j=0;j<numTexels;j++)
+					{
+						RRVec4 color = tc.pixelBuffers[i]->getElement(j);
+						empty = empty && color==RRVec4(0);
+						RR_ASSERT(color[3]==0 || color[3]==1);
+					}
+					if (empty)
 					{
 						numBuffersEmpty++;
 					}
@@ -818,7 +829,9 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					{
 						numBuffersFull++;
 					}
-					scaleAndFlushToBuffer(allPixelBuffers[i],tc.pixelBuffers[i]->getFilteredPhysical(filtering),(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
+					tc.pixelBuffers[i]->growForeground(_filtering->spreadForegroundColor,_filtering->wrap);
+					tc.pixelBuffers[i]->fillBackground(_filtering->backgroundColor);
+					tc.pixelBuffers[i]->copyElementsTo(allPixelBuffers[i],(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
 					allPixelBuffers[i]->version = getSolutionVersion();
 					updatedBuffers++;
 				}

@@ -9,7 +9,6 @@
 // comment out both = use stl. small, slow
 
 #include "Lightsprint/RRDynamicSolver.h"
-#include "LightmapFilter.h"
 	#include "../RRStaticSolver/ChunkList.h"
 
 namespace rr
@@ -30,7 +29,7 @@ enum LightmapSemantic
 struct TexelContext
 {
 	RRDynamicSolver* solver;
-	LightmapFilter* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
+	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
 	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	RRObject* singleObjectReceiver;
 	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather

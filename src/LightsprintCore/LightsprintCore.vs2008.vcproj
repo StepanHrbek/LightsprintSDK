@@ -1312,14 +1312,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="RRDynamicSolver\LightmapFilter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\LightmapFilter.h"
-				>
-			</File>
-			<File
 				RelativePath="RRDynamicSolver\private.h"
 				>
 			</File>
