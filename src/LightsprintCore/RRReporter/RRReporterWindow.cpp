@@ -21,6 +21,8 @@
 namespace rr
 {
 
+extern const char* tmpstr(const char* fmt, ...);
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRReporterWindow
@@ -157,12 +159,12 @@ public:
 	{
 		time_t t = time(NULL);
 		localReport(INF1,"FINISHED %s",asctime(localtime(&t)));
-		SetWindowText(hWnd,"Lightsprint log [FINISHED]");
 		SendDlgItemMessageA(hWnd,IDC_BUTTON_ABORT_CLOSE,WM_SETTEXT,0,(LPARAM)"Close");
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		RR_ASSERT(instanceData);
 		if (instanceData)
 		{
+			SetWindowText(hWnd,tmpstr("%s [FINISHED]",instanceData->caption));
 			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]); // warnings must go first, becuase all these messages are warnings, they increase count
 			if (instanceData->numLines[ERRO]) localReport(WARN," %d ERRORS\n",instanceData->numLines[ERRO]);
 			if (instanceData->numLines[ASSE]) localReport(WARN," %d ASSERTS\n",instanceData->numLines[ASSE]);
