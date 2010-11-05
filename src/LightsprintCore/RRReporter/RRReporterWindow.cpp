@@ -86,7 +86,7 @@ public:
 		char space[1000];
 		space[0] = 0;
 		indentation *= 2;
-		if (indentation>0 && indentation<999)
+		if (indentation>0 && indentation<900)
 		{
 			memset(space,' ',indentation);
 			space[indentation] = 0;
@@ -108,7 +108,9 @@ public:
 		instanceData->numLines[type]++;
 
 		// message
-		strcat(space,message);
+		size_t len = strlen(space);
+		strncpy(space+len,message,998-len);
+		space[998] = 0;
 		// crlf
 		space[strlen(space)-1]=0;
 		strcat(space,"\r\n");
