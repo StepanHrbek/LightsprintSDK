@@ -54,7 +54,6 @@ RRDynamicSolver/environmentMap.cpp \
 RRDynamicSolver/gather.cpp \
 RRDynamicSolver/Interpolator.cpp \
 RRDynamicSolver/lightmap.cpp \
-RRDynamicSolver/LightmapFilter.cpp \
 RRDynamicSolver/RRDynamicSolver.cpp \
 RRDynamicSolver/vertexBuffer.cpp \
 RRHash/sha1.cpp \
