@@ -149,6 +149,52 @@ void load(Archive & ar, rr::RRLights& a, const unsigned int version)
 	}
 }
 
+//------------------------------ CalculateParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::CalculateParameters& a, const unsigned int version)
+{
+	ar & make_nvp("materialEmittanceMultiplier",a.materialEmittanceMultiplier);
+	ar & make_nvp("materialEmittanceStaticQuality",a.materialEmittanceStaticQuality);
+	ar & make_nvp("materialEmittanceVideoQuality",a.materialEmittanceVideoQuality);
+	ar & make_nvp("materialEmittanceUsePointMaterials",a.materialEmittanceUsePointMaterials);
+	ar & make_nvp("materialTransmittanceStaticQuality",a.materialTransmittanceStaticQuality);
+	ar & make_nvp("materialTransmittanceVideoQuality",a.materialTransmittanceVideoQuality);
+	ar & make_nvp("environmentStaticQuality",a.environmentStaticQuality);
+	ar & make_nvp("environmentVideoQuality",a.environmentVideoQuality);
+	ar & make_nvp("qualityIndirectDynamic",a.qualityIndirectDynamic);
+	ar & make_nvp("qualityIndirectStatic",a.qualityIndirectStatic);
+	ar & make_nvp("secondsBetweenDDI",a.secondsBetweenDDI);
+}
+
+//------------------------------ UpdateParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const unsigned int version)
+{
+	ar & make_nvp("applyLights",a.applyLights);
+	ar & make_nvp("applyEnvironment",a.applyEnvironment);
+	ar & make_nvp("applyCurrentSolution",a.applyCurrentSolution);
+	ar & make_nvp("quality",a.quality);
+	ar & make_nvp("qualityFactorRadiosity",a.qualityFactorRadiosity);
+	ar & make_nvp("insideObjectsTreshold",a.insideObjectsTreshold);
+	ar & make_nvp("rugDistance",a.rugDistance);
+	ar & make_nvp("locality",a.locality);
+	ar & make_nvp("lowDetailForLightDetailMap",a.lowDetailForLightDetailMap);
+	ar & make_nvp("measure_internal",a.measure_internal);
+}
+
+//------------------------------ FilteringParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const unsigned int version)
+{
+	ar & make_nvp("smoothingAmount",a.smoothingAmount);
+	ar & make_nvp("spreadForegroundColor",a.spreadForegroundColor);
+	ar & make_nvp("backgroundColor",a.backgroundColor);
+	ar & make_nvp("wrap",a.wrap);
+}
+
 //------------------------------ Camera -------------------------------------
 
 template<class Archive>
@@ -293,6 +339,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
 	ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
 	ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
+	ar & make_nvp("lightmapFilteringParameters",a.lightmapFilteringParameters);
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.tonemappingBrightness);
@@ -397,6 +444,10 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 		ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
 		ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
 	}
+	if (version>17)
+	{
+		ar & make_nvp("lightmapFilteringParameters",a.lightmapFilteringParameters);
+	}
 	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.tonemappingBrightness);
@@ -482,7 +533,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 3)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 4) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 17)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 18)
 
 //---------------------------------------------------------------------------
 

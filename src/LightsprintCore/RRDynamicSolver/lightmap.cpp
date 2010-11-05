@@ -829,6 +829,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					{
 						numBuffersFull++;
 					}
+					tc.pixelBuffers[i]->blurForeground(_filtering->smoothingAmount,_filtering->wrap);
 					tc.pixelBuffers[i]->growForeground(_filtering->spreadForegroundColor,_filtering->wrap);
 					tc.pixelBuffers[i]->fillBackground(_filtering->backgroundColor);
 					tc.pixelBuffers[i]->copyElementsTo(allPixelBuffers[i],(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);

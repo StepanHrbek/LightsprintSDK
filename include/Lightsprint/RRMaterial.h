@@ -38,6 +38,7 @@ namespace rr
 		bool direct  : 1; ///< Makes direct radiation and emittance (your inputs) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
+		bool operator ==(const RRRadiometricMeasure& a) const;
 	};
 	// Shortcuts for typical measures.
 	#define RM_IRRADIANCE_PHYSICAL_INDIRECT rr::RRRadiometricMeasure(0,0,0,0,1)

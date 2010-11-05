@@ -365,8 +365,11 @@ namespace rr
 			//
 			//! If DXT format is recommended, RGB or RGBA is created instead, because solver can't store directly to DXT.
 			//! User may change format later by buffer->setFormat(actualFormat).
-			//! If forceFloats is set, float version of selected format is created.
-			RRBuffer* createBuffer(bool forceFloats = false) const;
+			//! \param forceFloats
+			//!  Creates float buffer.
+			//! \param forceAlpha
+			//!  Creates buffer with alpha channel.
+			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false) const;
 
 			~LayerParameters()
 			{

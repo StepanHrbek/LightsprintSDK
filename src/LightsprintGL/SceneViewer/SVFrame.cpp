@@ -1296,10 +1296,9 @@ reload_skybox:
 					rr::RRBuffer* oldEnv = solver->getEnvironment();
 					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
 					solver->setEnvironment(newEnv);
-					rr::RRDynamicSolver::FilteringParameters filtering;
+					rr::RRDynamicSolver::FilteringParameters filtering = svs.lightmapFilteringParameters;
+					filtering.smoothingAmount = 0;
 					filtering.backgroundColor = rr::RRVec4(0.5f);
-					filtering.wrap = false;
-					filtering.smoothBackground = true;
 					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
 					solver->setEnvironment(oldEnv);
 					delete newEnv;
@@ -1480,16 +1479,17 @@ reload_skybox:
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(quality);
-					rr::RRDynamicSolver::FilteringParameters filtering;
-					filtering.wrap = false;
-					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&filtering);
+					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
 					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 					// propagate computed data from buffers to textures
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 					{
-						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-							getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber),true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+						rr::RRBuffer* buf = solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
+						if (buf && buf->getType()==rr::BT_2D_TEXTURE)
+						{
+							getTexture(buf,true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+						}
 					}
 
 					// save calculated lightmaps

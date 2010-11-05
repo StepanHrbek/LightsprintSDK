@@ -41,22 +41,24 @@ const char* tmpstr(const char* fmt, ...)
 //
 // LayerParameters
 
-RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats) const
+RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAlpha) const
 {
 	RRBufferFormat f;
 	switch (actualFormat)
 	{
 		case BF_RGB:
 		case BF_BGR:
+			f = forceFloats ? (forceAlpha?BF_RGBAF:BF_RGBF) : (forceAlpha?BF_RGBA:actualFormat);
+			break;
 		case BF_RGBF:
-			f = forceFloats ? BF_RGBF : actualFormat;
+			f = forceAlpha ? BF_RGBAF : actualFormat;
 			break;
 		case BF_RGBA:
 		case BF_RGBAF:
 			f = forceFloats ? BF_RGBAF : actualFormat;
 			break;
 		case BF_DXT1:
-			f = forceFloats ? BF_RGBF : BF_RGB;
+			f = forceFloats ? (forceAlpha?BF_RGBAF:BF_RGBF) : (forceAlpha?BF_RGBA:BF_RGB);
 			break;
 		case BF_DXT3:
 		case BF_DXT5:

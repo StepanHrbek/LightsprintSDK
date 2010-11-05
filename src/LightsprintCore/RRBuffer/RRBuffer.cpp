@@ -302,6 +302,97 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 	}
 }
 
+bool RRBuffer::blurForeground(float _sigma, bool _wrap)
+{
+	if (!this)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	if (_sigma<0)
+		return false;
+	if (_sigma==0)
+		return true;
+
+	// copy image from buffer to temp
+	unsigned width = getWidth();
+	unsigned height = getHeight();
+	unsigned size = width*height;
+	RRVec4* buf;
+	buf = new (std::nothrow) RRVec4[size*2];
+	if (!buf)
+	{
+		RRReporter::report(WARN,"Allocation of %dMB failed in blurForeground().\n",size*2*sizeof(RRVec4)/1024/1024);
+		return false;
+	}
+	RRVec4* source = buf;
+	RRVec4* destination = buf+size;
+	for (unsigned i=0;i<size;i++)
+	{
+		RRVec4 c = getElement(i);
+		source[i] = c[3]>0 ? RRVec4(c[0],c[1],c[2],1) : RRVec4(0);
+	}
+
+	// blur temp
+	if (_sigma>10)
+		_sigma = 10;
+	float sigma2sum = _sigma*_sigma;
+	while (sigma2sum>0)
+	{
+		float sigma2 = RR_MIN(sigma2sum,0.34f);
+		RRVec4 kernel(1,expf(-0.5f/sigma2),expf(-1/sigma2),expf(-2/sigma2));
+		sigma2sum -= sigma2;
+		if (_wrap)
+		{
+			// faster version with wrap
+			#pragma omp parallel for schedule(static)
+			for (int i=0;i<(int)size;i++)
+			{
+				RRVec4 c = source[i];
+				if (c[3]!=0)
+				{
+					c = c * kernel[0]
+						+ (source[(i+1)%size] + source[(i-1)%size] + source[(i+width)%size] + source[(i-width)%size]) * kernel[1]
+						+ (source[(i+1+width)%size] + source[(i+1-width)%size] + source[(i-1+width)%size] + source[(i-1-width)%size]) * kernel[2];
+					c /= c[3];
+				}
+				destination[i] = c;
+			}
+		}
+		else
+		{
+			// slower version without wrap
+			#pragma omp parallel for schedule(static)
+			for (int i=0;i<(int)size;i++)
+			{
+				RRVec4 c = source[i];
+				if (c[3]!=0)
+				{
+					int x = i%width;
+					int y = i/width;
+					int w = (int)width;
+					int h = (int)height;
+					c = c * kernel[0]
+						+ (source[RR_MIN(x+1,w-1) + y*w] + source[RR_MAX(x-1,0) + y*w] + source[x + RR_MIN(y+1,h-1)*w] + source[x + RR_MAX(y-1,0)*w]) * kernel[1]
+						+ (source[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w] + source[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w] + source[RR_MAX(x-1,0) + RR_MIN(y+1,h-1)*w] + source[RR_MAX(x-1,0) + RR_MAX(y-1,0)*w]) * kernel[2];
+					c /= c[3];
+				}
+				destination[i] = c;
+			}
+		}
+		RRVec4* temp = source;
+		source = destination;
+		destination = temp;
+	}
+
+	// copy temp back to buffer
+	for (unsigned i=0;i<size;i++)
+		if (source[i][3]>0)
+			setElement(i,source[i]);
+	delete[] buf;
+	return true;
+}
+
 bool RRBuffer::growForeground(unsigned _numSteps, bool _wrap)
 {
 	if (!this)
@@ -432,7 +523,6 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 	if (_mini) *_mini = mini;
 	if (_maxi) *_maxi = maxi;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 //

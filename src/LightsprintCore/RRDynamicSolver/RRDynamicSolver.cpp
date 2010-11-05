@@ -27,6 +27,68 @@ namespace rr
 // kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// CalculateParameters
+
+bool RRDynamicSolver::CalculateParameters::operator ==(const RRDynamicSolver::CalculateParameters& a) const
+{
+	return 1
+		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
+		&& a.materialEmittanceStaticQuality==materialEmittanceStaticQuality
+		&& a.materialEmittanceVideoQuality==materialEmittanceVideoQuality
+		&& a.materialEmittanceUsePointMaterials==materialEmittanceUsePointMaterials
+		&& a.materialTransmittanceStaticQuality==materialTransmittanceStaticQuality
+		&& a.materialTransmittanceVideoQuality==materialTransmittanceVideoQuality
+		&& a.environmentStaticQuality==environmentStaticQuality
+		&& a.environmentVideoQuality==environmentVideoQuality
+		&& a.qualityIndirectDynamic==qualityIndirectDynamic
+		&& a.qualityIndirectStatic==qualityIndirectStatic
+		&& a.secondsBetweenDDI==secondsBetweenDDI
+		;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// UpdateParameters
+
+bool RRDynamicSolver::UpdateParameters::operator ==(const RRDynamicSolver::UpdateParameters& a) const
+{
+	return 1
+		&& a.applyLights==applyLights
+		&& a.applyEnvironment==applyEnvironment
+		&& a.applyCurrentSolution==applyCurrentSolution
+		&& a.quality==quality
+		&& a.qualityFactorRadiosity==qualityFactorRadiosity
+		&& a.insideObjectsTreshold==insideObjectsTreshold
+		&& a.rugDistance==rugDistance
+		&& a.locality==locality
+		&& a.lowDetailForLightDetailMap==lowDetailForLightDetailMap
+		&& a.measure_internal==measure_internal
+		&& a.debugObject==debugObject
+		&& a.debugTexel==debugTexel
+		&& a.debugTriangle==debugTriangle
+		&& a.debugRay==debugRay
+		;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// FilteringParameters
+
+bool RRDynamicSolver::FilteringParameters::operator ==(const RRDynamicSolver::FilteringParameters& a) const
+{
+	return 1
+		&& a.smoothingAmount==smoothingAmount
+		&& a.spreadForegroundColor==spreadForegroundColor
+		&& a.backgroundColor==backgroundColor
+		&& a.wrap==wrap
+		;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRDynamicSolver
 
 RRDynamicSolver::RRDynamicSolver()
 {

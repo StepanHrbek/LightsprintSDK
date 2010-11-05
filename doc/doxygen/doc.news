@@ -12,11 +12,19 @@ namespace rr
 
 NEWS
 
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - LightsprintScene / LsSmoothingAmount added
+    \n makes edges smoother, reduces noise
+    \n is a postprocess, so once you fill cache by "Bake", you can change smoothing and quickly update lightmaps by "Bake from cache"
+- lightmap smoothing
+  - RRDynamicSolver::FilteringParameters::smoothingAmount added
+  - in scene viewer: Scene properties / GI quality / Lightmap baking / Smoothing amount, Wrapping
 - improved import/export
   - 128bit .exr textures (previously only 96bit)
 - RRBuffer tools
   - RRBuffer::clear()
   - RRBuffer::copyElementsTo()
+  - RRBuffer::blurForeground()
   - RRBuffer::growForeground()
   - RRBuffer::fillBackground()
 

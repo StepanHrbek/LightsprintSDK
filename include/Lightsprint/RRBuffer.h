@@ -225,7 +225,7 @@ namespace rr
 
 
 		//////////////////////////////////////////////////////////////////////////////
-		// Tools
+		// Tools for creation/copying
 		//////////////////////////////////////////////////////////////////////////////
 
 		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid.
@@ -255,6 +255,11 @@ namespace rr
 		//! Set scaled true for colors in custom scale (screen colors), false for physical (linear) scale.
 		//! By default, white cube for ambient occlusion is created.
 		static RRBuffer* createSky(const RRVec4& upper = RRVec4(1), const RRVec4& lower = RRVec4(1), bool scaled = true);
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools for loading/saving
+		//////////////////////////////////////////////////////////////////////////////
 
 		//! Loads buffer from disk to system memory.
 		//
@@ -359,6 +364,11 @@ namespace rr
 		//! \return Previous saver.
 		static Saver* setSaver(Saver* saver);
 
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools for pixel manipulation
+		//////////////////////////////////////////////////////////////////////////////
+
 		//! Changes buffer format.
 		virtual void setFormat(RRBufferFormat newFormat);
 		//! Changes buffer format to floats, RGB to RGBF, RGBA to RGBAF.
@@ -383,6 +393,8 @@ namespace rr
 		//! Preserves buffer format.
 		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
 		virtual void brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma);
+		//! Applies gaussian blur. Only pixels with alpha>0 are blurred.
+		virtual bool blurForeground(float sigma, bool wrap);
 		//! Spreads foreground colors into background.
 		//
 		//! Foreground consists of texels with alpha>0.

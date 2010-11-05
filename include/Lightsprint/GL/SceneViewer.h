@@ -98,6 +98,10 @@ struct SceneViewerState
 	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
 	unsigned         raytracedCubesSpecularRes; //! Resolution of specular cubes.
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
+	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
+	//rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
+	//rr::RRDynamicSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
+	rr::RRDynamicSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
@@ -238,6 +242,7 @@ struct SceneViewerState
 			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes
 			&& a.raytracedCubesSpecularRes==raytracedCubesSpecularRes
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
+			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
 			&& a.waterLevel==waterLevel

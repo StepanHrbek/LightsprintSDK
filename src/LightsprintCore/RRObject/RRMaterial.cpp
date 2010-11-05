@@ -16,6 +16,22 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRRadiometricMeasure
+
+bool RRRadiometricMeasure::operator ==(const RRRadiometricMeasure& a) const
+{
+	return 1
+		&& a.exiting==exiting
+		&& a.scaled==scaled
+		&& a.flux==flux
+		&& a.direct==direct
+		&& a.indirect==indirect
+		&& a.smoothed==smoothed
+		;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRMaterial
 
 

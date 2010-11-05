@@ -284,6 +284,19 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
 		}
 
+		// lightmap
+		{
+			wxPGProperty* propGILightmap = new wxStringProperty(wxT("Lightmap baking"), wxPG_LABEL);
+			AppendIn(propGI,propGILightmap);
+			SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
+
+			propGILightmapSmoothingAmount = new FloatProperty("Smoothing amount","Amount of smoothing applied when baking lightmaps. Makes edges smoother, reduces noise, but washes out tiny details. Reasonable values are around 1. 0=off.",svs.lightmapFilteringParameters.smoothingAmount,svs.precision,0,10,1,false);
+			AppendIn(propGILightmap,propGILightmapSmoothingAmount);
+
+			propGILightmapWrapping = new BoolRefProperty("Wrapping","Checked = smoothing works across lightmap boundaries.",svs.lightmapFilteringParameters.wrap);
+			AppendIn(propGILightmap,propGILightmapWrapping);
+		}
+
 		SetPropertyBackgroundColour(propGI,headerColor,false);
 	}
 
@@ -397,6 +410,8 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
+		+ updateFloat(propGILightmapSmoothingAmount,svs.lightmapFilteringParameters.smoothingAmount)
+		+ updateBoolRef(propGILightmapWrapping)
 		;
 	if (numChangesRelevantForHiding+numChangesOther)
 	{
@@ -643,6 +658,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEnvVideoGIQuality)
 	{
 		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGILightmapSmoothingAmount)
+	{
+		svs.lightmapFilteringParameters.smoothingAmount = property->GetValue().GetDouble();
 	}
 }
 

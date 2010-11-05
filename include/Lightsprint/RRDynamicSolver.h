@@ -334,6 +334,7 @@ namespace rr
 				qualityIndirectStatic = 3;
 				secondsBetweenDDI = 0;
 			}
+			bool operator ==(const CalculateParameters& a) const;
 		};
 
 		//! Calculates and improves indirect illumination on static objects.
@@ -491,15 +492,20 @@ namespace rr
 				debugTriangle = UINT_MAX;
 				debugRay = NULL;
 			}
+			bool operator ==(const UpdateParameters& a) const;
 		};
 
 		//! Parameters of filtering in updateLightmap()/updateLightmaps().
 		struct FilteringParameters
 		{
-			//! How far foreground (used) colors spread into background (unused) regions.
+			//! Amount of smoothing applied when baking lightmaps.
+			//! Makes edges smoother, reduces noise, but washes out tiny details.
+			//! Reasonable values are around 1. 0=off.
+			float smoothingAmount;
+			//! Distance in pixels, how deep foreground (used) colors spread into background (unused) regions.
 			//! For lightmaps that are bilinearly filtered at application time, set 1 or higher
 			//! to prevent background color leaking into foreground.
-			//! For lightmaps that are unfiltered at application time, set 0 or higher.
+			//! For lightmaps that are unfiltered at application time, 0 is sufficient.
 			//! Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
 			unsigned spreadForegroundColor;
 			//! Color of unused background pixels.
@@ -511,10 +517,12 @@ namespace rr
 			//! Sets default parameters.
 			FilteringParameters()
 			{
+				smoothingAmount = 0;
 				spreadForegroundColor = 4;
 				backgroundColor = RRVec4(0);
 				wrap = true;
 			}
+			bool operator ==(const FilteringParameters& a) const;
 		};
 
 		//! For single static object, calculates and updates lightmap and/or bent normals; in per-pixel or per-vertex; with direct, indirect or global illumination.

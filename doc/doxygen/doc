@@ -2469,7 +2469,7 @@ Video formats
   - Toolbench plugins let you bake global illumination in HDR, results are immediately displayed in WorldBuilder
   - illumination can be baked to lightmaps, directional lightmaps (a.k.a. radiosity normal maps), vertex colors
   - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
-  - postprocessing: color tone, brightness and contrast can be changed in a second
+  - postprocessing: color tone, brightness, contrast, smoothing can be changed in a second
   - baking GI for multiple scene configurations at once
   - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
   - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
@@ -2551,12 +2551,12 @@ Video formats
    \subsection g3_cache - lightmap cache
     - located in (asset root)/PrecomputedLighting/cache
     - how does it work?
-      - "Bake lighting" calculates lighting, saves raw .hdr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
+      - "Bake lighting" calculates lighting, saves raw .exr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
       - "Bake lighting from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
     - serves three purposes
+      - Makes postprocessing near instant. Once cache is filled by "Bake lighting", you can change color tone, brightness, contrast, smoothing and compression and apply changes by "Bake lighting from cache".
       - Lets you look at lightmaps. Once cache is filled by "Bake lighting", you can look at lightmaps in any modern image viewer. (Note that there are no tools for looking at lightmaps in Gamebryo's .nif).
       - Lets you edit lightmaps. Once cache is filled by "Bake lighting", you can edit cached lightmaps and apply results to scene by "Bake lighting from cache".
-      - Makes postprocessing near instant. Once cache is filled by "Bake lighting", you can change color tone, brightness, contrast and compression and apply changes by "Bake lighting from cache".
     - can be disabled by deleting <code>\#define LIGHTMAP_CACHE</code> from <code>Lightsprint.Toolbench.Plugin.cpp</code> and rebuilding plugin
 
    \subsection g3_configs - baking multiple configurations at once
@@ -2568,6 +2568,7 @@ Video formats
     - Reduce number of texels calculated.
       Make all lightmaps smaller by reducing LsPixelsPerWorldUnit. Bake and if lighting errors (leaks) show up or lighting is too blurry, increase lightmap sizes in objects that need it.
     - Select hi-poly meshes and change LsBakeTarget to Vertices. Bake and if lighting is too blurry, change target back in objects that need it.
+    - Decrease quality and compensate it by increasing smoothing.
     - Use lower quality/resolution for non final builds.
     - Use faster CPU. Performance increases nearly linearly with number of cores.
 
