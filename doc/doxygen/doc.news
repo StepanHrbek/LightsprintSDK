@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- improved import/export
+  - 128bit .exr textures (previously only 96bit)
 - RRBuffer tools
   - RRBuffer::clear()
   - RRBuffer::copyElementsTo()

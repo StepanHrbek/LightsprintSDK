@@ -67,6 +67,22 @@ static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,u
 		{
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
 			outScaled = bpp1<64; // high bpp images are usually in physical scale
+			if (bpp1==128)
+			{
+				// RGBAF
+				if (flipV)
+					FreeImage_FlipVertical(dib1);
+				if (flipH)
+					FreeImage_FlipHorizontal(dib1);
+				// read size
+				width = FreeImage_GetWidth(dib1);
+				height = FreeImage_GetHeight(dib1);
+				outFormat = BF_RGBAF;
+				pixels = new unsigned char[16*width*height];
+				float* fipixels = (float*)FreeImage_GetBits(dib1);
+				memcpy(pixels,fipixels,width*height*16);
+			}
+			else
 			if (bpp1==96)
 			{
 				// RGBF, conversion to 32bit doesn't work
@@ -81,11 +97,6 @@ static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,u
 				pixels = new unsigned char[12*width*height];
 				float* fipixels = (float*)FreeImage_GetBits(dib1);
 				memcpy(pixels,fipixels,width*height*12);
-				// clamp float values to 0,1 (test only)
-				//for (unsigned i=0;i<width*height*3;i++)
-				//{
-				//	((float*)pixels)[i] = RR_CLAMPED(fipixels[i],0,1);
-				//}
 			}
 			else
 			if (FreeImage_IsTransparent(dib1))

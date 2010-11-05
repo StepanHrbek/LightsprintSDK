@@ -285,9 +285,9 @@ Texture formats
 - TIFF files [reading, writing]
 - WBMP files [reading, writing]
 - XBM files [reading]
-- XPM files [reading, writing] 
+- XPM files [reading, writing]
 - cube textures
-- 96bit float textures
+- 96bit and 128bit float textures
 
 Video formats
 - .avi
@@ -484,7 +484,7 @@ Video formats
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
   - license: <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>
   - optional, remove by deleting <code>\#define SUPPORT_IMAGES</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - Windows: precompiled version 3.10.0 is a part of SDK
+  - Windows: precompiled version 3.14.1 is a part of SDK
   - Linux (including PS3 Linux): install using
     - Ubuntu: <code>sudo apt-get install libfreeimage-dev</code>
     - Fedora: <code>pkcon install freeimage-devel</code>
