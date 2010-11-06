@@ -393,21 +393,50 @@ namespace rr
 		//! Preserves buffer format.
 		//! This operation may be lossy for byte formats (clamped to 0..1 range), use setFormatFloats() for higher precision.
 		virtual void brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma);
-		//! Applies gaussian blur. Only pixels with alpha>0 are blurred.
-		virtual bool blurForeground(float sigma, bool wrap);
-		//! Spreads foreground colors into background.
-		//
-		//! Foreground consists of texels with alpha>0.
-		//! \param distance
-		//!  Distance in pixels, how deep into background to grow foreground.
-		//! \param wrap
-		//!  True = grows through buffer boundaries.
-		//! \return True on success.
-		virtual bool growForeground(unsigned distance, bool wrap);
-		//! Fills background by backgroundColor. Background consists of texels with alpha<=0.
-		virtual void fillBackground(RRVec4 backgroundColor);
 		//! Fills mini and maxi with extreme values found in buffer.
 		virtual void getMinMax(RRVec4* mini, RRVec4* maxi);
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools for lightmap postprocessing
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Applies gaussian blur to individual lightmap regions.
+		//
+		//! Reads and preserves connectivity information stored lightmap baker to alpha channel.
+		//! \param sigma
+		//!  Amount of smoothing, reasonable values are around 1.
+		//! \param wrap
+		//!  True = smooth through lightmap boundaries.
+		//! \return
+		//!  True on success, may fail when allocation fails.
+		virtual bool lightmapSmooth(float sigma, bool wrap);
+		//! Fills in unused lightmap texels relevant when bilinearly interpolating lightmap.
+		//
+		//! Reads connectivity information stored by lightmap baker to alpha channel.
+		//! Sets alpha in newly colored texels to 0.001f.
+		//! \param wrap
+		//!  True = grow through lightmap boundaries.
+		//! \return
+		//!  False when lightmap is empty, all texels have alpha<0.002.
+		virtual bool lightmapGrowForBilinearInterpolation(bool wrap);
+		//! Fills in unused lightmap texels in probimity of used ones, may help when mipmapping lightmap.
+		//
+		//! Expects used texels to have alpha>0.
+		//! Sets alpha in newly colored texels to 0.001f.
+		//! \param distance
+		//!  Distance in pixels, how deep into unused regions to grow used colors.
+		//! \param wrap
+		//!  True = grow through lightmap boundaries.
+		//! \return
+		//!  True on success, may fail when allocation fails.
+		virtual bool lightmapGrow(unsigned distance, bool wrap);
+		//! Fills unused texels in lightmap by backgroundColor.
+		//
+		//! Expects used texels to have alpha>0.
+		//! \param backgroundColor
+		//!  Color (and alpha) to set to all unused texels.
+		virtual void lightmapFillBackground(RRVec4 backgroundColor);
 	};
 
 } // namespace

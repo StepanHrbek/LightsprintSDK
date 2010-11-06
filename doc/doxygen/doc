@@ -726,6 +726,16 @@ Video formats
 
  \section artist_offline_unwrap Unwrap
   Lightsprint SDK supports both user-provided and automatically generated unwrap.
+  In order to better utilize lightmap space and reduce lightmap sizes and baking time,
+  you want to reduce lightmap resolutions and gutter padding
+  (horizontal or vertical distance between charts, usually 2 or 2.5 texels) as much as possible.
+  However, if you reduce it too much, single texel will affect two charts, it will show up mapped to
+  two different places in scene.
+  Lightsprint is specially hardened for such situation and calculates the best possible compromise color
+  to make this error as noteless as possible.
+  With unwrap charts optimally aligned, gutter may be as small as 1 texel,
+  without any errors.
+  In worst case of unaligned charts, gutter must be at least 2 for perfect result.
 
  \section artist_offline_formats File formats
   Lightsprint SDK does not lock your data in properietary formats.

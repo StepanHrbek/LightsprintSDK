@@ -10,6 +10,7 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
 #include "../squish/squish.h"
+#include "../RRDynamicSolver/gather.h" // TexelFlags
 
 namespace rr
 {
@@ -18,14 +19,14 @@ static RRBuffer::Reloader* s_reload = NULL;
 static RRBuffer::Loader* s_load = NULL;
 static RRBuffer::Saver* s_save = NULL;
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// RRBuffer
-
 RRBuffer::RRBuffer()
 {
 	customData = NULL;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRBuffer interface
 
 void RRBuffer::setElement(unsigned index, const RRVec4& element)
 {
@@ -60,6 +61,10 @@ void RRBuffer::unlock()
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::unlock() called.\n"));
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRBuffer tools
 
 RRBuffer* RRBuffer::createCopy()
 {
@@ -302,7 +307,31 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 	}
 }
 
-bool RRBuffer::blurForeground(float _sigma, bool _wrap)
+void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
+{
+	// slow getElement path, faster path can be written using lock and direct access
+	unsigned numElements = getWidth()*getHeight()*getDepth();
+	RRVec4 mini = RRVec4(1e20f);
+	RRVec4 maxi = RRVec4(-1e20f);
+	for (unsigned i=0;i<numElements;i++)
+	{
+		RRVec4 color = getElement(i);
+		for (unsigned j=0;j<4;j++)
+		{
+			mini[j] = RR_MIN(mini[j],color[j]);
+			maxi[j] = RR_MAX(maxi[j],color[j]);
+		}
+	}
+	if (_mini) *_mini = mini;
+	if (_maxi) *_maxi = maxi;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRBuffer tools for lightmaps
+
+bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 {
 	if (!this)
 	{
@@ -318,19 +347,69 @@ bool RRBuffer::blurForeground(float _sigma, bool _wrap)
 	unsigned width = getWidth();
 	unsigned height = getHeight();
 	unsigned size = width*height;
-	RRVec4* buf;
-	buf = new (std::nothrow) RRVec4[size*2];
+	void* buf;
+	buf = malloc(size*(sizeof(RRVec4)*2+1));
 	if (!buf)
 	{
-		RRReporter::report(WARN,"Allocation of %dMB failed in blurForeground().\n",size*2*sizeof(RRVec4)/1024/1024);
+		RRReporter::report(WARN,"Allocation of %dMB failed in lightmapSmooth().\n",size*(sizeof(RRVec4)*2+1)/1024/1024);
 		return false;
 	}
-	RRVec4* source = buf;
-	RRVec4* destination = buf+size;
+	RRVec4* source = (RRVec4*)buf;
+	RRVec4* destination = source+size;
 	for (unsigned i=0;i<size;i++)
 	{
-		RRVec4 c = getElement(i);
-		source[i] = c[3]>0 ? RRVec4(c[0],c[1],c[2],1) : RRVec4(0);
+		source[i] = getElement(i);
+	}
+
+	// fill blurFlags, what neighbors to blur with
+	// 8bits per texel = should it blur with 8 neighbors?
+	// bits:
+	//  ^ j
+	//  |
+	//  5 6 7
+	//  3   4
+	//  0 1 2  --> i
+	unsigned char* blurFlags = (unsigned char*)(destination+size);
+	for (unsigned j=0;j<height;j++)
+	for (unsigned i=0;i<width;i++)
+	{
+		unsigned k = i+j*width;
+		unsigned centerFlags = FLOAT_TO_TEXELFLAGS(source[k][3]);
+		unsigned blurBit = 1;
+		unsigned blurFlagsK = 0;
+		for (int jj=-1;jj<2;jj++)
+		for (int ii=-1;ii<2;ii++)
+			if (ii||jj)
+			{
+				// calculate neighbor coordinates x,y
+				int x = i+ii;
+				int y = j+jj;
+				if (_wrap)
+				{
+					x = (x+width)%width;
+					y = (y+height)%height;
+				}
+				// if in range, set good neighbor flags
+				if (x>=0 && x<(int)width && y>=0 && y<(int)height)
+				{
+					unsigned neighborFlags = FLOAT_TO_TEXELFLAGS(source[x+y*width][3]);
+					if (1
+						&& (ii>=0 || (centerFlags&EDGE_X0 && neighborFlags&EDGE_X1))
+						&& (ii<=0 || (centerFlags&EDGE_X1 && neighborFlags&EDGE_X0))
+						&& (jj>=0 || (centerFlags&EDGE_Y0 && neighborFlags&EDGE_Y1))
+						&& (jj<=0 || (centerFlags&EDGE_Y1 && neighborFlags&EDGE_Y0))
+						)
+						blurFlagsK |= blurBit;
+				}
+				blurBit *= 2;
+			}
+		blurFlags[k] = blurFlagsK;
+	}
+
+	// alpha=1 in temp
+	for (unsigned i=0;i<size;i++)
+	{
+		source[i][3] = (source[i][3]>0) ? 1.f : 0.f;
 	}
 
 	// blur temp
@@ -339,61 +418,110 @@ bool RRBuffer::blurForeground(float _sigma, bool _wrap)
 	float sigma2sum = _sigma*_sigma;
 	while (sigma2sum>0)
 	{
+		// calculate amount of blur for this pass
 		float sigma2 = RR_MIN(sigma2sum,0.34f);
 		RRVec4 kernel(1,expf(-0.5f/sigma2),expf(-1/sigma2),expf(-2/sigma2));
 		sigma2sum -= sigma2;
-		if (_wrap)
+
+		// dst=blur(src)
+		#pragma omp parallel for schedule(static)
+		for (int j=0;j<(int)height;j++)
+		for (int i=0;i<(int)width;i++)
 		{
-			// faster version with wrap
-			#pragma omp parallel for schedule(static)
-			for (int i=0;i<(int)size;i++)
+			unsigned k = i+j*width;
+			RRVec4 c = source[k];
+			if (c[3]!=0)
 			{
-				RRVec4 c = source[i];
-				if (c[3]!=0)
-				{
-					c = c * kernel[0]
-						+ (source[(i+1)%size] + source[(i-1)%size] + source[(i+width)%size] + source[(i-width)%size]) * kernel[1]
-						+ (source[(i+1+width)%size] + source[(i+1-width)%size] + source[(i-1+width)%size] + source[(i-1-width)%size]) * kernel[2];
-					c /= c[3];
-				}
-				destination[i] = c;
+				unsigned flags = blurFlags[k];
+				c = c * kernel[0]
+					+ source[((i-1+width)%width)+((j-1+height)%height)*width] * ((flags&1  )?kernel[2]:0)
+					+ source[( i               )+((j-1+height)%height)*width] * ((flags&2  )?kernel[1]:0)
+					+ source[((i+1      )%width)+((j-1+height)%height)*width] * ((flags&4  )?kernel[2]:0)
+					+ source[((i-1+width)%width)+( j                 )*width] * ((flags&8  )?kernel[1]:0)
+					+ source[((i+1      )%width)+( j                 )*width] * ((flags&16 )?kernel[1]:0)
+					+ source[((i-1+width)%width)+((j+1       )%height)*width] * ((flags&32 )?kernel[2]:0)
+					+ source[( i               )+((j+1       )%height)*width] * ((flags&64 )?kernel[1]:0)
+					+ source[((i+1      )%width)+((j+1       )%height)*width] * ((flags&128)?kernel[2]:0)
+					;
+				c /= c[3];
 			}
+			destination[k] = c;
 		}
-		else
-		{
-			// slower version without wrap
-			#pragma omp parallel for schedule(static)
-			for (int i=0;i<(int)size;i++)
-			{
-				RRVec4 c = source[i];
-				if (c[3]!=0)
-				{
-					int x = i%width;
-					int y = i/width;
-					int w = (int)width;
-					int h = (int)height;
-					c = c * kernel[0]
-						+ (source[RR_MIN(x+1,w-1) + y*w] + source[RR_MAX(x-1,0) + y*w] + source[x + RR_MIN(y+1,h-1)*w] + source[x + RR_MAX(y-1,0)*w]) * kernel[1]
-						+ (source[RR_MIN(x+1,w-1) + RR_MIN(y+1,h-1)*w] + source[RR_MIN(x+1,w-1) + RR_MAX(y-1,0)*w] + source[RR_MAX(x-1,0) + RR_MIN(y+1,h-1)*w] + source[RR_MAX(x-1,0) + RR_MAX(y-1,0)*w]) * kernel[2];
-					c /= c[3];
-				}
-				destination[i] = c;
-			}
-		}
+
+		// src=dst
 		RRVec4* temp = source;
 		source = destination;
 		destination = temp;
 	}
 
-	// copy temp back to buffer
+	// copy temp back to buffer, preserve alpha
 	for (unsigned i=0;i<size;i++)
 		if (source[i][3]>0)
-			setElement(i,source[i]);
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i)[3]));
 	delete[] buf;
 	return true;
 }
 
-bool RRBuffer::growForeground(unsigned _numSteps, bool _wrap)
+bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
+{
+	bool notEmpty = false;
+	unsigned width = getWidth();
+	unsigned height = getHeight();
+	for (unsigned j=0;j<height;j++)
+	for (unsigned i=0;i<width;i++)
+	{
+		// we are processing texel i,j
+		if (getElement(i+j*width)[3]>0.002f)
+		{
+			// not empty, keep it unchanged
+			notEmpty = true;
+		}
+		else
+		{
+			// empty, change it to average of good neighbors
+			RRVec4 sum(0);
+			for (int jj=-1;jj<2;jj++)
+			for (int ii=-1;ii<2;ii++)
+			{
+				// calculate neighbor coordinates x,y
+				int x = i+ii;
+				int y = j+jj;
+				if (_wrap)
+				{
+					x = (x+width)%width;
+					y = (y+height)%height;
+				}
+				else
+				{
+					if (x<0 || x>=(int)width || y<0 || y>=(int)height)
+						continue;
+				}
+				// read neighbor
+				RRVec4 c = getElement(x+y*width);
+				unsigned texelFlags = FLOAT_TO_TEXELFLAGS(c[3]);
+				// is it good one?
+				if (0
+					|| (ii<+1 && jj<+1 && (texelFlags&QUADRANT_X1Y1))
+					|| (ii>-1 && jj>-1 && (texelFlags&QUADRANT_X0Y0))
+					|| (ii<+1 && jj>-1 && (texelFlags&QUADRANT_X1Y0))
+					|| (ii>-1 && jj<+1 && (texelFlags&QUADRANT_X0Y1))
+					)
+				{
+					// sum it
+					float weight = (ii && jj)?1:1.6f;
+					sum += RRVec4(c[0],c[1],c[2],1)*weight;
+				}
+			}
+			if (sum[3])
+				setElement(i+j*width,RRVec4(sum[0]/sum[3],sum[1]/sum[3],sum[2]/sum[3],
+					0.001f // small enough to be invisible for texelFlags, but big enough to be >0, to prevent growForeground() and fillBackground() from overwriting this texel
+					));
+		}
+	}
+	return notEmpty;
+}
+
+bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
 {
 	if (!this)
 	{
@@ -421,7 +549,7 @@ bool RRBuffer::growForeground(unsigned _numSteps, bool _wrap)
 	buf = new (std::nothrow) RRVec4[size*2];
 	if (!buf)
 	{
-		RRReporter::report(WARN,"Allocation of %dMB failed in growForeground().\n",size*2*sizeof(RRVec4)/1024/1024);
+		RRReporter::report(WARN,"Allocation of %dMB failed in lightmapGrow().\n",size*2*sizeof(RRVec4)/1024/1024);
 		return false;
 	}
 	RRVec4* source = buf;
@@ -489,13 +617,13 @@ bool RRBuffer::growForeground(unsigned _numSteps, bool _wrap)
 
 	// copy temp back to buffer
 	for (unsigned i=0;i<size;i++)
-		if (source[i][3]>0)
-			setElement(i,source[i]);
+		if (source[i][3]>0 && getElement(i)[3]==0)
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],0.001f));
 	delete[] buf;
 	return true;
 }
 
-void RRBuffer::fillBackground(RRVec4 backgroundColor)
+void RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 {
 	unsigned numElements = getWidth()*getHeight()*getDepth();
 	for (unsigned i=0;i<numElements;i++)
@@ -505,24 +633,6 @@ void RRBuffer::fillBackground(RRVec4 backgroundColor)
 	}
 }
 
-void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
-{
-	// slow getElement path, faster path can be written using lock and direct access
-	unsigned numElements = getWidth()*getHeight()*getDepth();
-	RRVec4 mini = RRVec4(1e20f);
-	RRVec4 maxi = RRVec4(-1e20f);
-	for (unsigned i=0;i<numElements;i++)
-	{
-		RRVec4 color = getElement(i);
-		for (unsigned j=0;j<4;j++)
-		{
-			mini[j] = RR_MIN(mini[j],color[j]);
-			maxi[j] = RR_MAX(maxi[j],color[j]);
-		}
-	}
-	if (_mini) *_mini = mini;
-	if (_maxi) *_maxi = maxi;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //

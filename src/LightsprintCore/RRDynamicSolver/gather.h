@@ -45,8 +45,32 @@ struct SubTexel
 	RRReal areaInMapSpace; // SubTexel area in map space in unknown units
 };
 
+// extra information necessary for smoothing and grow when gutter is too small
+enum TexelFlags
+{
+	QUADRANT_X0Y0=1,
+	QUADRANT_X1Y0=2,
+	QUADRANT_X0Y1=4,
+	QUADRANT_X1Y1=8,
+	EDGE_X0=16,
+	EDGE_X1=32,
+	EDGE_Y0=64,
+	EDGE_Y1=128,
+};
+#define FLOAT_TO_TEXELFLAGS(flo) ((unsigned)((flo)*255+0.5f))
+#define TEXELFLAGS_TO_FLOAT(fla) ((fla)/255.f)
+
 // texel knows its intersection with all triangles
-typedef ChunkList<SubTexel> TexelSubTexels; // chunklist is small, fast
+class TexelSubTexels : public
+	ChunkList<SubTexel> // chunklist is small, fast
+{
+public:
+	unsigned char texelFlags; // TexelFlags
+	TexelSubTexels()
+	{
+		texelFlags = 0;
+	}
+};
 
 struct ProcessTexelParams
 {

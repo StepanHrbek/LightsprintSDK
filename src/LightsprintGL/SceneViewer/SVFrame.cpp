@@ -1470,7 +1470,7 @@ reload_skybox:
 						{
 							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
 							solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL)
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
 								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 						}
 					}
@@ -1488,7 +1488,7 @@ reload_skybox:
 						rr::RRBuffer* buf = solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
 						if (buf && buf->getType()==rr::BT_2D_TEXTURE)
 						{
-							getTexture(buf,true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
+							getTexture(buf,false,false); // don't mipmap lmaps(light would leak), don't compres lmaps(ugly 4x4 blocks on HD2400)
 						}
 					}
 

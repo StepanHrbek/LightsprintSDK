@@ -496,17 +496,14 @@ namespace rr
 		};
 
 		//! Parameters of filtering in updateLightmap()/updateLightmaps().
-		struct FilteringParameters
+		struct RR_API FilteringParameters
 		{
 			//! Amount of smoothing applied when baking lightmaps.
 			//! Makes edges smoother, reduces noise, but washes out tiny details.
 			//! Reasonable values are around 1. 0=off.
 			float smoothingAmount;
 			//! Distance in pixels, how deep foreground (used) colors spread into background (unused) regions.
-			//! For lightmaps that are bilinearly filtered at application time, set 1 or higher
-			//! to prevent background color leaking into foreground.
-			//! For lightmaps that are unfiltered at application time, 0 is sufficient.
-			//! Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
+			//! It is necessary only when creating mipmaps from lightmaps.
 			unsigned spreadForegroundColor;
 			//! Color of unused background pixels.
 			RRVec4 backgroundColor;
@@ -518,7 +515,7 @@ namespace rr
 			FilteringParameters()
 			{
 				smoothingAmount = 0;
-				spreadForegroundColor = 4;
+				spreadForegroundColor = 0;
 				backgroundColor = RRVec4(0);
 				wrap = true;
 			}

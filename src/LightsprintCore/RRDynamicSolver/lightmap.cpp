@@ -260,18 +260,49 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 						// triangulate polygon into subtexels
 						if (polySize)
 						{
-							if (unwrapStatistics.subtexelsInMapSpace)
+							TexelSubTexels& texel = texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)];
+
+							#define TRIANGLESPACE_TO_MAPSPACE(xy) RRVec2( (xy.x)*m[0][0] + (xy.y)*m[0][1] + m[0][2], (xy.x)*m[1][0] + (xy.y)*m[1][1] + m[1][2] )
+							#define MAPSPACE_TO_TEXELSPACE(xy) RRVec2( (xy.x)*mapWidth-x-0.5f, (xy.y)*mapHeight-y-0.5f )
+							RRVec2 vertexInMapSpaceOld = TRIANGLESPACE_TO_MAPSPACE(polyVertexInTriangleSpace[polySize-1]);
+							RRVec2 vertexInTexelSpaceOld = MAPSPACE_TO_TEXELSPACE(vertexInMapSpaceOld);
+							for (unsigned i=0;i<polySize;i++)
 							{
+								RRVec2 vertexInMapSpace = TRIANGLESPACE_TO_MAPSPACE(polyVertexInTriangleSpace[i]);
+
 								// checkUnwrapConsistency() asks us to return subtexels in lightmap space,
 								// convert them
 								// numerical stability is poor (vertices are converted to trispace and back), analysis must take tiny overlaps as false positives
-								for (unsigned i=0;i<polySize;i++)
+								if (unwrapStatistics.subtexelsInMapSpace)
 								{
-									#define TRIANGLESPACE_TO_MAPSPACE(xy) RRVec2( (xy.x)*m[0][0] + (xy.y)*m[0][1] + m[0][2], (xy.x)*m[1][0] + (xy.y)*m[1][1] + m[1][2] )
-									polyVertexInTriangleSpace[i] = TRIANGLESPACE_TO_MAPSPACE(polyVertexInTriangleSpace[i]);
-									#undef TRIANGLESPACE_TO_MAPSPACE
+									polyVertexInTriangleSpace[i] = vertexInMapSpace;
 								}
+
+								// set texel flags
+								#define ERROR_IN_TEXELS 0.03f // we expect subtexel vertex to be off by this fraction of texel
+								RRVec2 vertexInTexelSpace = MAPSPACE_TO_TEXELSPACE(vertexInMapSpace);
+								if (vertexInTexelSpace.x<-0.5f+ERROR_IN_TEXELS) texel.texelFlags |= EDGE_X0;
+								if (vertexInTexelSpace.x>0.5f-ERROR_IN_TEXELS) texel.texelFlags |= EDGE_X1;
+								if (vertexInTexelSpace.y<-0.5f+ERROR_IN_TEXELS) texel.texelFlags |= EDGE_Y0;
+								if (vertexInTexelSpace.y>0.5f-ERROR_IN_TEXELS) texel.texelFlags |= EDGE_Y1;
+								if (vertexInTexelSpace.x<0 && vertexInTexelSpace.y<0) texel.texelFlags |= QUADRANT_X0Y0;
+								if (vertexInTexelSpace.x>0 && vertexInTexelSpace.y<0) texel.texelFlags |= QUADRANT_X1Y0;
+								if (vertexInTexelSpace.x<0 && vertexInTexelSpace.y>0) texel.texelFlags |= QUADRANT_X0Y1;
+								if (vertexInTexelSpace.x>0 && vertexInTexelSpace.y>0) texel.texelFlags |= QUADRANT_X1Y1;
+								// diagonal edge goes through 3 quadrants, one without vertex, we must set its flag here
+								if (vertexInTexelSpaceOld.x<0 != vertexInTexelSpace.x<0 && vertexInTexelSpaceOld.y<0 != vertexInTexelSpace.y<0)
+								{
+									float a = (vertexInTexelSpace.y-vertexInTexelSpaceOld.y)/(vertexInTexelSpace.x-vertexInTexelSpaceOld.x);
+									float b = vertexInTexelSpace.y-a*vertexInTexelSpace.x;
+									// kde krizi osu y? v b. podle b pridat dva dolni nebo dva horni kvadranty
+									texel.texelFlags |= (b<0) ? (QUADRANT_X0Y0|QUADRANT_X1Y0) : (QUADRANT_X0Y1|QUADRANT_X1Y1);
+									// kde krizi osu x? v -b/a. podle -b/a pridat dva leve nebo dva prave kvadranty
+									texel.texelFlags |= (-b/a<0) ? (QUADRANT_X0Y0|QUADRANT_X0Y1) : (QUADRANT_X1Y0|QUADRANT_X1Y1);
+								}
+								vertexInTexelSpaceOld = vertexInTexelSpace;
 							}
+							#undef MAPSPACE_TO_TEXELSPACE
+							#undef TRIANGLESPACE_TO_MAPSPACE
 							SubTexel subTexel;
 							subTexel.multiObjPostImportTriIndex = t;
 							subTexel.uvInTriangleSpace[0] = polyVertexInTriangleSpace[0];
@@ -283,7 +314,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								unwrapStatistics.areaOfAllTrianglesInRange += subTexelAreaInTriangleSpace;
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
 								if (_finite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
-									texelsRect[(x-rectXMin)+(y-rectYMin)*(rectXMaxPlus1-rectXMin)].push_back(subTexel
+									texel.push_back(subTexel
 										,subTexelAllocator
 										);
 							}
@@ -805,38 +836,26 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			_filtering = &filteringLocal;
 		unsigned numBuffersEmpty = 0;
 		unsigned numBuffersFull = 0;
-		for (unsigned i=0;i<NUM_BUFFERS;i++)
+		for (unsigned b=0;b<NUM_BUFFERS;b++)
 		{
-			if (tc.pixelBuffers[i])
+			if (tc.pixelBuffers[b])
 			{
-				if (allPixelBuffers[i]
+				if (allPixelBuffers[b]
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
-					unsigned numTexels = tc.pixelBuffers[i]->getWidth()*tc.pixelBuffers[i]->getHeight();
-					bool empty = true;
-					for (unsigned j=0;j<numTexels;j++)
-					{
-						RRVec4 color = tc.pixelBuffers[i]->getElement(j);
-						empty = empty && color==RRVec4(0);
-						RR_ASSERT(color[3]==0 || color[3]==1);
-					}
-					if (empty)
-					{
-						numBuffersEmpty++;
-					}
-					else
-					{
+					tc.pixelBuffers[b]->lightmapSmooth(_filtering->smoothingAmount,_filtering->wrap);
+					if (tc.pixelBuffers[b]->lightmapGrowForBilinearInterpolation(_filtering->wrap))
 						numBuffersFull++;
-					}
-					tc.pixelBuffers[i]->blurForeground(_filtering->smoothingAmount,_filtering->wrap);
-					tc.pixelBuffers[i]->growForeground(_filtering->spreadForegroundColor,_filtering->wrap);
-					tc.pixelBuffers[i]->fillBackground(_filtering->backgroundColor);
-					tc.pixelBuffers[i]->copyElementsTo(allPixelBuffers[i],(i==LS_BENT_NORMALS || (i==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
-					allPixelBuffers[i]->version = getSolutionVersion();
+					else
+						numBuffersEmpty++;
+					tc.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap);
+					tc.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
+					tc.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS || (b==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
+					allPixelBuffers[b]->version = getSolutionVersion();
 					updatedBuffers++;
 				}
-				delete tc.pixelBuffers[i];
+				delete tc.pixelBuffers[b];
 			}
 		}
 		if (numBuffersEmpty && !aborting)

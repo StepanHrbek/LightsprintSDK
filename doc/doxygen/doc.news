@@ -14,25 +14,28 @@ NEWS
 
 - improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
   - LightsprintScene / LsSmoothingAmount added
-    \n makes edges smoother, reduces noise
-    \n is a postprocess, so once you fill cache by "Bake", you can change smoothing and quickly update lightmaps by "Bake from cache"
-- lightmap smoothing
-  - RRDynamicSolver::FilteringParameters::smoothingAmount added
-  - in scene viewer: Scene properties / GI quality / Lightmap baking / Smoothing amount, Wrapping
+    - makes edges smoother, reduces noise, but washes out tiny details
+    - can be used to reduce bake time: reduce quality and enable smoothing to hide noise
+    - is a postprocess, so once you fill cache by "Bake", you can change smoothing and quickly update lightmaps by "Bake from cache"
+- higher quality lightmap baking
+  - lightmap smoothing
+    - in scene viewer: Scene properties / GI quality / Lightmap baking / Smoothing amount, Wrapping
+    - RRDynamicSolver::FilteringParameters::smoothingAmount added
+    - RRDynamicSolver::FilteringParameters::smoothBackground removed
+    - RRDynamicSolver::FilteringParameters::spreadForegroundColor default changed to 0, it is no longer necessary to be 2
+  - lightmap resolution/unwrap gutter may be much smaller without introducing errors/leaks
+    - with unwrap charts optimally aligned, gutter may be as low as 1 texel without errors in lighting
+    - smaller resolution reduces bake time, saves memory and disk space
+    - smaller gutter increases utilization of lightmap space
 - improved import/export
   - 128bit .exr textures (previously only 96bit)
 - RRBuffer tools
   - RRBuffer::clear()
   - RRBuffer::copyElementsTo()
-  - RRBuffer::blurForeground()
-  - RRBuffer::growForeground()
-  - RRBuffer::fillBackground()
-
-CHANGES
-
-- RRDynamicSolver::FilteringParameters::spreadForegroundColor is 2x more sensitive,
-  old default 2 was changed to 4 to get the same result
-- RRDynamicSolver::FilteringParameters::smoothBackground removed
+  - RRBuffer::lightmapSmooth()
+  - RRBuffer::lightmapGrowForBilinearInterpolation()
+  - RRBuffer::lightmapGrow()
+  - RRBuffer::lightmapFillBackground()
 
 \section news111 ------------------------------------ 2010.10.16 -------------------------------------
 
