@@ -157,6 +157,7 @@ namespace rr_gl
 		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
 		void UpdateMenuBar();
 
+		bool                     fullyInited; // true after constructor
 		bool                     updateMenuBarNeeded;
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;

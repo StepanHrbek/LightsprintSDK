@@ -486,6 +486,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
 	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
 {
+	fullyInited = false;
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
 	bool layoutLoaded = userPreferences.load(); // must be loaded before SVUserProperties is created
@@ -621,10 +622,12 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	userPreferencesApplyToWx();
 
 	m_mgr.Update();
+	fullyInited = true;
 }
 
 SVFrame::~SVFrame()
 {
+	if (fullyInited)
 	{
 		userPreferencesGatherFromWx();
 		userPreferences.save();
