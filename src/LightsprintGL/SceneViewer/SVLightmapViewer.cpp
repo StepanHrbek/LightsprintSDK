@@ -19,9 +19,6 @@ SVLightmapViewer::SVLightmapViewer(const char* _pathToShaders)
 	zoom = 1;
 	center = rr::RRVec2(0);
 	uberProgram = UberProgram::create(tmpstr("%stexture.vs",_pathToShaders),tmpstr("%stexture.fs",_pathToShaders));
-	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
-	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
-	lineProgram = uberProgram->getProgram(NULL);
 	buffer = NULL;
 	object = NULL;
 }
@@ -94,7 +91,7 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 
 void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 {
-	if (!lmapProgram || !lmapAlphaProgram || !lineProgram)
+	if (!uberProgram)
 	{
 		RR_ASSERT(0);
 		return;
@@ -116,22 +113,27 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 	// render lightmap
 	if (buffer)
 	{
-		Program* prg = alpha?lmapAlphaProgram:lmapProgram;
-		prg->useIt();
-		glActiveTexture(GL_TEXTURE0);
-		getTexture(buffer)->bindTexture();
-		prg->sendUniform("map",0);
-		prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
-		glBegin(GL_POLYGON);
-		glTexCoord2f(0,0);
-		glVertex2f(quad[0][0],quad[0][1]);
-		glTexCoord2f(1,0);
-		glVertex2f(quad[1][0],quad[1][1]);
-		glTexCoord2f(1,1);
-		glVertex2f(quad[2][0],quad[2][1]);
-		glTexCoord2f(0,1);
-		glVertex2f(quad[3][0],quad[3][1]);
-		glEnd();
+		Program* prg = uberProgram->getProgram(alpha?"#define TEXTURE\n#define SHOW_ALPHA0\n":"#define TEXTURE\n");
+		if (prg)
+		{
+			prg->useIt();
+			glActiveTexture(GL_TEXTURE0);
+			getTexture(buffer)->bindTexture();
+			prg->sendUniform("map",0);
+			prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+			if (alpha)
+				prg->sendUniform("resolution",(float)buffer->getWidth(),(float)buffer->getHeight());
+			glBegin(GL_POLYGON);
+			glTexCoord2f(0,0);
+			glVertex2f(quad[0][0],quad[0][1]);
+			glTexCoord2f(1,0);
+			glVertex2f(quad[1][0],quad[1][1]);
+			glTexCoord2f(1,1);
+			glVertex2f(quad[2][0],quad[2][1]);
+			glTexCoord2f(0,1);
+			glVertex2f(quad[3][0],quad[3][1]);
+			glEnd();
+		}
 	}
 
 	// render mapping edges
@@ -139,39 +141,43 @@ void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
 	unsigned numTriangles = mesh ? mesh->getNumTriangles() : 0;
 	if (numTriangles)
 	{
-		lineProgram->useIt();
-		
-		// 0,0..1,1 frame
-		lineProgram->sendUniform("color",0.0f,1.0f,0.0f,1.0f);
-		glBegin(GL_LINE_LOOP);
-		glVertex2f(quad[0][0],quad[0][1]);
-		glVertex2f(quad[1][0],quad[1][1]);
-		glVertex2f(quad[2][0],quad[2][1]);
-		glVertex2f(quad[3][0],quad[3][1]);
-		glEnd();
-		
-		// mapping
-		lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
-		glBegin(GL_LINES);
-		for (unsigned i=0;i<numTriangles;i++)
+		Program* lineProgram = uberProgram->getProgram(NULL);
+		if (lineProgram)
 		{
-			const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
-			if (material)
+			lineProgram->useIt();
+			
+			// 0,0..1,1 frame
+			lineProgram->sendUniform("color",0.0f,1.0f,0.0f,1.0f);
+			glBegin(GL_LINE_LOOP);
+			glVertex2f(quad[0][0],quad[0][1]);
+			glVertex2f(quad[1][0],quad[1][1]);
+			glVertex2f(quad[2][0],quad[2][1]);
+			glVertex2f(quad[3][0],quad[3][1]);
+			glEnd();
+			
+			// mapping
+			lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+			glBegin(GL_LINES);
+			for (unsigned i=0;i<numTriangles;i++)
 			{
-				rr::RRMesh::TriangleMapping mapping;
-				mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
-				for (unsigned j=0;j<3;j++)
+				const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
+				if (material)
 				{
-					mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
-				}
-				for (unsigned j=0;j<3;j++)
-				{
-					glVertex2fv(&mapping.uv[j].x);
-					glVertex2fv(&mapping.uv[(j+1)%3].x);
+					rr::RRMesh::TriangleMapping mapping;
+					mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
+					for (unsigned j=0;j<3;j++)
+					{
+						mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
+					}
+					for (unsigned j=0;j<3;j++)
+					{
+						glVertex2fv(&mapping.uv[j].x);
+						glVertex2fv(&mapping.uv[(j+1)%3].x);
+					}
 				}
 			}
+			glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 		}
-		glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 	}
 
 	// restore states

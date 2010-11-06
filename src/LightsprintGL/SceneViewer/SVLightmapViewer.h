@@ -48,9 +48,6 @@ private:
 	rr::RRReal zoom; // 1: 1 lmap pixel has 1 screen pixel, 2: 1 lmap pixel has 0.5x0.5 screen pixels
 	rr::RRVec2 center; // coord in pixels from center of lmap. texel with this coord is in center of screen
 	UberProgram* uberProgram;
-	Program* lmapProgram;
-	Program* lmapAlphaProgram;
-	Program* lineProgram;
 	rr::RRBuffer* buffer;
 	const rr::RRObject* object;
 	wxPoint previousPosition;
