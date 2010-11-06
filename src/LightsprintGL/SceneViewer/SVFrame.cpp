@@ -350,6 +350,7 @@ void SVFrame::UpdateTitle()
 void SVFrame::UpdateEverything()
 {
 	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
+	bool firstUpdate = !m_canvas;
 
 	// display log window with 'abort' while this function runs
 	LogWithAbort logWithAbort(this,nextCanvas->solver);
@@ -368,7 +369,7 @@ void SVFrame::UpdateEverything()
 	// initialInputSolver may be changed only if canvas is NULL
 	// we NULL it to avoid rendering solver contents again (new scene was opened)
 	// it has also minor drawback: initialInputSolver->abort will be ignored
-	if (m_canvas) svs.initialInputSolver = NULL;
+	if (!firstUpdate) svs.initialInputSolver = NULL;
 
 	// creates canvas
 	m_canvas = nextCanvas;
