@@ -516,6 +516,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		}
 	}
 	// triangles
+	unsigned numBadNormalDirections = 0;
 	for (unsigned i=0;i<numTriangles;i++)
 	{
 		// triangle
@@ -631,7 +632,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			if (fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
-			if (size2(triangleNormals.vertex[j].normal-triangleNormalsFlat.vertex[0].normal)>2.1f) badDirection = true; // >2 generated lots of false positives. >2.1f may miss some cases of very small error, those are no problem
+			if (dot(triangleNormals.vertex[j].normal,triangleNormalsFlat.vertex[0].normal)<0) {badDirection = true;	numBadNormalDirections++;}
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
@@ -656,8 +657,9 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		else
 		if (badDirection)
 		{
-			numReports[0]++;
-			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
+			// users don't like this warning, it's too frequent
+			// numReports[0]++;
+			// RRReporter::report(WARN,"getTriangleNormals(%d) point to triangle's back side. It is usually error in 3d model, makes lighting less realistic.\n",i);
 		}
 		else
 		if (notOrthogonal)
@@ -727,7 +729,11 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 				}
 			}
 		}
-		
+	}
+	if (numBadNormalDirections)
+	{
+		numReports[0]++;
+		RRReporter::report(WARN,"%d (of %d) triangle vertex normals point to triangle's back side. It is shortcoming of 3d model, makes lighting around vertex less realistic.\n",numBadNormalDirections,numTriangles*3);
 	}
 	return *numReports;
 }
