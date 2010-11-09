@@ -59,6 +59,7 @@
 	#include "ecr/LightService.h"
 	#include "egf/Entity.h"
 	#include "egf/EntityManager.h"
+	#include "egmToolServices/SelectionService.h"
 	#include "efd/ServiceManager.h"
 	#pragma comment(lib,"ecr" LIB_SUFFIX)
 	#pragma comment(lib,"egf" LIB_SUFFIX)
@@ -1136,13 +1137,22 @@ public:
 		{
 			if (buildNonDirectional)
 			{
+	#if GI_LIGHTING_FILE_VERSION>3
+				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(*_mesh, nigid->m_LightMapShaderSlot);
+				if (buildPerVertex && !nigid->IsModeSupported(NiGIDescriptor::VERTEX_LIGHT_MAPS))
+	#else
 				lightmapTexcoord = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_LightMapShaderSlot);
 				if (buildPerVertex && !nigid->m_SupportsVertexLightMaps)
+	#endif
 				{
 					RRReporter::report(WARN,"Mesh %s doesn't support non-directional vertex bake.\n",(const efd::Char*)_mesh->GetName());
 					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
+	#if GI_LIGHTING_FILE_VERSION>3
+				if (!buildPerVertex && !nigid->IsModeSupported(NiGIDescriptor::TEXTURE_LIGHT_MAPS))
+	#else
 				if (!buildPerVertex && !nigid->m_SupportsTextureLightMaps)
+	#endif
 				{
 					RRReporter::report(WARN,"Mesh %s doesn't support non-directional texture bake.\n",(const efd::Char*)_mesh->GetName());
 					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
@@ -1150,20 +1160,34 @@ public:
 			}
 			else
 			{
+	#if GI_LIGHTING_FILE_VERSION>3
+				unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(*_mesh, nigid->m_RNMShaderSlots[0]);
+				unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(*_mesh, nigid->m_RNMShaderSlots[1]);
+				unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(*_mesh, nigid->m_RNMShaderSlots[2]);
+	#else
 				unsigned directionalTexcoord0 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[0]);
 				unsigned directionalTexcoord1 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[1]);
 				unsigned directionalTexcoord2 = NiGIDescriptor::GetUVSetIndex(_mesh, nigid->m_RNMShaderSlots[2]);
+	#endif
 				lightmapTexcoord = directionalTexcoord0;
 				if (directionalTexcoord0!=directionalTexcoord1 || directionalTexcoord0!=directionalTexcoord2 || directionalTexcoord1!=directionalTexcoord2)
 				{
 					RRReporter::report(WARN,"All three textures making single directional lightmap must use the same uv.\n");
 				}
+	#if GI_LIGHTING_FILE_VERSION>3
+				if (buildPerVertex && !nigid->IsModeSupported(NiGIDescriptor::VERTEX_RADIOSITY_NORMAL_MAPS))
+	#else
 				if (buildPerVertex && !nigid->m_SupportsVertexRNMs)
+	#endif
 				{
 					RRReporter::report(WARN,"Mesh %s doesn't support directional vertex bake.\n",(const efd::Char*)_mesh->GetName());
 					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
 				}
+	#if GI_LIGHTING_FILE_VERSION>3
+				if (!buildPerVertex && !nigid->IsModeSupported(NiGIDescriptor::TEXTURE_RADIOSITY_NORMAL_MAPS))
+	#else
 				if (!buildPerVertex && !nigid->m_SupportsTextureRNMs)
+	#endif
 				{
 					RRReporter::report(WARN,"Mesh %s doesn't support directional texture bake.\n",(const efd::Char*)_mesh->GetName());
 					perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
@@ -1465,7 +1489,7 @@ public:
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	// path used by Gamebryo 3.x Toolbench plugin
-	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
+	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool _onlySelected, bool& _aborting)
 	{
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
@@ -1474,6 +1498,12 @@ public:
 		{
 			egf::EntityManager* entityManager = serviceManager->GetSystemServiceAs<egf::EntityManager>();
 			ecr::SceneGraphService* sceneGraphService = serviceManager->GetSystemServiceAs<ecr::SceneGraphService>();
+			egmToolServices::SelectionService* selectionService = serviceManager->GetSystemServiceAs<egmToolServices::SelectionService>();
+			if (_onlySelected && !selectionService)
+			{
+				RRReporter::report(ERRO,"SelectionService not available.\n");
+				return;
+			}
 			if (entityManager && sceneGraphService)
 			{
 				// read scene settings
@@ -1533,6 +1563,12 @@ public:
 						if (affectsGI)
 						{
 							PerEntitySettings perEntitySettings;
+							NiAVObjectPtr objPtr;
+							if (_onlySelected && !selectionService->GetSelectedEntities().find(entity->GetEntityID(),objPtr))
+							{
+								perEntitySettings.lsBakeTarget = PE_TARGET_NONE;
+							}
+							else
 							if (entity->GetModel()->ContainsModel("LightsprintMesh"))
 								perEntitySettings.readFrom(entity); // call only if LightsprintMesh exists, otherwise it emits warnings
 							perEntitySettings.inheritFrom(perSceneSettings); // call always, converts default PE_INHERIT_... to nice values
@@ -1994,7 +2030,7 @@ public:
 	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
 #if GAMEBRYO_MAJOR_VERSION==3
 	//! Imports scene from toolbench.
-	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& aborting);
+	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting);
 #endif
 	virtual ~RRSceneGamebryo();
 
@@ -2067,7 +2103,7 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _aborting)
+RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _onlySelected, bool& _aborting)
 {
 	initGamebryo = false;
 	pkEntityScene = NULL;
@@ -2078,7 +2114,7 @@ RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool& _abo
 	protectedLights = adaptLightsFromGamebryo(serviceManager);
 
 	// adapt meshes
-	protectedObjects = adaptObjectsFromGamebryo(serviceManager,_aborting);
+	protectedObjects = adaptObjectsFromGamebryo(serviceManager,_onlySelected,_aborting);
 
 	// adapt environment
 	environment = adaptEnvironmentFromGamebryo(serviceManager);
@@ -2206,9 +2242,9 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting)
+RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting)
 {
-	return new RRObjectsGamebryo(serviceManager,aborting);
+	return new RRObjectsGamebryo(serviceManager,onlySelected,aborting);
 }
 
 RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
@@ -2296,9 +2332,9 @@ RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceManager
 	return environment;
 }
 
-RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool& aborting)
+RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting)
 {
-	return new RRSceneGamebryo(serviceManager,aborting);
+	return new RRSceneGamebryo(serviceManager,onlySelected,aborting);
 }
 #endif
 

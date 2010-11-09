@@ -2561,13 +2561,18 @@ Video formats
    \subsection g3_cache - lightmap cache
     - located in (asset root)/PrecomputedLighting/cache
     - how does it work?
-      - "Bake lighting" calculates lighting, saves raw .exr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
-      - "Bake lighting from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
+      - "Bake lighting"/"Bake selected" calculates lighting, saves raw .exr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
+      - "Bake from cache"/"Bake selected from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
     - serves three purposes
       - Makes postprocessing near instant. Once cache is filled by "Bake lighting", you can change color tone, brightness, contrast, smoothing and compression and apply changes by "Bake lighting from cache".
       - Lets you look at lightmaps. Once cache is filled by "Bake lighting", you can look at lightmaps in any modern image viewer. (Note that there are no tools for looking at lightmaps in Gamebryo's .nif).
       - Lets you edit lightmaps. Once cache is filled by "Bake lighting", you can edit cached lightmaps and apply results to scene by "Bake lighting from cache".
     - can be disabled by deleting <code>\#define LIGHTMAP_CACHE</code> from <code>Lightsprint.Toolbench.Plugin.cpp</code> and rebuilding plugin
+
+   \subsection g3_selection - baking selected entities
+    - commented out in src\Lightsprint.Toolbench.Plugin.UI\plugin.xml due to bug in GI Package 2.1.1
+    - ready for GI Package Next
+    - "Bake selected" and "Bake selected from cache" update lighting only for entities selected in World Builder
 
    \subsection g3_configs - baking multiple configurations at once
     - LightsprintMesh properties LsReplacementCase and LsReplacementConfiguration let you define multiple scene configurations

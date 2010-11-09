@@ -13,10 +13,17 @@ namespace rr
 NEWS
 
 - improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
-  - LightsprintScene / LsSmoothingAmount added
+  - LightsprintScene / LsSmoothingAmount
     - makes edges smoother, reduces noise, but washes out tiny details
     - can be used to reduce bake time: reduce quality and enable smoothing to hide noise
-    - is a postprocess, so once you fill cache by "Bake", you can change smoothing and quickly update lightmaps by "Bake from cache"
+    - is a postprocess, so once you fill cache by "Bake lighting", you can change smoothing and quickly update lightmaps by "Bake from cache"
+  - more robust Lightsprint / Bake from cache, works even after small changes in scene
+  - more condensed warnings about wrong normals
+  - LightSpeed 3.2 beta support
+    - integration source code is compatible with unreleased GI Package for LightSpeed 3.2 beta
+    - new menu items Lightsprint / Bake selected, Bake selected from cache
+      - will let you bake lighting only for selected objects
+      - disabled in src\Lightsprint.Toolbench.Plugin.UI\plugin.xml due to bug in GI Package 2.1.1
 - higher quality lightmap baking
   - lightmap smoothing
     - in scene viewer: Scene properties / GI quality / Lightmap baking / Smoothing amount, Wrapping
@@ -28,7 +35,7 @@ NEWS
     - smaller resolution reduces bake time, saves memory and disk space
     - smaller gutter increases utilization of lightmap space
 - improved import/export
-  - 128bit .exr textures (previously only 96bit)
+  - 128bit .exr textures
 - RRBuffer tools
   - RRBuffer::clear()
   - RRBuffer::copyElementsTo()
