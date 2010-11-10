@@ -2570,7 +2570,7 @@ Video formats
     - can be disabled by deleting <code>\#define LIGHTMAP_CACHE</code> from <code>Lightsprint.Toolbench.Plugin.cpp</code> and rebuilding plugin
 
    \subsection g3_selection - baking selected entities
-    - commented out in src\Lightsprint.Toolbench.Plugin.UI\plugin.xml due to bug in GI Package 2.1.1
+    - commented out in src/Lightsprint.Toolbench.Plugin.UI/plugin.xml due to bug in GI Package 2.1.1
     - ready for GI Package Next
     - "Bake selected" and "Bake selected from cache" update lighting only for entities selected in World Builder
 

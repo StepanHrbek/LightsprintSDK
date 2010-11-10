@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news112 ------------------------------------ 2010.11.xx -------------------------------------
+\section news112 ------------------------------------ 2010.11.10 -------------------------------------
 
 NEWS
 
@@ -23,7 +23,7 @@ NEWS
     - integration source code is compatible with unreleased GI Package for LightSpeed 3.2 beta
     - new menu items Lightsprint / Bake selected, Bake selected from cache
       - will let you bake lighting only for selected objects
-      - disabled in src\Lightsprint.Toolbench.Plugin.UI\plugin.xml due to bug in GI Package 2.1.1
+      - disabled in src/Lightsprint.Toolbench.Plugin.UI/plugin.xml due to bug in GI Package 2.1.1
 - higher quality lightmap baking
   - lightmap smoothing
     - in scene viewer: Scene properties / GI quality / Lightmap baking / Smoothing amount, Wrapping
