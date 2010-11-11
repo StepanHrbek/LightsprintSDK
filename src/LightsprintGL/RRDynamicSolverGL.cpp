@@ -150,6 +150,9 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 
 	CalculateParameters params = _params ? *_params : CalculateParameters();
 
+	// set light dirty flags before updating shadowmaps
+	calculateDirtyLights(_params);
+
 	// update only dirty maps
 	updateShadowmaps();
 

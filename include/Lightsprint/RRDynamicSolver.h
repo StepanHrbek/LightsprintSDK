@@ -877,6 +877,14 @@ namespace rr
 		//! As getMultiObjectCustom, but with materials converted to physical space.
 		const RRObject* getMultiObjectPhysical() const;
 
+	protected:
+
+		//! Optional extension of calculate(), sets dirty flags in lights.
+		//
+		//! Realtime GI implementations (like rr_gl::RRDynamicSolverGL)
+		//! call it from calculate(), before updating shadowmaps.
+		void calculateDirtyLights(CalculateParameters* params = NULL);
+
 	private:
 
 		//! Detects direct illumination on all faces in scene and sends it to the solver.

@@ -449,6 +449,36 @@ void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 	}
 }
 
+void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
+{
+	// replace NULL by default parameters
+	static CalculateParameters s_params;
+	if (!_params) _params = &s_params;
+
+	if (_params->materialTransmittanceStaticQuality || _params->materialTransmittanceVideoQuality)
+	{
+		RRObject* object = getMultiObjectCustom();
+		if (object)
+		{
+			rr::RRReportInterval report(rr::INF3,"Updating illumination passing through transparent materials...\n");
+			unsigned versionSum[2] = {0,0}; // 0=static, 1=video
+			for (unsigned g=0;g<object->faceGroups.size();g++)
+			{
+				const rr::RRMaterial* material = object->faceGroups[g].material;
+				if (material && material->specularTransmittance.texture)
+					versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
+			}
+			unsigned materialTransmittanceQuality = RR_MAX( (priv->materialTransmittanceVersionSum[0]!=versionSum[0])?_params->materialTransmittanceStaticQuality:0, (priv->materialTransmittanceVersionSum[1]!=versionSum[1])?_params->materialTransmittanceVideoQuality:0 );
+			if (materialTransmittanceQuality)
+			{
+				priv->materialTransmittanceVersionSum[0] = versionSum[0];
+				priv->materialTransmittanceVersionSum[1] = versionSum[1];
+				reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
+			}
+		}
+	}
+}
+
 class EndByTime : public RRStaticSolver::EndFunc
 {
 public:
@@ -569,29 +599,6 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
 			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
 				priv->solutionVersion++;
-		}
-	}
-
-	if (_params->materialTransmittanceStaticQuality || _params->materialTransmittanceVideoQuality)
-	{
-		RRObject* object = getMultiObjectCustom();
-		if (object)
-		{
-			rr::RRReportInterval report(rr::INF3,"Updating illumination passing through transparent materials...\n");
-			unsigned versionSum[2] = {0,0}; // 0=static, 1=video
-			for (unsigned g=0;g<object->faceGroups.size();g++)
-			{
-				const rr::RRMaterial* material = object->faceGroups[g].material;
-				if (material && material->specularTransmittance.texture)
-					versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
-			}
-			unsigned materialTransmittanceQuality = RR_MAX( (priv->materialTransmittanceVersionSum[0]!=versionSum[0])?_params->materialTransmittanceStaticQuality:0, (priv->materialTransmittanceVersionSum[1]!=versionSum[1])?_params->materialTransmittanceVideoQuality:0 );
-			if (materialTransmittanceQuality)
-			{
-				priv->materialTransmittanceVersionSum[0] = versionSum[0];
-				priv->materialTransmittanceVersionSum[1] = versionSum[1];
-				reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
-			}
 		}
 	}
 
