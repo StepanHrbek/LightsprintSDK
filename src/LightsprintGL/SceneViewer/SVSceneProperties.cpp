@@ -339,7 +339,7 @@ void SVSceneProperties::updateHide()
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 
 	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
-	propGITranspVideoAffectsGIFull->Hide(!svs.videoEnvironmentAffectsGI,false);
+	propGITranspVideoAffectsGIFull->Hide(!svs.videoTransmittanceAffectsGI,false);
 	propGIEnvVideoGIQuality->Hide(!svs.videoEnvironmentAffectsGI,false);
 
 }
@@ -645,7 +645,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
 	}
 	else
-	if (property==propGIEmisVideoAffectsGI || property==propGIEnvVideoAffectsGI)
+	if (property==propGIEmisVideoAffectsGI || property==propGITranspVideoAffectsGI || property==propGIEnvVideoAffectsGI)
 	{
 		updateHide();
 	}
