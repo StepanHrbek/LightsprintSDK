@@ -10,6 +10,7 @@
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
 #include "../NumReports.h"
+#include <cstdio> // _vsnprintf
 
 namespace rr
 {
