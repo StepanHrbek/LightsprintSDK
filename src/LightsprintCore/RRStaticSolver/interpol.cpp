@@ -14,9 +14,6 @@
 namespace rr
 {
 
-unsigned __iverticesAllocated=0;
-unsigned __cornersAllocated=0;
-
 IVertex::IVertex()
 {
 	RR_ASSERT(this);
@@ -26,8 +23,6 @@ IVertex::IVertex()
 	powerTopLevel=0;
 	cacheTime=__frameNumber-1;
 	cacheValid=0;
-	__iverticesAllocated++;
-	__cornersAllocated+=cornersAllocated();
 }
 
 unsigned IVertex::cornersAllocated()
@@ -56,9 +51,7 @@ void IVertex::insert(Triangle* node,bool toplevel,real power)
 	if (corners==cornersAllocated())
 	{
 		size_t oldsize=(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner);
-		__cornersAllocated+=cornersAllocated();
 		cornersAllocatedLn2++;
-		//__cornersAllocated+=3*cornersAllocated();
 		//cornersAllocatedLn2+=2;
 		dynamicCorner=(Corner *)realloc(dynamicCorner,oldsize,(cornersAllocated()-STATIC_CORNERS)*sizeof(Corner));
 	}
@@ -123,8 +116,6 @@ IVertex::~IVertex()
 	cornersAllocatedLn2++;
 	cornersAllocatedLn2--;
 	free(dynamicCorner);
-	__cornersAllocated-=cornersAllocated();
-	__iverticesAllocated--;
 }
 
 bool Object::buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting)

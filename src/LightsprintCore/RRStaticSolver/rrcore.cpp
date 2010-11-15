@@ -58,12 +58,6 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// globals
-
-unsigned  __frameNumber=1; // frame number increased after each draw
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // triangle
 
 Triangle::Triangle()
@@ -802,8 +796,6 @@ RRVec3 refract(RRVec3 N,RRVec3 I,real r)
 	}
 }
 
-unsigned __shot=0;
-
 HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
@@ -819,7 +811,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
-	__shot++;
 	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		if (!hitTriangle && skyPatchHitsForCurrentTriangle)
