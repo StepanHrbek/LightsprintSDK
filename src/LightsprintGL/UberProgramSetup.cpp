@@ -565,7 +565,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("postprocessGamma", gamma);
 	}
 
-	if ((LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR) && !FORCE_2D_POSITION)
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
 	{
 		const Camera* camera = Camera::getRenderCamera();
 		if (camera)

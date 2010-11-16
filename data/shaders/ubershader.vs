@@ -101,10 +101,6 @@ varying
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#if (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR)) && !defined(FORCE_2D_POSITION)
-	uniform vec3 worldEyePos;
-#endif
-
 #ifdef MATERIAL_EMISSIVE_MAP
 	varying vec2 materialEmissiveCoord;
 #endif
@@ -121,7 +117,7 @@ void main()
 {
 	#ifdef OBJECT_SPACE
 		vec4 worldPos4 = worldMatrix * gl_Vertex;
-		worldNormalSmooth = normalize( worldMatrix * vec4(gl_Normal,0.0) ).xyz;
+		worldNormalSmooth = normalize( ( worldMatrix * vec4(gl_Normal,0.0) ).xyz );
 	#else
 		vec4 worldPos4 = gl_Vertex;
 		worldNormalSmooth = normalize( gl_Normal );
@@ -152,14 +148,6 @@ void main()
 			#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
 				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
 			#endif
-		#endif
-		#ifdef FORCE_2D_POSITION
-			// rendering solver input = direct illumination on front side of 2-sided face
-			// ignore camera position, worldEyePos is not set
-			lightDirectVColor = max(0.0,-lightDirectVColor);
-		#else
-			// direct illumination only on lit side of 2-sided face
-			lightDirectVColor = (lightDirectVColor*dot(worldPos-worldEyePos,worldNormalSmooth)>0.0) ? abs(lightDirectVColor) : 0.0;
 		#endif
 	#endif
 

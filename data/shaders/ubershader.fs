@@ -435,11 +435,14 @@ void main()
 				vec3 worldLightDirFromPixel = normalize(worldLightPos - worldPos);
 			#endif
 		#endif
+		#ifndef MATERIAL_NORMAL_MAP
+			float lightDirectVColorOurSide = max(0.0,gl_FrontFacing?-lightDirectVColor:lightDirectVColor);
+		#endif
 		vec4 lightDirect =
 			#ifdef MATERIAL_NORMAL_MAP
 				max(0.0,dot(worldLightDirFromPixel, worldNormal)) // per pixel
 			#else
-				vec4(lightDirectVColor,lightDirectVColor,lightDirectVColor,lightDirectVColor) // per vertex
+				vec4(lightDirectVColorOurSide,lightDirectVColorOurSide,lightDirectVColorOurSide,lightDirectVColorOurSide) // per vertex
 			#endif
 			#ifdef LIGHT_DIRECT_COLOR
 				* lightDirectColor
