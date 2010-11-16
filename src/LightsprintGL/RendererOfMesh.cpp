@@ -431,7 +431,9 @@ class Helpers
 public:
 	rr::RRVector<unsigned> texcoords; // using this [in MeshVBOs::getMeshArraysVBOs] instead of local variable saves 1 temp allocation
 	rr::RRMeshArrays meshArrays; // using this [in MeshVBOs::getMeshArraysVBOs] instead of local variable saves 2 temp allocations
-} g_helpers;
+};
+
+static Helpers s_helpers;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -473,16 +475,16 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 			const rr::RRMeshArrays* meshArrays = _indexed ? dynamic_cast<const rr::RRMeshArrays*>(_mesh) : NULL;
 			if (!meshArrays)
 			{
-				g_helpers.texcoords.clear();
-				_mesh->getUvChannels(g_helpers.texcoords);
-				if (g_helpers.texcoords.size()>20)
+				s_helpers.texcoords.clear();
+				_mesh->getUvChannels(s_helpers.texcoords);
+				if (s_helpers.texcoords.size()>20)
 				{
 					rr::RRReporter::report(rr::WARN,"Mesh has over 20 uv channels, please reduce number of uv channels to save memory.\n");
 				}
 				// copy data to arrays
-				g_helpers.meshArrays.reload(_mesh,_indexed,g_helpers.texcoords);
+				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords);
 			}
-			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&g_helpers.meshArrays,_indexed);
+			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&s_helpers.meshArrays,_indexed);
 		}
 	}
 

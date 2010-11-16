@@ -379,7 +379,7 @@ void Camera::mirror(float altitude)
 //
 // views
 
-float viewAngles[6][3] = // angle, angleX, leanAngle
+static float s_viewAngles[6][3] = // angle, angleX, leanAngle
 {
 	{RR_PI,-RR_PI/2,0}, // TOP
 	{RR_PI,RR_PI/2,0}, // BOTTOM
@@ -417,9 +417,9 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 
 	// process TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT
 	orthogonal = true;
-	angle = viewAngles[view][0];
-	angleX = viewAngles[view][1];
-	leanAngle = viewAngles[view][2];
+	angle = s_viewAngles[view][0];
+	angleX = s_viewAngles[view][1];
+	leanAngle = s_viewAngles[view][2];
 	if (scene)
 	{
 		rr::RRVec3 mini,maxi;
@@ -463,7 +463,7 @@ Camera::View Camera::getView() const
 {
 	if (orthogonal)
 		for (View view=TOP;view<=RIGHT;view=(View)(view+1))
-			if (angle==viewAngles[view][0] && angleX==viewAngles[view][1] && leanAngle==viewAngles[view][2])
+			if (angle==s_viewAngles[view][0] && angleX==s_viewAngles[view][1] && leanAngle==s_viewAngles[view][2])
 				return view;
 	return OTHER;
 }

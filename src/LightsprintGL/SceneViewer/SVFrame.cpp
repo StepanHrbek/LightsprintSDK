@@ -156,18 +156,18 @@ private:
 //
 // LogWithAbort
 
-bool g_logIsOn = false;
+static bool s_logIsOn = false;
 
 class LogWithAbort
 {
 public:
 	LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver)
 	{
-		enabled = !g_logIsOn; // do nothing if log is already enabled
+		enabled = !s_logIsOn; // do nothing if log is already enabled
 		if (enabled)
 		{
 			// display log window with 'abort'
-			g_logIsOn = true;
+			s_logIsOn = true;
 			window = _window;
 			localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
 			oldReporter = rr::RRReporter::getReporter();
@@ -179,7 +179,7 @@ public:
 		if (enabled)
 		{
 			// restore old reporter, close log
-			g_logIsOn = false;
+			s_logIsOn = false;
 			rr::RRReporter::setReporter(oldReporter);
 			delete localReporter;
 			// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.

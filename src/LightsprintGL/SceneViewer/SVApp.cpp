@@ -12,14 +12,14 @@ namespace rr_gl
 {
 
 // the only instance used by whole scene viewer
-SceneViewerStateEx g_svs;
+static SceneViewerStateEx s_svs;
 
 class SVApp: public wxApp
 {
 public:
 	bool OnInit()
 	{
-		SVFrame::Create(g_svs);
+		SVFrame::Create(s_svs);
 		return true;
 	}
 };
@@ -36,19 +36,19 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	if (_inputSolver && _inputSolver->aborting) return;
 
 	// set initial values (user may change them interactively in scene viewer)
-	g_svs = SceneViewerStateEx();
-	if (_svs) memcpy(&g_svs,_svs,sizeof(*_svs));
+	s_svs = SceneViewerStateEx();
+	if (_svs) memcpy(&s_svs,_svs,sizeof(*_svs));
 	if (_inputFilename)
 	{
-		g_svs.sceneFilename = _inputFilename;
+		s_svs.sceneFilename = _inputFilename;
 	}
 	if (_skyboxFilename)
 	{
-		g_svs.skyboxFilename = _skyboxFilename;
+		s_svs.skyboxFilename = _skyboxFilename;
 	}
-	g_svs.initialInputSolver = _inputSolver;
-	g_svs.pathToShaders = _pathToShaders;
-	g_svs.releaseResources = _releaseResources;
+	s_svs.initialInputSolver = _inputSolver;
+	s_svs.pathToShaders = _pathToShaders;
+	s_svs.releaseResources = _releaseResources;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	wxEntry(0,NULL);

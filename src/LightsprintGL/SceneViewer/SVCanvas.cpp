@@ -37,7 +37,7 @@ namespace rr_gl
 //
 // SVCanvas
 
-int attribList[] = {
+static int s_attribList[] = {
 	WX_GL_RGBA,
 	WX_GL_DOUBLEBUFFER,
 	//WX_GL_SAMPLE_BUFFERS, GL_TRUE, // produces no visible improvement
@@ -46,7 +46,7 @@ int attribList[] = {
 	0, 0};
 
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
-	: wxGLCanvas(_parent, wxID_ANY, attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, _T("GLCanvas")), svs(_svs)
+	: wxGLCanvas(_parent, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, _T("GLCanvas")), svs(_svs)
 {
 	context = NULL;
 	parent = _parent;

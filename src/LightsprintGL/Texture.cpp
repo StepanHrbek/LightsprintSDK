@@ -404,7 +404,7 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height)
 //
 // Buffer -> Texture
 
-static std::vector<Texture*> g_textures;
+static std::vector<Texture*> s_textures;
 
 Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compress, int _magn, int _mini, int _wrapS, int _wrapT)
 {
@@ -415,7 +415,7 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 	if (!texture)
 	{
 		texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
-		g_textures.push_back(texture);
+		s_textures.push_back(texture);
 	}
 
 	// It's easier to have automatic update(). For now, we don't register any unwanted effects, but one day,
@@ -430,11 +430,11 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 
 void deleteAllTextures()
 {
-	for (unsigned i=0;i<g_textures.size();i++)
+	for (unsigned i=0;i<s_textures.size();i++)
 	{
-		delete g_textures[i];
+		delete s_textures[i];
 	}
-	g_textures.clear();
+	s_textures.clear();
 
 	extern void releaseAllBuffers1x1();
 	releaseAllBuffers1x1();

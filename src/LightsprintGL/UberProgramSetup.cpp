@@ -57,11 +57,13 @@ public:
 private:
 	typedef boost::unordered_map<unsigned,rr::RRBuffer*> Buffer1x1Cache;
 	Buffer1x1Cache buffers1x1;
-} g_buffers1x1;
+};
+
+static Buffers1x1 s_buffers1x1;
 
 void releaseAllBuffers1x1()
 {
-	g_buffers1x1.releaseAllBuffers1x1();
+	s_buffers1x1.releaseAllBuffers1x1();
 }
 
 
@@ -641,19 +643,19 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_DIFFUSE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		g_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
+		s_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
-		g_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
+		s_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
-		g_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
+		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 }
 

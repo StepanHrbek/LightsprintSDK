@@ -13,10 +13,11 @@
 namespace rr_gl
 {
 
-bool showLog = false;
+static bool s_showLog = false;
+
 void Program::logMessages(bool enable)
 {
-	showLog = enable;
+	s_showLog = enable;
 }
 
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
@@ -26,7 +27,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	fragment = NULL;
 	linked = 0;
 
-	if (showLog)
+	if (s_showLog)
 	{
 		rr::RRReporter::report(rr::INF2,"Building %s + %s\n",vertexShader,fragmentShader);
 		if (defines && defines[0]) rr::RRReporter::report(rr::INF2,"%s",defines);
@@ -53,7 +54,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	// store result
 	linked = alinked && logLooksSafe();
 
-	if (showLog)
+	if (s_showLog)
 	{
 		GLint debugLength;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
@@ -68,7 +69,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 		}
 	}
 end:
-	if (showLog)
+	if (s_showLog)
 	{
 		rr::RRReporter::report(rr::INF2,"\n");
 	}
