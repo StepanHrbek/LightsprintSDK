@@ -63,6 +63,7 @@ namespace rr
 		TIME       lastInteractionTime;
 		TIME       lastCalcEndTime;
 		TIME       lastReadingResultsTime;
+		TIME       lastGIDirtyBecauseOfVideoTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
@@ -112,6 +113,7 @@ namespace rr
 			lastInteractionTime = 0;
 			lastCalcEndTime = 0;
 			lastReadingResultsTime = 0;
+			lastGIDirtyBecauseOfVideoTime = 0;
 			userStep = 0;
 			calcStep = 0;
 			improveStep = 0;

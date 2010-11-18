@@ -471,6 +471,8 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 			unsigned materialTransmittanceQuality = RR_MAX( (priv->materialTransmittanceVersionSum[0]!=versionSum[0])?_params->materialTransmittanceStaticQuality:0, (priv->materialTransmittanceVersionSum[1]!=versionSum[1])?_params->materialTransmittanceVideoQuality:0 );
 			if (materialTransmittanceQuality)
 			{
+				if (priv->materialTransmittanceVersionSum[1]!=versionSum[1] && _params->materialTransmittanceVideoQuality>1)
+					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
 				priv->materialTransmittanceVersionSum[0] = versionSum[0];
 				priv->materialTransmittanceVersionSum[1] = versionSum[1];
 				reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
@@ -589,8 +591,12 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			// loads emittance from materials to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
 			if (priv->packedSolver->setMaterialEmittance(forceEmittanceReload,_params->materialEmittanceMultiplier,_params->materialEmittanceStaticQuality,_params->materialEmittanceVideoQuality,_params->materialEmittanceUsePointMaterials,getScaler()))
+			{
 				// Fireball::illuminationReset() must be called to start using new emittance
 				priv->dirtyCustomIrradiance = true;
+				if (_params->materialEmittanceVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
+					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+			}
 		}
 
 		{
@@ -598,7 +604,11 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			// loads environment to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
 			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
+			{
 				priv->solutionVersion++;
+				if (_params->environmentVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
+					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+			}
 		}
 	}
 
@@ -627,7 +637,11 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	if (priv->packedSolver)
 	{
 		unsigned oldVer = priv->packedSolver->getSolutionVersion();
-		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
+
+		// when video affects GI, we must avoid additional improves (video 15fps + our window 30fps = every odd frame would be more improved, brighter)
+		bool giAffectedByVideo = now<(TIME)(priv->lastGIDirtyBecauseOfVideoTime+PER_SEC);
+
+		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,giAffectedByVideo?_params->qualityIndirectDynamic:_params->qualityIndirectStatic);
 		if (priv->packedSolver->getSolutionVersion()>oldVer)
 		{
 			// dirtyResults++ -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
