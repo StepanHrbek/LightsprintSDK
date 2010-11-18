@@ -88,6 +88,11 @@ namespace rr
 	//!   //e->stop();                        // here we forget to stop
 	//!   delete e;                           // no memory freed, e stays in cache, still playing to speakers
 	//!  \endcode
+	//!
+	//! \section buf_capture Live video capture
+	//!  LightsprintIO implements support for live video capture into 2d buffer.
+	//!  With LightsprintIO callbacks registered, live video capture is started by
+	//!  opening imaginary file "c@pture".
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -269,6 +274,8 @@ namespace rr
 		//! - load("path/cube_%%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
 		//! - load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
 		//! - load("path/cube.hdr", NULL) - loads the same file as 2d texture
+		//! - load("path/video.avi") - initializes video streamed to 2d texture, streaming is started by play()
+		//! - load("c@pture") - initializes live video capture to 2d texture, capturing is started by play()
 		//! \param filename
 		//!  Filename of 2d image or vertexbuffer or cubemap or mask of 6 images (sides of cubemap) to be loaded from disk.
 		//!  All common file formats are supported.

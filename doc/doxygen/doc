@@ -156,8 +156,9 @@ Global illumination
 \ref inputs_light_sources "Light source formats (inputs)"
 - spot, point, directinal lights
 - area light
-- skybox (LDR, HDR texture)
-- emissive materials (LDR, HDR texture)
+- projected texture, projected video, projected video capture
+- environment (LDR, HDR, various skybox formats, 360 degree panorama, 360 degree video, 360 degree video capture, blend of environments)
+- emissive materials (LDR, HDR textures, video, video capture)
 
 Lighting computed (outputs)
 - lightmap
@@ -178,8 +179,9 @@ Renderers
 
 Materials
 - supports all types of materials
-- diffuse maps, specular maps
-- emissive maps, transparency/opacity maps
+- diffuse/specular/emissive/opacity slots
+- video files and live video capture can be used in all slots
+- water with waves and reflection
 
 Unwrap
 - imports your unwrap

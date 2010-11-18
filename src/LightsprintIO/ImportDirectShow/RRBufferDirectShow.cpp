@@ -95,9 +95,31 @@ public:
 					hr = dsGrabber->SetMediaType(&mt);
 				}
 			}
-
-			// play file
+	
+			if (strstr(_filename,"c@pture"))
 			{
+				// capture from video input
+				IPin*           capRnd  = NULL; hr = dsGrabberFilter->FindPin(L"In",&capRnd);
+				ICreateDevEnum* capDevs = NULL; hr = CoCreateInstance(CLSID_SystemDeviceEnum,0,CLSCTX_INPROC,IID_ICreateDevEnum,(void**)&capDevs);
+				IEnumMoniker*   capCams = NULL; hr = capDevs ? capDevs->CreateClassEnumerator(CLSID_VideoInputDeviceCategory,&capCams,0) : 0;
+				IMoniker*       capMon  = NULL; hr = capCams ? capCams->Next(1,&capMon,0) : 0;
+				IBaseFilter*    capCam  = NULL; hr = capMon ? capMon->BindToObject(0,0,IID_IBaseFilter,(void**)&capCam) : 0;
+				IEnumPins*      capPins = NULL; hr = capCam ? capCam->EnumPins(&capPins) : 0;
+				IPin*           capCap  = NULL; hr = capPins ? capPins->Next(1,&capCap,0) : 0;
+				hr = dsGraph->AddFilter(capCam,L"Capture Source");
+				hr = dsGraph->Connect(capCap,capRnd);
+				hr = dsGraph->Render(capCap);
+				RR_SAFE_RELEASE(capMon);
+				RR_SAFE_RELEASE(capCams);
+				RR_SAFE_RELEASE(capDevs);
+				RR_SAFE_RELEASE(capCam);
+				RR_SAFE_RELEASE(capPins);
+				RR_SAFE_RELEASE(capCap);
+				RR_SAFE_RELEASE(capRnd);
+			}
+			else
+			{
+				// play file
 				unsigned len = (unsigned)(strlen(_filename)+1);
 				wchar_t* filenamew = new wchar_t[len];
 				for (unsigned i=0;i<len;i++) filenamew[i] = _filename[i];
@@ -153,20 +175,6 @@ public:
 				memset(front,128,width*height*3);
 			}
 		}
-		
-		/*/ video from camera
-		IPin*           rnd  = 0; hr = sampler->FindPin(L"In", &rnd);
-		ICreateDevEnum* devs = 0; hr = CoCreateInstance (CLSID_SystemDeviceEnum, 0, CLSCTX_INPROC, IID_ICreateDevEnum, (void **) &devs);
-		IEnumMoniker*   cams = 0; hr = devs?devs->CreateClassEnumerator (CLSID_VideoInputDeviceCategory, &cams, 0):0;
-		IMoniker*       mon  = 0; hr = cams?cams->Next (1, &mon, 0):0;
-		IBaseFilter*    cam  = 0; hr = mon?mon->BindToObject(0,0,IID_IBaseFilter, (void**)&cam):0;
-		IEnumPins*      pins = 0; hr = cam?cam->EnumPins(&pins):0;
-		IPin*           cap  = 0; hr = pins?pins->Next(1,&cap, 0):0;
-								  hr = graph->AddFilter(cam, L"Capture Source");
-		hr = graph->Connect(cap,rnd);
-		hr = graph->Render(cap);
-		hr = ctrl->Run();
-		*/
 	}
 
 	//! When deleting buffer, this is called first.
@@ -411,18 +419,19 @@ private:
 	//! (still we clearly say it's not thread safe)
 	volatile unsigned refCount;
 
-	unsigned char* front; ///< frontbuffer, visible via RRBuffer interface
-	unsigned char* back; ///< backbuffer, callback from background thread fills it
-	bool backReady; ///< set when backbuffer contains new data
-	unsigned width;
-	unsigned height;
-	float duration;
-	IGraphBuilder* dsGraph;
-	IMediaControl* dsControl;
-	IMediaEvent* dsEvent;
-	IMediaSeeking* dsSeeking;
-	IBasicAudio* dsAudio;
-	IBaseFilter* dsGrabberFilter;
+	unsigned char*  front; ///< frontbuffer, visible via RRBuffer interface
+	unsigned char*  back; ///< backbuffer, callback from background thread fills it
+	bool            backReady; ///< set when backbuffer contains new data
+	unsigned        width;
+	unsigned        height;
+	float           duration;
+
+	IGraphBuilder*  dsGraph;
+	IMediaControl*  dsControl;
+	IMediaEvent*    dsEvent;
+	IMediaSeeking*  dsSeeking;
+	IBasicAudio*    dsAudio;
+	IBaseFilter*    dsGrabberFilter;
 	ISampleGrabber* dsGrabber;
 };
 

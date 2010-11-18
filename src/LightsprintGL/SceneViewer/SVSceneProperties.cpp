@@ -87,7 +87,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propEnv);
 		SetPropertyReadOnly(propEnv,true,wxPG_DONT_RECURSE);
 
-		propEnvMap = new ImageFileProperty(wxT("Sky texture"),"Supported formats: equirectangular panoramas, cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR.");
+		propEnvMap = new ImageFileProperty(wxT("Sky texture or video"),"Supported formats: equirectangular panoramas, cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR. Type in c@pture to use live video input as environment.");
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
@@ -262,7 +262,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propGIEmisVideoAffectsGI = new BoolRefProperty("Emissive video realtime GI","Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEmittanceAffectsGI);
 			AppendIn(propGI,propGIEmisVideoAffectsGI);
 
-			propGIEmisVideoGIQuality = new FloatProperty("Quality","Number of samples taken from each triangle.",svs.videoEmittanceGIQuality,0,1,1000,10,false);
+			propGIEmisVideoGIQuality = new FloatProperty("Quality","Number of samples taken from each triangle.",svs.videoEmittanceGIQuality,0,0,1000,10,false);
 			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
 		}
 

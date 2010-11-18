@@ -83,7 +83,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propColor);
 		}
 		{
-			propTexture = new ImageFileProperty(wxT("Projected texture"),"Texture projected by light. Both color and texture are applied.");
+			propTexture = new ImageFileProperty(wxT("Projected texture or video"),"Texture or video projected by light. Both color and texture are applied. Type in c@pture to project live video input.");
 			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
 			propTexture->updateIcon(light->rtProjectedTexture);
 			Append(propTexture);
