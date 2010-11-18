@@ -1147,16 +1147,22 @@ save_scene_as:
 			{
 reload_skybox:
 				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str());
-				// skybox is used only if it exists
+				if (envToBeDeletedOnExit && solver->getEnvironment(0))
+				{
+					solver->getEnvironment(0)->stop();
+					delete solver->getEnvironment(0); // env is refcounted and usually still exists after delete
+				}
 				if (skybox)
 				{
-					if (envToBeDeletedOnExit)
-						delete solver->getEnvironment(0);
 					solver->setEnvironment(skybox,solver->getEnvironment(0));
 					envToBeDeletedOnExit = true;
 					m_canvas->timeWhenSkyboxBlendingStarted = GETSEC; // starts 3sec smooth transition in SVCanvas::Paint()
 					if (svs.playVideos)
 						skybox->play();
+				}
+				else
+				{
+					solver->setEnvironment(NULL,NULL);
 				}
 			}
 			break;
