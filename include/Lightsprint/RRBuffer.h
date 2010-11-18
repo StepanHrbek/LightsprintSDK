@@ -427,7 +427,7 @@ namespace rr
 		//! \return
 		//!  False when lightmap is empty, all texels have alpha<0.002.
 		virtual bool lightmapGrowForBilinearInterpolation(bool wrap);
-		//! Fills in unused lightmap texels in probimity of used ones, may help when mipmapping lightmap.
+		//! Fills in unused lightmap texels in proximity of used ones, may help when mipmapping or compressing lightmap.
 		//
 		//! Expects used texels to have alpha>0.
 		//! Sets alpha in newly colored texels to 0.001f.
