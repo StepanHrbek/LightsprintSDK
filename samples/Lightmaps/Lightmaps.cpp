@@ -32,6 +32,7 @@
 //  l = Load maps from disk, stop realtime global illumination
 //  +-= change brightness
 //  */= change contrast
+//  r = randomize camera
 //
 // Remarks:
 // - map quality depends on unwrap quality.
@@ -242,6 +243,10 @@ void keyboard(unsigned char c, int x, int y)
 				modeMovingEye = true;
 				break;
 			}
+
+		case 'r':
+			eye.setView(rr_gl::Camera::FRONT,solver->getMultiObjectCustom());
+			break;
 
 		case 27:
 			// immediate exit without freeing memory, leaks may be reported
