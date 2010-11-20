@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news113 ------------------------------------ 2010.11.xx -------------------------------------
+\section news113 ------------------------------------ 2010.11.19 -------------------------------------
 
 NEWS
 
@@ -16,12 +16,16 @@ NEWS
   - materials can play video capture in diffuse, emittance or transparency slot, GI updates in realtime
   - spotlights can project video capture, GI updates in realtime
   - environment can be streamed from video capture, GI updates in realtime
-  - total support throughout Lightsprint SDK, use <b>c@pture</b> as filename, instead of foo.jpg or foo.avi
+  - total support throughout Lightsprint SDK, use <b>c\@pture</b> as filename, instead of foo.jpg or foo.avi
     - in any 3d scene file (collada, 3ds, obj...)
     - in Scene Viewer's light properties and material properties or environment
     - in your code
   - full source code in <code>src/LightsprintIO/ImportDirectShow</code>
   - supported in Windows only
+
+FIXES
+
+- compressed textures in 2010.11.10 Lightspeed integration contained black strips
 
 \section news112 ------------------------------------ 2010.11.10 -------------------------------------
 
