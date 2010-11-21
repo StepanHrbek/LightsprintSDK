@@ -97,8 +97,8 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	}
 	unsigned numElements = buffer->getWidth()*buffer->getHeight();
 	RR_ASSERT(numElements);
-	RRVec4 sum = RRVec4(0);
-	RRVec4 sumOfSquares = RRVec4(0);
+	RRVec4 sum(0);
+	RRVec4 sumOfSquares(0);
 	unsigned step = 1+numElements/2000; // test approximately 2000 samples
 	unsigned numElementsTested = 0;
 	unsigned r = 1649317406;
@@ -123,7 +123,7 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	if (scaler)
 	{
 		scaler->getCustomFactor(average);
-		RRVec4 standardDeviation = RRVec4(
+		RRVec4 standardDeviation(
 			(variance[0]<0)?0:sqrt(variance[0]),
 			(variance[1]<0)?0:sqrt(variance[1]),
 			(variance[2]<0)?0:sqrt(variance[2]),

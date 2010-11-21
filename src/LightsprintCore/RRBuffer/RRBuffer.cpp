@@ -311,8 +311,8 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 {
 	// slow getElement path, faster path can be written using lock and direct access
 	unsigned numElements = getWidth()*getHeight()*getDepth();
-	RRVec4 mini = RRVec4(1e20f);
-	RRVec4 maxi = RRVec4(-1e20f);
+	RRVec4 mini(1e20f);
+	RRVec4 maxi(-1e20f);
 	for (unsigned i=0;i<numElements;i++)
 	{
 		RRVec4 color = getElement(i);

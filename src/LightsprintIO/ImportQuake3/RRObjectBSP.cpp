@@ -132,7 +132,7 @@ loaded:
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
-	RRVec4 avg = RRVec4(0);
+	RRVec4 avg(0);
 	if (t)
 	{
 		for (unsigned i=0;i<size;i++)

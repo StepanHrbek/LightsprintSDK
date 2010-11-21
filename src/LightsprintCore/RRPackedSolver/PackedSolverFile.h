@@ -347,7 +347,8 @@ public:
 		unsigned numSamples = inSky->getDuration()?inVideoQuality:inStaticQuality;
 		for (unsigned i=0;i<numSamples;i++)
 		{
-			RRVec3 direction = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2));
+			// direction is not perfect, directions to corners are taken slightly more often, but it's fast
+			RRVec3 direction((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2));
 			unsigned patchIndex = getPatchIndex(direction);
 			RRVec3 exitance = inSky->getElementAtDirection(direction);
 			if (inScaler)

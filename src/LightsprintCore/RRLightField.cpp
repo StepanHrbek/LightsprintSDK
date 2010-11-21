@@ -123,8 +123,8 @@ public:
 		//                                  0     1     2     3       <- capture points and cellCoordFloat
 		//  for time, capture points are |...|.......|.......|...|
 		//                               0       1       2       3    <- capture points and cellCoordFloat
-		RRVec4 cellCoordFloat = RRVec4(
-			(object->envMapWorldCenter-header.aabbMin  )/header.aabbSize  *RRVec3(RRReal(header.gridSize[0]),RRReal(header.gridSize[1]),RRReal(header.gridSize[2]))-RRVec3(0.5f),
+		RRVec4 cellCoordFloat(
+			(object->envMapWorldCenter-header.aabbMin  )/header.aabbSize  *RRVec3(RRReal(header.gridSize[0]), RRReal(header.gridSize[1]), RRReal(header.gridSize[2]))-RRVec3(0.5f),
 			(time                     -header.aabbMin.w)/header.aabbSize.w*(header.gridSize[3]-1) );
 		int cellCoordInt[4] = {int(cellCoordFloat[0]),int(cellCoordFloat[1]),int(cellCoordFloat[2]),int(cellCoordFloat[3])};
 		RRVec4 cellCoordFraction = cellCoordFloat-RRVec4(RRReal(cellCoordInt[0]),RRReal(cellCoordInt[1]),RRReal(cellCoordInt[2]),RRReal(cellCoordInt[3]));

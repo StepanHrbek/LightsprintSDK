@@ -165,9 +165,9 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 		unsigned numVertices = getNumVertices();
 		if (numVertices)
 		{
-			RRVec3 center = RRVec3(0);
-			RRVec3 mini = RRVec3(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
-			RRVec3 maxi = RRVec3(-1e37f);
+			RRVec3 center(0);
+			RRVec3 mini(1e37f); // with FLT_MAX/FLT_MIN, vs2008 produces wrong result
+			RRVec3 maxi(-1e37f);
 			for (unsigned i=0;i<numVertices;i++)
 			{
 				RRMesh::Vertex v;

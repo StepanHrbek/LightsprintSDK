@@ -126,7 +126,7 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	// prevent NaN (triangle with 1 corner with power=0 gets here in MovingSun+kalasatama.dae)
 	if (!powerTopLevel) return RRVec3(0);
 
-	RRVec3 result = RRVec3(0);
+	RRVec3 result(0);
 	for (unsigned i=0;i<corners;i++)
 	{
 		unsigned triangleIndex = (unsigned)(getCorner(i).node-triangles);

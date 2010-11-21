@@ -543,7 +543,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 #pragma omp parallel for schedule(static)
 	for (int i=0;i<numIvertices;i++)
 	{
-		RRVec3 irrad = RRVec3(0);
+		RRVec3 irrad(0);
 		const PackedSmoothTriangleWeight* begin = packedIvertices->getC2(i);
 		const PackedSmoothTriangleWeight* end = packedIvertices->getC2(i+1);
 		for (;begin<end;begin++)

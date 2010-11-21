@@ -666,7 +666,7 @@ public:
 
 			// create RRLight
 			RRVec3 color = RRVec3((rr::RRReal)light.getColor().getRed(),(rr::RRReal)light.getColor().getGreen(),(rr::RRReal)light.getColor().getBlue()) * extraLight->intensity;
-			RRVec4 polynom = RRVec4((rr::RRReal)light.getConstantAttenuation(),(rr::RRReal)(light.getLinearAttenuation()/rescaleUnit),(rr::RRReal)(light.getQuadraticAttenuation()/rescaleUnit/rescaleUnit),(rr::RRReal)0.0001f);
+			RRVec4 polynom((rr::RRReal)light.getConstantAttenuation(),(rr::RRReal)(light.getLinearAttenuation()/rescaleUnit),(rr::RRReal)(light.getQuadraticAttenuation()/rescaleUnit/rescaleUnit),(rr::RRReal)0.0001f);
 
 			RRLight* rrLight = NULL;
 

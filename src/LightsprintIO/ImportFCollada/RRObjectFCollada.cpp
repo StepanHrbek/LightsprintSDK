@@ -951,7 +951,7 @@ void RRLightsFCollada::addNode(const FCDSceneNode* node)
 
 				// create RRLight
 				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
-				RRVec4 polynom = RRVec4(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor(),0.0001f);
+				RRVec4 polynom(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor(),0.0001f);
 				RRLight* rrlight = NULL;
 				switch(light->GetLightType())
 				{
