@@ -347,9 +347,9 @@ public:
 		unsigned numSamples = inSky->getDuration()?inVideoQuality:inStaticQuality;
 		for (unsigned i=0;i<numSamples;i++)
 		{
-			RRVec3 normalizedDirection = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2)).normalized();
-			unsigned patchIndex = getPatchIndex(normalizedDirection);
-			RRVec3 exitance = inSky->getElementAtDirection(normalizedDirection);
+			RRVec3 direction = RRVec3((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2));
+			unsigned patchIndex = getPatchIndex(direction);
+			RRVec3 exitance = inSky->getElementAtDirection(direction);
 			if (inScaler)
 				inScaler->getPhysicalScale(exitance);
 			inoutPatchExitancesPhysical[patchIndex] += exitance;
@@ -376,18 +376,16 @@ public:
 		return color;
 	}
 	//! Returns sky patch index for given direction.
-	static unsigned getPatchIndex(const RRVec3& normalizedDirection)
+	static unsigned getPatchIndex(const RRVec3& direction)
 	{
-		// direction must be normalized
-		RR_ASSERT(fabs(1-normalizedDirection.length())<0.01f);
 		// find major axis
-		RRVec3 d = normalizedDirection.abs();
+		RRVec3 d = direction.abs();
 		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
 		// generate index 0..23
 		unsigned index = axis +
-			((normalizedDirection.x>0)?3:0) +
-			((normalizedDirection.z>0)?6:0) +
-			((normalizedDirection.y<0)?12:0);
+			((direction.x>0)?3:0) +
+			((direction.z>0)?6:0) +
+			((direction.y<0)?12:0);
 		// make everything below ground patch 12
 		if (index>12) index = 12;
 		RR_ASSERT(index<NUM_PATCHES);
