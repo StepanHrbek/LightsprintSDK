@@ -237,6 +237,7 @@ bool Reflectors::insert(Triangle* anode)
 {
 	if (anode->isReflector || !anode->isLod0) return false;
 	if (anode->totalExitingFlux==Channels(0) && anode->totalExitingFluxToDiffuse==Channels(0)) return false;
+	if (!anode->surface || (!anode->surface->sideBits[0].emitTo && !anode->surface->sideBits[1].emitTo)) return false;
 	if (!nodesAllocated)
 	{
 		nodesAllocated=1024;
@@ -979,7 +980,7 @@ bool RussianRoulette::survived(float survivalProbability)
 //
 // random exiting ray
 
-bool ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
+void ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
 // orthonormal basis
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
@@ -999,8 +1000,9 @@ bool ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const R
 	if (sideBits[0].emitTo && sideBits[1].emitTo)
 		if ((rand()%2)) cosa=-cosa;
 	// don't emit?
-	if (!sideBits[0].emitTo && !sideBits[1].emitTo)
-		return false;
+	//  this case is catched in Reflectors::insert()
+	//if (!sideBits[0].emitTo && !sideBits[1].emitTo)
+	//	return false;
 #ifdef HOMOGENOUS_FILL
 	exitDir = basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
 #else
@@ -1009,11 +1011,13 @@ bool ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const R
 	exitDir = basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
 #endif
 	RR_ASSERT(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
-	return true;
 }
 
-Triangle* Scene::getRandomExitRay(ShootingKernel* shootingKernel, Triangle* source, RRVec3* src, RRVec3* dir)
-// returns random point and direction exiting sourceNode
+//////////////////////////////////////////////////////////////////////////////
+//
+// one shot from subtriangle to whole halfspace
+
+void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
 {
 	// select random point in source subtriangle
 	unsigned u=rand();
@@ -1023,30 +1027,15 @@ Triangle* Scene::getRandomExitRay(ShootingKernel* shootingKernel, Triangle* sour
 		u=RAND_MAX-u;
 		v=RAND_MAX-v;
 	}
-	RRVec3 srcPoint3 = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
+	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
 
 	RR_ASSERT(source->surface);
-	RRVec3 rayVec3;
-	if (!shootingKernel->getRandomExitDir(improvingBasisOrthonormal,source->surface->sideBits,rayVec3))
-		return NULL;
-	RR_ASSERT(IS_SIZE1(rayVec3));
+	RRVec3 direction;
+	shootingKernel->getRandomExitDir(improvingBasisOrthonormal,sourceNode->surface->sideBits,direction);
+	RR_ASSERT(IS_SIZE1(direction));
 
-	*src = srcPoint3;
-	*dir = rayVec3;
-
-	return source;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// one shot from subtriangle to whole halfspace
-
-void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
-{
-	RRVec3 srcPoint3,rayVec3;
-	Triangle* tri=getRandomExitRay(shootingKernel,sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
-	if (tri) rayTracePhoton(shootingKernel,srcPoint3,rayVec3,tri);
+	rayTracePhoton(shootingKernel,position,direction,sourceNode);
 }
 
 //////////////////////////////////////////////////////////////////////////////

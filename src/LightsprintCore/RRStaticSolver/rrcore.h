@@ -284,7 +284,7 @@ class ShootingKernel
 {
 public:
 	ShootingKernel();
-	bool getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
+	void getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
 	~ShootingKernel();
 
 	RRRay*  sceneRay;
@@ -360,7 +360,6 @@ public:
 
 		// array of kernels, one per core
 		ShootingKernels shootingKernels;
-		Triangle* getRandomExitRay(ShootingKernel* shootingKernel, Triangle* sourceNode, RRVec3* src, RRVec3* dir);
 
 		// all factors allocated by this scene
 		// deallocated only in scene destructor or when factors are reset
