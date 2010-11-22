@@ -101,9 +101,10 @@ public:
 //
 // random exiting ray
 
-// returns random exit direction from diffuse surface
+// returns random direction of light entering diffuse surface (= uses cosine distribution)
 // result is normalized only if base is orthonormal
-static RRVec3 getRandomExitDirNormalized(HomogenousFiller2& filler, const RRMesh::TangentBasis& basisOrthonormal)
+// ignores sidebits, is hardcoded for 1sided surface
+static RRVec3 getRandomEnterDirNormalized(HomogenousFiller2& filler, const RRMesh::TangentBasis& basisOrthonormal)
 {
 #ifdef HOMOGENOUS_FILL
 	RRReal x,y;
@@ -207,7 +208,7 @@ public:
 		// random exit dir
 		// use orthonormal basis (so that probabilities of exit directions are correct)
 		// don't use _basisSkewedNormalized, because it's not orthonormal, it's made for compatibility with UE3
-		RRVec3 dir = getRandomExitDirNormalized(fillerDir,_basisOrthonormal);
+		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
