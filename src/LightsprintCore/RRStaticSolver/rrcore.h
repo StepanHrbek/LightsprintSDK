@@ -6,6 +6,7 @@
 #ifndef RRVISION_RRCORE_H
 #define RRVISION_RRCORE_H
 
+#define BOOST_RAND       // makes randomness portable and deterministic. otherwise plain old rand() is not guaranteed to have seed per thread, so we can't even reset seeds to make it deterministic
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 #define BESTS           400 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
@@ -44,6 +45,10 @@
 #include "interpol.h"
 #include "ChunkList.h"
 #include "../RRPackedSolver/PackedSolverFile.h"
+#ifdef BOOST_RAND
+#include <boost/random/linear_congruential.hpp>
+//#include <boost/random/mersenne_twister.hpp>
+#endif
 
 namespace rr
 {
@@ -245,21 +250,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// homogenous filler
-
-class HomogenousFiller
-{
-public:
-	void Reset(unsigned kernelNum, unsigned numKernels, unsigned maxQueries);
-	real GetCirclePoint(real *a,real *b);
-private:
-	void GetTrianglePoint(real *a,real *b);
-	unsigned num;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // Russian roulette
 
 class RussianRoulette
@@ -284,12 +274,14 @@ class ShootingKernel
 {
 public:
 	ShootingKernel();
-	void getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir);
 	~ShootingKernel();
 
 	RRRay*  sceneRay;
 	class RRCollisionHandlerLod0* collisionHandlerLod0;
-	HomogenousFiller filler;
+#ifdef BOOST_RAND
+	boost::rand48 rand;
+	//boost::mt11213b rand;
+#endif
 	RussianRoulette russianRoulette;
 	Triangles hitTriangles;
 	unsigned recursionDepth;

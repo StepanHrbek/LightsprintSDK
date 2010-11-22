@@ -700,7 +700,9 @@ void ShootingKernels::reset(unsigned maxQueries)
 {
 	for (unsigned i=0;i<numKernels;i++)
 	{
-		shootingKernel[i].filler.Reset(i,numKernels,maxQueries);
+#ifdef BOOST_RAND
+		shootingKernel[i].rand.seed(i);
+#endif
 		shootingKernel[i].russianRoulette.reset();
 		shootingKernel[i].hitTriangles.reset();
 	}
@@ -917,44 +919,6 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// homogenous filling:
-//   generates points that nearly homogenously (low density fluctuations) fill some 2d area
-
-void HomogenousFiller::Reset(unsigned kernelNum, unsigned numKernels, unsigned maxQueries)
-{
-	num = maxQueries*kernelNum/numKernels
-		*3/2; // compensate that some rays don't fit in circle and we increment num multiple times
-}
-
-real HomogenousFiller::GetCirclePoint(real *a,real *b)
-{
-	real dist;
-	do GetTrianglePoint(a,b); while ((dist=*a**a+*b**b)>=SHOOT_FULL_RANGE);
-	return dist;
-}
-
-void HomogenousFiller::GetTrianglePoint(real *a,real *b)
-{
-	unsigned n=num++;
-	static const real dir[4][3]={{0,0,-0.5f},{0,1,0.5f},{0.86602540378444f,-0.5f,0.5f},{-0.86602540378444f,-0.5f,0.5f}};
-	real x=0;
-	real y=0;
-	real dist=1;
-	while (n)
-	{
-		x+=dist*dir[n&3][0];
-		y+=dist*dir[n&3][1];
-		dist*=dir[n&3][2];
-		n>>=2;
-	}
-	*a=x;
-	*b=y;
-	//*a=rand()/(RAND_MAX*0.5)-1;
-	//*b=rand()/(RAND_MAX*0.5)-1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // Russian roulette
 
 
@@ -978,60 +942,43 @@ bool RussianRoulette::survived(float survivalProbability)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// random exiting ray
-
-void ShootingKernel::getRandomExitDir(const RRMesh::TangentBasis& basis, const RRSideBits* sideBits, RRVec3& exitDir)
-// orthonormal basis
-// returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
-{
-#ifdef HOMOGENOUS_FILL
-	real x,y;
-	real cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
-#else
-	// select random vector from srcPoint3 to one halfspace
-	// power is assumed to be 1
-	real tmp=(real)rand()/RAND_MAX*SHOOT_FULL_RANGE;
-	real cosa=sqrt(1-tmp);
-#endif
-	// emit only inside?
-	if (!sideBits[0].emitTo && sideBits[1].emitTo)
-		cosa=-cosa;
-	// emit to both sides?
-	if (sideBits[0].emitTo && sideBits[1].emitTo)
-		if ((rand()%2)) cosa=-cosa;
-	// don't emit?
-	//  this case is catched in Reflectors::insert()
-	//if (!sideBits[0].emitTo && !sideBits[1].emitTo)
-	//	return false;
-#ifdef HOMOGENOUS_FILL
-	exitDir = basis.normal*cosa + basis.tangent*x + basis.bitangent*y;
-#else
-	real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	Angle b=rand()*2*RR_PI/RAND_MAX;         // b = rotation angle around normal
-	exitDir = basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
-#endif
-	RR_ASSERT(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// one shot from subtriangle to whole halfspace
+// one shot from subtriangle to space or halfspace
 
 void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
 {
-	// select random point in source subtriangle
-	unsigned u=rand();
-	unsigned v=rand();
-	if (u+v>RAND_MAX)
-	{
-		u=RAND_MAX-u;
-		v=RAND_MAX-v;
-	}
-	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u/(real)RAND_MAX) + improvingBody.side2*(v/(real)RAND_MAX);
+	// pick random generator
+#ifdef BOOST_RAND
+	const unsigned RMAX = shootingKernel->rand.max();
+	#define RAND shootingKernel->rand()
+#else
+	const unsigned RMAX = RAND_MAX;
+	#define RAND rand()
+#endif
 
-	RR_ASSERT(source->surface);
-	RRVec3 direction;
-	shootingKernel->getRandomExitDir(improvingBasisOrthonormal,sourceNode->surface->sideBits,direction);
+	// select random point in source subtriangle
+	unsigned u = RAND;
+	unsigned v = RAND;
+	if (u>RMAX-v)
+	{
+		u = RMAX-u;
+		v = RMAX-v;
+	}
+	RR_ASSERT(sourceNode->surface);
+	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u*(1.f/RMAX)) + improvingBody.side2*(v*(1.f/RMAX));
+
+	// select random direction of light exiting diffuse surface (= uses uniform distribution)
+	// reads sidebits, exits to sides from sidebits
+retry:
+	RRVec3 direction(
+		((int)RAND-(int)(RMAX/2))*(2.f/RMAX),
+		((int)RAND-(int)(RMAX/2))*(2.f/RMAX),
+		((int)RAND-(int)(RMAX/2))*(2.f/RMAX));
+	float length2 = direction.length2();
+	if (length2>1) goto retry;
+	direction *= 1/sqrt(length2);
+	unsigned side = improvingBasisOrthonormal.normal.dot(direction)>0 ? 0 : 1; // 0=front, 1=back
+	if (!sourceNode->surface->sideBits[side].emitTo)
+		direction = -direction;
 	RR_ASSERT(IS_SIZE1(direction));
 
 	// cast ray
@@ -1102,7 +1049,7 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 		// parallel shooting, can be aborted after every 50000 shots
 		while (shotsAccumulated<shotsForNewFactors
 			)
-		{			
+		{
 			int shotsTodo = RR_MIN(shotsForNewFactors-shotsAccumulated,100000);
 			#if defined(_MSC_VER) && (_MSC_VER<1500)
 				#pragma omp parallel for // 2005 SP1 has broken if
