@@ -700,9 +700,7 @@ void ShootingKernels::reset(unsigned maxQueries)
 {
 	for (unsigned i=0;i<numKernels;i++)
 	{
-#ifdef BOOST_RAND
 		shootingKernel[i].rand.seed(i);
-#endif
 		shootingKernel[i].russianRoulette.reset();
 		shootingKernel[i].hitTriangles.reset();
 	}
@@ -947,13 +945,8 @@ bool RussianRoulette::survived(float survivalProbability)
 void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
 {
 	// pick random generator
-#ifdef BOOST_RAND
 	const unsigned RMAX = shootingKernel->rand.max();
 	#define RAND shootingKernel->rand()
-#else
-	const unsigned RMAX = RAND_MAX;
-	#define RAND rand()
-#endif
 
 	// select random point in source subtriangle
 	unsigned u = RAND;
