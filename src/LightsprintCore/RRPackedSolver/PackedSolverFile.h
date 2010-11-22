@@ -315,56 +315,6 @@ public:
 		return RRVec2(relativeError,absoluteError);
 	}
 
-	//! Converts environment to physical exitances, one per patch.
-	//! inoutVersion serves as a cache.
-	//! Optimized for simplicity, can be made faster later.
-	//! Returns 0 if exitance did not change, 1 if it did.
-	static bool getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRScaler* inScaler, RRVec3 inoutPatchExitancesPhysical[NUM_PATCHES], unsigned& inoutSkyVersion)
-	{
-		bool isVideo = inSky && inSky->getDuration();
-		unsigned quality = isVideo ? inVideoQuality : inStaticQuality;
-		// 0 = do no work
-		if (quality==0)
-			return 0;
-		// use cached result if possible
-		unsigned version = (inSky?inSky->version:0)+quality*357;
-		if (inoutSkyVersion==version)
-			return 0;
-		inoutSkyVersion = version;
-		// init to zeroes
-		unsigned numSamplesGathered[NUM_PATCHES];
-		for (unsigned p=0;p<NUM_PATCHES;p++)
-		{
-			inoutPatchExitancesPhysical[p] = RRVec3(0);
-			numSamplesGathered[p] = 0;
-		}
-		if (!inSky)
-			return 1;
-		// do we have to scale sky to physical? no -> null scaler
-		if (!inSky->getScaled())
-			inScaler = NULL;
-		// accumulate sky exitances
-		unsigned numSamples = inSky->getDuration()?inVideoQuality:inStaticQuality;
-		for (unsigned i=0;i<numSamples;i++)
-		{
-			// direction is not perfect, directions to corners are taken slightly more often, but it's fast
-			RRVec3 direction((RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2),(RRReal)(rand()-RAND_MAX/2));
-			unsigned patchIndex = getPatchIndex(direction);
-			RRVec3 exitance = inSky->getElementAtDirection(direction);
-			if (inScaler)
-				inScaler->getPhysicalScale(exitance);
-			inoutPatchExitancesPhysical[patchIndex] += exitance;
-			numSamplesGathered[patchIndex]++;
-		}
-		// average
-		for (unsigned p=0;p<NUM_PATCHES;p++)
-		{
-			if (numSamplesGathered[p])
-				inoutPatchExitancesPhysical[p] /= (RRReal)numSamplesGathered[p];
-		}
-		return 1;
-	}
-
 	//! Returns triangle's GI from sky computed as a dot product of patch exitances and patch factors.
 	RRVec3 getTriangleIrradiancePhysical(const UnpackedFactor& patchExitancesPhysical, const float* intensityTable) const
 	{

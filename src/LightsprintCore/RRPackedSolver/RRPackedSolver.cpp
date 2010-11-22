@@ -16,6 +16,7 @@
 #endif
 #include "../RRDynamicSolver/report.h"
 #include "../RRMathPrivate.h"
+	#include <boost/random/linear_congruential.hpp>
 
 //#define SMALL_SHOOTERS_MORE_IMPORTANT
 
@@ -291,12 +292,65 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 	return NULL;
 }
 
+//! Converts environment to physical exitances, one per patch.
+//! inoutVersion serves as a cache.
+//! Optimized for simplicity, can be made faster later.
+//! Returns 0 if exitance did not change, 1 if it did.
+static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRScaler* inScaler, RRVec3 inoutPatchExitancesPhysical[PackedSkyTriangleFactor::NUM_PATCHES], unsigned& inoutSkyVersion)
+{
+	bool isVideo = inSky && inSky->getDuration();
+	unsigned quality = isVideo ? inVideoQuality : inStaticQuality;
+	// 0 = do no work
+	if (quality==0)
+		return 0;
+	// use cached result if possible
+	unsigned version = (inSky?inSky->version:0)+quality*357;
+	if (inoutSkyVersion==version)
+		return 0;
+	inoutSkyVersion = version;
+	// init to zeroes
+	unsigned numSamplesGathered[PackedSkyTriangleFactor::NUM_PATCHES];
+	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++)
+	{
+		inoutPatchExitancesPhysical[p] = RRVec3(0);
+		numSamplesGathered[p] = 0;
+	}
+	if (!inSky)
+		return 1;
+	// do we have to scale sky to physical? no -> null scaler
+	if (!inSky->getScaled())
+		inScaler = NULL;
+	// select random generator
+	boost::rand48 rnd; // seed is reset, lower noise
+	const unsigned RMAX = rnd.max();
+	// accumulate sky exitances
+	unsigned numSamples = inSky->getDuration()?inVideoQuality:inStaticQuality;
+	for (unsigned i=0;i<numSamples;i++)
+	{
+		// direction is not perfect, directions to corners are taken slightly more often, we save time by not rejecting corners
+		RRVec3 direction((RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)));
+		unsigned patchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
+		RRVec3 exitance = inSky->getElementAtDirection(direction);
+		if (inScaler)
+			inScaler->getPhysicalScale(exitance);
+		inoutPatchExitancesPhysical[patchIndex] += exitance;
+		numSamplesGathered[patchIndex]++;
+	}
+	// average
+	for (unsigned p=0;p<PackedSkyTriangleFactor::NUM_PATCHES;p++)
+	{
+		if (numSamplesGathered[p])
+			inoutPatchExitancesPhysical[p] /= (RRReal)numSamplesGathered[p];
+	}
+	return 1;
+}
+
 bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRScaler* _scaler)
 {
 	// convert environment to 13 patches, remember them
 	unsigned numChanges = 
-		PackedSkyTriangleFactor::getSkyExitancePhysical(_environment0,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[0],environmentVersion[0]) +
-		PackedSkyTriangleFactor::getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[1],environmentVersion[1]);
+		getSkyExitancePhysical(_environment0,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[0],environmentVersion[0]) +
+		getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[1],environmentVersion[1]);
 
 	// caching, quit if things did not change
 	if (!numChanges && environmentBlendFactor==_environmentBlendFactor)

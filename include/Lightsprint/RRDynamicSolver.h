@@ -329,7 +329,7 @@ namespace rr
 				materialTransmittanceStaticQuality = 2;
 				materialTransmittanceVideoQuality = 2;
 				environmentStaticQuality = 6000;
-				environmentVideoQuality = 3000;
+				environmentVideoQuality = 300;
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
 				secondsBetweenDDI = 0;
