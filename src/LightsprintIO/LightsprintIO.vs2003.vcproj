@@ -21,7 +21,7 @@
 			WholeProgramOptimization="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				InlineFunctionExpansion="2"
 				OmitFramePointers="TRUE"
 				WholeProgramOptimization="FALSE"
@@ -148,7 +148,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				OmitFramePointers="TRUE"
