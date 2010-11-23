@@ -152,7 +152,7 @@ struct SceneViewerState
 		renderLogo = 0;
 		renderTonemapping = 1;
 		tonemappingAutomatic = 1;
-		tonemappingAutomaticTarget = 0.5;
+		tonemappingAutomaticTarget = 0.5f;
 		tonemappingAutomaticSpeed = 1;
 		tonemappingBrightness = rr::RRVec4(1);
 		tonemappingGamma = 1;
@@ -163,7 +163,7 @@ struct SceneViewerState
 		videoTransmittanceAffectsGI = true;
 		videoTransmittanceAffectsGIFull = true;
 		videoEnvironmentAffectsGI = true;
-		videoEnvironmentGIQuality = 3000;
+		videoEnvironmentGIQuality = 300;
 		fireballQuality = 350;
 		raytracedCubesEnabled = true;
 		raytracedCubesDiffuseRes = 4;
