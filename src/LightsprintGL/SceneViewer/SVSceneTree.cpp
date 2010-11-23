@@ -233,11 +233,14 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
 					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
 				}
-				svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
-				newList.push_back(newLight);
-				svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here
-				if (actionCode==CM_LIGHT_DIR)
-					svframe->simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
+				if (newLight)
+				{
+					svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
+					newList.push_back(newLight);
+					svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here
+					if (actionCode==CM_LIGHT_DIR)
+						svframe->simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
+				}
 			}
 			break;
 		case CM_LIGHT_FLASH:

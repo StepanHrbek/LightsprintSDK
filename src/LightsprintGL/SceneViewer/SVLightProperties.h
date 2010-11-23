@@ -23,6 +23,7 @@ namespace rr_gl
 
 		//! Copy light -> property (all values, show/hide).
 		void setLight(RealtimeLight* _rtlight, int _precision);
+		RealtimeLight* getLight() {return rtlight;}
 
 		//! Copy light -> property (show/hide).
 		void updateHide();
