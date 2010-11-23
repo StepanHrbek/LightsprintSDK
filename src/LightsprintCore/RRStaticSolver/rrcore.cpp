@@ -945,6 +945,9 @@ bool RussianRoulette::survived(float survivalProbability)
 void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceNode)
 {
 	// pick random generator
+	#ifdef max
+		#undef max
+	#endif
 	const unsigned RMAX = shootingKernel->rand.max();
 	#define RAND shootingKernel->rand()
 
