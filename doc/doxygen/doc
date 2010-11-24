@@ -438,7 +438,7 @@ Video formats
   - www: <a href="http://wxwidgets.org/">wxWidgets</a>
   - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
   - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
-  - Windows: wxWidgets trunk svn revision 65804 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+  - Windows: wxWidgets trunk svn revision 66246 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
   - other platforms: not used
 
  \page wxwidgets_patch wxWidgets patch
@@ -447,16 +447,11 @@ Video formats
   recent improvements may still be present only in Lightsprint SDK.
 
   \section wx_patch1 Patch1
-  We submitted patch at http://trac.wxwidgets.org/ticket/11787
-  It fixes crash when scene viewer is opened second time.
-
-  \section wx_patch2 Patch2
   We submitted patch at http://trac.wxwidgets.org/ticket/11537
   It fixes: closed floating pane can't be reopened.
 
-  \section wx_patch3 Patch3
-  We applied patch from http://trac.wxwidgets.org/ticket/12553
-  It fixes: message dialog box missing.
+  \section wx_patch_accepted Accepted patches
+  We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>

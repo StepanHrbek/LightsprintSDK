@@ -8,6 +8,10 @@
 #ifndef SCENEVIEWER_H
 #define SCENEVIEWER_H
 
+// enforces comctl32.dll version 6 in all application that use sceneViewer() (application must include this header or use following pragma)
+// default version 5 creates errors we described in http://trac.wxwidgets.org/ticket/12709, 12710, 12711, 12112
+#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "ctime" // struct tm
