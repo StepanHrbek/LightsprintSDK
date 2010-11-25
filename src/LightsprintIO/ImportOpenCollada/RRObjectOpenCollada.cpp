@@ -2121,8 +2121,8 @@ bool RRSceneOpenCollada::save150(const RRScene* scene, const char* filename)
 void registerLoaderOpenCollada()
 {
 	RRScene::registerLoader("*.dae",RRSceneOpenCollada::load);
-	RRScene::registerSaver("*.1.5.0.dae",RRSceneOpenCollada::save150);
-	RRScene::registerSaver("*.1.4.1.dae",RRSceneOpenCollada::save141);
+//	RRScene::registerSaver("*.1.5.0.dae",RRSceneOpenCollada::save150);
+//	RRScene::registerSaver("*.1.4.1.dae",RRSceneOpenCollada::save141);
 }
 
 #endif // SUPPORT_OPENCOLLADA
