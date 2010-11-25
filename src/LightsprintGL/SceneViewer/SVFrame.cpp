@@ -618,6 +618,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	//     we will ignore it
 	// - actual state of wx
 	//   - is windowed right now
+	// state will be in sync from now on
 	svs.fullscreen = false;
 	userPreferencesApplyToWx();
 
