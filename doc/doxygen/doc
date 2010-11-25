@@ -723,6 +723,15 @@ Video formats
 
  \section artist_offline_unwrap Unwrap
   Lightsprint SDK supports both user-provided and automatically generated unwrap.
+  SceneViewer and other samples let you build unwrap in single fully automatic step.
+  If you build unwrap in third party tools like 3ds Max, export it as part of scene or model.
+  Various scene formats have different ways of marking uv channel for lightmaps (unwrap).
+  To test whether your unwrap is imported properly, open scene in SceneViewer sample
+  and click Global illumination / Inspect unwrap. Click objects in Scene tree to see
+  unwrap of different objects. You can try Global illumination / Build lightmaps with low quality
+  just to see whether unwrap errors (e.g. missing unwrap) are reported. If you see only warnings,
+  it's up to you to review calculated lighting, sometimes problems are hardly visible and may be ignored.
+
   In order to better utilize lightmap space and reduce lightmap sizes and baking time,
   you want to reduce lightmap resolutions and gutter padding
   (horizontal or vertical distance between charts, usually 2 or 2.5 texels) as much as possible.
