@@ -1790,6 +1790,7 @@ rendered:
 		}
 	}
 
+
 	// render fps, using own shader
 	unsigned fps = fpsCounter.getFps();
 	if (svs.renderFPS)
