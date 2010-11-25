@@ -12,7 +12,7 @@ namespace rr
 
 CHANGES
 
-- very slightly increased effect of color bleeding (due to fix in solver)
+- very slightly increased effect of color bleeding (result of fix in GI solver)
 
 \section news113 ------------------------------------ 2010.11.19 -------------------------------------
 
