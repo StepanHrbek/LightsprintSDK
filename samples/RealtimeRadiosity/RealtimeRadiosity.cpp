@@ -441,12 +441,12 @@ int main(int argc, char **argv)
 	//rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
 	// Project video. You can do this in any other sample or context, simply use video instead of image, then call play().
 	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/video/Televisi1960.avi");
+	rrlight->rtShadowmapSize = 512;
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);
 	solver->setLights(rrlights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
-	realtimeLight->setShadowmapSize(512);
 	realtimeLight->getParent()->setNear(0.5f); // adjusts shadowmapping near plane
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.

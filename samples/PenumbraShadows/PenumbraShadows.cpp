@@ -343,9 +343,9 @@ int main(int argc, char **argv)
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
 	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
+	rrlight->rtShadowmapSize = 512;
 	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
-	realtimeLight->setShadowmapSize(512);
 
 	// init static .3ds scene
 	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
