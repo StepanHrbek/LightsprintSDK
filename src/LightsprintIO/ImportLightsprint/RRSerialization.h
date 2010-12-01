@@ -378,9 +378,13 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 		float rtMaxShadowSize;
 		ar & make_nvp("rtMaxShadowSize",rtMaxShadowSize);
 	}
-	else
+	if (version>0)
 	{
 		ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
+	}
+	if (version>2)
+	{
+		ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	}
 	// skip customData;
 }
@@ -638,6 +642,6 @@ BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 
-BOOST_CLASS_VERSION(rr::RRLight,2)
+BOOST_CLASS_VERSION(rr::RRLight,3)
 
 #endif

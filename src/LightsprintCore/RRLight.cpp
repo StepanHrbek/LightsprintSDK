@@ -75,6 +75,7 @@ public:
 			color[2] = pow(color[2],2.2222f);
 		}
 		rtNumShadowmaps = 3;
+		rtShadowmapSize = 2048;
 	}
 };
 
@@ -269,6 +270,7 @@ RRLight::RRLight()
 	directLambertScaled = false;
 	rtProjectedTexture = NULL;
 	rtNumShadowmaps = 6;
+	rtShadowmapSize = 1024;
 	customData = NULL;
 }
 

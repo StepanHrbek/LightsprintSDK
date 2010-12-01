@@ -76,11 +76,11 @@ public:
 	virtual Camera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
 
 	//! Sets shadowmap resolution.
+	//
+	//! This is shortcut for setting rrlight.rtShadowmapSize and dirtyShadowmap.
 	//! Set higher resolution for hard and sharper shadows,
 	//! set lower resolution for area and more blurry shadows.
 	void setShadowmapSize(unsigned newSize);
-	//! Returns shadowmap size previously set by setShadowmapSize().
-	unsigned getShadowmapSize() {return shadowmapSize;}
 
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowmap(unsigned instance);
@@ -168,7 +168,6 @@ protected:
 	Camera* parent;
 	bool deleteParent;
 	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
-	unsigned shadowmapSize;
 	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.
 	unsigned numSoftShadowSamples;
 };

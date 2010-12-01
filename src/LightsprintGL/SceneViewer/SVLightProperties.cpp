@@ -128,7 +128,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowmaps = new FloatProperty("Shadowmaps","Number of shadowmaps, more=higher quality, slower.",light->rtNumShadowmaps,0,1,3,10,false);
 			AppendIn(propCastShadows,propShadowmaps);
 
-			propShadowmapRes = new wxIntProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getShadowmapSize());
+			propShadowmapRes = new wxIntProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getRRLight().rtShadowmapSize);
 			AppendIn(propCastShadows,propShadowmapRes);
 
 			propShadowSamples = new wxIntProperty(wxT("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());

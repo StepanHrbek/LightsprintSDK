@@ -31,7 +31,6 @@ namespace rr_gl
 		csmSceneSize = rr::RRVec3(1);
 		parent = new Camera(_rrlight);
 		deleteParent = true;
-		shadowmapSize = (_rrlight.type==rr::RRLight::DIRECTIONAL)?2048:1024;
 		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
@@ -170,9 +169,9 @@ namespace rr_gl
 
 	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
-		if (newSize!=shadowmapSize)
+		if (newSize!=rrlight.rtShadowmapSize)
 		{
-			shadowmapSize = newSize;
+			rrlight.rtShadowmapSize = newSize;
 			for (unsigned i=0;i<getNumShadowmaps();i++)
 			{
 				getShadowmap(i)->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
@@ -201,7 +200,7 @@ namespace rr_gl
 			shadowmaps.clear();
 			for (unsigned i=0;i<numShadowmaps;i++)
 			{
-				shadowmaps.push_back(Texture::createShadowmap(shadowmapSize,shadowmapSize));
+				shadowmaps.push_back(Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize));
 			}
 			dirtyShadowmap = true;
 		}
@@ -283,7 +282,7 @@ namespace rr_gl
 				double r = light.pos[0]*light.inverseViewMatrix[0]+light.pos[1]*light.inverseViewMatrix[1]+light.pos[2]*light.inverseViewMatrix[2];
 				double u = light.pos[0]*light.inverseViewMatrix[4]+light.pos[1]*light.inverseViewMatrix[5]+light.pos[2]*light.inverseViewMatrix[6];
 				double tmp;
-				double pixelSize = light.orthoSize/shadowmapSize*2;
+				double pixelSize = light.orthoSize/rrlight.rtShadowmapSize*2;
 				r = modf(r/pixelSize,&tmp)*pixelSize;
 				u = modf(u/pixelSize,&tmp)*pixelSize;
 				light.pos -= light.right*(float)r+light.up*(float)u;
@@ -326,8 +325,8 @@ namespace rr_gl
 		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.angle += light.getFieldOfViewHorizontalRad()/shadowmapSize*jitterSample[instance%10][0]*0.22f;
-			light.angleX += light.getFieldOfViewVerticalRad()/shadowmapSize*jitterSample[instance%10][1]*0.22f;
+			light.angle += light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f;
+			light.angleX += light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update();
 	}

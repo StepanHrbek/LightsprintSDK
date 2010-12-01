@@ -989,7 +989,7 @@ save_scene_as:
 				for (unsigned i=0;i<lights.size();i++)
 				{
 					RealtimeLight* rl = lights[i];
-					shadowRes[i] = rl->getShadowmapSize();
+					shadowRes[i] = rl->getRRLight().rtShadowmapSize;
 					shadowSamples[i] = rl->getNumShadowSamples();
 					rl->setShadowmapSize(shadowRes[i]*userPreferences.sshotEnhancedShadowResolutionFactor);
 					if (userPreferences.sshotEnhancedShadowSamples)

@@ -76,6 +76,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("castShadows",a.castShadows);
 	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).file_string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
+	ar & make_nvp("rtShadowmapSize",rtShadowmapSize);
 	// skip customData;
 }
 
@@ -117,6 +118,10 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 	else
 	{
 		ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
+	}
+	if (version>3)
+	{
+		ar & make_nvp("rtShadowmapSize",rtShadowmapSize);
 	}
 	// skip customData;
 }
@@ -525,7 +530,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
-BOOST_CLASS_VERSION(rr::RRLight, 3)
+BOOST_CLASS_VERSION(rr::RRLight, 4)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 4) // must be increased also each time panel is added/removed
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 19)
