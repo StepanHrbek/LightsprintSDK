@@ -76,7 +76,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("castShadows",a.castShadows);
 	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).file_string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
-	ar & make_nvp("rtShadowmapSize",rtShadowmapSize);
+	ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	// skip customData;
 }
 
@@ -121,7 +121,7 @@ void load(Archive & ar, rr::RRLight& a, const unsigned int version)
 	}
 	if (version>3)
 	{
-		ar & make_nvp("rtShadowmapSize",rtShadowmapSize);
+		ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	}
 	// skip customData;
 }
