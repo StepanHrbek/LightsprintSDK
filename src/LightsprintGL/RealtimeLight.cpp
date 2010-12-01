@@ -172,11 +172,6 @@ namespace rr_gl
 		if (newSize!=rrlight.rtShadowmapSize)
 		{
 			rrlight.rtShadowmapSize = newSize;
-			for (unsigned i=0;i<getNumShadowmaps();i++)
-			{
-				getShadowmap(i)->getBuffer()->reset(rr::BT_2D_TEXTURE,newSize,newSize,1,rr::BF_DEPTH,false,NULL);
-				getShadowmap(i)->reset(false,false);
-			}
 			dirtyShadowmap = true;
 		}
 	}
@@ -190,22 +185,25 @@ namespace rr_gl
 			RR_ASSERT(0);
 			return NULL;
 		}
-		// free or allocate shadowmaps to match with current number
-		if (shadowmaps.size()!=numShadowmaps)
+		// resize vector if necessary
+		while (shadowmaps.size()<=instance)
+			shadowmaps.push_back(NULL);
+		// delete shadowmap if size does not match
+		Texture*& shadowmap = shadowmaps[instance];
+		if (shadowmap && (shadowmap->getBuffer()->getWidth()!=rrlight.rtShadowmapSize || shadowmap->getBuffer()->getHeight()!=rrlight.rtShadowmapSize))
+			RR_SAFE_DELETE(shadowmap);
+		// allocate shadowmap if it is NULL
+		if (!shadowmap)
 		{
-			for (unsigned i=0;i<shadowmaps.size();i++)
-			{
-				delete shadowmaps[i];
-			}
-			shadowmaps.clear();
-			for (unsigned i=0;i<numShadowmaps;i++)
-			{
-				shadowmaps.push_back(Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize));
-			}
+			shadowmap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,rrlight.rtShadowmapSize,rrlight.rtShadowmapSize,1,rr::BF_DEPTH,true,(const unsigned char*)1),false,false);
 			dirtyShadowmap = true;
+
+			static int i = 0;
+			if (i++==3000)
+				rr::RRReporter::report(rr::WARN,"3000th (re)allocation of shadowmap, let's party. Oh, isn't it too much?\n");
 		}
-		// return one
-		return shadowmaps[instance];
+		// return shadowmap
+		return shadowmap;
 	}
 
 	void RealtimeLight::setNumShadowSamples(unsigned _numSamples)
