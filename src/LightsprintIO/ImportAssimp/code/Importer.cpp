@@ -545,6 +545,9 @@ Importer::~Importer()
 	for( unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)
 		delete pimpl->mPostProcessingSteps[a];
 
+	// Delete the assigned progress handler
+	delete pimpl->mProgressHandler;
+
 	// Delete the assigned IO handler
 	delete pimpl->mIOHandler;
 
