@@ -150,7 +150,10 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialEmittance = new BoolRefProperty("Emittance","Toggles rendering emittance of emissive surfaces.",svs.renderMaterialEmission);
 		AppendIn(propRenderMaterials,propRenderMaterialEmittance);
 
-		propRenderMaterialTransparency = new BoolRefProperty("Transparency","Toggles rendering transparency of semi-transparent surfaces. Disabling it could make rendering faster.",svs.renderMaterialTransparency);
+		const wxChar* tfrStrings[] = {wxT("off (opaque)"),wxT("1-bit (alpha keying)"),wxT("8-bit (alpha blending)"),wxT("24bit (RGB blending)"),NULL};
+		const long tfrValues[] = {TFR_OPAQUE,TFR_UP_TO_1BIT,TFR_UP_TO_8BIT,TFR_UP_TO_24BIT};
+		propRenderMaterialTransparency = new wxEnumProperty("Transparency",wxPG_LABEL,tfrStrings,tfrValues);
+		propRenderMaterialTransparency->SetHelpString("Changes how realistically semi-transparent surfaces are rendered.");
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
 		propRenderMaterialTextures = new BoolRefProperty("Textures","(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster.",svs.renderMaterialTextures);
@@ -234,6 +237,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		wxPGProperty* propGI = new wxStringProperty(wxT("GI quality"), wxPG_LABEL);
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
+
+		const wxChar* tsStrings[] = {wxT("0-bit (opaque shadows)"),wxT("1-bit (alpha keyed shadows)"),wxT("24-bit (rgb shadows)"),NULL};
+		const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
+		propGITransparentMaterialShadows = new wxEnumProperty("Shadow transparency",wxPG_LABEL,tsStrings,tsValues);
+		propGITransparentMaterialShadows->SetHelpString("Changes how realistically semi-transparent shadows are rendered.");
+		AppendIn(propGI,propGITransparentMaterialShadows);
 
 		propGIFireballQuality = new FloatProperty("Fireball quality","More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect.",svs.fireballQuality,0,0,1000000,100,false);
 		AppendIn(propGI,propGIFireballQuality);
@@ -388,7 +397,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialDiffuse)
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
-		+ updateBoolRef(propRenderMaterialTransparency)
+		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)
@@ -400,6 +409,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
+		+ updateInt(propGITransparentMaterialShadows,svs.transparentMaterialShadows)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateBoolRef(propGIRaytracedCubes)
 		+ updateInt(propGIRaytracedCubesDiffuseRes,svs.raytracedCubesDiffuseRes)
@@ -572,6 +582,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.tonemappingGamma = property->GetValue().GetDouble();
 	}
 	else
+	if (property==propRenderMaterialTransparency)
+	{
+		svs.renderMaterialTransparency = (TransparencyInFinalRender)(property->GetValue().GetInteger());
+	}
+	else
 	if (property==propWater)
 	{
 		updateHide();
@@ -615,6 +630,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGridSegmentSize)
 	{
 		svs.gridSegmentSize = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGITransparentMaterialShadows)
+	{
+		svs.transparentMaterialShadows = (RealtimeLight::TransparentMaterialShadows)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGIFireballQuality)

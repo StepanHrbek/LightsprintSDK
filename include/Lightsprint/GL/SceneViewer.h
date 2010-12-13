@@ -12,7 +12,7 @@
 // default version 5 creates errors we described in http://trac.wxwidgets.org/ticket/12709, 12710, 12711, 12112
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#include "Lightsprint/GL/Camera.h"
+#include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "ctime" // struct tm
 
@@ -44,6 +44,14 @@ enum LightingIndirect
 	LI_REALTIME_FIREBALL_LDM,///< Indirect illumination is realtime computed by Fireball solver, LDM from ldmLayerNumber adds details. Fast, but initial LDM build is slow.
 };
 
+enum TransparencyInFinalRender
+{
+	TFR_OPAQUE, // fully opaque
+	TFR_UP_TO_1BIT, // alpha keying
+	TFR_UP_TO_8BIT, // colorless glass
+	TFR_UP_TO_24BIT, // colored glass
+};
+
 
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
@@ -69,7 +77,7 @@ struct SceneViewerState
 	bool             renderMaterialDiffuse;     //! Render diffuse color.
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
-	bool             renderMaterialTransparency;//! Render transparency.
+	TransparencyInFinalRender renderMaterialTransparency;//! Render transparency.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
@@ -90,6 +98,7 @@ struct SceneViewerState
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
+	RealtimeLight::TransparentMaterialShadows transparentMaterialShadows; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
@@ -139,7 +148,7 @@ struct SceneViewerState
 		renderMaterialDiffuse = 1;
 		renderMaterialSpecular = 1;
 		renderMaterialEmission = 1;
-		renderMaterialTransparency = 1;
+		renderMaterialTransparency = TFR_UP_TO_24BIT;
 		renderMaterialTextures = 1;
 		renderWater = 0;
 		renderWireframe = 0;
@@ -161,6 +170,7 @@ struct SceneViewerState
 		tonemappingBrightness = rr::RRVec4(1);
 		tonemappingGamma = 1;
 		playVideos = 1;
+		transparentMaterialShadows = RealtimeLight::RGB_SHADOWS;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;
@@ -234,6 +244,7 @@ struct SceneViewerState
 			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
 			&& a.tonemappingGamma==tonemappingGamma
 			&& a.playVideos==playVideos
+			&& a.transparentMaterialShadows==transparentMaterialShadows
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality

@@ -332,6 +332,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
 	ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
 	ar & make_nvp("playVideos",a.playVideos);
+	ar & make_nvp("transparentMaterialShadows",a.transparentMaterialShadows);
 	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
@@ -386,7 +387,16 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	ar & make_nvp("renderMaterialDiffuse",a.renderMaterialDiffuse);
 	ar & make_nvp("renderMaterialSpecular",a.renderMaterialSpecular);
 	ar & make_nvp("renderMaterialEmission",a.renderMaterialEmission);
-	ar & make_nvp("renderMaterialTransparency",a.renderMaterialTransparency);
+	if (version<20)
+	{
+		bool enabled;
+		ar & make_nvp("renderMaterialTransparency",enabled);
+		a.renderMaterialTransparency = enabled ? rr_gl::TFR_UP_TO_24BIT : rr_gl::TFR_OPAQUE;
+	}
+	else
+	{
+		ar & make_nvp("renderMaterialTransparency",a.renderMaterialTransparency);
+	}
 	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
 	ar & make_nvp("renderWater",a.renderWater);
 	ar & make_nvp("renderWireframe",a.renderWireframe);
@@ -416,6 +426,13 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	if (version>1)
 	{
 		ar & make_nvp("playVideos",a.playVideos);
+	}
+	if (version>19)
+	{
+		ar & make_nvp("transparentMaterialShadows",a.transparentMaterialShadows);
+	}
+	if (version>1)
+	{
 		ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 		ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	}
@@ -533,7 +550,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 4)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 4) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 19)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 20)
 
 //---------------------------------------------------------------------------
 

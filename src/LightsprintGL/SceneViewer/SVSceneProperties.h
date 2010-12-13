@@ -66,7 +66,7 @@ namespace rr_gl
 		BoolRefProperty*  propRenderMaterialDiffuse;
 		BoolRefProperty*  propRenderMaterialSpecular;
 		BoolRefProperty*  propRenderMaterialEmittance;
-		BoolRefProperty*  propRenderMaterialTransparency;
+		wxPGProperty*     propRenderMaterialTransparency;
 		BoolRefProperty*  propRenderMaterialTextures;
 
 		wxPGProperty*     propRenderExtras;
@@ -92,6 +92,7 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
+		wxPGProperty*     propGITransparentMaterialShadows;
 		wxPGProperty*     propGIFireballQuality;
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
