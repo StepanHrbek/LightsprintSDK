@@ -2,6 +2,7 @@ rem Updates SDK runtimes from VS runtimes. Must be updated when Microsoft update
 
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT"        win32\Microsoft.VC80.CRT
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.OPENMP"     win32\Microsoft.VC80.OPENMP
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.MFC"        win32\Microsoft.VC80.MFC
 
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\redist\amd64\Microsoft.VC80.CRT"      x64\Microsoft.VC80.CRT
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\redist\amd64\Microsoft.VC80.OPENMP"   x64\Microsoft.VC80.OPENMP
