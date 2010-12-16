@@ -309,8 +309,8 @@ Video formats
  - virtually any platform (static GI)
 
  GPUs on PC
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 1xx, 2xx, 3xx, 4xx
- - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx, HD5xxx
+ - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 1xx, 2xx, 3xx, 4xx, 5xx
+ - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx, HD5xxx, HD6xxx
  - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
  - subset of workstation versions (Quadro, FireGL)
  - for offline rendering, GPU is not needed

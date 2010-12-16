@@ -54,7 +54,7 @@ void error(const char* message, bool gfxRelated)
 {
 	printf("%s",message);
 	if (gfxRelated)
-		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5200-9800, 100-480, ION\n - Radeon 9500-9800, X300-1950, HD2300-5970\n - subset of FireGL and Quadro families");
+		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5200-9800, 100-580, ION\n - Radeon 9500-9800, X300-1950, HD2300-6990\n - subset of FireGL and Quadro families");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
