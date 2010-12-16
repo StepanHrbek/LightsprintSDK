@@ -89,7 +89,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			rr::RRDynamicSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
-			filtering.smoothBackground = true;
 			solver->updateLightmaps(getLDMLayer(),-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
