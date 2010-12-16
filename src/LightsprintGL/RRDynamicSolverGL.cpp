@@ -228,7 +228,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
-			switch(light->transparentMaterialShadows)
+			switch(light->shadowTransparency)
 			{
 				case RealtimeLight::RGB_SHADOWS:
 					// not yet implemented

@@ -32,12 +32,15 @@ public:
 		RECTANGLE, ///< n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
 	};
 
-	//! Specifies how shadows of transparent materials are created, whether quickly, or more precisely.
-	enum TransparentMaterialShadows
+	//! Specifies how shadows of transparent materials are created (in realtime renderer), whether quickly, or more accurately.
+	enum ShadowTransparency
 	{
-		FULLY_OPAQUE_SHADOWS, ///< All materials will be fully opaque for light (when creating shadows). This is the fastest technique.
-		ALPHA_KEYED_SHADOWS,  ///< All materials will be fully opaque or fully transparent for light. This is evaluated per-pixel.
-		RGB_SHADOWS,          ///< not yet implemented
+		//! The fastest, fully opaque shadows, light is completely blocked, material properties are ignored.
+		FULLY_OPAQUE_SHADOWS,
+		//! Fast alpha keyed shadows, light goes through or is stopped according to material, this is evaluated per-pixel.
+		ALPHA_KEYED_SHADOWS,
+		//! The highest quality, colored shadows from semi-translucent materials (if specularTransmittance is red, only red light goes through), this is evaluated per-pixel.
+		RGB_SHADOWS,
 	};
 
 	//! Extends RRLight, adding properties and functions for realtime rendering.
@@ -110,8 +113,8 @@ public:
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 
-	//! Specifies how shadows of transparent materials are created.
-	TransparentMaterialShadows transparentMaterialShadows;
+	//! Specifies how shadows of transparent materials are created and rendered.
+	ShadowTransparency shadowTransparency;
 
 	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned* smallMapCPU;

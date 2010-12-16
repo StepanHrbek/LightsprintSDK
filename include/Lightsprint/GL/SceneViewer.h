@@ -17,7 +17,7 @@
 #include "ctime" // struct tm
 
 #if _MSC_VER==1600
-//#define CUSTOMIZED_FOR_3DRENDER
+//error : inserted by sunifdef: "#define CUSTOMIZED_FOR_3DRENDER" contradicts -U at R:\work2\.git-rewrite\t\include\Lightsprint\GL\SceneViewer.h~(20)
 #endif
 
 #ifdef RR_GL_BUILD
@@ -103,7 +103,7 @@ struct SceneViewerState
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
-	RealtimeLight::TransparentMaterialShadows shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
+	RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.

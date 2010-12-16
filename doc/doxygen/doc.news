@@ -13,6 +13,7 @@ namespace rr
 CHANGES
 
 - very slightly increased effect of color bleeding (result of fix in GI solver)
+- TransparentMaterialShadows and transparentMaterialShadows renamed to ShadowTransparency and shadowTransparency
 
 \section news113 ------------------------------------ 2010.11.19 -------------------------------------
 

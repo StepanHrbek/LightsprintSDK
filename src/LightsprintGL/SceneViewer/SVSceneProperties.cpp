@@ -634,7 +634,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGIShadowTransparency)
 	{
-		svs.shadowTransparency = (RealtimeLight::TransparentMaterialShadows)property->GetValue().GetInteger();
+		svs.shadowTransparency = (RealtimeLight::ShadowTransparency)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGIFireballQuality)

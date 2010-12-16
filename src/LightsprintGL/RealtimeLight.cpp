@@ -34,7 +34,7 @@ namespace rr_gl
 		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
-		transparentMaterialShadows = ALPHA_KEYED_SHADOWS;
+		shadowTransparency = ALPHA_KEYED_SHADOWS;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		numSoftShadowSamples = 4;
