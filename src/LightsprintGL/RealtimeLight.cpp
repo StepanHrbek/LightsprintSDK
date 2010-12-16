@@ -195,7 +195,7 @@ namespace rr_gl
 		// allocate shadowmap if it is NULL
 		if (!shadowmap)
 		{
-			shadowmap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,rrlight.rtShadowmapSize,rrlight.rtShadowmapSize,1,rr::BF_DEPTH,true,(const unsigned char*)1),false,false);
+			shadowmap = Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize);
 			dirtyShadowmap = true;
 
 			static int i = 0;
