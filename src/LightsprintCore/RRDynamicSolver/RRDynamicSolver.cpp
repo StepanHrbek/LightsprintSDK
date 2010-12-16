@@ -457,26 +457,46 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 
 	if (_params->materialTransmittanceStaticQuality || _params->materialTransmittanceVideoQuality)
 	{
+		//rr::RRReportInterval report(rr::INF3,"Updating illumination passing through transparent materials...\n");
+		unsigned versionSum[2] = {0,0}; // 0=static, 1=video
+#if 1
+		// detect texture changes only in static objects
 		RRObject* object = getMultiObjectCustom();
 		if (object)
 		{
-			rr::RRReportInterval report(rr::INF3,"Updating illumination passing through transparent materials...\n");
-			unsigned versionSum[2] = {0,0}; // 0=static, 1=video
 			for (unsigned g=0;g<object->faceGroups.size();g++)
 			{
 				const rr::RRMaterial* material = object->faceGroups[g].material;
 				if (material && material->specularTransmittance.texture)
 					versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
 			}
-			unsigned materialTransmittanceQuality = RR_MAX( (priv->materialTransmittanceVersionSum[0]!=versionSum[0])?_params->materialTransmittanceStaticQuality:0, (priv->materialTransmittanceVersionSum[1]!=versionSum[1])?_params->materialTransmittanceVideoQuality:0 );
-			if (materialTransmittanceQuality)
+		}
+#else
+		// detect texture changes also in dynamic objects
+		// this is bit dangerous, as adding dynobj changes versionSum, which triggers expensive SM and GI update
+		const RRObjects& dynobjects = getDynamicObjects();
+		for (int i=-1;i<(int)dynobjects.size();i++)
+		{
+			RRObject* object = (i<0)?getMultiObjectCustom():dynobjects[i];
+			if (object)
 			{
-				if (priv->materialTransmittanceVersionSum[1]!=versionSum[1] && _params->materialTransmittanceVideoQuality>1)
-					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
-				priv->materialTransmittanceVersionSum[0] = versionSum[0];
-				priv->materialTransmittanceVersionSum[1] = versionSum[1];
-				reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
+				for (unsigned g=0;g<object->faceGroups.size();g++)
+				{
+					const rr::RRMaterial* material = object->faceGroups[g].material;
+					if (material && material->specularTransmittance.texture)
+							versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
+				}
 			}
+		}
+#endif
+		unsigned materialTransmittanceQuality = RR_MAX( (priv->materialTransmittanceVersionSum[0]!=versionSum[0])?_params->materialTransmittanceStaticQuality:0, (priv->materialTransmittanceVersionSum[1]!=versionSum[1])?_params->materialTransmittanceVideoQuality:0 );
+		if (materialTransmittanceQuality)
+		{
+			if (priv->materialTransmittanceVersionSum[1]!=versionSum[1] && _params->materialTransmittanceVideoQuality>1)
+				priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+			priv->materialTransmittanceVersionSum[0] = versionSum[0];
+			priv->materialTransmittanceVersionSum[1] = versionSum[1];
+			reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
 		}
 	}
 }
