@@ -409,7 +409,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
-		+ updateInt(propGIShadowTransparency,svs.transparentMaterialShadows)
+		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateBoolRef(propGIRaytracedCubes)
 		+ updateInt(propGIRaytracedCubesDiffuseRes,svs.raytracedCubesDiffuseRes)
@@ -634,7 +634,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGIShadowTransparency)
 	{
-		svs.transparentMaterialShadows = (RealtimeLight::TransparentMaterialShadows)property->GetValue().GetInteger();
+		svs.shadowTransparency = (RealtimeLight::TransparentMaterialShadows)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGIFireballQuality)

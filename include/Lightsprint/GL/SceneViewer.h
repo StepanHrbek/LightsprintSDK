@@ -103,7 +103,7 @@ struct SceneViewerState
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
 	bool             playVideos;                //! Play videos, false = videos are paused.
-	RealtimeLight::TransparentMaterialShadows transparentMaterialShadows; //! Type of transparency in shadows, we copy it to all lights.
+	RealtimeLight::TransparentMaterialShadows shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
@@ -175,7 +175,7 @@ struct SceneViewerState
 		tonemappingBrightness = rr::RRVec4(1);
 		tonemappingGamma = 1;
 		playVideos = 1;
-		transparentMaterialShadows = RealtimeLight::RGB_SHADOWS;
+		shadowTransparency = RealtimeLight::RGB_SHADOWS;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;
@@ -249,7 +249,7 @@ struct SceneViewerState
 			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
 			&& a.tonemappingGamma==tonemappingGamma
 			&& a.playVideos==playVideos
-			&& a.transparentMaterialShadows==transparentMaterialShadows
+			&& a.shadowTransparency==shadowTransparency
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality
