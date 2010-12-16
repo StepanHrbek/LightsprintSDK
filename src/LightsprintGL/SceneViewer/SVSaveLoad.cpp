@@ -332,7 +332,7 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
 	ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
 	ar & make_nvp("playVideos",a.playVideos);
-	ar & make_nvp("transparentMaterialShadows",a.shadowTransparency);
+	ar & make_nvp("shadowTransparency",a.shadowTransparency);
 	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
 	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
 	ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
@@ -429,7 +429,7 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	}
 	if (version>19)
 	{
-		ar & make_nvp("transparentMaterialShadows",a.shadowTransparency);
+		ar & make_nvp("shadowTransparency",a.shadowTransparency);
 	}
 	if (version>1)
 	{
